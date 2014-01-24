@@ -128,8 +128,6 @@ public class MRAMenuBar {
     public MRAMenuBar(NeptusMRA mra) {
         this.mra = mra;
         this.mraPanel = mra.getMraPanel();
-
-        setMenuBar(new JMenuBar());
     }
 
     /**
@@ -137,7 +135,7 @@ public class MRAMenuBar {
      */
     public JMenuBar createMRAMenuBar() {
         this.miscFilesOpened = mra.getMraFilesHandler().getMiscFilesOpened();
-        menuBar = new JMenuBar();
+        setMenuBar(new JMenuBar());
 
         setUpFileMenu();
         setUpReportMenu();

@@ -125,6 +125,7 @@ public class MRAPanel extends JPanel {
 
         // add split pane left panel and main visualizations to right side
         JSplitPane splitPane = new JSplitPane();
+
         splitPane.setLeftComponent(leftPanel);
         splitPane.setRightComponent(mainPanel);
         splitPane.setDividerLocation(250);

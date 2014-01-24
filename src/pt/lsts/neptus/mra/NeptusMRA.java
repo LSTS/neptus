@@ -101,15 +101,15 @@ public class NeptusMRA extends JFrame {
         setVisible(true);
 
         JLabel lbl = new JLabel(MRA_TITLE, JLabel.CENTER);
-
-        lbl.setBackground(Color.WHITE);
+        lbl.setOpaque(false);
         lbl.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        getContentPane().add(lbl);
         lbl.setFont(new Font("Helvetica", Font.ITALIC, 32));
         lbl.setVerticalTextPosition(JLabel.BOTTOM);
         lbl.setHorizontalTextPosition(JLabel.CENTER);
         lbl.setForeground(new Color(80, 120, 175));
         lbl.revalidate();
+
+        getContentPane().add(lbl);
 
         addWindowListener(new WindowAdapter() {
             boolean closed = false;
@@ -140,7 +140,6 @@ public class NeptusMRA extends JFrame {
         });
 
         setGlassPane(getBgp());
-        repaint();
     }
 
     /**

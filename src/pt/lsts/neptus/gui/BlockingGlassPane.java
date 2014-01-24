@@ -56,108 +56,111 @@ import pt.lsts.neptus.util.GuiUtils;
 @SuppressWarnings("serial")
 public class BlockingGlassPane extends JPanel {
 
-	private int        blockCount = 0;
-	private BlockMouse blockMouse = new BlockMouse();
-	private BlockKeys  blockKeys  = new BlockKeys();
+    private int        blockCount = 0;
+    private BlockMouse blockMouse = new BlockMouse();
+    private BlockKeys  blockKeys  = new BlockKeys();
 
-	private InfiniteProgressPanel ipp;
+    private InfiniteProgressPanel ipp;
 
-	public BlockingGlassPane() {
-	    this(200);
-	}
+    public BlockingGlassPane() {
+        this(200);
+    }
 
-	/**
-	 * Constructor.
-	 */
-	public BlockingGlassPane(int size) {
-		setVisible(false);
-		setOpaque (false);
+    /**
+     * Constructor.
+     */
+    public BlockingGlassPane(int size) {
+        setVisible(false);
+        setOpaque (true);
 
-		ipp = InfiniteProgressPanel.createInfinitePanelBeans("");
-		ipp.setOpaque(false);
-		setLayout(new BorderLayout());
-		add(ipp);
-		addMouseListener(blockMouse);
-	}
+        ipp = InfiniteProgressPanel.createInfinitePanelBeans("");
+        ipp.setOpaque(false);
+        setLayout(new BorderLayout());
+        add(ipp);
+        addMouseListener(blockMouse);
+    }
 
-	/**
+    /**
      * 
      */
     public void setText(String message) {
         ipp.setText(message);
     }
 
+    @Override
     public void setToolTipText(String text) {
         ipp.setToolTipText(text);
     }
 
-	/**
-	 * Start or end blocking.
-	 *
-	 * @param block   should blocking be started or ended
-	 */
-	public void block(boolean block) {
-		if (block) {
-			if (blockCount == 0) {
-			    ipp.start();
-				setVisible(true);
+    /**
+     * Start or end blocking.
+     *
+     * @param block   should blocking be started or ended
+     */
+    public void block(boolean block) {
+        if (block) {
+            if (blockCount == 0) {
+                ipp.start();
+                setVisible(true);
 
-				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-				FocusManager.getCurrentManager().addKeyEventDispatcher(blockKeys);
-			}
-			blockCount++;
-		}
-		else {
-		    if (blockCount != 0)
-		        blockCount--;
-			if (blockCount == 0) {
-				FocusManager.getCurrentManager().removeKeyEventDispatcher(blockKeys);
+                FocusManager.getCurrentManager().addKeyEventDispatcher(blockKeys);
+            }
+            blockCount++;
+        }
+        else {
+            if (blockCount != 0)
+                blockCount--;
+            if (blockCount == 0) {
+                FocusManager.getCurrentManager().removeKeyEventDispatcher(blockKeys);
 
-				setCursor(Cursor.getDefaultCursor());
+                setCursor(Cursor.getDefaultCursor());
 
-				setVisible(false);
+                setVisible(false);
                 ipp.stop();
-			}
-		}		
-	}
+            }
+        }		
+    }
 
-	/**
-	 * Test if this glasspane is blocked.
-	 *
-	 * @return    <code>true</code> if currently blocked
-	 */
-	public boolean isBlocked() {
-		return blockCount > 0;
-	}
+    /**
+     * Test if this glasspane is blocked.
+     *
+     * @return    <code>true</code> if currently blocked
+     */
+    public boolean isBlocked() {
+        return blockCount > 0;
+    }
 
-	/**
-	 * The key dispatcher to block the keys.
-	 */
-	private class BlockKeys implements KeyEventDispatcher {
-		public boolean dispatchKeyEvent(KeyEvent ev) {
-			Component source = ev.getComponent();
-			if (source != null &&
-					SwingUtilities.isDescendingFrom(source, getParent())) {
-				Toolkit.getDefaultToolkit().beep();
-				ev.consume();
-				return true;
-			}
-			return false;
-		}
-	}
+    /**
+     * The key dispatcher to block the keys.
+     */
+    private class BlockKeys implements KeyEventDispatcher {
+        @Override
+        public boolean dispatchKeyEvent(KeyEvent ev) {
+            Component source = ev.getComponent();
+            if (source != null &&
+                    SwingUtilities.isDescendingFrom(source, getParent())) {
+                Toolkit.getDefaultToolkit().beep();
+                ev.consume();
+                return true;
+            }
+            return false;
+        }
+    }
 
-	/**
-	 * The mouse listener used to block the mouse.
-	 */
-	private class BlockMouse extends MouseAdapter {
-		public void mouseClicked(MouseEvent ev) {
-			Toolkit.getDefaultToolkit().beep();
-		}
-	}
-	
-	public static void main(String[] args) {
-	    BlockingGlassPane bgp = new BlockingGlassPane();
+    /**
+     * The mouse listener used to block the mouse.
+     */
+    private class BlockMouse extends MouseAdapter {
+        @Override
+        public void mouseClicked(MouseEvent ev) {
+            Toolkit.getDefaultToolkit().beep();
+        }
+    }
+
+    public static void main(String[] args) {
+        BlockingGlassPane bgp = new BlockingGlassPane();
         GuiUtils.testFrame(new JButton("Test"), "Test", 790, 560).setGlassPane(bgp);
         bgp.block(true);
     }
