@@ -189,10 +189,10 @@ public class CTDSidePlot extends SimpleMRAVisualization {
         }
         
         pmonitor.setNote("Generating temperature colormap");
-        tabs.add("Temperature", buildImage("Temperature", xCoords, yCoords, temp));
+        tabs.add("Temperature", buildImage("Depth", xCoords, yCoords, temp));
         
         pmonitor.setNote("Generating salinity colormap");
-        tabs.add("Salinity", buildImage("Salinity", xCoords, yCoords, sal));
+        tabs.add("Salinity", buildImage("Depth", xCoords, yCoords, sal));
         
         pmonitor.close();
         return tabs;
