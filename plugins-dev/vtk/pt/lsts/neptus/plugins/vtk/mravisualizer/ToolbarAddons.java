@@ -29,7 +29,7 @@
  * Author: hfq
  * May 30, 2013
  */
-package pt.lsts.neptus.plugins.vtk.multibeampluginutils;
+package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
 import pt.lsts.neptus.i18n.I18n;
 import vtk.vtkTextActor;
