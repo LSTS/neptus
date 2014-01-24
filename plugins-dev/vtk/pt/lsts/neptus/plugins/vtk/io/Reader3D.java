@@ -49,13 +49,13 @@ import vtk.vtkVRMLImporter;
  * @author hfq
  *
  */
-public class VtkReader {
+public class Reader3D {
     protected static Path path = null;
-    
+
     // private static String filePath;
     // private static String fileName;
     private static String absolutePath;
-    
+
     protected static final String FILE_VTK_EXT = ".vtk";
     protected static final String FILE_OBJ_EXT = ".obj";
     protected static final String FILE_PLY_EXT = ".ply";
@@ -63,7 +63,7 @@ public class VtkReader {
     protected static final String FILE_XYZ_EXT = ".xyz";
     protected static final String FILE_3DS_EXT = ".3ds";
     protected static final String FILE_VRML_EXT = ".wrl";
-    
+
     protected static vtkDataSetReader readVTK;
     protected static vtkOBJReader readOBJ;
     protected static vtkPLYReader readPLY;
@@ -71,70 +71,62 @@ public class VtkReader {
     protected static vtkSimplePointsReader readXYZ;
     protected static vtk3DSImporter import3ds;
     protected static vtkVRMLImporter importVRML;
-    
+
     private vtkLODActor actor;
-    
+
     public enum ImporterOps {
         VTK, OBJ, PLY, STL, XYZ, ThreeDS, WRL
     }
-    
+
     private ImporterOps impOp;
-    
-    public VtkReader(File file) {
-        
-        checkFileExtention(file);
-        
-        
-        
+
+    public Reader3D(File file) {
+
+        checkFileExtention(file);        
         switch (impOp)
         {
             case VTK:
                 NeptusLog.pub().info("vtk data Set Reader chosen!");
                 readVTKFile();
                 break;
-            
+
             case OBJ:
                 NeptusLog.pub().info("obj reader chosen");
                 readOBJFile();
                 break;
-                
+
             case PLY:
                 NeptusLog.pub().info("ply reader chosen");
                 readPLYFile();
                 break;
-                
+
             case STL:
                 NeptusLog.pub().info("stl reader chosen");
                 readSTLFile();
                 break;
-                
+
             case XYZ:
                 NeptusLog.pub().info("xyz, simple points reader");
                 readXYZfile();
                 break;
-            
+
             default:
                 NeptusLog.pub().info("error file extention not found, not supposed to be here");
         }
     }
-    
+
     /**
      * Checks file extention of the intended loading file
      * @param file
      */
     private void checkFileExtention(File file) {
-        //File filetemp = file.getParentFile();
-        //File[] files = filetemp.listFiles();
-        
-        //File filetemp = file.getParentFile();
-        //File[] files = (file.getParentFile()).listFiles();
-        
+
         absolutePath = file.getAbsolutePath();
-        
+
         try {
             if (file.isDirectory()) {
                 String stringFile = file.toString();
-                
+
                 if (stringFile.endsWith(FILE_OBJ_EXT)) {
                     impOp = ImporterOps.OBJ;
                 }
@@ -166,15 +158,18 @@ public class VtkReader {
         }
     }
 
+    /**
+     * Read *.obj files
+     */
     private void readOBJFile() {
         readOBJ = new vtkOBJReader();
         try {
             readOBJ.SetFileName(absolutePath);
             readOBJ.Update();
             readOBJ.UpdateInformation();
-            
+
             setActor(new vtkLODActor());
-            
+
             vtkPolyDataMapper mapper = new vtkPolyDataMapper();
             mapper.SetInputConnection(readOBJ.GetOutputPort());
 
@@ -184,68 +179,80 @@ public class VtkReader {
             e.printStackTrace();
         }
     }
-    
+
+    /**
+     * Read *.ply files
+     */
     private void readPLYFile() {
         readPLY = new vtkPLYReader();
         try {
             readPLY.SetFileName(absolutePath);
             readPLY.Update();
             readPLY.UpdateInformation();
-            
+
             vtkPolyDataMapper mapper = new vtkPolyDataMapper();
             mapper.SetInputConnection(readPLY.GetOutputPort());
-            
+
             actor.SetMapper(mapper);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
+    /**
+     * Read *.stl files
+     */
     private void readSTLFile() {
         readSTL = new vtkSTLReader();
         try {
             readSTL.SetFileName(absolutePath);
             readSTL.Update();
             readSTL.UpdateInformation();
-            
+
             vtkPolyDataMapper mapper = new vtkPolyDataMapper();
             mapper.SetInputConnection(readSTL.GetOutputPort());
-            
+
             actor.SetMapper(mapper);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
+    /**
+     * Read *.vtk files
+     */
     private void readVTKFile() {
         readVTK = new vtkDataSetReader();
         try {
             readVTK.SetFileName(absolutePath);
             readVTK.Update();
             readVTK.UpdateInformation();
-            
+
             vtkPolyDataMapper mapper = new vtkPolyDataMapper();
             mapper.SetInputConnection(readVTK.GetOutputPort());
-            
+
             actor.SetMapper(mapper);
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
+    /**
+     * Read simple *.xyz files
+     */
     private void readXYZfile() {
         readXYZ = new vtkSimplePointsReader();
         try {
             readXYZ.SetFileName(absolutePath);
             readXYZ.Update();
             readXYZ.UpdateInformation();
-            
+
             vtkPolyDataMapper mapper = new vtkPolyDataMapper();
             mapper.SetInputConnection(readXYZ.GetOutputPort());
-            
+
             actor.SetMapper(mapper);
         }
         catch (Exception e) {

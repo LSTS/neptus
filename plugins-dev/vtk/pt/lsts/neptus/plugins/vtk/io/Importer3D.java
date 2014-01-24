@@ -35,6 +35,6 @@ package pt.lsts.neptus.plugins.vtk.io;
  * @author hfq
  * FIXME - not yet implemented
  */
-public class VtkImporter {
+public class Importer3D {
 
 }
