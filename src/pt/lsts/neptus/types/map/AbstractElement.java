@@ -47,6 +47,7 @@ import java.util.Comparator;
 import java.util.Vector;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -54,6 +55,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -114,7 +116,9 @@ public abstract class AbstractElement
     public boolean userCancel = false, copyChars = true;
     public String[] takenNames = new String[0];
     protected JDialog dialog;
-    protected JTextField objName, transp;
+    protected JTextField objName;
+    protected JCheckBox obstacleCheck;
+    private boolean obstacle;
     // ===== END Param panels
 
     // ===== Abstract functions
@@ -186,6 +190,14 @@ public abstract class AbstractElement
         if (isLoadOk())
             return false;
 
+        try {
+            setObstacle(Boolean.parseBoolean(elem.attribute("obstacle").getText()));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+         
+        
         setId(getCenterLocation().getId());
         setName(getCenterLocation().getName());
 
@@ -315,23 +327,12 @@ public abstract class AbstractElement
     @Override
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
-        //Element root = document.addElement( rootElementName );
-        
-        //root.addElement( "id" ).addText(getId());
-        //root.addElement( "name" ).addText(getName());
-        
-        //Se não estiver assim entra em ciclo infinito
-     /*   LocationType lt = new LocationType();
-        lt.setLocation(getCentralLocation());
-        lt.setId(this.getId());
-        lt.setName(this.getName());*/
-        
+
         getCenterLocation().setId(getId());
         getCenterLocation().setName(getName());
         
         Element root = getCenterLocation().asElement(rootElementName);
         
-        //TODO Testar (acho q está testado)
         if ( (phi != 0) || (theta != 0) || (psi != 0) ) {
             Element att = root.addElement("attitude");
             if (phi != 0)
@@ -340,12 +341,11 @@ public abstract class AbstractElement
                 att.addElement("theta").addText(Double.toString(theta));
             if (psi != 0)
                 att.addElement("psi").addText(Double.toString(psi));
-            
-            //root.add(att);
         }
         if (transparency != 0)
             root.addElement("transparency").addText(Double.toString(transparency));
         
+        root.addAttribute("obstacle", ""+isObstacle());
         document.add(root);
 
         return document;
@@ -519,6 +519,18 @@ public abstract class AbstractElement
     }
     // ===== END Attitude Setters and Getters
 
+    /**
+     * @return the obstacle
+     */
+    public boolean isObstacle() {
+        return obstacle;
+    }
+    /**
+     * @param obstacle the obstacle to set
+     */
+    public void setObstacle(boolean obstacle) {
+        this.obstacle = obstacle;
+    }
     public double getTopHeight() {
         return getCenterLocation().getHeight();
     }
@@ -688,20 +700,6 @@ public abstract class AbstractElement
                 return;
             }
             
-            try {
-            	double val = Double.parseDouble(transp.getText());
-            	if (val < 0)
-            		val = 0;
-            	if (val > 100)
-            		val = 100;
-            	setTransparency((int)val);
-            }
-            catch (NumberFormatException e) {
-                NeptusLog.pub().debug(e.getMessage());
-            	JOptionPane.showMessageDialog(paramsPanel, I18n.text("The object transparency is not valid"));
-            	return;
-			}
-            
             if (objName.getText().length() == 0) {
                 JOptionPane.showMessageDialog(paramsPanel, I18n.text("The object has to have a name"));
                 return;
@@ -723,6 +721,7 @@ public abstract class AbstractElement
             }
             
             setName(objName.getText());
+            setObstacle(obstacleCheck.isSelected());
             
             initialize(paramsPanel);
             
@@ -765,64 +764,22 @@ public abstract class AbstractElement
  
         objName = new JTextField(8);
         objName.setEditable(editable);
-        // objName.addKeyListener(new KeyAdapter() {
-        // @Override
-        // public void keyTyped(KeyEvent e) {
-        // super.keyTyped(e);
-        // // if (copyChars) {
-        // if (Character.isLetterOrDigit(e.getKeyChar()))
-        // objID.setText(objName.getText() + e.getKeyChar());
-        // else
-        // objID.setText(objName.getText());
-        // // }
-        // // copyChars = false;
-        // }
-        // });
-        //
-        // objID = new JTextField(8);
-        // objID.setEditable(editable);
         
-        // int i = 1;
-        // while (getParentMap().getObject(getClass().getSimpleName() + i) != null)
-        // i++;
-        // objID.setText(getType() + i);
-        // objName.setText(getType() + i);
         objName.setText(this.getName());
-        // objID.setText(this.getId());
         
-        transp = new JTextField(3);
-        transp.setEditable(editable);
-        transp.setText(""+getTransparency());
+        obstacleCheck = new JCheckBox(I18n.text("Obstacle"));
+        obstacleCheck.setSelected(isObstacle());
         
-        // idPanel.add(new JLabel(I18n.text("Object ID:")));
-        // idPanel.add(objID);
-        
-        idPanel.add(new JLabel(I18n.text("Object name:")));
+        idPanel.add(new JLabel(I18n.text("Name:")));
         idPanel.add(objName);
         
-        idPanel.add(new JLabel(I18n.text("Transparency:")));
-        idPanel.add(transp);
+        idPanel.add(obstacleCheck);
+        
         
         if (takenNames == null) {
             objName.setEnabled(false);
             objName.setText(this.getName());
-            // objID.setEnabled(false);
-            // objID.setText(this.getId());
-            // copyChars = false;
         }
-        
-        // objID.addKeyListener(new KeyAdapter() {
-        // @Override
-        // public void keyTyped(KeyEvent e) {
-        // super.keyTyped(e);
-        // // if (copyChars) {
-        // if (Character.isLetterOrDigit(e.getKeyChar()))
-        // objName.setText(objID.getText()+e.getKeyChar());
-        // else
-        // objName.setText(objID.getText());
-        // // }
-        // }
-        // });
         
         JPanel buttonsPanel = new JPanel();
         FlowLayout layout = new FlowLayout();
