@@ -172,7 +172,7 @@
 	<classpathentry kind="lib" path="lib/jogl2/org.jzy3d-0.9.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/vrp/lib/or124.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang3-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/htmlUnit/htmlunit-2.11.jar"/>
 	<classpathentry kind="lib" path="lib/htmlUnit/htmlunit-core-js-2.11.jar"/>
 	<classpathentry kind="lib" path="lib/htmlUnit/httpmime-4.2.2.jar"/>
