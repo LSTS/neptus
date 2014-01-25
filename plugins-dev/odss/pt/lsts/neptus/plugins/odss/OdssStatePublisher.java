@@ -290,8 +290,8 @@ public class OdssStatePublisher extends ConsolePanel implements IPeriodicUpdates
         mail.setHostName(smtpServerName); //"smtp.gmail.com"
         mail.setSmtpPort(smtpServerPort); //587
         mail.setAuthenticator(new DefaultAuthenticator(username, password));
-        mail.setSSL(smtpServerSSL);
-        mail.setTLS(smtpServerTLS);
+        mail.setSSLOnConnect(smtpServerSSL);
+        mail.setStartTLSEnabled(smtpServerTLS);
         mail.setFrom(fromEmail, fromName);
         if (ccName != null && ccName.length() > 0)
             mail.addCc(ccEmail, ccName);
