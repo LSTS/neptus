@@ -69,6 +69,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -1155,7 +1156,16 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
 
             final LocationType lt = getRealWorldLocation(e.getPoint());
 
-            JMenuItem item = new JMenuItem(I18n.text("Choose Visible Layers"));
+            JMenuItem item = new JMenuItem(I18n.text("Choose Visible World Map"));
+            item.addActionListener(new ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent arg0) {
+                    worldMapPainter.showChooseMapStyleDialog(StateRenderer2D.this);
+                }
+            });
+            item.setIcon(new ImageIcon(worldMapPainter.ICON_WORLD_SETTINGS));
+            popup.add(item);
+            
+            item = new JMenuItem(I18n.text("Choose Visible Layers"));
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent arg0) {
                     painterSelection();

@@ -131,7 +131,7 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
 
     private final int ICON_SIZE = 20;
     private final Image ICON_WORLD_ON = ImageUtils.getScaledIcon("images/world/worldmap-show.png", ICON_SIZE, ICON_SIZE).getImage();
-    private final Image ICON_WORLD_SETTINGS = ImageUtils.getScaledIcon("images/world/worldmap-settings.png", ICON_SIZE, ICON_SIZE).getImage();
+    public final Image ICON_WORLD_SETTINGS = ImageUtils.getScaledIcon("images/world/worldmap-settings.png", ICON_SIZE, ICON_SIZE).getImage();
     private final Image ICON_WORLD_DIALOG = ImageUtils.getScaledIcon("images/world/worldmap-conf-dialog.png", ICON_SIZE, ICON_SIZE).getImage();
 
     private enum PropertiesOrCustomOptionsDialogEnum { None, PropertiesDialog, CustomOptionsDialog };
