@@ -463,10 +463,11 @@ public class TransponderElement extends AbstractElement implements NameId{
     @Override
     public boolean containsPoint(LocationType lt, StateRenderer2D renderer) {
         double distance = getCenterLocation().getDistanceInMeters(lt);
-        if ((distance * renderer.getZoom()) < 10)
-            return true;
-
-        return false;
+        
+        if (renderer == null)
+            return distance < 5;
+        else
+            return (distance * renderer.getZoom()) < 10;
     }
 
     @Override
