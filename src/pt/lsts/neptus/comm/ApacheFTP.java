@@ -200,7 +200,7 @@ public class ApacheFTP {
         }
 
         // NeptusLog.pub().info("<###>Remote system is " + ftp.getSystemName());
-        NeptusLog.pub().debug("ApacheFTP:: " + "Remote system is " + ftp.getSystemName() + ".");
+        NeptusLog.pub().debug("ApacheFTP:: " + "Remote system is " + ftp.getSystemType() + ".");
 
         if (connMode.equalsIgnoreCase("pasv"))
             ftp.enterLocalPassiveMode();
@@ -211,7 +211,7 @@ public class ApacheFTP {
             if (mode.equalsIgnoreCase("ASCII"))
                 ftp.setFileType(FTP.ASCII_FILE_TYPE);
             else
-                ftp.setFileType(FTP.IMAGE_FILE_TYPE);
+                ftp.setFileType(FTP.BINARY_FILE_TYPE); // IMAGE_FILE_TYPE before in v1.4.0 commons-net
         }
         catch (IOException e2) {
             e2.printStackTrace();

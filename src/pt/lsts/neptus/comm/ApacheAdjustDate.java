@@ -132,7 +132,7 @@ implements Runnable, TelnetNotificationHandler
                     tc.addOptionHandler(echoopt);
                     tc.addOptionHandler(gaopt);
                 }
-                catch (InvalidTelnetOptionException e)
+                catch (InvalidTelnetOptionException | IOException e)
                 {
                     NeptusLog.pub().error("ApacheAdjustDate :: Error registering option " +
                     		"handlers: " + e.getMessage());
