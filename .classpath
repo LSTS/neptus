@@ -66,8 +66,8 @@
 	<classpathentry kind="lib" path="lib/rhino.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.50.jar"/>
 	<classpathentry kind="lib" path="lib/jchart2d-1.03.jar"/>
-	<classpathentry kind="lib" path="lib/jgoodies-looks-2.5.2.jar"/>
-	<classpathentry kind="lib" path="lib/jgoodies-common-1.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/jgoodies-looks-2.5.3.jar"/>
+	<classpathentry kind="lib" path="lib/jgoodies-common-1.7.0.jar"/>
 	<classpathentry kind="lib" path="lib/percentlayout.jar"/>
 	<classpathentry kind="lib" path="lib/charsets-zip.jar"/>
 	<classpathentry kind="lib" path="lib/foxtrot.jar"/>

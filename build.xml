@@ -954,8 +954,8 @@ For simple use the main targets are:
 		<unzip dest="${tmp.bundle.dir}" src="lib/dom4j/jaxen-1.1.1.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/l2fprod-common-all.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/swingx.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-looks-2.5.2.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-common-1.4.0.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-looks-2.5.3.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-common-1.7.0.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/standby.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/log4j-1.2.17.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/>
@@ -1053,8 +1053,8 @@ For simple use the main targets are:
 		<unzip dest="${tmp.bundle.dir}" src="lib/dom4j/jaxen-1.1.1.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/l2fprod-common-all.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/swingx.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-looks-2.5.2.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-common-1.4.0.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-looks-2.5.3.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-common-1.7.0.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/standby.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/log4j-1.2.17.jar"/>
 		<!--unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/-->
