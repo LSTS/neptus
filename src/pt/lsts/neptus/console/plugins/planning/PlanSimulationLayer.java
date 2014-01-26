@@ -49,6 +49,8 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.mission.plan.PlanCompability;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -165,7 +167,7 @@ public class PlanSimulationLayer extends ConsoleLayer {
         checks.addAll(validateVehicle());
         checks.addAll(validatePayload());
         checks.addAll(validateDistances());
-
+        checks.addAll(validateCollisions());
 
         if (checks.isEmpty()) {
             checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Fine, "Plan takes approximately "+simOverlay.getSimStates().size()+" seconds"));
@@ -220,6 +222,30 @@ public class PlanSimulationLayer extends ConsoleLayer {
 
         return checks;
     }
+    
+    private List<Pair<PlanCheck, String>> validateCollisions() {
+        ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
+        Vector<AbstractElement> obstacles = MapGroup.getMapGroupInstance(getConsole().getMission()).getObstacles();
+        
+        synchronized (PlanSimulationLayer.this) {
+            for (SystemPositionAndAttitude s : simOverlay.getStates()) {
+                for (AbstractElement a : obstacles) {
+                    if (a.containsPoint(s.getPosition(), null)) {
+                        checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning,
+                    "Vehicle may collide with "+a.getName()));
+                        return checks;
+                    }
+                }
+            }            
+        }
+        
+        if (!mainPlan.getVehicle().equals(getConsole().getMainSystem())) {
+            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning,
+                    "Console and plan vehicles differ"));
+        }
+
+        return checks;
+    } 
 
     private  List<Pair<PlanCheck, String>> validatePayload() {
         ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();

@@ -62,6 +62,14 @@ public class MapGroup implements MapChangeListener {
 	//static ReentrantLock lock = new ReentrantLock();
 	protected MissionType mission = null;
 	
+	public Vector<AbstractElement> getObstacles() {
+	    Vector<AbstractElement> ret = new Vector<>();
+	    for (AbstractElement a : getAllObjects())
+	        if (a.isObstacle())
+	            ret.add(a);
+	    return ret;
+	}
+	
 	@SuppressWarnings("unchecked")
     public <T> Vector<T> getAllObjectsOfType(Class<T> type) {
 		

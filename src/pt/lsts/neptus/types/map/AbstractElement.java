@@ -86,7 +86,7 @@ public abstract class AbstractElement
 	public enum ELEMENT_TYPE { MODEL_3D, TYPE_HOMEREFERENCE, TYPE_MARK, TYPE_PARALLELEPIPED, TYPE_ELLIPSOID, TYPE_TRANSPONDER, TYPE_PATH, TYPE_CYLINDER, TYPE_IMAGE, TYPE_OTHER };
 
 //	private static Random rnd = new Random(System.currentTimeMillis());
-    protected static final LocationType guine = LocationType.ABSOLUTE_ZERO;
+    protected static final LocationType guinea = LocationType.ABSOLUTE_ZERO;
     protected boolean isLoadOk = true;
     protected static final String DEFAULT_ROOT_ELEMENT = "mark";
     
@@ -116,7 +116,7 @@ public abstract class AbstractElement
     public String[] takenNames = new String[0];
     protected JDialog dialog;
     protected JTextField objName;
-    protected JCheckBox obstacleCheck;
+    protected JCheckBox obstacleCheck, hiddenCheck;
     private boolean obstacle;
     // ===== END Param panels
 
@@ -721,6 +721,7 @@ public abstract class AbstractElement
             
             setName(objName.getText());
             setObstacle(obstacleCheck.isSelected());
+            transparency = hiddenCheck.isSelected() ? 100 : 0;
             
             initialize(paramsPanel);
             
@@ -769,10 +770,14 @@ public abstract class AbstractElement
         obstacleCheck = new JCheckBox(I18n.text("Obstacle"));
         obstacleCheck.setSelected(isObstacle());
         
+        hiddenCheck = new JCheckBox(I18n.text("Hidden"));
+        hiddenCheck.setSelected(transparency >= 100);
+        
         idPanel.add(new JLabel(I18n.text("Name:")));
         idPanel.add(objName);
         
         idPanel.add(obstacleCheck);
+        idPanel.add(hiddenCheck);
         
         
         if (takenNames == null) {
@@ -867,7 +872,7 @@ public abstract class AbstractElement
      */
     public double[] getNEDPosition() {
         NeptusLog.pub().debug(getCenterLocation().getDebugString());
-        return getCenterLocation().getOffsetFrom(guine);
+        return getCenterLocation().getOffsetFrom(guinea);
     }
     
     public AbstractElement getClone() throws Exception {

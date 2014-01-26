@@ -100,7 +100,6 @@ public class CylinderElement extends GeometryElement
     //ConsoleLayoutSE
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
-
         Point2D pt = renderer.getScreenPosition(getCenterLocation());
         g.translate(pt.getX(), pt.getY());
         g.rotate(getYawRad()-renderer.getRotation());
