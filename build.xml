@@ -997,6 +997,11 @@ For simple use the main targets are:
                excludes="${exclude-defaults}" includes="LICENSE">
 			<include name="version.*" />
 			<include name="info*" />
+			<include name="images/neptus-icon.png"/>
+			<include name="images/neptus-icon1.png"/>
+			<include name="images/neptus-icon2.png"/>
+			<include name="images/files-icons/*.png"/>
+			<include name="images/world/*.png"/>
 			<include name="pt/lsts/neptus/i18n/**/*.class" />
 			<include name="pt/lsts/neptus/NeptusLog*.class" />
 			<include name="pt/lsts/neptus/app/tiles/**/*.class" />
@@ -1029,19 +1034,26 @@ For simple use the main targets are:
 			<!-- Needed by the Serializable interface of LocationType -->
 			<include name="pt/lsts/neptus/messages/stanag4586/Stanag4586Message.class" />
 			<include name="pt/lsts/messages/Message*.class" />
-			<include name="images/neptus-icon.png"/>
-			<include name="images/neptus-icon1.png"/>
-			<include name="images/neptus-icon2.png"/>
-			<include name="images/files-icons/*.png"/>
-			<include name="images/world/*.png"/>
 			<include name="pt/lsts/neptus/util/output/*.class"/>
 			<include name="pt/lsts/neptus/plugins/*.class" />
 			<include name="pt/lsts/neptus/gui/InfiniteProgressPanel*.class" />
-			<include name="pt/lsts/neptus/console/plugins/SubPanelProvider*.class" />
+			<include name="pt/lsts/neptus/gui/ToolbarSwitch*.class" />
+			<!--include name="pt/lsts/neptus/console/plugins/SubPanelProvider*.class" /-->
+			<include name="pt/lsts/neptus/console/AbstractConsolePlugin*.class" />
+			<include name="pt/lsts/neptus/console/ConsoleInteraction*.class" />
+			<include name="pt/lsts/neptus/console/ConsoleLayout*.class" />
+			<include name="pt/lsts/neptus/console/ConsoleLayer*.class" />
+			<include name="pt/lsts/neptus/console/IConsoleInteraction*.class" />
+			<include name="pt/lsts/neptus/console/IConsoleLayer*.class" />
+			<include name="pt/lsts/neptus/console/MainPanel*.class" />
+			<include name="pt/lsts/neptus/console/ConsolePanel*.class" />
+			<include name="pt/lsts/neptus/console/plugins/*.class" />
 			<include name="pt/lsts/neptus/mra/visualizations/MRAVisualization*.class" />
+			<include name="pt/lsts/neptus/mra/exporters/MRAExporter*.class" />
+			<include name="pt/lsts/neptus/mra/replay/LogReplayLayer*.class" />
 			<include name="pt/lsts/neptus/comm/proxy/ProxyInfoProvider*.class" />
-			<include name="pt/lsts/neptus/util/comm/ssh/SSHConnectionDialog*.class" />
-			<include name="pt/lsts/neptus/util/comm/ssh/IntFormat*.class" />
+			<include name="pt/lsts/neptus/comm/ssh/SSHConnectionDialog*.class" />
+			<include name="pt/lsts/neptus/comm/ssh/IntFormat*.class" />
 			<include name="pt/lsts/neptus/gui/ImagePanel*.class" />
 			<include name="pt/lsts/neptus/planeditor/I*.class" />
 			<include name="pt/lsts/neptus/gui/system/**/*.class" />
@@ -1073,6 +1085,7 @@ For simple use the main targets are:
 		<unzip dest="${tmp.bundle.dir}" src="lib/libimc.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/miglayout-core-4.2.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/miglayout-swing-4.2.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/reflections-0.9.9-RC1.jar"/>
 
 		<unzip dest="${tmp.bundle.dir}" src="${bundle.jar.worldmap.path}" overwrite="yes"/>
 		<copy flatten="false" todir="${tmp.bundle.dir}/legal">
