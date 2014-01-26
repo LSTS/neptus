@@ -122,7 +122,7 @@ import pt.lsts.neptus.ws.PublishHelper;
  * @author pdias
  * 
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial","deprecation"})
 @PluginDescription(name = "Remote Position Publisher Updater", author = "Paulo Dias", version = "1.0", icon = "pt/lsts/neptus/plugins/webupdate/webupdate-pub-on.png")
 public class RemotePositionPublisherUpdater extends ConsolePanel implements IPeriodicUpdates, ConfigurationListener {
 

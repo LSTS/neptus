@@ -113,7 +113,7 @@ import pt.lsts.neptus.util.StreamUtil;
  * @author pdias
  * 
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial","deprecation"})
 @PluginDescription(name = "Remote Position Fetcher Updater", author = "Paulo Dias", version = "0.2",
 icon="pt/lsts/neptus/plugins/webupdate/webupdate-fetch-on.png")
 @LayerPriority(priority = 178)

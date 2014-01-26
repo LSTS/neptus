@@ -101,6 +101,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author pdias
  * 
  */
+@SuppressWarnings("deprecation")
 @PluginDescription(name = "Remote Plan Control", author = "Paulo Dias", version = "0.1")
 public class RemotePlanControl extends ConsolePanel implements ConfigurationListener, MainVehicleChangeListener,
         LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {

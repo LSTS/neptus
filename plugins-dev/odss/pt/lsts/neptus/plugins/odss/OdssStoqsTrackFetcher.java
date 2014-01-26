@@ -99,7 +99,7 @@ import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
  * @author pdias
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial","deprecation"})
 @PluginDescription(name = "ODSS STOQS Track Fetcher", author = "Paulo Dias", version = "0.1",
         icon="pt/lsts/neptus/plugins/odss/odss.png")
 public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpdates, ConfigurationListener {

@@ -49,6 +49,7 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
  * @author pdias
  *
  */
+@SuppressWarnings("deprecation")
 @MapTileProvider(name = "www.GEBCO.net")
 public class TileGEBCO extends TileHttpFetcher {
     

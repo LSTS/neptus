@@ -93,6 +93,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author zp
  * 
  */
+@SuppressWarnings("deprecation")
 @PluginDescription(name = "TrexMapLayer", icon = "pt/lsts/neptus/plugins/trex/trex.png")
 public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2DPainter {
     enum CommsChannel {

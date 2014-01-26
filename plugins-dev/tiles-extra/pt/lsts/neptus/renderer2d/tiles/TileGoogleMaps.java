@@ -49,6 +49,7 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
  * @author pdias
  *
  */
+@SuppressWarnings("deprecation")
 @MapTileProvider(name = "Google Maps")
 public class TileGoogleMaps extends TileHttpFetcher {
 

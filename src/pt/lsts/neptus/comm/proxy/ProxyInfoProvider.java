@@ -62,6 +62,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
  * @author pdias
  *
  */
+@SuppressWarnings("deprecation")
 public class ProxyInfoProvider {
 
     @NeptusProperty

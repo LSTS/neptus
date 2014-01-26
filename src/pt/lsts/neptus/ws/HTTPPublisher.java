@@ -48,6 +48,7 @@ import org.apache.http.util.EntityUtils;
 
 import pt.lsts.neptus.NeptusLog;
 
+@SuppressWarnings("deprecation")
 public class HTTPPublisher {
 	
 	private URL serverURL;
@@ -68,7 +69,6 @@ public class HTTPPublisher {
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
     private void publish(String type, String xml) {
 		HttpClient client = new DefaultHttpClient();
 //		client.getHostConfiguration().setHost(serverURL.getHost(), serverURL.getPort(), serverURL.getProtocol());
