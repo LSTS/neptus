@@ -103,6 +103,10 @@ public class Vis3DMenuBar extends JMenuBar {
     // Help Menu
     private AbstractAction help;
 
+    /**
+     * 
+     * @param vtkInit
+     */
     public Vis3DMenuBar(Vtk vtkInit) {
         this.vtkInit = vtkInit;
         this.canvas = vtkInit.getCanvas();
@@ -276,7 +280,7 @@ public class Vis3DMenuBar extends JMenuBar {
     @SuppressWarnings("serial")
     private void setUpViewMenu() {
         viewMenu = new JMenu(I18n.text("View"));
-        resetViewportCamera = new VisAction(I18n.text("Reset Viewport"), ImageUtils.getIcon("/images/menus/camera.png")) {
+        resetViewportCamera = new VisAction(I18n.text("Reset Viewport"), ImageUtils.getIcon("images/menus/camera.png")) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
