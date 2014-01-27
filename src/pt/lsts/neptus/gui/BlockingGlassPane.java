@@ -62,24 +62,24 @@ public class BlockingGlassPane extends JPanel {
 
     private InfiniteProgressPanel ipp;
 
+    /**
+     * Default constructor
+     */
     public BlockingGlassPane() {
         this(200);
     }
 
     /**
-     * Constructor.
+     * @param size
      */
     public BlockingGlassPane(int size) {
-        setVisible(false);
-        setOpaque(false);
-
-        ipp = InfiniteProgressPanel.createInfinitePanelBeans("");
-        ipp.setOpaque(false);
-        setLayout(new BorderLayout());
-        add(ipp);
-        addMouseListener(blockMouse);
+        this(size, false);
     }
 
+    /**
+     * @param size
+     * @param isOpaque
+     */
     public BlockingGlassPane(int size, boolean isOpaque) {
         setVisible(false);
         setOpaque(isOpaque);
@@ -92,7 +92,7 @@ public class BlockingGlassPane extends JPanel {
     }
 
     /**
-     * 
+     * @param message
      */
     public void setText(String message) {
         ipp.setText(message);
