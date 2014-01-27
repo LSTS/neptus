@@ -39,7 +39,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
@@ -59,6 +58,7 @@ import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.utils.File3DUtils;
+import pt.lsts.neptus.plugins.vtk.utils.File3DUtils.FileType;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
@@ -189,69 +189,63 @@ public class Vis3DMenuBar extends JMenuBar {
                             }
                         }
                     }
-                    switch (type) {
-                        case STL:
-                            NeptusLog.pub().info("Saving STL File.");
-                            try {
-                                writer3d.exportToSTLFileFormat(chooser.getSelectedFile(), poly);
-                            }
-                            catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                            break;
-                        case OBJ:
-                            NeptusLog.pub().info("Saving OBJ file.");
-                            try {
-                                writer3d.exportToOBJFileFormat(chooser.getSelectedFile(), poly, canvas.GetRenderWindow());
-                            }
-                            catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                            break;
-                        case PLY:
-                            NeptusLog.pub().info("Saving PLY file.");
-                            try {
-                                writer3d.exportToPLYFileFormat(chooser.getSelectedFile(), poly);
-                            }
-                            catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                            break;
-                        case VTK:
-                            NeptusLog.pub().info("Saving VTK file.");
-                            try {
-                                writer3d.exportToVTKFileFormat(chooser.getSelectedFile(), poly);
-                            }
-                            catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                            break;
-                        case WRL:
-                            NeptusLog.pub().info("Saving WRL file.");
-                            try {
-                                writer3d.exportToVRMLFileFormat(chooser.getSelectedFile(), poly, canvas.GetRenderWindow());
-                            }
-                            catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                            break;
-                        case X3D:
-                            NeptusLog.pub().info("Saving X3D file.");
-                            try {
-                                writer3d.exportToX3DFileFormat(chooser.getSelectedFile(), poly, canvas.GetRenderWindow());
-                            }
-                            catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                            break;
-                        default:
-                            NeptusLog.pub().info("Default tyep... no way!!!");
-                            break;
-                    }
+                    writer3d.save3dFileType(type, chooser.getSelectedFile(), poly, canvas);
                 }
             }
         };
 
+
+        saveFileAsMesh = new VisAction(I18n.text("Save generated pointcloud mesh as") + "...", ImageUtils.getIcon("images/menus/saveas.png"),
+                I18n.text("Save mesh to a file") + ".", KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK, true)) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser chooser = new JFileChooser(vtkInit.getLog().getFile("Data.lsf").getParentFile());
+                FileFilter filefilter = GuiUtils.getCustomFileFilter(I18n.text("3D files ") + "*.vtk" + ", *.stl"
+                        + ", *.ply" + ", *.obj" + ", *.wrl" + " *.x3d", File3DUtils.TYPES_3D_FILES);
+
+                chooser.setFileFilter((FileFilter) filefilter);
+                int ans = chooser.showDialog(vtkInit, I18n.text("Save as") + "...");
+                if (ans == JFileChooser.APPROVE_OPTION) {
+                    if (chooser.getSelectedFile().exists()) {
+                        ans = JOptionPane.showConfirmDialog(vtkInit,
+                                I18n.text("Are you sure you want to overwrite existing file") + "?",
+                                I18n.text("Save file as") + "...", JOptionPane.YES_OPTION);
+                        if (ans != JOptionPane.YES_OPTION)
+                            return;
+                    }
+                    File dst = chooser.getSelectedFile();
+                    String ext = File3DUtils.getExtension(dst);
+                    NeptusLog.pub().info("Extension: " + ext);
+                    FileType type = File3DUtils.getFileType(ext);
+                    NeptusLog.pub().info("Filetype: " + type.toString());
+                    Writer3D writer3d = new Writer3D();
+
+                    // getting polydata from rendered cloud
+                    vtkPolyData poly = new vtkPolyData();
+                    vtkActorCollection actorCollection = new vtkActorCollection();
+                    actorCollection = renderer.GetActors();
+                    actorCollection.InitTraversal();
+                    for(int i = 0, numItems = actorCollection.GetNumberOfItems(); i < numItems; ++i) {
+                        vtkLODActor tempActor = new vtkLODActor();
+                        tempActor = (vtkLODActor) actorCollection.GetNextActor();
+                        Set<String> setOfMeshs = linkedHashMapMesh.keySet();
+                        for (String meshsKey : setOfMeshs) {
+                            PointCloudMesh pointCloud = linkedHashMapMesh.get(meshsKey);
+                            if(tempActor.equals(pointCloud.getMeshCloudLODActor())) {
+                                poly = pointCloud.getPolyData();
+                            }
+                        }
+                    }
+                    writer3d.save3dFileType(type, chooser.getSelectedFile(), poly, canvas);
+                }
+            }
+        };
+
+        fileMenu.add(saveFile);
+        fileMenu.addSeparator();
+        fileMenu.add(saveFileAsPointCloud);
+        fileMenu.add(saveFileAsMesh);
     }
 
     /**

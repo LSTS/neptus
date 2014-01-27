@@ -34,6 +34,11 @@ package pt.lsts.neptus.plugins.vtk.io;
 import java.io.File;
 import java.io.IOException;
 
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.vtk.utils.File3DUtils.FileType;
+import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
+import pt.lsts.neptus.plugins.vtk.visualization.Text3D;
 import vtk.vtkDataSetWriter;
 import vtk.vtkOBJExporter;
 import vtk.vtkPLYWriter;
@@ -70,6 +75,108 @@ public class Writer3D {
      */
     public Writer3D() {
 
+    }
+
+    public void save3dFileType(FileType type, File file, vtkPolyData polydata, Canvas canvas) {
+        switch (type) {
+            //                        case XYZ:
+            //                            NeptusLog.pub().info("Saving XYZ File.");
+            //                          Writer3D.ex
+            //                          break;
+            case STL:
+                NeptusLog.pub().info("Saving STL File.");
+                try {
+                    Text3D text3d = new Text3D();
+                    text3d.buildText3D(I18n.text("Saving to a STL file") + ".", 2.0, 2.0, 2.0, 8.0);
+                    canvas.GetRenderer().AddActor(text3d.getText3dActor());
+
+                    exportToSTLFileFormat(file, polydata);
+
+                    canvas.GetRenderer().RemoveActor(text3d.getText3dActor());
+                }
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                break;
+            case OBJ:
+                NeptusLog.pub().info("Saving OBJ file.");
+                try {
+                    Text3D text3d = new Text3D();
+                    text3d.buildText3D(I18n.text("Saving to a OBL file") + ".", 2.0, 2.0, 2.0, 8.0);
+                    canvas.GetRenderer().AddActor(text3d.getText3dActor());
+
+                    exportToOBJFileFormat(file, polydata, canvas.GetRenderWindow());
+
+                    canvas.GetRenderer().RemoveActor(text3d.getText3dActor());
+                }
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                break;
+            case PLY:
+                NeptusLog.pub().info("Saving PLY file.");
+                try {
+                    Text3D text3d = new Text3D();
+                    text3d.buildText3D(I18n.text("Saving to a PLY file") + ".", 2.0, 2.0, 2.0, 8.0);
+                    canvas.GetRenderer().AddActor(text3d.getText3dActor());
+
+                    exportToPLYFileFormat(file, polydata);
+
+                    canvas.GetRenderer().RemoveActor(text3d.getText3dActor());
+                }
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                break;
+            case VTK:
+                NeptusLog.pub().info("Saving VTK file.");
+                try {
+                    Text3D text3d = new Text3D();
+                    text3d.buildText3D(I18n.text("Saving to a VTK file") + ".", 2.0, 2.0, 2.0, 8.0);
+                    canvas.GetRenderer().AddActor(text3d.getText3dActor());
+
+                    exportToVTKFileFormat(file, polydata);
+
+                    canvas.GetRenderer().RemoveActor(text3d.getText3dActor());
+                }
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                break;
+            case WRL:
+                NeptusLog.pub().info("Saving WRL file.");
+                try {
+                    Text3D text3d = new Text3D();
+                    text3d.buildText3D(I18n.text("Saving to a WRL file") + ".", 2.0, 2.0, 2.0, 8.0);
+                    canvas.GetRenderer().AddActor(text3d.getText3dActor());
+
+                    exportToVRMLFileFormat(file, polydata, canvas.GetRenderWindow());
+
+                    canvas.GetRenderer().RemoveActor(text3d.getText3dActor());
+                }
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                break;
+            case X3D:
+                NeptusLog.pub().info("Saving X3D file.");
+                try {
+                    Text3D text3d = new Text3D();
+                    text3d.buildText3D(I18n.text("Saving to a X3D file") + ".", 2.0, 2.0, 2.0, 8.0);
+                    canvas.GetRenderer().AddActor(text3d.getText3dActor());
+
+                    exportToX3DFileFormat(file, polydata, canvas.GetRenderWindow());
+
+                    canvas.GetRenderer().RemoveActor(text3d.getText3dActor());
+                }
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                break;
+            default:
+                NeptusLog.pub().info("Default tyep... no way!!!");
+                break;
+        }
     }
 
     /**
