@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
 import java.awt.Color;
+import java.awt.Dialog.ModalityType;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -51,6 +52,7 @@ import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.Vtk;
 import pt.lsts.neptus.plugins.vtk.io.Writer3D;
@@ -62,6 +64,7 @@ import pt.lsts.neptus.plugins.vtk.utils.File3DUtils.FileType;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 import vtk.vtkActorCollection;
 import vtk.vtkLODActor;
 import vtk.vtkPolyData;
@@ -123,13 +126,13 @@ public class Vis3DMenuBar extends JMenuBar {
     }
 
     /**
-     * 
+     * set up File Menu
      */
     @SuppressWarnings("serial")
     private void setUpFileMenu() {
         fileMenu = new JMenu(I18n.text("File"));
 
-        // FIXME - is it necessary?
+        // FIXME - is it necessary? - Save wherever is on rendereder
         saveFile = new VisAction(I18n.text("Save file"), ImageUtils.getIcon("images/menus/save.png"),
                 I18n.text("Save file"), KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK, true)) {
 
@@ -178,13 +181,13 @@ public class Vis3DMenuBar extends JMenuBar {
                     vtkActorCollection actorCollection = new vtkActorCollection();
                     actorCollection = renderer.GetActors();
                     actorCollection.InitTraversal();
-                    for(int i = 0, numItems = actorCollection.GetNumberOfItems(); i < numItems; ++i) {
+                    for (int i = 0, numItems = actorCollection.GetNumberOfItems(); i < numItems; ++i) {
                         vtkLODActor tempActor = new vtkLODActor();
                         tempActor = (vtkLODActor) actorCollection.GetNextActor();
                         Set<String> setOfClouds = linkedHashMapCloud.keySet();
                         for (String cloudsKey : setOfClouds) {
                             PointCloud<PointXYZ> pointCloud = linkedHashMapCloud.get(cloudsKey);
-                            if(tempActor.equals(pointCloud.getCloudLODActor())) {
+                            if (tempActor.equals(pointCloud.getCloudLODActor())) {
                                 poly = pointCloud.getPoly();
                             }
                         }
@@ -194,9 +197,9 @@ public class Vis3DMenuBar extends JMenuBar {
             }
         };
 
-
-        saveFileAsMesh = new VisAction(I18n.text("Save generated pointcloud mesh as") + "...", ImageUtils.getIcon("images/menus/saveas.png"),
-                I18n.text("Save mesh to a file") + ".", KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK, true)) {
+        saveFileAsMesh = new VisAction(I18n.text("Save generated pointcloud mesh as") + "...",
+                ImageUtils.getIcon("images/menus/saveas.png"), I18n.text("Save mesh to a file") + ".",
+                KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK, true)) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -226,13 +229,13 @@ public class Vis3DMenuBar extends JMenuBar {
                     vtkActorCollection actorCollection = new vtkActorCollection();
                     actorCollection = renderer.GetActors();
                     actorCollection.InitTraversal();
-                    for(int i = 0, numItems = actorCollection.GetNumberOfItems(); i < numItems; ++i) {
+                    for (int i = 0, numItems = actorCollection.GetNumberOfItems(); i < numItems; ++i) {
                         vtkLODActor tempActor = new vtkLODActor();
                         tempActor = (vtkLODActor) actorCollection.GetNextActor();
                         Set<String> setOfMeshs = linkedHashMapMesh.keySet();
                         for (String meshsKey : setOfMeshs) {
                             PointCloudMesh pointCloud = linkedHashMapMesh.get(meshsKey);
-                            if(tempActor.equals(pointCloud.getMeshCloudLODActor())) {
+                            if (tempActor.equals(pointCloud.getMeshCloudLODActor())) {
                                 poly = pointCloud.getPolyData();
                             }
                         }
@@ -249,20 +252,47 @@ public class Vis3DMenuBar extends JMenuBar {
     }
 
     /**
-     * 
+     * Set Up Edit Menu
      */
+    @SuppressWarnings("serial")
     private void setUpEditMenu() {
         editMenu = new JMenu(I18n.text("Edit"));
+        configs = new VisAction(I18n.text("Configurations"), ImageUtils.getIcon("images/menus/configure.png"),
+                I18n.text("3DVisualizer configurations") + ".", KeyStroke.getKeyStroke(KeyEvent.VK_E,
+                        InputEvent.CTRL_DOWN_MASK, true)) {
 
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PropertiesEditor.editProperties(vtkInit, true);
 
-
+            }
+        };
+        editMenu.add(configs);
     }
 
     /**
      * 
      */
+    @SuppressWarnings("serial")
     private void setUpViewMenu() {
         viewMenu = new JMenu(I18n.text("View"));
+        resetViewportCamera = new VisAction(I18n.text("Reset Viewport"), ImageUtils.getIcon("/images/menus/camera.png")) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    canvas.lock();
+                    renderer.GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+                    renderer.ResetCamera();
+                    canvas.Render();
+                    canvas.unlock();
+                }
+                catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            }
+        };
+        viewMenu.add(resetViewportCamera);
     }
 
     /**
@@ -276,8 +306,56 @@ public class Vis3DMenuBar extends JMenuBar {
     /**
      * 
      */
+    @SuppressWarnings("serial")
     private void setUpHelpMenu() {
         helpMenu = new JMenu(I18n.text("Help"));
+
+        help = new VisAction(I18n.text("Help"), ImageUtils.getIcon("images/menus/info.png"),
+                I18n.text("Help 3D Visualizer") + ".", KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_DOWN_MASK)) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                GuiUtils.htmlMessage(
+                        ConfigFetch.getSuperParentFrame() == null ? vtkInit : ConfigFetch.getSuperParentAsFrame(),
+                                I18n.text("3D Visualization Interaction Help") + ".",
+                                I18n.text("(3D Multibeam keyboard and mouse interation)"), msgHelp(), ModalityType.MODELESS);
+
+            }
+        };
+
+        helpMenu.add(help);
+    }
+
+    private String msgHelp() {
+        String msgHelp;
+        // <h1>3D Multibeam Interaction</h1>
+        msgHelp = "<html><font size='2'><br><div align='center'><table border='1' align='center'>"
+                + "<tr><th>Keys</th><th>Description</th></tr>"
+                + "<tr><td>p, P</td><td>Switch to a point-based representation</td>"
+                + "<tr><td>w, W </td><td>Switch to a wireframe-based representation, when available</td>"
+                + "<tr><td>s, S</td><td>Switch to a surface-based representation, when available</td>"
+                + "<tr><td>j, J</td><td>Take a .PNG snapshot of the current window view</td>"
+                + "<tr><td>g, G</td><td>Display scale grid (on/off)</td>"
+                + "<tr><td>u, U</td><td>Display lookup table (on/off)</td>"
+                + "<tr><td>r, R</td><td>Reset camera view along the current view direction</td>"
+                + // (to viewpoint = {0, 0, 0} -> center {x, y, z}\n");
+                "<tr><td>i, I</td><td>Information about rendered cloud</td>"
+                + "<tr><td>f, F</td><td>Fly Mode - point with mouse cursor the direction and press 'f' to fly</td>"
+                + "<tr><td>+/-</td><td>Increment / Decrement overall point size</td>"
+                + "<tr><td>3</td><td>Toggle into an out of stereo mode</td>"
+                + "<tr><td>7</td><td>Color gradient in relation with X coords (north)</td>"
+                + "<tr><td>8</td><td>Color gradient in relation with Y coords (west)</td>"
+                + "<tr><td>9</td><td>Color gradient in relation with Z coords (depth)</td>"
+                + "<tr><th>Mouse</th><th>Description</th></tr>"
+                +
+                // rotate the camera around its focal point. The rotation is in the direction defined from the center of
+                // the renderer's viewport towards the mouse position
+                "<tr><td>Left mouse button</td><td>Rotate camera around its focal point</td>"
+                + "<tr><td>Middle mouse button</td><td>Pan camera</td>"
+                + "<tr><td>Right mouse button</td><td>Zoom (In/Out) the camera</td>"
+                + "<tr><td>Mouse wheel</td><td>Zoom (In/Out) the camera - Static focal point</td>";
+
+        return msgHelp;
     }
 
     @Override
