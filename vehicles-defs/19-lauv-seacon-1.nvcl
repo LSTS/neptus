@@ -14,11 +14,11 @@
       <side-image-2D>../vehicles-files/lauv/lauv-seacon0-side.png</side-image-2D>
       <back-image-2D>../vehicles-files/lauv/lauv-seacon0-back.png</back-image-2D>
       <presentation-image-2D>../vehicles-files/lauv/lauv-seacon0-presentation.png</presentation-image-2D>
-      <model-3D>../vehicles-files/lauv/lauv-seacon0.x3d</model-3D>
+      <model-3D>../vehicles-files/lauv/lauv-xtreme-2.x3d</model-3D>
       <icon-color>
-        <r>128</r>
-        <g>0</g>
-        <b>0</b>
+        <r>255</r>
+        <g>255</g>
+        <b>32</b>
       </icon-color>
     </appearance>
     <coordinate-system-label>SNAME</coordinate-system-label>
