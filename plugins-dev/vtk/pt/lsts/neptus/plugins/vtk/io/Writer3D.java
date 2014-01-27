@@ -215,7 +215,7 @@ public class Writer3D {
      * @param renWin
      * @throws IOException
      */
-    public void exportToX3DFileFormart(String path, vtkPolyData poly, vtkRenderWindow renWin) throws IOException {
+    public void exportToX3DFileFormat(String path, vtkPolyData poly, vtkRenderWindow renWin) throws IOException {
         exportToX3DFileFormat(new File(path), poly, renWin);
     }
 }

@@ -114,9 +114,9 @@ public class MultibeamToolbar {
     public MultibeamToolbar(Vtk vtkInit) {
         this.vtkInit = vtkInit;
         // this.canvas = vtkInit.vtkCanvas;
-        this.canvas = vtkInit.canvas;
-        this.linkedHashMapCloud = vtkInit.linkedHashMapCloud;
-        this.linkedHashMapMesh = vtkInit.linkedHashMapMesh;
+        this.canvas = vtkInit.getCanvas();
+        this.linkedHashMapCloud = vtkInit.getLinkedHashMapCloud();
+        this.linkedHashMapMesh = vtkInit.getLinkedHashMapMesh();
         // this.currentApproachToIgnorePts = vtkInit.approachToIgnorePts;
         this.currentApproachToIgnorePts = MRAProperties.approachToIgnorePts;
         // this.currentPtsToIgnore = vtkInit.ptsToIgnore;

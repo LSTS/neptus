@@ -39,6 +39,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
@@ -48,21 +51,35 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.Vtk;
+import pt.lsts.neptus.plugins.vtk.io.Writer3D;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
+import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.utils.File3DUtils;
+import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import vtk.vtkActorCollection;
+import vtk.vtkLODActor;
+import vtk.vtkPolyData;
+import vtk.vtkRenderer;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class Vis3DMenuBar extends JMenuBar {
 
     private static final long serialVersionUID = 1L;
 
     private Vtk vtkInit;
+    private Canvas canvas;
+    private vtkRenderer renderer;
+    private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
+    private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
 
     private JMenu fileMenu, editMenu, viewMenu, toolsMenu, helpMenu;
 
@@ -73,9 +90,9 @@ public class Vis3DMenuBar extends JMenuBar {
 
     // View Menu
     private AbstractAction resetViewportCamera;
-    //    , incrementPointSize, decrementPointSize, colorGradX, colorGradY,
-    //    colorGradZ, viewPointCloud, viewMesh, pointBasedRep, wireframeRep, surfaceRep, displayLookUpTable,
-    //    displayScaleGrid, displayInfoPointcloud;
+    // , incrementPointSize, decrementPointSize, colorGradX, colorGradY,
+    // colorGradZ, viewPointCloud, viewMesh, pointBasedRep, wireframeRep, surfaceRep, displayLookUpTable,
+    // displayScaleGrid, displayInfoPointcloud;
 
     // Tools Menu
     // private AbstractAction exaggerateZ, performMeshing, performSmoothing;
@@ -85,6 +102,10 @@ public class Vis3DMenuBar extends JMenuBar {
 
     public Vis3DMenuBar(Vtk vtkInit) {
         this.vtkInit = vtkInit;
+        this.canvas = vtkInit.getCanvas();
+        this.renderer = vtkInit.getCanvas().GetRenderer();
+        this.linkedHashMapCloud = vtkInit.getLinkedHashMapCloud();
+        this.linkedHashMapMesh = vtkInit.getLinkedHashMapMesh();
     }
 
     public void createMultibeamMenuBar() {
@@ -109,28 +130,28 @@ public class Vis3DMenuBar extends JMenuBar {
         fileMenu = new JMenu(I18n.text("File"));
 
         // FIXME - is it necessary?
-        saveFile = new VisAction(I18n.text("Save file"), ImageUtils.getIcon("images/menus/save.png"), I18n.text("Save file"), KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK, true))
-        {
+        saveFile = new VisAction(I18n.text("Save file"), ImageUtils.getIcon("images/menus/save.png"),
+                I18n.text("Save file"), KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK, true)) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
 
-
             }
         };
 
-        saveFileAsPointCloud = new VisAction(I18n.text("Save pointcloud as") + "...", ImageUtils.getIcon("images/menus/saveas.png"),
-                I18n.text("Save a pointcloud to a file") +".", KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK, true))
-        {
+        saveFileAsPointCloud = new VisAction(I18n.text("Save pointcloud as") + "...",
+                ImageUtils.getIcon("images/menus/saveas.png"), I18n.text("Save a pointcloud to a file") + ".",
+                KeyStroke.getKeyStroke(KeyEvent.VK_P, InputEvent.CTRL_DOWN_MASK, true)) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser(vtkInit.getLog().getFile("Data.lsf").getParentFile());
 
-                //                FileFilter filefilter = GuiUtils.getCustomFileFilter(I18n.text("3D files ")  + "*.vtk" + ", *.stl"
-                //                        + ", *.ply" + ", *.obj" + ", *.wrl" + " *.x3d", new String[] { "X3D", "VTK", "STL", "PLY", "OBJ", "WRL" });
+                // FileFilter filefilter = GuiUtils.getCustomFileFilter(I18n.text("3D files ") + "*.vtk" + ", *.stl"
+                // + ", *.ply" + ", *.obj" + ", *.wrl" + " *.x3d", new String[] { "X3D", "VTK", "STL", "PLY", "OBJ",
+                // "WRL" });
 
-                FileFilter filefilter = GuiUtils.getCustomFileFilter(I18n.text("3D files ")  + "*.vtk" + ", *.stl"
+                FileFilter filefilter = GuiUtils.getCustomFileFilter(I18n.text("3D files ") + "*.vtk" + ", *.stl"
                         + ", *.ply" + ", *.obj" + ", *.wrl" + " *.x3d", File3DUtils.TYPES_3D_FILES);
 
                 chooser.setFileFilter((FileFilter) filefilter);
@@ -138,13 +159,95 @@ public class Vis3DMenuBar extends JMenuBar {
                 int ans = chooser.showDialog(vtkInit, I18n.text("Save as") + "...");
                 if (ans == JFileChooser.APPROVE_OPTION) {
                     if (chooser.getSelectedFile().exists()) {
-                        ans = JOptionPane.showConfirmDialog(vtkInit, I18n.text("Are you sure you want to overwrite existing file") + "?",
-                                I18n.text("Save file as.."), JOptionPane.YES_OPTION);
+                        ans = JOptionPane.showConfirmDialog(vtkInit,
+                                I18n.text("Are you sure you want to overwrite existing file") + "?",
+                                I18n.text("Save file as") + "...", JOptionPane.YES_OPTION);
                         if (ans != JOptionPane.YES_OPTION)
                             return;
                     }
                     File dst = chooser.getSelectedFile();
+                    String ext = File3DUtils.getExtension(dst);
+                    NeptusLog.pub().info("Extension: " + ext);
+                    File3DUtils.FileType type = null;
+                    type = File3DUtils.getFileType(ext);
+                    NeptusLog.pub().info("Filetype: " + type.toString());
+                    Writer3D writer3d = new Writer3D();
 
+                    // getting polydata from rendered cloud
+                    vtkPolyData poly = new vtkPolyData();
+                    vtkActorCollection actorCollection = new vtkActorCollection();
+                    actorCollection = renderer.GetActors();
+                    actorCollection.InitTraversal();
+                    for(int i = 0, numItems = actorCollection.GetNumberOfItems(); i < numItems; ++i) {
+                        vtkLODActor tempActor = new vtkLODActor();
+                        tempActor = (vtkLODActor) actorCollection.GetNextActor();
+                        Set<String> setOfClouds = linkedHashMapCloud.keySet();
+                        for (String cloudsKey : setOfClouds) {
+                            PointCloud<PointXYZ> pointCloud = linkedHashMapCloud.get(cloudsKey);
+                            if(tempActor.equals(pointCloud.getCloudLODActor())) {
+                                poly = pointCloud.getPoly();
+                            }
+                        }
+                    }
+                    switch (type) {
+                        case STL:
+                            NeptusLog.pub().info("Saving STL File.");
+                            try {
+                                writer3d.exportToSTLFileFormat(chooser.getSelectedFile(), poly);
+                            }
+                            catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                            break;
+                        case OBJ:
+                            NeptusLog.pub().info("Saving OBJ file.");
+                            try {
+                                writer3d.exportToOBJFileFormat(chooser.getSelectedFile(), poly, canvas.GetRenderWindow());
+                            }
+                            catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                            break;
+                        case PLY:
+                            NeptusLog.pub().info("Saving PLY file.");
+                            try {
+                                writer3d.exportToPLYFileFormat(chooser.getSelectedFile(), poly);
+                            }
+                            catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                            break;
+                        case VTK:
+                            NeptusLog.pub().info("Saving VTK file.");
+                            try {
+                                writer3d.exportToVTKFileFormat(chooser.getSelectedFile(), poly);
+                            }
+                            catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                            break;
+                        case WRL:
+                            NeptusLog.pub().info("Saving WRL file.");
+                            try {
+                                writer3d.exportToVRMLFileFormat(chooser.getSelectedFile(), poly, canvas.GetRenderWindow());
+                            }
+                            catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                            break;
+                        case X3D:
+                            NeptusLog.pub().info("Saving X3D file.");
+                            try {
+                                writer3d.exportToX3DFileFormat(chooser.getSelectedFile(), poly, canvas.GetRenderWindow());
+                            }
+                            catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                            break;
+                        default:
+                            NeptusLog.pub().info("Default tyep... no way!!!");
+                            break;
+                    }
                 }
             }
         };
@@ -156,6 +259,8 @@ public class Vis3DMenuBar extends JMenuBar {
      */
     private void setUpEditMenu() {
         editMenu = new JMenu(I18n.text("Edit"));
+
+
 
     }
 

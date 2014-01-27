@@ -81,7 +81,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     @NeptusProperty(name = "Depth exaggeration multiplier", description = "Multiplier value for depth exaggeration.")
     public int zExaggeration = 10;
 
-    public Canvas canvas;
+    private Canvas canvas;
     public Window winCanvas;
 
     public vtkLODActor noBeamsTxtActor;
@@ -89,9 +89,9 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
     private MultibeamToolbar toolbar;
 
-    public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
+    private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
     public PointCloud<PointXYZ> pointCloud;
-    public LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh = new LinkedHashMap<>();
+    private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh = new LinkedHashMap<>();
 
     // private Vector<Marker3d> markers = new Vector<>();
     public IMraLogGroup mraVtkLogGroup;
@@ -123,17 +123,17 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
         if (!componentEnabled) {
             componentEnabled = true;
 
-            canvas = new Canvas();
+            setCanvas(new Canvas());
 
             pointCloud = new PointCloud<>();
             pointCloud.setCloudName("multibeam");
-            linkedHashMapCloud.put(pointCloud.getCloudName(), pointCloud);
+            getLinkedHashMapCloud().put(pointCloud.getCloudName(), pointCloud);
 
-            winCanvas = new Window(canvas, linkedHashMapCloud);
+            winCanvas = new Window(getCanvas(), getLinkedHashMapCloud());
 
-            canvas.LightFollowCameraOn();
+            getCanvas().LightFollowCameraOn();
             // add vtkCanvas to Layout
-            add(canvas, "W 100%, H 100%");
+            add(getCanvas(), "W 100%, H 100%");
 
             // parse 83P data storing it on a pointcloud
             loadToPointCloud = new LoadToPointCloud(source, pointCloud);
@@ -145,8 +145,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
             add(toolbar.getToolbar(), "dock south");
 
             // for resizing porpuses
-            canvas.getParent().addComponentListener(this);
-            canvas.setEnabled(true);
+            getCanvas().getParent().addComponentListener(this);
+            getCanvas().setEnabled(true);
 
             // add axesWidget to vtk canvas fixed to a screen position
             AxesWidget axesWidget = new AxesWidget(winCanvas.getInteractorStyle().GetInteractor());
@@ -187,11 +187,11 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
                 Utils.delete(loadToPointCloud.getPoints());
 
                 // add parsed beams stored on pointcloud to canvas
-                canvas.GetRenderer().AddActor(pointCloud.getCloudLODActor());
+                getCanvas().GetRenderer().AddActor(pointCloud.getCloudLODActor());
                 // set Up scalar Bar look up table
                 winCanvas.getInteractorStyle().getScalarBar()
                 .setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
-                canvas.GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
+                getCanvas().GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
 
                 // set up camera to +z viewpoint looking down
                 //double[] center = new double[3];
@@ -207,7 +207,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
                 noBeamsText = new Text3D();
                 noBeamsText.buildText3D("No beams on Log file!", 2.0, 2.0, 2.0, 10.0);
-                canvas.GetRenderer().AddActor(noBeamsText.getText3dActor());
+                getCanvas().GetRenderer().AddActor(noBeamsText.getText3dActor());
             }
         }
         return this;
@@ -264,9 +264,9 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     @Override
     public void onShow() {
         if (isFirstRender) {
-            canvas.RenderSecured();
-            canvas.GetRenderWindow().SetCurrentCursor(9);
-            canvas.GetRenderer().ResetCamera();
+            getCanvas().RenderSecured();
+            getCanvas().GetRenderWindow().SetCurrentCursor(9);
+            getCanvas().GetRenderer().ResetCamera();
 
             isFirstRender = false;
             // canvas.Report();
@@ -338,21 +338,21 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
         Rectangle toolbarBounds = toolbar.getToolbar().getBounds();
 
         Rectangle parentBounds = new Rectangle();
-        parentBounds.setBounds(canvas.getParent().getX(), canvas.getParent().getY(), canvas.getParent().getParent()
-                .getWidth() - 6, canvas.getParent().getParent().getHeight() - 12); // - toolBarBounds.getHeight()
-        canvas.getParent().setBounds(parentBounds);
+        parentBounds.setBounds(getCanvas().getParent().getX(), getCanvas().getParent().getY(), getCanvas().getParent().getParent()
+                .getWidth() - 6, getCanvas().getParent().getParent().getHeight() - 12); // - toolBarBounds.getHeight()
+        getCanvas().getParent().setBounds(parentBounds);
 
         Rectangle canvasBounds = new Rectangle();
-        canvasBounds.setBounds(canvas.getX(), canvas.getY(), canvas.getParent().getWidth() - 6, (int) (canvas
+        canvasBounds.setBounds(getCanvas().getX(), getCanvas().getY(), getCanvas().getParent().getWidth() - 6, (int) (getCanvas()
                 .getParent().getHeight() - toolbarBounds.getHeight()));
-        canvas.setBounds(canvasBounds);
+        getCanvas().setBounds(canvasBounds);
 
         Rectangle newToolbarBounds = new Rectangle();
-        newToolbarBounds.setBounds(toolbarBounds.x, (canvas.getY() + canvas.getHeight()), toolbarBounds.width,
+        newToolbarBounds.setBounds(toolbarBounds.x, (getCanvas().getY() + getCanvas().getHeight()), toolbarBounds.width,
                 toolbarBounds.height);
         toolbar.getToolbar().setBounds(newToolbarBounds);
 
-        canvas.RenderSecured();
+        getCanvas().RenderSecured();
     }
 
     /*
@@ -383,5 +383,47 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     @Override
     public void componentHidden(ComponentEvent e) {
 
+    }
+
+    /**
+     * @return the canvas
+     */
+    public Canvas getCanvas() {
+        return canvas;
+    }
+
+    /**
+     * @param canvas the canvas to set
+     */
+    public void setCanvas(Canvas canvas) {
+        this.canvas = canvas;
+    }
+
+    /**
+     * @return the linkedHashMapCloud
+     */
+    public LinkedHashMap<String, PointCloud<PointXYZ>> getLinkedHashMapCloud() {
+        return linkedHashMapCloud;
+    }
+
+    /**
+     * @param linkedHashMapCloud the linkedHashMapCloud to set
+     */
+    public void setLinkedHashMapCloud(LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
+        this.linkedHashMapCloud = linkedHashMapCloud;
+    }
+
+    /**
+     * @return the linkedHashMapMesh
+     */
+    public LinkedHashMap<String, PointCloudMesh> getLinkedHashMapMesh() {
+        return linkedHashMapMesh;
+    }
+
+    /**
+     * @param linkedHashMapMesh the linkedHashMapMesh to set
+     */
+    public void setLinkedHashMapMesh(LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh) {
+        this.linkedHashMapMesh = linkedHashMapMesh;
     }
 }
