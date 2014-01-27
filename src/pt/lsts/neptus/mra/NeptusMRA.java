@@ -67,7 +67,7 @@ public class NeptusMRA extends JFrame {
 
     private MRAProperties mraProperties = new MRAProperties();
     private MRAPanel mraPanel = null;
-    private BlockingGlassPane bgp = new BlockingGlassPane(400);
+    private BlockingGlassPane bgp = new BlockingGlassPane(400, true);
     private MRAMenuBar mraMenuBar;
     private MRAFilesHandler mraFilesHandler;
 

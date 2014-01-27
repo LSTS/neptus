@@ -72,7 +72,18 @@ public class BlockingGlassPane extends JPanel {
     public BlockingGlassPane(int size) {
         setVisible(false);
         setOpaque(false);
-        
+
+        ipp = InfiniteProgressPanel.createInfinitePanelBeans("");
+        ipp.setOpaque(false);
+        setLayout(new BorderLayout());
+        add(ipp);
+        addMouseListener(blockMouse);
+    }
+
+    public BlockingGlassPane(int size, boolean isOpaque) {
+        setVisible(false);
+        setOpaque(isOpaque);
+
         ipp = InfiniteProgressPanel.createInfinitePanelBeans("");
         ipp.setOpaque(false);
         setLayout(new BorderLayout());
