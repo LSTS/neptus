@@ -238,11 +238,6 @@ public class PlanSimulationLayer extends ConsoleLayer {
                 }
             }            
         }
-        
-        if (!mainPlan.getVehicle().equals(getConsole().getMainSystem())) {
-            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning,
-                    "Console and plan vehicles differ"));
-        }
 
         return checks;
     } 
