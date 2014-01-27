@@ -111,7 +111,7 @@ public class Vis3DMenuBar extends JMenuBar {
         this.linkedHashMapMesh = vtkInit.getLinkedHashMapMesh();
     }
 
-    public void createMultibeamMenuBar() {
+    public void createMenuBar() {
         setUpFileMenu();
         setUpEditMenu();
         setUpViewMenu();

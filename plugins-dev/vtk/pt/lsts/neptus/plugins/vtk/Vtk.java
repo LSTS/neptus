@@ -31,10 +31,9 @@
  */
 package pt.lsts.neptus.plugins.vtk;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Rectangle;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
+import java.awt.event.ComponentAdapter;
 import java.io.File;
 import java.util.LinkedHashMap;
 
@@ -42,7 +41,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
@@ -56,6 +54,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.vtk.filters.StatisticalOutlierRemoval;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.MultibeamToolbar;
+import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DMenuBar;
 import pt.lsts.neptus.plugins.vtk.pointcloud.LoadToPointCloud;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
@@ -74,8 +73,10 @@ import com.l2fprod.common.propertysheet.Property;
 /**
  * @author hfq
  */
+
+//public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider, ComponentListener {
 @PluginDescription(author = "hfq", name = "3D Visualization", icon = "images/menus/3d.png")
-public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider, ComponentListener {
+public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider {
     private static final long serialVersionUID = 8057825167454469065L;
 
     @NeptusProperty(name = "Depth exaggeration multiplier", description = "Multiplier value for depth exaggeration.")
@@ -88,6 +89,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     public Text3D noBeamsText;
 
     private MultibeamToolbar toolbar;
+    private Vis3DMenuBar menuBar;
 
     private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
     public PointCloud<PointXYZ> pointCloud;
@@ -109,8 +111,12 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
      * @param panel
      */
     public Vtk(MRAPanel panel) {
-        super(new MigLayout());
+        // super(new MigLayout());
         Utils.loadVTKLibraries();
+
+        this.addComponentListener(new ComponentAdapter() {
+
+        });
     }
 
     @Override
@@ -125,27 +131,27 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
 
             setCanvas(new Canvas());
 
+            // set Interface Layout
+            setLayout(new BorderLayout());
+            menuBar = new Vis3DMenuBar(this);
+            menuBar.createMenuBar();
+            add(menuBar, BorderLayout.NORTH);
+            add(getCanvas());
+            toolbar = new MultibeamToolbar(this);
+            toolbar.createToolbar();
+            add(toolbar.getToolbar(), BorderLayout.SOUTH);
+
             pointCloud = new PointCloud<>();
             pointCloud.setCloudName("multibeam");
             getLinkedHashMapCloud().put(pointCloud.getCloudName(), pointCloud);
 
             winCanvas = new Window(getCanvas(), getLinkedHashMapCloud());
-
             getCanvas().LightFollowCameraOn();
-            // add vtkCanvas to Layout
-            add(getCanvas(), "W 100%, H 100%");
 
             // parse 83P data storing it on a pointcloud
             loadToPointCloud = new LoadToPointCloud(source, pointCloud);
             loadToPointCloud.parseMultibeamPointCloud();
 
-            // add toolbar to Layout
-            toolbar = new MultibeamToolbar(this);
-            toolbar.createToolbar();
-            add(toolbar.getToolbar(), "dock south");
-
-            // for resizing porpuses
-            getCanvas().getParent().addComponentListener(this);
             getCanvas().setEnabled(true);
 
             // add axesWidget to vtk canvas fixed to a screen position
@@ -325,64 +331,6 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider,
     @Override
     public String[] getPropertiesErrors(Property[] properties) {
         return PluginUtils.validatePluginProperties(this, properties);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.awt.event.ComponentListener#componentResized(java.awt.event.ComponentEvent)
-     */
-    @Override
-    public void componentResized(ComponentEvent e) {
-
-        Rectangle toolbarBounds = toolbar.getToolbar().getBounds();
-
-        Rectangle parentBounds = new Rectangle();
-        parentBounds.setBounds(getCanvas().getParent().getX(), getCanvas().getParent().getY(), getCanvas().getParent().getParent()
-                .getWidth() - 6, getCanvas().getParent().getParent().getHeight() - 12); // - toolBarBounds.getHeight()
-        getCanvas().getParent().setBounds(parentBounds);
-
-        Rectangle canvasBounds = new Rectangle();
-        canvasBounds.setBounds(getCanvas().getX(), getCanvas().getY(), getCanvas().getParent().getWidth() - 6, (int) (getCanvas()
-                .getParent().getHeight() - toolbarBounds.getHeight()));
-        getCanvas().setBounds(canvasBounds);
-
-        Rectangle newToolbarBounds = new Rectangle();
-        newToolbarBounds.setBounds(toolbarBounds.x, (getCanvas().getY() + getCanvas().getHeight()), toolbarBounds.width,
-                toolbarBounds.height);
-        toolbar.getToolbar().setBounds(newToolbarBounds);
-
-        getCanvas().RenderSecured();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.awt.event.ComponentListener#componentMoved(java.awt.event.ComponentEvent)
-     */
-    @Override
-    public void componentMoved(ComponentEvent e) {
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.awt.event.ComponentListener#componentShown(java.awt.event.ComponentEvent)
-     */
-    @Override
-    public void componentShown(ComponentEvent e) {
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.awt.event.ComponentListener#componentHidden(java.awt.event.ComponentEvent)
-     */
-    @Override
-    public void componentHidden(ComponentEvent e) {
-
     }
 
     /**
