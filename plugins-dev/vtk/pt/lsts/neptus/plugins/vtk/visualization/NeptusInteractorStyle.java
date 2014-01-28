@@ -153,15 +153,37 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
      */
     // public NeptusInteractorStyle(vtkCanvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor interact,
     // LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
-    public NeptusInteractorStyle(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor interact,
+    public NeptusInteractorStyle(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
             LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
         super();
         this.canvas = canvas;
         this.renderer = renderer;
-        this.interactor = interact;
+        this.interactor = renWinInteractor;
         this.camera = renderer.GetActiveCamera();
         this.linkedHashMapCloud = linkedHashMapCloud;
         this.setScalarBar(new ScalarBar());
+        keyboardEvent = new KeyboardEvent(this.canvas, this.linkedHashMapCloud, this);
+        // mouseEvent = new MouseEvent(this.canvas, this);
+
+        pointPickEvent = new PointPickingEvent(this.canvas);
+        mouseEvent = new MouseEvent(this.canvas, this.pointPickEvent);
+
+        Initalize();
+    }
+
+    /**
+     * @param canvas
+     * @param renderer
+     * @param renWinInteractor
+     */
+    public NeptusInteractorStyle(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor) {
+        super();
+        this.canvas = canvas;
+        this.renderer = renderer;
+        this.interactor = renWinInteractor;
+        this.camera = renderer.GetActiveCamera();
+        setScalarBar(new ScalarBar());
+
         keyboardEvent = new KeyboardEvent(this.canvas, this.linkedHashMapCloud, this);
         // mouseEvent = new MouseEvent(this.canvas, this);
 
