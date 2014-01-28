@@ -33,7 +33,6 @@ package pt.lsts.neptus.plugins.vtk;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.event.ComponentAdapter;
 import java.io.File;
 import java.util.LinkedHashMap;
 
@@ -113,12 +112,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
      * @param panel
      */
     public Vtk(MRAPanel panel) {
-        // super(new MigLayout());
         Utils.loadVTKLibraries();
-
-        this.addComponentListener(new ComponentAdapter() {
-
-        });
     }
 
     @Override
@@ -218,7 +212,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
                 JOptionPane.showMessageDialog(null, msgErrorMultibeam);
 
                 noBeamsText = new Text3D();
-                noBeamsText.buildText3D("No beams on Log file!", 2.0, 2.0, 2.0, 10.0);
+                noBeamsText.buildText3D(I18n.text("No beams on Log file") + "!", 2.0, 2.0, 2.0, 10.0);
                 getCanvas().GetRenderer().AddActor(noBeamsText.getText3dActor());
             }
         }

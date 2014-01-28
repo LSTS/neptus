@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.vtk.visualization;
 
+import pt.lsts.neptus.i18n.I18n;
 import vtk.vtkScalarBarActor;
 import vtk.vtkScalarsToColors;
 import vtk.vtkTextProperty;
@@ -58,7 +59,7 @@ public class ScalarBar {
         // getScalarBarActor().SetNumberOfLabels(getScalarBarActor().GetNumberOfLabels() * 2);
         getScalarBarActor().SetNumberOfLabels(9);
         getScalarBarActor().UseOpacityOn();
-        getScalarBarActor().SetTitle("Multibeam Color Map");
+        getScalarBarActor().SetTitle(I18n.text("Color Map"));
 
         vtkTextProperty textProp = new vtkTextProperty();
         textProp = getScalarBarActor().GetLabelTextProperty();
@@ -82,7 +83,7 @@ public class ScalarBar {
         getScalarBarActor().SetHeight(0.8);
         getScalarBarActor().SetNumberOfLabels(9);
         getScalarBarActor().UseOpacityOn();
-        getScalarBarActor().SetTitle("Multibeam Color Map");
+        getScalarBarActor().SetTitle(I18n.text("Color Map"));
 
         vtkTextProperty textProp = new vtkTextProperty();
         textProp = getScalarBarActor().GetLabelTextProperty();

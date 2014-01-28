@@ -54,6 +54,9 @@ import pt.lsts.neptus.util.ImageUtils;
 public class Vis3DToolBar extends JToolBar {
     private static final short ICON_SIZE = 18;
 
+    private static final ImageIcon ICON_MULTIBEAM = ImageUtils.getScaledIcon(
+            ImageUtils.getImage("pt/lsts/neptus/plugins/vtk/assets/multibeam.png"), ICON_SIZE, ICON_SIZE);
+
     private static final ImageIcon ICON_POINTS = ImageUtils.getScaledIcon(
             ImageUtils.getImage("pt/lsts/neptus/plugins/vtk/assets/points.png"), ICON_SIZE, ICON_SIZE);
 
@@ -107,7 +110,8 @@ public class Vis3DToolBar extends JToolBar {
 
         multibeamToggle = new JToggleButton();
         multibeamToggle.setToolTipText(I18n.text("See Multibeam data"));
-        multibeamToggle.setText(I18n.text("M"));
+        // multibeamToggle.setText(I18n.text("M"));
+        multibeamToggle.setIcon(ICON_MULTIBEAM);
 
         dvlToggle = new JToggleButton();
         dvlToggle.setToolTipText(I18n.text("See DVL data"));
@@ -160,7 +164,7 @@ public class Vis3DToolBar extends JToolBar {
         addSeparator();
 
         add(meshingToggle);
-        add(smoothingMeshToggle);      
+        add(smoothingMeshToggle);
     }
 
     @Override
