@@ -55,28 +55,31 @@ public class Vis3DToolBar extends JToolBar {
     private static final short ICON_SIZE = 18;
 
     private static final ImageIcon ICON_MULTIBEAM = ImageUtils.getScaledIcon(
-            ImageUtils.getImage("pt/lsts/neptus/plugins/vtk/assets/multibeam.png"), ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/plugins/vtk/assets/multibeam3.png", ICON_SIZE, ICON_SIZE);
+
+    private static final ImageIcon ICON_DVL = ImageUtils.getScaledIcon(
+            "pt/lsts/neptus/plugins/vtk/assets/dvl.png", ICON_SIZE, ICON_SIZE);
 
     private static final ImageIcon ICON_POINTS = ImageUtils.getScaledIcon(
-            ImageUtils.getImage("pt/lsts/neptus/plugins/vtk/assets/points.png"), ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/plugins/vtk/assets/points.png", ICON_SIZE, ICON_SIZE);
 
     private static final ImageIcon ICON_WIREFRAME = ImageUtils.getScaledIcon(
-            ImageUtils.getImage("pt/lsts/neptus/plugins/vtk/assets/wire.png"), ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/plugins/vtk/assets/wire.png", ICON_SIZE, ICON_SIZE);
 
     private static final ImageIcon ICON_SOLID = ImageUtils.getScaledIcon(
-            ImageUtils.getImage("pt/lsts/neptus/plugins/vtk/assets/textures.png"), ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/plugins/vtk/assets/textures.png", ICON_SIZE, ICON_SIZE);
 
     private static final ImageIcon ICON_Z = ImageUtils.getScaledIcon(
-            ImageUtils.getImage("pt/lsts/neptus/plugins/vtk/assets/zexag.png"), ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/plugins/vtk/assets/zexag.png", ICON_SIZE, ICON_SIZE);
 
     private static final ImageIcon ICON_CONTOURS = ImageUtils.getScaledIcon(
-            ImageUtils.getImage("pt/lsts/neptus/plugins/vtk/assets/contours.png"), ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/plugins/vtk/assets/contours.png", ICON_SIZE, ICON_SIZE);
 
     private static final ImageIcon ICON_MESHING = ImageUtils.getScaledIcon(
-            ImageUtils.getImage("pt/lsts/neptus/plugins/vtk/assets/meshing.png"), ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/plugins/vtk/assets/meshing.png", ICON_SIZE, ICON_SIZE);
 
     private static final ImageIcon ICON_SMOOTHING = ImageUtils.getScaledIcon(
-            ImageUtils.getImage("pt/lsts/neptus/plugins/vtk/assets/smoothing.png"), ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/plugins/vtk/assets/smoothing.png", ICON_SIZE, ICON_SIZE);
 
     private Vtk vtkInit;
 
@@ -115,7 +118,8 @@ public class Vis3DToolBar extends JToolBar {
 
         dvlToggle = new JToggleButton();
         dvlToggle.setToolTipText(I18n.text("See DVL data"));
-        dvlToggle.setText(I18n.text("D"));
+        //dvlToggle.setText(I18n.text("D"));
+        dvlToggle.setIcon(ICON_DVL);
 
         rawPointsToggle = new JToggleButton();
         rawPointsToggle.setToolTipText(I18n.text("Points based representation."));
