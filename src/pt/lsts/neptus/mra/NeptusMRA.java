@@ -102,7 +102,7 @@ public class NeptusMRA extends JFrame {
 
         JLabel lbl = new JLabel(MRA_TITLE, JLabel.CENTER);
         lbl.setOpaque(false);
-        lbl.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        lbl.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         lbl.setFont(new Font("Helvetica", Font.ITALIC, 32));
         lbl.setVerticalTextPosition(JLabel.BOTTOM);
         lbl.setHorizontalTextPosition(JLabel.CENTER);

@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
 import java.awt.Color;
 import java.awt.Dialog.ModalityType;
+import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -44,7 +45,9 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
@@ -122,6 +125,12 @@ public class Vis3DMenuBar extends JMenuBar {
         setUpToolsMenu();
         setUpHelpMenu();
 
+        JLabel label = new JLabel(I18n.text("3D Visualization"));
+        label.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
+        label.setFont(new Font("Verdana", Font.ITALIC + Font.BOLD, 10));
+        label.setForeground(Color.BLACK);
+
+        add(label);
         add(fileMenu);
         add(editMenu);
         add(viewMenu);

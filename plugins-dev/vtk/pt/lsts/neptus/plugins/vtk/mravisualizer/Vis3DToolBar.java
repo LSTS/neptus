@@ -50,8 +50,9 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author hfq
  * 
  */
+@SuppressWarnings("serial")
 public class Vis3DToolBar extends JToolBar {
-    private static final short ICON_SIZE = 20;
+    private static final short ICON_SIZE = 18;
 
     private static final ImageIcon ICON_POINTS = ImageUtils.getScaledIcon(
             ImageUtils.getImage("pt/lsts/neptus/plugins/vtk/assets/points.png"), ICON_SIZE, ICON_SIZE);
@@ -75,6 +76,9 @@ public class Vis3DToolBar extends JToolBar {
             ImageUtils.getImage("pt/lsts/neptus/plugins/vtk/assets/smoothing.png"), ICON_SIZE, ICON_SIZE);
 
     private Vtk vtkInit;
+
+    private JToggleButton multibeamToggle;
+    private JToggleButton dvlToggle;
 
     private JToggleButton rawPointsToggle; // works with pointcloud
     private JToggleButton wireframeToggle; // works with mesh
@@ -100,6 +104,14 @@ public class Vis3DToolBar extends JToolBar {
         setOrientation(JToolBar.VERTICAL);
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
                 BorderFactory.createEmptyBorder()));
+
+        multibeamToggle = new JToggleButton();
+        multibeamToggle.setToolTipText(I18n.text("See Multibeam data"));
+        multibeamToggle.setText(I18n.text("M"));
+
+        dvlToggle = new JToggleButton();
+        dvlToggle.setToolTipText(I18n.text("See DVL data"));
+        dvlToggle.setText(I18n.text("D"));
 
         rawPointsToggle = new JToggleButton();
         rawPointsToggle.setToolTipText(I18n.text("Points based representation."));
@@ -130,6 +142,9 @@ public class Vis3DToolBar extends JToolBar {
         smoothingMeshToggle.setIcon(ICON_SMOOTHING);
 
         // downsamplePointToggle = new JToggleButton();
+
+        add(multibeamToggle);
+        add(dvlToggle);
 
         addSeparator();
 

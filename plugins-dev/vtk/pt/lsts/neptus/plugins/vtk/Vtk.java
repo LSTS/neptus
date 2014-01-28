@@ -55,6 +55,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.vtk.filters.StatisticalOutlierRemoval;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.MultibeamToolbar;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DMenuBar;
+import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DToolBar;
 import pt.lsts.neptus.plugins.vtk.pointcloud.LoadToPointCloud;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
@@ -90,6 +91,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
 
     private MultibeamToolbar toolbar;
     private Vis3DMenuBar menuBar;
+    private Vis3DToolBar toolbar2;
 
     private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
     public PointCloud<PointXYZ> pointCloud;
@@ -136,6 +138,10 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
             menuBar = new Vis3DMenuBar(this);
             menuBar.createMenuBar();
             add(menuBar, BorderLayout.NORTH);
+            toolbar2 = new Vis3DToolBar(this);
+            toolbar2.createToolBar();
+            add(toolbar2, BorderLayout.WEST);
+
             add(getCanvas());
             toolbar = new MultibeamToolbar(this);
             toolbar.createToolbar();
