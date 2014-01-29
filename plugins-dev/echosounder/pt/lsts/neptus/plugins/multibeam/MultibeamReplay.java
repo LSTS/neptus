@@ -166,7 +166,7 @@ public class MultibeamReplay implements LogReplayLayer {
     }
 
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         return BathymetryParserFactory.build(source) != null;
     }
 

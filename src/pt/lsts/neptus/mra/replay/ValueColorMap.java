@@ -71,7 +71,7 @@ public abstract class ValueColorMap extends ColormapOverlay implements LogReplay
     }
     
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         if (entity != null && source.getLsfIndex().getEntityId(entity) == -1)
             return false;
         return source.getLsfIndex().getFirstMessageOfType(message) != -1;

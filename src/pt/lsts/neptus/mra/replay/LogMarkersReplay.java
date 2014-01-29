@@ -88,7 +88,7 @@ public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
     }
 
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {    
+    public boolean canBeApplied(IMraLogGroup source, Context context) {    
         return true;
     }
 

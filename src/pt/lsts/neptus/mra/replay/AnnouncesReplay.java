@@ -53,7 +53,7 @@ public class AnnouncesReplay implements LogReplayLayer {
     protected LinkedHashMap<String, LocationType> systemsPositions = new LinkedHashMap<>();
     
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         return source.getLsfIndex().containsMessagesOfType("Announce");
     }
     

@@ -41,7 +41,11 @@ import pt.lsts.neptus.renderer2d.Renderer2DPainter;
  */
 public interface LogReplayLayer extends Renderer2DPainter {
     
-    public boolean canBeApplied(IMraLogGroup source);
+    public enum Context {
+        Console, MRA
+    }
+    
+    public boolean canBeApplied(IMraLogGroup source, Context context);
     public String getName();
     public void parse(IMraLogGroup source);
     public String[] getObservedMessages();

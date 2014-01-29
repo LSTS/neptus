@@ -67,6 +67,7 @@ import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.plots.ReplayPlot;
+import pt.lsts.neptus.mra.replay.LogReplayLayer.Context;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginsRepository;
@@ -197,10 +198,10 @@ public class LogReplay extends JPanel implements MRAVisualization, LogMarkerList
 
             for (LogReplayLayer layer : layers) {
 
-                if (layer.canBeApplied(source))
+                if (layer.canBeApplied(source, Context.MRA))
                     renderedLayers.add(layer);
 
-                if (layer.canBeApplied(source) && layer.getObservedMessages() != null
+                if (layer.canBeApplied(source, Context.MRA) && layer.getObservedMessages() != null
                         && layer.getObservedMessages().length > 0) {
                     replayLayers.add(layer);
 

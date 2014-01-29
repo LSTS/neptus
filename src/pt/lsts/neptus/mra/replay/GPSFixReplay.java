@@ -74,7 +74,7 @@ public class GPSFixReplay implements LogReplayLayer {
         fixToPaint = null;
     }
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         return source.getLog("GpsFix") != null;
     }
 

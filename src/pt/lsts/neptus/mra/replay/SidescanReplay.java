@@ -170,7 +170,7 @@ public class SidescanReplay implements LogReplayLayer {
     }
 
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         return source.getLog("EstimatedState") != null && source.getLog("SonarData") != null;
     }
 

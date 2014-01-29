@@ -70,7 +70,7 @@ public class BathymetryReplay extends ColormapOverlay implements LogReplayLayer 
     }
 
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         return source.getLsfIndex().getDefinitions().getVersion().compareTo("5.0.0") >= 0;
     }
 

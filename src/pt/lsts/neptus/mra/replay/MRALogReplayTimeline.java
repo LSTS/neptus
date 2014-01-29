@@ -34,7 +34,6 @@ package pt.lsts.neptus.mra.replay;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Date;
 import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
@@ -67,6 +66,7 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
     private EventBus bus;
     private int timeMultiplier = 1;
     private Thread replayThread = null;
+    private boolean changing = false;
 
     public MRALogReplayTimeline(MRALogReplay replay) {
         this.index = replay.getIndex();
@@ -84,16 +84,17 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
         timeline.addChangeListener(this);
         timeline.setPaintLabels(true);
 
-        Hashtable<Integer, JLabel> marks = new Hashtable<>();
-
-        for (LogMarker m : LogMarker.load(replay.getSource())) {
-            JLabel lbl = new JLabel("|");
-            lbl.setBorder(BorderFactory.createEmptyBorder());
-            lbl.setToolTipText(m.label);
-            marks.put((int) m.timestamp, lbl);
-        }
-
-        timeline.setLabelTable(marks);
+//        Hashtable<Integer, JLabel> marks = new Hashtable<>();
+//
+//        for (LogMarker m : LogMarker.load(replay.getSource())) {
+//            JLabel lbl = new JLabel("|");
+//            lbl.setBorder(BorderFactory.createEmptyBorder());
+//            lbl.setToolTipText(m.label);
+//            marks.put((int) m.timestamp, lbl);
+//        }
+//
+//        if (marks.)
+//        timeline.setLabelTable(marks);
         add(timeline, BorderLayout.CENTER);
         add(tmp, BorderLayout.WEST);
     }
@@ -168,7 +169,16 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
     @Override
     public void stateChanged(ChangeEvent e) {
         if (timeline.getValueIsAdjusting()) {
-            System.out.println("User changed time to " + new Date(timeline.getValue() * 1000l));
+            changing = true;
+        }
+        else if (changing) {
+            changing = false;
+            if (play.isSelected()) {
+                if (replayThread != null)
+                    replayThread.interrupt();
+                replayThread = createReplayThread();
+                replayThread.start();
+            }
         }
     }
 
@@ -180,28 +190,27 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
                 long lastSystemTime = System.currentTimeMillis();
                 int i = index.advanceToTime(0, lastMissionTime / 1000.0);
 
-                while (true && !isInterrupted()) {
+                while (true && !timeline.getValueIsAdjusting()) {
                     try {
                         long newTime = System.currentTimeMillis();
                         long ellapsed = newTime - lastSystemTime;
                         lastSystemTime = newTime;
-
                         long newMissionTime = lastMissionTime + ellapsed * timeMultiplier;
-
-                        System.out.println(new Date(lastMissionTime) +" -> "+new Date(newMissionTime));
                         if (newMissionTime / 1000 != timeline.getValue())
                             timeline.setValue((int) (newMissionTime / 1000));
 
-                        while (i < index.getNumberOfMessages() && index.timeOf(i) < newMissionTime && !isInterrupted()) {
+                        while (i < index.getNumberOfMessages() && index.timeOf(i)*1000 < newMissionTime && !isInterrupted()) {
                             IMCMessage m = index.getMessage(i);
                             bus.post(m);
                             i++;
                         }
+                        if (i >= index.getNumberOfMessages())
+                            return;
 
-                        Thread.sleep(50);
+                        lastMissionTime = newMissionTime;
+                        Thread.sleep(100);
                     }
                     catch (InterruptedException e) {
-                        e.printStackTrace();
                         return;
                     }
                 }

@@ -35,6 +35,7 @@ import java.awt.BorderLayout;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
+import java.util.concurrent.Executors;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -44,16 +45,19 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
+import pt.lsts.neptus.mra.replay.LogReplayLayer.Context;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.mra.visualizations.SimpleMRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 
+import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
@@ -68,7 +72,7 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
     private LsfIndex index;
     private IMraLogGroup source;
     private Vector<LogReplayLayer> layers = new Vector<>();
-    private final EventBus replayBus = new EventBus("Replay Event bus");
+    private final AsyncEventBus replayBus = new AsyncEventBus("Replay Event bus", Executors.newFixedThreadPool(2));
     private StateRenderer2D r2d;
     private JToolBar layersToolbar;
     private MRALogReplayTimeline timeline;
@@ -108,8 +112,13 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
                 l.onMessage(m);
             r2d.repaint();
         }
+        
+        if (m.getAbbrev().equals("EstimatedState")) {
+            SystemPositionAndAttitude state = IMCUtils.parseState(m);
+            r2d.vehicleStateChanged(m.getSourceName(), state);
+        }
     }
-
+    
     @Override
     public JComponent getVisualization(final IMraLogGroup source, double timestep) {
         this.source = source;
@@ -123,7 +132,7 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
             public void run() {
                 for (LogReplayLayer l : layers) {
                     try {
-                        if (l.canBeApplied(source)) {
+                        if (l.canBeApplied(source, Context.MRA)) {
                             l.parse(source);
                             replayBus.register(l);
                             r2d.addPostRenderPainter(l, l.getName());
