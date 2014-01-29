@@ -90,11 +90,9 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
     private MapGroup myMapGroup = null;
 
     public static final int R2D_ONLY = 0, R3D_1CAM = 1, R2D_AND_R3D1CAM = 2, R3D_MULTICAMS = 3, R2D_AND_R3D_MULTICAMS = 4;
-    //static final int TRANSLATION = 1, ZOOM = 2, ROTATION = 3, NONE = -1;	
 
     private VehicleType vehicle = null;
 
-    //private MapGroup map;
     private SystemPositionAndAttitude curstate, initState = new SystemPositionAndAttitude(new LocationType(), 0,0,0);
     private Renderer[] renderers;
     private PlanType plan;
@@ -115,7 +113,6 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
     private Hashtable<VehicleType, SystemPositionAndAttitude> shownVehicles = new Hashtable<VehicleType, SystemPositionAndAttitude>();
     private Hashtable<VehicleType, EstimatedStateGenerator> stateInterpolators = new Hashtable<VehicleType, EstimatedStateGenerator>();
 
-    //private int shownRenderers = R2D_ONLY;
     private VehicleType mainVehicle = null;
     private MissionType mission = null;		
 
@@ -792,35 +789,4 @@ public class MissionRenderer extends JPanel implements ActionListener, ChangeLis
     public MapGroup getMapGroup() {
         return myMapGroup;
     }
-
-    //	public static void main(String args[]) {
-    //
-    //	    // Inicialização...
-    //	    ConfigFetch.initialize();
-    //
-    //	    //Cria um objecto do tipo MissionRenderer (extends JPanel)
-    //	    MapGroup mg = MapGroup.getNewInstance(new CoordinateSystem());
-    //	    MapType map = new MapType(new LocationType());
-    //
-    //	    ImageElement io = new ImageElement(mg,map);
-    //	    io.showParametersDialog(null, new String[0], map, true);
-    //	    map.addObject(io);
-    //
-    //	    mg.addMap(map);
-    //	    MissionRenderer mr = new MissionRenderer(null, mg, MissionRenderer.R2D_AND_R3D1CAM);
-    //
-    //	    //Cria uma JFrame e adiciona-lhe o objecto mr
-    //	    JFrame testFrame = new JFrame("MissionRenderer Unitary Test");
-    //	    testFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    //	    testFrame.setSize(500,500);
-    //	    testFrame.setContentPane(mr);
-    //	    testFrame.setVisible(true);
-    //
-    //	    //Cria um VehicleType
-    //	    VehicleType vt = VehiclesHolder.getVehicleById("isurus");
-    //
-    //	    //Altera o estado corrente do veículo
-    //	    SystemPositionAndAttitude vs = new SystemPositionAndAttitude(new LocationType(),0, 0, Math.PI / 4);
-    //	    mr.setVehicleState(vt, vs);
-    //	}
 }

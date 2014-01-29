@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -85,10 +86,6 @@ public class Timeline extends JPanel implements ChangeListener {
         
         speedUp.setAction(getSpeedUpAction());
         speedDown.setAction(getSpeedDownAction());
-        
-//        speedUp.setMinimumSize(preferredButtonDimensions);
-//        play.setMinimumSize(preferredButtonDimensions);
-//        speedDown.setMinimumSize(preferredButtonDimensions);
         
         // Layout definition
         setLayout(new MigLayout());
@@ -207,26 +204,26 @@ public class Timeline extends JPanel implements ChangeListener {
         this.time.setText(fmt.format(new Date(epochTimeMillis)) + "(x" + speed + ")");
     }
     
-//    public static void main(String args[]) {
-//        JFrame frame = new JFrame();
-//        final JLabel label = new JLabel("asdad");
-//        Timeline timeline = new Timeline(0, 100, 10, 10, true);
-//
-//        frame.setSize(600, 100);
-//        frame.setLayout(new MigLayout());
-//
-//        frame.add(label, "w 100%, wrap");
-//        frame.add(timeline);
-//
-//        frame.setVisible(true);
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//
-//        timeline.addTimelineChangeListener(new TimelineChangeListener() {
-//
-//            @Override
-//            public void timelineChanged(int value) {
-//                label.setText(value + "");
-//            }
-//        });
-//    }
+    public static void main(String args[]) {
+        JFrame frame = new JFrame();
+        final JLabel label = new JLabel("asdad");
+        Timeline timeline = new Timeline(0, 100, 10, 10, true);
+
+        frame.setSize(600, 100);
+        frame.setLayout(new MigLayout());
+
+        frame.add(label, "w 100%, wrap");
+        frame.add(timeline);
+
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        timeline.addTimelineChangeListener(new TimelineChangeListener() {
+
+            @Override
+            public void timelineChanged(int value) {
+                label.setText(value + "");
+            }
+        });
+    }
 }

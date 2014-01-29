@@ -203,9 +203,6 @@ public enum NeptusEvents {
             entry.getValue().unregister(INSTANCE);
         }
         INSTANCE.consoleBus.clear();
-        //INSTANCE.eventBus.unregister(INSTANCE);
-        //INSTANCE.mainSystemEventBus.unregister(INSTANCE);
-        //INSTANCE.otherSystemEventBus.unregister(INSTANCE);
     }
 
     /*
