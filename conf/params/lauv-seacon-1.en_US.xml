@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,43c6fb7)" system="lauv-seacon-1" i18n="en_US">
+<config format="1" version="2.4.0-rc1 (master,9a669c8)" system="lauv-seacon-1" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -3511,7 +3511,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Survival, Idle, Motion, SideScan, Multibeam, Full</default>
+      <default>Survival, Idle, Motion, SideScan, Camera, Full</default>
       <units/>
       <desc>Label of the operation mode</desc>
     </param>
@@ -4902,6 +4902,127 @@
       <default>1000</default>
       <units/>
       <desc>Speed in RPMs to be used in the generated maneuvers</desc>
+    </param>
+  </section>
+  <section name="Camera Module" name-i18n="Camera Module">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Camera Module</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Power Channel - CPU">
+      <name-i18n>Power Channel - CPU</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Camera - CPU</default>
+      <units/>
+      <desc>Power channel of the CPU</desc>
+    </param>
+    <param name="Power Channel - Camera">
+      <name-i18n>Power Channel - Camera</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Camera</default>
+      <units/>
+      <desc>Power channel of the camera</desc>
+    </param>
+    <param name="Power Channel - Strobe">
+      <name-i18n>Power Channel - Strobe</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Camera - Strobe</default>
+      <units/>
+      <desc>Power channel of the strobe</desc>
+    </param>
+    <param name="Slave System Name">
+      <name-i18n>Slave System Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Name of the slave system</desc>
+    </param>
+    <param name="Slave Entity Name">
+      <name-i18n>Slave Entity Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Camera</default>
+      <units/>
+      <desc>Name of the slave entity</desc>
     </param>
   </section>
   <section name="Power Supply" name-i18n="Power Supply">
@@ -7764,6 +7885,109 @@
       <default>Abort, Acceleration, AllocatedControlTorques, AlignmentState, AngularVelocity, Announce, Brake, CompassCalibration, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, Elevator, EmergencyControl, EmergencyControlState, EntityActivationState, EntityControl, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblDetection, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, Loiter, ManeuverControlState, MagneticField, NavigationData, NavigationUncertainty, OperationalLimits, Parameter, ParameterControl, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PopEntityParameters, PopUp, PowerChannelControl, PowerChannelState, PushEntityParameters, Pressure, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, Rpm, RSSI, Salinity, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SimulatedState, Sms, SoundSpeed, StationKeeping, StopManeuver, Teleoperation, TeleoperationDone, Temperature, TextMessage, TrexObservation, TrexOperation, TrexPlan, TrexToken, TransportBindings, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterDensity, WaterVelocity, YoYo</default>
       <units/>
       <desc/>
+    </param>
+  </section>
+  <section name="TCP to Camera CPU" name-i18n="TCP to Camera CPU">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>TCP to Camera CPU</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Transports">
+      <name-i18n>Transports</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>LoggingControl, EstimatedState, SetEntityParameters, PowerOperation</default>
+      <units/>
+      <desc>Messages to transport</desc>
+    </param>
+    <param name="Rate Limiters">
+      <name-i18n>Rate Limiters</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Rate limiters (message name/frequency pairs)</desc>
+    </param>
+    <param name="Trace - Incoming Messages">
+      <name-i18n>Trace - Incoming Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable verbose output regarding incoming messages</desc>
+    </param>
+    <param name="Trace - Outgoing Messages">
+      <name-i18n>Trace - Outgoing Messages</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable verbose output regarding outgoing messages</desc>
+    </param>
+    <param name="Port">
+      <name-i18n>Port</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>9999</default>
+      <units/>
+      <desc>TCP server port</desc>
+    </param>
+    <param name="Announce Service">
+      <name-i18n>Announce Service</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Set to true to announce the service</desc>
     </param>
   </section>
   <section name="UDP" name-i18n="UDP">
