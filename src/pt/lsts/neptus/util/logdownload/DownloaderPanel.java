@@ -960,7 +960,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	@SuppressWarnings("resource")
+    public static void main(String[] args) {
 		GuiUtils.setLookAndFeel();
 		//GuiUtils.setSystemLookAndFeel();
 

@@ -131,9 +131,10 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     @NeptusProperty(name = "Water current Speed", category = "YoYo Survey", description="Speed, in mps of the surface current.")
     public float speed = 0;
     
+    private HttpClient httpclient = new DefaultHttpClient();
 
     private static final long serialVersionUID = 1L;
-    Maneuver lastManeuver = null;
+    private Maneuver lastManeuver = null;
 
     protected LinkedHashMap<String, TrexGoal> sentGoals = new LinkedHashMap<String, TrexGoal>();
     protected LinkedHashMap<String, TrexGoal> completeGoals = new LinkedHashMap<String, TrexGoal>();
@@ -437,7 +438,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             httppost.setHeader("Content-Type", "application/json");
             httppost.setEntity(message);
             // Execute
-            HttpClient httpclient = new DefaultHttpClient();
+            
             HttpResponse response = httpclient.execute(httppost);
 
             // Get the response
@@ -454,7 +455,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                     }
                 }
                 finally {
-                    reader.close();
+                    reader.close();                    
                 }
             }
             if (response.getStatusLine().getStatusCode() != 200) {
@@ -576,7 +577,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     @Override
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
-
+        httpclient.getConnectionManager().shutdown();
     }
 
 }

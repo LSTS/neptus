@@ -81,7 +81,7 @@ public class Vis3DToolBar extends JToolBar {
     private static final ImageIcon ICON_SMOOTHING = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/smoothing.png", ICON_SIZE, ICON_SIZE);
 
-    private Vtk vtkInit;
+    //private Vtk vtkInit;
 
     private JToggleButton multibeamToggle;
     private JToggleButton dvlToggle;
@@ -103,7 +103,7 @@ public class Vis3DToolBar extends JToolBar {
     }
 
     public Vis3DToolBar(Vtk vtkInit) {
-        this.vtkInit = vtkInit;
+        //this.vtkInit = vtkInit;
     }
 
     public void createToolBar() {
