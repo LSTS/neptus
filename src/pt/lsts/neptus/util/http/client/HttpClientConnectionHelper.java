@@ -32,11 +32,17 @@
 package pt.lsts.neptus.util.http.client;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -55,11 +61,10 @@ import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
  * @author pdias
  *
  */
-@SuppressWarnings("deprecation")
 public class HttpClientConnectionHelper {
 
-    private DefaultHttpClient client;
-    private PoolingClientConnectionManager httpConnectionManager; // old ThreadSafeClientConnManager
+    private CloseableHttpClient client; // Usar v4.3 HttpClientBuilder para criar CloseableHttpClient WAS DefaultHttpClient
+    private PoolingHttpClientConnectionManager httpConnectionManager; // Usar v4.3  PoolingHttpClientConnectionManager WAS PoolingClientConnectionManager
     // private HashSet<HttpRequestBase> listActiveHttpMethods = new HashSet<HttpRequestBase>();
 
     private int maxTotalConnections = 4;
@@ -89,19 +94,40 @@ public class HttpClientConnectionHelper {
      * Call this to initialize the comms.
      */
     public void initializeComm() {
-        SchemeRegistry schemeRegistry = new SchemeRegistry();
+//        SchemeRegistry schemeRegistry = new SchemeRegistry(); //(4.3) use Registry
+//        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
+//        schemeRegistry.register(new Scheme("https", 443, PlainSocketFactory.getSocketFactory()));
+//        httpConnectionManager = new PoolingClientConnectionManager(schemeRegistry);
+//        httpConnectionManager.setMaxTotal(maxTotalConnections);
+//        httpConnectionManager.setDefaultMaxPerRoute(defaultMaxConnectionsPerRoute);
+//
+//        HttpParams params = new BasicHttpParams(); //(4.3) use configuration classes provided 'org.apache.http.config' and 'org.apache.http.client.config'
+//        HttpConnectionParams.setConnectionTimeout(params, connectionTimeout); // (4.3) use configuration classes provided 'org.apache.http.config' and 'org.apache.http.client.config'
+//        client = new DefaultHttpClient(httpConnectionManager, params);
+//
+//        if (initializeProxyRoutePlanner)
+//            ProxyInfoProvider.setRoutePlanner(client);
+
+        HttpClientBuilder clientBuilder = HttpClients.custom();
+
+        // FIXME
+        SchemeRegistry schemeRegistry = new SchemeRegistry(); //(4.3) use Registry
         schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
         schemeRegistry.register(new Scheme("https", 443, PlainSocketFactory.getSocketFactory()));
-        httpConnectionManager = new PoolingClientConnectionManager(schemeRegistry);
+        httpConnectionManager = new PoolingHttpClientConnectionManager(); //schemeRegistry
         httpConnectionManager.setMaxTotal(maxTotalConnections);
         httpConnectionManager.setDefaultMaxPerRoute(defaultMaxConnectionsPerRoute);
-
-        HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, connectionTimeout);
-        client = new DefaultHttpClient(httpConnectionManager, params);
+        clientBuilder.setConnectionManager(httpConnectionManager);
+        
+//        HttpParams params = new BasicHttpParams(); //(4.3) use configuration classes provided 'org.apache.http.config' and 'org.apache.http.client.config'
+//        HttpConnectionParams.setConnectionTimeout(params, connectionTimeout); // (4.3) use configuration classes provided 'org.apache.http.config' and 'org.apache.http.client.config'
+        RequestConfig rqstCfg = RequestConfig.custom().setConnectTimeout(connectionTimeout).build();
+        clientBuilder.setDefaultRequestConfig(rqstCfg);
 
         if (initializeProxyRoutePlanner)
-            ProxyInfoProvider.setRoutePlanner(client);
+            ProxyInfoProvider.setRoutePlanner(clientBuilder); // client
+
+        client = clientBuilder.build();
     }
     
     /**
@@ -119,14 +145,14 @@ public class HttpClientConnectionHelper {
     /**
      * @return the client
      */
-    public DefaultHttpClient getClient() {
+    public CloseableHttpClient getClient() {
         return client;
     }
     
     /**
      * @return the httpConnectionManager
      */
-    public PoolingClientConnectionManager getHttpConnectionManager() {
+    public PoolingHttpClientConnectionManager getHttpConnectionManager() {
         return httpConnectionManager;
     }
     
