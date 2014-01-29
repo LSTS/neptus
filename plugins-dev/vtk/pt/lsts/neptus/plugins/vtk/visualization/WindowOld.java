@@ -43,7 +43,7 @@ import vtk.vtkRenderer;
 /**
  * @author hfq config vtk window
  */
-public class Window {
+public class WindowOld {
     // private vtkInteractorStyle style;
 
     public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
@@ -65,7 +65,7 @@ public class Window {
      * @param panel
      * @param linkedHashMapCloud set all vtk render components of a vtkPanel
      */
-    public Window(vtkPanel panel, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
+    public WindowOld(vtkPanel panel, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
         this.panel = new vtkPanel();
         this.panel = panel;
         this.linkedHashMapCloud = linkedHashMapCloud;
@@ -114,7 +114,7 @@ public class Window {
      * @param hashCloud set all vtk render components of a vtkCanvas
      */
     // public Window(vtkCanvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
-    public Window(Canvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
+    public WindowOld(Canvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
         // this.canvas = new vtkCanvas();
         this.canvas = canvas;
         this.linkedHashMapCloud = linkedHashMapCloud;
@@ -216,12 +216,12 @@ public class Window {
         }
     }
 
-//    /**
-//     * @return the interactor style
-//     */
-//    public vtkInteractorStyle getStyle() {
-//        return style;
-//    }
+    //    /**
+    //     * @return the interactor style
+    //     */
+    //    public vtkInteractorStyle getStyle() {
+    //        return style;
+    //    }
 
     /**
      * @return the renWin

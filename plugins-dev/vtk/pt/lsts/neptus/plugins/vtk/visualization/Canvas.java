@@ -49,15 +49,15 @@ import vtk.vtkUnsignedCharArray;
  */
 public class Canvas extends vtkCanvas {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 5165188310777500794L;
 
-    // for 2D Grapihics
+    // for 2D Graphics
     private vtkUnsignedCharArray buffer = new vtkUnsignedCharArray();
     private int bufferWidth, bufferHeight = 0;
 
+    /**
+     * Constructor
+     */
     public Canvas() {
         setMinimumSize(new Dimension(0, 0));
         setPreferredSize(new Dimension(0, 0));
@@ -79,8 +79,8 @@ public class Canvas extends vtkCanvas {
         });
     }
 
-    @Override
     //public void Render() {
+    @Override
     public synchronized void Render() {
         if (!rendering)
         {
@@ -221,5 +221,4 @@ public class Canvas extends vtkCanvas {
     public void setLastY(int lastY) {
         this.lastY = lastX;
     }
-
 }

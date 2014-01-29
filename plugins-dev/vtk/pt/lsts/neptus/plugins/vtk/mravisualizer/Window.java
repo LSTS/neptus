@@ -58,7 +58,7 @@ public class Window implements IWindow {
     // private vtkLightActor lightActor;
 
     // the Neptus interactor Style - mouse, and keyboard events
-    private NeptusInteractorStyle interactorStyle;
+    private NeptusInteractorStyle neptusInteracStyle;
 
     public Window(vtkPanel panel, String windowName) {
         setPanel(panel);
@@ -132,8 +132,8 @@ public class Window implements IWindow {
      */
     @Override
     public void setUpInteractorStyle() {
-        interactorStyle = new NeptusInteractorStyle(canvas, renderer, renWinInteractor);
-        renWinInteractor.SetInteractorStyle(interactorStyle);
+        setNeptusInteracStyle(new NeptusInteractorStyle(canvas, renderer, renWinInteractor));
+        renWinInteractor.SetInteractorStyle(getNeptusInteracStyle());
     }
 
     /* (non-Javadoc)
@@ -206,6 +206,20 @@ public class Window implements IWindow {
      */
     public void setRenWinInteractor(vtkRenderWindowInteractor renWinInteractor) {
         this.renWinInteractor = renWinInteractor;
+    }
+
+    /**
+     * @return the neptusInteracStyle
+     */
+    public NeptusInteractorStyle getNeptusInteracStyle() {
+        return neptusInteracStyle;
+    }
+
+    /**
+     * @param neptusInteracStyle the neptusInteracStyle to set
+     */
+    private void setNeptusInteracStyle(NeptusInteractorStyle neptusInteracStyle) {
+        this.neptusInteracStyle = neptusInteracStyle;
     }
 
 }

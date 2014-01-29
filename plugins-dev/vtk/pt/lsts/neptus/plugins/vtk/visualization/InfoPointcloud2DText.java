@@ -38,8 +38,8 @@ import vtk.vtkTextActor;
 /**
  * @author hfq Class sets up a information caption from the renderer pointcloud
  */
-public class Caption {
-    public Boolean captionEnabled = false;
+public class InfoPointcloud2DText {
+    private Boolean captionEnabled = false;
 
     private int xPosScreen;
     private int YPosScreen;
@@ -56,6 +56,7 @@ public class Caption {
     private vtkTextActor captionLatLonActor;
 
     /**
+     * Constructor
      * 
      * @param xPosScreen
      * @param yPosScreen
@@ -65,7 +66,7 @@ public class Caption {
      * @param memorySize
      * @param renderer
      */
-    public Caption(int xPosScreen, int yPosScreen, int numberOfPoints, String cloudName, double[] bounds, int memorySize) {
+    public InfoPointcloud2DText(int xPosScreen, int yPosScreen, int numberOfPoints, String cloudName, double[] bounds, int memorySize) {
         this.xPosScreen = xPosScreen;
         this.YPosScreen = yPosScreen;
         this.numberOfPoints = numberOfPoints;
@@ -80,11 +81,11 @@ public class Caption {
         setCaptionMemorySizeActor(new vtkTextActor());
 
         buildCaptionActor();
-        captionEnabled = true;
+        setCaptionEnabled(true);
     }
 
     /**
-     * 
+     * Sets up all components for 2D text actors
      */
     private void buildCaptionActor() {
         try {
@@ -120,10 +121,10 @@ public class Caption {
             captionCloudBoundsActor.SetDisplayPosition(xPosScreen, YPosScreen - 72);
             DecimalFormat f = new DecimalFormat("##.00");
             captionCloudBoundsActor
-                    .SetInput("Bounds (meters): " + "\n" + "minX: " + f.format(bounds[0]) + "     maxX: "
-                            + f.format(bounds[1]) + "\n" + "minY: " + f.format(bounds[2]) + "     maxY: "
-                            + f.format(bounds[3]) + "\n" + "minZ: " + f.format(bounds[4]) + "     maxZ: "
-                            + f.format(bounds[5]));
+            .SetInput("Bounds (meters): " + "\n" + "minX: " + f.format(bounds[0]) + "     maxX: "
+                    + f.format(bounds[1]) + "\n" + "minY: " + f.format(bounds[2]) + "     maxY: "
+                    + f.format(bounds[3]) + "\n" + "minZ: " + f.format(bounds[4]) + "     maxZ: "
+                    + f.format(bounds[5]));
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -200,4 +201,17 @@ public class Caption {
         this.captionMemorySizeActor = captionMemorySizeActor;
     }
 
+    /**
+     * @return the captionEnabled
+     */
+    public Boolean getCaptionEnabled() {
+        return captionEnabled;
+    }
+
+    /**
+     * @param captionEnabled the captionEnabled to set
+     */
+    public void setCaptionEnabled(Boolean captionEnabled) {
+        this.captionEnabled = captionEnabled;
+    }
 }

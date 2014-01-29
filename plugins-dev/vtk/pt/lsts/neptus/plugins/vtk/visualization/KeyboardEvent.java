@@ -79,7 +79,7 @@ public class KeyboardEvent implements KeyListener {
 
     public ColorMappingRelation colorMapRel;
 
-    private Caption captionInfo;
+    private InfoPointcloud2DText captionInfo;
     private Boolean captionEnabled = false;
 
     private static final boolean VTKIS_ANIMEOFF = false;
@@ -191,71 +191,71 @@ public class KeyboardEvent implements KeyListener {
                     e5.printStackTrace();
                 }
                 break;
-            // case KeyEvent.VK_C: // FIXME - not good enough, better check this one for a better implementation.
-            // problems: seems to be disconected of the rendered actor
-            // try {
-            //
-            // if (!neptusInteractorStyle.compassEnabled) {
-            // canvas.lock();
-            // neptusInteractorStyle.compass.addCompassToVisualization(interactor);
-            // canvas.unlock();
-            // neptusInteractorStyle.compassEnabled = true;
-            // }
-            // else {
-            // canvas.lock();
-            // neptusInteractorStyle.compass.removeCompassFromVisualization(interactor);
-            // canvas.unlock();
-            // neptusInteractorStyle.compassEnabled = false;
-            // }
-            // canvas.lock();
-            // canvas.Render();
-            // canvas.unlock();
-            // }
-            // catch (Exception e4) {
-            // e4.printStackTrace();
-            // }
-            // break;
-            // case KeyEvent.VK_W:
-            // try {
-            // if (!neptusInteractorStyle.wireframeRepEnabled) {
-            // neptusInteractorStyle.wireframeRepEnabled = true;
-            // neptusInteractorStyle.solidRepEnabled = false;
-            // neptusInteractorStyle.pointRepEnabled = false;
-            //
-            // setOfClouds = linkedHashMapCloud.keySet();
-            // for (String sKey : setOfClouds) {
-            // vtkLODActor tempActor = new vtkLODActor();
-            // pointCloud = linkedHashMapCloud.get(sKey);
-            // tempActor = pointCloud.getCloudLODActor();
-            // tempActor.GetProperty().SetRepresentationToWireframe();
-            // }
-            // }
-            // }
-            // catch (Exception e3) {
-            // e3.printStackTrace();
-            // }
-            // break;
-            // case KeyEvent.VK_S:
-            // try {
-            // if (!neptusInteractorStyle.solidRepEnabled) {
-            // neptusInteractorStyle.solidRepEnabled = true;
-            // neptusInteractorStyle.wireframeRepEnabled = false;
-            // neptusInteractorStyle.pointRepEnabled = false;
-            //
-            // for (String sKey : setOfClouds) {
-            // vtkLODActor tempActor = new vtkLODActor();
-            // pointCloud = linkedHashMapCloud.get(sKey);
-            // tempActor = pointCloud.getCloudLODActor();
-            // tempActor.GetProperty().SetRepresentationToSurface();
-            // }
-            // }
-            // }
-            // catch (Exception e2) {
-            // e2.printStackTrace();
-            // }
-            // break;
+                // case KeyEvent.VK_C: // FIXME - not good enough, better check this one for a better implementation.
+                // problems: seems to be disconected of the rendered actor
+                // try {
+                //
+                // if (!neptusInteractorStyle.compassEnabled) {
+                // canvas.lock();
+                // neptusInteractorStyle.compass.addCompassToVisualization(interactor);
+                // canvas.unlock();
+                // neptusInteractorStyle.compassEnabled = true;
+                // }
+                // else {
+                // canvas.lock();
+                // neptusInteractorStyle.compass.removeCompassFromVisualization(interactor);
+                // canvas.unlock();
+                // neptusInteractorStyle.compassEnabled = false;
+                // }
+                // canvas.lock();
+                // canvas.Render();
+                // canvas.unlock();
+                // }
+                // catch (Exception e4) {
+                // e4.printStackTrace();
+                // }
+                // break;
+                // case KeyEvent.VK_W:
+                // try {
+                // if (!neptusInteractorStyle.wireframeRepEnabled) {
+                // neptusInteractorStyle.wireframeRepEnabled = true;
+                // neptusInteractorStyle.solidRepEnabled = false;
+                // neptusInteractorStyle.pointRepEnabled = false;
+                //
+                // setOfClouds = linkedHashMapCloud.keySet();
+                // for (String sKey : setOfClouds) {
+                // vtkLODActor tempActor = new vtkLODActor();
+                // pointCloud = linkedHashMapCloud.get(sKey);
+                // tempActor = pointCloud.getCloudLODActor();
+                // tempActor.GetProperty().SetRepresentationToWireframe();
+                // }
+                // }
+                // }
+                // catch (Exception e3) {
+                // e3.printStackTrace();
+                // }
+                // break;
+                // case KeyEvent.VK_S:
+                // try {
+                // if (!neptusInteractorStyle.solidRepEnabled) {
+                // neptusInteractorStyle.solidRepEnabled = true;
+                // neptusInteractorStyle.wireframeRepEnabled = false;
+                // neptusInteractorStyle.pointRepEnabled = false;
+                //
+                // for (String sKey : setOfClouds) {
+                // vtkLODActor tempActor = new vtkLODActor();
+                // pointCloud = linkedHashMapCloud.get(sKey);
+                // tempActor = pointCloud.getCloudLODActor();
+                // tempActor.GetProperty().SetRepresentationToSurface();
+                // }
+                // }
+                // }
+                // catch (Exception e2) {
+                // e2.printStackTrace();
+                // }
+                // break;
             case KeyEvent.VK_P: // FIXME the default vtk key handler creates a vtkOpenGL object that sends a exception
-                                // on depth exaggeration (casting vtkLODActor to vtkOpenGL)
+                // on depth exaggeration (casting vtkLODActor to vtkOpenGL)
                 try {
                     // if (!neptusInteractorStyle.pointRepEnabled) {
                     // neptusInteractorStyle.pointRepEnabled = true;
@@ -317,9 +317,9 @@ public class KeyboardEvent implements KeyListener {
                         // }
                         // }
                         // setOfClouds = linkedHashMapCloud.keySet();
-                        captionInfo = new Caption(4, 250, linkedHashMapCloud.get("multibeam").getNumberOfPoints(),
+                        captionInfo = new InfoPointcloud2DText(4, 250, linkedHashMapCloud.get("multibeam").getNumberOfPoints(),
                                 linkedHashMapCloud.get("multibeam").getCloudName(), linkedHashMapCloud.get("multibeam")
-                                        .getBounds(), linkedHashMapCloud.get("multibeam").getMemorySize());
+                                .getBounds(), linkedHashMapCloud.get("multibeam").getMemorySize());
 
                         renderer.AddActor(captionInfo.getCaptionNumberOfPointsActor());
                         renderer.AddActor(captionInfo.getCaptionCloudNameActor());
@@ -407,18 +407,18 @@ public class KeyboardEvent implements KeyListener {
                     e.printStackTrace();
                 }
                 break;
-            // case '1':
-            // //int numberOfProps = neptusInteractorStyle.renderer.GetNumberOfPropsRendered();
-            // //System.out.println("numberOfProps: " + numberOfProps);
-            // setOfClouds = linkedHashMapCloud.keySet();
-            // for (String sKey : setOfClouds) {
-            // //System.out.println("String from set: " + setOfClouds);
-            // vtkLODActor tempActor = new vtkLODActor();
-            // tempActor = linkedHashMapCloud.get(sKey);
-            // //tempActor.GetProperty().SetColor(PointCloudHandlers.getRandomColor());
-            // }
-            // neptusInteractorStyle.interactor.Render();
-            // break;
+                // case '1':
+                // //int numberOfProps = neptusInteractorStyle.renderer.GetNumberOfPropsRendered();
+                // //System.out.println("numberOfProps: " + numberOfProps);
+                // setOfClouds = linkedHashMapCloud.keySet();
+                // for (String sKey : setOfClouds) {
+                // //System.out.println("String from set: " + setOfClouds);
+                // vtkLODActor tempActor = new vtkLODActor();
+                // tempActor = linkedHashMapCloud.get(sKey);
+                // //tempActor.GetProperty().SetColor(PointCloudHandlers.getRandomColor());
+                // }
+                // neptusInteractorStyle.interactor.Render();
+                // break;
             case KeyEvent.VK_6:
                 try {
                     if (!(colorMapRel == ColorMappingRelation.iMap)) {
@@ -427,7 +427,7 @@ public class KeyboardEvent implements KeyListener {
                             pointCloud = linkedHashMapCloud.get(sKey);
                             if (pointCloud.isHasIntensities()) {
                                 pointCloud.getPoly().GetPointData()
-                                        .SetScalars(pointCloud.getColorHandler().getIntensities());
+                                .SetScalars(pointCloud.getColorHandler().getIntensities());
                                 if (neptusInteractorStyle.lutEnabled)
                                     neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(
                                             pointCloud.getColorHandler().getLutIntensities());

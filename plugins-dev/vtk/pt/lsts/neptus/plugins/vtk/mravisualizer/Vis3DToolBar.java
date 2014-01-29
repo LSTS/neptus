@@ -35,27 +35,31 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.Vtk;
+import pt.lsts.neptus.plugins.vtk.Vtk.SensorTypeInteraction;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
- * @author hfq
  * 
+ * @author hfq
  */
 @SuppressWarnings("serial")
 public class Vis3DToolBar extends JToolBar {
     private static final short ICON_SIZE = 18;
 
     private static final ImageIcon ICON_MULTIBEAM = ImageUtils.getScaledIcon(
-            "pt/lsts/neptus/plugins/vtk/assets/multibeam3.png", ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/plugins/vtk/assets/multibeam.png", ICON_SIZE, ICON_SIZE);
 
     private static final ImageIcon ICON_DVL = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/dvl.png", ICON_SIZE, ICON_SIZE);
@@ -81,7 +85,7 @@ public class Vis3DToolBar extends JToolBar {
     private static final ImageIcon ICON_SMOOTHING = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/smoothing.png", ICON_SIZE, ICON_SIZE);
 
-    //private Vtk vtkInit;
+    private Vtk vtkInit;
 
     private JToggleButton multibeamToggle;
     private JToggleButton dvlToggle;
@@ -98,12 +102,15 @@ public class Vis3DToolBar extends JToolBar {
 
     // private JToggleButton downsamplePointToggle;
 
-    public Vis3DToolBar() {
-
+    private Vis3DToolBar() {
     }
 
+    /**
+     * 
+     * @param vtkInit
+     */
     public Vis3DToolBar(Vtk vtkInit) {
-        //this.vtkInit = vtkInit;
+        this.vtkInit = vtkInit;
     }
 
     public void createToolBar() {
@@ -112,33 +119,42 @@ public class Vis3DToolBar extends JToolBar {
                 BorderFactory.createEmptyBorder()));
 
         multibeamToggle = new JToggleButton();
-        multibeamToggle.setToolTipText(I18n.text("See Multibeam data"));
+        multibeamToggle.setToolTipText(I18n.text("See Multibeam data") + ".");
         // multibeamToggle.setText(I18n.text("M"));
         multibeamToggle.setIcon(ICON_MULTIBEAM);
 
         dvlToggle = new JToggleButton();
-        dvlToggle.setToolTipText(I18n.text("See DVL data"));
+        dvlToggle.setToolTipText(I18n.text("See DVL data") + ".");
         //dvlToggle.setText(I18n.text("D"));
         dvlToggle.setIcon(ICON_DVL);
 
+        ButtonGroup groupSensorType = new ButtonGroup();
+        groupSensorType.add(multibeamToggle);
+        groupSensorType.add(dvlToggle);
+
         rawPointsToggle = new JToggleButton();
-        rawPointsToggle.setToolTipText(I18n.text("Points based representation."));
+        rawPointsToggle.setToolTipText(I18n.text("Points based representation") + ".");
         rawPointsToggle.setIcon(ICON_POINTS);
 
         wireframeToggle = new JToggleButton();
-        wireframeToggle.setToolTipText(I18n.text("Wireframe based representation."));
+        wireframeToggle.setToolTipText(I18n.text("Wireframe based representation") + ".");
         wireframeToggle.setIcon(ICON_WIREFRAME);
 
         solidToggle = new JToggleButton();
-        solidToggle.setToolTipText(I18n.text("Solid based representation."));
+        solidToggle.setToolTipText(I18n.text("Solid based representation") + ".");
         solidToggle.setIcon(ICON_SOLID);
 
+        ButtonGroup groupRepresentationType = new ButtonGroup();
+        groupRepresentationType.add(rawPointsToggle);
+        groupRepresentationType.add(wireframeToggle);
+        groupRepresentationType.add(solidToggle);
+
         zExaggerationToggle = new JToggleButton();
-        zExaggerationToggle.setToolTipText(I18n.text("Exaggerate Z."));
+        zExaggerationToggle.setToolTipText(I18n.text("Exaggerate Z") + ".");
         zExaggerationToggle.setIcon(ICON_Z);
 
         contoursToggle = new JToggleButton();
-        contoursToggle.setToolTipText(I18n.text("Enable/Disable contouts."));
+        contoursToggle.setToolTipText(I18n.text("Enable/Disable contouts") + ".");
         contoursToggle.setIcon(ICON_CONTOURS);
 
         meshingToggle = new JToggleButton();
@@ -146,11 +162,20 @@ public class Vis3DToolBar extends JToolBar {
         meshingToggle.setIcon(ICON_MESHING);
 
         smoothingMeshToggle = new JToggleButton();
-        smoothingMeshToggle.setToolTipText(I18n.text("Perform mesh smoothing."));
+        smoothingMeshToggle.setToolTipText(I18n.text("Perform mesh smoothing") + ".");
         smoothingMeshToggle.setIcon(ICON_SMOOTHING);
 
         // downsamplePointToggle = new JToggleButton();
 
+        // Add Actions Listeners
+        multibeamToggle.addActionListener(sensorTypeInteractionAction);
+        dvlToggle.addActionListener(sensorTypeInteractionAction);
+
+        rawPointsToggle.addActionListener(renderRepresentationTypeAction);
+        wireframeToggle.addActionListener(renderRepresentationTypeAction);
+        solidToggle.addActionListener(renderRepresentationTypeAction);
+
+        // Add Components to toolbar
         add(multibeamToggle);
         add(dvlToggle);
 
@@ -171,6 +196,45 @@ public class Vis3DToolBar extends JToolBar {
         add(smoothingMeshToggle);
     }
 
+    /**
+     * Actions for type od sensor choosen
+     */
+    ActionListener sensorTypeInteractionAction = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            SensorTypeInteraction sensorTypeInt = SensorTypeInteraction.NONE; 
+
+            if(multibeamToggle.isSelected())
+                sensorTypeInt = SensorTypeInteraction.MULTIBEAM;
+            else if(dvlToggle.isSelected())
+                sensorTypeInt = SensorTypeInteraction.DVL;
+            else if(multibeamToggle.isSelected() && dvlToggle.isSelected())
+                sensorTypeInt = SensorTypeInteraction.ALL;
+
+            vtkInit.setSensorTypeInteraction(sensorTypeInt);
+        }
+    };
+
+    /**
+     * Actions for actor representation on renderer
+     */
+    ActionListener renderRepresentationTypeAction = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(rawPointsToggle.isSelected()) {
+
+            }
+            else if(wireframeToggle.isSelected()) {
+
+            }
+            else if(solidToggle.isSelected()) {
+
+            }
+        }
+    };
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -187,6 +251,5 @@ public class Vis3DToolBar extends JToolBar {
         toolbar.createToolBar();
         GuiUtils.testFrame(toolbar, "Test toolbar: " + toolbar.getClass().getSimpleName(), ICON_SIZE + 25,
                 ICON_SIZE * 3 + 500);
-
     }
 }

@@ -55,6 +55,7 @@ import pt.lsts.neptus.plugins.vtk.filters.StatisticalOutlierRemoval;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.MultibeamToolbar;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DMenuBar;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DToolBar;
+import pt.lsts.neptus.plugins.vtk.mravisualizer.Window;
 import pt.lsts.neptus.plugins.vtk.pointcloud.LoadToPointCloud;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
@@ -63,7 +64,6 @@ import pt.lsts.neptus.plugins.vtk.utils.Utils;
 import pt.lsts.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.Text3D;
-import pt.lsts.neptus.plugins.vtk.visualization.Window;
 import pt.lsts.neptus.util.ImageUtils;
 import vtk.vtkLODActor;
 
@@ -108,6 +108,12 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
 
     private static final String FILE_83P_EXT = ".83P";
 
+    public enum SensorTypeInteraction {
+        NONE, DVL, MULTIBEAM, ALL;
+    }
+
+    private SensorTypeInteraction sensorTypeInteraction = SensorTypeInteraction.NONE;
+
     /**
      * @param panel
      */
@@ -145,7 +151,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
             pointCloud.setCloudName("multibeam");
             getLinkedHashMapCloud().put(pointCloud.getCloudName(), pointCloud);
 
-            winCanvas = new Window(getCanvas(), getLinkedHashMapCloud());
+            //winCanvas = new Window(getCanvas(), getLinkedHashMapCloud());
+            winCanvas = new Window(getCanvas());
             getCanvas().LightFollowCameraOn();
 
             // parse 83P data storing it on a pointcloud
@@ -155,7 +162,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
             getCanvas().setEnabled(true);
 
             // add axesWidget to vtk canvas fixed to a screen position
-            AxesWidget axesWidget = new AxesWidget(winCanvas.getInteractorStyle().GetInteractor());
+            AxesWidget axesWidget = new AxesWidget(winCanvas.getNeptusInteracStyle().GetInteractor());
             axesWidget.createAxesWidget();
 
             if (pointCloud.getNumberOfPoints() != 0) { // checks wether there are any points to render!
@@ -195,9 +202,9 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
                 // add parsed beams stored on pointcloud to canvas
                 getCanvas().GetRenderer().AddActor(pointCloud.getCloudLODActor());
                 // set Up scalar Bar look up table
-                winCanvas.getInteractorStyle().getScalarBar()
+                winCanvas.getNeptusInteracStyle().getScalarBar()
                 .setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
-                getCanvas().GetRenderer().AddActor(winCanvas.getInteractorStyle().getScalarBar().getScalarBarActor());
+                getCanvas().GetRenderer().AddActor(winCanvas.getNeptusInteracStyle().getScalarBar().getScalarBarActor());
 
                 // set up camera to +z viewpoint looking down
                 //double[] center = new double[3];
@@ -373,5 +380,19 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
      */
     public void setLinkedHashMapMesh(LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh) {
         this.linkedHashMapMesh = linkedHashMapMesh;
+    }
+
+    /**
+     * @return the sensorTypeInteraction
+     */
+    public SensorTypeInteraction getSensorTypeInteraction() {
+        return sensorTypeInteraction;
+    }
+
+    /**
+     * @param sensorTypeInteraction the sensorTypeInteraction to set
+     */
+    public void setSensorTypeInteraction(SensorTypeInteraction sensorTypeInteraction) {
+        this.sensorTypeInteraction = sensorTypeInteraction;
     }
 }
