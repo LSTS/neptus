@@ -36,7 +36,6 @@ import org.dom4j.DocumentHelper;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 
 /**
  * When a maneuver of an unknown type is encountered. The maneuver factories use this class as default.
@@ -46,11 +45,6 @@ import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 public class DefaultManeuver extends Maneuver {
 
 	private String manType = "Unknown";
-	
-	@Override
-	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-		return lastVehicleState;
-	}
 
 	@Override
 	public Object clone() {

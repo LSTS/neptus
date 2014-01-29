@@ -49,7 +49,6 @@ import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -174,15 +173,6 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
             NeptusLog.pub().error(this, e);
             return;
         }
-    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.Maneuver#ManeuverFunction(pt.lsts.neptus.mp.VehicleState)
-     */
-    @Override
-    public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /**

@@ -524,7 +524,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
      * The mission preview will call this function every second to refresh the vehicle state. <br>
      * Implement this function to show how this maneuver is performed by the vehicle.
      */
-    public abstract SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState);
+    //public abstract SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState);
 
     /**
      * When the maneuver has ended, this function must be called to end the iteration
@@ -533,27 +533,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         ManeuverEnded = true;
     }
 
-    /**
-     * This function returns the state of the vehicle after performing this maneuver
-     * 
-     * @param initialVehicleState The initial state of the vehicle
-     * @return The state of the vehicle after performing this maneuver
-     */
-    public SystemPositionAndAttitude calcFinalState(SystemPositionAndAttitude initialVehicleState) {
-        ManeuverEnded = false;
-        SystemPositionAndAttitude curState = initialVehicleState;
-        int i = 0;
-        for (i = 0; (i < maxTime) && !ManeuverEnded; i++) {
-            curState = ManeuverFunction(curState);
-        }
-
-        if (i == maxTime)
-            System.err.println("Maneuver timed out!");
-
-        return curState;
-    }
-
-    /**
+     /**
      * Verifies if the execution of this maneuver has ended...
      * 
      * @return <b>true</b> if the maneuver has already ended or <b>false</b> otherwise

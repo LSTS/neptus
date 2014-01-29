@@ -53,7 +53,6 @@ import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.renderer2d.LoiterPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -86,11 +85,6 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
         loiterDirectionConstantsMap.put(1l, I18n.textmark("Clockwise"));
         loiterDirectionConstantsMap.put(2l, I18n.textmark("Counter-Clockwise"));
         loiterDirectionConstantsMap.put(3l, I18n.textmark("Into the Wind"));
-	}
-	
-	@Override
-	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-		return lastVehicleState;
 	}
 
 	@Override

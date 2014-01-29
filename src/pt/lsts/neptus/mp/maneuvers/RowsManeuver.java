@@ -60,7 +60,6 @@ import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
@@ -124,9 +123,6 @@ IMCSerialization, StatisticsProvider, PathProvider {
         return loc;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
-     */
     @Override
     public void loadFromXML(String xml) {
         try {
@@ -220,9 +216,6 @@ IMCSerialization, StatisticsProvider, PathProvider {
         }
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.Maneuver#clone()
-     */
     @Override
     public Object clone() {
         RowsManeuver clone = new RowsManeuver();
@@ -247,18 +240,6 @@ IMCSerialization, StatisticsProvider, PathProvider {
         return clone;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.Maneuver#ManeuverFunction(pt.lsts.neptus.mp.VehicleState)
-     */
-    @Override
-    public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-        //TODO implement this for preview
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.Maneuver#getManeuverAsDocument(java.lang.String)
-     */
     @Override
     public Document getManeuverAsDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
@@ -308,58 +289,37 @@ IMCSerialization, StatisticsProvider, PathProvider {
         return document;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#getName()
-     */
     @Override
     public String getName() {
         return "Rows";
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#getIconImage()
-     */
     @Override
     public Image getIconImage() {
         return adapter.getIconImage();
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#getMouseCursor()
-     */
     @Override
     public Cursor getMouseCursor() {
         return adapter.getMouseCursor();
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#isExclusive()
-     */
     @Override
     public boolean isExclusive() {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseClicked(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
-     */
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
         adapter.mouseClicked(event, source);        
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mousePressed(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
-     */
     @Override
     public void mousePressed(MouseEvent event, StateRenderer2D source) {
         adapter.mousePressed(event, source);
         lastDragPoint = event.getPoint();
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseDragged(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
-     */
     @Override
     public void mouseDragged(MouseEvent event, StateRenderer2D source) {
         if (lastDragPoint == null) {
@@ -393,75 +353,48 @@ IMCSerialization, StatisticsProvider, PathProvider {
         lastDragPoint = event.getPoint();
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseMoved(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
-     */
     @Override
     public void mouseMoved(MouseEvent event, StateRenderer2D source) {
         adapter.mouseMoved(event, source);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#mouseReleased(java.awt.event.MouseEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
-     */
     @Override
     public void mouseReleased(MouseEvent event, StateRenderer2D source) {
         adapter.mouseReleased(event, source);
         lastDragPoint = null;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#wheelMoved(java.awt.event.MouseWheelEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
-     */
     @Override
     public void wheelMoved(MouseWheelEvent event, StateRenderer2D source) {
         adapter.wheelMoved(event, source);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#keyPressed(java.awt.event.KeyEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
-     */
     @Override
     public void keyPressed(KeyEvent event, StateRenderer2D source) {
         adapter.keyPressed(event, source);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#keyReleased(java.awt.event.KeyEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
-     */
     @Override
     public void keyReleased(KeyEvent event, StateRenderer2D source) {
         adapter.keyReleased(event, source);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#keyTyped(java.awt.event.KeyEvent, pt.lsts.neptus.renderer2d.StateRenderer2D)
-     */
     @Override
     public void keyTyped(KeyEvent event, StateRenderer2D source) {
         adapter.keyTyped(event, source);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.renderer2d.StateRendererInteraction#setActive(boolean, pt.lsts.neptus.renderer2d.StateRenderer2D)
-     */
     @Override
     public void setActive(boolean mode, StateRenderer2D source) {
         editing = mode;
         adapter.setActive(mode, source);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getPosition()
-     */
     @Override
     public ManeuverLocation getManeuverLocation() {
         return calculatePosition();
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getFirstPosition()
-     */
     @Override
     public ManeuverLocation getStartLocation() {
         try {
@@ -475,9 +408,6 @@ IMCSerialization, StatisticsProvider, PathProvider {
         }
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#getLastPosition()
-     */
     @Override
     public ManeuverLocation getEndLocation() {
         try {
@@ -491,9 +421,6 @@ IMCSerialization, StatisticsProvider, PathProvider {
         }
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#setPosition(pt.lsts.neptus.types.coord.AbstractLocationPoint)
-     */
     @Override
     public void setManeuverLocation(ManeuverLocation location) {
         double absoluteLatLonDepth[] = location.getAbsoluteLatLonDepth(); 
@@ -504,9 +431,6 @@ IMCSerialization, StatisticsProvider, PathProvider {
         recalcPoints();
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.LocationProvider#translate(double, double, double)
-     */
     @Override
     public void translate(double offsetNorth, double offsetEast, double offsetDown) {
         ManeuverLocation loc = calculatePosition();
@@ -514,17 +438,11 @@ IMCSerialization, StatisticsProvider, PathProvider {
         setManeuverLocation(loc);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.PathProvider#getPathPoints()
-     */
     @Override
     public List<double[]> getPathPoints() {
         return Collections.unmodifiableList(points);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.PathProvider#getPathLocations()
-     */
     @Override
     public List<LocationType> getPathLocations() {
         Vector<LocationType> locs = new Vector<>();
