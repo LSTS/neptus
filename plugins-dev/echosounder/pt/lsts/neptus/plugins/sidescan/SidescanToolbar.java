@@ -55,21 +55,21 @@ public class SidescanToolbar extends JToolBar {
     private static final long serialVersionUID = 1L;
 
     SidescanPanel panel;
-    
+
     ButtonGroup bgroup = new ButtonGroup();
-    
+
     JToggleButton btnMeasure = new JToggleButton(I18n.text("Measure"));
     JToggleButton btnInfo = new JToggleButton(I18n.text("Info"));
     JToggleButton btnZoom = new JToggleButton(I18n.text("Zoom"));
     JToggleButton btnMark = new JToggleButton(I18n.text("Mark"));
     JToggleButton btnRecord = new JToggleButton(I18n.text("Record"));
-    
+
     JLabel lblNormalization = new JLabel(I18n.text("Normalization"));
     JLabel lblTVG = new JLabel(I18n.textc("TVG", "Time Variable Gain"));
 
     JTextField txtNormalization = new JTextField();
     JTextField txtTVG = new JTextField();
-    
+
     JButton btnConfig = new JButton(new AbstractAction(I18n.textc("Config", "Configuration")) {
         private static final long serialVersionUID = -878895322319699542L;
 
@@ -79,12 +79,13 @@ public class SidescanToolbar extends JToolBar {
                     SwingUtilities.getWindowAncestor(panel), true);
         }
     });
-    
-    
+
+
     ActionListener alMode = new ActionListener() {
+        @Override
         public void actionPerformed(ActionEvent e) {
             SidescanPanel.InteractionMode imode = SidescanPanel.InteractionMode.NONE;
-            
+
             if(btnInfo.isSelected())
                 imode = InteractionMode.INFO;
             if(btnZoom.isSelected())
@@ -93,21 +94,22 @@ public class SidescanToolbar extends JToolBar {
                 imode = InteractionMode.MARK;
             if(btnMeasure.isSelected())
                 imode = InteractionMode.MEASURE;
-            
+
             panel.setInteractionMode(imode);
         };
     };
-    
+
     ActionListener alGains = new ActionListener() {
+        @Override
         public void actionPerformed(ActionEvent e) {
             panel.config.tvgGain = new Double(txtTVG.getText());
             panel.config.normalization = new Double(txtNormalization.getText());
             panel.record(btnRecord.isSelected());
         };  
     };
-    
-    
-    
+
+
+
     public SidescanToolbar(SidescanPanel panel) {
         super();
         this.panel = panel;
@@ -115,6 +117,7 @@ public class SidescanToolbar extends JToolBar {
     }    
 
     private void buildToolbar() {
+        btnInfo.setSelected(true);
         bgroup.add(btnInfo);
         bgroup.add(btnZoom);
         bgroup.add(btnMeasure);
@@ -123,27 +126,27 @@ public class SidescanToolbar extends JToolBar {
         add(btnZoom);
         add(btnMeasure);
         add(btnMark);
-        
+
         addSeparator();
         add(lblNormalization);
         add(txtNormalization);
-        
+
         add(lblTVG);
         add(txtTVG);
-        
+
         addSeparator();
         add(btnConfig);
         add(btnRecord);
-        
+
         btnInfo.addActionListener(alMode);
         btnZoom.addActionListener(alMode);
         btnMeasure.addActionListener(alMode);
         btnMark.addActionListener(alMode);
         btnRecord.addActionListener(alGains);
-        
+
         txtNormalization.addActionListener(alGains);
         txtTVG.addActionListener(alGains);
-        
+
         txtNormalization.setText(panel.config.normalization + "");
         txtTVG.setText(panel.config.tvgGain + "");
     }
