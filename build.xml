@@ -139,6 +139,8 @@ For simple use the main targets are:
 
 	<property name="libimc.jar.file" value="libimc.jar" />
 	<property name="libimc.jar.file.path" value="${lib.dir}/${libimc.jar.file}" />
+	
+	<property name="resources.copied" value="**/*.xml,**/*.properties,**/*.res,images/**/*.*,models/**/*.*,schemas/**/*.xsd,**/*.png,**/*.jpg,**/*.gif"/>
 
 	<!-- The bundle jars names -->
 	<property name="bundle.jar.checklist" value="${name}-check.jar" />
@@ -611,7 +613,7 @@ For simple use the main targets are:
 		<!-- Copy main src resources -->
 		<copy todir="${build.classes}" overwrite="true">
 			<fileset dir="${src.dir}" excludes="${exclude-defaults},**/Thumbs.db,**/thumbs.db" 
-				includes="**/*.xml,**/*.properties,**/*.res,images/**/*.*,models/**/*.*,schemas/**/*.xsd" />
+				includes="${resources.copied}" />
 		</copy>
 		<copy todir="${build.classes}" overwrite="true">
 			<fileset dir="${src.dir}">
@@ -658,7 +660,7 @@ For simple use the main targets are:
 
 		<copy todir="${tmp.main.dir}" overwrite="true">
 			<fileset dir="${src.dir}" excludes="${exclude-defaults},**/Thumbs.db,**/thumbs.db" 
-				includes="**/*.xml,**/*.properties,**/*.res,images/**/*.*,models/**/*.*,schemas/**/*.xsd" />
+				includes="${resources.copied}" />
 		</copy>
 		<copy todir="${tmp.main.dir}" overwrite="true">
 			<fileset dir="${src.dir}">

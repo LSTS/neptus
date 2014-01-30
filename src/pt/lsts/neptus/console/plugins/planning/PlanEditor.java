@@ -422,7 +422,7 @@ MissionChangeListener {
 
     protected AbstractAction getSettingsAction() {
         return new AbstractAction(I18n.text("Statistics"), ImageUtils.getScaledIcon(
-                "images/planning//edit_settings.png", 16, 16)) {
+                "images/planning/edit_settings.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -490,7 +490,7 @@ MissionChangeListener {
 
     protected AbstractAction getNewAction() {
         return new AbstractAction(I18n.textc("New", "Plan"), ImageUtils.getScaledIcon(
-                "images/planning//edit_new.png", 16, 16)) {
+                "images/planning/edit_new.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -527,7 +527,7 @@ MissionChangeListener {
     protected AbstractAction getUndoAction() {
         if (undoAction == null)
             undoAction = new AbstractAction(I18n.text("Undo"), ImageUtils.getScaledIcon(
-                    "images/planning//undo.png", 16, 16)) {
+                    "images/planning/undo.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -543,7 +543,7 @@ MissionChangeListener {
 
         if (redoAction == null)
             redoAction = new AbstractAction(I18n.text("Redo"), ImageUtils.getScaledIcon(
-                    "images/planning//redo.png", 16, 16)) {
+                    "images/planning/redo.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -557,7 +557,7 @@ MissionChangeListener {
 
     protected AbstractAction getSaveAction() {
         return new AbstractAction(I18n.text("Save"), ImageUtils.getScaledIcon(
-                "images/planning//edit_save.png", 16, 16)) {
+                "images/planning/edit_save.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -614,7 +614,7 @@ MissionChangeListener {
 
     protected AbstractAction getCloseAction() {
         return new AbstractAction(I18n.text("Close"), ImageUtils.getScaledIcon(
-                "images/planning//edit_close.png", 16, 16)) {
+                "images/planning/edit_close.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override

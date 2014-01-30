@@ -44,7 +44,7 @@ import pt.lsts.neptus.util.llf.RawMessagesTableModel;
  * @author zp
  *
  */
-@PluginDescription
+@PluginDescription(icon="pt/lsts/neptus/mra/visualizations/doc-search.png")
 public class MraRawMessages extends SimpleMRAVisualization {
 
     private static final long serialVersionUID = 1L;
