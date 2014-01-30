@@ -739,7 +739,8 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
 
     public void setColor(Color color) {
         this.color = color;
-        renderer.repaint();
+        if (renderer != null)
+            renderer.repaint();
     }
 
     public boolean isShowDistances() {
@@ -748,7 +749,8 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
 
     public void setShowDistances(boolean showDistances) {
         this.showDistances = showDistances;
-        renderer.repaint();
+        if (renderer != null)
+            renderer.repaint();
     }
 
     public boolean isShowManNames() {

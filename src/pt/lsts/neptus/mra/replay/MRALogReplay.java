@@ -43,8 +43,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
-import org.apache.batik.util.gui.resource.JToolbarButton;
-
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
@@ -62,7 +60,10 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.llf.LogUtils;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
@@ -137,6 +138,9 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
 
         Thread t = new Thread("Starting replay") {
             public void run() {
+                MissionType mt = LogUtils.generateMission(source);
+                r2d.setMapGroup(MapGroup.getMapGroupInstance(mt));
+                
                 for (final LogReplayLayer l : layers) {
                     try {
                         if (l.canBeApplied(source, Context.MRA)) {
@@ -156,8 +160,6 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
                                     r2d.repaint();
                                 }
                             });
-                            
-                            
                             
                             String[] msgs = l.getObservedMessages();
                             if (msgs != null) {
