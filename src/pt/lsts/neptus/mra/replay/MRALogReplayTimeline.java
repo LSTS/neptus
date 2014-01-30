@@ -67,7 +67,7 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
     private JSlider timeline = null;
     private LsfIndex index;
     private EventBus bus;
-    private int timeMultiplier = 1;
+    private double timeMultiplier = 1;
     private Thread replayThread = null;
     private boolean changing = false;
     private ImageIcon playIcon = ImageUtils.getIcon("pt/lsts/neptus/mra/replay/control-play.png");
@@ -135,7 +135,7 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
 
     private JComboBox<String> getSpeedCombo() {
         if (speedMultiplier == null) {
-            speedMultiplier = new JComboBox<>(new String[] { "1x", "2x", "5x", "10x", "20x", "60x" });
+            speedMultiplier = new JComboBox<>(new String[] { "1x", "2x", "5x", "10x", "20x", "60x", "0.5x", "0.25x"});
             speedMultiplier.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -158,6 +158,13 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
                         case "60x":
                             timeMultiplier = 60;
                             break;
+                        case "0.5x":
+                            timeMultiplier = 0.5;
+                            break;
+                        case "0.25x":
+                            timeMultiplier = 0.25;
+                            break;
+                        
                         default:
                             timeMultiplier = 1;
                             break;
@@ -214,7 +221,7 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
                         long newTime = System.currentTimeMillis();
                         long ellapsed = newTime - lastSystemTime;
                         lastSystemTime = newTime;
-                        long newMissionTime = lastMissionTime + ellapsed * timeMultiplier;
+                        long newMissionTime = lastMissionTime + (long)(ellapsed * timeMultiplier);
                         if (newMissionTime / 1000 != timeline.getValue())
                             timeline.setValue((int) (newMissionTime / 1000));
 

@@ -329,7 +329,8 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
     @Override
     public void onCleanup() {
         super.onCleanup();
-        timeline.cleanup();
+        if (timeline != null)
+            timeline.cleanup();
         for (JDialog d : popups.values()) {
             d.setVisible(false);
             d.dispose();
