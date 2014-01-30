@@ -54,7 +54,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 /**
  * @author zp
  */
-@PluginDescription
+@PluginDescription(icon="images/menus/marker.png")
 public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
 
     ArrayList<LogMarker> markers = new ArrayList<>();

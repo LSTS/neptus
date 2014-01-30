@@ -56,7 +56,7 @@ import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
  *
  */
 @LayerPriority(priority=-60)
-@PluginDescription
+@PluginDescription(icon="pt/lsts/neptus/mra/replay/color.png")
 public class BathymetryReplay extends ColormapOverlay implements LogReplayLayer {
 
     @NeptusProperty(name="Cell width")

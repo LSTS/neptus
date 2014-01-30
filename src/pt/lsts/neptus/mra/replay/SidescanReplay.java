@@ -57,8 +57,7 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
  * @author jqcorreia
  * 
  */
-@PluginDescription
-@LayerPriority(priority = 1)
+@PluginDescription(icon="pt/lsts/neptus/mra/replay/echosounder.png")
 public class SidescanReplay implements LogReplayLayer {
 
     List<SidescanData> dataSet = new ArrayList<SidescanData>();

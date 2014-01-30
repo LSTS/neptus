@@ -57,7 +57,7 @@ import pt.lsts.neptus.util.llf.LogUtils;
  * 
  */
 @LayerPriority(priority = -10)
-@PluginDescription
+@PluginDescription(icon="pt/lsts/neptus/mra/replay/globe.png")
 public class EstimatedStateReplay implements LogReplayLayer {
 
     protected HashMap<Integer, Vector<LocationType>> positions = new LinkedHashMap<Integer, Vector<LocationType>>();

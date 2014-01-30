@@ -32,6 +32,8 @@
 package pt.lsts.neptus.mra.replay;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -41,10 +43,13 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
+import org.apache.batik.util.gui.resource.JToolbarButton;
+
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -54,8 +59,10 @@ import pt.lsts.neptus.mra.replay.LogReplayLayer.Context;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.mra.visualizations.SimpleMRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.util.ImageUtils;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
@@ -65,7 +72,7 @@ import com.google.common.eventbus.Subscribe;
  * @author zp
  *
  */
-@PluginDescription(name="Mission Replay")
+@PluginDescription(name="Mission Replay", icon="pt/lsts/neptus/mra/replay/replay.png")
 public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerListener {
 
     private static final long serialVersionUID = 1L;
@@ -130,12 +137,28 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
 
         Thread t = new Thread("Starting replay") {
             public void run() {
-                for (LogReplayLayer l : layers) {
+                for (final LogReplayLayer l : layers) {
                     try {
                         if (l.canBeApplied(source, Context.MRA)) {
                             l.parse(source);
                             replayBus.register(l);
-                            r2d.addPostRenderPainter(l, l.getName());
+                            if (l.getVisibleByDefault())
+                                r2d.addPostRenderPainter(l, l.getName());
+                            ToolbarSwitch ts = new ToolbarSwitch(ImageUtils.getScaledIcon(PluginUtils.getPluginIcon(l.getClass()), 16, 16), l.getName(), l.getName());
+                            ts.setSelected(l.getVisibleByDefault());
+                            ts.addActionListener(new ActionListener() {                                
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    if (((ToolbarSwitch)e.getSource()).isSelected())
+                                        r2d.addPostRenderPainter(l, l.getName());                                    
+                                    else 
+                                        r2d.removePostRenderPainter(l);
+                                    r2d.repaint();
+                                }
+                            });
+                            
+                            
+                            
                             String[] msgs = l.getObservedMessages();
                             if (msgs != null) {
                                 for (String m : msgs) {
@@ -144,6 +167,14 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
                                     observersTable.get(m).add(l);
                                 }
                             }
+                            
+                            if (l.getVisibleByDefault())
+                                layersToolbar.add(ts, 0);
+                            else
+                                layersToolbar.add(ts, layersToolbar.getComponentCount());
+                                
+                            layersToolbar.invalidate();
+                            layersToolbar.validate();
                         }
                     }
                     catch (Exception e) {

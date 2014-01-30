@@ -34,11 +34,10 @@ package pt.lsts.neptus.mra.replay;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JToggleButton;
@@ -48,7 +47,8 @@ import javax.swing.event.ChangeListener;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.ImageUtils;
 
 import com.google.common.eventbus.EventBus;
 
@@ -67,6 +67,8 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
     private int timeMultiplier = 1;
     private Thread replayThread = null;
     private boolean changing = false;
+    private ImageIcon playIcon = ImageUtils.getIcon("pt/lsts/neptus/mra/replay/control-play.png");
+    
 
     public MRALogReplayTimeline(MRALogReplay replay) {
         this.index = replay.getIndex();
@@ -79,29 +81,26 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
 
         speedMultiplier = getSpeedCombo();
         tmp.add(speedMultiplier, BorderLayout.WEST);
-        timeline = new JSlider((int) replay.getIndex().getStartTime(), (int) replay.getIndex().getEndTime(),
-                (int) replay.getIndex().getStartTime());
-        timeline.addChangeListener(this);
-        timeline.setPaintLabels(true);
-
-//        Hashtable<Integer, JLabel> marks = new Hashtable<>();
-//
-//        for (LogMarker m : LogMarker.load(replay.getSource())) {
-//            JLabel lbl = new JLabel("|");
-//            lbl.setBorder(BorderFactory.createEmptyBorder());
-//            lbl.setToolTipText(m.label);
-//            marks.put((int) m.timestamp, lbl);
-//        }
-//
-//        if (marks.)
-//        timeline.setLabelTable(marks);
-        add(timeline, BorderLayout.CENTER);
+        
+        add(getTimeline(replay), BorderLayout.CENTER);
         add(tmp, BorderLayout.WEST);
+    }
+    
+    private JSlider getTimeline(MRALogReplay replay) {
+        if (timeline == null) {
+            timeline = new JSlider((int) replay.getIndex().getStartTime(), (int) replay.getIndex().getEndTime(),
+                    (int) replay.getIndex().getStartTime());
+            timeline.addChangeListener(this);
+            timeline.setPaintLabels(true);
+            timeline.setBorder(BorderFactory.createEmptyBorder());
+        }
+        return timeline;
     }
 
     private JToggleButton getPlayButton() {
         if (play == null) {
-            play = new JToggleButton("play");
+            play = new JToggleButton(playIcon);
+            play.setToolTipText(I18n.text("Resume replay"));
 
             play.addActionListener(new ActionListener() {
                 @Override
@@ -111,10 +110,12 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
                             replayThread.interrupt();
                         replayThread = createReplayThread();
                         replayThread.start();
+                        play.setToolTipText(I18n.text("Pause replay"));
                     }
                     else {
                         if (replayThread != null)
                             replayThread.interrupt();
+                        play.setToolTipText(I18n.text("Resume replay"));
                     }
                 }
             });
@@ -124,7 +125,7 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
 
     private JComboBox<String> getSpeedCombo() {
         if (speedMultiplier == null) {
-            speedMultiplier = new JComboBox<>(new String[] { "1x", "2x", "5x", "10x" });
+            speedMultiplier = new JComboBox<>(new String[] { "1x", "2x", "5x", "10x", "20x", "60x" });
             speedMultiplier.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -140,6 +141,12 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
                             break;
                         case "10x":
                             timeMultiplier = 10;
+                            break;
+                        case "20x":
+                            timeMultiplier = 20;
+                            break;
+                        case "60x":
+                            timeMultiplier = 60;
                             break;
                         default:
                             timeMultiplier = 1;
