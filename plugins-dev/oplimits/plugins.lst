@@ -6,3 +6,4 @@
 # SVN_PATH=@SVN_PATH@
 
 pt.lsts.neptus.plugins.oplimits.OperationLimitsSubPanel
+pt.lsts.neptus.plugins.oplimits.OperationLimitsReplayLayer

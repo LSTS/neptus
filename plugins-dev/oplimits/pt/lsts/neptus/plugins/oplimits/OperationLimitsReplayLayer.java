@@ -29,77 +29,67 @@
  * Author: zp
  * Jan 30, 2014
  */
-package pt.lsts.neptus.mra.replay;
+package pt.lsts.neptus.plugins.oplimits;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.mp.OperationLimits;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.replay.LogReplayLayer;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.types.map.MapGroup;
-import pt.lsts.neptus.types.map.MapType;
-import pt.lsts.neptus.types.map.PlanElement;
-import pt.lsts.neptus.types.mission.MissionType;
-import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
  * @author zp
  *
  */
-@PluginDescription(icon="images/menus/plan.png")
-public class PlanReplayLayer implements LogReplayLayer {
-    MissionType mt = null;
-    PlanType plan = null;
-    PlanElement po = null;
+@PluginDescription(icon="pt/lsts/neptus/plugins/oplimits/limits.png")
+public class OperationLimitsReplayLayer implements LogReplayLayer {
+
+    private OperationLimits ol = null;
     
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        po.setRenderer(renderer);
-        po.paint(g, renderer);        
+        if (ol != null)
+            ol.paint(g, renderer);
     }
 
     @Override
     public boolean canBeApplied(IMraLogGroup source, Context context) {
-        mt = LogUtils.generateMission(source);
-        plan = LogUtils.generatePlan(mt, source);
-        return plan != null;
+        ol = LogUtils.getOperationLimits(source);
+        return ol != null;
     }
-
 
     @Override
     public String getName() {
-        return "Plan";
+        return "Operational Limits";
     }
 
     @Override
     public void parse(IMraLogGroup source) {
-        po = new PlanElement(MapGroup.getMapGroupInstance(mt), new MapType());
-        po.setPlan(plan);
-        po.setColor(new Color(255,255,255,128));
-        po.setShowDistances(true);
-        po.setShowManNames(true);
+        //nothing
     }
 
     @Override
     public String[] getObservedMessages() {
-        return new String[] {"PlanControlState"};
+        return null;
     }
 
     @Override
     public void onMessage(IMCMessage message) {
-        po.setActiveManeuver(message.getString("man_id"));
+
     }
 
     @Override
     public boolean getVisibleByDefault() {
-        return true;
+        return false;
     }
 
     @Override
     public void cleanup() {
+        // TODO Auto-generated method stub
 
     }
 
