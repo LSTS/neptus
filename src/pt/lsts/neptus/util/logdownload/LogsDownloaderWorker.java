@@ -41,7 +41,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -691,16 +690,7 @@ public class LogsDownloaderWorker {
                         }
 
                         //Getting the log list from Camera CPU
-                        String cameraHost = null;
-                        try {
-                            String[] parts = getHost().split("\\.");
-                            parts[3] = "" + (Integer.parseInt(parts[3]) + 3);
-                            cameraHost = StringUtils.join(parts, ".");
-                        }
-                        catch (Exception oops) {
-                            NeptusLog.pub().error("Could not get camera host string: "+oops.getClass().getSimpleName(), oops);
-                            cameraHost = "";
-                        }
+                        String cameraHost = getCameraHost(getHost());
                         
                         if (cameraHost.length() > 0) {
                             LinkedHashMap<FTPFile, String> retCamList = null;
@@ -1974,14 +1964,7 @@ public class LogsDownloaderWorker {
 
         LinkedList<LogFolderInfo> tmpLogFolders = new LinkedList<LogFolderInfo>();
 
-        String cameraHost = null;
-
-        if (getHost().equals("10.0.10.50"))
-            cameraHost = "10.0.10.52";
-        else if (getHost().equals("10.0.10.80"))
-            cameraHost = "10.0.10.83";
-        else
-            cameraHost = "";
+        String cameraHost = getCameraHost(getHost());
 
         System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + cameraHost + " " + getLogLabel());
 
@@ -2421,6 +2404,26 @@ public class LogsDownloaderWorker {
             lfx.setState(LogFolderInfo.State.LOCAL);
         }
         return toDelFL;
+    }
+    
+    public String getCameraHost(String mainHost) {
+        String cameraHost = null;
+        try {
+            String[] parts = mainHost.split("\\.");
+            parts[3] = "" + (Integer.parseInt(parts[3]) + 3);
+            cameraHost = StringUtils.join(parts, ".");
+        }
+        catch (Exception oops) {
+            NeptusLog.pub().error("Could not get camera host string: "+oops.getClass().getSimpleName(), oops);
+            cameraHost = "";
+        }
+        catch (Error oops) {
+            NeptusLog.pub().error("Could not get camera host string: "+oops.getClass().getSimpleName(), oops);
+            cameraHost = "";
+        }
+        
+        return cameraHost;
+                
     }
 
     /**
