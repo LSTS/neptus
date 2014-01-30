@@ -440,6 +440,10 @@ public class MRAFilesHandler implements FileHandler {
      */
     public void loadRecentlyOpenedFiles() {
         String recentlyOpenedFiles = ConfigFetch.resolvePath(RECENTLY_OPENED_LOGS);
+
+        if (recentlyOpenedFiles == null || !new File(recentlyOpenedFiles).exists())
+            return;
+
         Method methodUpdate = null;
 
         try {
@@ -454,13 +458,13 @@ public class MRAFilesHandler implements FileHandler {
             return;
         }
 
-        if (recentlyOpenedFiles == null) {
-            JOptionPane.showInternalMessageDialog(mra, "Cannot Load");
-            return;
-        }
+//        if (recentlyOpenedFiles == null) {
+//            JOptionPane.showInternalMessageDialog(mra, "Cannot Load");
+//            return;
+//        }
 
-        if (!new File(recentlyOpenedFiles).exists())
-            return;
+//        if (!new File(recentlyOpenedFiles).exists())
+//            return;
 
         RecentlyOpenedFilesUtil.loadRecentlyOpenedFiles(recentlyOpenedFiles, methodUpdate, this);
     }
