@@ -37,6 +37,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedHashMap;
 
+import pt.lsts.imc.Announce;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -47,13 +48,15 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author zp
  *
  */
-@PluginDescription
+@PluginDescription(icon="pt/lsts/neptus/mra/replay/lighthouse.png")
 public class AnnouncesReplay implements LogReplayLayer {
 
     protected LinkedHashMap<String, LocationType> systemsPositions = new LinkedHashMap<>();
+    protected LinkedHashMap<String, Double> lastAnnounces = new LinkedHashMap<>(); 
+    protected double curTime = 0;
     
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         return source.getLsfIndex().containsMessagesOfType("Announce");
     }
     
@@ -69,7 +72,7 @@ public class AnnouncesReplay implements LogReplayLayer {
     
     @Override
     public String[] getObservedMessages() {
-        return new String[] {"Announce"};
+        return new String[] {"Announce", "EstimatedState"};
     }
     
     @Override
@@ -79,10 +82,16 @@ public class AnnouncesReplay implements LogReplayLayer {
     
     @Override
     public void onMessage(IMCMessage message) {
-        LocationType loc = new LocationType();
-        loc.setLatitudeRads(message.getDouble("lat"));
-        loc.setLongitudeRads(message.getDouble("lon"));
-        systemsPositions.put(message.getString("sys_name"), loc);
+        if (message.getMgid() == Announce.ID_STATIC) {
+            LocationType loc = new LocationType();
+            loc.setLatitudeRads(message.getDouble("lat"));
+            loc.setLongitudeRads(message.getDouble("lon"));
+            systemsPositions.put(message.getString("sys_name"), loc);
+            lastAnnounces.put(message.getString("sys_name"), message.getTimestamp());
+        }
+        else {
+            curTime = message.getTimestamp();
+        }
     }
     
     @Override
@@ -91,7 +100,13 @@ public class AnnouncesReplay implements LogReplayLayer {
         for (String name : systemsPositions.keySet()) {
             Graphics2D g2 = (Graphics2D) g.create();
           Point2D pt = renderer.getScreenPosition(systemsPositions.get(name));
-          g2.setColor(Color.orange);
+          
+          double lastTime = lastAnnounces.get(name);
+          if (curTime - lastTime > 20)
+              g2.setColor(Color.gray);
+          else
+              g2.setColor(Color.orange);
+          
           g2.translate(pt.getX(), pt.getY());
           g2.fill(new Rectangle2D.Double(-3, -3, 6, 6));
           g2.setColor(Color.black);

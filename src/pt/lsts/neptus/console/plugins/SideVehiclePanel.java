@@ -102,7 +102,7 @@ public class SideVehiclePanel extends JPanel {
 
     }
 
-    private BufferedImage bi = null;// (BufferedImage)createImage(image.getWidth(null),image.getHeight(null));
+    private BufferedImage bi = null;
 
     public void setDepth(float z) {
         this.depth = z;
@@ -156,9 +156,6 @@ public class SideVehiclePanel extends JPanel {
             g.setColor(Color.BLUE);
             int watterPos = (int) (getHeight() / 2 - (this.depth * metersByPixel));
 
-            // NeptusLog.pub().info("<###>depth:"+this.depth +"\nmeterbyPixel:"+metersByPixel+"\nwatterPos:"+watterPos
-            // +"this.depth*metersByPixel:"+this.depth*metersByPixel);
-
             g.scale(scale, scale);
             g.drawImage(image, -image.getWidth(this) / 2, -image.getHeight(this) / 2, this);
             g.scale(1. / scale, 1. / scale);
@@ -167,7 +164,6 @@ public class SideVehiclePanel extends JPanel {
 
             if (sea) {
                 g.setColor(new Color(Color.BLUE.getRed(), Color.BLUE.getGreen(), Color.BLUE.getBlue(), 125));
-                // g.fillRect(0, 0, (int) (width * zoom), (int) (length * zoom));
                 g.fillRect(0, watterPos, getWidth() - 1, getHeight() - watterPos - 1);
 
             }
@@ -175,16 +171,7 @@ public class SideVehiclePanel extends JPanel {
             g.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0f, new float[] { 2f, 5f, 2f,
                     5f }, 0f));
 
-            // pdias: Substituído o drawLine q estava de vez em quando a estourar a virtual machine em Win
             g.draw(new Line2D.Double(0, getHeight() / 2, getWidth(), getHeight() / 2));
-
-            // g.drawImage(image,0,0,null);
-            // g.drawImage(image,0,0,100,100,null);
-
-            // g.rotate(this.pitch,image.getWidth(null)/2,image.getHeight(null)/2);
-
-            // g2.drawImage(bi.getScaledInstance(this.getWidth(), this.getHeight(), Image.SCALE_SMOOTH), 0, 0, this);
-
             g2.drawImage(bi, 0, 0, this);
     }
 

@@ -887,7 +887,6 @@ public class PluginUtils {
             return new String[] {};
         }
     }
-
     /**
      * Given an URL to a resource (.jar, .class, .png, ...), adds that resource to the system class path
      * 

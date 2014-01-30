@@ -79,7 +79,7 @@ public class SimulatedStateReplay implements LogReplayLayer {
         path1 = path2 = null;
     }
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         return source.getLog("SimulatedState") != null && source.getLog("NavigationStartupPoint") != null;
     }
 

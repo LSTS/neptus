@@ -63,7 +63,7 @@ public class TrexReplay implements LogReplayLayer {
     }
 
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         
 //        IMraLog log = source.getLog("LogBookEntry");
 //        

@@ -55,6 +55,7 @@ import javax.swing.border.BevelBorder;
 import pt.lsts.imc.lsf.LsfIndexListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.replay.LogReplayComponent.Context;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
 import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.renderer2d.ImageLayer;
@@ -156,7 +157,7 @@ public class RevisionSidePanel extends JPanel {
             }
            
             for (LogReplayLayer layer : layers) {                         
-                if (layer.canBeApplied(source)) {
+                if (layer.canBeApplied(source, Context.Console)) {
                     layer.parse(source);
                     addOverlay(layer.getName(), layer);
                 }

@@ -47,7 +47,6 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
@@ -57,8 +56,7 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
  * @author jqcorreia
  * 
  */
-@PluginDescription
-@LayerPriority(priority = 1)
+@PluginDescription(icon="pt/lsts/neptus/mra/replay/echosounder.png")
 public class SidescanReplay implements LogReplayLayer {
 
     List<SidescanData> dataSet = new ArrayList<SidescanData>();
@@ -170,7 +168,7 @@ public class SidescanReplay implements LogReplayLayer {
     }
 
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         return source.getLog("EstimatedState") != null && source.getLog("SonarData") != null;
     }
 

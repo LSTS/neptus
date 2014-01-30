@@ -46,6 +46,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -53,8 +54,8 @@ import pt.lsts.neptus.types.coord.LocationType;
 /**
  * @author zp
  */
-@PluginDescription
-public class LogMarkersReplay implements LogReplayLayer {
+@PluginDescription(icon="images/menus/marker.png")
+public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
 
     ArrayList<LogMarker> markers = new ArrayList<>();
     Vector<LocationType> locations = new Vector<>();
@@ -87,7 +88,7 @@ public class LogMarkersReplay implements LogReplayLayer {
     }
 
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {    
+    public boolean canBeApplied(IMraLogGroup source, Context context) {    
         return true;
     }
 
@@ -115,6 +116,23 @@ public class LogMarkersReplay implements LogReplayLayer {
             }
         }        
     }
+    
+    @Override
+    public void addLogMarker(LogMarker marker) {
+        addMarker(marker);
+    }
+
+    @Override
+    public void removeLogMarker(LogMarker marker) {
+        removeMarker(marker);
+    }
+    
+
+    @Override
+    public void GotoMarker(LogMarker marker) {
+        //nothing
+    }
+    
 
     @Override
     public void parse(IMraLogGroup source) {

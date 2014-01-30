@@ -57,27 +57,21 @@ import pt.lsts.neptus.util.llf.LogUtils;
  * 
  */
 @LayerPriority(priority = -10)
-@PluginDescription
+@PluginDescription(icon="pt/lsts/neptus/mra/replay/globe.png")
 public class EstimatedStateReplay implements LogReplayLayer {
 
     protected HashMap<Integer, Vector<LocationType>> positions = new LinkedHashMap<Integer, Vector<LocationType>>();
     protected Vector<Double> timestamps = new Vector<Double>();
     protected HashMap<Integer, VehiclePaths> pathsList = new LinkedHashMap<Integer, VehiclePaths>();
-    
     protected int currentPos = 0;
     protected double lastZoom = -1;
     protected double lastRotation = 0;
-
+    
     @Override
     public String getName() {
         return I18n.text("EstimatedState path");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.mra.replay.LLFReplayLayer#cleanup()
-     */
     @Override
     public void cleanup() {
         positions.clear();
@@ -86,7 +80,7 @@ public class EstimatedStateReplay implements LogReplayLayer {
     }
 
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         return source.getLog("EstimatedState") != null;
     }
 
@@ -129,7 +123,7 @@ public class EstimatedStateReplay implements LogReplayLayer {
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        // If zoom changed then recalculate paths
+
         if (renderer.getZoom() != lastZoom) {
             for (int i : positions.keySet()) {
                 VehiclePaths paths = pathsList.get(i);

@@ -15,7 +15,7 @@
  *
  * European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -26,16 +26,29 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: José Pinto
- * Dec 12, 2011
+ * Author: zp
+ * Jan 30, 2014
  */
 package pt.lsts.neptus.mra.replay;
 
-import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 
 /**
  * @author zp
  *
  */
-public interface LogReplayLayer extends Renderer2DPainter, LogReplayComponent {
+public interface LogReplayComponent {
+    
+    public enum Context {
+        Console, MRA
+    }
+    
+    public boolean canBeApplied(IMraLogGroup source, Context context);
+    public String getName();
+    public void parse(IMraLogGroup source);
+    public String[] getObservedMessages();
+    public void onMessage(IMCMessage message);
+    public boolean getVisibleByDefault();
+    public void cleanup();
 }

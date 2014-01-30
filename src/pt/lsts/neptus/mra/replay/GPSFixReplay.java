@@ -54,7 +54,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  *
  */
 @LayerPriority(priority=-40)
-@PluginDescription
+@PluginDescription(icon="pt/lsts/neptus/mra/replay/geolocation.png")
 public class GPSFixReplay implements LogReplayLayer {
 
     protected LinkedList<LocationType> validFixes = new LinkedList<LocationType>();
@@ -74,7 +74,7 @@ public class GPSFixReplay implements LogReplayLayer {
         fixToPaint = null;
     }
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         return source.getLog("GpsFix") != null;
     }
 

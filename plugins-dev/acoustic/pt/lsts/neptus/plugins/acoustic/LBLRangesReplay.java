@@ -82,7 +82,7 @@ public class LBLRangesReplay implements LogReplayLayer {
     }
 
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         return (source.getLog("LblRangeAcceptance") != null && source.getLog("LblConfig") != null);
     }
 
