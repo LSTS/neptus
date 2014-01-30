@@ -41,6 +41,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -72,6 +73,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.net.ftp.FTPFile;
 import org.jdesktop.swingx.JXCollapsiblePane;
 import org.jdesktop.swingx.JXLabel;
@@ -690,12 +692,16 @@ public class LogsDownloaderWorker {
 
                         //Getting the log list from Camera CPU
                         String cameraHost = null;
-                        if (getHost().equals("10.0.10.50"))
-                            cameraHost = "10.0.10.52";
-                        else if (getHost().equals("10.0.10.80"))
-                            cameraHost = "10.0.10.83";
-                        else
+                        try {
+                            String[] parts = getHost().split("\\.");
+                            parts[3] = "" + (Integer.parseInt(parts[3]) + 3);
+                            cameraHost = StringUtils.join(parts, ".");
+                        }
+                        catch (Exception oops) {
+                            NeptusLog.pub().error("Could not get camera host string: "+oops.getClass().getSimpleName(), oops);
                             cameraHost = "";
+                        }
+                        
                         if (cameraHost.length() > 0) {
                             LinkedHashMap<FTPFile, String> retCamList = null;
                             try {
