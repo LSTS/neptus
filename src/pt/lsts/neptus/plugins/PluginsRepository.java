@@ -40,6 +40,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
+import pt.lsts.neptus.mra.replay.LogReplayPanel;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
 import pt.lsts.neptus.renderer2d.tiles.Tile;
@@ -55,7 +56,8 @@ public class PluginsRepository {
             ConsoleInteraction.class,
             MRAVisualization.class,
             MRAExporter.class,
-            LogReplayLayer.class
+            LogReplayLayer.class,
+            LogReplayPanel.class
             );
       
     private static LinkedHashMap<String, Class<? extends MapTileProvider>> tileProviders = new LinkedHashMap<String, Class<? extends MapTileProvider>>();

@@ -31,11 +31,12 @@
  */
 package pt.lsts.neptus.mra.replay;
 
-import pt.lsts.neptus.renderer2d.Renderer2DPainter;
+import javax.swing.JComponent;
 
 /**
  * @author zp
  *
  */
-public interface LogReplayLayer extends Renderer2DPainter, LogReplayComponent {
+public interface LogReplayPanel extends LogReplayComponent {
+    public JComponent getComponent();    
 }

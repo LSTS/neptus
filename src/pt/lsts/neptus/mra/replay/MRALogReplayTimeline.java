@@ -69,7 +69,6 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
     private boolean changing = false;
     private ImageIcon playIcon = ImageUtils.getIcon("pt/lsts/neptus/mra/replay/control-play.png");
     
-
     public MRALogReplayTimeline(MRALogReplay replay) {
         this.index = replay.getIndex();
         this.bus = replay.getReplayBus();
@@ -84,6 +83,11 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
         
         add(getTimeline(replay), BorderLayout.CENTER);
         add(tmp, BorderLayout.WEST);
+    }
+    
+    public void cleanup() {
+        if (replayThread != null)
+            replayThread.interrupt();
     }
     
     private JSlider getTimeline(MRALogReplay replay) {
@@ -109,6 +113,7 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
                         if (replayThread != null)
                             replayThread.interrupt();
                         replayThread = createReplayThread();
+                        replayThread.setDaemon(true);
                         replayThread.start();
                         play.setToolTipText(I18n.text("Pause replay"));
                     }
@@ -184,6 +189,7 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
                 if (replayThread != null)
                     replayThread.interrupt();
                 replayThread = createReplayThread();
+                replayThread.setDaemon(true);
                 replayThread.start();
             }
         }
@@ -206,7 +212,7 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
                         if (newMissionTime / 1000 != timeline.getValue())
                             timeline.setValue((int) (newMissionTime / 1000));
 
-                        while (i < index.getNumberOfMessages() && index.timeOf(i)*1000 < newMissionTime && !isInterrupted()) {
+                        while (!isInterrupted() && i < index.getNumberOfMessages() && index.timeOf(i)*1000 < newMissionTime) {
                             IMCMessage m = index.getMessage(i);
                             bus.post(m);
                             i++;
@@ -217,7 +223,7 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
                         lastMissionTime = newMissionTime;
                         Thread.sleep(100);
                     }
-                    catch (InterruptedException e) {
+                    catch (Exception e) {
                         return;
                     }
                 }

@@ -34,14 +34,18 @@ package pt.lsts.neptus.mra.replay;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.Executors;
 
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
@@ -53,7 +57,7 @@ import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
-import pt.lsts.neptus.mra.replay.LogReplayLayer.Context;
+import pt.lsts.neptus.mra.replay.LogReplayComponent.Context;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.mra.visualizations.SimpleMRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -62,6 +66,7 @@ import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LogUtils;
 
@@ -71,30 +76,45 @@ import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
- *
+ * 
  */
-@PluginDescription(name="Mission Replay", icon="pt/lsts/neptus/mra/replay/replay.png")
+@PluginDescription(name = "Mission Replay", icon = "pt/lsts/neptus/mra/replay/replay.png")
 public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerListener {
 
     private static final long serialVersionUID = 1L;
     private LsfIndex index;
     private IMraLogGroup source;
     private Vector<LogReplayLayer> layers = new Vector<>();
+    private Vector<LogReplayPanel> panels = new Vector<>();
     private final AsyncEventBus replayBus = new AsyncEventBus("Replay Event bus", Executors.newFixedThreadPool(2));
     private StateRenderer2D r2d;
     private JToolBar layersToolbar;
     private MRALogReplayTimeline timeline;
-    private LinkedHashMap<String, Vector<LogReplayLayer>> observersTable = new LinkedHashMap<>();
+    private LinkedHashMap<String, Vector<LogReplayComponent>> observers = new LinkedHashMap<>();
+    private LinkedHashMap<LogReplayPanel, JDialog> popups = new LinkedHashMap<>();
+    private MRAPanel panel;
 
     public MRALogReplay(MRAPanel panel) {
         super(panel);
+        this.panel = panel;
+
         replayBus.register(this);
         r2d = new StateRenderer2D();
         layersToolbar = new JToolBar("Layers", JToolBar.VERTICAL);
         for (Entry<String, Class<? extends LogReplayLayer>> entry : PluginsRepository.getReplayLayers().entrySet()) {
             try {
                 LogReplayLayer layer = PluginsRepository.getPlugin(entry.getKey(), LogReplayLayer.class);
-                layers.add(layer);                       
+                layers.add(layer);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        for (Entry<String, Class<? extends LogReplayPanel>> entry : PluginsRepository.listExtensions(
+                LogReplayPanel.class).entrySet()) {
+            try {
+                LogReplayPanel p = PluginsRepository.getPlugin(entry.getKey(), LogReplayPanel.class);
+                panels.add(p);
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -115,18 +135,116 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
 
     @Subscribe
     public synchronized void on(IMCMessage m) {
-        if (observersTable.containsKey(m.getAbbrev())) {
-            for (LogReplayLayer l : observersTable.get(m.getAbbrev()))
-                l.onMessage(m);
+        if (observers.containsKey(m.getAbbrev())) {
+            for (LogReplayComponent c : observers.get(m.getAbbrev()))
+                c.onMessage(m);
             r2d.repaint();
         }
-        
+
         if (m.getAbbrev().equals("EstimatedState")) {
             SystemPositionAndAttitude state = IMCUtils.parseState(m);
             r2d.vehicleStateChanged(m.getSourceName(), state);
         }
     }
+
+    private void bootstrapComponent(final LogReplayComponent comp) {
+        comp.parse(source);
+        replayBus.register(comp);
+        
+        String[] msgs = comp.getObservedMessages();
+        if (msgs != null) {
+            for (String m : msgs) {
+                if (!observers.containsKey(m))
+                    observers.put(m, new Vector<LogReplayComponent>());
+                observers.get(m).add(comp);
+            }
+        }
+
+    }
     
+    private void bootstrap(final LogReplayLayer l) {
+        bootstrapComponent(l);
+        
+        if (l.getVisibleByDefault())
+            r2d.addPostRenderPainter(l, l.getName());
+        ToolbarSwitch ts = new ToolbarSwitch(ImageUtils.getScaledIcon(PluginUtils.getPluginIcon(l.getClass()), 16, 16),
+                l.getName(), l.getName());
+        ts.setSelected(l.getVisibleByDefault());
+        ts.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (((ToolbarSwitch) e.getSource()).isSelected())
+                    r2d.addPostRenderPainter(l, l.getName());
+                else
+                    r2d.removePostRenderPainter(l);
+                r2d.repaint();
+            }
+        });
+
+        if (l.getVisibleByDefault())
+            layersToolbar.add(ts, 0);
+        else
+            layersToolbar.add(ts, layersToolbar.getComponentCount());
+
+        layersToolbar.invalidate();
+        layersToolbar.validate();
+    }
+
+    private JDialog getPopup(final LogReplayPanel p) {
+
+        if (popups.containsKey(p))
+            return popups.get(p);
+
+        final JDialog d = new JDialog(SwingUtilities.getWindowAncestor(panel));
+        d.setTitle(p.getName());
+        d.getContentPane().add(p.getComponent());
+        d.pack();
+        GuiUtils.centerOnScreen(d);
+        d.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        d.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                super.windowClosed(e);
+                popups.remove(p);
+            }
+        });
+        popups.put(p, d);
+        d.setVisible(true);
+        return d;
+    }
+
+    private void bootstrapPanel(final LogReplayPanel p) {
+        bootstrapComponent(p);
+        if (p.getVisibleByDefault()) {
+            getPopup(p).setVisible(true);
+            getPopup(p).toFront();
+        }
+
+        ToolbarSwitch ts = new ToolbarSwitch(ImageUtils.getScaledIcon(PluginUtils.getPluginIcon(p.getClass()), 16, 16),
+                p.getName(), p.getName());
+        ts.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (((ToolbarSwitch) e.getSource()).isSelected()) {
+                    getPopup(p).setVisible(true);
+                    getPopup(p).toFront();
+                }
+                else {
+                    getPopup(p).setVisible(false);
+                    getPopup(p).dispose();
+                }
+            }
+        });
+
+        if (p.getVisibleByDefault())
+            layersToolbar.add(ts, 0);
+        else
+            layersToolbar.add(ts, layersToolbar.getComponentCount());
+
+        layersToolbar.invalidate();
+        layersToolbar.validate();
+    }
+
     @Override
     public JComponent getVisualization(final IMraLogGroup source, double timestep) {
         this.source = source;
@@ -140,48 +258,27 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
             public void run() {
                 MissionType mt = LogUtils.generateMission(source);
                 r2d.setMapGroup(MapGroup.getMapGroupInstance(mt));
-                
+
                 for (final LogReplayLayer l : layers) {
                     try {
                         if (l.canBeApplied(source, Context.MRA)) {
-                            l.parse(source);
-                            replayBus.register(l);
-                            if (l.getVisibleByDefault())
-                                r2d.addPostRenderPainter(l, l.getName());
-                            ToolbarSwitch ts = new ToolbarSwitch(ImageUtils.getScaledIcon(PluginUtils.getPluginIcon(l.getClass()), 16, 16), l.getName(), l.getName());
-                            ts.setSelected(l.getVisibleByDefault());
-                            ts.addActionListener(new ActionListener() {                                
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    if (((ToolbarSwitch)e.getSource()).isSelected())
-                                        r2d.addPostRenderPainter(l, l.getName());                                    
-                                    else 
-                                        r2d.removePostRenderPainter(l);
-                                    r2d.repaint();
-                                }
-                            });
-                            
-                            String[] msgs = l.getObservedMessages();
-                            if (msgs != null) {
-                                for (String m : msgs) {
-                                    if (!observersTable.containsKey(m))
-                                        observersTable.put(m, new Vector<LogReplayLayer>());
-                                    observersTable.get(m).add(l);
-                                }
-                            }
-                            
-                            if (l.getVisibleByDefault())
-                                layersToolbar.add(ts, 0);
-                            else
-                                layersToolbar.add(ts, layersToolbar.getComponentCount());
-                                
-                            layersToolbar.invalidate();
-                            layersToolbar.validate();
+                            bootstrap(l);
                         }
                     }
                     catch (Exception e) {
                         e.printStackTrace();
-                    }                    
+                    }
+                }
+
+                for (final LogReplayPanel p : panels) {
+                    try {
+                        if (p.canBeApplied(source, pt.lsts.neptus.mra.replay.LogReplayPanel.Context.MRA)) {
+                            bootstrapPanel(p);
+                        }
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             };
         };
@@ -200,7 +297,7 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
     public void addLogMarker(LogMarker marker) {
         for (LogReplayLayer l : layers) {
             if (l instanceof LogMarkerListener)
-                ((LogMarkerListener)l).addLogMarker(marker);
+                ((LogMarkerListener) l).addLogMarker(marker);
         }
     }
 
@@ -208,7 +305,7 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
     public void removeLogMarker(LogMarker marker) {
         for (LogReplayLayer l : layers) {
             if (l instanceof LogMarkerListener)
-                ((LogMarkerListener)l).removeLogMarker(marker);
+                ((LogMarkerListener) l).removeLogMarker(marker);
         }
     }
 
@@ -216,18 +313,28 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
     public void GotoMarker(LogMarker marker) {
         for (LogReplayLayer l : layers) {
             if (l instanceof LogMarkerListener)
-                ((LogMarkerListener)l).GotoMarker(marker);
+                ((LogMarkerListener) l).GotoMarker(marker);
         }
     }
 
     @Override
     public void onCleanup() {
         super.onCleanup();
+        timeline.cleanup();
+        for (JDialog d : popups.values()) {
+            d.setVisible(false);
+            d.dispose();
+        }
+
         for (LogReplayLayer l : layers) {
             l.cleanup();
             replayBus.unregister(l);
         }
-
+        for (LogReplayPanel p: panels) {
+            p.cleanup();
+            replayBus.unregister(p);
+        }
+        
     }
 
     /**

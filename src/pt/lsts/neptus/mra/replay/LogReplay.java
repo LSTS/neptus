@@ -67,7 +67,7 @@ import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.mra.plots.ReplayPlot;
-import pt.lsts.neptus.mra.replay.LogReplayLayer.Context;
+import pt.lsts.neptus.mra.replay.LogReplayComponent.Context;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginsRepository;

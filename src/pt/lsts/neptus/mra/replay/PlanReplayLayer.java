@@ -78,9 +78,9 @@ public class PlanReplayLayer implements LogReplayLayer {
     public void parse(IMraLogGroup source) {
         po = new PlanElement(MapGroup.getMapGroupInstance(mt), new MapType());
         po.setPlan(plan);
-        po.setColor(new Color(255,255,255,128));
-        po.setShowDistances(true);
-        po.setShowManNames(true);
+        po.setColor(new Color(0,255,255,128));
+        po.setShowDistances(false);
+        po.setShowManNames(false);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class PlanReplayLayer implements LogReplayLayer {
 
     @Override
     public boolean getVisibleByDefault() {
-        return true;
+        return false;
     }
 
     @Override
