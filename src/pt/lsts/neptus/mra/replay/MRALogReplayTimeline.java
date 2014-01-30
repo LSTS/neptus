@@ -36,6 +36,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -73,9 +74,11 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
     private ImageIcon playIcon = ImageUtils.getIcon("pt/lsts/neptus/mra/replay/control-play.png");
     private JLabel time = new JLabel();
     private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+    
     public MRALogReplayTimeline(MRALogReplay replay) {
         this.index = replay.getIndex();
         this.bus = replay.getReplayBus();
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         time.setText(sdf.format(new Date(1000*(long)index.getStartTime())));
         setLayout(new BorderLayout());
         JPanel tmp = new JPanel();

@@ -32,6 +32,7 @@
 package pt.lsts.neptus.util.llf;
 
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -79,6 +80,7 @@ public class RawMessagesTableModel extends AbstractTableModel {
     }
     public RawMessagesTableModel(LsfIndex index) {
         this.index = index;
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
     
     @Override

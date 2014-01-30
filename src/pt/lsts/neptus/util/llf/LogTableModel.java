@@ -59,7 +59,7 @@ public class LogTableModel extends AbstractTableModel {
 
         IMCMessage msg = parser.getEntryAtOrAfter(initTime);
         int rowIndex = 0;
-        System.out.println(initTime + " " + finalTime);
+        
         while (msg != null && msg.getTimestampMillis() <= finalTime) {
             Vector<Object> values = new Vector<Object>();
             values.add(msg.getTimestampMillis());
