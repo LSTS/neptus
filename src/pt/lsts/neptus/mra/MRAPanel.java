@@ -56,15 +56,16 @@ import org.jdesktop.swingx.JXStatusBar;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.LogMarkerListener;
-import pt.lsts.neptus.mra.replay.LogReplay;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ImageUtils;
@@ -93,14 +94,14 @@ public class MRAPanel extends JPanel {
     private JScrollPane jspMessageTree;
     private JScrollPane jspLogTree;
 
-    private LogReplay replay;
     private final LinkedHashMap<String, MRAVisualization> visualizationList = new LinkedHashMap<String, MRAVisualization>();
     private final LinkedHashMap<String, Component> openVisualizationList = new LinkedHashMap<String, Component>();
     private final ArrayList<String> loadingVisualizations = new ArrayList<String>();
 
     private final ArrayList<LogMarker> logMarkers = new ArrayList<LogMarker>();
     private MRAVisualization shownViz = null;
-
+    private Vector<MissionChangeListener> mcl = new Vector<>();
+    
     InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
 
     /**
@@ -188,6 +189,10 @@ public class MRAPanel extends JPanel {
                 if (visualization.canBeApplied(MRAPanel.this.source)) {
                     visualizations.add(visualization);
                 }
+                if (visualization instanceof MissionChangeListener) {
+                    addMissionChangeListener((MissionChangeListener)visualization);
+                }
+                
             }
             catch (Exception e1) {
                 NeptusLog.pub().error(
@@ -213,11 +218,7 @@ public class MRAPanel extends JPanel {
         // Load PluginVisualizations
         for (MRAVisualization viz : visualizations) {
             try {
-                loadVisualization(viz, false);
-                // for setMission interaction
-                if (viz.getName().equals("Replay")) {
-                    replay = (LogReplay) viz;
-                }
+                loadVisualization(viz, false);               
             }
             catch (Exception e1) {
                 NeptusLog.pub().error(
@@ -279,7 +280,7 @@ public class MRAPanel extends JPanel {
         NeptusLog.pub().info("MRA Cleanup");
         tree.removeAll();
         tree = null;
-
+        mcl.clear();
         logTree.removeAll();
         logTree = null;
 
@@ -294,6 +295,7 @@ public class MRAPanel extends JPanel {
 
         source.cleanup();
         source = null;
+        
     }
 
     /**
@@ -415,14 +417,6 @@ public class MRAPanel extends JPanel {
     }
 
     /**
-     * Gets LogReplay instance
-     * @return replay
-     */
-    public LogReplay getMissionReplay() {
-        return replay;
-    }
-
-    /**
      * Get the LsfTree
      * @return the tree
      */
@@ -457,6 +451,19 @@ public class MRAPanel extends JPanel {
     public InfiniteProgressPanel getLoader() {
         return loader;
     }
+    
+    public void addMissionChangeListener(MissionChangeListener l) {
+        if (!mcl.contains(l))
+            mcl.add(l);
+        
+    }
+    
+    public void warnChangeListeners(MissionType newMission) {
+        for (MissionChangeListener m : mcl) {
+            m.missionReplaced(newMission);
+        }
+    }
+    
 
     /**
      *
@@ -501,7 +508,7 @@ public class MRAPanel extends JPanel {
                         ((LogMarkerListener) vis).addLogMarker(marker);
                     }
                 }
-
+                
                 loader.stop();
                 loadingVisualizations.remove(vis.getName());
             }

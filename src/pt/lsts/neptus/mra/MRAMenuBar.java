@@ -73,7 +73,6 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.ConcatenateLsfLog;
-import pt.lsts.neptus.mra.replay.LogReplay;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -118,8 +117,9 @@ public class MRAMenuBar {
 
     private LinkedHashMap<JMenuItem, File> miscFilesOpened;
     private NeptusMRA mra;
-    private MRAPanel mraPanel; 
+    //private MRAPanel mraPanel; 
 
+    
     /**
      * Constructor
      * 
@@ -127,7 +127,7 @@ public class MRAMenuBar {
      */
     public MRAMenuBar(NeptusMRA mra) {
         this.mra = mra;
-        this.mraPanel = mra.getMraPanel();
+        //this.mraPanel = mra.getMraPanel();
     }
 
     /**
@@ -152,6 +152,7 @@ public class MRAMenuBar {
         return menuBar;
     }
 
+    
     /**
      * Set up File Menu
      */
@@ -227,8 +228,8 @@ public class MRAMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (mraPanel != null) {
-                    mraPanel.cleanup();
+                if (mra.getMraPanel() != null) {
+                    mra.getMraPanel().cleanup();
                 }
                 mra.setVisible(false);
                 mra.dispose();
@@ -315,7 +316,7 @@ public class MRAMenuBar {
 
                     @Override
                     public Object run() throws Exception {
-                        LsfReport.generateLogs(f, mraPanel);
+                        LsfReport.generateLogs(f, mra.getMraPanel());
                         return null;
                     }
                 };
@@ -338,12 +339,8 @@ public class MRAMenuBar {
                 File f = MissionFileChooser.showOpenMissionDialog(new String[] { "nmis", "nmisz" });
                 if (f != null) {
                     MissionType mission = new MissionType(f.getAbsolutePath());
-                    if (mraPanel != null) {
-                        LogReplay replay = mraPanel.getMissionReplay();
-                        if (replay != null) {
-                            replay.setMission(mission);
-                        }
-                    }
+                    if (mra.getMraPanel() != null)
+                        mra.getMraPanel().warnChangeListeners(mission);                    
                 }
             }
         };

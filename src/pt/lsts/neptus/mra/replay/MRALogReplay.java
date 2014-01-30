@@ -51,6 +51,7 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.LogMarker;
@@ -79,7 +80,7 @@ import com.google.common.eventbus.Subscribe;
  * 
  */
 @PluginDescription(name = "Mission Replay", icon = "pt/lsts/neptus/mra/replay/replay.png")
-public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerListener {
+public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerListener, MissionChangeListener {
 
     private static final long serialVersionUID = 1L;
     private LsfIndex index;
@@ -215,19 +216,24 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
 
     private void bootstrapPanel(final LogReplayPanel p) {
         bootstrapComponent(p);
-        if (p.getVisibleByDefault()) {
-            getPopup(p).setVisible(true);
-            getPopup(p).toFront();
-        }
+        
 
-        ToolbarSwitch ts = new ToolbarSwitch(ImageUtils.getScaledIcon(PluginUtils.getPluginIcon(p.getClass()), 16, 16),
+        final ToolbarSwitch ts = new ToolbarSwitch(ImageUtils.getScaledIcon(PluginUtils.getPluginIcon(p.getClass()), 16, 16),
                 p.getName(), p.getName());
         ts.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (((ToolbarSwitch) e.getSource()).isSelected()) {
-                    getPopup(p).setVisible(true);
-                    getPopup(p).toFront();
+                final ToolbarSwitch ts = ((ToolbarSwitch) e.getSource());
+                
+                if (ts.isSelected()) {
+                    JDialog d = getPopup(p);
+                    d.setVisible(true);
+                    d.toFront();
+                    d.addWindowListener(new WindowAdapter() {
+                        public void windowClosed(WindowEvent e) {
+                            ts.setSelected(false);
+                        };
+                    });
                 }
                 else {
                     getPopup(p).setVisible(false);
@@ -243,6 +249,9 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
 
         layersToolbar.invalidate();
         layersToolbar.validate();
+        if (p.getVisibleByDefault()) {
+            ts.doClick();
+        }
     }
 
     @Override
@@ -333,8 +342,19 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
         for (LogReplayPanel p: panels) {
             p.cleanup();
             replayBus.unregister(p);
-        }
-        
+        }        
+    }
+    
+    
+    @Override
+    public void missionReplaced(MissionType mission) {
+        missionUpdated(mission);
+    }
+    
+    
+    @Override
+    public void missionUpdated(MissionType mission) {
+        r2d.setMapGroup(MapGroup.getMapGroupInstance(mission));
     }
 
     /**

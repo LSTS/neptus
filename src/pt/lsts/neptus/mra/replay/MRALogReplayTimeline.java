@@ -34,10 +34,13 @@ package pt.lsts.neptus.mra.replay;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JToggleButton;
@@ -68,11 +71,12 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
     private Thread replayThread = null;
     private boolean changing = false;
     private ImageIcon playIcon = ImageUtils.getIcon("pt/lsts/neptus/mra/replay/control-play.png");
-    
+    private JLabel time = new JLabel();
+    private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
     public MRALogReplayTimeline(MRALogReplay replay) {
         this.index = replay.getIndex();
         this.bus = replay.getReplayBus();
-
+        time.setText(sdf.format(new Date(1000*(long)index.getStartTime())));
         setLayout(new BorderLayout());
         JPanel tmp = new JPanel();
         play = getPlayButton();
@@ -83,6 +87,7 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
         
         add(getTimeline(replay), BorderLayout.CENTER);
         add(tmp, BorderLayout.WEST);
+        add(time, BorderLayout.EAST);
     }
     
     public void cleanup() {
@@ -193,6 +198,7 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
                 replayThread.start();
             }
         }
+        time.setText(sdf.format(new Date(timeline.getValue()*1000l)));
     }
 
     private Thread createReplayThread() {
