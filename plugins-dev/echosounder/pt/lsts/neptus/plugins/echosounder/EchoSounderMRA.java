@@ -172,7 +172,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getLog("SonarData") != null && source.getLog("Distance") != null;
+        return source.getLog("SonarData") != null && source.getLsfIndex().getEntityId("Echo Sounder") != 255;
     }
 
     @Override
@@ -185,10 +185,12 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
         return ImageUtils.getScaledIcon(PluginUtils.getPluginIcon(this.getClass()), 16, 16);
     }
 
+    @Override
     public String getName() {		
         return I18n.text(PluginUtils.getPluginName(this.getClass()));
     }
 
+    @Override
     public Type getType() {
         return Type.VISUALIZATION;
     }
@@ -203,6 +205,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
         // TODO Auto-generated method stub	   
     }
 
+    @Override
     public void onShow() {
         //nothing
     }
