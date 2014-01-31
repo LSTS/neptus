@@ -31,13 +31,14 @@
  */
 package pt.lsts.neptus.mp.preview;
 
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
- *
+ * 
  */
 public class StationKeepingPreview implements IManeuverPreview<StationKeeping> {
 
@@ -48,51 +49,46 @@ public class StationKeepingPreview implements IManeuverPreview<StationKeeping> {
     protected double maxTime, duration;
     protected boolean arrived = false;
     UnicycleModel model = new UnicycleModel();
+
     @Override
     public boolean init(String vehicleId, StationKeeping man, SystemPositionAndAttitude state, Object manState) {
-        destination = new LocationType(man.getLocation());
-        destination.setDepth(0);
-        maxTime = man.getMaxTime();
-        duration = man.getDuration();
+        destination = new LocationType(man.getManeuverLocation());
+        if (man.getManeuverLocation().getZUnits() == ManeuverLocation.Z_UNITS.DEPTH)
+            destination.setDepth(man.getManeuverLocation().getZ());
+        else
+            destination.setDepth(Math.max(0.5, 10 - man.getManeuverLocation().getZ()));
+
         speed = man.getSpeed();
-        model.setMaxSteeringRad(Math.toRadians(9));
-        if (man.getSpeedUnits().equals("RPM")) 
+        if (man.getSpeedUnits().equals("RPM"))
             speed = SpeedConversion.convertRpmtoMps(speed);
         else if (man.getSpeedUnits().equals("%")) // convert to RPM and then to m/s
             speed = SpeedConversion.convertPercentageToMps(speed);
 
-        speed = Math.min(speed, SpeedConversion.MAX_SPEED);              
+        speed = Math.min(speed, SpeedConversion.MAX_SPEED);
+        duration = man.getDuration();
         
-        model.setState(state);        
+        model.setState(state);
         return true;
     }
-    
 
     @Override
     public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep) {
-  
-        if (sk_time >= duration)
-            finished = true;
-        
-        if (arrived) {
-            sk_time += timestep;
-            return model.getState();
-        }
-        
-        if (state.getPosition().getDepth() > 0) {
-            model.guide(destination, 0, null);
-            model.advance(timestep);
+        if (!arrived) {
+            model.setState(state);
+            arrived = model.guide(destination, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
         }
         else {
-            model.getState().getPosition().setDepth(0);
-            arrived = model.guide(destination, speed, null);
-            model.advance(timestep);
-            sk_time = 0;
+            sk_time += timestep;
+            if (duration == 0)
+                finished = model.getDepth() <= 0;
+            else
+                finished = sk_time >= duration;
         }
         
+        model.advance(timestep);
         return model.getState();
     }
-    
+
     @Override
     public boolean isFinished() {
         return finished;
@@ -102,7 +98,7 @@ public class StationKeepingPreview implements IManeuverPreview<StationKeeping> {
     public void reset(SystemPositionAndAttitude state) {
         model.setState(state);
     }
-    
+
     @Override
     public Object getState() {
         return null;
