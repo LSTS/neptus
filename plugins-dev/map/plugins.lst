@@ -6,3 +6,4 @@
 # SVN_PATH=@SVN_PATH@
 
 pt.lsts.neptus.plugins.map.MapEditor
+pt.lsts.neptus.plugins.beacons.BeaconsVisibilityLayer
