@@ -1194,7 +1194,7 @@ msgid "Change Log Name Enabled"
 msgstr ""
 
 #: plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanEditor.java:925
-msgid "Change existing Maneuvers"
+msgid "Change existing maneuvers"
 msgstr ""
 
 #: src/pt/lsts/neptus/mp/ManeuverLocationEditor.java:74
