@@ -50,6 +50,7 @@ import javax.swing.SwingUtilities;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.gui.ToolbarSwitch;
@@ -342,7 +343,12 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
         }
         for (LogReplayPanel p: panels) {
             p.cleanup();
-            replayBus.unregister(p);
+            try {
+                replayBus.unregister(p);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
         }        
     }
     

@@ -32,6 +32,8 @@
 package pt.lsts.neptus.mra.plots;
 
 import java.awt.Component;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -43,6 +45,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
 
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.LogStatisticsItem;
@@ -83,6 +86,36 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
         addValue(name, 1);
 
     }
+    
+    public void cleanupSeries(double otherRatio) {
+        Vector<Pair<String, Double>> values = new Vector<>();
+        double totalSum = 0;
+        for (Entry<String, Double> k : sums.entrySet()) {
+            totalSum += k.getValue();
+            values.add(new Pair<String, Double>(k.getKey(), k.getValue()));
+        }
+        
+        Collections.sort(values, new Comparator<Pair<String, Double>>() {
+            @Override
+            public int compare(Pair<String, Double> o1, Pair<String, Double> o2) {
+                return o1.second().compareTo(o2.second());
+            }
+        });
+        
+        double otherSum = 0;
+        
+        for (Pair<String, Double> v : values) {
+            if ((otherSum + v.second()) / totalSum < otherRatio) {
+                otherSum += v.second();
+                sums.remove(v.first());
+            }
+            else
+                break;
+        }
+        
+        sums.put("Other", otherSum);
+    }
+    
     public void addValue(String name, double ammount) {
 
         if (!sums.containsKey(name))
@@ -105,7 +138,7 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
 
     @Override
     public ImageIcon getIcon() {
-        return ImageUtils.getIcon("images/menus/graph.png");
+        return ImageUtils.getIcon("pt/lsts/neptus/mra/plots/chart-pie.png");
     }
 
     @Override
@@ -115,7 +148,7 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
 
     @Override
     public boolean supportsVariableTimeSteps() {
-        return true;
+        return false;
     }
 
 

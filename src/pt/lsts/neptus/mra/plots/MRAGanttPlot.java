@@ -172,7 +172,7 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
 
     @Override
     public ImageIcon getIcon() {
-        return ImageUtils.getIcon("images/menus/graph2.png");
+        return ImageUtils.getIcon("pt/lsts/neptus/mra/plots/clock-frame.png");
     }
 
     @Override
