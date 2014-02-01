@@ -922,7 +922,7 @@ MissionChangeListener {
             }
             else {
                 if (plan.hasInitialManeuver()) {
-                    JMenu planSettings = new JMenu(I18n.text("Change existing maneuvers"));
+                    JMenu planSettings = new JMenu(I18n.text("Change Existing Maneuvers"));
                     AbstractAction pDepth = new AbstractAction(I18n.text("Plan depth / altitude...")) {
                         private static final long serialVersionUID = 1L;
 

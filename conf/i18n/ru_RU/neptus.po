@@ -1480,7 +1480,7 @@ msgstr "Измените Имя журнала Включено"
 
 #: plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanEditor.java:925
 #, fuzzy
-msgid "Change existing maneuvers"
+msgid "Change Existing Maneuvers"
 msgstr "Выберите существующий Оценка:"
 
 #: src/pt/lsts/neptus/mp/ManeuverLocationEditor.java:74
