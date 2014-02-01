@@ -1062,11 +1062,12 @@ MissionChangeListener {
 
                                 startActions.addAll(Arrays.asList(pivot.getStartActions().getAllMessages()));
 
-
                                 for (Maneuver m : plan.getGraph().getAllManeuvers()) {
                                     m.getStartActions().parseMessages(startActions);
                                     NeptusLog.pub().info("<###> " + m.getId());
                                 }
+                                
+                                refreshPropertiesManeuver();
                             }
                         }
                     };
