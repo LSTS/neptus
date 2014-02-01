@@ -99,29 +99,13 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
     public MRALogReplay(MRAPanel panel) {
         super(panel);
         this.panel = panel;
-
-        replayBus.register(this);
-        r2d = new StateRenderer2D();
-        layersToolbar = new JToolBar("Layers", JToolBar.VERTICAL);
-        for (Entry<String, Class<? extends LogReplayLayer>> entry : PluginsRepository.getReplayLayers().entrySet()) {
-            try {
-                LogReplayLayer layer = PluginsRepository.getPlugin(entry.getKey(), LogReplayLayer.class);
-                layers.add(layer);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        for (Entry<String, Class<? extends LogReplayPanel>> entry : PluginsRepository.listExtensions(
-                LogReplayPanel.class).entrySet()) {
-            try {
-                LogReplayPanel p = PluginsRepository.getPlugin(entry.getKey(), LogReplayPanel.class);
-                panels.add(p);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    }
+    
+    
+   
+    @Override
+    public void onShow() {
+        super.onShow();
     }
 
     @Override
@@ -259,6 +243,30 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
     public JComponent getVisualization(final IMraLogGroup source, double timestep) {
         this.source = source;
         this.index = source.getLsfIndex();
+        
+        replayBus.register(this);
+        r2d = new StateRenderer2D();
+        layersToolbar = new JToolBar("Layers", JToolBar.VERTICAL);
+        for (Entry<String, Class<? extends LogReplayLayer>> entry : PluginsRepository.getReplayLayers().entrySet()) {
+            try {
+                LogReplayLayer layer = PluginsRepository.getPlugin(entry.getKey(), LogReplayLayer.class);
+                layers.add(layer);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        for (Entry<String, Class<? extends LogReplayPanel>> entry : PluginsRepository.listExtensions(
+                LogReplayPanel.class).entrySet()) {
+            try {
+                LogReplayPanel p = PluginsRepository.getPlugin(entry.getKey(), LogReplayPanel.class);
+                panels.add(p);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
         timeline = new MRALogReplayTimeline(this);
         if (index.containsMessagesOfType("EstimatedState")) {
             r2d.setCenter(IMCUtils.getLocation(index.nextMessageOfType(EstimatedState.class, 0)));
