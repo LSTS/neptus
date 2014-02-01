@@ -67,12 +67,9 @@ public class CpuUsagePlot extends PiePlot {
 
         while(it.hasNext()) {
             CpuUsage u = it.next();
-            if (u.getValue() > 0)
+            if (u.getValue() > 0 && u.getSrcEnt() != 0)
                 addValue(source.getEntityName(u.getSrcEnt()), u.getValue());
         }
-        
         cleanupSeries(0.01);
-
     }
-
 }

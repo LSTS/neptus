@@ -61,9 +61,13 @@ import pt.lsts.neptus.util.llf.chart.LLFChart;
  *
  */
 public abstract class PiePlot implements LLFChart, LogMarkerListener {   
-    MRAPanel mraPanel;
-
-
+    protected MRAPanel mraPanel;
+    protected LsfIndex index;
+    protected double timestep = 0;
+    protected JFreeChart chart;
+    protected LinkedHashMap<String, Double> sums = new LinkedHashMap<>();
+    protected double total = 0;
+    
     public PiePlot(MRAPanel panel) {
         this.mraPanel = panel;
     }
@@ -76,22 +80,17 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
         return I18n.textf("%plotname plot", getName());
     }
 
-    private LsfIndex index;
-    protected double timestep = 0;
-    JFreeChart chart;
-
-    protected LinkedHashMap<String, Double> sums = new LinkedHashMap<>();
 
     public void incValue(String name) {
         addValue(name, 1);
-
     }
+
     
     public void cleanupSeries(double otherRatio) {
         Vector<Pair<String, Double>> values = new Vector<>();
-        double totalSum = 0;
+        //double totalSum = 0;
         for (Entry<String, Double> k : sums.entrySet()) {
-            totalSum += k.getValue();
+            //totalSum += k.getValue();
             values.add(new Pair<String, Double>(k.getKey(), k.getValue()));
         }
         
@@ -105,7 +104,7 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
         double otherSum = 0;
         
         for (Pair<String, Double> v : values) {
-            if ((otherSum + v.second()) / totalSum < otherRatio) {
+            if ((otherSum + v.second()) / total < otherRatio) {
                 otherSum += v.second();
                 sums.remove(v.first());
             }
@@ -115,17 +114,17 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
         
         sums.put("Other", otherSum);
         for (Entry<String, Double> k : sums.entrySet()) {
-            sums.put(k.getKey(), (k.getValue()/totalSum) * 100);
+            sums.put(k.getKey(), (k.getValue()/total) * 100);
         }
         
     }
     
-    public void addValue(String name, double ammount) {
+    public void addValue(String name, double amount) {
 
         if (!sums.containsKey(name))
             sums.put(name, 0d);
-
-        sums.put(name, sums.get(name)+ammount);
+        total += amount;                
+        sums.put(name, sums.get(name)+amount);
     }
 
     @Override
