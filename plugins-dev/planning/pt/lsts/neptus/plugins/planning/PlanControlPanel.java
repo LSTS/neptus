@@ -36,11 +36,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -739,15 +739,17 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
 
         MissionType miss = getConsole().getMission();
 
-        LinkedList<TransponderElement> transpondersList = new LinkedList<TransponderElement>();
+        ArrayList<TransponderElement> transpondersList = new ArrayList<TransponderElement>();
 
         if (!sendBlancTranspondersList) {
             LinkedHashMap<String, MapMission> mapList = miss.getMapsList();
             for (MapMission mpm : mapList.values()) {
                 transpondersList.addAll(mpm.getMap().getTranspondersList().values());
             }
+            // Let us order the beacons in alphabetic order (case insensitive)
+            TransponderUtils.orderTransponders(transpondersList);
             
-            TransponderElement[] selTransponders = getSelectedTransponderElementsFromExternalComponents();
+            TransponderElement[] selTransponders = getSelectedTransponderElementsOrderedFromExternalComponents();
             if (selTransponders.length > 0 && selTransponders.length < transpondersList.size()) {
                 String beaconsToSend = "";
                 boolean b = true;
@@ -1109,12 +1111,22 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         }
     }
 
-    private TransponderElement[] getSelectedTransponderElementsFromExternalComponents() {
+    private TransponderElement[] getSelectedTransponderElementsOrderedFromExternalComponents() {
         if (getConsole() == null)
             return new TransponderElement[0];
         Vector<ITransponderSelection> psel = getConsole().getSubPanelsOfInterface(ITransponderSelection.class);
         Collection<TransponderElement> vecTrans = psel.get(0).getSelectedTransponders();
-        return vecTrans.toArray(new TransponderElement[vecTrans.size()]);
+        ArrayList<TransponderElement> tal = new ArrayList<>(vecTrans);
+        // Let us order the beacons in alphabetic order (case insensitive)
+        TransponderUtils.orderTransponders(tal);
+//        Collections.sort(tal, new Comparator<TransponderElement>() {
+//            @Override
+//            public int compare(TransponderElement o1, TransponderElement o2) {
+//                return o1.getId().compareToIgnoreCase(o2.getId());
+//            }
+//        });
+
+        return tal.toArray(new TransponderElement[vecTrans.size()]);
     }
 
     /**

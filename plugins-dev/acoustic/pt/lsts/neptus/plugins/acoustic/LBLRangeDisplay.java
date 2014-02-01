@@ -42,8 +42,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.ConcurrentModificationException;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -98,6 +96,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.ScatterPointsElement;
 import pt.lsts.neptus.types.map.TransponderElement;
+import pt.lsts.neptus.types.map.TransponderUtils;
 import pt.lsts.neptus.types.mission.HomeReference;
 import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -730,12 +729,13 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
 
             ArrayList<TransponderElement> tal = new ArrayList<TransponderElement>(transList.values());
             // Let us order the beacons in alphabetic order (case insensitive)
-            Collections.sort(tal, new Comparator<TransponderElement>() {
-                @Override
-                public int compare(TransponderElement o1, TransponderElement o2) {
-                    return o1.getId().compareToIgnoreCase(o2.getId());
-                }
-            });
+            TransponderUtils.orderTransponders(tal);
+//            Collections.sort(tal, new Comparator<TransponderElement>() {
+//                @Override
+//                public int compare(TransponderElement o1, TransponderElement o2) {
+//                    return o1.getId().compareToIgnoreCase(o2.getId());
+//                }
+//            });
 
             for (TransponderElement tmp : tal) {
                 transponders.add(tmp);

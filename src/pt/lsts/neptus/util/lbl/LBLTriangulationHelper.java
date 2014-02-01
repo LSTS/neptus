@@ -376,28 +376,4 @@ public class LBLTriangulationHelper {
 
         return fixedLoc;
     }
-
-    // /**
-    // *
-    // */
-    // private static TransponderElement[] orderTransponders(TransponderElement[] transList) {
-    // ArrayList<TransponderElement> tal = new ArrayList<TransponderElement>();
-    // tal.addAll(Arrays.asList(transList));
-    // // Let us order the beacons in alphabetic order (case insensitive)
-    // Collections.sort(tal, new Comparator<TransponderElement>() {
-    // @Override
-    // public int compare(TransponderElement o1, TransponderElement o2) {
-    // return o1.getId().compareToIgnoreCase(o2.getId());
-    // }
-    // });
-    // return tal.toArray(new TransponderElement[tal.size()]);
-    // }
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
-    }
 }
