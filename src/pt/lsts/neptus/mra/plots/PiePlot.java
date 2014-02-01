@@ -114,6 +114,10 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
         }
         
         sums.put("Other", otherSum);
+        for (Entry<String, Double> k : sums.entrySet()) {
+            sums.put(k.getKey(), (k.getValue()/totalSum) * 100);
+        }
+        
     }
     
     public void addValue(String name, double ammount) {
