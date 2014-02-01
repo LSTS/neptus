@@ -32,6 +32,7 @@
 package pt.lsts.neptus.mra.plots;
 
 import java.awt.Component;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -66,7 +67,7 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
     protected double timestep = 0;
     protected JFreeChart chart;
     protected LinkedHashMap<String, Double> sums = new LinkedHashMap<>();
-    protected double total = 0;
+    //protected double total = 0;
     
     public PiePlot(MRAPanel panel) {
         this.mraPanel = panel;
@@ -88,9 +89,9 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
     
     public void cleanupSeries(double otherRatio) {
         Vector<Pair<String, Double>> values = new Vector<>();
-        //double totalSum = 0;
+        double totalSum = 0;
         for (Entry<String, Double> k : sums.entrySet()) {
-            //totalSum += k.getValue();
+            totalSum += k.getValue();
             values.add(new Pair<String, Double>(k.getKey(), k.getValue()));
         }
         
@@ -104,7 +105,7 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
         double otherSum = 0;
         
         for (Pair<String, Double> v : values) {
-            if ((otherSum + v.second()) / total < otherRatio) {
+            if ((otherSum + v.second()) / totalSum < otherRatio) {
                 otherSum += v.second();
                 sums.remove(v.first());
             }
@@ -114,7 +115,7 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
         
         sums.put("Other", otherSum);
         for (Entry<String, Double> k : sums.entrySet()) {
-            sums.put(k.getKey(), (k.getValue()/total) * 100);
+            sums.put(k.getKey(), (k.getValue()/totalSum) * 100);
         }
         
     }
@@ -123,7 +124,6 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
 
         if (!sums.containsKey(name))
             sums.put(name, 0d);
-        total += amount;                
         sums.put(name, sums.get(name)+amount);
     }
 
@@ -159,10 +159,20 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
 
         DefaultPieDataset dataSet = new DefaultPieDataset();
 
-        for (Entry<String, Double> k : sums.entrySet()) {
-            dataSet.setValue(k.getKey(), k.getValue());
+        // contraption for interleaving small and big values
+        ArrayList<String> keys = new ArrayList<>();
+        keys.addAll(sums.keySet());
+        boolean beginning = true;
+        while (!keys.isEmpty()) {
+            int index = 0;
+            if (!beginning)
+                index = keys.size()-1;
+            String key = keys.get(index);
+            keys.remove(index);
+            beginning = !beginning;
+            dataSet.setValue(key, sums.get(key));
         }
-
+        
         JFreeChart chart = ChartFactory.createPieChart( 
                 getTitle(),
                 dataSet,
