@@ -56,7 +56,7 @@ import pt.lsts.neptus.util.llf.LogUtils;
  *
  */
 @LayerPriority(priority = -50)
-@PluginDescription
+@PluginDescription(name="LBL Ranges", icon="pt/lsts/neptus/plugins/acoustic/transponder.png")
 public class LBLRangesReplay implements LogReplayLayer {
 
     private LinkedList<TransponderElement> transponders = new LinkedList<TransponderElement>();

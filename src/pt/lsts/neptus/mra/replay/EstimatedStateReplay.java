@@ -49,6 +49,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.llf.LogUtils;
 
@@ -96,7 +97,12 @@ public class EstimatedStateReplay implements LogReplayLayer {
             if((pos = positions.get(src)) == null) {
                 pos = new Vector<LocationType>();
                 VehiclePaths paths = new VehiclePaths();
-                paths.setColor(VehiclesHolder.getVehicleWithImc(new ImcId16(src)).getIconColor());
+                VehicleType vt = VehiclesHolder.getVehicleWithImc(new ImcId16(src));
+                if (vt != null)
+                    paths.setColor(VehiclesHolder.getVehicleWithImc(new ImcId16(src)).getIconColor());
+                else
+                    paths.setColor(new Color(0, 0, 0, 128));
+                
                 pathsList.put(src, paths);
                 positions.put(src, pos);
             }

@@ -608,6 +608,13 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
                             vehicleType.getIconColor());
                     vehicleTail.setNumberOfPoints(numberOfShownPoints);
                     vehicleTails.put(systemId, vehicleTail);
+
+                }
+                else {
+                    VehicleTailElement vehicleTail = new VehicleTailElement(getMapGroup(), new MapType(),
+                            Color.black);
+                    vehicleTail.setNumberOfPoints(numberOfShownPoints);
+                    vehicleTails.put(systemId, vehicleTail);
                 }
             }
 

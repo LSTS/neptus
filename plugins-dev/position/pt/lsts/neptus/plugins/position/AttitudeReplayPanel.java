@@ -62,7 +62,7 @@ public class AttitudeReplayPanel extends JPanel implements LogReplayPanel {
     @Override
     public JComponent getComponent() {
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        setPreferredSize(new Dimension(300, 300));
+        setPreferredSize(new Dimension(500, 200));
         return this;
     }
 

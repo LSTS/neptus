@@ -36,6 +36,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
@@ -54,43 +55,49 @@ import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
- *
+ * 
  */
-@PluginDescription
+@PluginDescription(name = "Network replay", icon="pt/lsts/neptus/mra/replay/network-wireless.png")
 public class NetworkReplay extends JPanel implements LogReplayPanel {
 
     private static final long serialVersionUID = -5150861961670234509L;
     private IMCDefinition d;
     private ImcUdpTransport trans = null;
-    
-    @NeptusProperty
+
+    @NeptusProperty(name = "Destination IP", description = "IP address of the destination host")
     private String destination = "127.0.0.1";
-    
-    @NeptusProperty
+
+    @NeptusProperty(name = "Destination Port", description = "Port of the destination host")
     private int port = 6001;
-    
-    @NeptusProperty
+
+    @NeptusProperty(name = "Local Port")
     private int bindPort = 9199;
     
-    @NeptusProperty
-    private boolean updateProtocol;
+
+    @NeptusProperty(name = "Update IMC protocol", description = "If selected, all messages will be"
+            + " reencoded to the latest IMC protocol (fields specific to the old protocol will be lost)")
+    private boolean updateProtocol = false;
+
+    @NeptusProperty(name = "Update timestamps", description = "If selected, old messages timestamps will be replaced with current time")
+    private boolean updateTimestamps = false;
     
     @Override
     public String getName() {
         return "Network replay";
     }
-    
+
     private PropertiesTable pt = new PropertiesTable();
     private JToggleButton active;
-    
+
     public NetworkReplay() {
-        setLayout(new BorderLayout());    
-        setPreferredSize(new Dimension(250, 250));
+        setLayout(new BorderLayout());
+        setPreferredSize(new Dimension(400, 250));
+        pt.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
         add(pt, BorderLayout.CENTER);
         active = new JToggleButton("Active");
         active.setSelected(false);
         active.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 setActive(active.isSelected());
@@ -101,22 +108,23 @@ public class NetworkReplay extends JPanel implements LogReplayPanel {
         add(bottom, BorderLayout.SOUTH);
         pt.editProperties(PluginUtils.wrapIntoAPlugInPropertiesProvider(this));
     }
-    
+
     public void setActive(boolean act) {
         pt.setEnabled(!act);
-        
+
         if (act) {
             try {
                 if (updateProtocol)
                     trans = new ImcUdpTransport(bindPort, IMCDefinition.getInstance());
                 else
-                    trans = new ImcUdpTransport(bindPort, d);                
+                    trans = new ImcUdpTransport(bindPort, d);
             }
             catch (Exception e) {
                 trans = null;
                 pt.setEnabled(true);
                 active.setSelected(false);
-                GuiUtils.errorMessage("Could not start network replay", e.getClass().getSimpleName()+" : "+e.getMessage());
+                GuiUtils.errorMessage("Could not start network replay",
+                        e.getClass().getSimpleName() + " : " + e.getMessage());
                 e.printStackTrace();
                 return;
             }
@@ -126,7 +134,7 @@ public class NetworkReplay extends JPanel implements LogReplayPanel {
             trans = null;
         }
     }
-    
+
     @Override
     public boolean canBeApplied(IMraLogGroup source, Context context) {
         return true;
@@ -144,15 +152,18 @@ public class NetworkReplay extends JPanel implements LogReplayPanel {
 
     @Override
     public void onMessage(IMCMessage message) {
-        
+
     }
-    
+
     @Subscribe
     public void on(IMCMessage m) {
-        if (trans != null)
+        if (trans != null) {
+            if (updateTimestamps)
+                m.setTimestampMillis(System.currentTimeMillis());
             trans.sendMessage(destination, port, m);
+        }
     }
-    
+
     @Override
     public boolean getVisibleByDefault() {
         return false;
