@@ -76,8 +76,48 @@ public class TileS57 extends TileHttpFetcher {
     @NeptusProperty(name="Map Server URL", description="The URL to the S57 Map Server. " +
     		"[default='http://localhost:8082/map/s57/png?']")
     public static String mapServerURL = "http://localhost:8082/map/s57/png?";
+
+    private static boolean alreadyInitialize = false;
     
-    {
+//    {
+//        try {
+//            String confFx = "conf/" + TileS57.class.getSimpleName().toLowerCase() + ".properties";
+//            if (new File(confFx).exists())
+//                PluginUtils.loadProperties(confFx, TileS57.class);
+//        }
+//        catch (Exception e) {
+//            NeptusLog.pub().error("Not possible to open \"conf/" + TileS57.class.getSimpleName().toLowerCase() + ".properties\"");
+//            NeptusLog.pub().debug(e.getMessage());
+//        }
+//        
+//        try {
+//            URL url = new URL(mapServerURL);
+//            httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 1); // was setMaxForRoute
+//        }
+//        catch (MalformedURLException e) {
+//            e.printStackTrace();
+//        }
+//    }
+    
+    public TileS57(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
+        super(levelOfDetail, tileX, tileY, image);
+        initialize();
+    }
+
+    /**
+     * @param id
+     * @throws Exception
+     */
+    public TileS57(String id) throws Exception {
+        super(id);
+        initialize();
+    }
+
+    private synchronized void initialize() {
+        if (alreadyInitialize )
+            return;
+        alreadyInitialize = true;
+
         try {
             String confFx = "conf/" + TileS57.class.getSimpleName().toLowerCase() + ".properties";
             if (new File(confFx).exists())
@@ -87,7 +127,7 @@ public class TileS57 extends TileHttpFetcher {
             NeptusLog.pub().error("Not possible to open \"conf/" + TileS57.class.getSimpleName().toLowerCase() + ".properties\"");
             NeptusLog.pub().debug(e.getMessage());
         }
-        
+
         try {
             URL url = new URL(mapServerURL);
             httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost(url.getHost())), 1); // was setMaxForRoute
@@ -97,18 +137,6 @@ public class TileS57 extends TileHttpFetcher {
         }
     }
     
-    public TileS57(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
-        super(levelOfDetail, tileX, tileY, image);
-    }
-
-    /**
-     * @param id
-     * @throws Exception
-     */
-    public TileS57(String id) throws Exception {
-        super(id);
-    }
-
     /**
      * @return the mapServerURL
      */

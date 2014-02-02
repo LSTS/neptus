@@ -88,7 +88,53 @@ public abstract class TileHttpFetcher extends Tile {
     protected static DefaultHttpClient client;
     protected static PoolingClientConnectionManager httpConnectionManager; // was ThreadSafeClientConnManager
 
-    {
+//    {
+//        SchemeRegistry schemeRegistry = new SchemeRegistry();
+//        schemeRegistry.register(
+//                new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
+//        schemeRegistry.register(
+//                new Scheme("https", 443, PlainSocketFactory.getSocketFactory()));
+//        httpConnectionManager = new PoolingClientConnectionManager(schemeRegistry);
+//        httpConnectionManager.setMaxTotal(50);
+//        httpConnectionManager.setDefaultMaxPerRoute(10);
+//
+//        HttpParams params = new BasicHttpParams();
+//        HttpConnectionParams.setConnectionTimeout(params, 30000);
+//        
+////        HttpProtocolParams.setUserAgent(params, "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6");
+//        
+//        client = new DefaultHttpClient(httpConnectionManager, params);
+//        
+//        ProxyInfoProvider.setRoutePlanner((AbstractHttpClient) client);
+//
+//        Runtime.getRuntime().addShutdownHook(new Thread() {
+//            @Override
+//            public void run() {
+//                client.getConnectionManager().shutdown();
+//                httpConnectionManager.shutdown();
+//            }
+//        });
+//    }
+
+    public TileHttpFetcher(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
+        super(levelOfDetail, tileX, tileY, image);
+        
+        initialize();
+    }
+
+    /**
+     * @param id
+     * @throws Exception
+     */
+    public TileHttpFetcher(String id) throws Exception {
+        super(id);
+        initialize();
+    }
+
+    private final synchronized void initialize() {
+        if (client != null)
+            return;
+        
         SchemeRegistry schemeRegistry = new SchemeRegistry();
         schemeRegistry.register(
                 new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
@@ -100,11 +146,11 @@ public abstract class TileHttpFetcher extends Tile {
 
         HttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, 30000);
-        
-//        HttpProtocolParams.setUserAgent(params, "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6");
-        
+
+        //            HttpProtocolParams.setUserAgent(params, "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.6 (KHTML, like Gecko) Chrome/20.0.1092.0 Safari/536.6");
+
         client = new DefaultHttpClient(httpConnectionManager, params);
-        
+
         ProxyInfoProvider.setRoutePlanner((AbstractHttpClient) client);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -115,19 +161,7 @@ public abstract class TileHttpFetcher extends Tile {
             }
         });
     }
-
-    public TileHttpFetcher(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
-        super(levelOfDetail, tileX, tileY, image);
-    }
-
-    /**
-     * @param id
-     * @throws Exception
-     */
-    public TileHttpFetcher(String id) throws Exception {
-        super(id);
-    }
-
+    
     // "Overrided" but is static
     public static int getMaxLevelOfDetail() {
         return MAX_LEVEL_OF_DETAIL;
