@@ -33,59 +33,95 @@ package pt.lsts.neptus.mp.preview;
 
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
-import pt.lsts.neptus.mp.maneuvers.StationKeeping;
+import pt.lsts.neptus.mp.maneuvers.YoYo;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
- * @author zp
+ * @author zps
  * 
  */
-public class StationKeepingPreview implements IManeuverPreview<StationKeeping> {
+public class YoYoPreview implements IManeuverPreview<YoYo> {
 
     protected LocationType destination;
     protected double speed;
     protected boolean finished = false;
-    protected double sk_time = -0.1;
-    protected double maxTime, duration;
-    protected boolean arrived = false;
+    double amplitude = 0;
+    boolean descending = true;
+    boolean altitude = false;
+    double maxZ, minZ;
+
     UnicycleModel model = new UnicycleModel();
 
     @Override
-    public boolean init(String vehicleId, StationKeeping man, SystemPositionAndAttitude state, Object manState) {
+    public boolean init(String vehicleId, YoYo man, SystemPositionAndAttitude state, Object manState) {
         destination = new LocationType(man.getManeuverLocation());
-        if (man.getManeuverLocation().getZUnits() == ManeuverLocation.Z_UNITS.DEPTH)
+        if (man.getManeuverLocation().getZUnits() == ManeuverLocation.Z_UNITS.DEPTH) {
             destination.setDepth(man.getManeuverLocation().getZ());
-        else
+            altitude = false;
+            amplitude = man.getAmplitude();
+            minZ = man.getManeuverLocation().getZ() - amplitude;
+            maxZ = man.getManeuverLocation().getZ() + amplitude;
+        }
+        else {
             destination.setDepth(Math.max(0.5, 10 - man.getManeuverLocation().getZ()));
+            altitude = true;
+            minZ = man.getManeuverLocation().getZ() + amplitude;
+            maxZ = man.getManeuverLocation().getZ() - amplitude;
+        }
 
         speed = man.getSpeed();
-        if (man.getSpeedUnits().equals("RPM"))
+        if (man.getUnits().equals("RPM"))
             speed = SpeedConversion.convertRpmtoMps(speed);
-        else if (man.getSpeedUnits().equals("%")) // convert to RPM and then to m/s
+        else if (man.getUnits().equals("%")) // convert to RPM and then to m/s
             speed = SpeedConversion.convertPercentageToMps(speed);
 
         speed = Math.min(speed, SpeedConversion.MAX_SPEED);
-        duration = man.getDuration();
-        
+
+        amplitude = man.getAmplitude();
+
         model.setState(state);
         return true;
     }
 
     @Override
     public SystemPositionAndAttitude step(SystemPositionAndAttitude state, double timestep) {
-        if (!arrived) {
-            model.setState(state);
-            arrived = model.guide(destination, speed, destination.getDepth() >= 0 ? null : -destination.getDepth());
+        model.setState(state);
+        boolean arrivedZ = false, arrivedXY = false;
+
+        if (descending) {
+            LocationType dest = new LocationType(destination);
+            dest.translatePosition(0, 0, amplitude);
+            dest.convertToAbsoluteLatLonDepth();
+            arrivedXY = model.guide(dest, speed, altitude ? maxZ : null);
+
+            if (!altitude) {
+                arrivedZ = Math.abs(model.getCurrentPosition().getDepth() - maxZ) < 0.5;
+            }
+            else {
+                arrivedZ = Math.abs(model.getCurrentAltitude() - maxZ) < 0.5;
+            }
         }
         else {
-            sk_time += timestep;
-            if (duration == 0)
-                finished = model.getDepth() <= 0;
-            else
-                finished = sk_time >= duration;
+            LocationType dest = new LocationType(destination);
+            dest.translatePosition(0, 0, -amplitude);
+            dest.convertToAbsoluteLatLonDepth();
+            arrivedXY = model.guide(dest, speed, altitude ? minZ : null);
+            
+            if (!altitude) {
+                arrivedZ = Math.abs(model.getCurrentPosition().getDepth() - minZ) < 0.25;
+            }
+            else {
+                arrivedZ = Math.abs(model.getCurrentAltitude() - minZ) < 0.25;
+            }
         }
+        if (arrivedXY)
+            finished = true;
+        else if (arrivedZ)
+            descending = !descending;
         
-        model.advance(timestep);
+        if (!finished)
+            model.advance(timestep);
+
         return model.getState();
     }
 

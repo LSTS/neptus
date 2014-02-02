@@ -1431,7 +1431,12 @@ msgstr "Изменение '%element'"
 msgid "Change Log Name Enabled"
 msgstr "Измените Имя журнала Включено"
 
-#: src/pt/up/fe/dceg/neptus/mp/ManeuverLocationEditor.java:74
+#: plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanEditor.java:925
+#, fuzzy
+msgid "Change Existing Maneuvers"
+msgstr "Выберите существующий Оценка:"
+
+#: src/pt/lsts/neptus/mp/ManeuverLocationEditor.java:74
 #, fuzzy
 msgid "Change maneuver location"
 msgstr "Изменение расположения маневра"

@@ -172,7 +172,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getLog("SonarData") != null && source.getLog("Distance") != null;
+        return source.getLog("SonarData") != null && source.getLsfIndex().getEntityId("Echo Sounder") != 255;
     }
 
     @Override

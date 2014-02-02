@@ -42,6 +42,7 @@ import pt.lsts.neptus.mp.maneuvers.Loiter;
 import pt.lsts.neptus.mp.maneuvers.PopUp;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
+import pt.lsts.neptus.mp.maneuvers.YoYo;
 
 /**
  * @author zp
@@ -85,6 +86,11 @@ public class ManPreviewFactory {
         else if (FollowTrajectory.class.isAssignableFrom(maneuver.getClass())) {
             FollowTrajectoryPreview prev = new FollowTrajectoryPreview();
             prev.init(vehicleId, (FollowTrajectory)maneuver, state, manState);
+            return prev;
+        }
+        else if (YoYo.class.isAssignableFrom(maneuver.getClass())) {
+            YoYoPreview prev = new YoYoPreview();
+            prev.init(vehicleId, (YoYo)maneuver, state, manState);
             return prev;
         }
         

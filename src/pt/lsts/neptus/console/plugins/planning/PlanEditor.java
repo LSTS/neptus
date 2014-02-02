@@ -922,7 +922,7 @@ MissionChangeListener {
             }
             else {
                 if (plan.hasInitialManeuver()) {
-                    JMenu planSettings = new JMenu(I18n.text("Change existing Maneuvers"));
+                    JMenu planSettings = new JMenu(I18n.text("Change Existing Maneuvers"));
                     AbstractAction pDepth = new AbstractAction(I18n.text("Plan depth / altitude...")) {
                         private static final long serialVersionUID = 1L;
 
@@ -1044,16 +1044,27 @@ MissionChangeListener {
                                     psp);
                             DefaultProperty[] properties = payloadConfig.getProperties();
 
-                            // FIXME localize these properties!
-                            // Vector<DefaultProperty> result = new Vector<DefaultProperty>();
-                            // PropertiesEditor.localizeProperties(Arrays.asList(properties), result);
-                            // DefaultProperty[] propertiesLocalized = properties;//result.toArray(new
-                            // DefaultProperty[0]);
+                            ManeuverPayloadConfig payloadDefaultsConfig = new ManeuverPayloadConfig(plan.getVehicle(), pivot,
+                                    psp);
+                            DefaultProperty[] propertiesDefaults = payloadDefaultsConfig.getProperties();
+
+                            int ret = fillPropertiesWithAllChangesFromDefaults(plan, properties, propertiesDefaults, psp);
+                            String extraTxt = "";
+                            switch (ret) {
+                                case 0:
+                                case 1:
+                                    extraTxt = "<br><small>(" + I18n.text("All maneuvers have the same values.") + ")";
+                                    break;
+                                default:
+                                    extraTxt = "<br><small>(" + I18n.text("Not all maneuvers have the same values." + ")");
+                                    break;
+                            }
 
                             psp.setProperties(properties);
 
                             final PropertySheetDialog propertySheetDialog = PropertiesEditor.createWindow(getConsole(),
-                                    true, psp, "Payload Settings to apply to entire plan");
+                                    true, psp, I18n.text("Payload Settings to apply to entire plan"),
+                                    "<html>" + I18n.text("Payload Settings to apply to entire plan") + extraTxt);
                             if (propertySheetDialog.ask()) {
                                 // DefaultProperty[] propsUnlocalized = PropertiesEditor.unlocalizeProps(original,
                                 // psp.getProperties());
@@ -1062,11 +1073,12 @@ MissionChangeListener {
 
                                 startActions.addAll(Arrays.asList(pivot.getStartActions().getAllMessages()));
 
-
                                 for (Maneuver m : plan.getGraph().getAllManeuvers()) {
                                     m.getStartActions().parseMessages(startActions);
                                     NeptusLog.pub().info("<###> " + m.getId());
                                 }
+                                
+                                refreshPropertiesManeuver();
                             }
                         }
                     };
@@ -1194,6 +1206,50 @@ MissionChangeListener {
 
             popup.show(source, (int) mousePoint.getX(), (int) mousePoint.getY());
         }
+    }
+
+    /**
+     * @param plan
+     * @param properties
+     * @param propertiesDefaults
+     * @param psp
+     * @return changes counter, 0 for all default values, 1 for changes but all equals, >1 not all with same values 
+     */
+    protected int fillPropertiesWithAllChangesFromDefaults(PlanType plan, DefaultProperty[] properties,
+            DefaultProperty[] propertiesDefaults, PropertySheetPanel psp) {
+        Maneuver[] allManeuvers = plan.getGraph().getAllManeuvers();
+        int[] countChangesArray = new int[properties.length];
+        Arrays.fill(countChangesArray, 0);
+        for (Maneuver man : allManeuvers) {
+            ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(plan.getVehicle(), man,
+                    psp);
+            DefaultProperty[] manProperties = payloadConfig.getProperties();
+            // Assuming the order is the same
+            for (int i = 0; i < manProperties.length; i++) {
+//                if (properties[i].getValue().equals(propertiesDefaults[i].getValue()) &&
+//                        !properties[i].getValue().equals(manProperties[i].getValue())) {
+//                    properties[i].setValue(manProperties[i].getValue());
+//                }
+                if (!manProperties[i].getValue().equals(propertiesDefaults[i].getValue())) {
+                    if (!manProperties[i].getValue().equals(properties[i].getValue())) {
+                        properties[i].setValue(manProperties[i].getValue());
+                    }
+                    countChangesArray[i]++;
+                }
+            }
+        }
+        int sumAll = 0;
+        int sumAll2 = 0;
+        for (int i : countChangesArray) {
+            sumAll += i;
+            sumAll2 += (i == 0 ? allManeuvers.length : i);
+        }
+        if (sumAll == 0)
+            return 0;
+        else if (sumAll2 == countChangesArray.length * allManeuvers.length)
+            return 1;
+        else
+            return 2;
     }
 
     private void refreshPropertiesManeuver() {

@@ -36,11 +36,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -121,6 +121,8 @@ public class PlanControlPanel extends ConsolePanel implements ConfigurationListe
     
     private final ImageIcon ICON_BEACONS = ImageUtils
             .getIcon("images/planning/uploadBeacons.png");
+    private final ImageIcon ICON_BEACONS_ZERO = ImageUtils
+            .getIcon("images/planning/uploadBeaconsZero.png");
     private final ImageIcon ICON_UP = ImageUtils.getIcon("images/planning/up.png");
     private final ImageIcon ICON_DOWN_R = ImageUtils.getIcon("images/planning/fileimport.png");
     private final ImageIcon ICON_START = ImageUtils.getIcon("images/planning/start.png");
@@ -135,6 +137,7 @@ public class PlanControlPanel extends ConsolePanel implements ConfigurationListe
     private final String startPlanStr = I18n.text("Start Plan");
     private final String stopPlanStr = I18n.text("Stop Plan");
     private final String sendAcousticBeaconsStr = I18n.text("Send Acoustic Beacons. Use Ctrl click to clear the transponders from vehicle.");
+    private final String sendAcousticBeaconsZeroStr = I18n.text("Send Zero Acoustic Beacons.");
     private final String sendSelectedPlanStr = I18n.text("Send Selected Plan");
     private final String downloadActivePlanStr = I18n.text("Download Active Plan");
     
@@ -191,11 +194,11 @@ public class PlanControlPanel extends ConsolePanel implements ConfigurationListe
     private JPanel holder;
     private JLabel titleLabel;
     private JLabel planIdLabel;
-    private ToolbarButton selectionButton, sendAcousticsButton, sendUploadPlanButton, sendDownloadPlanButton,
+    private ToolbarButton selectionButton, sendAcousticsButton, sendAcousticsZeroButton, sendUploadPlanButton, sendDownloadPlanButton,
             sendStartButton, sendStopButton, teleOpButton;
 
     private SystemsSelectionAction selectionAction;
-    private AbstractAction sendAcousticsAction, sendUploadPlanAction, sendDownloadPlanAction, sendStartAction,
+    private AbstractAction sendAcousticsAction, sendAcousticsZeroAction, sendUploadPlanAction, sendDownloadPlanAction, sendStartAction,
             sendStopAction, teleOpAction;
 
     private int teleoperationManeuver = -1;
@@ -240,6 +243,7 @@ public class PlanControlPanel extends ConsolePanel implements ConfigurationListe
 
         selectionButton = new ToolbarButton(selectionAction);
         sendAcousticsButton = new ToolbarButton(sendAcousticsAction);
+        sendAcousticsZeroButton = new ToolbarButton(sendAcousticsZeroAction);
         sendUploadPlanButton = new ToolbarButton(sendUploadPlanAction);
         sendDownloadPlanButton = new ToolbarButton(sendDownloadPlanAction);
         sendStartButton = new ToolbarButton(sendStartAction);
@@ -252,6 +256,7 @@ public class PlanControlPanel extends ConsolePanel implements ConfigurationListe
         holder.add(selectionButton);
         // holder.add(sendNavStartPointButton);
         holder.add(sendAcousticsButton);
+        holder.add(sendAcousticsZeroButton);
         holder.add(sendUploadPlanButton);
         // holder.add(sendDownloadPlanButton);
         holder.add(sendStartButton);
@@ -296,6 +301,7 @@ public class PlanControlPanel extends ConsolePanel implements ConfigurationListe
         }
         selectionButton.setVisible(enableSelectionButton && useFullMode);
         sendAcousticsButton.setVisible(enableBeaconsButton && useFullMode);
+        sendAcousticsZeroButton.setVisible(enableBeaconsButton && useFullMode);
     }
 
     /**
@@ -330,6 +336,36 @@ public class PlanControlPanel extends ConsolePanel implements ConfigurationListe
                         // NeptusLog.pub().error(e);
                         // }
                         sendAcousticsButton.setEnabled(true);
+                    }
+                };
+                sw.execute();
+            }
+        };
+
+        sendAcousticsZeroAction = new AbstractAction(sendAcousticBeaconsZeroStr, ICON_BEACONS_ZERO) {
+            @Override
+            public void actionPerformed(final ActionEvent ev) {
+                final Object action = getValue(Action.NAME);
+                SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() {
+                        NeptusLog.action().info(action);
+
+                        sendAcousticsZeroButton.setEnabled(false);
+                        sendAcoustics(true, getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
+
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
+                        sendAcousticsZeroButton.setEnabled(true);
                     }
                 };
                 sw.execute();
@@ -732,15 +768,17 @@ public class PlanControlPanel extends ConsolePanel implements ConfigurationListe
 
         MissionType miss = getConsole().getMission();
 
-        LinkedList<TransponderElement> transpondersList = new LinkedList<TransponderElement>();
+        ArrayList<TransponderElement> transpondersList = new ArrayList<TransponderElement>();
 
         if (!sendBlancTranspondersList) {
             LinkedHashMap<String, MapMission> mapList = miss.getMapsList();
             for (MapMission mpm : mapList.values()) {
                 transpondersList.addAll(mpm.getMap().getTranspondersList().values());
             }
+            // Let us order the beacons in alphabetic order (case insensitive)
+            TransponderUtils.orderTransponders(transpondersList);
             
-            TransponderElement[] selTransponders = getSelectedTransponderElementsFromExternalComponents();
+            TransponderElement[] selTransponders = getSelectedTransponderElementsOrderedFromExternalComponents();
             if (selTransponders.length > 0 && selTransponders.length < transpondersList.size()) {
                 String beaconsToSend = "";
                 boolean b = true;
@@ -1101,12 +1139,22 @@ public class PlanControlPanel extends ConsolePanel implements ConfigurationListe
         }
     }
 
-    private TransponderElement[] getSelectedTransponderElementsFromExternalComponents() {
+    private TransponderElement[] getSelectedTransponderElementsOrderedFromExternalComponents() {
         if (getConsole() == null)
             return new TransponderElement[0];
         Vector<ITransponderSelection> psel = getConsole().getSubPanelsOfInterface(ITransponderSelection.class);
         Collection<TransponderElement> vecTrans = psel.get(0).getSelectedTransponders();
-        return vecTrans.toArray(new TransponderElement[vecTrans.size()]);
+        ArrayList<TransponderElement> tal = new ArrayList<>(vecTrans);
+        // Let us order the beacons in alphabetic order (case insensitive)
+        TransponderUtils.orderTransponders(tal);
+//        Collections.sort(tal, new Comparator<TransponderElement>() {
+//            @Override
+//            public int compare(TransponderElement o1, TransponderElement o2) {
+//                return o1.getId().compareToIgnoreCase(o2.getId());
+//            }
+//        });
+
+        return tal.toArray(new TransponderElement[vecTrans.size()]);
     }
 
     /**

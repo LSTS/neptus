@@ -50,6 +50,10 @@ public class UnicycleModel {
     protected double targetLatRad, targetLonRad, maxSteeringRad = Math.toRadians(7);
     protected boolean arrived = true;
     
+    public double getCurrentAltitude() {
+        double a = SimulationEngine.simBathym.getSimulatedDepth(getCurrentPosition());
+        return a - depth;
+    }
     
     public LocationType getCurrentPosition() {
         LocationType loc = new LocationType();

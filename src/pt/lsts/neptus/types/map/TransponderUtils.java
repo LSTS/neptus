@@ -31,9 +31,13 @@
  */
 package pt.lsts.neptus.types.map;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+import pt.lsts.imc.LblBeacon;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.PropertiesLoader;
-import pt.lsts.imc.LblBeacon;
 
 /**
  * @author pdias
@@ -80,4 +84,23 @@ public class TransponderUtils {
         msgLBLBeaconSetup.setTransponderDelay(transponderDelay);
         return msgLBLBeaconSetup;
     }
+    
+    /**
+     *
+     */
+    public static ArrayList<TransponderElement> orderTransponders(ArrayList<TransponderElement> transponders) {
+//        ArrayList<TransponderElement> tal = new ArrayList<TransponderElement>();
+//        tal.addAll(Arrays.asList(transList));
+        // Let us order the beacons in alphabetic order (case insensitive)
+        Collections.sort(transponders, new Comparator<TransponderElement>() {
+            @Override
+            public int compare(TransponderElement o1, TransponderElement o2) {
+                return o1.getId().compareToIgnoreCase(o2.getId());
+            }
+        });
+//        return tal.toArray(new TransponderElement[tal.size()]);
+        return transponders;
+    }
+
+    
 }

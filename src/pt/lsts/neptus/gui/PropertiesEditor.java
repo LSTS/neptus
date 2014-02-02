@@ -260,8 +260,13 @@ public class PropertiesEditor {
         return canceled;
     }
 
-    public static PropertySheetDialog createWindow(Window parent, boolean editable,
-            final PropertySheetPanel psp, String title) {
+    public static PropertySheetDialog createWindow(Window parent, boolean editable, final PropertySheetPanel psp,
+            String title) {
+        return createWindow(parent, editable, psp, title, title);
+    }
+
+    public static PropertySheetDialog createWindow(Window parent, boolean editable, final PropertySheetPanel psp,
+            String title, String bannerTitle) {
         final PropertySheetDialog propertySheetDialog;
         if (parent instanceof Dialog) {
             Dialog pDialog = (Dialog) parent;
@@ -345,8 +350,9 @@ public class PropertiesEditor {
         // propertySheetDialog.getBanner().setTitle(provider.getPropertiesDialogTitle());
         // propertySheetDialog.setTitle(provider.getPropertiesDialogTitle());
         if (title != null) {
-            propertySheetDialog.getBanner().setTitle(I18n.text(title));
             propertySheetDialog.setTitle(I18n.text(title));
+            propertySheetDialog.getBanner().setTitle(
+                    I18n.text(bannerTitle == null || bannerTitle.length() == 0 ? title : bannerTitle));
         }
         propertySheetDialog.setIconImage(ImageUtils.getImage("images/menus/settings.png"));
         propertySheetDialog.getBanner().setIcon(ImageUtils.getIcon("images/settings.png"));
