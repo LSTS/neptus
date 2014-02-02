@@ -70,13 +70,16 @@ public class TileGEBCO extends TileHttpFetcher {
     private static Map<String, TileGEBCO> tilesMap = Collections.synchronizedMap(new HashMap<String, TileGEBCO>());
 
     private static final int MAX_LEVEL_OF_DETAIL = 20;
+
+    private static boolean alreadyInitialize = false;
     
-    {
-        httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost("www.gebco.net")), 4); // was setMaxForRoute
-    }
+//    {
+//        httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost("www.gebco.net")), 4); // was setMaxForRoute
+//    }
 
     public TileGEBCO(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
         super(levelOfDetail, tileX, tileY, image);
+        initialize();
     }
 
     /**
@@ -85,10 +88,18 @@ public class TileGEBCO extends TileHttpFetcher {
      */
     public TileGEBCO(String id) throws Exception {
         super(id);
+        initialize();
     }
 
     public static int getMaxLevelOfDetail() {
         return MAX_LEVEL_OF_DETAIL;
+    }
+    
+    private synchronized void initialize() {
+        if (alreadyInitialize)
+            return;
+        alreadyInitialize = true;
+        httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost("www.gebco.net")), 4); // was setMaxForRoute
     }
     
     /**

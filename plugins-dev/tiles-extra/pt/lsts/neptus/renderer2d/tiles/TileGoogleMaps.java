@@ -70,12 +70,14 @@ public class TileGoogleMaps extends TileHttpFetcher {
     
     private static Map<String, TileGoogleMaps> tilesMap = Collections.synchronizedMap(new HashMap<String, TileGoogleMaps>());
 
-    {
-        httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost(HOST)), 1); // was setMaxForRoute
-    }
+    private static boolean alreadyInitialize = false;
+//    {
+//        httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost(HOST)), 1); // was setMaxForRoute
+//    }
     
     public TileGoogleMaps(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
         super(levelOfDetail, tileX, tileY, image);
+        initialize();
     }
 
     /**
@@ -84,11 +86,15 @@ public class TileGoogleMaps extends TileHttpFetcher {
      */
     public TileGoogleMaps(String id) throws Exception {
         super(id);
+        initialize();
     }
 
-//    public static String getTileStyleID() {
-//        return "Google Maps";
-//    }
+    private synchronized void initialize() {
+        if (alreadyInitialize)
+            return;
+        alreadyInitialize = true;
+        httpConnectionManager.setMaxPerRoute(new HttpRoute(new HttpHost(HOST)), 1); // was setMaxForRoute
+    }
 
     /**
      * @return
