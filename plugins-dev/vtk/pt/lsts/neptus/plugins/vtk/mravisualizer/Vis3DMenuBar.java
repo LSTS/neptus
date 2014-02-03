@@ -84,8 +84,10 @@ public class Vis3DMenuBar extends JMenuBar {
     private Vtk vtkInit;
     private Canvas canvas;
     private vtkRenderer renderer;
+    private EventsHandler events;
     private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
     private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
+
 
     private JMenu fileMenu, editMenu, viewMenu, toolsMenu, helpMenu;
 
@@ -101,6 +103,7 @@ public class Vis3DMenuBar extends JMenuBar {
     // displayScaleGrid, displayInfoPointcloud;
 
     // Tools Menu
+    private AbstractAction takeSnapShot;
     // private AbstractAction exaggerateZ, performMeshing, performSmoothing;
 
     // Help Menu
@@ -112,6 +115,7 @@ public class Vis3DMenuBar extends JMenuBar {
      */
     public Vis3DMenuBar(Vtk vtkInit) {
         this.vtkInit = vtkInit;
+        this.events = vtkInit.getEvents();
         this.canvas = vtkInit.getCanvas();
         this.renderer = vtkInit.getCanvas().GetRenderer();
         this.linkedHashMapCloud = vtkInit.getLinkedHashMapCloud();
@@ -289,7 +293,8 @@ public class Vis3DMenuBar extends JMenuBar {
     @SuppressWarnings("serial")
     private void setUpViewMenu() {
         viewMenu = new JMenu(I18n.text("View"));
-        resetViewportCamera = new VisAction(I18n.text("Reset Viewport"), ImageUtils.getIcon("images/menus/camera.png")) {
+        resetViewportCamera = new VisAction(I18n.text("Reset Viewport"), ImageUtils.getIcon("images/menus/camera.png"),
+                I18n.text("Reset Viewport") + ".", KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK, true)) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -311,9 +316,20 @@ public class Vis3DMenuBar extends JMenuBar {
     /**
      * 
      */
+    @SuppressWarnings("serial")
     private void setUpToolsMenu() {
         toolsMenu = new JMenu(I18n.text("Tools"));
+        //        takeSnapShot = new VisAction(I18n.text("Take SnapShot"), ImageUtils.getIcon("images/menus/camera.png"),
+        //                I18n.text("Take SnapShot from current Viewport") + ".", KeyStroke.getKeyStroke(KeyEvent.VK_J, InputEvent.CTRL_DOWN_MASK, true)) {
+        takeSnapShot = new VisAction(I18n.text("Take SnapShot"), ImageUtils.getIcon("images/menus/camera.png"),
+                I18n.text("Take SnapShot from current Viewport") + ".") {
 
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                events.takeSnapShot();
+            }
+        };
+        toolsMenu.add(takeSnapShot);
     }
 
     /**

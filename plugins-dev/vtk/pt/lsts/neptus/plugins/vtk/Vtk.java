@@ -52,7 +52,9 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.vtk.filters.StatisticalOutlierRemoval;
+import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.MultibeamToolbar;
+import pt.lsts.neptus.plugins.vtk.mravisualizer.NeptusInteractorStyle;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DMenuBar;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DToolBar;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Window;
@@ -84,6 +86,8 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
 
     private Canvas canvas;
     public Window winCanvas;
+    private NeptusInteractorStyle neptusInteractorStyle;
+    private EventsHandler events;
 
     public vtkLODActor noBeamsTxtActor;
     public Text3D noBeamsText;
@@ -152,7 +156,11 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
             getLinkedHashMapCloud().put(pointCloud.getCloudName(), pointCloud);
 
             //winCanvas = new Window(getCanvas(), getLinkedHashMapCloud());
-            winCanvas = new Window(getCanvas());
+            //neptusInteractorStyle = new NeptusInteractorStyle(canvas, canvas.GetRenderer(), canvas.getRenderWindowInteractor());
+
+            winCanvas = new Window(getCanvas(), neptusInteractorStyle, getEvents());
+            neptusInteractorStyle = winCanvas.getNeptusInteracStyle();
+            setEvents(new EventsHandler(neptusInteractorStyle));
             getCanvas().LightFollowCameraOn();
 
             // parse 83P data storing it on a pointcloud
@@ -394,5 +402,19 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
      */
     public void setSensorTypeInteraction(SensorTypeInteraction sensorTypeInteraction) {
         this.sensorTypeInteraction = sensorTypeInteraction;
+    }
+
+    /**
+     * @return the events
+     */
+    public EventsHandler getEvents() {
+        return events;
+    }
+
+    /**
+     * @param events the events to set
+     */
+    private void setEvents(EventsHandler events) {
+        this.events = events;
     }
 }

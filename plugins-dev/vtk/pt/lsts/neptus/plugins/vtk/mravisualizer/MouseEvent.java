@@ -29,7 +29,7 @@
  * Author: hfq
  * Jun 5, 2013
  */
-package pt.lsts.neptus.plugins.vtk.visualization;
+package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
 import java.awt.event.InputEvent;
 import java.awt.event.MouseListener;
@@ -37,6 +37,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
+import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import vtk.vtkCamera;
 
 /**
@@ -49,6 +50,11 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
     private vtkCamera camera;
     private PointPickingEvent pointPickingEvent;
 
+    /**
+     * 
+     * @param canvas
+     * @param pointPickingEvent
+     */
     public MouseEvent(Canvas canvas, PointPickingEvent pointPickingEvent) {
         this.canvas = canvas;
         this.camera = canvas.GetRenderer().GetActiveCamera();
@@ -80,14 +86,7 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
      */
     private void zoomIn() {
         // style.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
-        // // Zoom in
-        // canvas.lock();
-        // style.StartDolly();
-        // camera = renderer.GetActiveCamera();
-        // double zoomFactor = 10.0 * 0.2 * .5;
-        // camera.Dolly(Math.pow(1.1, zoomFactor));
-        // style.EndDolly();
-        // canvas.unlock();
+        // Zoom In
         canvas.lock();
         double zoomFactor = 1.02;
         if (camera.GetParallelProjection() == 1) {
@@ -106,14 +105,7 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
      */
     private void zoomOut() {
         // style.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
-        // // zoomOut
-        // canvas.lock();
-        // style.StartDolly();
-        // camera = renderer.GetActiveCamera();
-        // double factor = 10.0 * -0.2 * .5;
-        // camera.Dolly(Math.pow(1.1, factor));
-        // style.EndDolly();
-        // canvas.unlock();
+        // Zoom Out
         canvas.lock();
         double zoomFactor = -1.02;
         if (camera.GetParallelProjection() == 1) {
@@ -157,8 +149,6 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
      */
     @Override
     public void mouseMoved(java.awt.event.MouseEvent e) { // syncronized?!?!
-        // NeptusLog.pub().info("mouse moved");
-
         canvas.setLastX(e.getX());
         canvas.setLastY(e.getY());
 
@@ -180,7 +170,6 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
      */
     @Override
     public void mouseClicked(java.awt.event.MouseEvent e) {
-        // TODO Auto-generated method stub
 
     }
 
@@ -194,8 +183,6 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
 
         if (canvas.GetRenderer().VisibleActorCount() == 0)
             return;
-
-        // NeptusLog.pub().info("mouse pressed");
 
         canvas.lock();
         canvas.GetRenderWindow().SetDesiredUpdateRate(5.0);
@@ -231,7 +218,6 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
      */
     @Override
     public void mouseReleased(java.awt.event.MouseEvent e) {
-        // NeptusLog.pub().info("mouse released");
         canvas.GetRenderWindow().SetDesiredUpdateRate(0.01);
 
         canvas.setCtrlPressed((e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0);
@@ -278,7 +264,6 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
      */
     @Override
     public void mouseExited(java.awt.event.MouseEvent e) {
-        // TODO Auto-generated method stub
 
     }
 }

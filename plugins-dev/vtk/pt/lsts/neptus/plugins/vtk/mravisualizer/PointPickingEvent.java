@@ -29,12 +29,13 @@
  * Author: hfq
  * Jun 6, 2013
  */
-package pt.lsts.neptus.plugins.vtk.visualization;
+package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
 import java.awt.event.MouseEvent;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import vtk.vtkCommand;
 import vtk.vtkPointPicker;
 import vtk.vtkRenderWindowInteractor;

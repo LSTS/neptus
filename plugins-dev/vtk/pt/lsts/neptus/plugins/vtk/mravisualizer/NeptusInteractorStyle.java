@@ -29,12 +29,16 @@
  * Author: hfq
  * Apr 16, 2013
  */
-package pt.lsts.neptus.plugins.vtk.visualization;
+package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
 import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
+import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
+import pt.lsts.neptus.plugins.vtk.visualization.Compass;
+import pt.lsts.neptus.plugins.vtk.visualization.ScalarBar;
 import vtk.vtkCamera;
 import vtk.vtkCellPicker;
 import vtk.vtkInteractorStyleTrackballActor;
@@ -67,15 +71,18 @@ import vtk.vtkWindowToImageFilter;
  */
 public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
 
-    public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
+    public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
+    public LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
 
     // public vtkCanvas canvas;
-    public Canvas canvas;
+    private Canvas canvas;
 
     // A renderer
     public vtkRenderer renderer;
     // The render Window Interactor
     public vtkRenderWindowInteractor interactor;
+
+    public EventsHandler events;;
 
     // A Camera
     public vtkCamera camera = new vtkCamera();
@@ -150,23 +157,27 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
      * @param renderer
      * @param interact
      * @param linkedHashMapCloud
+     * @param events
      */
     // public NeptusInteractorStyle(vtkCanvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor interact,
     // LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
     public NeptusInteractorStyle(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
-            LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
+            LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud, EventsHandler events) {
         super();
-        this.canvas = canvas;
+        this.events = events;
+        this.setCanvas(canvas);
         this.renderer = renderer;
         this.interactor = renWinInteractor;
         this.camera = renderer.GetActiveCamera();
         this.linkedHashMapCloud = linkedHashMapCloud;
         this.setScalarBar(new ScalarBar());
-        keyboardEvent = new KeyboardEvent(this.canvas, this.linkedHashMapCloud, this);
+        keyboardEvent = new KeyboardEvent(this.getCanvas(), this.linkedHashMapCloud, this, events);
         // mouseEvent = new MouseEvent(this.canvas, this);
 
-        pointPickEvent = new PointPickingEvent(this.canvas);
-        mouseEvent = new MouseEvent(this.canvas, this.pointPickEvent);
+        pointPickEvent = new PointPickingEvent(this.getCanvas());
+        mouseEvent = new MouseEvent(this.getCanvas(), this.pointPickEvent);
+
+        this.events = new EventsHandler(this);
 
         Initalize();
     }
@@ -175,20 +186,22 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
      * @param canvas
      * @param renderer
      * @param renWinInteractor
+     * @param events
      */
-    public NeptusInteractorStyle(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor) {
+    public NeptusInteractorStyle(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor, EventsHandler events) {
         super();
-        this.canvas = canvas;
+        this.setCanvas(canvas);
         this.renderer = renderer;
         this.interactor = renWinInteractor;
         this.camera = renderer.GetActiveCamera();
         setScalarBar(new ScalarBar());
-
-        keyboardEvent = new KeyboardEvent(this.canvas, this.linkedHashMapCloud, this);
+        keyboardEvent = new KeyboardEvent(this.getCanvas(), this.linkedHashMapCloud, this, events);
         // mouseEvent = new MouseEvent(this.canvas, this);
 
-        pointPickEvent = new PointPickingEvent(this.canvas);
-        mouseEvent = new MouseEvent(this.canvas, this.pointPickEvent);
+        pointPickEvent = new PointPickingEvent(this.getCanvas());
+        mouseEvent = new MouseEvent(this.getCanvas(), this.pointPickEvent);
+
+        this.events = new EventsHandler(this);
 
         Initalize();
     }
@@ -318,5 +331,19 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
      */
     public void setScalarBar(ScalarBar scalarBar) {
         this.scalarBar = scalarBar;
+    }
+
+    /**
+     * @return the canvas
+     */
+    public Canvas getCanvas() {
+        return canvas;
+    }
+
+    /**
+     * @param canvas the canvas to set
+     */
+    public void setCanvas(Canvas canvas) {
+        this.canvas = canvas;
     }
 }

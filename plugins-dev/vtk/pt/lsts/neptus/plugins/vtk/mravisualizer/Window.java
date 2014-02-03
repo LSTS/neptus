@@ -34,7 +34,6 @@ package pt.lsts.neptus.plugins.vtk.mravisualizer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.IWindow;
-import pt.lsts.neptus.plugins.vtk.visualization.NeptusInteractorStyle;
 import vtk.vtkPanel;
 import vtk.vtkRenderWindow;
 import vtk.vtkRenderWindowInteractor;
@@ -52,7 +51,10 @@ public class Window implements IWindow {
     private vtkRenderWindow renWin;
     private vtkRenderWindowInteractor renWinInteractor;
 
+    private EventsHandler events;
+
     private String windowName;
+
 
     // private vtkLight light;
     // private vtkLightActor lightActor;
@@ -60,11 +62,14 @@ public class Window implements IWindow {
     // the Neptus interactor Style - mouse, and keyboard events
     private NeptusInteractorStyle neptusInteracStyle;
 
-    public Window(vtkPanel panel, String windowName) {
+    public Window(vtkPanel panel, NeptusInteractorStyle neptusInteractorStyle, EventsHandler events, String windowName) {
         setPanel(panel);
         this.windowName = windowName;
+
         setRenderer(panel.GetRenderer());
         setRenWin(panel.GetRenderWindow());
+        setNeptusInteracStyle(neptusInteractorStyle);
+        //setRenWinInteractor(getNeptusInteracStyle());
         setRenWinInteractor(panel.GetRenderWindow().GetInteractor());
 
         setUpRenderer();
@@ -73,15 +78,16 @@ public class Window implements IWindow {
         setUpInteractorStyle();
     }
 
-    public Window(vtkPanel panel) {
-        this(panel, I18n.text("Visualizer"));
+    public Window(vtkPanel panel, NeptusInteractorStyle neptusInteractorStyle, EventsHandler events) {
+        this(panel, neptusInteractorStyle, events, I18n.text("Visualizer"));
     }
 
-    public Window(Canvas canvas, String windowName) {
+    public Window(Canvas canvas, NeptusInteractorStyle neptusInteractorStyle, EventsHandler events, String windowName) {
         setCanvas(canvas);
         this.windowName = windowName;
         setRenderer(canvas.GetRenderer());
         setRenWin(canvas.GetRenderWindow());
+        setNeptusInteracStyle(neptusInteractorStyle);
         setRenWinInteractor(canvas.getRenderWindowInteractor());
 
         setUpRenderer();
@@ -90,8 +96,8 @@ public class Window implements IWindow {
         setUpInteractorStyle();
     }
 
-    public Window(Canvas canvas) {
-        this(canvas, "Visualizer");
+    public Window(Canvas canvas, NeptusInteractorStyle neptusInteractorStyle, EventsHandler events) {
+        this(canvas, neptusInteractorStyle, events, "Visualizer");
     }
 
     /* (non-Javadoc)
@@ -114,8 +120,7 @@ public class Window implements IWindow {
         renWin.PointSmoothingOff();
         renWin.LineSmoothingOff();
         renWin.SwapBuffersOn();
-        renWin.SetStereoTypeToAnaglyph();
-        // renWin.SetStereoTypeToCrystalEyes();
+        renWin.SetStereoTypeToAnaglyph();        
     }
 
     /* (non-Javadoc)
@@ -132,7 +137,7 @@ public class Window implements IWindow {
      */
     @Override
     public void setUpInteractorStyle() {
-        setNeptusInteracStyle(new NeptusInteractorStyle(canvas, renderer, renWinInteractor));
+        setNeptusInteracStyle(new NeptusInteractorStyle(canvas, renderer, renWinInteractor, events));
         renWinInteractor.SetInteractorStyle(getNeptusInteracStyle());
     }
 

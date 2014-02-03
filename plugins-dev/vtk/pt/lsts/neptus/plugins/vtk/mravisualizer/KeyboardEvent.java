@@ -29,19 +29,17 @@
  * Author: hfq
  * Apr 18, 2013
  */
-package pt.lsts.neptus.plugins.vtk.visualization;
+package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
-import pt.lsts.neptus.plugins.vtk.utils.Utils;
+import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
+import pt.lsts.neptus.plugins.vtk.visualization.InfoPointcloud2DText;
 import vtk.vtkAbstractPropPicker;
 import vtk.vtkActorCollection;
 import vtk.vtkAssemblyPath;
@@ -57,6 +55,7 @@ public class KeyboardEvent implements KeyListener {
 
     // private vtkCanvas canvas;
     private Canvas canvas;
+    private EventsHandler events;
 
     private vtkRenderer renderer;
     private vtkRenderWindowInteractor interactor;
@@ -92,11 +91,12 @@ public class KeyboardEvent implements KeyListener {
      * @param neptusInteractorStyle
      */
     public KeyboardEvent(Canvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
-            NeptusInteractorStyle neptusInteractorStyle) {
+            NeptusInteractorStyle neptusInteractorStyle, EventsHandler events) {
         this.neptusInteractorStyle = neptusInteractorStyle;
         this.canvas = canvas;
         this.interactor = neptusInteractorStyle.interactor;
         this.renderer = neptusInteractorStyle.renderer;
+        this.events = events;
         this.linkedHashMapCloud = linkedHashMapCloud;
         colorMapRel = ColorMappingRelation.zMap; // on creation map color map is z related
 
@@ -106,7 +106,7 @@ public class KeyboardEvent implements KeyListener {
     public void handleEvents(int keyCode) {
         switch (keyCode) {
             case KeyEvent.VK_J:
-                takeSnapShot();
+                events.takeSnapShot();
                 break;
             case KeyEvent.VK_U:
                 try {
@@ -549,47 +549,47 @@ public class KeyboardEvent implements KeyListener {
         }
     }
 
-    /**
-     * Syncronously take a snapshot of a 3D view Saves on neptus directory
-     */
-    void takeSnapShot() {
-        Utils.goToAWTThread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    neptusInteractorStyle.FindPokedRenderer(interactor.GetEventPosition()[0],
-                            interactor.GetEventPosition()[1]);
-                    neptusInteractorStyle.wif.SetInput(interactor.GetRenderWindow());
-                    neptusInteractorStyle.wif.Modified();
-                    neptusInteractorStyle.snapshotWriter.Modified();
-
-                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssmm").format(Calendar.getInstance()
-                            .getTimeInMillis());
-                    timeStamp = "snapshot_" + timeStamp;
-                    NeptusLog.pub().info("timeStamp: " + timeStamp);
-
-                    neptusInteractorStyle.snapshotWriter.SetFileName(timeStamp);
-
-                    if (!canvas.isWindowSet()) {
-                        canvas.lock();
-                        canvas.Render();
-                        canvas.unlock();
-                    }
-
-                    canvas.lock();
-                    neptusInteractorStyle.wif.Update();
-                    canvas.unlock();
-
-                    neptusInteractorStyle.snapshotWriter.Write();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-        });
-    }
+    //    /**
+    //     * Syncronously take a snapshot of a 3D view Saves on neptus directory
+    //     */
+    //    void takeSnapShot() {
+    //        Utils.goToAWTThread(new Runnable() {
+    //
+    //            @Override
+    //            public void run() {
+    //                try {
+    //                    neptusInteractorStyle.FindPokedRenderer(interactor.GetEventPosition()[0],
+    //                            interactor.GetEventPosition()[1]);
+    //                    neptusInteractorStyle.wif.SetInput(interactor.GetRenderWindow());
+    //                    neptusInteractorStyle.wif.Modified();
+    //                    neptusInteractorStyle.snapshotWriter.Modified();
+    //
+    //                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssmm").format(Calendar.getInstance()
+    //                            .getTimeInMillis());
+    //                    timeStamp = "snapshot_" + timeStamp;
+    //                    NeptusLog.pub().info("timeStamp: " + timeStamp);
+    //
+    //                    neptusInteractorStyle.snapshotWriter.SetFileName(timeStamp);
+    //
+    //                    if (!canvas.isWindowSet()) {
+    //                        canvas.lock();
+    //                        canvas.Render();
+    //                        canvas.unlock();
+    //                    }
+    //
+    //                    canvas.lock();
+    //                    neptusInteractorStyle.wif.Update();
+    //                    canvas.unlock();
+    //
+    //                    neptusInteractorStyle.snapshotWriter.Write();
+    //                }
+    //                catch (Exception e) {
+    //                    e.printStackTrace();
+    //                }
+    //            }
+    //
+    //        });
+    //    }
 
     /*
      * (non-Javadoc)
