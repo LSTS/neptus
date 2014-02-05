@@ -145,12 +145,13 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
         table.setHighlighters(HighlighterFactory.createAlternateStriping());
         table.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
 
                 if (table.getSelectedRow() != -1 && e.getClickCount() == 2) {
                     LsfIndex index = source.getLsfIndex();
                     final int msgIndex = table.convertRowIndexToModel(table.getSelectedRow());
-                    
+
                     int curIndex = 0;
                     for (int i = 0; i <= msgIndex; i++) {
                         curIndex = index.getNextMessageOfType(log.name(), curIndex);
@@ -163,8 +164,8 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
         LsfIndex idx = source.getLsfIndex();
 
-        finalTime = (long) (1000.0 * idx.timeOf(idx.getLastMessageOfType(log.name())));
-        initTime = (long) (1000.0 * idx.timeOf(idx.getFirstMessageOfType(log.name())));
+        finalTime = (long) (idx.getEndTime() * 1000.0);
+        initTime = (long) (idx.getStartTime() * 1000.0);
 
         rangeSlider = new RangeSlider(0, (int) (finalTime - initTime));
         rangeSlider.setUpperValue((int) (finalTime - initTime));
@@ -210,6 +211,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         return false;
     }
 
+    @Override
     public Type getType() {
         return Type.TABLE;
     }
@@ -224,6 +226,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
     }
 
+    @Override
     public void onShow() {
         // nothing
     }

@@ -59,7 +59,7 @@ public class IndexedLogTableModel extends AbstractTableModel {
     private LsfIndex index;
     private IMCMessageType imcMsgType;
     private Vector<String> names = null;
-    
+
     // This method returns the message that should go into the given table row
     private synchronized IMCMessage getMessage(int row) {
         if (!rowToIndex.containsKey(row))
@@ -89,23 +89,25 @@ public class IndexedLogTableModel extends AbstractTableModel {
         int curIndex = index.getNextMessageOfType(mgid, 0);
 
         while (curIndex != -1) {
-            double time = index.timeOf(curIndex); 
+            double time = index.timeOf(curIndex);
+
             if (time > finalTime)
                 break;
-            if (time >= initTime) {
+            else if (time >= initTime || initTime < 0) {
                 rowToIndex.put(rowIndex++, curIndex);                
             }
+
             curIndex = index.getNextMessageOfType(mgid, curIndex);
         }
         rowCount = rowIndex;
     }
 
     protected void load(double initTime, double finalTime) {
-        
+
     }
 
     public IndexedLogTableModel(IMraLogGroup source, String msgName) {
-        this(source, msgName, (long) (source.getLsfIndex().getStartTime() * 1000), (long) (source.getLsfIndex()
+        this(source, msgName, -1l, (long) (source.getLsfIndex()
                 .getEndTime() * 1000));
     }
 
@@ -121,11 +123,12 @@ public class IndexedLogTableModel extends AbstractTableModel {
         names.add("dst");
         names.add("dst_ent");
         names.addAll(imcMsgType.getFieldNames());
-        
+
         // load the "row <-> msg index" table
         loadIndexes(initTime/1000.0, finalTime/1000.0);            
     }
 
+    @Override
     public int getColumnCount() {
         if (names == null)
             return 0;
@@ -133,12 +136,14 @@ public class IndexedLogTableModel extends AbstractTableModel {
         return names.size();
     }
 
+    @Override
     public int getRowCount() {
         if (index == null)
             return 1;
         return rowCount;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         if (index == null) {
             return "Unable to load data";
