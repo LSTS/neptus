@@ -136,7 +136,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
     private final String stopTeleOperationStr = I18n.text("Stop Tele-Operation");
     private final String startPlanStr = I18n.text("Start Plan");
     private final String stopPlanStr = I18n.text("Stop Plan");
-    private final String sendAcousticBeaconsStr = I18n.text("Send Acoustic Beacons.");
+    private final String sendAcousticBeaconsStr = I18n.text("Send Acoustic Beacons");
     private final String sendAcousticBeaconsZeroStr = I18n.text("Clear Acoustic Beacons from Vehicle");
     private final String sendSelectedPlanStr = I18n.text("Send Selected Plan");
     private final String downloadActivePlanStr = I18n.text("Download Active Plan");
@@ -320,7 +320,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                         NeptusLog.action().info(action);
 
                         sendAcousticsButton.setEnabled(false);
-                        sendAcoustics(true, getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
+                        sendAcoustics(false, getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
 
                         return null;
                     }
