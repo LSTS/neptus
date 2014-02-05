@@ -117,7 +117,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     }
 
     @Override
-    public Component getComponent(IMraLogGroup source, double timestep) {
+    public Component getComponent(final IMraLogGroup source, double timestep) {
 
         model = new IndexedLogTableModel(source, log.name());
         table = new JXTable(model) {
@@ -148,13 +148,14 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
             public void mouseClicked(MouseEvent e) {
 
                 if (table.getSelectedRow() != -1 && e.getClickCount() == 2) {
-                    log.firstLogEntry();
+                    LsfIndex index = source.getLsfIndex();
                     final int msgIndex = table.convertRowIndexToModel(table.getSelectedRow());
-
-                    for (int i = 0; i < msgIndex; i++)
-                        log.nextLogEntry();
-
-                    mraPanel.loadVisualization(new MessageHtmlVisualization(log.getCurrentEntry()), true);
+                    
+                    int curIndex = 0;
+                    for (int i = 0; i <= msgIndex; i++) {
+                        curIndex = index.getNextMessageOfType(log.name(), curIndex);
+                    }                        
+                    mraPanel.loadVisualization(new MessageHtmlVisualization(index.getMessage(curIndex)), true);
                 }
             };
         });
