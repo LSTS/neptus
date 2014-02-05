@@ -78,7 +78,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     MRAPanel mraPanel;
     LinkedHashMap<Integer, LogMarker> markerList = new LinkedHashMap<Integer, LogMarker>();
     protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
-    LogTableModel model;
+    IndexedLogTableModel model;
     JXTable table;
     
     JPanel panel = new JPanel(new MigLayout());
@@ -88,7 +88,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         @Override
         public void actionPerformed(ActionEvent e) {
             long initTime = log.firstLogEntry().getTimestampMillis();
-            model = new LogTableModel(mraPanel.getSource(), log,  initTime + rangeSlider.getValue(), initTime + rangeSlider.getUpperValue());
+            model = new IndexedLogTableModel(mraPanel.getSource(), log.name(),  initTime + rangeSlider.getValue(), initTime + rangeSlider.getUpperValue());
             table.setModel(model);
             table.revalidate();
             table.repaint();
@@ -115,7 +115,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
         
-        model = new LogTableModel(source, log); 
+        model = new IndexedLogTableModel(source, log.name()); 
         table = new JXTable(model) {
             @Override
             public TableCellRenderer getCellRenderer(int row, int column) {
