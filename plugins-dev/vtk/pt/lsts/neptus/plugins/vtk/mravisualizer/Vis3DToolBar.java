@@ -45,8 +45,8 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.vtk.Vtk;
-import pt.lsts.neptus.plugins.vtk.Vtk.SensorTypeInteraction;
+import pt.lsts.neptus.plugins.vtk.VtkMRAVis;
+import pt.lsts.neptus.plugins.vtk.VtkMRAVis.SensorTypeInteraction;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -85,7 +85,7 @@ public class Vis3DToolBar extends JToolBar {
     private static final ImageIcon ICON_SMOOTHING = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/smoothing.png", ICON_SIZE, ICON_SIZE);
 
-    private Vtk vtkInit;
+    private VtkMRAVis vtkInit;
 
     private JToggleButton multibeamToggle;
     private JToggleButton dvlToggle;
@@ -109,7 +109,7 @@ public class Vis3DToolBar extends JToolBar {
      * 
      * @param vtkInit
      */
-    public Vis3DToolBar(Vtk vtkInit) {
+    public Vis3DToolBar(VtkMRAVis vtkInit) {
         this.vtkInit = vtkInit;
     }
 

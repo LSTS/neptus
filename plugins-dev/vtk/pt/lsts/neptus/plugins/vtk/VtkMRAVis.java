@@ -78,7 +78,7 @@ import com.l2fprod.common.propertysheet.Property;
 
 //public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider, ComponentListener {
 @PluginDescription(author = "hfq", name = "3D Visualization", icon = "images/menus/3d.png")
-public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider {
+public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesProvider {
     private static final long serialVersionUID = 8057825167454469065L;
 
     @NeptusProperty(name = "Depth exaggeration multiplier", description = "Multiplier value for depth exaggeration.")
@@ -121,7 +121,7 @@ public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider 
     /**
      * @param panel
      */
-    public Vtk(MRAPanel panel) {
+    public VtkMRAVis(MRAPanel panel) {
         Utils.loadVTKLibraries();
     }
 

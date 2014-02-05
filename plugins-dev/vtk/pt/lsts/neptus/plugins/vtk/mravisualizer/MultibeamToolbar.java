@@ -53,7 +53,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAProperties;
-import pt.lsts.neptus.plugins.vtk.Vtk;
+import pt.lsts.neptus.plugins.vtk.VtkMRAVis;
 import pt.lsts.neptus.plugins.vtk.pointcloud.DepthExaggeration;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
@@ -106,12 +106,12 @@ public class MultibeamToolbar {
 
     ToolbarAddons addons;
 
-    private Vtk vtkInit;
+    private VtkMRAVis vtkInit;
 
     /**
      * @param vtkInit
      */
-    public MultibeamToolbar(Vtk vtkInit) {
+    public MultibeamToolbar(VtkMRAVis vtkInit) {
         this.vtkInit = vtkInit;
         // this.canvas = vtkInit.vtkCanvas;
         this.canvas = vtkInit.getCanvas();

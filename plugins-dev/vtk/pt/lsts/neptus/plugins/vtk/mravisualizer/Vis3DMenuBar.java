@@ -57,7 +57,7 @@ import javax.swing.filechooser.FileFilter;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.vtk.Vtk;
+import pt.lsts.neptus.plugins.vtk.VtkMRAVis;
 import pt.lsts.neptus.plugins.vtk.io.Writer3D;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
@@ -81,7 +81,7 @@ public class Vis3DMenuBar extends JMenuBar {
 
     private static final long serialVersionUID = 1L;
 
-    private Vtk vtkInit;
+    private VtkMRAVis vtkInit;
     private Canvas canvas;
     private vtkRenderer renderer;
     private EventsHandler events;
@@ -113,7 +113,7 @@ public class Vis3DMenuBar extends JMenuBar {
      * 
      * @param vtkInit
      */
-    public Vis3DMenuBar(Vtk vtkInit) {
+    public Vis3DMenuBar(VtkMRAVis vtkInit) {
         this.vtkInit = vtkInit;
         this.events = vtkInit.getEvents();
         this.canvas = vtkInit.getCanvas();
