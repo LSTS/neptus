@@ -42,6 +42,7 @@ import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -57,7 +58,9 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.gui.swing.RangeSlider;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLog;
@@ -78,29 +81,30 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     MRAPanel mraPanel;
     LinkedHashMap<Integer, LogMarker> markerList = new LinkedHashMap<Integer, LogMarker>();
     protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
-    LogTableModel model;
+    IndexedLogTableModel model;
     JXTable table;
-    
+
     JPanel panel = new JPanel(new MigLayout());
     RangeSlider rangeSlider;
-    
+
     JButton btnFilter = new JButton(new AbstractAction("Filter") {
         @Override
         public void actionPerformed(ActionEvent e) {
             long initTime = log.firstLogEntry().getTimestampMillis();
-            model = new LogTableModel(mraPanel.getSource(), log,  initTime + rangeSlider.getValue(), initTime + rangeSlider.getUpperValue());
+            model = new IndexedLogTableModel(mraPanel.getSource(), log.name(), initTime + rangeSlider.getValue(),
+                    initTime + rangeSlider.getUpperValue());
             table.setModel(model);
             table.revalidate();
             table.repaint();
-       }
+        }
     });
-    
+
     private long finalTime;
     private long initTime;
 
     JLabel lblInitTime = new JLabel();
     JLabel lblFinalTime = new JLabel();
-    
+
     public LogTableVisualization(IMraLog source, MRAPanel panel) {
         this.log = source;
         this.mraPanel = panel;
@@ -113,9 +117,9 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     }
 
     @Override
-    public Component getComponent(IMraLogGroup source, double timestep) {
-        
-        model = new LogTableModel(source, log); 
+    public Component getComponent(final IMraLogGroup source, double timestep) {
+
+        model = new IndexedLogTableModel(source, log.name());
         table = new JXTable(model) {
             @Override
             public TableCellRenderer getCellRenderer(int row, int column) {
@@ -124,43 +128,47 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
                             boolean hasFocus, int row, int column) {
                         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                        if(column == 0) {
+                        if (column == 0) {
                             if (value != null)
-                                setText(fmt.format(new Date((Long)value)));
+                                setText(fmt.format(new Date((Long) value)));
                         }
-                        if(markerList.containsKey(row)) {
+                        if (markerList.containsKey(row)) {
                             setForeground(Color.RED);
                             setToolTipText("Marker: " + markerList.get(row).label);
                         }
                         return this;
                     }
-                    
+
                 };
             }
         };
-        
+
         table.setHighlighters(HighlighterFactory.createAlternateStriping());
         table.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
 
                 if (table.getSelectedRow() != -1 && e.getClickCount() == 2) {
-                    log.firstLogEntry();
+                    LsfIndex index = source.getLsfIndex();
                     final int msgIndex = table.convertRowIndexToModel(table.getSelectedRow());
-                    
-                    for (int i = 0; i < msgIndex; i++)
-                        log.nextLogEntry();
 
-                    mraPanel.loadVisualization(new MessageHtmlVisualization(log.getCurrentEntry()), true);
+                    int curIndex = 0;
+                    for (int i = 0; i <= msgIndex; i++) {
+                        curIndex = index.getNextMessageOfType(log.name(), curIndex);
+                    }                        
+                    mraPanel.loadVisualization(new MessageHtmlVisualization(index.getMessage(curIndex)), true);
                 }
             };
         });
         table.setAutoResizeMode(JXTable.AUTO_RESIZE_OFF);
 
-        finalTime = log.getLastEntry().getTimestampMillis();
-        initTime = log.firstLogEntry().getTimestampMillis();  
-        
-        rangeSlider = new RangeSlider(0,  (int)(finalTime - initTime));
-        rangeSlider.setUpperValue((int)(finalTime - initTime));
+        LsfIndex idx = source.getLsfIndex();
+
+        finalTime = (long) (idx.getEndTime() * 1000.0);
+        initTime = (long) (idx.getStartTime() * 1000.0);
+
+        rangeSlider = new RangeSlider(0, (int) (finalTime - initTime));
+        rangeSlider.setUpperValue((int) (finalTime - initTime));
         rangeSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -169,17 +177,18 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
             }
         });
 
-        rangeSlider.setValue(0); // This also initializes the time labels for the filter
-        
-        
+        rangeSlider.setValue(0);
+
         // Build Panel
+        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0),
+                I18n.textf("%msgtype messages", log.name())));
         panel.add(new JScrollPane(table), "w 100%, h 100%, wrap");
         panel.add(lblInitTime, "split");
         panel.add(rangeSlider, "w 100%");
         panel.add(lblFinalTime, "");
         panel.add(btnFilter, "wrap");
-        
-        return  panel;
+
+        return panel;
     }
 
     @Override
@@ -202,29 +211,31 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         return false;
     }
 
+    @Override
     public Type getType() {
         return Type.TABLE;
     }
-    
+
     @Override
     public void onCleanup() {
         mraPanel = null;
     }
-    
+
     @Override
     public void onHide() {
-        
+
     }
-    
+
+    @Override
     public void onShow() {
-        //nothing
+        // nothing
     }
 
     @Override
     public void addLogMarker(LogMarker marker) {
         Long timestamp = new Double(marker.timestamp).longValue();
-        for(int i = 0; i < log.getNumberOfEntries()-1; i++) {            
-            if(timestamp < ((long)model.getValueAt(i, 0) - 10)) {
+        for (int i = 0; i < log.getNumberOfEntries() - 1; i++) {
+            if (timestamp < ((long) model.getValueAt(i, 0) - 10)) {
                 markerList.put(i, marker);
                 break;
             }
@@ -234,8 +245,8 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
     @Override
     public void removeLogMarker(LogMarker marker) {
-        for(Integer m : markerList.keySet()) {
-            if(marker.timestamp == markerList.get(m).timestamp) {
+        for (Integer m : markerList.keySet()) {
+            if (marker.timestamp == markerList.get(m).timestamp) {
                 markerList.remove(m);
                 model.fireTableDataChanged();
                 break;
@@ -245,6 +256,6 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
     @Override
     public void GotoMarker(LogMarker marker) {
-        
+
     }
 }

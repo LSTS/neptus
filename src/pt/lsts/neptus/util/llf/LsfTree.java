@@ -41,12 +41,11 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
-import pt.lsts.neptus.NeptusLog;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.imc.IMCMessage;
 
 /**
  * @author ZP
@@ -81,8 +80,7 @@ public class LsfTree extends JTree {
 	    
 	    try {
 			IMraLog parser = source.getLog(logName);
-			
-			IMCMessage entry = parser.getLastEntry();
+			IMCMessage entry = source.getLsfIndex().getMessage(source.getLsfIndex().getNextMessageOfType(logName, 0));
 			
 			LLFTreeLog file = new LLFTreeLog(parser, logName);
 			DefaultMutableTreeNode fileNode = new DefaultMutableTreeNode(file);			
@@ -95,7 +93,6 @@ public class LsfTree extends JTree {
 		}
 		catch (Exception e) {			
 		    e.printStackTrace();
-		    NeptusLog.pub().info("<###>Missing file: " + logName);
 		}
 	}
 }
