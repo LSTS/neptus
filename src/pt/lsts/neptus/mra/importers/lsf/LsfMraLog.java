@@ -136,6 +136,8 @@ public class LsfMraLog implements IMraLog {
     @Override
     public IMCMessage getLastEntry() {
         curIndex = index.getLastMessageOfType(index.getDefinitions().getMessageId(name));
+        if (curIndex == -1)
+            return null;
         return index.getMessage(curIndex);
     }
 

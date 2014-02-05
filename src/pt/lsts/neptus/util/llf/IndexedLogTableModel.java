@@ -36,10 +36,12 @@ import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.collections.map.LRUMap;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
-import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 
 /**
@@ -49,75 +51,86 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 public class IndexedLogTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;
-
-    // RandomAccessFile raf = null;
-    private LinkedHashMap<Integer, Vector<Object>> cache = new LinkedHashMap<Integer, Vector<Object>>();
-
-    //private LinkedHashMap<Integer, Integer> messageIndexes = new LinkedHashMap<>();
-    protected int rowCount = 1;
-    protected LsfIndex index;
-    protected String msgType;
-    protected IMraLogGroup source;
-    protected long initTimeMillis = 0;
-    protected long finalTimeMillis = 0;
-    protected IMCMessageType imcMsgType;
+    // map from rows to message index in the log
+    private LinkedHashMap<Integer, Integer> rowToIndex = new LinkedHashMap<>();
+    // cache of recently retrieved messages from the log (heavy operation)
+    private LRUMap cache = new LRUMap(100);
+    private int rowCount = 1;
+    private LsfIndex index;
+    private IMCMessageType imcMsgType;
+    private Vector<String> names = null;
     
-    protected void load(double initTime, double finalTime) {
-        LsfGenericIterator it = index.getIterator(msgType);
-        IMCMessage msg;
+    // This method returns the message that should go into the given table row
+    private synchronized IMCMessage getMessage(int row) {
+        if (!rowToIndex.containsKey(row))
+            return null;
+
+        int idx = rowToIndex.get(row);
+        if (cache.containsKey(idx)) {
+            return (IMCMessage) cache.get(idx);
+        }
+        else {
+            try {
+                IMCMessage m = index.getMessage(idx);
+                cache.put(idx, m);
+                return m;
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+                return null;
+            }
+        }
+    }
+
+    private void loadIndexes(double initTime, double finalTime) {
         int rowIndex = 0;
-        while((msg = it.next()) != null) {
-            if (msg.getTimestamp() < initTime)
-                continue;
-            
-            if (msg.getTimestamp() > finalTime)
+        int mgid = imcMsgType.getId();
+
+        int curIndex = index.getNextMessageOfType(mgid, 0);
+
+        while (curIndex != -1) {
+            double time = index.timeOf(curIndex); 
+            if (time > finalTime)
                 break;
-            
-            Vector<Object> values = new Vector<Object>();
-            values.add(msg.getTimestampMillis());
-            int src = msg.getInteger("src");
-            int src_ent = msg.getInteger("src_ent");
-            int dst = msg.getInteger("dst");
-            int dst_ent = msg.getInteger("dst_ent");
-
-            values.add(source.getSystemName(src));
-            values.add(source.getEntityName(src, src_ent));
-            values.add(source.getSystemName(dst));
-            values.add(source.getEntityName(dst, dst_ent));
-            
-            for (String key : msg.getMessageType().getFieldNames())
-                values.add(msg.getString(key));
-
-            cache.put(rowIndex, values);
-            rowIndex++;
+            if (time >= initTime) {
+                rowToIndex.put(rowIndex++, curIndex);                
+            }
+            curIndex = index.getNextMessageOfType(mgid, curIndex);
         }
         rowCount = rowIndex;
     }
 
+    protected void load(double initTime, double finalTime) {
+        
+    }
+
     public IndexedLogTableModel(IMraLogGroup source, String msgName) {
-        this(source, msgName, (long) (source.getLsfIndex().getStartTime() * 1000), 
-                (long) (source.getLsfIndex().getEndTime() * 1000));
+        this(source, msgName, (long) (source.getLsfIndex().getStartTime() * 1000), (long) (source.getLsfIndex()
+                .getEndTime() * 1000));
     }
 
     public IndexedLogTableModel(IMraLogGroup source, String msgName, long initTime, long finalTime) {
-        this.source = source;
         this.index = source.getLsfIndex();
-        this.msgType = msgName;
         this.imcMsgType = index.getDefinitions().getType(msgName);
+
+        // column names
+        names = new Vector<String>();
+        names.add("time");
+        names.add("src");
+        names.add("src_ent");
+        names.add("dst");
+        names.add("dst_ent");
+        names.addAll(imcMsgType.getFieldNames());
         
-        try {
-            load(initTime/1000.0, finalTime / 1000.0);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        // load the "row <-> msg index" table
+        loadIndexes(initTime/1000.0, finalTime/1000.0);            
     }
 
     public int getColumnCount() {
-        if (msgType == null)
-            return 1;
+        if (names == null)
+            return 0;
 
-        return 5 + imcMsgType.getFieldNames().size();
+        return names.size();
     }
 
     public int getRowCount() {
@@ -130,26 +143,31 @@ public class IndexedLogTableModel extends AbstractTableModel {
         if (index == null) {
             return "Unable to load data";
         }
-        if (cache.containsKey(rowIndex)) {
-            return cache.get(rowIndex).get(columnIndex);
+        // retrieve the message that should go into this column from the cache
+        IMCMessage m = getMessage(rowIndex);
+        // given the column name show the resulting value
+        if (m != null) {
+            switch (names.get(columnIndex)) {
+                case "time":
+                    return m.getTimestampMillis();
+                case "src":
+                    return m.getSourceName();
+                case "src_ent":
+                    return index.getEntityName(m.getSrc(), m.getSrcEnt());
+                case "dst":
+                    return index.getSystemName(m.getDst());
+                case "dst_ent":
+                    return index.getEntityName(m.getDst(), m.getDstEnt());
+                default:
+                    return m.getString(names.get(columnIndex));
+            }
         }
         return null;
     }
 
     @Override
     public String getColumnName(int column) {
-        if (index == null)
-            return "Error";
-
-        Vector<String> names = new Vector<String>();
-        names.add("time");
-        names.add("src");
-        names.add("src_ent");
-        names.add("dst");
-        names.add("dst_ent");
-        names.addAll(imcMsgType.getFieldNames());
         return names.get(column);
-
     }
 
     @Override

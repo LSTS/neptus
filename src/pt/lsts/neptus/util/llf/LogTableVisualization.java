@@ -57,6 +57,7 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.gui.swing.RangeSlider;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -156,8 +157,11 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         });
         table.setAutoResizeMode(JXTable.AUTO_RESIZE_OFF);
 
-        finalTime = log.getLastEntry().getTimestampMillis();
-        initTime = log.firstLogEntry().getTimestampMillis();  
+        LsfIndex idx = source.getLsfIndex();
+        
+        finalTime = (long)(1000.0 * idx.timeOf(idx.getLastMessageOfType(log.name())));
+        initTime = (long)(1000.0 * idx.timeOf(idx.getFirstMessageOfType(log.name())));
+
         
         rangeSlider = new RangeSlider(0,  (int)(finalTime - initTime));
         rangeSlider.setUpperValue((int)(finalTime - initTime));
@@ -169,7 +173,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
             }
         });
 
-        rangeSlider.setValue(0); // This also initializes the time labels for the filter
+        rangeSlider.setValue(0);
         
         
         // Build Panel
