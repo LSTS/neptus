@@ -50,11 +50,7 @@ public class Window implements IWindow {
     private vtkRenderer renderer;
     private vtkRenderWindow renWin;
     private vtkRenderWindowInteractor renWinInteractor;
-
-    private EventsHandler events;
-
     private String windowName;
-
 
     // private vtkLight light;
     // private vtkLightActor lightActor;
@@ -79,7 +75,7 @@ public class Window implements IWindow {
     }
 
     public Window(vtkPanel panel, NeptusInteractorStyle neptusInteractorStyle, EventsHandler events) {
-        this(panel, neptusInteractorStyle, events, I18n.text("Visualizer"));
+        this(panel, neptusInteractorStyle, events, I18n.text("Visualizer3D"));
     }
 
     public Window(Canvas canvas, NeptusInteractorStyle neptusInteractorStyle, EventsHandler events, String windowName) {
@@ -137,7 +133,7 @@ public class Window implements IWindow {
      */
     @Override
     public void setUpInteractorStyle() {
-        setNeptusInteracStyle(new NeptusInteractorStyle(canvas, renderer, renWinInteractor, events));
+        setNeptusInteracStyle(new NeptusInteractorStyle(canvas, renderer, renWinInteractor));
         renWinInteractor.SetInteractorStyle(getNeptusInteracStyle());
     }
 

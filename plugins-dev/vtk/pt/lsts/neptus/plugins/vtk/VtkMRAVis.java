@@ -63,6 +63,7 @@ import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
+import pt.lsts.neptus.plugins.vtk.utils.VTKMemoryManager;
 import pt.lsts.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.Text3D;
@@ -137,8 +138,21 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
             setCanvas(new Canvas());
 
+            //winCanvas = new Window(getCanvas(), getLinkedHashMapCloud());
+            //neptusInteractorStyle = new NeptusInteractorStyle(canvas, canvas.GetRenderer(), canvas.getRenderWindowInteractor());
+
+            winCanvas = new Window(getCanvas(), neptusInteractorStyle, getEvents());
+            neptusInteractorStyle = winCanvas.getNeptusInteracStyle();
+            setEvents(neptusInteractorStyle.getEventsHandler());
+            getCanvas().LightFollowCameraOn();
+
+            pointCloud = new PointCloud<>();
+            pointCloud.setCloudName("multibeam");
+            getLinkedHashMapCloud().put(pointCloud.getCloudName(), pointCloud);
+
             // set Interface Layout
             setLayout(new BorderLayout());
+
             menuBar = new Vis3DMenuBar(this);
             menuBar.createMenuBar();
             add(menuBar, BorderLayout.NORTH);
@@ -150,18 +164,6 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             toolbar = new MultibeamToolbar(this);
             toolbar.createToolbar();
             add(toolbar.getToolbar(), BorderLayout.SOUTH);
-
-            pointCloud = new PointCloud<>();
-            pointCloud.setCloudName("multibeam");
-            getLinkedHashMapCloud().put(pointCloud.getCloudName(), pointCloud);
-
-            //winCanvas = new Window(getCanvas(), getLinkedHashMapCloud());
-            //neptusInteractorStyle = new NeptusInteractorStyle(canvas, canvas.GetRenderer(), canvas.getRenderWindowInteractor());
-
-            winCanvas = new Window(getCanvas(), neptusInteractorStyle, getEvents());
-            neptusInteractorStyle = winCanvas.getNeptusInteracStyle();
-            setEvents(new EventsHandler(neptusInteractorStyle));
-            getCanvas().LightFollowCameraOn();
 
             // parse 83P data storing it on a pointcloud
             loadToPointCloud = new LoadToPointCloud(source, pointCloud);
@@ -296,7 +298,12 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     @Override
     public void onCleanup() {
-        // VTKMemoryManager.deleteAll();
+        setVisible(false);
+        getCanvas().GetRenderer().RemoveAllObservers();
+        getCanvas().GetRenderWindow().RemoveAllObservers();
+        getCanvas().GetRenderWindow().Delete();
+
+        VTKMemoryManager.deleteAll();
     }
 
     /**

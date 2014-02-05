@@ -70,7 +70,7 @@ public class DVLBathymetryParser implements BathymetryParser {
 
         initialize();
     }
-    
+
     public DVLBathymetryParser(LsfIndex index) {
         this.idx = index;
 
@@ -89,9 +89,9 @@ public class DVLBathymetryParser implements BathymetryParser {
 
     @Override
     public synchronized BathymetryInfo getBathymetryInfo() {
-        
+
         if (info.totalNumberOfPoints == -1) {
-            
+
         }
         return info;
     }
@@ -112,12 +112,10 @@ public class DVLBathymetryParser implements BathymetryParser {
 
         info = new BathymetryInfo();
 
-        
-        //LocationType topLeft, bottomRight;
-        double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE, 
-               minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
+        // LocationType topLeft, bottomRight;
+        double minLat = Double.MAX_VALUE, maxLat = -Double.MAX_VALUE, minLon = Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
         double maxAlt = 0, maxDepth = 0;
-        
+
         for (EstimatedState s : idx.getIterator(EstimatedState.class, 1000)) {
             LocationType loc = IMCUtils.parseLocation(s).convertToAbsoluteLatLonDepth();
             minLat = Math.min(minLat, loc.getLatitudeAsDoubleValue());
@@ -127,26 +125,26 @@ public class DVLBathymetryParser implements BathymetryParser {
             maxAlt = Math.max(maxAlt, s.getAlt());
             maxDepth = Math.max(maxDepth, s.getDepth());
         }
-        
+
         if (maxAlt > 110) {
             maxAlt = 50;
         }
         double margin = Math.cos(Math.toRadians(22.5)) * maxAlt;
-        
+
         LocationType topLeft = new LocationType(maxLat, minLon);
         LocationType bottomRight = new LocationType(minLat, maxLon);
-        
+
         topLeft.translatePosition(margin, -margin, 0);
         bottomRight.translatePosition(-margin, margin, 0);
-        
+
         info.topLeft = topLeft.convertToAbsoluteLatLonDepth();
         info.bottomRight = bottomRight.convertToAbsoluteLatLonDepth();
-        info.maxDepth = (float)maxDepth;
+        info.maxDepth = (float) maxDepth;
         for (Distance d : idx.getIterator(Distance.class)) {
-            if (beamIds.contains((int)d.getSrcEnt()))
+            if (beamIds.contains((int) d.getSrcEnt()))
                 info.totalNumberOfPoints++;
         }
-        System.out.println("#points: "+info.totalNumberOfPoints);
+        // System.out.println("#points: "+info.totalNumberOfPoints);
     }
 
     @Override
@@ -173,7 +171,7 @@ public class DVLBathymetryParser implements BathymetryParser {
         double distances[] = new double[4];
         double angles[] = new double[4];
         DeviceState devState = null;
-        
+
         int count = 0;
         while (count < 4 && curIdx != -1 && curIdx < idx.getNumberOfMessages()) {
             curIdx = idx.getNextMessageOfType(Distance.ID_STATIC, curIdx);
@@ -199,7 +197,7 @@ public class DVLBathymetryParser implements BathymetryParser {
             for (int i = 0; i < 4; i++) {
                 Distance d = idx.getMessage(msgs[i], Distance.class);
                 distances[i] = d.getValue();
-                angles[i] = Math.PI + Math.PI/2 * i;//d.getLocation().firstElement().getTheta();
+                angles[i] = Math.PI + Math.PI / 2 * i;// d.getLocation().firstElement().getTheta();
             }
         }
         catch (Exception e) {
@@ -208,7 +206,7 @@ public class DVLBathymetryParser implements BathymetryParser {
         }
 
         IMCMessage state = idx.getMessageAtOrAfter("EstimatedState", msgs[0], idx.timeOf(msgs[0]));
-        
+
         if (state == null)
             return null;
         BathymetryPoint[] data = new BathymetryPoint[4];
@@ -221,8 +219,6 @@ public class DVLBathymetryParser implements BathymetryParser {
         return new BathymetrySwath(state.getTimestampMillis(), IMCUtils.parseState(state), data);
 
     }
-    
-    
 
     @Override
     public void rewind() {
@@ -233,7 +229,7 @@ public class DVLBathymetryParser implements BathymetryParser {
     public boolean getHasIntensity() {
         return false;
     }
-    
+
     static float[] getOffsets(double range, double angle, SystemPositionAndAttitude pose) {
         // init vector as front looking beam vector
         Point3d pt0 = new Point3d(Math.cos(22) * range, 0, range);
@@ -242,14 +238,13 @@ public class DVLBathymetryParser implements BathymetryParser {
             pt0 = Util3D.setTransform(pt0, 0, 0, angle);
 
         // apply pose rotation
-        //pt0 = Util3D.setTransform(pt0, pose.getRoll(), pose.getPitch(), Math.PI/2+pose.getYaw()); 
-        pt0 = Util3D.setTransform(pt0, pose.getRoll(), pose.getPitch() ,pose.getYaw()+Math.PI/2);
+        // pt0 = Util3D.setTransform(pt0, pose.getRoll(), pose.getPitch(), Math.PI/2+pose.getYaw());
+        pt0 = Util3D.setTransform(pt0, pose.getRoll(), pose.getPitch(), pose.getYaw() + Math.PI / 2);
         // translate using depth
-        return new float[] {(float)pt0.x, (float)pt0.y, (float)(pt0.z + pose.getPosition().getDepth())};
-        
+        return new float[] { (float) pt0.x, (float) pt0.y, (float) (pt0.z + pose.getPosition().getDepth()) };
+
     }
-    
-    
+
     public static void main(String[] args) throws Exception {
         JFileChooser chooser = new JFileChooser();
         chooser.showOpenDialog(null);
@@ -258,11 +253,10 @@ public class DVLBathymetryParser implements BathymetryParser {
         BathymetrySwath swath = parser.nextSwath();
         while (swath != null) {
             for (BathymetryPoint bp : swath.getData()) {
-                System.out.println(bp.north+", "+bp.east+", "+bp.depth);
+                System.out.println(bp.north + ", " + bp.east + ", " + bp.depth);
             }
             swath = parser.nextSwath();
             System.out.println();
         }
     }
-
 }

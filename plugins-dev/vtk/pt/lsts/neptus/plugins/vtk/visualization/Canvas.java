@@ -59,6 +59,7 @@ public class Canvas extends vtkCanvas {
      * Constructor
      */
     public Canvas() {
+        super();
         setMinimumSize(new Dimension(0, 0));
         setPreferredSize(new Dimension(0, 0));
     }
