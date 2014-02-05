@@ -100,7 +100,7 @@ public class KeyboardEvent implements KeyListener {
         this.linkedHashMapCloud = linkedHashMapCloud;
         colorMapRel = ColorMappingRelation.zMap; // on creation map color map is z related
 
-        canvas.addKeyListener(this);
+        // canvas.addKeyListener(this);
     }
 
     public void handleEvents(int keyCode) {

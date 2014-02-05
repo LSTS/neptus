@@ -77,7 +77,7 @@ import com.l2fprod.common.propertysheet.Property;
  * @author hfq
  */
 
-//public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider, ComponentListener {
+// public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider, ComponentListener {
 @PluginDescription(author = "hfq", name = "3D Visualization", icon = "images/menus/3d.png")
 public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesProvider {
     private static final long serialVersionUID = 8057825167454469065L;
@@ -86,7 +86,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     public int zExaggeration = 10;
 
     private Canvas canvas;
-    public Window winCanvas;
+    private Window winCanvas;
     private NeptusInteractorStyle neptusInteractorStyle;
     private EventsHandler events;
 
@@ -98,11 +98,10 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     private Vis3DToolBar toolbar2;
 
     private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
-    public PointCloud<PointXYZ> pointCloud;
     private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh = new LinkedHashMap<>();
 
     // private Vector<Marker3d> markers = new Vector<>();
-    public IMraLogGroup mraVtkLogGroup;
+    public IMraLogGroup source;
     public File file;
 
     private Boolean componentEnabled = false;
@@ -111,13 +110,8 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     private Boolean isFirstRender = true;
 
+    boolean mbFound = false;
     private static final String FILE_83P_EXT = ".83P";
-
-    public enum SensorTypeInteraction {
-        NONE, DVL, MULTIBEAM, ALL;
-    }
-
-    private SensorTypeInteraction sensorTypeInteraction = SensorTypeInteraction.NONE;
 
     /**
      * @param panel
@@ -135,20 +129,15 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     public Component getComponent(IMraLogGroup source, double timestep) {
         if (!componentEnabled) {
             componentEnabled = true;
+            this.source = source;
 
             setCanvas(new Canvas());
-
-            //winCanvas = new Window(getCanvas(), getLinkedHashMapCloud());
-            //neptusInteractorStyle = new NeptusInteractorStyle(canvas, canvas.GetRenderer(), canvas.getRenderWindowInteractor());
+            getCanvas().LightFollowCameraOn();
+            getCanvas().setEnabled(true);
 
             winCanvas = new Window(getCanvas(), neptusInteractorStyle, getEvents());
             neptusInteractorStyle = winCanvas.getNeptusInteracStyle();
             setEvents(neptusInteractorStyle.getEventsHandler());
-            getCanvas().LightFollowCameraOn();
-
-            pointCloud = new PointCloud<>();
-            pointCloud.setCloudName("multibeam");
-            getLinkedHashMapCloud().put(pointCloud.getCloudName(), pointCloud);
 
             // set Interface Layout
             setLayout(new BorderLayout());
@@ -165,80 +154,116 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             toolbar.createToolbar();
             add(toolbar.getToolbar(), BorderLayout.SOUTH);
 
-            // parse 83P data storing it on a pointcloud
-            loadToPointCloud = new LoadToPointCloud(source, pointCloud);
-            loadToPointCloud.parseMultibeamPointCloud();
-
-            getCanvas().setEnabled(true);
-
             // add axesWidget to vtk canvas fixed to a screen position
-            AxesWidget axesWidget = new AxesWidget(winCanvas.getNeptusInteracStyle().GetInteractor());
+            AxesWidget axesWidget = new AxesWidget(neptusInteractorStyle.GetInteractor());
             axesWidget.createAxesWidget();
 
-            if (pointCloud.getNumberOfPoints() != 0) { // checks wether there are any points to render!
-                if (MRAProperties.outliersRemoval) {
-                    // remove outliers
-                    // RadiusOutlierRemoval radOutRem = new RadiusOutlierRemoval();
-                    // radOutRem.applyFilter(multibeamToPointCloud.getPoints());
-                    // pointCloud.setPoints(radOutRem.getOutputPoints());
-                    // NeptusLog.pub().info("Get number of points: " + pointCloud.getPoints().GetNumberOfPoints());
-
-                    StatisticalOutlierRemoval statOutRem = new StatisticalOutlierRemoval();
-                    statOutRem.setMeanK(20);
-                    statOutRem.setStdMul(0.2);
-                    statOutRem.applyFilter(loadToPointCloud.getPoints());
-                    pointCloud.setPoints(statOutRem.getOutputPoints());
-                }
-                else
-                    pointCloud.setPoints(loadToPointCloud.getPoints());
-
-                // pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());
-                // create an actor from parsed beams
-                // if (pointCloud.isHasIntensities()) {
-                // multibeamToPointCloud.showIntensities();
-                // pointCloud.setIntensities(multibeamToPointCloud.getIntensities());
-                //
-                // pointCloud.createLODActorFromPoints(multibeamToPointCloud.getIntensities());
-                // NeptusLog.pub().info("create LOD actor with intensities");
-                // }
-                //
-                // else {
-                pointCloud.createLODActorFromPoints();
-                NeptusLog.pub().info("create LOD actor without intensities");
-                // }
-
-                Utils.delete(loadToPointCloud.getPoints());
-
-                // add parsed beams stored on pointcloud to canvas
-                getCanvas().GetRenderer().AddActor(pointCloud.getCloudLODActor());
-                // set Up scalar Bar look up table
-                winCanvas.getNeptusInteracStyle().getScalarBar()
-                .setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
-                getCanvas().GetRenderer().AddActor(winCanvas.getNeptusInteracStyle().getScalarBar().getScalarBarActor());
-
-                // set up camera to +z viewpoint looking down
-                //double[] center = new double[3];
-                //center = PointCloudUtils.computeCenter(pointCloud);
-                //canvas.GetRenderer().GetActiveCamera().SetPosition(center[0], center[1], center[2] - 200);
-                //canvas.GetRenderer().GetActiveCamera().SetPosition(0, 0, 0 - 200);
-                //canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
-            }
-            else { // if no beams were parsed
-                String msgErrorMultibeam;
-                msgErrorMultibeam = I18n.text("No beams on Log file!");
-                JOptionPane.showMessageDialog(null, msgErrorMultibeam);
-
-                noBeamsText = new Text3D();
-                noBeamsText.buildText3D(I18n.text("No beams on Log file") + "!", 2.0, 2.0, 2.0, 10.0);
-                getCanvas().GetRenderer().AddActor(noBeamsText.getText3dActor());
-            }
+            // checks if data is available
+            // first multibeam then dvl
+            loadCloud();
         }
         return this;
     }
 
+    public void loadCloud() {
+        if (mbFound) {
+            PointCloud<PointXYZ> pointCloud = new PointCloud<>();
+            pointCloud.setCloudName("multibeam");
+            getLinkedHashMapCloud().put(pointCloud.getCloudName(), pointCloud);
+            parseAndSetUpCloud(pointCloud);
+            setUpRenderer(pointCloud);
+        }
+        else if (source.getLsfIndex().containsMessagesOfType("Distance")) {
+            PointCloud<PointXYZ> pointCloud = new PointCloud<>();
+            pointCloud.setCloudName("dvl");
+            getLinkedHashMapCloud().put(pointCloud.getCloudName(), pointCloud);
+            parseAndSetUpCloud(pointCloud);
+            setUpRenderer(pointCloud);
+        }
+        else {
+            String msgErrorNoData;
+            msgErrorNoData = I18n.text("No data Available") + "!";
+            JOptionPane.showMessageDialog(null, msgErrorNoData);
+
+            Text3D noDataText = new Text3D();
+            noDataText.buildText3D(msgErrorNoData, 2.0, 2.0, 2.0, 10.0);
+            getCanvas().GetRenderer().AddActor(noDataText.getText3dActor());
+        }
+    }
+
+    /**
+     * @param pointCloud 
+     */
+    private void setUpRenderer(PointCloud<PointXYZ> pointCloud) {
+        if(pointCloud.getNumberOfPoints() != 0) {
+            // add parsed beams stored on pointcloud to canvas
+            getCanvas().GetRenderer().AddActor(pointCloud.getCloudLODActor());
+            // set Up scalar Bar look up table
+            neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
+            getCanvas().GetRenderer().AddActor(winCanvas.getNeptusInteracStyle().getScalarBar().getScalarBarActor());
+
+            // set up camera to +z viewpoint looking down
+            // double[] center = new double[3];
+            // center = PointCloudUtils.computeCenter(pointCloud);
+            // canvas.GetRenderer().GetActiveCamera().SetPosition(center[0], center[1], center[2] - 200);
+            // canvas.GetRenderer().GetActiveCamera().SetPosition(0, 0, 0 - 200);
+            // canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+        }
+
+        else { // if no beams were parsed
+            String msgErrorMultibeam;
+            msgErrorMultibeam = I18n.text("No beams on Log file") + "!";
+            JOptionPane.showMessageDialog(null, msgErrorMultibeam);
+
+            noBeamsText = new Text3D();
+            noBeamsText.buildText3D(msgErrorMultibeam, 2.0, 2.0, 2.0, 10.0);
+            getCanvas().GetRenderer().AddActor(noBeamsText.getText3dActor());
+        }
+    }
+
+    private void parseAndSetUpCloud(PointCloud<PointXYZ> pointCloud) {
+        // parse 83P data storing it on a pointcloud
+        loadToPointCloud = new LoadToPointCloud(source, pointCloud);
+        loadToPointCloud.parseMultibeamPointCloud();
+        if (pointCloud.getNumberOfPoints() != 0) { // checks wether there are any points to render!
+            if (MRAProperties.outliersRemoval) {
+                // remove outliers
+                // RadiusOutlierRemoval radOutRem = new RadiusOutlierRemoval();
+                // radOutRem.applyFilter(multibeamToPointCloud.getPoints());
+                // pointCloud.setPoints(radOutRem.getOutputPoints());
+                // NeptusLog.pub().info("Get number of points: " + pointCloud.getPoints().GetNumberOfPoints());
+
+                StatisticalOutlierRemoval statOutRem = new StatisticalOutlierRemoval();
+                statOutRem.setMeanK(20);
+                statOutRem.setStdMul(0.2);
+                statOutRem.applyFilter(loadToPointCloud.getPoints());
+                pointCloud.setPoints(statOutRem.getOutputPoints());
+            }
+            else
+                pointCloud.setPoints(loadToPointCloud.getPoints());
+
+            // pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());
+            // create an actor from parsed beams
+            // if (pointCloud.isHasIntensities()) {
+            // multibeamToPointCloud.showIntensities();
+            // pointCloud.setIntensities(multibeamToPointCloud.getIntensities());
+            //
+            // pointCloud.createLODActorFromPoints(multibeamToPointCloud.getIntensities());
+            // NeptusLog.pub().info("create LOD actor with intensities");
+            // }
+            //
+            // else {
+            pointCloud.createLODActorFromPoints();
+            NeptusLog.pub().info("create LOD actor without intensities");
+            // }
+
+            Utils.delete(loadToPointCloud.getPoints());
+        }
+    }
+
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        boolean beApplied = false;
+        // boolean beApplied = false;
 
         if (NeptusMRA.vtkEnabled) { // if it could load vtk libraries
             // Checks existance of a *.83P file
@@ -248,7 +273,8 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
                     for (File temp : file.listFiles()) {
                         if ((temp.toString()).endsWith(FILE_83P_EXT)) {
                             setLog(source);
-                            beApplied = true;
+                            // beApplied = true;
+                            mbFound = true;
                         }
                     }
                 }
@@ -257,7 +283,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
                 e.printStackTrace();
             }
         }
-        return beApplied || source.getLsfIndex().containsMessagesOfType("Distance");
+        return mbFound || source.getLsfIndex().containsMessagesOfType("Distance");
     }
 
     @Override
@@ -303,6 +329,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
         getCanvas().GetRenderWindow().RemoveAllObservers();
         getCanvas().GetRenderWindow().Delete();
 
+        VTKMemoryManager.GC.SetAutoGarbageCollection(true);
         VTKMemoryManager.deleteAll();
     }
 
@@ -310,14 +337,14 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
      * @return the mraVtkLogGroup
      */
     public IMraLogGroup getLog() {
-        return mraVtkLogGroup;
+        return source;
     }
 
     /**
      * @param mraVtkLogGroup the mraVtkLogGroup to set
      */
     private void setLog(IMraLogGroup log) {
-        this.mraVtkLogGroup = log;
+        this.source = log;
     }
 
     /*
@@ -395,20 +422,6 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
      */
     public void setLinkedHashMapMesh(LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh) {
         this.linkedHashMapMesh = linkedHashMapMesh;
-    }
-
-    /**
-     * @return the sensorTypeInteraction
-     */
-    public SensorTypeInteraction getSensorTypeInteraction() {
-        return sensorTypeInteraction;
-    }
-
-    /**
-     * @param sensorTypeInteraction the sensorTypeInteraction to set
-     */
-    public void setSensorTypeInteraction(SensorTypeInteraction sensorTypeInteraction) {
-        this.sensorTypeInteraction = sensorTypeInteraction;
     }
 
     /**

@@ -46,7 +46,7 @@ import javax.swing.JToolBar;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.VtkMRAVis;
-import pt.lsts.neptus.plugins.vtk.VtkMRAVis.SensorTypeInteraction;
+import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler.SensorTypeInteraction;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -86,6 +86,7 @@ public class Vis3DToolBar extends JToolBar {
             "pt/lsts/neptus/plugins/vtk/assets/smoothing.png", ICON_SIZE, ICON_SIZE);
 
     private VtkMRAVis vtkInit;
+    private EventsHandler events;
 
     private JToggleButton multibeamToggle;
     private JToggleButton dvlToggle;
@@ -111,6 +112,7 @@ public class Vis3DToolBar extends JToolBar {
      */
     public Vis3DToolBar(VtkMRAVis vtkInit) {
         this.vtkInit = vtkInit;
+        this.events = vtkInit.getEvents();
     }
 
     public void createToolBar() {
@@ -171,6 +173,7 @@ public class Vis3DToolBar extends JToolBar {
         multibeamToggle.addActionListener(sensorTypeInteractionAction);
         dvlToggle.addActionListener(sensorTypeInteractionAction);
 
+
         rawPointsToggle.addActionListener(renderRepresentationTypeAction);
         wireframeToggle.addActionListener(renderRepresentationTypeAction);
         solidToggle.addActionListener(renderRepresentationTypeAction);
@@ -198,6 +201,7 @@ public class Vis3DToolBar extends JToolBar {
 
     /**
      * Actions for type od sensor choosen
+     * FIXME - since toogles are grouped it is not possible to have both clouds... will fix on next iteration
      */
     ActionListener sensorTypeInteractionAction = new ActionListener() {
 
@@ -205,14 +209,23 @@ public class Vis3DToolBar extends JToolBar {
         public void actionPerformed(ActionEvent e) {
             SensorTypeInteraction sensorTypeInt = SensorTypeInteraction.NONE; 
 
-            if(multibeamToggle.isSelected())
+            if(multibeamToggle.isSelected()) {
                 sensorTypeInt = SensorTypeInteraction.MULTIBEAM;
+                if(!vtkInit.getLinkedHashMapCloud().containsKey("multibeam"))
+                    vtkInit.loadCloud();
+                else
+                    vtkInit.getCanvas().GetRenderer().AddActor(vtkInit.getLinkedHashMapCloud().get("multibeam").getCloudLODActor());
+                vtkInit.getCanvas().Render();
+                vtkInit.getCanvas().resetCamera();
+            }
             else if(dvlToggle.isSelected())
                 sensorTypeInt = SensorTypeInteraction.DVL;
             else if(multibeamToggle.isSelected() && dvlToggle.isSelected())
                 sensorTypeInt = SensorTypeInteraction.ALL;
+            else if(!multibeamToggle.isSelected() && !dvlToggle.isSelected())
+                sensorTypeInt = SensorTypeInteraction.NONE;
 
-            vtkInit.setSensorTypeInteraction(sensorTypeInt);
+            events.setSensorTypeInteraction(sensorTypeInt);
         }
     };
 

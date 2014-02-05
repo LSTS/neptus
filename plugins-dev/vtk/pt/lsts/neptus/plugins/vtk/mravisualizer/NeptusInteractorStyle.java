@@ -44,13 +44,11 @@ import vtk.vtkCellPicker;
 import vtk.vtkInteractorStyleTrackballActor;
 import vtk.vtkInteractorStyleTrackballCamera;
 import vtk.vtkLegendScaleActor;
-import vtk.vtkPNGWriter;
 import vtk.vtkProp3D;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
 import vtk.vtkScalarBarActor;
 import vtk.vtkTextActor;
-import vtk.vtkWindowToImageFilter;
 
 /**
  * @author hfq
@@ -115,11 +113,6 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
     protected Compass compass = new Compass();
 
     private vtkTextActor fpsActor = new vtkTextActor();
-
-    // A PNG Writer for screenshot captures
-    protected vtkPNGWriter snapshotWriter = new vtkPNGWriter();
-    // Internal Window to image Filter. Needed by a snapshotWriter object
-    protected vtkWindowToImageFilter wif = new vtkWindowToImageFilter();
 
     // Set true if the grid actor is enabled
     protected boolean gridEnabled;
@@ -235,14 +228,11 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
         getScalarBar().setScalarBarHorizontalProperties();
         // getScalarBar().setScalarBarVerticalProperties();
 
-        // Create the image filter and PNG writer objects
-        wif = new vtkWindowToImageFilter();
-        snapshotWriter = new vtkPNGWriter();
-        snapshotWriter.SetInputConnection(wif.GetOutputPort());
-
         compassEnabled = false;
 
         getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
+
+        canvas.addKeyListener(keyboardEvent);
 
         // canvas.addMouseWheelListener(this);
         // canvas.addKeyListener(this);

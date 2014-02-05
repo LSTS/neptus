@@ -35,9 +35,15 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
+import vtk.vtkActorCollection;
+import vtk.vtkLODActor;
+import vtk.vtkPNGWriter;
 import vtk.vtkRenderWindowInteractor;
+import vtk.vtkRenderer;
+import vtk.vtkWindowToImageFilter;
 
 
 /**
@@ -46,13 +52,45 @@ import vtk.vtkRenderWindowInteractor;
  */
 public class EventsHandler {
     private NeptusInteractorStyle neptusInteractorStyle;
+    private vtkRenderer renderer;
     private vtkRenderWindowInteractor interactor;
     private Canvas canvas;
+
+    private enum ColorMappingRelation {
+        XMAP, YMAP, ZMAP, IMAP;
+    }
+    public ColorMappingRelation colorMapRel;
+
+    public enum SensorTypeInteraction {
+        NONE, DVL, MULTIBEAM, ALL;
+    }
+
+    private SensorTypeInteraction sensorTypeInteraction = SensorTypeInteraction.NONE;
+
+    // A PNG Writer for screenshot captures
+    protected vtkPNGWriter snapshotWriter = new vtkPNGWriter();
+    // Internal Window to image Filter. Needed by a snapshotWriter object
+    protected vtkWindowToImageFilter wif = new vtkWindowToImageFilter();
 
     public EventsHandler(NeptusInteractorStyle neptusInteractorStyle) {
         this.neptusInteractorStyle = neptusInteractorStyle;
         this.canvas = neptusInteractorStyle.getCanvas();
+        this.renderer = neptusInteractorStyle.getCanvas().GetRenderer();
         this.interactor = neptusInteractorStyle.getCanvas().getRenderWindowInteractor();
+
+        init();
+    }
+
+    /**
+     * 
+     */
+    private void init() {
+        colorMapRel = ColorMappingRelation.ZMAP; // on creation map color map is z related
+
+        // Create the image filter and PNG writer objects
+        wif = new vtkWindowToImageFilter();
+        snapshotWriter = new vtkPNGWriter();
+        snapshotWriter.SetInputConnection(wif.GetOutputPort());
     }
 
     /**
@@ -66,16 +104,16 @@ public class EventsHandler {
                 try {
                     neptusInteractorStyle.FindPokedRenderer(interactor.GetEventPosition()[0],
                             interactor.GetEventPosition()[1]);
-                    neptusInteractorStyle.wif.SetInput(interactor.GetRenderWindow());
-                    neptusInteractorStyle.wif.Modified();
-                    neptusInteractorStyle.snapshotWriter.Modified();
+                    wif.SetInput(interactor.GetRenderWindow());
+                    wif.Modified();
+                    snapshotWriter.Modified();
 
                     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssmm").format(Calendar.getInstance()
                             .getTimeInMillis());
                     timeStamp = "snapshot_" + timeStamp;
                     NeptusLog.pub().info("timeStamp: " + timeStamp);
 
-                    neptusInteractorStyle.snapshotWriter.SetFileName(timeStamp);
+                    snapshotWriter.SetFileName(timeStamp);
 
                     if (!canvas.isWindowSet()) {
                         canvas.lock();
@@ -84,15 +122,74 @@ public class EventsHandler {
                     }
 
                     canvas.lock();
-                    neptusInteractorStyle.wif.Update();
+                    wif.Update();
                     canvas.unlock();
 
-                    neptusInteractorStyle.snapshotWriter.Write();
+                    snapshotWriter.Write();
                 }
                 catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
+    }
+
+    public void displayLookUpTable() {
+        if(!neptusInteractorStyle.lutEnabled) {
+            //PointCloud<?> pointCloud  = searchForPointCloudOnRenderer();
+            switch(sensorTypeInteraction) {
+                case NONE:
+                    break;
+                case DVL:
+                    break;
+                case MULTIBEAM:
+                    break;
+                case ALL:
+            }
+        }
+    }
+
+    private PointCloud<?> searchForPointCloudOnRenderer() {
+        vtkActorCollection actorCollection = new vtkActorCollection();
+        actorCollection = renderer.GetActors();
+        actorCollection.InitTraversal();
+        PointCloud<?> pointCloud = null;
+
+        for(int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
+            if (actorCollection.GetNextActor().IsA("vtkActor2D") > 0)
+                continue;
+            vtkLODActor tempActor = new vtkLODActor();
+            tempActor = (vtkLODActor) actorCollection.GetNextActor();
+            //            setOfClouds = linkedHashMapCloud.keySet();
+            //            for (String sKey : setOfClouds) {
+            //                pointCloud = linkedHashMapCloud.get(sKey);
+            //                if (tempActor.equals(pointCloud.getCloudLODActor())) {
+            //                    double pointSize = tempActor.GetProperty().GetPointSize();
+            //                    if (pointSize <= 9.0) {
+            //                        canvas.lock();
+            //                        tempActor.GetProperty().SetPointSize(pointSize + 1);
+            //                        canvas.Render();
+            //                        canvas.unlock();
+            //                    }
+            //                }
+            //            }
+
+        }
+
+        return pointCloud;
+    }
+
+    /**
+     * @return the sensorTypeInteraction
+     */
+    public SensorTypeInteraction getSensorTypeInteraction() {
+        return sensorTypeInteraction;
+    }
+
+    /**
+     * @param sensorTypeInteraction the sensorTypeInteraction to set
+     */
+    public void setSensorTypeInteraction(SensorTypeInteraction sensorTypeInteraction) {
+        this.sensorTypeInteraction = sensorTypeInteraction;
     }
 }
