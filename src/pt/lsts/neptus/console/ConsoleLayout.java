@@ -1805,6 +1805,20 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         return controllerManager;
     }
 
+    /**
+     * @return the layers
+     */
+    public List<IConsoleLayer> getLayers() {
+        return layers;
+    }
+
+    /**
+     * @return the interactions
+     */
+    public List<IConsoleInteraction> getInteractions() {
+        return interactions;
+    }
+
     // MAIN FOR TESTING ONLY
     public static void main(String[] args) {
         GuiUtils.setLookAndFeel();

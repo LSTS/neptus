@@ -176,7 +176,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
             }
             browser.updatePlansStateEDT(localPlans, getMainVehicleId());
             browser.setSelectedNodes(selectedNodes);
-            System.out.println("dbInfoUpdated");
+//            System.out.println("dbInfoUpdated");
         }
 
         @Override
