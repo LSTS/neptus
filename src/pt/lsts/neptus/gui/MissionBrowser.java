@@ -18,7 +18,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -1181,11 +1180,12 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         cellRenderer.maxAcceptableElapsedTime = maxAcceptableElapsedTime;
     }
 
-    public void removeAllTransponders(MissionType mission) {
-        ArrayList<NameId> removeAllChildren = treeModel.removeAllChildren(ParentNodes.TRANSPONDERS);
-        for (NameId elem : removeAllChildren) {
-            ((TransponderElement) elem).getParentMap().remove(elem.getIdentification());
-        }
-        saveMission(mission);
-    }
+    // TODO On hold until removing all beacons is stable
+    // public void removeAllTransponders(MissionType mission) {
+    // ArrayList<NameId> removeAllChildren = treeModel.removeAllChildren(ParentNodes.TRANSPONDERS);
+    // for (NameId elem : removeAllChildren) {
+    // ((TransponderElement) elem).getParentMap().remove(elem.getIdentification());
+    // }
+    // saveMission(mission);
+    // }
 }

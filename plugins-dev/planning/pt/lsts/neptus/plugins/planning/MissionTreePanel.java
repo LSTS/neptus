@@ -90,6 +90,7 @@ import pt.lsts.neptus.gui.LocationPanel;
 import pt.lsts.neptus.gui.MissionBrowser;
 import pt.lsts.neptus.gui.MissionBrowser.State;
 import pt.lsts.neptus.gui.MissionTreeModel.NodeInfoKey;
+import pt.lsts.neptus.gui.MissionTreeModel.ParentNodes;
 import pt.lsts.neptus.gui.VehicleSelectionDialog;
 import pt.lsts.neptus.gui.tree.ExtendedTreeNode;
 import pt.lsts.neptus.i18n.I18n;
@@ -732,12 +733,17 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 addActionPasteUrl(dissemination);
                 dissemination.addSeparator();
             }
-            if (selection == null) {
-                popupMenu.addSeparator();
-                addActionAddNewTrans(popupMenu);
+
+            if (selection instanceof String) {
+                // popupMenu.addSeparator();
+                String label = (String) selection;
+                if (label.equals(ParentNodes.TRANSPONDERS.nodeName)) {
+                    addActionAddNewTrans(popupMenu);
+                    addActionRemoveAllTrans(popupMenu);
+                }
             }
             else if (selection instanceof PlanType) {
-                popupMenu.addSeparator();
+                // popupMenu.addSeparator();
                 addActionSendPlan(console, pdbControl, selection, popupMenu);
                 addActionRemovePlanLocally(console, (NameId) selection, popupMenu);
                 State syncState = (State) ((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.SYNC.name());
@@ -934,7 +940,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                             LblConfig msgLBLConfiguration = new LblConfig();
                             msgLBLConfiguration.setOp(LblConfig.OP.SET_CFG);
                             sendMsg(msgLBLConfiguration);
-                            browser.removeAllTransponders(console.getMission());
+                    // TODO On hold until removing all beacons is stable
+                    // browser.removeAllTransponders(console.getMission());
                         }
                     });
         }
