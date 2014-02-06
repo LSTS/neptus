@@ -144,8 +144,6 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
         // Create the scroll pane and add the table to it.
         JScrollPane scrollPane = new JScrollPane(table);
         
-        
-        
         // Add the scroll pane to this panel.
         this.setLayout(new BorderLayout());
         this.add(scrollPane, BorderLayout.CENTER);
@@ -172,9 +170,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
 
     @Override
     public void initSubPanel() {
-
         getTimer().scheduleAtFixedRate(getTtask(), 100, 1000);
-       
     }
 
     private void setup() {
@@ -189,14 +185,25 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
 
         eLevel.put(0L, StatusLed.LEVEL_1);
         eLevel.put(1L, StatusLed.LEVEL_0);
-        eLevel.put(2L, StatusLed.LEVEL_1);
-        eLevel.put(3L, StatusLed.LEVEL_2);
-        eLevel.put(4L, StatusLed.LEVEL_3);
+        eLevel.put(2L, StatusLed.LEVEL_2);
+        eLevel.put(3L, StatusLed.LEVEL_3);
+        eLevel.put(4L, StatusLed.LEVEL_4);
         eLevel.put(5L, StatusLed.LEVEL_4);
         eLevel.put(6L, StatusLed.LEVEL_NONE);
         eLevel.put(7L, StatusLed.LEVEL_OFF);
     }
 
+    /**
+     * @param value
+     * @return
+     */
+    private short mapValueToWarningLevel(short value) {
+        if (eLevel.containsKey((long) value))
+            return eLevel.get((long) value);
+
+        return value;
+    }
+    
     @Override
     public void cleanSubPanel() {
         if (ttask != null) {
@@ -228,7 +235,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
             ttask = new TimerTask() {
 
                 public void run() {
-                    boolean needCalc = false;
+                    boolean needCalc = true;
                     try {
                         for (int i = 0; i < data.toArray(new EntityStateType[0]).length; i++) {
                             etmodel.fireTableCellUpdated(i, EntityStateType.TIME_COL);
@@ -302,6 +309,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
             Short value;
             try {
                 value = (short) evt.intValue();
+                value = mapValueToWarningLevel(value);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(EntityStatePanel.class.getSimpleName() + "calcTotalState: " + e.getMessage());
@@ -647,21 +655,12 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
         private static final long serialVersionUID = -619157378506879550L;
 
         public HourTableCellRenderer() {
-            // this.isBordered = isBordered;
             setOpaque(false); // MUST do this for background to show up.
         }
 
         public Component getTableCellRendererComponent(JTable table, Object timems, boolean isSelected,
                 boolean hasFocus, int row, int column) {
             Long enu = System.currentTimeMillis() - (Long) timems;
-
-            // Date trialTime = new Date(enu);
-            // SimpleDateFormat dateFormater = new SimpleDateFormat(
-            // "HH:mm:ss.SSS");
-            // "yyyy-MM-dd'T'HH:mm:ss'.0Z'");
-            // NeptusLog.pub().info("<###> "+dateFormater.format(enu));
-
-            // setText(dateFormater.format(enu));
             setText(DateTimeUtil.milliSecondsToFormatedString(enu / 1000 * 1000));
             return this;
         }
