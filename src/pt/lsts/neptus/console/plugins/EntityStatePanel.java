@@ -144,8 +144,6 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
         // Create the scroll pane and add the table to it.
         JScrollPane scrollPane = new JScrollPane(table);
         
-        
-        
         // Add the scroll pane to this panel.
         this.setLayout(new BorderLayout());
         this.add(scrollPane, BorderLayout.CENTER);
@@ -172,9 +170,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
 
     @Override
     public void initSubPanel() {
-
         getTimer().scheduleAtFixedRate(getTtask(), 100, 1000);
-       
     }
 
     private void setup() {
@@ -659,21 +655,12 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
         private static final long serialVersionUID = -619157378506879550L;
 
         public HourTableCellRenderer() {
-            // this.isBordered = isBordered;
             setOpaque(false); // MUST do this for background to show up.
         }
 
         public Component getTableCellRendererComponent(JTable table, Object timems, boolean isSelected,
                 boolean hasFocus, int row, int column) {
             Long enu = System.currentTimeMillis() - (Long) timems;
-
-            // Date trialTime = new Date(enu);
-            // SimpleDateFormat dateFormater = new SimpleDateFormat(
-            // "HH:mm:ss.SSS");
-            // "yyyy-MM-dd'T'HH:mm:ss'.0Z'");
-            // NeptusLog.pub().info("<###> "+dateFormater.format(enu));
-
-            // setText(dateFormater.format(enu));
             setText(DateTimeUtil.milliSecondsToFormatedString(enu / 1000 * 1000));
             return this;
         }
