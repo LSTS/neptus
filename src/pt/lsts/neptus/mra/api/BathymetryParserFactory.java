@@ -33,27 +33,28 @@ package pt.lsts.neptus.mra.api;
 
 import java.io.File;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.mra.importers.lsf.DVLBathymetryParser;
 
 /**
  * @author jqcorreia
- *
+ * @authos hfq
  */
 public class BathymetryParserFactory {
     static File dir;
     static File file;
     static IMraLogGroup source;
-    
+
     public static BathymetryParser build(IMraLogGroup log) {
         file = null;
         dir = log.getDir();
         source = log;
-        
+
         return getParser();
     }
-    
+
     public static BathymetryParser build(File fileOrDir) {
         source = null;
         if(fileOrDir.isDirectory())
@@ -63,7 +64,21 @@ public class BathymetryParserFactory {
         }
         return getParser();
     }
-    
+
+    /**
+     * 
+     * @param log
+     * @param sensorType could be "DVL" or "Multibeam
+     * @return
+     */
+    public static BathymetryParser build(IMraLogGroup log, String sensorType) {
+        file = null;
+        dir = log.getDir();
+        source = log;
+
+        return getParserByType(sensorType);
+    }
+
     private static BathymetryParser getParser() {
         if(file != null) {
             return null; //FIXME for now only directories are supported 
@@ -75,7 +90,7 @@ public class BathymetryParserFactory {
                 return new DeltaTParser(source);
             else if (new File(dir.getAbsolutePath()+"/multibeam.83P").exists())
                 return new DeltaTParser(source);
-            
+
             // Next cases should be file = new File(...) and check for existence
             // TODO
         }
@@ -84,4 +99,28 @@ public class BathymetryParserFactory {
         return null;
     }
 
+    private static BathymetryParser getParserByType(String sensorType) {
+        if(dir != null) {
+            if (sensorType.equals("dvl")) {
+                if (source.getLsfIndex().containsMessagesOfType("Distance"))
+                    return new DVLBathymetryParser(source);
+                return null;
+            }
+            else if (sensorType.equals("multibeam")) {
+                if(dir != null) {
+                    if (new File(dir.getAbsolutePath()+"/data.83P").exists())
+                        return new DeltaTParser(source);
+                    else if (new File(dir.getAbsolutePath()+"/Data.83P").exists())
+                        return new DeltaTParser(source);
+                    else if (new File(dir.getAbsolutePath()+"/multibeam.83P").exists())
+                        return new DeltaTParser(source);
+                }
+            }
+            else {
+                NeptusLog.pub().error("Sensor Type is not allowed or isn't supported by Bathymetry Parser");
+                return null;
+            }
+        }
+        return null;
+    }
 }
