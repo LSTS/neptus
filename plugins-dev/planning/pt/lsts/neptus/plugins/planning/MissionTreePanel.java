@@ -78,8 +78,10 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.IPlanSelection;
 import pt.lsts.neptus.console.plugins.ITransponderSelection;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
@@ -766,6 +768,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             else if (selection instanceof TransponderElement) {
                 TransponderElement transSel = (TransponderElement) selection;
                 popupMenu.addSeparator();
+                addActionRemoveAllTrans(popupMenu);
                 addActionEditTrans(transSel, popupMenu);
                 Object state = ((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.SYNC.name());
                 if (state == State.LOCAL) {
@@ -868,6 +871,83 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                             }.start();
                         }
                     });
+        }
+
+        MessageDeliveryListener listener = new MessageDeliveryListener() {
+            int tries = 0;
+            private final int maxAttemps = 3;
+
+            private String getDest(IMCMessage message) {
+                ImcSystem sys = message != null ? ImcSystemsHolder.lookupSystem(message.getDst()) : null;
+                String dest = sys != null ? sys.getName() : I18n.text("unknown destination");
+                return dest;
+            }
+
+            private void processDeliveryFailure(IMCMessage message, String errorText) {
+                if (maxAttemps < tries) {
+                    tries = 0;
+                    post(Notification.error(I18n.text("Delivering Message"), errorText));
+                }
+                else{
+                    tries++;
+                    sendMsg(message);
+                }
+            }
+
+            @Override
+            public void deliveryUnreacheable(IMCMessage message) {
+                processDeliveryFailure(
+                        message,
+                        I18n.textf("Message %messageType to %destination delivery destination unreacheable",
+                                message.getAbbrev(), getDest(message)));
+            }
+
+            @Override
+            public void deliveryTimeOut(IMCMessage message) {
+                processDeliveryFailure(message, I18n.textf("Message %messageType to %destination delivery timeout",
+                        message.getAbbrev(), getDest(message)));
+            }
+
+            @Override
+            public void deliveryError(IMCMessage message, Object error) {
+                processDeliveryFailure(
+                        message,
+                        I18n.textf(I18n.textf("Message %messageType to %destination delivery error. (%error)",
+                                message.getAbbrev(), getDest(message), error)));
+            }
+
+            @Override
+            public void deliveryUncertain(IMCMessage message, Object msg) {
+            }
+
+            @Override
+            public void deliverySuccess(IMCMessage message) {
+                tries = 0;
+            }
+        };
+
+        private void addActionRemoveAllTrans(JPopupMenu popupMenu) {
+            popupMenu.add(I18n.text("Remove all transponders")).addActionListener(
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            LblConfig msgLBLConfiguration = new LblConfig();
+                            msgLBLConfiguration.setOp(LblConfig.OP.SET_CFG);
+                            sendMsg(msgLBLConfiguration);
+                            browser.removeAllTransponders(console.getMission());
+                        }
+                    });
+        }
+
+        private void sendMsg(IMCMessage msgLBLConfiguration) {
+            String errorTextForDialog = I18n.text("Error sending acoustic beacons");
+            boolean ignoreAcousticSending = true;
+            String acousticOpServiceName = "acoustic/operation";
+            boolean acousticOpUseOnlyActive = false;
+            boolean acousticOpUserAprovedQuestion = true;
+            IMCSendMessageUtils.sendMessage(msgLBLConfiguration, ImcMsgManager.TRANSPORT_TCP, listener,
+                    MissionTreePanel.this, errorTextForDialog, ignoreAcousticSending, acousticOpServiceName,
+                    acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, getMainVehicleId());
         }
 
         private void addActionRemoveTrans(final TransponderElement selection, JPopupMenu popupMenu) {

@@ -32,6 +32,7 @@
 package pt.lsts.neptus.gui;
 
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -364,6 +365,30 @@ public class MissionTreeModel extends DefaultTreeModel {
         }
         NeptusLog.pub().error("Could not find " + id);
         return false;
+    }
+
+    public <E extends NameId> ArrayList<E> removeAllChildren(ParentNodes parentType) {
+        ExtendedTreeNode parent;
+        switch (parentType) {
+            case PLANS:
+                parent = plans;
+                break;
+            case TRANSPONDERS:
+                parent = trans;
+                break;
+            default:
+                NeptusLog.pub().error("ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.removeById()");
+                return null;
+        }
+        int childCount = parent.getChildCount();
+        ArrayList<E> children = new ArrayList<E>();
+        for (int i = 0; i < childCount; i++) {
+            E userObject = (E) ((ExtendedTreeNode) parent.getChildAt(i)).getUserObject();
+            children.add(userObject);
+        }
+        parent.removeAllChildren();
+        reload(parent);
+        return children;
     }
 
     public void setHomeRef(HomeReference href) {
