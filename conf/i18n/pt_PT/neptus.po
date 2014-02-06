@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2014-01-22 18:06+0000\n"
-"PO-Revision-Date: 2014-01-22 18:45+0100\n"
-"Last-Translator: Hugo Queirós <hugofqueiros@gmail.com>\n"
+"POT-Creation-Date: 2014-02-06 12:33+0000\n"
+"PO-Revision-Date: 2014-02-06 12:53+0100\n"
+"Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
@@ -87,6 +87,10 @@ msgstr "%manta está ocupada. Tente novamente dentro de momentos."
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/SimpleAbortModemRequest.java:117
 msgid "%manta timed out while trying to abort %systemName"
 msgstr "%manta expirou o tempo enquanto tentava abortar %systemName"
+
+#: src/pt/lsts/neptus/util/llf/LogTableVisualization.java:184
+msgid "%msgtype messages"
+msgstr "Mensagens %msgtype"
 
 #: src/pt/lsts/neptus/console/StatusBar.java:187
 msgid "%n Notifications"
@@ -634,6 +638,10 @@ msgstr "Todos os Ficheiros"
 msgid "All Messages"
 msgstr "Todas as Mensagens"
 
+#: plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanEditor.java:1056
+msgid "All maneuvers have the same values."
+msgstr ""
+
 #: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:167
 msgid "All messages"
 msgstr "Todas as mensagens"
@@ -838,7 +846,7 @@ msgstr "BLOQUEADO"
 
 #: Field from ConsoleEventVehicleStateChanged.STATE enumeration
 msgid "BOOT"
-msgstr ""
+msgstr "ARRANQUE"
 
 #: Property from pt.lsts.neptus.console.plugins.SideState2DPanelConsole
 msgid "Back distance variable"
@@ -1180,6 +1188,10 @@ msgstr "Centro:"
 #: plugins-dev/map/pt/lsts/neptus/plugins/map/edit/ObjectPropertiesEdit.java:80
 msgid "Change '%element'"
 msgstr "Alterar '%element'"
+
+#: plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanEditor.java:925
+msgid "Change Existing Maneuvers"
+msgstr "Alterar As Manobras Existentes"
 
 #: Property from pt.lsts.neptus.plugins.logs.LoggingDownloader
 msgid "Change Log Name Enabled"
@@ -1528,7 +1540,7 @@ msgstr "Configura se botão enviar beacons está activo ou não"
 #: pt.lsts.neptus.console.plugins.planning.PlanControlPanel
 #, fuzzy
 msgid "Configures if send beacons button is shown or not in Full Mode."
-msgstr "Configura se botão enviar beacons está activo ou não"
+msgstr "Configura se botão enviar beacons está activo ou não em Modo Completo."
 
 #: Description of property 'Enable selection button' from
 #: pt.lsts.neptus.console.plugins.planning.PlanControlPanel
@@ -7034,6 +7046,10 @@ msgstr "Enviar Plano Seleccionado"
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:965
 msgid "Send Start Plan"
 msgstr "Enviar Iniciar Plano"
+
+#: plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java:137
+msgid "Send Zero Acoustic Beacons."
+msgstr "Limpar Beacons Acústicos."
 
 #: src/pt/lsts/neptus/console/plugins/AbortPanel.java:94
 msgid "Send abort to the main vehicle (Ctrl+click to send to all known vehicles)"
