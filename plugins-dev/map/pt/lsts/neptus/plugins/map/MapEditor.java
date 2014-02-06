@@ -499,7 +499,8 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
 
         AbstractElement element = elements[0];
         String oldXml = element.asXML();
-        element.showParametersDialog(getConsole(), null, element.getParentMap(), true);
+
+        element.showParametersDialog(getConsole(), getTransNames(), element.getParentMap(), true);
         if (!element.isUserCancel()) {
             manager.addEdit(new ObjectPropertiesEdit(element, oldXml));
 
@@ -509,6 +510,24 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             mce.setChangedObject(draggedObject);
             pivot.warnChangeListeners(mce);
         }
+    }
+
+    private String[] getTransNames() {
+        String transNames[];
+        try {
+            Vector<TransponderElement> vector = mg.getAllObjectsOfType(TransponderElement.class);
+            transNames = new String[vector.size()];
+            int i = 0;
+            for (TransponderElement transponderElement : vector) {
+                transNames[i] = transponderElement.getIdentification();
+                i++;
+            }
+        }
+        catch (NullPointerException e) {
+            // NeptusLog.pub().warn("I cannot find local trans for main vehicle");
+            transNames = new String[0];
+        }
+        return transNames;
     }
 
     @Override
@@ -529,7 +548,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             if (!intersectedObjects.isEmpty()) {
                 for (final AbstractElement elem : intersectedObjects) {
                     final String elemId = elem.getId();
-                    JMenu menu = new JMenu(elemId + " [" + I18n.text(elem.getType()) + "]");
+                    JMenu menu = new JMenu(elem.getName() + " [" + I18n.text(elem.getType()) + "]");
 
                     menu.add(I18n.text("Properties")).addActionListener(new ActionListener() {
                         @Override
@@ -559,7 +578,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             }
 
             JMenu add = new JMenu(I18n.text("Add..."));
-            for (AbstractElement elem : getElements()) {
+            for (AbstractElement elem : MapType.getMapElements()) {
                 try {
                     final AbstractElement el = elem;
                     MapType m = null;
@@ -677,20 +696,22 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
                             centerElem.setEnabled(true);
                     }
 
-                    editElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(new ActionListener() {
+                    editElem.add(elem.getName() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
+                            new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             editElement(elem.getId());
                         }
                     });
-                    removeElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(new ActionListener() {
+                    removeElem.add(elem.getName() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
+                            new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             removeElement(elem.getId());
                         }
                     });
                     if (renderer != null) {
-                        centerElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
+                        centerElem.add(elem.getName() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
                                 new ActionListener() {
                                     @Override
                                     public void actionPerformed(ActionEvent e) {

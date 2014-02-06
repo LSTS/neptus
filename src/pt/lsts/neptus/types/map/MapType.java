@@ -38,6 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Vector;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -102,6 +103,25 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
     private String description = "All aditional information should go here. "
             + "Enter things like surrounding locations, previous missions in the local, etc...";
 
+    protected static Vector<AbstractElement> elems = null;
+
+    public static final Vector<AbstractElement> getMapElements() {
+        if (elems == null) {
+            elems = new Vector<AbstractElement>();
+            elems.add(new MarkElement());
+            elems.add(new TransponderElement());
+            elems.add(new ParallelepipedElement());
+            elems.add(new CylinderElement());
+            elems.add(new EllipsoidElement());
+            elems.add(new Model3DElement());
+            elems.add(new ImageElement());
+            elems.add(new MineDangerAreaElement(null, null));
+            elems.add(new QRouteElement(null, null));
+        }
+
+        return elems;
+    }
+    
     /**
      * @param url
      * 
@@ -189,7 +209,8 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
     public void remove(String objectName) {
 
         MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_REMOVED);
-        changeEvent.setChangedObject(elements.get(objectName));
+        AbstractElement changedObject = elements.get(objectName);
+        changeEvent.setChangedObject(changedObject);
         changeEvent.setSourceMap(this);
         elements.remove(objectName);
         warnChangeListeners(changeEvent);

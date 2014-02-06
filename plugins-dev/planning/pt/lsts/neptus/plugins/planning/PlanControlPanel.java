@@ -73,6 +73,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.IPlanSelection;
 import pt.lsts.neptus.console.plugins.ITransponderSelection;
@@ -104,6 +105,8 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
+import com.google.common.eventbus.Subscribe;
+
 /**
  * @author pdias
  * 
@@ -115,7 +118,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
 
     protected static final boolean DONT_USE_ACOUSTICS = true;
     protected static final boolean USE_ACOUSTICS = false;
-    
+
     private final ImageIcon ICON_BEACONS = ImageUtils
             .getIcon("pt/lsts/neptus/plugins/planning/uploadBeacons.png");
     // private final ImageIcon ICON_BEACONS_ZERO = ImageUtils
@@ -133,10 +136,11 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
     private final String stopTeleOperationStr = I18n.text("Stop Tele-Operation");
     private final String startPlanStr = I18n.text("Start Plan");
     private final String stopPlanStr = I18n.text("Stop Plan");
-    private final String sendAcousticBeaconsStr = I18n.text("Send Acoustic Beacons. Use Ctrl click to clear the transponders from vehicle.");
+    private final String sendAcousticBeaconsStr = I18n.text("Send Acoustic Beacons");
+    private final String sendAcousticBeaconsZeroStr = I18n.text("Clear Acoustic Beacons from Vehicle");
     private final String sendSelectedPlanStr = I18n.text("Send Selected Plan");
     private final String downloadActivePlanStr = I18n.text("Download Active Plan");
-    
+
     @NeptusProperty(name = "Font Size Multiplier", description = "The font size. Use '1' for default.")
     public int fontMultiplier = 1;
 
@@ -146,9 +150,9 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             + "you can allways click Alt when sending the plan that this verification will run.")
     public boolean allwaysVerifyAllManeuversUsed = true;
 
-//    @NeptusProperty(name = "Use Acoustic To Send Msg If System Not In WiFi Range", userLevel = LEVEL.ADVANCED, 
-//            distribution = DistributionEnum.DEVELOPER)
-//    public boolean useAcousticToSendMsgIfSystemNotInWiFiRange = true;
+    // @NeptusProperty(name = "Use Acoustic To Send Msg If System Not In WiFi Range", userLevel = LEVEL.ADVANCED,
+    // distribution = DistributionEnum.DEVELOPER)
+    // public boolean useAcousticToSendMsgIfSystemNotInWiFiRange = true;
 
     @NeptusProperty(name = "Service name for acoustic message sending", userLevel = LEVEL.ADVANCED, 
             distribution = DistributionEnum.DEVELOPER)
@@ -175,7 +179,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
     @NeptusProperty(name = "Enable selection button", userLevel = LEVEL.ADVANCED,
             description = "Configures if system selection button is active or not")
     public boolean enableSelectionButton = false;
-    
+
     @NeptusProperty(name = "Enable beacons button", userLevel = LEVEL.ADVANCED,
             description = "Configures if send beacons button is active or not")
     public boolean enableBeaconsButton = true;
@@ -190,12 +194,12 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
     private JPanel holder;
     private JLabel titleLabel;
     private JLabel planIdLabel;
-    private ToolbarButton selectionButton, sendAcousticsButton, sendUploadPlanButton, sendDownloadPlanButton,
-            sendStartButton, sendStopButton, teleOpButton;
+    private ToolbarButton selectionButton, sendAcousticsButton, sendAcousticsZeroButton, sendUploadPlanButton,
+            sendDownloadPlanButton, sendStartButton, sendStopButton, teleOpButton;
 
     private SystemsSelectionAction selectionAction;
-    private AbstractAction sendAcousticsAction, sendUploadPlanAction, sendDownloadPlanAction, sendStartAction,
-            sendStopAction, teleOpAction;
+    private AbstractAction sendAcousticsAction, sendAcousticsZeroAction, sendUploadPlanAction, sendDownloadPlanAction,
+            sendStartAction, sendStopAction, teleOpAction;
 
     private int teleoperationManeuver = -1;
     {
@@ -233,12 +237,13 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         holder = new JPanel();
         holder.setLayout(new BoxLayout(holder, BoxLayout.LINE_AXIS));
         add(holder, BorderLayout.CENTER);
-        
+
         planIdLabel = new JLabel("");
         add(planIdLabel, BorderLayout.SOUTH);
 
         selectionButton = new ToolbarButton(selectionAction);
         sendAcousticsButton = new ToolbarButton(sendAcousticsAction);
+        sendAcousticsZeroButton = new ToolbarButton(sendAcousticsZeroAction);
         sendUploadPlanButton = new ToolbarButton(sendUploadPlanAction);
         sendDownloadPlanButton = new ToolbarButton(sendDownloadPlanAction);
         sendStartButton = new ToolbarButton(sendStartAction);
@@ -251,6 +256,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         holder.add(selectionButton);
         // holder.add(sendNavStartPointButton);
         holder.add(sendAcousticsButton);
+        holder.add(sendAcousticsZeroButton);
         holder.add(sendUploadPlanButton);
         // holder.add(sendDownloadPlanButton);
         holder.add(sendStartButton);
@@ -295,6 +301,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         }
         selectionButton.setVisible(enableSelectionButton && useFullMode);
         sendAcousticsButton.setVisible(enableBeaconsButton && useFullMode);
+        sendAcousticsZeroButton.setVisible(enableBeaconsButton && useFullMode);
     }
 
     /**
@@ -313,9 +320,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                         NeptusLog.action().info(action);
 
                         sendAcousticsButton.setEnabled(false);
-                        boolean sendBlancTransponders = (ev.getModifiers() & ActionEvent.CTRL_MASK) != 0;
-                        sendAcoustics(sendBlancTransponders,
-                                getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
+                        sendAcoustics(false, getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
 
                         return null;
                     }
@@ -335,11 +340,41 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             }
         };
 
+        sendAcousticsZeroAction = new AbstractAction(sendAcousticBeaconsZeroStr, ICON_BEACONS_ZERO) {
+            @Override
+            public void actionPerformed(final ActionEvent ev) {
+                final Object action = getValue(Action.NAME);
+                SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() {
+                        NeptusLog.action().info(action);
+
+                        sendAcousticsZeroButton.setEnabled(false);
+                        sendAcoustics(true, getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
+
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        try {
+                            get();
+                        }
+                        catch (Exception e) {
+                            NeptusLog.pub().error(e);
+                        }
+                        sendAcousticsZeroButton.setEnabled(true);
+                    }
+                };
+                sw.execute();
+            }
+        };
+
         sendUploadPlanAction = new AbstractAction(sendSelectedPlanStr, ICON_UP) {
             @Override
             public void actionPerformed(final ActionEvent ev) {
                 final Object action = getValue(Action.NAME);
-                
+
                 SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() {
@@ -527,7 +562,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                 String dest = sys != null ? sys.getName() : I18n.text("unknown destination");
                 return dest;
             }
-            
+
             @Override
             public void deliveryUnreacheable(IMCMessage message) {
                 post(Notification.error(
@@ -535,7 +570,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                         I18n.textf("Message %messageType to %destination delivery destination unreacheable",
                                 message.getAbbrev(), getDest(message))));
             }
-            
+
             @Override
             public void deliveryTimeOut(IMCMessage message) {
                 post(Notification.error(
@@ -543,7 +578,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                         I18n.textf("Message %messageType to %destination delivery timeout",
                                 message.getAbbrev(), getDest(message))));
             }
-            
+
             @Override
             public void deliveryError(IMCMessage message, Object error) {
                 post(Notification.error(
@@ -551,21 +586,21 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                         I18n.textf("Message %messageType to %destination delivery error. (%error)",
                                 message.getAbbrev(), getDest(message), error)));
             }
-            
+
             @Override
             public void deliveryUncertain(IMCMessage message, Object msg) {
             }
-            
+
             @Override
             public void deliverySuccess(IMCMessage message) {
-//                post(Notification.success(
-//                        I18n.text("Delivering Message"),
-//                        I18n.textf("Message %messageType to %destination delivery success",
-//                                message.getAbbrev(), getDest(message))));
+                // post(Notification.success(
+                // I18n.text("Delivering Message"),
+                // I18n.textf("Message %messageType to %destination delivery success",
+                // message.getAbbrev(), getDest(message))));
             }
         });
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -586,27 +621,17 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
     public void propertiesChanged() {
         if (fontMultiplier < 1)
             return;
-        
+
         titleLabel.setFont(new Font("Arial", Font.BOLD, 9 * fontMultiplier));
         planIdLabel.setFont(new Font("Arial", Font.BOLD, 9 * fontMultiplier));
         setModeComponentsVisibility();
         this.revalidate();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#mainVehicleChange(java.lang.String)
-     */
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
         update();
         refreshUI();
-        // for (String msgStr : getObservedMessages()) {
-        // IMCMessage msg = getConsole().getImcState().get(msgStr);
-        // if (msg != null)
-        // messageArrived(msg);
-        // }
     }
 
     /**
@@ -750,7 +775,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             }
             // Let us order the beacons in alphabetic order (case insensitive)
             TransponderUtils.orderTransponders(transpondersList);
-            
+
             TransponderElement[] selTransponders = getSelectedTransponderElementsOrderedFromExternalComponents();
             if (selTransponders.length > 0 && selTransponders.length < transpondersList.size()) {
                 String beaconsToSend = "";
@@ -809,7 +834,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                 : null), createDefaultMessageDeliveryListener(), this, I18n.text("Error sending acoustic beacons"),
                 DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
         // NeptusLog.pub().error("Sending beacons to vehicle: " + lblBeaconsList.toString());
-        
+
         final String[] dest = systems;
         SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
             @Override
@@ -824,7 +849,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                     // if (sys != null)
                     // sys.removeData(ImcSystem.LBL_CONFIG_KEY);
                     // }
-                    
+
                     IMCSendMessageUtils.sendMessage(msgLBLConfiguration, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP
                             : null), createDefaultMessageDeliveryListener(), PlanControlPanel.this, I18n.text("Error sending acoustic beacons"),
                             DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, dest);
@@ -856,48 +881,47 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             return false;
 
         PlanType[] plans = getSelectedPlansFromExternalComponents();
-        PlanType plan = plans[0];
+        PlanType plan;
+        int iSent = 0;
 
-        try {
-            if (verifyAllManeuversUsed)
-                plan.validatePlan();
+        for (int i = 0; i < plans.length; i++) {
+            plan = plans[i];
+            try {
+                if (verifyAllManeuversUsed)
+                    plan.validatePlan();
+            }
+            catch (Exception e) {
+                // GuiUtils.errorMessage(getConsole(), e);
+                post(Notification.error(I18n.text("Send Plan"), e.getMessage()));
+                return false;
+            }
+            IMCMessage planSpecificationMessage = IMCUtils.generatePlanSpecification(plan);
+            if (planSpecificationMessage == null) {
+                // GuiUtils.errorMessage(this, I18n.text("Send Plan"),
+                // I18n.text("Error sending plan message!\nNo plan spec. valid!"));
+                post(Notification.error(I18n.text("Send Plan"),
+                        I18n.text("Error sending plan message!\nNo plan spec. valid!")));
+            }
+            int reqId = IMCSendMessageUtils.getNextRequestId();
+            PlanDB pdb = new PlanDB();
+            pdb.setType(PlanDB.TYPE.REQUEST);
+            pdb.setOp(OP.SET);
+            pdb.setRequestId(reqId);
+            pdb.setPlanId(plan.getId());
+            pdb.setArg(planSpecificationMessage);
+            pdb.setInfo("Plan sent by Neptus version " + ConfigFetch.getNeptusVersion());
+            registerPlanControlRequest(reqId);
+            boolean ret = IMCSendMessageUtils.sendMessage(pdb, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP
+                    : null), createDefaultMessageDeliveryListener(), this, I18n.text("Error sending plan"),
+                    DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+            if (ret) {
+                iSent++;
+            }
         }
-        catch (Exception e) {
-//            GuiUtils.errorMessage(getConsole(), e);
-            post(Notification.error(I18n.text("Send Plan"),
-                    e.getMessage()));
-            return false;
-        }
-
-        IMCMessage planSpecificationMessage = IMCUtils.generatePlanSpecification(plan);
-        if (planSpecificationMessage == null) {
-//            GuiUtils.errorMessage(this, I18n.text("Send Plan"),
-//                    I18n.text("Error sending plan message!\nNo plan spec. valid!"));
-            post(Notification.error(I18n.text("Send Plan"),
-                    I18n.text("Error sending plan message!\nNo plan spec. valid!")));
-        }
-
-        int reqId = IMCSendMessageUtils.getNextRequestId();
-
-        PlanDB pdb = new PlanDB();
-        pdb.setType(PlanDB.TYPE.REQUEST);
-        pdb.setOp(OP.SET);
-        pdb.setRequestId(reqId);
-        pdb.setPlanId(plan.getId());
-        pdb.setArg(planSpecificationMessage);
-
-        pdb.setInfo("Plan sent by Neptus version " + ConfigFetch.getNeptusVersion());
-        registerPlanControlRequest(reqId);
-
-        boolean ret = IMCSendMessageUtils.sendMessage(pdb, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null),
-                createDefaultMessageDeliveryListener(), this, I18n.text("Error sending plan"), DONT_USE_ACOUSTICS,
-                acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
-
-        if (ret) {
+        if (iSent > 0) {
             String missionlog = GuiUtils.getLogFileName("mission_state", "zip");
             getConsole().getMission().asZipFile(missionlog, true);
         }
-
         return true;
     }
 
@@ -957,7 +981,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             return false;
         if (testAndShowWarningForNoSystemSelection(systems))
             return false;
-        
+
         int reqId = IMCSendMessageUtils.getNextRequestId();
         PlanControl pc = new PlanControl();
         pc.setType(PlanControl.TYPE.REQUEST);
@@ -994,7 +1018,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             NeptusLog.pub().error(this, ex);
         }
         pc.setOp(cmd);
-        
+
         boolean dontSendByAcoustics = DONT_USE_ACOUSTICS;
         if (cmd == PlanControl.OP.START) {
             String planId = pc.getPlanId();
@@ -1002,13 +1026,13 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                 dontSendByAcoustics = USE_ACOUSTICS;
             }
         }
-        
+
         boolean ret = IMCSendMessageUtils.sendMessage(pc, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null),
                 createDefaultMessageDeliveryListener(), this, cmdStrMsg, dontSendByAcoustics,
                 acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
 
         if (!ret) {
-//            GuiUtils.errorMessage(this, I18n.text("Send Plan"), I18n.text("Error sending PlanControl message!"));
+            // GuiUtils.errorMessage(this, I18n.text("Send Plan"), I18n.text("Error sending PlanControl message!"));
             post(Notification.error(I18n.text("Send Plan"), I18n.text("Error sending PlanControl message!")));
             return false;
         }
@@ -1034,18 +1058,18 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                 continue;
             PlanDBState prs = sys.getPlanDBControl().getRemoteState();
             if (prs == null || !prs.matchesRemotePlan(plan)) {
-               planInSync = false;
-               systemsNotInSync += (systemsNotInSync.length() > 0 ? ", " : "") + sysStr;
+                planInSync = false;
+                systemsNotInSync += (systemsNotInSync.length() > 0 ? ", " : "") + sysStr;
             }
         }
         if (!planInSync) {//Synchronized 
             int resp = GuiUtils.confirmDialog(SwingUtilities.windowForComponent(this),
                     I18n.text("Plan not synchronized"),
                     I18n.textf("The plan '%plan' is not synchronized on %system.\nYou should resend the plan.\nDo you still want to start the plan?",
-                    plan.getId(), systemsNotInSync));
+                                    plan.getId(), systemsNotInSync));
             planInSync = (resp == JOptionPane.YES_OPTION);
         }
-        
+
         return planInSync;
     }
 
@@ -1065,14 +1089,14 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
      */
     protected boolean checkConditionToRun(Component component, boolean checkMission, boolean checkPlan) {
         if (!ImcMsgManager.getManager().isRunning()) {
-//            GuiUtils.errorMessage(this, component.getName(), I18n.text("IMC comms. are not running!"));
+            // GuiUtils.errorMessage(this, component.getName(), I18n.text("IMC comms. are not running!"));
             post(Notification.error(component.getName(), I18n.text("IMC comms. are not running!")));
             return false;
         }
 
         ConsoleLayout cons = getConsole();
         if (cons == null) {
-//            GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing console attached!"));
+            // GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing console attached!"));
             post(Notification.error(component.getName(), I18n.text("Missing console attached!")));
             return false;
         }
@@ -1080,7 +1104,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         if (checkMission) {
             MissionType miss = cons.getMission();
             if (miss == null) {
-//                GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing attached mission!"));
+                // GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing attached mission!"));
                 post(Notification.error(component.getName(), I18n.text("Missing attached mission!")));
                 return false;
             }
@@ -1089,7 +1113,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         if (checkPlan) {
             PlanType[] plans = getSelectedPlansFromExternalComponents();
             if (plans == null || plans.length == 0) {
-//                GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing attached plan!"));
+                // GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing attached plan!"));
                 post(Notification.error(component.getName(), I18n.text("Missing attached plan!")));
                 return false;
             }
@@ -1121,12 +1145,12 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         ArrayList<TransponderElement> tal = new ArrayList<>(vecTrans);
         // Let us order the beacons in alphabetic order (case insensitive)
         TransponderUtils.orderTransponders(tal);
-//        Collections.sort(tal, new Comparator<TransponderElement>() {
-//            @Override
-//            public int compare(TransponderElement o1, TransponderElement o2) {
-//                return o1.getId().compareToIgnoreCase(o2.getId());
-//            }
-//        });
+        // Collections.sort(tal, new Comparator<TransponderElement>() {
+        // @Override
+        // public int compare(TransponderElement o1, TransponderElement o2) {
+        // return o1.getId().compareToIgnoreCase(o2.getId());
+        // }
+        // });
 
         return tal.toArray(new TransponderElement[vecTrans.size()]);
     }
@@ -1152,7 +1176,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             tt = DateTimeUtil.milliSecondsToFormatedString((long) (timeSeconds * 1000.0));
         return tt;
     }
-    
+
     @Override
     public void messageArrived(IMCMessage message) {
 
@@ -1172,7 +1196,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                                 PlanControl request = requests.get(reqId);
                                 String text = I18n.textf("Request %d completed successfully.", reqId);
                                 String src = ImcSystemsHolder.translateImcIdToSystemName(msg.getSrc());
-                                
+
                                 if (request != null) {
                                     switch (request.getOp()) {
                                         case START:
@@ -1187,7 +1211,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                                             break;
                                     }
                                 }
-                                
+
                                 post(Notification.success("Plan Control", text));                                
                                 cleanReg = true;
                             }
@@ -1197,7 +1221,8 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                                 String utcStr = " " + I18n.text("UTC");
                                 double deltaTime = (msg.getTimestampMillis() - requestTimeMillis) / 1E3;
                                 post(Notification.error(I18n.text("Plan Control Error"),
-                                                I18n.textf("The following error arrived at @%timeArrived for a request @%timeRequested (\u2206t %deltaTime): %msg",
+                                                I18n.textf(
+                                                        "The following error arrived at @%timeArrived for a request @%timeRequested (\u2206t %deltaTime): %msg",
                                                         DateTimeUtil.timeFormaterNoMillis2UTC.format(msg.getDate())
                                                                 + utcStr,
                                                         DateTimeUtil.timeFormaterNoMillis2UTC.format(new Date(
@@ -1256,7 +1281,8 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                                 String utcStr = " " + I18n.text("UTC");
                                 double deltaTime = (planDb.getTimestampMillis() - requestTimeMillis) / 1E3;
                                 post(Notification.error(I18n.text("Plan DB Error"),
-                                                I18n.textf("The following error arrived at @%timeArrived for a request @%timeRequested (\u2206t %deltaTime): %msg",
+                                                I18n.textf(
+                                                        "The following error arrived at @%timeArrived for a request @%timeRequested (\u2206t %deltaTime): %msg",
                                                         DateTimeUtil.timeFormaterNoMillis2UTC.format(planDb.getDate())
                                                                 + utcStr,
                                                         DateTimeUtil.timeFormaterNoMillis2UTC.format(new Date(

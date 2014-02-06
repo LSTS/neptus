@@ -41,8 +41,6 @@ import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Comparator;
@@ -116,7 +114,7 @@ public abstract class AbstractElement
     public boolean userCancel = false, copyChars = true;
     public String[] takenNames = new String[0];
     protected JDialog dialog;
-    protected JTextField objID, objName, transp;
+    protected JTextField objName, transp;
     // ===== END Param panels
 
     // ===== Abstract functions
@@ -685,7 +683,7 @@ public abstract class AbstractElement
         
         if ("add".equals(action.getActionCommand())) {
             
-            if (!NameNormalizer.isNeptusValidIdentifier(objID.getText())) {
+            if (!NameNormalizer.isNeptusValidIdentifier(objName.getText())) {
                 JOptionPane.showMessageDialog(paramsPanel, I18n.text("The object identifier is not valid"));
                 return;
             }
@@ -725,7 +723,6 @@ public abstract class AbstractElement
             }
             
             setName(objName.getText());
-            setId(objID.getText());
             
             initialize(paramsPanel);
             
@@ -768,22 +765,22 @@ public abstract class AbstractElement
  
         objName = new JTextField(8);
         objName.setEditable(editable);
-        objName.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                super.keyTyped(e);
-                // if (copyChars) {
-                    if (Character.isLetterOrDigit(e.getKeyChar()))
-                        objID.setText(objName.getText() + e.getKeyChar());
-                    else
-                        objID.setText(objName.getText());
+        // objName.addKeyListener(new KeyAdapter() {
+        // @Override
+        // public void keyTyped(KeyEvent e) {
+        // super.keyTyped(e);
+        // // if (copyChars) {
+        // if (Character.isLetterOrDigit(e.getKeyChar()))
+        // objID.setText(objName.getText() + e.getKeyChar());
+        // else
+        // objID.setText(objName.getText());
+        // // }
+        // // copyChars = false;
                 // }
-                // copyChars = false;
-            }
-        });
-        
-        objID = new JTextField(8);
-        objID.setEditable(editable);
+        // });
+        //
+        // objID = new JTextField(8);
+        // objID.setEditable(editable);
         
         // int i = 1;
         // while (getParentMap().getObject(getClass().getSimpleName() + i) != null)
@@ -791,14 +788,14 @@ public abstract class AbstractElement
         // objID.setText(getType() + i);
         // objName.setText(getType() + i);
         objName.setText(this.getName());
-        objID.setText(this.getId());
+        // objID.setText(this.getId());
         
         transp = new JTextField(3);
         transp.setEditable(editable);
         transp.setText(""+getTransparency());
         
-        idPanel.add(new JLabel(I18n.text("Object ID:")));
-        idPanel.add(objID);
+        // idPanel.add(new JLabel(I18n.text("Object ID:")));
+        // idPanel.add(objID);
         
         idPanel.add(new JLabel(I18n.text("Object name:")));
         idPanel.add(objName);
@@ -809,23 +806,23 @@ public abstract class AbstractElement
         if (takenNames == null) {
             objName.setEnabled(false);
             objName.setText(this.getName());
-            objID.setEnabled(false);
-            objID.setText(this.getId());
+            // objID.setEnabled(false);
+            // objID.setText(this.getId());
             // copyChars = false;
         }
         
-        objID.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                super.keyTyped(e);
-                // if (copyChars) {
-                    if (Character.isLetterOrDigit(e.getKeyChar()))
-                        objName.setText(objID.getText()+e.getKeyChar());
-                    else
-                        objName.setText(objID.getText());
+        // objID.addKeyListener(new KeyAdapter() {
+        // @Override
+        // public void keyTyped(KeyEvent e) {
+        // super.keyTyped(e);
+        // // if (copyChars) {
+        // if (Character.isLetterOrDigit(e.getKeyChar()))
+        // objName.setText(objID.getText()+e.getKeyChar());
+        // else
+        // objName.setText(objID.getText());
+        // // }
                 // }
-            }
-        });
+        // });
         
         JPanel buttonsPanel = new JPanel();
         FlowLayout layout = new FlowLayout();

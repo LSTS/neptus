@@ -18,6 +18,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -73,8 +74,10 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 
+
+
 /**
- * This is a visual class that displays the various items contained in a mission like maps, vehicles and plans...
+ * This is a visual class that displays the various items contained in a mission like transponders and plans.
  * 
  * @author Jose Pinto
  * @author Paulo Dias
@@ -137,19 +140,26 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * 
      * @return The currently selected object
      */
-    public Object[] getSelectedItems() {
+    public ArrayList<NameId> getSelectedItems() {
         TreePath[] selectionPaths = elementTree.getSelectionPaths();
+        ArrayList<NameId> sel = new ArrayList<NameId>();
         if (selectionPaths == null)
-            return null;
+            return sel;
 
-        Vector<Object> sel = new Vector<Object>();
         for (TreePath path : selectionPaths) {
             ExtendedTreeNode node = (ExtendedTreeNode) path.getLastPathComponent();
             Object userObject = node.getUserObject();
-            sel.add(userObject);
+            if (userObject instanceof NameId)
+                sel.add((NameId) userObject);
+            else {
+                // if a folder is selected it is useless both when fetching selected plans and when creating the right
+                // click menu by returning an empty array the right click menu reacts properly and the selected plans
+                // saves some processing
+                return new ArrayList<NameId>();
+            }
         }
 
-        return sel.toArray();
+        return sel;
     }
 
     public ExtendedTreeNode getSelectedTreeNode() {
@@ -203,7 +213,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
         MapType map = getMap(mt);
         try {
-            Vector<TransponderElement> vector = MapGroup.getMapGroupInstance(mt).getAllObjectsOfType(
+            Vector<TransponderElement> vector = mapGroupInstance.getAllObjectsOfType(
                     TransponderElement.class);
             transNames = new String[vector.size()];
             int i = 0;
@@ -220,7 +230,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         if (te == null)
             te = new TransponderElement(mapGroupInstance, map);
         te.showParametersDialog(MissionBrowser.this, transNames, map, true);
-        te.setName(te.getId());
+        // te.setName(te.getId());
         return te;
     }
 
@@ -236,13 +246,14 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             String idAfter = elem.getIdentification();
             if (!idAfter.equals(elemBefore.getIdentification())) {
                 // create a new synced one with original
+                elemBefore.duneId = -1;
                 ExtendedTreeNode newNode = treeModel.addTransponderNode(elemBefore);
                 newNode.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
                 // set modifications as local
                 selectedTreeNode.getUserInfo().put(NodeInfoKey.SYNC.name(), State.LOCAL);
             }
-            else if (state == State.SYNC) {
-                setSyncState(selectedTreeNode, State.NOT_SYNC);
+            else if (state == State.SYNC && !elemBefore.equals(elem)) {
+                setNodeSyncState(selectedTreeNode, State.NOT_SYNC);
             }
 
             MapType pivot = elem.getParentMap();
@@ -253,6 +264,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             pivot.warnChangeListeners(mce);
             saveMission(mission);
             treeModel.nodeChanged(selectedTreeNode);
+            repaint();
         }
     }
 
@@ -324,7 +336,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     public void refreshBrowser(final MissionType mission,
             final String mainVehicleId) {
         // Selected nodes
-        TreePath[] selectedNodes = getSelectedNodes();
+        TreePath[] selectedNodes = getSelectionPath();
         // Home ref
         treeModel.setHomeRef(mission.getHomeRef());
         TreeMap<String, PlanType> localPlans = getLocalPlans(mission);
@@ -524,18 +536,22 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     public void addTreeListener(final ConsoleLayout console2) {
         elementTree.addTreeSelectionListener(new TreeSelectionListener() {
 
-            protected Object lastSelection = null;
+            // protected Object lastSelection = null;
 
             @Override
             public void valueChanged(TreeSelectionEvent e) {
-                if (e.isAddedPath()) {
-                    ExtendedTreeNode node = (ExtendedTreeNode) elementTree.getSelectionPath()
-                            .getLastPathComponent();
-
-                    if (node.getUserObject() == lastSelection)
+                // if (e.isAddedPath()) {
+                    TreePath selPath = elementTree.getSelectionPath();
+                    if(selPath == null){
+                        NeptusLog.pub().error("Check this out, should not happen outside debug with break points in Mission Tree related classes.");
                         return;
+                    }
+                    ExtendedTreeNode node = (ExtendedTreeNode) selPath.getLastPathComponent();
 
-                    lastSelection = node.getUserObject();
+                // if (node.getUserObject() == lastSelection)
+                // return;
+
+                // lastSelection = node.getUserObject();
 
                     if (node.getUserObject() instanceof PlanType) {
                         PlanType selectedPlan = (PlanType) node.getUserObject();
@@ -544,9 +560,11 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     }
                     else if (console2 != null) {
                         console2.setPlan(null);
+                        NeptusLog.pub().error("Setting selected plan as null");
                     }
-                }
+                // }
             }
+
         });
     }
 
@@ -556,24 +574,74 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
 
         ExtendedTreeNode planNode = null;
-        for (ChildIterator planIt = treeModel.getIterator(ParentNodes.PLANS); 
-                planIt.hasNext(); planNode = planIt.next()) {
-            try {
-                if (planNode.getUserObject() == plan) {
-                    TreePath selPath = new TreePath(treeModel.getPathToRoot(planNode));
-                    elementTree.setSelectionPath(selPath);
-                    elementTree.scrollPathToVisible(selPath);
-                    return;
+        TreePath selPath;
+        NameId tmpPlan;
+        ChildIterator planIt = treeModel.getIterator(ParentNodes.PLANS);
+        try {
+            while (planIt.hasNext()) {
+                planNode = planIt.next();
+                tmpPlan = (NameId) planNode.getUserObject();
+                if (tmpPlan.getIdentification().equals(plan.getIdentification())) {
+                    // planNode.setUserObject(plan);
+                    // setNodeSyncState(planNode, State.SYNC);
+                    break;
                 }
             }
-            catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            // for (planNode = planIt.next(); planIt.hasNext(); planNode = planIt.next()) {
+            // NameId tmpPlan = (NameId) planNode.getUserObject();
+            // if (tmpPlan.getIdentification().equals(plan.getIdentification())) {
+            // // planNode.setUserObject(plan);
+            // // setNodeSyncState(planNode, State.SYNC);
+            // break;
+            // }
+            // }
+            if (planNode == null) {
+                // System.out.println("hasNext:" + planIt.hasNext());
+                NeptusLog.pub().error(
+                        "Cannot find a plan with id " + plan.getIdentification() + ". It was not set as selected.");
+                return;
             }
+            selPath = new TreePath(treeModel.getPathToRoot(planNode));
+            elementTree.setSelectionPath(selPath);
+            elementTree.scrollPathToVisible(selPath);
         }
+        catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+//        catch (Exception e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//        return nodes;
+//    }
+//    
+//    public ArrayList<ExtendedTreeNode> getSelectedNodes() {
+//        ArrayList<ExtendedTreeNode> nodes = new ArrayList<ExtendedTreeNode>();
+//        TreePath[] selectionPaths = elementTree.getSelectionPaths();
+//        if (selectionPaths == null)
+//            return nodes;
+//        ExtendedTreeNode node;
+//        for (int i = 0; i < selectionPaths.length; i++) {
+//            node = (ExtendedTreeNode) selectionPaths[i].getLastPathComponent();
+//            nodes.add(node);
+//        }
+//        return nodes;
+    }
+    public ArrayList<ExtendedTreeNode> getSelectedNodes() {
+        ArrayList<ExtendedTreeNode> nodes = new ArrayList<ExtendedTreeNode>();
+        TreePath[] selectionPaths = elementTree.getSelectionPaths();
+        if (selectionPaths == null)
+            return nodes;
+        ExtendedTreeNode node;
+        for (int i = 0; i < selectionPaths.length; i++) {
+            node = (ExtendedTreeNode) selectionPaths[i].getLastPathComponent();
+            nodes.add(node);
+        }
+        return nodes;
     }
 
-    public TreePath[] getSelectedNodes() {
+    public TreePath[] getSelectionPath() {
         return elementTree.getSelectionPaths();
     }
 
@@ -639,7 +707,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 // If no plan exits insert as remote
                 target = new ExtendedTreeNode(remotePlan);
                 target.getUserInfo().put(NodeInfoKey.ID.name(), planId);
-                setSyncState(target, State.REMOTE);
+                setNodeSyncState(target, State.REMOTE);
                 treeModel.insertAlphabetically(target, ParentNodes.PLANS);
                 // System.out.println(" plan from IMCSystem not found in mission tree  >> Remote.");
             }
@@ -647,7 +715,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 // Check if existing plan is PlanDBInfo
                 Object existingPlan = target.getUserObject();
                 if (existingPlan instanceof PlanDBInfo) {
-                    setSyncState(target, State.REMOTE);
+                    setNodeSyncState(target, State.REMOTE);
                     target.setUserObject(remotePlan);
                     // System.out.println(" in tree mission is PlanDBInfo (remote type)  >> Remote.");
                 }
@@ -657,11 +725,11 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     byte[] localMD5 = existingLocalPlan.asIMCPlan().payloadMD5();
                     byte[] remoteMD5 = remotePlan.getMd5();
                     if (ByteUtil.equal(localMD5, remoteMD5)) {
-                        setSyncState(target, State.SYNC);
+                        setNodeSyncState(target, State.SYNC);
                         // System.out.println(" in tree mission is PlanType (local type). Md5 ==,  >> Sync.");
                     }
                     else {
-                        setSyncState(target, State.NOT_SYNC);
+                        setNodeSyncState(target, State.NOT_SYNC);
                         // System.out.println(" in tree mission is PlanType (local type). Md5 !=,  >> Not_sync.");
                     }
                 }
@@ -714,13 +782,13 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     if (tempTrans.equals(lblBeacon)) {
                         // Sync
                         // set state
-                        setSyncState(tempNode, State.SYNC);
+                        setNodeSyncState(tempNode, State.SYNC);
                         // System.out.println(" >> Sync.");
                     }
                     else {
                         // Not sync
                         // set state
-                        setSyncState(tempNode, State.NOT_SYNC);
+                        setNodeSyncState(tempNode, State.NOT_SYNC);
                         // System.out.println(" >> Not Sync.");
                     }
                     // set id
@@ -740,7 +808,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 MapType map = getMap(mission);
                 tempTrans = new TransponderElement(lblBeacon, id, mapGroup, map);
                 node = new ExtendedTreeNode(tempTrans);
-                setSyncState(node, State.SYNC);
+                setNodeSyncState(node, State.SYNC);
                 // maps[0].addObject(tempTrans);
                 // maps[0].saveFile(maps[0].getHref());
                 saveMission(mission);
@@ -806,7 +874,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             }
             // Set the node to local regardless.
             // It will be checked when processing remote states.
-            setSyncState(target, State.LOCAL);
+            setNodeSyncState(target, State.LOCAL);
             target.getUserInfo().put(NodeInfoKey.VEHICLE.name(), sysName);
             // System.out.println(" Setting as local.");
         }
@@ -858,7 +926,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             }
             // Set the node to local regardless.
             // It will be checked when processing remote states.
-            setSyncState(target, State.LOCAL);
+            setNodeSyncState(target, State.LOCAL);
             target.getUserInfo().put(NodeInfoKey.VEHICLE.name(), sysName);
             // System.out.println(" Setting as local.");
         }
@@ -1042,29 +1110,28 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 // treeModel.printTree("4. ");
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
                 // NeptusLog.pub().error(" --- ");
-                // revalidate();
                 repaint();
             }
 
-            // private String printBeacons(final Vector<LblBeacon> remoteTrans) {
-            // short id = 0;
-            // StringBuilder remotes = new StringBuilder(remoteTrans.size() + " trans in ImcSystem: ");
-            // for (LblBeacon lblBeacon : remoteTrans) {
-            // remotes.append("[");
-            // remotes.append(id);
-            // remotes.append("] ");
-            // remotes.append(lblBeacon.getBeacon());
-            // remotes.append(" ( query: ");
-            // remotes.append(lblBeacon.getQueryChannel());
-            // remotes.append(", reply: ");
-            // remotes.append(lblBeacon.getReplyChannel());
-            // remotes.append(", delay:");
-            // remotes.append(lblBeacon.getTransponderDelay());
-            // remotes.append(")\n         ");
-            // id++;
-            // }
-            // return remotes.toString();
-            // }
+            private String printBeacons(final Vector<LblBeacon> remoteTrans) {
+                short id = 0;
+                StringBuilder remotes = new StringBuilder(remoteTrans.size() + " trans in ImcSystem: ");
+                for (LblBeacon lblBeacon : remoteTrans) {
+                    remotes.append("[");
+                    remotes.append(id);
+                    remotes.append("] ");
+                    remotes.append(lblBeacon.getBeacon());
+                    remotes.append(" ( query: ");
+                    remotes.append(lblBeacon.getQueryChannel());
+                    remotes.append(", reply: ");
+                    remotes.append(lblBeacon.getReplyChannel());
+                    remotes.append(", delay:");
+                    remotes.append(lblBeacon.getTransponderDelay());
+                    remotes.append(")\n         ");
+                    id++;
+                }
+                return remotes.toString();
+            }
 
         });
     }
@@ -1116,7 +1183,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 // Local
             case NOT_SYNC:
                 // Local
-                    setSyncState(selectionNode, State.LOCAL);
+                    setNodeSyncState(selectionNode, State.LOCAL);
                 break;
             case REMOTE:
                 // Disappear
@@ -1125,7 +1192,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 break;
             case LOCAL:
                 // Invalid
-                NeptusLog.pub().error("Invalid removal of local plan");
+                NeptusLog.pub()
+                        .error("Invalid removal of local plan, this is ok if it is triggered by duplicate sending of plan deletion.");
                 break;
             default:
                 NeptusLog.pub().error("Invalid local removal of plan with unkown state");
@@ -1133,39 +1201,46 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     public <T extends NameId> void deleteCurrSelectedNodeLocally() {
-        ExtendedTreeNode selectionNode = getSelectedTreeNode();
-        State syncState = (State) selectionNode.getUserInfo().get(NodeInfoKey.SYNC.name());
-        switch (syncState) {
-            case NOT_SYNC:
-                // To Remote
-            case SYNC:
-                // Remote
-                PlanDBInfo remoteNode = new PlanDBInfo();
-                remoteNode.setPlanId(((PlanType) getSelectedItem()).getIdentification());
-                ExtendedTreeNode node = new ExtendedTreeNode(remoteNode);
-                setSyncState(node, State.REMOTE);
-                treeModel.insertAlphabetically(node, ParentNodes.PLANS);
-            case LOCAL:
-                // Disappear
-                treeModel.removeById(((NameId) getSelectedItem()).getIdentification(), ParentNodes.PLANS);
-                break;
-            case REMOTE:
-                // Invalid
-                NeptusLog.pub().error("Invalid local removal of remote plan");
-                break;
-            default:
-                NeptusLog.pub().error("Invalid local removal of plan with unkown state");
+        ArrayList<ExtendedTreeNode> selectedNodes = getSelectedNodes();
+        // TreePath[] selectedNodes = selectedNodes2;
+        // for (TreePath treePath : selectedNodes) {
+        for (ExtendedTreeNode selectionNode : selectedNodes) {
+            // ExtendedTreeNode selectionNode = getSelectedTreeNode();
+            // ExtendedTreeNode selectionNode = (ExtendedTreeNode) treePath.getLastPathComponent();
+            State syncState = (State) selectionNode.getUserInfo().get(NodeInfoKey.SYNC.name());
+            NameId userObject = (NameId) selectionNode.getUserObject();
+            switch (syncState) {
+                case NOT_SYNC:
+                    // To Remote
+                case SYNC:
+                    // Remote
+                    PlanDBInfo remoteNode = new PlanDBInfo();
+                    remoteNode.setPlanId(userObject.getIdentification());
+                    ExtendedTreeNode node = new ExtendedTreeNode(remoteNode);
+                    setNodeSyncState(node, State.REMOTE);
+                    treeModel.insertAlphabetically(node, ParentNodes.PLANS);
+                case LOCAL:
+                    // Disappear
+                    treeModel.removeById(userObject.getIdentification(), ParentNodes.PLANS);
+                    break;
+                case REMOTE:
+                    // Invalid
+                    NeptusLog.pub().error("Invalid local removal of remote plan");
+                    break;
+                default:
+                    NeptusLog.pub().error("Invalid local removal of plan with unkown state");
+            }
         }
     }
 
     public void setPlanAsSync(String planId) {
         ExtendedTreeNode plan = treeModel.findNode(planId, ParentNodes.PLANS);
         if (plan != null) {
-            setSyncState(plan, State.SYNC);
+            setNodeSyncState(plan, State.SYNC);
         }
     }
 
-    private void setSyncState(ExtendedTreeNode child, State state) {
+    private void setNodeSyncState(ExtendedTreeNode child, State state) {
         child.getUserInfo().put(NodeInfoKey.SYNC.name(), state);
         repaint();
     }
@@ -1188,4 +1263,19 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     // }
     // saveMission(mission);
     // }
+    
+    public ArrayList<TransponderElement> getTransponders(){
+        ChildIterator transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
+        ArrayList<TransponderElement> trans = new ArrayList<TransponderElement>();
+        ExtendedTreeNode transNode = null;
+        while (transIt.hasNext()) {
+            transNode = transIt.next();
+//        }
+            // for (; transIt.hasNext(); transNode = transIt.next()) {
+            TransponderElement t = (TransponderElement)transNode.getUserObject();
+            // System.out.println(t.getName() + " ");
+            trans.add(t);
+        }
+        return trans;
+    }
 }
