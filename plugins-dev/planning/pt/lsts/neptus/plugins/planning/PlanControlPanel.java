@@ -134,7 +134,6 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
     private final String startPlanStr = I18n.text("Start Plan");
     private final String stopPlanStr = I18n.text("Stop Plan");
     private final String sendAcousticBeaconsStr = I18n.text("Send Acoustic Beacons. Use Ctrl click to clear the transponders from vehicle.");
-    private final String sendAcousticBeaconsZeroStr = I18n.text("Send Zero Acoustic Beacons.");
     private final String sendSelectedPlanStr = I18n.text("Send Selected Plan");
     private final String downloadActivePlanStr = I18n.text("Download Active Plan");
     
@@ -191,11 +190,11 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
     private JPanel holder;
     private JLabel titleLabel;
     private JLabel planIdLabel;
-    private ToolbarButton selectionButton, sendAcousticsButton, sendAcousticsZeroButton, sendUploadPlanButton, sendDownloadPlanButton,
+    private ToolbarButton selectionButton, sendAcousticsButton, sendUploadPlanButton, sendDownloadPlanButton,
             sendStartButton, sendStopButton, teleOpButton;
 
     private SystemsSelectionAction selectionAction;
-    private AbstractAction sendAcousticsAction, sendAcousticsZeroAction, sendUploadPlanAction, sendDownloadPlanAction, sendStartAction,
+    private AbstractAction sendAcousticsAction, sendUploadPlanAction, sendDownloadPlanAction, sendStartAction,
             sendStopAction, teleOpAction;
 
     private int teleoperationManeuver = -1;
@@ -240,7 +239,6 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
 
         selectionButton = new ToolbarButton(selectionAction);
         sendAcousticsButton = new ToolbarButton(sendAcousticsAction);
-        sendAcousticsZeroButton = new ToolbarButton(sendAcousticsZeroAction);
         sendUploadPlanButton = new ToolbarButton(sendUploadPlanAction);
         sendDownloadPlanButton = new ToolbarButton(sendDownloadPlanAction);
         sendStartButton = new ToolbarButton(sendStartAction);
@@ -253,7 +251,6 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         holder.add(selectionButton);
         // holder.add(sendNavStartPointButton);
         holder.add(sendAcousticsButton);
-        holder.add(sendAcousticsZeroButton);
         holder.add(sendUploadPlanButton);
         // holder.add(sendDownloadPlanButton);
         holder.add(sendStartButton);
@@ -298,7 +295,6 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         }
         selectionButton.setVisible(enableSelectionButton && useFullMode);
         sendAcousticsButton.setVisible(enableBeaconsButton && useFullMode);
-        sendAcousticsZeroButton.setVisible(enableBeaconsButton && useFullMode);
     }
 
     /**
@@ -333,36 +329,6 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                             NeptusLog.pub().error(e);
                         }
                         sendAcousticsButton.setEnabled(true);
-                    }
-                };
-                sw.execute();
-            }
-        };
-
-        sendAcousticsZeroAction = new AbstractAction(sendAcousticBeaconsZeroStr, ICON_BEACONS_ZERO) {
-            @Override
-            public void actionPerformed(final ActionEvent ev) {
-                final Object action = getValue(Action.NAME);
-                SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
-                    @Override
-                    protected Void doInBackground() {
-                        NeptusLog.action().info(action);
-
-                        sendAcousticsZeroButton.setEnabled(false);
-                        sendAcoustics(true, getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
-
-                        return null;
-                    }
-
-                    @Override
-                    protected void done() {
-                        try {
-                            get();
-                        }
-                        catch (Exception e) {
-                            NeptusLog.pub().error(e);
-                        }
-                        sendAcousticsZeroButton.setEnabled(true);
                     }
                 };
                 sw.execute();
