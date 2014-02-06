@@ -711,7 +711,7 @@ public abstract class AbstractElement
 
             if (!objName.getText().equals(name) && takenNames != null) {
                 for (int i = 0; i < takenNames.length; i++) {
-                    if (takenNames[i].equals(name)) {
+                    if (takenNames[i].equals(objName.getText())) {
                         JOptionPane.showMessageDialog(paramsPanel, I18n.text("The entered identifier is already in use"));
                         return;
                     }
