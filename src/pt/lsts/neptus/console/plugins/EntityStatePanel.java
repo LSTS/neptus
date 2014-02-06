@@ -189,14 +189,25 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
 
         eLevel.put(0L, StatusLed.LEVEL_1);
         eLevel.put(1L, StatusLed.LEVEL_0);
-        eLevel.put(2L, StatusLed.LEVEL_1);
-        eLevel.put(3L, StatusLed.LEVEL_2);
-        eLevel.put(4L, StatusLed.LEVEL_3);
+        eLevel.put(2L, StatusLed.LEVEL_2);
+        eLevel.put(3L, StatusLed.LEVEL_3);
+        eLevel.put(4L, StatusLed.LEVEL_4);
         eLevel.put(5L, StatusLed.LEVEL_4);
         eLevel.put(6L, StatusLed.LEVEL_NONE);
         eLevel.put(7L, StatusLed.LEVEL_OFF);
     }
 
+    /**
+     * @param value
+     * @return
+     */
+    private short mapValueToWarningLevel(short value) {
+        if (eLevel.containsKey((long) value))
+            return eLevel.get((long) value);
+
+        return value;
+    }
+    
     @Override
     public void cleanSubPanel() {
         if (ttask != null) {
@@ -228,7 +239,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
             ttask = new TimerTask() {
 
                 public void run() {
-                    boolean needCalc = false;
+                    boolean needCalc = true;
                     try {
                         for (int i = 0; i < data.toArray(new EntityStateType[0]).length; i++) {
                             etmodel.fireTableCellUpdated(i, EntityStateType.TIME_COL);
@@ -302,6 +313,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
             Short value;
             try {
                 value = (short) evt.intValue();
+                value = mapValueToWarningLevel(value);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(EntityStatePanel.class.getSimpleName() + "calcTotalState: " + e.getMessage());
