@@ -1056,7 +1056,7 @@ MissionChangeListener {
                                     extraTxt = "<br><small>(" + I18n.text("All maneuvers have the same values.") + ")";
                                     break;
                                 default:
-                                    extraTxt = "<br><small>(" + I18n.text("Not all maneuvers have the same values." + ")");
+                                    extraTxt = "<br><small>(" + I18n.text("Not all maneuvers have the same values.") + ")";
                                     break;
                             }
 
