@@ -1254,7 +1254,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
         
         for (MapPanel map : getSubPanelsOfClass(MapPanel.class)) {
-            map.removePostRenderPainter(layer);
+            map.removeLayer(layer);
         }
         
         layer.clean();
