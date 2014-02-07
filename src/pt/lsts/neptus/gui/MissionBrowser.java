@@ -656,18 +656,19 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
             @Override
             public void run() {
-                NeptusLog.pub().error("--> updatePlansStateEDT ");
-                NeptusLog.pub().error("[1] " + localPlans.size() + " in mission: " + localPlans.values().toString());
-                NeptusLog.pub().error("[2] " + localPlans.size() + " in vehicle: " + remotePlans.values().toString());
-                treeModel.printTree("[3] ", ParentNodes.PLANS);
+                // NeptusLog.pub().error("--> updatePlansStateEDT ");
+                // NeptusLog.pub().error("[1] " + localPlans.size() + " in mission: " + localPlans.values().toString());
+                // NeptusLog.pub().error("[2] " + localPlans.size() + " in vehicle: " +
+                // remotePlans.values().toString());
+                // treeModel.printTree("[3] ", ParentNodes.PLANS);
                 HashSet<String> existingPlans = mergeLocalPlans(localPlans, sysName, treeModel);
-                treeModel.printTree("[4] ", ParentNodes.PLANS);
+                // treeModel.printTree("[4] ", ParentNodes.PLANS);
                 treeModel.removeSet(existingPlans, ParentNodes.PLANS);
-                treeModel.printTree("[5] ", ParentNodes.PLANS);
+                // treeModel.printTree("[5] ", ParentNodes.PLANS);
                 existingPlans = mergeRemotePlans(sysName, remotePlans, treeModel, existingPlans);
-                treeModel.printTree("[6] ", ParentNodes.PLANS);
+                // treeModel.printTree("[6] ", ParentNodes.PLANS);
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.PLANS));
-                NeptusLog.pub().error("------------------------ ");
+                // NeptusLog.pub().error("------------------------ ");
                 revalidate();
                 repaint();
             }
