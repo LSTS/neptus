@@ -758,6 +758,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             idMap.put(transponderElement.getIdentification(), transponderElement);
         }
 
+        boolean saveMisison = false;
         boolean found = false;
         short id = 0; // the id inside DUNE is the index in the vector
         for (LblBeacon lblBeacon : remoteList) {
@@ -803,6 +804,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 // maps[0].saveFile(maps[0].getHref());
                 treeModel.insertAlphabetically(node, ParentNodes.TRANSPONDERS);
                 map.addObject(tempTrans);
+                saveMisison = true;
                 // System.out.println(" [" + tempTrans.duneId + "] " + tempTrans.getDisplayName()
                 // + " from IMCSystem not found in mission tree  >> Sync.");
             }
@@ -810,7 +812,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             existing.add(tempTrans.getIdentification());
             id++;
         }
-        if (found)
+        if (saveMisison)
             saveMission(mission);
 
         // reset id of transponders not in vehicle

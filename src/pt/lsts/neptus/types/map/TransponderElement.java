@@ -180,7 +180,10 @@ public class TransponderElement extends AbstractElement implements NameId{
         setCenterLocation(lt);
         propConf = BeaconsConfig.getMatchingConf(lblBeacon);
         file = new FileType();
-        file.setHref(propConf.getWorkingFile());
+        String workingFile = propConf.getWorkingFile();
+        String[] tokens = workingFile.split("/");
+        NeptusLog.pub().error("Beacon conf file:" + tokens[tokens.length - 1]);
+        file.setHref(tokens[tokens.length - 1]);
         this.duneId = duneId;
     }
 
