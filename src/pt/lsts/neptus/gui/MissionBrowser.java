@@ -279,7 +279,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     public void removeTransponder(TransponderElement elem, ConsoleLayout console2) {
-        int ret = JOptionPane.showConfirmDialog(this, I18n.textf("Delete '%transponderName'?", elem.getId()),
+        int ret = JOptionPane.showConfirmDialog(this, I18n.textf("Delete '%transponderName'?", elem.getDisplayName()),
                 I18n.text("Delete"), JOptionPane.YES_NO_OPTION);
         if (ret == JOptionPane.YES_OPTION) {
             treeModel.removeById(elem.getIdentification(), ParentNodes.TRANSPONDERS);
@@ -560,7 +560,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     }
                     else if (console2 != null) {
                         console2.setPlan(null);
-                        NeptusLog.pub().error("Setting selected plan as null");
                     }
                 // }
             }
@@ -609,24 +608,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-//        catch (Exception e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-//        return nodes;
-//    }
-//    
-//    public ArrayList<ExtendedTreeNode> getSelectedNodes() {
-//        ArrayList<ExtendedTreeNode> nodes = new ArrayList<ExtendedTreeNode>();
-//        TreePath[] selectionPaths = elementTree.getSelectionPaths();
-//        if (selectionPaths == null)
-//            return nodes;
-//        ExtendedTreeNode node;
-//        for (int i = 0; i < selectionPaths.length; i++) {
-//            node = (ExtendedTreeNode) selectionPaths[i].getLastPathComponent();
-//            nodes.add(node);
-//        }
-//        return nodes;
     }
     public ArrayList<ExtendedTreeNode> getSelectedNodes() {
         ArrayList<ExtendedTreeNode> nodes = new ArrayList<ExtendedTreeNode>();

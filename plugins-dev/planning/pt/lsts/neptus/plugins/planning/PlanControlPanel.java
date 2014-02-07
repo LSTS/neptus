@@ -73,7 +73,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.IPlanSelection;
 import pt.lsts.neptus.console.plugins.ITransponderSelection;
@@ -105,8 +104,6 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
-import com.google.common.eventbus.Subscribe;
-
 /**
  * @author pdias
  * 
@@ -136,8 +133,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
     private final String stopTeleOperationStr = I18n.text("Stop Tele-Operation");
     private final String startPlanStr = I18n.text("Start Plan");
     private final String stopPlanStr = I18n.text("Stop Plan");
-    private final String sendAcousticBeaconsStr = I18n.text("Send Acoustic Beacons");
-    private final String sendAcousticBeaconsZeroStr = I18n.text("Clear Acoustic Beacons from Vehicle");
+    private final String sendAcousticBeaconsStr = I18n.text("Send Acoustic Beacons. Use Ctrl click to clear the transponders from vehicle.");
     private final String sendSelectedPlanStr = I18n.text("Send Selected Plan");
     private final String downloadActivePlanStr = I18n.text("Download Active Plan");
 
@@ -194,12 +190,12 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
     private JPanel holder;
     private JLabel titleLabel;
     private JLabel planIdLabel;
-    private ToolbarButton selectionButton, sendAcousticsButton, sendAcousticsZeroButton, sendUploadPlanButton,
-            sendDownloadPlanButton, sendStartButton, sendStopButton, teleOpButton;
+    private ToolbarButton selectionButton, sendAcousticsButton, sendUploadPlanButton, sendDownloadPlanButton,
+            sendStartButton, sendStopButton, teleOpButton;
 
     private SystemsSelectionAction selectionAction;
-    private AbstractAction sendAcousticsAction, sendAcousticsZeroAction, sendUploadPlanAction, sendDownloadPlanAction,
-            sendStartAction, sendStopAction, teleOpAction;
+    private AbstractAction sendAcousticsAction, sendUploadPlanAction, sendDownloadPlanAction, sendStartAction,
+            sendStopAction, teleOpAction;
 
     private int teleoperationManeuver = -1;
     {
@@ -243,7 +239,6 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
 
         selectionButton = new ToolbarButton(selectionAction);
         sendAcousticsButton = new ToolbarButton(sendAcousticsAction);
-        sendAcousticsZeroButton = new ToolbarButton(sendAcousticsZeroAction);
         sendUploadPlanButton = new ToolbarButton(sendUploadPlanAction);
         sendDownloadPlanButton = new ToolbarButton(sendDownloadPlanAction);
         sendStartButton = new ToolbarButton(sendStartAction);
@@ -256,7 +251,6 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         holder.add(selectionButton);
         // holder.add(sendNavStartPointButton);
         holder.add(sendAcousticsButton);
-        holder.add(sendAcousticsZeroButton);
         holder.add(sendUploadPlanButton);
         // holder.add(sendDownloadPlanButton);
         holder.add(sendStartButton);
@@ -301,7 +295,6 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         }
         selectionButton.setVisible(enableSelectionButton && useFullMode);
         sendAcousticsButton.setVisible(enableBeaconsButton && useFullMode);
-        sendAcousticsZeroButton.setVisible(enableBeaconsButton && useFullMode);
     }
 
     /**
@@ -320,7 +313,9 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                         NeptusLog.action().info(action);
 
                         sendAcousticsButton.setEnabled(false);
-                        sendAcoustics(false, getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
+                        boolean sendBlancTransponders = (ev.getModifiers() & ActionEvent.CTRL_MASK) != 0;
+                        sendAcoustics(sendBlancTransponders,
+                                getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
 
                         return null;
                     }
@@ -334,36 +329,6 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                             NeptusLog.pub().error(e);
                         }
                         sendAcousticsButton.setEnabled(true);
-                    }
-                };
-                sw.execute();
-            }
-        };
-
-        sendAcousticsZeroAction = new AbstractAction(sendAcousticBeaconsZeroStr, ICON_BEACONS_ZERO) {
-            @Override
-            public void actionPerformed(final ActionEvent ev) {
-                final Object action = getValue(Action.NAME);
-                SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
-                    @Override
-                    protected Void doInBackground() {
-                        NeptusLog.action().info(action);
-
-                        sendAcousticsZeroButton.setEnabled(false);
-                        sendAcoustics(true, getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
-
-                        return null;
-                    }
-
-                    @Override
-                    protected void done() {
-                        try {
-                            get();
-                        }
-                        catch (Exception e) {
-                            NeptusLog.pub().error(e);
-                        }
-                        sendAcousticsZeroButton.setEnabled(true);
                     }
                 };
                 sw.execute();
@@ -628,10 +593,20 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
         this.revalidate();
     }
 
-    @Subscribe
-    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see pt.lsts.neptus.plugins.SimpleSubPanel#mainVehicleChange(java.lang.String)
+     */
+    @Override
+    public void mainVehicleChangeNotification(String id) {
         update();
         refreshUI();
+        // for (String msgStr : getObservedMessages()) {
+        // IMCMessage msg = getConsole().getImcState().get(msgStr);
+        // if (msg != null)
+        // messageArrived(msg);
+        // }
     }
 
     /**
@@ -881,18 +856,16 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             return false;
 
         PlanType[] plans = getSelectedPlansFromExternalComponents();
-        PlanType plan;
-        int iSent = 0;
+        PlanType plan = plans[0];
 
-        for (int i = 0; i < plans.length; i++) {
-            plan = plans[i];
             try {
                 if (verifyAllManeuversUsed)
                     plan.validatePlan();
             }
             catch (Exception e) {
                 // GuiUtils.errorMessage(getConsole(), e);
-                post(Notification.error(I18n.text("Send Plan"), e.getMessage()));
+            post(Notification.error(I18n.text("Send Plan"),
+                    e.getMessage()));
                 return false;
             }
             IMCMessage planSpecificationMessage = IMCUtils.generatePlanSpecification(plan);
@@ -911,14 +884,12 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
             pdb.setArg(planSpecificationMessage);
             pdb.setInfo("Plan sent by Neptus version " + ConfigFetch.getNeptusVersion());
             registerPlanControlRequest(reqId);
-            boolean ret = IMCSendMessageUtils.sendMessage(pdb, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP
-                    : null), createDefaultMessageDeliveryListener(), this, I18n.text("Error sending plan"),
-                    DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+
+        boolean ret = IMCSendMessageUtils.sendMessage(pdb, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null),
+                createDefaultMessageDeliveryListener(), this, I18n.text("Error sending plan"), DONT_USE_ACOUSTICS,
+                acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+
             if (ret) {
-                iSent++;
-            }
-        }
-        if (iSent > 0) {
             String missionlog = GuiUtils.getLogFileName("mission_state", "zip");
             getConsole().getMission().asZipFile(missionlog, true);
         }
@@ -1221,8 +1192,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                                 String utcStr = " " + I18n.text("UTC");
                                 double deltaTime = (msg.getTimestampMillis() - requestTimeMillis) / 1E3;
                                 post(Notification.error(I18n.text("Plan Control Error"),
-                                                I18n.textf(
-                                                        "The following error arrived at @%timeArrived for a request @%timeRequested (\u2206t %deltaTime): %msg",
+                                                I18n.textf("The following error arrived at @%timeArrived for a request @%timeRequested (\u2206t %deltaTime): %msg",
                                                         DateTimeUtil.timeFormaterNoMillis2UTC.format(msg.getDate())
                                                                 + utcStr,
                                                         DateTimeUtil.timeFormaterNoMillis2UTC.format(new Date(
@@ -1281,8 +1251,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                                 String utcStr = " " + I18n.text("UTC");
                                 double deltaTime = (planDb.getTimestampMillis() - requestTimeMillis) / 1E3;
                                 post(Notification.error(I18n.text("Plan DB Error"),
-                                                I18n.textf(
-                                                        "The following error arrived at @%timeArrived for a request @%timeRequested (\u2206t %deltaTime): %msg",
+                                                I18n.textf("The following error arrived at @%timeArrived for a request @%timeRequested (\u2206t %deltaTime): %msg",
                                                         DateTimeUtil.timeFormaterNoMillis2UTC.format(planDb.getDate())
                                                                 + utcStr,
                                                         DateTimeUtil.timeFormaterNoMillis2UTC.format(new Date(
