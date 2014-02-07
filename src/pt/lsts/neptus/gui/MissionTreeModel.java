@@ -437,20 +437,21 @@ public class MissionTreeModel extends DefaultTreeModel {
         return parent.iterator();
     }
 
-    public void printTree(String msg) {
-        ChildIterator transIt;
+    public void printTree(String msg, ParentNodes parentType) {
+        ChildIterator parentIt;
         ExtendedTreeNode tempNode;
-        TransponderElement tempTrans;
-        transIt = getIterator(ParentNodes.TRANSPONDERS);
-        StringBuilder treeString = new StringBuilder(msg);
-        treeString.append("Tree: ");
-        while (transIt.hasNext()) {
-            tempNode = transIt.next();
-            tempTrans = ((TransponderElement) tempNode.getUserObject());
-            treeString.append(tempTrans.toString());
+        NameId tempElem;
+        parentIt = getIterator(parentType);
+        StringBuilder treeString = new StringBuilder();
+        int size = 0;
+        while (parentIt.hasNext()) {
+            tempNode = parentIt.next();
+            tempElem = ((NameId) tempNode.getUserObject());
+            treeString.append(tempElem.toString());
             treeString.append(", ");
+            size++;
         }
-        NeptusLog.pub().error(treeString);
+        NeptusLog.pub().error(msg + size + " in tree:    [" + treeString + "]");
     }
 
     // public TransNodeIterator iterator(){

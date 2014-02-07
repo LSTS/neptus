@@ -543,7 +543,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 // if (e.isAddedPath()) {
                     TreePath selPath = elementTree.getSelectionPath();
                     if(selPath == null){
-                        NeptusLog.pub().error("Check this out, should not happen outside debug with break points in Mission Tree related classes.");
                         return;
                     }
                     ExtendedTreeNode node = (ExtendedTreeNode) selPath.getLastPathComponent();
@@ -657,13 +656,18 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
             @Override
             public void run() {
-                // NeptusLog.pub().error("--> updateTransStateEDT ");
-                // NeptusLog.pub().error(localTrans.size() + " in mission: " + localTrans.values().toString());
-                // treeModel.printTree("1. ");
+                NeptusLog.pub().error("--> updatePlansStateEDT ");
+                NeptusLog.pub().error("[1] " + localPlans.size() + " in mission: " + localPlans.values().toString());
+                NeptusLog.pub().error("[2] " + localPlans.size() + " in vehicle: " + remotePlans.values().toString());
+                treeModel.printTree("[3] ", ParentNodes.PLANS);
                 HashSet<String> existingPlans = mergeLocalPlans(localPlans, sysName, treeModel);
+                treeModel.printTree("[4] ", ParentNodes.PLANS);
                 treeModel.removeSet(existingPlans, ParentNodes.PLANS);
+                treeModel.printTree("[5] ", ParentNodes.PLANS);
                 existingPlans = mergeRemotePlans(sysName, remotePlans, treeModel, existingPlans);
+                treeModel.printTree("[6] ", ParentNodes.PLANS);
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.PLANS));
+                NeptusLog.pub().error("------------------------ ");
                 revalidate();
                 repaint();
             }
@@ -1084,20 +1088,20 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
             @Override
             public void run() {
-                NeptusLog.pub().error("--> updateTransStateEDT ");
-                NeptusLog.pub().error(localTrans.size() + " in mission: " + localTrans.values().toString());
-                treeModel.printTree("1. ");
+                // NeptusLog.pub().error("--> updateTransStateEDT ");
+                // NeptusLog.pub().error(localTrans.size() + " in mission: " + localTrans.values().toString());
+                // treeModel.printTree("1. ");
                 HashSet<String> existingTrans = mergeLocalTrans(localTrans, sysName, treeModel,
                         ParentNodes.TRANSPONDERS);
-                treeModel.printTree("2. ");
-                String remotes = printBeacons(remoteTrans);
-                NeptusLog.pub().error(remotes);
+                // treeModel.printTree("2. ");
+                // String remotes = printBeacons(remoteTrans);
+                // NeptusLog.pub().error(remotes);
                 existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans, mission, console);
-                treeModel.printTree("3. ");
+                // treeModel.printTree("3. ");
                 treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
-                treeModel.printTree("4. ");
+                // treeModel.printTree("4. ");
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
-                NeptusLog.pub().error(" --- ");
+                // NeptusLog.pub().error(" --- ");
                 repaint();
             }
 
