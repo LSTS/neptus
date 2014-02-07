@@ -977,7 +977,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             public void deliveryError(IMCMessage message, Object error) {
                 processDeliveryFailure(
                         message,
-                        I18n.textf(I18n.textf("Message %messageType to %destination delivery error. (%error)",
+                        I18n.text(I18n.textf("Message %messageType to %destination delivery error. (%error)",
                                 message.getAbbrev(), getDest(message), error)));
             }
 

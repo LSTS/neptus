@@ -118,8 +118,6 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
 
     private final ImageIcon ICON_BEACONS = ImageUtils
             .getIcon("pt/lsts/neptus/plugins/planning/uploadBeacons.png");
-    private final ImageIcon ICON_BEACONS_ZERO = ImageUtils
-     .getIcon("pt/lsts/neptus/plugins/planning/uploadBeaconsZero.png");
     private final ImageIcon ICON_UP = ImageUtils.getIcon("pt/lsts/neptus/plugins/planning/up.png");
     private final ImageIcon ICON_DOWN_R = ImageUtils.getIcon("pt/lsts/neptus/plugins/planning/fileimport.png");
     private final ImageIcon ICON_START = ImageUtils.getIcon("pt/lsts/neptus/plugins/planning/start.png");
