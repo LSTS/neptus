@@ -334,14 +334,14 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param mainVehicleId
      */
     public void refreshBrowser(final MissionType mission,
-            final String mainVehicleId) {
+ final String mainVehicleId, ConsoleLayout console) {
         // Selected nodes
         TreePath[] selectedNodes = getSelectionPath();
         // Home ref
         treeModel.setHomeRef(mission.getHomeRef());
         TreeMap<String, PlanType> localPlans = getLocalPlans(mission);
         updatePlansStateEDT(localPlans, mainVehicleId);
-        updateTransStateEDT(mission, mainVehicleId);
+        updateTransStateEDT(mission, mainVehicleId, console);
         // Set the right nodes as selected
         setSelectedNodes(selectedNodes);
     }
@@ -657,6 +657,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
             @Override
             public void run() {
+                // NeptusLog.pub().error("--> updateTransStateEDT ");
+                // NeptusLog.pub().error(localTrans.size() + " in mission: " + localTrans.values().toString());
+                // treeModel.printTree("1. ");
                 HashSet<String> existingPlans = mergeLocalPlans(localPlans, sysName, treeModel);
                 treeModel.removeSet(existingPlans, ParentNodes.PLANS);
                 existingPlans = mergeRemotePlans(sysName, remotePlans, treeModel, existingPlans);
@@ -732,7 +735,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param treeModel the model where to merge
      */
     private HashSet<String> mergeRemoteTrans(String sysName, Vector<LblBeacon> remoteList,
-            MissionTreeModel treeModel, HashSet<String> existing, MissionType mission) {
+ MissionTreeModel treeModel,
+            HashSet<String> existing, MissionType mission, ConsoleLayout console) {
         ExtendedTreeNode node;
         ChildIterator transIt;
         ExtendedTreeNode tempNode;
@@ -749,7 +753,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             idMap.put(transponderElement.getIdentification(), transponderElement);
         }
 
-        boolean found;
+        boolean found = false;
         short id = 0; // the id inside DUNE is the index in the vector
         for (LblBeacon lblBeacon : remoteList) {
             found = false;
@@ -792,8 +796,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 setNodeSyncState(node, State.SYNC);
                 // maps[0].addObject(tempTrans);
                 // maps[0].saveFile(maps[0].getHref());
-                saveMission(mission);
                 treeModel.insertAlphabetically(node, ParentNodes.TRANSPONDERS);
+                map.addObject(tempTrans);
                 // System.out.println(" [" + tempTrans.duneId + "] " + tempTrans.getDisplayName()
                 // + " from IMCSystem not found in mission tree  >> Sync.");
             }
@@ -801,6 +805,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             existing.add(tempTrans.getIdentification());
             id++;
         }
+        if (found)
+            saveMission(mission);
 
         // reset id of transponders not in vehicle
         transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
@@ -1071,26 +1077,27 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param sysName
      * @param remoteTrans
      */
-    public void updateTransStateEDT(final MissionType mission, final String sysName, final Vector<LblBeacon> remoteTrans) {
+    public void updateTransStateEDT(final MissionType mission, final String sysName,
+            final Vector<LblBeacon> remoteTrans, final ConsoleLayout console) {
         final LinkedHashMap<String, TransponderElement> localTrans = getLocalTrans(mission);
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override
             public void run() {
-                // NeptusLog.pub().error("--> updateTransStateEDT ");
-                // NeptusLog.pub().error(localTrans.size() + " in mission: " + localTrans.values().toString());
-                // treeModel.printTree("1. ");
+                NeptusLog.pub().error("--> updateTransStateEDT ");
+                NeptusLog.pub().error(localTrans.size() + " in mission: " + localTrans.values().toString());
+                treeModel.printTree("1. ");
                 HashSet<String> existingTrans = mergeLocalTrans(localTrans, sysName, treeModel,
                         ParentNodes.TRANSPONDERS);
-                // treeModel.printTree("2. ");
-                // String remotes = printBeacons(remoteTrans);
-                // NeptusLog.pub().error(remotes);
-                existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans, mission);
-                // treeModel.printTree("3. ");
+                treeModel.printTree("2. ");
+                String remotes = printBeacons(remoteTrans);
+                NeptusLog.pub().error(remotes);
+                existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans, mission, console);
+                treeModel.printTree("3. ");
                 treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
-                // treeModel.printTree("4. ");
+                treeModel.printTree("4. ");
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.TRANSPONDERS));
-                // NeptusLog.pub().error(" --- ");
+                NeptusLog.pub().error(" --- ");
                 repaint();
             }
 
@@ -1124,8 +1131,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param mission
      * @param sysName
      */
-    public void updateTransStateEDT(MissionType mission, final String sysName) {
-        updateTransStateEDT(mission, sysName, getRemoteTrans(sysName));
+    public void updateTransStateEDT(MissionType mission, final String sysName, ConsoleLayout console) {
+        updateTransStateEDT(mission, sysName, getRemoteTrans(sysName), console);
     }
 
     /**

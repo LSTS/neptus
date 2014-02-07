@@ -180,7 +180,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             }
             browser.updatePlansStateEDT(localPlans, getMainVehicleId());
             browser.setSelectedNodes(selectedNodes);
-            // System.out.println("dbInfoUpdated");
+//            System.out.println("dbInfoUpdated");
         }
 
         @Override
@@ -288,13 +288,13 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
 
     @Override
     public void missionReplaced(MissionType mission) {
-        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
     }
 
     @Override
     public void missionUpdated(MissionType mission) {
         // it is called (among others) when the specs for a remote plan have just been received
-        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
     }
 
     /**
@@ -306,7 +306,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             return;
         inited = true;
         updatePlanDBListener(getMainVehicleId());
-        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
         addClearPlanDbMenuItem();
     }
 
@@ -400,7 +400,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         running = false;
         updatePlanDBListener(evt.getCurrent());
         askForBeaconConfig();
-        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
     }
 
     /**
@@ -548,7 +548,8 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 LblConfig lblConfig = (LblConfig) message;
                 if (((LblConfig) message).getOp() == OP.CUR_CFG) {
                     // NeptusLog.pub().error("LblConfig message arrived");
-                    browser.updateTransStateEDT(getConsole().getMission(), getMainVehicleId(), (Vector<LblBeacon>) lblConfig.getBeacons().clone());
+                    browser.updateTransStateEDT(getConsole().getMission(), getMainVehicleId(),
+                            (Vector<LblBeacon>) lblConfig.getBeacons().clone(), getConsole());
                 }
                 break;
 
@@ -1026,7 +1027,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             popupMenu.add(I18n.text("Reload Panel")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+                    browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
                 }
             });
         }
