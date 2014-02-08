@@ -454,7 +454,7 @@ public class MonitorIMCComms extends
                             MathMiscUtils.round(sys.getLocation().getLongitudeAsDoubleValue(), 6), false) + "<br>";
 
         ret += "<br><b>" + I18n.text("Entities:") + "</b>";
-        LinkedHashMap<Integer, String> entLst = EntitiesResolver.getEntities(sys.getName());
+        Map<Integer, String> entLst = EntitiesResolver.getEntities(sys.getName());
         String txtEt = "";
         if (entLst != null) {
             boolean startEt = true;

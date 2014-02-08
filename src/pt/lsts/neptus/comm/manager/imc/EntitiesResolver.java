@@ -32,8 +32,12 @@
 package pt.lsts.neptus.comm.manager.imc;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import pt.lsts.imc.EntityList;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 /**
  * @author zp
@@ -41,7 +45,7 @@ import pt.lsts.imc.EntityList;
  */
 public class EntitiesResolver {
 
-	protected static LinkedHashMap<String, LinkedHashMap<Integer, String>> entitiesMap = new LinkedHashMap<String, LinkedHashMap<Integer, String>>();
+	protected static LinkedHashMap<String, BiMap<Integer, String>> entitiesMap = new LinkedHashMap<String, BiMap<Integer, String>>();
 	public static final int DEFAULT_ENTITY = 255;
 	
 	
@@ -54,14 +58,14 @@ public class EntitiesResolver {
 		LinkedHashMap<String, String> tlist = null;
 		tlist = message.getList();
 		
-		LinkedHashMap<Integer, String> aliases = new LinkedHashMap<Integer, String>();
+		BiMap<Integer, String> aliases = HashBiMap.create();
 		for (String key : tlist.keySet())
 			aliases.put(Integer.parseInt(tlist.get(key)), key);
 		
 		entitiesMap.put(id, aliases);
 	}
 	
-	public static final LinkedHashMap<Integer, String> getEntities(Object systemId) {
+	public static final Map<Integer, String> getEntities(Object systemId) {
 		return entitiesMap.get(systemId.toString());
 	}
 	
@@ -82,11 +86,10 @@ public class EntitiesResolver {
 	    if(!entitiesMap.containsKey(systemId)) {
 	        return -1;
 	    }	    
-	    for (Integer i: entitiesMap.get(systemId).keySet()) {
-            if(entitiesMap.get(systemId).get(i).equals(entityName)) {
-                return i;
-            }
-        }
-	    return -1;
+	    BiMap<String, Integer> inverted = entitiesMap.get(systemId).inverse();
+	    //System.out.println(inverted);
+	    if (!inverted.containsKey(entityName))
+	        return -1;
+	    return inverted.get(entityName);	    
 	}
 }

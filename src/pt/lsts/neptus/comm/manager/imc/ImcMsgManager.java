@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -994,7 +995,7 @@ public class ImcMsgManager extends
                 e.printStackTrace();
             }
             
-            LinkedHashMap<Integer, String> er = EntitiesResolver.getEntities(resSys.getName());
+            Map<Integer, String> er = EntitiesResolver.getEntities(resSys.getName());
             if (er == null || er.size() == 0)
                 requestEntityList = true;
 
