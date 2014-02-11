@@ -130,7 +130,7 @@ public class LogUtils {
         double lastTime = 0;
 
         double maxDepth = 0;
-        double avgDepth = entry.getDouble("z");
+        double avgDepth = entry.getDouble("depth"); // z
 
         double maxRoll = 0;
         double minRoll = 0;
@@ -164,8 +164,8 @@ public class LogUtils {
                 secs = 0;
             }
 
-            double depth = entry.getDouble("z");
-            maxDepth = Math.max(maxDepth, entry.getDouble("z"));
+            double depth = entry.getDouble("depth"); // z
+            maxDepth = Math.max(maxDepth, entry.getDouble("depth")); // z
             double phi = entry.getDouble("phi");
             double theta = entry.getDouble("theta");
 
