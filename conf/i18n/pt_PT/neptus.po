@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
 "POT-Creation-Date: 2014-02-06 12:33+0000\n"
-"PO-Revision-Date: 2014-02-06 12:53+0100\n"
-"Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
+"PO-Revision-Date: 2014-02-11 11:14+0100\n"
+"Last-Translator: Hugo Queirós <hugofqueiros@gmail.com>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
@@ -703,15 +703,13 @@ msgstr "Altitude"
 
 #: Description of property 'Verify plans for island nodes' from
 #: pt.lsts.neptus.plugins.webupdate.RemotePlanControl
-#, fuzzy
 msgid "Always runs a verification on the plan for maneuvers that have no input edges. If you choose to switch off here you can allways click Alt whan sending the plan that this verification will run."
-msgstr "Correr sempre uma verificação no plano para manobras que não têm ligações de entrada.Se escolher desligar aqui pode sempre clicar Alt ao enviar o plano que esta verificação irá correr"
+msgstr "Correr sempre uma verificação no plano para manobras que não têm ligações de entrada.Se escolher desligar aqui pode sempre clicar Alt ao enviar o plano, que esta verificação irá correr"
 
 #: Description of property 'Verify plans for island nodes' from
 #: pt.lsts.neptus.console.plugins.planning.PlanControlPanel
-#, fuzzy
 msgid "Always runs a verification on the plan for maneuvers that have no input edges. If you choose to switch off here you can allways click Alt when sending the plan that this verification will run."
-msgstr "Correr sempre uma verificação no plano para manobras que não têm ligações de entrada.Se escolher desligar aqui pode sempre clicar Alt ao enviar o plano que esta verificação irá correr"
+msgstr "Correr sempre uma verificação no plano para manobras que não têm ligações de entrada.Se escolher desligar aqui pode sempre clicar Alt ao enviar o plano, que esta verificação irá correr"
 
 #: Description of property 'Control timeout' from
 #: pt.lsts.neptus.plugins.followref.FollowReferenceInteraction
@@ -1191,15 +1189,11 @@ msgstr "Alterar '%element'"
 
 #: plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanEditor.java:925
 msgid "Change Existing Maneuvers"
-msgstr "Alterar As Manobras Existentes"
+msgstr "Modificar Manobras Existentes"
 
 #: Property from pt.lsts.neptus.plugins.logs.LoggingDownloader
 msgid "Change Log Name Enabled"
 msgstr "Alteração de Nome de Log Hablilitada"
-
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:925
-msgid "Change Existing Maneuvers"
-msgstr "Modificar Manobras Existentes"
 
 #: src/pt/lsts/neptus/mp/ManeuverLocationEditor.java:74
 msgid "Change maneuver location"
@@ -1538,9 +1532,8 @@ msgstr "Configura se botão enviar beacons está activo ou não"
 
 #: Description of property 'Enable teleoperation button' from
 #: pt.lsts.neptus.console.plugins.planning.PlanControlPanel
-#, fuzzy
 msgid "Configures if send beacons button is shown or not in Full Mode."
-msgstr "Configura se botão enviar beacons está activo ou não em Modo Completo."
+msgstr "Configura se botão enviar beacons está é mostrado ou não em modo full-screen."
 
 #: Description of property 'Enable selection button' from
 #: pt.lsts.neptus.console.plugins.planning.PlanControlPanel
@@ -1746,18 +1739,16 @@ msgid "Control Latency"
 msgstr "Latência do Controlo"
 
 #: Property from convcao.com.caoAgent.convcaoNeptusInteraction
-#, fuzzy
 msgid "Control Timeout"
-msgstr "Tempo de Expiração (secs)"
+msgstr "Timeout de Controlo"
 
 #: Property from pt.lsts.neptus.plugins.followref.FollowReferenceInteraction
 msgid "Control loop latency"
 msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.followref.FollowReferenceInteraction
-#, fuzzy
 msgid "Control timeout"
-msgstr "Estado do Controlo de Plano"
+msgstr "Timeout do Controlo"
 
 #: Name of plugin pt.lsts.neptus.controllers.ControllerPanel Description
 msgid "Controllers Panel"
@@ -2704,9 +2695,8 @@ msgid "Error opening mission file"
 msgstr "Erro a abrir ficheiro de missão"
 
 #: src/pt/lsts/neptus/mc/Workspace.java:1166
-#, fuzzy
 msgid "Error openning console '%file'"
-msgstr "Erro a abrir ficheiro"
+msgstr "Erro a abrir consola '%file'"
 
 #: src/pt/lsts/neptus/mp/Maneuver.java:1025
 msgid "Error parsing custom setting '%s' to '%s'!"
@@ -2735,9 +2725,8 @@ msgid "Error sending exiting Tele-Operation message!"
 msgstr "Erro ao enviar mensagem de saída de Teleoperação!"
 
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:311
-#, fuzzy
 msgid "Error sending iridium message"
-msgstr "Erro a enviar mensagem ControloDePlano!"
+msgstr "Erro no envio de mensage Iridium"
 
 #: src/pt/lsts/neptus/comm/IMCSendMessageUtils.java:188
 msgid "Error sending message by acoustic modem!"
@@ -2941,9 +2930,8 @@ msgid "Fault"
 msgstr "Falta"
 
 #: src/pt/lsts/neptus/util/bathymetry/CachedData.java:232
-#, fuzzy
 msgid "Fetch data"
-msgstr "Gerar gráfico"
+msgstr "Obter dados"
 
 #. / To fetch the map tiles from the visible area
 #: src/pt/lsts/neptus/renderer2d/WorldRenderPainter.java:1298
@@ -3032,9 +3020,8 @@ msgid "First Curve Right"
 msgstr "Primeira Curva à Direita"
 
 #: Property from convcao.com.caoAgent.convcaoNeptusInteraction
-#, fuzzy
 msgid "First Depth"
-msgstr "Usar Profundidade"
+msgstr "Primeira Profundidade"
 
 #: Property from pt.lsts.neptus.plugins.ipcam.IPCameraDisplay
 msgid "Fit video to panel size"
@@ -3224,9 +3211,8 @@ msgid "Generic properties"
 msgstr "Propriedades genéricas"
 
 #: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:717
-#, fuzzy
 msgid "Get %planName from %system"
-msgstr "Obter '%planName'de %system"
+msgstr "Obter '%planName'do %system"
 
 #: Name of plugin pt.lsts.neptus.plugins.gige.GigePanel Description
 msgid "GiGe Panel"
@@ -3645,9 +3631,8 @@ msgstr "Ajuda para a Descrição dos Ícones"
 
 #: Description of property 'Used vehicles' from
 #: convcao.com.caoAgent.convcaoNeptusInteraction
-#, fuzzy
 msgid "Identifiers of the vehicles to be used, separated by commas"
-msgstr "Introduzir as várias profundidades, separadas por virgulas"
+msgstr "Identificadores dos veículos a serem utilizados, separadas por virgulas"
 
 #: src/pt/lsts/neptus/types/map/DynamicElement.java:167
 msgid "Idle Time"
@@ -3691,19 +3676,16 @@ msgstr "Se verdadeiro escreverá a idade dos dados e  profundidade no render."
 
 #: Description of property 'Show Systems Icons On Renderer' from
 #: pt.lsts.neptus.console.plugins.SystemsList
-#, fuzzy
 msgid "If true, if this component is showing systems icons, it will disable them on the renderer panel."
-msgstr "Se verdadeiro, se este componente está a mostrar icones de sistemas, isto irá desabilitar no painel do Renderer."
+msgstr "Se verdadeiro, se este componente estiver a mostrar icones de sistemas, irá desabilita-los no painel do Renderer."
 
 #: Description of property 'Show External Systems Icons' from
 #: pt.lsts.neptus.console.plugins.SystemsList
-#, fuzzy
 msgid "If true, if this component will show external systems icons on renderer. Option to show system icons has to be enabled"
 msgstr "Se verdadeiro, se este componente mostrará icones de sistemas externos no Renderer. Opção de mostrar icones do sistema tem de ser habilitada"
 
 #: Description of property 'Show Systems Icons That Are Filtered Out' from
 #: pt.lsts.neptus.console.plugins.SystemsList
-#, fuzzy
 msgid "If true, if this component will show systems icons on renderer that were filtered out. Option to show system icons has to be enabled"
 msgstr "Se verdadeiro, se este componente for mostrar icones dos sistemas no Renderer que foram filtrados. Opção de mostrar icones do sistema tem de ser habilitada"
 
@@ -3917,9 +3899,8 @@ msgstr "Plu-in de Comunicações por Iridium"
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:320
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:325
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:330
-#, fuzzy
 msgid "Iridium communications"
-msgstr "Dispositivo de comunicações Iridium"
+msgstr "Comunicações Iridium"
 
 #: Property from pt.lsts.neptus.plugins.sunfish.IridiumComms
 msgid "Iridium communications device"
@@ -4783,9 +4764,8 @@ msgid "Message Name"
 msgstr "Nome de Mensagem"
 
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:179
-#, fuzzy
 msgid "Message sent to %systemName via %systemCount acoustic gateways"
-msgstr "Alcance para %systemName comandado para %systemCount sistema(s)"
+msgstr "Mensagem enviada para %systemName via %systemCount gateways acústicas"
 
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:583
 msgid "Message to %systemName has been queued in %manta."
@@ -5131,9 +5111,8 @@ msgid "Navigation Entity Label"
 msgstr "Etiqueta da Entidade de Navegação"
 
 #: Property from convcao.com.caoAgent.convcaoNeptusInteraction
-#, fuzzy
 msgid "Near distance"
-msgstr "distância"
+msgstr "Distância próxima"
 
 #: Description of property 'Use Plan DB Sync. Features Extended' from
 #: pt.lsts.neptus.console.plugins.planning.MissionTreePanel
@@ -5239,9 +5218,8 @@ msgid "No Valid Solution"
 msgstr "Sem Solução Válida"
 
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:165
-#, fuzzy
 msgid "No acoustic device is capable of sending this message"
-msgstr "nenhum dispositivo acústico é capaz de enviar este pedido"
+msgstr "Nenhum dispositivo acústico é capaz de enviar esta mensagem"
 
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:239
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:335
@@ -5449,9 +5427,8 @@ msgstr "Número de fileiras"
 
 #: Description of property 'Number Rows' from
 #: convcao.com.caoAgent.NoptilusCoords
-#, fuzzy
 msgid "Number of rows in the area rectangle"
-msgstr "Número de linhas no painel. 0 para infinito."
+msgstr "Número de linhas na área retângular"
 
 #: Description of property 'Number Rows' from
 #: pt.lsts.neptus.plugins.logs.QuickLogger
@@ -6513,7 +6490,6 @@ msgid "Remove %planName from mission?"
 msgstr "Remover '%planName' da missão"
 
 #: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1013
-#, fuzzy
 msgid "Remove %transponderName"
 msgstr "Remover '%transponderName'"
 
@@ -7226,9 +7202,8 @@ msgstr "Definir esta localização como Minha"
 
 #: Description of property 'Honors Visibility' from
 #: pt.lsts.neptus.console.plugins.containers.GroupLayoutContainer
-#, fuzzy
 msgid "Set this so if  component is hidden is if it's not there at all. For most uses leave it at true."
-msgstr "Definir isto para se o componente está escondido é como se não estivesse lá. Para muitos usos deixar-lo como verdadeiro."
+msgstr "Definir isto para se o componente estiver escondido, é como se não estivesse lá. Para a maioria das aplicabilidades deixar-lo como verdadeiro."
 
 #: Description of property 'Is infinite' from
 #: pt.lsts.neptus.mp.templates.InfiniteRectTemplate
@@ -7370,9 +7345,8 @@ msgid "Show Piccolo Waypoints"
 msgstr ""
 
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:365
-#, fuzzy
 msgid "Show Ranges"
-msgstr "mostrar distâncias"
+msgstr "Mostrar distâncias"
 
 #: Property from pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
 msgid "Show SST"
@@ -7612,9 +7586,8 @@ msgid "SimulatedState path"
 msgstr "Caminho da posição estimada"
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanExecutionPreview.java:451
-#, fuzzy
 msgid "Simulating %vehicle for %time"
-msgstr "A simular à %time"
+msgstr "A simular %veículo durante %time"
 
 #: plugins-dev/simulation/pt/lsts/neptus/plugins/sim/SimulationActionsPlugin.java:55
 msgid "Simulation"
@@ -7980,9 +7953,8 @@ msgid "Subject"
 msgstr "Assunto"
 
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:224
-#, fuzzy
 msgid "Subscribe to device updates"
-msgstr "Enviar actualizações de dispositivo"
+msgstr "Subscrever actualizações do dispositivo"
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlStatePanel.java:151
 msgid "Success"
@@ -8010,12 +7982,10 @@ msgid "Swatches"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:866
-#, fuzzy
 msgid "Switch"
-msgstr "Inclinação"
+msgstr "Trocar"
 
 #: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:995
-#, fuzzy
 msgid "Switch %transponderName1 with %transponderName2"
 msgstr "Trocar '%transponderName1' com '%transponderName2'"
 
@@ -8595,9 +8565,8 @@ msgstr "Isto configura a tipo de ordenação"
 
 #: Description of plugin
 #: pt.lsts.neptus.console.plugins.containers.MigLayoutContainer
-#, fuzzy
 msgid "This container uses MigLayout manager"
-msgstr "Contentor a usar MigLayout"
+msgstr "Este contentor usa MigLayout manager"
 
 #: src/pt/lsts/neptus/gui/editor/XMLPropertyEditor.java:87
 msgid "This follows the Java Group Layout"
@@ -8719,9 +8688,8 @@ msgstr "Tempo para apagar (ms)"
 
 #: Description of property 'Time (seconds)' from
 #: pt.lsts.neptus.plugins.followref.ReferenceWaypoint
-#, fuzzy
 msgid "Time to stay at this location. -1 for infinity."
-msgstr "Número de linhas no painel. 0 para infinito."
+msgstr "Tempo que fica nesta localização. -1 até infinito."
 
 #: src/pt/lsts/neptus/mp/preview/PlanSimulationOverlay.java:192
 msgid "Time until completion"
@@ -8738,9 +8706,8 @@ msgstr ""
 
 #: Description of property 'Control Latency' from
 #: convcao.com.caoAgent.convcaoNeptusInteraction
-#, fuzzy
 msgid "Time, in seconds, between sending vehicle references"
-msgstr "Segundos entre actualizações de dispositivos"
+msgstr "Tempo, em segundos, entre envio de referências ao veículo"
 
 #: plugins-dev/trex/pt/lsts/neptus/plugins/trex/goals/TrexGoal.java:165
 msgid "Timeline"
@@ -9090,9 +9057,8 @@ msgid "Unable to read the mission file '%missionfile'"
 msgstr "Incapaz de ler o ficheiro de missão '%missionfile'"
 
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:186
-#, fuzzy
 msgid "Unable to send message to selected system"
-msgstr "Não foi possível alcançar sistema seleccionado"
+msgstr "Não foi possível enviar mensagem para o sistema seleccionado"
 
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/LBLRangeDisplay.java:274
 msgid "Unable to start MIDI sound device"
@@ -10103,7 +10069,6 @@ msgid "h"
 msgstr "h"
 
 #: Property from pt.lsts.neptus.plugins.sunfish.VirtualDrifter
-#, fuzzy
 msgid "headingDegrees"
 msgstr "GrausDaOrientação"
 
@@ -10488,9 +10453,8 @@ msgstr "publicarListaExtraDeMensagens"
 
 #: Property from
 #: pt.lsts.neptus.plugins.webupdate.RemotePositionPublisherUpdater
-#, fuzzy
 msgid "publishMessagesListStd"
-msgstr "publicar EstadoDeListaDeMensagens"
+msgstr "publishMessagesListStd"
 
 #: Property from
 #: pt.lsts.neptus.plugins.webupdate.RemotePositionPublisherUpdater
@@ -10636,9 +10600,8 @@ msgid "speedCorrection"
 msgstr "correção de velocidade"
 
 #: Property from pt.lsts.neptus.plugins.sunfish.VirtualDrifter
-#, fuzzy
 msgid "speedMps"
-msgstr "velocidade"
+msgstr "velocidadeMps"
 
 #: Property from pt.lsts.neptus.console.plugins.containers.SplitContainer
 msgid "splitLocation"
@@ -10844,1254 +10807,3 @@ msgstr "Δt"
 msgid "∆tTxRx"
 msgstr "∆tTxRx"
 
-#~ msgid "Abort %systemName sent to %systemCount systems"
-#~ msgstr "Aborte comandado para %systemName usando %systemCount sistema(s)"
-
-#~ msgid "Abort System"
-#~ msgstr "Abortar Sistema"
-
-#~ msgid "Abort execution"
-#~ msgstr "Execução de Aborte"
-
-#~ msgid "Autonomous Mode"
-#~ msgstr "Modo Autónomo"
-
-#~ msgid "Change plan vehicles"
-#~ msgstr "Alterar veículos do plano"
-
-#~ msgid "Current State"
-#~ msgstr "Estado Corrente"
-
-#~ msgid "Diagnostic Mode"
-#~ msgstr "Modo de Diagnóstico"
-
-#~ msgid "Dissemination"
-#~ msgstr "Disseminação"
-
-#~ msgid "Error loading misc systems!"
-#~ msgstr "Erro a carregar outros sistemas!"
-
-#~ msgid "Exporting to CSV"
-#~ msgstr "A exportar para CSV"
-
-#~ msgid "Fast Rendering"
-#~ msgstr "Rendering Rápido"
-
-#~ msgid "Idle Mode"
-#~ msgstr "Modo em Espera"
-
-#~ msgid "Loading Misc Systems"
-#~ msgstr "A carregar Outros Sistemas"
-
-#~ msgid "Local State"
-#~ msgstr "Estado Local"
-
-#~ msgid "Lock Vehicle"
-#~ msgstr "Bloquear Veículo"
-
-#~ msgid "Logs"
-#~ msgstr "Logs"
-
-#~ msgid "Main Plan"
-#~ msgstr "Plano Principal"
-
-#~ msgid "Mission Elements"
-#~ msgstr "Elementos de Missão"
-
-#~ msgid "Multibeam 3D"
-#~ msgstr "Multi-feixe 3D"
-
-#~ msgid "New transponder properties"
-#~ msgstr "Propriedades do novo transdutor"
-
-#~ msgid "Object ID:"
-#~ msgstr "ID de Objecto:"
-
-#~ msgid "Plan Settings"
-#~ msgstr "Configurações de Plano"
-
-#~ msgid "Remove '%planName'"
-#~ msgstr "Remover '%planName'"
-
-#~ msgid "Remove all selected plans (%numberOfPlans)?"
-#~ msgstr "Remover todos os planos selecionados (%numberOfPlans)?"
-
-#~ msgid "Remove selected plans"
-#~ msgstr "Remover Planos Seleccionados"
-
-#~ msgid "Remove the plan '%planName'?"
-#~ msgstr "Remover o plano '%planName'?"
-
-#~ msgid "Rotate"
-#~ msgstr "Rodar"
-
-#~ msgid "Ruler"
-#~ msgstr "Régua"
-
-#~ msgid "Service Listing"
-#~ msgstr "Listagem de Serviço"
-
-#~ msgid "Share '%transponderName'"
-#~ msgstr "Partilhar '%transponderName'"
-
-#~ msgid "Starting \"%file\"..."
-#~ msgstr "A iniciar \"%file\"..."
-
-#~ msgid "Time Variable Gain"
-#~ msgstr "Ganho  de Tempo Variavel"
-
-#~ msgid "Transponder properties"
-#~ msgstr "Propriedades do Transdutor"
-
-#~ msgid "Vtk"
-#~ msgstr "Vtk"
-
-#~ msgid "abort"
-#~ msgstr "abortar"
-
-#~ msgid "clear text"
-#~ msgstr "limpar texto"
-
-#~ msgid "edit"
-#~ msgstr "editar"
-
-#~ msgid "range"
-#~ msgstr "distância"
-
-#~ msgid "z"
-#~ msgstr "z"
-
-#~ msgid "z_units"
-#~ msgstr "unidades_z"
-
-#, fuzzy
-#~ msgctxt ""
-
-#~ msgid "depth"
-#~ msgstr "profundidade"
-
-#~ msgid "Abort request"
-#~ msgstr "Pedido de aborte"
-
-#~ msgid "%sysName has acknowledged abort command"
-#~ msgstr "%systemName retornou recebimento de uma operação de aborte"
-#~ msgctxt "Abort button. Make it 5 uppercase letters"
-
-#~ msgid "ABORT"
-#~ msgstr "Abortar"
-
-#~ msgid "rads"
-#~ msgstr "rads"
-
-#~ msgid "m"
-#~ msgstr "m"
-
-#, fuzzy
-#~ msgid " | end-actions->"
-#~ msgstr "acções de saída"
-
-#, fuzzy
-#~ msgid "no"
-#~ msgstr "Informação"
-
-#, fuzzy
-#~ msgid "start-actions->"
-#~ msgstr "iniciar-acções"
-
-#, fuzzy
-#~ msgid "yes"
-#~ msgstr "Sim"
-
-#~ msgid "Activated"
-#~ msgstr "Activado"
-
-#, fuzzy
-#~ msgid "Loading..."
-#~ msgstr "A carregar..."
-
-#~ msgid "Simulate plan"
-#~ msgstr "Plano simulalado"
-
-#~ msgid " m"
-#~ msgstr " m"
-
-#, fuzzy
-#~ msgid " (degrees)"
-#~ msgstr "graus"
-
-#~ msgid "Inverted "
-#~ msgstr "Invertido"
-
-#~ msgid "%maneuver properties"
-#~ msgstr "Propriedades de %maneuver"
-
-#~ msgid "%map - Map"
-#~ msgstr "%map - Mapa"
-
-#~ msgid "%numberoflogs found"
-#~ msgstr "%numberoflogs encontrados"
-
-#~ msgid "1 Toggle water display"
-#~ msgstr "1 Alterna visibilidade da água"
-
-#~ msgid "2 Toggle terrain color"
-#~ msgstr "2 Alterna visualização do terreno"
-
-#~ msgid "2 X speed multiplier"
-#~ msgstr "2x multiplicador da velocidade"
-
-#~ msgid "3 Toggle on/off the sky"
-#~ msgstr "3 Alterna visualização do céu"
-
-#~ msgid "4 X speed multiplier"
-#~ msgstr "4x multiplicador da velocidade"
-
-#~ msgid "Add %manName"
-#~ msgstr "Adicionar %manName"
-
-#~ msgid "Add %manName after %manId"
-#~ msgstr "Adicionar %manName depois de %manId"
-
-#~ msgid "Add %manName before %manId"
-#~ msgstr "Adicionar %manName antes de %manId"
-
-#~ msgid "Back"
-#~ msgstr "Trás"
-
-#~ msgid "Bathymetry 3D"
-#~ msgstr "Batimetria 3D"
-
-#~ msgid "Camera direction"
-#~ msgstr "Orientação da camera"
-
-#~ msgid "Choose a plan identifier"
-#~ msgstr "Escolha um identificador de plano"
-
-#~ msgid "Choose one to continue"
-#~ msgstr "Escolha um e continue"
-
-#, fuzzy
-#~ msgid "Configurate Actions"
-#~ msgstr "Configuração"
-
-#~ msgid "Connect IP Camera"
-#~ msgstr "Ligar Câmara IP"
-
-#, fuzzy
-#~ msgid "Content-Range not match the requested [%begByte != %startByte+]!"
-#~ msgstr ""
-#~ "Distancia-do-conteudo não combina com o requerido [%begByte != %startByte"
-#~ "+]!"
-
-#, fuzzy
-#~ msgid "Content-Range not well formated [%msgText]!"
-#~ msgstr "Distancia-do-conteudo não está bem formatado [%msgText]!"
-
-#, fuzzy
-#~ msgid "Content-Range not well formated [Content-Range: %val]!"
-#~ msgstr "Distancia-do-conteudo não está bem formatado [Content-Range: %val]!"
-
-#~ msgid "Create a new plan"
-#~ msgstr "criar um novo plano "
-
-#~ msgid "Default speed (m/s)"
-#~ msgstr "Velocidade por defeito (m/s)"
-
-#~ msgid "Default tolerance (meters)"
-#~ msgstr "Tolerância por defeito (metros)"
-
-#~ msgid "Edit %man in the map"
-#~ msgstr "Editar %man no mapa"
-
-#~ msgid "Edit '%plan' plan transitions"
-#~ msgstr "Editar transições do plano '%plan'"
-
-#~ msgid "Editing %planid"
-#~ msgstr "A editar %planid"
-
-#, fuzzy
-#~ msgid "End actions to be trigger at end of the maneuver."
-#~ msgstr "Terminar acções a serem iniciadas no fim da manobra."
-
-#~ msgid "End date"
-#~ msgstr "Data final"
-
-#~ msgid "Enter new maximum time (per maneuver, in seconds)"
-#~ msgstr "Estabelecer novo tempo máximo (por manobra, em segundos)"
-
-#~ msgid "Enter new speed"
-#~ msgstr "Estabelecer velocidade do plano"
-
-#~ msgid "Error connecting with the remote system!"
-#~ msgstr "Erro a ligar com o sistema remoto!"
-
-#, fuzzy
-#~ msgid "Error occured toggling water"
-#~ msgstr "Erro ocorrido a atravessar a água"
-
-#~ msgid "Error reading page. Error: %errormessage"
-#~ msgstr "Erro ao ler página. Erro: %errormessage"
-
-#~ msgid "Error while writting "
-#~ msgstr "Erro ao escrever"
-
-#, fuzzy
-#~ msgid "Forward"
-#~ msgstr "Para a frente"
-
-#~ msgid "Goal ID"
-#~ msgstr "ID do Objectivo"
-
-#~ msgid "Graphic card is not enough for this plugin."
-#~ msgstr "Cartão gráfico não é suficiente para esta ligação"
-
-#~ msgid ""
-#~ "Graphical card does not support GLSL100, usually introduced in openGL 2.0."
-#~ msgstr ""
-#~ "Cartão gráfico não suporta GLSL100,usualmente introduzido em openGL 2.0."
-
-#~ msgid "Hostname"
-#~ msgstr "Anfitrião"
-
-#~ msgid "How to create mission plans the easy way"
-#~ msgstr "Como criar planos de forma fácil"
-
-#, fuzzy
-#~ msgid "INPUT ERROR! Trying to visualize a path with %pointNumber positions!"
-#~ msgstr ""
-#~ "ERRO INTRODUZIDO! A tentar visualizar um percurso com posições "
-#~ "%pointNumber!"
-
-#, fuzzy
-#~ msgid "Icon (relative path)"
-#~ msgstr "Icone (percurso relativo)"
-
-#~ msgid "Latitude (degrees)"
-#~ msgstr "Latitude (graus)"
-
-#~ msgid "Loading Console..."
-#~ msgstr "A Carregar Consola..."
-
-#~ msgid "Longitude (degrees)"
-#~ msgstr "Longitude (graus)"
-
-#, fuzzy
-#~ msgid "Maximum terrain height"
-#~ msgstr "Altura do terreno máxima"
-
-#~ msgid "Maximum time must be numeric"
-#~ msgstr "Tempo máximo deve ser um número"
-
-#~ msgid "Maximum time..."
-#~ msgstr "Tempo máximo..."
-
-#~ msgid "Measure/Ruler"
-#~ msgstr "Medir/régua"
-
-#~ msgid "Message from system: %message"
-#~ msgstr "Mensagem de sistema: %message"
-
-#, fuzzy
-#~ msgid "Minimum terrain height"
-#~ msgstr "Altura do terreno mínima"
-
-#~ msgid "Mission Map Editor"
-#~ msgstr "Editor de Mapas de Missão"
-
-#~ msgid "Mission Planner"
-#~ msgstr "Planeador de Missões"
-
-#~ msgid "Neptus Plan Editor"
-#~ msgstr "Editor de Planos Neptus"
-
-#~ msgid "No support. "
-#~ msgstr "Sem suporte"
-
-#, fuzzy
-#~ msgid "No valid entity of bottom distance."
-#~ msgstr "Sem entidade válida na distancia para o fundo"
-
-#~ msgid "Opening MP..."
-#~ msgstr "A abrir MP..."
-
-#~ msgid "Operation Limits Plugin"
-#~ msgstr "Plug-in de Limites de Operação"
-
-#~ msgid "Overwrite existing plan?"
-#~ msgstr "Escrever por cima do plano existente?"
-
-#~ msgid "Pause"
-#~ msgstr "Pausa"
-
-#~ msgid "Plan editor"
-#~ msgstr "editor de planos"
-
-#~ msgid "Plan editor help"
-#~ msgstr "Ajuda do editor de planos"
-
-#~ msgid "Press space for more information"
-#~ msgstr "Pressionar espaço para mais informação"
-
-#~ msgid "Radius tolerance"
-#~ msgstr "Tolerância de raio"
-
-#~ msgid "Radius tolerance must be a numeric value"
-#~ msgstr "Tolerância do raio deve de ser um valor númerico"
-
-#~ msgid "Recently opened map files."
-#~ msgstr "Ficheiros Recentes de Mapas"
-
-#~ msgid "Remote Plans"
-#~ msgstr "Planos Remotos"
-
-#, fuzzy
-#~ msgid "Remote system return %httpdcode code!"
-#~ msgstr "Retorno de sistema remoto %httpdcode code!"
-
-#, fuzzy
-#~ msgid "Remote system return unexpected log list format!"
-#~ msgstr "Sistema remoto devolve formato de lista de log inesperada!"
-
-#~ msgid "Remove %maneuver"
-#~ msgstr "Remover %maneuver"
-
-#, fuzzy
-#~ msgid "Rendering Quality"
-#~ msgstr "Qualidade de Rendering"
-
-#~ msgid "Save plan changes to disk?"
-#~ msgstr "Guardar alterações de plano em disco?"
-
-#, fuzzy
-#~ msgid "Script (JS)"
-#~ msgstr "Escrita (JS)"
-
-#~ msgid "Server URL"
-#~ msgstr "Servidor URL"
-
-#~ msgid "Set maximum time"
-#~ msgstr "Definir tempo máximo"
-
-#~ msgid "Set navigation startup position"
-#~ msgstr "Definir posição de partida de navegação"
-
-#~ msgid "Set optional navigation startup position"
-#~ msgstr "Definir posição de partida opcional"
-
-#~ msgid "Set plan radius tolerance"
-#~ msgstr "Definir plano de tolerância de raio"
-
-#~ msgid "Share startup position"
-#~ msgstr "Partilhar posição de partida"
-
-#, fuzzy
-#~ msgid "Slideshow"
-#~ msgstr "MostraDeSlides"
-
-#, fuzzy
-#~ msgid "Start actions to be trigger at start of the maneuver."
-#~ msgstr "Iniciar acções a serem activadas ao início da manobra."
-
-#~ msgid "The maneuver %manType can't be added"
-#~ msgstr "A manobra %manType não pode ser adicionada"
-
-#, fuzzy
-#~ msgid "There is no map in the active mission"
-#~ msgstr "Não está nenhum mapa na missão activa"
-
-#, fuzzy
-#~ msgid "There is not enough data to generate a graph."
-#~ msgstr "Não há informação suficiente para gerar um gráfico"
-
-#~ msgid "Tolerance"
-#~ msgstr "Tolerância"
-
-#~ msgid "Translation/Move"
-#~ msgstr "Arrastar/mover"
-
-#~ msgid "Unnamed map"
-#~ msgstr "Mapa sem nome"
-
-#~ msgid "Use Acoustic To Send Msg If System Not In WiFi Range"
-#~ msgstr ""
-#~ "Usar acústica para enviar mensagem se o sistema não está em alcance de "
-#~ "WiFi"
-
-#~ msgid "Use Navigation Start Point"
-#~ msgstr "Usar Ponto De Partida De Navegação"
-
-#, fuzzy
-#~ msgid "Use console's GPS location for range source"
-#~ msgstr "Usar localização de  GPS da consola para fonte de alcance"
-
-#~ msgid "View Mode"
-#~ msgstr "Modo de Visualização"
-
-#~ msgid "Water heigth unavailable"
-#~ msgstr "Altura da Água não disponivel"
-
-#~ msgid "Water level"
-#~ msgstr "Nível de água"
-
-#, fuzzy
-#~ msgid ""
-#~ "You are sending not all LBL beacons (%beaconsToSend).\n"
-#~ "Do you still want to send (yes) or send all (no)?"
-#~ msgstr ""
-#~ "Não está a enviar todos os LBL beacons (%beaconsToSend).\n"
-#~ "Ainda quer enviar (sim) ou enviar todos (não)?"
-
-#, fuzzy
-#~ msgid ""
-#~ "[%httpdCode] %httpdReasonPhrase  code was return from the server. File "
-#~ "already completed!!"
-#~ msgstr ""
-#~ "Código [%httpdCode] %httpdReasonPhrase foi devolvido pelo servidor. "
-#~ "Ficheiro já estava completo!!"
-
-#, fuzzy
-#~ msgid "[%httpdCode] %httpdReasonPhrase code was return from the server"
-#~ msgstr "Código [%httpdCode] %httpdReasonPhrase foi devolvido pelo servido"
-
-#, fuzzy
-#~ msgid ""
-#~ "[%httpdCode] %httpdReasonPhrase code was return from the server. File "
-#~ "already completed!!"
-#~ msgstr ""
-#~ "Código [%httpdCode] %httpdReasonPhrase foi devolvido pelo servidor. "
-#~ "Ficheiro já estava completo!!"
-
-#~ msgid "camLocation"
-#~ msgstr "Localização de Câmara"
-
-#~ msgid "finished"
-#~ msgstr "concluído"
-
-#~ msgid "geoidLvl"
-#~ msgstr "geoidLvl"
-
-#, fuzzy
-#~ msgid "independent vehicle path points="
-#~ msgstr "pontos do caminho de veículo independente="
-
-#~ msgid "initialMemory"
-#~ msgstr "Memória Inícial"
-
-#~ msgid "maxDepth="
-#~ msgstr "Max. Profundidade="
-
-#~ msgid "minDepth="
-#~ msgstr "Min. Profundidade="
-
-#~ msgid "referenceLocation="
-#~ msgstr "Localização Referência="
-
-#, fuzzy
-#~ msgid "showStoppedShips"
-#~ msgstr "mostrarNaviosParados"
-
-#~ msgid "unnamed map"
-#~ msgstr "mapa sem nome"
-
-#~ msgid "<Calibration guide goes here>"
-#~ msgstr "<Guia de Calibração entra aqui>"
-
-#~ msgid "Adding marks"
-#~ msgstr "Adicionar marcas"
-
-#~ msgid "As PDF"
-#~ msgstr "Como PDF"
-
-#~ msgid "Bad configuration for transponder %transponderid!"
-#~ msgstr "Más configurações para o transdutor %transponderid!"
-
-#~ msgid "Choose the anchors' positions file"
-#~ msgstr "Escolha ficheiro de posição de âncoras"
-
-#~ msgid "Colormap Visualization"
-#~ msgstr "Vizualização de Mapa de Cores"
-
-#~ msgid "Conductivity"
-#~ msgstr "Conductividade"
-
-#~ msgid "Distance measure"
-#~ msgstr "Medição de Distâncias"
-
-#~ msgid "Generate PDF"
-#~ msgstr "Gerar PDF"
-
-#~ msgid "Last event"
-#~ msgstr "Último evento"
-
-#~ msgid "Maximum Time"
-#~ msgstr "Tempo máximo"
-
-#~ msgid "Save as Image"
-#~ msgstr "Guardar como imagem"
-
-#~ msgid "Set the Vehicle's port."
-#~ msgstr "Definir  porto de ligação ao veículo."
-
-#~ msgid "The length of the volume to cover, in meters"
-#~ msgstr "Comprimento do volume a cobrir, em metros"
-
-#~ msgid "Width of the volume to cover, in meters"
-#~ msgstr "Largura do volume a cobrir, em metros"
-
-#~ msgid "done."
-#~ msgstr "concluído."
-
-#~ msgid "finish LLFReplay load"
-#~ msgstr "Carregamento da Reprodução LLF terminada"
-
-#~ msgid "WaveGlider Sensor Data"
-#~ msgstr "Dados Sensoriais de WaveGlider"
-
-#~ msgid "Errors: "
-#~ msgstr "Erros:"
-
-#~ msgid "Ground Speed: "
-#~ msgstr "Velocidade Sobre o Chão:"
-
-#~ msgid "IP: "
-#~ msgstr "IP: "
-
-#~ msgid "Lat: "
-#~ msgstr "Lat:"
-
-#~ msgid "Lon: "
-#~ msgstr "Lon:"
-
-#~ msgid "Plan: "
-#~ msgstr "Plano:"
-
-#~ msgid "RPM: "
-#~ msgstr "RPM:"
-
-#~ msgid "SVG files"
-#~ msgstr "Ficheiros SVG"
-
-#~ msgid "Save as..."
-#~ msgstr "Guardar como..."
-
-#~ msgid "Save snapshot"
-#~ msgstr "Guardar instantâneo"
-
-#~ msgid "View communications graph"
-#~ msgstr "Ver grafo de comunicações"
-
-#~ msgid "AbortPanel"
-#~ msgstr "Painel de Aborte"
-
-#~ msgid "Container: Axis Layout"
-#~ msgstr "Contentor: Disposição por Eixos"
-
-#~ msgid "Container: Grid"
-#~ msgstr "Contentor: Grelha"
-
-#~ msgid "Container: Group"
-#~ msgstr "Contentor: Grupo"
-
-#~ msgid "Container: MiG"
-#~ msgstr "Contentor: MiG"
-
-#~ msgid "Container: Split Pane"
-#~ msgstr "Contentor: Painel Dividido"
-
-#~ msgid "Container: Tabbed Pane"
-#~ msgstr "Contentor: Painel Separadores"
-
-#~ msgid "Open Mission Review & Analysis"
-#~ msgstr "Abrir a Revisão e Análise de Missão"
-
-#~ msgid "To Advanced"
-#~ msgstr "Para Avançadas"
-
-#~ msgid "Advance"
-#~ msgstr "Avançadas"
-
-#~ msgid "Start Remote Op."
-#~ msgstr "Iniciar Teleoperação"
-
-#~ msgid "Stop Remote Op."
-#~ msgstr "Parar Teleoperação"
-
-#~ msgid "Teleoperation mode"
-#~ msgstr "Modo  de Tele-Operação"
-
-#~ msgid "The chosen directory is not a valid source"
-#~ msgstr "A pasta escolhida não é uma fonte vádida"
-
-#~ msgid "%plugin Settings"
-#~ msgstr "Configurações de %plugin"
-
-#~ msgid "Next"
-#~ msgstr "Próxima"
-
-#~ msgid "Prev"
-#~ msgstr "Anterior"
-
-#~ msgid "Common Tree Rec."
-#~ msgstr "Árvore comum de mensagens recebidas"
-
-#~ msgid "System Tree Rec."
-#~ msgstr "Árvore de mensagens recebidas do sistema"
-
-#, fuzzy
-#~ msgid "Advanced>IMC Inspector"
-#~ msgstr "Inspector IMC"
-
-#~ msgid "%entity (%state) -> %description"
-#~ msgstr "%entity (%state) -> %description"
-
-#~ msgid "%mission - Mission"
-#~ msgstr "%mission - Missão"
-
-#~ msgid "Accepted %beacon"
-#~ msgstr "%beacon aceite"
-
-#~ msgid "Accepted from %beacon"
-#~ msgstr "Aceite de %beacon"
-
-#~ msgid "Active plan: "
-#~ msgstr "Plano activo:"
-
-#~ msgid "Auto Scroll"
-#~ msgstr "Avanço automático"
-
-#~ msgid "Bathimetry"
-#~ msgstr "Batimetria"
-
-#~ msgid "Change Log Dir"
-#~ msgstr "Alterar Pasta de Log"
-
-#~ msgid "Change Log Directory"
-#~ msgstr "Alterar Pasta de Log"
-
-#~ msgid "Chronometer %numc"
-#~ msgstr "Cronómetro %numc"
-
-#~ msgid "Clock sync. problem"
-#~ msgstr "Problema de sincronismo de relógio"
-
-#~ msgid "Converto to SDS format"
-#~ msgstr "Converter para o formato SDS"
-
-#~ msgid "Course Error"
-#~ msgstr "Erro de Curso"
-
-#~ msgid "Create"
-#~ msgstr "Gerar"
-
-#~ msgid "Creating Conductivity colormap"
-#~ msgstr "A criar mapa de cores de condutividade"
-
-#~ msgid "Distance to desired path"
-#~ msgstr "Distância ao caminho pretendido"
-
-#~ msgid "Dummiest chart"
-#~ msgstr "Gráfico mais Idiota Bacano!!"
-
-#~ msgid "Edit map"
-#~ msgstr "Editar Mapa"
-
-#~ msgid "Enter multiplication factor"
-#~ msgstr "Inserir factor multiplicativo"
-
-#~ msgid "Entities State Table Panel"
-#~ msgstr "Painel da Tabela de Estado das Entidades"
-
-#~ msgid "Entity %entityType changed to state %state -> '%description'"
-#~ msgstr ""
-#~ "Entidade%entityType alterou o seu estado para %state -> '%description'"
-
-#~ msgid "Error adding mark"
-#~ msgstr "Error a adicionar marca"
-
-#~ msgid "Error initialising IMC"
-#~ msgstr "Erro ao inicializar IMC"
-
-#~ msgid "Error sending HomeRef"
-#~ msgstr "Erro a enviar Localização Base"
-
-#~ msgid "Estimated State"
-#~ msgstr "Posição estimada"
-
-#~ msgid "Event: %max"
-#~ msgstr "Evento: %max"
-
-#~ msgid "External Renderer"
-#~ msgstr "Renderer Externo"
-
-#~ msgid "HTML Report"
-#~ msgstr "Relatório HTML"
-
-#~ msgid "IMC error:"
-#~ msgstr "Erro de IMC:"
-
-#~ msgid "LBL Statistics"
-#~ msgstr "Estatísticas de LBL"
-
-#~ msgid "LBLRangeDisplay"
-#~ msgstr "Mostrador de Distâncias LBL"
-
-#~ msgid "Layout Editing"
-#~ msgstr "Preferências de Disposição"
-
-#~ msgid "Log source is not valid"
-#~ msgstr "Origem de Log não é valida"
-
-#~ msgid "Messages will be logged in %dir"
-#~ msgstr "As mensagens vão ser logadas em %dir"
-
-#~ msgid "Missing class"
-#~ msgstr "Classe não encontrada"
-
-#~ msgid "Neptus 3D Renderer"
-#~ msgstr "Visualizador 3D Neptus"
-
-#~ msgid "Neptus Map Editor"
-#~ msgstr "Editor de Mapas"
-
-#~ msgid "Node"
-#~ msgstr "Nó"
-
-#~ msgid "Plan DB @ %time :: %operation :: %typeName :: %planid"
-#~ msgstr "BD de Planos @ %time :: %operation :: %typeName :: %planid"
-
-#~ msgid "Plan depth..."
-#~ msgstr "Profundidade  de plano..."
-
-#~ msgid "Rejected %beacon"
-#~ msgstr "%beacon rejeitado"
-
-#~ msgid "Rejected from %beacon"
-#~ msgstr "Rejeitado de %beacon"
-
-#~ msgid "Render Type"
-#~ msgstr "Tipo do Renderer"
-
-#~ msgid "Resetting Console"
-#~ msgstr "Reiniciar Consola"
-
-#~ msgid "Select Plan"
-#~ msgstr "Seleccionar Plano"
-
-#~ msgid "Selected System(s): "
-#~ msgstr "Syistema(s) Seleccionados: "
-
-#~ msgid "Sending Abort to all vehicles"
-#~ msgstr "A enviar Abort para todos os veículos"
-
-#~ msgid ""
-#~ "Sent abort:\n"
-#~ " "
-#~ msgstr ""
-#~ "Aborte enviado:\n"
-#~ " "
-
-#~ msgid "Set Fixed Size"
-#~ msgstr "Fixar Tamanho"
-
-#~ msgid "Sidescan visualization settings"
-#~ msgstr "Parâmetros de visualização de sidescan"
-
-#~ msgid "The main vehicle '%vehicle' was not found!!"
-#~ msgstr "O veículo principal  '%vehicle' não foi encontrado!!"
-
-#~ msgid "The mission doesn't contain any maps!"
-#~ msgstr "A missão não contém nenhum mapa!"
-
-#~ msgid "Tip of the day"
-#~ msgstr "Dica do dia"
-
-#~ msgid "Total accepted ranges"
-#~ msgstr "Total de distâncias aceites"
-
-#~ msgid "Total rejected ranges"
-#~ msgstr "Total de distâncias rejeitadas"
-
-#~ msgid "Total rejection ratio"
-#~ msgstr "Rácio total de rejeições"
-
-#~ msgid "height (shadow)"
-#~ msgstr "altura (sombra)"
-
-#~ msgid "none"
-#~ msgstr "parar"
-
-#~ msgid "password"
-#~ msgstr "palavra chave"
-
-#~ msgid "Associate controls"
-#~ msgstr "Associar Controlos"
-
-#~ msgid "Console ID"
-#~ msgstr "ID da Consola"
-
-#~ msgid "Keyboard Config"
-#~ msgstr "Configuração Teclado"
-
-#~ msgid "Quit"
-#~ msgstr "Sair"
-
-#~ msgid "%id Variable Tree Usage Statistics"
-#~ msgstr "Estatísticas de utilização da Árvore de Variáveis %id"
-
-#~ msgid ""
-#~ "A scripted condition like '$(InternalVoltage.0.value) < 17 or 'if "
-#~ "($(EstimatedState.x)) > 10 {return 3;}'"
-#~ msgstr ""
-#~ "Uma condição javascript como '$(InternalVoltage.0.value) < 17 ou 'if "
-#~ "($(EstimatedState.x)) > 10 {return 3;}'"
-
-#~ msgid "Generic Palette"
-#~ msgstr "Palete Genérica"
-
-#~ msgid "Logging Control (mini) Panel"
-#~ msgstr "(Mini) Painel de Controlo de Logging"
-
-#~ msgid "Right Distance"
-#~ msgstr "Distância à Direita"
-
-#~ msgid "Variable Tree"
-#~ msgstr "Árvore de Variáveis"
-
-#~ msgid "Variable Tree : Display"
-#~ msgstr "Árvore de Variáveis: Mostrador"
-
-#~ msgid "Variable Tree : Down Distance"
-#~ msgstr "Árvore de Variáveis: Distância a Baixo"
-
-#~ msgid "Variable Tree : Left Distance"
-#~ msgstr "Árvore de Variáveis: Distância à Esquerda"
-
-#~ msgid "Variable Tree : Right Distance"
-#~ msgstr "Árvore de Variáveis: Distância à Direira"
-
-#~ msgid "Variable Tree : Up Distance"
-#~ msgstr "Árvore de Variáveis: Distância a Cima"
-
-#~ msgid "Variable Tree Usage Statistics"
-#~ msgstr "Estatísticas de Uso da Árvore de Variáveis"
-
-#~ msgid "Variable tree Panel"
-#~ msgstr "Painel de Árvore de Variáveis"
-
-#~ msgid "Variables Tree"
-#~ msgstr "Árvore de Variáveis"
-
-#~ msgid "Vartree usage %"
-#~ msgstr "% de uso da Árvore de Variáveis"
-
-#~ msgid "Console Object"
-#~ msgstr "Objecto de Consola"
-
-#~ msgid "Decimal degrees"
-#~ msgstr "Graus decimais"
-
-#~ msgid "Emission Ch."
-#~ msgstr "Canal Emitor"
-
-#~ msgid "Loading Configuration..."
-#~ msgstr "A carregar Configurações..."
-
-#~ msgid "Plan ID"
-#~ msgstr "ID de Plano"
-
-#~ msgid "Plan radius tolerance"
-#~ msgstr "Tolerância de raio do plano"
-
-#~ msgid "Radius Tolerance"
-#~ msgstr "Tolerância de Raio"
-
-#~ msgid "Range (m)"
-#~ msgstr "Distância a (m)"
-
-#~ msgid "STANAG Console"
-#~ msgstr "Consola STANAG"
-
-#~ msgid "STANAG ID"
-#~ msgstr "ID STANAG"
-
-#~ msgid "Show Soundings"
-#~ msgstr "Mostrar Medidas de Profundidades"
-
-#~ msgid "Vehicle ID"
-#~ msgstr "ID de Veículo"
-
-#~ msgid "Buoy's Console"
-#~ msgstr "Consola de Boias"
-
-#~ msgid "Log error"
-#~ msgstr "Erro de log"
-
-#~ msgid "Open LLF log folder"
-#~ msgstr "Abrir pasta de Log LLF"
-
-#~ msgid "Openning LSF"
-#~ msgstr "A abrir LSF"
-
-#~ msgid "Tactical Channel"
-#~ msgstr "Canal Táctico"
-
-#~ msgid "Transforming LSF Data..."
-#~ msgstr "A transformar dados LSF..."
-
-#~ msgid "Alarm"
-#~ msgstr "Alarme"
-
-#~ msgid "Alarms"
-#~ msgstr "Alarmes"
-
-#~ msgid "Altitude Panel"
-#~ msgstr "Painel de Altitude"
-
-#~ msgid "Attitude Panel"
-#~ msgstr "Painel de Atitude"
-
-#, fuzzy
-#~ msgid "Chart line Tree "
-#~ msgstr "Árvore de Variáveis"
-
-#~ msgid "Horizontal"
-#~ msgstr "Horizontal"
-
-#~ msgid "Maximum Value"
-#~ msgstr "Valor Máximo"
-
-#~ msgid "Min Value"
-#~ msgstr "Valor Min."
-
-#, fuzzy
-#~ msgid "RPMs Maximum Value"
-#~ msgstr "Tempo máximo"
-
-#, fuzzy
-#~ msgid "Scale Bar"
-#~ msgstr "Guardar Ficheiro"
-
-#, fuzzy
-#~ msgid "Show Label X"
-#~ msgstr "Mostrar todos"
-
-#, fuzzy
-#~ msgid "Show Label Y"
-#~ msgstr "Mostrar todos"
-
-#, fuzzy
-#~ msgid "Show Label Z"
-#~ msgstr "Mostrar todos"
-
-#, fuzzy
-#~ msgid "Temperature Maximum Value"
-#~ msgstr "Temperatura"
-
-#, fuzzy
-#~ msgid "Temperature Minimum Value"
-#~ msgstr "Temperatura"
-
-#, fuzzy
-#~ msgid "Temperature Scale Factor"
-#~ msgstr "Temperatura"
-
-#~ msgid "Variable Tree : Altitude"
-#~ msgstr "Árvore de Variáveis: Altitude"
-
-#, fuzzy
-#~ msgid "Variable Tree : Motor 1"
-#~ msgstr "Árvore de Variáveis"
-
-#, fuzzy
-#~ msgid "Variable Tree : Motor 2"
-#~ msgstr "Árvore de Variáveis"
-
-#, fuzzy
-#~ msgid "Variable Tree : Motor 3"
-#~ msgstr "Árvore de Variáveis"
-
-#, fuzzy
-#~ msgid "Variable Tree : Motor 4"
-#~ msgstr "Árvore de Variáveis"
-
-#, fuzzy
-#~ msgid "Variable Tree : Motor 5"
-#~ msgstr "Árvore de Variáveis"
-
-#, fuzzy
-#~ msgid "Variable Tree : Motor 6"
-#~ msgstr "Árvore de Variáveis"
-
-#, fuzzy
-#~ msgid "Variable Tree : Pitch"
-#~ msgstr "Árvore de Variáveis"
-
-#~ msgid "Variable Tree : RPM"
-#~ msgstr "Árvore de Variáveis: RPM"
-
-#, fuzzy
-#~ msgid "Variable Tree : Roll"
-#~ msgstr "Árvore de Variáveis"
-
-#, fuzzy
-#~ msgid "Variable Tree : Temperature"
-#~ msgstr "Árvore de Variáveis"
-
-#~ msgid "Variable Tree : Value"
-#~ msgstr "Árvore de Variáveis: Valor"
-
-#~ msgid "Variable Tree : X"
-#~ msgstr "Árvore de Variáveis: X"
-
-#~ msgid "Variable Tree : Y"
-#~ msgstr "Árvore de Variáveis: Y"
-
-#, fuzzy
-#~ msgid "Variable Tree : Yaw"
-#~ msgstr "Árvore de Variáveis"
-
-#~ msgid "Variable Tree : Z"
-#~ msgstr "Árvore de Variáveis: Z"
-#~ msgctxt "CANCEL"
-
-#~ msgid "Cancel"
-#~ msgstr "Cancelar"
-#~ msgctxt "CHRONOMETER"
-
-#~ msgid "Chronometer"
-#~ msgstr "Cronómetro"
-#~ msgctxt "COMMUNICATIONS"
-
-#~ msgid "Communications"
-#~ msgstr "Comunicações"
-#~ msgctxt "CONDUCTIVITY"
-
-#~ msgid "Conductivity"
-#~ msgstr "Conductividade"
-#~ msgctxt "DEPTH"
-
-#~ msgid "Depth"
-#~ msgstr "Profundidade"
-#~ msgctxt "ENABLE"
-
-#~ msgid "Enable"
-#~ msgstr "Habilitar"
-#~ msgctxt "EXIT"
-
-#~ msgid "Exit"
-#~ msgstr "Sair"
-#~ msgctxt "FASTER"
-
-#~ msgid "Faster"
-#~ msgstr "Mais rápido"
-#~ msgctxt "FILE"
-
-#~ msgid "File"
-#~ msgstr "Ficheiro"
-#~ msgctxt "HELP"
-
-#~ msgid "Help"
-#~ msgstr "Ajuda"
-#~ msgctxt "IMC_MONITOR"
-
-#~ msgid "IMC Monitor"
-#~ msgstr "Monitor IMC"
-#~ msgctxt "KEYBOARD_CONFIG"
-
-#~ msgid "Keyboard Config"
-#~ msgstr "Configuração Teclado"
-#~ msgctxt "METERS"
-
-#~ msgid "Meters"
-#~ msgstr "Metros"
-#~ msgctxt "NEPTUS_CONSOLE"
-
-#~ msgid "Neptus Console"
-#~ msgstr "Consola Neptus"
-#~ msgctxt "NEPTUS_MISSION_REPORT"
-
-#~ msgid "Neptus Mission Report"
-#~ msgstr "Relatório de missão Neptus"
-#~ msgctxt "OK"
-
-#~ msgid "OK"
-#~ msgstr "Aceitar"
-#~ msgctxt "OPEN"
-
-#~ msgid "Open"
-#~ msgstr "Abrir"
-#~ msgctxt "PLAY"
-
-#~ msgid "Play"
-#~ msgstr "Iniciar"
-#~ msgctxt "PLOT_DATA"
-
-#~ msgid "Plot data"
-#~ msgstr "Gerar gráfico"
-#~ msgctxt "QUIT"
-
-#~ msgid "Quit"
-#~ msgstr "Sair"
-#~ msgctxt "RECENTLY_OPENED"
-
-#~ msgid "Recently opened"
-#~ msgstr "Ficheiros Recentes"
-#~ msgctxt "RECENTRY_OPENED"
-
-#~ msgid "Recently opened"
-#~ msgstr "Ficheiros Recentes"
-#~ msgctxt "RESTART"
-
-#~ msgid "Restart"
-#~ msgstr "Reiniciar"
-#~ msgctxt "SAVE"
-
-#~ msgid "Save"
-#~ msgstr "Guardar"
-#~ msgctxt "SET_FIXED_SIZE"
-
-#~ msgid "Set Fixed Size"
-#~ msgstr "Fixar Tamanho"
-#~ msgctxt "SETTINGS"
-
-#~ msgid "Settings"
-#~ msgstr "Preferências"
-#~ msgctxt "SLOWER"
-
-#~ msgid "Slower"
-#~ msgstr "Mais lento"
-#~ msgctxt "TEMPERATURE"
-
-#~ msgid "Temperature"
-#~ msgstr "Temperatura"
-#~ msgctxt "TIME_OF_DAY"
-
-#~ msgid "Time Of Day"
-#~ msgstr "Hora do dia"
-#~ msgctxt "TOOLS"
-
-#~ msgid "Tools"
-#~ msgstr "Ferramentas"
-#~ msgctxt "REJECTION_TIP"
-
-#~ msgid "Total rejection ratio"
-#~ msgstr "Rácio total de rejeições"
-#~ msgctxt "DONE"
-
-#~ msgid "done!"
-#~ msgstr "feito!"
-#~ msgctxt "MORE"
-
-#~ msgid "more"
-#~ msgstr "mais"
-#~ msgctxt "UNNAMED_MAP"
-
-#~ msgid "unnamed map"
-#~ msgstr "mapa sem nome"
-#~ msgctxt "MAN_PROPS"
-
-#~ msgid "%maneuver properties"
-#~ msgstr "Propriedades de %maneuver"
-
-#~ msgid "open"
-#~ msgstr "abrir"
