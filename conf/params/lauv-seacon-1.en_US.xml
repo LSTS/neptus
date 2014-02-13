@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.1 (release/dune-2.4.x,a651636)" system="lauv-seacon-1" i18n="en_US">
+<config format="1" version="2.4.1 (release/dune-2.4.x,817e45a)" system="lauv-seacon-1" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -3089,7 +3089,7 @@
       <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>+351966575686</default>
+      <default>+351918620815</default>
       <units/>
       <desc>Phone number of the SMS recipient</desc>
     </param>

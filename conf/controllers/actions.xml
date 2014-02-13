@@ -19,14 +19,24 @@
       <entry component="" action="Thrust" inverted="false"/> 
     </controller> 
   </system>  
-  <system name="lauv-noptilus-1">
-    <controller name="Logitech Logitech Dual Action">
-      <entry component="Top" action="Exit" inverted="false"/>
-      <entry component="" action="Accelerate" inverted="false"/>
-      <entry component="" action="Decelerate" inverted="false"/>
-      <entry component="" action="Stop" inverted="false"/>
-      <entry component="z" action="Heading" inverted="false"/>
-      <entry component="" action="Thrust" inverted="false"/>
+  <system name="lauv-noptilus-1"> 
+    <controller name="Logitech Logitech Dual Action"> 
+      <entry component="Top" action="Exit" inverted="false"/>  
+      <entry component="" action="Accelerate" inverted="false"/>  
+      <entry component="" action="Decelerate" inverted="false"/>  
+      <entry component="" action="Stop" inverted="false"/>  
+      <entry component="z" action="Heading" inverted="false"/>  
+      <entry component="" action="Thrust" inverted="false"/> 
+    </controller> 
+  </system>  
+  <system name="lauv-seacon-1">
+    <controller name="Generic X-Box pad">
+      <entry component="Y" action="Exit" inverted="false"/>
+      <entry component="Right Thumb" action="Accelerate" inverted="false"/>
+      <entry component="rz" action="Decelerate" inverted="false"/>
+      <entry component="rz" action="Stop" inverted="true"/>
+      <entry component="rx" action="Heading" inverted="false"/>
+      <entry component="y" action="Thrust" inverted="true"/>
     </controller>
   </system>
 </systems>
