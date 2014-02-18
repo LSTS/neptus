@@ -76,13 +76,17 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     public ColorMap colormap = ColorMapFactory.createJetColorMap();
 
     private BufferedImage image = null;
-    private int imageWidth;
-    private int imageHeight;
+    protected int imageWidth;
+    protected int imageHeight;
 
     private int maxRange;
 
+    private EchoSounderMRARuler ruler;
+
     public EchoSounderMRA(MRAPanel panel) {
         mraPanel = panel;
+        ruler = new EchoSounderMRARuler(this);
+        add(ruler);
 
         this.addComponentListener(new ComponentAdapter() {
             /* (non-Javadoc)
@@ -164,10 +168,13 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
             }
         }
     }
+
     @Override
     public void paint(Graphics g) {
         NeptusLog.pub().info("<###> "+this.getWidth() + " " + this.getHeight());
-        g.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), 0, 0, imageWidth, imageHeight,null);
+
+        g.drawImage(image, 0 + EchoSounderMRARuler.RULER_WIDTH + 1, 0 , this.getWidth(), this.getHeight(), 0, 0, imageWidth, imageHeight,null);
+        ruler.paintComponent(g);
     }
 
     @Override
