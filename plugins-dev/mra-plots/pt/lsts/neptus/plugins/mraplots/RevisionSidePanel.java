@@ -83,7 +83,7 @@ public class RevisionSidePanel extends JPanel {
     private Vector<Renderer2DPainter> painters = new Vector<>();    
     private IMraLogGroup logSource = null;
     private File logFile = null;
-    
+    private LogMarkersReplay markersLayer;
 
     public void clearOverlays() {
         for (Renderer2DPainter painter : painters)
@@ -152,13 +152,14 @@ public class RevisionSidePanel extends JPanel {
         }
 
         private void loadOverlays(LsfLogSource source) {
+            
+            markersLayer = new LogMarkersReplay();
             LogReplayLayer[] layers = new LogReplayLayer[] {
                     new EstimatedStateReplay(),
                     new GPSFixReplay(),
                     new LBLRangesReplay(),
-                    new LogMarkersReplay(),
+                    markersLayer,
                     new BathymetryReplay()
-//                    new SidescanOverlay()
             };
            
             for (LogReplayLayer layer : layers) {                         

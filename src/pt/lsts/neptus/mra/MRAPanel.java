@@ -403,6 +403,8 @@ public class MRAPanel extends JPanel {
                 ((LogMarkerListener) vis).addLogMarker(marker);
             }
         }
+        
+        saveMarkers();
     }
 
     public void removeMarker(LogMarker marker) {
