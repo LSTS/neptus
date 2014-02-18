@@ -48,7 +48,13 @@ public class EchoSounderMRARuler extends JLabel {
     private static final long serialVersionUID = 1L;
 
     private EchoSounderMRA echoSounderMRA;
-    public final static int RULER_WIDTH = 12;
+
+    public final static int RULER_WIDTH = 20;
+
+    protected int maxValue;
+    protected int minValue;
+
+    private int rulerHeight;
 
     /**
      * @param echoSounderMRA 
@@ -56,19 +62,47 @@ public class EchoSounderMRARuler extends JLabel {
     public EchoSounderMRARuler(EchoSounderMRA echoSounderMRA) {
         super();
         this.echoSounderMRA = echoSounderMRA;
+        this.maxValue = echoSounderMRA.maxRange;
+        this.minValue = echoSounderMRA.minRange;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
 
-        Rectangle drawRulerHere = new Rectangle(0, 0, RULER_WIDTH, echoSounderMRA.getHeight());
+        rulerHeight = echoSounderMRA.getHeight() - 1;
 
+        Rectangle drawRulerHere = new Rectangle(0, 0, RULER_WIDTH, rulerHeight);
         g2d.setColor(Color.LIGHT_GRAY);
         g2d.fill(drawRulerHere);
 
         // Do the ruler labels in a small font that's black.
-        g.setFont(new Font("SansSerif", Font.PLAIN, 10));
-        g.setColor(Color.BLACK);
+        g2d.setFont(new Font("SansSerif", Font.PLAIN, 8));
+        g2d.setColor(Color.BLACK);
+
+        g2d.drawLine(0, 0, 0, rulerHeight);
+        g2d.drawLine(RULER_WIDTH, 0, RULER_WIDTH, rulerHeight);
+
+        double stepRuler = (double) rulerHeight / (double) (maxValue - minValue);
+
+        int i = 0;
+        for(double step = 0; step <= rulerHeight; step += stepRuler) {
+            if ((i % 10) == 0) {
+                g2d.drawLine(RULER_WIDTH - (RULER_WIDTH / 3), (int) step, RULER_WIDTH, (int) step);
+                if (i == minValue)
+                    g2d.drawString("" + i, 5, (int) step + 7);
+                else if (i == maxValue)
+                    g2d.drawString("" + i, 1, (int) step - 1);
+                else
+                    g2d.drawString("" + i, 1, (int)  step + 3);
+            }
+            else if ((i % 5) == 0){
+                g2d.drawLine(RULER_WIDTH - (RULER_WIDTH / 4), (int) step, RULER_WIDTH, (int) step);
+            }
+            else {
+                g2d.drawLine(RULER_WIDTH - (RULER_WIDTH / 6), (int) step, RULER_WIDTH, (int) step);
+            }
+            ++i;
+        }
     }
 }
