@@ -785,7 +785,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
                 // LinkedHashMap traList = mpm.getMap().getMarksList();
                 LinkedHashMap<String, MarkElement> transList = mpm.getMap().getMarksList();
                 for (MarkElement tmp : transList.values()) {
-                    String name = tmp.getName();
+                    String name = tmp.getId();
                     if (name.equalsIgnoreCase("start")) {
                         locStart.setLocation(tmp.getCenterLocation());
                         isFound = true;

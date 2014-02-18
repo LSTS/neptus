@@ -99,8 +99,8 @@ public abstract class AbstractElement
    
     protected Document doc = null;
     
-    protected String name = NameNormalizer.getRandomID("me"); // "obj_"+System.currentTimeMillis()+rnd.nextInt(100);
-    protected String id = name;
+    protected String id = NameNormalizer.getRandomID("me"); // "obj_"+System.currentTimeMillis()+rnd.nextInt(100);
+    //protected String id = name;
 
     // ===== Old MapObject
     protected boolean selected = false;
@@ -187,8 +187,7 @@ public abstract class AbstractElement
             return false;
 
         setId(getCenterLocation().getId());
-        setName(getCenterLocation().getName());
-
+        
         Node nd;
         try {
             nd = doc.selectSingleNode("//attitude");
@@ -327,7 +326,6 @@ public abstract class AbstractElement
         lt.setName(this.getName());*/
         
         getCenterLocation().setId(getId());
-        getCenterLocation().setName(getName());
         
         Element root = getCenterLocation().asElement(rootElementName);
         
@@ -647,21 +645,13 @@ public abstract class AbstractElement
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
     /**
      * Returns the result of getName() - the default implementation returns the
      * field <b>name</b>
      */
     @Override
     public String toString() {
-        return getName();
+        return getId();
     }
 
 	public boolean isSelected() {
@@ -707,7 +697,7 @@ public abstract class AbstractElement
                 return;
             }
 
-            if (!objName.getText().equals(name) && takenNames != null) {
+            if (!objName.getText().equals(id) && takenNames != null) {
                 for (int i = 0; i < takenNames.length; i++) {
                     if (takenNames[i].equals(objName.getText())) {
                         JOptionPane.showMessageDialog(paramsPanel, I18n.text("The entered identifier is already in use"));
@@ -722,7 +712,7 @@ public abstract class AbstractElement
                 return;
             }
             
-            setName(objName.getText());
+            setId(objName.getText());
             
             initialize(paramsPanel);
             
@@ -787,7 +777,7 @@ public abstract class AbstractElement
         // i++;
         // objID.setText(getType() + i);
         // objName.setText(getType() + i);
-        objName.setText(this.getName());
+        objName.setText(this.getId());
         // objID.setText(this.getId());
         
         transp = new JTextField(3);
@@ -805,7 +795,7 @@ public abstract class AbstractElement
         
         if (takenNames == null) {
             objName.setEnabled(false);
-            objName.setText(this.getName());
+            objName.setText(this.getId());
             // objID.setEnabled(false);
             // objID.setText(this.getId());
             // copyChars = false;

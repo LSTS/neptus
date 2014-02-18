@@ -192,7 +192,6 @@ public class SimpleTransponderPanel extends SimpleLocationPanel {
 		transponder.setCenterLocation(getLocationType());
 		transponder.setConfiguration(getConfiguration());
 		transponder.setId(idField.getText());
-		transponder.setName(idField.getText());
 		
 		return transponder;
 	}

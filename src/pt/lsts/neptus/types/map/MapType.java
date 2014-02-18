@@ -179,7 +179,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
      */
     public void addObject(AbstractElement newObject) {
         // newObject.setParentMap(this);
-        elements.put(newObject.getName(), newObject);
+        elements.put(newObject.getId(), newObject);
 
         MapChangeEvent event = new MapChangeEvent(MapChangeEvent.OBJECT_ADDED);
         event.setChangedObject(newObject);

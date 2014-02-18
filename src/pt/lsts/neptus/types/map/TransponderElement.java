@@ -176,7 +176,6 @@ public class TransponderElement extends AbstractElement implements NameId{
         lt.setLongitude(lon);
         lt.setDepth(depth);
         setId(beacon);
-        setName(beacon);
         setCenterLocation(lt);
         propConf = BeaconsConfig.getMatchingConf(lblBeacon);
         file = new FileType();
@@ -192,7 +191,7 @@ public class TransponderElement extends AbstractElement implements NameId{
         super(mg, parentMap);
         this.centerLocation = centerLocation;
         this.id = identification;
-        this.name = identification;
+        this.id = identification;
         this.propConf = propConf;
         file = new FileType();
         file.setHref(propConf.getWorkingFile());
@@ -512,7 +511,7 @@ public class TransponderElement extends AbstractElement implements NameId{
                 transponderImg.getWidth(null), transponderImg.getHeight(null), null);
 
         g.setColor(Color.WHITE);
-        g.drawString(getName(), 7, 16);
+        g.drawString(getId(), 7, 16);
 
     }
 
@@ -542,7 +541,7 @@ public class TransponderElement extends AbstractElement implements NameId{
         // return nameBuilder.toString();
         // }
         // else {
-        return name;
+        return id;
         // }
     }
 

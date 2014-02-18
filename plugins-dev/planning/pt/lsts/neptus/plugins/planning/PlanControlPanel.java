@@ -755,7 +755,7 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
                 boolean b = true;
                 for (TransponderElement tElnt : selTransponders) {
                     beaconsToSend += b ? "" : ", ";
-                    beaconsToSend += tElnt.getName();
+                    beaconsToSend += tElnt.getId();
                 }
                 int resp = GuiUtils.confirmDialog(SwingUtilities.windowForComponent(this),
                         I18n.text("LBL Beacons"),

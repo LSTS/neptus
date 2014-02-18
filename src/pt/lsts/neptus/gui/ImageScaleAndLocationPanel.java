@@ -109,7 +109,6 @@ public class ImageScaleAndLocationPanel extends JPanel {
 							mark1 = new MarkElement(null, null);
 							mark1.setCenterLocation(r2d.getRealWorldLocation(clickedPoint));	
 							mark1.setId("Location 1");
-							mark1.setName("Location 1");
 							map.addObject(mark1);
 							if (mark2 != null)
 							    okBtn.setEnabled(true);
@@ -131,7 +130,6 @@ public class ImageScaleAndLocationPanel extends JPanel {
 							mark2 = new MarkElement(null, null);
 							mark2.setCenterLocation(r2d.getRealWorldLocation(clickedPoint));	
 							mark2.setId("Location 2");
-							mark2.setName("Location 2");
 							map.addObject(mark2);
 							if (mark2 != null)
                                 okBtn.setEnabled(true);

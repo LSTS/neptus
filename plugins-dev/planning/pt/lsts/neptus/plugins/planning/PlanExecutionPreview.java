@@ -78,7 +78,7 @@ import com.l2fprod.common.propertysheet.Property;
 /**
  * @author zp
  */
-@PluginDescription(name = "Plan Execution Preview", author = "zp", icon="pt/lsts/neptus/plugins/planning/preview.png")
+@PluginDescription(name = "Plan Execution Preview", author = "zp", icon = "pt/lsts/neptus/plugins/planning/preview.png")
 @LayerPriority(priority = 60)
 public class PlanExecutionPreview extends SimpleRendererInteraction implements Renderer2DPainter, ConfigurationListener {
 
@@ -102,7 +102,7 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
     protected SystemPositionAndAttitude lastVehicleState = null;
     protected long lastStateTime = 0;
     protected boolean forceSimVisualization = false;
-    
+
     @NeptusProperty(name = "Active")
     public boolean activated = true;
 
@@ -111,7 +111,7 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
 
     @NeptusProperty(name = "Interval between simulated states, in seconds")
     public double timestep = 0.25;
-    
+
     @NeptusProperty(name = "Simulated (flat) bathymetry")
     public double bathymetry = 10;
 
@@ -124,8 +124,9 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
 
     protected double getVehicleDepth() {
         try {
-            if (lastEState != null && lastEState.getSourceName().equals(getConsole().getMainSystem()))            
-                return ImcMsgManager.getManager().getState(getConsole().getMainSystem()).lastEstimatedState().getDepth();
+            if (lastEState != null && lastEState.getSourceName().equals(getConsole().getMainSystem()))
+                return ImcMsgManager.getManager().getState(getConsole().getMainSystem()).lastEstimatedState()
+                        .getDepth();
             return 0;
         }
         catch (Exception e) {
@@ -133,25 +134,25 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
             return 0;
         }
     }
-    
+
     @Override
     public String getName() {
         return "Plan Simulation";
     }
-    
+
     @Override
     public boolean isExclusive() {
         return true;
     }
-    
+
     @Override
     public void mouseClicked(final MouseEvent event, final StateRenderer2D source) {
         if (event.getButton() == MouseEvent.BUTTON3) {
             JPopupMenu popup = new JPopupMenu();
-            
+
             if (simulator != null) {
                 popup.add(I18n.text("Locate simulator here")).addActionListener(new ActionListener() {
-                    
+
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         LocationType loc = source.getRealWorldLocation(event.getPoint());
@@ -159,19 +160,19 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                         if (simulator != null) {
                             SystemPositionAndAttitude curState = simulator.getState();
                             EstimatedState newState = curState.toEstimatedState();
-                            
+
                             newState.setLat(loc.getLatitudeAsDoubleValueRads());
                             newState.setLon(loc.getLongitudeAsDoubleValueRads());
-                            
-                            simulator.setPositionEstimation(newState, Double.MAX_VALUE);                            
+
+                            simulator.setPositionEstimation(newState, Double.MAX_VALUE);
                         }
                     }
                 });
-                
+
                 JMenu menu = new JMenu(I18n.text("Set current maneuver"));
                 for (final Maneuver man : simulator.getPlan().getGraph().getAllManeuvers()) {
-                    menu.add(man.getId()+" (" + man.getType() + ")").addActionListener(new ActionListener() {
-                        
+                    menu.add(man.getId() + " (" + man.getType() + ")").addActionListener(new ActionListener() {
+
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             if (simulator != null) {
@@ -185,48 +186,47 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                         }
                     });
                 }
-                
+
                 popup.add(menu);
-                
-                
+
             }
             popup.add(I18n.text("Simulate from here")).addActionListener(new ActionListener() {
-                
+
                 final LocationType loc = source.getRealWorldLocation(event.getPoint());
-                
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (simulator != null) {
                         simulator.stopSimulation();
                     }
-                        simulator = new PlanSimulator(getConsole().getPlan(), new SystemPositionAndAttitude(loc, 0, 0, 0));
-                        simulator.setVehicleId(getConsole().getMainSystem());
-                        try {
-                            simulator.setManId(simulator.getPlan().getGraph().getInitialManeuverId());
-                        }
-                        catch (Exception ex) {
-                            GuiUtils.errorMessage(getConsole(), ex);
-                        }
-                        simulator.setState(new SystemPositionAndAttitude(loc, 0, 0, 0));
-                        simulator.setTimestep(timestep);
-                        simulator.startSimulation();
-                        simOverlay = simulator.getSimulationOverlay();
-                        forceSimVisualization = true;                    
+                    simulator = new PlanSimulator(getConsole().getPlan(), new SystemPositionAndAttitude(loc, 0, 0, 0));
+                    simulator.setVehicleId(getConsole().getMainSystem());
+                    try {
+                        simulator.setManId(simulator.getPlan().getGraph().getInitialManeuverId());
+                    }
+                    catch (Exception ex) {
+                        GuiUtils.errorMessage(getConsole(), ex);
+                    }
+                    simulator.setState(new SystemPositionAndAttitude(loc, 0, 0, 0));
+                    simulator.setTimestep(timestep);
+                    simulator.startSimulation();
+                    simOverlay = simulator.getSimulationOverlay();
+                    forceSimVisualization = true;
                 }
             });
-            
+
             if (simOverlay != null) {
                 popup.add(I18n.text("Show 3D simulation")).addActionListener(new ActionListener() {
-                    
+
                     @Override
-                    public void actionPerformed(ActionEvent e) {                        
+                    public void actionPerformed(ActionEvent e) {
                         PlanSimulation3D.showSimulation(getConsole(), simOverlay, getConsole().getPlan());
                     }
                 });
             }
-            
+
             popup.add(I18n.text("Clear simulation")).addActionListener(new ActionListener() {
-                
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (simulator != null) {
@@ -240,10 +240,11 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
             popup.addSeparator();
             JMenu simBathym = new JMenu(I18n.text("Simulated bathymetry"));
             simBathym.add(I18n.text("Add depth sounding")).addActionListener(new ActionListener() {
-                
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String ret = JOptionPane.showInputDialog(getConsole(), I18n.text("Enter simulated depth for this location"));
+                    String ret = JOptionPane.showInputDialog(getConsole(),
+                            I18n.text("Enter simulated depth for this location"));
                     if (ret == null)
                         return;
                     try {
@@ -256,17 +257,17 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                     }
                 }
             });
-            
+
             simBathym.add(I18n.text("Clear depth soundings")).addActionListener(new ActionListener() {
-                
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     SimulationEngine.simBathym.clearSoundings();
                 }
             });
-            
+
             simBathym.add(I18n.text("Show depth here")).addActionListener(new ActionListener() {
-                
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     LocationType loc = source.getRealWorldLocation(event.getPoint());
@@ -275,9 +276,9 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                 }
             });
             popup.add(simBathym);
-            
+
             popup.add(I18n.text("Calculate payloads")).addActionListener(new ActionListener() {
-                
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     for (Maneuver m : getConsole().getPlan().getGraph().getAllManeuvers()) {
@@ -285,11 +286,11 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                     }
                 }
             });
-            
+
             popup.addSeparator();
             if (simOverlay != null) {
                 popup.add(I18n.text("Plan statistics")).addActionListener(new ActionListener() {
-                    
+
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (simOverlay != null)
@@ -302,23 +303,22 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
         else
             super.mouseClicked(event, source);
     }
-    
-    
+
     private void generatePlanStatistics() {
         LinkedHashMap<String, String> stats;
-        
+
         if (simulator != null)
             stats = simOverlay.statistics(simulator.getState());
         else
             stats = simOverlay.statistics(null);
-        
+
         String html = "<html><table>\n";
-        for (Entry<String,String> entry : stats.entrySet()) {
-            html += "<tr><td><b>"+entry.getKey()+"</b></td><td>"+entry.getValue()+"</td></tr>\n";            
+        for (Entry<String, String> entry : stats.entrySet()) {
+            html += "<tr><td><b>" + entry.getKey() + "</b></td><td>" + entry.getValue() + "</td></tr>\n";
         }
-        html +="</table></html>";
-        
-        GuiUtils.htmlMessage(getConsole(), I18n.text("Plan Statistics"), "", html);        
+        html += "</table></html>";
+
+        GuiUtils.htmlMessage(getConsole(), I18n.text("Plan Statistics"), "", html);
     }
 
     @Subscribe
@@ -332,7 +332,7 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
         if (getVehicleDepth() > 1 && debug)
             return;
 
-        //NeptusLog.pub().info("<###>Got an estimated state");
+        // NeptusLog.pub().info("<###>Got an estimated state");
 
         lastVehicleState = IMCUtils.parseState(msg);
 
@@ -368,7 +368,7 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
     public void cleanSubPanel() {
         stopSimulator();
     }
-    
+
     @Subscribe
     public synchronized void consume(PlanControlState msg) {
 
@@ -382,18 +382,19 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
             if (forceSimVisualization)
                 return;
             else
-                stopSimulator();                    
+                stopSimulator();
         }
         else {
             try {
                 String planid = msg.getPlanId();
-    
+
                 if (simulator == null || simulator.isFinished() || !planid.equals(simulator.getPlan().getId())) {
                     stopSimulator();
                     PlanType plan = getConsole().getMission().getIndividualPlansList().get(planid);
                     if (plan != null) {
-    
-                        EstimatedState last = ImcMsgManager.getManager().getState(msg.getSourceName()).lastEstimatedState();
+
+                        EstimatedState last = ImcMsgManager.getManager().getState(msg.getSourceName())
+                                .lastEstimatedState();
                         if (last != null)
                             simulator = new PlanSimulator(plan, new SystemPositionAndAttitude(last));
                         else
@@ -407,7 +408,7 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                         simOverlay = simulator.getSimulationOverlay();
                     }
                 }
-    
+
                 if (simulator != null)
                     simulator.setManId(msg.getManId());
             }
@@ -426,20 +427,20 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
 
     public void paintVerticalProfile(Graphics2D g, StateRenderer2D renderer) {
     }
-    
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if (active)
-            SimulationEngine.simBathym.paint((Graphics2D)g.create(), renderer);
-        
+            SimulationEngine.simBathym.paint((Graphics2D) g.create(), renderer);
+
         if (active && simulator != null)
-            simulator.getSimulationOverlay().paint((Graphics2D)g.create(), renderer);
-        
+            simulator.getSimulationOverlay().paint((Graphics2D) g.create(), renderer);
+
         if (simulator != null && simulator.isRunning()) {
             long simTime = System.currentTimeMillis() - lastStateTime;
             if (simTime > 1000) {
-                String str = "[" + I18n.textf("Simulating for %time",
-                        DateTimeUtil.milliSecondsToFormatedString(simTime)) + "]";
+                String str = "["
+                        + I18n.textf("Simulating for %time", DateTimeUtil.milliSecondsToFormatedString(simTime)) + "]";
                 g.setColor(Color.gray.darker());
                 g.drawString(str, 6, 16);
                 g.setColor(Color.red.darker());
@@ -480,7 +481,7 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
             stopSimulator();
         }
     }
-    
+
     @Override
     public void propertiesChanged() {
         PlanSimulationOverlay.bottomDepth = bathymetry;

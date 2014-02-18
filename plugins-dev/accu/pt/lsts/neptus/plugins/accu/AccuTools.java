@@ -121,7 +121,6 @@ public class AccuTools extends SimpleSubPanel {
                                     MapType map =  MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
                                     elem = new TransponderElement(map.getMapGroup(), map);
                                     elem.setId(tid);
-                                    elem.setName(tid);
                                     elem.setCenterLocation(loc);         
                                     elem.setConfiguration(elem.getId()+".conf");
                                     elem.setMapGroup(MapGroup.getMapGroupInstance(getConsole().getMission()));                        

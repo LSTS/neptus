@@ -265,10 +265,10 @@ class MyCanvas3D extends Canvas3D {
 				if(orig.y!=0 && orig.x!=0)
 				{
 					Rectangle2D stringBounds = g2.getFontMetrics()
-					.getStringBounds(objs.getName(), g2);
+					.getStringBounds(objs.getId(), g2);
 					window((int) orig.x - 2, (int) orig.y - 12, (int) orig.x
 							+ (int) stringBounds.getWidth(), (int) orig.y+2);
-					g2.drawString(objs.getName(), (int) orig.x, (int) orig.y);
+					g2.drawString(objs.getId(), (int) orig.x, (int) orig.y);
 				}
 			}
 			if(obj2.drawinfo)
@@ -337,10 +337,10 @@ class MyCanvas3D extends Canvas3D {
 			if(orig.y!=0 && orig.x!=0)
 			{
 				Rectangle2D stringBounds = g2.getFontMetrics()
-				.getStringBounds(objs.getName(), g2);
+				.getStringBounds(objs.getId(), g2);
 				window((int) orig.x - 2, (int) orig.y - 12, (int) orig.x
 						+ (int) stringBounds.getWidth(), (int) orig.y+2);
-				g2.drawString(objs.getName(), (int) orig.x, (int) orig.y);
+				g2.drawString(objs.getId(), (int) orig.x, (int) orig.y);
 			}
 		}
 
@@ -955,7 +955,7 @@ class MyCanvas3D extends Canvas3D {
 		else if (camera.lock!=null)
 			text = "Locked: " + camera.lock.getName();
 		else if (camera.lockmapobj!=null)
-			text = "Locked: " + camera.lockmapobj.getName();
+			text = "Locked: " + camera.lockmapobj.getId();
 		
 		g2.drawString(text, 15, 33);
 		text = "View type: " + camera.getStrType();

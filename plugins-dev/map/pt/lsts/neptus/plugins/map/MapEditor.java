@@ -494,6 +494,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
 
     protected void editElement(String elemId) {
         AbstractElement[] elements = mg.getMapObjectsByID(elemId);
+        
         if (elements.length == 0)
             return;
 
@@ -548,12 +549,12 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             if (!intersectedObjects.isEmpty()) {
                 for (final AbstractElement elem : intersectedObjects) {
                     final String elemId = elem.getId();
-                    JMenu menu = new JMenu(elem.getName() + " [" + I18n.text(elem.getType()) + "]");
+                    JMenu menu = new JMenu(elem.getId() + " [" + I18n.text(elem.getType()) + "]");
 
                     menu.add(I18n.text("Properties")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            editElement(elemId);
+                            editElement(elemId);                            
                         }
                     });
 
@@ -594,8 +595,13 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
                                 AbstractElement newElem = el.getClass().getConstructor(MapGroup.class, MapType.class)
                                         .newInstance(mg, pivot);
                                 newElem.setCenterLocation(loc);
-                                newElem.showParametersDialog(MapEditor.this, pivot.getObjectNames(), pivot, true);
-
+                                
+                                Vector<String> objNames = new Vector<>();
+                                for (AbstractElement el : mg.getAllObjects())
+                                    objNames.add(el.getId());
+                                newElem.showParametersDialog(MapEditor.this, objNames.toArray(new String[0]), pivot, true);
+                                newElem.setId(newElem.getId());
+                                
                                 if (!newElem.userCancel) {
                                     pivot.addObject(newElem);
 
@@ -696,14 +702,14 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
                             centerElem.setEnabled(true);
                     }
 
-                    editElem.add(elem.getName() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
+                    editElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
                             new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             editElement(elem.getId());
                         }
                     });
-                    removeElem.add(elem.getName() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
+                    removeElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
                             new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -711,7 +717,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
                         }
                     });
                     if (renderer != null) {
-                        centerElem.add(elem.getName() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
+                        centerElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
                                 new ActionListener() {
                                     @Override
                                     public void actionPerformed(ActionEvent e) {
