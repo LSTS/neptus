@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,e80be0a)" system="lauv-seacon-1" i18n="en_US">
+<config format="1" version="2.5.0-rc1 (master,526e4e1)" system="lauv-seacon-1" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -513,7 +513,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.1</default>
+      <default>5.0</default>
       <units>m</units>
       <desc>Integral limit for Depth controller</desc>
     </param>
@@ -560,7 +560,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>45.0</default>
+      <default>30.0</default>
       <units>°</units>
       <desc>Maximum admissible fin rotation</desc>
     </param>
@@ -1206,7 +1206,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>None</default>
+      <default>Debug</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
@@ -1345,7 +1345,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Enable or disable bottom track control</desc>
     </param>
@@ -3520,7 +3520,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>21.05, 21.64, 95.43, 99.03, 100.43, 104.03</default>
+      <default>22.8, 23.39, 95.04, 98.64, 116.34, 119.94</default>
       <units>W</units>
       <desc>Corresponding value of power consumption</desc>
     </param>
@@ -3650,10 +3650,11 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5.0</default>
+      <default>1.0</default>
       <units/>
       <desc>No valid wet sensor data threshold value</desc>
-      <min>3.0</min>
+      <min>0.0</min>
+      <max>5.0</max>
     </param>
     <param name="GPS Timeout">
       <name-i18n>GPS Timeout</name-i18n>
@@ -5634,6 +5635,73 @@
       <desc/>
     </param>
   </section>
+  <section name="IMU Power Supply" name-i18n="IMU Power Supply">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>IMU Power Supply</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Power Channel">
+      <name-i18n>Power Channel</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>IMU</default>
+      <units/>
+      <desc>Device name to be activated</desc>
+    </param>
+    <param name="ESCC - PSU Device">
+      <name-i18n>ESCC - PSU Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/escc1</default>
+      <units/>
+      <desc>ESCC device where PSU is connected</desc>
+    </param>
+  </section>
   <section name="GPS" name-i18n="GPS">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -6065,15 +6133,6 @@
       <units/>
       <desc>HG1700 ESCC Device parameter</desc>
     </param>
-    <param name="ESCC - PSU Device">
-      <name-i18n>ESCC - PSU Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>/dev/escc1</default>
-      <units/>
-      <desc>ESCC device where PSU is connected</desc>
-    </param>
     <param name="Input Timeout">
       <name-i18n>Input Timeout</name-i18n>
       <type>real</type>
@@ -6101,15 +6160,6 @@
       <default>IMU</default>
       <units/>
       <desc>Power channel that controls the power of the device</desc>
-    </param>
-    <param name="PSIMAR Manager">
-      <name-i18n>PSIMAR Manager</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>PSIMAR board manages this device</desc>
     </param>
   </section>
   <section name="Sidescan" name-i18n="Sidescan">
@@ -6532,23 +6582,16 @@
       <desc/>
       <min>2</min>
     </param>
-    <param name="Enable Reports">
-      <name-i18n>Enable Reports</name-i18n>
-      <type>boolean</type>
+    <param name="Acoustic Feedback">
+      <name-i18n>Acoustic Feedback</name-i18n>
+      <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>Ranges</default>
       <units/>
-      <desc>Report data acoustically</desc>
-    </param>
-    <param name="Make Reports Verbose">
-      <name-i18n>Make Reports Verbose</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Report more verbose data acoustically</desc>
+      <desc>Data to be reported acoustically</desc>
+      <values>None, Ranges, Full</values>
+      <values-i18n>None, Ranges, Full</values-i18n>
     </param>
     <param name="Reports Periodicity">
       <name-i18n>Reports Periodicity</name-i18n>
@@ -6722,7 +6765,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>-0.313027, 0.453577, 0.0</default>
+      <default>0.032873, 0.027908, 0.0</default>
       <units>G</units>
       <desc>Hard-Iron calibration parameters</desc>
       <size>3</size>
@@ -7648,6 +7691,118 @@
       <default>120</default>
       <units>s</units>
       <desc>Timeout period of a session</desc>
+    </param>
+  </section>
+  <section name="GSM" name-i18n="GSM">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>GSM</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/ttyACM1</default>
+      <units/>
+      <desc>Serial port device used to communicate with the sensor</desc>
+    </param>
+    <param name="Serial Port - Baud Rate">
+      <name-i18n>Serial Port - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>115200</default>
+      <units/>
+      <desc>Serial port baud rate</desc>
+    </param>
+    <param name="Reply Timeout">
+      <name-i18n>Reply Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units>s</units>
+      <desc>Amount of time to wait for a command reply</desc>
+    </param>
+    <param name="PIN">
+      <name-i18n>PIN</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>PIN Code</desc>
+    </param>
+    <param name="RSSI Periodicity">
+      <name-i18n>RSSI Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>s</units>
+      <desc>Periodicity of RSSI reports</desc>
+    </param>
+    <param name="Read SMS Periodicity">
+      <name-i18n>Read SMS Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>s</units>
+      <desc>Periodicity of received SMS checks</desc>
+    </param>
+    <param name="SMS Send Timeout">
+      <name-i18n>SMS Send Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units>s</units>
+      <desc>Maximum amount of time to wait for SMS send completion</desc>
     </param>
   </section>
   <section name="HTTP Server" name-i18n="HTTP Server">

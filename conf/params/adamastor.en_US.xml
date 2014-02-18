@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,9a669c8)" system="adamastor" i18n="en_US">
+<config format="1" version="2.5.0-rc1 (master,526e4e1)" system="adamastor" i18n="en_US">
   <section name="LED Driver" name-i18n="LED Driver">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -3859,23 +3859,16 @@
       <desc/>
       <min>2</min>
     </param>
-    <param name="Enable Reports">
-      <name-i18n>Enable Reports</name-i18n>
-      <type>boolean</type>
+    <param name="Acoustic Feedback">
+      <name-i18n>Acoustic Feedback</name-i18n>
+      <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>None</default>
       <units/>
-      <desc>Report data acoustically</desc>
-    </param>
-    <param name="Make Reports Verbose">
-      <name-i18n>Make Reports Verbose</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Report more verbose data acoustically</desc>
+      <desc>Data to be reported acoustically</desc>
+      <values>None, Ranges, Full</values>
+      <values-i18n>None, Ranges, Full</values-i18n>
     </param>
     <param name="Reports Periodicity">
       <name-i18n>Reports Periodicity</name-i18n>
