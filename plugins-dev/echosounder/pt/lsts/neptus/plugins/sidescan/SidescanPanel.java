@@ -32,8 +32,10 @@
 package pt.lsts.neptus.plugins.sidescan;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.event.ComponentAdapter;
@@ -235,7 +237,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         view.addMouseListener(this);
         view.addMouseMotionListener(this);
 
-        setLayout(new MigLayout("ins 0, gap 0"));
+        setLayout(new MigLayout("ins 0, gap 5"));
         add(toolbar, "w 100%, wrap");
         add(view, "w 100%, h 100%");
     }
@@ -464,6 +466,17 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         Graphics2D g2d = (Graphics2D) g;
 
         // Draw Horizontal Line
+        g2d.drawLine(0, 0, layer.getWidth(), 0);
+
+        Rectangle drawRulerHere = new Rectangle(0, 0, layer.getWidth(), 12);
+        //g2d.setColor(new Color(102, 178, 255));
+        g2d.setColor(Color.LIGHT_GRAY);
+        g2d.fill(drawRulerHere);
+
+        g2d.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        g2d.setColor(Color.BLACK);
+
+        // Draw top line
         g2d.drawLine(0, 0, layer.getWidth(), 0);
 
         // Draw the zero
