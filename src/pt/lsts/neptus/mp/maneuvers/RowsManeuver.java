@@ -227,7 +227,11 @@ IMCSerialization, StatisticsProvider, PathProvider {
     public Object clone() {
         RowsManeuver clone = new RowsManeuver();
         super.clone(clone);
-        clone.setManeuverLocation(getManeuverLocation());
+        //clone.setManeuverLocation(getManeuverLocation());
+        clone.latRad = latRad;
+        clone.lonRad = lonRad;
+        clone.z = z;
+        clone.zunits = zunits;
         clone.bearingRad = bearingRad;
         clone.hstep = hstep;        
         clone.length = length;

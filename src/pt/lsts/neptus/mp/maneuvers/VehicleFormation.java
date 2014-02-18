@@ -150,7 +150,7 @@ public class VehicleFormation extends FollowTrajectory {
         super.clone(clone);
         clone.speed = speed;
         clone.speed_units = speed_units;
-        clone.startLoc.setLocation(startLoc);
+        clone.setManeuverLocation(getManeuverLocation());
         clone.points.addAll(points);                
         clone.setStartTime(getStartTime());
         clone.getParticipants().addAll(getParticipants());
