@@ -465,30 +465,32 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private void drawRuler(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
 
+        int fontSize = 11;
+        int maxesSize = 15;
+
         // Draw Horizontal Line
         g2d.drawLine(0, 0, layer.getWidth(), 0);
 
-        Rectangle drawRulerHere = new Rectangle(0, 0, layer.getWidth(), 12);
-        //g2d.setColor(new Color(102, 178, 255));
+        Rectangle drawRulerHere = new Rectangle(0, 0, layer.getWidth(), maxesSize);
         g2d.setColor(Color.LIGHT_GRAY);
         g2d.fill(drawRulerHere);
 
-        g2d.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        g2d.setFont(new Font("SansSerif", Font.PLAIN, fontSize));
         g2d.setColor(Color.BLACK);
 
         // Draw top line
         g2d.drawLine(0, 0, layer.getWidth(), 0);
 
         // Draw the zero
-        g2d.drawLine(layer.getWidth() / 2, 0, layer.getWidth() / 2, 10);
-        g2d.drawString("0", layer.getWidth() / 2 - 10, 10);
+        g2d.drawLine(layer.getWidth() / 2, 0, layer.getWidth() / 2, maxesSize);
+        g2d.drawString("0", layer.getWidth() / 2 - 10, fontSize);
 
         //Draw the maxes
-        g2d.drawLine(0, 0, 0, 10);
-        g2d.drawString("" + (int)range, 2 , 10);
+        g2d.drawLine(0, 0, 0, 15);
+        g2d.drawString("" + (int)range, 2 , 11);
 
-        g2d.drawLine(layer.getWidth()-1, 0, layer.getWidth()-1, 10);
-        g2d.drawString("" + (int)range, layer.getWidth() - 20, 10);
+        g2d.drawLine(layer.getWidth()-1, 0, layer.getWidth()-1, maxesSize);
+        g2d.drawString("" + (int)range, layer.getWidth() - 20, fontSize);
 
         double step = (layer.getWidth() / ((range * 2) / rangeStep));
         double r = rangeStep;
@@ -497,12 +499,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         int c2 = (int) (layer.getWidth() / 2 + step);
 
         for(; c1 > 0; c1 -= step, c2 += step, r += rangeStep) {
-            g2d.drawLine(c1, 0, c1, 10);
-            g2d.drawLine(c2, 0, c2, 10);
-            g2d.drawString("" + (int)r, c1 + 5, 10);
-            g2d.drawString("" + (int)r, c2 - 20, 10);
+            g2d.drawLine(c1, 0, c1, maxesSize);
+            g2d.drawLine(c2, 0, c2, maxesSize);
+            g2d.drawString("" + (int)r, c1 + 5, fontSize);
+            g2d.drawString("" + (int)r, c2 - 20, fontSize);
         }
-
     }
 
     @SuppressWarnings("unused")
