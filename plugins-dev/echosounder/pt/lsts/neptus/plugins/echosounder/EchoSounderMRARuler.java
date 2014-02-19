@@ -86,7 +86,7 @@ public class EchoSounderMRARuler extends JLabel {
         double stepRuler = (double) rulerHeight / (double) (maxValue - minValue);
 
         int i = 0;
-        for(double step = 0; step <= rulerHeight; step += stepRuler) {
+        for(double step = 0; i <= maxValue; step += stepRuler, ++i) {
             if ((i % 10) == 0) {
                 g2d.drawLine(RULER_WIDTH - (RULER_WIDTH / 3), (int) step, RULER_WIDTH, (int) step);
                 if (i == minValue)
@@ -102,7 +102,6 @@ public class EchoSounderMRARuler extends JLabel {
             else {
                 g2d.drawLine(RULER_WIDTH - (RULER_WIDTH / 6), (int) step, RULER_WIDTH, (int) step);
             }
-            ++i;
         }
     }
 }
