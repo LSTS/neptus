@@ -685,7 +685,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         return speed_units;
     }
 
-    public void setUnits(String units) {
+    public void setSpeedUnits(String units) {
         this.speed_units = units;
         recalculateTimes();
     }
@@ -765,7 +765,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
 
         for (Property p : properties) {
             if (p.getName().equals("Speed units")) {
-                setUnits((String)p.getValue());
+                setSpeedUnits((String)p.getValue());
             }
             else if (p.getName().equals("Speed")) {
                 setSpeed((Double)p.getValue());
@@ -785,11 +785,11 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         traj.loadFromXML("<FollowTrajectory kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><trajectory><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></trajectory><speed unit=\"RPM\">1000.0</speed></FollowTrajectory>");
         //NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowTrajectory")));
         traj.setSpeed(1);
-        traj.setUnits("m/s");        
+        traj.setSpeedUnits("m/s");        
         NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowTrajectory")));
 
         traj.setSpeed(2);
-        traj.setUnits("m/s");        
+        traj.setSpeedUnits("m/s");        
         NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowTrajectory")));
         //test2();
     }

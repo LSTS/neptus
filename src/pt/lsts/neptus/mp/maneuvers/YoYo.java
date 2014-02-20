@@ -125,7 +125,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 	        	speedNode = doc.selectSingleNode("YoYo/velocity");
 	        setSpeed(Double.parseDouble(speedNode.getText()));
 	        String speedUnit = speedNode.valueOf("@unit");
-	        setUnits(speedUnit);
+	        setSpeedUnits(speedUnit);
 	        //setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
 	    }
 	    catch (Exception e) {
@@ -211,7 +211,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    clone.setManeuverLocation(destination.clone());
 	    clone.setAmplitude(getAmplitude());
 	    clone.setPitchAngle(getPitchAngle());
-	    clone.setUnits(getUnits());
+	    clone.setSpeedUnits(getUnits());
 	    clone.setSpeed(getSpeed());
 	    clone.setSpeedTolerance(getSpeedTolerance());
 	    
@@ -252,7 +252,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
         return units;
     }
     
-    public void setUnits(String units) {
+    public void setSpeedUnits(String units) {
         this.units = units;
     }
     
@@ -309,7 +309,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
     	
     	for (Property p : properties) {
     		if (p.getName().equals("Speed units")) {
-    			setUnits((String)p.getValue());
+    			setSpeedUnits((String)p.getValue());
     		}
     		if (p.getName().equals("Speed tolerance")) {
     			setSpeedTolerance((Double)p.getValue());
@@ -381,11 +381,11 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
     	
     	String speed_units = message.getString("speed_units");
 		if (speed_units.equals("METERS_PS"))
-			setUnits("m/s");
+			setSpeedUnits("m/s");
 		else if (speed_units.equals("RPM"))
-			setUnits("RPM");
+			setSpeedUnits("RPM");
 		else
-			setUnits("%");
+			setSpeedUnits("%");
 		setCustomSettings(message.getTupleList("custom"));
     }
     

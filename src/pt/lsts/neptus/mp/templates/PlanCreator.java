@@ -51,209 +51,205 @@ import pt.lsts.neptus.util.ReflectionUtil;
 
 /**
  * @author zp
- *
+ * 
  */
-public 	
-class PlanCreator {
-	protected PlanType plan;
-	protected double speed = 1000;
-	protected SPEED_UNITS speed_units = SPEED_UNITS.RPM;
-	protected ManeuverLocation loc = new ManeuverLocation();
-	protected int count = 1;
-	
-	private LinkedHashMap<String, Class<?>> maneuvers = new LinkedHashMap<String, Class<?>>();
-	{
-		Class<?> mans[] = ReflectionUtil.listManeuvers();
-		for (Class<?> c : mans) {
-			maneuvers.put(c.getSimpleName().toLowerCase(), c);
-			//NeptusLog.pub().info("<###>Maneuver: "+c.getSimpleName().toLowerCase());
-		}			
-	}
-	
-	public PlanCreator(MissionType mission) {
-		plan = new PlanType(mission);
-	}
-	
-	public void setDepth(double depth) {
-	    setZ(depth, ManeuverLocation.Z_UNITS.DEPTH);
-	}
-	
-	public void setSpeed(double speed, SPEED_UNITS units) {
-	    this.speed = speed;
-	    this.speed_units = units;
-	}
-	
-	public void setZ(double z, ManeuverLocation.Z_UNITS units) {
-	    loc.setZ(z);
-	    loc.setZUnits(units);
-	}
-	
-	public void move(double north, double east) {
-		loc.translatePosition(north, east, 0);
-	}
-	
-	public void move(double north, double east, double down) {
-	    loc.translatePosition(north, east, down);
-    }
-	
-	public void setLocation(LocationType loc) {
-		if (loc != null)
-			this.loc.setLocation(loc);
-	}
-	
-	public void addTransition(String sourceManeuver, String targetManeuver, String condition) {
-	    plan.getGraph().addTransition(sourceManeuver, targetManeuver, condition);
-	}
-	
-	public String addManeuver(String name, Map<Object, Object> obj) {
-		LinkedHashMap<String, Object> props = new LinkedHashMap<String, Object>();
-		
-		for (Object o : obj.keySet())
-			props.put(o.toString(), obj.get(o.toString()));
-			
-		return addManeuver(name, props);	
-	}
-	
-	public String addManeuver(String name, Object...values) {
-		LinkedHashMap<String, Object> properties = new LinkedHashMap<String, Object>();
-		
-		for (int i = 0; i < values.length; i+= 2) {
-			
-			if (values[i] instanceof String && values[i+1] != null)
-				properties.put(values[i].toString(), values[i+1]);
-		}
-		
-		return addManeuver(name, properties);
-	}
-	
-	public String addManeuver(String name) {
-		return addManeuver(name, new LinkedHashMap<String, Object>());
-	}
-		
-	public String addManeuver(String name, LinkedHashMap<String, Object> properties) {
-		Class<?> man = maneuvers.get(name.toLowerCase());
-		if (man != null) {
-			return addManeuver(man, properties);
-		}
-		else {
-			NeptusLog.pub().info("<###>The maneuver "+name+" was not found");
-		}
-		return null;
-	}
-	
-	
-	public String addManeuver(Class<?> manClass, LinkedHashMap<String, Object> properties) {
-		
-	    String before = ""+(count-1);
-        String id = ""+count;
-        
-	  //  NeptusLog.pub().info("<###>[PlanCreator] "+id+" := addManeuver("+manClass.getSimpleName()+", "+properties+")");
-	    
-		try {
-			Maneuver man = (Maneuver) manClass.newInstance();
-		
-			try {
-			    Method speedSetter = man.getClass().getMethod("setSpeed", double.class);
-			    Method speedUnitsSetter = man.getClass().getMethod("setSpeedUnits", String.class);
-			    
-			    speedSetter.invoke(man, speed);
-			    switch (speed_units) {
-			        case RPM:
-			            speedUnitsSetter.invoke(man, "RPM");
-			            break;
-			        case METERS_PS:
-			            speedUnitsSetter.invoke(man, "m/s");
-			            break;
-			        case PERCENTAGE:
-			            speedUnitsSetter.invoke(man, "%");
-			            break;
-			        default:
-			            break;
-                }
-			}
-			catch (Exception e) {
-			    e.printStackTrace();
-			}
-			
-			if (properties != null) {
-				for (String key : properties.keySet()) {
-					String k = key;
-					if (Character.isLetter(key.charAt(0))) {
-						k = Character.toUpperCase(key.charAt(0)) + key.substring(1);
-					}
-					try {
-						
-						for (Method m : man.getClass().getDeclaredMethods()) {
-							if (m.getName().equalsIgnoreCase("set"+k) &&
-									m.getParameterTypes().length == 1) {
-								if (m.getParameterTypes()[0].isAssignableFrom(properties.get(key).getClass())) {
-									Object o = m.getParameterTypes()[0].cast(properties.get(key));
-									m.invoke(man, o);	
-								}
-								else if (m.getParameterTypes()[0].isPrimitive()) {
-									Class<?> c = m.getParameterTypes()[0];
-									Object obj = properties.get(key);										
-									Double d = (double) Double.valueOf(obj.toString());
-									
-									if (c == Integer.TYPE) 
-										obj = d.intValue();										
-									else if (c == Float.TYPE) 
-										obj = d.floatValue();										
-									else if (c == Short.TYPE) 
-										obj = d.shortValue();										
-									else if (c == Byte.TYPE)
-										obj = d.byteValue();										
-									else if (c == Long.TYPE) 
-										obj = d.longValue();										
+public class PlanCreator {
+    protected PlanType plan;
+    protected double speed = 1000;
+    protected SPEED_UNITS speed_units = SPEED_UNITS.RPM;
+    protected ManeuverLocation loc = new ManeuverLocation();
+    protected int count = 1;
 
-									m.invoke(man, obj);
-								}
-								
-							}
-						}
-					}
-					catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			if (man instanceof LocatedManeuver) {
-			    ((LocatedManeuver)man).setManeuverLocation(loc.clone());
-			}
-			
-			man.setId(id);
-			if (plan.getGraph().getAllManeuvers().length == 0)
-			    man.setInitialManeuver(true);
-			plan.getGraph().addManeuver(man);
-			if (plan.getGraph().getManeuver(before) != null) {
-			    addTransition(before, id, "true");	
-			}	
-			count++;
-			return id;
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
-	public PlanType getPlan() {
-	    return plan;
-	}
-	
-	public String addGoto(LinkedHashMap<String, Object> properties) {
-		return addManeuver(Goto.class, properties);
-	}
-	
-	public String addLoiter(LinkedHashMap<String, Object> properties) {
-		return addManeuver(Loiter.class, properties);
-	}
-	
-	public String addUnconstrained(LinkedHashMap<String, Object> properties) {
-		return addManeuver(Unconstrained.class, properties);
-	}
-	
-	public String addPopup(LinkedHashMap<String, Object> properties) {
-		return addManeuver(PopUp.class, properties);
-	}		
+    private LinkedHashMap<String, Class<?>> maneuvers = new LinkedHashMap<String, Class<?>>();
+    {
+        Class<?> mans[] = ReflectionUtil.listManeuvers();
+        for (Class<?> c : mans) {
+            maneuvers.put(c.getSimpleName().toLowerCase(), c);
+            // NeptusLog.pub().info("<###>Maneuver: "+c.getSimpleName().toLowerCase());
+        }
+    }
+
+    public PlanCreator(MissionType mission) {
+        plan = new PlanType(mission);
+    }
+
+    public void setDepth(double depth) {
+        setZ(depth, ManeuverLocation.Z_UNITS.DEPTH);
+    }
+
+    public void setSpeed(double speed, SPEED_UNITS units) {
+        this.speed = speed;
+        this.speed_units = units;
+    }
+
+    public void setZ(double z, ManeuverLocation.Z_UNITS units) {
+        loc.setZ(z);
+        loc.setZUnits(units);
+    }
+
+    public void move(double north, double east) {
+        loc.translatePosition(north, east, 0);
+    }
+
+    public void move(double north, double east, double down) {
+        loc.translatePosition(north, east, down);
+    }
+
+    public void setLocation(LocationType loc) {
+        if (loc != null)
+            this.loc.setLocation(loc);
+    }
+
+    public void addTransition(String sourceManeuver, String targetManeuver, String condition) {
+        plan.getGraph().addTransition(sourceManeuver, targetManeuver, condition);
+    }
+
+    public String addManeuver(String name, Map<Object, Object> obj) {
+        LinkedHashMap<String, Object> props = new LinkedHashMap<String, Object>();
+
+        for (Object o : obj.keySet())
+            props.put(o.toString(), obj.get(o.toString()));
+
+        return addManeuver(name, props);
+    }
+
+    public String addManeuver(String name, Object... values) {
+        LinkedHashMap<String, Object> properties = new LinkedHashMap<String, Object>();
+
+        for (int i = 0; i < values.length; i += 2) {
+
+            if (values[i] instanceof String && values[i + 1] != null)
+                properties.put(values[i].toString(), values[i + 1]);
+        }
+
+        return addManeuver(name, properties);
+    }
+
+    public String addManeuver(String name) {
+        return addManeuver(name, new LinkedHashMap<String, Object>());
+    }
+
+    public String addManeuver(String name, LinkedHashMap<String, Object> properties) {
+        Class<?> man = maneuvers.get(name.toLowerCase());
+        if (man != null) {
+            return addManeuver(man, properties);
+        }
+        else {
+            NeptusLog.pub().info("<###>The maneuver " + name + " was not found");
+        }
+        return null;
+    }
+
+    public String addManeuver(Maneuver man, LinkedHashMap<String, Object> properties) {
+        String before = "" + (count - 1);
+        String id = "" + count;
+        try {
+            Method speedSetter = man.getClass().getMethod("setSpeed", double.class);
+            Method speedUnitsSetter = man.getClass().getMethod("setSpeedUnits", String.class);
+
+            speedSetter.invoke(man, speed);
+            switch (speed_units) {
+                case RPM:
+                    speedUnitsSetter.invoke(man, "RPM");
+                    break;
+                case METERS_PS:
+                    speedUnitsSetter.invoke(man, "m/s");
+                    break;
+                case PERCENTAGE:
+                    speedUnitsSetter.invoke(man, "%");
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (properties != null) {
+            for (String key : properties.keySet()) {
+                String k = key;
+                if (Character.isLetter(key.charAt(0))) {
+                    k = Character.toUpperCase(key.charAt(0)) + key.substring(1);
+                }
+                try {
+                    for (Method m : man.getClass().getDeclaredMethods()) {
+                        if (m.getName().equalsIgnoreCase("set" + k) && m.getParameterTypes().length == 1) {
+                            if (m.getParameterTypes()[0].isAssignableFrom(properties.get(key).getClass())) {
+                                Object o = m.getParameterTypes()[0].cast(properties.get(key));
+                                m.invoke(man, o);
+                            }
+                            else if (m.getParameterTypes()[0].isPrimitive()) {
+                                Class<?> c = m.getParameterTypes()[0];
+                                Object obj = properties.get(key);
+                                Double d = (double) Double.valueOf(obj.toString());
+
+                                if (c == Integer.TYPE)
+                                    obj = d.intValue();
+                                else if (c == Float.TYPE)
+                                    obj = d.floatValue();
+                                else if (c == Short.TYPE)
+                                    obj = d.shortValue();
+                                else if (c == Byte.TYPE)
+                                    obj = d.byteValue();
+                                else if (c == Long.TYPE)
+                                    obj = d.longValue();
+
+                                m.invoke(man, obj);
+                            }
+
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        if (man instanceof LocatedManeuver) {
+            ((LocatedManeuver) man).setManeuverLocation(loc.clone());
+        }
+
+        man.setId(id);
+        if (plan.getGraph().getAllManeuvers().length == 0)
+            man.setInitialManeuver(true);
+        plan.getGraph().addManeuver(man);
+        if (plan.getGraph().getManeuver(before) != null) {
+            addTransition(before, id, "true");
+        }
+        count++;
+        return id;
+
+    }
+
+    public String addManeuver(Class<?> manClass, LinkedHashMap<String, Object> properties) {
+        try {
+            Maneuver man = (Maneuver) manClass.newInstance();
+            return addManeuver(man, properties);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public PlanType getPlan() {
+        return plan;
+    }
+
+    public String addGoto(LinkedHashMap<String, Object> properties) {
+        return addManeuver(Goto.class, properties);
+    }
+
+    public String addLoiter(LinkedHashMap<String, Object> properties) {
+        return addManeuver(Loiter.class, properties);
+    }
+
+    public String addUnconstrained(LinkedHashMap<String, Object> properties) {
+        return addManeuver(Unconstrained.class, properties);
+    }
+
+    public String addPopup(LinkedHashMap<String, Object> properties) {
+        return addManeuver(PopUp.class, properties);
+    }
 }

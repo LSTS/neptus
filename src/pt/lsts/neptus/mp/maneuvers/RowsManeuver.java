@@ -836,7 +836,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         return speed_units;
     }
 
-    public void setUnits(String speed_units) {
+    public void setSpeedUnits(String speed_units) {
         this.speed_units = speed_units;
     }
 
