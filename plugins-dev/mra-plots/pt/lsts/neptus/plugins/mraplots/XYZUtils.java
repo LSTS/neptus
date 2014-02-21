@@ -347,7 +347,6 @@ public class XYZUtils {
         
         ImageElement imageElement = new ImageElement(MapGroup.getNewInstance(cs), mapT);
         imageElement.setId(imageNameId);
-        imageElement.setName(imageNameId);
         imageElement.setCenterLocation(centerLocation);
         imageElement.setImageScale(scale);
         imageElement.setImage(image);
@@ -592,8 +591,8 @@ public class XYZUtils {
         br.close();
 
         LocationType baseLoc = new LocationType();
-        baseLoc.setLatitude("41N09'35.293''");// 41º09'35.293"N
-        baseLoc.setLongitude("08W41'35.721''");
+        baseLoc.setLatitudeStr("41N09'35.293''");// 41º09'35.293"N
+        baseLoc.setLongitudeStr("08W41'35.721''");
         baseLoc.translatePosition(-465778.48, -152987.42, 0);
         //baseLoc = (LocationType) baseLoc.convertToAbsoluteLatLonDepth();
         NeptusLog.pub().info("<###>Base location = " + baseLoc);

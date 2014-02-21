@@ -146,14 +146,13 @@ public class ContactMarker extends ConsolePanel implements IEditorMenuExtension,
         MarkElement contact = new MarkElement(mapType.getMapGroup(), mapType);
 
         contact.setId(id);
-        contact.setName(id);
         contact.setCenterLocation(locContact);
         mapType.addObject(contact);
         mission.save(false);
 
         MapPoint point = new MapPoint();
-        point.setLat(locContact.getLatitudeAsDoubleValueRads());
-        point.setLon(locContact.getLongitudeAsDoubleValueRads());
+        point.setLat(locContact.getLatitudeRads());
+        point.setLon(locContact.getLongitudeRads());
         point.setAlt(locContact.getHeight());
         MapFeature feature = new MapFeature();
         feature.setFeatureType(FEATURE_TYPE.POI);

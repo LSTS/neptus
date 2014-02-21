@@ -745,8 +745,16 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
             pp.setLength(limits.getOpAreaLength());
             pp.setYawDeg(Math.toDegrees(limits.getOpRotationRads()));
             LocationType lt = new LocationType();
+<<<<<<< HEAD
             lt.setLatitude(limits.getOpAreaLat());
             lt.setLongitude(limits.getOpAreaLon());
+||||||| merged common ancestors
+            lt.setLatitude(limits.opAreaLat);
+            lt.setLongitude(limits.opAreaLon);
+=======
+            lt.setLatitudeDegs(limits.opAreaLat);
+            lt.setLongitudeDegs(limits.opAreaLon);
+>>>>>>> feature/hotfix-v3.0.1
             pp.setCenterLocation(lt);
             pp.setMyColor(Color.red);
         }

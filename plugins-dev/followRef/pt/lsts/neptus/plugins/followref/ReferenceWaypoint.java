@@ -91,8 +91,8 @@ public class ReferenceWaypoint implements ConfigurationListener {
         if (loiter)
             reference.setRadius(loiterRadius);
         
-        reference.setLat(loc.getLatitudeAsDoubleValueRads());
-        reference.setLon(loc.getLongitudeAsDoubleValueRads());
+        reference.setLat(loc.getLatitudeRads());
+        reference.setLon(loc.getLongitudeRads());
         if (loc.getZUnits() != ManeuverLocation.Z_UNITS.NONE)
             reference.setZ(new DesiredZ((float)loc.getZ(), Z_UNITS.valueOf(loc.getZUnits().name())));
         if (defineSpeed)
@@ -116,16 +116,16 @@ public class ReferenceWaypoint implements ConfigurationListener {
     public ReferenceWaypoint(ManeuverLocation loc, double speed) {
         loc.convertToAbsoluteLatLonDepth();
         this.loc = loc.clone();
-        this.latitude = loc.getLatitudeAsDoubleValue();
-        this.longitude = loc.getLongitudeAsDoubleValue();
+        this.latitude = loc.getLatitudeDegs();
+        this.longitude = loc.getLongitudeDegs();
         this.speed = speed;
         this.speedUnits = SPEED_UNITS.METERS_PS;
         this.z = loc.getZ();
         this.zUnits = loc.getZUnits();
         
         reference = new Reference();        
-        reference.setLat(loc.getLatitudeAsDoubleValueRads());
-        reference.setLon(loc.getLongitudeAsDoubleValueRads());
+        reference.setLat(loc.getLatitudeRads());
+        reference.setLon(loc.getLongitudeRads());
         reference.setZ(new DesiredZ((float)loc.getZ(), Z_UNITS.valueOf(loc.getZUnits().name())));
         reference.setSpeed(new DesiredSpeed(speed, SPEED_UNITS.METERS_PS));
         reference.setFlags((short)(Reference.FLAG_LOCATION | Reference.FLAG_SPEED | Reference.FLAG_Z));
@@ -153,8 +153,8 @@ public class ReferenceWaypoint implements ConfigurationListener {
         loiter = (ref.getFlags() & Reference.FLAG_RADIUS) != 0;
         this.loiterRadius = ref.getRadius();
         
-        this.latitude = loc.getLatitudeAsDoubleValue();
-        this.longitude = loc.getLongitudeAsDoubleValue();
+        this.latitude = loc.getLatitudeDegs();
+        this.longitude = loc.getLongitudeDegs();
         this.z = loc.getZ();
         this.zUnits = loc.getZUnits();
         if (ref.getSpeed() != null) {
@@ -167,12 +167,12 @@ public class ReferenceWaypoint implements ConfigurationListener {
 
     public void setHorizontalLocation(LocationType newLoc) {
         newLoc.convertToAbsoluteLatLonDepth();
-        loc.setLatitude(newLoc.getLatitudeAsDoubleValue());
-        loc.setLongitude(newLoc.getLongitudeAsDoubleValue());
-        reference.setLat(newLoc.getLatitudeAsDoubleValueRads());
-        reference.setLon(newLoc.getLongitudeAsDoubleValueRads());
-        latitude = newLoc.getLatitudeAsDoubleValue();
-        longitude = newLoc.getLongitudeAsDoubleValue();
+        loc.setLatitudeDegs(newLoc.getLatitudeDegs());
+        loc.setLongitudeDegs(newLoc.getLongitudeDegs());
+        reference.setLat(newLoc.getLatitudeRads());
+        reference.setLon(newLoc.getLongitudeRads());
+        latitude = newLoc.getLatitudeDegs();
+        longitude = newLoc.getLongitudeDegs();
     }
     
     public void setZ(DesiredZ desiredZ) {        

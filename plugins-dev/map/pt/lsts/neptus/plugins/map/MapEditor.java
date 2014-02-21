@@ -471,6 +471,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
     protected void editElement(String elemId) {
         AbstractElement[] elements = mg.getMapObjectsByID(elemId);
+        
         if (elements.length == 0)
             return;
 
@@ -525,12 +526,18 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             if (!intersectedObjects.isEmpty()) {
                 for (final AbstractElement elem : intersectedObjects) {
                     final String elemId = elem.getId();
+<<<<<<< HEAD
                     JMenu menu = new JMenu(elem.getName() + " [" + I18n.text(elem.getType()) + "]");
+||||||| merged common ancestors
+                    JMenu menu = new JMenu(elemId + " [" + I18n.text(elem.getType()) + "]");
+=======
+                    JMenu menu = new JMenu(elem.getId() + " [" + I18n.text(elem.getType()) + "]");
+>>>>>>> feature/hotfix-v3.0.1
 
                     menu.add(I18n.text("Properties")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            editElement(elemId);
+                            editElement(elemId);                            
                         }
                     });
 
@@ -571,8 +578,13 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                                 AbstractElement newElem = el.getClass().getConstructor(MapGroup.class, MapType.class)
                                         .newInstance(mg, pivot);
                                 newElem.setCenterLocation(loc);
-                                newElem.showParametersDialog(MapEditor.this, pivot.getObjectNames(), pivot, true);
-
+                                
+                                Vector<String> objNames = new Vector<>();
+                                for (AbstractElement el : mg.getAllObjects())
+                                    objNames.add(el.getId());
+                                newElem.showParametersDialog(MapEditor.this, objNames.toArray(new String[0]), pivot, true);
+                                newElem.setId(newElem.getId());
+                                
                                 if (!newElem.userCancel) {
                                     pivot.addObject(newElem);
 
@@ -673,15 +685,29 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                             centerElem.setEnabled(true);
                     }
 
+<<<<<<< HEAD
                     editElem.add(elem.getName() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
                             new ActionListener() {
+||||||| merged common ancestors
+                    editElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(new ActionListener() {
+=======
+                    editElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
+                            new ActionListener() {
+>>>>>>> feature/hotfix-v3.0.1
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             editElement(elem.getId());
                         }
                     });
+<<<<<<< HEAD
                     removeElem.add(elem.getName() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
                             new ActionListener() {
+||||||| merged common ancestors
+                    removeElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(new ActionListener() {
+=======
+                    removeElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
+                            new ActionListener() {
+>>>>>>> feature/hotfix-v3.0.1
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             removeElement(elem.getId());

@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -92,8 +93,10 @@ public class MissionTreeModel extends DefaultTreeModel {
     public MissionTreeModel() {
         super(new ExtendedTreeNode("Mission Elements"));
         maps = new ExtendedTreeNode(ParentNodes.MAP.nodeName);
-        plans = new ExtendedTreeNode(ParentNodes.PLANS.nodeName);
         trans = new ExtendedTreeNode(ParentNodes.TRANSPONDERS.nodeName);
+        ((DefaultMutableTreeNode) root).add(trans);
+        plans = new ExtendedTreeNode(ParentNodes.PLANS.nodeName);
+        ((DefaultMutableTreeNode) root).add(plans);
     }
 
     /**
@@ -104,8 +107,8 @@ public class MissionTreeModel extends DefaultTreeModel {
     private MissionTreeModel(ExtendedTreeNode maps, ExtendedTreeNode plans, ExtendedTreeNode trans) {
         super(new ExtendedTreeNode("Mission Elements"));
         this.maps = maps;
-        this.plans = plans;
         this.trans = trans;
+        this.plans = plans;
     }
 
     @Override
@@ -366,6 +369,31 @@ public class MissionTreeModel extends DefaultTreeModel {
         return false;
     }
 
+    // TODO On hold until removing all beacons is stable
+    // public <E extends NameId> ArrayList<E> removeAllChildren(ParentNodes parentType) {
+    // ExtendedTreeNode parent;
+    // switch (parentType) {
+    // case PLANS:
+    // parent = plans;
+    // break;
+    // case TRANSPONDERS:
+    // parent = trans;
+    // break;
+    // default:
+    // NeptusLog.pub().error("ADD SUPPORT FOR " + parentType.name() + " IN MissionBrowser.removeById()");
+    // return null;
+    // }
+    // int childCount = parent.getChildCount();
+    // ArrayList<E> children = new ArrayList<E>();
+    // for (int i = 0; i < childCount; i++) {
+    // E userObject = (E) ((ExtendedTreeNode) parent.getChildAt(i)).getUserObject();
+    // children.add(userObject);
+    // }
+    // parent.removeAllChildren();
+    // reload(parent);
+    // return children;
+    // }
+
     public void setHomeRef(HomeReference href) {
         // insert if root has no children or if the first child is not Home Reference
         if (root.getChildCount() == 0
@@ -409,20 +437,21 @@ public class MissionTreeModel extends DefaultTreeModel {
         return parent.iterator();
     }
 
-    public void printTree(String msg) {
-        ChildIterator transIt;
+    public void printTree(String msg, ParentNodes parentType) {
+        ChildIterator parentIt;
         ExtendedTreeNode tempNode;
-        TransponderElement tempTrans;
-        transIt = getIterator(ParentNodes.TRANSPONDERS);
-        StringBuilder treeString = new StringBuilder(msg);
-        treeString.append("Tree: ");
-        while (transIt.hasNext()) {
-            tempNode = transIt.next();
-            tempTrans = ((TransponderElement) tempNode.getUserObject());
-            treeString.append(tempTrans.toString());
+        NameId tempElem;
+        parentIt = getIterator(parentType);
+        StringBuilder treeString = new StringBuilder();
+        int size = 0;
+        while (parentIt.hasNext()) {
+            tempNode = parentIt.next();
+            tempElem = ((NameId) tempNode.getUserObject());
+            treeString.append(tempElem.toString());
             treeString.append(", ");
+            size++;
         }
-        NeptusLog.pub().error(treeString);
+        NeptusLog.pub().error(msg + size + " in tree:    [" + treeString + "]");
     }
 
     // public TransNodeIterator iterator(){

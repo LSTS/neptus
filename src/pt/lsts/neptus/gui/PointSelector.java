@@ -94,16 +94,16 @@ public class PointSelector extends ParametersPanel {
 		LocationType location = new LocationType();
 		
 		location.setDepth(getHeightDepthSelector().getDepth());
-		location.setLatitude(getLatLongSelector().getLatitude());
-		location.setLongitude(getLatLongSelector().getLongitude());
+		location.setLatitudeStr(getLatLongSelector().getLatitude());
+		location.setLongitudeStr(getLatLongSelector().getLongitude());
 		NeptusLog.pub().info("<###> "+location);
 		return location;
 	}
 	
 	public void setLocationType(LocationType location) {
 		getHeightDepthSelector().setZ(location.getDepth());		
-		getLatLongSelector().setLatitude(CoordinateUtil.parseLatitudeStringToDMS(location.getLatitude()));
-		getLatLongSelector().setLongitude(CoordinateUtil.parseLongitudeStringToDMS(location.getLongitude()));
+		getLatLongSelector().setLatitude(CoordinateUtil.parseLatitudeStringToDMS(location.getLatitudeStr()));
+		getLatLongSelector().setLongitude(CoordinateUtil.parseLongitudeStringToDMS(location.getLongitudeStr()));
 		getLatLongSelector().setDMSStyleIndicatorTo(LatLongSelector.DMS_DISPLAY);
 	}
 	

@@ -87,11 +87,19 @@ public class SidescanReplay implements LogReplayLayer {
     protected void generateImage(StateRenderer2D renderer)
     {
         final StateRenderer2D rend = renderer;
+<<<<<<< HEAD
 
         if (dataSet.isEmpty())
             return;
 
         final double groundResolution = MapTileUtil.groundResolution(dataSet.get(0).loc.getLatitudeAsDoubleValue(), renderer.getLevelOfDetail());
+||||||| merged common ancestors
+        
+        final double groundResolution = MapTileUtil.groundResolution(dataSet.get(0).loc.getLatitudeAsDoubleValue(), renderer.getLevelOfDetail());
+=======
+        
+        final double groundResolution = MapTileUtil.groundResolution(dataSet.get(0).loc.getLatitudeDegs(), renderer.getLevelOfDetail());
+>>>>>>> feature/hotfix-v3.0.1
         final double invGR = 1/groundResolution;
         lod = renderer.getLevelOfDetail();
         imageLod = lod;
@@ -205,20 +213,20 @@ public class SidescanReplay implements LogReplayLayer {
                     msgSS = ssParse.nextLogEntry();
                     continue;
                 }
-                loc.setLatitude(Math.toDegrees(msgES.getDouble("lat")));
-                loc.setLongitude(Math.toDegrees(msgES.getDouble("lon")));
+                loc.setLatitudeDegs(Math.toDegrees(msgES.getDouble("lat")));
+                loc.setLongitudeDegs(Math.toDegrees(msgES.getDouble("lon")));
                 loc.setOffsetNorth(msgES.getDouble("x"));
                 loc.setOffsetEast(msgES.getDouble("y"));
                 tempLoc = loc.getNewAbsoluteLatLonDepth();
 
-                if (tempLoc.getLatitudeAsDoubleValue() < minLat)
-                    minLat = tempLoc.getLatitudeAsDoubleValue();
-                if (tempLoc.getLatitudeAsDoubleValue() > maxLat)
-                    maxLat = tempLoc.getLatitudeAsDoubleValue();
-                if (tempLoc.getLongitudeAsDoubleValue() < minLon)
-                    minLon = tempLoc.getLongitudeAsDoubleValue();
-                if (tempLoc.getLongitudeAsDoubleValue() > maxLon)
-                    maxLon = tempLoc.getLongitudeAsDoubleValue();
+                if (tempLoc.getLatitudeDegs() < minLat)
+                    minLat = tempLoc.getLatitudeDegs();
+                if (tempLoc.getLatitudeDegs() > maxLat)
+                    maxLat = tempLoc.getLatitudeDegs();
+                if (tempLoc.getLongitudeDegs() < minLon)
+                    minLon = tempLoc.getLongitudeDegs();
+                if (tempLoc.getLongitudeDegs() > maxLon)
+                    maxLon = tempLoc.getLongitudeDegs();
 
                 if (prevMsgSS != null) {
                     byte[] currentRaw = msgSS.getRawData("data");

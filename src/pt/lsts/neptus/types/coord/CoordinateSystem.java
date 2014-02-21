@@ -442,8 +442,8 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
 
         Element origin = root.addElement("origin");
 
-        origin.addElement("latitude").addText(getLatitude());
-        origin.addElement("longitude").addText(getLongitude());
+        origin.addElement("latitude").addText(getLatitudeStr());
+        origin.addElement("longitude").addText(getLongitudeStr());
 
         origin.addElement("depth").addText(String.valueOf(getDepth()));
 

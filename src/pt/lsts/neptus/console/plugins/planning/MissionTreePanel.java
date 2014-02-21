@@ -77,10 +77,17 @@ import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+||||||| merged common ancestors
+=======
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.IPlanSelection;
 import pt.lsts.neptus.console.plugins.ITransponderSelection;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
@@ -93,6 +100,12 @@ import pt.lsts.neptus.gui.LocationPanel;
 import pt.lsts.neptus.gui.MissionBrowser;
 import pt.lsts.neptus.gui.MissionBrowser.State;
 import pt.lsts.neptus.gui.MissionTreeModel.NodeInfoKey;
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
+||||||| merged common ancestors
+import pt.lsts.neptus.gui.VehicleSelectionDialog;
+=======
+import pt.lsts.neptus.gui.MissionTreeModel.ParentNodes;
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
 import pt.lsts.neptus.gui.tree.ExtendedTreeNode;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
@@ -221,7 +234,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     e.printStackTrace();
                 }
             }
-            System.out.println("dbPlanReceived");
+            //System.out.println("dbPlanReceived");
         }
 
         @Override
@@ -230,7 +243,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
             // Delete a plan from the DB. The 'plan_id' field identifies
             // the plan to delete.
             browser.removeCurrSelectedNodeRemotely();
-            System.out.println("dbPlanRemoved");
+            //System.out.println("dbPlanRemoved");
         }
 
         @Override
@@ -240,7 +253,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
             // plan, and a pre-existing plan with the same identifier, if
             // any will be overwritten. For requests, the 'arg' field must
             // contain a 'PlanSpecification' message.
-            System.out.println("dbPlanSent");
+            //System.out.println("dbPlanSent");
             // sent plan confirmation, is now in sync
             browser.setPlanAsSync(planId);
         }
@@ -284,13 +297,13 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
 
     @Override
     public void missionReplaced(MissionType mission) {
-        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
     }
 
     @Override
     public void missionUpdated(MissionType mission) {
         // it is called (among others) when the specs for a remote plan have just been received
-        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
     }
 
     /**
@@ -302,7 +315,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
             return;
         inited = true;
         updatePlanDBListener(getMainVehicleId());
-        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
         addClearPlanDbMenuItem();
     }
 
@@ -396,7 +409,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         running = false;
         updatePlanDBListener(evt.getCurrent());
         askForBeaconConfig();
-        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
     }
 
     /**
@@ -481,17 +494,34 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         ArrayList<ExtendedTreeNode> selectedNodes = browser.getSelectedNodes();
         // final TreePath[] multiSel = selectedNodes;
         ArrayList<TransponderElement> trans = new ArrayList<>();
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
 //        if (multiSel != null) {
 //            for (TreePath path : multiSel) {
         for (ExtendedTreeNode node : selectedNodes) {
             // ExtendedTreeNode node = ((ExtendedTreeNode) path.getLastPathComponent());
+||||||| merged common ancestors
+        if (multiSel != null) {
+            for (TreePath path : multiSel) {
+                ExtendedTreeNode node = ((ExtendedTreeNode) path.getLastPathComponent());
+=======
+        // if (multiSel != null) {
+        // for (TreePath path : multiSel) {
+        for (ExtendedTreeNode node : selectedNodes) {
+            // ExtendedTreeNode node = ((ExtendedTreeNode) path.getLastPathComponent());
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
                 Object userObject = node.getUserObject();
 
                 if (userObject instanceof TransponderElement
                         && node.getUserInfo().get(NodeInfoKey.SYNC) != State.REMOTE)
                     trans.add((TransponderElement) userObject);
             }
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
 //        }
+||||||| merged common ancestors
+        }
+=======
+        // }
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
         return trans;
     }
 
@@ -544,7 +574,8 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                 LblConfig lblConfig = (LblConfig) message;
                 if (((LblConfig) message).getOp() == OP.CUR_CFG) {
                     // NeptusLog.pub().error("LblConfig message arrived");
-                    browser.updateTransStateEDT(getConsole().getMission(), getMainVehicleId(), (Vector<LblBeacon>) lblConfig.getBeacons().clone());
+                    browser.updateTransStateEDT(getConsole().getMission(), getMainVehicleId(),
+                            (Vector<LblBeacon>) lblConfig.getBeacons().clone(), getConsole());
                 }
                 break;
 
@@ -624,8 +655,17 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         }
 
         private void addActionSendPlan(final ConsoleLayout console2, final PlanDBControl pdbControl,
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
                 final ArrayList<NameId> selectedItems, JPopupMenu popupMenu) {
             popupMenu.add(I18n.textf("Send %planName to %system", getItemsInString(selectedItems), console2.getMainSystem()))
+||||||| merged common ancestors
+                final Object selection, JPopupMenu popupMenu) {
+            popupMenu.add(I18n.textf("Send '%planName' to %system", selection, console2.getMainSystem()))
+=======
+                final ArrayList<NameId> selectedItems, JPopupMenu popupMenu) {
+            popupMenu.add(
+                    I18n.textf("Send %planName to %system", getItemsInString(selectedItems), console2.getMainSystem()))
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
                     .addActionListener(
 
                     new ActionListener() {
@@ -718,16 +758,29 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     .addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
                             // if (selection != null) {
                                 // pdbControl.setRemoteSystemId(console2.getMainSystem());
                             for (NameId nameId : remotePlans) {
                                 pdbControl.requestPlan(nameId.getIdentification());
+||||||| merged common ancestors
+                            if (selection != null) {
+                                // PlanType sel = (PlanType) selection;
+                                pdbControl.setRemoteSystemId(console2.getMainSystem());
+                                pdbControl.deletePlan(((NameId) selection).getIdentification());
+=======
+                            // if (selection != null) {
+                            // pdbControl.setRemoteSystemId(console2.getMainSystem());
+                            for (NameId nameId : remotePlans) {
+                                pdbControl.requestPlan(nameId.getIdentification());
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
                             }
                             // }
                         }
                     });
         }
 
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
         private void addActionRemovePlanRemotely(final ConsoleLayout console2, final PlanDBControl pdbControl,
                 final ArrayList<NameId> synAndUnsyncPlans, JPopupMenu popupMenu) {
             popupMenu.add(I18n.textf("Remove '%planName' from %system", getItemsInString(synAndUnsyncPlans), console2.getMainSystem()))
@@ -739,12 +792,43 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                         pdbControl.setRemoteSystemId(console2.getMainSystem());
                         for (NameId nameId : synAndUnsyncPlans) {
                             pdbControl.deletePlan(nameId.getIdentification());
+||||||| merged common ancestors
+        private <T extends NameId> void addActionShare(final T selection, JMenu dissemination,
+                final String objectTypeName) {
+            dissemination.add(I18n.textf("Share '%transponderName'", selection.getIdentification())).addActionListener(
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            ImcMsgManager.disseminate((XmlOutputMethods) selection, objectTypeName);
+=======
+        private void addActionRemovePlanRemotely(final ConsoleLayout console2, final PlanDBControl pdbControl,
+                final ArrayList<NameId> synAndUnsyncPlans, JPopupMenu popupMenu) {
+            popupMenu.add(
+                    I18n.textf("Remove '%planName' from %system", getItemsInString(synAndUnsyncPlans),
+                            console2.getMainSystem())).addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // if (selection != null) {
+                    // PlanType sel = (PlanType) selection;
+                    pdbControl.setRemoteSystemId(console2.getMainSystem());
+                    for (NameId nameId : synAndUnsyncPlans) {
+                        pdbControl.deletePlan(nameId.getIdentification());
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
                         }
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
                         // }
                     }
             });
+||||||| merged common ancestors
+                    });
+=======
+                    // }
+                }
+            });
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
         }
 
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
         // private void addActionShare(final ArrayList<NameId> selectedItems, JMenu dissemination,
         // final String objectTypeName) {
         // StringBuilder itemsInString = getItemsInString(selectedItems);
@@ -761,10 +845,28 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
 
 
 
+||||||| merged common ancestors
+=======
+        // private void addActionShare(final ArrayList<NameId> selectedItems, JMenu dissemination,
+        // final String objectTypeName) {
+        // StringBuilder itemsInString = getItemsInString(selectedItems);
+        // dissemination.add(I18n.textf("Share '%transponderName'", itemsInString)).addActionListener(
+        // new ActionListener() {
+        // @Override
+        // public void actionPerformed(ActionEvent e) {
+        // for (NameId nameId : selectedItems) {
+        // ImcMsgManager.disseminate((XmlOutputMethods) nameId, objectTypeName);
+        // }
+        // }
+        // });
+        // }
+
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
         @Override
         public void mousePressed(MouseEvent e) {
             if (e.getButton() != MouseEvent.BUTTON3)
                 return;
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
             ArrayList<NameId> selectedItems = browser.getSelectedItems();
             ArrayList<ExtendedTreeNode> selectedNodes = browser.getSelectedNodes();
             JPopupMenu popupMenu = new JPopupMenu();
@@ -820,7 +922,72 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                         else{
                             NeptusLog.pub().error("The plan "+extendedTreeNode+" has no state.");
                         }
+||||||| merged common ancestors
+
+            int plansCount = 0;
+            if (multiSel != null){
+                for (Object o : multiSel) {
+                    if (o instanceof PlanType) {
+                        plansCount++;
+=======
+            ArrayList<NameId> selectedItems = browser.getSelectedItems();
+            ArrayList<ExtendedTreeNode> selectedNodes = browser.getSelectedNodes();
+            JPopupMenu popupMenu = new JPopupMenu();
+            // JMenu dissemination = new JMenu(I18n.text("Dissemination"));
+            // addActionAddNewTrans(popupMenu);
+            ArrayList<NameId> toShare = new ArrayList<NameId>();
+            ItemTypes selecType = findSelecMissionElem(selectedItems);
+            switch (selecType) {
+                case Plans:
+                    popupMenu.addSeparator();
+                    // ArrayList<NameId> synAndUnsyncPlans = new ArrayList<NameId>();
+                    // ArrayList<NameId> remotePlans = new ArrayList<NameId>();
+                    // New
+                    ArrayList<NameId> toRemoveLocally = new ArrayList<NameId>();
+                    ArrayList<NameId> toRemoveRemotely = new ArrayList<NameId>();
+                    ArrayList<NameId> toGetPlan = new ArrayList<NameId>();
+                    ArrayList<NameId> toSend = new ArrayList<NameId>();
+
+                    State syncState;
+                    // Separate plans by state to give appropriated options to each
+                    // addActionChangePlanVehicles(selection, popupMenu); // add appropriatly when multivehicles are
+                    // needed
+                    for (ExtendedTreeNode extendedTreeNode : selectedNodes) {
+                        syncState = (State) extendedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
+                        if (syncState != null) {
+                            switch (syncState) {
+                                case REMOTE:
+                                    toRemoveRemotely.add((NameId) extendedTreeNode.getUserObject());
+                                    toGetPlan.add((NameId) extendedTreeNode.getUserObject());
+                                    break;
+                                case SYNC:
+                                    toRemoveRemotely.add((NameId) extendedTreeNode.getUserObject());
+                                    toRemoveLocally.add((NameId) extendedTreeNode.getUserObject());
+                                    toShare.add((NameId) extendedTreeNode.getUserObject());
+                                    break;
+                                case NOT_SYNC:
+                                    toRemoveRemotely.add((NameId) extendedTreeNode.getUserObject());
+                                    toRemoveLocally.add((NameId) extendedTreeNode.getUserObject());
+                                    toSend.add((NameId) extendedTreeNode.getUserObject());
+                                    toGetPlan.add((NameId) extendedTreeNode.getUserObject());
+                                    toShare.add((NameId) extendedTreeNode.getUserObject());
+                                    break;
+                                case LOCAL:
+                                    toRemoveLocally.add((NameId) extendedTreeNode.getUserObject());
+                                    toSend.add((NameId) extendedTreeNode.getUserObject());
+                                    break;
+                            }
+                            // if (syncState == State.REMOTE)
+                            // remotePlans.add((NameId) extendedTreeNode.getUserObject());
+                            // else
+                            // synAndUnsyncPlans.add((NameId) extendedTreeNode.getUserObject());
+                        }
+                        else {
+                            NeptusLog.pub().error("The plan " + extendedTreeNode + " has no state.");
+                        }
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
                     }
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
                     if (toRemoveRemotely.size() > 0)
                         addActionRemovePlanRemotely(getConsole(), pdbControl, toRemoveRemotely, popupMenu);
                     if (toRemoveLocally.size() > 0)
@@ -887,14 +1054,146 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     break;
                 default:
                     break;
+||||||| merged common ancestors
+                }
+            }
+            if (multiSel == null || multiSel.length <= 1) {
+                browser.setMultiSelect(e);
+=======
+                    if (toRemoveRemotely.size() > 0)
+                        addActionRemovePlanRemotely(getConsole(), pdbControl, toRemoveRemotely, popupMenu);
+                    if (toRemoveLocally.size() > 0)
+                        addActionRemovePlanLocally(getConsole(), toRemoveLocally, popupMenu);
+                    if (toSend.size() > 0)
+                        addActionSendPlan(getConsole(), pdbControl, toSend, popupMenu);
+                    if (toGetPlan.size() > 0)
+                        addActionGetRemotePlan(getConsole(), pdbControl, toGetPlan, popupMenu);
+
+                    // if (synAndUnsyncPlans.size()>0) {
+                    // addActionRemovePlanRemotely(getConsole(), pdbControl, synAndUnsyncPlans, popupMenu);
+                    // addActionGetRemotePlan(getConsole(), pdbControl, synAndUnsyncPlans, popupMenu);
+                    // addActionShare(selectedItems, dissemination);
+                    // // addActionChangePlanVehicles(selection, popupMenu); // Uncomment when multiple vehicles needs
+                    // // this
+                    // // ActionItem actionItem;
+                    // // for (int a = 0; a < extraPlanActions.size(); a++) {
+                    // // actionItem = extraPlanActions.get(a);
+                    // // popupMenu.add(I18n.text(actionItem.label)).addActionListener(actionItem.action);
+                    // // }
+                    // }
+                    // if (remotePlans.size() > 0) {
+                    // addActionGetRemotePlan(getConsole(), pdbControl, remotePlans, popupMenu);
+                    // addActionRemovePlanRemotely(getConsole(), pdbControl, remotePlans, popupMenu);
+                    // }
+                    break;
+                case Transponder:
+                    addActionAddNewTrans(popupMenu);
+                    addActionRemoveAllTrans(popupMenu);
+                    if (selectedItems.size() == 1)
+                        addActionEditTrans((TransponderElement) selectedItems.get(0), popupMenu);
+                    ArrayList<TransponderElement> localTrans = new ArrayList<TransponderElement>();
+                    State state;
+                    for (ExtendedTreeNode extendedTreeNode : selectedNodes) {
+                        state = (State) extendedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
+                        // addActionShare(selectedItems, dissemination, "Transponder");
+                        toShare.add((NameId) extendedTreeNode.getUserObject());
+                        if (state == State.LOCAL)
+                            localTrans.add((TransponderElement) extendedTreeNode.getUserObject());
+                    }
+                    if (localTrans.size() > 0) {
+                        addActionRemoveTrans(localTrans, popupMenu);
+                    }
+                    // Switch
+                    JMenu switchM = new JMenu(I18n.text("Switch"));
+                    ArrayList<TransponderElement> transponders = browser.getTransponders();
+                    if (transponders.size() > 0) {
+                        TransponderElement transA, transB;
+                        for (int iA = 0; iA < transponders.size(); iA++) {
+                            transA = transponders.get(iA);
+                            for (int iB = iA + 1; iB < transponders.size(); iB++) {
+                                transB = transponders.get(iB);
+                                if (!transA.getDisplayName().equals(transB.getDisplayName())) {
+                                    addActionSwitchTrans(transA, switchM, transB);
+                                }
+                            }
+                        }
+                        popupMenu.add(switchM);
+                    }
+                    break;
+                case HomeRef:
+                    addActionEditHomeRef(selectedItems.get(0), popupMenu);
+                    break;
+                case Mix:
+                case None:
+                    // Check if what is selected is a parent folders
+                    if (selectedNodes.size() == 1) {
+                        String parentName = (String) selectedNodes.get(0).getUserObject();
+                        if(parentName.equals(ParentNodes.TRANSPONDERS.nodeName)){
+                            addActionAddNewTrans(popupMenu);
+                            addActionRemoveAllTrans(popupMenu);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
             }
             popupMenu.addSeparator();
             if (toShare.size() > 0)
                 addActionShare(toShare, popupMenu);
             // popupMenu.add(dissemination);
             if (Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null) != null) {
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
+                addActionPasteUrl(popupMenu);
+||||||| merged common ancestors
+                addActionPasteUrl(dissemination);
+                dissemination.addSeparator();
+            }
+            if (selection == null) {
+                popupMenu.addSeparator();
+                addActionAddNewTrans(popupMenu);
+=======
                 addActionPasteUrl(popupMenu);
             }
+            addActionReloadPanel(popupMenu);
+            popupMenu.show((Component) e.getSource(), e.getX(), e.getY());
+        }
+
+        private void addActionRemoveAllTrans(JPopupMenu popupMenu) {
+            popupMenu.add(I18n.text("Remove all transponders from vehicle")).addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    LblConfig msgLBLConfiguration = new LblConfig();
+                    msgLBLConfiguration.setOp(LblConfig.OP.SET_CFG);
+                    sendMsg(msgLBLConfiguration);
+                    // TODO On hold until removing all beacons is stable
+                    // browser.removeAllTransponders(console.getMission());
+                }
+            });
+        }
+
+        private void sendMsg(IMCMessage msgLBLConfiguration) {
+            String errorTextForDialog = I18n.text("Error sending acoustic beacons");
+            boolean ignoreAcousticSending = true;
+            String acousticOpServiceName = "acoustic/operation";
+            boolean acousticOpUseOnlyActive = false;
+            boolean acousticOpUserAprovedQuestion = true;
+            IMCSendMessageUtils.sendMessage(msgLBLConfiguration, ImcMsgManager.TRANSPORT_TCP, listener,
+                    MissionTreePanel.this, errorTextForDialog, ignoreAcousticSending, acousticOpServiceName,
+                    acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, getMainVehicleId());
+        }
+
+        MessageDeliveryListener listener = new MessageDeliveryListener() {
+            int tries = 0;
+            private final int maxAttemps = 3;
+
+            private String getDest(IMCMessage message) {
+                ImcSystem sys = message != null ? ImcSystemsHolder.lookupSystem(message.getDst()) : null;
+                String dest = sys != null ? sys.getName() : I18n.text("unknown destination");
+                return dest;
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
+            }
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
             addActionReloadPanel(popupMenu);
             popupMenu.show((Component) e.getSource(), e.getX(), e.getY());
         }
@@ -927,15 +1226,152 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     else
                         type = ItemTypes.Mix;
                 }
+||||||| merged common ancestors
+            else if (selection instanceof PlanType) {
+                popupMenu.addSeparator();
+                addActionSendPlan(console, pdbControl, selection, popupMenu);
+                addActionRemovePlanLocally(console, (NameId) selection, popupMenu);
+                State syncState = (State) ((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.SYNC.name());
+                if (syncState == null)
+                    syncState = State.LOCAL;
+                else if (syncState == State.SYNC || syncState == State.NOT_SYNC) {
+                    addActionRemovePlanRemotely(console, pdbControl, (NameId) selection, popupMenu);
+                    addActionGetRemotePlan(console, pdbControl, selection, popupMenu);
+                }
+                addActionShare(selection, dissemination);
+                addActionChangePlanVehicles(selection, popupMenu);
+                ActionItem actionItem;
+                for (int a = 0; a < extraPlanActions.size(); a++) {
+                    actionItem = extraPlanActions.get(a);
+                    popupMenu.add(I18n.text(actionItem.label)).addActionListener(actionItem.action);
+                }
+            }
+            else if (selection instanceof PlanDBInfo) {
+                State syncState = selectionNode instanceof ExtendedTreeNode ? (State) ((ExtendedTreeNode) selectionNode)
+                        .getUserInfo().get(NodeInfoKey.SYNC.name()) : null;
+                if (syncState == null)
+                    syncState = State.LOCAL;
+                else if (syncState == State.REMOTE) {
+                    addActionGetRemotePlan(console, pdbControl, selection, popupMenu);
+                    addActionRemovePlanRemotely(console, pdbControl, (NameId) selection, popupMenu);
+                }
+            }
+            else if (selection instanceof TransponderElement) {
+                TransponderElement transSel = (TransponderElement) selection;
+                popupMenu.addSeparator();
+                addActionEditTrans(transSel, popupMenu);
+                Object state = ((ExtendedTreeNode) selectionNode).getUserInfo().get(NodeInfoKey.SYNC.name());
+                if (state == State.LOCAL) {
+                    addActionRemoveTrans(transSel, popupMenu);
+                }
+                Vector<TransponderElement> allTransponderElements = MapGroup.getMapGroupInstance(console.getMission())
+                        .getAllObjectsOfType(TransponderElement.class);
+                for (final TransponderElement tempTrans : allTransponderElements) {
+                    if (!transSel.getDisplayName().equals(tempTrans.getDisplayName())) {
+                        addActionSwitchTrans(transSel, popupMenu, tempTrans);
+                    }
+                }
+                addActionShare((NameId) selection, dissemination, "Transponder");
+                addActionAddNewTrans(popupMenu);
+            }
+            else if (selection instanceof HomeReference) {
+                addActionEditHomeRef(selection, popupMenu);
+=======
+
+            private void processDeliveryFailure(IMCMessage message, String errorText) {
+                if (maxAttemps < tries) {
+                    tries = 0;
+                    post(Notification.error(I18n.text("Delivering Message"), errorText));
+                }
+                else {
+                    tries++;
+                    sendMsg(message);
+                }
+            }
+
+            @Override
+            public void deliveryUnreacheable(IMCMessage message) {
+                processDeliveryFailure(
+                        message,
+                        I18n.textf("Message %messageType to %destination delivery destination unreacheable",
+                                message.getAbbrev(), getDest(message)));
+            }
+
+            @Override
+            public void deliveryTimeOut(IMCMessage message) {
+                processDeliveryFailure(message, I18n.textf("Message %messageType to %destination delivery timeout",
+                        message.getAbbrev(), getDest(message)));
+            }
+
+            @Override
+            public void deliveryError(IMCMessage message, Object error) {
+                processDeliveryFailure(
+                        message,
+                        I18n.text(I18n.textf("Message %messageType to %destination delivery error. (%error)",
+                                message.getAbbrev(), getDest(message), error)));
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
+            }
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
+            return type;
+||||||| merged common ancestors
+            if (plansCount > 1) {
+                popupMenu.addSeparator();
+                addActionRemoveSelectedPlans(multiSel, selection, popupMenu);
+            }
+            popupMenu.addSeparator();
+            addActionReloadPanel(popupMenu);
+            popupMenu.add(dissemination);
+            popupMenu.show((Component) e.getSource(), e.getX(), e.getY());
+=======
+
+            @Override
+            public void deliveryUncertain(IMCMessage message, Object msg) {
+            }
+
+            @Override
+            public void deliverySuccess(IMCMessage message) {
+                tries = 0;
+            }
+        };
+
+        private ItemTypes findSelecMissionElem(ArrayList<NameId> selectedItems) {
+            ItemTypes type = ItemTypes.None;
+            for (NameId item : selectedItems) {
+                if (item instanceof PlanType || item instanceof PlanDBInfo) {
+                    if (type == ItemTypes.Plans || type == ItemTypes.None)
+                        type = ItemTypes.Plans;
+                    else
+                        type = ItemTypes.Mix;
+
+                }
+                // else if(nameId instanceof PlanDBInfo){
+                // if (type == ItemTypes.RemotePlan || type == ItemTypes.None)
+                // type = ItemTypes.RemotePlan;
+                // else
+                // type = ItemTypes.Mix;
+                // }
+                else if (item instanceof HomeReference) {
+                    if (type == ItemTypes.HomeRef || type == ItemTypes.None)
+                        type = ItemTypes.HomeRef;
+                    else
+                        type = ItemTypes.Mix;
+                }
+                else if (item instanceof TransponderElement) {
+                    if (type == ItemTypes.Transponder || type == ItemTypes.None)
+                        type = ItemTypes.Transponder;
+                    else
+                        type = ItemTypes.Mix;
+                }
             }
             return type;
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
         }
 
         private void addActionReloadPanel(JPopupMenu popupMenu) {
             popupMenu.add(I18n.text("Reload Panel")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+                    browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
                 }
             });
         }
@@ -973,8 +1409,16 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
                     LocationType loc = new LocationType((HomeReference) selection);
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
                     LocationType after = LocationPanel.showLocationDialog(getConsole(), I18n.text("Set home reference"),
                             loc, getConsole().getMission(), true);
+||||||| merged common ancestors
+                    LocationType after = LocationPanel.showLocationDialog(console, I18n.text("Set home reference"),
+                            loc, console.getMission(), true);
+=======
+                    LocationType after = LocationPanel.showLocationDialog(getConsole(),
+                            I18n.text("Set home reference"), loc, getConsole().getMission(), true);
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
                     if (after == null)
                         return;
 
@@ -1001,7 +1445,13 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                                 @Override
                                 public void run() {
                                     browser.swithLocationsTransponder(selection,
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
                                             tel, getConsole());
+||||||| merged common ancestors
+                                            tel, console);
+=======
+ tel, getConsole());
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
                                 };
                             }.start();
                         }
@@ -1032,6 +1482,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     });
         }
 
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
         // Redo when multiple vehicles needs this
         // private void addActionChangePlanVehicles(final Object selection, JPopupMenu popupMenu) {
         // popupMenu.add(I18n.text("Change plan vehicles")).addActionListener(new ActionListener() {
@@ -1051,6 +1502,46 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         // }
         // });
         // }
+||||||| merged common ancestors
+        private void addActionChangePlanVehicles(final Object selection, JPopupMenu popupMenu) {
+            popupMenu.add(I18n.text("Change plan vehicles")).addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (selection != null) {
+                        PlanType sel = (PlanType) selection;
+
+                        String[] vehicles = VehicleSelectionDialog.showSelectionDialog(console, sel.getVehicles()
+                                .toArray(new VehicleType[0]));
+                        Vector<VehicleType> vts = new Vector<VehicleType>();
+                        for (String v : vehicles) {
+                            vts.add(VehiclesHolder.getVehicleById(v));
+                        }
+                        sel.setVehicles(vts);
+                    }
+                }
+            });
+        }
+=======
+        // Redo when multiple vehicles needs this
+        // private void addActionChangePlanVehicles(final Object selection, JPopupMenu popupMenu) {
+        // popupMenu.add(I18n.text("Change plan vehicles")).addActionListener(new ActionListener() {
+        // @Override
+        // public void actionPerformed(ActionEvent e) {
+        // if (selection != null) {
+        // PlanType sel = (PlanType) selection;
+        //
+        // String[] vehicles = VehicleSelectionDialog.showSelectionDialog(getConsole(), sel.getVehicles()
+        // .toArray(new VehicleType[0]));
+        // Vector<VehicleType> vts = new Vector<VehicleType>();
+        // for (String v : vehicles) {
+        // vts.add(VehiclesHolder.getVehicleById(v));
+        // }
+        // sel.setVehicles(vts);
+        // }
+        // }
+        // });
+        // }
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java
 
         private void addActionShare(final ArrayList<NameId> selectedItems, JPopupMenu popupMenu2) {
             StringBuilder itemsInString = getItemsInString(selectedItems);
@@ -1104,6 +1595,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
          */
         public ActionListener action;
     }
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java
 
     private enum ItemTypes {
         Plans,
@@ -1113,3 +1605,16 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         None;
     }
 }
+||||||| merged common ancestors
+}
+=======
+
+    private enum ItemTypes {
+        Plans,
+        HomeRef,
+        Transponder,
+        Mix,
+        None;
+    }
+}
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/MissionTreePanel.java

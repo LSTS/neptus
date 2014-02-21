@@ -180,8 +180,8 @@ public class GPSFixPanel extends ConsolePanel implements MainVehicleChangeListen
             }
 
             LocationType lt = new LocationType();
-            lt.setLatitude(lat);
-            lt.setLongitude(lon);
+            lt.setLatitudeDegs(lat);
+            lt.setLongitudeDegs(lon);
             Point2D centerPos = renderer.getScreenPosition(new LocationType(lt));
 
             double radius = this.radius * renderer.getZoom();
@@ -248,8 +248,8 @@ public class GPSFixPanel extends ConsolePanel implements MainVehicleChangeListen
         lastCalcPosTimeMillis = System.currentTimeMillis();
 
         LocationType lt = new LocationType();
-        lt.setLatitude(lat);
-        lt.setLongitude(lon);
+        lt.setLatitudeDegs(lat);
+        lt.setLongitudeDegs(lon);
 
         if (showTailPoints) {
             if (scatter == null) {

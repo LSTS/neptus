@@ -184,7 +184,7 @@ public class TrakerTeste extends JPanel
             LinkedHashMap<String, MarkElement> transList = mpm.getMap().getMarksList();
             for (MarkElement tmp : transList.values())
             {
-                String name = tmp.getName();
+                String name = tmp.getId();
                 if (name.equalsIgnoreCase("start"))
                 {
                     locStart.setLocation(tmp.getCenterLocation());
@@ -227,7 +227,6 @@ public class TrakerTeste extends JPanel
             MarkElement mo = new MarkElement(null, null);
             mo.setCenterLocation(new LocationType(cs));
             mo.setId(cs.getId());
-            mo.setName(cs.getName());
             mo.setYawDeg(cs.getYaw());
             mapCS.addObject(mo);
         }
@@ -262,8 +261,8 @@ public class TrakerTeste extends JPanel
         double paY = 0;
         double pbY = distance;
 
-        String lat = cs.getLatitude();
-        String lon = cs.getLongitude();
+        String lat = cs.getLatitudeStr();
+        String lon = cs.getLongitudeStr();
         double yawHR = cs.getYaw();
         double[] cyl = CoordinateUtil.sphericalToCylindricalCoordinates(cs
                 .getOffsetDistance(), cs.getAzimuth(), cs.getZenith());
@@ -291,8 +290,8 @@ public class TrakerTeste extends JPanel
         double offsetEast2 = MathMiscUtils.round(offsetsIne2[1], 3) + legacyOffsetEast;
 
         LocationType loc = new LocationType();
-        loc.setLatitude(lat);
-        loc.setLongitude(lon);
+        loc.setLatitudeStr(lat);
+        loc.setLongitudeStr(lon);
         loc.setDepth(t1Depth);
         loc.setOffsetNorth(offsetNorth);
         loc.setOffsetEast(offsetEast);
@@ -300,8 +299,8 @@ public class TrakerTeste extends JPanel
         loc.setAzimuth(legacyTheta);
 
         LocationType loc2 = new LocationType();
-        loc2.setLatitude(lat);
-        loc2.setLongitude(lon);
+        loc2.setLatitudeStr(lat);
+        loc2.setLongitudeStr(lon);
         loc2.setDepth(t1Depth);
         loc2.setOffsetNorth(offsetNorth2);
         loc2.setOffsetEast(offsetEast2);
@@ -405,7 +404,6 @@ public class TrakerTeste extends JPanel
             MarkElement mo = new MarkElement(null, null);
             mo.setCenterLocation(loc);
             mo.setId("tracker-" + i);
-            mo.setName(mo.getId());
             mapCS.addObject(mo);
 
             /*

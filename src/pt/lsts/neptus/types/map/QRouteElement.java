@@ -158,7 +158,7 @@ public class QRouteElement extends SimpleMapElement implements ConfigurationList
             LocationType l = new LocationType(pt.getX(), pt.getY());
             l.translatePosition(offsets);
             l.convertToAbsoluteLatLonDepth();
-            pt.setLocation(l.getLatitudeAsDoubleValue(), l.getLongitudeAsDoubleValue());
+            pt.setLocation(l.getLatitudeDegs(), l.getLongitudeDegs());
         }
     }
 }

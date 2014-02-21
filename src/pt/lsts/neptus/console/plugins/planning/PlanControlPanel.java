@@ -120,6 +120,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
     protected static final boolean USE_ACOUSTICS = false;
 
     private final ImageIcon ICON_BEACONS = ImageUtils
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java
             .getIcon("images/planning/uploadBeacons.png");
     private final ImageIcon ICON_BEACONS_ZERO = ImageUtils
             .getIcon("images/planning/uploadBeaconsZero.png");
@@ -127,6 +128,21 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
     private final ImageIcon ICON_DOWN_R = ImageUtils.getIcon("images/planning/fileimport.png");
     private final ImageIcon ICON_START = ImageUtils.getIcon("images/planning/start.png");
     private final ImageIcon ICON_STOP = ImageUtils.getIcon("images/planning/stop.png");
+||||||| merged common ancestors
+            .getIcon("pt/lsts/neptus/plugins/planning/uploadBeacons.png");
+    private final ImageIcon ICON_BEACONS_ZERO = ImageUtils
+            .getIcon("pt/lsts/neptus/plugins/planning/uploadBeaconsZero.png");
+    private final ImageIcon ICON_UP = ImageUtils.getIcon("pt/lsts/neptus/plugins/planning/up.png");
+    private final ImageIcon ICON_DOWN_R = ImageUtils.getIcon("pt/lsts/neptus/plugins/planning/fileimport.png");
+    private final ImageIcon ICON_START = ImageUtils.getIcon("pt/lsts/neptus/plugins/planning/start.png");
+    private final ImageIcon ICON_STOP = ImageUtils.getIcon("pt/lsts/neptus/plugins/planning/stop.png");
+=======
+            .getIcon("pt/lsts/neptus/plugins/planning/uploadBeacons.png");
+    private final ImageIcon ICON_UP = ImageUtils.getIcon("pt/lsts/neptus/plugins/planning/up.png");
+    private final ImageIcon ICON_DOWN_R = ImageUtils.getIcon("pt/lsts/neptus/plugins/planning/fileimport.png");
+    private final ImageIcon ICON_START = ImageUtils.getIcon("pt/lsts/neptus/plugins/planning/start.png");
+    private final ImageIcon ICON_STOP = ImageUtils.getIcon("pt/lsts/neptus/plugins/planning/stop.png");
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java
     private final ImageIcon ICON_TELEOP_ON = ImageUtils.getScaledIcon(
             "images/planning/teleoperation.png", 32, 32);
     private final ImageIcon ICON_TELEOP_OFF = ImageUtils.getScaledIcon(
@@ -136,8 +152,15 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
     private final String stopTeleOperationStr = I18n.text("Stop Tele-Operation");
     private final String startPlanStr = I18n.text("Start Plan");
     private final String stopPlanStr = I18n.text("Stop Plan");
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java
     private final String sendAcousticBeaconsStr = I18n.text("Send Acoustic Beacons");
     private final String sendAcousticBeaconsZeroStr = I18n.text("Clear Acoustic Beacons from Vehicle");
+||||||| merged common ancestors
+    private final String sendAcousticBeaconsStr = I18n.text("Send Acoustic Beacons. Use Ctrl click to clear the transponders from vehicle.");
+    private final String sendAcousticBeaconsZeroStr = I18n.text("Send Zero Acoustic Beacons.");
+=======
+    private final String sendAcousticBeaconsStr = I18n.text("Send Acoustic Beacons. Use Ctrl click to clear the transponders from vehicle.");
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java
     private final String sendSelectedPlanStr = I18n.text("Send Selected Plan");
     private final String downloadActivePlanStr = I18n.text("Download Active Plan");
 
@@ -150,9 +173,19 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                     + "you can allways click Alt when sending the plan that this verification will run.")
     public boolean allwaysVerifyAllManeuversUsed = true;
 
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java
     //    @NeptusProperty(name = "Use Acoustic To Send Msg If System Not In WiFi Range", userLevel = LEVEL.ADVANCED, 
     //            distribution = DistributionEnum.DEVELOPER)
     //    public boolean useAcousticToSendMsgIfSystemNotInWiFiRange = true;
+||||||| merged common ancestors
+//    @NeptusProperty(name = "Use Acoustic To Send Msg If System Not In WiFi Range", userLevel = LEVEL.ADVANCED, 
+//            distribution = DistributionEnum.DEVELOPER)
+//    public boolean useAcousticToSendMsgIfSystemNotInWiFiRange = true;
+=======
+    // @NeptusProperty(name = "Use Acoustic To Send Msg If System Not In WiFi Range", userLevel = LEVEL.ADVANCED,
+    // distribution = DistributionEnum.DEVELOPER)
+    // public boolean useAcousticToSendMsgIfSystemNotInWiFiRange = true;
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java
 
     @NeptusProperty(name = "Service name for acoustic message sending", userLevel = LEVEL.ADVANCED, 
             distribution = DistributionEnum.DEVELOPER)
@@ -194,12 +227,28 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
     private JPanel holder;
     private JLabel titleLabel;
     private JLabel planIdLabel;
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java
     private ToolbarButton selectionButton, sendAcousticsButton, sendAcousticsZeroButton, sendUploadPlanButton, sendDownloadPlanButton,
     sendStartButton, sendStopButton, teleOpButton;
+||||||| merged common ancestors
+    private ToolbarButton selectionButton, sendAcousticsButton, sendAcousticsZeroButton, sendUploadPlanButton, sendDownloadPlanButton,
+            sendStartButton, sendStopButton, teleOpButton;
+=======
+    private ToolbarButton selectionButton, sendAcousticsButton, sendUploadPlanButton, sendDownloadPlanButton,
+            sendStartButton, sendStopButton, teleOpButton;
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java
 
     private SystemsSelectionAction selectionAction;
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java
     private AbstractAction sendAcousticsAction, sendAcousticsZeroAction, sendUploadPlanAction, sendDownloadPlanAction, sendStartAction,
     sendStopAction, teleOpAction;
+||||||| merged common ancestors
+    private AbstractAction sendAcousticsAction, sendAcousticsZeroAction, sendUploadPlanAction, sendDownloadPlanAction, sendStartAction,
+            sendStopAction, teleOpAction;
+=======
+    private AbstractAction sendAcousticsAction, sendUploadPlanAction, sendDownloadPlanAction, sendStartAction,
+            sendStopAction, teleOpAction;
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java
 
     private int teleoperationManeuver = -1;
     {
@@ -243,7 +292,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
 
         selectionButton = new ToolbarButton(selectionAction);
         sendAcousticsButton = new ToolbarButton(sendAcousticsAction);
-        sendAcousticsZeroButton = new ToolbarButton(sendAcousticsZeroAction);
         sendUploadPlanButton = new ToolbarButton(sendUploadPlanAction);
         sendDownloadPlanButton = new ToolbarButton(sendDownloadPlanAction);
         sendStartButton = new ToolbarButton(sendStartAction);
@@ -256,7 +304,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         holder.add(selectionButton);
         // holder.add(sendNavStartPointButton);
         holder.add(sendAcousticsButton);
-        holder.add(sendAcousticsZeroButton);
         holder.add(sendUploadPlanButton);
         // holder.add(sendDownloadPlanButton);
         holder.add(sendStartButton);
@@ -301,7 +348,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         }
         selectionButton.setVisible(enableSelectionButton && useFullMode);
         sendAcousticsButton.setVisible(enableBeaconsButton && useFullMode);
-        sendAcousticsZeroButton.setVisible(enableBeaconsButton && useFullMode);
     }
 
     /**
@@ -334,36 +380,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                             NeptusLog.pub().error(e);
                         }
                         sendAcousticsButton.setEnabled(true);
-                    }
-                };
-                sw.execute();
-            }
-        };
-
-        sendAcousticsZeroAction = new AbstractAction(sendAcousticBeaconsZeroStr, ICON_BEACONS_ZERO) {
-            @Override
-            public void actionPerformed(final ActionEvent ev) {
-                final Object action = getValue(Action.NAME);
-                SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
-                    @Override
-                    protected Void doInBackground() {
-                        NeptusLog.action().info(action);
-
-                        sendAcousticsZeroButton.setEnabled(false);
-                        sendAcoustics(true, getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
-
-                        return null;
-                    }
-
-                    @Override
-                    protected void done() {
-                        try {
-                            get();
-                        }
-                        catch (Exception e) {
-                            NeptusLog.pub().error(e);
-                        }
-                        sendAcousticsZeroButton.setEnabled(true);
                     }
                 };
                 sw.execute();
@@ -593,10 +609,22 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
 
             @Override
             public void deliverySuccess(IMCMessage message) {
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java
                 //                post(Notification.success(
                 //                        I18n.text("Delivering Message"),
                 //                        I18n.textf("Message %messageType to %destination delivery success",
                 //                                message.getAbbrev(), getDest(message))));
+||||||| merged common ancestors
+//                post(Notification.success(
+//                        I18n.text("Delivering Message"),
+//                        I18n.textf("Message %messageType to %destination delivery success",
+//                                message.getAbbrev(), getDest(message))));
+=======
+                // post(Notification.success(
+                // I18n.text("Delivering Message"),
+                // I18n.textf("Message %messageType to %destination delivery success",
+                // message.getAbbrev(), getDest(message))));
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java
             }
         });
     }
@@ -782,7 +810,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                 boolean b = true;
                 for (TransponderElement tElnt : selTransponders) {
                     beaconsToSend += b ? "" : ", ";
-                    beaconsToSend += tElnt.getName();
+                    beaconsToSend += tElnt.getId();
                 }
                 int resp = GuiUtils.confirmDialog(SwingUtilities.windowForComponent(this),
                         I18n.text("LBL Beacons"),
@@ -884,6 +912,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         PlanType plan;
         int iSent = 0;
 
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java
         for (int i = 0; i < plans.length; i++) {
             plan = plans[i];
             try {
@@ -919,6 +948,77 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
             }
         }
         if (iSent > 0) {
+||||||| merged common ancestors
+        try {
+            if (verifyAllManeuversUsed)
+                plan.validatePlan();
+        }
+        catch (Exception e) {
+//            GuiUtils.errorMessage(getConsole(), e);
+            post(Notification.error(I18n.text("Send Plan"),
+                    e.getMessage()));
+            return false;
+        }
+
+        IMCMessage planSpecificationMessage = IMCUtils.generatePlanSpecification(plan);
+        if (planSpecificationMessage == null) {
+//            GuiUtils.errorMessage(this, I18n.text("Send Plan"),
+//                    I18n.text("Error sending plan message!\nNo plan spec. valid!"));
+            post(Notification.error(I18n.text("Send Plan"),
+                    I18n.text("Error sending plan message!\nNo plan spec. valid!")));
+        }
+
+        int reqId = IMCSendMessageUtils.getNextRequestId();
+
+        PlanDB pdb = new PlanDB();
+        pdb.setType(PlanDB.TYPE.REQUEST);
+        pdb.setOp(OP.SET);
+        pdb.setRequestId(reqId);
+        pdb.setPlanId(plan.getId());
+        pdb.setArg(planSpecificationMessage);
+
+        pdb.setInfo("Plan sent by Neptus version " + ConfigFetch.getNeptusVersion());
+        registerPlanControlRequest(reqId);
+
+        boolean ret = IMCSendMessageUtils.sendMessage(pdb, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null),
+                createDefaultMessageDeliveryListener(), this, I18n.text("Error sending plan"), DONT_USE_ACOUSTICS,
+                acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+
+        if (ret) {
+=======
+            try {
+                if (verifyAllManeuversUsed)
+                    plan.validatePlan();
+            }
+            catch (Exception e) {
+                // GuiUtils.errorMessage(getConsole(), e);
+            post(Notification.error(I18n.text("Send Plan"),
+                    e.getMessage()));
+                return false;
+            }
+            IMCMessage planSpecificationMessage = IMCUtils.generatePlanSpecification(plan);
+            if (planSpecificationMessage == null) {
+                // GuiUtils.errorMessage(this, I18n.text("Send Plan"),
+                // I18n.text("Error sending plan message!\nNo plan spec. valid!"));
+                post(Notification.error(I18n.text("Send Plan"),
+                        I18n.text("Error sending plan message!\nNo plan spec. valid!")));
+            }
+            int reqId = IMCSendMessageUtils.getNextRequestId();
+            PlanDB pdb = new PlanDB();
+            pdb.setType(PlanDB.TYPE.REQUEST);
+            pdb.setOp(OP.SET);
+            pdb.setRequestId(reqId);
+            pdb.setPlanId(plan.getId());
+            pdb.setArg(planSpecificationMessage);
+            pdb.setInfo("Plan sent by Neptus version " + ConfigFetch.getNeptusVersion());
+            registerPlanControlRequest(reqId);
+
+        boolean ret = IMCSendMessageUtils.sendMessage(pdb, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null),
+                createDefaultMessageDeliveryListener(), this, I18n.text("Error sending plan"), DONT_USE_ACOUSTICS,
+                acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+
+            if (ret) {
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java
             String missionlog = GuiUtils.getLogFileName("mission_state", "zip");
             getConsole().getMission().asZipFile(missionlog, true);
         }
@@ -1032,7 +1132,13 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                 acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
 
         if (!ret) {
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java
             //            GuiUtils.errorMessage(this, I18n.text("Send Plan"), I18n.text("Error sending PlanControl message!"));
+||||||| merged common ancestors
+//            GuiUtils.errorMessage(this, I18n.text("Send Plan"), I18n.text("Error sending PlanControl message!"));
+=======
+            // GuiUtils.errorMessage(this, I18n.text("Send Plan"), I18n.text("Error sending PlanControl message!"));
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java
             post(Notification.error(I18n.text("Send Plan"), I18n.text("Error sending PlanControl message!")));
             return false;
         }
@@ -1066,7 +1172,13 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
             int resp = GuiUtils.confirmDialog(SwingUtilities.windowForComponent(this),
                     I18n.text("Plan not synchronized"),
                     I18n.textf("The plan '%plan' is not synchronized on %system.\nYou should resend the plan.\nDo you still want to start the plan?",
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java
                             plan.getId(), systemsNotInSync));
+||||||| merged common ancestors
+                    plan.getId(), systemsNotInSync));
+=======
+                                    plan.getId(), systemsNotInSync));
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java
             planInSync = (resp == JOptionPane.YES_OPTION);
         }
 
@@ -1089,14 +1201,26 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
      */
     protected boolean checkConditionToRun(Component component, boolean checkMission, boolean checkPlan) {
         if (!ImcMsgManager.getManager().isRunning()) {
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java
             //            GuiUtils.errorMessage(this, component.getName(), I18n.text("IMC comms. are not running!"));
+||||||| merged common ancestors
+//            GuiUtils.errorMessage(this, component.getName(), I18n.text("IMC comms. are not running!"));
+=======
+            // GuiUtils.errorMessage(this, component.getName(), I18n.text("IMC comms. are not running!"));
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java
             post(Notification.error(component.getName(), I18n.text("IMC comms. are not running!")));
             return false;
         }
 
         ConsoleLayout cons = getConsole();
         if (cons == null) {
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java
             //            GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing console attached!"));
+||||||| merged common ancestors
+//            GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing console attached!"));
+=======
+            // GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing console attached!"));
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java
             post(Notification.error(component.getName(), I18n.text("Missing console attached!")));
             return false;
         }
@@ -1104,7 +1228,13 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         if (checkMission) {
             MissionType miss = cons.getMission();
             if (miss == null) {
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java
                 //                GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing attached mission!"));
+||||||| merged common ancestors
+//                GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing attached mission!"));
+=======
+                // GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing attached mission!"));
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java
                 post(Notification.error(component.getName(), I18n.text("Missing attached mission!")));
                 return false;
             }
@@ -1113,7 +1243,13 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         if (checkPlan) {
             PlanType[] plans = getSelectedPlansFromExternalComponents();
             if (plans == null || plans.length == 0) {
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java
                 //                GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing attached plan!"));
+||||||| merged common ancestors
+//                GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing attached plan!"));
+=======
+                // GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing attached plan!"));
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java
                 post(Notification.error(component.getName(), I18n.text("Missing attached plan!")));
                 return false;
             }
@@ -1145,12 +1281,28 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         ArrayList<TransponderElement> tal = new ArrayList<>(vecTrans);
         // Let us order the beacons in alphabetic order (case insensitive)
         TransponderUtils.orderTransponders(tal);
+<<<<<<< HEAD:src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java
         //        Collections.sort(tal, new Comparator<TransponderElement>() {
         //            @Override
         //            public int compare(TransponderElement o1, TransponderElement o2) {
         //                return o1.getId().compareToIgnoreCase(o2.getId());
         //            }
         //        });
+||||||| merged common ancestors
+//        Collections.sort(tal, new Comparator<TransponderElement>() {
+//            @Override
+//            public int compare(TransponderElement o1, TransponderElement o2) {
+//                return o1.getId().compareToIgnoreCase(o2.getId());
+//            }
+//        });
+=======
+        // Collections.sort(tal, new Comparator<TransponderElement>() {
+        // @Override
+        // public int compare(TransponderElement o1, TransponderElement o2) {
+        // return o1.getId().compareToIgnoreCase(o2.getId());
+        // }
+        // });
+>>>>>>> feature/hotfix-v3.0.1:plugins-dev/planning/pt/lsts/neptus/plugins/planning/PlanControlPanel.java
 
         return tal.toArray(new TransponderElement[vecTrans.size()]);
     }

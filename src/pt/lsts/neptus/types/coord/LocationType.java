@@ -105,7 +105,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     static {
         ABSOLUTE_ZERO.setId("ABSOLUTE_ZERO");
         LocationType lt = new LocationType();
-        lt.setLatitude(1);
+        lt.setLatitudeDegs(1);
         ONE_LAT_DEGREE = lt.getDistanceInMeters(ABSOLUTE_ZERO);
     }
 
@@ -115,11 +115,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     protected String id = NameNormalizer.getRandomID();
     protected String name = id;
 
-    //    protected String latitudeStr = "0N0'0''";
-    //    protected String longitudeStr = "0E0'0''";
-
-    protected double latitude = 0;
-    protected double longitude = 0;
+    protected double latitudeRads = 0;
+    protected double longitudeRads = 0;
 
     private double depth = 0;
 
@@ -165,8 +162,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     }
 
     public LocationType(double latitudeDegrees, double longitudeDegrees) {
-        this.latitude = latitudeDegrees;
-        this.longitude = longitudeDegrees;
+        this.latitudeRads = Math.toRadians(latitudeDegrees);
+        this.longitudeRads = Math.toRadians(longitudeDegrees);
     }
 
     public boolean load(Element elem) {
@@ -203,8 +200,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         if (node != null)
             this.setName(node.getText());
 
-        this.setLatitude(doc.selectSingleNode("//latitude").getText());
-        this.setLongitude(doc.selectSingleNode("//longitude").getText());
+        this.setLatitudeStr(doc.selectSingleNode("//latitude").getText());
+        this.setLongitudeStr(doc.selectSingleNode("//longitude").getText());
 
         nd = doc.selectSingleNode("//height");
         if (nd != null)
@@ -286,42 +283,40 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     /**
      * @return Returns the latitude.
      */
-    public String getLatitude() {
+    public String getLatitudeStr() {
         //        return latitudeStr;
-        return CoordinateUtil.dmsToLatString(CoordinateUtil.decimalDegreesToDMS(latitude));
+        return CoordinateUtil.dmsToLatString(CoordinateUtil.decimalDegreesToDMS(Math.toDegrees(latitudeRads)));
     }
 
     /**
      * @return in decimal degrees
      */
-    public double getLatitudeAsDoubleValue() {
-        return this.latitude;
+    public double getLatitudeDegs() {
+        return Math.toDegrees(latitudeRads);
     }
 
     /**
      * @return
      */
-    public double getLatitudeAsDoubleValueRads() {
-        return Math.toRadians(getLatitudeAsDoubleValue());
+    public double getLatitudeRads() {
+        return Math.toRadians(getLatitudeDegs());
     }
 
     /**
      * @param latitude
      *            The latitude to set.
      */
-    public void setLatitude(String latitude) {
+    public void setLatitudeStr(String latitude) {
         if (latitude != null)
-            this.latitude = CoordinateUtil.parseLatitudeCoordToDoubleValue(latitude);
+            setLatitudeDegs(CoordinateUtil.parseLatitudeCoordToDoubleValue(latitude));
     }
 
     /**
      * @param latitude
      *            The latitude to set in decimal degrees.
      */
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-        // setLatitude(LatitudeToString(latitude));
-        //        setLatitude(CoordinateUtil.dmsToLatString(CoordinateUtil.decimalDegreesToDMS(latitude)));
+    public void setLatitudeDegs(double latitude) {
+        this.latitudeRads = Math.toRadians(latitude);        
     }
 
     /**
@@ -329,49 +324,46 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      *            The latitude to set in radians.
      */
     public void setLatitudeRads(double latitudeRads) {
-        setLatitude(Math.toDegrees(latitudeRads));
+        this.latitudeRads = latitudeRads;
     }
 
     /**
      * @return Returns the longitude.
      */
-    public String getLongitude() {
+    public String getLongitudeStr() {
         //        return longitudeStr;
-        return CoordinateUtil.dmsToLonString(CoordinateUtil.decimalDegreesToDMS(longitude));
+        return CoordinateUtil.dmsToLonString(CoordinateUtil.decimalDegreesToDMS(getLongitudeDegs()));
     }
 
     /**
      * @return in decimal degrees
      */
-    public double getLongitudeAsDoubleValue() {
-        return this.longitude;
+    public double getLongitudeDegs() {
+        return Math.toDegrees(this.longitudeRads);
     }
 
     /**
      * @return
      */
-    public double getLongitudeAsDoubleValueRads() {
-        return Math.toRadians(getLongitudeAsDoubleValue());
+    public double getLongitudeRads() {
+        return Math.toRadians(getLongitudeDegs());
     }
 
     /**
      * @param longitude
      *            The longitude to set.
      */
-    public void setLongitude(String longitude) {
-        //        this.longitudeStr = longitude;
+    public void setLongitudeStr(String longitude) {
         if (longitude != null)
-            this.longitude = CoordinateUtil.parseLongitudeCoordToDoubleValue(longitude);
+            setLongitudeDegs(CoordinateUtil.parseLongitudeCoordToDoubleValue(longitude));
     }
 
     /**
      * @param longitude
      *            The longitude to set in decimal degrees.
      */
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-        // setLongitude(LongitudeToString(longitude));
-        //setLongitude(CoordinateUtil.dmsToLonString(CoordinateUtil.decimalDegreesToDMS(longitude)));
+    public void setLongitudeDegs(double longitude) {
+        this.longitudeRads = Math.toRadians(longitude);
     }
 
     /**
@@ -379,7 +371,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      *            The longitude to set in radians.
      */
     public void setLongitudeRads(double longitudeRads) {
-        setLongitude(Math.toDegrees(longitudeRads));
+        setLongitudeDegs(Math.toDegrees(longitudeRads));
     }
 
     /**
@@ -795,11 +787,11 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
 
         Element coordinate = root.addElement("coordinate");
 
-        if (getLatitude() != null)
-            coordinate.addElement("latitude").addText(getLatitude());
+        if (getLatitudeStr() != null)
+            coordinate.addElement("latitude").addText(getLatitudeStr());
 
-        if (getLongitude() != null)
-            coordinate.addElement("longitude").addText(getLongitude());
+        if (getLongitudeStr() != null)
+            coordinate.addElement("longitude").addText(getLongitudeStr());
 
         coordinate.addElement("height").addText(
                 String.valueOf(MathMiscUtils.round(getHeight(), 3)));
@@ -901,8 +893,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         if (anotherPoint == null)
             return;
 
-        this.setLatitude(anotherPoint.getLatitudeAsDoubleValue());
-        this.setLongitude(anotherPoint.getLongitudeAsDoubleValue());
+        this.setLatitudeRads(anotherPoint.getLatitudeRads());
+        this.setLongitudeRads(anotherPoint.getLongitudeRads());
         this.setDepth(anotherPoint.getDepth());
 
         this.setAzimuth(anotherPoint.getAzimuth());
@@ -957,8 +949,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     public double[] getAbsoluteLatLonDepth() {
 
         double[] totalLatLonDepth = new double[] { 0d, 0d, 0d };
-        totalLatLonDepth[0] = getLatitudeAsDoubleValue();
-        totalLatLonDepth[1] = getLongitudeAsDoubleValue();
+        totalLatLonDepth[0] = getLatitudeDegs();
+        totalLatLonDepth[1] = getLongitudeDegs();
         totalLatLonDepth[2] = getDepth();
 
         double[] tmpDouble = CoordinateUtil.sphericalToCartesianCoordinates(getOffsetDistance(),
@@ -974,11 +966,11 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     }
 
     public String getLatitudeAsPrettyString() {
-        return CoordinateUtil.latitudeAsPrettyString(latitude, true);
+        return CoordinateUtil.latitudeAsPrettyString(getLatitudeDegs(), true);
     }
 
     public String getLongitudeAsPrettyString() {
-        return CoordinateUtil.longitudeAsPrettyString(longitude, true);
+        return CoordinateUtil.longitudeAsPrettyString(getLongitudeDegs(), true);
     }
 
     /**
@@ -990,8 +982,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         double latlondepth[] = getAbsoluteLatLonDepth();
 
         setLocation(new LocationType());
-        setLatitude(latlondepth[0]);
-        setLongitude(latlondepth[1]);
+        setLatitudeDegs(latlondepth[0]);
+        setLongitudeDegs(latlondepth[1]);
         setDepth(latlondepth[2]);
 
         return this;
@@ -1011,8 +1003,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         catch (Exception e) {
             loc = (L) new LocationType();
         } //new LocationType();
-        loc.setLatitude(latlondepth[0]);
-        loc.setLongitude(latlondepth[1]);
+        loc.setLatitudeDegs(latlondepth[0]);
+        loc.setLongitudeDegs(latlondepth[1]);
         loc.setDepth(latlondepth[2]);
 
         return loc;
@@ -1048,7 +1040,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @return
      */
     public String getClipboardText() {
-        return "[NeptusLocation] id=" + getId() + "\n" + getLatitude() + " " + getLongitude() + " "
+        return "[NeptusLocation] id=" + getId() + "\n" + getLatitudeStr() + " " + getLongitudeStr() + " "
                 + getDepth() + "\n" + getOffsetNorth() + " " + getOffsetEast() + " "
                 + getOffsetDown() + "\n" + getOffsetDistance() + " " + getAzimuth() + " "
                 + getZenith() + "\n";
@@ -1076,8 +1068,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
 
         try {
             st.nextToken(); // location id
-            setLatitude(st.nextToken());
-            setLongitude(st.nextToken());
+            setLatitudeStr(st.nextToken());
+            setLongitudeStr(st.nextToken());
             setDepth(Double.parseDouble(st.nextToken()));
             setOffsetNorth(Double.parseDouble(st.nextToken()));
             setOffsetEast(Double.parseDouble(st.nextToken()));
@@ -1193,7 +1185,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      */
     public Point2D getPointInPixel(int levelOfDetail) {
         LocationType meWithOffset = this.getNewAbsoluteLatLonDepth();
-        return MapTileUtil.degreesToXY(meWithOffset.getLatitudeAsDoubleValue(), meWithOffset.getLongitudeAsDoubleValue(), levelOfDetail);
+        return MapTileUtil.degreesToXY(meWithOffset.getLatitudeDegs(), meWithOffset.getLongitudeDegs(), levelOfDetail);
     }
 
     /**
@@ -1230,15 +1222,15 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         Point2D pixs = getPointInPixel(levelOfDetail);
         double[] latlon = MapTileUtil.XYToDegrees(pixs.getX() + deltaX, pixs.getY() + deltaY, levelOfDetail);
         convertToAbsoluteLatLonDepth(); // just to clear the offsets and save the depth
-        this.setLatitude(latlon[0]);
-        this.setLongitude(latlon[1]);
+        this.setLatitudeDegs(latlon[0]);
+        this.setLongitudeDegs(latlon[1]);
     }
 
     public void setLocationByPixel(double x, double y, int levelOfDetail){
         double[] degrees = MapTileUtil.XYToDegrees(x, y, levelOfDetail);
         convertToAbsoluteLatLonDepth(); // just to clear the offsets and save the depth
-        this.latitude = degrees[0];
-        this.longitude = degrees[1];
+        this.latitudeRads = Math.toRadians(degrees[0]);
+        this.longitudeRads = Math.toRadians(degrees[1]);
     }
 
     /**
@@ -1253,8 +1245,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         LocationType loc1 = this.getNewAbsoluteLatLonDepth();
         LocationType loc2 = location.getNewAbsoluteLatLonDepth();
 
-        if (loc2.getLatitudeAsDoubleValue() == 0.0) {
-            if (loc1.getLatitudeAsDoubleValue() == 0.0) {
+        if (loc2.getLatitudeDegs() == 0.0) {
+            if (loc1.getLatitudeDegs() == 0.0) {
                 return true;
             }
             else {
@@ -1262,10 +1254,10 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
             }
         }
 
-        double loc1LatDouble = cropDecimalDigits(10, loc1.getLatitudeAsDoubleValue());
-        double loc2LatDouble = cropDecimalDigits(10, loc2.getLatitudeAsDoubleValue());
-        double loc1LonDouble = cropDecimalDigits(10, loc1.getLongitudeAsDoubleValue());
-        double loc2LonDouble = cropDecimalDigits(10, loc2.getLongitudeAsDoubleValue());
+        double loc1LatDouble = cropDecimalDigits(10, loc1.getLatitudeDegs());
+        double loc2LatDouble = cropDecimalDigits(10, loc2.getLatitudeDegs());
+        double loc1LonDouble = cropDecimalDigits(10, loc1.getLongitudeDegs());
+        double loc2LonDouble = cropDecimalDigits(10, loc2.getLongitudeDegs());
 
         // System.out.println();
         // System.out.println("Lat:" + loc1LatDouble + " Lon:" + loc1LonDouble);
@@ -1320,7 +1312,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     public String getDebugString() {
         double[] abs = getOffsetFrom(new LocationType());
         return "LOCATION/DEBUG:\n"+
-        "Latitude: "+getLatitude()+", Longitude: "+getLongitude()+"\n"+
+        "Latitude: "+getLatitudeStr()+", Longitude: "+getLongitudeStr()+"\n"+
         "Depth: "+getDepth()+"\n"+
         "OffsetUp: "+getOffsetUp()+", OffsetDown: "+getOffsetDown()+"\n"+
         "OffsetNorth: "+getOffsetNorth()+", OffsetSouth: "+getOffsetSouth()+"\n"+
@@ -1332,8 +1324,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
     public static LocationType valueOf(String value) {
         String[] parts = value.split("[ ,]+");
         LocationType loc = new LocationType();
-        loc.setLatitude(parts[0]);
-        loc.setLongitude(parts[1]);
+        loc.setLatitudeStr(parts[0]);
+        loc.setLongitudeStr(parts[1]);
         loc.setHeight(Double.parseDouble(parts[2]));
         
 

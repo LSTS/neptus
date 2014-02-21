@@ -76,9 +76,9 @@ public class TileMercadorSVG extends Tile {
     
     protected static final LocationType centerOfImage = new LocationType();
     {
-        centerOfImage.setLatitude(-1.5);
+        centerOfImage.setLatitudeDegs(-1.5);
         centerOfImage.translatePosition(-227E3, -12E3, 0);
-        centerOfImage.setLongitude(10);
+        centerOfImage.setLongitudeDegs(10);
         centerOfImage.convertToAbsoluteLatLonDepth();
     }
     

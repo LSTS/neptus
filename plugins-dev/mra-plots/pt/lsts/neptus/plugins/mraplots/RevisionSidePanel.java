@@ -80,7 +80,7 @@ public class RevisionSidePanel extends JPanel {
     private Vector<Renderer2DPainter> painters = new Vector<>();    
     private IMraLogGroup logSource = null;
     private File logFile = null;
-    
+    private LogMarkersReplay markersLayer;
 
     public void clearOverlays() {
         for (Renderer2DPainter painter : painters)
@@ -149,12 +149,33 @@ public class RevisionSidePanel extends JPanel {
         }
 
         private void loadOverlays(LsfLogSource source) {
+<<<<<<< HEAD
             
             Vector<LogReplayLayer> layers = new Vector<>();
             
             for (String name : PluginsRepository.getReplayLayers().keySet()) {
                 layers.add(PluginsRepository.getPlugin(name, LogReplayLayer.class));
             }
+||||||| merged common ancestors
+            LogReplayLayer[] layers = new LogReplayLayer[] {
+                    new EstimatedStateReplay(),
+                    new GPSFixReplay(),
+                    new LBLRangesReplay(),
+                    new LogMarkersReplay(),
+                    new BathymetryReplay()
+//                    new SidescanOverlay()
+            };
+=======
+            
+            markersLayer = new LogMarkersReplay();
+            LogReplayLayer[] layers = new LogReplayLayer[] {
+                    new EstimatedStateReplay(),
+                    new GPSFixReplay(),
+                    new LBLRangesReplay(),
+                    markersLayer,
+                    new BathymetryReplay()
+            };
+>>>>>>> feature/hotfix-v3.0.1
            
             for (LogReplayLayer layer : layers) {                         
                 if (layer.canBeApplied(source, Context.Console)) {

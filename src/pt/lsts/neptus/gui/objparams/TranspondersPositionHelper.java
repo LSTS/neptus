@@ -150,8 +150,8 @@ public class TranspondersPositionHelper extends JPanel {
      */
     public TranspondersPositionHelper(CoordinateSystem cs) {
         super();
-        lat = cs.getLatitude();
-        lon = cs.getLongitude();
+        lat = cs.getLatitudeStr();
+        lon = cs.getLongitudeStr();
         yawHR = cs.getYaw();
         double[] cyl = CoordinateUtil.sphericalToCylindricalCoordinates(cs.getOffsetDistance(), cs.getAzimuth(),
                 cs.getZenith());
@@ -603,8 +603,8 @@ public class TranspondersPositionHelper extends JPanel {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     if (calculatedOnceOk) {
                         LocationType loc = new LocationType();
-                        loc.setLatitude(lat);
-                        loc.setLongitude(lon);
+                        loc.setLatitudeStr(lat);
+                        loc.setLongitudeStr(lon);
                         loc.setDepth(t1Depth);
                         loc.setOffsetNorth(offsetNorth);
                         loc.setOffsetEast(offsetEast);

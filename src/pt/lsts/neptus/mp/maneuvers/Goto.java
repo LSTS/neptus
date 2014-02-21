@@ -210,7 +210,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    Goto clone = new Goto();
 	    super.clone(clone);
 	    clone.params = params;
-	    clone.setManeuverLocation(getManeuverLocation().clone());
+	    clone.setManeuverLocation(getManeuverLocation());
 	    clone.setRadiusTolerance(getRadiusTolerance());
 	    clone.setSpeedUnits(getUnits());
 	    clone.setSpeed(getSpeed());
@@ -363,8 +363,8 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
                     break;
             }
             ManeuverLocation pos = new ManeuverLocation();
-            pos.setLatitude(Math.toDegrees(msg.getLat()));
-            pos.setLongitude(Math.toDegrees(msg.getLon()));
+            pos.setLatitudeDegs(Math.toDegrees(msg.getLat()));
+            pos.setLongitudeDegs(Math.toDegrees(msg.getLon()));
             pos.setZ(msg.getZ());
             pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(msg.getZUnits().toString()));
             setManeuverLocation(pos);

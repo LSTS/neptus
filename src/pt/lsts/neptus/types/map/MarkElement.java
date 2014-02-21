@@ -140,7 +140,7 @@ public class MarkElement extends AbstractElement {
         g.drawLine(-3, -3, 3, 3);
         g.drawLine(-3, 3, 3, -3);
 
-        g.drawString(getName(), 6, 6);
+        g.drawString(getId(), 6, 6);
     }
 
 }

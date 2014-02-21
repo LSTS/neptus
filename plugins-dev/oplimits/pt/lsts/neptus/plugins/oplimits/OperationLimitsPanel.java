@@ -115,8 +115,16 @@ public class OperationLimitsPanel extends JPanel {
 					editor.pp.setLength(limits.getOpAreaLength());
 					editor.pp.setYawDeg(Math.toDegrees(limits.getOpRotationRads()));
 					LocationType lt = new LocationType();
+<<<<<<< HEAD
 					lt.setLatitude(limits.getOpAreaLat());
 					lt.setLongitude(limits.getOpAreaLon());
+||||||| merged common ancestors
+					lt.setLatitude(limits.opAreaLat);
+					lt.setLongitude(limits.opAreaLon);
+=======
+					lt.setLatitudeDegs(limits.opAreaLat);
+					lt.setLongitudeDegs(limits.opAreaLon);
+>>>>>>> feature/hotfix-v3.0.1
 					editor.pp.setCenterLocation(lt);
 					editor.pp.setMyColor(Color.red);
 					editor.btnOk.setEnabled(true);

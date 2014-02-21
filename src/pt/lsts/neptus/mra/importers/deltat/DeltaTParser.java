@@ -122,8 +122,8 @@ public class DeltaTParser implements BathymetryParser {
 
             while ((bs = nextSwath()) != null) {
                 LocationType loc = bs.getPose().getPosition().convertToAbsoluteLatLonDepth();
-                double lat = loc.getLatitudeAsDoubleValue();
-                double lon = loc.getLongitudeAsDoubleValue();
+                double lat = loc.getLatitudeDegs();
+                double lon = loc.getLongitudeDegs();
 
                 maxLat = Math.max(lat, maxLat);
                 maxLon = Math.max(lon, maxLon);

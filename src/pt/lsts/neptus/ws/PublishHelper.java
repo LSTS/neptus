@@ -237,7 +237,7 @@ public class PublishHelper {
             //LinkedHashMap traList = mpm.getMap().getMarksList();
             LinkedHashMap<String, MarkElement> transList = mpm.getMap().getMarksList();
             for (MarkElement tmp : transList.values()) {
-                String name = tmp.getName();
+                String name = tmp.getId();
                 if (name.equalsIgnoreCase("start")) {
                     locStart.setLocation(tmp.getCenterLocation());
                     isFound = true;
@@ -263,8 +263,6 @@ public class PublishHelper {
             path = new PathElement(null, null, startPos);
             //path.setMyColor(new Color(204, 255, 102));
             path.setId(plan.getId());
-            path.setName(plan.getId());
-            
             path.setFinished(true);
         }
 
@@ -301,8 +299,7 @@ public class PublishHelper {
         double[] offsetsum = {0, 0, 0};
         PathElement path = new PathElement(null, null, pivotLoc);
         if (pathId != null && pathId.length() > 0) {
-            path.setId(pathId);
-            path.setName(pathId);
+            path.setId(pathId);            
         }
         for (LocationType loc : locLst) {
             destTo = loc;

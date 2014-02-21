@@ -67,6 +67,7 @@ import pt.lsts.neptus.messages.Bitmask;
 import pt.lsts.neptus.messages.Enumerated;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.maneuvers.CompassCalibration;
 import pt.lsts.neptus.mp.maneuvers.Elevator;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.FollowSystem;
@@ -390,9 +391,9 @@ public class IMCUtils {
         absLoc = absLoc.getNewAbsoluteLatLonDepth();
 
         IMCMessage msgHomeRef = IMCDefinition.getInstance().create("HomeRef");
-        msgHomeRef.setValue("lat", absLoc.getLatitudeAsDoubleValueRads());
+        msgHomeRef.setValue("lat", absLoc.getLatitudeRads());
 
-        msgHomeRef.setValue("lon", absLoc.getLongitudeAsDoubleValueRads());
+        msgHomeRef.setValue("lon", absLoc.getLongitudeRads());
         msgHomeRef.setValue("depth", absLoc.getDepth());
 
         return msgHomeRef;
@@ -424,8 +425,8 @@ public class IMCUtils {
 
             msgBeaconSetup.setValue("beacon", nStr);
 
-            msgBeaconSetup.setValue("lat", absLoc.getLatitudeAsDoubleValueRads());
-            msgBeaconSetup.setValue("lon", absLoc.getLongitudeAsDoubleValueRads());
+            msgBeaconSetup.setValue("lat", absLoc.getLatitudeRads());
+            msgBeaconSetup.setValue("lon", absLoc.getLongitudeRads());
             msgBeaconSetup.setValue("depth",absLoc.getDepth());
 
             int queryChannel = 0, replyChannel = 0, transponderDelay = 0, id;
@@ -566,6 +567,8 @@ public class IMCUtils {
             m = new VehicleFormation();
         else if (message.getAbbrev().equalsIgnoreCase("elevator"))
             m = new Elevator();
+        else if (message.getAbbrev().equalsIgnoreCase("compasscalibration"))
+            m = new CompassCalibration();
 
         if (m != null)
             ((IMCSerialization) m).parseIMCMessage(message);
@@ -642,8 +645,8 @@ public class IMCUtils {
         LocationType absLoc = lookForStartPosition(mt);
 
         IMCMessage msgNavStartPoint = IMCDefinition.getInstance().create("NavigationStartupPoint");
-        msgNavStartPoint.setValue("lat", absLoc.getLatitudeAsDoubleValueRads());
-        msgNavStartPoint.setValue("lon",absLoc.getLongitudeAsDoubleValueRads());
+        msgNavStartPoint.setValue("lat", absLoc.getLatitudeRads());
+        msgNavStartPoint.setValue("lon",absLoc.getLongitudeRads());
         msgNavStartPoint.setValue("depth", absLoc.getDepth());
 
         return msgNavStartPoint;
@@ -898,8 +901,8 @@ public class IMCUtils {
 
     public static LocationType parseLocation(IMCMessage imcEstimatedState) {
         LocationType loc = new LocationType();
-        loc.setLatitude(Math.toDegrees(imcEstimatedState.getDouble("lat")));
-        loc.setLongitude(Math.toDegrees(imcEstimatedState.getDouble("lon")));
+        loc.setLatitudeDegs(Math.toDegrees(imcEstimatedState.getDouble("lat")));
+        loc.setLongitudeDegs(Math.toDegrees(imcEstimatedState.getDouble("lon")));
         loc.setOffsetNorth(imcEstimatedState.getDouble("x"));
         loc.setOffsetEast(imcEstimatedState.getDouble("y"));
         loc.setOffsetDown(imcEstimatedState.getDouble("z"));
@@ -951,8 +954,8 @@ public class IMCUtils {
 
                 IMCMessage lblBeacon = IMCDefinition.getInstance().create("LblBeacon",
                         "beacon", transp.getId(),
-                        "lat", absLoc.getLatitudeAsDoubleValueRads(),
-                        "lon", absLoc.getLongitudeAsDoubleValueRads(),
+                        "lat", absLoc.getLatitudeRads(),
+                        "lon", absLoc.getLongitudeRads(),
                         "depth", absLoc.getDepth(),
                         "query_channel", queryChannel,
                         "reply_channel", replyChannel,
@@ -1232,6 +1235,20 @@ public class IMCUtils {
             }
         }
         return properties;
+    }
+    
+    public static void dumpPayloadBytes(IMCMessage message) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IMCOutputStream ios = new IMCOutputStream(baos);
+        IMCDefinition.getInstance().serializeFields(message, ios);
+        byte[] data = baos.toByteArray();
+        
+        for (int i = 0; i < data.length; i++) {
+            if (i % 10 == 0)
+                System.out.print(" ");
+            System.out.printf("%X ", data[i]);
+        }
+        
     }
 
     // ------------------------------------------------------------------------

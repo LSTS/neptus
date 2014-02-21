@@ -193,8 +193,8 @@ public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixL
 
         if (fix.isValid()) {
             LocationType loc = new LocationType();
-            loc.setLatitude(fix.getLatitude());
-            loc.setLongitude(fix.getLongitude());
+            loc.setLatitudeDegs(fix.getLatitude());
+            loc.setLongitudeDegs(fix.getLongitude());
             loc.setHeight(fix.getHeight());
 
             if (!(useSpeedToFilterHeading && fix.getCog() <= headingSpeedMinimum))

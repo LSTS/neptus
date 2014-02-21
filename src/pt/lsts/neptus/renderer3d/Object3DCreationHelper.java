@@ -1213,7 +1213,7 @@ public class Object3DCreationHelper {
         }
         catch (Exception e) {
             GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(), "Error loading image",
-                    "Image '" + img.getName() + "' was not able to be loaded!\nCheck the path please:\n'"
+                    "Image '" + img.getId() + "' was not able to be loaded!\nCheck the path please:\n'"
                             + img.getImageFileName().replace(ConfigFetch.getNeptusTmpDir(), "") + "'");
             return null;
         }

@@ -187,8 +187,8 @@ public class WaypointPlanner extends ConsolePanel implements Renderer2DPainter, 
                         double lat = CoordinateUtil.parseLatitudeCoordToDoubleValue(ll[0]);
                         double lon = CoordinateUtil.parseLongitudeCoordToDoubleValue(ll[1]);
                         LocationType l = new LocationType();
-                        l.setLatitude(lat);
-                        l.setLongitude(lon);
+                        l.setLatitudeDegs(lat);
+                        l.setLongitudeDegs(lon);
                         points.add(l);
                     }
                     line = reader.readLine();

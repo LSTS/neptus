@@ -242,8 +242,8 @@ public class CoordinateUtilForXalan
             org.dom4j.Document p1DOM4J = (new DOMReader()).read(doc);
 
             LocationType absLoc = new LocationType(p1DOM4J.asXML()).getNewAbsoluteLatLonDepth();
-            absLoc.setLatitude(nf6.format(absLoc.getLatitudeAsDoubleValue()));
-            absLoc.setLongitude(nf6.format(absLoc.getLongitudeAsDoubleValue()));
+            absLoc.setLatitudeStr(nf6.format(absLoc.getLatitudeDegs()));
+            absLoc.setLongitudeStr(nf6.format(absLoc.getLongitudeDegs()));
             org.dom4j.Document mdDOM4J = absLoc.asDocument();
             doc = (new DOMWriter()).write(mdDOM4J);
             return doc.getDocumentElement();

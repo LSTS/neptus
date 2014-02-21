@@ -172,15 +172,17 @@ public class TransponderElement extends AbstractElement implements NameId{
         double lon = Math.toDegrees(lblBeacon.getLon());
         double depth = lblBeacon.getDepth();
         LocationType lt = new LocationType();
-        lt.setLatitude(lat);
-        lt.setLongitude(lon);
+        lt.setLatitudeDegs(lat);
+        lt.setLongitudeDegs(lon);
         lt.setDepth(depth);
         setId(beacon);
-        setName(beacon);
         setCenterLocation(lt);
         propConf = BeaconsConfig.getMatchingConf(lblBeacon);
         file = new FileType();
-        file.setHref(propConf.getWorkingFile());
+        String workingFile = propConf.getWorkingFile();
+        String[] tokens = workingFile.split("/");
+        NeptusLog.pub().error("Beacon conf file:" + tokens[tokens.length - 1]);
+        file.setHref(tokens[tokens.length - 1]);
         this.duneId = duneId;
     }
 
@@ -189,7 +191,7 @@ public class TransponderElement extends AbstractElement implements NameId{
         super(mg, parentMap);
         this.centerLocation = centerLocation;
         this.id = identification;
-        this.name = identification;
+        this.id = identification;
         this.propConf = propConf;
         file = new FileType();
         file.setHref(propConf.getWorkingFile());
@@ -240,8 +242,8 @@ public class TransponderElement extends AbstractElement implements NameId{
     public boolean equals(LblBeacon lblBeacon) {
         // Location
         LocationType lt = new LocationType();
-        lt.setLatitude(Math.toDegrees(lblBeacon.getDouble("lat")));
-        lt.setLongitude(Math.toDegrees(lblBeacon.getDouble("lon")));
+        lt.setLatitudeDegs(Math.toDegrees(lblBeacon.getDouble("lat")));
+        lt.setLongitudeDegs(Math.toDegrees(lblBeacon.getDouble("lon")));
         lt.setDepth(lblBeacon.getDouble("depth"));
         if(!getCenterLocation().equals(lt)){
             // System.out.print(lblBeacon.getBeacon() + " has different location that " + getIdentification());
@@ -510,7 +512,7 @@ public class TransponderElement extends AbstractElement implements NameId{
                 transponderImg.getWidth(null), transponderImg.getHeight(null), null);
 
         g.setColor(Color.WHITE);
-        g.drawString(getName(), 7, 16);
+        g.drawString(getId(), 7, 16);
 
     }
 
@@ -540,7 +542,13 @@ public class TransponderElement extends AbstractElement implements NameId{
         // return nameBuilder.toString();
         // }
         // else {
+<<<<<<< HEAD
         return name;
+||||||| merged common ancestors
+            return getIdentification();
+=======
+        return id;
+>>>>>>> feature/hotfix-v3.0.1
         // }
     }
 

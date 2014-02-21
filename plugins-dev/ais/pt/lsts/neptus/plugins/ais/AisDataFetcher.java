@@ -83,7 +83,7 @@ public class AisDataFetcher {
                     LocationType loc = new LocationType(sw);
                     loc.translatePosition(gridSizeMeters * i, gridSizeMeters * j, 0);
                     loc.convertToAbsoluteLatLonDepth();                    
-                    bw.write(loc.getLatitudeAsDoubleValue()+","+loc.getLongitudeAsDoubleValue()+","+ships[i][j]+"\n");
+                    bw.write(loc.getLatitudeDegs()+","+loc.getLongitudeDegs()+","+ships[i][j]+"\n");
                 }
             }
             bw.close();
@@ -101,15 +101,15 @@ public class AisDataFetcher {
 
     public void fetchShips() {
 
-        Vector<AisShip> ships = overlay.getShips(sw.getLatitudeAsDoubleValue(), sw.getLongitudeAsDoubleValue(),
-                ne.getLatitudeAsDoubleValue(), ne.getLongitudeAsDoubleValue(), false);
+        Vector<AisShip> ships = overlay.getShips(sw.getLatitudeDegs(), sw.getLongitudeDegs(),
+                ne.getLatitudeDegs(), ne.getLongitudeDegs(), false);
         //System.out.println("fetchShips(): "+ships.size());
         LinkedHashMap<String, LocationType> newShips = new LinkedHashMap<>();
         for (AisShip s : ships) {
             LocationType newLoc = s.getLocation();
             newShips.put(s.getName(), newLoc);
             LocationType prevPosition = lastShips.get(s.getName());
-            if (prevPosition == null || prevPosition.getLatitudeAsDoubleValue() == s.getLatitude())
+            if (prevPosition == null || prevPosition.getLatitudeDegs() == s.getLatitude())
                 continue;
             else {
                 double dist = prevPosition.getDistanceInMeters(newLoc);
@@ -122,8 +122,8 @@ public class AisDataFetcher {
                     LocationType loc = new LocationType(prevPosition);
                     loc.translatePosition(x, y, 0);
                     loc.convertToAbsoluteLatLonDepth();
-                    incShip(loc.getLatitudeAsDoubleValue(), loc.getLongitudeAsDoubleValue());
-                    System.out.println(loc.getLatitudeAsDoubleValue() + "," + loc.getLongitudeAsDoubleValue()+","+1);
+                    incShip(loc.getLatitudeDegs(), loc.getLongitudeDegs());
+                    System.out.println(loc.getLatitudeDegs() + "," + loc.getLongitudeDegs()+","+1);
                 }
 
             }

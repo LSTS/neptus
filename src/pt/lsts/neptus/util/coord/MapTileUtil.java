@@ -359,17 +359,17 @@ public class MapTileUtil {
         NeptusLog.pub().info("<###> "+(3 * 256) + "  " + (5 * 256));
 
         LocationType loc1 = new LocationType();
-        loc1.setLatitude("41N10.6938");
-        loc1.setLongitude("8W42.5051");
-        NeptusLog.pub().info("<###>{" + loc1.getLatitudeAsDoubleValue() + "\u00B0, " + loc1.getLongitudeAsDoubleValue() + "\u00B0, " + loc1.getDepth() + "]");
+        loc1.setLatitudeStr("41N10.6938");
+        loc1.setLongitudeStr("8W42.5051");
+        NeptusLog.pub().info("<###>{" + loc1.getLatitudeDegs() + "\u00B0, " + loc1.getLongitudeDegs() + "\u00B0, " + loc1.getDepth() + "]");
 
         LocationType loc2 = new LocationType();
-        loc2.setLatitude("44N40.7312");
-        loc2.setLongitude("63W32.2072");
-        NeptusLog.pub().info("<###>{" + loc2.getLatitudeAsDoubleValue() + "\u00B0, " + loc2.getLongitudeAsDoubleValue() + "\u00B0, " + loc1.getDepth() + "]");
+        loc2.setLatitudeStr("44N40.7312");
+        loc2.setLongitudeStr("63W32.2072");
+        NeptusLog.pub().info("<###>{" + loc2.getLatitudeDegs() + "\u00B0, " + loc2.getLongitudeDegs() + "\u00B0, " + loc1.getDepth() + "]");
 
-        double[] diff1 = getOffsetFrom(loc1.getLatitudeAsDoubleValue(), loc1.getLongitudeAsDoubleValue(), loc2.getLatitudeAsDoubleValue(),
-                loc2.getLongitudeAsDoubleValue());
+        double[] diff1 = getOffsetFrom(loc1.getLatitudeDegs(), loc1.getLongitudeDegs(), loc2.getLatitudeDegs(),
+                loc2.getLongitudeDegs());
         NeptusLog.pub().info("<###>[" + diff1[0] + ", " + diff1[1] + "]");
         
         NeptusLog.pub().info("<###>\n--------------------------------------------------------");
@@ -379,14 +379,14 @@ public class MapTileUtil {
         Point2D ptS1 = locS1.getPointInPixel(22);
         double[] kS1 = MapTileUtil.XYToDegrees(ptS1.getX(), ptS1.getY(), 22);
         LocationType locS2 = new LocationType();
-        locS2.setLatitude(kS1[0]);
-        locS2.setLongitude(kS1[1]);
+        locS2.setLatitudeDegs(kS1[0]);
+        locS2.setLongitudeDegs(kS1[1]);
         NeptusLog.pub().info("<###> "+locS2);
 
         kS1 = MapTileUtil.XYToDegrees((int)ptS1.getX(), (int)ptS1.getY(), 22);
         LocationType locS3 = new LocationType();
-        locS3.setLatitude(kS1[0]);
-        locS3.setLongitude(kS1[1]);
+        locS3.setLatitudeDegs(kS1[0]);
+        locS3.setLongitudeDegs(kS1[1]);
         NeptusLog.pub().info("<###> "+locS3);
 
     }

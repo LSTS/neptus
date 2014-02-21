@@ -112,8 +112,8 @@ public class ActualPosition extends MRA2DPlot {
                 if (readjustmentFactor < 0.5) {
                     nonAdjusted.add(es);
                     nonAdjustedLocs.add(thisLoc);
-                    addValue(es.getTimestampMillis(), thisLoc.getLatitudeAsDoubleValue(),
-                            thisLoc.getLongitudeAsDoubleValue(), es.getSourceName(), "Estimated Position");
+                    addValue(es.getTimestampMillis(), thisLoc.getLatitudeDegs(),
+                            thisLoc.getLongitudeDegs(), es.getSourceName(), "Estimated Position");
                 }
                 else if (!nonAdjusted.isEmpty()) {
 
@@ -131,12 +131,22 @@ public class ActualPosition extends MRA2DPlot {
                                 yIncPerSec * (adj.getTimestamp() - firstNonAdjusted.getTimestamp()), 0);
 
                         loc.convertToAbsoluteLatLonDepth();
-                        addValue(adj.getTimestampMillis(), loc.getLatitudeAsDoubleValue(),
-                                loc.getLongitudeAsDoubleValue(), adj.getSourceName(), "Actual Position");
+                        addValue(adj.getTimestampMillis(), loc.getLatitudeDegs(),
+                                loc.getLongitudeDegs(), adj.getSourceName(), "Actual Position");
                     }
+<<<<<<< HEAD
 
                     addValue(es.getTimestampMillis(), thisLoc.getLatitudeAsDoubleValue(),
                             thisLoc.getLongitudeAsDoubleValue(), es.getSourceName(), "GPS Readjustments");
+||||||| merged common ancestors
+                    
+                    addValue(es.getTimestampMillis(), thisLoc.getLatitudeAsDoubleValue(),
+                            thisLoc.getLongitudeAsDoubleValue(), es.getSourceName(), "GPS Readjustments");
+=======
+                    
+                    addValue(es.getTimestampMillis(), thisLoc.getLatitudeDegs(),
+                            thisLoc.getLongitudeDegs(), es.getSourceName(), "GPS Readjustments");
+>>>>>>> feature/hotfix-v3.0.1
 
                     nonAdjusted.clear();
                     nonAdjustedLocs.clear();

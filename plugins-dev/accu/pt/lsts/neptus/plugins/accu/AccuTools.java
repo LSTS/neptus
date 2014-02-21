@@ -110,8 +110,8 @@ public class AccuTools extends ConsolePanel {
                                 String tid = cfg.getAsString("beacon").toLowerCase();
                                 TransponderElement elem;
                                 LocationType loc = new LocationType();
-                                loc.setLatitude(Math.toDegrees(cfg.getDouble("lat")));
-                                loc.setLongitude(Math.toDegrees(cfg.getDouble("lon")));
+                                loc.setLatitudeDegs(Math.toDegrees(cfg.getDouble("lat")));
+                                loc.setLongitudeDegs(Math.toDegrees(cfg.getDouble("lon")));
                                 loc.setDepth(cfg.getDouble("depth"));
                                 if (tHash.containsKey(tid)) {
                                     elem = tHash.get(tid);
@@ -121,7 +121,6 @@ public class AccuTools extends ConsolePanel {
                                     MapType map =  MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
                                     elem = new TransponderElement(map.getMapGroup(), map);
                                     elem.setId(tid);
-                                    elem.setName(tid);
                                     elem.setCenterLocation(loc);         
                                     elem.setConfiguration(elem.getId()+".conf");
                                     elem.setMapGroup(MapGroup.getMapGroupInstance(getConsole().getMission()));                        

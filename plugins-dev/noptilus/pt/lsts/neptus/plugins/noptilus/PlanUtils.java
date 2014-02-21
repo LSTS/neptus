@@ -123,8 +123,8 @@ public class PlanUtils {
         
         LocationType firstLoc = new LocationType(lld_locations.get(0)[0], lld_locations.get(0)[1]);
 
-        maneuver.setLat(firstLoc.getLatitudeAsDoubleValueRads());
-        maneuver.setLon(firstLoc.getLongitudeAsDoubleValueRads());
+        maneuver.setLat(firstLoc.getLatitudeRads());
+        maneuver.setLon(firstLoc.getLongitudeRads());
         maneuver.setSpeed(speed);
         maneuver.setSpeedUnits(units);
         

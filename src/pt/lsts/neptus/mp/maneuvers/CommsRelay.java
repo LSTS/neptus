@@ -346,8 +346,8 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
         msg.setSysB(sys_b);
                 
         startLoc.convertToAbsoluteLatLonDepth();
-        msg.setLat(startLoc.getLatitudeAsDoubleValueRads());
-        msg.setLon(startLoc.getLongitudeAsDoubleValueRads());
+        msg.setLat(startLoc.getLatitudeRads());
+        msg.setLon(startLoc.getLongitudeRads());
 
 		msg.setSpeed(this.getSpeed());
 		if ("m/s".equalsIgnoreCase(getUnits()))
