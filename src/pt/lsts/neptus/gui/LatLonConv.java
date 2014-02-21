@@ -133,8 +133,8 @@ public class LatLonConv extends JPanel {
 		if (getLatLongSelector().getErrors() != null)
 			return null;
 
-		locationType.setLatitude(getLatLongSelector().getLatitude());
-		locationType.setLongitude(getLatLongSelector().getLongitude());
+		locationType.setLatitudeStr(getLatLongSelector().getLatitude());
+		locationType.setLongitudeStr(getLatLongSelector().getLongitude());
 
 		return locationType;
 	}
@@ -147,10 +147,10 @@ public class LatLonConv extends JPanel {
 		this.locationType = locationType;
 		getLatLongSelector().setLatitude(
 				CoordinateUtil.parseLatitudeStringToDMS(locationType
-						.getLatitude()));
+						.getLatitudeStr()));
 		getLatLongSelector().setLongitude(
 				CoordinateUtil.parseLongitudeStringToDMS(locationType
-						.getLongitude()));
+						.getLongitudeStr()));
 	}
 
 	/**
@@ -361,18 +361,18 @@ public class LatLonConv extends JPanel {
 		switch (type) {
 		case DECIMAL_DEGREES:
 			latLongSelector.setLatitude(new double[] {
-					MathMiscUtils.round(loc.getLatitudeAsDoubleValue(), 6), 0,
+					MathMiscUtils.round(loc.getLatitudeDegs(), 6), 0,
 					0 });
 			latLongSelector.setLongitude(new double[] {
-					MathMiscUtils.round(loc.getLongitudeAsDoubleValue(), 6), 0,
+					MathMiscUtils.round(loc.getLongitudeDegs(), 6), 0,
 					0 });
 			break;
 
 		case DM:
 			double[] dmLat = CoordinateUtil.decimalDegreesToDM(loc
-					.getLatitudeAsDoubleValue());
+					.getLatitudeDegs());
 			double[] dmLon = CoordinateUtil.decimalDegreesToDM(loc
-					.getLongitudeAsDoubleValue());
+					.getLongitudeDegs());
 			latLongSelector.setLatitude(new double[] { dmLat[0],
 					MathMiscUtils.round(dmLat[1], 4), 0 });
 			latLongSelector.setLongitude(new double[] { dmLon[0],
@@ -381,9 +381,9 @@ public class LatLonConv extends JPanel {
 
 		case DMS:
 			double[] dmsLat = CoordinateUtil.decimalDegreesToDMS(loc
-					.getLatitudeAsDoubleValue());
+					.getLatitudeDegs());
 			double[] dmsLon = CoordinateUtil.decimalDegreesToDMS(loc
-					.getLongitudeAsDoubleValue());
+					.getLongitudeDegs());
 			latLongSelector.setLatitude(new double[] { dmsLat[0], dmsLat[1],
 					MathMiscUtils.round(dmsLat[2], 2) });
 			latLongSelector.setLongitude(new double[] { dmsLon[0], dmsLon[1],

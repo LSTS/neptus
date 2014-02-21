@@ -570,8 +570,8 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
                     ms.remove(vs);
                     continue;
                 }
-                if (sys.getLocation().getLatitudeAsDoubleValue() == 0d
-                        && sys.getLocation().getLongitudeAsDoubleValue() == 0d) {
+                if (sys.getLocation().getLatitudeDegs() == 0d
+                        && sys.getLocation().getLongitudeDegs() == 0d) {
                     ms.remove(vs);
                     continue;
                 }
@@ -667,8 +667,8 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
                     ms.remove(vs);
                     continue;
                 }
-                if (sys.getLocation().getLatitudeAsDoubleValue() == 0d
-                        && sys.getLocation().getLongitudeAsDoubleValue() == 0d) {
+                if (sys.getLocation().getLatitudeDegs() == 0d
+                        && sys.getLocation().getLongitudeDegs() == 0d) {
                     ms.remove(vs);
                     continue;
                 }
@@ -705,7 +705,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
                         // ms.remove(vs);
                         // continue;
                         // }
-                        if (locBeacon.getLatitudeAsDoubleValue() == 0d && locBeacon.getLongitudeAsDoubleValue() == 0d) {
+                        if (locBeacon.getLatitudeDegs() == 0d && locBeacon.getLongitudeDegs() == 0d) {
                             ms.remove(vs);
                             continue;
                         }

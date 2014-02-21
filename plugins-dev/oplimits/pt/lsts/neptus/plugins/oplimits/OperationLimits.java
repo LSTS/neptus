@@ -182,8 +182,8 @@ public class OperationLimits implements Renderer2DPainter {
 		
 	    if (opAreaLat != null && opAreaLength != null && opAreaLon != null && opAreaWidth != null && opRotationRads != null) {
 			LocationType lt = new LocationType();
-			lt.setLatitude(opAreaLat);
-			lt.setLongitude(opAreaLon);
+			lt.setLatitudeDegs(opAreaLat);
+			lt.setLongitudeDegs(opAreaLon);
 			Point2D pt = renderer.getScreenPosition(lt);
 			g.translate(pt.getX(), pt.getY());
 			g.scale(1, -1);

@@ -982,15 +982,15 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
             LocationType bottomLeft = renderer.getRealWorldLocation(new Point2D.Double(0, renderer.getHeight()));
 
             double lat1, lat2, lat3, lat4, lon1, lon2, lon3, lon4;
-            lat1 = topLeft.getLatitudeAsDoubleValue();
-            lat2 = bottomRight.getLatitudeAsDoubleValue();
-            lat3 = topRight.getLatitudeAsDoubleValue();
-            lat4 = bottomLeft.getLatitudeAsDoubleValue();
+            lat1 = topLeft.getLatitudeDegs();
+            lat2 = bottomRight.getLatitudeDegs();
+            lat3 = topRight.getLatitudeDegs();
+            lat4 = bottomLeft.getLatitudeDegs();
 
-            lon1 = topLeft.getLongitudeAsDoubleValue();
-            lon2 = bottomRight.getLongitudeAsDoubleValue();
-            lon3 = topRight.getLongitudeAsDoubleValue();
-            lon4 = bottomLeft.getLongitudeAsDoubleValue();
+            lon1 = topLeft.getLongitudeDegs();
+            lon2 = bottomRight.getLongitudeDegs();
+            lon3 = topRight.getLongitudeDegs();
+            lon4 = bottomLeft.getLongitudeDegs();
 
             double latMax = Math.max(Math.max(Math.max(lat1,lat2),lat3),lat4); 
             double latMin = Math.min(Math.min(Math.min(lat1,lat2),lat3),lat4); 

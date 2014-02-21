@@ -172,8 +172,8 @@ public class TransponderElement extends AbstractElement implements NameId{
         double lon = Math.toDegrees(lblBeacon.getLon());
         double depth = lblBeacon.getDepth();
         LocationType lt = new LocationType();
-        lt.setLatitude(lat);
-        lt.setLongitude(lon);
+        lt.setLatitudeDegs(lat);
+        lt.setLongitudeDegs(lon);
         lt.setDepth(depth);
         setId(beacon);
         setCenterLocation(lt);
@@ -242,8 +242,8 @@ public class TransponderElement extends AbstractElement implements NameId{
     public boolean equals(LblBeacon lblBeacon) {
         // Location
         LocationType lt = new LocationType();
-        lt.setLatitude(Math.toDegrees(lblBeacon.getDouble("lat")));
-        lt.setLongitude(Math.toDegrees(lblBeacon.getDouble("lon")));
+        lt.setLatitudeDegs(Math.toDegrees(lblBeacon.getDouble("lat")));
+        lt.setLongitudeDegs(Math.toDegrees(lblBeacon.getDouble("lon")));
         lt.setDepth(lblBeacon.getDouble("depth"));
         if(!getCenterLocation().equals(lt)){
             // System.out.print(lblBeacon.getBeacon() + " has different location that " + getIdentification());

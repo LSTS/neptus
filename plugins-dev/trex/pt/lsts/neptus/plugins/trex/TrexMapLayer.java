@@ -184,10 +184,10 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 final String goalId = "Neptus_" + System.currentTimeMillis();
                 String xml = "<Goal id='" + goalId + "' on='surveys' pred='LawnMower'>\n";
                 for (int i = 0; i < 4; i++) {
-                    xml += "  <Variable name='lat_" + i + "'><float value='" + surveyArea[i].getLatitudeAsDoubleValue()
+                    xml += "  <Variable name='lat_" + i + "'><float value='" + surveyArea[i].getLatitudeDegs()
                             + "'/></Variable>\n";
                     xml += "  <Variable name='lon_" + i + "'><float value='"
-                            + surveyArea[i].getLongitudeAsDoubleValue() + "'/></Variable>\n";
+                            + surveyArea[i].getLongitudeDegs() + "'/></Variable>\n";
                 }
                 xml += "  <Variable name='depth'><float value='" + depth + "'/></Variable>\n";
                 xml += "  <Variable name='n_slices'><int value='" + n_transects + "'/></Variable>\n";
@@ -334,8 +334,8 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             @Override
             public void actionPerformed(ActionEvent e) {
                 loc.convertToAbsoluteLatLonDepth();
-                VisitLocationGoal visitLocationGoal = new VisitLocationGoal(loc.getLatitudeAsDoubleValueRads(), loc
-                        .getLongitudeAsDoubleValueRads());
+                VisitLocationGoal visitLocationGoal = new VisitLocationGoal(loc.getLatitudeRads(), loc
+                        .getLongitudeRads());
                 switch (trexDuneComms) {
                     case IMC:
                         send(visitLocationGoal.asIMCMsg());
@@ -354,8 +354,8 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             @Override
             public void actionPerformed(ActionEvent e) {
                 loc.convertToAbsoluteLatLonDepth();
-                UavSpotterSurvey going = new UavSpotterSurvey(loc.getLatitudeAsDoubleValueRads(), loc
-                        .getLongitudeAsDoubleValueRads(), spotterHeight);
+                UavSpotterSurvey going = new UavSpotterSurvey(loc.getLatitudeRads(), loc
+                        .getLongitudeRads(), spotterHeight);
                 switch (trexDuneComms) {
                     case IMC:
                         activateTrex();
@@ -388,8 +388,8 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             @Override
             public void actionPerformed(ActionEvent e) {
                 loc.convertToAbsoluteLatLonDepth();
-                AUVDrifterSurvey going = new AUVDrifterSurvey(loc.getLatitudeAsDoubleValueRads(), loc
-                        .getLongitudeAsDoubleValueRads(), size, speed, lagrangin, path, (float)Math.toRadians(heading));
+                AUVDrifterSurvey going = new AUVDrifterSurvey(loc.getLatitudeRads(), loc
+                        .getLongitudeRads(), size, speed, lagrangin, path, (float)Math.toRadians(heading));
                 switch (trexDuneComms) {
                     case IMC:
                         // Send goal

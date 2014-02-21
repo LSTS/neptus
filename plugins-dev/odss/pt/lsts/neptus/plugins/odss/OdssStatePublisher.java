@@ -264,15 +264,15 @@ public class OdssStatePublisher extends SimpleSubPanel implements IPeriodicUpdat
         String result = original;
         loc.convertToAbsoluteLatLonDepth();
         result = result.replaceAll("\\$vehicle", IMCUtils.reduceSystemName(vehicleId));
-        result = result.replaceAll("\\$latitude", "" + df.format(loc.getLatitudeAsDoubleValue()));
-        result = result.replaceAll("\\$longitude", "" + df.format(loc.getLongitudeAsDoubleValue()));
+        result = result.replaceAll("\\$latitude", "" + df.format(loc.getLatitudeDegs()));
+        result = result.replaceAll("\\$longitude", "" + df.format(loc.getLongitudeDegs()));
         result = result.replaceAll("\\$depth", "" + df.format(loc.getAllZ()));
         result = result.replaceAll("\\$time", "" + timestamp.getTime() / 1000);
         result = result.replaceAll("\\$plan", planId);
         result = result.replaceAll("\\$ip", ip);
         result = result.replaceAll("\\$type", type);
-        result = result.replaceAll("\\$gmaps", "http://maps.google.com/maps?q=loc:" + loc.getLatitudeAsDoubleValue()
-                + "," + loc.getLongitudeAsDoubleValue() + "&z=17");
+        result = result.replaceAll("\\$gmaps", "http://maps.google.com/maps?q=loc:" + loc.getLatitudeDegs()
+                + "," + loc.getLongitudeDegs() + "&z=17");
 
         return result;
     }

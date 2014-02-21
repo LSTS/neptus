@@ -43,14 +43,14 @@ public class LocationTypeTest extends TestCase {
 
 	public void testAbsoluteLatLonDepth() {
 		LocationType myLocation = new LocationType();
-    	myLocation.setLatitude(41.4234);
-    	myLocation.setLongitude(-8.812);
+    	myLocation.setLatitudeDegs(41.4234);
+    	myLocation.setLongitudeDegs(-8.812);
     	
     	myLocation.translatePosition(200, 200, 5);
     	
     	LocationType myLocation2 = new LocationType();
-    	myLocation2.setLatitude(41.4234);
-    	myLocation2.setLongitude(-8.812);
+    	myLocation2.setLatitudeDegs(41.4234);
+    	myLocation2.setLongitudeDegs(-8.812);
     	
     	myLocation2.translatePosition(200, 200, 5);
     	
@@ -67,8 +67,8 @@ public class LocationTypeTest extends TestCase {
 	public void testGetOffsetFrom()
     {
     	LocationType myLocation = new LocationType();
-    	myLocation.setLatitude(45);
-    	myLocation.setLongitude(45);
+    	myLocation.setLatitudeDegs(45);
+    	myLocation.setLongitudeDegs(45);
     	
     	myLocation.setOffsetDistance(10);
     	myLocation.setAzimuth(90);
@@ -78,8 +78,8 @@ public class LocationTypeTest extends TestCase {
     	myLocation.setOffsetEast(10);
     	
     	LocationType otherLocation = new LocationType();
-    	otherLocation.setLatitude(45);
-    	otherLocation.setLongitude(45);
+    	otherLocation.setLatitudeDegs(45);
+    	otherLocation.setLongitudeDegs(45);
     	
     	otherLocation.setOffsetDistance(10);
     	otherLocation.setAzimuth(0);
@@ -99,11 +99,11 @@ public class LocationTypeTest extends TestCase {
 	public void testOffsets() {
 		
 		LocationType first = new LocationType();
-		first.setLatitude("41N3.6117");
-		first.setLongitude("8W27.4009");
+		first.setLatitudeStr("41N3.6117");
+		first.setLongitudeStr("8W27.4009");
 		LocationType second = new LocationType();
-		second.setLatitude("41N3.6117");
-		second.setLongitude("-8E27.4009");
+		second.setLatitudeStr("41N3.6117");
+		second.setLongitudeStr("-8E27.4009");
 		double[] offsets2 = second.getOffsetFrom(new LocationType());
 		double[] offsets1 = first.getOffsetFrom(new LocationType());
 		
@@ -115,8 +115,8 @@ public class LocationTypeTest extends TestCase {
 		LocationType first = new LocationType();
 		LocationType second = new LocationType();
 		
-		first.setLatitude("41N3.6117");
-		first.setLongitude("8W27.4009");
+		first.setLatitudeStr("41N3.6117");
+		first.setLongitudeStr("8W27.4009");
 		//first.setOffsetEast(100);
 		//first.setOffsetSouth(100);
 		

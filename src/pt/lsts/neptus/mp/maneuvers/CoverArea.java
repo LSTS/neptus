@@ -98,7 +98,7 @@ public class CoverArea extends AbstractImcManeuver<pt.lsts.imc.CoverArea> implem
         Vector<PolygonVertex> vertices = new Vector<PolygonVertex>();
         
         for (LocationType pt : points )
-            vertices.add(PolygonVertex.create("lat", pt.getLatitudeAsDoubleValueRads(), "lon", pt.getLongitudeAsDoubleValueRads()));
+            vertices.add(PolygonVertex.create("lat", pt.getLatitudeRads(), "lon", pt.getLongitudeRads()));
         
         message.setMessageList(vertices, "polygon");
         

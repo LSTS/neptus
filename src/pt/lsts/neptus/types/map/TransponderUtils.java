@@ -55,8 +55,8 @@ public class TransponderUtils {
 
         LblBeacon msgLBLBeaconSetup = new LblBeacon();
         msgLBLBeaconSetup.setBeacon(transp.getId());
-        msgLBLBeaconSetup.setLat(absLoc.getLatitudeAsDoubleValueRads());
-        msgLBLBeaconSetup.setLon(absLoc.getLongitudeAsDoubleValueRads());
+        msgLBLBeaconSetup.setLat(absLoc.getLatitudeRads());
+        msgLBLBeaconSetup.setLon(absLoc.getLongitudeRads());
         msgLBLBeaconSetup.setDepth(absLoc.getDepth());
 
         short queryChannel = 0;

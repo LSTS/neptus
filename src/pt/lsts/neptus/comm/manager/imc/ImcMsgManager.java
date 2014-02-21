@@ -984,8 +984,8 @@ public class ImcMsgManager extends
                 double height = ann.getHeight();
                 if (latRad != 0 && lonRad != 0) {
                     LocationType loc = new LocationType();
-                    loc.setLatitude(Math.toDegrees(latRad));
-                    loc.setLongitude(Math.toDegrees(lonRad));
+                    loc.setLatitudeDegs(Math.toDegrees(latRad));
+                    loc.setLongitudeDegs(Math.toDegrees(lonRad));
                     loc.setHeight(height);
                     long locTime = (long) (info.getTimeSentSec() * 1000);
                     resSys.setLocation(loc, locTime);

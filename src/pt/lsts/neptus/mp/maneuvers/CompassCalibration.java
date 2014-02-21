@@ -242,8 +242,8 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
         pt.lsts.imc.CompassCalibration man = new pt.lsts.imc.CompassCalibration();
 
         man.setTimeout(getMaxTime());
-        man.setLat(getManeuverLocation().getLatitudeAsDoubleValueRads());
-        man.setLon(getManeuverLocation().getLongitudeAsDoubleValueRads());
+        man.setLat(getManeuverLocation().getLatitudeRads());
+        man.setLon(getManeuverLocation().getLongitudeRads());
         man.setZ(getManeuverLocation().getZ());
         man.setZUnits(getManeuverLocation().getZUnits().toString());
         man.setPitch(Math.toRadians(pitchDegs));
@@ -270,8 +270,10 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
     }
     @Override
     public void parseIMCMessage(IMCMessage message) {
-        if (!DEFAULT_ROOT_ELEMENT.equalsIgnoreCase(message.getAbbrev()))
+        if (!DEFAULT_ROOT_ELEMENT.equalsIgnoreCase(message.getAbbrev())) {
+            NeptusLog.pub().error("Unable to parse message of type "+message.getAbbrev());
             return;
+        }
         pt.lsts.imc.CompassCalibration man = null;
         try {
              man = pt.lsts.imc.CompassCalibration.clone(message);
@@ -283,12 +285,10 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
         
         setMaxTime(man.getTimeout());
         ManeuverLocation loc = new ManeuverLocation();
-        loc.setLatitude(Math.toDegrees(man.getLat()));
-        loc.setLongitude(Math.toDegrees(man.getLon()));
+        loc.setLatitudeDegs(Math.toDegrees(man.getLat()));
+        loc.setLongitudeDegs(Math.toDegrees(man.getLon()));
         loc.setZ(man.getZ());
-        NeptusLog.pub().info("<###> "+man.getZUnits());
-//        loc.setZUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(elev.getEndZUnits().toString()));
-        loc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(message.getString("end_z_units").toString()));
+        loc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(man.getZUnits().toString()));
         setManeuverLocation(loc);
         pitchDegs = Math.toDegrees(man.getPitch());
         amplitude = man.getAmplitude();

@@ -479,8 +479,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
         setRadiusTolerance(msgPopup.getRadius());
     	setDuration(msgPopup.getDuration());
     	ManeuverLocation pos = new ManeuverLocation();
-    	pos.setLatitude(Math.toDegrees(msgPopup.getLat()));
-    	pos.setLongitude(Math.toDegrees(msgPopup.getLon()));
+    	pos.setLatitudeDegs(Math.toDegrees(msgPopup.getLat()));
+    	pos.setLongitudeDegs(Math.toDegrees(msgPopup.getLon()));
     	pos.setZ(msgPopup.getZ());
         pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(msgPopup.getZUnits().toString()));
         setManeuverLocation(pos);
@@ -498,8 +498,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    msg.setTimeout(getMaxTime());
 	    //double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
 	    getManeuverLocation().convertToAbsoluteLatLonDepth();
-	    msg.setLat(getManeuverLocation().getLatitudeAsDoubleValueRads());
-	    msg.setLon(getManeuverLocation().getLongitudeAsDoubleValueRads());
+	    msg.setLat(getManeuverLocation().getLatitudeRads());
+	    msg.setLon(getManeuverLocation().getLongitudeRads());
 		msg.setZ(getManeuverLocation().getZ());
 		msg.setZUnits(getManeuverLocation().getZUnits().toString());
 	    msg.setDuration(getDuration());
@@ -549,8 +549,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
         popup.setCurrPos(true);
         popup.setWaitAtSurface(true);
         ManeuverLocation loc = new ManeuverLocation();
-        loc.setLatitude(0);
-        loc.setLongitude(0);
+        loc.setLatitudeDegs(0);
+        loc.setLongitudeDegs(0);
         loc.setDepth(3);
         popup.setManeuverLocation(loc);
         String xml1 = popup.asXML();

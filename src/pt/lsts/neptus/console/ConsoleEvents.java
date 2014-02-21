@@ -106,8 +106,8 @@ public class ConsoleEvents extends SimpleSubPanel {
                             elem.setId(fname);
                             MapPoint point = feature.getFeature().firstElement();
                             LocationType loc = new LocationType();
-                            loc.setLatitude(Math.toDegrees(point.getLat()));
-                            loc.setLongitude(Math.toDegrees(point.getLon()));
+                            loc.setLatitudeDegs(Math.toDegrees(point.getLat()));
+                            loc.setLongitudeDegs(Math.toDegrees(point.getLon()));
                             loc.setHeight(point.getAlt());
                             elem.setCenterLocation(loc);
                             elem.getParentMap().addObject(elem);

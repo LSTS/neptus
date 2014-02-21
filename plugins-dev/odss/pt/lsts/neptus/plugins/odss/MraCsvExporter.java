@@ -129,8 +129,8 @@ public class MraCsvExporter extends SimpleMRAVisualization {
                         continue;
                     LocationType loc = IMCUtils.getLocation(state);
                     loc.convertToAbsoluteLatLonDepth();
-                    line += "," + latFormat.format(loc.getLatitudeAsDoubleValue());
-                    line += "," + latFormat.format(loc.getLongitudeAsDoubleValue());
+                    line += "," + latFormat.format(loc.getLatitudeDegs());
+                    line += "," + latFormat.format(loc.getLongitudeDegs());
                     line += "," + valFormat.format(state.getDouble("depth"));
                     line += "," + latFormat.format(state.getDouble("alt"));
                     int newCondIndex = index.getMessageAtOrAfer(Conductivity.ID_STATIC, ctdId, condIndex,

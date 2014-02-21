@@ -61,8 +61,8 @@ public abstract class FollowRefController implements IController {
             return null;
         
         dest.convertToAbsoluteLatLonDepth();
-        ref.setLat(dest.getLatitudeAsDoubleValueRads());
-        ref.setLon(dest.getLongitudeAsDoubleValueRads());
+        ref.setLat(dest.getLatitudeRads());
+        ref.setLon(dest.getLongitudeRads());
         DesiredZ z;
         if (dest.getDepth() >= 0)
             z = new DesiredZ((float)dest.getDepth(), DesiredZ.Z_UNITS.DEPTH);

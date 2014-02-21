@@ -225,7 +225,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                     e.printStackTrace();
                 }
             }
-            System.out.println("dbPlanReceived");
+            //System.out.println("dbPlanReceived");
         }
 
         @Override
@@ -234,7 +234,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             // Delete a plan from the DB. The 'plan_id' field identifies
             // the plan to delete.
             browser.removeCurrSelectedNodeRemotely();
-            System.out.println("dbPlanRemoved");
+            //System.out.println("dbPlanRemoved");
         }
 
         @Override
@@ -244,7 +244,7 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
             // plan, and a pre-existing plan with the same identifier, if
             // any will be overwritten. For requests, the 'arg' field must
             // contain a 'PlanSpecification' message.
-            System.out.println("dbPlanSent");
+            //System.out.println("dbPlanSent");
             // sent plan confirmation, is now in sync
             browser.setPlanAsSync(planId);
         }

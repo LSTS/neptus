@@ -904,8 +904,8 @@ public class UavPiccoloControl extends SimpleSubPanel implements MainVehicleChan
         if (PiccoloWPType.getType(message.getMessageType().getShortName()) == PiccoloWPType.WAYPOINT_ADD) {
             LocationType loc = new LocationType();
 
-            loc.setLatitude(Math.toDegrees(message.getDouble("lat")));
-            loc.setLongitude(Math.toDegrees(message.getDouble("lon")));
+            loc.setLatitudeDegs(Math.toDegrees(message.getDouble("lat")));
+            loc.setLongitudeDegs(Math.toDegrees(message.getDouble("lon")));
             loc.setDepth(message.getDouble("depth"));
 
             PCCWaypoint wpt = new PCCWaypoint(

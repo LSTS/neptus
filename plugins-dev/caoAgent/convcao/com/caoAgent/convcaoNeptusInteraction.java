@@ -1044,8 +1044,8 @@ public class convcaoNeptusInteraction extends SimpleSubPanel implements Renderer
         float depth = depths.get(vehicle.getId()).floatValue();
         dest.convertToAbsoluteLatLonDepth();
         System.out.println("depth for "+vehicle.getId()+" is "+depth);
-        ref.setLat(dest.getLatitudeAsDoubleValueRads());
-        ref.setLon(dest.getLongitudeAsDoubleValueRads());
+        ref.setLat(dest.getLatitudeRads());
+        ref.setLon(dest.getLongitudeRads());
         DesiredZ desZ = new DesiredZ(depth, Z_UNITS.DEPTH);
         ref.setZ(desZ);
         System.out.println("Sending this reference to "+vehicle.getId()+":");

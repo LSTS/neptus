@@ -116,8 +116,8 @@ public class XTFExporter implements MRAExporter {
                 buf.putShort((short) 0xFACE);
                 buf.put((byte) 42);
                 buf.putInt(64);
-                buf.putDouble(33, swath.getPose().getPosition().getLatitudeAsDoubleValue());
-                buf.putDouble(41, swath.getPose().getPosition().getLongitudeAsDoubleValue());
+                buf.putDouble(33, swath.getPose().getPosition().getLatitudeDegs());
+                buf.putDouble(41, swath.getPose().getPosition().getLongitudeDegs());
                 buf.putDouble(49, swath.getPose().getAltitude());
             }
             

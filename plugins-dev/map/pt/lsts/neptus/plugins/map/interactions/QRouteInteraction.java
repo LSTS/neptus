@@ -90,7 +90,7 @@ public class QRouteInteraction extends InteractionAdapter {
         if (element == null) {
             element = new QRouteElement(pivot.getMapGroup(), pivot);
             element.setCenterLocation(lt);
-            element.otherPoints.add(new Point2D.Double(lt.getLatitudeAsDoubleValue(), lt.getLongitudeAsDoubleValue()));
+            element.otherPoints.add(new Point2D.Double(lt.getLatitudeDegs(), lt.getLongitudeDegs()));
             pivot.addObject(element);
             MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_ADDED);
             changeEvent.setChangedObject(element);
@@ -98,7 +98,7 @@ public class QRouteInteraction extends InteractionAdapter {
             pivot.warnChangeListeners(changeEvent);
         }
         else {
-            element.otherPoints.add(new Point2D.Double(lt.getLatitudeAsDoubleValue(), lt.getLongitudeAsDoubleValue()));
+            element.otherPoints.add(new Point2D.Double(lt.getLatitudeDegs(), lt.getLongitudeDegs()));
             MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
             changeEvent.setChangedObject(element);
             changeEvent.setSourceMap(pivot);
@@ -116,7 +116,7 @@ public class QRouteInteraction extends InteractionAdapter {
         }
         
         LocationType lt = source.getRealWorldLocation(event.getPoint());
-        element.otherPoints.lastElement().setLocation(lt.getLatitudeAsDoubleValue(), lt.getLongitudeAsDoubleValue());        
+        element.otherPoints.lastElement().setLocation(lt.getLatitudeDegs(), lt.getLongitudeDegs());        
         
         MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
         changeEvent.setChangedObject(element);

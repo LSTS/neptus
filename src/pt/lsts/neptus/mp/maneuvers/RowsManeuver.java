@@ -117,8 +117,8 @@ IMCSerialization, StatisticsProvider, PathProvider {
 
     protected ManeuverLocation calculatePosition() {
         ManeuverLocation loc = new ManeuverLocation();
-        loc.setLatitude(Math.toDegrees(latRad));
-        loc.setLongitude(Math.toDegrees(lonRad));
+        loc.setLatitudeDegs(Math.toDegrees(latRad));
+        loc.setLongitudeDegs(Math.toDegrees(lonRad));
         loc.setZ(z);
         loc.setZUnits(zunits);
         return loc;
@@ -137,8 +137,8 @@ IMCSerialization, StatisticsProvider, PathProvider {
             ManeuverLocation loc = new ManeuverLocation();
             loc.load(node.asXML());
             setManeuverLocation(loc);            
-            latRad = getManeuverLocation().getLatitudeAsDoubleValueRads();
-            lonRad = getManeuverLocation().getLongitudeAsDoubleValueRads();
+            latRad = getManeuverLocation().getLatitudeRads();
+            lonRad = getManeuverLocation().getLongitudeRads();
             z = getManeuverLocation().getZ();
             zunits = getManeuverLocation().getZUnits();
 

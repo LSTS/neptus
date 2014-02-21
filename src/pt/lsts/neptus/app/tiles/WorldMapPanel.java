@@ -544,8 +544,8 @@ public class WorldMapPanel extends JPanel {
 
                             Graphics2D g2 = (Graphics2D) g.create();
                             LocationType loc = new LocationType();
-                            loc.setLatitude(kmlPlacemark.latDegrees);
-                            loc.setLongitude(kmlPlacemark.lonDegrees);
+                            loc.setLatitudeDegs(kmlPlacemark.latDegrees);
+                            loc.setLongitudeDegs(kmlPlacemark.lonDegrees);
                             Point2D pointXY = renderer.getScreenPosition(loc);
                             g2.translate(pointXY.getX(), pointXY.getY());
 
@@ -618,8 +618,8 @@ public class WorldMapPanel extends JPanel {
                                 (int) (bounds.getWidth() + 10), (int) (bounds.getHeight() + 10));
 
                         LocationType loc = new LocationType();
-                        loc.setLatitude(infoBalloonFeature.latDegrees);
-                        loc.setLongitude(infoBalloonFeature.lonDegrees);
+                        loc.setLatitudeDegs(infoBalloonFeature.latDegrees);
+                        loc.setLongitudeDegs(infoBalloonFeature.lonDegrees);
                         Point2D pointXY = renderer.getScreenPosition(loc);
                         g2.translate(pointXY.getX(), pointXY.getY());
 
@@ -665,8 +665,8 @@ public class WorldMapPanel extends JPanel {
                             if (!pmk.visibility)
                                 continue;
                             LocationType loc = new LocationType();
-                            loc.setLatitude(pmk.latDegrees);
-                            loc.setLongitude(pmk.lonDegrees);
+                            loc.setLatitudeDegs(pmk.latDegrees);
+                            loc.setLongitudeDegs(pmk.lonDegrees);
                             Point2D pointXY = renderer.getScreenPosition(loc);
                             Rectangle2D bbox = new Rectangle2D.Double(pointXY.getX() - offSetDiv2, pointXY.getY()
                                     - offSetDiv2, offSet, offSet);

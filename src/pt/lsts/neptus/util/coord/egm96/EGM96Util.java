@@ -435,10 +435,10 @@ public class EGM96Util {
 		System.out.printf("Lat: %f | Lon: %f | MSL(Height to WGS84): %f = %f\n", 
 				38.8259300, -9.3316070, 53.9372077, calcHeight(38.8259300, -9.3316070));
 		LocationType locFEUP = new LocationType();
-		locFEUP.setLatitude("41N10'42.4368''");
-		locFEUP.setLongitude("8W35'45.4572''");
+		locFEUP.setLatitudeStr("41N10'42.4368''");
+		locFEUP.setLongitudeStr("8W35'45.4572''");
 		System.out.printf("Lat: %f | Lon: %f | MSL(Height to WGS84): %f = %f\n", 
-				locFEUP.getLatitudeAsDoubleValue(), locFEUP.getLongitudeAsDoubleValue(), 124.0, calcHeight(locFEUP.getLatitudeAsDoubleValue(), locFEUP.getLongitudeAsDoubleValue()));
+				locFEUP.getLatitudeDegs(), locFEUP.getLongitudeDegs(), 124.0, calcHeight(locFEUP.getLatitudeDegs(), locFEUP.getLongitudeDegs()));
 		
 		//http://maps.google.com/maps/api/elevation/xml?locations=38.8259300,-9.3316070&sensor=false
 		//<?xml version="1.0" encoding="UTF-8"?>

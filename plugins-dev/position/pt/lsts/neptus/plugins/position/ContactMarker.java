@@ -151,8 +151,8 @@ public class ContactMarker extends SimpleSubPanel implements IEditorMenuExtensio
         mission.save(false);
 
         MapPoint point = new MapPoint();
-        point.setLat(locContact.getLatitudeAsDoubleValueRads());
-        point.setLon(locContact.getLongitudeAsDoubleValueRads());
+        point.setLat(locContact.getLatitudeRads());
+        point.setLon(locContact.getLongitudeRads());
         point.setAlt(locContact.getHeight());
         MapFeature feature = new MapFeature();
         feature.setFeatureType(FEATURE_TYPE.POI);

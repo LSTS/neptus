@@ -505,7 +505,7 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(id);
             if (sys != null) {
                 if ((System.currentTimeMillis() - time < timeMillisToDiscart) && sys.getLocationTimeMillis() < time) {
-                    if (coordinateSystem.getLatitudeAsDoubleValue() != 0d && coordinateSystem.getLongitudeAsDoubleValue() != 0d) {
+                    if (coordinateSystem.getLatitudeDegs() != 0d && coordinateSystem.getLongitudeDegs() != 0d) {
                         sys.setLocation(coordinateSystem, time);
 
                         if (coordinateSystem.getRoll() != 0d && coordinateSystem.getPitch() != 0d
@@ -553,7 +553,7 @@ public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUp
                     ExternalSystemsHolder.registerSystem(ext);
                 }
                 if ((System.currentTimeMillis() - time < timeMillisToDiscart) && ext.getLocationTimeMillis() < time) {
-                    if (coordinateSystem.getLatitudeAsDoubleValue() != 0d && coordinateSystem.getLongitudeAsDoubleValue() != 0d) {
+                    if (coordinateSystem.getLatitudeDegs() != 0d && coordinateSystem.getLongitudeDegs() != 0d) {
                         ext.setLocation(coordinateSystem, time);
 
                         if (coordinateSystem.getRoll() != 0d && coordinateSystem.getPitch() != 0d

@@ -101,8 +101,8 @@ public class CoordinateSystemTest extends TestCase
         assertEquals("NED", cst.getName());
         assertEquals("ned", cst.getId());
         
-        assertEquals("41N11", cst.getLatitude());
-        assertEquals("8W36", cst.getLongitude());
+        assertEquals("41N11", cst.getLatitudeStr());
+        assertEquals("8W36", cst.getLongitudeStr());
         assertEquals(-1d, cst.getDepth(), 0d);
         
         assertEquals(45d, cst.getAzimuth(), 0d);
@@ -134,8 +134,8 @@ public class CoordinateSystemTest extends TestCase
         assertEquals("NWU", cst.getName());
         assertEquals("nwu", cst.getId());
         
-        assertEquals("41N11", cst.getLatitude());
-        assertEquals("8W36", cst.getLongitude());
+        assertEquals("41N11", cst.getLatitudeStr());
+        assertEquals("8W36", cst.getLongitudeStr());
         assertEquals(1d, cst.getDepth(), 0d);
         
         assertEquals(0d, cst.getAzimuth(), 0d);

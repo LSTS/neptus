@@ -66,7 +66,7 @@ public class EstimatedStatePlot extends Mra2DPlot implements LogMarkerListener {
             loc.setLongitudeRads(state.getDouble("lon"));
             loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"));
             loc.convertToAbsoluteLatLonDepth();
-            addValue(state.getTimestampMillis(), loc.getLatitudeAsDoubleValue(), loc.getLongitudeAsDoubleValue(),
+            addValue(state.getTimestampMillis(), loc.getLatitudeDegs(), loc.getLongitudeDegs(),
                     state.getSourceName(), "position");
         }
         
@@ -85,7 +85,7 @@ public class EstimatedStatePlot extends Mra2DPlot implements LogMarkerListener {
             }
             loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"));
             loc.convertToAbsoluteLatLonDepth();
-            addValue(state.getTimestampMillis(), loc.getLatitudeAsDoubleValue(), loc.getLongitudeAsDoubleValue(),
+            addValue(state.getTimestampMillis(), loc.getLatitudeDegs(), loc.getLongitudeDegs(),
                     state.getSourceName(), "simulator");
         }
     }
@@ -116,7 +116,7 @@ public class EstimatedStatePlot extends Mra2DPlot implements LogMarkerListener {
         loc.convertToAbsoluteLatLonDepth();
         
         if(markerSeries != null)
-            markerSeries.add(new TimedXYDataItem(loc.getLatitudeAsDoubleValue(), loc.getLongitudeAsDoubleValue(), new Double(marker.timestamp).longValue(), marker.label));
+            markerSeries.add(new TimedXYDataItem(loc.getLatitudeDegs(), loc.getLongitudeDegs(), new Double(marker.timestamp).longValue(), marker.label));
     }
 
     @Override

@@ -136,8 +136,8 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
             RemoteSensorInfo rsi = new RemoteSensorInfo();
             rsi.setId(d.id);
             LocationType loc = d.getLocation();
-            rsi.setLat(loc.getLatitudeAsDoubleValueRads());
-            rsi.setLon(loc.getLongitudeAsDoubleValueRads());
+            rsi.setLat(loc.getLatitudeRads());
+            rsi.setLon(loc.getLongitudeRads());
             rsi.setTimestampMillis(System.currentTimeMillis());
             rsi.setSensorClass("drifter");
             post(rsi);
@@ -388,14 +388,14 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     @Subscribe
     public void on(DesiredAssetPosition desiredPos) {
         NeptusLog.pub().info("Received desired position");
-        RemoteSensorInfo rsi = new RemoteSensorInfo("DP_hermes", "Wave Glider", desiredPos.getLocation().getLatitudeAsDoubleValue(), desiredPos.getLocation().getLongitudeAsDoubleValue(), 0, 0, "");
+        RemoteSensorInfo rsi = new RemoteSensorInfo("DP_hermes", "Wave Glider", desiredPos.getLocation().getLatitudeDegs(), desiredPos.getLocation().getLongitudeDegs(), 0, 0, "");
         post(rsi);
     }
     
     @Subscribe
     public void on(TargetAssetPosition targetPos) {
         NeptusLog.pub().info("Received target position");
-        RemoteSensorInfo rsi = new RemoteSensorInfo("TP_hermes", "Wave Glider", targetPos.getLocation().getLatitudeAsDoubleValue(), targetPos.getLocation().getLongitudeAsDoubleValue(), 0, 0, "");
+        RemoteSensorInfo rsi = new RemoteSensorInfo("TP_hermes", "Wave Glider", targetPos.getLocation().getLatitudeDegs(), targetPos.getLocation().getLongitudeDegs(), 0, 0, "");
         post(rsi);
     }
         

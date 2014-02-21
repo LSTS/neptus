@@ -108,8 +108,8 @@ public class NetcdfTimeSeriesExporter {
             loc.translatePosition(m.getDouble("x"), m.getDouble("y"), 0);            
             locations.add(loc);
             loc.convertToAbsoluteLatLonDepth();
-            scalars.get("latitude").add(loc.getLatitudeAsDoubleValue());
-            scalars.get("longitude").add(loc.getLongitudeAsDoubleValue());
+            scalars.get("latitude").add(loc.getLatitudeDegs());
+            scalars.get("longitude").add(loc.getLongitudeDegs());
             scalars.get("depth").add(m.getDouble("depth"));
             
             for (ImcField f : scalarsToExport) {

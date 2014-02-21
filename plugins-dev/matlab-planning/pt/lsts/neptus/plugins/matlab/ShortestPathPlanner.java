@@ -329,23 +329,23 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
 
         writer.append("[map_origin]\n");
         bottomLeft.convertToAbsoluteLatLonDepth();
-        writer.append("latitude = " + bottomLeft.getLatitudeAsDoubleValue() + "\n");
-        writer.append("longitude = " + bottomLeft.getLongitudeAsDoubleValue() + "\n\n");
+        writer.append("latitude = " + bottomLeft.getLatitudeDegs() + "\n");
+        writer.append("longitude = " + bottomLeft.getLongitudeDegs() + "\n\n");
 
         writer.append("[map_finish]\n");
         topRight.convertToAbsoluteLatLonDepth();
-        writer.append("latitude = " + topRight.getLatitudeAsDoubleValue() + "\n");
-        writer.append("longitude = " + topRight.getLongitudeAsDoubleValue() + "\n\n");
+        writer.append("latitude = " + topRight.getLatitudeDegs() + "\n");
+        writer.append("longitude = " + topRight.getLongitudeDegs() + "\n\n");
 
         writer.append("[start_point]\n");
         initial.convertToAbsoluteLatLonDepth();
-        writer.append("latitude = " + initial.getLatitudeAsDoubleValue() + "\n");
-        writer.append("longitude = " + initial.getLongitudeAsDoubleValue() + "\n\n");
+        writer.append("latitude = " + initial.getLatitudeDegs() + "\n");
+        writer.append("longitude = " + initial.getLongitudeDegs() + "\n\n");
 
         writer.append("[end_point]\n");
         destination.convertToAbsoluteLatLonDepth();
-        writer.append("latitude = " + destination.getLatitudeAsDoubleValue() + "\n");
-        writer.append("longitude = " + destination.getLongitudeAsDoubleValue() + "\n\n");
+        writer.append("latitude = " + destination.getLatitudeDegs() + "\n");
+        writer.append("longitude = " + destination.getLongitudeDegs() + "\n\n");
 
         writer.append("[obstacles]\n");
         int i = 1;
@@ -358,9 +358,9 @@ public class ShortestPathPlanner extends SimpleRendererInteraction implements Re
                 LocationType loc = new LocationType(center);
                 loc.translatePosition(pt.x, pt.y, 0);
                 loc.convertToAbsoluteLatLonDepth();
-                writer.append(loc.getLatitudeAsDoubleValue() + ", " + loc.getLongitudeAsDoubleValue() + "; ");
+                writer.append(loc.getLatitudeDegs() + ", " + loc.getLongitudeDegs() + "; ");
             }
-            writer.append(center.getLatitudeAsDoubleValue() + ", " + center.getLongitudeAsDoubleValue() + ";\n");
+            writer.append(center.getLatitudeDegs() + ", " + center.getLongitudeDegs() + ";\n");
 
         }
         writer.close();

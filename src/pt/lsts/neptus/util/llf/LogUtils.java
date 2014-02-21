@@ -294,8 +294,8 @@ public class LogUtils {
             lon = Math.toDegrees(lon);
 
             LocationType center = new LocationType();
-            center.setLatitude(lat);
-            center.setLongitude(lon);
+            center.setLatitudeDegs(lat);
+            center.setLongitudeDegs(lon);
             center.setDepth(depth);
             return center;
         }
@@ -308,8 +308,8 @@ public class LogUtils {
             lon = Math.toDegrees(lon);
             
             LocationType center = new LocationType();
-            center.setLatitude(lat);
-            center.setLongitude(lon);
+            center.setLatitudeDegs(lat);
+            center.setLongitudeDegs(lon);
             center.setDepth(depth);
             
             return center;
@@ -366,8 +366,8 @@ public class LogUtils {
                 lon = Math.toDegrees(lon);
 
                 LocationType center = new LocationType();
-                center.setLatitude(lat);
-                center.setLongitude(lon);
+                center.setLatitudeDegs(lat);
+                center.setLongitudeDegs(lon);
                 center.setDepth(depth);
                 return center;
             }
@@ -388,8 +388,8 @@ public class LogUtils {
             lon = Math.toDegrees(lon);
 
             LocationType center = new LocationType();
-            center.setLatitude(lat);
-            center.setLongitude(lon);
+            center.setLatitudeDegs(lat);
+            center.setLongitudeDegs(lon);
             center.setDepth(depth);
             return center;
         }
@@ -414,8 +414,8 @@ public class LogUtils {
                     double depth = lblBeacon.getDouble("depth");
                     TransponderElement el = new TransponderElement();
                     LocationType lt = new LocationType();
-                    lt.setLatitude(lat);
-                    lt.setLongitude(lon);
+                    lt.setLatitudeDegs(lat);
+                    lt.setLongitudeDegs(lon);
                     lt.setDepth(depth);
                     el.setId(beacon);
                     el.setCenterLocation(lt);
@@ -434,8 +434,8 @@ public class LogUtils {
                     double depth = lblBeacon.getDepth();
                     TransponderElement el = new TransponderElement();
                     LocationType lt = new LocationType();
-                    lt.setLatitude(lat);
-                    lt.setLongitude(lon);
+                    lt.setLatitudeDegs(lat);
+                    lt.setLongitudeDegs(lon);
                     lt.setDepth(depth);
                     el.setId(beacon);
                     el.setCenterLocation(lt);
@@ -663,8 +663,8 @@ public class LogUtils {
                 }
                 
                 if (refMode == 1 || refMode == 2) {
-                    loc.setLatitude(Math.toDegrees(estimatedStateMessage.getDouble("lat")));
-                    loc.setLongitude(Math.toDegrees(estimatedStateMessage.getDouble("lon")));
+                    loc.setLatitudeDegs(Math.toDegrees(estimatedStateMessage.getDouble("lat")));
+                    loc.setLongitudeDegs(Math.toDegrees(estimatedStateMessage.getDouble("lon")));
                     loc.setDepth(estimatedStateMessage.getDouble("depth"));
                 }
                 if (refMode == 0 || refMode == 2) {
@@ -694,8 +694,8 @@ public class LogUtils {
 
         long refMode = estimatedStateEntry.getLong("ref");
         if (refMode == 0) {
-            loc.setLatitude(baseLoc.getLatitudeAsDoubleValue());
-            loc.setLongitude(baseLoc.getLongitudeAsDoubleValue());
+            loc.setLatitudeDegs(baseLoc.getLatitudeDegs());
+            loc.setLongitudeDegs(baseLoc.getLongitudeDegs());
             loc.setDepth(baseLoc.getDepth());
         }
         return loc;
@@ -730,9 +730,9 @@ public class LogUtils {
                     double lon = entry.getDouble("lon");
                     double depth = entry.getDouble("depth");
 
-                    if (lat != tmp.getLatitudeAsDoubleValue() && lon != tmp.getLongitudeAsDoubleValue()) {
-                        tmp.setLatitude(Math.toDegrees(lat));
-                        tmp.setLongitude(Math.toDegrees(lon));
+                    if (lat != tmp.getLatitudeDegs() && lon != tmp.getLongitudeDegs()) {
+                        tmp.setLatitudeDegs(Math.toDegrees(lat));
+                        tmp.setLongitudeDegs(Math.toDegrees(lon));
                         tmp.setDepth(depth);
                         double[] offs = tmp.getOffsetFrom(mission.getStartLocation());
                         pe.addPoint(offs[1], offs[0], offs[2], false);
@@ -748,8 +748,8 @@ public class LogUtils {
 
                     // if (lat != tmp.getLatitudeAsDoubleValue() && lon != tmp.getLongitudeAsDoubleValue()
                     // && depth != tmp.getDepth()) {
-                    tmp.setLatitude(Math.toDegrees(lat));
-                    tmp.setLongitude(Math.toDegrees(lon));
+                    tmp.setLatitudeDegs(Math.toDegrees(lat));
+                    tmp.setLongitudeDegs(Math.toDegrees(lon));
                     tmp.setDepth(depth);
                     // }
                     double[] offs = tmp.getOffsetFrom(mission.getStartLocation());

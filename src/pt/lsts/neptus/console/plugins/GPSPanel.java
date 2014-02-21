@@ -289,11 +289,11 @@ public class GPSPanel extends SimpleSubPanel implements GPSListener,
 			return true;
 		
 		LocationType loc = new LocationType();
-		loc.setLatitude(gps.getLatitude());
-		loc.setLongitude(gps.getLongitude());
+		loc.setLatitudeDegs(gps.getLatitude());
+		loc.setLongitudeDegs(gps.getLongitude());
 		if (useAltitude) {
 			double alt = gps.getAltitude();
-			double heightBase = EGM96Util.calcHeight(loc.getLatitudeAsDoubleValue(), loc.getLongitudeAsDoubleValue());
+			double heightBase = EGM96Util.calcHeight(loc.getLatitudeDegs(), loc.getLongitudeDegs());
 			loc.setDepth(-1*(alt+heightBase));
 		}
 		else {
@@ -327,11 +327,11 @@ public class GPSPanel extends SimpleSubPanel implements GPSListener,
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				LocationType loc = new LocationType();
-				loc.setLatitude(gpsState.getLatitude());
-				loc.setLongitude(gpsState.getLongitude());
+				loc.setLatitudeDegs(gpsState.getLatitude());
+				loc.setLongitudeDegs(gpsState.getLongitude());
 				if (useAltitude) {
 					double alt = gpsState.getAltitude();
-					double heightBase = EGM96Util.calcHeight(loc.getLatitudeAsDoubleValue(), loc.getLongitudeAsDoubleValue());
+					double heightBase = EGM96Util.calcHeight(loc.getLatitudeDegs(), loc.getLongitudeDegs());
 					loc.setDepth(-1*(alt+heightBase));
 				}
 				else {

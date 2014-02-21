@@ -190,8 +190,8 @@ public class RemoteStateSimplePanel extends SimpleSubPanel implements MainVehicl
             double rotationAngle = renderer.getRotation();
 
             LocationType lt = new LocationType();
-            lt.setLatitude(lat);
-            lt.setLongitude(lon);
+            lt.setLatitudeDegs(lat);
+            lt.setLongitudeDegs(lon);
             Point2D centerPos = renderer.getScreenPosition(new LocationType(lt));
 
             Graphics2D g = (Graphics2D) g2.create();

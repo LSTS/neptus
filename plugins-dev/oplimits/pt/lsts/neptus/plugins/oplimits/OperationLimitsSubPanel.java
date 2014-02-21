@@ -745,8 +745,8 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
             pp.setLength(limits.opAreaLength);
             pp.setYawDeg(Math.toDegrees(limits.opRotationRads));
             LocationType lt = new LocationType();
-            lt.setLatitude(limits.opAreaLat);
-            lt.setLongitude(limits.opAreaLon);
+            lt.setLatitudeDegs(limits.opAreaLat);
+            lt.setLongitudeDegs(limits.opAreaLon);
             pp.setCenterLocation(lt);
             pp.setMyColor(Color.red);
         }

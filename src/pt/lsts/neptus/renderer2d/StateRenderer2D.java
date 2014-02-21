@@ -256,8 +256,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         setMapGroup(MapGroup.getMapGroupInstance(null));
 
         LocationType portugal = new LocationType();
-        portugal.setLatitude(38.711233);
-        portugal.setLongitude(-9.18457);
+        portugal.setLatitudeDegs(38.711233);
+        portugal.setLongitudeDegs(-9.18457);
         setCenter(portugal);
         init();
     }
@@ -729,17 +729,17 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
             }
             levelOfDetail = Math.max(minLod, levelOfDetail);
 
-            double tz = 1.0 / MapTileUtil.groundResolution(getCenter().getLatitudeAsDoubleValue(), levelOfDetail);
+            double tz = 1.0 / MapTileUtil.groundResolution(getCenter().getLatitudeDegs(), levelOfDetail);
             if (tz < 0)
                 return this.levelOfDetail;
             // int oldLevelOfDetail = this.levelOfDetail;
             this.levelOfDetail = levelOfDetail;
             zoom = (float) tz;
-            setLevelOfDetailLastLat = getCenter().getLatitudeAsDoubleValue();
+            setLevelOfDetailLastLat = getCenter().getLatitudeDegs();
         }
 
-        if (Double.isNaN(setLevelOfDetailLastLat) || setLevelOfDetailLastLat != getCenter().getLatitudeAsDoubleValue()) {
-            setLevelOfDetailLastLat = getCenter().getLatitudeAsDoubleValue();
+        if (Double.isNaN(setLevelOfDetailLastLat) || setLevelOfDetailLastLat != getCenter().getLatitudeDegs()) {
+            setLevelOfDetailLastLat = getCenter().getLatitudeDegs();
             double tz = 1.0 / MapTileUtil.groundResolution(setLevelOfDetailLastLat, this.levelOfDetail);
             zoom = (float) tz;
         }
@@ -805,8 +805,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         // this.repaint();
         double grdResol = 1.0 / newZoom;
         for (int lod = MIN_LOD; lod <= MAX_LOD; lod++) {
-            double lodG1 = MapTileUtil.groundResolution(getCenter().getLatitudeAsDoubleValue(), lod);
-            double lodG2 = MapTileUtil.groundResolution(getCenter().getLatitudeAsDoubleValue(), lod + 1);
+            double lodG1 = MapTileUtil.groundResolution(getCenter().getLatitudeDegs(), lod);
+            double lodG2 = MapTileUtil.groundResolution(getCenter().getLatitudeDegs(), lod + 1);
             if (grdResol > lodG1) {
                 setLevelOfDetail(lod);
                 break;
@@ -839,14 +839,14 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
                 || mapScaleLastScreenResolution == -1) {
             recalc = true;
         }
-        else if (mapScaleLastLat != getCenter().getLatitudeAsDoubleValue()
+        else if (mapScaleLastLat != getCenter().getLatitudeDegs()
                 || mapScaleLastLevelOfDetail != levelOfDetail
                 || mapScaleLastScreenResolution != Toolkit.getDefaultToolkit().getScreenResolution()) {
             recalc = true;
         }
 
         if (recalc) {
-            mapScaleLastLat = getCenter().getLatitudeAsDoubleValue();
+            mapScaleLastLat = getCenter().getLatitudeDegs();
             mapScaleLastLevelOfDetail = levelOfDetail;
             mapScaleLastScreenResolution = Toolkit.getDefaultToolkit().getScreenResolution();
             mapScale = MapTileUtil.mapScale(mapScaleLastLat, mapScaleLastLevelOfDetail, mapScaleLastScreenResolution);
@@ -1581,8 +1581,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
         double[] latLong = MapTileUtil.XYToDegrees(centerXY.getX() + tx, centerXY.getY() + ty, levelOfDetail);
 
         LocationType loc = new LocationType();
-        loc.setLatitude(latLong[0]);
-        loc.setLongitude(latLong[1]);
+        loc.setLatitudeDegs(latLong[0]);
+        loc.setLongitudeDegs(latLong[1]);
 
         return loc;
     }
@@ -1815,8 +1815,8 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
 
     private final void updateCenter() {
         double[] latLon = MapTileUtil.XYToDegrees(worldPixelXY.getX(), worldPixelXY.getY(), getLevelOfDetail());
-        center.setLatitude(latLon[0]);
-        center.setLongitude(latLon[1]);
+        center.setLatitudeDegs(latLon[0]);
+        center.setLongitudeDegs(latLon[1]);
     }
 
     /**

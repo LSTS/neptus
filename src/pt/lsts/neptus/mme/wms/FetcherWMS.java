@@ -146,10 +146,10 @@ public class FetcherWMS {
 		FetcherWMS fetcher = new FetcherWMS();
 		
 		LocationType topLeft = new LocationType(), bottomRight = new LocationType();
-		topLeft.setLatitude(45);
-		topLeft.setLongitude(-10);
-		bottomRight.setLatitude(35);
-		bottomRight.setLongitude(-5);
+		topLeft.setLatitudeDegs(45);
+		topLeft.setLongitudeDegs(-10);
+		bottomRight.setLatitudeDegs(35);
+		bottomRight.setLongitudeDegs(-5);
 		fetcher.setBottomRight(bottomRight);
 		fetcher.setTopLeft(topLeft);
 		JPanel main = new JPanel();

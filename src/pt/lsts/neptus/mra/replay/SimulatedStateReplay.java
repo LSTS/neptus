@@ -91,8 +91,8 @@ public class SimulatedStateReplay implements LogReplayLayer {
         
         navStartup = new LocationType();
         
-        navStartup.setLatitude(Math.toDegrees(m.getDouble("lat")));
-        navStartup.setLongitude(Math.toDegrees(m.getDouble("lon")));
+        navStartup.setLatitudeDegs(Math.toDegrees(m.getDouble("lat")));
+        navStartup.setLongitudeDegs(Math.toDegrees(m.getDouble("lon")));
         navStartup.setDepth(m.getDouble("depth"));
         
         log = source.getLog("SimulatedState");

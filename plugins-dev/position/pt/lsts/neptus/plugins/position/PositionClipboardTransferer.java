@@ -98,8 +98,8 @@ public class PositionClipboardTransferer extends SimpleSubPanel {
 				double lon = Math.toDegrees(state.getDouble("GpsFix.GPS.lon"));
 				
 				LocationType loc = new LocationType();
-				loc.setLatitude(lat);
-				loc.setLongitude(lon);
+				loc.setLatitudeDegs(lat);
+				loc.setLongitudeDegs(lon);
 				
 				NeptusLog.pub().info("<###> "+loc);
 				

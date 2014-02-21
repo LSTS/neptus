@@ -211,8 +211,8 @@ public abstract class AbstractImcManeuver<T extends IMCMessage> extends DefaultM
     public ManeuverLocation getManeuverLocation() {
         ManeuverLocation loc = new ManeuverLocation();
         try {
-            loc.setLatitude(Math.toDegrees(message.getDouble("lat")));
-            loc.setLongitude(Math.toDegrees(message.getDouble("lon")));
+            loc.setLatitudeDegs(Math.toDegrees(message.getDouble("lat")));
+            loc.setLongitudeDegs(Math.toDegrees(message.getDouble("lon")));
             String mode = message.getString("zunits");
             if (mode == null || mode.equals("NONE") || mode.equals("DEPTH"))
                 loc.setDepth(message.getDouble("z"));
@@ -231,8 +231,8 @@ public abstract class AbstractImcManeuver<T extends IMCMessage> extends DefaultM
         ManeuverLocation loc = location.clone();
         loc.convertToAbsoluteLatLonDepth();
 
-        message.setValue("lat", Math.toRadians(loc.getLatitudeAsDoubleValue()));
-        message.setValue("lon", Math.toRadians(loc.getLongitudeAsDoubleValue()));
+        message.setValue("lat", Math.toRadians(loc.getLatitudeDegs()));
+        message.setValue("lon", Math.toRadians(loc.getLongitudeDegs()));
         message.setValue("z", loc.getAllZ());
         message.setValue("zunits", "NONE");
     }

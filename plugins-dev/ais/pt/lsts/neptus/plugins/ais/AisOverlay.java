@@ -185,8 +185,8 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
                     LocationType topLeft = renderer.getTopLeftLocationType();
                     LocationType bottomRight = renderer.getBottomRightLocationType();
     
-                    shipsOnMap = getShips(bottomRight.getLatitudeAsDoubleValue(), topLeft.getLongitudeAsDoubleValue(),
-                            topLeft.getLatitudeAsDoubleValue(), bottomRight.getLongitudeAsDoubleValue(), showStoppedShips);
+                    shipsOnMap = getShips(bottomRight.getLatitudeDegs(), topLeft.getLongitudeDegs(),
+                            topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs(), showStoppedShips);
     
                     lastThread = null;
     

@@ -51,8 +51,8 @@ public class ConsoleEventPositionEstimation {
 
     public ConsoleEventPositionEstimation(Object source, ESTIMATION_TYPE type, LocationType loc) {
         this(source, type, 
-                EstimatedState.create("lat", loc.getLatitudeAsDoubleValueRads(), "lon",
-                loc.getLongitudeAsDoubleValueRads(), "depth", loc.getDepth(), "x", loc.getOffsetNorth(), "y",
+                EstimatedState.create("lat", loc.getLatitudeRads(), "lon",
+                loc.getLongitudeRads(), "depth", loc.getDepth(), "x", loc.getOffsetNorth(), "y",
                 loc.getOffsetEast(), "z", loc.getOffsetDown())
         );
     }

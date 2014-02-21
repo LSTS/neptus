@@ -390,8 +390,8 @@ public class MRAPanel extends JPanel {
             IMCMessage m = source.getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
             LocationType loc = LogUtils.getLocation(m);
 
-            marker.lat = loc.getLatitudeAsDoubleValueRads();
-            marker.lon = loc.getLongitudeAsDoubleValueRads();
+            marker.lat = loc.getLatitudeRads();
+            marker.lon = loc.getLongitudeRads();
         }
         logTree.addMarker(marker);
         logMarkers.add(marker);

@@ -219,8 +219,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 loc.translatePosition(lastState.getX(), lastState.getY(), 0);
 
                 loc.convertToAbsoluteLatLonDepth();
-                ref.setLat(loc.getLatitudeAsDoubleValueRads());
-                ref.setLon(loc.getLongitudeAsDoubleValueRads());
+                ref.setLat(loc.getLatitudeRads());
+                ref.setLon(loc.getLongitudeRads());
                 // ref.setZ(new DesiredZ((float) z, DesiredZ.Z_UNITS.valueOf(z_units.name())));
                 // ref.setSpeed(new DesiredSpeed(speed, DesiredSpeed.SPEED_UNITS.METERS_PS));
                 ref.setFlags((Reference.FLAG_LOCATION /* | Reference.FLAG_SPEED | Reference.FLAG_Z */));

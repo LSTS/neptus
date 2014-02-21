@@ -151,6 +151,7 @@ public class PlanDBState implements IMCSerialization {
         this.lastChangeName = lastChangeName;
     }
 
+    
     /**
      * Verifies if the given plan matches the one that is stored in this planDB
      * @param localPlan The plan type to verify if is stored
@@ -159,6 +160,8 @@ public class PlanDBState implements IMCSerialization {
     public boolean matchesRemotePlan(PlanType localPlan) {
         if (!storedPlans.containsKey(localPlan.getId()))
             return false;
+        
+        
         
         byte[] localMD5 = localPlan.asIMCPlan().payloadMD5();
         byte[] remoteMD5 = storedPlans.get(localPlan.getId()).md5;
@@ -171,6 +174,7 @@ public class PlanDBState implements IMCSerialization {
 //                return false;
 //        
 //        return true;
+        
         return ByteUtil.equal(localMD5, remoteMD5);
     }
 }

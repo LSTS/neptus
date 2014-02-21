@@ -564,12 +564,12 @@ public class PCCWaypointPainter implements Renderer2DPainter {
 		MapPanel planPanel = new MapPanel(null);
 
 		LocationType loc = new LocationType();
-		loc.setLatitude(41);
-		loc.setLongitude(-8);
+		loc.setLatitudeDegs(41);
+		loc.setLongitudeDegs(-8);
 		loc.translatePosition(50, 35, 0);
 		LocationType loc1 = new LocationType();
-        loc1.setLatitude(41);
-        loc1.setLongitude(-8);
+        loc1.setLatitudeDegs(41);
+        loc1.setLongitudeDegs(-8);
 		loc1.translatePosition(150, 85, 0);
 
 		planPanel.getRenderer().setCenter(loc);

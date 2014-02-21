@@ -487,8 +487,8 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
             // in the case homeRef is null, the first position is copied to homeref
             if (imageCornerRef == null) {
                 imageCornerRef = new LocationType();
-                imageCornerRef.setLatitude(Math.toDegrees(entry.getDouble("lat")));
-                imageCornerRef.setLatitude(Math.toDegrees(entry.getDouble("lon")));
+                imageCornerRef.setLatitudeDegs(Math.toDegrees(entry.getDouble("lat")));
+                imageCornerRef.setLatitudeDegs(Math.toDegrees(entry.getDouble("lon")));
             }
             // LocationType compare = Bathymetry3DGenerator.getLocationIMC5((EstimatedState) entry);
             LocationType tmp = new LocationType();

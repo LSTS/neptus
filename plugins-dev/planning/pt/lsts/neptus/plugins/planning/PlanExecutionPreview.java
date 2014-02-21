@@ -161,8 +161,8 @@ public class PlanExecutionPreview extends SimpleRendererInteraction implements R
                             SystemPositionAndAttitude curState = simulator.getState();
                             EstimatedState newState = curState.toEstimatedState();
 
-                            newState.setLat(loc.getLatitudeAsDoubleValueRads());
-                            newState.setLon(loc.getLongitudeAsDoubleValueRads());
+                            newState.setLat(loc.getLatitudeRads());
+                            newState.setLon(loc.getLongitudeRads());
 
                             simulator.setPositionEstimation(newState, Double.MAX_VALUE);
                         }
