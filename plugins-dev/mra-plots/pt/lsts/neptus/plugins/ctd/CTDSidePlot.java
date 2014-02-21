@@ -82,7 +82,7 @@ public class CTDSidePlot extends SimpleMRAVisualization {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getLsfIndex().getEntityId("CTD") != -1;
+        return source.getLsfIndex().getEntityId("CTD") != 255;
     }
 
     
@@ -180,8 +180,8 @@ public class CTDSidePlot extends SimpleMRAVisualization {
             temp.add(t.getValue());
             sal.add(s.getValue());
         }
-         
-        for (int i = 0; i < 20; i++) {
+        
+        for (int i = 0; !temp.isEmpty() && i < 20; i++) {
             temp.remove(0);
             sal.remove(0);
             xCoords.remove(0);
