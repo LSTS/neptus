@@ -74,6 +74,9 @@ public class YoYoTemplate extends AbstractPlanTemplate {
     @NeptusProperty(name="Popup duration", description="Duration of the popups at corners")
     public int popup = 60;
     
+    @NeptusProperty(name="Pitch angle", description="Pitch angle to be used in yoyo maneuvers (degrees)")
+    public double pitch = 15;
+    
     @Override
     public DefaultProperty[] getProperties() {
         if (loc.getDistanceInMeters(LocationType.ABSOLUTE_ZERO) == 0 && mission != null)
@@ -95,8 +98,10 @@ public class YoYoTemplate extends AbstractPlanTemplate {
         planCreator.move(Math.sin(ang) * radius + vn * time, Math.cos(ang) * radius + ve * time);
         planCreator.setDepth(mindepth);
         planCreator.addGoto(null);
-        planCreator.setDepth(0);
-        planCreator.addManeuver("PopUp", "duration", popup, "radius", 10);
+        if (popup > 0) {
+            planCreator.setDepth(0);
+            planCreator.addManeuver("PopUp", "duration", popup, "radius", 20);
+        }
         double amplitude = (maxdepth - mindepth) / 2;
         double depth = (maxdepth + mindepth) / 2;
         
@@ -106,9 +111,11 @@ public class YoYoTemplate extends AbstractPlanTemplate {
             planCreator.setLocation(center);
             planCreator.move(Math.sin(ang) * radius + time * vn, Math.cos(ang) * radius + time * ve);
             planCreator.setDepth(depth);
-            planCreator.addManeuver("YoYo", "amplitude", amplitude, "pitchAngle", Math.toRadians(15));
-            planCreator.setDepth(0);
-            planCreator.addManeuver("PopUp", "duration", popup, "radius", 10);
+            planCreator.addManeuver("YoYo", "amplitude", amplitude, "pitchAngle", Math.toRadians(pitch));
+            if (popup > 0) {
+                planCreator.setDepth(0);
+                planCreator.addManeuver("PopUp", "duration", popup, "radius", 20);
+            }
         }
         
         return planCreator.getPlan();
