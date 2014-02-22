@@ -118,10 +118,10 @@ public class DVLBathymetryParser implements BathymetryParser {
 
         for (EstimatedState s : idx.getIterator(EstimatedState.class, 1000)) {
             LocationType loc = IMCUtils.parseLocation(s).convertToAbsoluteLatLonDepth();
-            minLat = Math.min(minLat, loc.getLatitudeAsDoubleValue());
-            minLon = Math.min(minLon, loc.getLongitudeAsDoubleValue());
-            maxLat = Math.max(maxLat, loc.getLatitudeAsDoubleValue());
-            maxLon = Math.max(maxLon, loc.getLongitudeAsDoubleValue());
+            minLat = Math.min(minLat, loc.getLatitudeDegs());
+            minLon = Math.min(minLon, loc.getLongitudeDegs());
+            maxLat = Math.max(maxLat, loc.getLatitudeDegs());
+            maxLon = Math.max(maxLon, loc.getLongitudeDegs());
             maxAlt = Math.max(maxAlt, s.getAlt());
             maxDepth = Math.max(maxDepth, s.getDepth());
         }

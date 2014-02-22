@@ -119,8 +119,8 @@ public class CTDExporter implements MRAExporter {
             LocationType loc = IMCUtils.parseLocation(d).convertToAbsoluteLatLonDepth();
             try {
                 writer.write(t.getTimestamp()+", "+
-                        loc.getLatitudeAsDoubleValue()+", "+
-                        loc.getLongitudeAsDoubleValue()+", "+
+                        loc.getLatitudeDegs()+", "+
+                        loc.getLongitudeDegs()+", "+
                         c.getValue()+", "+
                         t.getValue()+", "+
                         d.getDepth()+"\n");          
