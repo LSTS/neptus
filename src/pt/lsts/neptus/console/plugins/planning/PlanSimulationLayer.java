@@ -232,7 +232,7 @@ public class PlanSimulationLayer extends ConsoleLayer {
                 for (AbstractElement a : obstacles) {
                     if (a.containsPoint(s.getPosition(), null)) {
                         checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning,
-                    "Vehicle may collide with "+a.getName()));
+                    "Vehicle may collide with "+a.getId()));
                         return checks;
                     }
                 }
