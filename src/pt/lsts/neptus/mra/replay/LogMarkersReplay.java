@@ -38,14 +38,11 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Vector;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -119,7 +116,6 @@ public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
             }
         }        
     }
-<<<<<<< HEAD
     
     @Override
     public void addLogMarker(LogMarker marker) {
@@ -137,39 +133,13 @@ public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
         //nothing
     }
     
-||||||| merged common ancestors
-=======
-    
-    @SuppressWarnings("unchecked")
-    public void loadMarkers() {
-        try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(source.getFile("Data.lsf").getParent()
-                    + "/marks.dat"));
-            for (LogMarker marker : (ArrayList<LogMarker>) ois.readObject()) {
-                addMarker(marker);
-            }
-            ois.close();
-        }
-        catch (Exception e) {
-            NeptusLog.pub().info("No markers for this log, or erroneous mark file");
-        }
-    }
->>>>>>> feature/hotfix-v3.0.1
-
-    
     @Override
     public void parse(IMraLogGroup source) {
-<<<<<<< HEAD
         Collection<LogMarker> sourceMarkers = LogMarker.load(source);
         for (LogMarker lm : sourceMarkers) {
             addMarker(lm); 
         }        
-||||||| merged common ancestors
-        
-=======
         this.source = source;
-        loadMarkers();
->>>>>>> feature/hotfix-v3.0.1
     }
 
     @Override

@@ -87,19 +87,11 @@ public class SidescanReplay implements LogReplayLayer {
     protected void generateImage(StateRenderer2D renderer)
     {
         final StateRenderer2D rend = renderer;
-<<<<<<< HEAD
 
         if (dataSet.isEmpty())
             return;
 
-        final double groundResolution = MapTileUtil.groundResolution(dataSet.get(0).loc.getLatitudeAsDoubleValue(), renderer.getLevelOfDetail());
-||||||| merged common ancestors
-        
-        final double groundResolution = MapTileUtil.groundResolution(dataSet.get(0).loc.getLatitudeAsDoubleValue(), renderer.getLevelOfDetail());
-=======
-        
         final double groundResolution = MapTileUtil.groundResolution(dataSet.get(0).loc.getLatitudeDegs(), renderer.getLevelOfDetail());
->>>>>>> feature/hotfix-v3.0.1
         final double invGR = 1/groundResolution;
         lod = renderer.getLevelOfDetail();
         imageLod = lod;

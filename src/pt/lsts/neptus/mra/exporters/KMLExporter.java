@@ -432,22 +432,10 @@ public class KMLExporter implements MRAExporter {
             ImageIO.write(img, "PNG", new File(dir, filename + ".png"));
             ImageLayer il = new ImageLayer("Sidescan mosaic from " + source.name(), img, topLeft, bottomRight);
             il.setTransparency(layerTransparency);
-<<<<<<< HEAD
-            il.saveToFile(new File(dir.getParentFile(), filename + ".layer"));
-            return overlay(new File(dir, filename + ".png"), "Sidescan mosaic",
-                    new LocationType(bottomRight.getLatitudeAsDoubleValue(), topLeft.getLongitudeAsDoubleValue()),
-                    new LocationType(topLeft.getLatitudeAsDoubleValue(), bottomRight.getLongitudeAsDoubleValue()));
-||||||| merged common ancestors
-            il.saveToFile(new File(dir.getParentFile(), "sidescan.layer"));
-            return overlay(new File(dir, "sidescan.png"), "Sidescan mosaic", 
-                    new LocationType(bottomRight.getLatitudeAsDoubleValue(), topLeft.getLongitudeAsDoubleValue()),
-                    new LocationType(topLeft.getLatitudeAsDoubleValue(), bottomRight.getLongitudeAsDoubleValue()));
-=======
             il.saveToFile(new File(dir.getParentFile(), "sidescan.layer"));
             return overlay(new File(dir, "sidescan.png"), "Sidescan mosaic", 
                     new LocationType(bottomRight.getLatitudeDegs(), topLeft.getLongitudeDegs()),
                     new LocationType(topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs()));
->>>>>>> feature/hotfix-v3.0.1
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -608,25 +596,9 @@ public class KMLExporter implements MRAExporter {
             ImageLayer il = new ImageLayer("Bathymetry from " + source.name(), img, topLeft, bottomRight);
             il.saveToFile(new File(dir.getParentFile(), "multibeam.layer"));
 
-<<<<<<< HEAD
-            return legend
-                    + overlay(
-                            new File(dir, "mb_bath2.png"),
-                            "Multibeam Bathymetry",
-                            new LocationType(bottomRight.getLatitudeAsDoubleValue(), topLeft
-                                    .getLongitudeAsDoubleValue()), new LocationType(topLeft.getLatitudeAsDoubleValue(),
-                                            bottomRight.getLongitudeAsDoubleValue()));
-||||||| merged common ancestors
-
-            return legend+overlay(new File(dir, "mb_bath2.png"), "Multibeam Bathymetry", 
-                    new LocationType(bottomRight.getLatitudeAsDoubleValue(), topLeft.getLongitudeAsDoubleValue()),
-                    new LocationType(topLeft.getLatitudeAsDoubleValue(), bottomRight.getLongitudeAsDoubleValue()));
-=======
-
             return legend+overlay(new File(dir, "mb_bath2.png"), "Multibeam Bathymetry", 
                     new LocationType(bottomRight.getLatitudeDegs(), topLeft.getLongitudeDegs()),
                     new LocationType(topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs()));
->>>>>>> feature/hotfix-v3.0.1
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -722,26 +694,6 @@ public class KMLExporter implements MRAExporter {
                     topLeft = new LocationType(loc);
                 }
 
-<<<<<<< HEAD
-                if (loc.getLatitudeAsDoubleValue() < bottomRight.getLatitudeAsDoubleValue())
-                    bottomRight.setLatitude(loc.getLatitudeAsDoubleValue());
-                else if (loc.getLatitudeAsDoubleValue() > topLeft.getLatitudeAsDoubleValue())
-                    topLeft.setLatitude(loc.getLatitudeAsDoubleValue());
-                if (loc.getLongitudeAsDoubleValue() < topLeft.getLongitudeAsDoubleValue())
-                    topLeft.setLongitude(loc.getLongitudeAsDoubleValue());
-                else if (loc.getLongitudeAsDoubleValue() > bottomRight.getLongitudeAsDoubleValue())
-                    bottomRight.setLongitude(loc.getLongitudeAsDoubleValue());
-||||||| merged common ancestors
-
-                if (loc.getLatitudeAsDoubleValue() < bottomRight.getLatitudeAsDoubleValue())
-                    bottomRight.setLatitude(loc.getLatitudeAsDoubleValue());
-                else if (loc.getLatitudeAsDoubleValue() > topLeft.getLatitudeAsDoubleValue())
-                    topLeft.setLatitude(loc.getLatitudeAsDoubleValue());
-                if (loc.getLongitudeAsDoubleValue() < topLeft.getLongitudeAsDoubleValue())
-                    topLeft.setLongitude(loc.getLongitudeAsDoubleValue());
-                else if (loc.getLongitudeAsDoubleValue() > bottomRight.getLongitudeAsDoubleValue())
-                    bottomRight.setLongitude(loc.getLongitudeAsDoubleValue());
-=======
 
                 if (loc.getLatitudeDegs() < bottomRight.getLatitudeDegs())
                     bottomRight.setLatitudeDegs(loc.getLatitudeDegs());
@@ -751,7 +703,6 @@ public class KMLExporter implements MRAExporter {
                     topLeft.setLongitudeDegs(loc.getLongitudeDegs());
                 else if (loc.getLongitudeDegs() > bottomRight.getLongitudeDegs())
                     bottomRight.setLongitudeDegs(loc.getLongitudeDegs());
->>>>>>> feature/hotfix-v3.0.1
 
                 states.add(loc);
             }
@@ -836,16 +787,7 @@ public class KMLExporter implements MRAExporter {
         System.out.println(loc1.getDistanceInMeters(loc2));
         System.out.println(loc2.getDistanceInMeters(loc1));
         double[] res1 = loc2.getOffsetFrom(loc1);
-
-<<<<<<< HEAD
-        double[] res2 = WGS84Utilities.WGS84displacement(loc1.getLatitudeAsDoubleValue(),
-                loc1.getLongitudeAsDoubleValue(), 0, loc2.getLatitudeAsDoubleValue(), loc2.getLongitudeAsDoubleValue(),
-                0);
-||||||| merged common ancestors
-        double[] res2 = WGS84Utilities.WGS84displacement(loc1.getLatitudeAsDoubleValue(), loc1.getLongitudeAsDoubleValue(), 0, loc2.getLatitudeAsDoubleValue(), loc2.getLongitudeAsDoubleValue(), 0);
-=======
         double[] res2 = WGS84Utilities.WGS84displacement(loc1.getLatitudeDegs(), loc1.getLongitudeDegs(), 0, loc2.getLatitudeDegs(), loc2.getLongitudeDegs(), 0);
->>>>>>> feature/hotfix-v3.0.1
         System.out.println(Math.sqrt(res2[0] * res2[0] + res2[1] * res2[1]));
         System.out.println(Math.sqrt(res1[0] * res1[0] + res1[1] * res1[1]));
     }

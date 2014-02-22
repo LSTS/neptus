@@ -115,15 +115,9 @@ public abstract class AbstractElement
     public boolean userCancel = false, copyChars = true;
     public String[] takenNames = new String[0];
     protected JDialog dialog;
-<<<<<<< HEAD
-    protected JTextField objName;
     protected JCheckBox obstacleCheck, hiddenCheck;
     private boolean obstacle;
-||||||| merged common ancestors
-    protected JTextField objID, objName, transp;
-=======
-    protected JTextField objName, transp;
->>>>>>> feature/hotfix-v3.0.1
+    protected JTextField objID, transp;
     // ===== END Param panels
 
     // ===== Abstract functions
@@ -690,19 +684,19 @@ public abstract class AbstractElement
         
         if ("add".equals(action.getActionCommand())) {
             
-            if (!NameNormalizer.isNeptusValidIdentifier(objName.getText())) {
+            if (!NameNormalizer.isNeptusValidIdentifier(objID.getText())) {
                 JOptionPane.showMessageDialog(paramsPanel, I18n.text("The object identifier is not valid"));
                 return;
             }
             
-            if (objName.getText().length() == 0) {
+            if (objID.getText().length() == 0) {
                 JOptionPane.showMessageDialog(paramsPanel, I18n.text("The object has to have a name"));
                 return;
             }
 
-            if (!objName.getText().equals(id) && takenNames != null) {
+            if (!objID.getText().equals(id) && takenNames != null) {
                 for (int i = 0; i < takenNames.length; i++) {
-                    if (takenNames[i].equals(objName.getText())) {
+                    if (takenNames[i].equals(objID.getText())) {
                         JOptionPane.showMessageDialog(paramsPanel, I18n.text("The entered identifier is already in use"));
                         return;
                     }
@@ -715,17 +709,10 @@ public abstract class AbstractElement
                 return;
             }
             
-<<<<<<< HEAD
-            setName(objName.getText());
+            
             setObstacle(obstacleCheck.isSelected());
             transparency = hiddenCheck.isSelected() ? 100 : 0;
-||||||| merged common ancestors
-            setName(objName.getText());
             setId(objID.getText());
-=======
-            setId(objName.getText());
->>>>>>> feature/hotfix-v3.0.1
-            
             initialize(paramsPanel);
             
             dialog.setVisible(false);
@@ -765,133 +752,26 @@ public abstract class AbstractElement
         flow.setAlignment(FlowLayout.LEFT);
         idPanel.setLayout(flow);
  
-        objName = new JTextField(8);
-        objName.setEditable(editable);
-<<<<<<< HEAD
-||||||| merged common ancestors
-        objName.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                super.keyTyped(e);
-                // if (copyChars) {
-                    if (Character.isLetterOrDigit(e.getKeyChar()))
-                        objID.setText(objName.getText() + e.getKeyChar());
-                    else
-                        objID.setText(objName.getText());
-                // }
-                // copyChars = false;
-            }
-        });
         
         objID = new JTextField(8);
         objID.setEditable(editable);
-=======
-        // objName.addKeyListener(new KeyAdapter() {
-        // @Override
-        // public void keyTyped(KeyEvent e) {
-        // super.keyTyped(e);
-        // // if (copyChars) {
-        // if (Character.isLetterOrDigit(e.getKeyChar()))
-        // objID.setText(objName.getText() + e.getKeyChar());
-        // else
-        // objID.setText(objName.getText());
-        // // }
-        // // copyChars = false;
-                // }
-        // });
-        //
-        // objID = new JTextField(8);
-        // objID.setEditable(editable);
->>>>>>> feature/hotfix-v3.0.1
-        
-<<<<<<< HEAD
-        objName.setText(this.getName());
-||||||| merged common ancestors
-        // int i = 1;
-        // while (getParentMap().getObject(getClass().getSimpleName() + i) != null)
-        // i++;
-        // objID.setText(getType() + i);
-        // objName.setText(getType() + i);
-        objName.setText(this.getName());
         objID.setText(this.getId());
-=======
-        // int i = 1;
-        // while (getParentMap().getObject(getClass().getSimpleName() + i) != null)
-        // i++;
-        // objID.setText(getType() + i);
-        // objName.setText(getType() + i);
-        objName.setText(this.getId());
-        // objID.setText(this.getId());
->>>>>>> feature/hotfix-v3.0.1
-        
         obstacleCheck = new JCheckBox(I18n.text("Obstacle"));
         obstacleCheck.setSelected(isObstacle());
         
-<<<<<<< HEAD
         hiddenCheck = new JCheckBox(I18n.text("Hidden"));
         hiddenCheck.setSelected(transparency >= 100);
-||||||| merged common ancestors
         idPanel.add(new JLabel(I18n.text("Object ID:")));
         idPanel.add(objID);
-=======
-        // idPanel.add(new JLabel(I18n.text("Object ID:")));
-        // idPanel.add(objID);
->>>>>>> feature/hotfix-v3.0.1
-        
-        idPanel.add(new JLabel(I18n.text("Name:")));
-        idPanel.add(objName);
-        
         idPanel.add(obstacleCheck);
         idPanel.add(hiddenCheck);
         
         
         if (takenNames == null) {
-            objName.setEnabled(false);
-<<<<<<< HEAD
-            objName.setText(this.getName());
-||||||| merged common ancestors
-            objName.setText(this.getName());
             objID.setEnabled(false);
             objID.setText(this.getId());
-            // copyChars = false;
-=======
-            objName.setText(this.getId());
-            // objID.setEnabled(false);
-            // objID.setText(this.getId());
-            // copyChars = false;
->>>>>>> feature/hotfix-v3.0.1
         }
-        
-<<<<<<< HEAD
-||||||| merged common ancestors
-        objID.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                super.keyTyped(e);
-                // if (copyChars) {
-                    if (Character.isLetterOrDigit(e.getKeyChar()))
-                        objName.setText(objID.getText()+e.getKeyChar());
-                    else
-                        objName.setText(objID.getText());
-                // }
-            }
-        });
-        
-=======
-        // objID.addKeyListener(new KeyAdapter() {
-        // @Override
-        // public void keyTyped(KeyEvent e) {
-        // super.keyTyped(e);
-        // // if (copyChars) {
-        // if (Character.isLetterOrDigit(e.getKeyChar()))
-        // objName.setText(objID.getText()+e.getKeyChar());
-        // else
-        // objName.setText(objID.getText());
-        // // }
-                // }
-        // });
-        
->>>>>>> feature/hotfix-v3.0.1
+
         JPanel buttonsPanel = new JPanel();
         FlowLayout layout = new FlowLayout();
         layout.setAlignment(FlowLayout.RIGHT);        

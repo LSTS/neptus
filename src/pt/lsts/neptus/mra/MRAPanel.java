@@ -376,13 +376,7 @@ public class MRAPanel extends JPanel {
                 ((LogMarkerListener) vis).addLogMarker(marker);
             }
         }
-<<<<<<< HEAD
         saveMarkers();
-||||||| merged common ancestors
-=======
-        
-        saveMarkers();
->>>>>>> feature/hotfix-v3.0.1
     }
 
     /**

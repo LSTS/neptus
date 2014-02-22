@@ -542,13 +542,7 @@ public class TransponderElement extends AbstractElement implements NameId{
         // return nameBuilder.toString();
         // }
         // else {
-<<<<<<< HEAD
-        return name;
-||||||| merged common ancestors
-            return getIdentification();
-=======
         return id;
->>>>>>> feature/hotfix-v3.0.1
         // }
     }
 

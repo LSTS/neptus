@@ -134,19 +134,8 @@ public class ActualPosition extends MRA2DPlot {
                         addValue(adj.getTimestampMillis(), loc.getLatitudeDegs(),
                                 loc.getLongitudeDegs(), adj.getSourceName(), "Actual Position");
                     }
-<<<<<<< HEAD
-
-                    addValue(es.getTimestampMillis(), thisLoc.getLatitudeAsDoubleValue(),
-                            thisLoc.getLongitudeAsDoubleValue(), es.getSourceName(), "GPS Readjustments");
-||||||| merged common ancestors
-                    
-                    addValue(es.getTimestampMillis(), thisLoc.getLatitudeAsDoubleValue(),
-                            thisLoc.getLongitudeAsDoubleValue(), es.getSourceName(), "GPS Readjustments");
-=======
-                    
                     addValue(es.getTimestampMillis(), thisLoc.getLatitudeDegs(),
                             thisLoc.getLongitudeDegs(), es.getSourceName(), "GPS Readjustments");
->>>>>>> feature/hotfix-v3.0.1
 
                     nonAdjusted.clear();
                     nonAdjustedLocs.clear();

@@ -526,13 +526,8 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             if (!intersectedObjects.isEmpty()) {
                 for (final AbstractElement elem : intersectedObjects) {
                     final String elemId = elem.getId();
-<<<<<<< HEAD
-                    JMenu menu = new JMenu(elem.getName() + " [" + I18n.text(elem.getType()) + "]");
-||||||| merged common ancestors
-                    JMenu menu = new JMenu(elemId + " [" + I18n.text(elem.getType()) + "]");
-=======
+
                     JMenu menu = new JMenu(elem.getId() + " [" + I18n.text(elem.getType()) + "]");
->>>>>>> feature/hotfix-v3.0.1
 
                     menu.add(I18n.text("Properties")).addActionListener(new ActionListener() {
                         @Override
@@ -685,36 +680,21 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                             centerElem.setEnabled(true);
                     }
 
-<<<<<<< HEAD
-                    editElem.add(elem.getName() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
-                            new ActionListener() {
-||||||| merged common ancestors
                     editElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(new ActionListener() {
-=======
-                    editElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
-                            new ActionListener() {
->>>>>>> feature/hotfix-v3.0.1
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             editElement(elem.getId());
                         }
                     });
-<<<<<<< HEAD
-                    removeElem.add(elem.getName() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
-                            new ActionListener() {
-||||||| merged common ancestors
-                    removeElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(new ActionListener() {
-=======
                     removeElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
                             new ActionListener() {
->>>>>>> feature/hotfix-v3.0.1
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             removeElement(elem.getId());
                         }
                     });
                     if (renderer != null) {
-                        centerElem.add(elem.getName() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
+                        centerElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
                                 new ActionListener() {
                                     @Override
                                     public void actionPerformed(ActionEvent e) {
