@@ -245,7 +245,7 @@ public class MapGroup implements MapChangeListener {
 		map.addChangeListener(this);
 		
 		 
-		 Object[] objNames = map.getObjectNames();
+		 Object[] objNames = map.getObjectIds();
 		for (int i = 0; i < objNames.length; i++) {
 			AbstractElement mo = map.getObject((String)objNames[i]);
 			mo.setMapGroup(this);
@@ -271,7 +271,7 @@ public class MapGroup implements MapChangeListener {
 			return;
 		}
 		maps.remove(mapID);
-		Object[] objNames =tmp.getObjectNames();
+		Object[] objNames =tmp.getObjectIds();
 		for (int i = 0; i < objNames.length; i++) {
 			MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_REMOVED);
 			mce.setMapGroup(this);
@@ -332,11 +332,16 @@ public class MapGroup implements MapChangeListener {
 		return tmp.getObject(objStr);
 	}
 	
+	public void updateObjectIds() {
+	    for (MapType m : maps.values())
+	        m.updateObjectIds();
+	}
+	
 	public AbstractElement[] getMapObjectsByID(String objID) {
 		Vector<AbstractElement> vec = new Vector<AbstractElement>();
 		
-		for (Object key : maps.keySet().toArray()) {
-			AbstractElement mo = maps.get(key).getObject(objID);
+		for (MapType map : getMaps()) {
+			AbstractElement mo = map.getObject(objID);
 			if (mo != null)
 				vec.add(mo);
 		}		

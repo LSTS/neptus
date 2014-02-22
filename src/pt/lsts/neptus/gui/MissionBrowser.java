@@ -539,22 +539,10 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
             @Override
             public void valueChanged(TreeSelectionEvent e) {
-<<<<<<< HEAD
-                // if (e.isAddedPath()) {
-                    TreePath selPath = elementTree.getSelectionPath();
-                    if(selPath == null){
-                        NeptusLog.pub().error("Check this out, should not happen outside debug with break points in Mission Tree related classes.");
-||||||| merged common ancestors
-                if (e.isAddedPath()) {
-                    ExtendedTreeNode node = (ExtendedTreeNode) elementTree.getSelectionPath()
-                            .getLastPathComponent();
 
-                    if (node.getUserObject() == lastSelection)
-=======
                 // if (e.isAddedPath()) {
                     TreePath selPath = elementTree.getSelectionPath();
                     if(selPath == null){
->>>>>>> feature/hotfix-v3.0.1
                         return;
                     }
                     ExtendedTreeNode node = (ExtendedTreeNode) selPath.getLastPathComponent();
@@ -572,12 +560,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     else if (console2 != null) {
                         console2.setPlan(null);
                     }
-<<<<<<< HEAD
-||||||| merged common ancestors
-                }
-=======
-                // }
->>>>>>> feature/hotfix-v3.0.1
+
             }
 
         });
@@ -616,28 +599,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                         "Cannot find a plan with id " + plan.getIdentification() + ". It was not set as selected.");
                 return;
             }
-<<<<<<< HEAD
-            selPath = new TreePath(treeModel.getPathToRoot(planNode));
-            elementTree.setSelectionPath(selPath);
-            elementTree.scrollPathToVisible(selPath);
-        }
-        catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
 
-    public ArrayList<ExtendedTreeNode> getSelectedNodes() {
-        ArrayList<ExtendedTreeNode> nodes = new ArrayList<ExtendedTreeNode>();
-        TreePath[] selectionPaths = elementTree.getSelectionPaths();
-        if (selectionPaths == null)
-            return nodes;
-        ExtendedTreeNode node;
-        for (int i = 0; i < selectionPaths.length; i++) {
-            node = (ExtendedTreeNode) selectionPaths[i].getLastPathComponent();
-            nodes.add(node);
-||||||| merged common ancestors
-=======
             selPath = new TreePath(treeModel.getPathToRoot(planNode));
             elementTree.setSelectionPath(selPath);
             elementTree.scrollPathToVisible(selPath);
@@ -656,7 +618,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         for (int i = 0; i < selectionPaths.length; i++) {
             node = (ExtendedTreeNode) selectionPaths[i].getLastPathComponent();
             nodes.add(node);
->>>>>>> feature/hotfix-v3.0.1
         }
         return nodes;
     }
@@ -1147,51 +1108,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 // NeptusLog.pub().error(" --- ");
                 repaint();
             }
-
-<<<<<<< HEAD
-||||||| merged common ancestors
-            // private String printBeacons(final Vector<LblBeacon> remoteTrans) {
-            // short id = 0;
-            // StringBuilder remotes = new StringBuilder(remoteTrans.size() + " trans in ImcSystem: ");
-            // for (LblBeacon lblBeacon : remoteTrans) {
-            // remotes.append("[");
-            // remotes.append(id);
-            // remotes.append("] ");
-            // remotes.append(lblBeacon.getBeacon());
-            // remotes.append(" ( query: ");
-            // remotes.append(lblBeacon.getQueryChannel());
-            // remotes.append(", reply: ");
-            // remotes.append(lblBeacon.getReplyChannel());
-            // remotes.append(", delay:");
-            // remotes.append(lblBeacon.getTransponderDelay());
-            // remotes.append(")\n         ");
-            // id++;
-            // }
-            // return remotes.toString();
-            // }
-
-=======
-//            private String printBeacons(final Vector<LblBeacon> remoteTrans) {
-//                short id = 0;
-//                StringBuilder remotes = new StringBuilder(remoteTrans.size() + " trans in ImcSystem: ");
-//                for (LblBeacon lblBeacon : remoteTrans) {
-//                    remotes.append("[");
-//                    remotes.append(id);
-//                    remotes.append("] ");
-//                    remotes.append(lblBeacon.getBeacon());
-//                    remotes.append(" ( query: ");
-//                    remotes.append(lblBeacon.getQueryChannel());
-//                    remotes.append(", reply: ");
-//                    remotes.append(lblBeacon.getReplyChannel());
-//                    remotes.append(", delay:");
-//                    remotes.append(lblBeacon.getTransponderDelay());
-//                    remotes.append(")\n         ");
-//                    id++;
-//                }
-//                return remotes.toString();
-//            }
-
->>>>>>> feature/hotfix-v3.0.1
         });
     }
 
@@ -1313,33 +1229,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     public void setMaxAcceptableElapsedTime(int maxAcceptableElapsedTime) {
         cellRenderer.maxAcceptableElapsedTime = maxAcceptableElapsedTime;
     }
-<<<<<<< HEAD
-    
-    public ArrayList<TransponderElement> getTransponders(){
-        ChildIterator transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
-        ArrayList<TransponderElement> trans = new ArrayList<TransponderElement>();
-        ExtendedTreeNode transNode = null;
-        while (transIt.hasNext()) {
-            transNode = transIt.next();
-//        }
-            // for (; transIt.hasNext(); transNode = transIt.next()) {
-            TransponderElement t = (TransponderElement)transNode.getUserObject();
-            // System.out.println(t.getName() + " ");
-            trans.add(t);
-        }
-        return trans;
-    }
-||||||| merged common ancestors
-=======
 
-    // TODO On hold until removing all beacons is stable
-    // public void removeAllTransponders(MissionType mission) {
-    // ArrayList<NameId> removeAllChildren = treeModel.removeAllChildren(ParentNodes.TRANSPONDERS);
-    // for (NameId elem : removeAllChildren) {
-    // ((TransponderElement) elem).getParentMap().remove(elem.getIdentification());
-    // }
-    // saveMission(mission);
-    // }
     
     public ArrayList<TransponderElement> getTransponders(){
         ChildIterator transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
@@ -1355,5 +1245,4 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         }
         return trans;
     }
->>>>>>> feature/hotfix-v3.0.1
 }

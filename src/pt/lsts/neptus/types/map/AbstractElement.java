@@ -193,7 +193,8 @@ public abstract class AbstractElement
             setObstacle(Boolean.parseBoolean(elem.attribute("obstacle").getText()));
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().debug("Loaded old mission with no obstacle information");
+            setObstacle(false);
         }
          
         
@@ -271,20 +272,13 @@ public abstract class AbstractElement
         isLoadOk =true;
         return true;
     }
-    // ===== XMLOutput Interface
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
-     */
     @Override
     public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asXML(rootElementName);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
-     */
     @Override
     public String asXML(String rootElementName) {
         String result = "";        
@@ -293,35 +287,23 @@ public abstract class AbstractElement
         return result;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
-     */
     @Override
     public Element asElement() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asElement(rootElementName);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
-     */
     @Override
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
-     */
     @Override
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
-     */
     @Override
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();

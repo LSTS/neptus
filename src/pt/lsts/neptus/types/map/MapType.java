@@ -122,6 +122,15 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
         return elems;
     }
     
+    public void updateObjectIds() {
+        Vector<AbstractElement> objs = new Vector<>();
+        objs.addAll(getObjects());
+        elements.clear();
+        for (AbstractElement o : objs)
+            elements.put(o.getId(), o);
+    }
+    
+    
     /**
      * @param url
      * 
@@ -178,7 +187,6 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
      * @param obstacleSize The size of the obstacle to add
      */
     public void addObject(AbstractElement newObject) {
-        // newObject.setParentMap(this);
         elements.put(newObject.getId(), newObject);
 
         MapChangeEvent event = new MapChangeEvent(MapChangeEvent.OBJECT_ADDED);
@@ -189,30 +197,26 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
     }
 
     /**
-     * Returns a map object by referring its identifier (name)
+     * Returns a map object by referring its identifier
      * 
-     * @param name the identifier of the object in this map
+     * @param id the identifier of the object in this map
      * @return A map object
      */
-    public AbstractElement getObject(String name) {
-        return elements.get(name);
+    public AbstractElement getObject(String id) {
+        return elements.get(id);
     }
 
-    public String[] getObjectNames() {
+    public String[] getObjectIds() {
         return elements.keySet().toArray(new String[0]);
-        /*
-         * Object[] names = new Object[MapObjects.size()]; for (int i = 0; namesEnum.hasMoreElements(); i++) { names[i]
-         * = namesEnum.nextElement(); } return names;
-         */
     }
 
-    public void remove(String objectName) {
+    public void remove(String objId) {
 
         MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_REMOVED);
-        AbstractElement changedObject = elements.get(objectName);
+        AbstractElement changedObject = elements.get(objId);
         changeEvent.setChangedObject(changedObject);
         changeEvent.setSourceMap(this);
-        elements.remove(objectName);
+        elements.remove(objId);
         warnChangeListeners(changeEvent);
     }
 

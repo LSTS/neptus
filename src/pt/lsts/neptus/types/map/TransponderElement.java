@@ -326,7 +326,6 @@ public class TransponderElement extends AbstractElement implements NameId{
             fixPropertiesConfFormat();
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -387,22 +386,12 @@ public class TransponderElement extends AbstractElement implements NameId{
         this.buoyAttached = buoyAttached;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
-     */
     @Override
     public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asXML(rootElementName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
-     */
     @Override
     public String asXML(String rootElementName) {
         String result = "";
@@ -411,51 +400,32 @@ public class TransponderElement extends AbstractElement implements NameId{
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
-     */
+
     @Override
     public Element asElement() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asElement(rootElementName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
-     */
+
     @Override
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
-     */
+
     @Override
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
-     */
     @Override
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
-        // Element root = super.asElement(DEFAULT_ROOT_ELEMENT);
         Element root = (Element) super.asDocument(DEFAULT_ROOT_ELEMENT).getRootElement().detach();
         document.add(root);
 
-        // FIXME: Tratar disto
         root.add(getFile().asElement());
         root.addElement("buoy-attached").addText(new Boolean(isBuoyAttached()).toString());
 
@@ -528,22 +498,9 @@ public class TransponderElement extends AbstractElement implements NameId{
         return transpondersListArray;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.Identifiable#getIdentification()
-     */
     @Override
     public String getDisplayName() {
-        // StringBuilder nameBuilder = new StringBuilder();
-        // if (duneId != -1) {
-        // nameBuilder.append("[");
-        // nameBuilder.append(duneId);
-        // nameBuilder.append("] ");
-        // nameBuilder.append(getIdentification());
-        // return nameBuilder.toString();
-        // }
-        // else {
         return id;
-        // }
     }
 
     @Override

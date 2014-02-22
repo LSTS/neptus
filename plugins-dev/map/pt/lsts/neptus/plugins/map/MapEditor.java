@@ -471,22 +471,20 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
     protected void editElement(String elemId) {
         AbstractElement[] elements = mg.getMapObjectsByID(elemId);
-        
         if (elements.length == 0)
             return;
 
         AbstractElement element = elements[0];
         String oldXml = element.asXML();
-
         element.showParametersDialog(getConsole(), getTransNames(), element.getParentMap(), true);
         if (!element.isUserCancel()) {
+            mg.updateObjectIds();
             manager.addEdit(new ObjectPropertiesEdit(element, oldXml));
-
             MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
             pivot = getPivot();
             mce.setSourceMap(pivot);
             mce.setChangedObject(draggedObject);
-            pivot.warnChangeListeners(mce);
+            pivot.warnChangeListeners(mce);            
         }
     }
 
@@ -637,7 +635,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
                                 ImageElement el = new ImageElement(choice, file);
                                 el.setMapGroup(mg);
-                                el.showParametersDialog(MapEditor.this, pivot.getObjectNames(), pivot, true);
+                                el.showParametersDialog(MapEditor.this, pivot.getObjectIds(), pivot, true);
 
                                 if (!el.userCancel) {
                                     pivot.addObject(el);
