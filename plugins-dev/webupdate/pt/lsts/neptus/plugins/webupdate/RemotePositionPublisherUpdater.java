@@ -570,8 +570,8 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
                     ms.remove(vs);
                     continue;
                 }
-                if (sys.getLocation().getLatitudeAsDoubleValue() == 0d
-                        && sys.getLocation().getLongitudeAsDoubleValue() == 0d) {
+                if (sys.getLocation().getLatitudeDegs() == 0d
+                        && sys.getLocation().getLongitudeDegs() == 0d) {
                     ms.remove(vs);
                     continue;
                 }
@@ -667,8 +667,8 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
                     ms.remove(vs);
                     continue;
                 }
-                if (sys.getLocation().getLatitudeAsDoubleValue() == 0d
-                        && sys.getLocation().getLongitudeAsDoubleValue() == 0d) {
+                if (sys.getLocation().getLatitudeDegs() == 0d
+                        && sys.getLocation().getLongitudeDegs() == 0d) {
                     ms.remove(vs);
                     continue;
                 }
@@ -698,14 +698,14 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
                         TransponderElement.class);
                 for (TransponderElement beacon : ts) {
                     Element vs = ms.addElement("VehicleState");
-                    vs.addAttribute("id", beacon.getName()); // vtl.getVehicleId());
+                    vs.addAttribute("id", beacon.getId()); // vtl.getVehicleId());
                     LocationType locBeacon = beacon.getCenterLocation().getNewAbsoluteLatLonDepth();
                     try {
                         // if (System.currentTimeMillis() - beacon.getCenterLocation() > DateTimeUtil.HOUR) {
                         // ms.remove(vs);
                         // continue;
                         // }
-                        if (locBeacon.getLatitudeAsDoubleValue() == 0d && locBeacon.getLongitudeAsDoubleValue() == 0d) {
+                        if (locBeacon.getLatitudeDegs() == 0d && locBeacon.getLongitudeDegs() == 0d) {
                             ms.remove(vs);
                             continue;
                         }

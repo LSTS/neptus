@@ -204,8 +204,8 @@ public class NMEAUtils {
 				wgs84_long = -wgs84_long;
 	
 			LocationType loc = new LocationType();
-			loc.setLatitude(wgs84_lat);
-			loc.setLongitude(wgs84_long);
+			loc.setLatitudeDegs(wgs84_lat);
+			loc.setLongitudeDegs(wgs84_long);
 			loc.setDepth(-new Float((String)data_fields.get(8)));
 	
 			return loc;
@@ -243,8 +243,8 @@ public class NMEAUtils {
 				wgs84_long = -wgs84_long;
 
 			LocationType loc = new LocationType();
-			loc.setLatitude(wgs84_lat);
-			loc.setLongitude(wgs84_long);
+			loc.setLatitudeDegs(wgs84_lat);
+			loc.setLongitudeDegs(wgs84_long);
 
 			return loc;
 		}
@@ -261,8 +261,8 @@ public class NMEAUtils {
 		if (lt != null) {
 			IMCMessage msg = IMCDefinition.getInstance().create("RemoteSensorInfo");
 			msg.setValue("id", "914785889");
-			msg.setValue("lat", lt.getLatitudeAsDoubleValue());
-			msg.setValue("lon", lt.getLongitudeAsDoubleValue());
+			msg.setValue("lat", lt.getLatitudeDegs());
+			msg.setValue("lon", lt.getLongitudeDegs());
 			msg.setValue("alt", -lt.getDepth());
 			msg.setValue("heading", 0);
 			msg.setValue("data", "");

@@ -64,8 +64,8 @@ public class PlanBlueprint {
 
     public void addPoint(double latDegrees, double lonDegrees, double depthMeters) {
         ManeuverLocation loc = new ManeuverLocation();
-        loc.setLatitude(latDegrees);
-        loc.setLongitude(lonDegrees);
+        loc.setLatitudeDegs(latDegrees);
+        loc.setLongitudeDegs(lonDegrees);
         if (depthMeters >= 0) {
             loc.setZ(depthMeters);
             loc.setZUnits(Z_UNITS.DEPTH);

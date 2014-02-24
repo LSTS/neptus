@@ -156,8 +156,8 @@ public class AnnounceWorker {
 		announceMessage.setValue("owner", ImcId16.NULL_ID.longValue());
 		LocationType loc = new LocationType(MyState.getLocation().convertToAbsoluteLatLonDepth());
 		//NeptusLog.pub().info("<###>       " + loc);
-		announceMessage.setValue("lat", loc.getLatitudeAsDoubleValueRads());
-		announceMessage.setValue("lon", loc.getLongitudeAsDoubleValueRads());
+		announceMessage.setValue("lat", loc.getLatitudeRads());
+		announceMessage.setValue("lon", loc.getLongitudeRads());
 		announceMessage.setValue("height", loc.getHeight());
 		
 //		announceMessage.setValue("ad_info", imcManager
@@ -172,8 +172,8 @@ public class AnnounceWorker {
 		announceMessage.setValue("owner", ImcId16.NULL_ID.longValue());
 		LocationType loc = new LocationType(MyState.getLocation().convertToAbsoluteLatLonDepth());
 		//NeptusLog.pub().info("<###>       " + loc);
-		announceMessage.setValue("lat", loc.getLatitudeAsDoubleValueRads());
-		announceMessage.setValue("lon", loc.getLongitudeAsDoubleValueRads());
+		announceMessage.setValue("lat", loc.getLatitudeRads());
+		announceMessage.setValue("lon", loc.getLongitudeRads());
 		announceMessage.setValue("height", loc.getHeight());
 		
 //		announceMessage.setValue("ad_info", imcManager

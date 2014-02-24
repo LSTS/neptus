@@ -453,7 +453,6 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                         contact.setCenterLocation(locContact);
                         String id = I18n.textc("MyLoc", "String prefix for a marker") + "_" + DateTimeUtil.dateTimeFileNameFormaterMillis.format(new Date(tstamp));
                         contact.setId(id);
-                        contact.setName(id);
                         contact.setParentMap(mapType);
                         contact.setMapGroup(mapType.getMapGroup());
                         mapType.addObject(contact);

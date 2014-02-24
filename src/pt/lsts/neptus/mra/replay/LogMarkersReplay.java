@@ -59,7 +59,7 @@ public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
 
     ArrayList<LogMarker> markers = new ArrayList<>();
     Vector<LocationType> locations = new Vector<>();
-
+    IMraLogGroup source = null;
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {        
 
@@ -133,13 +133,13 @@ public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
         //nothing
     }
     
-
     @Override
     public void parse(IMraLogGroup source) {
         Collection<LogMarker> sourceMarkers = LogMarker.load(source);
         for (LogMarker lm : sourceMarkers) {
             addMarker(lm); 
         }        
+        this.source = source;
     }
 
     @Override

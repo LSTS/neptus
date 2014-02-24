@@ -96,7 +96,7 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 		l.setLength(getLength());
 		l.setLoiterDuration(getLoiterDuration());
 		l.setLoiterType(getLoiterType());
-		l.setManeuverLocation(getManeuverLocation().clone());
+		l.setManeuverLocation(getManeuverLocation());
 		l.setRadius(getRadius());
 		l.setRadiusTolerance(getRadiusTolerance());
 		l.setSpeed(getSpeed());
@@ -456,8 +456,8 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
                 .getDouble("radius_tolerance"));
     	
     	ManeuverLocation pos = new ManeuverLocation();
-    	pos.setLatitude(Math.toDegrees(message.getDouble("lat")));
-    	pos.setLongitude(Math.toDegrees(message.getDouble("lon")));
+    	pos.setLatitudeDegs(Math.toDegrees(message.getDouble("lat")));
+    	pos.setLongitudeDegs(Math.toDegrees(message.getDouble("lon")));
     	pos.setZ(message.getDouble("z"));
     	String zunits = message.getString("z_units");
     	if (zunits != null)

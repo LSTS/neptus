@@ -2094,7 +2094,7 @@ public class Renderer3D extends JPanel implements MapChangeListener, Renderer,
 				for (Enumeration<AbstractElement> enuma = objects.keys(); enuma
 						.hasMoreElements();) {
 					AbstractElement vt = (AbstractElement) enuma.nextElement();
-					JMenuItem iten = new JMenuItem(vt.getName());
+					JMenuItem iten = new JMenuItem(vt.getId());
 					item.add(iten);
 					// if(cams[panel_op].lock==vt)
 					// chek.setSelected(true);

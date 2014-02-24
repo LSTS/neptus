@@ -75,12 +75,15 @@ import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.IPlanSelection;
 import pt.lsts.neptus.console.plugins.ITransponderSelection;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
@@ -93,6 +96,7 @@ import pt.lsts.neptus.gui.LocationPanel;
 import pt.lsts.neptus.gui.MissionBrowser;
 import pt.lsts.neptus.gui.MissionBrowser.State;
 import pt.lsts.neptus.gui.MissionTreeModel.NodeInfoKey;
+import pt.lsts.neptus.gui.MissionTreeModel.ParentNodes;
 import pt.lsts.neptus.gui.tree.ExtendedTreeNode;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
@@ -221,7 +225,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     e.printStackTrace();
                 }
             }
-            System.out.println("dbPlanReceived");
+            //System.out.println("dbPlanReceived");
         }
 
         @Override
@@ -230,7 +234,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
             // Delete a plan from the DB. The 'plan_id' field identifies
             // the plan to delete.
             browser.removeCurrSelectedNodeRemotely();
-            System.out.println("dbPlanRemoved");
+            //System.out.println("dbPlanRemoved");
         }
 
         @Override
@@ -240,7 +244,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
             // plan, and a pre-existing plan with the same identifier, if
             // any will be overwritten. For requests, the 'arg' field must
             // contain a 'PlanSpecification' message.
-            System.out.println("dbPlanSent");
+            //System.out.println("dbPlanSent");
             // sent plan confirmation, is now in sync
             browser.setPlanAsSync(planId);
         }
@@ -284,13 +288,13 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
 
     @Override
     public void missionReplaced(MissionType mission) {
-        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
     }
 
     @Override
     public void missionUpdated(MissionType mission) {
         // it is called (among others) when the specs for a remote plan have just been received
-        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
     }
 
     /**
@@ -302,7 +306,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
             return;
         inited = true;
         updatePlanDBListener(getMainVehicleId());
-        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
         addClearPlanDbMenuItem();
     }
 
@@ -396,7 +400,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         running = false;
         updatePlanDBListener(evt.getCurrent());
         askForBeaconConfig();
-        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+        browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
     }
 
     /**
@@ -481,8 +485,8 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         ArrayList<ExtendedTreeNode> selectedNodes = browser.getSelectedNodes();
         // final TreePath[] multiSel = selectedNodes;
         ArrayList<TransponderElement> trans = new ArrayList<>();
-//        if (multiSel != null) {
-//            for (TreePath path : multiSel) {
+        // if (multiSel != null) {
+        // for (TreePath path : multiSel) {
         for (ExtendedTreeNode node : selectedNodes) {
             // ExtendedTreeNode node = ((ExtendedTreeNode) path.getLastPathComponent());
                 Object userObject = node.getUserObject();
@@ -491,7 +495,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                         && node.getUserInfo().get(NodeInfoKey.SYNC) != State.REMOTE)
                     trans.add((TransponderElement) userObject);
             }
-//        }
+        // }
         return trans;
     }
 
@@ -544,7 +548,8 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                 LblConfig lblConfig = (LblConfig) message;
                 if (((LblConfig) message).getOp() == OP.CUR_CFG) {
                     // NeptusLog.pub().error("LblConfig message arrived");
-                    browser.updateTransStateEDT(getConsole().getMission(), getMainVehicleId(), (Vector<LblBeacon>) lblConfig.getBeacons().clone());
+                    browser.updateTransStateEDT(getConsole().getMission(), getMainVehicleId(),
+                            (Vector<LblBeacon>) lblConfig.getBeacons().clone(), getConsole());
                 }
                 break;
 
@@ -625,7 +630,8 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
 
         private void addActionSendPlan(final ConsoleLayout console2, final PlanDBControl pdbControl,
                 final ArrayList<NameId> selectedItems, JPopupMenu popupMenu) {
-            popupMenu.add(I18n.textf("Send %planName to %system", getItemsInString(selectedItems), console2.getMainSystem()))
+            popupMenu.add(
+                    I18n.textf("Send %planName to %system", getItemsInString(selectedItems), console2.getMainSystem()))
                     .addActionListener(
 
                     new ActionListener() {
@@ -719,7 +725,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             // if (selection != null) {
-                                // pdbControl.setRemoteSystemId(console2.getMainSystem());
+                            // pdbControl.setRemoteSystemId(console2.getMainSystem());
                             for (NameId nameId : remotePlans) {
                                 pdbControl.requestPlan(nameId.getIdentification());
                             }
@@ -730,18 +736,19 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
 
         private void addActionRemovePlanRemotely(final ConsoleLayout console2, final PlanDBControl pdbControl,
                 final ArrayList<NameId> synAndUnsyncPlans, JPopupMenu popupMenu) {
-            popupMenu.add(I18n.textf("Remove '%planName' from %system", getItemsInString(synAndUnsyncPlans), console2.getMainSystem()))
-                .addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        // if (selection != null) {
-                        // PlanType sel = (PlanType) selection;
-                        pdbControl.setRemoteSystemId(console2.getMainSystem());
-                        for (NameId nameId : synAndUnsyncPlans) {
-                            pdbControl.deletePlan(nameId.getIdentification());
+            popupMenu.add(
+                    I18n.textf("Remove '%planName' from %system", getItemsInString(synAndUnsyncPlans),
+                            console2.getMainSystem())).addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // if (selection != null) {
+                    // PlanType sel = (PlanType) selection;
+                    pdbControl.setRemoteSystemId(console2.getMainSystem());
+                    for (NameId nameId : synAndUnsyncPlans) {
+                        pdbControl.deletePlan(nameId.getIdentification());
                         }
-                        // }
-                    }
+                    // }
+                }
             });
         }
 
@@ -759,8 +766,6 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         // });
         // }
 
-
-
         @Override
         public void mousePressed(MouseEvent e) {
             if (e.getButton() != MouseEvent.BUTTON3)
@@ -769,9 +774,9 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
             ArrayList<ExtendedTreeNode> selectedNodes = browser.getSelectedNodes();
             JPopupMenu popupMenu = new JPopupMenu();
             // JMenu dissemination = new JMenu(I18n.text("Dissemination"));
-            addActionAddNewTrans(popupMenu);
+            // addActionAddNewTrans(popupMenu);
             ArrayList<NameId> toShare = new ArrayList<NameId>();
-            ItemTypes selecType = findSelecType(selectedItems);
+            ItemTypes selecType = findSelecMissionElem(selectedItems);
             switch (selecType) {
                 case Plans:
                     popupMenu.addSeparator();
@@ -817,8 +822,8 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                             // else
                             // synAndUnsyncPlans.add((NameId) extendedTreeNode.getUserObject());
                         }
-                        else{
-                            NeptusLog.pub().error("The plan "+extendedTreeNode+" has no state.");
+                        else {
+                            NeptusLog.pub().error("The plan " + extendedTreeNode + " has no state.");
                         }
                     }
                     if (toRemoveRemotely.size() > 0)
@@ -848,18 +853,20 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     // }
                     break;
                 case Transponder:
-                    if(selectedItems.size() == 1)
-                        addActionEditTrans((TransponderElement)selectedItems.get(0), popupMenu);
+                    addActionAddNewTrans(popupMenu);
+                    addActionRemoveAllTrans(popupMenu);
+                    if (selectedItems.size() == 1)
+                        addActionEditTrans((TransponderElement) selectedItems.get(0), popupMenu);
                     ArrayList<TransponderElement> localTrans = new ArrayList<TransponderElement>();
                     State state;
                     for (ExtendedTreeNode extendedTreeNode : selectedNodes) {
                         state = (State) extendedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
                         // addActionShare(selectedItems, dissemination, "Transponder");
                         toShare.add((NameId) extendedTreeNode.getUserObject());
-                        if(state==State.LOCAL)
+                        if (state == State.LOCAL)
                             localTrans.add((TransponderElement) extendedTreeNode.getUserObject());
                     }
-                    if (localTrans.size()>0) {
+                    if (localTrans.size() > 0) {
                         addActionRemoveTrans(localTrans, popupMenu);
                     }
                     // Switch
@@ -884,6 +891,14 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     break;
                 case Mix:
                 case None:
+                    // Check if what is selected is a parent folders
+                    if (selectedNodes.size() == 1) {
+                        String parentName = (String) selectedNodes.get(0).getUserObject();
+                        if(parentName.equals(ParentNodes.TRANSPONDERS.nodeName)){
+                            addActionAddNewTrans(popupMenu);
+                            addActionRemoveAllTrans(popupMenu);
+                        }
+                    }
                     break;
                 default:
                     break;
@@ -899,7 +914,87 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
             popupMenu.show((Component) e.getSource(), e.getX(), e.getY());
         }
 
-        private ItemTypes findSelecType(ArrayList<NameId> selectedItems) {
+        private void addActionRemoveAllTrans(JPopupMenu popupMenu) {
+            popupMenu.add(I18n.text("Remove all transponders from vehicle")).addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    LblConfig msgLBLConfiguration = new LblConfig();
+                    msgLBLConfiguration.setOp(LblConfig.OP.SET_CFG);
+                    sendMsg(msgLBLConfiguration);
+                    msgLBLConfiguration = new LblConfig();
+                    msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
+                    sendMsg(msgLBLConfiguration);
+                    // TODO On hold until removing all beacons is stable
+                    // browser.removeAllTransponders(console.getMission());
+                }
+            });
+        }
+
+        private void sendMsg(IMCMessage msgLBLConfiguration) {
+            String errorTextForDialog = I18n.text("Error sending acoustic beacons");
+            boolean ignoreAcousticSending = true;
+            String acousticOpServiceName = "acoustic/operation";
+            boolean acousticOpUseOnlyActive = false;
+            boolean acousticOpUserAprovedQuestion = true;
+            IMCSendMessageUtils.sendMessage(msgLBLConfiguration, ImcMsgManager.TRANSPORT_TCP, listener,
+                    MissionTreePanel.this, errorTextForDialog, ignoreAcousticSending, acousticOpServiceName,
+                    acousticOpUseOnlyActive, acousticOpUserAprovedQuestion, getMainVehicleId());
+        }
+
+        MessageDeliveryListener listener = new MessageDeliveryListener() {
+            int tries = 0;
+            private final int maxAttemps = 3;
+
+            private String getDest(IMCMessage message) {
+                ImcSystem sys = message != null ? ImcSystemsHolder.lookupSystem(message.getDst()) : null;
+                String dest = sys != null ? sys.getName() : I18n.text("unknown destination");
+                return dest;
+            }
+
+            private void processDeliveryFailure(IMCMessage message, String errorText) {
+                if (maxAttemps < tries) {
+                    tries = 0;
+                    post(Notification.error(I18n.text("Delivering Message"), errorText));
+                }
+                else {
+                    tries++;
+                    sendMsg(message);
+                }
+            }
+
+            @Override
+            public void deliveryUnreacheable(IMCMessage message) {
+                processDeliveryFailure(
+                        message,
+                        I18n.textf("Message %messageType to %destination delivery destination unreacheable",
+                                message.getAbbrev(), getDest(message)));
+            }
+
+            @Override
+            public void deliveryTimeOut(IMCMessage message) {
+                processDeliveryFailure(message, I18n.textf("Message %messageType to %destination delivery timeout",
+                        message.getAbbrev(), getDest(message)));
+            }
+
+            @Override
+            public void deliveryError(IMCMessage message, Object error) {
+                processDeliveryFailure(
+                        message,
+                        I18n.text(I18n.textf("Message %messageType to %destination delivery error. (%error)",
+                                message.getAbbrev(), getDest(message), error)));
+            }
+
+            @Override
+            public void deliveryUncertain(IMCMessage message, Object msg) {
+            }
+
+            @Override
+            public void deliverySuccess(IMCMessage message) {
+                tries = 0;
+            }
+        };
+
+        private ItemTypes findSelecMissionElem(ArrayList<NameId> selectedItems) {
             ItemTypes type = ItemTypes.None;
             for (NameId item : selectedItems) {
                 if (item instanceof PlanType || item instanceof PlanDBInfo) {
@@ -915,13 +1010,13 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                 // else
                 // type = ItemTypes.Mix;
                 // }
-                else if(item instanceof HomeReference){
+                else if (item instanceof HomeReference) {
                     if (type == ItemTypes.HomeRef || type == ItemTypes.None)
                         type = ItemTypes.HomeRef;
                     else
                         type = ItemTypes.Mix;
                 }
-                else if(item instanceof TransponderElement){
+                else if (item instanceof TransponderElement) {
                     if (type == ItemTypes.Transponder || type == ItemTypes.None)
                         type = ItemTypes.Transponder;
                     else
@@ -935,7 +1030,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
             popupMenu.add(I18n.text("Reload Panel")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    browser.refreshBrowser(getConsole().getMission(), getMainVehicleId());
+                    browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
                 }
             });
         }
@@ -973,8 +1068,8 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
                     LocationType loc = new LocationType((HomeReference) selection);
-                    LocationType after = LocationPanel.showLocationDialog(getConsole(), I18n.text("Set home reference"),
-                            loc, getConsole().getMission(), true);
+                    LocationType after = LocationPanel.showLocationDialog(getConsole(),
+                            I18n.text("Set home reference"), loc, getConsole().getMission(), true);
                     if (after == null)
                         return;
 
@@ -1001,7 +1096,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                                 @Override
                                 public void run() {
                                     browser.swithLocationsTransponder(selection,
-                                            tel, getConsole());
+ tel, getConsole());
                                 };
                             }.start();
                         }
@@ -1037,7 +1132,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         // popupMenu.add(I18n.text("Change plan vehicles")).addActionListener(new ActionListener() {
         // @Override
         // public void actionPerformed(ActionEvent e) {
-//                    if (selection != null) {
+        // if (selection != null) {
         // PlanType sel = (PlanType) selection;
         //
         // String[] vehicles = VehicleSelectionDialog.showSelectionDialog(getConsole(), sel.getVehicles()
@@ -1047,7 +1142,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         // vts.add(VehiclesHolder.getVehicleById(v));
         // }
         // sel.setVehicles(vts);
-//                    }
+        // }
         // }
         // });
         // }

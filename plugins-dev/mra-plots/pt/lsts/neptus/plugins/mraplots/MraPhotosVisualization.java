@@ -413,7 +413,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                 if (resp == null)
                     return;
                 SystemPositionAndAttitude state = states.get(f);
-                LogMarker marker = new LogMarker(resp, timestampOf(f)*1000, state.getPosition().getLatitudeAsDoubleValueRads(), state.getPosition().getLongitudeAsDoubleValueRads());
+                LogMarker marker = new LogMarker(resp, timestampOf(f)*1000, state.getPosition().getLatitudeRads(), state.getPosition().getLongitudeRads());
                 panel.addMarker(marker);
             }
         });
@@ -621,8 +621,8 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         int roll = (int)Math.toDegrees(state.getRoll());
         int pitch = (int)Math.toDegrees(state.getPitch());
         int yaw = (int)Math.toDegrees(state.getYaw());
-        String lat = CoordinateUtil.latitudeAsString(state.getPosition().getLatitudeAsDoubleValue(), false, 2);
-        String lon = CoordinateUtil.longitudeAsString(state.getPosition().getLongitudeAsDoubleValue(), false, 2);
+        String lat = CoordinateUtil.latitudeAsString(state.getPosition().getLatitudeDegs(), false, 2);
+        String lon = CoordinateUtil.longitudeAsString(state.getPosition().getLongitudeDegs(), false, 2);
 
         Vector<String> details = new Vector<>();
         details.add(lat);

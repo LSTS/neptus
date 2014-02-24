@@ -363,8 +363,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             Graphics2D location2d = (Graphics2D) mouseLocationImage.getGraphics();
             location2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             location2d.clearRect(0, 0, mouseLocationImage.getWidth(), mouseLocationImage.getHeight());
-            location2d.drawString(CoordinateUtil.dmToLatString(CoordinateUtil.decimalDegreesToDM(loc.getLatitudeAsDoubleValue())), 5, 15);
-            location2d.drawString(CoordinateUtil.dmToLonString(CoordinateUtil.decimalDegreesToDM(loc.getLongitudeAsDoubleValue())), 5, 26);
+            location2d.drawString(CoordinateUtil.dmToLatString(CoordinateUtil.decimalDegreesToDM(loc.getLatitudeDegs())), 5, 15);
+            location2d.drawString(CoordinateUtil.dmToLonString(CoordinateUtil.decimalDegreesToDM(loc.getLongitudeDegs())), 5, 26);
             location2d.drawString(altStr+": " + altFormat.format(mouseSidescanLine.state.getAltitude()), 5, 37);
             location2d.drawString(rollStr+": " + altFormat.format(Math.toDegrees(mouseSidescanLine.state.getRoll())), 5, 48);
 
@@ -671,7 +671,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     distanceToNadir *= (x > sl.xsize / 2 ? 1 : -1);
 
                     parent.mraPanel.addMarker(new SidescanLogMarker(res, sl.timestampMillis, point.location
-                            .getLatitudeAsDoubleValueRads(), point.location.getLongitudeAsDoubleValueRads(), distanceToNadir, y, Math
+                            .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, Math
                             .abs(mouseX - initialX), Math.abs(mouseY - initialY)));
                 } else {
                     // Calc the center of the rectangle
@@ -705,7 +705,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     distanceToNadir *= (x > l.xsize / 2 ? 1 : -1);
 
                     parent.mraPanel.addMarker(new SidescanLogMarker(res, l.timestampMillis, point.location
-                            .getLatitudeAsDoubleValueRads(), point.location.getLongitudeAsDoubleValueRads(), distanceToNadir, y, Math
+                            .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, Math
                             .abs(mouseX - initialX), Math.abs(mouseY - initialY)));
                 }
             }

@@ -476,16 +476,15 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
         AbstractElement element = elements[0];
         String oldXml = element.asXML();
-
         element.showParametersDialog(getConsole(), getTransNames(), element.getParentMap(), true);
         if (!element.isUserCancel()) {
+            mg.updateObjectIds();
             manager.addEdit(new ObjectPropertiesEdit(element, oldXml));
-
             MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
             pivot = getPivot();
             mce.setSourceMap(pivot);
             mce.setChangedObject(draggedObject);
-            pivot.warnChangeListeners(mce);
+            pivot.warnChangeListeners(mce);            
         }
     }
 
@@ -530,7 +529,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                     menu.add(I18n.text("Properties")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            editElement(elemId);
+                            editElement(elemId);                            
                         }
                     });
 
@@ -571,8 +570,12 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                                 AbstractElement newElem = el.getClass().getConstructor(MapGroup.class, MapType.class)
                                         .newInstance(mg, pivot);
                                 newElem.setCenterLocation(loc);
-                                newElem.showParametersDialog(MapEditor.this, pivot.getObjectNames(), pivot, true);
-
+                                
+                                Vector<String> objNames = new Vector<>();
+                                for (AbstractElement el : mg.getAllObjects())
+                                    objNames.add(el.getId());
+                                newElem.showParametersDialog(MapEditor.this, objNames.toArray(new String[0]), pivot, true);
+                                
                                 if (!newElem.userCancel) {
                                     pivot.addObject(newElem);
 
@@ -630,7 +633,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
                                 ImageElement el = new ImageElement(choice, file);
                                 el.setMapGroup(mg);
-                                el.showParametersDialog(MapEditor.this, pivot.getObjectNames(), pivot, true);
+                                el.showParametersDialog(MapEditor.this, pivot.getObjectIds(), pivot, true);
 
                                 if (!el.userCancel) {
                                     pivot.addObject(el);
@@ -673,14 +676,13 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                             centerElem.setEnabled(true);
                     }
 
-                    editElem.add(elem.getName() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
-                            new ActionListener() {
+                    editElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             editElement(elem.getId());
                         }
                     });
-                    removeElem.add(elem.getName() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
+                    removeElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
                             new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -688,7 +690,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                         }
                     });
                     if (renderer != null) {
-                        centerElem.add(elem.getName() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
+                        centerElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
                                 new ActionListener() {
                                     @Override
                                     public void actionPerformed(ActionEvent e) {

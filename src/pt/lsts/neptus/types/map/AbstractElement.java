@@ -100,8 +100,8 @@ public abstract class AbstractElement
    
     protected Document doc = null;
     
-    protected String name = NameNormalizer.getRandomID("me"); // "obj_"+System.currentTimeMillis()+rnd.nextInt(100);
-    protected String id = name;
+    protected String id = NameNormalizer.getRandomID("me"); // "obj_"+System.currentTimeMillis()+rnd.nextInt(100);
+    protected String name = id;
 
     // ===== Old MapObject
     protected boolean selected = false;
@@ -115,9 +115,9 @@ public abstract class AbstractElement
     public boolean userCancel = false, copyChars = true;
     public String[] takenNames = new String[0];
     protected JDialog dialog;
-    protected JTextField objName;
     protected JCheckBox obstacleCheck, hiddenCheck;
     private boolean obstacle;
+    protected JTextField objName, transp;
     // ===== END Param panels
 
     // ===== Abstract functions
@@ -193,13 +193,14 @@ public abstract class AbstractElement
             setObstacle(Boolean.parseBoolean(elem.attribute("obstacle").getText()));
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().debug("Loaded old mission with no obstacle information");
+            setObstacle(false);
         }
          
         
-        setId(getCenterLocation().getId());
-        setName(getCenterLocation().getName());
-
+        id = getCenterLocation().getId();
+        name = id;
+        
         Node nd;
         try {
             nd = doc.selectSingleNode("//attitude");
@@ -272,20 +273,13 @@ public abstract class AbstractElement
         isLoadOk =true;
         return true;
     }
-    // ===== XMLOutput Interface
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
-     */
     @Override
     public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asXML(rootElementName);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
-     */
     @Override
     public String asXML(String rootElementName) {
         String result = "";        
@@ -294,41 +288,29 @@ public abstract class AbstractElement
         return result;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
-     */
     @Override
     public Element asElement() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asElement(rootElementName);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
-     */
     @Override
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
-     */
     @Override
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
-     */
     @Override
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
 
         getCenterLocation().setId(getId());
-        getCenterLocation().setName(getName());
+        getCenterLocation().setName(name);
         
         Element root = getCenterLocation().asElement(rootElementName);
         
@@ -654,17 +636,23 @@ public abstract class AbstractElement
 		return id;
 	}
 
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @param id the id to set
+     */
     public void setId(String id) {
         this.id = id;
     }
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
 
     /**
      * Returns the result of getName() - the default implementation returns the
@@ -672,7 +660,7 @@ public abstract class AbstractElement
      */
     @Override
     public String toString() {
-        return getName();
+        return name;
     }
 
 	public boolean isSelected() {
@@ -720,9 +708,9 @@ public abstract class AbstractElement
             }
             
             setName(objName.getText());
+            
             setObstacle(obstacleCheck.isSelected());
             transparency = hiddenCheck.isSelected() ? 100 : 0;
-            
             initialize(paramsPanel);
             
             dialog.setVisible(false);
@@ -762,29 +750,26 @@ public abstract class AbstractElement
         flow.setAlignment(FlowLayout.LEFT);
         idPanel.setLayout(flow);
  
+        
         objName = new JTextField(8);
         objName.setEditable(editable);
-        
-        objName.setText(this.getName());
-        
+        objName.setText(name);
         obstacleCheck = new JCheckBox(I18n.text("Obstacle"));
         obstacleCheck.setSelected(isObstacle());
         
         hiddenCheck = new JCheckBox(I18n.text("Hidden"));
         hiddenCheck.setSelected(transparency >= 100);
-        
-        idPanel.add(new JLabel(I18n.text("Name:")));
+        idPanel.add(new JLabel(I18n.text("Object Name:")));
         idPanel.add(objName);
-        
         idPanel.add(obstacleCheck);
         idPanel.add(hiddenCheck);
         
         
         if (takenNames == null) {
             objName.setEnabled(false);
-            objName.setText(this.getName());
+            objName.setText(name);
         }
-        
+
         JPanel buttonsPanel = new JPanel();
         FlowLayout layout = new FlowLayout();
         layout.setAlignment(FlowLayout.RIGHT);        

@@ -178,7 +178,6 @@ public class TransponderParameters extends ParametersPanel {
 	 */    
 	private JComboBox<?> getConfigurationFile() {
 		if (configurationFile == null) {
-//		    String[] confs = new String[] {"lsts1.conf", "lsts2.conf", "lsts3.conf" /*, "lsts1m.conf", "lsts2m.conf", "lsts3m.conf"*/};
             String[] confs = TransponderElement.getTranspondersListArray();
 			configurationFile = new JComboBox<Object>(confs);
 			configurationFile.setPreferredSize(new java.awt.Dimension(90,20));

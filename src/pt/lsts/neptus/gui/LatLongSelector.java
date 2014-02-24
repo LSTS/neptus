@@ -691,23 +691,23 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 	 */
 	protected boolean convertLatLonTo(short type) {
 		LocationType loc = new LocationType();
-		loc.setLatitude(getLatitude());
-		loc.setLongitude(getLongitude());
+		loc.setLatitudeStr(getLatitude());
+		loc.setLongitudeStr(getLongitude());
 		switch (type) {
 		case DECIMAL_DEGREES_DISPLAY:
 			this.setLatitude(new double[] {
-					MathMiscUtils.round(loc.getLatitudeAsDoubleValue(), 6), 0,
+					MathMiscUtils.round(loc.getLatitudeDegs(), 6), 0,
 					0 });
 			this.setLongitude(new double[] {
-					MathMiscUtils.round(loc.getLongitudeAsDoubleValue(), 6), 0,
+					MathMiscUtils.round(loc.getLongitudeDegs(), 6), 0,
 					0 });
 			break;
 
 		case DM_DISPLAY:
 			double[] dmLat = CoordinateUtil.decimalDegreesToDM(loc
-					.getLatitudeAsDoubleValue());
+					.getLatitudeDegs());
 			double[] dmLon = CoordinateUtil.decimalDegreesToDM(loc
-					.getLongitudeAsDoubleValue());
+					.getLongitudeDegs());
 			this.setLatitude(new double[] { dmLat[0],
 					MathMiscUtils.round(dmLat[1], 4), 0 });
 			this.setLongitude(new double[] { dmLon[0],
@@ -716,9 +716,9 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 
 		case DMS_DISPLAY:
 			double[] dmsLat = CoordinateUtil.decimalDegreesToDMS(loc
-					.getLatitudeAsDoubleValue());
+					.getLatitudeDegs());
 			double[] dmsLon = CoordinateUtil.decimalDegreesToDMS(loc
-					.getLongitudeAsDoubleValue());
+					.getLongitudeDegs());
 			this.setLatitude(new double[] { dmsLat[0], dmsLat[1],
 					MathMiscUtils.round(dmsLat[2], 2) });
 			this.setLongitude(new double[] { dmsLon[0], dmsLon[1],

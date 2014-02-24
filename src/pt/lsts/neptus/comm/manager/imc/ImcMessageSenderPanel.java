@@ -482,8 +482,8 @@ public class ImcMessageSenderPanel extends JPanel {
         if (hasLatLon && !hasXY)
             locationType = locationType.getNewAbsoluteLatLonDepth();
         
-        sMsg.setValue("lat", locationType.getLatitudeAsDoubleValueRads());
-        sMsg.setValue("lon", locationType.getLongitudeAsDoubleValueRads());
+        sMsg.setValue("lat", locationType.getLatitudeRads());
+        sMsg.setValue("lon", locationType.getLongitudeRads());
         sMsg.setValue("depth", locationType.getDepth());
         sMsg.setValue("height", locationType.getHeight());
 

@@ -279,7 +279,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     public void removeTransponder(TransponderElement elem, ConsoleLayout console2) {
-        int ret = JOptionPane.showConfirmDialog(this, I18n.textf("Delete '%transponderName'?", elem.getId()),
+        int ret = JOptionPane.showConfirmDialog(this, I18n.textf("Delete '%transponderName'?", elem.getDisplayName()),
                 I18n.text("Delete"), JOptionPane.YES_NO_OPTION);
         if (ret == JOptionPane.YES_OPTION) {
             treeModel.removeById(elem.getIdentification(), ParentNodes.TRANSPONDERS);
@@ -334,14 +334,14 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param mainVehicleId
      */
     public void refreshBrowser(final MissionType mission,
-            final String mainVehicleId) {
+ final String mainVehicleId, ConsoleLayout console) {
         // Selected nodes
         TreePath[] selectedNodes = getSelectionPath();
         // Home ref
         treeModel.setHomeRef(mission.getHomeRef());
         TreeMap<String, PlanType> localPlans = getLocalPlans(mission);
         updatePlansStateEDT(localPlans, mainVehicleId);
-        updateTransStateEDT(mission, mainVehicleId);
+        updateTransStateEDT(mission, mainVehicleId, console);
         // Set the right nodes as selected
         setSelectedNodes(selectedNodes);
     }
@@ -461,7 +461,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 else if (startLocs.length == 0) {
                     try {
                         pivot = getMap(mission);
-                        start.setId("start");
                         start.setName("start");
                         start.setParentMap(pivot);
                         start.setMapGroup(pivot.getMapGroup());
@@ -540,10 +539,10 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
             @Override
             public void valueChanged(TreeSelectionEvent e) {
+
                 // if (e.isAddedPath()) {
                     TreePath selPath = elementTree.getSelectionPath();
                     if(selPath == null){
-                        NeptusLog.pub().error("Check this out, should not happen outside debug with break points in Mission Tree related classes.");
                         return;
                     }
                     ExtendedTreeNode node = (ExtendedTreeNode) selPath.getLastPathComponent();
@@ -561,6 +560,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     else if (console2 != null) {
                         console2.setPlan(null);
                     }
+
             }
 
         });
@@ -599,6 +599,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                         "Cannot find a plan with id " + plan.getIdentification() + ". It was not set as selected.");
                 return;
             }
+
             selPath = new TreePath(treeModel.getPathToRoot(planNode));
             elementTree.setSelectionPath(selPath);
             elementTree.scrollPathToVisible(selPath);
@@ -608,7 +609,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             e.printStackTrace();
         }
     }
-
     public ArrayList<ExtendedTreeNode> getSelectedNodes() {
         ArrayList<ExtendedTreeNode> nodes = new ArrayList<ExtendedTreeNode>();
         TreePath[] selectionPaths = elementTree.getSelectionPaths();
@@ -657,10 +657,19 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
             @Override
             public void run() {
+                // NeptusLog.pub().error("--> updatePlansStateEDT ");
+                // NeptusLog.pub().error("[1] " + localPlans.size() + " in mission: " + localPlans.values().toString());
+                // NeptusLog.pub().error("[2] " + localPlans.size() + " in vehicle: " +
+                // remotePlans.values().toString());
+                // treeModel.printTree("[3] ", ParentNodes.PLANS);
                 HashSet<String> existingPlans = mergeLocalPlans(localPlans, sysName, treeModel);
+                // treeModel.printTree("[4] ", ParentNodes.PLANS);
                 treeModel.removeSet(existingPlans, ParentNodes.PLANS);
+                // treeModel.printTree("[5] ", ParentNodes.PLANS);
                 existingPlans = mergeRemotePlans(sysName, remotePlans, treeModel, existingPlans);
+                // treeModel.printTree("[6] ", ParentNodes.PLANS);
                 elementTree.expandPath(treeModel.getPathToParent(ParentNodes.PLANS));
+                // NeptusLog.pub().error("------------------------ ");
                 revalidate();
                 repaint();
             }
@@ -732,7 +741,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param treeModel the model where to merge
      */
     private HashSet<String> mergeRemoteTrans(String sysName, Vector<LblBeacon> remoteList,
-            MissionTreeModel treeModel, HashSet<String> existing, MissionType mission) {
+ MissionTreeModel treeModel,
+            HashSet<String> existing, MissionType mission, ConsoleLayout console) {
         ExtendedTreeNode node;
         ChildIterator transIt;
         ExtendedTreeNode tempNode;
@@ -749,7 +759,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             idMap.put(transponderElement.getIdentification(), transponderElement);
         }
 
-        boolean found;
+        boolean saveMisison = false;
+        boolean found = false;
         short id = 0; // the id inside DUNE is the index in the vector
         for (LblBeacon lblBeacon : remoteList) {
             found = false;
@@ -792,8 +803,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 setNodeSyncState(node, State.SYNC);
                 // maps[0].addObject(tempTrans);
                 // maps[0].saveFile(maps[0].getHref());
-                saveMission(mission);
                 treeModel.insertAlphabetically(node, ParentNodes.TRANSPONDERS);
+                map.addObject(tempTrans);
+                saveMisison = true;
                 // System.out.println(" [" + tempTrans.duneId + "] " + tempTrans.getDisplayName()
                 // + " from IMCSystem not found in mission tree  >> Sync.");
             }
@@ -801,6 +813,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             existing.add(tempTrans.getIdentification());
             id++;
         }
+        if (saveMisison)
+            saveMission(mission);
 
         // reset id of transponders not in vehicle
         transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);
@@ -1071,7 +1085,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param sysName
      * @param remoteTrans
      */
-    public void updateTransStateEDT(final MissionType mission, final String sysName, final Vector<LblBeacon> remoteTrans) {
+    public void updateTransStateEDT(final MissionType mission, final String sysName,
+            final Vector<LblBeacon> remoteTrans, final ConsoleLayout console) {
         final LinkedHashMap<String, TransponderElement> localTrans = getLocalTrans(mission);
         SwingUtilities.invokeLater(new Runnable() {
 
@@ -1085,7 +1100,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 // treeModel.printTree("2. ");
                 // String remotes = printBeacons(remoteTrans);
                 // NeptusLog.pub().error(remotes);
-                existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans, mission);
+                existingTrans = mergeRemoteTrans(sysName, remoteTrans, treeModel, existingTrans, mission, console);
                 // treeModel.printTree("3. ");
                 treeModel.removeSet(existingTrans, ParentNodes.TRANSPONDERS);
                 // treeModel.printTree("4. ");
@@ -1093,6 +1108,26 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 // NeptusLog.pub().error(" --- ");
                 repaint();
             }
+
+//            private String printBeacons(final Vector<LblBeacon> remoteTrans) {
+//                short id = 0;
+//                StringBuilder remotes = new StringBuilder(remoteTrans.size() + " trans in ImcSystem: ");
+//                for (LblBeacon lblBeacon : remoteTrans) {
+//                    remotes.append("[");
+//                    remotes.append(id);
+//                    remotes.append("] ");
+//                    remotes.append(lblBeacon.getBeacon());
+//                    remotes.append(" ( query: ");
+//                    remotes.append(lblBeacon.getQueryChannel());
+//                    remotes.append(", reply: ");
+//                    remotes.append(lblBeacon.getReplyChannel());
+//                    remotes.append(", delay:");
+//                    remotes.append(lblBeacon.getTransponderDelay());
+//                    remotes.append(")\n         ");
+//                    id++;
+//                }
+//                return remotes.toString();
+//            }
 
         });
     }
@@ -1104,8 +1139,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param mission
      * @param sysName
      */
-    public void updateTransStateEDT(MissionType mission, final String sysName) {
-        updateTransStateEDT(mission, sysName, getRemoteTrans(sysName));
+    public void updateTransStateEDT(MissionType mission, final String sysName, ConsoleLayout console) {
+        updateTransStateEDT(mission, sysName, getRemoteTrans(sysName), console);
     }
 
     /**
@@ -1215,6 +1250,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     public void setMaxAcceptableElapsedTime(int maxAcceptableElapsedTime) {
         cellRenderer.maxAcceptableElapsedTime = maxAcceptableElapsedTime;
     }
+
     
     public ArrayList<TransponderElement> getTransponders(){
         ChildIterator transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);

@@ -32,13 +32,10 @@
 package pt.lsts.neptus.console.plugins.planning.plandb;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Vector;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -49,7 +46,6 @@ import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
@@ -205,31 +201,51 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
             else if (msg.getString("op").equals("GET")) {
 //                if (console != null) {
                     PlanType pt = IMCUtils.parsePlanSpecification(new MissionType()/*console.getMission()*/, msg.getMessage("arg"));
-                    IMCMessage p0 = msg.getMessage("arg");
-                    NeptusLog.pub().debug("Plan received        " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p0.payloadMD5()));
-                    IMCMessage p1 = pt.asIMCPlan();
-                    NeptusLog.pub().debug("Plan from plan       " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p1.payloadMD5()));
-                    IMCMessage p2 = pt.clonePlan().asIMCPlan();
-                    NeptusLog.pub().debug("Plan from clone plan " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p2.payloadMD5()));
+    //                IMCMessage p0 = msg.getMessage("arg");
+//                    NeptusLog.pub().info("Plan received        " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p0.payloadMD5()));
+//                    try {
+//                        IMCDefinition.getInstance().dumpPayload(p0, 1);
+//                    }
+//                    catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                    
+                   // IMCMessage p1 = pt.asIMCPlan();
+//                    NeptusLog.pub().info("Plan from plan       " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p1.payloadMD5()));
+//                    try {
+//                        IMCDefinition.getInstance().dumpPayload(p1, 1);
+//                    }
+//                    catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+       //             IMCMessage p2 = pt.clonePlan().asIMCPlan();
+//                    NeptusLog.pub().info("Plan from clone plan " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p2.payloadMD5()));
+//                    try {
+//                        IMCDefinition.getInstance().dumpPayload(p2, 1);
+//                    }
+//                    catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
 
-                    try {
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        IMCOutputStream imcOs = new IMCOutputStream(baos);
-                        p0.serialize(imcOs);
-                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));
-                        
-                        baos = new ByteArrayOutputStream();
-                        imcOs = new IMCOutputStream(baos);
-                        p1.serialize(imcOs);
-                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));
-                        baos = new ByteArrayOutputStream();
-                        imcOs = new IMCOutputStream(baos);
-                        p2.serialize(imcOs);
-                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));                        
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
+
+//                    try {
+//                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//                        IMCOutputStream imcOs = new IMCOutputStream(baos);
+//                        p0.serialize(imcOs);
+//                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));
+//                        
+//                        baos = new ByteArrayOutputStream();
+//                        imcOs = new IMCOutputStream(baos);
+//                        p1.serialize(imcOs);
+//                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));
+//                        baos = new ByteArrayOutputStream();
+//                        imcOs = new IMCOutputStream(baos);
+//                        p2.serialize(imcOs);
+//                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));                        
+//                    }
+//                    catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
 
                     
                     for (IPlanDBListener l : listeners.toArray(new IPlanDBListener[0]))

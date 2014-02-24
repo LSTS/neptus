@@ -56,6 +56,7 @@ import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -69,6 +70,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.speech.SpeechUtil;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -100,7 +102,15 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
 
     @NeptusProperty(name="Alignment Speed Units", userLevel=LEVEL.REGULAR)
     public SPEED_UNITS alignSpeedUnits = SPEED_UNITS.METERS_PS;
-
+    
+    @NeptusProperty(name="Use Error Notifications", userLevel = LEVEL.ADVANCED, description="Use an error instead of warning when navigation becomes not aligned")
+    public boolean useErrorNotification = false;
+    
+    @NeptusProperty(name = "Use Audio Alerts", userLevel = LEVEL.REGULAR)
+    public boolean useAudioAlerts = true;
+    
+    private boolean aligned = false;
+    
     protected ImageIcon greenLed = ImageUtils.getIcon("pt/lsts/neptus/plugins/alignment/led_green.png");
     protected ImageIcon redLed = ImageUtils.getIcon("pt/lsts/neptus/plugins/alignment/led_red.png");
     protected ImageIcon grayLed = ImageUtils.getIcon("pt/lsts/neptus/plugins/alignment/led_none.png");
@@ -267,6 +277,40 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
     @Subscribe
     public void on(ConsoleEventMainSystemChange evt) {
         update();
+        
+    }
+    
+    @Subscribe
+    public void on(EntityState entityState) {
+        
+        if (!entityState.getSourceName().equals(getMainVehicleId()))
+            return;
+        int eid = EntitiesResolver.resolveId(getMainVehicleId(), "Navigation");
+        if (entityState.getSrcEnt() != eid)
+            return;
+        
+        boolean wasAligned = aligned;
+        
+        if (entityState.getDescription().equals("not aligned"))
+            aligned = false;
+        else
+            aligned = true;
+        
+        if (!aligned && wasAligned) {
+            if (useErrorNotification)
+                post(Notification.error("Navigation", "IMU is not aligned"));
+            else
+                post(Notification.warning("Navigation", "IMU is not aligned"));
+            if (useAudioAlerts)
+                SpeechUtil.readSimpleText("I M U is not aligned");
+        }
+        
+        if (aligned && !wasAligned) {
+            post(Notification.info("Navigation", "IMU is ready"));
+            if (useAudioAlerts && entityState.getDescription().equals("aligned"))
+                SpeechUtil.readSimpleText("I M U is ready");
+
+        }
     }
     
     @Override

@@ -57,8 +57,8 @@ public class UnicycleModel {
     
     public LocationType getCurrentPosition() {
         LocationType loc = new LocationType();
-        loc.setLatitude(Math.toDegrees(latRad));
-        loc.setLongitude(Math.toDegrees(lonRad));
+        loc.setLatitudeDegs(Math.toDegrees(latRad));
+        loc.setLongitudeDegs(Math.toDegrees(lonRad));
         loc.setDepth(depth);
         loc.setOffsetEast(x);
         loc.setOffsetNorth(y);
@@ -67,8 +67,8 @@ public class UnicycleModel {
     
     public SystemPositionAndAttitude getState() {
         LocationType loc = new LocationType();
-        loc.setLatitude(Math.toDegrees(latRad));
-        loc.setLongitude(Math.toDegrees(lonRad));
+        loc.setLatitudeDegs(Math.toDegrees(latRad));
+        loc.setLongitudeDegs(Math.toDegrees(lonRad));
         loc.setDepth(depth);
         loc.setOffsetEast(x);
         loc.setOffsetNorth(y);
@@ -85,8 +85,8 @@ public class UnicycleModel {
         
         LocationType pos = state.getPosition();
         pos.convertToAbsoluteLatLonDepth();
-        latRad = pos.getLatitudeAsDoubleValueRads();
-        lonRad = pos.getLongitudeAsDoubleValueRads();
+        latRad = pos.getLatitudeRads();
+        lonRad = pos.getLongitudeRads();
         x = y = 0;
         depth = pos.getDepth();
         speedMPS = state.getVx();
@@ -102,8 +102,8 @@ public class UnicycleModel {
     public void setLocation(LocationType loc) {
         LocationType old = getCurrentPosition();
         loc.convertToAbsoluteLatLonDepth();
-        latRad = loc.getLatitudeAsDoubleValueRads();
-        lonRad = loc.getLongitudeAsDoubleValueRads();
+        latRad = loc.getLatitudeRads();
+        lonRad = loc.getLongitudeRads();
         depth = loc.getDepth();
         x = y = 0;
         pitchRad = rollRad = 0;
@@ -322,8 +322,8 @@ public class UnicycleModel {
 
         Vector<LocationType> locs = new Vector<LocationType>();
 
-        loc.setLatitude(41);
-        loc.setLongitude(-8);
+        loc.setLatitudeDegs(41);
+        loc.setLongitudeDegs(-8);
         StateRenderer2D r2d = new StateRenderer2D(new LocationType(loc));
         
         locs.add(new LocationType(loc));
@@ -338,8 +338,8 @@ public class UnicycleModel {
         locs.add(new LocationType(loc));
 
         loc.convertToAbsoluteLatLonDepth();
-        loc.setLatitude(41);
-        loc.setLongitude(-8);
+        loc.setLatitudeDegs(41);
+        loc.setLongitudeDegs(-8);
         locs.add(new LocationType(loc));
         
         UnicycleModel model = new UnicycleModel();

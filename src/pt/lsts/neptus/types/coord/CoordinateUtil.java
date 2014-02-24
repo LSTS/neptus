@@ -683,8 +683,8 @@ public class CoordinateUtil {
      */
     public static double[] latLonAddNE2(double lat, double lon, double north, double east) {
         LocationType loc = new LocationType();
-        loc.setLatitude(lat);
-        loc.setLongitude(lon);
+        loc.setLatitudeDegs(lat);
+        loc.setLongitudeDegs(lon);
         return WGS84displace(lat, lon, 0, north, east, 0);
         
 //        final double meterToFeet = 3.2808399;
@@ -1378,8 +1378,8 @@ public class CoordinateUtil {
     public static void copyToClipboard(LocationType lt) {
         LocationType lt2 = new LocationType();
         double[] absCoords = lt.getAbsoluteLatLonDepth();
-        lt2.setLatitude(absCoords[0]);
-        lt2.setLongitude(absCoords[1]);
+        lt2.setLatitudeDegs(absCoords[0]);
+        lt2.setLongitudeDegs(absCoords[1]);
         lt2.setDepth(absCoords[2]);
         ClipboardOwner owner = new ClipboardOwner() {
             public void lostOwnership(java.awt.datatransfer.Clipboard clipboard, java.awt.datatransfer.Transferable contents) {
@@ -1462,8 +1462,8 @@ public class CoordinateUtil {
     public static double[] WGS84displacement(LocationType loc1, LocationType loc2) {
         LocationType locTmp1 = loc1.getNewAbsoluteLatLonDepth();
         LocationType locTmp2 = loc2.getNewAbsoluteLatLonDepth();
-        return WGS84displacement(locTmp1.getLatitudeAsDoubleValue(), locTmp1.getLongitudeAsDoubleValue(), locTmp1.getDepth(),
-                locTmp2.getLatitudeAsDoubleValue(), locTmp2.getLongitudeAsDoubleValue(), locTmp2.getDepth());
+        return WGS84displacement(locTmp1.getLatitudeDegs(), locTmp1.getLongitudeDegs(), locTmp1.getDepth(),
+                locTmp2.getLatitudeDegs(), locTmp2.getLongitudeDegs(), locTmp2.getDepth());
     }
     
     /**
@@ -1578,12 +1578,12 @@ public class CoordinateUtil {
         NeptusLog.pub().info(heading3DigitsFormat.format(34));
         
         LocationType locA = new LocationType();
-        locA.setLatitude("41N10.6938");
-        locA.setLongitude("8W42.5051");
+        locA.setLatitudeStr("41N10.6938");
+        locA.setLongitudeStr("8W42.5051");
 
         LocationType locB = new LocationType();
-        locB.setLatitude("44N40.7312");
-        locB.setLongitude("63W32.2072");
+        locB.setLatitudeStr("44N40.7312");
+        locB.setLongitudeStr("63W32.2072");
 
         LocationType locC = new LocationType(locA);
         locC.translatePosition(100, 100, 0);
@@ -1602,24 +1602,24 @@ public class CoordinateUtil {
         locF.convertToAbsoluteLatLonDepth();
 
         LocationType locG = new LocationType(locA);
-        locG.setLatitude(locG.getLatitudeAsDoubleValue() + 2);
-        locG.setLongitude(locG.getLongitudeAsDoubleValue() + 2);
+        locG.setLatitudeDegs(locG.getLatitudeDegs() + 2);
+        locG.setLongitudeDegs(locG.getLongitudeDegs() + 2);
 
         LocationType locH = new LocationType(locB);
-        locH.setLatitude(locH.getLatitudeAsDoubleValue() + 2);
-        locH.setLongitude(locH.getLongitudeAsDoubleValue() + 2);
+        locH.setLatitudeDegs(locH.getLatitudeDegs() + 2);
+        locH.setLongitudeDegs(locH.getLongitudeDegs() + 2);
 
         LocationType locI = new LocationType(locA);
-        locI.setLatitude(locI.getLatitudeAsDoubleValue() + 2);
+        locI.setLatitudeDegs(locI.getLatitudeDegs() + 2);
 
         LocationType locJ = new LocationType(locB);
-        locJ.setLatitude(locH.getLatitudeAsDoubleValue() + 2);
+        locJ.setLatitudeDegs(locH.getLatitudeDegs() + 2);
 
         LocationType locK = new LocationType(locA);
-        locK.setLongitude(locK.getLongitudeAsDoubleValue() + 2);
+        locK.setLongitudeDegs(locK.getLongitudeDegs() + 2);
 
         LocationType locL = new LocationType(locB);
-        locL.setLongitude(locL.getLongitudeAsDoubleValue() + 2);
+        locL.setLongitudeDegs(locL.getLongitudeDegs() + 2);
 
         String[] obs = new String[] { "loc1 Leixões :: loc2 Halifax, Canada", "loc1 Leixões :: loc2=loc1 + N100m,E100m",
                 "loc1 Halifax :: loc2=loc1 + N100m,E100m", "loc1 Leixões :: loc2=loc1 + N10000m,E10000m", "loc1 Halifax :: loc2=loc1 + N10000m,E10000m",
@@ -1635,36 +1635,36 @@ public class CoordinateUtil {
             NeptusLog.pub().info("_______________________________________________________________________________");
             NeptusLog.pub().info(">>> " + obs[i / 2] + " <<<");
             System.out
-                    .println("loc1: {" + loc1.getLatitudeAsDoubleValue() + "\u00B0, " + loc1.getLongitudeAsDoubleValue() + "\u00B0, " + loc1.getDepth() + "]");
+                    .println("loc1: {" + loc1.getLatitudeDegs() + "\u00B0, " + loc1.getLongitudeDegs() + "\u00B0, " + loc1.getDepth() + "]");
             System.out
-                    .println("loc2: {" + loc2.getLatitudeAsDoubleValue() + "\u00B0, " + loc2.getLongitudeAsDoubleValue() + "\u00B0, " + loc1.getDepth() + "]");
+                    .println("loc2: {" + loc2.getLatitudeDegs() + "\u00B0, " + loc2.getLongitudeDegs() + "\u00B0, " + loc1.getDepth() + "]");
 
             double[] diff1 = loc1.getOffsetFrom(loc2);
             NeptusLog.pub().info("loc1.getOffsetFrom(loc2)\t\t[" + diff1[0] + ", " + diff1[1] + ", " + diff1[2] + "]");
 
-            double[] neDiff = CoordinateUtil.latLonDiff(loc2.latitude, loc2.longitude, loc1.latitude, loc1.longitude);
+            double[] neDiff = CoordinateUtil.latLonDiff(loc2.getLatitudeDegs(), loc2.getLongitudeDegs(), loc1.getLatitudeDegs(), loc1.getLongitudeDegs());
             NeptusLog.pub().info("loc1.getOffsetFromWorker(loc2)\t\t[" + neDiff[0] + ", " + neDiff[1] + ", " + 0 + "]");
 
-            double[] locC1 = CoordinateUtil.latLonDepthToGeocentricXYZ(loc1.getLatitudeAsDoubleValue(), loc1.getLongitudeAsDoubleValue(), loc1.getDepth());
+            double[] locC1 = CoordinateUtil.latLonDepthToGeocentricXYZ(loc1.getLatitudeDegs(), loc1.getLongitudeDegs(), loc1.getDepth());
             NeptusLog.pub().info("latLonDepthToGeocentricXYZ:loc1 \t[[" + locC1[0] + ", " + locC1[1] + ", " + locC1[2] + "]]");
-            double[] locC2 = CoordinateUtil.latLonDepthToGeocentricXYZ(loc2.getLatitudeAsDoubleValue(), loc2.getLongitudeAsDoubleValue(), loc2.getDepth());
+            double[] locC2 = CoordinateUtil.latLonDepthToGeocentricXYZ(loc2.getLatitudeDegs(), loc2.getLongitudeDegs(), loc2.getDepth());
             NeptusLog.pub().info("latLonDepthToGeocentricXYZ:loc2 \t[[" + locC2[0] + ", " + locC2[1] + ", " + locC2[2] + "]]");
             double[] diff2 = { locC1[0] - locC2[0], locC1[1] - locC2[1], locC1[2] - locC2[2] };
             NeptusLog.pub().info("diff of latLonDepthToGeocentricXYZ \t[" + diff2[0] + ", \t" + diff2[1] + ", \t" + diff2[2] + "]");
             double ox = locC1[0] - locC2[0];
             double oy = locC1[1] - locC2[1];
             double oz = locC1[2] - locC2[2];
-            double slat = Math.sin(loc2.getLatitudeAsDoubleValueRads());
-            double clat = Math.cos(loc2.getLatitudeAsDoubleValueRads());
-            double slon = Math.sin(loc2.getLongitudeAsDoubleValueRads());
-            double clon = Math.cos(loc2.getLongitudeAsDoubleValueRads());
+            double slat = Math.sin(loc2.getLatitudeRads());
+            double clat = Math.cos(loc2.getLatitudeRads());
+            double slon = Math.sin(loc2.getLongitudeRads());
+            double clon = Math.cos(loc2.getLongitudeRads());
             double n = -slat * clon * ox - slat * slon * oy + clat * oz; // North
             double e = -slon * ox + clon * oy; // East
             NeptusLog.pub().info("diff similar to dune \t\t\t[" + n + ", \t" + e + ", \t" + 0 + "]");
 
             double[] locC3 = CoordinateUtil.WGS84displacement(loc2, loc1);
             NeptusLog.pub().info("WGS84displacement(loc2, loc1) \t\t[" + locC3[0] + ", \t" + locC3[1] + ", \t" + locC3[2] + "]");
-            double[] diffPx = MapTileUtil.getOffsetFrom(loc2.latitude, loc2.longitude, loc1.latitude, loc1.longitude);
+            double[] diffPx = MapTileUtil.getOffsetFrom(loc2.getLatitudeDegs(), loc2.getLongitudeDegs(), loc1.getLatitudeDegs(), loc1.getLongitudeDegs());
             NeptusLog.pub().info("MapTileUtil.getOffsetFrom(loc2, loc1) \t[" + diffPx[0] + ", \t" + diffPx[1] + ", \t" + 0 + "]");
 
             NeptusLog.pub().info("_______________________________________________________________________________");
@@ -1703,14 +1703,14 @@ public class CoordinateUtil {
 
 
         LocationType lt1 = new LocationType();
-        lt1.setLatitude(41);
-        lt1.setLongitude(-8);
+        lt1.setLatitudeDegs(41);
+        lt1.setLongitudeDegs(-8);
 
         lt1.translatePosition(340, 234, 23);
 
         LocationType lt2 = new LocationType();
-        lt2.setLatitude(42.655);
-        lt2.setLongitude(-8.0012);
+        lt2.setLatitudeDegs(42.655);
+        lt2.setLongitudeDegs(-8.0012);
 
         lt2.translatePosition(23, 34, 435);
 

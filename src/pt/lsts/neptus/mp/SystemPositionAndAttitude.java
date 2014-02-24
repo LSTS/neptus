@@ -79,8 +79,8 @@ public class SystemPositionAndAttitude implements Cloneable {
         EstimatedState estate = new EstimatedState();
         LocationType loc = new LocationType(getPosition());
         loc.convertToAbsoluteLatLonDepth();
-        estate.setLat(loc.getLatitudeAsDoubleValueRads());
-        estate.setLon(loc.getLongitudeAsDoubleValueRads());
+        estate.setLat(loc.getLatitudeRads());
+        estate.setLon(loc.getLongitudeRads());
         estate.setDepth(loc.getDepth());
         estate.setAlt(getAltitude());
         

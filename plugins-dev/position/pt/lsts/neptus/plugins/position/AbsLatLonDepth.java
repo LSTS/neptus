@@ -235,8 +235,8 @@ public class AbsLatLonDepth extends ConsolePanel implements ConfigurationListene
                 double lat = 0, lon = 0, depth = 0;
 
 		        if (mode == SYS) {
-		            lat = loc.getLatitudeAsDoubleValueRads();
-		            lon = loc.getLongitudeAsDoubleValueRads();
+		            lat = loc.getLatitudeRads();
+		            lon = loc.getLongitudeRads();
 		            depth = loc.getDepth();
 		        }
 

@@ -80,7 +80,6 @@ public class RevisionSidePanel extends JPanel {
     private Vector<Renderer2DPainter> painters = new Vector<>();    
     private IMraLogGroup logSource = null;
     private File logFile = null;
-    
 
     public void clearOverlays() {
         for (Renderer2DPainter painter : painters)
@@ -155,7 +154,7 @@ public class RevisionSidePanel extends JPanel {
             for (String name : PluginsRepository.getReplayLayers().keySet()) {
                 layers.add(PluginsRepository.getPlugin(name, LogReplayLayer.class));
             }
-           
+            
             for (LogReplayLayer layer : layers) {                         
                 if (layer.canBeApplied(source, Context.Console)) {
                     layer.parse(source);

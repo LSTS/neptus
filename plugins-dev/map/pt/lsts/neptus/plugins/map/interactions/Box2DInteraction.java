@@ -85,8 +85,8 @@ public class Box2DInteraction extends InteractionAdapter implements Renderer2DPa
         point1.convertToAbsoluteLatLonDepth();
         point2.convertToAbsoluteLatLonDepth();
         
-        double lat = (point1.getLatitudeAsDoubleValue() + point2.getLatitudeAsDoubleValue()) / 2;
-        double lon = (point1.getLongitudeAsDoubleValue() + point2.getLongitudeAsDoubleValue()) / 2;
+        double lat = (point1.getLatitudeDegs() + point2.getLatitudeDegs()) / 2;
+        double lon = (point1.getLongitudeDegs() + point2.getLongitudeDegs()) / 2;
         
         double offsets[] = point1.getOffsetFrom(point2);
         double width = Math.abs(offsets[1]);

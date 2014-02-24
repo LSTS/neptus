@@ -58,7 +58,6 @@ public class SimpleMapElement extends AbstractElement {
     public SimpleMapElement(MapGroup mg, MapType map) {
         super(mg, map);
         id = id.replaceFirst("obj", getType());
-        name = id;
     }
 
     public SimpleMapElement() {
@@ -75,7 +74,7 @@ public class SimpleMapElement extends AbstractElement {
         g.drawLine(-3, 0, 3, 0);
         g.drawLine(0, -3, 0, 3);
 
-        g.drawString(getName(), 6, 6);
+        g.drawString(getId(), 6, 6);
     }
 
     @Override

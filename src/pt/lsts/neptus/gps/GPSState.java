@@ -81,8 +81,8 @@ public class GPSState {
 	 */
 	public LocationType getCurrentLocation() {
 		LocationType lt = new LocationType();
-		lt.setLatitude(getLatitude());
-		lt.setLongitude(getLongitude());
+		lt.setLatitudeDegs(getLatitude());
+		lt.setLongitudeDegs(getLongitude());
 		lt.setHeight(getAltitude());
 		return lt;
 	}

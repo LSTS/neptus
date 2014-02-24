@@ -335,8 +335,8 @@ public class RectangleEditor extends JPanel implements Renderer2DPainter, StateR
 			depthSum += lld[2];
 		}
 		LocationType l = new LocationType();
-		l.setLatitude(latSum/points.length);
-		l.setLongitude(lonSum/points.length);
+		l.setLatitudeDegs(latSum/points.length);
+		l.setLongitudeDegs(lonSum/points.length);
 		l.setDepth(depthSum/points.length);
 		return l;
 	}

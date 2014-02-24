@@ -759,8 +759,8 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
             RowsManeuver rows = new RowsManeuver();
             rows.setSpeed(32);
             ManeuverLocation loc = new ManeuverLocation();
-            loc.setLatitude("41N11'6.139669166224781''");
-            loc.setLongitude("8W42'21.723814187086976''");
+            loc.setLatitudeStr("41N11'6.139669166224781''");
+            loc.setLongitudeStr("8W42'21.723814187086976''");
             rows.setManeuverLocation(loc);
             
             plan1.getGraph().addManeuver(rows);
@@ -798,11 +798,11 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         {
             //Double. 99 71  0c 54 87 00 e7 3f
             LocationType loc = new LocationType();
-            loc.setLatitude("41N11'6.139669166224781''");
-            loc.setLongitude("8W42'21.723814187086976''");
-            NeptusLog.pub().info("<###> "+loc.getLatitudeAsDoubleValue()  + "  " + loc.getLongitudeAsDoubleValue());
-            NeptusLog.pub().info("<###> "+Long.toHexString(Double.doubleToLongBits(loc.getLatitudeAsDoubleValueRads()))  + "  " + 
-                    Long.toHexString(Double.doubleToLongBits(loc.getLongitudeAsDoubleValueRads())));
+            loc.setLatitudeStr("41N11'6.139669166224781''");
+            loc.setLongitudeStr("8W42'21.723814187086976''");
+            NeptusLog.pub().info("<###> "+loc.getLatitudeDegs()  + "  " + loc.getLongitudeDegs());
+            NeptusLog.pub().info("<###> "+Long.toHexString(Double.doubleToLongBits(loc.getLatitudeRads()))  + "  " + 
+                    Long.toHexString(Double.doubleToLongBits(loc.getLongitudeRads())));
             NeptusLog.pub().info("<###> "+Double.longBitsToDouble(0x3fe70087540c7199L));
             NeptusLog.pub().info("<###> "+Double.longBitsToDouble(0x3fe70087540c719fL));
             

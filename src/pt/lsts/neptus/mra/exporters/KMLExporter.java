@@ -185,10 +185,10 @@ public class KMLExporter implements MRAExporter {
             ret += "\t\t\t\t<href>" + imageFile.getName() + "</href>\n";
             ret += "\t\t\t</Icon>\n";
             ret += "\t\t\t<LatLonBox>\n";
-            ret += "\t\t\t\t<north>" + ne.getLatitudeAsDoubleValue() + "</north>\n";
-            ret += "\t\t\t\t<south>" + sw.getLatitudeAsDoubleValue() + "</south>\n";
-            ret += "\t\t\t\t<east>" + ne.getLongitudeAsDoubleValue() + "</east>\n";
-            ret += "\t\t\t\t<west>" + sw.getLongitudeAsDoubleValue() + "</west>\n";
+            ret += "\t\t\t\t<north>" + ne.getLatitudeDegs() + "</north>\n";
+            ret += "\t\t\t\t<south>" + sw.getLatitudeDegs() + "</south>\n";
+            ret += "\t\t\t\t<east>" + ne.getLongitudeDegs() + "</east>\n";
+            ret += "\t\t\t\t<west>" + sw.getLongitudeDegs() + "</west>\n";
             ret += "\t\t\t\t<rotation>0</rotation>\n";
             ret += "\t\t\t</LatLonBox>\n";
             ret += "\t\t</GroundOverlay>\n";
@@ -211,7 +211,7 @@ public class KMLExporter implements MRAExporter {
 
         for (LocationType l : coords) {
             l.convertToAbsoluteLatLonDepth();
-            ret += l.getLongitudeAsDoubleValue() + "," + l.getLatitudeAsDoubleValue() + ",0\n";// -" + l.getDepth()+"\n";
+            ret += l.getLongitudeDegs() + "," + l.getLatitudeDegs() + ",0\n";// -" + l.getDepth()+"\n";
         }
         ret += "\t\t\t\t</coordinates>\n";
         ret += "\t\t\t</LineString>\n";
@@ -256,11 +256,11 @@ public class KMLExporter implements MRAExporter {
             il.saveToFile(new File(dir.getParentFile(), "sidescan.layer"));
             LocationType sw = new LocationType();
             LocationType ne = new LocationType();
-            sw.setLatitude(il.getBottomRight().getLatitude());
-            sw.setLongitude(il.getTopLeft().getLongitude());
+            sw.setLatitudeStr(il.getBottomRight().getLatitudeStr());
+            sw.setLongitudeStr(il.getTopLeft().getLongitudeStr());
 
-            ne.setLatitude(il.getTopLeft().getLatitude());
-            ne.setLongitude(il.getBottomRight().getLongitude());
+            ne.setLatitudeStr(il.getTopLeft().getLatitudeStr());
+            ne.setLongitudeStr(il.getBottomRight().getLongitudeStr());
 
             return overlay(new File(dir, "dvn.png"), "DVL Bathymetry mosaic", sw, ne);
         }
@@ -432,10 +432,10 @@ public class KMLExporter implements MRAExporter {
             ImageIO.write(img, "PNG", new File(dir, filename + ".png"));
             ImageLayer il = new ImageLayer("Sidescan mosaic from " + source.name(), img, topLeft, bottomRight);
             il.setTransparency(layerTransparency);
-            il.saveToFile(new File(dir.getParentFile(), filename + ".layer"));
-            return overlay(new File(dir, filename + ".png"), "Sidescan mosaic",
-                    new LocationType(bottomRight.getLatitudeAsDoubleValue(), topLeft.getLongitudeAsDoubleValue()),
-                    new LocationType(topLeft.getLatitudeAsDoubleValue(), bottomRight.getLongitudeAsDoubleValue()));
+            il.saveToFile(new File(dir.getParentFile(), "sidescan.layer"));
+            return overlay(new File(dir, "sidescan.png"), "Sidescan mosaic", 
+                    new LocationType(bottomRight.getLatitudeDegs(), topLeft.getLongitudeDegs()),
+                    new LocationType(topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs()));
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -596,13 +596,9 @@ public class KMLExporter implements MRAExporter {
             ImageLayer il = new ImageLayer("Bathymetry from " + source.name(), img, topLeft, bottomRight);
             il.saveToFile(new File(dir.getParentFile(), "multibeam.layer"));
 
-            return legend
-                    + overlay(
-                            new File(dir, "mb_bath2.png"),
-                            "Multibeam Bathymetry",
-                            new LocationType(bottomRight.getLatitudeAsDoubleValue(), topLeft
-                                    .getLongitudeAsDoubleValue()), new LocationType(topLeft.getLatitudeAsDoubleValue(),
-                                            bottomRight.getLongitudeAsDoubleValue()));
+            return legend+overlay(new File(dir, "mb_bath2.png"), "Multibeam Bathymetry", 
+                    new LocationType(bottomRight.getLatitudeDegs(), topLeft.getLongitudeDegs()),
+                    new LocationType(topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs()));
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -698,14 +694,15 @@ public class KMLExporter implements MRAExporter {
                     topLeft = new LocationType(loc);
                 }
 
-                if (loc.getLatitudeAsDoubleValue() < bottomRight.getLatitudeAsDoubleValue())
-                    bottomRight.setLatitude(loc.getLatitudeAsDoubleValue());
-                else if (loc.getLatitudeAsDoubleValue() > topLeft.getLatitudeAsDoubleValue())
-                    topLeft.setLatitude(loc.getLatitudeAsDoubleValue());
-                if (loc.getLongitudeAsDoubleValue() < topLeft.getLongitudeAsDoubleValue())
-                    topLeft.setLongitude(loc.getLongitudeAsDoubleValue());
-                else if (loc.getLongitudeAsDoubleValue() > bottomRight.getLongitudeAsDoubleValue())
-                    bottomRight.setLongitude(loc.getLongitudeAsDoubleValue());
+
+                if (loc.getLatitudeDegs() < bottomRight.getLatitudeDegs())
+                    bottomRight.setLatitudeDegs(loc.getLatitudeDegs());
+                else if (loc.getLatitudeDegs() > topLeft.getLatitudeDegs())
+                    topLeft.setLatitudeDegs(loc.getLatitudeDegs());
+                if (loc.getLongitudeDegs() < topLeft.getLongitudeDegs())
+                    topLeft.setLongitudeDegs(loc.getLongitudeDegs());
+                else if (loc.getLongitudeDegs() > bottomRight.getLongitudeDegs())
+                    bottomRight.setLongitudeDegs(loc.getLongitudeDegs());
 
                 states.add(loc);
             }
@@ -790,10 +787,7 @@ public class KMLExporter implements MRAExporter {
         System.out.println(loc1.getDistanceInMeters(loc2));
         System.out.println(loc2.getDistanceInMeters(loc1));
         double[] res1 = loc2.getOffsetFrom(loc1);
-
-        double[] res2 = WGS84Utilities.WGS84displacement(loc1.getLatitudeAsDoubleValue(),
-                loc1.getLongitudeAsDoubleValue(), 0, loc2.getLatitudeAsDoubleValue(), loc2.getLongitudeAsDoubleValue(),
-                0);
+        double[] res2 = WGS84Utilities.WGS84displacement(loc1.getLatitudeDegs(), loc1.getLongitudeDegs(), 0, loc2.getLatitudeDegs(), loc2.getLongitudeDegs(), 0);
         System.out.println(Math.sqrt(res2[0] * res2[0] + res2[1] * res2[1]));
         System.out.println(Math.sqrt(res1[0] * res1[0] + res1[1] * res1[1]));
     }

@@ -96,7 +96,6 @@ public class RevisionOverlays extends SimpleRendererInteraction {
         });
 
 
-
         if (sidePanel.getLogSource() != null) {
             popup.addSeparator();
 

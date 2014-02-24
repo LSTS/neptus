@@ -172,15 +172,17 @@ public class TransponderElement extends AbstractElement implements NameId{
         double lon = Math.toDegrees(lblBeacon.getLon());
         double depth = lblBeacon.getDepth();
         LocationType lt = new LocationType();
-        lt.setLatitude(lat);
-        lt.setLongitude(lon);
+        lt.setLatitudeDegs(lat);
+        lt.setLongitudeDegs(lon);
         lt.setDepth(depth);
-        setId(beacon);
-        setName(beacon);
+        id = beacon;
         setCenterLocation(lt);
         propConf = BeaconsConfig.getMatchingConf(lblBeacon);
         file = new FileType();
-        file.setHref(propConf.getWorkingFile());
+        String workingFile = propConf.getWorkingFile();
+        String[] tokens = workingFile.split("/");
+        NeptusLog.pub().error("Beacon conf file:" + tokens[tokens.length - 1]);
+        file.setHref(tokens[tokens.length - 1]);
         this.duneId = duneId;
     }
 
@@ -189,7 +191,7 @@ public class TransponderElement extends AbstractElement implements NameId{
         super(mg, parentMap);
         this.centerLocation = centerLocation;
         this.id = identification;
-        this.name = identification;
+        this.id = identification;
         this.propConf = propConf;
         file = new FileType();
         file.setHref(propConf.getWorkingFile());
@@ -240,8 +242,8 @@ public class TransponderElement extends AbstractElement implements NameId{
     public boolean equals(LblBeacon lblBeacon) {
         // Location
         LocationType lt = new LocationType();
-        lt.setLatitude(Math.toDegrees(lblBeacon.getDouble("lat")));
-        lt.setLongitude(Math.toDegrees(lblBeacon.getDouble("lon")));
+        lt.setLatitudeDegs(Math.toDegrees(lblBeacon.getDouble("lat")));
+        lt.setLongitudeDegs(Math.toDegrees(lblBeacon.getDouble("lon")));
         lt.setDepth(lblBeacon.getDouble("depth"));
         if(!getCenterLocation().equals(lt)){
             // System.out.print(lblBeacon.getBeacon() + " has different location that " + getIdentification());
@@ -324,7 +326,6 @@ public class TransponderElement extends AbstractElement implements NameId{
             fixPropertiesConfFormat();
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -385,22 +386,12 @@ public class TransponderElement extends AbstractElement implements NameId{
         this.buoyAttached = buoyAttached;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
-     */
     @Override
     public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asXML(rootElementName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
-     */
     @Override
     public String asXML(String rootElementName) {
         String result = "";
@@ -409,51 +400,32 @@ public class TransponderElement extends AbstractElement implements NameId{
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
-     */
+
     @Override
     public Element asElement() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asElement(rootElementName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
-     */
+
     @Override
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
-     */
+
     @Override
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
-     */
     @Override
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
-        // Element root = super.asElement(DEFAULT_ROOT_ELEMENT);
         Element root = (Element) super.asDocument(DEFAULT_ROOT_ELEMENT).getRootElement().detach();
         document.add(root);
 
-        // FIXME: Tratar disto
         root.add(getFile().asElement());
         root.addElement("buoy-attached").addText(new Boolean(isBuoyAttached()).toString());
 
@@ -510,7 +482,7 @@ public class TransponderElement extends AbstractElement implements NameId{
                 transponderImg.getWidth(null), transponderImg.getHeight(null), null);
 
         g.setColor(Color.WHITE);
-        g.drawString(getName(), 7, 16);
+        g.drawString(getId(), 7, 16);
 
     }
 
@@ -526,22 +498,9 @@ public class TransponderElement extends AbstractElement implements NameId{
         return transpondersListArray;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.Identifiable#getIdentification()
-     */
     @Override
     public String getDisplayName() {
-        // StringBuilder nameBuilder = new StringBuilder();
-        // if (duneId != -1) {
-        // nameBuilder.append("[");
-        // nameBuilder.append(duneId);
-        // nameBuilder.append("] ");
-        // nameBuilder.append(getIdentification());
-        // return nameBuilder.toString();
-        // }
-        // else {
         return name;
-        // }
     }
 
     @Override
@@ -590,10 +549,6 @@ public class TransponderElement extends AbstractElement implements NameId{
                 getIdentification(), propConf);
     }
 
-    @Override
-    public void setId(String id) {
 
-        super.setId(id);
-    }
 
 }

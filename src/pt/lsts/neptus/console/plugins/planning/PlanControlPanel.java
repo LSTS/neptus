@@ -121,8 +121,8 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
 
     private final ImageIcon ICON_BEACONS = ImageUtils
             .getIcon("images/planning/uploadBeacons.png");
-    private final ImageIcon ICON_BEACONS_ZERO = ImageUtils
-            .getIcon("images/planning/uploadBeaconsZero.png");
+    //private final ImageIcon ICON_BEACONS_ZERO = ImageUtils
+    //        .getIcon("images/planning/uploadBeaconsZero.png");
     private final ImageIcon ICON_UP = ImageUtils.getIcon("images/planning/up.png");
     private final ImageIcon ICON_DOWN_R = ImageUtils.getIcon("images/planning/fileimport.png");
     private final ImageIcon ICON_START = ImageUtils.getIcon("images/planning/start.png");
@@ -137,7 +137,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
     private final String startPlanStr = I18n.text("Start Plan");
     private final String stopPlanStr = I18n.text("Stop Plan");
     private final String sendAcousticBeaconsStr = I18n.text("Send Acoustic Beacons");
-    private final String sendAcousticBeaconsZeroStr = I18n.text("Clear Acoustic Beacons from Vehicle");
     private final String sendSelectedPlanStr = I18n.text("Send Selected Plan");
     private final String downloadActivePlanStr = I18n.text("Download Active Plan");
 
@@ -150,9 +149,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                     + "you can allways click Alt when sending the plan that this verification will run.")
     public boolean allwaysVerifyAllManeuversUsed = true;
 
-    //    @NeptusProperty(name = "Use Acoustic To Send Msg If System Not In WiFi Range", userLevel = LEVEL.ADVANCED, 
-    //            distribution = DistributionEnum.DEVELOPER)
-    //    public boolean useAcousticToSendMsgIfSystemNotInWiFiRange = true;
 
     @NeptusProperty(name = "Service name for acoustic message sending", userLevel = LEVEL.ADVANCED, 
             distribution = DistributionEnum.DEVELOPER)
@@ -194,11 +190,11 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
     private JPanel holder;
     private JLabel titleLabel;
     private JLabel planIdLabel;
-    private ToolbarButton selectionButton, sendAcousticsButton, sendAcousticsZeroButton, sendUploadPlanButton, sendDownloadPlanButton,
+    private ToolbarButton selectionButton, sendAcousticsButton, sendUploadPlanButton, sendDownloadPlanButton,
     sendStartButton, sendStopButton, teleOpButton;
 
     private SystemsSelectionAction selectionAction;
-    private AbstractAction sendAcousticsAction, sendAcousticsZeroAction, sendUploadPlanAction, sendDownloadPlanAction, sendStartAction,
+    private AbstractAction sendAcousticsAction, sendUploadPlanAction, sendDownloadPlanAction, sendStartAction,
     sendStopAction, teleOpAction;
 
     private int teleoperationManeuver = -1;
@@ -243,7 +239,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
 
         selectionButton = new ToolbarButton(selectionAction);
         sendAcousticsButton = new ToolbarButton(sendAcousticsAction);
-        sendAcousticsZeroButton = new ToolbarButton(sendAcousticsZeroAction);
         sendUploadPlanButton = new ToolbarButton(sendUploadPlanAction);
         sendDownloadPlanButton = new ToolbarButton(sendDownloadPlanAction);
         sendStartButton = new ToolbarButton(sendStartAction);
@@ -256,7 +251,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         holder.add(selectionButton);
         // holder.add(sendNavStartPointButton);
         holder.add(sendAcousticsButton);
-        holder.add(sendAcousticsZeroButton);
         holder.add(sendUploadPlanButton);
         // holder.add(sendDownloadPlanButton);
         holder.add(sendStartButton);
@@ -301,7 +295,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         }
         selectionButton.setVisible(enableSelectionButton && useFullMode);
         sendAcousticsButton.setVisible(enableBeaconsButton && useFullMode);
-        sendAcousticsZeroButton.setVisible(enableBeaconsButton && useFullMode);
     }
 
     /**
@@ -334,36 +327,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                             NeptusLog.pub().error(e);
                         }
                         sendAcousticsButton.setEnabled(true);
-                    }
-                };
-                sw.execute();
-            }
-        };
-
-        sendAcousticsZeroAction = new AbstractAction(sendAcousticBeaconsZeroStr, ICON_BEACONS_ZERO) {
-            @Override
-            public void actionPerformed(final ActionEvent ev) {
-                final Object action = getValue(Action.NAME);
-                SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
-                    @Override
-                    protected Void doInBackground() {
-                        NeptusLog.action().info(action);
-
-                        sendAcousticsZeroButton.setEnabled(false);
-                        sendAcoustics(true, getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
-
-                        return null;
-                    }
-
-                    @Override
-                    protected void done() {
-                        try {
-                            get();
-                        }
-                        catch (Exception e) {
-                            NeptusLog.pub().error(e);
-                        }
-                        sendAcousticsZeroButton.setEnabled(true);
                     }
                 };
                 sw.execute();
@@ -776,18 +739,16 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
             // Let us order the beacons in alphabetic order (case insensitive)
             TransponderUtils.orderTransponders(transpondersList);
 
-            TransponderElement[] selTransponders = getSelectedTransponderElementsOrderedFromExternalComponents();
+            TransponderElement[] selTransponders = getSelectedTransponderElementsFromExternalComponents();
             if (selTransponders.length > 0 && selTransponders.length < transpondersList.size()) {
                 String beaconsToSend = "";
                 boolean b = true;
                 for (TransponderElement tElnt : selTransponders) {
                     beaconsToSend += b ? "" : ", ";
-                    beaconsToSend += tElnt.getName();
+                    beaconsToSend += tElnt.getDisplayName();
                 }
-                int resp = GuiUtils.confirmDialog(SwingUtilities.windowForComponent(this),
-                        I18n.text("LBL Beacons"),
-                        I18n.textf("Are you sure you want to send only %beaconsToSend?",
-                                beaconsToSend));
+                int resp = GuiUtils.confirmDialog(SwingUtilities.windowForComponent(this), I18n.text("LBL Beacons"),
+                        I18n.textf("Are you sure you want to send only %beaconsToSend?", beaconsToSend));
 
                 if (resp == JOptionPane.YES_OPTION) {
                     transpondersList.clear();
@@ -830,9 +791,10 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         msgLBLConfiguration.setOp(LblConfig.OP.SET_CFG);
         msgLBLConfiguration.setBeacons(lblBeaconsList);
 
-        IMCSendMessageUtils.sendMessage(msgLBLConfiguration, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP
-                : null), createDefaultMessageDeliveryListener(), this, I18n.text("Error sending acoustic beacons"),
-                DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+        IMCSendMessageUtils.sendMessage(msgLBLConfiguration,
+                (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null), createDefaultMessageDeliveryListener(),
+                this, I18n.text("Error sending acoustic beacons"), DONT_USE_ACOUSTICS, acousticOpServiceName,
+                acousticOpUseOnlyActive, true, systems);
         // NeptusLog.pub().error("Sending beacons to vehicle: " + lblBeaconsList.toString());
 
         final String[] dest = systems;
@@ -850,9 +812,11 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                     // sys.removeData(ImcSystem.LBL_CONFIG_KEY);
                     // }
 
-                    IMCSendMessageUtils.sendMessage(msgLBLConfiguration, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP
-                            : null), createDefaultMessageDeliveryListener(), PlanControlPanel.this, I18n.text("Error sending acoustic beacons"),
-                            DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, dest);
+                    IMCSendMessageUtils.sendMessage(msgLBLConfiguration,
+                            (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null),
+                            createDefaultMessageDeliveryListener(), PlanControlPanel.this,
+                            I18n.text("Error sending acoustic beacons"), DONT_USE_ACOUSTICS, acousticOpServiceName,
+                            acousticOpUseOnlyActive, true, dest);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -1032,7 +996,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                 acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
 
         if (!ret) {
-            //            GuiUtils.errorMessage(this, I18n.text("Send Plan"), I18n.text("Error sending PlanControl message!"));
             post(Notification.error(I18n.text("Send Plan"), I18n.text("Error sending PlanControl message!")));
             return false;
         }
@@ -1089,14 +1052,12 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
      */
     protected boolean checkConditionToRun(Component component, boolean checkMission, boolean checkPlan) {
         if (!ImcMsgManager.getManager().isRunning()) {
-            //            GuiUtils.errorMessage(this, component.getName(), I18n.text("IMC comms. are not running!"));
             post(Notification.error(component.getName(), I18n.text("IMC comms. are not running!")));
             return false;
         }
 
         ConsoleLayout cons = getConsole();
         if (cons == null) {
-            //            GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing console attached!"));
             post(Notification.error(component.getName(), I18n.text("Missing console attached!")));
             return false;
         }
@@ -1104,7 +1065,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         if (checkMission) {
             MissionType miss = cons.getMission();
             if (miss == null) {
-                //                GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing attached mission!"));
                 post(Notification.error(component.getName(), I18n.text("Missing attached mission!")));
                 return false;
             }
@@ -1113,7 +1073,6 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         if (checkPlan) {
             PlanType[] plans = getSelectedPlansFromExternalComponents();
             if (plans == null || plans.length == 0) {
-                //                GuiUtils.errorMessage(this, component.getName(), I18n.text("Missing attached plan!"));
                 post(Notification.error(component.getName(), I18n.text("Missing attached plan!")));
                 return false;
             }
@@ -1137,22 +1096,12 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         }
     }
 
-    private TransponderElement[] getSelectedTransponderElementsOrderedFromExternalComponents() {
+    private TransponderElement[] getSelectedTransponderElementsFromExternalComponents() {
         if (getConsole() == null)
             return new TransponderElement[0];
         Vector<ITransponderSelection> psel = getConsole().getSubPanelsOfInterface(ITransponderSelection.class);
         Collection<TransponderElement> vecTrans = psel.get(0).getSelectedTransponders();
-        ArrayList<TransponderElement> tal = new ArrayList<>(vecTrans);
-        // Let us order the beacons in alphabetic order (case insensitive)
-        TransponderUtils.orderTransponders(tal);
-        //        Collections.sort(tal, new Comparator<TransponderElement>() {
-        //            @Override
-        //            public int compare(TransponderElement o1, TransponderElement o2) {
-        //                return o1.getId().compareToIgnoreCase(o2.getId());
-        //            }
-        //        });
-
-        return tal.toArray(new TransponderElement[vecTrans.size()]);
+        return vecTrans.toArray(new TransponderElement[vecTrans.size()]);
     }
 
     /**

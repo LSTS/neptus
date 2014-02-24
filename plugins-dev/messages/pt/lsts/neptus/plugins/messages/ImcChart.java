@@ -41,6 +41,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -61,7 +62,7 @@ public class ImcChart extends JPanel {
     protected int colorIndex = 0;
     protected ArrayList<String> messagesToDisplay = new ArrayList<String>();
     protected ArrayList<String> variablesToDisplay = new ArrayList<String>();
-    protected LinkedHashMap<Integer, String> aliases = new LinkedHashMap<Integer, String>();
+    protected Map<Integer, String> aliases = new LinkedHashMap<Integer, String>();
     protected ZoomableChart chart = new ZoomableChart();
     protected LinkedHashMap<String, Trace2DLtd> traces = new LinkedHashMap<String, Trace2DLtd>();
     protected JLabel title = new JLabel();
@@ -98,7 +99,7 @@ public class ImcChart extends JPanel {
     };
     
     
-    public ImcChart(String system, ArrayList<String> messageToDisplay, ArrayList<String> variableToDisplay, LinkedHashMap<Integer, String> aliases) {
+    public ImcChart(String system, ArrayList<String> messageToDisplay, ArrayList<String> variableToDisplay, Map<Integer, String> aliases) {
         messagesToDisplay.addAll(messageToDisplay);
         variablesToDisplay.addAll(variableToDisplay);
         this.aliases = aliases;

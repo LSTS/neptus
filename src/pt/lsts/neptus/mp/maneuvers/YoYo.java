@@ -372,8 +372,8 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
     	setPitchAngle((float)message.getDouble("pitch"));
     	
     	ManeuverLocation pos = new ManeuverLocation();
-    	pos.setLatitude(Math.toDegrees(message.getDouble("lat")));
-    	pos.setLongitude(Math.toDegrees(message.getDouble("lon")));
+    	pos.setLatitudeDegs(Math.toDegrees(message.getDouble("lat")));
+    	pos.setLongitudeDegs(Math.toDegrees(message.getDouble("lon")));
     	pos.setZ(message.getDouble("z"));
     	pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(message.getString("z_units")));
     	

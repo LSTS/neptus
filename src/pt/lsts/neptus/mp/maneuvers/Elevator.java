@@ -266,8 +266,8 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
         pt.lsts.imc.Elevator elevator = new pt.lsts.imc.Elevator();
 
         elevator.setTimeout(getMaxTime());
-        elevator.setLat(getManeuverLocation().getLatitudeAsDoubleValueRads());
-        elevator.setLon(getManeuverLocation().getLongitudeAsDoubleValueRads());
+        elevator.setLat(getManeuverLocation().getLatitudeRads());
+        elevator.setLon(getManeuverLocation().getLongitudeRads());
         elevator.setStartZ(startZ);
         elevator.setStartZUnits(startZUnits.toString());
         elevator.setEndZ(getManeuverLocation().getZ());
@@ -310,8 +310,8 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
         
         setMaxTime(elev.getTimeout());
         ManeuverLocation loc = new ManeuverLocation();
-        loc.setLatitude(Math.toDegrees(elev.getLat()));
-        loc.setLongitude(Math.toDegrees(elev.getLon()));
+        loc.setLatitudeDegs(Math.toDegrees(elev.getLat()));
+        loc.setLongitudeDegs(Math.toDegrees(elev.getLon()));
         loc.setZ(elev.getEndZ());
         NeptusLog.pub().info("<###> "+elev.getEndZUnits());
 //        loc.setZUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(elev.getEndZUnits().toString()));

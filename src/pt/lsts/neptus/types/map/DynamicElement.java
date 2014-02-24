@@ -290,8 +290,8 @@ public class DynamicElement extends MarkElement implements PropertiesProvider {
         
         LocationType lt = new LocationType(/*mission.getHomeRef()*/);
         //lt.setOffsetNorth(15);
-        lt.setLatitude("41N12.4827");
-        lt.setLongitude("8W32.0861");
+        lt.setLatitudeStr("41N12.4827");
+        lt.setLongitudeStr("8W32.0861");
         final DynamicElement dynElem = new DynamicElement();
         dynElem.setCenterLocation(lt);
         dynElem.setIdleTimeSecs(0);

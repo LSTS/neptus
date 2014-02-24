@@ -163,7 +163,7 @@ class RemotePositionHelper {
                 ImcSystem sys = ImcSystemsHolder.lookupSystemByName(id);
                 if (sys != null) {
                     if ((System.currentTimeMillis() - time < DateTimeUtil.MINUTE * 10) && sys.getLocationTimeMillis() < time) {
-                        if (coordinateSystem.getLatitudeAsDoubleValue() != 0d && coordinateSystem.getLongitudeAsDoubleValue() != 0d) {
+                        if (coordinateSystem.getLatitudeDegs() != 0d && coordinateSystem.getLongitudeDegs() != 0d) {
                             sys.setLocation(coordinateSystem, time);
                             
                             if (coordinateSystem.getRoll() != 0d && coordinateSystem.getPitch() != 0d
@@ -183,7 +183,7 @@ class RemotePositionHelper {
                         registerNewExternal = true;
                     }
                     if ((System.currentTimeMillis() - time < DateTimeUtil.MINUTE * 10) && ext.getLocationTimeMillis() < time) {
-                        if (coordinateSystem.getLatitudeAsDoubleValue() != 0d && coordinateSystem.getLongitudeAsDoubleValue() != 0d) {
+                        if (coordinateSystem.getLatitudeDegs() != 0d && coordinateSystem.getLongitudeDegs() != 0d) {
                             ext.setLocation(coordinateSystem, time);
                             
                             if (coordinateSystem.getRoll() != 0d && coordinateSystem.getPitch() != 0d

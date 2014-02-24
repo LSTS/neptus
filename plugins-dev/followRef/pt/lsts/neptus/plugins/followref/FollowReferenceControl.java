@@ -154,8 +154,8 @@ public class FollowReferenceControl extends SimpleRendererInteraction implements
             loc.translatePosition(lastState.getX(), lastState.getY(), 0);
 
             loc.convertToAbsoluteLatLonDepth();
-            ref.setLat(loc.getLatitudeAsDoubleValueRads());
-            ref.setLon(loc.getLongitudeAsDoubleValueRads());
+            ref.setLat(loc.getLatitudeRads());
+            ref.setLon(loc.getLongitudeRads());
             double z = depth;
             Z_UNITS units = Z_UNITS.DEPTH;
             if (z < 0) {
@@ -220,8 +220,8 @@ public class FollowReferenceControl extends SimpleRendererInteraction implements
         double dist = pressed.getPixelDistanceTo(refLoc, source.getLevelOfDetail());
         if (dist < radius) {
             movingReference = true;
-            ref.setLat(pressed.getLatitudeAsDoubleValueRads());
-            ref.setLon(pressed.getLongitudeAsDoubleValueRads());
+            ref.setLat(pressed.getLatitudeRads());
+            ref.setLon(pressed.getLongitudeRads());
             source.repaint();
         }        
         else {
@@ -241,8 +241,8 @@ public class FollowReferenceControl extends SimpleRendererInteraction implements
             super.mouseDragged(event, source);
         else {
             LocationType pressed = source.getRealWorldLocation(event.getPoint());
-            ref.setLat(pressed.getLatitudeAsDoubleValueRads());
-            ref.setLon(pressed.getLongitudeAsDoubleValueRads());
+            ref.setLat(pressed.getLatitudeRads());
+            ref.setLon(pressed.getLongitudeRads());
             source.repaint();
         }
     }
@@ -295,8 +295,8 @@ public class FollowReferenceControl extends SimpleRendererInteraction implements
                     public void actionPerformed(ActionEvent e) {
                         LocationType loc = source.getRealWorldLocation(event.getPoint());                        
                         loc.convertToAbsoluteLatLonDepth();
-                        ref.setLat(loc.getLatitudeAsDoubleValueRads());
-                        ref.setLon(loc.getLongitudeAsDoubleValueRads());
+                        ref.setLat(loc.getLatitudeRads());
+                        ref.setLon(loc.getLongitudeRads());
                         source.repaint();
                     }
                 });    

@@ -774,10 +774,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         uri = uri.replace("#FROM_TIME#", timeFormaterUTC.format(tillDate));
         uri = uri.replace("#TO_DATE#", dateFormaterUTC.format(nowDate));
         uri = uri.replace("#TO_TIME#", timeFormaterUTC.format(nowDate));
-        uri = uri.replace("#LAT1#", "" + lTop.getLatitudeAsDoubleValue());
-        uri = uri.replace("#LNG1#", "" + lTop.getLongitudeAsDoubleValue());
-        uri = uri.replace("#LAT2#", "" + lBot.getLatitudeAsDoubleValue());
-        uri = uri.replace("#LNG2#", "" + lBot.getLongitudeAsDoubleValue());
+        uri = uri.replace("#LAT1#", "" + lTop.getLatitudeDegs());
+        uri = uri.replace("#LNG1#", "" + lTop.getLongitudeDegs());
+        uri = uri.replace("#LAT2#", "" + lBot.getLatitudeDegs());
+        uri = uri.replace("#LNG2#", "" + lBot.getLongitudeDegs());
         return uri;
     }
 
@@ -869,8 +869,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(headingV))
                 continue;
             
-            loc.setLatitude(latV);
-            loc.setLongitude(lonV);
+            loc.setLatitudeDegs(latV);
+            loc.setLongitudeDegs(lonV);
             
             Point2D pt = renderer.getScreenPosition(loc);
 
@@ -921,8 +921,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(sstV))
                 continue;
             
-            loc.setLatitude(latV);
-            loc.setLongitude(lonV);
+            loc.setLatitudeDegs(latV);
+            loc.setLongitudeDegs(lonV);
             
             Point2D pt = renderer.getScreenPosition(loc);
 
@@ -975,8 +975,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             if (Double.isNaN(latV) || Double.isNaN(lonV) || Double.isNaN(speedV)|| Double.isNaN(headingV))
                 continue;
             
-            loc.setLatitude(latV);
-            loc.setLongitude(lonV);
+            loc.setLatitudeDegs(latV);
+            loc.setLongitudeDegs(lonV);
             
             Point2D pt = renderer.getScreenPosition(loc);
 
@@ -1073,8 +1073,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                     || Double.isNaN(periodV))
                 continue;
             
-            loc.setLatitude(latV);
-            loc.setLongitude(lonV);
+            loc.setLatitudeDegs(latV);
+            loc.setLongitudeDegs(lonV);
             
             Point2D pt = renderer.getScreenPosition(loc);
 

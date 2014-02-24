@@ -86,8 +86,8 @@ public class SidescanTile {
         DataOutputStream dos = new DataOutputStream(output);
         dos.writeInt(version);
         downCenter.convertToAbsoluteLatLonDepth();
-        dos.writeDouble(downCenter.getLatitudeAsDoubleValue());
-        dos.writeDouble(downCenter.getLongitudeAsDoubleValue());
+        dos.writeDouble(downCenter.getLatitudeDegs());
+        dos.writeDouble(downCenter.getLongitudeDegs());
         dos.writeDouble(rotation);
         dos.writeDouble(width);
         dos.writeDouble(length);

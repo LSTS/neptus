@@ -111,7 +111,7 @@ public class GeoQuadTree<O> {
         
         LocationType loc = s.getPose().getPosition();
         
-        if(loc.getLatitudeAsDoubleValue() < maxLat && loc.getLatitudeAsDoubleValue() > minLat && loc.getLongitudeAsDoubleValue() < maxLon && loc.getLongitudeAsDoubleValue() > minLon) {
+        if(loc.getLatitudeDegs() < maxLat && loc.getLatitudeDegs() > minLat && loc.getLongitudeDegs() < maxLon && loc.getLongitudeDegs() > minLon) {
             return true;
         }
         return false;

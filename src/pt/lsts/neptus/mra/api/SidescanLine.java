@@ -82,8 +82,8 @@ public class SidescanLine {
 
         LocationType location = new LocationType();
         // Set the System lat/lon as the center point
-        location.setLatitude(state.getPosition().getLatitude());
-        location.setLongitude(state.getPosition().getLongitude());
+        location.setLatitudeStr(state.getPosition().getLatitudeStr());
+        location.setLongitudeStr(state.getPosition().getLongitudeStr());
 
         double distance = x * (range * 2 / xsize) - (range);
         // double distance2 = (x - xsize / 2 ) * range;
