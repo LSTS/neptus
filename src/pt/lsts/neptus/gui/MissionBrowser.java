@@ -461,7 +461,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 else if (startLocs.length == 0) {
                     try {
                         pivot = getMap(mission);
-                        start.setId("start");
+                        start.setName("start");
                         start.setParentMap(pivot);
                         start.setMapGroup(pivot.getMapGroup());
                         pivot.addObject(start);
@@ -1108,6 +1108,27 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 // NeptusLog.pub().error(" --- ");
                 repaint();
             }
+
+//            private String printBeacons(final Vector<LblBeacon> remoteTrans) {
+//                short id = 0;
+//                StringBuilder remotes = new StringBuilder(remoteTrans.size() + " trans in ImcSystem: ");
+//                for (LblBeacon lblBeacon : remoteTrans) {
+//                    remotes.append("[");
+//                    remotes.append(id);
+//                    remotes.append("] ");
+//                    remotes.append(lblBeacon.getBeacon());
+//                    remotes.append(" ( query: ");
+//                    remotes.append(lblBeacon.getQueryChannel());
+//                    remotes.append(", reply: ");
+//                    remotes.append(lblBeacon.getReplyChannel());
+//                    remotes.append(", delay:");
+//                    remotes.append(lblBeacon.getTransponderDelay());
+//                    remotes.append(")\n         ");
+//                    id++;
+//                }
+//                return remotes.toString();
+//            }
+
         });
     }
 
