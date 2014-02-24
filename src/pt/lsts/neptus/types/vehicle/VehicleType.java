@@ -62,6 +62,8 @@ import pt.lsts.neptus.types.comm.CommMean;
 import pt.lsts.neptus.types.comm.protocol.AdjustTimeShellArgs;
 import pt.lsts.neptus.types.comm.protocol.FTPArgs;
 import pt.lsts.neptus.types.comm.protocol.IMCArgs;
+import pt.lsts.neptus.types.comm.protocol.GsmArgs;
+import pt.lsts.neptus.types.comm.protocol.IridiumArgs;
 import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.misc.FileType;
@@ -360,6 +362,16 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 else if (nodeName.equalsIgnoreCase(AdjustTimeShellArgs.DEFAULT_ROOT_ELEMENT)) {
                     AdjustTimeShellArgs adjTimeParam = new AdjustTimeShellArgs(ndP.asXML());
                     protocolsArgs.put(AdjustTimeShellArgs.DEFAULT_ROOT_ELEMENT, adjTimeParam);
+                }
+                else if (nodeName.equalsIgnoreCase("gsm")) {
+                    GsmArgs gsmArgs = new GsmArgs();
+                    gsmArgs.load(ndP.asXML());
+                    protocolsArgs.put(CommMean.GSM, gsmArgs);
+                }
+                else if (nodeName.equalsIgnoreCase("iridium")) {
+                    IridiumArgs iridiumArgs = new IridiumArgs();
+                    iridiumArgs.load(ndP.asXML());
+                    protocolsArgs.put(CommMean.IRIDIUM, iridiumArgs);
                 }
             }
 
