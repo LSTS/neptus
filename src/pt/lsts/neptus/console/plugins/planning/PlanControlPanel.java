@@ -739,18 +739,16 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
             // Let us order the beacons in alphabetic order (case insensitive)
             TransponderUtils.orderTransponders(transpondersList);
 
-            TransponderElement[] selTransponders = getSelectedTransponderElementsOrderedFromExternalComponents();
+            TransponderElement[] selTransponders = getSelectedTransponderElementsFromExternalComponents();
             if (selTransponders.length > 0 && selTransponders.length < transpondersList.size()) {
                 String beaconsToSend = "";
                 boolean b = true;
                 for (TransponderElement tElnt : selTransponders) {
                     beaconsToSend += b ? "" : ", ";
-                    beaconsToSend += tElnt.getId();
+                    beaconsToSend += tElnt.getDisplayName();
                 }
-                int resp = GuiUtils.confirmDialog(SwingUtilities.windowForComponent(this),
-                        I18n.text("LBL Beacons"),
-                        I18n.textf("Are you sure you want to send only %beaconsToSend?",
-                                beaconsToSend));
+                int resp = GuiUtils.confirmDialog(SwingUtilities.windowForComponent(this), I18n.text("LBL Beacons"),
+                        I18n.textf("Are you sure you want to send only %beaconsToSend?", beaconsToSend));
 
                 if (resp == JOptionPane.YES_OPTION) {
                     transpondersList.clear();
@@ -793,9 +791,10 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         msgLBLConfiguration.setOp(LblConfig.OP.SET_CFG);
         msgLBLConfiguration.setBeacons(lblBeaconsList);
 
-        IMCSendMessageUtils.sendMessage(msgLBLConfiguration, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP
-                : null), createDefaultMessageDeliveryListener(), this, I18n.text("Error sending acoustic beacons"),
-                DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+        IMCSendMessageUtils.sendMessage(msgLBLConfiguration,
+                (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null), createDefaultMessageDeliveryListener(),
+                this, I18n.text("Error sending acoustic beacons"), DONT_USE_ACOUSTICS, acousticOpServiceName,
+                acousticOpUseOnlyActive, true, systems);
         // NeptusLog.pub().error("Sending beacons to vehicle: " + lblBeaconsList.toString());
 
         final String[] dest = systems;
@@ -813,9 +812,11 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                     // sys.removeData(ImcSystem.LBL_CONFIG_KEY);
                     // }
 
-                    IMCSendMessageUtils.sendMessage(msgLBLConfiguration, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP
-                            : null), createDefaultMessageDeliveryListener(), PlanControlPanel.this, I18n.text("Error sending acoustic beacons"),
-                            DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, dest);
+                    IMCSendMessageUtils.sendMessage(msgLBLConfiguration,
+                            (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null),
+                            createDefaultMessageDeliveryListener(), PlanControlPanel.this,
+                            I18n.text("Error sending acoustic beacons"), DONT_USE_ACOUSTICS, acousticOpServiceName,
+                            acousticOpUseOnlyActive, true, dest);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -1095,16 +1096,12 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         }
     }
 
-    private TransponderElement[] getSelectedTransponderElementsOrderedFromExternalComponents() {
+    private TransponderElement[] getSelectedTransponderElementsFromExternalComponents() {
         if (getConsole() == null)
             return new TransponderElement[0];
         Vector<ITransponderSelection> psel = getConsole().getSubPanelsOfInterface(ITransponderSelection.class);
         Collection<TransponderElement> vecTrans = psel.get(0).getSelectedTransponders();
-        ArrayList<TransponderElement> tal = new ArrayList<>(vecTrans);
-        // Let us order the beacons in alphabetic order (case insensitive)
-        TransponderUtils.orderTransponders(tal);
-
-        return tal.toArray(new TransponderElement[vecTrans.size()]);
+        return vecTrans.toArray(new TransponderElement[vecTrans.size()]);
     }
 
     /**

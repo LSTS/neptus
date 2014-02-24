@@ -175,7 +175,7 @@ public class TransponderElement extends AbstractElement implements NameId{
         lt.setLatitudeDegs(lat);
         lt.setLongitudeDegs(lon);
         lt.setDepth(depth);
-        setId(beacon);
+        id = beacon;
         setCenterLocation(lt);
         propConf = BeaconsConfig.getMatchingConf(lblBeacon);
         file = new FileType();
@@ -549,10 +549,6 @@ public class TransponderElement extends AbstractElement implements NameId{
                 getIdentification(), propConf);
     }
 
-    @Override
-    public void setId(String id) {
 
-        super.setId(id);
-    }
 
 }
