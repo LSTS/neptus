@@ -648,6 +648,13 @@ public abstract class AbstractElement
     }
 
     /**
+     * @param id the id to set
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
      * Returns the result of getName() - the default implementation returns the
      * field <b>name</b>
      */
