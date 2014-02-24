@@ -100,8 +100,8 @@ public abstract class AbstractElement
    
     protected Document doc = null;
     
-    protected String id = NameNormalizer.getRandomID("me"); // "obj_"+System.currentTimeMillis()+rnd.nextInt(100);
-    //protected String id = name;
+    protected String name = NameNormalizer.getRandomID("me"); // "obj_"+System.currentTimeMillis()+rnd.nextInt(100);
+    protected String id = name;
 
     // ===== Old MapObject
     protected boolean selected = false;
@@ -117,7 +117,7 @@ public abstract class AbstractElement
     protected JDialog dialog;
     protected JCheckBox obstacleCheck, hiddenCheck;
     private boolean obstacle;
-    protected JTextField objID, transp;
+    protected JTextField objName, transp;
     // ===== END Param panels
 
     // ===== Abstract functions
@@ -644,7 +644,7 @@ public abstract class AbstractElement
      */
     @Override
     public String toString() {
-        return getId();
+        return name;
     }
 
 	public boolean isSelected() {
@@ -666,19 +666,19 @@ public abstract class AbstractElement
         
         if ("add".equals(action.getActionCommand())) {
             
-            if (!NameNormalizer.isNeptusValidIdentifier(objID.getText())) {
+            if (!NameNormalizer.isNeptusValidIdentifier(objName.getText())) {
                 JOptionPane.showMessageDialog(paramsPanel, I18n.text("The object identifier is not valid"));
                 return;
             }
             
-            if (objID.getText().length() == 0) {
+            if (objName.getText().length() == 0) {
                 JOptionPane.showMessageDialog(paramsPanel, I18n.text("The object has to have a name"));
                 return;
             }
 
-            if (!objID.getText().equals(id) && takenNames != null) {
+            if (!objName.getText().equals(id) && takenNames != null) {
                 for (int i = 0; i < takenNames.length; i++) {
-                    if (takenNames[i].equals(objID.getText())) {
+                    if (takenNames[i].equals(objName.getText())) {
                         JOptionPane.showMessageDialog(paramsPanel, I18n.text("The entered identifier is already in use"));
                         return;
                     }
@@ -694,7 +694,7 @@ public abstract class AbstractElement
             
             setObstacle(obstacleCheck.isSelected());
             transparency = hiddenCheck.isSelected() ? 100 : 0;
-            setId(objID.getText());
+            setId(objName.getText());
             initialize(paramsPanel);
             
             dialog.setVisible(false);
@@ -735,23 +735,23 @@ public abstract class AbstractElement
         idPanel.setLayout(flow);
  
         
-        objID = new JTextField(8);
-        objID.setEditable(editable);
-        objID.setText(this.getId());
+        objName = new JTextField(8);
+        objName.setEditable(editable);
+        objName.setText(this.getId());
         obstacleCheck = new JCheckBox(I18n.text("Obstacle"));
         obstacleCheck.setSelected(isObstacle());
         
         hiddenCheck = new JCheckBox(I18n.text("Hidden"));
         hiddenCheck.setSelected(transparency >= 100);
-        idPanel.add(new JLabel(I18n.text("Object ID:")));
-        idPanel.add(objID);
+        idPanel.add(new JLabel(I18n.text("Object Name:")));
+        idPanel.add(objName);
         idPanel.add(obstacleCheck);
         idPanel.add(hiddenCheck);
         
         
         if (takenNames == null) {
-            objID.setEnabled(false);
-            objID.setText(this.getId());
+            objName.setEnabled(false);
+            objName.setText(this.getId());
         }
 
         JPanel buttonsPanel = new JPanel();
