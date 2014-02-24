@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.spot;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.TreeSet;
@@ -40,8 +41,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import pt.lsts.neptus.NeptusLog;
 
@@ -51,7 +54,10 @@ import pt.lsts.neptus.NeptusLog;
  */
 public class SpotMsgFetcher {
     // private static final String id = "LSTSSPOT";
-    private static final String pageUrl = "http://share.findmespot.com/messageService/guestlinkservlet?glId=0eFbYotphiMKz9YiDOI7XqR76JJ010Z0X&completeXml=true";
+    // private static final String pageUrl =
+    // "http://share.findmespot.com/messageService/guestlinkservlet?glId=0eFbYotphiMKz9YiDOI7XqR76JJ010Z0X&completeXml=true";
+    // TODO different url
+    private static final String pageUrl = "https://api.findmespot.com/spot-main-web/consumer/rest-api/2.0/public/feed/0eFbYotphiMKz9YiDOI7XqR76JJ010Z0X/message.xml";
 
     /**
      * Get messages on SPOT page.
@@ -74,51 +80,95 @@ public class SpotMsgFetcher {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         try {
-            Document doc = db.parse(pageUrl);
+            // Document doc = db.parse(pageUrl);
+            // TODO Error with first char being space
+            File file = new File("/home/meg/LSTS/spot.xml");
+            Document doc = db.parse(file);
             NodeList nlist = doc.getFirstChild().getChildNodes();
-
             // go through messages
-            for (int i = 1; i < nlist.getLength(); i++) {
-                String tagName = nlist.item(i).getNodeName();
-                if (tagName.equals("message")) {
-                    double lat = 0, lon = 0;
-                    String id = "_";
-                    long timestamp = System.currentTimeMillis();
-
-                    // go through message elements
-                    NodeList elems = nlist.item(i).getChildNodes();
-                    for (int j = 0; j < elems.getLength(); j++) {
-                        String tag = elems.item(j).getNodeName();
-
-                        if (tag.equals("latitude"))
-                            lat = Double.parseDouble(elems.item(j).getTextContent());
-                        else if (tag.equals("longitude"))
-                            lon = Double.parseDouble(elems.item(j).getTextContent());
-                        else if (tag.equals("esnName"))
-                            id = elems.item(j).getTextContent();
-                        else if (tag.equals("timeInGMTSecond")) {
-                            timestamp = Long.parseLong(elems.item(j).getTextContent()); // seconds
+            // TODO Different structure
+            if (nlist.getLength() == 1) {
+                Node feedMsgResp = nlist.item(0);
+                String tagName = feedMsgResp.getNodeName();
+                if (tagName.equals("feedMessageResponse")) {
+                    nlist = feedMsgResp.getChildNodes();
+                    if (nlist.getLength() == 5) {
+                        for (int i = 1; i < nlist.getLength(); i++) {
+                            Node messages = nlist.item(i);
+                            tagName = messages.getNodeName();
+                            if (tagName.equals("messages")) {
+                                nlist = messages.getChildNodes();
+                                for (int m = 1; m < nlist.getLength(); m++) {
+                                    tagName = nlist.item(m).getNodeName();
+                                    if (tagName.equals("message")) {
+                                        // TODO this is the same
+                                        processMsg(startOfTimeWindowSecs, msgBySpot, nlist, m);
+                                    }
+                                }
+                            }
                         }
                     }
-
-                    // only add messages within time window
-                    if (timestamp > startOfTimeWindowSecs) {
-                        spotMsgTree = msgBySpot.get(id);
-                        if (spotMsgTree == null) {
-                            spotMsgTree = new TreeSet<SpotMessage>();
-                            msgBySpot.put(id, spotMsgTree);
-                        }
-                        // Spot.log.debug("Adding " + id + " " + timestamp + " @ (" + lat + ", " + lon + ")");
-                        spotMsgTree.add(new SpotMessage(lat, lon, timestamp, id));
-
+                    else {
+                        // Bad xml
+                        NeptusLog.pub().error("Unexpected element number in xml structure level 2.");
                     }
                 }
+                else {
+                    // Bad xml
+                    NeptusLog.pub().error("Unexpected element at xml structure level 1.");
+                }
             }
+            else {
+                // Bad xml
+                NeptusLog.pub().error("Unexpected root elements");
+            }
+
+
+        }
+        catch (SAXParseException e) {
+            NeptusLog.pub().warn("Error parsing xml!");
         }
         catch (Exception e) {
             NeptusLog.pub().warn("Error getting SPOT info!");
         }
         return msgBySpot;
+    }
+
+    private static void processMsg(long startOfTimeWindowSecs, HashMap<String, TreeSet<SpotMessage>> msgBySpot,
+            NodeList nlist, int i) {
+        TreeSet<SpotMessage> spotMsgTree;
+        double lat = 0, lon = 0;
+        String id = "_";
+        long timestamp = System.currentTimeMillis();
+
+        // go through message elements
+        NodeList elems = nlist.item(i).getChildNodes();
+        for (int j = 0; j < elems.getLength(); j++) {
+            String tag = elems.item(j).getNodeName();
+
+            if (tag.equals("latitude"))
+                lat = Double.parseDouble(elems.item(j).getTextContent());
+            else if (tag.equals("longitude"))
+                lon = Double.parseDouble(elems.item(j).getTextContent());
+            else if (tag.equals("messengerName"))
+                id = elems.item(j).getTextContent();
+            else if (tag.equals("unixTime")) {
+                timestamp = Long.parseLong(elems.item(j).getTextContent()); // seconds
+            }
+        }
+
+        // only add messages within time window
+        if (timestamp > startOfTimeWindowSecs) {
+            spotMsgTree = msgBySpot.get(id);
+            if (spotMsgTree == null) {
+                spotMsgTree = new TreeSet<SpotMessage>();
+                msgBySpot.put(id, spotMsgTree);
+            }
+            Spot.log.debug("Adding " + id + " " + timestamp + " @ (" + lat + ", " + lon
+                    + ")");
+            spotMsgTree.add(new SpotMessage(lat, lon, timestamp, id));
+
+        }
     }
 
 }
