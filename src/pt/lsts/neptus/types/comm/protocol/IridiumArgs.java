@@ -35,12 +35,20 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
+
 /**
  * @author zp
  *
  */
-public class IridiumArgs extends ProtocolArgs {
+public class IridiumArgs extends ProtocolArgs implements PropertiesProvider {
 
+    @NeptusProperty
     private String imei = "";
     
     @Override
@@ -77,4 +85,25 @@ public class IridiumArgs extends ProtocolArgs {
     public void setImei(String imei) {
         this.imei = imei;
     }    
+    
+    @Override
+    public DefaultProperty[] getProperties() {
+        return PluginUtils.getPluginProperties(this);
+    }
+    
+    
+    @Override
+    public String getPropertiesDialogTitle() {
+        return "Iridium parameters";
+    }
+    
+    @Override
+    public String[] getPropertiesErrors(Property[] properties) {
+        return PluginUtils.validatePluginProperties(this, properties);
+    }
+    
+    @Override
+    public void setProperties(Property[] properties) {
+        PluginUtils.setPluginProperties(this, properties);
+    }
 }

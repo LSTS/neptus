@@ -20,7 +20,6 @@
         <g>32</g>
         <b>32</b>
       </icon-color>
-    </appearance>
     <coordinate-system-label>SNAME</coordinate-system-label>
   </properties>
   <feasibleManeuvers>
@@ -381,6 +380,12 @@
         <use-2-digit-year>false</use-2-digit-year>
         <use-hwclock>false</use-hwclock>
       </time-shell>
+      <gsm>
+      	<number>+351925978180</number>
+      </gsm>
+      <iridium>
+        <imei>300234060567650</imei>
+      </iridium>
     </protocols-args>
   </protocols-supported>
   <communication-means>
