@@ -75,8 +75,8 @@ public abstract class AbstractTextCommand implements ITextCommand {
             if (p.getType() == LocationType.class) {
                 LocationType loc = (LocationType)p.getValue();
                 loc.convertToAbsoluteLatLonDepth();
-                ret +="lat="+GuiUtils.getNeptusDecimalFormat(8).format(loc.getLatitudeAsDoubleValue());
-                ret +=";lon="+GuiUtils.getNeptusDecimalFormat(8).format(loc.getLongitudeAsDoubleValue());
+                ret +="lat="+GuiUtils.getNeptusDecimalFormat(8).format(loc.getLatitudeDegs());
+                ret +=";lon="+GuiUtils.getNeptusDecimalFormat(8).format(loc.getLongitudeDegs());
             }
             else
                 ret += p.getName()+"="+p.getValue();
