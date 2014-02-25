@@ -237,7 +237,7 @@ For simple use the main targets are:
 	<!-- Default target                                                      -->
 	<!-- =================================================================== -->
 	<target name="default" description="Default target to make the WC runnable."
-			depends="generate-all-necessary-missing-files">
+			depends="clean, generate-all-necessary-missing-files">
 	</target>
 
 	<target name="generate-all-necessary-missing-files"
