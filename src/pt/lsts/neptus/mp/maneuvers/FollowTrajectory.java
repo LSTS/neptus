@@ -645,8 +645,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     public void parseIMCMessage(IMCMessage message) {
         setMaxTime(message.getAsNumber("timeout").intValue());
         startLoc = new ManeuverLocation();
-        startLoc.setLatitudeDegs(Math.toDegrees(message.getDouble("lat")));
-        startLoc.setLongitudeDegs(Math.toDegrees(message.getDouble("lon")));
+        startLoc.setLatitudeRads(message.getDouble("lat"));
+        startLoc.setLongitudeRads(message.getDouble("lon"));
         startLoc.setZ(message.getDouble("z"));
         String units = message.getString("z_units");
         if (units != null)

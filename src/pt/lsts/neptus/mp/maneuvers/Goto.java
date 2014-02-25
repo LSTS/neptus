@@ -50,6 +50,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NameNormalizer;
 
@@ -363,8 +364,8 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
                     break;
             }
             ManeuverLocation pos = new ManeuverLocation();
-            pos.setLatitudeDegs(Math.toDegrees(msg.getLat()));
-            pos.setLongitudeDegs(Math.toDegrees(msg.getLon()));
+            pos.setLatitudeRads(msg.getLat());
+            pos.setLongitudeRads(msg.getLon());
             pos.setZ(msg.getZ());
             pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(msg.getZUnits().toString()));
             setManeuverLocation(pos);
@@ -383,11 +384,11 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	public IMCMessage serializeToIMC() {
 		pt.lsts.imc.Goto gotoManeuver = new pt.lsts.imc.Goto();
 		gotoManeuver.setTimeout(this.getMaxTime());
+		LocationType l = getManeuverLocation();
+		l.convertToAbsoluteLatLonDepth();
 		
-		double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
-		
-		gotoManeuver.setLat(Math.toRadians(latLonDepth[0]));
-		gotoManeuver.setLon(Math.toRadians(latLonDepth[1]));
+		gotoManeuver.setLat(l.getLatitudeRads());
+		gotoManeuver.setLon(l.getLongitudeRads());
 		gotoManeuver.setZ(getManeuverLocation().getZ());
 		gotoManeuver.setZUnits((short)getManeuverLocation().getZUnits().value());
 		gotoManeuver.setSpeed(this.getSpeed());

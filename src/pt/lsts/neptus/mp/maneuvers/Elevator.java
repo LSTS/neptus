@@ -310,8 +310,8 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
         
         setMaxTime(elev.getTimeout());
         ManeuverLocation loc = new ManeuverLocation();
-        loc.setLatitudeDegs(Math.toDegrees(elev.getLat()));
-        loc.setLongitudeDegs(Math.toDegrees(elev.getLon()));
+        loc.setLatitudeRads(elev.getLat());
+        loc.setLongitudeRads(elev.getLon());
         loc.setZ(elev.getEndZ());
         NeptusLog.pub().info("<###> "+elev.getEndZUnits());
 //        loc.setZUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(elev.getEndZUnits().toString()));

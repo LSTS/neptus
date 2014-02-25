@@ -50,6 +50,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NameNormalizer;
 
@@ -372,8 +373,8 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
     	setPitchAngle((float)message.getDouble("pitch"));
     	
     	ManeuverLocation pos = new ManeuverLocation();
-    	pos.setLatitudeDegs(Math.toDegrees(message.getDouble("lat")));
-    	pos.setLongitudeDegs(Math.toDegrees(message.getDouble("lon")));
+    	pos.setLatitudeRads(message.getDouble("lat"));
+    	pos.setLongitudeRads(message.getDouble("lon"));
     	pos.setZ(message.getDouble("z"));
     	pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(message.getString("z_units")));
     	
@@ -391,12 +392,13 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
     
     
 	public IMCMessage serializeToIMC() {
-		double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
+		//double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
 		pt.lsts.imc.YoYo yoyo = new pt.lsts.imc.YoYo();
-		
+		LocationType loc = getManeuverLocation();
+		loc.convertToAbsoluteLatLonDepth();
 		yoyo.setTimeout(getMaxTime());
-		yoyo.setLat(Math.toRadians(latLonDepth[0]));
-		yoyo.setLon(Math.toRadians(latLonDepth[1]));
+		yoyo.setLat(loc.getLatitudeRads());
+		yoyo.setLon(loc.getLongitudeRads());
 		yoyo.setZ(getManeuverLocation().getZ());
 		yoyo.setZUnits(getManeuverLocation().getZUnits().toString());
 		yoyo.setSpeed(getSpeed());

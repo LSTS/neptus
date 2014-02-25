@@ -299,7 +299,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @return
      */
     public double getLatitudeRads() {
-        return Math.toRadians(getLatitudeDegs());
+        return latitudeRads;
     }
 
     /**
@@ -316,7 +316,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      *            The latitude to set in decimal degrees.
      */
     public void setLatitudeDegs(double latitude) {
-        this.latitudeRads = Math.toRadians(latitude);        
+        setLatitudeRads(Math.toRadians(latitude));        
     }
 
     /**
@@ -346,7 +346,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @return
      */
     public double getLongitudeRads() {
-        return Math.toRadians(getLongitudeDegs());
+        return longitudeRads;
     }
 
     /**
@@ -363,7 +363,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      *            The longitude to set in decimal degrees.
      */
     public void setLongitudeDegs(double longitude) {
-        this.longitudeRads = Math.toRadians(longitude);
+        setLongitudeRads(Math.toRadians(longitude));
     }
 
     /**
@@ -371,7 +371,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      *            The longitude to set in radians.
      */
     public void setLongitudeRads(double longitudeRads) {
-        setLongitudeDegs(Math.toDegrees(longitudeRads));
+        this.longitudeRads = longitudeRads;
     }
 
     /**
@@ -978,7 +978,10 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @return The Location itself. 
      */
     public LocationType convertToAbsoluteLatLonDepth() {
-
+        if (offsetNorth == 0 && offsetEast == 0 && offsetDown == 0 && offsetDistance == 0) {
+            return this;
+        }
+        
         double latlondepth[] = getAbsoluteLatLonDepth();
 
         setLocation(new LocationType());

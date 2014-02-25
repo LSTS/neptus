@@ -304,8 +304,8 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
     	setSpeed(message.getDouble("speed"));
     	
     	ManeuverLocation pos = new ManeuverLocation();
-    	pos.setLatitudeDegs(Math.toDegrees(message.getDouble("lat")));
-    	pos.setLongitudeDegs(Math.toDegrees(message.getDouble("lon")));
+    	pos.setLatitudeRads(message.getDouble("lat"));
+    	pos.setLongitudeRads(message.getDouble("lon"));
     	pos.setZ(message.getDouble("z"));
     	String zunits = message.getString("z_units");
     	if (zunits != null)
@@ -328,9 +328,10 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 	@Override
 	public IMCMessage serializeToIMC() {
 	    pt.lsts.imc.StationKeeping message = new pt.lsts.imc.StationKeeping();
-		double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
-		message.setLat(Math.toRadians(latLonDepth[0]));
-		message.setLon(Math.toRadians(latLonDepth[1]));
+		LocationType loc = getManeuverLocation();
+		loc.convertToAbsoluteLatLonDepth();
+		message.setLat(loc.getLatitudeRads());
+		message.setLon(loc.getLongitudeRads());
 		message.setZ(getManeuverLocation().getZ());
 		message.setZUnits(getManeuverLocation().getZUnits().toString());
 		message.setDuration(getDuration());

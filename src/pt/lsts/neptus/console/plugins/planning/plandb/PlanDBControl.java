@@ -57,28 +57,28 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
 
     protected String remoteSystemId = null;
     protected PlanDBState remoteState = null;
-    
+
     protected final int planDB_id = IMCDefinition.getInstance().getMessageId("PlanDB");
-    
+
     protected Vector<IPlanDBListener> listeners = new Vector<IPlanDBListener>();
-    
+
     public boolean addListener(IPlanDBListener listener) {
         if (!listeners.contains(listener))
             return listeners.add(listener);
         return false;
     }
-    
+
     public boolean removeListener(IPlanDBListener listener) {
         return listeners.remove(listener);
     }
-    
+
     /**
      * @return the remoteSystemId
      */
     public String getRemoteSystemId() {
         return remoteSystemId;
     }
-    
+
     /**
      * @param remoteSystemId the remoteSystemId to set
      */
@@ -88,24 +88,24 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
         }
         this.remoteSystemId = remoteSystemId;
     }
-    
+
     /**
      * @return the remoteState
      */
     public PlanDBState getRemoteState() {
         return remoteState;
     }
-    
+
     public boolean clearDatabase() {
         IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB",
                 "type", "REQUEST",
                 "op", "CLEAR",
                 "request_id", IMCSendMessageUtils.getNextRequestId()
-        );
-        
+                );
+
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
-    
+
     public boolean sendPlan(PlanType plan) {
         IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB",
                 "type", "REQUEST",
@@ -114,64 +114,64 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                 "plan_id", plan.getId(),
                 "arg", plan.asIMCPlan(),
                 "info", "Plan sent by Neptus version "+ConfigFetch.getNeptusVersion()
-        );
-        
-//        NeptusLog.pub().info("<###>Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
+                );
+
+        //        NeptusLog.pub().info("<###>Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
-    
+
     public boolean requestPlan(String plan_id) {
         IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB",
                 "type", "REQUEST",
                 "op", "GET",
                 "request_id", IMCSendMessageUtils.getNextRequestId(),
                 "plan_id", plan_id
-        );
-        
-//        NeptusLog.pub().info("<###>Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
+                );
+
+        //        NeptusLog.pub().info("<###>Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
-    
+
     public boolean requestActivePlan() {
         return requestPlan(null);
     }
-    
+
     public boolean requestPlanInfo(String plan_id) {
         IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB",
                 "type", "REQUEST",
                 "op", "GET_INFO",
                 "request_id", IMCSendMessageUtils.getNextRequestId(),
                 "plan_id", plan_id
-        );
-//        NeptusLog.pub().info("<###>Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
+                );
+        //        NeptusLog.pub().info("<###>Sending "+imc_PlanDB.toString() +" to "+remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
-    
-    
+
+
     public boolean deletePlan(String plan_id) {
         IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB",
                 "type", "REQUEST",
                 "op", "DEL",
                 "request_id", IMCSendMessageUtils.getNextRequestId(),
                 "plan_id", plan_id
-        );
+                );
         NeptusLog.pub().debug("Sending to " + remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
-    
-    
+
+
     public void updateKnownState(IMCMessage imc_PlanDBState) {
         if (remoteState == null)
             remoteState = new PlanDBState();
         remoteState.parseIMCMessage(imc_PlanDBState);
     }
-    
+
     @Override
     public void onMessage(MessageInfo info, IMCMessage msg) {
-        
+
         if (msg.getMgid() != planDB_id)
             return;
-        
+
         if (remoteState == null) {
             try {
                 setRemoteSystemId(ImcSystemsHolder.lookupSystem(new ImcId16(msg.getHeaderValue("src"))).getName());
@@ -187,7 +187,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                 if (remoteState == null)
                     remoteState = new PlanDBState();
                 remoteState.parseIMCMessage(msg.getMessage("arg"));         
-                
+
                 try {
                     for (IPlanDBListener l : listeners)
                         l.dbInfoUpdated(remoteState);
@@ -197,60 +197,11 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
                     e.printStackTrace();
                 }
             }
-            
-            else if (msg.getString("op").equals("GET")) {
-//                if (console != null) {
-                    PlanType pt = IMCUtils.parsePlanSpecification(new MissionType()/*console.getMission()*/, msg.getMessage("arg"));
-    //                IMCMessage p0 = msg.getMessage("arg");
-//                    NeptusLog.pub().info("Plan received        " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p0.payloadMD5()));
-//                    try {
-//                        IMCDefinition.getInstance().dumpPayload(p0, 1);
-//                    }
-//                    catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                    
-                   // IMCMessage p1 = pt.asIMCPlan();
-//                    NeptusLog.pub().info("Plan from plan       " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p1.payloadMD5()));
-//                    try {
-//                        IMCDefinition.getInstance().dumpPayload(p1, 1);
-//                    }
-//                    catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-       //             IMCMessage p2 = pt.clonePlan().asIMCPlan();
-//                    NeptusLog.pub().info("Plan from clone plan " + pt.getId() + " with MD5 " + ByteUtil.encodeAsString(p2.payloadMD5()));
-//                    try {
-//                        IMCDefinition.getInstance().dumpPayload(p2, 1);
-//                    }
-//                    catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
 
-
-//                    try {
-//                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//                        IMCOutputStream imcOs = new IMCOutputStream(baos);
-//                        p0.serialize(imcOs);
-//                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));
-//                        
-//                        baos = new ByteArrayOutputStream();
-//                        imcOs = new IMCOutputStream(baos);
-//                        p1.serialize(imcOs);
-//                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));
-//                        baos = new ByteArrayOutputStream();
-//                        imcOs = new IMCOutputStream(baos);
-//                        p2.serialize(imcOs);
-//                        NeptusLog.pub().debug(ByteUtil.dumpAsHexToString(baos.toByteArray()));                        
-//                    }
-//                    catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-
-                    
-                    for (IPlanDBListener l : listeners.toArray(new IPlanDBListener[0]))
-                        l.dbPlanReceived(pt.clonePlan());
-//                }
+            else if (msg.getString("op").equals("GET")) {             
+                PlanType pt = IMCUtils.parsePlanSpecification(new MissionType()/*console.getMission()*/, msg.getMessage("arg"));             
+                for (IPlanDBListener l : listeners.toArray(new IPlanDBListener[0]))
+                    l.dbPlanReceived(pt.clonePlan());
             }
             else if (msg.getString("op").equals("GET_INFO")) {
                 PlanDBInfo pinfo = new PlanDBInfo();
@@ -259,7 +210,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
             }
             else if (msg.getString("op").equals("DEL")) {
                 remoteState.storedPlans.remove(msg.getAsString("plan_id"));
-                
+
                 for (IPlanDBListener l : listeners)
                     l.dbPlanRemoved(msg.getAsString("plan_id"));
 
@@ -269,27 +220,27 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage>{
             }
             else if (msg.getString("op").equals("SET")) {
                 requestPlanInfo(msg.getAsString("plan_id"));
-//                if (console != null)
-//                    console.info("[PlanDB] The plan '"+msg.getAsString("plan_id")+"' has been successfully received.");
-                
+                //                if (console != null)
+                //                    console.info("[PlanDB] The plan '"+msg.getAsString("plan_id")+"' has been successfully received.");
+
                 for (IPlanDBListener l : listeners)
                     l.dbPlanSent(msg.getAsString("plan_id"));
             }
         }
     }
 
-//    /**
-//     * @return the console
-//     */
-//    public ConsoleLayout getConsole() {
-//        return console;
-//    }
-//
-//    /**
-//     * @param console the console to set
-//     */
-//    public void setConsole(ConsoleLayout console) {
-//        this.console = console;
-//        setRemoteSystemId(console.getMainVehicle());
-//    }
+    //    /**
+    //     * @return the console
+    //     */
+    //    public ConsoleLayout getConsole() {
+    //        return console;
+    //    }
+    //
+    //    /**
+    //     * @param console the console to set
+    //     */
+    //    public void setConsole(ConsoleLayout console) {
+    //        this.console = console;
+    //        setRemoteSystemId(console.getMainVehicle());
+    //    }
 }

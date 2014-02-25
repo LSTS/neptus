@@ -54,6 +54,7 @@ import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.util.NameNormalizer;
 
@@ -479,8 +480,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
         setRadiusTolerance(msgPopup.getRadius());
     	setDuration(msgPopup.getDuration());
     	ManeuverLocation pos = new ManeuverLocation();
-    	pos.setLatitudeDegs(Math.toDegrees(msgPopup.getLat()));
-    	pos.setLongitudeDegs(Math.toDegrees(msgPopup.getLon()));
+    	pos.setLatitudeRads(msgPopup.getLat());
+    	pos.setLongitudeRads(msgPopup.getLon());
     	pos.setZ(msgPopup.getZ());
         pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(msgPopup.getZUnits().toString()));
         setManeuverLocation(pos);
@@ -497,9 +498,10 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    pt.lsts.imc.PopUp msg = new pt.lsts.imc.PopUp();
 	    msg.setTimeout(getMaxTime());
 	    //double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
-	    getManeuverLocation().convertToAbsoluteLatLonDepth();
-	    msg.setLat(getManeuverLocation().getLatitudeRads());
-	    msg.setLon(getManeuverLocation().getLongitudeRads());
+	    LocationType loc = getManeuverLocation();
+	    loc.convertToAbsoluteLatLonDepth();
+	    msg.setLat(loc.getLatitudeRads());
+	    msg.setLon(loc.getLongitudeRads());
 		msg.setZ(getManeuverLocation().getZ());
 		msg.setZUnits(getManeuverLocation().getZUnits().toString());
 	    msg.setDuration(getDuration());
