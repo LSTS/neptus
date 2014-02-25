@@ -1,7 +1,7 @@
 @echo off
 rem #############################################################################
 rem # Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia   #
-rem # Laborat�rio de Sistemas e Tecnologia Subaqu�tica (LSTS)                   #
+rem # Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                   #
 rem # All rights reserved.                                                      #
 rem # Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal            #
 rem #                                                                           #
@@ -27,7 +27,7 @@ rem # https://www.lsts.pt/neptus/licence.                                       
 rem #                                                                           #
 rem # For more information please see <http://lsts.fe.up.pt/neptus>.            #
 rem #############################################################################
-rem # Author: Paulo Dias, Jos� Pinto                                            #
+rem # Author: Paulo Dias, José Pinto                                            #
 rem #############################################################################
 
 if "%OS%"=="Windows_NT" @setlocal
