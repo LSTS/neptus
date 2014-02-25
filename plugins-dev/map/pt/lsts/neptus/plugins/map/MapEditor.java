@@ -821,17 +821,16 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
                 mousePoint = event.getPoint();
                 return;
             }
+            LocationType oldLoc = new LocationType(draggedObject.getCenterLocation());
 
-            if (draggedObject instanceof MarkElement || draggedObject instanceof TransponderElement)
-                draggedObject.setCenterLocation(source.getRealWorldLocation(event.getPoint()));
-            else {
-                if (objectRotated)
-                    mouseReleased(event, source);
-                LocationType newLoc = source.getRealWorldLocation(event.getPoint());
-                newLoc.translateInPixel(-dragOffsets.getX(), -dragOffsets.getY(), source.getLevelOfDetail());
-                draggedObject.setCenterLocation(newLoc);
-            }
-
+            if (objectRotated)
+                mouseReleased(event, source);
+            
+            LocationType newLoc = source.getRealWorldLocation(event.getPoint());
+            newLoc.translateInPixel(-dragOffsets.getX(), -dragOffsets.getY(), source.getLevelOfDetail());
+            newLoc.setDepth(oldLoc.getDepth());
+            draggedObject.setCenterLocation(newLoc);
+            
             objectMoved = true;
             MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
             mce.setSourceMap(draggedObject.getParentMap());
