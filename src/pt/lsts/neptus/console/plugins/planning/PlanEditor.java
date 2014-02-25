@@ -144,7 +144,7 @@ import com.l2fprod.common.propertysheet.PropertySheetPanel;
  * @author ZP
  * @author pdias
  */
-@PluginDescription(name = "Plan Edition", icon = "images/planning//plan_editor.png", author = "José Pinto, Paulo Dias", version = "1.5", category = CATEGORY.INTERFACE)
+@PluginDescription(name = "Plan Edition", icon = "images/planning/plan_editor.png", author = "José Pinto, Paulo Dias", version = "1.5", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 100)
 public class PlanEditor extends InteractionAdapter implements Renderer2DPainter, IPeriodicUpdates,
 MissionChangeListener {
