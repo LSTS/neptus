@@ -100,7 +100,7 @@ public class HomeReferenceElement extends AbstractElement {
 	}
 
 	public boolean containsPoint(LocationType lt, StateRenderer2D renderer) {
-        double distance = getCenterLocation().getDistanceInMeters(lt);
+        double distance = getCenterLocation().getHorizontalDistanceInMeters(lt);
         if ((distance * renderer.getZoom()) < 10) {
             return true;
         }
