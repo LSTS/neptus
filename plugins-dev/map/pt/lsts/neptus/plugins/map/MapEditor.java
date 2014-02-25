@@ -92,7 +92,6 @@ import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.ImageElement;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
-import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.RotatableElement;
 import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -796,17 +795,16 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                 mousePoint = event.getPoint();
                 return;
             }
+            LocationType oldLoc = new LocationType(draggedObject.getCenterLocation());
 
-            if (draggedObject instanceof MarkElement || draggedObject instanceof TransponderElement)
-                draggedObject.setCenterLocation(source.getRealWorldLocation(event.getPoint()));
-            else {
-                if (objectRotated)
-                    mouseReleased(event, source);
-                LocationType newLoc = source.getRealWorldLocation(event.getPoint());
-                newLoc.translateInPixel(-dragOffsets.getX(), -dragOffsets.getY(), source.getLevelOfDetail());
-                draggedObject.setCenterLocation(newLoc);
-            }
-
+            if (objectRotated)
+                mouseReleased(event, source);
+            
+            LocationType newLoc = source.getRealWorldLocation(event.getPoint());
+            newLoc.translateInPixel(-dragOffsets.getX(), -dragOffsets.getY(), source.getLevelOfDetail());
+            newLoc.setDepth(oldLoc.getDepth());
+            draggedObject.setCenterLocation(newLoc);
+            
             objectMoved = true;
             MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
             mce.setSourceMap(draggedObject.getParentMap());
