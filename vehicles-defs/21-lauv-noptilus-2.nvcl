@@ -20,6 +20,7 @@
         <g>32</g>
         <b>32</b>
       </icon-color>
+    </appearance>
     <coordinate-system-label>SNAME</coordinate-system-label>
   </properties>
   <feasibleManeuvers>
