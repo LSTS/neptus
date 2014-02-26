@@ -40,6 +40,7 @@ import javax.swing.ProgressMonitor;
 import pt.lsts.imc.Conductivity;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.Temperature;
+import pt.lsts.imc.VehicleMedium;
 import pt.lsts.imc.lsf.IndexScanner;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
@@ -97,7 +98,7 @@ public class CTDExporter implements MRAExporter {
         BufferedWriter writer;
         try {
             writer = new BufferedWriter(new FileWriter(out));
-            writer.write("timestamp, latitude, longitude, conductivity, temperature, depth\n");
+            writer.write("timestamp, latitude, longitude, conductivity, temperature, depth, medium\n");
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -105,25 +106,42 @@ public class CTDExporter implements MRAExporter {
         }
         
         while (true) {
+            
             Conductivity c = scanner.next(Conductivity.class, "CTD");
             if (c == null)
                 return finish(writer, count);
+            int idx = scanner.getIndex();
+            
+            VehicleMedium m = scanner.next(VehicleMedium.class);
+            try {
+                scanner.setIndex(idx);
+            }
+            catch (Exception e) {
+                e.printStackTrace();                
+            }
             Temperature t = scanner.next(Temperature.class, "CTD");
             if (t == null)
                 return finish(writer, count);
             EstimatedState d = scanner.next(EstimatedState.class);
+            
+            
             if (d == null)
                 return finish(writer, count);
             count ++;
             
             LocationType loc = IMCUtils.parseLocation(d).convertToAbsoluteLatLonDepth();
             try {
+                String medium = "UNKNOWN";
+                if (m != null)
+                    medium = m.getMedium().toString();
+                
                 writer.write(t.getTimestamp()+", "+
                         loc.getLatitudeDegs()+", "+
                         loc.getLongitudeDegs()+", "+
                         c.getValue()+", "+
                         t.getValue()+", "+
-                        d.getDepth()+"\n");          
+                        d.getDepth()+", "+
+                        medium+"\n");          
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
