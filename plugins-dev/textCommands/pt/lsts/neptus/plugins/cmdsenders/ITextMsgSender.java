@@ -29,7 +29,9 @@
  * Author: zp
  * Feb 24, 2014
  */
-package pt.lsts.neptus.plugins.txtcmd;
+package pt.lsts.neptus.plugins.cmdsenders;
+
+import java.util.concurrent.Future;
 
 /**
  * @author zp
@@ -37,7 +39,24 @@ package pt.lsts.neptus.plugins.txtcmd;
  */
 public interface ITextMsgSender {
 
+    /**
+     * Retrieve the name of this sender
+     * @return The name of this sender
+     */
     public String getName();
     
+    /**
+     * Sender's availability
+     * @return Whether this sender can currently be used or not
+     */
+    public boolean available(String vehicleId);
     
+    /**
+     * 
+     * @param source
+     * @param destination
+     * @param command
+     * @return
+     */
+    public Future<String> sendToVehicle(String source, String destination, String command);
 }
