@@ -42,8 +42,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
 
 import javax.swing.JFrame;
@@ -89,7 +92,7 @@ import com.google.common.eventbus.AsyncEventBus;
  * @author pdias
  */
 public class ImcMsgManager extends
-        CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommManagerStatusChangeListener> {
+CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommManagerStatusChangeListener> {
 
     public static final String TRANSPORT_UDP = "UDP";
     public static final String TRANSPORT_TCP = "TCP";
@@ -104,7 +107,7 @@ public class ImcMsgManager extends
     private ImcId16 localId = ImcId16.NULL_ID;
     private boolean sameIdErrorDetected = false;
     private long sameIdErrorDetectedTimeMillis = -1;
-    
+
     protected ImcSysState imcState = new ImcSysState();
     {
         imcState.setIgnoreEntities(true);
@@ -142,7 +145,7 @@ public class ImcMsgManager extends
     protected ImcUdpTransport multicastUdpTransport = null;
     protected ImcTcpTransport tcpTransport = null;
 
-//    protected Vector<Object> registeredObjects = new Vector<>();
+    //    protected Vector<Object> registeredObjects = new Vector<>();
 
     // EventBus
     private final ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
@@ -158,7 +161,7 @@ public class ImcMsgManager extends
     protected AsyncEventBus bus = new AsyncEventBus(service);
 
     protected HashSet<Object> busListeners = new HashSet<>();
-    
+
     // Network interfaces control
     private long lastNetInterfaceMillis = -1;
     private Vector<NInterface> netInterfaces = null;
@@ -179,8 +182,15 @@ public class ImcMsgManager extends
         TCP
     };
 
+    public enum SendResult {
+        SUCCESS,
+        ERROR,
+        TIMEOUT,
+        UNCERTAIN_DELIVERY    
+    }
+
     private final ArrayList<TransportPreference> transportPreferenceToUse = new ArrayList<>();
-    
+
     protected Vector<String> ignoredClasses = new Vector<String>();
     {
         ignoredClasses.add(getClass().getName());
@@ -195,14 +205,14 @@ public class ImcMsgManager extends
         }
         getManager().busListeners.add(listener);
     }
-    
+
     public static void unregisterBusListener(Object listener) {
         if (getManager().busListeners.contains(listener)) {
             getManager().getMessageBus().unregister(listener);
         }
         getManager().busListeners.remove(listener);
     }
-    
+
     /**
      * @return The singleton manager.
      */
@@ -226,18 +236,18 @@ public class ImcMsgManager extends
                 isRedirectToFirst = GeneralPreferences.redirectUnknownIdsToFirstCommVehicle;
 
                 dontIgnoreIpSourceRequest = GeneralPreferences.imcChangeBySourceIpRequest;
-                
+
                 // IMC Announce
                 announceWorker.getAnnounceMessage().setValue("sys_name", StringUtils.toImcName(GeneralPreferences.imcCcuName));
                 announceWorker.setUseUnicastAnnounce(GeneralPreferences.imcUnicastAnnounceEnable);
-                
+
                 localId = GeneralPreferences.imcCcuId;
             }
         };
         this.imcDefinition = imcDefinition;
         announceWorker = new AnnounceWorker(this, imcDefinition);
 
-//        GeneralPreferencesPropertiesProvider.addPreferencesListener(gplistener);
+        //        GeneralPreferencesPropertiesProvider.addPreferencesListener(gplistener);
         GeneralPreferences.addPreferencesListener(gplistener);
         gplistener.preferencesUpdated();
     }
@@ -251,7 +261,7 @@ public class ImcMsgManager extends
             return true; // do nothing
 
         NeptusLog.pub().info("Starting IMC comms");
-        
+
         boolean ret = super.start();
         if (!ret)
             return false;
@@ -264,7 +274,7 @@ public class ImcMsgManager extends
 
         return ret;
     }
-    
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.util.comm.manager.CommBaseManager#stop()
      */
@@ -578,11 +588,11 @@ public class ImcMsgManager extends
     }
 
     /**
-	 * 
-	 */
+     * 
+     */
     private void createUdpTransport() {
         int localport = GeneralPreferences.commsLocalPortUDP;
-        
+
         if (udpTransport == null) {
             udpTransport = new ImcUdpTransport(localport, imcDefinition);
         }
@@ -617,7 +627,7 @@ public class ImcMsgManager extends
 
     private void createTcpTransport() {
         int localport = GeneralPreferences.commsLocalPortTCP;
-        
+
         if (tcpTransport == null) {
             tcpTransport = new ImcTcpTransport(localport, imcDefinition);
         }
@@ -625,7 +635,7 @@ public class ImcMsgManager extends
             tcpTransport.setBindPort(localport);
         }
         tcpTransport.reStart();
-        
+
         if (tcpTransport.isOnBindError()) {
             for (int i = 1; i < 10; i++) {
                 tcpTransport.stop();
@@ -711,7 +721,7 @@ public class ImcMsgManager extends
     public boolean is2IdErrorMode() {
         return sameIdErrorDetected;
     }
-    
+
     @Override
     protected boolean processMsgLocally(MessageInfo info, IMCMessage msg) {
         // msg.dump(System.out);
@@ -723,39 +733,39 @@ public class ImcMsgManager extends
                 sameIdErrorDetected = false;
             // Let's see if another node is advertising the same ID 
             if (!ImcId16.NULL_ID.equals(localId) && localId.equals(id)) {
-                 // System.out.println(localId + " :: " + id + " :: " + localId.equals(id) + " :: " + (Announce.ID_STATIC == msg.getMgid()));
-                 if (Announce.ID_STATIC == msg.getMgid()) {
-                     String localUid = announceWorker.getNeptusInstanceUniqueID();
-                     String serv = announceWorker.getImcServicesFromMessage(msg);
-                     String uid = IMCUtils.getUidFromServices(serv);
-                     boolean sameHost = false;
-                     Vector<NInterface> iList = getNetworkInterfaces();
-                     for (NInterface nInterface : iList) {
-                         Inet4Address[] lad = nInterface.getAddress();
-                         for (Inet4Address inet4Address : lad) {
+                // System.out.println(localId + " :: " + id + " :: " + localId.equals(id) + " :: " + (Announce.ID_STATIC == msg.getMgid()));
+                if (Announce.ID_STATIC == msg.getMgid()) {
+                    String localUid = announceWorker.getNeptusInstanceUniqueID();
+                    String serv = announceWorker.getImcServicesFromMessage(msg);
+                    String uid = IMCUtils.getUidFromServices(serv);
+                    boolean sameHost = false;
+                    Vector<NInterface> iList = getNetworkInterfaces();
+                    for (NInterface nInterface : iList) {
+                        Inet4Address[] lad = nInterface.getAddress();
+                        for (Inet4Address inet4Address : lad) {
                             if (info.getPublisherInetAddress().equalsIgnoreCase(inet4Address.getHostAddress())) {
                                 sameHost = true;
                                 break;
                             }
-                         }
-                         if (sameHost)
-                             break;
-                     }
-                     if (!localUid.equalsIgnoreCase(uid)) {
+                        }
+                        if (sameHost)
+                            break;
+                    }
+                    if (!localUid.equalsIgnoreCase(uid)) {
                         NeptusLog.pub().warn(
                                 "Another node on " + (sameHost ? "this computer" : "our network")
-                                        + " is advertising our node id '" + localId.toPrettyString() + "'");
-                         sameIdErrorDetected = true;
-                         sameIdErrorDetectedTimeMillis = System.currentTimeMillis();
-                     }
-                     // System.out.println(localId + " :: " + id + " :: " + localId.equals(id) + " :: " + (Announce.ID_STATIC == msg.getMgid()));
-                     // System.out.println(localUid + " :: " + uid + " :: " + !localUid.equalsIgnoreCase(uid));
-                 }
-                 return false;
-             }
-            
+                                + " is advertising our node id '" + localId.toPrettyString() + "'");
+                        sameIdErrorDetected = true;
+                        sameIdErrorDetectedTimeMillis = System.currentTimeMillis();
+                    }
+                    // System.out.println(localId + " :: " + id + " :: " + localId.equals(id) + " :: " + (Announce.ID_STATIC == msg.getMgid()));
+                    // System.out.println(localUid + " :: " + uid + " :: " + !localUid.equalsIgnoreCase(uid));
+                }
+                return false;
+            }
+
             imcState.setMessage(msg);
-            
+
             if (localId.equals(id)) {
                 System.out.println(msg.getAbbrev());
             }
@@ -765,7 +775,7 @@ public class ImcMsgManager extends
                     && !localId.equals(id)) {
                 if (Announce.ID_STATIC == msg.getMgid()) {
                     announceLastArriveTime = System.currentTimeMillis();
-                    
+
                     vci = processAnnounceMessage(info, (Announce) msg, vci, id);
                 }
                 else if ("EntityList".equalsIgnoreCase(msg.getAbbrev())) {
@@ -793,7 +803,7 @@ public class ImcMsgManager extends
                             this.getClass().getSimpleName() + ": Message redirected for system comm. "
                                     + vci.getSystemCommId() + ".");
                     vci.onMessage(info, msg);
-//                    bus.post(msg);
+                    //                    bus.post(msg);
                     //NeptusLog.pub().info("<###> "+msg.hashCode());
                     return true;
                 }
@@ -812,7 +822,7 @@ public class ImcMsgManager extends
                         + ".");
 
         boolean sentToBus = false;
-        
+
         if (udpOnIpMapper.containsKey(inetAddress + (isFilterByPort ? ":" + remotePortAddress : ""))) {
             ImcId16 systemId = udpOnIpMapper.get(inetAddress + (isFilterByPort ? ":" + remotePortAddress : ""));
             SystemImcMsgCommInfo vciMapper = getCommInfoById(systemId);
@@ -837,7 +847,7 @@ public class ImcMsgManager extends
                 }
             }
         }
-        
+
         try {
             if (!sentToBus)
                 bus.post(msg);
@@ -848,7 +858,7 @@ public class ImcMsgManager extends
         catch (Error e) {
             e.printStackTrace();
         }
-        
+
         return true;
     }
 
@@ -994,7 +1004,7 @@ public class ImcMsgManager extends
             catch (Exception e) {
                 e.printStackTrace();
             }
-            
+
             Map<Integer, String> er = EntitiesResolver.getEntities(resSys.getName());
             if (er == null || er.size() == 0)
                 requestEntityList = true;
@@ -1002,7 +1012,7 @@ public class ImcMsgManager extends
             if (requestEntityList)
                 announceWorker.sendEntityListRequestMsg(resSys);
         }
-        
+
         imcDefinition.getResolver().addEntry(ann.getSrc(), ann.getSysName());
         return vci;
     }
@@ -1050,6 +1060,14 @@ public class ImcMsgManager extends
         if (system != null)
             return sendMessage(message, system.id, sendProperties, listener);
         return false;
+    }
+
+    public Future<SendResult> sendMessageReliably(IMCMessage message, String systemName) {
+        ResultWaiter waiter = new ResultWaiter(5000);
+        FutureTask<SendResult> result = new FutureTask<>(waiter);
+        sendMessageToSystem(message, systemName, "TCP", waiter);
+        Executors.newSingleThreadExecutor().execute(result);
+        return result;
     }
 
     @Override
@@ -1132,13 +1150,13 @@ public class ImcMsgManager extends
 
     public boolean broadcastToCCUs(IMCMessage message) {
         ImcSystem[] ccus = ImcSystemsHolder.lookupActiveSystemByType(SystemTypeEnum.CCU);
-        
+
         for (ImcSystem ccu : ccus)
             sendMessage(message, ccu.getId(), null);
-        
+
         return ccus.length > 0;
     }
-    
+
     /**
      * @param message
      * @return
@@ -1215,7 +1233,7 @@ public class ImcMsgManager extends
         // if (message.getTimestamp() == 0) // For now all messages are timestamped here
         message.setTimestamp(System.currentTimeMillis() / 1000.0);
 
-//        bus.post(message);
+        //        bus.post(message);
 
         // Check if is requested to send by Multicast and/or Broadcast, if yes don't send by any other way
         if (sendProperties != null
@@ -1261,14 +1279,14 @@ public class ImcMsgManager extends
                         listener.deliveryUncertain(message, new Exception("Multicast or broadcast used!"));
                 }
             }
-            
+
             if (sentResult)
                 logMessage(message);
 
             return sentResult;
         }
 
-        
+
         // Indicates the transport to use, next we will adjust this value with respect with the available transports, both local and remote
         ArrayList<TransportPreference> transportChoiceToSend = new ArrayList<>(transportPreferenceToUse);
 
@@ -1292,14 +1310,14 @@ public class ImcMsgManager extends
             transportChoiceToSend.remove(TransportPreference.UDP);
         if (!imcSystem.isTCPOn() && transportChoiceToSend.contains(TransportPreference.TCP))
             transportChoiceToSend.remove(TransportPreference.TCP);
-        
+
         if (transportPreferenceRequested != TransportPreference.ANY) {
             if (transportChoiceToSend.contains(transportPreferenceRequested)) {
                 transportChoiceToSend.remove(transportPreferenceRequested);
                 transportChoiceToSend.add(0, transportPreferenceRequested);
             }
         }
-        
+
         boolean sentResult = true;
 
         // Let us send the message by the preferred transport or the default one on the system by the order UDP, TCP
@@ -1309,7 +1327,7 @@ public class ImcMsgManager extends
                 throw new IOException(I18n.textf("No transport available to send message %message to %system.", 
                         message.getAbbrev(), imcSystem.getName()));
             }
-            
+
             markMessageToSent(systemCommId);
             for (TransportPreference transport : transportChoiceToSend) {
                 if (transport == TransportPreference.UDP) {
@@ -1440,10 +1458,10 @@ public class ImcMsgManager extends
             public void deliveryUncertain(IMCMessage message, Object msg) {
                 if (listenerToWrap != null)
                     listenerToWrap.deliveryUncertain(message, msg);
-                
+
                 markMessageSent(systemCommId);
             }
-            
+
             @Override
             public void deliverySuccess(IMCMessage message) {
                 if (listenerToWrap != null)
@@ -1452,7 +1470,7 @@ public class ImcMsgManager extends
                 markMessageSent(systemCommId);
             }
         };
-        
+
         return msgLstnr;
     }
 
@@ -1632,14 +1650,14 @@ public class ImcMsgManager extends
                         + (multicastUdpTransport.isRunnning() ? "On" : "Off")
                         + " @"
                         + multicastUdpTransport.getMulticastAddress() + ":" + multicastUdpTransport.getBindPort())
-                + "<br>";
+                        + "<br>";
         long nc = getTcpTransport() != null ? getTcpTransport().getActiveNumberOfConnections() : 0;
         ret += "<b>TCP: </b>"
                 + (tcpTransport == null ? "Off" : (!tcpTransport.isOnBindError() ? "OK" : "BIND ERROR") + " "
                         + (tcpTransport.isRunning() ? (tcpTransport.isRunningNormally() ? "On" : "On:Error") : "Off")
                         + " @" + tcpTransport.getBindPort()
                         + (tcpTransport.isRunning() ? " (" + nc + " connection" + (nc == 1 ? "" : "s") + ")" : ""))
-                + "<br>";
+                        + "<br>";
 
         return ret;
     }
@@ -1687,31 +1705,31 @@ public class ImcMsgManager extends
             System.err.println("HB " + i);
             boolean ret = getManager().sendReliablyBlocking(IMCDefinition.getInstance().create("Heartbeat"),
                     new ImcId16(0x4d15), new MessageDeliveryListener() {
-                        @Override
-                        public void deliveryUnreacheable(IMCMessage message) {
-                            System.err.println("deliveryUnreacheable");
-                        }
+                @Override
+                public void deliveryUnreacheable(IMCMessage message) {
+                    System.err.println("deliveryUnreacheable");
+                }
 
-                        @Override
-                        public void deliveryUncertain(IMCMessage message, Object msg) {
-                            System.err.println("deliveryUncertain  " + msg);
-                        }
+                @Override
+                public void deliveryUncertain(IMCMessage message, Object msg) {
+                    System.err.println("deliveryUncertain  " + msg);
+                }
 
-                        @Override
-                        public void deliveryTimeOut(IMCMessage message) {
-                            System.err.println("deliveryTimeOut");
-                        }
+                @Override
+                public void deliveryTimeOut(IMCMessage message) {
+                    System.err.println("deliveryTimeOut");
+                }
 
-                        @Override
-                        public void deliverySuccess(IMCMessage message) {
-                            System.err.println("deliverySuccess");
-                        }
+                @Override
+                public void deliverySuccess(IMCMessage message) {
+                    System.err.println("deliverySuccess");
+                }
 
-                        @Override
-                        public void deliveryError(IMCMessage message, Object error) {
-                            System.err.println("deliveryError  " + error);
-                        }
-                    });
+                @Override
+                public void deliveryError(IMCMessage message, Object error) {
+                    System.err.println("deliveryError  " + error);
+                }
+            });
             System.err.println(ret);
             // getManager().sendMessage(imcDefinition.create("Abort"), new ImcId16(0x4d15), null);
             try {
@@ -1722,5 +1740,55 @@ public class ImcMsgManager extends
                 e.printStackTrace();
             }
         }
+    }
+
+    static class ResultWaiter implements Callable<SendResult>, MessageDeliveryListener {
+        
+        private SendResult result = null;
+        private long timeoutMillis = 10000;
+        private long start;
+        public ResultWaiter(long timeoutMillis) {
+            this.timeoutMillis = timeoutMillis;
+            this.start = System.currentTimeMillis();
+        }
+        
+        @Override
+        public SendResult call() throws Exception {
+            while (true) {
+                synchronized (this) {
+                    if (result != null)
+                        return result;
+                    if (System.currentTimeMillis() - start > timeoutMillis)
+                        return SendResult.TIMEOUT;
+                }
+                Thread.sleep(100);
+            }
+        }
+        
+        @Override
+        public void deliveryError(IMCMessage message, Object error) {
+            result = SendResult.ERROR;
+        }
+        
+        @Override
+        public void deliverySuccess(IMCMessage message) {
+            result = SendResult.SUCCESS;
+        }
+
+        @Override
+        public void deliveryTimeOut(IMCMessage message) {
+            result = SendResult.TIMEOUT;
+        }
+
+        @Override
+        public void deliveryUncertain(IMCMessage message, Object msg) {
+            result = SendResult.UNCERTAIN_DELIVERY;
+                    
+        }
+
+        @Override
+        public void deliveryUnreacheable(IMCMessage message) { 
+            result = SendResult.ERROR;
+        }        
     }
 }
