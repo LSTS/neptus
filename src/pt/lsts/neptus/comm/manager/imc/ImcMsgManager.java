@@ -43,11 +43,14 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.JFrame;
 
@@ -186,6 +189,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         SUCCESS,
         ERROR,
         TIMEOUT,
+        UNREACHABLE,
         UNCERTAIN_DELIVERY    
     }
 
@@ -1059,14 +1063,48 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         if (system != null)
             return sendMessage(message, system.id, sendProperties, listener);
+        listener.deliveryUnreacheable(message);
         return false;
     }
 
     public Future<SendResult> sendMessageReliably(IMCMessage message, String systemName) {
-        ResultWaiter waiter = new ResultWaiter(5000);
-        FutureTask<SendResult> result = new FutureTask<>(waiter);
+        final ResultWaiter waiter = new ResultWaiter(20000);
+        FutureTask<SendResult> result = new FutureTask<SendResult>(waiter) {
+            
+            private long start = System.currentTimeMillis();
+            
+            @Override
+            public SendResult get() throws InterruptedException, ExecutionException {
+                try {
+                    return waiter.call();
+                }
+                catch (Exception e) {
+                    throw new ExecutionException(e);
+                }
+            }
+            
+            @Override
+            public SendResult get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
+                    TimeoutException {
+                long end = start + unit.toMillis(timeout); 
+                while (System.currentTimeMillis() < end) {
+                    if (waiter.result == null)
+                        Thread.sleep(100);
+                    else {
+                        try {
+                            return waiter.call();
+                        }
+                        catch (Exception e) {
+                            throw new ExecutionException(e);
+                        }
+                    }
+                }
+                throw new TimeoutException("Time out exceeded");
+            }
+        };
+        
         sendMessageToSystem(message, systemName, "TCP", waiter);
-        Executors.newSingleThreadExecutor().execute(result);
+        //Executors.newSingleThreadExecutor().execute(result);
         return result;
     }
 
@@ -1744,9 +1782,10 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     static class ResultWaiter implements Callable<SendResult>, MessageDeliveryListener {
         
-        private SendResult result = null;
+        public SendResult result = null;
         private long timeoutMillis = 10000;
         private long start;
+        
         public ResultWaiter(long timeoutMillis) {
             this.timeoutMillis = timeoutMillis;
             this.start = System.currentTimeMillis();
@@ -1756,10 +1795,12 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         public SendResult call() throws Exception {
             while (true) {
                 synchronized (this) {
-                    if (result != null)
+                    if (result != null) {
                         return result;
-                    if (System.currentTimeMillis() - start > timeoutMillis)
+                    }
+                    if (System.currentTimeMillis() - start > timeoutMillis) {                     
                         return SendResult.TIMEOUT;
+                    }
                 }
                 Thread.sleep(100);
             }
@@ -1788,7 +1829,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         @Override
         public void deliveryUnreacheable(IMCMessage message) { 
-            result = SendResult.ERROR;
+            result = SendResult.UNREACHABLE;
         }        
     }
 }

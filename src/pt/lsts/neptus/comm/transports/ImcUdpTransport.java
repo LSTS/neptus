@@ -241,7 +241,6 @@ public class ImcUdpTransport {
 
 		try {
 		    message.serialize(imcOs);
-		    
 		    DeliveryListener listener = null;
             if (deliveryListener != null) {
                 listener = new DeliveryListener() {

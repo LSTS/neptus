@@ -41,6 +41,8 @@ import pt.lsts.imc.Heartbeat;
 import pt.lsts.imc.TextMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
+import pt.lsts.neptus.comm.manager.imc.MonitorIMCComms;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp
@@ -76,7 +78,8 @@ public class WiFiSender implements ITextMsgSender {
 
     public static void main(String[] args) throws Exception {
         ImcMsgManager.getManager().start();
-        
+        MonitorIMCComms monitor = new MonitorIMCComms(ImcMsgManager.getManager());
+        GuiUtils.testFrame(monitor);
         WiFiSender sender = new WiFiSender();
         for (int i = 0; i < 15; i++) {
             Thread.sleep(1000);
@@ -84,14 +87,17 @@ public class WiFiSender implements ITextMsgSender {
             ImcMsgManager.getManager().sendMessageToVehicle(new Heartbeat(), "lauv-xtreme-2", null);
         }
         try {
+            //System.out.println(sender.sendToVehicle("netus", "lauv-xtreme-2", "yoyo").get());
+            //System.out.println(sender.sendToVehicle("netus", "lauv-seacon-1", "yoyo").get());
             System.out.println(ImcMsgManager.getManager().sendMessageReliably(new Abort(), "lauv-xtreme-2").get(10, TimeUnit.SECONDS));
-            System.out.println(ImcMsgManager.getManager().sendMessageReliably(new Abort(), "lauv-seacon-2").get(10, TimeUnit.SECONDS));
+            System.out.println(ImcMsgManager.getManager().sendMessageReliably(new Abort(), "lauv-seacon-1").get(10, TimeUnit.SECONDS));
+            System.out.println(ImcMsgManager.getManager().sendMessageReliably(new Abort(), "lauv-noptilus-1").get(10, TimeUnit.SECONDS));
             System.out.println(ImcMsgManager.getManager().sendMessageReliably(new Abort(), "lauv-xtreme-3").get(10, TimeUnit.SECONDS));
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        System.exit(-1);
+        //System.exit(-1);
     }
 
 }
