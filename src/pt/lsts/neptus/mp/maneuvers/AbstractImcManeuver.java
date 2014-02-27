@@ -87,7 +87,7 @@ public abstract class AbstractImcManeuver<T extends IMCMessage> extends DefaultM
     
     public void setMessage(IMCMessage message) {
         try {
-            message.setMessage(message);
+            message.copyFrom(message);
         }
         catch (Exception e) {
             e.printStackTrace();

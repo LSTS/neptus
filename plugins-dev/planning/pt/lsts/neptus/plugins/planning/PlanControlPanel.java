@@ -923,9 +923,9 @@ public class PlanControlPanel extends SimpleSubPanel implements ConfigurationLis
 
         if (ret) {
             registerPlanControlRequest(reqId);
-            PlanControl pc = new PlanControl();
+            PlanControl pc = new PlanControl(planControlMessage);
             try {
-                pc.setMessage(planControlMessage);
+                pc.copyFrom(planControlMessage);
                 requests.put(reqId, pc);
             }
             catch (Exception e) {
