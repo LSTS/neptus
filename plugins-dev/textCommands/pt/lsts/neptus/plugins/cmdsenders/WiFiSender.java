@@ -31,13 +31,11 @@
  */
 package pt.lsts.neptus.plugins.cmdsenders;
 
-import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-import pt.lsts.imc.Abort;
-import pt.lsts.imc.Heartbeat;
 import pt.lsts.imc.TextMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
@@ -68,12 +66,29 @@ public class WiFiSender implements ITextMsgSender {
         tm.setOrigin(source);
         final Future<SendResult> res = ImcMsgManager.getManager().sendMessageReliably(tm, destination);
 
-        return new FutureTask<String>(new Callable<String>() {
+        return new Future<String>() {
             @Override
-            public String call() throws Exception {
+            public String get() throws InterruptedException ,java.util.concurrent.ExecutionException {
                 return res.get().toString();
+            };
+            @Override
+            public boolean cancel(boolean mayInterruptIfRunning) {
+                return res.cancel(mayInterruptIfRunning);
             }
-        });
+            @Override
+            public boolean isCancelled() {
+                return res.isCancelled();
+            }
+            @Override
+            public boolean isDone() {
+                return res.isDone();
+            }
+            @Override
+            public String get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
+                    TimeoutException {
+                return res.get(timeout, unit).toString();
+            }
+        };
     }
 
     public static void main(String[] args) throws Exception {
@@ -82,17 +97,11 @@ public class WiFiSender implements ITextMsgSender {
         GuiUtils.testFrame(monitor);
         WiFiSender sender = new WiFiSender();
         for (int i = 0; i < 15; i++) {
-            Thread.sleep(1000);
-            System.out.println(sender.available("lauv-xtreme-2"));
-            ImcMsgManager.getManager().sendMessageToVehicle(new Heartbeat(), "lauv-xtreme-2", null);
+            Thread.sleep(1000);            
         }
         try {
-            //System.out.println(sender.sendToVehicle("netus", "lauv-xtreme-2", "yoyo").get());
-            //System.out.println(sender.sendToVehicle("netus", "lauv-seacon-1", "yoyo").get());
-            System.out.println(ImcMsgManager.getManager().sendMessageReliably(new Abort(), "lauv-xtreme-2").get(10, TimeUnit.SECONDS));
-            System.out.println(ImcMsgManager.getManager().sendMessageReliably(new Abort(), "lauv-seacon-1").get(10, TimeUnit.SECONDS));
-            System.out.println(ImcMsgManager.getManager().sendMessageReliably(new Abort(), "lauv-noptilus-1").get(10, TimeUnit.SECONDS));
-            System.out.println(ImcMsgManager.getManager().sendMessageReliably(new Abort(), "lauv-xtreme-3").get(10, TimeUnit.SECONDS));
+            System.out.println(sender.sendToVehicle("neptus", "lauv-xtreme-2", "yoyo").get());
+            System.out.println(sender.sendToVehicle("neptus", "lauv-seacon-1", "yoyo").get());            
         }
         catch (Exception e) {
             e.printStackTrace();
