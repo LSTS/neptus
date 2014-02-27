@@ -785,13 +785,13 @@ For simple use the main targets are:
 				index="false" update="true" excludes="${exclude-defaults}, *.class">
 			<include name="version.*" />
 			<include name="info*" />
+			<include name="pt/lsts/neptus/comm/manager/imc/ImcId16*.class" />
 			<include name="pt/lsts/neptus/i18n/**/*.class" />
 			<include name="pt/lsts/neptus/types/coord/*.class" />
 			<include name="pt/lsts/neptus/types/**/*.class" />
 			<include name="pt/lsts/neptus/util/*.class" />
 			<include name="pt/lsts/neptus/util/conf/*.class" />
 			<include name="pt/lsts/neptus/util/coord/*.class" />
-			<include name="pt/lsts/neptus/util/comm/manager/imc/ImcId16*.class" />
 			<include name="pt/lsts/neptus/gps/**.class" />
 			<include name="pt/lsts/neptus/gui/Properties*.class" />
 			<include name="pt/lsts/neptus/gui/InfiniteProgressPanel.class" />
