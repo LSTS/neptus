@@ -3,6 +3,7 @@ legal/
 LICENSE.*
 LICENCE.*
 README.*
+CHANGES.md
 lib/
 libJNI/
 schemas/

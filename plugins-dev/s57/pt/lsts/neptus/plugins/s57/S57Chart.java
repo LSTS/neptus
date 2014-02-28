@@ -69,8 +69,9 @@ public class S57Chart implements MapPainterProvider {
     private final Map<StateRenderer2D, NeptusS57Painter> painterList = new ConcurrentHashMap<StateRenderer2D, NeptusS57Painter>();
 
     public S57Chart() {
-        this.s57 = S57Factory.build(new File(System.getProperty("user.dir")),
-                new File("libJNI/gdal/" + S57Utils.getPlatformPath()));
+        File cacheFile = new File(System.getProperty("user.dir") + "/.cache/s57");
+        cacheFile.mkdirs();
+        this.s57 = S57Factory.build(cacheFile, new File("libJNI/gdal/" + S57Utils.getPlatformPath()));
         try {
             this.s63 = S63.forge(this.s57);
         }
