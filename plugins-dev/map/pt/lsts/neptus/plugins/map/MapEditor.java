@@ -223,8 +223,10 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
 
             @Override
             public synchronized boolean addEdit(javax.swing.undo.UndoableEdit anEdit) {
-                updateUndoRedoActions();
-                return super.addEdit(anEdit);
+                boolean ret = super.addEdit(anEdit);
+                if (ret)
+                    updateUndoRedoActions();
+                return ret;
             };
         };
 
