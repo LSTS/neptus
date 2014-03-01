@@ -2,8 +2,8 @@
 <system xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\src\schemas\neptus-vehicle.xsd">
   <!-- Data saved on 2010-04-24T19:58:44.0Z with Neptus version 1.6.0dev_R8-b1 (compiled on April 22 2010). -->
   <properties>
-    <id>lauv-lsts-1</id>
-    <name>LAUV-LSTS-1</name>
+    <id>lauv-xplore-1</id>
+    <name>LAUV-Xplore-1</name>
     <type>AUV</type>
     <model>LAUV</model>
     <appearance>
@@ -126,14 +126,6 @@
       </StationKeeping>
     </maneuver>    
     <maneuver>
-      <Unconstrained kind="manual">
-        <annotation>
-          <documentation>No documentation available</documentation>
-          <implementation-class>pt.lsts.neptus.mp.maneuvers.Unconstrained</implementation-class>
-        </annotation>
-      </Unconstrained>
-    </maneuver>
-    <maneuver>
 	    <FollowPath kind="automatic">
 	    	<basePoint type="pointType">
 	    		<point>
@@ -155,50 +147,6 @@
 	    </FollowPath>
     </maneuver>
     <maneuver>
-	    <FollowTrajectory kind="automatic">
-	    	<basePoint type="pointType">
-	    		<point>
-	    			<id/>
-	    			<coordinate>
-	    			<latitude>0N</latitude>
-	    			<longitude>0E</longitude>
-	    			<depth>0.0</depth>
-	    			</coordinate>
-	    		</point>
-	    		<radiusTolerance>0.0</radiusTolerance>
-	    	</basePoint>
-	    	<trajectory/>
-	    	<speed unit="RPM">1000.0</speed>
-	    	<annotation>
-          		<documentation>No documentation available</documentation>
-          		<implementation-class>pt.lsts.neptus.mp.maneuvers.FollowTrajectory</implementation-class>
-        	</annotation>
-	    </FollowTrajectory>
-    </maneuver>
-    <maneuver>    
-		<VehicleFormation kind="automatic">
-  			<basePoint type="pointType">
-    			<point>
-      				<id/>      
-      				<coordinate>
-        			<latitude>0N</latitude>
-     		   		<longitude>0E</longitude>
-    	    		<depth>0.0</depth>
-      				</coordinate>
-    				</point>
-    			<radiusTolerance>0.0</radiusTolerance>
-  			</basePoint>
-  			<trajectory/>
- 			<speed unit="RPM">1000.0</speed>
-  			<startTime>0</startTime>
-  			<participants/>
-  			<annotation>
-          		<documentation>No documentation available</documentation>
-          		<implementation-class>pt.lsts.neptus.mp.maneuvers.VehicleFormation</implementation-class>
-        	</annotation>
-		</VehicleFormation>
-    </maneuver>
-   	<maneuver>
 		<RowsManeuver kind="automatic">
   			<basePoint type="pointType">
 	    		<point>
@@ -273,19 +221,19 @@
 		</CrossHatchPattern>
 	</maneuver>           
 	<maneuver>
-		<Elevator>
-			<finalPoint type="pointType">
-				<point>
-					<id>Elevator-Point</id>
-					<coordinate>
-						<latitude>0N</latitude>
-						<longitude>0E</longitude>
-						<depth>2</depth>
-					</coordinate>
-				</point>
-				<radiusTolerance>0</radiusTolerance>
-			</finalPoint>
-			<startZ>0</startZ>
+    <Elevator>
+      <finalPoint type="pointType">
+        <point>
+          <id>Elevator-Point</id>
+          <coordinate>
+            <latitude>0N</latitude>
+            <longitude>0E</longitude>
+            <depth>2</depth>
+          </coordinate>
+        </point>
+        <radiusTolerance>0</radiusTolerance>
+      </finalPoint>
+      <startZ>0</startZ>
 			<pitch>30</pitch>
 			<radius>10</radius>
 			<duration>0</duration>
@@ -296,7 +244,31 @@
         	</annotation>
 		</Elevator>
 	</maneuver>
-  <maneuver>
+	<maneuver>
+	  <PopUp kind="automatic">
+	    <finalPoint type="pointType">
+	      <point><id>id_gq3y4k</id>
+	      <name>id_gq3y4k</name>
+	      <coordinate>
+	        <latitude>0N0'0.000''</latitude>
+	        <longitude>0E0'0.000''</longitude>
+	        <height>-3.0</height>
+	      </coordinate>
+	      <z>0.0</z>
+	      <zunits>NONE</zunits>
+	      </point>
+	      <radiusTolerance>10.0</radiusTolerance>
+	    </finalPoint>
+	    <duration>300</duration>
+	    <speed tolerance="100.0" type="float" unit="m/s">1.2</speed>
+	    <flags CurrPos="false" StationKeep="false" WaitAtSurface="false"/>
+	    <annotation>
+          <documentation>No documentation available</documentation>
+          <implementation-class>pt.lsts.neptus.mp.maneuvers.PopUp</implementation-class>
+        </annotation>
+	  </PopUp>
+	</maneuver>		
+	<maneuver>
       <CompassCalibration>
           <finalPoint type="pointType">
               <point>
@@ -323,54 +295,7 @@
               <implementation-class>pt.lsts.neptus.mp.maneuvers.CompassCalibration</implementation-class>
            </annotation>
       </CompassCalibration>
-  </maneuver>	
-	<maneuver>
-	    <CommsRelay>
-            <sys_a>lauv-seacon-2</sys_a>
-            <sys_b>lauv-seacon-3</sys_b>
-            <duration>3600</duration>
-            <startPoint type="pointType">
-                <point>
-                  <id>Start-Point</id>
-                  <coordinate>
-                    <latitude>0N</latitude>
-				    <longitude>0E</longitude>
-				    <depth>2</depth>
-				</coordinate>
-				</point>
-			</startPoint>
-			<move_threshold>30.0</move_threshold>
-			<speed unit="RPM">1000.0</speed>
-			<annotation>
-          		<documentation>No documentation available</documentation>
-          		<implementation-class>pt.lsts.neptus.mp.maneuvers.CommsRelay</implementation-class>
-        	</annotation>
-		</CommsRelay>
-	</maneuver>	
-	<maneuver>
-	  <PopUp kind="automatic">
-	    <finalPoint type="pointType">
-	      <point><id>id_gq3y4k</id>
-	      <name>id_gq3y4k</name>
-	      <coordinate>
-	        <latitude>0N0'0.000''</latitude>
-	        <longitude>0E0'0.000''</longitude>
-	        <height>-3.0</height>
-	      </coordinate>
-	      <z>0.0</z>
-	      <zunits>NONE</zunits>
-	      </point>
-	      <radiusTolerance>10.0</radiusTolerance>
-	    </finalPoint>
-	    <duration>300</duration>
-	    <speed tolerance="100.0" type="float" unit="m/s">1.2</speed>
-	    <flags CurrPos="false" StationKeep="false" WaitAtSurface="false"/>
-	    <annotation>
-          <documentation>No documentation available</documentation>
-          <implementation-class>pt.lsts.neptus.mp.maneuvers.PopUp</implementation-class>
-        </annotation>
-	  </PopUp>
-	</maneuver>	
+    </maneuver>	
   </feasibleManeuvers>
   <protocols-supported>
     <protocols> time-shell</protocols>
@@ -396,7 +321,7 @@
           <port>6002</port>
           <udp-on>true</udp-on>
           <rtps-on>false</rtps-on>
-          <imc3-id>00:1C</imc3-id>
+          <imc3-id>00:1E</imc3-id>
         </imc>
       </protocols-args>
     </comm-mean>
