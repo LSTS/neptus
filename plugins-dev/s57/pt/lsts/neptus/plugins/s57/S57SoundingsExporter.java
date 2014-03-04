@@ -76,7 +76,7 @@ public class S57SoundingsExporter extends ConsolePanel {
                         }
                         
                         StateRenderer2D renderer = maps.firstElement().getRenderer();
-                        renderer.getWorldMapPainter().get
+                        //renderer.getWorldMapPainter().get
                         System.out.println("Export soundings!!");
                     }
                 });
