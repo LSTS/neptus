@@ -6,3 +6,4 @@
 # SVN_PATH=@SVN_PATH@
 
 pt.lsts.neptus.plugins.s57.S57Chart
+pt.lsts.neptus.plugins.s57.S57SoundingsExporter

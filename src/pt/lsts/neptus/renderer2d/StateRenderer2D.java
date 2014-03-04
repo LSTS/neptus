@@ -2103,4 +2103,11 @@ public class StateRenderer2D extends JPanel implements PropertiesProvider, Rende
     public StateRenderer2D getRenderer() {
         return this;
     }
+
+    /**
+     * @return the worldMapPainter
+     */
+    public WorldRenderPainter getWorldMapPainter() {
+        return worldMapPainter;
+    }
 }
