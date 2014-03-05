@@ -1699,4 +1699,8 @@ public class WorldRenderPainter implements Renderer2DPainter, MouseListener, Mou
         }
         //        NeptusLog.pub().info("<###>mouseExited > " + e.getX() + " :: " + e.getY());
     }
+    
+    public Map<String, MapPainterProvider> getMapPainters() {
+        return Collections.unmodifiableMap(mapPainterHolderList);
+    }
 }
