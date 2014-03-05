@@ -33,6 +33,11 @@ package pt.lsts.neptus.plugins.s57;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Vector;
 
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -41,6 +46,8 @@ import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -50,6 +57,8 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 @PluginDescription
 public class S57SoundingsExporter extends ConsolePanel {
+
+    private static final long serialVersionUID = 1653621815781506755L;
 
     public S57SoundingsExporter(ConsoleLayout cl) {
         super(cl);
@@ -68,16 +77,43 @@ public class S57SoundingsExporter extends ConsolePanel {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        
+
                         Vector<MapPanel> maps = getConsole().getSubPanelsOfClass(MapPanel.class);
                         if (maps.isEmpty()) {
-                            GuiUtils.errorMessage(getConsole(), "Export soundings", "Cannot export soundings because there is no map in the console");
+                            GuiUtils.errorMessage(getConsole(), "Export soundings",
+                                    "Cannot export soundings because there is no map in the console");
                             return;
                         }
-                        
+
                         StateRenderer2D renderer = maps.firstElement().getRenderer();
-                        //renderer.getWorldMapPainter().get
-                        System.out.println("Export soundings!!");
+                        Map<String, MapPainterProvider> painters = renderer.getWorldMapPainter().getMapPainters();
+
+                        ArrayList<LocationType> soundings = new ArrayList<>();
+                        for (MapPainterProvider p : painters.values()) {
+                            if (p instanceof S57Chart) {
+                                S57Chart chart = (S57Chart) p;
+                                LocationType topLeft = renderer.getTopLeftLocationType().convertToAbsoluteLatLonDepth();
+                                LocationType bottomRight = renderer.getBottomRightLocationType()
+                                        .convertToAbsoluteLatLonDepth();
+                                soundings.addAll(chart.getDepthSoundings(bottomRight.getLatitudeDegs(),
+                                        topLeft.getLatitudeDegs(), topLeft.getLongitudeDegs(),
+                                        bottomRight.getLongitudeDegs()));
+                            }
+                        }
+                        
+                        try {
+                            File f = new File("soundings.csv");
+                            BufferedWriter w = new BufferedWriter(new FileWriter(f));
+                            for (LocationType loc : soundings) {
+                                w.write(String.format("%.8f,%.8f,%.2f\n",loc.getLatitudeDegs(),loc.getLongitudeDegs(),loc.getDepth()));
+                            }
+                            w.close();
+                            GuiUtils.infoMessage(getConsole(), "Export soundings", "Exported "+soundings.size()+" soundings to "+f.getAbsolutePath());
+                        }
+                        catch (Exception ex) {
+                            GuiUtils.errorMessage(getConsole(), ex);
+                            ex.printStackTrace();
+                        }
                     }
                 });
     }
