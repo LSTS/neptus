@@ -184,7 +184,7 @@ public class TrakerTeste extends JPanel
             LinkedHashMap<String, MarkElement> transList = mpm.getMap().getMarksList();
             for (MarkElement tmp : transList.values())
             {
-                String name = tmp.getId();
+                String name = tmp.getName();
                 if (name.equalsIgnoreCase("start"))
                 {
                     locStart.setLocation(tmp.getCenterLocation());
@@ -227,6 +227,7 @@ public class TrakerTeste extends JPanel
             MarkElement mo = new MarkElement(null, null);
             mo.setCenterLocation(new LocationType(cs));
             mo.setId(cs.getId());
+            mo.setName(cs.getName());
             mo.setYawDeg(cs.getYaw());
             mapCS.addObject(mo);
         }
@@ -404,6 +405,7 @@ public class TrakerTeste extends JPanel
             MarkElement mo = new MarkElement(null, null);
             mo.setCenterLocation(loc);
             mo.setId("tracker-" + i);
+            mo.setName(mo.getId());
             mapCS.addObject(mo);
 
             /*

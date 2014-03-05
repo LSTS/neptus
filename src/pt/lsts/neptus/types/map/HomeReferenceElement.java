@@ -55,6 +55,7 @@ public class HomeReferenceElement extends AbstractElement {
 		if (mg != null && mg.getCoordinateSystem() != null)
 			setCoordinateSystem(mg.getCoordinateSystem());
 		
+		setName("Home Reference");
 		setYawDeg(getCoordinateSystem().getYaw());
 		setPitchDeg(getCoordinateSystem().getPitch());
 		setRollDeg(getCoordinateSystem().getRoll());

@@ -151,7 +151,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	
 	/**
 	 * @param client
-	 * @param id
+	 * @param name
 	 * @param uri
 	 */
 	public DownloaderPanel(FtpDownloader client, FTPFile ftpFile, String uri, File outFile) {

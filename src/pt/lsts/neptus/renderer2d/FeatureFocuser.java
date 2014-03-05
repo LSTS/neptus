@@ -124,7 +124,7 @@ public class FeatureFocuser implements IEditorMenuExtension {
         
         for (TransponderElement me : mg.getAllObjectsOfType(TransponderElement.class)) {
             final LocationType l = me.getCenterLocation();
-            JMenuItem menuItem = new JMenuItem(me.getId(), transpIcon);
+            JMenuItem menuItem = new JMenuItem(me.getName(), transpIcon);
             menuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {                    

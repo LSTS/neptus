@@ -90,6 +90,7 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
     public ImageElement(File imgFile, File worldFile) throws Exception {
         originalFilePath = imgFile.getAbsolutePath();
         setId(imgFile.getName());
+        setName(imgFile.getName());
         String[] lines = FileUtil.getFileAsString(worldFile).split("\n");
 
         image = ImageUtils.getImage(imgFile.getAbsolutePath());

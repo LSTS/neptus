@@ -262,6 +262,7 @@ public class LogUtils {
 
         MarkElement start = new MarkElement();
         start.setId("start");
+        start.setName("start");
         map.addObject(start);
 
         LocationType sloc = getStartupPoint(source);
@@ -418,6 +419,7 @@ public class LogUtils {
                     lt.setLongitudeDegs(lon);
                     lt.setDepth(depth);
                     el.setId(beacon);
+                    el.setName(beacon);
                     el.setCenterLocation(lt);
                     transp.add(el);
                 }
@@ -438,6 +440,7 @@ public class LogUtils {
                     lt.setLongitudeDegs(lon);
                     lt.setDepth(depth);
                     el.setId(beacon);
+                    el.setName(beacon);
                     el.setCenterLocation(lt);
                     transp.add(el);
                 }

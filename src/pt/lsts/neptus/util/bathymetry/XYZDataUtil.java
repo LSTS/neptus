@@ -334,6 +334,7 @@ public class XYZDataUtil {
 
         ImageElement imageElement = new ImageElement(MapGroup.getNewInstance(cs), mapT);
         imageElement.setId(imageNameId);
+        imageElement.setName(imageNameId);
         imageElement.setCenterLocation(centerLocation);
         imageElement.setImageScale(scale);
         imageElement.setImage(destination);

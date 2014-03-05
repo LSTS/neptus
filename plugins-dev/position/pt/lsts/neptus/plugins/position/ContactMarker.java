@@ -146,6 +146,7 @@ public class ContactMarker extends SimpleSubPanel implements IEditorMenuExtensio
         MarkElement contact = new MarkElement(mapType.getMapGroup(), mapType);
 
         contact.setId(id);
+        contact.setName(id);
         contact.setCenterLocation(locContact);
         mapType.addObject(contact);
         mission.save(false);

@@ -84,7 +84,7 @@ public class Properties3D extends JDialog  {
 	public void setMapObject(AbstractElement mobj)
 	{
 		obj=mobj;
-		jLabel2.setText("Map Object "+obj.getId()); //nome
+		jLabel2.setText("Map Object "+obj.getName()); //nome
 		//NeptusLog.pub().info("<###> "+renderer.istrans(obj));
 		
 		checktrans.setSelected(renderer.isTrans(obj));//transp
@@ -110,7 +110,7 @@ public class Properties3D extends JDialog  {
 		
 		
 		//info
-		jTextArea.setText("Name:"+obj.getId()+
+		jTextArea.setText("Name:"+obj.getName()+
 				"\nId:"+obj.getId()+"\nPosition:\nN:"+obj.getNEDPosition()[0]+"\nE:"+obj.getNEDPosition()[1]+
 				"\nD:"+obj.getNEDPosition()[2]);
 		

@@ -347,7 +347,7 @@ public class Model3DElement extends AbstractElement implements ScalableElement, 
 	        g.drawString("3D", -6, 6);
 	        
 	        g.setColor(Color.BLACK);
-	        g.drawString(getId(), 6, 6);
+	        g.drawString(getName(), 6, 6);
 	        
 	        g.rotate(rotation);
 	        g.scale(1,-1);

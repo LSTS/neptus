@@ -698,7 +698,7 @@ public class RemotePositionPublisherUpdater extends SimpleSubPanel implements IP
                         TransponderElement.class);
                 for (TransponderElement beacon : ts) {
                     Element vs = ms.addElement("VehicleState");
-                    vs.addAttribute("id", beacon.getId()); // vtl.getVehicleId());
+                    vs.addAttribute("id", beacon.getName()); // vtl.getVehicleId());
                     LocationType locBeacon = beacon.getCenterLocation().getNewAbsoluteLatLonDepth();
                     try {
                         // if (System.currentTimeMillis() - beacon.getCenterLocation() > DateTimeUtil.HOUR) {
