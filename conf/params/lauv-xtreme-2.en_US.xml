@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,9a669c8)" system="lauv-xtreme-2" i18n="en_US">
+<config format="1" version="2.5.0-rc1 (master,0b87de3)" system="lauv-xtreme-2" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -3520,7 +3520,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>26.75, 27.34, 92.49, 96.09, 110.99, 114.59</default>
+      <default>24.5, 25.09, 90.24, 93.84, 108.74, 112.34</default>
       <units>W</units>
       <desc>Corresponding value of power consumption</desc>
     </param>
@@ -3650,10 +3650,11 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5.0</default>
+      <default>1.0</default>
       <units/>
       <desc>No valid wet sensor data threshold value</desc>
-      <min>3.0</min>
+      <min>0.0</min>
+      <max>5.0</max>
     </param>
     <param name="GPS Timeout">
       <name-i18n>GPS Timeout</name-i18n>
@@ -3676,8 +3677,8 @@
       <min>0.2</min>
       <max>0.8</max>
     </param>
-    <param name="Ais Speed Threshold">
-      <name-i18n>Ais Speed Threshold</name-i18n>
+    <param name="Air Speed Threshold">
+      <name-i18n>Air Speed Threshold</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -5528,7 +5529,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CTD</default>
+      <default>Sound Velocity Sensor</default>
       <units/>
       <desc/>
     </param>
@@ -6842,23 +6843,16 @@
       <desc/>
       <min>2</min>
     </param>
-    <param name="Enable Reports">
-      <name-i18n>Enable Reports</name-i18n>
-      <type>boolean</type>
+    <param name="Acoustic Feedback">
+      <name-i18n>Acoustic Feedback</name-i18n>
+      <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>Ranges</default>
       <units/>
-      <desc>Report data acoustically</desc>
-    </param>
-    <param name="Make Reports Verbose">
-      <name-i18n>Make Reports Verbose</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Report more verbose data acoustically</desc>
+      <desc>Data to be reported acoustically</desc>
+      <values>None, Ranges, Full</values>
+      <values-i18n>None, Ranges, Full</values-i18n>
     </param>
     <param name="Reports Periodicity">
       <name-i18n>Reports Periodicity</name-i18n>
@@ -7048,6 +7042,83 @@
       <size>9</size>
     </param>
   </section>
+  <section name="Sound Speed Sensor" name-i18n="Sound Speed Sensor">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Sound Speed Sensor</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/uart/7</default>
+      <units/>
+      <desc>Serial port device used to communicate with the sensor</desc>
+    </param>
+    <param name="Serial Port - Baud Rate">
+      <name-i18n>Serial Port - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>19200</default>
+      <units/>
+      <desc>Serial port baud rate</desc>
+    </param>
+    <param name="Input Timeout">
+      <name-i18n>Input Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4</default>
+      <units>s</units>
+      <desc>Amount of seconds to wait for data before reporting an error</desc>
+      <min>2.0</min>
+    </param>
+  </section>
   <section name="DVL" name-i18n="DVL">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -7095,33 +7166,6 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Active - Scope">
-      <name-i18n>Active - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>idle</default>
-      <units/>
-      <desc>Scoped of the 'Active' parameter</desc>
-    </param>
-    <param name="Active - Visibility">
-      <name-i18n>Active - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Active' parameter</desc>
-    </param>
-    <param name="Active">
-      <name-i18n>Active</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>idle</scope>
-      <default>0</default>
-      <units/>
-      <desc>True to activate task, false otherwise</desc>
     </param>
     <param name="Serial Port - Device">
       <name-i18n>Serial Port - Device</name-i18n>
@@ -7250,14 +7294,16 @@
       <units/>
       <desc>Enable to activate device when at surface</desc>
     </param>
-    <param name="Operator Control">
-      <name-i18n>Operator Control</name-i18n>
-      <type>boolean</type>
+    <param name="Control Override">
+      <name-i18n>Control Override</name-i18n>
+      <type>string</type>
       <visibility>user</visibility>
       <scope>idle</scope>
-      <default>false</default>
+      <default>None</default>
       <units/>
       <desc>Operator is able to control device</desc>
+      <values>None, Deactivate, Activate</values>
+      <values-i18n>None, Deactivate, Activate</values-i18n>
     </param>
     <param name="Power Channel">
       <name-i18n>Power Channel</name-i18n>
@@ -7361,93 +7407,6 @@
       <default>Mainboard (Board)</default>
       <units/>
       <desc>Entity label of temperature sensor number 2</desc>
-    </param>
-  </section>
-  <section name="CTD" name-i18n="CTD">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>CTD</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Serial Port - Device">
-      <name-i18n>Serial Port - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>/dev/uart/7</default>
-      <units/>
-      <desc>Serial port device used to communicate with the sensor</desc>
-    </param>
-    <param name="Serial Port - Baud Rate">
-      <name-i18n>Serial Port - Baud Rate</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>19200</default>
-      <units/>
-      <desc>Serial port baud rate</desc>
-    </param>
-    <param name="Sound Speed Moving Average Samples">
-      <name-i18n>Sound Speed Moving Average Samples</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Number of moving average samples to smooth sound speed</desc>
-      <min>0</min>
-    </param>
-    <param name="Sound Speed Output Frequency">
-      <name-i18n>Sound Speed Output Frequency</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units>Hz</units>
-      <desc>Output frequency of sound speed estimations</desc>
-      <min>0.1</min>
     </param>
   </section>
   <section name="Lost Comms" name-i18n="Lost Comms">

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.5.0-rc1 (master,0b87de3)" system="doam" i18n="pt_PT">
-  <section name="Thermal Zone" name-i18n="Zona Térmica">
+<config format="1" version="2.5.0-rc1 (master,0b87de3)" system="lauv-seacon-1-aux" i18n="pt_PT">
+  <section name="Power Supervisor" name-i18n="Supervisor de Energia">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Thermal Zone</default>
+      <default>Power Supervisor</default>
       <units/>
       <desc>Nome principal da entidade</desc>
     </param>
@@ -48,32 +48,32 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
-    <param name="Execution Frequency">
-      <name-i18n>Frequência de Execução</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units>Hz</units>
-      <desc>Frequência com que a tarefa é executada</desc>
-    </param>
-    <param name="Path">
-      <name-i18n>Path</name-i18n>
+    <param name="Main Power Channel">
+      <name-i18n>Main Power Channel</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/sys/class/thermal/thermal_zone0/temp</default>
+      <default>System</default>
       <units/>
-      <desc>Path to the sysfs file</desc>
+      <desc>Name of the main power channel</desc>
     </param>
-    <param name="Entity Label - Temperature">
-      <name-i18n>Entity Label - Temperature</name-i18n>
+    <param name="Command - On Power Down">
+      <name-i18n>Command - On Power Down</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Mainboard (Core)</default>
+      <default>services syslog stop &amp;&amp; mount -o remount,ro /opt &amp;&amp; mount -o remount,ro /opt/lsts/dune/log</default>
       <units/>
-      <desc>Entity label of temperature sensor</desc>
+      <desc>Command to execute before powering down the system</desc>
+    </param>
+    <param name="Command - On Power Down Abort">
+      <name-i18n>Command - On Power Down Abort</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>mount -o remount,rw /opt/lsts/dune/log &amp;&amp; mount -o remount,rw /opt &amp;&amp; services syslog restart</default>
+      <units/>
+      <desc>Command to execute when the power down sequence is aborted</desc>
     </param>
   </section>
   <section name="FTP Server" name-i18n="Servidor FTP">
@@ -205,7 +205,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Heartbeat, LoggingControl</default>
+      <default>Heartbeat, LoggingControl, PowerChannelControl</default>
       <units/>
       <desc>Messages to transport</desc>
     </param>
@@ -241,7 +241,7 @@
       <type>ipv4-address</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10.0.10.50</default>
+      <default>10.0.10.10</default>
       <units/>
       <desc>Remote server address</desc>
     </param>
@@ -297,7 +297,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>None</default>
+      <default>Trace</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
@@ -330,181 +330,185 @@
       <units/>
       <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
     </param>
+    <param name="Power GPIO">
+      <name-i18n>Power GPIO</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>76</default>
+      <units/>
+      <desc>GPIO that controls power to the camera</desc>
+    </param>
     <param name="Camera IPv4 Address">
       <name-i18n>Camera IPv4 Address</name-i18n>
       <type>ipv4-address</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10.0.10.52</default>
+      <default>10.0.10.12</default>
       <units/>
       <desc>IPv4 address of the camera</desc>
-    </param>
-    <param name="Local IPv4 Address">
-      <name-i18n>Local IPv4 Address</name-i18n>
-      <type>ipv4-address</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0.10.53</default>
-      <units/>
-      <desc>Local IPv4 address</desc>
     </param>
     <param name="Frames Per Second">
       <name-i18n>Frames Per Second</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>3</default>
+      <default>7</default>
       <units/>
       <desc>Frames per second</desc>
     </param>
-    <param name="Stream Port">
-      <name-i18n>Stream Port</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>61200</default>
-      <units/>
-      <desc>Local UDP port used to receive the video stream</desc>
-    </param>
-    <param name="Exposure Time">
-      <name-i18n>Exposure Time</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.00800</default>
-      <units>s</units>
-      <desc>Exposure time</desc>
-      <min>0.0001</min>
-      <max>30.0</max>
-    </param>
-    <param name="Automatic Exposure">
-      <name-i18n>Automatic Exposure</name-i18n>
+    <param name="Auto Exposure">
+      <name-i18n>Auto Exposure</name-i18n>
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
-      <desc>Automatic Exposure (maximum exposure time set to Exposure Time)</desc>
+      <desc>Enable automatic exposure</desc>
     </param>
-    <param name="Automatic Exposure - Minimum Value">
-      <name-i18n>Automatic Exposure - Minimum Value</name-i18n>
+    <param name="Exposure Value">
+      <name-i18n>Exposure Value</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.002</default>
+      <default>0.008</default>
       <units/>
-      <desc>Minimum exposure value when using automatic exposure filter</desc>
+      <desc>Exposure value if auto exposure is disabled</desc>
     </param>
-    <param name="Gain">
-      <name-i18n>Gain</name-i18n>
-      <type>integer</type>
+    <param name="Autoexposure Knee">
+      <name-i18n>Autoexposure Knee</name-i18n>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>260</default>
+      <default>5</default>
       <units/>
-      <desc>Gain</desc>
-      <min>260</min>
-      <max>1023</max>
+      <desc>Exposure limit before increasing the gain (in miliseconds)</desc>
+    </param>
+    <param name="Maximum Exposure">
+      <name-i18n>Maximum Exposure</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Maximum exposure in miliseconds</desc>
+    </param>
+    <param name="Auto Gain">
+      <name-i18n>Auto Gain</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable automatic gain</desc>
+    </param>
+    <param name="Gain Value">
+      <name-i18n>Gain Value</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units/>
+      <desc>Gain value if auto gain is disabled</desc>
+    </param>
+    <param name="Autogain Knee">
+      <name-i18n>Autogain Knee</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units/>
+      <desc>Gain limit before increasing the exposure</desc>
+    </param>
+    <param name="Maximum Gain">
+      <name-i18n>Maximum Gain</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4.0</default>
+      <units/>
+      <desc>Maximum gain</desc>
     </param>
     <param name="Gamma">
       <name-i18n>Gamma</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>120</default>
+      <default>1.4</default>
       <units/>
-      <desc>Gamma</desc>
-      <min>1</min>
-      <max>500</max>
+      <desc>Gamma Value</desc>
     </param>
-    <param name="Strobe Mode">
-      <name-i18n>Strobe Mode</name-i18n>
+    <param name="Median Filter">
+      <name-i18n>Median Filter</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>False</default>
+      <units/>
+      <desc>Enable Median Filter</desc>
+    </param>
+    <param name="Auto White Balance">
+      <name-i18n>Auto White Balance</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable Continuous Automatic White Balance</desc>
+    </param>
+    <param name="White Balance Gain Red">
+      <name-i18n>White Balance Gain Red</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units/>
+      <desc>White Balance Gain Red</desc>
+    </param>
+    <param name="White Balance Gain Green">
+      <name-i18n>White Balance Gain Green</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units/>
+      <desc>White Balance Gain Green</desc>
+    </param>
+    <param name="White Balance Gain Blue">
+      <name-i18n>White Balance Gain Blue</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units/>
+      <desc>White Balance Gain Blue</desc>
+    </param>
+    <param name="Strobe">
+      <name-i18n>Strobe</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Enable Strobe</desc>
+    </param>
+    <param name="Power Channel - Strobe">
+      <name-i18n>Power Channel - Strobe</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Exposure</default>
+      <default>Camera - Strobe</default>
       <units/>
-      <desc>Strobe mode</desc>
-      <values>Off, Always On, Fixed, Exposure</values>
-      <values-i18n>Off, Always On, Fixed, Exposure</values-i18n>
+      <desc>Power channel of the strobe</desc>
     </param>
-    <param name="Strobe Polarity">
-      <name-i18n>Strobe Polarity</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Strobe polarity</desc>
-    </param>
-    <param name="Strobe Delay">
-      <name-i18n>Strobe Delay</name-i18n>
+    <param name="Volume Size">
+      <name-i18n>Volume Size</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
-      <units>us</units>
-      <desc>Strobe delay</desc>
-      <min>-10000</min>
-      <max>10000</max>
-    </param>
-    <param name="Strobe Duration">
-      <name-i18n>Strobe Duration</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
+      <default>1000</default>
       <units/>
-      <desc>Strobe duration</desc>
-      <min>0</min>
-      <max>20000</max>
-    </param>
-    <param name="Number of Buffers">
-      <name-i18n>Number of Buffers</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>100</default>
-      <units/>
-      <desc>Number of buffers</desc>
-    </param>
-    <param name="JPEG Quality">
-      <name-i18n>JPEG Quality</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>80</default>
-      <units>%</units>
-      <desc>JPEG image quality</desc>
-      <min>0</min>
-      <max>100</max>
-    </param>
-    <param name="Store Raw">
-      <name-i18n>Store Raw</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Store raw image data in PGM format</desc>
-    </param>
-    <param name="White Balance - B Factor">
-      <name-i18n>White Balance - B Factor</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="White Balance - R Factor">
-      <name-i18n>White Balance - R Factor</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units/>
-      <desc/>
+      <desc>Number of photos per volume</desc>
     </param>
   </section>
 </config>

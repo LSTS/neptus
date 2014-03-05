@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.1 (release/dune-2.4.x,817e45a)" system="lauv-seacon-1" i18n="pt_PT">
+<config format="1" version="2.5.0-rc1 (master,0b87de3)" system="lauv-seacon-1" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -3089,7 +3089,7 @@
       <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>+351918620815</default>
+      <default>+351966575686</default>
       <units/>
       <desc>Número de telefone do destinatário de mensagens SMS</desc>
     </param>
@@ -6582,23 +6582,16 @@
       <desc/>
       <min>2</min>
     </param>
-    <param name="Enable Reports">
-      <name-i18n>Permitir Relatórios</name-i18n>
-      <type>boolean</type>
+    <param name="Acoustic Feedback">
+      <name-i18n>Feedback Acústico</name-i18n>
+      <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>Ranges</default>
       <units/>
-      <desc>Report data acoustically</desc>
-    </param>
-    <param name="Make Reports Verbose">
-      <name-i18n>Fazer Relatórios Verbosos</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Report more verbose data acoustically</desc>
+      <desc>Data to be reported acoustically</desc>
+      <values>None, Ranges, Full</values>
+      <values-i18n>Nenhum, Distâncias, Completo</values-i18n>
     </param>
     <param name="Reports Periodicity">
       <name-i18n>Periodicidade de Relatórios</name-i18n>
@@ -6836,33 +6829,6 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
-    <param name="Active - Scope">
-      <name-i18n>Ativa - Escopo</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>idle</default>
-      <units/>
-      <desc>Escopo do parâmetro 'Ativa'</desc>
-    </param>
-    <param name="Active - Visibility">
-      <name-i18n>Ativa - Visibilidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibilidade do parâmetro 'Ativa'</desc>
-    </param>
-    <param name="Active">
-      <name-i18n>Ativa</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>idle</scope>
-      <default>0</default>
-      <units/>
-      <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
-    </param>
     <param name="Serial Port - Device">
       <name-i18n>Serial Port - Device</name-i18n>
       <type>string</type>
@@ -6990,14 +6956,16 @@
       <units/>
       <desc>Enable to activate device when at surface</desc>
     </param>
-    <param name="Operator Control">
-      <name-i18n>Controlo do Operador</name-i18n>
-      <type>boolean</type>
+    <param name="Control Override">
+      <name-i18n>Controlo sobre Dispositivo</name-i18n>
+      <type>string</type>
       <visibility>user</visibility>
       <scope>idle</scope>
-      <default>false</default>
+      <default>None</default>
       <units/>
       <desc>Operator is able to control device</desc>
+      <values>None, Deactivate, Activate</values>
+      <values-i18n>Nenhum, Desativar, Ativar</values-i18n>
     </param>
     <param name="Power Channel">
       <name-i18n>Power Channel</name-i18n>
