@@ -59,19 +59,19 @@ public class BathymetryReplay extends ColormapOverlay implements LogReplayLayer 
 
     @NeptusProperty(name="Cell width")
     public int cellWidth = 8;
-    
+
     private LsfIndex index;
     private boolean parsed = false, parsing = false; 
-    
+
     public BathymetryReplay() {
         super("Bathymetry", 50, true, 0);              
     }
-    
+
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getLsfIndex().getDefinitions().getVersion().compareTo("5.0.0") >= 0;
+        return (source.getLsfIndex().getDefinitions().getVersion().compareTo("5.0.0") >= 0 && source.getLsfIndex().containsMessagesOfType("Distance"));
     }
-    
+
     @Override
     public void cleanup() {
         generated = scaled = null;
@@ -81,29 +81,29 @@ public class BathymetryReplay extends ColormapOverlay implements LogReplayLayer 
     public String getName() {
         return I18n.text("Bathymetry layer");
     }
-    
+
 
     @Override
     public String[] getObservedMessages() {
         return new String[0];
     }
-    
+
 
     @Override
     public boolean getVisibleByDefault() {
         return false;
     }
-    
+
     @Override
     public void onMessage(IMCMessage message) {
-        
+
     }
-    
+
     @Override
     public void parse(IMraLogGroup source) {
         this.index = source.getLsfIndex();
     }
-    
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if (!parsed) {
@@ -113,9 +113,9 @@ public class BathymetryReplay extends ColormapOverlay implements LogReplayLayer 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    
+
                     TidePredictionFinder finder = TidePredictionFactory.create(index);
-                    
+
                     if (index.getDefinitions().getVersion().compareTo("5.0.0") >= 0) {
                         for (EstimatedState state : index.getIterator(EstimatedState.class)) {
                             if (state.getAlt() < 0 || state.getDepth() < NeptusMRA.minDepthForBathymetry || Math.abs(state.getTheta()) > Math.toDegrees(10))
@@ -143,11 +143,11 @@ public class BathymetryReplay extends ColormapOverlay implements LogReplayLayer 
                         e.printStackTrace();
                     }
                     parsing = false;
-                    
+
                 }
             }, "Bathymetry overlay").start();
         }
-        
+
         if (!parsing)
             super.paint(g, renderer);
     }
