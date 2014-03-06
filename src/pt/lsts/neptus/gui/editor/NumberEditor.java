@@ -297,7 +297,7 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
     }
     
     @SuppressWarnings("unchecked")
-    private T convertFromString(String txt) {
+    private T convertFromString(String txt) throws NumberFormatException {
         if (pattern == null) {
             pattern = Pattern.compile(elementPattern, Pattern.CASE_INSENSITIVE);
         }
@@ -322,7 +322,12 @@ public class NumberEditor<T extends Number> extends NumberPropertyEditor impleme
     }
 
     protected String convertToString(Object value) {
-        return (String) ConverterRegistry.instance().convert(String.class, value);
+        if (value instanceof Double || value instanceof Float)
+            return "" + value;
+        else if (value instanceof Long || value instanceof Integer)
+            return "" + value;
+
+        return ((String) ConverterRegistry.instance().convert(String.class, value)); //.replace(",", ".");
     }
 
     /* (non-Javadoc)
