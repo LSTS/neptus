@@ -920,6 +920,10 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
                 public void actionPerformed(ActionEvent e) {
                     LblConfig msgLBLConfiguration = new LblConfig();
                     msgLBLConfiguration.setOp(LblConfig.OP.SET_CFG);
+                    msgLBLConfiguration.setBeacons(new Vector<LblBeacon>());
+                    sendMsg(msgLBLConfiguration);
+                    msgLBLConfiguration = new LblConfig();
+                    msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
                     sendMsg(msgLBLConfiguration);
                     // TODO On hold until removing all beacons is stable
                     // browser.removeAllTransponders(console.getMission());
