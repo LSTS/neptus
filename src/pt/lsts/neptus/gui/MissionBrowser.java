@@ -269,7 +269,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     private MapType getMap(MissionType mt) {
-        return mt.getMapsList().values().iterator().next().getMap();
+        MapGroup mg = MapGroup.getMapGroupInstance(mt);
+        return mg.getMaps()[0];
+        // return mt.getMapsList().values().iterator().next().getMap();
     }
 
     private void saveMission(MissionType mission) {
@@ -283,7 +285,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 I18n.text("Delete"), JOptionPane.YES_NO_OPTION);
         if (ret == JOptionPane.YES_OPTION) {
             treeModel.removeById(elem.getIdentification(), ParentNodes.TRANSPONDERS);
-            elem.getParentMap().remove(elem.getIdentification());
+            MapType parentMap = elem.getParentMap();
+            parentMap.remove(elem.getIdentification());
+            getMap(console2.getMission()).remove(elem.getIdentification());
             saveMission(console2.getMission());
         }
     }
