@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.5.0-rc1 (master,0b87de3)" system="adamastor" i18n="en_US">
+<config format="1" version="2.5.0-rc1 (master,204cdfe)" system="adamastor" i18n="en_US">
   <section name="LED Driver" name-i18n="LED Driver">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
