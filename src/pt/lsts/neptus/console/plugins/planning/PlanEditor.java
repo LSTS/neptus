@@ -800,6 +800,8 @@ MissionChangeListener {
         };
         copy.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/editcopy.png")));
         actions.add(copy);
+        
+        actions.add(getPasteAction((Point) mousePoint));
 
         List<String> names = Arrays.asList(mf.getAvailableManeuversIDs());
         Collections.sort(names, new Comparator<String>() {
@@ -1143,6 +1145,8 @@ MissionChangeListener {
 
                 popup.addSeparator();
 
+                popup.add(getPasteAction((Point) mousePoint));
+
                 List<String> names = Arrays.asList(mf.getAvailableManeuversIDs());
                 Collections.sort(names);
                 
@@ -1164,8 +1168,6 @@ MissionChangeListener {
                     };
                     popup.add(act);
                 }
-
-                popup.add(getPasteAction((Point) mousePoint));
 
 //                AbstractAction act = new AbstractAction(I18n.text("Simulate plan"), null) {
 //                    private static final long serialVersionUID = 1L;
@@ -1293,15 +1295,26 @@ MissionChangeListener {
                         m.loadFromXML(xml);
                         m.setId(getNewManeuverName(maneuverType));
                         if (m instanceof LocatedManeuver) {
-                            LocationType originalPos = ((LocatedManeuver) m).getManeuverLocation();
-                            double originalDepth = originalPos.getAllZ();
+                            ManeuverLocation originalPos = ((LocatedManeuver) m).getManeuverLocation().clone();
                             LocationType pos = renderer.getRealWorldLocation(mousePoint);
-                            pos.setAbsoluteDepth(originalDepth);
-                            ((LocatedManeuver) m).getManeuverLocation().setLocation(pos);
+                            originalPos.setLatitudeRads(pos.getLatitudeRads());
+                            originalPos.setLongitudeRads(pos.getLongitudeRads());
+                            ((LocatedManeuver) m).setManeuverLocation(originalPos);
                         }
+
+                        Vector<TransitionType> addedTransitions = new Vector<TransitionType>();
+                        Vector<TransitionType> removedTransitions = new Vector<TransitionType>();
+                        
                         plan.getGraph().addManeuver(m);
-                        plan.getGraph().addTransition(plan.getGraph().getLastManeuver().getId(), m.getId(),
-                                defaultCondition);
+                        parsePlan();
+                        addedTransitions.add(plan.getGraph().addTransition(plan.getGraph().getLastManeuver().getId(), m.getId(),
+                                defaultCondition));
+                        planElem.recalculateManeuverPositions(renderer);
+
+                        manager.addEdit(new ManeuverAdded(m, plan, addedTransitions, removedTransitions));
+
+                        getPropertiesPanel().setManeuver(m);
+
                         repaint();
                     }
                 }
