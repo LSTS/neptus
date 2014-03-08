@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.5.0-rc1 (master,204cdfe)" system="lauv-dolphin-1-doam" i18n="pt_PT">
+<config format="1" version="2.5.0-rc1 (master,204cdfe)" system="lauv-seacon-1-aux" i18n="pt_PT">
   <section name="Power Supervisor" name-i18n="Supervisor de Energia">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -241,7 +241,7 @@
       <type>ipv4-address</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10.0.10.80</default>
+      <default>10.0.10.10</default>
       <units/>
       <desc>Remote server address</desc>
     </param>
@@ -297,7 +297,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Spew</default>
+      <default>Trace</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
@@ -335,7 +335,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>-1</default>
+      <default>76</default>
       <units/>
       <desc>GPIO that controls power to the camera</desc>
     </param>
@@ -344,7 +344,7 @@
       <type>ipv4-address</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10.0.10.82</default>
+      <default>10.0.10.12</default>
       <units/>
       <desc>IPv4 address of the camera</desc>
     </param>
@@ -488,7 +488,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>True</default>
+      <default>true</default>
       <units/>
       <desc>Enable Strobe</desc>
     </param>
