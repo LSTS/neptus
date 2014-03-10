@@ -44,6 +44,7 @@ import javax.swing.JToolBar;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.CTD3D;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -89,6 +90,9 @@ public class CTD3DToolbar extends JToolBar {
         ButtonGroup groupToggles = new ButtonGroup();
         groupToggles.add(tempToggle);
         groupToggles.add(salinityToggle);
+
+        add(tempToggle);
+        add(salinityToggle);
     }
 
     @Override
@@ -100,5 +104,12 @@ public class CTD3DToolbar extends JToolBar {
         GradientPaint gradPaint = new GradientPaint(0, 0, color1, getWidth(), getHeight(), color2);
         graphic2d.setPaint(gradPaint);
         graphic2d.fillRect(0, 0, getWidth(), getHeight());
+    }
+
+    public static void main(String[] args) {
+        CTD3DToolbar toolbar = new CTD3DToolbar(null);
+        toolbar.createtoolBar();
+        GuiUtils.testFrame(toolbar, "Test toolbar: " + toolbar.getClass().getSimpleName(), ICON_SIZE + 25,
+                ICON_SIZE * 3 + 500);
     }
 }
