@@ -45,10 +45,13 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.Window;
+import pt.lsts.neptus.plugins.vtk.cdt3d.InteractorStyle;
+import pt.lsts.neptus.plugins.vtk.cdt3d.Window;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
+import pt.lsts.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
+import pt.lsts.neptus.plugins.vtk.visualization.Text3D;
 import pt.lsts.neptus.util.ImageUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -63,6 +66,7 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
 
     private Canvas canvas;
     private Window winCanvas;
+    private InteractorStyle interactorStyle;
 
     private PointCloud<?> pointcloud;
 
@@ -76,26 +80,6 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
     }
 
     @Override
-    public DefaultProperty[] getProperties() {
-        return null;
-    }
-
-    @Override
-    public void setProperties(Property[] properties) {
-        PluginUtils.setPluginProperties(this, properties);
-    }
-
-    @Override
-    public String getPropertiesDialogTitle() {
-        return null;
-    }
-
-    @Override
-    public String[] getPropertiesErrors(Property[] properties) {
-        return null;
-    }
-
-    @Override
     public String getName() {
         return I18n.text("CTD 3D");
     }
@@ -104,13 +88,24 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
     public Component getComponent(IMraLogGroup source, double timestep) {
         this.source = source;
 
-        setLayout(new BorderLayout());
-
         canvas = new Canvas();
         canvas.LightFollowCameraOn();
+        canvas.GetRenderer().AutomaticLightCreationOn();
         canvas.setEnabled(true);
 
+        winCanvas = new Window(canvas);
+        interactorStyle = winCanvas.getInteractorStyle();
+
         add(canvas);
+
+        setLayout(new BorderLayout());
+
+        AxesWidget axesWidget = new AxesWidget(canvas.getRenderWindowInteractor());
+        axesWidget.createAxesWidget();
+
+        Text3D text = new Text3D();
+        text.buildText3D("TEST", 2.0, 2.0, 2.0, 10.0);
+        canvas.GetRenderer().AddActor(text.getText3dActor());
 
         return this;
     }
@@ -141,23 +136,40 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
         return Type.VISUALIZATION;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mra.visualizations.MRAVisualization#onHide()
-     */
     @Override
     public void onHide() {
-        // TODO Auto-generated method stub
 
     }
 
     @Override
     public void onShow() {
-
+        canvas.RenderSecured();
+        canvas.GetRenderer().ResetCamera();
     }
 
     @Override
     public void onCleanup() {
 
+    }
+
+    @Override
+    public DefaultProperty[] getProperties() {
+        return PluginUtils.getPluginProperties(this);
+    }
+
+    @Override
+    public void setProperties(Property[] properties) {
+        PluginUtils.setPluginProperties(this, properties);
+    }
+
+    @Override
+    public String getPropertiesDialogTitle() {
+        return "CTD #D properties";
+    }
+
+    @Override
+    public String[] getPropertiesErrors(Property[] properties) {
+        return PluginUtils.validatePluginProperties(this, properties);
     }
 
     /**
