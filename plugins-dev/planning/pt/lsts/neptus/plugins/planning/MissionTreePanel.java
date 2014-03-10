@@ -272,10 +272,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         browser.addMouseAdapter(mouseAdapter);
     }
 
-    // public void addPlanMenuItem(ActionItem item) {
-    // mouseAdapter.addPlanMenuItem(item);
-    // }
-
     public boolean removePlanMenuItem(String label) {
         return mouseAdapter.removePlanMenuItem(label);
     }
@@ -285,7 +281,6 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
         removePlanDBListener();
     }
 
-
     @Override
     public void missionReplaced(MissionType mission) {
         browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
@@ -294,7 +289,13 @@ public class MissionTreePanel extends SimpleSubPanel implements MissionChangeLis
     @Override
     public void missionUpdated(MissionType mission) {
         // it is called (among others) when the specs for a remote plan have just been received
+        Object selItemOld = browser.getSelectedItem();
         browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
+        Object selItem = browser.getSelectedItem();
+        // Update selected plan for console if it has changed from remote to sync (you can now edit it)
+        if (selItemOld instanceof PlanDBInfo && selItem instanceof PlanType) {
+            console.setPlan((PlanType) selItem);
+        }
     }
 
     /**
