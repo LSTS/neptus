@@ -58,6 +58,8 @@ public class PointCloudCTD {
 
     private vtkDoubleArray timestampArray;
 
+    private ColorHandler colorHandler;
+
     /**
      * @param cloudName
      */
@@ -112,6 +114,10 @@ public class PointCloudCTD {
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void handlePointCloudColors() {
+        colorHandler = new ColorHandler(this);
     }
 
     @Override
