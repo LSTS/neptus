@@ -31,13 +31,24 @@
  */
 package pt.lsts.neptus.plugins.vtk.cdt3d;
 
+import vtk.vtkDoubleArray;
 import vtk.vtkLookupTable;
+import vtk.vtkUnsignedCharArray;
 
 /**
  * @author hfq
  *
  */
 public class ColorHandler {
+    private PointCloudCTD pointcloud;
+
+    private vtkDoubleArray temperatureArray;
+    private vtkDoubleArray salinityArray;
+    private vtkDoubleArray pressureArray;
+
+    private vtkUnsignedCharArray colorsTemperature;
+    private vtkUnsignedCharArray colorsSalinity;
+    private vtkUnsignedCharArray colorsPressure;
 
     private vtkLookupTable lutTemperature;
     private vtkLookupTable lutSalinity;
@@ -46,7 +57,111 @@ public class ColorHandler {
     /**
      * 
      */
-    public ColorHandler() {
+    public ColorHandler(PointCloudCTD pointcloud) {
+        this.pointcloud = pointcloud;
 
+        this.temperatureArray = pointcloud.getTemperatureArray();
+        this.salinityArray = pointcloud.getSalinityArray();
+        this.pressureArray = pointcloud.getPressureArray();
+
+        this.colorsTemperature = new vtkUnsignedCharArray();
+        this.colorsSalinity = new vtkUnsignedCharArray();
+        this.colorsPressure = new vtkUnsignedCharArray();
+
+        this.lutTemperature = new vtkLookupTable();
+        this.lutSalinity = new vtkLookupTable();
+        this.lutPressure = new vtkLookupTable();
+    }
+
+    public void gerenerateColors() {
+        lutTemperature.SetRange(temperatureArray.GetRange());
+        lutTemperature.SetScaleToLinear();
+        lutTemperature.Build();
+
+        lutSalinity.SetRange(salinityArray.GetRange());
+        lutSalinity.SetScaleToLinear();
+        lutSalinity.Build();
+
+        lutPressure.SetRange(pressureArray.GetRange());
+        lutPressure.SetScaleToLinear();
+        lutPressure.Build();
+
+        colorsTemperature.SetNumberOfComponents(3);
+        colorsTemperature.SetName("colorsTemp");
+        colorsSalinity.SetNumberOfComponents(3);
+        colorsSalinity.SetName("colorsSalinity");
+        colorsPressure.SetNumberOfComponents(3);
+        colorsPressure.SetName("colorsPressure");
+
+        for (int i = 0; i < pointcloud.getNumberOfPoints(); ++i) {
+            double temperature = temperatureArray.GetValue(i);
+            double salinity = salinityArray.GetValue(i);
+            double pressure = pressureArray.GetValue(i);
+
+            double[] tempColor = new double[3];
+            double[] salColor = new double[3];
+            double[] pressColor = new double[3];
+
+            lutTemperature.GetColor(temperature, tempColor);
+            lutSalinity.GetColor(salinity, salColor);
+            lutPressure.GetColor(pressure, pressColor);
+
+            char[] colorTemp = new char[3];
+            char[] colorSalinity = new char[3];
+            char[] colorPressure = new char[3];
+
+            for (int j = 0; j < 3; ++j) {
+                colorTemp[j] = (char) (255.0 * tempColor[j]);
+                colorSalinity[j] = (char) (255.0 * salColor[j]);
+                colorPressure[j] = (char) (255.0 * pressColor[j]);
+            }
+
+            colorsTemperature.InsertNextTuple3(colorTemp[0], colorTemp[1], colorTemp[2]);
+            colorsSalinity.InsertNextTuple3(colorSalinity[0], colorSalinity[1], colorSalinity[2]);
+            colorsPressure.InsertNextTuple3(colorPressure[0], colorPressure[1], colorPressure[2]);
+
+        }
+    }
+
+    /**
+     * @return the lutTemperature
+     */
+    public vtkLookupTable getLutTemperature() {
+        return lutTemperature;
+    }
+
+    /**
+     * @param lutTemperature the lutTemperature to set
+     */
+    public void setLutTemperature(vtkLookupTable lutTemperature) {
+        this.lutTemperature = lutTemperature;
+    }
+
+    /**
+     * @return the lutSalinity
+     */
+    public vtkLookupTable getLutSalinity() {
+        return lutSalinity;
+    }
+
+    /**
+     * @param lutSalinity the lutSalinity to set
+     */
+    public void setLutSalinity(vtkLookupTable lutSalinity) {
+        this.lutSalinity = lutSalinity;
+    }
+
+    /**
+     * @return the lutPressure
+     */
+    public vtkLookupTable getLutPressure() {
+        return lutPressure;
+    }
+
+    /**
+     * @param lutPressure the lutPressure to set
+     */
+    public void setLutPressure(vtkLookupTable lutPressure) {
+        this.lutPressure = lutPressure;
     }
 }
