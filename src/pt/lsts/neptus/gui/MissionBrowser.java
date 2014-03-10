@@ -242,17 +242,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         State state = (State) selectedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
         transponderDialog(mission, elem);
         if (!elem.userCancel) {
-            // see if the id was changed
-            String idAfter = elem.getIdentification();
-            if (!idAfter.equals(elemBefore.getIdentification())) {
-                // create a new synced one with original
-                elemBefore.duneId = -1;
-                ExtendedTreeNode newNode = treeModel.addTransponderNode(elemBefore);
-                newNode.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
-                // set modifications as local
-                selectedTreeNode.getUserInfo().put(NodeInfoKey.SYNC.name(), State.LOCAL);
-            }
-            else if (state == State.SYNC && !elemBefore.equals(elem)) {
+            if (state == State.SYNC && !elemBefore.equals(elem)) {
                 setNodeSyncState(selectedTreeNode, State.NOT_SYNC);
             }
 
