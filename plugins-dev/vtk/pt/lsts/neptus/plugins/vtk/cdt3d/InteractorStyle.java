@@ -32,9 +32,11 @@
 package pt.lsts.neptus.plugins.vtk.cdt3d;
 
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
+import pt.lsts.neptus.plugins.vtk.visualization.ScalarBar;
 import vtk.vtkInteractorStyleTrackballCamera;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
+import vtk.vtkScalarBarActor;
 import vtk.vtkTextActor;
 
 /**
@@ -49,8 +51,11 @@ public class InteractorStyle extends vtkInteractorStyleTrackballCamera {
     public vtkRenderWindowInteractor interactor;
 
     private boolean fpsActorEnable = false;
-
     private vtkTextActor fpsActor = new vtkTextActor();
+
+    private vtkScalarBarActor lutActor = new vtkScalarBarActor();
+    private ScalarBar scalarBar;
+
 
     /**
      * 
@@ -92,5 +97,33 @@ public class InteractorStyle extends vtkInteractorStyleTrackballCamera {
             fpsActorEnable = true;
             renderer.AddActor(fpsActor);
         }
+    }
+
+    /**
+     * @return the lutActor
+     */
+    public vtkScalarBarActor getLutActor() {
+        return lutActor;
+    }
+
+    /**
+     * @param lutActor the lutActor to set
+     */
+    public void setLutActor(vtkScalarBarActor lutActor) {
+        this.lutActor = lutActor;
+    }
+
+    /**
+     * @return the scalarBar
+     */
+    public ScalarBar getScalarBar() {
+        return scalarBar;
+    }
+
+    /**
+     * @param scalarBar the scalarBar to set
+     */
+    public void setScalarBar(ScalarBar scalarBar) {
+        this.scalarBar = scalarBar;
     }
 }
