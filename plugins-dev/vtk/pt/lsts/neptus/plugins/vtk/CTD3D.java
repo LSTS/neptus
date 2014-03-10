@@ -45,13 +45,14 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.vtk.cdt3d.CTD3DToolbar;
 import pt.lsts.neptus.plugins.vtk.cdt3d.InteractorStyle;
+import pt.lsts.neptus.plugins.vtk.cdt3d.LoadData;
+import pt.lsts.neptus.plugins.vtk.cdt3d.PointCloudCTD;
 import pt.lsts.neptus.plugins.vtk.cdt3d.Window;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
 import pt.lsts.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
-import pt.lsts.neptus.plugins.vtk.visualization.Text3D;
 import pt.lsts.neptus.util.ImageUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -64,11 +65,16 @@ import com.l2fprod.common.propertysheet.Property;
 @PluginDescription(author = "hfq", name = "CTD 3D", icon = "images/menus/3d.png" )
 public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvider {
 
+    private static final long serialVersionUID = 1L;
+
     private Canvas canvas;
     private Window winCanvas;
     private InteractorStyle interactorStyle;
 
-    private PointCloud<?> pointcloud;
+    private CTD3DToolbar toolbar;
+
+    //private PointCloud<?> pointcloud;
+    private PointCloudCTD pointcloud;
 
     private IMraLogGroup source;
 
@@ -88,6 +94,8 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
     public Component getComponent(IMraLogGroup source, double timestep) {
         this.source = source;
 
+        setLayout(new BorderLayout());
+
         canvas = new Canvas();
         canvas.LightFollowCameraOn();
         canvas.GetRenderer().AutomaticLightCreationOn();
@@ -96,24 +104,41 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
         winCanvas = new Window(canvas);
         interactorStyle = winCanvas.getInteractorStyle();
 
-        add(canvas);
+        toolbar = new CTD3DToolbar(this);
+        toolbar.createtoolBar();
 
-        setLayout(new BorderLayout());
+        add(toolbar, BorderLayout.WEST);
+        add(canvas);
 
         AxesWidget axesWidget = new AxesWidget(canvas.getRenderWindowInteractor());
         axesWidget.createAxesWidget();
 
-        Text3D text = new Text3D();
-        text.buildText3D("TEST", 2.0, 2.0, 2.0, 10.0);
-        canvas.GetRenderer().AddActor(text.getText3dActor());
+        // Text3D text = new Text3D();
+        // text.buildText3D("TEST", 2.0, 2.0, 2.0, 10.0);
+        // canvas.GetRenderer().AddActor(text.getText3dActor());
+
+        loadData();
+
+        pointcloud.createPointCloudActor();
+        canvas.GetRenderer().AddActor(pointcloud.getCloudLODActor());
 
         return this;
     }
 
+    /**
+     * 
+     */
+    private void loadData() {
+        LoadData loadData = new LoadData(source);
+        loadData.loadCTDData();
+
+        pointcloud = loadData.getPointcloud();
+    }
+
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return (NeptusMRA.vtkEnabled && 
-                source.getLsfIndex().containsMessagesOfType("Conductivity"));
+        // return (NeptusMRA.vtkEnabled && source.getLsfIndex().containsMessagesOfType("Conductivity"));
+        return (NeptusMRA.vtkEnabled && source.getLsfIndex().getEntityId("CTD") != 255);
     }
 
     @Override
