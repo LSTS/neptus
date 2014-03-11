@@ -49,6 +49,7 @@ import javax.swing.JPopupMenu;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IridiumTxStatus;
 import pt.lsts.imc.RemoteSensorInfo;
+import pt.lsts.imc.TextMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ActivateSubscription;
 import pt.lsts.neptus.comm.iridium.DeactivateSubscription;
@@ -186,6 +187,30 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         loc.convertToAbsoluteLatLonDepth();
         
         JPopupMenu popup = new JPopupMenu();
+        
+        if (IridiumManager.getManager().isActive()) {
+            popup.add(I18n.text("Deactivate Polling")).addActionListener(new ActionListener() {            
+                public void actionPerformed(ActionEvent e) {
+                    IridiumManager.getManager().stop();               
+                }
+            });
+        }
+        else {
+            popup.add(I18n.text("Activate Polling")).addActionListener(new ActionListener() {            
+                public void actionPerformed(ActionEvent e) {
+                    IridiumManager.getManager().start();               
+                }
+            });
+        }
+        
+        popup.add(I18n.text("Select Iridium gateway")).addActionListener(new ActionListener() {            
+            public void actionPerformed(ActionEvent e) {
+                IridiumManager.getManager().selectMessenger(getConsole());               
+            }
+        });
+        
+        popup.addSeparator();
+        
         popup.add(I18n.textf("Send %vehicle a command via Iridium", getMainVehicleId())).addActionListener(new ActionListener() {            
             public void actionPerformed(ActionEvent e) {
                 sendIridiumCommand();                
@@ -245,15 +270,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                 update();
             }
         });
-        
-        popup.addSeparator();
-        
-        popup.add("Settings").addActionListener(new ActionListener() {            
-            public void actionPerformed(ActionEvent e) {
-                PropertiesEditor.editProperties(IridiumComms.this, getConsole(), true);
-            }
-        });
-        
+      
         popup.show(source, event.getX(), event.getY());
     }
     
@@ -318,6 +335,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
             loc.setLongitudeRads(sinfo.getLon());
             Point2D pt = renderer.getScreenPosition(loc);
             Image img = null;
+            
             if (sinfo.getId().startsWith("DP_")) {
                 img = desired;
             }
@@ -326,8 +344,8 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
             }
             else if (sinfo.getId().startsWith("spot") || sinfo.getId().startsWith("SPOT")) {
                 img = spot;
-              g.drawImage(spot, (int)(pt.getX()-spot.getWidth(this)/2), (int) (pt.getY()-spot.getHeight(this)/2), this);    
             }
+            //g.drawImage(spot, (int)(pt.getX()-spot.getWidth(this)/2), (int) (pt.getY()-spot.getHeight(this)/2), this);    
             else {
                 if (ImcSystemsHolder.getSystemWithName(sinfo.getId()) != null) {
                     VehicleType vt = ImcSystemsHolder.getSystemWithName(sinfo.getId()).getVehicle();
@@ -352,18 +370,24 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     }
     
     @Subscribe
-    public void on(DesiredAssetPosition desiredPos) {
-        NeptusLog.pub().info("Received desired position");
-        RemoteSensorInfo rsi = new RemoteSensorInfo("DP_hermes", "Wave Glider", desiredPos.getLocation().getLatitudeDegs(), desiredPos.getLocation().getLongitudeDegs(), 0, 0, "");
-        post(rsi);
+    public void on(TextMessage msg) {
+        NeptusLog.pub().info("Received text message");
+        post(Notification.info("Text message", msg.getSourceName()+": "+msg.getText()));
     }
     
-    @Subscribe
-    public void on(TargetAssetPosition targetPos) {
-        NeptusLog.pub().info("Received target position");
-        RemoteSensorInfo rsi = new RemoteSensorInfo("TP_hermes", "Wave Glider", targetPos.getLocation().getLatitudeDegs(), targetPos.getLocation().getLongitudeDegs(), 0, 0, "");
-        post(rsi);
-    }        
+//    @Subscribe
+//    public void on(DesiredAssetPosition desiredPos) {
+//        NeptusLog.pub().info("Received desired position");
+//        RemoteSensorInfo rsi = new RemoteSensorInfo("DP_hermes", "Wave Glider", desiredPos.getLocation().getLatitudeDegs(), desiredPos.getLocation().getLongitudeDegs(), 0, 0, "");
+//        post(rsi);
+//    }
+//    
+//    @Subscribe
+//    public void on(TargetAssetPosition targetPos) {
+//        NeptusLog.pub().info("Received target position");
+//        RemoteSensorInfo rsi = new RemoteSensorInfo("TP_hermes", "Wave Glider", targetPos.getLocation().getLatitudeDegs(), targetPos.getLocation().getLongitudeDegs(), 0, 0, "");
+//        post(rsi);
+//    }
 
     @Override
     public void initSubPanel() {

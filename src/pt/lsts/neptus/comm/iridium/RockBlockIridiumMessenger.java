@@ -99,7 +99,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
     private static long lastSuccess = -1;
 
     @NeptusProperty
-    private boolean alwaysAskForPassword = true;
+    private boolean alwaysAskForPassword = false;
 
     @NeptusProperty
     private String rockBlockPassword = null;

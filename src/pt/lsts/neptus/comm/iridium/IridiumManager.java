@@ -43,7 +43,6 @@ import javax.swing.JOptionPane;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.messages.listener.MessageInfoImpl;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -70,27 +69,35 @@ public class IridiumManager {
         Date lastTime = new Date(System.currentTimeMillis() - 3600 * 1000);
         @Override
         public void run() {
+            if (currentMessenger == null)
+                return;
+
             try {
                 Date now = new Date();
-                Collection<IridiumMessage> msgs = rockBlockMessenger.pollMessages(lastTime);
+                Collection<IridiumMessage> msgs = currentMessenger.pollMessages(lastTime);
                 for (IridiumMessage m : msgs)
                     processMessage(m);
                 
                 lastTime = now;
             }
             catch (Exception e) {
+                e.printStackTrace();
                 NeptusLog.pub().error(e);                
             }
         }
     };
     
+    public synchronized boolean isActive() {
+        return service != null;
+    }
+    
     public void processMessage(IridiumMessage msg) {
         Collection<IMCMessage> msgs = msg.asImc();
-        MessageInfoImpl minfo = new MessageInfoImpl();
-        minfo.setPublisher("Iridium");
-        minfo.setTimeReceivedSec(System.currentTimeMillis() / 1000.0);
-        for (IMCMessage m : msgs)
-            ImcMsgManager.getManager().onMessage(minfo, m);        
+        
+        for (IMCMessage m : msgs) {
+            ImcMsgManager.getManager().postInternalMessage("iridium", m);
+            
+        }
     }
 
     public void selectMessenger(Component parent) {
@@ -104,8 +111,6 @@ public class IridiumManager {
         if (op != null)
             currentMessenger = (IridiumMessenger) op;
     }
-    
-    
     
     public synchronized void start() {
         if (service != null)
@@ -139,6 +144,9 @@ public class IridiumManager {
      * @return
      */
     public void send(IridiumMessage msg) throws Exception {
+        if (currentMessenger == null) {
+            throw new Exception("A messenger needs to be selected first");
+        }
         currentMessenger.sendMessage(msg);
     }
     
