@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.comm.iridium;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -47,6 +48,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.messages.TypedMessageFilter;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 
 /**
  * @author zp
@@ -57,7 +59,7 @@ import pt.lsts.neptus.messages.listener.MessageListener;
 public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<MessageInfo, IMCMessage> {
 
     boolean available = false;
-    protected String messengerName;
+
     protected int req_id = (int) (Math.random() * 65535);
 
     protected Vector<IridiumMessage> messagesReceived = new Vector<>();
@@ -74,9 +76,8 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
         listeners.remove(listener);
     }
 
-    public DuneIridiumMessenger(String messengerName) {
-        this.messengerName = messengerName;
-        ImcMsgManager.getManager().addListener(this, messengerName,
+    public DuneIridiumMessenger() {
+        ImcMsgManager.getManager().addListener(this,
                 new TypedMessageFilter(IridiumMsgRx.class.getSimpleName(), IridiumTxStatus.class.getSimpleName()));
     }
 
@@ -102,19 +103,38 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
     @Override
     public void sendMessage(IridiumMessage msg) throws Exception {
 
-        // Activate and deactivate subscriptions should use the id of the used gateway
-        if (msg instanceof ActivateSubscription || msg instanceof DeactivateSubscription) {
-            ImcSystem system = ImcSystemsHolder.lookupSystemByName(messengerName);
-            if (system != null)
-                msg.setSource(system.getId().intValue());
+        Collection<String> providers = getIridiumServiceProviders();
+        
+        if (providers.isEmpty()) {
+            throw new Exception("No Iridium service providers are available");
         }
+        
+        ImcSystem system = ImcSystemsHolder.lookupSystemByName(providers.iterator().next());
+        
+        // Activate and deactivate subscriptions should use the id of the used gateway
+        //if (msg instanceof ActivateSubscription || msg instanceof DeactivateSubscription) {
+        //    ImcSystem system = ImcSystemsHolder.lookupSystemByName(messengerName);
+        //    if (system != null)
+        //        msg.setSource(system.getId().intValue());
 
+        msg.setSource(system.getId().intValue());
         IridiumMsgTx tx = new IridiumMsgTx();
         tx.setReqId((++req_id % 65535));
         tx.setTtl(3600);
         tx.setData(msg.serialize());
-        if (!ImcMsgManager.getManager().sendMessageToSystem(tx, messengerName))
-            throw new Exception("Error while sending message to " + messengerName + " via IMC.");
+        if (!ImcMsgManager.getManager().sendMessageToSystem(tx, system.getName()))
+            throw new Exception("Error while sending message to " + system.getName() + " via IMC.");
+    }
+    
+    public Collection<String> getIridiumServiceProviders() {
+        ArrayList<String> names = new ArrayList<>();
+        ImcSystem[] providers = ImcSystemsHolder.lookupSystemByService("iridium", SystemTypeEnum.ALL, true);
+        
+        if (providers != null)
+            for (ImcSystem s : providers)
+                names.add(s.getName());
+        
+        return names;
     }
 
     @Override
@@ -124,31 +144,23 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
 
     @Override
     public String getName() {
-        return "DUNE Iridium Messenger (" + messengerName + ")";
+        return "DUNE Iridium Messenger";
     }
-
-    /**
-     * @return the messengerName
-     */
-    public String getMessengerName() {
-        return messengerName;
-    }
-
+    
     @Override
     public boolean isAvailable() {
-        // System.out.println(System.currentTimeMillis() -
-        // ImcMsgManager.getManager().getState(messengerName).lastAnnounce().getTimestampMillis() < 60000);
-        return true;
-        // ImcSystem sys = ImcSystemsHolder.lookupSystemByName(messengerName);
-        // if (sys == null)
-        // return false;
-        // return (System.currentTimeMillis() - sys.getLastErrorStateReceived()) < 60000;
+        return !getIridiumServiceProviders().isEmpty();
     }
 
     @Override
     public void cleanup() {
         listeners.clear();
         messagesReceived.clear();
+    }
+    
+    @Override
+    public String toString() {
+        return getName();                
     }
 
 }

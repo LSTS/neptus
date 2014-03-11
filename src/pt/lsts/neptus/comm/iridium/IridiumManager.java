@@ -31,48 +31,120 @@
  */
 package pt.lsts.neptus.comm.iridium;
 
+import java.awt.Component;
+import java.util.Collection;
+import java.util.Date;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import javax.swing.JOptionPane;
+
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.messages.listener.MessageInfoImpl;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * This class will handle Iridium communications
+ * 
  * @author zp
  */
 public class IridiumManager {
 
-    public enum Provider {
-        RockBlock,
-        HUB,
-        IMCGateway
-    }
-    
-    public enum DeliveryStatus {
-        Sent,
-        Queued,
-        Error
-    }
-    
+    private static IridiumManager instance = null;
     private DuneIridiumMessenger duneMessenger;
     private RockBlockIridiumMessenger rockBlockMessenger;
     private HubIridiumMessenger hubMessenger;
-    private IridiumMessenger currentMessenger;
+    private ScheduledExecutorService service = null;
     
-    // sends given message using the currently selected provider
-    public boolean send(IridiumMessage msg) {
-        try {
-            currentMessenger.sendMessage(msg);
-            return true;
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error(e);
-            return false;
-        }
+    private IridiumManager() {
+        duneMessenger = new DuneIridiumMessenger();
+        rockBlockMessenger = new RockBlockIridiumMessenger();
+        hubMessenger = new HubIridiumMessenger();
     }
     
-//    /**
-//     * This method will attach this messenger to a Console by forwarding any incoming Iridium messages to it 
-//     * @param console
-//     */
-//    public void attach(ConsoleLayout console) {
-//        ImcMsgManager.getManager().registerBusListener(listener);
-//    }
+    private Runnable pollMessages = new Runnable() {
+        
+        Date lastTime = new Date(System.currentTimeMillis() - 3600 * 1000);
+        @Override
+        public void run() {
+            try {
+                Date now = new Date();
+                Collection<IridiumMessage> msgs = rockBlockMessenger.pollMessages(lastTime);
+                for (IridiumMessage m : msgs)
+                    processMessage(m);
+                
+                lastTime = now;
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);                
+            }
+        }
+    };
+    
+    public void processMessage(IridiumMessage msg) {
+        Collection<IMCMessage> msgs = msg.asImc();
+        MessageInfoImpl minfo = new MessageInfoImpl();
+        minfo.setPublisher("Iridium");
+        minfo.setTimeReceivedSec(System.currentTimeMillis() / 1000.0);
+        for (IMCMessage m : msgs)
+            ImcMsgManager.getManager().onMessage(minfo, m);        
+    }
+
+    public void selectMessenger(Component parent) {
+
+        IridiumMessenger[] messengers = new IridiumMessenger[] { duneMessenger, rockBlockMessenger, hubMessenger };
+
+        Object op = JOptionPane.showInputDialog(parent, "Select Iridium provider", "Iridium Provider",
+                JOptionPane.QUESTION_MESSAGE, ImageUtils.createImageIcon("images/satellite.png"), messengers,
+                currentMessenger);
+
+        if (op != null)
+            currentMessenger = (IridiumMessenger) op;
+    }
+    
+    
+    
+    public synchronized void start() {
+        if (service != null)
+            stop();
+        
+        ImcMsgManager.registerBusListener(this);        
+        service = Executors.newScheduledThreadPool(1);
+        service.scheduleAtFixedRate(pollMessages, 0, 5, TimeUnit.MINUTES);
+    }
+    
+    public synchronized void stop() {
+        if (service != null) {
+            service.shutdownNow();           
+            service = null;
+        }
+        ImcMsgManager.unregisterBusListener(this);        
+    }
+
+    public static IridiumManager getManager() {
+        if (instance == null)
+            instance = new IridiumManager();
+        return instance;
+    }
+
+    private IridiumMessenger currentMessenger;
+
+    /**
+     * This method will send the given message using the currently selected messenger
+     * 
+     * @param msg
+     * @return
+     */
+    public void send(IridiumMessage msg) throws Exception {
+        currentMessenger.sendMessage(msg);
+    }
+    
+    public static void main(String[] args) {
+        IridiumManager.getManager().selectMessenger(null);
+        IridiumManager.getManager().start();
+        IridiumManager.getManager().stop();
+    }
 }

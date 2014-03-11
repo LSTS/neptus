@@ -273,4 +273,9 @@ public class HubIridiumMessenger implements IridiumMessenger {
         //IridiumFacade.getInstance().sendMessage(tok);
         //System.out.println(IridiumFacade.getInstance().pollMessages(null));        
     }
+    
+    @Override
+    public String toString() {
+        return getName();                
+    }
 }

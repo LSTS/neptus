@@ -34,10 +34,11 @@ package pt.lsts.neptus.comm.iridium;
 import java.util.Collection;
 import java.util.Vector;
 
-import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.TextMessage;
+import pt.lsts.neptus.plugins.NeptusProperty;
 
 /**
  * @author zp
@@ -85,7 +86,9 @@ public class IridiumCommand extends IridiumMessage {
 
     @Override
     public Collection<IMCMessage> asImc() {
-       return new Vector<>();
+        Vector<IMCMessage> msgs = new Vector<>();
+        msgs.add(new TextMessage("iridium", command));
+        return msgs;
     }
 
 }

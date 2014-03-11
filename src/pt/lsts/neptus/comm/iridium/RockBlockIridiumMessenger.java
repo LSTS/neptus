@@ -396,6 +396,11 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             }
         };
     }
+    
+    @Override
+    public String toString() {
+        return getName();                
+    }
 
     public static void main(String[] args) throws Exception {
         RockBlockIridiumMessenger messenger = new RockBlockIridiumMessenger();
