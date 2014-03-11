@@ -53,6 +53,7 @@ import pt.lsts.neptus.plugins.vtk.cdt3d.Window;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
 import pt.lsts.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
+import pt.lsts.neptus.plugins.vtk.visualization.ScalarBar;
 import pt.lsts.neptus.util.ImageUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -67,16 +68,21 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
 
     private static final long serialVersionUID = 1L;
 
-    private Canvas canvas;
+    private IMraLogGroup source;
+
+    public Canvas canvas;
     private Window winCanvas;
     private InteractorStyle interactorStyle;
 
     private CTD3DToolbar toolbar;
 
     //private PointCloud<?> pointcloud;
-    private PointCloudCTD pointcloud;
+    public PointCloudCTD pointcloud;
 
-    private IMraLogGroup source;
+    // private vtkScalarBarActor lutActor = new vtkScalarBarActor();
+    public ScalarBar scalarBar;
+
+    private boolean isFirstRender = true;
 
     /**
      * 
@@ -104,23 +110,29 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
         winCanvas = new Window(canvas);
         interactorStyle = winCanvas.getInteractorStyle();
 
+        loadData();
+
+        pointcloud.createPointCloudActor();
+        pointcloud.handlePointCloudColors();
+        pointcloud.getPolyData().GetPointData().SetScalars(pointcloud.getColorHandler().getColorsTemperature());
+        canvas.GetRenderer().AddActor(pointcloud.getCloudLODActor());
+
+        setScalarBar(new ScalarBar(I18n.text("Temperature Color Map")));
+        scalarBar.setScalarBarHorizontalProperties();
+        scalarBar.setUpScalarBarLookupTable(pointcloud.getColorHandler().getLutTemperature());
+        scalarBar.getScalarBarActor().Modified();
+        canvas.GetRenderer().AddActor(scalarBar.getScalarBarActor());
+
+        AxesWidget axesWidget = new AxesWidget(canvas.getRenderWindowInteractor());
+        axesWidget.createAxesWidget();
+
         toolbar = new CTD3DToolbar(this);
         toolbar.createtoolBar();
 
         add(toolbar, BorderLayout.WEST);
         add(canvas);
 
-        AxesWidget axesWidget = new AxesWidget(canvas.getRenderWindowInteractor());
-        axesWidget.createAxesWidget();
-
-        // Text3D text = new Text3D();
-        // text.buildText3D("TEST", 2.0, 2.0, 2.0, 10.0);
-        // canvas.GetRenderer().AddActor(text.getText3dActor());
-
-        loadData();
-
-        pointcloud.createPointCloudActor();
-        canvas.GetRenderer().AddActor(pointcloud.getCloudLODActor());
+        toolbar.getTempToggle().setSelected(true);
 
         return this;
     }
@@ -168,8 +180,19 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
 
     @Override
     public void onShow() {
-        canvas.RenderSecured();
-        canvas.GetRenderer().ResetCamera();
+        if(isFirstRender) {
+            canvas.lock();
+
+            canvas.GetRenderer().GetActiveCamera().SetPosition(0.0, -1.0, 0.0);
+            canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+
+            canvas.GetRenderer().ResetCamera();
+            canvas.RenderSecured();
+
+            canvas.unlock();
+
+            isFirstRender = false;
+        }
     }
 
     @Override
@@ -195,6 +218,20 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
     @Override
     public String[] getPropertiesErrors(Property[] properties) {
         return PluginUtils.validatePluginProperties(this, properties);
+    }
+
+    /**
+     * @return the scalarBar
+     */
+    public ScalarBar getScalarBar() {
+        return scalarBar;
+    }
+
+    /**
+     * @param scalarBar the scalarBar to set
+     */
+    public void setScalarBar(ScalarBar scalarBar) {
+        this.scalarBar = scalarBar;
     }
 
     /**
