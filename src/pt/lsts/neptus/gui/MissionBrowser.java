@@ -242,17 +242,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         State state = (State) selectedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
         transponderDialog(mission, elem);
         if (!elem.userCancel) {
-            // see if the id was changed
-            String idAfter = elem.getIdentification();
-            if (!idAfter.equals(elemBefore.getIdentification())) {
-                // create a new synced one with original
-                elemBefore.duneId = -1;
-                ExtendedTreeNode newNode = treeModel.addTransponderNode(elemBefore);
-                newNode.getUserInfo().put(NodeInfoKey.SYNC.name(), State.SYNC);
-                // set modifications as local
-                selectedTreeNode.getUserInfo().put(NodeInfoKey.SYNC.name(), State.LOCAL);
-            }
-            else if (state == State.SYNC && !elemBefore.equals(elem)) {
+            if (state == State.SYNC && !elemBefore.equals(elem)) {
                 setNodeSyncState(selectedTreeNode, State.NOT_SYNC);
             }
 
@@ -269,7 +259,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     }
 
     private MapType getMap(MissionType mt) {
-        return mt.getMapsList().values().iterator().next().getMap();
+        MapGroup mg = MapGroup.getMapGroupInstance(mt);
+        return mg.getMaps()[0];
+        // return mt.getMapsList().values().iterator().next().getMap();
     }
 
     private void saveMission(MissionType mission) {
@@ -283,7 +275,9 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 I18n.text("Delete"), JOptionPane.YES_NO_OPTION);
         if (ret == JOptionPane.YES_OPTION) {
             treeModel.removeById(elem.getIdentification(), ParentNodes.TRANSPONDERS);
-            elem.getParentMap().remove(elem.getIdentification());
+            MapType parentMap = elem.getParentMap();
+            parentMap.remove(elem.getIdentification());
+            getMap(console2.getMission()).remove(elem.getIdentification());
             saveMission(console2.getMission());
         }
     }
