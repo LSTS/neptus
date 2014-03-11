@@ -294,7 +294,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         Object selItem = browser.getSelectedItem();
         // Update selected plan for console if it has changed from remote to sync (you can now edit it)
         if (selItemOld instanceof PlanDBInfo && selItem instanceof PlanType) {
-            console.setPlan((PlanType) selItem);
+            getConsole().setPlan((PlanType) selItem);
         }
     }
 
