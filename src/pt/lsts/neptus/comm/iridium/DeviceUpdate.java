@@ -68,9 +68,9 @@ public class DeviceUpdate extends IridiumMessage {
             read+=2;
             out.writeUnsignedInt(Math.round(p.timestamp));
             read+=4;
-            out.writeUnsignedInt(Math.round(Math.toDegrees(p.latitude) * 1000000.0));
+            out.writeInt((int)Math.round(Math.toDegrees(p.latitude) * 1000000.0));
             read+=4;
-            out.writeUnsignedInt(Math.round(Math.toDegrees(p.longitude) * 1000000.0));
+            out.writeInt((int)Math.round(Math.toDegrees(p.longitude) * 1000000.0));
             read+=4;            
         }
         return read;
@@ -86,9 +86,9 @@ public class DeviceUpdate extends IridiumMessage {
             read+=2;
             pos.timestamp = in.readUnsignedInt();
             read+=4;
-            pos.latitude = Math.toRadians(in.readUnsignedInt() / 1000000.0);
+            pos.latitude = Math.toRadians(in.readInt() / 1000000.0);
             read+=4;
-            pos.longitude = Math.toRadians(in.readUnsignedInt() / 1000000.0);
+            pos.longitude = Math.toRadians(in.readInt() / 1000000.0);
             read+=4;
             positions.put(pos.id, pos);
         }
