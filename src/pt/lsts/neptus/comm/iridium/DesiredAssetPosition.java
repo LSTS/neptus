@@ -96,7 +96,7 @@ public class DesiredAssetPosition extends IridiumMessage {
         sensorInfo.setLat(getLocation().getLatitudeRads());
         sensorInfo.setLon(getLocation().getLongitudeRads());
         sensorInfo.setAlt(0);
-        sensorInfo.setId("DP_"+ImcSystemsHolder.translateImcIdToSystemName(asset_imc_id));
+        sensorInfo.setId("DP_"+ImcSystemsHolder.translateImcIdToSystemName(asset_imc_id).replaceAll(":", ""));
         sensorInfo.setSrc(getSource());
         sensorInfo.setDst(getDestination());
         msgs.add(sensorInfo);        
