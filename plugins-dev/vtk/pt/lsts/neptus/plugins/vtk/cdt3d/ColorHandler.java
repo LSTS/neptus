@@ -64,9 +64,9 @@ public class ColorHandler {
         this.salinityArray = pointcloud.getSalinityArray();
         this.pressureArray = pointcloud.getPressureArray();
 
-        this.colorsTemperature = new vtkUnsignedCharArray();
-        this.colorsSalinity = new vtkUnsignedCharArray();
-        this.colorsPressure = new vtkUnsignedCharArray();
+        this.setColorsTemperature(new vtkUnsignedCharArray());
+        this.setColorsSalinity(new vtkUnsignedCharArray());
+        this.setColorsPressure(new vtkUnsignedCharArray());
 
         this.lutTemperature = new vtkLookupTable();
         this.lutSalinity = new vtkLookupTable();
@@ -86,12 +86,12 @@ public class ColorHandler {
         lutPressure.SetScaleToLinear();
         lutPressure.Build();
 
-        colorsTemperature.SetNumberOfComponents(3);
-        colorsTemperature.SetName("colorsTemp");
-        colorsSalinity.SetNumberOfComponents(3);
-        colorsSalinity.SetName("colorsSalinity");
-        colorsPressure.SetNumberOfComponents(3);
-        colorsPressure.SetName("colorsPressure");
+        getColorsTemperature().SetNumberOfComponents(3);
+        getColorsTemperature().SetName("colorsTemp");
+        getColorsSalinity().SetNumberOfComponents(3);
+        getColorsSalinity().SetName("colorsSalinity");
+        getColorsPressure().SetNumberOfComponents(3);
+        getColorsPressure().SetName("colorsPressure");
 
         for (int i = 0; i < pointcloud.getNumberOfPoints(); ++i) {
             double temperature = temperatureArray.GetValue(i);
@@ -116,9 +116,9 @@ public class ColorHandler {
                 colorPressure[j] = (char) (255.0 * pressColor[j]);
             }
 
-            colorsTemperature.InsertNextTuple3(colorTemp[0], colorTemp[1], colorTemp[2]);
-            colorsSalinity.InsertNextTuple3(colorSalinity[0], colorSalinity[1], colorSalinity[2]);
-            colorsPressure.InsertNextTuple3(colorPressure[0], colorPressure[1], colorPressure[2]);
+            getColorsTemperature().InsertNextTuple3(colorTemp[0], colorTemp[1], colorTemp[2]);
+            getColorsSalinity().InsertNextTuple3(colorSalinity[0], colorSalinity[1], colorSalinity[2]);
+            getColorsPressure().InsertNextTuple3(colorPressure[0], colorPressure[1], colorPressure[2]);
 
         }
     }
@@ -163,5 +163,47 @@ public class ColorHandler {
      */
     public void setLutPressure(vtkLookupTable lutPressure) {
         this.lutPressure = lutPressure;
+    }
+
+    /**
+     * @return the colorsTemperature
+     */
+    public vtkUnsignedCharArray getColorsTemperature() {
+        return colorsTemperature;
+    }
+
+    /**
+     * @param colorsTemperature the colorsTemperature to set
+     */
+    private void setColorsTemperature(vtkUnsignedCharArray colorsTemperature) {
+        this.colorsTemperature = colorsTemperature;
+    }
+
+    /**
+     * @return the colorsSalinity
+     */
+    public vtkUnsignedCharArray getColorsSalinity() {
+        return colorsSalinity;
+    }
+
+    /**
+     * @param colorsSalinity the colorsSalinity to set
+     */
+    private void setColorsSalinity(vtkUnsignedCharArray colorsSalinity) {
+        this.colorsSalinity = colorsSalinity;
+    }
+
+    /**
+     * @return the colorsPressure
+     */
+    public vtkUnsignedCharArray getColorsPressure() {
+        return colorsPressure;
+    }
+
+    /**
+     * @param colorsPressure the colorsPressure to set
+     */
+    private void setColorsPressure(vtkUnsignedCharArray colorsPressure) {
+        this.colorsPressure = colorsPressure;
     }
 }
