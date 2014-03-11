@@ -35,6 +35,8 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -44,6 +46,8 @@ import javax.swing.JToolBar;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.CTD3D;
+import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
+import pt.lsts.neptus.plugins.vtk.visualization.ScalarBar;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -57,21 +61,29 @@ public class CTD3DToolbar extends JToolBar {
     private static final short ICON_SIZE = 18;
 
     private static final ImageIcon ICON_TEMP = ImageUtils.getScaledIcon(
-            "pt/lsts/neptus/plugins/ctd/thermometer.png", ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/plugins/vtk/assets/temperature.png", ICON_SIZE, ICON_SIZE);
     private static final ImageIcon ICON_SALINITY = ImageUtils.getScaledIcon(
-            "images/menus/wizard.png", ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/plugins/vtk/assets/salinity.png", ICON_SIZE, ICON_SIZE);
+    private static final ImageIcon ICON_PRESSURE = ImageUtils.getScaledIcon(
+            "pt/lsts/neptus/plugins/vtk/assets/pressure.png", ICON_SIZE, ICON_SIZE);
 
     private JToggleButton tempToggle;
     private JToggleButton salinityToggle;
+    private JToggleButton pressureToggle;
 
-    private CTD3D ctd3dInit;
+    private PointCloudCTD pointcloud;
+    private ScalarBar scalarBar;
+
+    private Canvas canvas;
 
     /**
      * 
      * @param ctd3dInit
      */
     public CTD3DToolbar(CTD3D ctd3dInit) {
-        this.ctd3dInit = ctd3dInit;
+        this.canvas = ctd3dInit.canvas;
+        this.pointcloud = ctd3dInit.pointcloud;
+        this.scalarBar = ctd3dInit.scalarBar;
     }
 
     public void createtoolBar() {
@@ -79,21 +91,84 @@ public class CTD3DToolbar extends JToolBar {
         setBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(),
                 BorderFactory.createEmptyBorder()));
 
-        tempToggle = new JToggleButton();
-        tempToggle.setToolTipText(I18n.text("See Temperature color map") + ".");
-        tempToggle.setIcon(ICON_TEMP);
+        setTempToggle(new JToggleButton());
+        getTempToggle().setToolTipText(I18n.text("See Temperature data color map") + ".");
+        getTempToggle().setIcon(ICON_TEMP);
+        getTempToggle().addActionListener(temperatureToggleAction);
 
-        salinityToggle = new JToggleButton();
-        salinityToggle.setToolTipText(I18n.text("See Salinity color map") + ".");
-        salinityToggle.setIcon(ICON_SALINITY);
+        setSalinityToggle(new JToggleButton());
+        getSalinityToggle().setToolTipText(I18n.text("See Salinity data color map") + ".");
+        getSalinityToggle().setIcon(ICON_SALINITY);
+        getSalinityToggle().addActionListener(salinityToggleAction);
+
+        setPressureToggle(new JToggleButton());
+        getPressureToggle().setToolTipText(I18n.text("See Pressure data color map") + ".");
+        getPressureToggle().setIcon(ICON_PRESSURE);
+        getPressureToggle().addActionListener(pressureToggleAction);
 
         ButtonGroup groupToggles = new ButtonGroup();
-        groupToggles.add(tempToggle);
-        groupToggles.add(salinityToggle);
+        groupToggles.add(getTempToggle());
+        groupToggles.add(getSalinityToggle());
+        groupToggles.add(getPressureToggle());
 
-        add(tempToggle);
-        add(salinityToggle);
+        add(getTempToggle());
+        add(getSalinityToggle());
+        add(getPressureToggle());
     }
+
+    ActionListener temperatureToggleAction = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(tempToggle.isSelected()) {
+                pointcloud.getPolyData().GetPointData().SetScalars(pointcloud.getColorHandler().getColorsTemperature());
+
+                scalarBar.setScalarBarTitle(I18n.text("Temperature Color Map"));
+                scalarBar.setScalarBarHorizontalProperties();
+                scalarBar.setUpScalarBarLookupTable(pointcloud.getColorHandler().getLutTemperature());
+
+                canvas.lock();
+                canvas.Render();
+                canvas.unlock();
+            }
+        }
+    };
+
+    ActionListener salinityToggleAction = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(salinityToggle.isSelected()) {
+                pointcloud.getPolyData().GetPointData().SetScalars(pointcloud.getColorHandler().getColorsSalinity());
+
+                scalarBar.setScalarBarTitle(I18n.text("Salinity Color Map"));
+                scalarBar.setScalarBarHorizontalProperties();
+                scalarBar.setUpScalarBarLookupTable(pointcloud.getColorHandler().getLutSalinity());
+
+                canvas.lock();
+                canvas.Render();
+                canvas.unlock();
+            }
+        }
+    };
+
+    ActionListener pressureToggleAction = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(pressureToggle.isSelected()) {
+                pointcloud.getPolyData().GetPointData().SetScalars(pointcloud.getColorHandler().getColorsPressure());
+
+                scalarBar.setScalarBarTitle(I18n.text("Pressure Color Map"));
+                scalarBar.setScalarBarHorizontalProperties();
+                scalarBar.setUpScalarBarLookupTable(pointcloud.getColorHandler().getLutPressure());
+
+                canvas.lock();
+                canvas.Render();
+                canvas.unlock();
+            }
+        }
+    };
 
     @Override
     public void paintComponent(Graphics g) {
@@ -104,6 +179,48 @@ public class CTD3DToolbar extends JToolBar {
         GradientPaint gradPaint = new GradientPaint(0, 0, color1, getWidth(), getHeight(), color2);
         graphic2d.setPaint(gradPaint);
         graphic2d.fillRect(0, 0, getWidth(), getHeight());
+    }
+
+    /**
+     * @return the tempToggle
+     */
+    public JToggleButton getTempToggle() {
+        return tempToggle;
+    }
+
+    /**
+     * @param tempToggle the tempToggle to set
+     */
+    private void setTempToggle(JToggleButton tempToggle) {
+        this.tempToggle = tempToggle;
+    }
+
+    /**
+     * @return the salinityToggle
+     */
+    public JToggleButton getSalinityToggle() {
+        return salinityToggle;
+    }
+
+    /**
+     * @param salinityToggle the salinityToggle to set
+     */
+    private void setSalinityToggle(JToggleButton salinityToggle) {
+        this.salinityToggle = salinityToggle;
+    }
+
+    /**
+     * @return the pressureToggle
+     */
+    public JToggleButton getPressureToggle() {
+        return pressureToggle;
+    }
+
+    /**
+     * @param pressureToggle the pressureToggle to set
+     */
+    private void setPressureToggle(JToggleButton pressureToggle) {
+        this.pressureToggle = pressureToggle;
     }
 
     public static void main(String[] args) {
