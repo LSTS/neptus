@@ -106,7 +106,7 @@ public class PointCloudCTD {
             mapper.SetInputConnection(polyData.GetProducerPort());
 
             cloudLODActor.SetMapper(mapper);
-            cloudLODActor.GetProperty().SetPointSize(5.0);
+            cloudLODActor.GetProperty().SetPointSize(10.0);
             cloudLODActor.GetProperty().SetRepresentationToPoints();
 
             setMemorySize(mapper.GetInput().GetActualMemorySize());
@@ -117,7 +117,8 @@ public class PointCloudCTD {
     }
 
     public void handlePointCloudColors() {
-        colorHandler = new ColorHandler(this);
+        setColorHandler(new ColorHandler(this));
+        getColorHandler().gerenerateColors();
     }
 
     @Override
@@ -269,5 +270,12 @@ public class PointCloudCTD {
         this.timestampArray = timestampArray;
     }
 
+    public final ColorHandler getColorHandler() {
+        return colorHandler;
+    }
+
+    public final void setColorHandler(ColorHandler colorHandler) {
+        this.colorHandler = colorHandler;
+    }
 
 }
