@@ -73,6 +73,7 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.messages.MessageFilter;
 import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageInfoImpl;
 import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -286,6 +287,26 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     public synchronized boolean stop() {
         NeptusLog.pub().info("Stoping IMC comms");
         return super.stop();
+    }
+    
+    /**
+     * Sends a message to local consumers
+     * @param srcName The name of the message sender
+     * @param message The message to be sent
+     */
+    public void postInternalMessage(String srcName, IMCMessage message) {
+        MessageInfoImpl minfo = new MessageInfoImpl();
+        minfo.setPublisher(srcName);
+        minfo.setPublisherInetAddress("127.0.0.1");
+        minfo.setPublisherPort(6001);
+        minfo.setTimeReceivedSec(System.currentTimeMillis() / 1000.0);
+        checkAndSetMessageSrcEntity(message);
+        
+        //message.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
+        //message.setSrcEnt(255);
+        
+        onMessage(minfo, message);
+        bus.post(message);
     }
 
     private void updateUdpOnIpMapper() {
