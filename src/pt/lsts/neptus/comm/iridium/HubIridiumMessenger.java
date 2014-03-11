@@ -53,6 +53,7 @@ import com.google.gson.Gson;
  * @author zp
  *
  */
+@IridiumProvider(id="hub", name="HUB Iridium Messenger", description="Uses the HUB web server to send and receive messages")
 public class HubIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;

@@ -31,29 +31,19 @@
  */
 package pt.lsts.neptus.plugins.cmdsenders;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-
-import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager.SendResult;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.types.comm.protocol.IridiumArgs;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.util.ByteUtil;
 
 /**
  * @author zp
@@ -151,43 +141,7 @@ public class IridiumSender implements ITextMsgSender {
         };
         
     }
-    
-    private static int req_id = (int)(System.currentTimeMillis() / 1000) % 255;
-    
-    public static String sendViaIridiumGateway(String destination, byte[] data) {
-        IridiumMsgTx tx = new IridiumMsgTx(req_id, 6000, destination, data);
-        req_id = (req_id+1)%255;
-        ImcSystem[] iridiumSenders = ImcSystemsHolder.lookupSystemByService("iridium", SystemTypeEnum.ALL, true);
-        if (iridiumSenders.length == 0)
-            return "Error: There is no available Iridium gateway";
-        
-        Future<SendResult> result = ImcMsgManager.getManager().sendMessageReliably(tx, iridiumSenders[0].getName());
-        try {
-            return "Message sent via "+iridiumSenders[0].getName()+": "+result.get();
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error(e);
-            return "Error sending message via "+iridiumSenders[0].getName()+": "+e.getMessage();
-        }
-    }
-    
-    public static String sendToRockBlockHttp(String destImei, String username, String password, byte[] data) throws HttpException, IOException{
-        
-        HttpClient client = new HttpClient();
-        HttpMethod post = new PostMethod("https://secure.rock7mobile.com/rockblock/MT");
-        post.getParams().setParameter("imei", destImei);
-        post.getParams().setParameter("username", username);
-        post.getParams().setParameter("password", password);
-        post.getParams().setParameter("data", ByteUtil.encodeToHex(data));
-        try {
-            client.executeMethod(post);
-        }
-        catch (Exception e) {
-            return "Error: "+e.getClass().getSimpleName()+": "+e.getMessage();
-        }
-        return post.getResponseBodyAsString();
-    }
-    
+
     public static void main(String[] args) throws Exception {
         IridiumSender sender = new IridiumSender();
         System.out.println(sender.available("lauv-xtreme-2"));
@@ -195,7 +149,6 @@ public class IridiumSender implements ITextMsgSender {
         System.out.println(sender.available("lauv-xtreme-2"));
         System.out.println(sender.available("lauv-xtreme-2"));
         System.out.println(sender.available("lauv-xtreme-2"));
-        System.out.println(sender.available("lauv-xtreme-2"));
-        System.out.println(sendToRockBlockHttp("234234234", "a", "b", new byte[] {100, 100, 100, 100, 0, 0, 0, 0, 0,0,100, -34, 89, 124}));
+        System.out.println(sender.available("lauv-xtreme-2"));        
     }
 }

@@ -33,6 +33,7 @@ package pt.lsts.neptus.comm.iridium;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -46,24 +47,22 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.mail.BodyPart;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
 import javax.mail.NoSuchProviderException;
-import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -91,6 +90,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * @see http://rockblock.rock7mobile.com/downloads/RockBLOCK-Web-Services-User-Guide.pdf
  * @author zp
  */
+@IridiumProvider(id="rock7", name="RockBlock Messenger", description="Sends Iridium messages directly via RockBlock web service and receives new messages by polling a gmail address")
 public class RockBlockIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;
@@ -117,16 +117,16 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
     private String gmailAccount = "lsts.iridium";
 
     private boolean askRockBlockPassword = false;
-    private boolean askGmailPassword = false;    
+    private boolean askGmailPassword = false;
 
     {
         try {
-            PluginUtils.loadProperties("conf/rockblock.props", this);            
+            PluginUtils.loadProperties("conf/rockblock.props", this);
         }
-        catch (Exception e) { }
+        catch (Exception e) {
+        }
         askGmailPassword = askRockBlockPassword = alwaysAskForPassword;
     }
-
 
     private String getRockBlockUsername() {
         if (rockBlockUsername == null)
@@ -185,8 +185,9 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             throw new Exception("Cannot send message to an unknown destination");
         }
         IridiumArgs args = (IridiumArgs) vt.getProtocolsArgs().get("iridium");
-        if (askRockBlockPassword || rockBlockPassword == null || rockBlockUsername ==  null) {
-            Pair<String, String> credentials = GuiUtils.askCredentials(ConfigFetch.getSuperParentFrame(), "Enter RockBlock Credentials", getRockBlockUsername(), getRockBlockPassword());
+        if (askRockBlockPassword || rockBlockPassword == null || rockBlockUsername == null) {
+            Pair<String, String> credentials = GuiUtils.askCredentials(ConfigFetch.getSuperParentFrame(),
+                    "Enter RockBlock Credentials", getRockBlockUsername(), getRockBlockPassword());
             if (credentials == null)
                 return;
             setRockBlockUsername(credentials.first());
@@ -195,20 +196,22 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             askRockBlockPassword = false;
         }
 
-        String result = sendToRockBlockHttp(args.getImei(), getRockBlockUsername(), getRockBlockPassword(), msg.serialize());
+        String result = sendToRockBlockHttp(args.getImei(), getRockBlockUsername(), getRockBlockPassword(),
+                msg.serialize());
 
         if (result != null) {
             if (!result.split(",")[0].equals("OK")) {
-                throw new Exception("RockBlock server failed to deliver the message: '"+result+"'");
+                throw new Exception("RockBlock server failed to deliver the message: '" + result + "'");
             }
         }
     }
 
-    public static String sendToRockBlockHttp(String destImei, String username, String password, byte[] data) throws HttpException, IOException{
+    public static String sendToRockBlockHttp(String destImei, String username, String password, byte[] data)
+            throws HttpException, IOException {
 
         HttpClient client = HttpClientBuilder.create().build();
 
-        HttpPost  post = new HttpPost("https://secure.rock7mobile.com/rockblock/MT");
+        HttpPost post = new HttpPost("https://secure.rock7mobile.com/rockblock/MT");
         List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
         urlParameters.add(new BasicNameValuePair("imei", destImei));
         urlParameters.add(new BasicNameValuePair("username", username));
@@ -216,13 +219,11 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         urlParameters.add(new BasicNameValuePair("data", ByteUtil.encodeToHex(data)));
 
         post.setEntity(new UrlEncodedFormEntity(urlParameters));
-        post.setHeader("Content-Type","application/x-www-form-urlencoded");
+        post.setHeader("Content-Type", "application/x-www-form-urlencoded");
         HttpResponse response = client.execute(post);
-        System.out.println("Response Code : " 
-                + response.getStatusLine().getStatusCode());
+        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
 
-        BufferedReader rd = new BufferedReader(
-                new InputStreamReader(response.getEntity().getContent()));
+        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
         StringBuffer result = new StringBuffer();
         String line = "";
@@ -232,11 +233,14 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         return result.toString();
     }
 
+    private Pattern pattern = Pattern.compile("APPLICATION/OCTET-STREAM; name=(\\d+)-(\\d+)\\.bin");
+
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
 
-        if (askGmailPassword || gmailPassword == null || gmailUsername ==  null) {
-            Pair<String, String> credentials = GuiUtils.askCredentials(ConfigFetch.getSuperParentFrame(), "Enter Gmail Credentials", getGmailUsername(), getGmailPassword());
+        if (askGmailPassword || gmailPassword == null || gmailUsername == null) {
+            Pair<String, String> credentials = GuiUtils.askCredentials(ConfigFetch.getSuperParentFrame(),
+                    "Enter Gmail Credentials", getGmailUsername(), getGmailPassword());
             if (credentials == null)
                 return null;
             setGmailUsername(credentials.first());
@@ -247,7 +251,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
 
         Properties props = new Properties();
         props.put("mail.store.protocol", "imaps");
-
+        ArrayList<IridiumMessage> messages = new ArrayList<>();
         try {
             Session session = Session.getDefaultInstance(props, null);
             Store store = session.getStore("imaps");
@@ -266,31 +270,38 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
                     MimeMultipart mime = (MimeMultipart) m.getContent();
                     for (int j = 0; j < mime.getCount(); j++) {
                         BodyPart p = mime.getBodyPart(j);
-                        if (p.getContent() instanceof Multipart) {
-                            Multipart mp = (Multipart)p.getContent();
-                            for (int k = 0; k < mp.getCount(); k++) {
-                                if (mp.getBodyPart(k).getContentType().startsWith("TEXT/PLAIN")) {
-                                    IridiumMessage msg = process(mp.getBodyPart(k).getContent().toString(), m.getFrom()[0].toString());
-                                    //FIXME unfinished
-                                }                                
-                            }
-                        }                        
-                    }                    
+                        Matcher matcher = pattern.matcher(p.getContentType());
+                        if (matcher.matches()) {
+                            InputStream stream = (InputStream) p.getContent();
+                            byte[] data = IOUtils.toByteArray(stream);
+                            IridiumMessage msg = process(data, matcher.group(1));
+                            if (msg != null)
+                                messages.add(msg);
+                        }
+                    }
                 }
-            }           
-        } catch (NoSuchProviderException ex) {
+            }
+        }
+        catch (NoSuchProviderException ex) {
             ex.printStackTrace();
             System.exit(1);
-        } catch (MessagingException ex) {
+        }
+        catch (MessagingException ex) {
             ex.printStackTrace();
             System.exit(2);
         }
 
-        return null;
+        return messages;
     }
-    
-    private IridiumMessage process(String msg, String from) {
-        return null;
+
+    private IridiumMessage process(byte[] data, String from) {
+        try {
+            return IridiumMessage.deserialize(data);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -365,7 +376,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
 
             @Override
             public Boolean get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
-            TimeoutException {
+                    TimeoutException {
                 while (result == null) {
                     Thread.sleep(100);
                     if (System.currentTimeMillis() - start > unit.toMillis(timeout))
@@ -389,10 +400,8 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
     public static void main(String[] args) throws Exception {
         RockBlockIridiumMessenger messenger = new RockBlockIridiumMessenger();
         ConfigFetch.initialize();
-        IridiumCommand cmd = new IridiumCommand();
-        cmd.setCommand("teste");
-        cmd.setDestination(VehiclesHolder.getVehicleById("lauv-xtreme-2").getImcId().intValue());
-        messenger.pollMessages(new Date(System.currentTimeMillis() - 3600000));
+        for (IridiumMessage msg : messenger.pollMessages(new Date(System.currentTimeMillis() - 3600000))) {
+            System.out.println(msg);
+        }
     }
-
 }
