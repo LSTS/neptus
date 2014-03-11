@@ -31,12 +31,12 @@
  */
 package pt.lsts.neptus.plugins.vtk.cdt3d;
 
+import pt.lsts.neptus.plugins.vtk.mravisualizer.MouseEvent;
+import pt.lsts.neptus.plugins.vtk.mravisualizer.PointPickingEvent;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
-import pt.lsts.neptus.plugins.vtk.visualization.ScalarBar;
 import vtk.vtkInteractorStyleTrackballCamera;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
-import vtk.vtkScalarBarActor;
 import vtk.vtkTextActor;
 
 /**
@@ -53,9 +53,11 @@ public class InteractorStyle extends vtkInteractorStyleTrackballCamera {
     private boolean fpsActorEnable = false;
     private vtkTextActor fpsActor = new vtkTextActor();
 
-    private vtkScalarBarActor lutActor = new vtkScalarBarActor();
-    private ScalarBar scalarBar;
+    // Mouse Interaction
+    MouseEvent mouseEvent;
 
+    // Point Picking
+    PointPickingEvent pointPickEvent;
 
     /**
      * 
@@ -66,6 +68,9 @@ public class InteractorStyle extends vtkInteractorStyleTrackballCamera {
         this.canvas = canvas;
         this.renderer = renderer;
         this.interactor = renWinInteractor;
+
+        this.pointPickEvent = new PointPickingEvent(canvas);
+        this.mouseEvent = new MouseEvent(canvas, this.pointPickEvent);
 
         initialize();
     }
@@ -79,7 +84,6 @@ public class InteractorStyle extends vtkInteractorStyleTrackballCamera {
         HandleObserversOn();
 
         interactor.AddObserver("RenderEvent", this, "callbackFunctionFPS");
-
     }
 
     void callbackFunctionFPS() {
@@ -97,33 +101,5 @@ public class InteractorStyle extends vtkInteractorStyleTrackballCamera {
             fpsActorEnable = true;
             renderer.AddActor(fpsActor);
         }
-    }
-
-    /**
-     * @return the lutActor
-     */
-    public vtkScalarBarActor getLutActor() {
-        return lutActor;
-    }
-
-    /**
-     * @param lutActor the lutActor to set
-     */
-    public void setLutActor(vtkScalarBarActor lutActor) {
-        this.lutActor = lutActor;
-    }
-
-    /**
-     * @return the scalarBar
-     */
-    public ScalarBar getScalarBar() {
-        return scalarBar;
-    }
-
-    /**
-     * @param scalarBar the scalarBar to set
-     */
-    public void setScalarBar(ScalarBar scalarBar) {
-        this.scalarBar = scalarBar;
     }
 }
