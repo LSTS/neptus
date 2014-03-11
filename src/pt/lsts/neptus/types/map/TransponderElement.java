@@ -501,7 +501,7 @@ public class TransponderElement extends AbstractElement implements NameId{
 
     @Override
     public String getDisplayName() {
-        return name;
+        return id;
     }
 
     @Override

@@ -455,7 +455,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                 else if (startLocs.length == 0) {
                     try {
                         pivot = getMap(mission);
-                        start.setName("start");
+                        start.setId("start");
                         start.setParentMap(pivot);
                         start.setMapGroup(pivot.getMapGroup());
                         pivot.addObject(start);

@@ -101,7 +101,7 @@ public abstract class AbstractElement
     protected Document doc = null;
     
     protected String id = NameNormalizer.getRandomID("me"); // "obj_"+System.currentTimeMillis()+rnd.nextInt(100);
-    protected String name = id;
+    // protected String name = id;
 
     // ===== Old MapObject
     protected boolean selected = false;
@@ -199,7 +199,7 @@ public abstract class AbstractElement
          
         
         id = getCenterLocation().getId();
-        name = id;
+        // name = id;
         
         Node nd;
         try {
@@ -310,7 +310,7 @@ public abstract class AbstractElement
         Document document = DocumentHelper.createDocument();
 
         getCenterLocation().setId(getId());
-        getCenterLocation().setName(name);
+        // getCenterLocation().setName(name);
         
         Element root = getCenterLocation().asElement(rootElementName);
         
@@ -636,16 +636,16 @@ public abstract class AbstractElement
 		return id;
 	}
 
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+//    /**
+//     * @return the name
+//     */
+//    public final String getName() {
+//        return getId();
+//    }
+//
+//    public final void setName(String name) {
+//        setId(name);
+//    }
 
     /**
      * @param id the id to set
@@ -660,7 +660,7 @@ public abstract class AbstractElement
      */
     @Override
     public String toString() {
-        return name;
+        return getId();
     }
 
 	public boolean isSelected() {
@@ -692,7 +692,7 @@ public abstract class AbstractElement
                 return;
             }
 
-            if (!objName.getText().equals(name) && takenNames != null) {
+            if (!objName.getText().equals(id) && takenNames != null) {
                 for (int i = 0; i < takenNames.length; i++) {
                     if (takenNames[i].equals(objName.getText())) {
                         JOptionPane.showMessageDialog(paramsPanel, I18n.text("The entered identifier is already in use"));
@@ -707,7 +707,7 @@ public abstract class AbstractElement
                 return;
             }
             
-            setName(objName.getText());
+            setId(objName.getText());
             
             setObstacle(obstacleCheck.isSelected());
             transparency = hiddenCheck.isSelected() ? 100 : 0;
@@ -753,7 +753,7 @@ public abstract class AbstractElement
         
         objName = new JTextField(8);
         objName.setEditable(editable);
-        objName.setText(name);
+        objName.setText(id);
         obstacleCheck = new JCheckBox(I18n.text("Obstacle"));
         obstacleCheck.setSelected(isObstacle());
         
@@ -767,7 +767,7 @@ public abstract class AbstractElement
         
         if (takenNames == null) {
             objName.setEnabled(false);
-            objName.setText(name);
+            objName.setText(id);
         }
 
         JPanel buttonsPanel = new JPanel();

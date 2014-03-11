@@ -525,7 +525,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             if (!intersectedObjects.isEmpty()) {
                 for (final AbstractElement elem : intersectedObjects) {
                     final String elemId = elem.getId();
-                    JMenu menu = new JMenu(elem.getName() + " [" + I18n.text(elem.getType()) + "]");
+                    JMenu menu = new JMenu(elem.getId() + " [" + I18n.text(elem.getType()) + "]");
 
                     menu.add(I18n.text("Properties")).addActionListener(new ActionListener() {
                         @Override
