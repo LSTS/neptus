@@ -5,4 +5,4 @@
 # SVN_REV=@SVN_REV@
 # SVN_PATH=@SVN_PATH@
 
-#pt.lsts.neptus.plugins.sms.
+pt.lsts.neptus.plugins.txtcmd.TextCommands

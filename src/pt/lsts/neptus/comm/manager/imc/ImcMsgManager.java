@@ -59,6 +59,8 @@ import pt.lsts.imc.EntityInfo;
 import pt.lsts.imc.EntityList;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.MessagePart;
+import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.imc.state.ImcSysState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
@@ -112,6 +114,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     private boolean sameIdErrorDetected = false;
     private long sameIdErrorDetectedTimeMillis = -1;
 
+    protected IMCFragmentHandler fragmentHandler = new IMCFragmentHandler(IMCDefinition.getInstance());
+    
     protected ImcSysState imcState = new ImcSysState();
     {
         imcState.setIgnoreEntities(true);
@@ -790,6 +794,13 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             }
 
             imcState.setMessage(msg);
+            
+            // Handling of fragmented messages
+            if (msg instanceof MessagePart) {
+                IMCMessage m = fragmentHandler.setFragment((MessagePart)msg);
+                if (m != null)
+                    postInternalMessage(msg.getSourceName(), m);
+            }
 
             if (localId.equals(id)) {
                 System.out.println(msg.getAbbrev());

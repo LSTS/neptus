@@ -31,40 +31,15 @@
  */
 package pt.lsts.neptus.plugins.txtcmd;
 
-import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author zp
  *
  */
-public class CommandGoto extends AbstractTextCommand {
+public class CommandDive extends AbstractTextCommand {
 
-    @NeptusProperty(name = "Destination")
-    LocationType dest = new LocationType();
-    
-    @NeptusProperty
-    double depth = 0;
-    
-    @NeptusProperty
-    double speed = 1.2;
-    
     @Override
     public String getCommand() {
-        return "go";
+        return "dive";
     }
-    
-    @Override
-    public PlanType resultingPlan() {
-        return null;
-    }
-    
-    public static void main(String[] args) {
-        CommandGoto gt = new CommandGoto();
-        PluginUtils.editPluginProperties(gt, true);
-        System.out.println(gt.buildCommand());
-    }
-
 }

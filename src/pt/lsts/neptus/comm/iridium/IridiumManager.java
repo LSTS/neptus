@@ -43,8 +43,8 @@ import javax.swing.JOptionPane;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * This class will handle Iridium communications
@@ -59,9 +59,17 @@ public class IridiumManager {
     private HubIridiumMessenger hubMessenger;
     private SimulatedMessenger simMessenger;
     private ScheduledExecutorService service = null;
+    //private IridiumMessenger currentMessenger;
     
     public static final int IRIDIUM_MTU = 270;
     public static final int IRIDIUM_HEADER = 6;
+    
+    public enum IridiumMessengerEnum {
+        DuneIridiumMessenger,
+        RockBlockIridiumMessenger,
+        HubIridiumMessenger,
+        SimulatedMessenger
+    }
     
     private IridiumManager() {
         duneMessenger = new DuneIridiumMessenger();
@@ -70,17 +78,27 @@ public class IridiumManager {
         simMessenger = new SimulatedMessenger();
     }
     
+    public IridiumMessenger getCurrentMessenger() {
+        switch (GeneralPreferences.iridiumMessenger) {
+            case DuneIridiumMessenger:
+                return duneMessenger;
+            case HubIridiumMessenger:
+                return hubMessenger;
+            case RockBlockIridiumMessenger:
+                return rockBlockMessenger;
+            default:
+                return simMessenger;
+        }
+    }
+    
     private Runnable pollMessages = new Runnable() {
         
         Date lastTime = new Date(System.currentTimeMillis() - 3600 * 1000);
         @Override
         public void run() {
-            if (currentMessenger == null)
-                return;
-
             try {
                 Date now = new Date();
-                Collection<IridiumMessage> msgs = currentMessenger.pollMessages(lastTime);
+                Collection<IridiumMessage> msgs = getCurrentMessenger().pollMessages(lastTime);
                 for (IridiumMessage m : msgs)
                     processMessage(m);
                 
@@ -92,6 +110,10 @@ public class IridiumManager {
             }
         }
     };
+    
+    public boolean isAvailable() {
+        return getCurrentMessenger().isAvailable();
+    }
     
     public synchronized boolean isActive() {
         return service != null;
@@ -107,15 +129,14 @@ public class IridiumManager {
     }
 
     public void selectMessenger(Component parent) {
-
-        IridiumMessenger[] messengers = new IridiumMessenger[] { duneMessenger, rockBlockMessenger, hubMessenger, simMessenger };
-
         Object op = JOptionPane.showInputDialog(parent, "Select Iridium provider", "Iridium Provider",
-                JOptionPane.QUESTION_MESSAGE, ImageUtils.createImageIcon("images/satellite.png"), messengers,
-                currentMessenger);
+                JOptionPane.QUESTION_MESSAGE, ImageUtils.createImageIcon("images/satellite.png"), IridiumMessengerEnum.values(),
+                GeneralPreferences.iridiumMessenger);
 
-        if (op != null)
-            currentMessenger = (IridiumMessenger) op;
+        if (op != null) {
+            GeneralPreferences.iridiumMessenger = (IridiumMessengerEnum) op;
+            GeneralPreferences.saveProperties();
+        }
     }
     
     public synchronized void start() {
@@ -141,7 +162,7 @@ public class IridiumManager {
         return instance;
     }
 
-    private IridiumMessenger currentMessenger;
+
 
     /**
      * This method will send the given message using the currently selected messenger
@@ -150,11 +171,7 @@ public class IridiumManager {
      * @return
      */
     public void send(IridiumMessage msg) throws Exception {
-        if (currentMessenger == null) {
-            throw new Exception("A messenger needs to be selected first");
-        }
-        System.out.println(ByteUtil.dumpAsHexToString(msg.serialize()));
-        currentMessenger.sendMessage(msg);
+        getCurrentMessenger().sendMessage(msg);
     }
     
     public static void main(String[] args) {

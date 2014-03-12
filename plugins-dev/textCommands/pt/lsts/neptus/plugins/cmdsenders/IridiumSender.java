@@ -38,12 +38,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.iridium.IridiumCommand;
+import pt.lsts.neptus.comm.iridium.IridiumManager;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.types.comm.protocol.IridiumArgs;
-import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
 /**
  * @author zp
@@ -58,25 +57,64 @@ public class IridiumSender implements ITextMsgSender {
 
     @Override
     public boolean available(String vehicleId) {
-        Future<Boolean> isRockBlockReachable = rockBlockIsReachable();
-        
-        try {
-            VehicleType vt = VehiclesHolder.getVehicleById(vehicleId);
-            IridiumArgs args = (IridiumArgs) vt.getProtocolsArgs().get("iridium");
-            ImcSystem[] iridiumSenders = ImcSystemsHolder.lookupSystemByService("iridium", SystemTypeEnum.ALL, true);
-            return args != null && (isRockBlockReachable.get() || iridiumSenders.length > 0);
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error(e);
-            return false;
-        }
+        return IridiumManager.getManager().isAvailable();
     }
 
     @Override
     public Future<String> sendToVehicle(String source, final String destination, String command) {
-        //FIXME
-        return null;
-        
+        final IridiumCommand cmd = new IridiumCommand();
+        cmd.setCommand(command);
+        cmd.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+        ImcSystem dest = ImcSystemsHolder.getSystemWithName(destination);
+        if (dest != null)
+            cmd.setDestination(dest.getId().intValue());
+        else
+            cmd.setDestination(65535);
+       
+        return new Future<String>() {
+            
+            String result = "In progress";
+            boolean complete = false;
+            
+            {
+                try {
+                    IridiumManager.getManager().send(cmd);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    result = e.getClass().getSimpleName()+": "+e.getMessage();
+                }
+                complete = true;
+            }
+            
+             
+            
+            @Override
+            public boolean cancel(boolean mayInterruptIfRunning) {
+                return false;
+            }
+            
+            @Override
+            public String get() throws InterruptedException, ExecutionException {
+                return result;
+            }
+
+            @Override
+            public String get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
+                    TimeoutException {
+                return result;
+            }
+
+            @Override
+            public boolean isCancelled() {
+                return false;
+            }
+
+            @Override
+            public boolean isDone() {
+                return complete;
+            }                
+        };
     }
     
     private static long lastSuccess = -1;
@@ -138,8 +176,7 @@ public class IridiumSender implements ITextMsgSender {
             public boolean isDone() {
                 return result != null;
             }
-        };
-        
+        };        
     }
 
     public static void main(String[] args) throws Exception {

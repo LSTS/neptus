@@ -54,7 +54,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ActivateSubscription;
 import pt.lsts.neptus.comm.iridium.DeactivateSubscription;
 import pt.lsts.neptus.comm.iridium.DesiredAssetPosition;
-import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumCommand;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.iridium.TargetAssetPosition;
@@ -151,25 +150,6 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         }
     }
     
-    private void sendGenericText() {
-        ImcIridiumMessage iim = new ImcIridiumMessage();
-        iim.setMsg(new TextMessage("iridium", "abort"));
-        
-        VehicleType vt = VehiclesHolder.getVehicleById(getMainVehicleId());
-        if (vt == null) {
-            GuiUtils.errorMessage(getConsole(), "Send Iridium Command", "Could not calculate destination's IMC identifier");
-            return;
-        }
-        iim.setDestination(vt.getImcId().intValue());
-        iim.setSource(ImcMsgManager.getManager().getLocalId().intValue());
-        try {
-            IridiumManager.getManager().send(iim);    
-        }
-        catch (Exception e) {
-            GuiUtils.errorMessage(getConsole(), e);
-        }
-    }
-    
     private void setWaveGliderTargetPosition(LocationType loc) {
         TargetAssetPosition pos = new TargetAssetPosition();
         pos.setLocation(loc);
@@ -236,13 +216,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                 sendIridiumCommand();                
             }
         });
-        
-        popup.add(I18n.textf("Send %vehicle a text", getMainVehicleId())).addActionListener(new ActionListener() {            
-            public void actionPerformed(ActionEvent e) {
-                sendGenericText();                
-            }
-        });
-        
+
         popup.add(I18n.textf("Subscribe to device updates", getMainVehicleId())).addActionListener(new ActionListener() {            
             public void actionPerformed(ActionEvent e) {
                 ActivateSubscription activate = new ActivateSubscription();

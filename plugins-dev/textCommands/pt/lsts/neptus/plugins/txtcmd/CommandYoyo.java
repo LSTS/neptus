@@ -31,9 +31,12 @@
  */
 package pt.lsts.neptus.plugins.txtcmd;
 
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
+import pt.lsts.neptus.mp.templates.PlanCreator;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
@@ -79,7 +82,38 @@ public class CommandYoyo extends AbstractTextCommand {
     
     @Override
     public PlanType resultingPlan() {
-        return null;
+        PlanCreator planCreator = new PlanCreator(new MissionType());
+        planCreator.setSpeed(speed, SPEED_UNITS.METERS_PS);
+        
+        LocationType center = new LocationType(loc);
+        double radius = Math.sqrt((size * size)/2);
+        double ang = Math.toRadians(45 + rot);
+        double time = 0;
+        planCreator.setLocation(center);
+        planCreator.move(Math.sin(ang) * radius + vn * time, Math.cos(ang) * radius + ve * time);
+        planCreator.setDepth(minDepth);
+        planCreator.addGoto(null);
+        if (popup > 0) {
+            planCreator.setDepth(0);
+            planCreator.addManeuver("PopUp", "duration", popup, "radius", 20);
+        }
+        double amplitude = (maxdepth - minDepth) / 2;
+        double depth = (maxdepth + minDepth) / 2;
+        
+        for (int i = 0; i < 4; i++) {
+            time += size * speed;
+            ang = Math.toRadians(i * 90 + 135 + rot);
+            planCreator.setLocation(center);
+            planCreator.move(Math.sin(ang) * radius + time * vn, Math.cos(ang) * radius + time * ve);
+            planCreator.setDepth(depth);
+            planCreator.addManeuver("YoYo", "amplitude", amplitude, "pitchAngle", Math.toRadians(pitch));
+            if (popup > 0) {
+                planCreator.setDepth(0);
+                planCreator.addManeuver("PopUp", "duration", popup, "radius", 20);
+            }
+        }
+        
+        return planCreator.getPlan();
     }
     
     public static void main(String[] args) {
