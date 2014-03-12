@@ -31,13 +31,15 @@
  */
 package pt.lsts.neptus.plugins.txtcmd;
 
+
 /**
  * @author zp
  *
  */
-public interface ITextMsgSender {
+public class CommandSurface extends AbstractTextCommand {
 
-    public String getName();
-    
-    
+    @Override
+    public String getCommand() {
+        return "surface";
+    }
 }

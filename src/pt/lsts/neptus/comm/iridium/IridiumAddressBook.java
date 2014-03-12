@@ -27,40 +27,14 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: zp
- * Feb 24, 2014
+ * Mar 11, 2014
  */
-package pt.lsts.neptus.plugins.txtcmd;
-
-import pt.lsts.neptus.gui.PropertiesProvider;
-import pt.lsts.neptus.types.mission.plan.PlanType;
+package pt.lsts.neptus.comm.iridium;
 
 /**
  * @author zp
  *
  */
-public interface ITextCommand extends PropertiesProvider {
+public class IridiumAddressBook {
 
-    /**
-     * The name of the command template (Example: "go_home", "go", "sk")
-     * @return The name of this command
-     */
-    public String getCommand();
-
-    /**
-     * Constructs the text message to be sent to the vehicle
-     */
-    public String buildCommand();
-    
-    /**
-     * Given a text message, parse its context into the various command parameters
-     * @param text The message contents
-     * @throws Exception In case the message is not valid
-     */
-    public void parseCommand(String text) throws Exception;
-    
-    /**
-     * Generates a plan from the existing parameters or <code>null</code> if not applicable
-     * @return resulting plan or <code>null</code> if not applicable
-     */
-    public PlanType resultingPlan();
 }

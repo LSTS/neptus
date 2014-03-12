@@ -53,6 +53,7 @@ import com.google.gson.Gson;
  * @author zp
  *
  */
+@IridiumProvider(id="hub", name="HUB Iridium Messenger", description="Uses the HUB web server to send and receive messages")
 public class HubIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;
@@ -68,9 +69,10 @@ public class HubIridiumMessenger implements IridiumMessenger {
     static { dateFormat.setTimeZone(tz); }
     
     protected Thread t = null;
-    public HubIridiumMessenger() {
-       startPolling();
-    }
+
+    // public HubIridiumMessenger() {
+    //  startPolling();
+    // }
     
     public DeviceUpdate pollActiveDevices() throws Exception {
         Gson gson = new Gson();
@@ -90,50 +92,43 @@ public class HubIridiumMessenger implements IridiumMessenger {
         return up;
     }
     
-    public void startPolling() {
-        if (t != null)
-            stopPolling();
-        t = new Thread("Hub Iridium message updater") {
-            @Override
-            public void run() {
-                Date lastTime = null;
-                while (true) {
-                    try {
-                        Thread.sleep(60 * 1000);
-                        
-                        if (lastTime == null)
-                            lastTime = new Date(System.currentTimeMillis() - (3600 * 1000));
-                        
-                        Collection<IridiumMessage> newMessages = pollMessages(lastTime);
-                        lastTime = new Date();
-                        
-                        for (IridiumMessage m : newMessages)
-                            for (IridiumMessageListener listener : listeners)
-                                listener.messageReceived(m);                        
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        };
-        t.setDaemon(true);
-        t.start();
-        
-//        Runtime.getRuntime().addShutdownHook(new Thread() {
+//    public void startPolling() {
+//        if (t != null)
+//            stopPolling();
+//        t = new Thread("Hub Iridium message updater") {
 //            @Override
 //            public void run() {
-//                stopPolling();
+//                Date lastTime = null;
+//                while (true) {
+//                    try {
+//                        Thread.sleep(60 * 1000);
+//                        
+//                        if (lastTime == null)
+//                            lastTime = new Date(System.currentTimeMillis() - (3600 * 1000));
+//                        
+//                        Collection<IridiumMessage> newMessages = pollMessages(lastTime);
+//                        lastTime = new Date();
+//                        
+//                        for (IridiumMessage m : newMessages)
+//                            for (IridiumMessageListener listener : listeners)
+//                                listener.messageReceived(m);                        
+//                    }
+//                    catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                }
 //            }
-//        });
-    }
+//        };
+//        t.setDaemon(true);
+//        t.start();
+//    }
     
-    public void stopPolling() {
-        if (t != null)
-            t.interrupt();
-        t = null;
-    }
-    
+//    public void stopPolling() {
+//        if (t != null)
+//            t.interrupt();
+//        t = null;
+//    }
+//    
     @Override
     public void addListener(IridiumMessageListener listener) {
         listeners.add(listener);
@@ -260,7 +255,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     @Override
     public void cleanup() {
         listeners.clear();
-        stopPolling();
+        //stopPolling();
     }
     
     public static void main(String[] args) throws Exception {
@@ -268,8 +263,10 @@ public class HubIridiumMessenger implements IridiumMessenger {
         Date d = new Date(System.currentTimeMillis() - (1000 * 3600 * 60));
         System.out.println(dateToString(d));
         System.out.println(messenger.pollMessages(d).size());
-        //TrexToken tok = new TrexToken("drifter", "Inactive", new Vector<TrexAttribute>());
-        //IridiumFacade.getInstance().sendMessage(tok);
-        //System.out.println(IridiumFacade.getInstance().pollMessages(null));        
+    }
+    
+    @Override
+    public String toString() {
+        return getName();                
     }
 }

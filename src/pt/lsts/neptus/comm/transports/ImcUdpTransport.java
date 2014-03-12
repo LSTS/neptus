@@ -241,7 +241,6 @@ public class ImcUdpTransport {
 
 		try {
 		    message.serialize(imcOs);
-		    
 		    DeliveryListener listener = null;
             if (deliveryListener != null) {
                 listener = new DeliveryListener() {
@@ -249,7 +248,7 @@ public class ImcUdpTransport {
                     public void deliveryResult(ResultEnum result, Exception error) {
                         switch (result) {
                             case Success:
-                                deliveryListener.deliverySuccess(message);
+                                deliveryListener.deliveryUncertain(message, new Exception("Message delivered via UDP"));
                                 break;
                             case Error:
                                 deliveryListener.deliveryError(message, error);

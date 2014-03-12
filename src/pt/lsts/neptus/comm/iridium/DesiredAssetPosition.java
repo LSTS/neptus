@@ -58,8 +58,8 @@ public class DesiredAssetPosition extends IridiumMessage {
     public int serializeFields(IMCOutputStream out) throws Exception {
         out.writeUnsignedShort(asset_imc_id);
         loc.convertToAbsoluteLatLonDepth();
-        out.writeUnsignedInt(Math.round(loc.getLatitudeDegs()* 1000000));
-        out.writeUnsignedInt(Math.round(loc.getLongitudeDegs()* 1000000));
+        out.writeInt((int)Math.round(loc.getLatitudeDegs() * 1000000));
+        out.writeInt((int)Math.round(loc.getLongitudeDegs()* 1000000));
         return 10;
     }
 
@@ -67,8 +67,8 @@ public class DesiredAssetPosition extends IridiumMessage {
     public int deserializeFields(IMCInputStream in) throws Exception {
         asset_imc_id = in.readUnsignedShort();
         loc = new LocationType();
-        loc.setLatitudeDegs(in.readUnsignedInt() / 1000000.0);
-        loc.setLongitudeDegs(in.readUnsignedInt() / 1000000.0);
+        loc.setLatitudeDegs(in.readInt()  / 1000000.0);
+        loc.setLongitudeDegs(in.readInt() / 1000000.0);
         return 10;
     }
 
@@ -96,7 +96,7 @@ public class DesiredAssetPosition extends IridiumMessage {
         sensorInfo.setLat(getLocation().getLatitudeRads());
         sensorInfo.setLon(getLocation().getLongitudeRads());
         sensorInfo.setAlt(0);
-        sensorInfo.setId("DP_"+ImcSystemsHolder.translateImcIdToSystemName(asset_imc_id));
+        sensorInfo.setId("DP_"+ImcSystemsHolder.translateImcIdToSystemName(asset_imc_id).replaceAll(":", ""));
         sensorInfo.setSrc(getSource());
         sensorInfo.setDst(getDestination());
         msgs.add(sensorInfo);        

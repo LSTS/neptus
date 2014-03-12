@@ -92,10 +92,14 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -103,7 +107,9 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.filechooser.FileFilter;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.ErrorMessageBox;
+import pt.lsts.neptus.gui.tablelayout.TableLayout;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.jgoodies.looks.LookUtils;
@@ -1146,6 +1152,23 @@ public class GuiUtils {
             }
         }
         return null;
+    }
+    
+    public static Pair<String, String> askCredentials(Component parent, String title, String username, String password) {
+        TableLayout tl = new TableLayout(new double[] {0.33, 0.67}, new double[] {0.5,0.5});
+        tl.setHGap(3);
+        JPanel p = new JPanel(tl);
+        JTextField login = new JTextField(username);
+        JPasswordField pass = new JPasswordField(password);
+        
+        p.add(new JLabel("login:"), "0,0");
+        p.add(login, "1,0");
+        p.add(new JLabel("password:"),"0,1");
+        p.add(pass,"1,1");
+        int op = JOptionPane.showConfirmDialog(parent, p, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, ImageUtils.getIcon("images/key.png"));
+        if (op == JOptionPane.CANCEL_OPTION)
+            return null;
+        return new Pair<String, String>(login.getText(), new String(pass.getPassword()));
     }
 
     /**

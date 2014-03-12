@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.txtcmd;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author zp
@@ -52,7 +53,12 @@ public class CommandGoto extends AbstractTextCommand {
     
     @Override
     public String getCommand() {
-        return "goto";
+        return "go";
+    }
+    
+    @Override
+    public PlanType resultingPlan() {
+        return null;
     }
     
     public static void main(String[] args) {

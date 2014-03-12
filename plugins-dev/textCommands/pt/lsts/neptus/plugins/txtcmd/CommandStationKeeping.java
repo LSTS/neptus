@@ -27,68 +27,40 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: zp
- * Jun 28, 2013
+ * Feb 24, 2014
  */
-package pt.lsts.neptus.comm.iridium;
+package pt.lsts.neptus.plugins.txtcmd;
 
-import java.util.Collection;
-import java.util.Vector;
-
-import pt.lsts.imc.IMCInputStream;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCOutputStream;
-import pt.lsts.imc.TextMessage;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author zp
  *
  */
-public class IridiumCommand extends IridiumMessage {
+public class CommandStationKeeping extends AbstractTextCommand {
 
-    String command;
+    @NeptusProperty(name = "Destination")
+    LocationType dest = new LocationType();
     
-    @NeptusProperty(name="Send device updates", description="may increase communications costs!")
-    public boolean sendDeviceUpdates;
+    @NeptusProperty
+    double speed = 1.2;
     
-    @NeptusProperty(name="Delay, in seconds, between device updates")
-    public long secondsBetweenUpdates;
-    
-    @NeptusProperty(name="Use Iridium hardware", description="may increase communications costs!")
-    public boolean useIridium;
-        
-    public IridiumCommand() {
-        super(2005);
+    @Override
+    public String getCommand() {
+        return "sk";
     }
     
     @Override
-    public int serializeFields(IMCOutputStream out) throws Exception {
-        out.writePlaintext(command);
-        return command.getBytes("ISO-8859-1").length + 2;
-    }
-
-    @Override
-    public int deserializeFields(IMCInputStream in) throws Exception {
-        int len = in.readUnsignedShort();
-        byte[] data = new byte[len];
-        in.readFully(data);
-        command = new String(data, "ISO-8859-1");
-        return data.length + 2;
+    public PlanType resultingPlan() {
+        //TODO
+        return null;
     }
     
-    public final String getCommand() {
-        return command;
+    public static void main(String[] args) {
+        CommandStationKeeping gt = new CommandStationKeeping();
+        PluginUtils.editPluginProperties(gt, true);
     }
-
-    public final void setCommand(String command) {
-        this.command = command;
-    }
-
-    @Override
-    public Collection<IMCMessage> asImc() {
-        Vector<IMCMessage> msgs = new Vector<>();
-        msgs.add(new TextMessage("iridium", command));
-        return msgs;
-    }
-
 }

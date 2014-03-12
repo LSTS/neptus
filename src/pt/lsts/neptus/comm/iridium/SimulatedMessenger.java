@@ -44,24 +44,26 @@ import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
- *
+ * 
  */
+@IridiumProvider(id = "sim", name = "Simulated Messenger", description = "This messenger posts the Iridium message "
+        + "directly in the bus of the destination via IMC. Used only for debug / simulation purposes")
 public class SimulatedMessenger implements IridiumMessenger {
 
     protected Vector<IridiumMessage> messagesReceived = new Vector<>();
 
     protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
-    
+
     @Override
     public void addListener(IridiumMessageListener listener) {
         listeners.add(listener);
     }
-    
+
     @Override
     public void removeListener(IridiumMessageListener listener) {
-        listeners.remove(listener);       
+        listeners.remove(listener);
     }
-    
+
     @Subscribe
     public void on(IridiumMsgTx tx) {
         try {
@@ -71,17 +73,17 @@ public class SimulatedMessenger implements IridiumMessenger {
         }
         catch (Exception e) {
             e.printStackTrace();
-        }        
+        }
     }
-    
+
     @Override
-    public void sendMessage(IridiumMessage msg) throws Exception {        
+    public void sendMessage(IridiumMessage msg) throws Exception {
         IridiumMsgRx rx = new IridiumMsgRx();
         rx.setOrigin("Iridium simulated messenger");
         rx.setDst(msg.getDestination());
         rx.setSrc(msg.getSource());
-        rx.setData(msg.serialize());    
-        rx.setHtime(msg.timestampMillis / 1000.0);                
+        rx.setData(msg.serialize());
+        rx.setHtime(msg.timestampMillis / 1000.0);
         ImcMsgManager.getManager().sendMessage(rx);
     }
 
@@ -97,9 +99,14 @@ public class SimulatedMessenger implements IridiumMessenger {
 
     @Override
     public String getName() {
-        return "Simulated (IMC) messenger";     
+        return "Simulated messenger";
     }
     
+    @Override
+    public String toString() {
+        return getName();
+    }
+
     @Override
     public void cleanup() {
         listeners.clear();

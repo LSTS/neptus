@@ -47,6 +47,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.iridium.IridiumManager.IridiumMessengerEnum;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
@@ -207,6 +208,12 @@ public class GeneralPreferences implements PropertiesProvider {
 
     @NeptusProperty(name = "Tides file", category = "Tides", userLevel = LEVEL.REGULAR)
     public static File tidesFile = new File("conf/tides/Leixoes.txt");
+
+    // -------------------------------------------------------------------------
+    
+    @NeptusProperty(name = "Iridium Messenger", category="Iridium Communications", userLevel = LEVEL.REGULAR,
+        description = "Iridium messaging implementation")
+    public static IridiumMessengerEnum iridiumMessenger = IridiumMessengerEnum.HubIridiumMessenger;
     
     // -------------------------------------------------------------------------
     // Constructor and initialize

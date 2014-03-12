@@ -31,36 +31,15 @@
  */
 package pt.lsts.neptus.plugins.txtcmd;
 
-import pt.lsts.neptus.gui.PropertiesProvider;
-import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author zp
  *
  */
-public interface ITextCommand extends PropertiesProvider {
+public class CommandDive extends AbstractTextCommand {
 
-    /**
-     * The name of the command template (Example: "go_home", "go", "sk")
-     * @return The name of this command
-     */
-    public String getCommand();
-
-    /**
-     * Constructs the text message to be sent to the vehicle
-     */
-    public String buildCommand();
-    
-    /**
-     * Given a text message, parse its context into the various command parameters
-     * @param text The message contents
-     * @throws Exception In case the message is not valid
-     */
-    public void parseCommand(String text) throws Exception;
-    
-    /**
-     * Generates a plan from the existing parameters or <code>null</code> if not applicable
-     * @return resulting plan or <code>null</code> if not applicable
-     */
-    public PlanType resultingPlan();
+    @Override
+    public String getCommand() {
+        return "dive";
+    }
 }
