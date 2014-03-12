@@ -74,7 +74,6 @@ public class ColorHandler {
     }
 
     public void gerenerateColors() {
-
         vtkLookupTable look1 = new vtkLookupTable();
         look1.SetRange(temperatureArray.GetRange());
         look1.SetScaleToLinear();
