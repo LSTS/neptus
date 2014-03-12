@@ -46,6 +46,7 @@ import javax.swing.JToolBar;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.CTD3D;
+import pt.lsts.neptus.plugins.vtk.pointcloud.DepthExaggeration;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.ScalarBar;
 import pt.lsts.neptus.util.GuiUtils;
@@ -66,10 +67,13 @@ public class CTD3DToolbar extends JToolBar {
             "pt/lsts/neptus/plugins/vtk/assets/salinity.png", ICON_SIZE, ICON_SIZE);
     private static final ImageIcon ICON_PRESSURE = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/pressure.png", ICON_SIZE, ICON_SIZE);
+    private static final ImageIcon ICON_Z = ImageUtils.getScaledIcon(
+            "pt/lsts/neptus/plugins/vtk/assets/zexaggerate.png", ICON_SIZE, ICON_SIZE);
 
     private JToggleButton tempToggle;
     private JToggleButton salinityToggle;
     private JToggleButton pressureToggle;
+    private JToggleButton zexaggerToggle;
 
     private PointCloudCTD pointcloud;
     private ScalarBar scalarBar;
@@ -111,9 +115,18 @@ public class CTD3DToolbar extends JToolBar {
         groupToggles.add(getSalinityToggle());
         groupToggles.add(getPressureToggle());
 
+        setZexaggerToggle(new JToggleButton());
+        getZexaggerToggle().setToolTipText(I18n.text("Enable/Disable Z Exaggeration") + ".");
+        getZexaggerToggle().setIcon(ICON_Z);
+        getZexaggerToggle().addActionListener(zexaggerToggleAction);
+
         add(getTempToggle());
         add(getSalinityToggle());
         add(getPressureToggle());
+
+        addSeparator();
+
+        add(getZexaggerToggle());
     }
 
     ActionListener temperatureToggleAction = new ActionListener() {
@@ -164,6 +177,27 @@ public class CTD3DToolbar extends JToolBar {
                 scalarBar.setUpScalarBarLookupTable(pointcloud.getColorHandler().getLutPressure());
 
                 canvas.lock();
+                canvas.Render();
+                canvas.unlock();
+            }
+        }
+    };
+
+    ActionListener zexaggerToggleAction = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (zexaggerToggle.isSelected()) {
+                canvas.lock();
+                DepthExaggeration.performDepthExaggeration(pointcloud.getPolyData(), 10);
+                canvas.GetRenderer().ResetCamera();
+                canvas.Render();
+                canvas.unlock();
+            }
+            else if (!zexaggerToggle.isSelected()) {
+                canvas.lock();
+                DepthExaggeration.reverseDepthExaggeration(pointcloud.getPolyData(), 10);
+                canvas.GetRenderer().ResetCamera();
                 canvas.Render();
                 canvas.unlock();
             }
@@ -221,6 +255,20 @@ public class CTD3DToolbar extends JToolBar {
      */
     private void setPressureToggle(JToggleButton pressureToggle) {
         this.pressureToggle = pressureToggle;
+    }
+
+    /**
+     * @return the zexaggerToggle
+     */
+    public JToggleButton getZexaggerToggle() {
+        return zexaggerToggle;
+    }
+
+    /**
+     * @param zexaggerToggle the zexaggerToggle to set
+     */
+    public void setZexaggerToggle(JToggleButton zexaggerToggle) {
+        this.zexaggerToggle = zexaggerToggle;
     }
 
     public static void main(String[] args) {
