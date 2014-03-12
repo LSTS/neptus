@@ -6,3 +6,4 @@
 # SVN_PATH=@SVN_PATH@
 
 pt.lsts.neptus.plugins.vtk.VtkMRAVis
+pt.lsts.neptus.plugins.vtk.CTD3D
