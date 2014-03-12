@@ -74,16 +74,38 @@ public class ColorHandler {
     }
 
     public void gerenerateColors() {
+
+        vtkLookupTable look1 = new vtkLookupTable();
+        look1.SetRange(temperatureArray.GetRange());
+        look1.SetScaleToLinear();
+        look1.Build();
+
         lutTemperature.SetRange(temperatureArray.GetRange());
-        lutTemperature.SetScaleToLinear();
+        for (int i = 1; i <= 256 ; ++i) {
+            lutTemperature.SetTableValue(256 - i, look1.GetTableValue(i));
+        }
         lutTemperature.Build();
 
+        vtkLookupTable look2 = new vtkLookupTable();
+        look2.SetRange(salinityArray.GetRange());
+        look2.SetScaleToLinear();
+        look2.Build();
+
         lutSalinity.SetRange(salinityArray.GetRange());
-        lutSalinity.SetScaleToLinear();
+        for (int i = 1; i <= 256; ++i) {
+            lutSalinity.SetTableValue(256 - i, look2.GetTableValue(i));
+        }
         lutSalinity.Build();
 
+        vtkLookupTable look3 = new vtkLookupTable();
+        look3.SetRange(pressureArray.GetRange());
+        look3.SetScaleToLinear();
+        look3.Build();
+
         lutPressure.SetRange(pressureArray.GetRange());
-        lutPressure.SetScaleToLinear();
+        for(int i = 1; i <= 256; ++i) {
+            lutPressure.SetTableValue(256 - i, look3.GetTableValue(i));
+        }
         lutPressure.Build();
 
         getColorsTemperature().SetNumberOfComponents(3);
@@ -119,7 +141,6 @@ public class ColorHandler {
             getColorsTemperature().InsertNextTuple3(colorTemp[0], colorTemp[1], colorTemp[2]);
             getColorsSalinity().InsertNextTuple3(colorSalinity[0], colorSalinity[1], colorSalinity[2]);
             getColorsPressure().InsertNextTuple3(colorPressure[0], colorPressure[1], colorPressure[2]);
-
         }
     }
 
