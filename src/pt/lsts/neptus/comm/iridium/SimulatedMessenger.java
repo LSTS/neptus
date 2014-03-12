@@ -99,7 +99,12 @@ public class SimulatedMessenger implements IridiumMessenger {
 
     @Override
     public String getName() {
-        return "Simulated (IMC) messenger";
+        return "Simulated messenger";
+    }
+    
+    @Override
+    public String toString() {
+        return getName();
     }
 
     @Override

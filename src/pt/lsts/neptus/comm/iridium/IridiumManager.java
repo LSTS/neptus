@@ -43,6 +43,7 @@ import javax.swing.JOptionPane;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
@@ -56,12 +57,17 @@ public class IridiumManager {
     private DuneIridiumMessenger duneMessenger;
     private RockBlockIridiumMessenger rockBlockMessenger;
     private HubIridiumMessenger hubMessenger;
+    private SimulatedMessenger simMessenger;
     private ScheduledExecutorService service = null;
+    
+    public static final int IRIDIUM_MTU = 270;
+    public static final int IRIDIUM_HEADER = 6;
     
     private IridiumManager() {
         duneMessenger = new DuneIridiumMessenger();
         rockBlockMessenger = new RockBlockIridiumMessenger();
         hubMessenger = new HubIridiumMessenger();
+        simMessenger = new SimulatedMessenger();
     }
     
     private Runnable pollMessages = new Runnable() {
@@ -102,7 +108,7 @@ public class IridiumManager {
 
     public void selectMessenger(Component parent) {
 
-        IridiumMessenger[] messengers = new IridiumMessenger[] { duneMessenger, rockBlockMessenger, hubMessenger };
+        IridiumMessenger[] messengers = new IridiumMessenger[] { duneMessenger, rockBlockMessenger, hubMessenger, simMessenger };
 
         Object op = JOptionPane.showInputDialog(parent, "Select Iridium provider", "Iridium Provider",
                 JOptionPane.QUESTION_MESSAGE, ImageUtils.createImageIcon("images/satellite.png"), messengers,
@@ -147,6 +153,7 @@ public class IridiumManager {
         if (currentMessenger == null) {
             throw new Exception("A messenger needs to be selected first");
         }
+        System.out.println(ByteUtil.dumpAsHexToString(msg.serialize()));
         currentMessenger.sendMessage(msg);
     }
     

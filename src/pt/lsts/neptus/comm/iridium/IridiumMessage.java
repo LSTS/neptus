@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
-import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
@@ -66,6 +65,7 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         iridiumTypes.put(2005, IridiumCommand.class);
         iridiumTypes.put(2006, DesiredAssetPosition.class);
         iridiumTypes.put(2007, TargetAssetPosition.class);        
+        iridiumTypes.put(2010, ImcIridiumMessage.class);
     }
     
     public byte[] serialize() throws Exception {
@@ -90,11 +90,11 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         IridiumMessage m = null;
         if (iridiumTypes.containsKey(mgid)) {
             m = iridiumTypes.get(mgid).newInstance();
-
         }
-        else if (IMCDefinition.getInstance().getMessageName(mgid) != null) {
-            m = new ImcIridiumMessage();
-        }        
+        else {
+            iis.close();
+            throw new Exception("Unrecognized message type: "+mgid);
+        }
         
         if (m != null) {
             m.setSource(source);
