@@ -29,7 +29,7 @@
  * Author: hfq
  * Apr 26, 2013
  */
-package pt.lsts.neptus.plugins.vtk.pointcloud;
+package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
 import java.util.Date;
 
@@ -43,6 +43,7 @@ import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.DVLBathymetryParser;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
