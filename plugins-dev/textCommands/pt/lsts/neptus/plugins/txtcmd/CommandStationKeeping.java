@@ -31,9 +31,12 @@
  */
 package pt.lsts.neptus.plugins.txtcmd;
 
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
+import pt.lsts.neptus.mp.templates.PlanCreator;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
@@ -54,9 +57,15 @@ public class CommandStationKeeping extends AbstractTextCommand {
     }
     
     @Override
-    public PlanType resultingPlan() {
-        //TODO
-        return null;
+    public PlanType resultingPlan(MissionType mt) {
+        PlanCreator planCreator = new PlanCreator(mt);
+        planCreator.setSpeed(speed, SPEED_UNITS.METERS_PS);
+        planCreator.setLocation(dest);
+        planCreator.setDepth(0);
+        planCreator.addManeuver("StationKeeping");
+        PlanType pt = planCreator.getPlan();
+        pt.setId("sk");
+        return pt;
     }
     
     public static void main(String[] args) {

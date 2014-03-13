@@ -238,6 +238,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
 
+        System.out.println(gmailPassword);
         if (askGmailPassword || gmailPassword == null || gmailUsername == null) {
             Pair<String, String> credentials = GuiUtils.askCredentials(ConfigFetch.getSuperParentFrame(),
                     "Enter Gmail Credentials", getGmailUsername(), getGmailPassword());

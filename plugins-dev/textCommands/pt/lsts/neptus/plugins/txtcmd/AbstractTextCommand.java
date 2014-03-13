@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.txtcmd;
 
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -87,7 +88,7 @@ public abstract class AbstractTextCommand implements ITextCommand {
     }
     
     @Override
-    public PlanType resultingPlan() {
+    public PlanType resultingPlan(MissionType mt) {
         return null;
     }
     

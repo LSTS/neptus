@@ -81,8 +81,8 @@ public class CommandYoyo extends AbstractTextCommand {
     }
     
     @Override
-    public PlanType resultingPlan() {
-        PlanCreator planCreator = new PlanCreator(new MissionType());
+    public PlanType resultingPlan(MissionType mt) {
+        PlanCreator planCreator = new PlanCreator(mt);
         planCreator.setSpeed(speed, SPEED_UNITS.METERS_PS);
         
         LocationType center = new LocationType(loc);
@@ -113,7 +113,9 @@ public class CommandYoyo extends AbstractTextCommand {
             }
         }
         
-        return planCreator.getPlan();
+        PlanType pt = planCreator.getPlan();
+        pt.setId("yoyo");
+        return pt;
     }
     
     public static void main(String[] args) {

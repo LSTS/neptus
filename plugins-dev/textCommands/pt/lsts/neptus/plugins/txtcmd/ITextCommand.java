@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.txtcmd;
 
 import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
@@ -62,5 +63,5 @@ public interface ITextCommand extends PropertiesProvider {
      * Generates a plan from the existing parameters or <code>null</code> if not applicable
      * @return resulting plan or <code>null</code> if not applicable
      */
-    public PlanType resultingPlan();
+    public PlanType resultingPlan(MissionType mt);
 }

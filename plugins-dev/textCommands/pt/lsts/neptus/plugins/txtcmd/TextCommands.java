@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.txtcmd;
 
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -43,6 +44,7 @@ import java.util.concurrent.Future;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -51,6 +53,7 @@ import javax.swing.JTextArea;
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import org.reflections.Reflections;
 
+import pt.lsts.imc.IMCUtil;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -63,6 +66,11 @@ import pt.lsts.neptus.plugins.cmdsenders.ITextMsgSender;
 import pt.lsts.neptus.plugins.cmdsenders.IridiumSender;
 import pt.lsts.neptus.plugins.cmdsenders.SmsSender;
 import pt.lsts.neptus.plugins.cmdsenders.WiFiSender;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.PlanElement;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.GuiUtils;
 
 import com.jogamp.newt.event.KeyEvent;
@@ -140,7 +148,7 @@ public class TextCommands extends ConsolePanel {
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 3, 2));
         JButton btnSend = new JButton(I18n.text("Send"));
         JButton btnPreview = new JButton(I18n.text("Preview"));
-        JButton btnSettings = new JButton(I18n.text("Settings"));
+        //JButton btnSettings = new JButton(I18n.text("Settings"));
         
         btnSend.addActionListener(new ActionListener() {            
             @Override
@@ -154,18 +162,18 @@ public class TextCommands extends ConsolePanel {
                 preview();
             }
         });
-        btnSettings.addActionListener(new ActionListener() {            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                settings();
-            }
-        });
+//        btnSettings.addActionListener(new ActionListener() {            
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                settings();
+//            }
+//        });
         
         parse();      
         
         bottom.add(btnPreview);
         bottom.add(btnSend);
-        bottom.add(btnSettings);
+        //bottom.add(btnSettings);
         add(bottom, "0,4 1,4");
     }
     
@@ -188,26 +196,34 @@ public class TextCommands extends ConsolePanel {
     
     private void preview() {
         parse();
-//        ITextCommand cmd = commands.get(comboCmd.getSelectedItem());
-//        PlanType pt = cmd.resultingPlan();
-//        
-//        if (pt == null) {
-//            GuiUtils.errorMessage(I18n.text("Preview command"), I18n.textf("The command %cmd can not be previewed", cmd.getCommand()));
-//            return;
-//        }
-//        StateRenderer2D r2d = new StateRenderer2D(pt.planPath().firstElement());
-//        JDialog dialog = new JDialog(getConsole());
-//        dialog.getContentPane().add(r2d);
-//        dialog.setModal(true);
-//        dialog.setVisible(true);
-//        
-//        PlanElement planElem = new PlanElement();
-//        planElem.setBeingEdited(true);
-//        planElem.setRenderer(r2d);
-//        planElem.setTransp2d(1.0);
-//        planElem.setPlan(pt);
-//        IMCUtil.debug(pt.asIMCPlan());
-//        r2d.addPostRenderPainter(planElem, "Plan");
+        
+        
+        ITextCommand cmd = commands.get(comboCmd.getSelectedItem());
+        PlanType pt = cmd.resultingPlan(getConsole().getMission());
+
+        if (pt == null) {
+            GuiUtils.errorMessage(I18n.text("Preview command"), I18n.textf("The command %cmd can not be previewed", cmd.getCommand()));
+            return;
+        }
+        StateRenderer2D r2d = new StateRenderer2D(MapGroup.getMapGroupInstance(getConsole().getMission()));
+        PlanElement planElem = new PlanElement(MapGroup.getMapGroupInstance(getConsole().getMission()), new MapType());
+        planElem.setPlan(pt);
+        planElem.setBeingEdited(true);
+        planElem.setShowManNames(true);
+        planElem.setShowDistances(true);
+        planElem.setShowVelocities(true);
+        planElem.setRenderer(r2d);
+        planElem.setTransp2d(1.0);
+        r2d.addPostRenderPainter(planElem, "Plan");
+        JDialog dialog = new JDialog(getConsole());
+        GuiUtils.centerOnScreen(dialog);
+        dialog.getContentPane().add(r2d);
+        dialog.setSize(600, 600);
+        dialog.setModal(true);
+        dialog.setTitle("Previewing "+cmd.getCommand()+" command");
+        dialog.setVisible(true);
+
+        
     }
  
     private void send() {
@@ -231,14 +247,18 @@ public class TextCommands extends ConsolePanel {
         try {
             Future<String> result = sender.sendToVehicle("neptus", getConsole().getMainSystem(), command);
             GuiUtils.infoMessage(getConsole(), I18n.text("Send command"), result.get());
+            PlanType pt = cmd.resultingPlan(getConsole().getMission());
+            
+            if (pt != null) {
+                getConsole().getMission().addPlan(pt);
+                getConsole().getMission().save(true);
+                getConsole().warnMissionListeners();
+                getConsole().setPlan(pt);
+            }
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), e);
         }
-    }
-    
-    private void settings() {
-        
     }
 
     public static void main(String[] args) {
