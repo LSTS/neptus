@@ -29,7 +29,7 @@
  * Author: hfq
  * Jun 6, 2013
  */
-package pt.lsts.neptus.plugins.vtk.mravisualizer;
+package pt.lsts.neptus.plugins.vtk.events;
 
 import java.awt.event.MouseEvent;
 

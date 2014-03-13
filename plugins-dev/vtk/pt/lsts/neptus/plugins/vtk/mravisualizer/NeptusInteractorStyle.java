@@ -33,6 +33,8 @@ package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
 import java.util.LinkedHashMap;
 
+import pt.lsts.neptus.plugins.vtk.events.MouseEvent;
+import pt.lsts.neptus.plugins.vtk.events.PointPickingEvent;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;

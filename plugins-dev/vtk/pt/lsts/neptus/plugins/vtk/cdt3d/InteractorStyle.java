@@ -31,8 +31,8 @@
  */
 package pt.lsts.neptus.plugins.vtk.cdt3d;
 
-import pt.lsts.neptus.plugins.vtk.mravisualizer.MouseEvent;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.PointPickingEvent;
+import pt.lsts.neptus.plugins.vtk.events.MouseEvent;
+import pt.lsts.neptus.plugins.vtk.events.PointPickingEvent;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import vtk.vtkInteractorStyleTrackballCamera;
 import vtk.vtkRenderWindowInteractor;
