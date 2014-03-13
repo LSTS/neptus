@@ -79,7 +79,7 @@ public class Vis3DToolBar extends JToolBar {
             "pt/lsts/neptus/plugins/vtk/assets/textures.png", ICON_SIZE, ICON_SIZE);
 
     private static final ImageIcon ICON_Z = ImageUtils.getScaledIcon(
-            "pt/lsts/neptus/plugins/vtk/assets/zexag.png", ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/plugins/vtk/assets/zexaggerate.png", ICON_SIZE, ICON_SIZE);
 
     private static final ImageIcon ICON_CONTOURS = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/contours.png", ICON_SIZE, ICON_SIZE);
