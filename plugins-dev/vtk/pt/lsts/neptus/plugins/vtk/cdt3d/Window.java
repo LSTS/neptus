@@ -40,15 +40,20 @@ import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
  */
 public class Window extends AWindow {
 
-    private InteractorStyle interactorStyle;
+    private InteractorStyleCTD3D interactorStyle;
 
     /**
-     * 
+     *
+     * @param canvas
      */
     public Window(Canvas canvas) {
         this(canvas, "CTD3D");
     }
 
+    /**
+     * @param canvas
+     * @param windowName
+     */
     public Window(Canvas canvas, String windowName) {
         super(canvas, windowName);
 
@@ -99,11 +104,11 @@ public class Window extends AWindow {
      */
     @Override
     public void setUpInteractorStyle() {
-        interactorStyle = new InteractorStyle(getCanvas(), getRenderer(), getRenWinInteractor());
+        interactorStyle = new InteractorStyleCTD3D(getCanvas(), getRenderer(), getRenWinInteractor());
         getRenWinInteractor().SetInteractorStyle(interactorStyle);
     }
 
-    public InteractorStyle getInteractorStyle() {
+    public InteractorStyleCTD3D getInteractorStyle() {
         return interactorStyle;
     }
 

@@ -46,7 +46,7 @@ import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.vtk.cdt3d.CTD3DToolbar;
-import pt.lsts.neptus.plugins.vtk.cdt3d.InteractorStyle;
+import pt.lsts.neptus.plugins.vtk.cdt3d.InteractorStyleCTD3D;
 import pt.lsts.neptus.plugins.vtk.cdt3d.LoadData;
 import pt.lsts.neptus.plugins.vtk.cdt3d.PointCloudCTD;
 import pt.lsts.neptus.plugins.vtk.cdt3d.Window;
@@ -72,7 +72,7 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
 
     public Canvas canvas;
     private Window winCanvas;
-    private InteractorStyle interactorStyle;
+    private InteractorStyleCTD3D interactorStyle;
 
     private CTD3DToolbar toolbar;
 

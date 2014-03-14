@@ -31,33 +31,16 @@
  */
 package pt.lsts.neptus.plugins.vtk.cdt3d;
 
-import pt.lsts.neptus.plugins.vtk.events.MouseEvent;
-import pt.lsts.neptus.plugins.vtk.events.PointPickingEvent;
+import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
-import vtk.vtkInteractorStyleTrackballCamera;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
-import vtk.vtkTextActor;
 
 /**
  * @author hfq
  *
  */
-public class InteractorStyle extends vtkInteractorStyleTrackballCamera {
-
-    private Canvas canvas;
-
-    public vtkRenderer renderer;
-    public vtkRenderWindowInteractor interactor;
-
-    private boolean fpsActorEnable = false;
-    private vtkTextActor fpsActor = new vtkTextActor();
-
-    // Mouse Interaction
-    MouseEvent mouseEvent;
-
-    // Point Picking
-    PointPickingEvent pointPickEvent;
+public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
 
     /**
      * 
@@ -65,44 +48,21 @@ public class InteractorStyle extends vtkInteractorStyleTrackballCamera {
      * @param renderer
      * @param renWinInteractor
      */
-    public InteractorStyle(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor) {
-        super();
+    public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor) {
+        super(canvas, renderer, renWinInteractor);
 
-        this.canvas = canvas;
-        this.renderer = renderer;
-        this.interactor = renWinInteractor;
-
-        this.pointPickEvent = new PointPickingEvent(canvas);
-        this.mouseEvent = new MouseEvent(canvas, this.pointPickEvent);
-
-        initialize();
+        onInitialize();
     }
 
-    /**
-     * 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera#initialize()
      */
-    private void initialize() {
+    @Override
+    protected void onInitialize() {
         UseTimersOn();
         AutoAdjustCameraClippingRangeOn();
         HandleObserversOn();
 
-        interactor.AddObserver("RenderEvent", this, "callbackFunctionFPS");
-    }
-
-    void callbackFunctionFPS() {
-        double timeInSeconds = renderer.GetLastRenderTimeInSeconds();
-        double fps = 1.0 / timeInSeconds;
-
-        fps = Math.round(fps * 100) / 100.0d;
-        fpsActor.SetInput(String.valueOf(fps));
-
-        fpsActor.GetTextProperty().SetColor(0.0, 1.0, 0.0);
-        fpsActor.UseBorderAlignOn();
-        fpsActor.SetDisplayPosition(2, 2);
-
-        if (fpsActorEnable == false) {
-            fpsActorEnable = true;
-            renderer.AddActor(fpsActor);
-        }
+        getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
     }
 }
