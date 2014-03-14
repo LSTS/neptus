@@ -48,6 +48,7 @@ import javax.swing.JToolBar;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.VtkMRAVis;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler.SensorTypeInteraction;
+import pt.lsts.neptus.plugins.vtk.pointcloud.DepthExaggeration;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
@@ -133,17 +134,11 @@ public class Vis3DToolBar extends JToolBar {
 
         multibeamToggle = new JToggleButton();
         multibeamToggle.setToolTipText(I18n.text("See Multibeam data") + ".");
-        // multibeamToggle.setText(I18n.text("M"));
         multibeamToggle.setIcon(ICON_MULTIBEAM);
 
         dvlToggle = new JToggleButton();
         dvlToggle.setToolTipText(I18n.text("See DVL data") + ".");
-        //dvlToggle.setText(I18n.text("D"));
         dvlToggle.setIcon(ICON_DVL);
-
-        //        ButtonGroup groupSensorType = new ButtonGroup();
-        //        groupSensorType.add(multibeamToggle);
-        //        groupSensorType.add(dvlToggle);
 
         rawPointsToggle = new JToggleButton();
         rawPointsToggle.setToolTipText(I18n.text("Points based representation") + ".");
@@ -184,10 +179,11 @@ public class Vis3DToolBar extends JToolBar {
         multibeamToggle.addActionListener(sensorTypeInteracActionMutibeam);
         dvlToggle.addActionListener(sensorTypeInteracActionDVL);
 
-
         rawPointsToggle.addActionListener(renderRepresentationTypeAction);
         wireframeToggle.addActionListener(renderRepresentationTypeAction);
         solidToggle.addActionListener(renderRepresentationTypeAction);
+
+        zExaggerationToggle.addActionListener(zExaggerToggleAction);
 
         // Add Components to toolbar
         add(multibeamToggle);
@@ -211,8 +207,7 @@ public class Vis3DToolBar extends JToolBar {
     }
 
     /**
-     * Actions for type od sensor choosen
-     * FIXME - since toogles are grouped it is not possible to have both clouds... will fix on next iteration
+     * Actions for type of sensor choosen
      */
     ActionListener sensorTypeInteracActionMutibeam = new ActionListener() {
 
@@ -230,11 +225,9 @@ public class Vis3DToolBar extends JToolBar {
                     vtkInit.loadCloudBySensorType("multibeam");
                     renderer.AddActor(linkedHashMapCloud.get("multibeam").getCloudLODActor());
                     canvas.Render();
-                    //canvas.resetCamera();
                 } else {
                     renderer.AddActor(linkedHashMapCloud.get("multibeam").getCloudLODActor());
                     canvas.Render();
-                    // canvas.resetCamera();
                 }
             }
             else if(!multibeamToggle.isSelected()) {
@@ -245,7 +238,6 @@ public class Vis3DToolBar extends JToolBar {
                 events.setSensorTypeInteraction(sensorTypeInt);
                 renderer.RemoveActor(linkedHashMapCloud.get("multibeam").getCloudLODActor());
                 canvas.Render();
-                // canvas.resetCamera();
             }
             if(multibeamToggle.isSelected() && dvlToggle.isSelected())
                 sensorTypeInt = SensorTypeInteraction.ALL;
@@ -270,11 +262,9 @@ public class Vis3DToolBar extends JToolBar {
                     vtkInit.loadCloudBySensorType("dvl");
                     renderer.AddActor(linkedHashMapCloud.get("dvl").getCloudLODActor());
                     canvas.Render();
-                    // canvas.resetCamera();
                 } else {
                     renderer.AddActor(linkedHashMapCloud.get("dvl").getCloudLODActor());
                     canvas.Render();
-                    // canvas.resetCamera();
                 }
             }
             else if(!dvlToggle.isSelected()) {
@@ -285,7 +275,6 @@ public class Vis3DToolBar extends JToolBar {
                 events.setSensorTypeInteraction(sensorTypeInt);
                 canvas.GetRenderer().RemoveActor(linkedHashMapCloud.get("dvl").getCloudLODActor());
                 canvas.Render();
-                // canvas.resetCamera();
             }
             if(multibeamToggle.isSelected() && dvlToggle.isSelected())
                 sensorTypeInt = SensorTypeInteraction.ALL;
@@ -309,6 +298,33 @@ public class Vis3DToolBar extends JToolBar {
             }
             else if(solidToggle.isSelected()) {
 
+            }
+        }
+    };
+
+    ActionListener zExaggerToggleAction = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (zExaggerationToggle.isSelected()) {
+                canvas.lock();
+                if(linkedHashMapCloud.containsKey("multibeam"))
+                    DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get("multibeam").getPoly(), vtkInit.zExaggeration);
+                if(linkedHashMapCloud.containsKey("dvl"))
+                    DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get("dvl").getPoly(), vtkInit.zExaggeration);
+                canvas.GetRenderer().ResetCamera();
+                canvas.Render();
+                canvas.unlock();
+            }
+            else if (!zExaggerationToggle.isSelected()) {
+                canvas.lock();
+                if(linkedHashMapCloud.containsKey("multibeam"))
+                    DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get("multibeam").getPoly(), vtkInit.zExaggeration);
+                if(linkedHashMapCloud.containsKey("dvl"))
+                    DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get("dvl").getPoly(), vtkInit.zExaggeration);
+                canvas.GetRenderer().ResetCamera();
+                canvas.Render();
+                canvas.unlock();
             }
         }
     };
