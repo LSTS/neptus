@@ -36,6 +36,8 @@ import java.awt.event.KeyEvent;
 import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
 import pt.lsts.neptus.plugins.vtk.visualization.AKeyboardEvent;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
+import vtk.vtkAbstractPropPicker;
+import vtk.vtkAssemblyPath;
 
 /**
  * @author hfq
@@ -58,10 +60,42 @@ public class KeyboardEventCTD3D extends AKeyboardEvent {
     @Override
     public void handleEvents(int keyCode) {
         switch (keyCode) {
-            case KeyEvent.VK_PLUS: 
-
+            case KeyEvent.VK_PLUS:
                 break;
             case KeyEvent.VK_MINUS:
+                break;
+            case KeyEvent.VK_R:
+                try {
+                    getCanvas().lock();
+                    getRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+                    getRenderer().ResetCamera();
+                    getCanvas().Render();
+                    getCanvas().unlock();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            case KeyEvent.VK_F:
+                getCanvas().lock();
+
+                vtkAssemblyPath path = null;
+                interactorStyle.FindPokedRenderer(getInteractor().GetEventPosition()[0],
+                        getInteractor().GetEventPosition()[1]);
+                getInteractor().GetPicker().Pick(getInteractor().GetEventPosition()[0], getInteractor().GetEventPosition()[1], 0.0,
+                        getRenderer());
+
+                vtkAbstractPropPicker picker;
+                if ((picker = (vtkAbstractPropPicker) getInteractor().GetPicker()) != null) {
+                    path = picker.GetPath();
+                }
+                if (path != null) {
+                    getInteractor().FlyTo(getRenderer(), picker.GetPickPosition()[0], picker.GetPickPosition()[1],
+                            picker.GetPickPosition()[2]);
+                }
+                getCanvas().unlock();
+                break;
+            default:
                 break;
         }
     }
