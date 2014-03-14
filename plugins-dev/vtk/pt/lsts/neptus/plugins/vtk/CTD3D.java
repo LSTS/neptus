@@ -184,8 +184,8 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
         if(isFirstRender) {
             canvas.lock();
 
-            canvas.GetRenderer().GetActiveCamera().SetPosition(0.0, -1.0, -100.0);
-            canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+            canvas.GetRenderer().GetActiveCamera().SetPosition(1.0, -1.0, -100.0);
+            canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 1.0, -1.0);
 
             canvas.GetRenderer().ResetCamera();
             canvas.RenderSecured();

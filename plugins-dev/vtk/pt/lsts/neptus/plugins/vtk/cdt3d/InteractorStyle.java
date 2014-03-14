@@ -61,6 +61,9 @@ public class InteractorStyle extends vtkInteractorStyleTrackballCamera {
 
     /**
      * 
+     * @param canvas
+     * @param renderer
+     * @param renWinInteractor
      */
     public InteractorStyle(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor) {
         super();

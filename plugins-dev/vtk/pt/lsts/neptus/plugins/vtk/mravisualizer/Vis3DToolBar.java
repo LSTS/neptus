@@ -42,6 +42,7 @@ import java.util.LinkedHashMap;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
@@ -91,6 +92,9 @@ public class Vis3DToolBar extends JToolBar {
     private static final ImageIcon ICON_SMOOTHING = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/smoothing.png", ICON_SIZE, ICON_SIZE);
 
+    private static final ImageIcon ICON_RESETVIEWPORT = ImageUtils.getScaledIcon(
+            "images/menus/camera.png", ICON_SIZE, ICON_SIZE);
+
     private VtkMRAVis vtkInit;
     private Canvas canvas;
     private vtkRenderer renderer;
@@ -109,6 +113,8 @@ public class Vis3DToolBar extends JToolBar {
 
     private JToggleButton meshingToggle;
     private JToggleButton smoothingMeshToggle;
+
+    private JButton resetViewportButton;
 
     // private JToggleButton downsamplePointToggle;
 
@@ -175,6 +181,10 @@ public class Vis3DToolBar extends JToolBar {
 
         // downsamplePointToggle = new JToggleButton();
 
+        resetViewportButton = new JButton();
+        resetViewportButton.setToolTipText(I18n.text("Reset Viewport") + ".");
+        resetViewportButton.setIcon(ICON_RESETVIEWPORT);
+
         // Add Actions Listeners
         multibeamToggle.addActionListener(sensorTypeInteracActionMutibeam);
         dvlToggle.addActionListener(sensorTypeInteracActionDVL);
@@ -184,6 +194,8 @@ public class Vis3DToolBar extends JToolBar {
         solidToggle.addActionListener(renderRepresentationTypeAction);
 
         zExaggerationToggle.addActionListener(zExaggerToggleAction);
+
+        resetViewportButton.addActionListener(resetViewportAction);
 
         // Add Components to toolbar
         add(multibeamToggle);
@@ -204,6 +216,10 @@ public class Vis3DToolBar extends JToolBar {
 
         add(meshingToggle);
         add(smoothingMeshToggle);
+
+        addSeparator();
+
+        add(resetViewportButton);
     }
 
     /**
@@ -325,6 +341,23 @@ public class Vis3DToolBar extends JToolBar {
                 canvas.GetRenderer().ResetCamera();
                 canvas.Render();
                 canvas.unlock();
+            }
+        }
+    };
+
+    ActionListener resetViewportAction = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                canvas.lock();
+                renderer.ResetCamera();
+                renderer.GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+                canvas.Render();
+                canvas.unlock();
+            }
+            catch (Exception e1) {
+                e1.printStackTrace();
             }
         }
     };
