@@ -68,24 +68,10 @@ public class InteractorStyleVis3D extends AInteractorStyleTrackballCamera {
     public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
     public LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
 
-    //    // public vtkCanvas canvas;
-    //    private Canvas canvas;
-    //
-    //    // A renderer
-    //    public vtkRenderer renderer;
-    //    // The render Window Interactor
-    //    public vtkRenderWindowInteractor interactor;
-
     private EventsHandler events;
 
     // A Camera
     public vtkCamera camera = new vtkCamera();
-
-    //    // the render window interactor style;
-    //    private vtkInteractorStyleTrackballCamera style = new vtkInteractorStyleTrackballCamera();
-
-    //    // frame per seconds text actor - show frame rate refresh on visualizer
-    //    private boolean fpsActorEnable = false;
 
     // ########## Keyboard interaction ##########
     public KeyboardEvent keyboardEvent;
@@ -120,25 +106,6 @@ public class InteractorStyleVis3D extends AInteractorStyleTrackballCamera {
     // Actor for 2D loookup table on screen
     private vtkScalarBarActor lutActor = new vtkScalarBarActor();
     private ScalarBar scalarBar;
-
-    //    // ########## Mouse Interaction ##########
-    //    MouseEvent mouseEvent;
-    //
-    //    vtkProp3D InteractionProp;
-    //    vtkCellPicker InteractionPicker;
-    //
-    //    // Current Window position width/height
-    //    int winHeight, winWidth;
-    //    // Current window postion x/y
-    //    int winPosX, winPosY;
-    //
-    //    // TrackballActor style interactor for addObserver callback reference
-    //    vtkInteractorStyleTrackballActor astyle = new vtkInteractorStyleTrackballActor();
-    //    // TrackballCamera style interactor for addObserver callback reference
-    //    vtkInteractorStyleTrackballCamera cstyle = new vtkInteractorStyleTrackballCamera();
-    //
-    //    // ########### Point Picking ##########
-    //    PointPickingEvent pointPickEvent;
 
     /**
      * 
