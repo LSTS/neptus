@@ -108,7 +108,6 @@ public class InteractorStyleVis3D extends AInteractorStyleTrackballCamera {
     private ScalarBar scalarBar;
 
     /**
-     * 
      * @param canvas
      * @param renderer
      * @param interact

@@ -32,33 +32,27 @@
 package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
+import pt.lsts.neptus.plugins.vtk.visualization.AKeyboardEvent;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.InfoPointcloud2DText;
 import vtk.vtkAbstractPropPicker;
 import vtk.vtkActorCollection;
 import vtk.vtkAssemblyPath;
 import vtk.vtkLODActor;
-import vtk.vtkRenderWindowInteractor;
-import vtk.vtkRenderer;
 
 /**
- * @author hfq FIXME add keys to change mode (trackball, joystick..)
+ * @author hfq
  */
-public class KeyboardEvent implements KeyListener {
+public class KeyboardEvent extends AKeyboardEvent {
     private InteractorStyleVis3D interactorStyle;
 
-    // private vtkCanvas canvas;
-    private Canvas canvas;
     private EventsHandler events;
-
-    private vtkRenderer renderer;
-    private vtkRenderWindowInteractor interactor;
 
     private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
 
@@ -81,10 +75,6 @@ public class KeyboardEvent implements KeyListener {
     private InfoPointcloud2DText captionInfo;
     private Boolean captionEnabled = false;
 
-    private static final boolean VTKIS_ANIMEOFF = false;
-    private static final boolean VTKIS_ANIMEON = true;
-    protected boolean AnimeState = VTKIS_ANIMEOFF;
-
     /**
      * @param canvas
      * @param linkedHashMapCloud
@@ -92,10 +82,12 @@ public class KeyboardEvent implements KeyListener {
      */
     public KeyboardEvent(Canvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
             InteractorStyleVis3D interactorStyle, EventsHandler events) {
-        this.interactorStyle = interactorStyle;
-        this.canvas = canvas;
-        this.interactor = canvas.getRenderWindowInteractor();
-        this.renderer = canvas.GetRenderer();
+        super(canvas);
+        setInteractorStyle(interactorStyle);
+        //        this.interactorStyle = interactorStyle;
+        //        this.canvas = canvas;
+        //        this.interactor = canvas.getRenderWindowInteractor();
+        //        this.renderer = canvas.GetRenderer();
         this.events = events;
         this.linkedHashMapCloud = linkedHashMapCloud;
         colorMapRel = ColorMappingRelation.zMap; // on creation map color map is z related
@@ -103,6 +95,7 @@ public class KeyboardEvent implements KeyListener {
         // canvas.addKeyListener(this);
     }
 
+    @Override
     public void handleEvents(int keyCode) {
         switch (keyCode) {
             case KeyEvent.VK_J:
@@ -113,7 +106,7 @@ public class KeyboardEvent implements KeyListener {
                     // canvas.lock();
                     if (!interactorStyle.lutEnabled) {
                         vtkActorCollection actorCollection = new vtkActorCollection();
-                        actorCollection = renderer.GetActors();
+                        actorCollection = getRenderer().GetActors();
                         actorCollection.InitTraversal();
 
                         for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
@@ -146,21 +139,21 @@ public class KeyboardEvent implements KeyListener {
                                 }
                             }
                         }
-                        canvas.lock();
-                        renderer.AddActor(interactorStyle.getScalarBar().getScalarBarActor());
-                        canvas.unlock();
+                        getCanvas().lock();
+                        getRenderer().AddActor(interactorStyle.getScalarBar().getScalarBarActor());
+                        getCanvas().unlock();
                         interactorStyle.lutEnabled = true;
                     }
                     else {
-                        canvas.lock();
-                        renderer.RemoveActor(interactorStyle.getScalarBar().getScalarBarActor());
-                        canvas.unlock();
+                        getCanvas().lock();
+                        getRenderer().RemoveActor(interactorStyle.getScalarBar().getScalarBarActor());
+                        getCanvas().unlock();
                         interactorStyle.lutEnabled = false;
                     }
-                    canvas.lock();
-                    canvas.Render();
+                    getCanvas().lock();
+                    getCanvas().Render();
                     // interactor.Render();
-                    canvas.unlock();
+                    getCanvas().unlock();
                 }
                 catch (Exception e6) {
                     e6.printStackTrace();
@@ -171,21 +164,21 @@ public class KeyboardEvent implements KeyListener {
                     // canvas.lock();
                     if (!interactorStyle.gridEnabled) {
                         interactorStyle.gridActor.TopAxisVisibilityOn();
-                        canvas.lock();
-                        renderer.AddViewProp(interactorStyle.gridActor);
-                        canvas.unlock();
+                        getCanvas().lock();
+                        getRenderer().AddViewProp(interactorStyle.gridActor);
+                        getCanvas().unlock();
                         interactorStyle.gridEnabled = true;
                     }
                     else {
-                        canvas.lock();
-                        renderer.RemoveViewProp(interactorStyle.gridActor);
-                        canvas.unlock();
+                        getCanvas().lock();
+                        getRenderer().RemoveViewProp(interactorStyle.gridActor);
+                        getCanvas().unlock();
                         interactorStyle.gridEnabled = false;
                     }
-                    canvas.lock();
+                    getCanvas().lock();
                     // interactor.Render();
-                    canvas.Render();
-                    canvas.unlock();
+                    getCanvas().Render();
+                    getCanvas().unlock();
                 }
                 catch (Exception e5) {
                     e5.printStackTrace();
@@ -276,7 +269,7 @@ public class KeyboardEvent implements KeyListener {
                 break;
             case KeyEvent.VK_M:
                 try {
-                    canvas.lock();
+                    getCanvas().lock();
                     if (!markerEnabled) {
                         markerEnabled = true;
                         // neptusInteractorStyle.renderer.AddActor(marker);
@@ -284,7 +277,7 @@ public class KeyboardEvent implements KeyListener {
                     else {
                         markerEnabled = false;
                     }
-                    canvas.unlock();
+                    getCanvas().unlock();
                 }
                 catch (Exception e1) {
                     e1.printStackTrace();
@@ -293,7 +286,7 @@ public class KeyboardEvent implements KeyListener {
             case KeyEvent.VK_I:
                 if (!captionEnabled) {
                     try {
-                        canvas.lock();
+                        getCanvas().lock();
                         // vtkActorCollection actorCollection = new vtkActorCollection();
                         // actorCollection = renderer.GetActors();
                         // actorCollection.InitTraversal();
@@ -321,13 +314,13 @@ public class KeyboardEvent implements KeyListener {
                                 linkedHashMapCloud.get("multibeam").getCloudName(), linkedHashMapCloud.get("multibeam")
                                 .getBounds(), linkedHashMapCloud.get("multibeam").getMemorySize());
 
-                        renderer.AddActor(captionInfo.getCaptionNumberOfPointsActor());
-                        renderer.AddActor(captionInfo.getCaptionCloudNameActor());
-                        renderer.AddActor(captionInfo.getCaptionMemorySizeActor());
-                        renderer.AddActor(captionInfo.getCaptionCloudBoundsActor());
+                        getRenderer().AddActor(captionInfo.getCaptionNumberOfPointsActor());
+                        getRenderer().AddActor(captionInfo.getCaptionCloudNameActor());
+                        getRenderer().AddActor(captionInfo.getCaptionMemorySizeActor());
+                        getRenderer().AddActor(captionInfo.getCaptionCloudBoundsActor());
 
                         captionEnabled = true;
-                        canvas.unlock();
+                        getCanvas().unlock();
                     }
                     catch (Exception e) {
                         e.printStackTrace();
@@ -335,14 +328,14 @@ public class KeyboardEvent implements KeyListener {
                 }
                 else {
                     try {
-                        canvas.lock();
-                        renderer.RemoveActor(captionInfo.getCaptionNumberOfPointsActor());
-                        renderer.RemoveActor(captionInfo.getCaptionCloudNameActor());
-                        renderer.RemoveActor(captionInfo.getCaptionMemorySizeActor());
-                        renderer.RemoveActor(captionInfo.getCaptionCloudBoundsActor());
+                        getCanvas().lock();
+                        getRenderer().RemoveActor(captionInfo.getCaptionNumberOfPointsActor());
+                        getRenderer().RemoveActor(captionInfo.getCaptionCloudNameActor());
+                        getRenderer().RemoveActor(captionInfo.getCaptionMemorySizeActor());
+                        getRenderer().RemoveActor(captionInfo.getCaptionCloudBoundsActor());
                         captionEnabled = false;
-                        canvas.Render();
-                        canvas.unlock();
+                        getCanvas().Render();
+                        getCanvas().unlock();
                     }
                     catch (Exception e) {
                         e.printStackTrace();
@@ -353,7 +346,7 @@ public class KeyboardEvent implements KeyListener {
                 try {
 
                     vtkActorCollection actorCollection = new vtkActorCollection();
-                    actorCollection = renderer.GetActors();
+                    actorCollection = getRenderer().GetActors();
                     actorCollection.InitTraversal();
 
                     for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
@@ -365,10 +358,10 @@ public class KeyboardEvent implements KeyListener {
                             if (tempActor.equals(pointCloud.getCloudLODActor())) {
                                 double pointSize = tempActor.GetProperty().GetPointSize();
                                 if (pointSize <= 9.0) {
-                                    canvas.lock();
+                                    getCanvas().lock();
                                     tempActor.GetProperty().SetPointSize(pointSize + 1);
-                                    canvas.Render();
-                                    canvas.unlock();
+                                    getCanvas().Render();
+                                    getCanvas().unlock();
                                 }
                             }
                         }
@@ -382,7 +375,7 @@ public class KeyboardEvent implements KeyListener {
             case KeyEvent.VK_MINUS: // case '-': // decrement size of rendered cell point
                 try {
                     vtkActorCollection actorCollection = new vtkActorCollection();
-                    actorCollection = renderer.GetActors();
+                    actorCollection = getRenderer().GetActors();
                     actorCollection.InitTraversal();
 
                     for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
@@ -394,10 +387,10 @@ public class KeyboardEvent implements KeyListener {
                             if (tempActor.equals(pointCloud.getCloudLODActor())) {
                                 double pointSize = tempActor.GetProperty().GetPointSize();
                                 if (pointSize > 1.0) {
-                                    canvas.lock();
+                                    getCanvas().lock();
                                     tempActor.GetProperty().SetPointSize(pointSize - 1);
-                                    canvas.Render();
-                                    canvas.unlock();
+                                    getCanvas().Render();
+                                    getCanvas().unlock();
                                 }
                             }
                         }
@@ -434,9 +427,9 @@ public class KeyboardEvent implements KeyListener {
                                 colorMapRel = ColorMappingRelation.iMap;
                             }
                         }
-                        canvas.lock();
-                        canvas.Render();
-                        canvas.unlock();
+                        getCanvas().lock();
+                        getCanvas().Render();
+                        getCanvas().unlock();
                     }
                 }
                 catch (Exception e1) {
@@ -458,9 +451,9 @@ public class KeyboardEvent implements KeyListener {
                             colorMapRel = ColorMappingRelation.xMap;
 
                         }
-                        canvas.lock();
-                        canvas.Render();
-                        canvas.unlock();
+                        getCanvas().lock();
+                        getCanvas().Render();
+                        getCanvas().unlock();
                     }
                 }
                 catch (Exception e) {
@@ -479,9 +472,9 @@ public class KeyboardEvent implements KeyListener {
                                         pointCloud.getColorHandler().getLutY());
                             colorMapRel = ColorMappingRelation.yMap;
                         }
-                        canvas.lock();
-                        canvas.Render();
-                        canvas.unlock();
+                        getCanvas().lock();
+                        getCanvas().Render();
+                        getCanvas().unlock();
                     }
                 }
                 catch (Exception e) {
@@ -500,9 +493,9 @@ public class KeyboardEvent implements KeyListener {
                                         pointCloud.getColorHandler().getLutZ());
                             colorMapRel = ColorMappingRelation.zMap;
                         }
-                        canvas.lock();
-                        canvas.Render();
-                        canvas.unlock();
+                        getCanvas().lock();
+                        getCanvas().Render();
+                        getCanvas().unlock();
                     }
                 }
                 catch (Exception e) {
@@ -511,42 +504,47 @@ public class KeyboardEvent implements KeyListener {
                 break;
             case KeyEvent.VK_R:
                 try {
-                    canvas.lock();
+                    getCanvas().lock();
                     // renderer.GetActiveCamera().SetPosition(0.0 ,0.0 ,100);
-                    renderer.GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
-                    renderer.ResetCamera();
-                    canvas.Render();
-                    canvas.unlock();
+                    getRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+                    getRenderer().ResetCamera();
+                    getCanvas().Render();
+                    getCanvas().unlock();
                 }
                 catch (Exception e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 break;
             case KeyEvent.VK_F:
-                canvas.lock();
-                AnimeState = VTKIS_ANIMEON;
+                getCanvas().lock();
 
                 vtkAssemblyPath path = null;
-                interactorStyle.FindPokedRenderer(interactor.GetEventPosition()[0],
-                        interactor.GetEventPosition()[1]);
-                interactor.GetPicker().Pick(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1], 0.0,
-                        renderer);
+                interactorStyle.FindPokedRenderer(getInteractor().GetEventPosition()[0],
+                        getInteractor().GetEventPosition()[1]);
+                getInteractor().GetPicker().Pick(getInteractor().GetEventPosition()[0], getInteractor().GetEventPosition()[1], 0.0,
+                        getRenderer());
 
                 vtkAbstractPropPicker picker;
-                if ((picker = (vtkAbstractPropPicker) interactor.GetPicker()) != null) {
+                if ((picker = (vtkAbstractPropPicker) getInteractor().GetPicker()) != null) {
                     path = picker.GetPath();
                 }
                 if (path != null) {
-                    interactor.FlyTo(renderer, picker.GetPickPosition()[0], picker.GetPickPosition()[1],
+                    getInteractor().FlyTo(getRenderer(), picker.GetPickPosition()[0], picker.GetPickPosition()[1],
                             picker.GetPickPosition()[2]);
                 }
-                AnimeState = VTKIS_ANIMEOFF;
-                canvas.unlock();
+                getCanvas().unlock();
                 break;
             default:
                 break;
         }
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.visualization.AKeyboardEvent#setInteractorStyle(pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera)
+     */
+    @Override
+    protected void setInteractorStyle(AInteractorStyleTrackballCamera interactorStyle) {
+        this.interactorStyle = (InteractorStyleVis3D) interactorStyle;
     }
 
     //    /**
@@ -590,36 +588,4 @@ public class KeyboardEvent implements KeyListener {
     //
     //        });
     //    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
-     */
-    @Override
-    public void keyTyped(KeyEvent e) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
-     */
-    @Override
-    public void keyPressed(KeyEvent e) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
-     */
-    @Override
-    public void keyReleased(KeyEvent e) {
-        handleEvents(e.getKeyCode());
-    }
 }
