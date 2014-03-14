@@ -32,35 +32,21 @@
 package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.vtk.visualization.AWindow;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
-import pt.lsts.neptus.plugins.vtk.visualization.IWindow;
 import vtk.vtkPanel;
-import vtk.vtkRenderWindow;
-import vtk.vtkRenderWindowInteractor;
-import vtk.vtkRenderer;
 
 /**
  * @author hfq
  *
  */
-public class Window implements IWindow {
-
-    private vtkPanel panel;
-    private Canvas canvas;
-    private vtkRenderer renderer;
-    private vtkRenderWindow renWin;
-    private vtkRenderWindowInteractor renWinInteractor;
-    private String windowName;
-
-    // private vtkLight light;
-    // private vtkLightActor lightActor;
+public class Window extends AWindow {
 
     // the Neptus interactor Style - mouse, and keyboard events
     private NeptusInteractorStyle neptusInteracStyle;
 
-    public Window(vtkPanel panel, NeptusInteractorStyle neptusInteractorStyle, EventsHandler events, String windowName) {
-        setPanel(panel);
-        this.windowName = windowName;
+    public Window(vtkPanel panel, NeptusInteractorStyle neptusInteractorStyle, String windowName) {
+        super(panel, windowName);
 
         setRenderer(panel.GetRenderer());
         setRenWin(panel.GetRenderWindow());
@@ -74,13 +60,13 @@ public class Window implements IWindow {
         setUpInteractorStyle();
     }
 
-    public Window(vtkPanel panel, NeptusInteractorStyle neptusInteractorStyle, EventsHandler events) {
-        this(panel, neptusInteractorStyle, events, I18n.text("Visualizer3D"));
+    public Window(vtkPanel panel, NeptusInteractorStyle neptusInteractorStyle) {
+        this(panel, neptusInteractorStyle, I18n.text("Visualizer3D"));
     }
 
-    public Window(Canvas canvas, NeptusInteractorStyle neptusInteractorStyle, EventsHandler events, String windowName) {
-        setCanvas(canvas);
-        this.windowName = windowName;
+    public Window(Canvas canvas, NeptusInteractorStyle neptusInteractorStyle, String windowName) {
+        super(canvas, windowName);
+
         setRenderer(canvas.GetRenderer());
         setRenWin(canvas.GetRenderWindow());
         setNeptusInteracStyle(neptusInteractorStyle);
@@ -92,121 +78,49 @@ public class Window implements IWindow {
         setUpInteractorStyle();
     }
 
-    public Window(Canvas canvas, NeptusInteractorStyle neptusInteractorStyle, EventsHandler events) {
-        this(canvas, neptusInteractorStyle, events, "Visualizer");
+    public Window(Canvas canvas, NeptusInteractorStyle neptusInteractorStyle) {
+        this(canvas, neptusInteractorStyle, "Visualizer");
     }
 
     /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.IWindow#setUpRenderer()
+     * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpRenderer()
      */
     @Override
     public void setUpRenderer() {
-        renderer.SetGradientBackground(true);
-        renderer.SetBackground(0.0, 0.0, 0.0);
-        renderer.SetBackground2(0.3, 0.7, 1.0);
+        getRenderer().SetGradientBackground(true);
+        getRenderer().SetBackground(0.0, 0.0, 0.0);
+        getRenderer().SetBackground2(0.3, 0.7, 1.0);
     }
 
     /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.IWindow#setUpRenWin()
+     * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpRenWin()
      */
     @Override
     public void setUpRenWin() {
-        renWin.SetWindowName(windowName);
-        renWin.AlphaBitPlanesOff();
-        renWin.PointSmoothingOff();
-        renWin.LineSmoothingOff();
-        renWin.SwapBuffersOn();
-        renWin.SetStereoTypeToAnaglyph();        
+        getRenWin().SetWindowName(getWindowName());
+        getRenWin().AlphaBitPlanesOff();
+        getRenWin().PointSmoothingOff();
+        getRenWin().LineSmoothingOff();
+        getRenWin().SwapBuffersOn();
+        getRenWin().SetStereoTypeToAnaglyph();        
     }
 
     /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.IWindow#setUpRenWinInteractor()
+     * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpRenWinInteractor()
      */
     @Override
     public void setUpRenWinInteractor() {
-        renWinInteractor.SetRenderWindow(renWin);
-        renWinInteractor.SetDesiredUpdateRate(30.0);
+        getRenWinInteractor().SetRenderWindow(getRenWin());
+        getRenWinInteractor().SetDesiredUpdateRate(30.0);
     }
 
     /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.IWindow#setUpInteractorStyle()
+     * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpInteractorStyle()
      */
     @Override
     public void setUpInteractorStyle() {
-        setNeptusInteracStyle(new NeptusInteractorStyle(canvas, renderer, renWinInteractor));
-        renWinInteractor.SetInteractorStyle(getNeptusInteracStyle());
-    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.IWindow#getRenWin()
-     */
-    @Override
-    public vtkRenderWindow getRenWin() {
-        return renWin;
-    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.IWindow#getRenderer()
-     */
-    @Override
-    public vtkRenderer getRenderer() {
-        return renderer;
-    }
-
-    /**
-     * @return the panel
-     */
-    public vtkPanel getPanel() {
-        return panel;
-    }
-
-    /**
-     * @param panel the panel to set
-     */
-    public void setPanel(vtkPanel panel) {
-        this.panel = panel;
-    }
-
-    /**
-     * @return the canvas
-     */
-    public Canvas getCanvas() {
-        return canvas;
-    }
-
-    /**
-     * @param canvas the canvas to set
-     */
-    public void setCanvas(Canvas canvas) {
-        this.canvas = canvas;
-    }
-
-    /**
-     * @param renderer the renderer to set
-     */
-    public void setRenderer(vtkRenderer renderer) {
-        this.renderer = renderer;
-    }
-
-    /**
-     * @param renWin the renWin to set
-     */
-    public void setRenWin(vtkRenderWindow renWin) {
-        this.renWin = renWin;
-    }
-
-    /**
-     * @return the renWinInteractor
-     */
-    public vtkRenderWindowInteractor getRenWinInteractor() {
-        return renWinInteractor;
-    }
-
-    /**
-     * @param renWinInteractor the renWinInteractor to set
-     */
-    public void setRenWinInteractor(vtkRenderWindowInteractor renWinInteractor) {
-        this.renWinInteractor = renWinInteractor;
+        setNeptusInteracStyle(new NeptusInteractorStyle(getCanvas(), getRenderer(), getRenWinInteractor()));
+        getRenWinInteractor().SetInteractorStyle(getNeptusInteracStyle());
     }
 
     /**

@@ -31,24 +31,14 @@
  */
 package pt.lsts.neptus.plugins.vtk.cdt3d;
 
+import pt.lsts.neptus.plugins.vtk.visualization.AWindow;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
-import pt.lsts.neptus.plugins.vtk.visualization.IWindow;
-import vtk.vtkRenderWindow;
-import vtk.vtkRenderWindowInteractor;
-import vtk.vtkRenderer;
 
 /**
  * @author hfq
  *
  */
-public class Window implements IWindow {
-
-    private Canvas canvas;
-    private String windowName;
-
-    private vtkRenderer renderer;
-    private vtkRenderWindow renWin;
-    private vtkRenderWindowInteractor renWinInteractor;
+public class Window extends AWindow {
 
     private InteractorStyle interactorStyle;
 
@@ -60,12 +50,11 @@ public class Window implements IWindow {
     }
 
     public Window(Canvas canvas, String windowName) {
-        this.canvas = canvas;
-        this.windowName = windowName;
+        super(canvas, windowName);
 
-        this.renderer = canvas.GetRenderer();
-        this.renWin = canvas.GetRenderWindow();
-        this.renWinInteractor = canvas.getRenderWindowInteractor();
+        setRenderer(canvas.GetRenderer());
+        setRenWin(canvas.GetRenderWindow());
+        setRenWinInteractor(canvas.getRenderWindowInteractor());
 
         setUpRenderer();
         setUpRenWin();
@@ -74,67 +63,48 @@ public class Window implements IWindow {
     }
 
     /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.IWindow#setUpRenderer()
+     * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpRenderer()
      */
     @Override
     public void setUpRenderer() {
-        renderer.SetGradientBackground(true);
-        renderer.SetBackground(0.0, 0.0, 0.0);
-        renderer.SetBackground2(0.3, 0.7, 1.0);
+        getRenderer().SetGradientBackground(true);
+        getRenderer().SetBackground(0.0, 0.0, 0.0);
+        getRenderer().SetBackground2(0.3, 0.7, 1.0);
     }
 
     /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.IWindow#setUpRenWin()
+     * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpRenWin()
      */
     @Override
     public void setUpRenWin() {
-        renWin.SetWindowName(windowName);
-        renWin.AlphaBitPlanesOff();
-        renWin.PointSmoothingOff();
-        renWin.LineSmoothingOff();
-        renWin.SwapBuffersOn();
-        renWin.SetStereoTypeToAnaglyph();
+        getRenWin().SetWindowName(getWindowName());
+        getRenWin().AlphaBitPlanesOff();
+        getRenWin().PointSmoothingOff();
+        getRenWin().LineSmoothingOff();
+        getRenWin().SwapBuffersOn();
+        getRenWin().SetStereoTypeToAnaglyph();
     }
 
     /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.IWindow#setUpRenWinInteractor()
+     * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpRenWinInteractor()
      */
     @Override
     public void setUpRenWinInteractor() {
-        renWinInteractor.SetRenderWindow(renWin);
-        renWinInteractor.SetDesiredUpdateRate(30.0);
+        getRenWinInteractor().SetRenderWindow(getRenWin());
+        getRenWinInteractor().SetDesiredUpdateRate(30.0);
     }
 
     /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.IWindow#setUpInteractorStyle()
+     * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpInteractorStyle()
      */
     @Override
     public void setUpInteractorStyle() {
-        interactorStyle = new InteractorStyle(canvas, renderer, renWinInteractor);
-        renWinInteractor.SetInteractorStyle(interactorStyle);
-    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.IWindow#getRenWin()
-     */
-    @Override
-    public vtkRenderWindow getRenWin() {
-        return renWin;
-    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.IWindow#getRenderer()
-     */
-    @Override
-    public vtkRenderer getRenderer() {
-        return renderer;
-    }
-
-    public Canvas getCanvas() {
-        return canvas;
+        interactorStyle = new InteractorStyle(getCanvas(), getRenderer(), getRenWinInteractor());
+        getRenWinInteractor().SetInteractorStyle(interactorStyle);
     }
 
     public InteractorStyle getInteractorStyle() {
         return interactorStyle;
     }
+
 }

@@ -134,7 +134,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             getCanvas().LightFollowCameraOn();
             getCanvas().setEnabled(true);
 
-            winCanvas = new Window(getCanvas(), neptusInteractorStyle, getEvents());
+            winCanvas = new Window(getCanvas(), neptusInteractorStyle);
             neptusInteractorStyle = winCanvas.getNeptusInteracStyle();
             setEvents(neptusInteractorStyle.getEventsHandler());
 
