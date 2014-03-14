@@ -29,7 +29,7 @@
  * Author: hfq
  * Mar 10, 2014
  */
-package pt.lsts.neptus.plugins.vtk.cdt3d;
+package pt.lsts.neptus.plugins.vtk.ctd3d;
 
 import vtk.vtkDoubleArray;
 import vtk.vtkLODActor;

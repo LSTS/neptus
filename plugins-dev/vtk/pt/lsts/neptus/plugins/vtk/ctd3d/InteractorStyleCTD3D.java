@@ -27,50 +27,42 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * Mar 14, 2014
+ * Mar 10, 2014
  */
-package pt.lsts.neptus.plugins.vtk.cdt3d;
-
-import java.awt.event.KeyEvent;
+package pt.lsts.neptus.plugins.vtk.ctd3d;
 
 import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.plugins.vtk.visualization.AKeyboardEvent;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
+import vtk.vtkRenderWindowInteractor;
+import vtk.vtkRenderer;
 
 /**
  * @author hfq
  *
  */
-public class KeyboardEventCTD3D extends AKeyboardEvent {
-
-    private InteractorStyleCTD3D interactorStyle;
+public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
 
     /**
+     * 
      * @param canvas
+     * @param renderer
+     * @param renWinInteractor
      */
-    public KeyboardEventCTD3D(Canvas canvas) {
-        super(canvas);
+    public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor) {
+        super(canvas, renderer, renWinInteractor);
+
+        onInitialize();
     }
 
     /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.AKeyboardEvent#handleEvents(int)
+     * @see pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera#initialize()
      */
     @Override
-    public void handleEvents(int keyCode) {
-        switch (keyCode) {
-            case KeyEvent.VK_PLUS: 
+    protected void onInitialize() {
+        UseTimersOn();
+        AutoAdjustCameraClippingRangeOn();
+        HandleObserversOn();
 
-                break;
-            case KeyEvent.VK_MINUS:
-                break;
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.AKeyboardEvent#setInteractorStyle(pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera)
-     */
-    @Override
-    protected void setInteractorStyle(AInteractorStyleTrackballCamera interactorStyle) {
-        this.interactorStyle = (InteractorStyleCTD3D) interactorStyle;
+        getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
     }
 }
