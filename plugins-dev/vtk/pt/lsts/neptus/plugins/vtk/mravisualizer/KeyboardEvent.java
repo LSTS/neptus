@@ -84,10 +84,6 @@ public class KeyboardEvent extends AKeyboardEvent {
             InteractorStyleVis3D interactorStyle, EventsHandler events) {
         super(canvas);
         setInteractorStyle(interactorStyle);
-        //        this.interactorStyle = interactorStyle;
-        //        this.canvas = canvas;
-        //        this.interactor = canvas.getRenderWindowInteractor();
-        //        this.renderer = canvas.GetRenderer();
         this.events = events;
         this.linkedHashMapCloud = linkedHashMapCloud;
         colorMapRel = ColorMappingRelation.zMap; // on creation map color map is z related
