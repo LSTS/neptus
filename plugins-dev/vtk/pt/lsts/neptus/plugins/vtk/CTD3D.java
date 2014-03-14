@@ -149,8 +149,9 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        // return (NeptusMRA.vtkEnabled && source.getLsfIndex().containsMessagesOfType("Conductivity"));
-        return (NeptusMRA.vtkEnabled && source.getLsfIndex().getEntityId("CTD") != 255);
+        return (NeptusMRA.vtkEnabled &&
+                source.getLsfIndex().getEntityId("CTD") != 255 &&
+                source.getLsfIndex().containsMessagesOfType("Conductivity"));
     }
 
     @Override
@@ -183,7 +184,7 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
         if(isFirstRender) {
             canvas.lock();
 
-            canvas.GetRenderer().GetActiveCamera().SetPosition(0.0, -1.0, 0.0);
+            canvas.GetRenderer().GetActiveCamera().SetPosition(0.0, -1.0, -100.0);
             canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
 
             canvas.GetRenderer().ResetCamera();
@@ -212,7 +213,7 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
 
     @Override
     public String getPropertiesDialogTitle() {
-        return "CTD #D properties";
+        return "CTD 3D Properties";
     }
 
     @Override
@@ -233,12 +234,4 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
     public void setScalarBar(ScalarBar scalarBar) {
         this.scalarBar = scalarBar;
     }
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-
-    }
-
 }

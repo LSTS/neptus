@@ -340,8 +340,11 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     @Override
     public void onShow() {
         if (isFirstRender) {
-            getCanvas().RenderSecured();
+            canvas.GetRenderer().GetActiveCamera().SetPosition(0.0, -1.0, -100.0);
+            canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+
             getCanvas().GetRenderWindow().SetCurrentCursor(9);
+            getCanvas().RenderSecured();
             getCanvas().GetRenderer().ResetCamera();
 
             isFirstRender = false;
