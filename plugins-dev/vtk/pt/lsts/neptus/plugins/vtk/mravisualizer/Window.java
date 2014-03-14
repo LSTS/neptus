@@ -43,14 +43,14 @@ import vtk.vtkPanel;
 public class Window extends AWindow {
 
     // the Neptus interactor Style - mouse, and keyboard events
-    private NeptusInteractorStyle neptusInteracStyle;
+    private InteractorStyleVis3D interacStyle;
 
-    public Window(vtkPanel panel, NeptusInteractorStyle neptusInteractorStyle, String windowName) {
+    public Window(vtkPanel panel, InteractorStyleVis3D interactorStyle, String windowName) {
         super(panel, windowName);
 
         setRenderer(panel.GetRenderer());
         setRenWin(panel.GetRenderWindow());
-        setNeptusInteracStyle(neptusInteractorStyle);
+        setInteracStyle(interactorStyle);
         //setRenWinInteractor(getNeptusInteracStyle());
         setRenWinInteractor(panel.GetRenderWindow().GetInteractor());
 
@@ -60,16 +60,16 @@ public class Window extends AWindow {
         setUpInteractorStyle();
     }
 
-    public Window(vtkPanel panel, NeptusInteractorStyle neptusInteractorStyle) {
-        this(panel, neptusInteractorStyle, I18n.text("Visualizer3D"));
+    public Window(vtkPanel panel, InteractorStyleVis3D interactorStyle) {
+        this(panel, interactorStyle, I18n.text("Visualizer3D"));
     }
 
-    public Window(Canvas canvas, NeptusInteractorStyle neptusInteractorStyle, String windowName) {
+    public Window(Canvas canvas, InteractorStyleVis3D interactorStyle, String windowName) {
         super(canvas, windowName);
 
         setRenderer(canvas.GetRenderer());
         setRenWin(canvas.GetRenderWindow());
-        setNeptusInteracStyle(neptusInteractorStyle);
+        setInteracStyle(interactorStyle);
         setRenWinInteractor(canvas.getRenderWindowInteractor());
 
         setUpRenderer();
@@ -78,8 +78,8 @@ public class Window extends AWindow {
         setUpInteractorStyle();
     }
 
-    public Window(Canvas canvas, NeptusInteractorStyle neptusInteractorStyle) {
-        this(canvas, neptusInteractorStyle, "Visualizer");
+    public Window(Canvas canvas, InteractorStyleVis3D interactorStyle) {
+        this(canvas, interactorStyle, "Visualizer");
     }
 
     /* (non-Javadoc)
@@ -119,22 +119,22 @@ public class Window extends AWindow {
      */
     @Override
     public void setUpInteractorStyle() {
-        setNeptusInteracStyle(new NeptusInteractorStyle(getCanvas(), getRenderer(), getRenWinInteractor()));
-        getRenWinInteractor().SetInteractorStyle(getNeptusInteracStyle());
+        setInteracStyle(new InteractorStyleVis3D(getCanvas(), getRenderer(), getRenWinInteractor()));
+        getRenWinInteractor().SetInteractorStyle(getInteracStyle());
     }
 
     /**
      * @return the neptusInteracStyle
      */
-    public NeptusInteractorStyle getNeptusInteracStyle() {
-        return neptusInteracStyle;
+    public InteractorStyleVis3D getInteracStyle() {
+        return interacStyle;
     }
 
     /**
      * @param neptusInteracStyle the neptusInteracStyle to set
      */
-    private void setNeptusInteracStyle(NeptusInteractorStyle neptusInteracStyle) {
-        this.neptusInteracStyle = neptusInteracStyle;
+    private void setInteracStyle(InteractorStyleVis3D interacStyle) {
+        this.interacStyle = interacStyle;
     }
 
 }

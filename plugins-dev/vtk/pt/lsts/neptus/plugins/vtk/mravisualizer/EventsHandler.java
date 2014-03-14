@@ -51,7 +51,7 @@ import vtk.vtkWindowToImageFilter;
  *
  */
 public class EventsHandler {
-    private NeptusInteractorStyle neptusInteractorStyle;
+    private InteractorStyleVis3D interactorStyle;
     private vtkRenderer renderer;
     private vtkRenderWindowInteractor interactor;
     private Canvas canvas;
@@ -72,8 +72,8 @@ public class EventsHandler {
     // Internal Window to image Filter. Needed by a snapshotWriter object
     protected vtkWindowToImageFilter wif = new vtkWindowToImageFilter();
 
-    public EventsHandler(NeptusInteractorStyle neptusInteractorStyle) {
-        this.neptusInteractorStyle = neptusInteractorStyle;
+    public EventsHandler(InteractorStyleVis3D neptusInteractorStyle) {
+        this.interactorStyle = neptusInteractorStyle;
         this.canvas = neptusInteractorStyle.getCanvas();
         this.renderer = neptusInteractorStyle.getCanvas().GetRenderer();
         this.interactor = neptusInteractorStyle.getCanvas().getRenderWindowInteractor();
@@ -102,7 +102,7 @@ public class EventsHandler {
             @Override
             public void run() {
                 try {
-                    neptusInteractorStyle.FindPokedRenderer(interactor.GetEventPosition()[0],
+                    interactorStyle.FindPokedRenderer(interactor.GetEventPosition()[0],
                             interactor.GetEventPosition()[1]);
                     wif.SetInput(interactor.GetRenderWindow());
                     wif.Modified();
@@ -135,7 +135,7 @@ public class EventsHandler {
     }
 
     public void displayLookUpTable() {
-        if(!neptusInteractorStyle.lutEnabled) {
+        if(!interactorStyle.lutEnabled) {
             //PointCloud<?> pointCloud  = searchForPointCloudOnRenderer();
             switch(sensorTypeInteraction) {
                 case NONE:

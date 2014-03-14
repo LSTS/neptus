@@ -33,24 +33,18 @@ package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
 import java.util.LinkedHashMap;
 
-import pt.lsts.neptus.plugins.vtk.events.MouseEvent;
-import pt.lsts.neptus.plugins.vtk.events.PointPickingEvent;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
+import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.Compass;
 import pt.lsts.neptus.plugins.vtk.visualization.ScalarBar;
 import vtk.vtkCamera;
-import vtk.vtkCellPicker;
-import vtk.vtkInteractorStyleTrackballActor;
-import vtk.vtkInteractorStyleTrackballCamera;
 import vtk.vtkLegendScaleActor;
-import vtk.vtkProp3D;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
 import vtk.vtkScalarBarActor;
-import vtk.vtkTextActor;
 
 /**
  * @author hfq
@@ -69,29 +63,29 @@ import vtk.vtkTextActor;
  *         {0, 0, 0] -> center {x, y, z}] - 0..9 : switch between different color handlers, when available - SHIFT +
  *         left click : select a point <- point picker not implemented
  */
-public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
+public class InteractorStyleVis3D extends AInteractorStyleTrackballCamera {
 
     public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
     public LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
 
-    // public vtkCanvas canvas;
-    private Canvas canvas;
+    //    // public vtkCanvas canvas;
+    //    private Canvas canvas;
+    //
+    //    // A renderer
+    //    public vtkRenderer renderer;
+    //    // The render Window Interactor
+    //    public vtkRenderWindowInteractor interactor;
 
-    // A renderer
-    public vtkRenderer renderer;
-    // The render Window Interactor
-    public vtkRenderWindowInteractor interactor;
-
-    private EventsHandler events;;
+    private EventsHandler events;
 
     // A Camera
     public vtkCamera camera = new vtkCamera();
 
-    // the render window interactor style;
-    private vtkInteractorStyleTrackballCamera style = new vtkInteractorStyleTrackballCamera();
+    //    // the render window interactor style;
+    //    private vtkInteractorStyleTrackballCamera style = new vtkInteractorStyleTrackballCamera();
 
-    // frame per seconds text actor - show frame rate refresh on visualizer
-    private boolean fpsActorEnable = false;
+    //    // frame per seconds text actor - show frame rate refresh on visualizer
+    //    private boolean fpsActorEnable = false;
 
     // ########## Keyboard interaction ##########
     public KeyboardEvent keyboardEvent;
@@ -114,7 +108,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
     // Actor for Compass Widget on screen
     protected Compass compass = new Compass();
 
-    private vtkTextActor fpsActor = new vtkTextActor();
+    //    private vtkTextActor fpsActor = new vtkTextActor();
 
     // Set true if the grid actor is enabled
     protected boolean gridEnabled;
@@ -127,24 +121,24 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
     private vtkScalarBarActor lutActor = new vtkScalarBarActor();
     private ScalarBar scalarBar;
 
-    // ########## Mouse Interaction ##########
-    MouseEvent mouseEvent;
-
-    vtkProp3D InteractionProp;
-    vtkCellPicker InteractionPicker;
-
-    // Current Window position width/height
-    int winHeight, winWidth;
-    // Current window postion x/y
-    int winPosX, winPosY;
-
-    // TrackballActor style interactor for addObserver callback reference
-    vtkInteractorStyleTrackballActor astyle = new vtkInteractorStyleTrackballActor();
-    // TrackballCamera style interactor for addObserver callback reference
-    vtkInteractorStyleTrackballCamera cstyle = new vtkInteractorStyleTrackballCamera();
-
-    // ########### Point Picking ##########
-    PointPickingEvent pointPickEvent;
+    //    // ########## Mouse Interaction ##########
+    //    MouseEvent mouseEvent;
+    //
+    //    vtkProp3D InteractionProp;
+    //    vtkCellPicker InteractionPicker;
+    //
+    //    // Current Window position width/height
+    //    int winHeight, winWidth;
+    //    // Current window postion x/y
+    //    int winPosX, winPosY;
+    //
+    //    // TrackballActor style interactor for addObserver callback reference
+    //    vtkInteractorStyleTrackballActor astyle = new vtkInteractorStyleTrackballActor();
+    //    // TrackballCamera style interactor for addObserver callback reference
+    //    vtkInteractorStyleTrackballCamera cstyle = new vtkInteractorStyleTrackballCamera();
+    //
+    //    // ########### Point Picking ##########
+    //    PointPickingEvent pointPickEvent;
 
     /**
      * 
@@ -152,74 +146,46 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
      * @param renderer
      * @param interact
      * @param linkedHashMapCloud
-     * @param events
      */
-    // public NeptusInteractorStyle(vtkCanvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor interact,
-    // LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
-    public NeptusInteractorStyle(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
+    public InteractorStyleVis3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
             LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
-        super();
+        super(canvas, renderer, renWinInteractor);
 
-        this.setCanvas(canvas);
-        this.renderer = renderer;
-        this.interactor = renWinInteractor;
         this.camera = renderer.GetActiveCamera();
         this.linkedHashMapCloud = linkedHashMapCloud;
         this.setScalarBar(new ScalarBar());
 
         this.setEventsHandler(new EventsHandler(this));
         this.keyboardEvent = new KeyboardEvent(this.getCanvas(), this.linkedHashMapCloud, this, getEventsHandler());
-        // mouseEvent = new MouseEvent(this.canvas, this);
 
-        this.pointPickEvent = new PointPickingEvent(this.getCanvas());
-        this.mouseEvent = new MouseEvent(this.getCanvas(), this.pointPickEvent);
-
-        Initalize();
+        onInitialize();
     }
 
     /**
      * @param canvas
      * @param renderer
      * @param renWinInteractor
-     * @param events
      */
-    public NeptusInteractorStyle(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor) {
-        super();
+    public InteractorStyleVis3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor) {
+        super(canvas, renderer, renWinInteractor);
 
-        this.setCanvas(canvas);
-        this.renderer = renderer;
-        this.interactor = renWinInteractor;
         this.camera = renderer.GetActiveCamera();
         setScalarBar(new ScalarBar());
 
         this.setEventsHandler(new EventsHandler(this));
         this.keyboardEvent = new KeyboardEvent(this.getCanvas(), this.linkedHashMapCloud, this, getEventsHandler());
-        // mouseEvent = new MouseEvent(this.canvas, this);
 
-        this.pointPickEvent = new PointPickingEvent(this.getCanvas());
-        this.mouseEvent = new MouseEvent(this.getCanvas(), this.pointPickEvent);
-
-        Initalize();
+        onInitialize();
     }
 
-    /**
-     * Initialization routine. Must be called before anything else. Possible Vtk Oberver Events (some don't work in
-     * Java) :
-     * 
-     * LeftButtonPressEvent RightButtonPressEvent <- works StartInteractionEvent ModifiedEvent EndInteractionEvent
-     * RenderEvent MouseMoveEvent <- works InteractorEvent UserEvent LeaveEvent <- works (triggers event everytime mouse
-     * gets off render window)
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera#onInitialize()
      */
-    private void Initalize() {
+    @Override
+    protected void onInitialize() {
         UseTimersOn();
         HandleObserversOn();
-        this.AutoAdjustCameraClippingRangeOn();
-
-        // interactModifier = InteractorKeyboardModifier.INTERACTOR_KB_MOD_ALT;
-
-        // Set window size (width, height) to unknow (-1)
-        winHeight = winWidth = -1;
-        winPosX = winPosY = 0;
+        AutoAdjustCameraClippingRangeOn();
 
         // Grid is disabled by default
         gridEnabled = false;
@@ -234,33 +200,7 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
 
         getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
 
-        canvas.addKeyListener(keyboardEvent);
-
-        // canvas.addMouseWheelListener(this);
-        // canvas.addKeyListener(this);
-
-        // não colocar o render logo, senão os eventos do java (mouseWheel)
-        // canvas.Render();
-    }
-
-    /**
-     * Render Event to show frame rate in render window
-     */
-    void callbackFunctionFPS() {
-        double timeInSeconds = this.renderer.GetLastRenderTimeInSeconds();
-        double fps = 1.0 / timeInSeconds;
-
-        fps = Math.round(fps * 100) / 100.0d;
-        fpsActor.SetInput(String.valueOf(fps));
-
-        fpsActor.GetTextProperty().SetColor(0.0, 1.0, 0.0);
-        fpsActor.UseBorderAlignOn();
-        fpsActor.SetDisplayPosition(2, 2);
-
-        if (fpsActorEnable == false) {
-            fpsActorEnable = true;
-            this.renderer.AddActor(fpsActor);
-        }
+        getCanvas().addKeyListener(keyboardEvent);
     }
 
     /**
@@ -268,34 +208,6 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
      */
     void callbackPointCoords() {
 
-    }
-
-    /**
-     * @return the interactor
-     */
-    vtkRenderWindowInteractor getInteractor() {
-        return interactor;
-    }
-
-    /**
-     * @param interactor the interactor to set
-     */
-    void setInteractor(vtkRenderWindowInteractor interactor) {
-        this.interactor = interactor;
-    }
-
-    /**
-     * @return the style
-     */
-    vtkInteractorStyleTrackballCamera getStyle() {
-        return style;
-    }
-
-    /**
-     * @param style the style to set
-     */
-    void setStyle(vtkInteractorStyleTrackballCamera style) {
-        this.style = style;
     }
 
     /**
@@ -324,20 +236,6 @@ public class NeptusInteractorStyle extends vtkInteractorStyleTrackballCamera {
      */
     public void setScalarBar(ScalarBar scalarBar) {
         this.scalarBar = scalarBar;
-    }
-
-    /**
-     * @return the canvas
-     */
-    public Canvas getCanvas() {
-        return canvas;
-    }
-
-    /**
-     * @param canvas the canvas to set
-     */
-    public void setCanvas(Canvas canvas) {
-        this.canvas = canvas;
     }
 
     /**

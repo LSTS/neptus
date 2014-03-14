@@ -53,9 +53,9 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.vtk.filters.StatisticalOutlierRemoval;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler;
+import pt.lsts.neptus.plugins.vtk.mravisualizer.InteractorStyleVis3D;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.LoadToPointCloud;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.MultibeamToolbar;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.NeptusInteractorStyle;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DMenuBar;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DToolBar;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Window;
@@ -86,7 +86,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     private Canvas canvas;
     private Window winCanvas;
-    private NeptusInteractorStyle neptusInteractorStyle;
+    private InteractorStyleVis3D interactorStyle;
     private EventsHandler events;
 
     public vtkLODActor noBeamsTxtActor;
@@ -134,9 +134,9 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             getCanvas().LightFollowCameraOn();
             getCanvas().setEnabled(true);
 
-            winCanvas = new Window(getCanvas(), neptusInteractorStyle);
-            neptusInteractorStyle = winCanvas.getNeptusInteracStyle();
-            setEvents(neptusInteractorStyle.getEventsHandler());
+            winCanvas = new Window(getCanvas(), interactorStyle);
+            interactorStyle = winCanvas.getInteracStyle();
+            setEvents(interactorStyle.getEventsHandler());
 
             // set Interface Layout
             setLayout(new BorderLayout());
@@ -154,7 +154,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             add(toolbar.getToolbar(), BorderLayout.SOUTH);
 
             // add axesWidget to vtk canvas fixed to a screen position
-            AxesWidget axesWidget = new AxesWidget(neptusInteractorStyle.GetInteractor());
+            AxesWidget axesWidget = new AxesWidget(interactorStyle.GetInteractor());
             axesWidget.createAxesWidget();
 
             // checks if data is available
@@ -266,8 +266,8 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             // add parsed beams stored on pointcloud to canvas
             getCanvas().GetRenderer().AddActor(pointCloud.getCloudLODActor());
             // set Up scalar Bar look up table
-            neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
-            getCanvas().GetRenderer().AddActor(winCanvas.getNeptusInteracStyle().getScalarBar().getScalarBarActor());
+            interactorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
+            getCanvas().GetRenderer().AddActor(winCanvas.getInteracStyle().getScalarBar().getScalarBarActor());
 
             // set up camera to +z viewpoint looking down
             // double[] center = new double[3];

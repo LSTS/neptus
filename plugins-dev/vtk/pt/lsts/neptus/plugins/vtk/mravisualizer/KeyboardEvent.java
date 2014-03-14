@@ -51,7 +51,7 @@ import vtk.vtkRenderer;
  * @author hfq FIXME add keys to change mode (trackball, joystick..)
  */
 public class KeyboardEvent implements KeyListener {
-    private NeptusInteractorStyle neptusInteractorStyle;
+    private InteractorStyleVis3D interactorStyle;
 
     // private vtkCanvas canvas;
     private Canvas canvas;
@@ -91,11 +91,11 @@ public class KeyboardEvent implements KeyListener {
      * @param neptusInteractorStyle
      */
     public KeyboardEvent(Canvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
-            NeptusInteractorStyle neptusInteractorStyle, EventsHandler events) {
-        this.neptusInteractorStyle = neptusInteractorStyle;
+            InteractorStyleVis3D interactorStyle, EventsHandler events) {
+        this.interactorStyle = interactorStyle;
         this.canvas = canvas;
-        this.interactor = neptusInteractorStyle.interactor;
-        this.renderer = neptusInteractorStyle.renderer;
+        this.interactor = canvas.getRenderWindowInteractor();
+        this.renderer = canvas.GetRenderer();
         this.events = events;
         this.linkedHashMapCloud = linkedHashMapCloud;
         colorMapRel = ColorMappingRelation.zMap; // on creation map color map is z related
@@ -111,7 +111,7 @@ public class KeyboardEvent implements KeyListener {
             case KeyEvent.VK_U:
                 try {
                     // canvas.lock();
-                    if (!neptusInteractorStyle.lutEnabled) {
+                    if (!interactorStyle.lutEnabled) {
                         vtkActorCollection actorCollection = new vtkActorCollection();
                         actorCollection = renderer.GetActors();
                         actorCollection.InitTraversal();
@@ -128,15 +128,15 @@ public class KeyboardEvent implements KeyListener {
                                 pointCloud = linkedHashMapCloud.get(skey);
                                 switch (colorMapRel) {
                                     case xMap:
-                                        neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(
+                                        interactorStyle.getScalarBar().setUpScalarBarLookupTable(
                                                 pointCloud.getColorHandler().getLutX());
                                         break;
                                     case yMap:
-                                        neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(
+                                        interactorStyle.getScalarBar().setUpScalarBarLookupTable(
                                                 pointCloud.getColorHandler().getLutY());
                                         break;
                                     case zMap:
-                                        neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(
+                                        interactorStyle.getScalarBar().setUpScalarBarLookupTable(
                                                 pointCloud.getColorHandler().getLutZ());
                                         break;
                                     case iMap:
@@ -147,15 +147,15 @@ public class KeyboardEvent implements KeyListener {
                             }
                         }
                         canvas.lock();
-                        renderer.AddActor(neptusInteractorStyle.getScalarBar().getScalarBarActor());
+                        renderer.AddActor(interactorStyle.getScalarBar().getScalarBarActor());
                         canvas.unlock();
-                        neptusInteractorStyle.lutEnabled = true;
+                        interactorStyle.lutEnabled = true;
                     }
                     else {
                         canvas.lock();
-                        renderer.RemoveActor(neptusInteractorStyle.getScalarBar().getScalarBarActor());
+                        renderer.RemoveActor(interactorStyle.getScalarBar().getScalarBarActor());
                         canvas.unlock();
-                        neptusInteractorStyle.lutEnabled = false;
+                        interactorStyle.lutEnabled = false;
                     }
                     canvas.lock();
                     canvas.Render();
@@ -169,18 +169,18 @@ public class KeyboardEvent implements KeyListener {
             case KeyEvent.VK_G:
                 try {
                     // canvas.lock();
-                    if (!neptusInteractorStyle.gridEnabled) {
-                        neptusInteractorStyle.gridActor.TopAxisVisibilityOn();
+                    if (!interactorStyle.gridEnabled) {
+                        interactorStyle.gridActor.TopAxisVisibilityOn();
                         canvas.lock();
-                        renderer.AddViewProp(neptusInteractorStyle.gridActor);
+                        renderer.AddViewProp(interactorStyle.gridActor);
                         canvas.unlock();
-                        neptusInteractorStyle.gridEnabled = true;
+                        interactorStyle.gridEnabled = true;
                     }
                     else {
                         canvas.lock();
-                        renderer.RemoveViewProp(neptusInteractorStyle.gridActor);
+                        renderer.RemoveViewProp(interactorStyle.gridActor);
                         canvas.unlock();
-                        neptusInteractorStyle.gridEnabled = false;
+                        interactorStyle.gridEnabled = false;
                     }
                     canvas.lock();
                     // interactor.Render();
@@ -428,8 +428,8 @@ public class KeyboardEvent implements KeyListener {
                             if (pointCloud.isHasIntensities()) {
                                 pointCloud.getPoly().GetPointData()
                                 .SetScalars(pointCloud.getColorHandler().getIntensities());
-                                if (neptusInteractorStyle.lutEnabled)
-                                    neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(
+                                if (interactorStyle.lutEnabled)
+                                    interactorStyle.getScalarBar().setUpScalarBarLookupTable(
                                             pointCloud.getColorHandler().getLutIntensities());
                                 colorMapRel = ColorMappingRelation.iMap;
                             }
@@ -452,8 +452,8 @@ public class KeyboardEvent implements KeyListener {
                         for (String sKey : setOfClouds) {
                             pointCloud = linkedHashMapCloud.get(sKey);
                             pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getColorsX());
-                            if (neptusInteractorStyle.lutEnabled)
-                                neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(
+                            if (interactorStyle.lutEnabled)
+                                interactorStyle.getScalarBar().setUpScalarBarLookupTable(
                                         pointCloud.getColorHandler().getLutX());
                             colorMapRel = ColorMappingRelation.xMap;
 
@@ -474,8 +474,8 @@ public class KeyboardEvent implements KeyListener {
                         for (String sKey : setOfClouds) {
                             pointCloud = linkedHashMapCloud.get(sKey);
                             pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getColorsY());
-                            if (neptusInteractorStyle.lutEnabled)
-                                neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(
+                            if (interactorStyle.lutEnabled)
+                                interactorStyle.getScalarBar().setUpScalarBarLookupTable(
                                         pointCloud.getColorHandler().getLutY());
                             colorMapRel = ColorMappingRelation.yMap;
                         }
@@ -495,8 +495,8 @@ public class KeyboardEvent implements KeyListener {
                         for (String sKey : setOfClouds) {
                             pointCloud = linkedHashMapCloud.get(sKey);
                             pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getColorsZ());
-                            if (neptusInteractorStyle.lutEnabled)
-                                neptusInteractorStyle.getScalarBar().setUpScalarBarLookupTable(
+                            if (interactorStyle.lutEnabled)
+                                interactorStyle.getScalarBar().setUpScalarBarLookupTable(
                                         pointCloud.getColorHandler().getLutZ());
                             colorMapRel = ColorMappingRelation.zMap;
                         }
@@ -528,7 +528,7 @@ public class KeyboardEvent implements KeyListener {
                 AnimeState = VTKIS_ANIMEON;
 
                 vtkAssemblyPath path = null;
-                neptusInteractorStyle.FindPokedRenderer(interactor.GetEventPosition()[0],
+                interactorStyle.FindPokedRenderer(interactor.GetEventPosition()[0],
                         interactor.GetEventPosition()[1]);
                 interactor.GetPicker().Pick(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1], 0.0,
                         renderer);
