@@ -35,6 +35,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 
+import javax.swing.JFileChooser;
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.Conductivity;
@@ -46,9 +47,11 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.lsf.LsfMraLog;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
  * @author zp
@@ -148,6 +151,50 @@ public class CTDExporter implements MRAExporter {
                 return "Error writing to file: "+e.getMessage();       
             }
             pmonitor.setProgress(scanner.getIndex());            
+        }
+    }
+    
+    private static void exportRecursively(File root) {
+        for (File f : root.listFiles()) {
+            if (f.isDirectory()) {
+                exportRecursively(f);
+            }
+            else if (f.getName().endsWith(".lsf") || f.getName().endsWith(".lsf.gz")) {
+                if (!f.getAbsolutePath().contains("trex_plan"))
+                    continue;
+                try {
+                    System.out.println(export(f));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    
+    private static String export(File source) throws Exception {
+        
+        IMraLogGroup group = new LsfLogSource(source, null);
+        CTDExporter exporter = new CTDExporter(group);
+        ProgressMonitor pm = new ProgressMonitor(null, "Processing "+source.getAbsolutePath(), "processing", 0, 1000);
+        if (exporter.canBeApplied(group)) {
+            System.out.println("processing "+source.getAbsolutePath());
+            String res = exporter.process(group, pm);
+            pm.close();
+            return res;
+        }
+        return null;
+    }
+    
+    public static void main(String[] args) {
+        
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int op = chooser.showOpenDialog(null);
+        if (op == JFileChooser.APPROVE_OPTION) {
+            File root = chooser.getSelectedFile();
+            exportRecursively(root);
+            
         }
     }
 }
