@@ -1095,7 +1095,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         if (system != null)
             return sendMessage(message, system.id, sendProperties, listener);
-        listener.deliveryUnreacheable(message);
+        if (listener != null)
+            listener.deliveryUnreacheable(message);
         return false;
     }
 
