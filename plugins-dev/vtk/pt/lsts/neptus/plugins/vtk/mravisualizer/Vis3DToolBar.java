@@ -67,31 +67,22 @@ public class Vis3DToolBar extends JToolBar {
 
     private static final ImageIcon ICON_MULTIBEAM = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/multibeam.png", ICON_SIZE, ICON_SIZE);
-
     private static final ImageIcon ICON_DVL = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/dvl.png", ICON_SIZE, ICON_SIZE);
-
     private static final ImageIcon ICON_POINTS = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/points.png", ICON_SIZE, ICON_SIZE);
-
     private static final ImageIcon ICON_WIREFRAME = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/wire.png", ICON_SIZE, ICON_SIZE);
-
     private static final ImageIcon ICON_SOLID = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/textures.png", ICON_SIZE, ICON_SIZE);
-
     private static final ImageIcon ICON_Z = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/zexaggerate.png", ICON_SIZE, ICON_SIZE);
-
     private static final ImageIcon ICON_CONTOURS = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/contours.png", ICON_SIZE, ICON_SIZE);
-
     private static final ImageIcon ICON_MESHING = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/meshing.png", ICON_SIZE, ICON_SIZE);
-
     private static final ImageIcon ICON_SMOOTHING = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/smoothing.png", ICON_SIZE, ICON_SIZE);
-
     private static final ImageIcon ICON_RESETVIEWPORT = ImageUtils.getScaledIcon(
             "images/menus/camera.png", ICON_SIZE, ICON_SIZE);
 

@@ -41,6 +41,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
@@ -69,11 +70,16 @@ public class CTD3DToolbar extends JToolBar {
             "pt/lsts/neptus/plugins/vtk/assets/pressure.png", ICON_SIZE, ICON_SIZE);
     private static final ImageIcon ICON_Z = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/plugins/vtk/assets/zexaggerate.png", ICON_SIZE, ICON_SIZE);
+    private static final ImageIcon ICON_RESETVIEWPORT = ImageUtils.getScaledIcon(
+            "images/menus/camera.png", ICON_SIZE, ICON_SIZE);
 
     private JToggleButton tempToggle;
     private JToggleButton salinityToggle;
     private JToggleButton pressureToggle;
+
     private JToggleButton zexaggerToggle;
+
+    private JButton resetViewportButton;
 
     private PointCloudCTD pointcloud;
     private ScalarBar scalarBar;
@@ -120,6 +126,11 @@ public class CTD3DToolbar extends JToolBar {
         getZexaggerToggle().setIcon(ICON_Z);
         getZexaggerToggle().addActionListener(zexaggerToggleAction);
 
+        resetViewportButton = new JButton();
+        resetViewportButton.setToolTipText(I18n.text("Reset Viewport") + ".");
+        resetViewportButton.setIcon(ICON_RESETVIEWPORT);
+        resetViewportButton.addActionListener(resetViewportAction);
+
         add(getTempToggle());
         add(getSalinityToggle());
         add(getPressureToggle());
@@ -127,6 +138,10 @@ public class CTD3DToolbar extends JToolBar {
         addSeparator();
 
         add(getZexaggerToggle());
+
+        addSeparator();
+
+        add(resetViewportButton);
     }
 
     ActionListener temperatureToggleAction = new ActionListener() {
@@ -200,6 +215,23 @@ public class CTD3DToolbar extends JToolBar {
                 canvas.GetRenderer().ResetCamera();
                 canvas.Render();
                 canvas.unlock();
+            }
+        }
+    };
+
+    ActionListener resetViewportAction = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                canvas.lock();
+                canvas.GetRenderer().ResetCamera();
+                canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+                canvas.Render();
+                canvas.unlock();
+            }
+            catch (Exception e1) {
+                e1.printStackTrace();
             }
         }
     };
