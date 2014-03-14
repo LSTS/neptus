@@ -268,6 +268,9 @@ public class LogsDownloaderWorker {
             protected  IMCMessage msg = new IMCMessage("QueryPowerChannelState");
             @Override
             public void run() {
+                if (getLogLabel() == null || getLogLabel().length() == 0)
+                    return;
+                
                 msg.setTimestampMillis(System.currentTimeMillis());
                 ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
             }
