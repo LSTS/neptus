@@ -44,9 +44,9 @@ import pt.lsts.neptus.plugins.MapTileProvider;
  *
  */
 @MapTileProvider(name = "Ship Traffic Density", isBaseMapOrLayer=false)
-public class TileShipTrafficDensity extends TileVirtualEarth {
+public class TileShipTrafficDensity extends TileHttpFetcher {
     
-    private static final long serialVersionUID = -1827702213399356919L;
+    private static final long serialVersionUID = -5210083535661616257L;
 
     protected static String tileClassId = TileShipTrafficDensity.class.getSimpleName();
 
@@ -55,7 +55,8 @@ public class TileShipTrafficDensity extends TileVirtualEarth {
     public TileShipTrafficDensity(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
         super(levelOfDetail, tileX, tileY, image);
     }
-
+    
+    
     /**
      * @param id
      * @throws Exception
@@ -69,6 +70,8 @@ public class TileShipTrafficDensity extends TileVirtualEarth {
      */
     @Override
     protected String createTileRequestURL() {
+        if (levelOfDetail > 11)
+            return null;
         return "http://tiles.marinetraffic.com/ais/density_tiles/"+levelOfDetail+"/"
                 +tileX+"/tile_"+levelOfDetail+"_"+tileX+"_"+tileY+".png";
     }
@@ -88,6 +91,10 @@ public class TileShipTrafficDensity extends TileVirtualEarth {
         Tile.clearDiskCache(tileClassId);
     }
 
+    public static int getMaxLevelOfDetail() {
+        return 10;
+    }
+    
     /**
      * @return 
      * 
