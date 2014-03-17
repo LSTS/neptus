@@ -42,6 +42,8 @@ import vtk.vtkRenderer;
  */
 public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
 
+    private KeyboardEventCTD3D keyboardEvent;
+
     /**
      * 
      * @param canvas
@@ -50,6 +52,8 @@ public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
      */
     public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor) {
         super(canvas, renderer, renWinInteractor);
+
+        this.keyboardEvent = new KeyboardEventCTD3D(canvas, this);
 
         onInitialize();
     }
@@ -63,6 +67,7 @@ public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
         AutoAdjustCameraClippingRangeOn();
         HandleObserversOn();
 
+        getCanvas().addKeyListener(keyboardEvent);
         getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
     }
 }
