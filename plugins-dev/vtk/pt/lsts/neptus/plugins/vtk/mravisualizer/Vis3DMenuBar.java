@@ -347,7 +347,7 @@ public class Vis3DMenuBar extends JMenuBar {
                 GuiUtils.htmlMessage(
                         ConfigFetch.getSuperParentFrame() == null ? vtkInit : ConfigFetch.getSuperParentAsFrame(),
                                 I18n.text("3D Visualization Interaction Help") + ".",
-                                I18n.text("(3D Multibeam keyboard and mouse interation)"), msgHelp(), ModalityType.MODELESS);
+                                "(" + I18n.text("3D Multibeam keyboard and mouse interation") + ")", msgHelp(), ModalityType.MODELESS);
 
             }
         };
