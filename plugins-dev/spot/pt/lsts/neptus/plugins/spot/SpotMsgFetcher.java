@@ -57,7 +57,7 @@ public class SpotMsgFetcher {
     // private static final String pageUrl =
     // "http://share.findmespot.com/messageService/guestlinkservlet?glId=0eFbYotphiMKz9YiDOI7XqR76JJ010Z0X&completeXml=true";
     // TODO different url
-    private static final String pageUrl = "https://api.findmespot.com/spot-main-web/consumer/rest-api/2.0/public/feed/0eFbYotphiMKz9YiDOI7XqR76JJ010Z0X/message.xml";
+    // private static final String pageUrl = "https://api.findmespot.com/spot-main-web/consumer/rest-api/2.0/public/feed/0eFbYotphiMKz9YiDOI7XqR76JJ010Z0X/message.xml";
 
     /**
      * Get messages on SPOT page.
@@ -68,14 +68,14 @@ public class SpotMsgFetcher {
      * @throws IOException
      */
     public static HashMap<String, TreeSet<SpotMessage>> get(int hours) throws ParserConfigurationException,
-            SAXException,
-            IOException {
+    SAXException,
+    IOException {
         long currentTime = System.currentTimeMillis() / 1000;
         long timeWindow = hours * 60 * 60;
         long startOfTimeWindowSecs = currentTime - timeWindow;
 
         HashMap<String, TreeSet<SpotMessage>> msgBySpot = new HashMap<String, TreeSet<SpotMessage>>();
-        TreeSet<SpotMessage> spotMsgTree;
+        // TreeSet<SpotMessage> spotMsgTree;
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();

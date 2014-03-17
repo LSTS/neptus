@@ -72,7 +72,7 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
 
     public Canvas canvas;
     private Window winCanvas;
-    private InteractorStyleCTD3D interactorStyle;
+    protected InteractorStyleCTD3D interactorStyle;
 
     private CTD3DToolbar toolbar;
 

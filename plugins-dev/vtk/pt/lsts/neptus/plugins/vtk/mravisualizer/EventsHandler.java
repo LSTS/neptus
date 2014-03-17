@@ -39,7 +39,6 @@ import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import vtk.vtkActorCollection;
-import vtk.vtkLODActor;
 import vtk.vtkPNGWriter;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
@@ -149,7 +148,7 @@ public class EventsHandler {
         }
     }
 
-    private PointCloud<?> searchForPointCloudOnRenderer() {
+    protected PointCloud<?> searchForPointCloudOnRenderer() {
         vtkActorCollection actorCollection = new vtkActorCollection();
         actorCollection = renderer.GetActors();
         actorCollection.InitTraversal();
@@ -158,8 +157,9 @@ public class EventsHandler {
         for(int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
             if (actorCollection.GetNextActor().IsA("vtkActor2D") > 0)
                 continue;
-            vtkLODActor tempActor = new vtkLODActor();
-            tempActor = (vtkLODActor) actorCollection.GetNextActor();
+            // vtkLODActor tempActor = new vtkLODActor();
+            // tempActor = (vtkLODActor) actorCollection.GetNextActor();
+
             //            setOfClouds = linkedHashMapCloud.keySet();
             //            for (String sKey : setOfClouds) {
             //                pointCloud = linkedHashMapCloud.get(sKey);

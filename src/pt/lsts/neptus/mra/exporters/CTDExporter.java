@@ -47,7 +47,6 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.mra.importers.lsf.LsfMraLog;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -64,6 +63,7 @@ public class CTDExporter implements MRAExporter {
 
     }
 
+    @Override
     public boolean canBeApplied(IMraLogGroup source) {
         return source.getLsfIndex().getEntityId("CTD") != -1;
     };
@@ -85,16 +85,16 @@ public class CTDExporter implements MRAExporter {
     @SuppressWarnings("resource")
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-        
+
         LsfIndex index = source.getLsfIndex();
         IndexScanner scanner = new IndexScanner(index);
         pmonitor.setMaximum(index.getNumberOfMessages());
         pmonitor.setMinimum(index.getNumberOfMessages());
-        
+
         pmonitor.setNote("Creating output folder...");
         File dir = new File(source.getFile("mra"), "csv");
         dir.mkdirs();
-        
+
         pmonitor.setNote("Exporting...");
         int count = 0;
         File out = new File(dir, "CTD.csv");
@@ -107,14 +107,14 @@ public class CTDExporter implements MRAExporter {
             NeptusLog.pub().error(e);
             return "Error creating output file: "+e.getMessage();            
         }
-        
+
         while (true) {
-            
+
             Conductivity c = scanner.next(Conductivity.class, "CTD");
             if (c == null)
                 return finish(writer, count);
             int idx = scanner.getIndex();
-            
+
             VehicleMedium m = scanner.next(VehicleMedium.class);
             try {
                 scanner.setIndex(idx);
@@ -126,18 +126,18 @@ public class CTDExporter implements MRAExporter {
             if (t == null)
                 return finish(writer, count);
             EstimatedState d = scanner.next(EstimatedState.class);
-            
-            
+
+
             if (d == null)
                 return finish(writer, count);
             count ++;
-            
+
             LocationType loc = IMCUtils.parseLocation(d).convertToAbsoluteLatLonDepth();
             try {
                 String medium = "UNKNOWN";
                 if (m != null)
                     medium = m.getMedium().toString();
-                
+
                 writer.write(t.getTimestamp()+", "+
                         loc.getLatitudeDegs()+", "+
                         loc.getLongitudeDegs()+", "+
@@ -153,7 +153,7 @@ public class CTDExporter implements MRAExporter {
             pmonitor.setProgress(scanner.getIndex());            
         }
     }
-    
+
     private static void exportRecursively(File root) {
         for (File f : root.listFiles()) {
             if (f.isDirectory()) {
@@ -171,9 +171,9 @@ public class CTDExporter implements MRAExporter {
             }
         }
     }
-    
+
     private static String export(File source) throws Exception {
-        
+
         IMraLogGroup group = new LsfLogSource(source, null);
         CTDExporter exporter = new CTDExporter(group);
         ProgressMonitor pm = new ProgressMonitor(null, "Processing "+source.getAbsolutePath(), "processing", 0, 1000);
@@ -185,16 +185,16 @@ public class CTDExporter implements MRAExporter {
         }
         return null;
     }
-    
+
     public static void main(String[] args) {
-        
+
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int op = chooser.showOpenDialog(null);
         if (op == JFileChooser.APPROVE_OPTION) {
             File root = chooser.getSelectedFile();
             exportRecursively(root);
-            
+
         }
     }
 }

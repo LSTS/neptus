@@ -31,7 +31,6 @@
  */
 package pt.lsts.neptus.plugins.txtcmd;
 
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -53,7 +52,6 @@ import javax.swing.JTextArea;
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import org.reflections.Reflections;
 
-import pt.lsts.imc.IMCUtil;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -87,20 +85,20 @@ public class TextCommands extends ConsolePanel {
     private JLabel lblCmd = new JLabel(I18n.text("Command")+":");
     private JLabel lblMean = new JLabel(I18n.text("Comm. Mean")+":");
     private JTextArea txtResult = new JTextArea();
-    
+
     private JComboBox<String> comboCmd = null;
     private JComboBox<String> comboMean = null;
     private LinkedHashMap<String, ITextCommand> commands = new LinkedHashMap<>();
     private PropertySheetPanel propsTable = new PropertySheetPanel();
-    
+
     private WiFiSender wifiSender = new WiFiSender();
     private IridiumSender iridiumSender = new IridiumSender();
     private SmsSender smsSender = new SmsSender();
-    
+
     public TextCommands(ConsoleLayout console) {
         super(console);
         setLayout(new TableLayout(new double[] {100, TableLayout.FILL}, new double[] {24,24,TableLayout.FILL,38,32}));
-        
+
         for (String pkg : new String[] {getClass().getPackage().getName()}) {
             Reflections reflections = new Reflections(pkg);
             for (Class<?> c : reflections.getSubTypesOf(ITextCommand.class)) {
@@ -138,7 +136,7 @@ public class TextCommands extends ConsolePanel {
                 parse();
             }
         });
-        
+
         propsTable.addPropertySheetChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -149,7 +147,7 @@ public class TextCommands extends ConsolePanel {
         JButton btnSend = new JButton(I18n.text("Send"));
         JButton btnPreview = new JButton(I18n.text("Preview"));
         //JButton btnSettings = new JButton(I18n.text("Settings"));
-        
+
         btnSend.addActionListener(new ActionListener() {            
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -162,26 +160,26 @@ public class TextCommands extends ConsolePanel {
                 preview();
             }
         });
-//        btnSettings.addActionListener(new ActionListener() {            
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                settings();
-//            }
-//        });
-        
+        //        btnSettings.addActionListener(new ActionListener() {            
+        //            @Override
+        //            public void actionPerformed(ActionEvent e) {
+        //                settings();
+        //            }
+        //        });
+
         parse();      
-        
+
         bottom.add(btnPreview);
         bottom.add(btnSend);
         //bottom.add(btnSettings);
         add(bottom, "0,4 1,4");
     }
-    
+
     @Override
     public void cleanSubPanel() {
-        
+
     }
-    
+
     public String parse() {
         commands.get(comboCmd.getSelectedItem()).setProperties(propsTable.getProperties());
         String cmd = commands.get(comboCmd.getSelectedItem()).buildCommand();
@@ -191,13 +189,13 @@ public class TextCommands extends ConsolePanel {
 
     @Override
     public void initSubPanel() {
-        
+
     }
-    
+
     private void preview() {
         parse();
-        
-        
+
+
         ITextCommand cmd = commands.get(comboCmd.getSelectedItem());
         PlanType pt = cmd.resultingPlan(getConsole().getMission());
 
@@ -223,14 +221,14 @@ public class TextCommands extends ConsolePanel {
         dialog.setTitle("Previewing "+cmd.getCommand()+" command");
         dialog.setVisible(true);
 
-        
+
     }
- 
+
     private void send() {
         ITextCommand cmd = commands.get(comboCmd.getSelectedItem());
         String command = cmd.buildCommand();
         ITextMsgSender sender = null;
-        
+
         switch (comboMean.getSelectedItem().toString()) {
             case "SMS":
                 sender = smsSender;
@@ -242,13 +240,13 @@ public class TextCommands extends ConsolePanel {
                 sender = wifiSender;
                 break;
         }
-        
-        
+
+
         try {
             Future<String> result = sender.sendToVehicle("neptus", getConsole().getMainSystem(), command);
             GuiUtils.infoMessage(getConsole(), I18n.text("Send command"), result.get());
             PlanType pt = cmd.resultingPlan(getConsole().getMission());
-            
+
             if (pt != null) {
                 getConsole().getMission().addPlan(pt);
                 getConsole().getMission().save(true);

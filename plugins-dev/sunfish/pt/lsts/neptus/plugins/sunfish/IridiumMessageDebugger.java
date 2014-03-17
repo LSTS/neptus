@@ -57,26 +57,28 @@ import pt.lsts.neptus.util.GuiUtils;
 
 public class IridiumMessageDebugger extends ConsolePanel {
 
+    private static final long serialVersionUID = -1397409355043125958L;
+
     JTextField raw = new JTextField();
     JButton parse = new JButton(I18n.text("Parse"));
     JTabbedPane msgs = new JTabbedPane();
-    
+
     public IridiumMessageDebugger(ConsoleLayout console) {
         super(console);
         setLayout(new TableLayout(new double[] {0.80, 0.20}, new double[] {24, TableLayout.FILL}));
         add(raw, "0,0");
         add(parse, "1,0");
         add(msgs, "0,1 1,1");
-        
+
         parse.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 parse(raw.getText());                
             }
         });
     }
-    
+
     public void parse(String text) {
         msgs.removeAll();
         try {
@@ -85,7 +87,7 @@ public class IridiumMessageDebugger extends ConsolePanel {
             System.out.println(msg.getMessageType());
             for (IMCMessage m : msg.asImc()) {
                 String html = IMCUtil.getAsHtml(m);
-                
+
                 JLabel lbl = new JLabel(html);
                 JScrollPane scroll = new JScrollPane(lbl);
                 msgs.addTab(m.getAbbrev(), scroll);                
@@ -97,15 +99,15 @@ public class IridiumMessageDebugger extends ConsolePanel {
             GuiUtils.errorMessage(getConsole(), e);            
         }
     }
-    
+
     @Override
     public void cleanSubPanel() {
-        
+
     }
 
     @Override
     public void initSubPanel() {
-        
+
     }
 
     public static void main(String[] args) {
