@@ -29,10 +29,13 @@
  * Author: hfq
  * Mar 14, 2014
  */
-package pt.lsts.neptus.plugins.vtk.visualization;
+package pt.lsts.neptus.plugins.vtk.events;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+
+import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
+import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
