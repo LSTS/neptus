@@ -35,10 +35,10 @@ import java.awt.event.KeyEvent;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
+import pt.lsts.neptus.plugins.vtk.events.AKeyboardEvent;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.plugins.vtk.visualization.AKeyboardEvent;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.InfoPointcloud2DText;
 import vtk.vtkAbstractPropPicker;

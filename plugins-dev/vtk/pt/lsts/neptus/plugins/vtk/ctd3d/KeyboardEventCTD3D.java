@@ -33,8 +33,8 @@ package pt.lsts.neptus.plugins.vtk.ctd3d;
 
 import java.awt.event.KeyEvent;
 
+import pt.lsts.neptus.plugins.vtk.events.AKeyboardEvent;
 import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.plugins.vtk.visualization.AKeyboardEvent;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import vtk.vtkAbstractPropPicker;
 import vtk.vtkAssemblyPath;
@@ -49,9 +49,11 @@ public class KeyboardEventCTD3D extends AKeyboardEvent {
 
     /**
      * @param canvas
+     * @param interactorStyleCTD3D 
      */
-    public KeyboardEventCTD3D(Canvas canvas) {
+    public KeyboardEventCTD3D(Canvas canvas, InteractorStyleCTD3D interactorStyleCTD3D) {
         super(canvas);
+        this.interactorStyle = interactorStyleCTD3D;
     }
 
     /* (non-Javadoc)
