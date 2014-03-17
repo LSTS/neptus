@@ -31,29 +31,16 @@
  */
 package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.plugins.vtk.events.AEventsHandler;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.utils.Utils;
-import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import vtk.vtkActorCollection;
-import vtk.vtkPNGWriter;
-import vtk.vtkRenderWindowInteractor;
-import vtk.vtkRenderer;
-import vtk.vtkWindowToImageFilter;
 
 
 /**
  * @author hfq
  *
  */
-public class EventsHandler {
-    private InteractorStyleVis3D interactorStyle;
-    private vtkRenderer renderer;
-    private vtkRenderWindowInteractor interactor;
-    private Canvas canvas;
+public class EventsHandler extends AEventsHandler {
 
     private enum ColorMappingRelation {
         XMAP, YMAP, ZMAP, IMAP;
@@ -66,91 +53,38 @@ public class EventsHandler {
 
     private SensorTypeInteraction sensorTypeInteraction = SensorTypeInteraction.NONE;
 
-    // A PNG Writer for screenshot captures
-    protected vtkPNGWriter snapshotWriter = new vtkPNGWriter();
-    // Internal Window to image Filter. Needed by a snapshotWriter object
-    protected vtkWindowToImageFilter wif = new vtkWindowToImageFilter();
-
     public EventsHandler(InteractorStyleVis3D neptusInteractorStyle) {
-        this.interactorStyle = neptusInteractorStyle;
-        this.canvas = neptusInteractorStyle.getCanvas();
-        this.renderer = neptusInteractorStyle.getCanvas().GetRenderer();
-        this.interactor = neptusInteractorStyle.getCanvas().getRenderWindowInteractor();
+        super(neptusInteractorStyle);
 
         init();
     }
 
-    /**
-     * 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.events.AEventsHandler#init()
      */
-    private void init() {
-        colorMapRel = ColorMappingRelation.ZMAP; // on creation map color map is z related
-
-        // Create the image filter and PNG writer objects
-        wif = new vtkWindowToImageFilter();
-        snapshotWriter = new vtkPNGWriter();
-        snapshotWriter.SetInputConnection(wif.GetOutputPort());
+    @Override
+    protected void init() {
+        colorMapRel = ColorMappingRelation.ZMAP;
     }
 
-    /**
-     * Syncronously take a snapshot of a 3D view Saves on neptus directory
-     */
-    public void takeSnapShot() {
-        Utils.goToAWTThread(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    interactorStyle.FindPokedRenderer(interactor.GetEventPosition()[0],
-                            interactor.GetEventPosition()[1]);
-                    wif.SetInput(interactor.GetRenderWindow());
-                    wif.Modified();
-                    snapshotWriter.Modified();
-
-                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssmm").format(Calendar.getInstance()
-                            .getTimeInMillis());
-                    timeStamp = "snapshot_" + timeStamp;
-                    NeptusLog.pub().info("timeStamp: " + timeStamp);
-
-                    snapshotWriter.SetFileName(timeStamp);
-
-                    if (!canvas.isWindowSet()) {
-                        canvas.lock();
-                        canvas.Render();
-                        canvas.unlock();
-                    }
-
-                    canvas.lock();
-                    wif.Update();
-                    canvas.unlock();
-
-                    snapshotWriter.Write();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    public void displayLookUpTable() {
-        if(!interactorStyle.lutEnabled) {
-            //PointCloud<?> pointCloud  = searchForPointCloudOnRenderer();
-            switch(sensorTypeInteraction) {
-                case NONE:
-                    break;
-                case DVL:
-                    break;
-                case MULTIBEAM:
-                    break;
-                case ALL:
-            }
-        }
-    }
+    //    public void displayLookUpTable() {
+    //        if(!getInteractorStyle().lutEnabled) {
+    //            //PointCloud<?> pointCloud  = searchForPointCloudOnRenderer();
+    //            switch(sensorTypeInteraction) {
+    //                case NONE:
+    //                    break;
+    //                case DVL:
+    //                    break;
+    //                case MULTIBEAM:
+    //                    break;
+    //                case ALL:
+    //            }
+    //        }
+    //    }
 
     protected PointCloud<?> searchForPointCloudOnRenderer() {
         vtkActorCollection actorCollection = new vtkActorCollection();
-        actorCollection = renderer.GetActors();
+        actorCollection = getRenderer().GetActors();
         actorCollection.InitTraversal();
         PointCloud<?> pointCloud = null;
 
@@ -173,7 +107,6 @@ public class EventsHandler {
             //                    }
             //                }
             //            }
-
         }
 
         return pointCloud;
