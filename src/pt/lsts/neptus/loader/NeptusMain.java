@@ -82,7 +82,6 @@ public class NeptusMain {
         GeneralPreferences.initialize();
 
         appNames.put("ws", I18n.text("Workspace"));
-        // appNames.put("mp", I18n.text("Mission Planner"));
         appNames.put("mra", I18n.text("Mission Review & Analysis"));
         appNames.put("cl", I18n.text("Empty Console"));
         appNames.put("console", I18n.text("LAUV Console"));
@@ -321,10 +320,6 @@ public class NeptusMain {
                 System.exit(1);
             }
         }
-    }
-
-    public static Loader getLoader() {
-        return loader;
     }
 
     /**
