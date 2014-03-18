@@ -117,7 +117,7 @@ public class LAUVConsole extends ConsoleLayout {
         loader.setText(I18n.text("Loading console..."));
 
         NeptusLog.pub().info("Loading " + LAUVConsole.class.getSimpleName() + ".");
-        
+
         final LAUVConsole cls = new LAUVConsole();
         cls.imcOn();
         // ConsoleParse.loadConsole(cls, ConfigFetch.resolvePath(consoleURL));
@@ -161,7 +161,7 @@ public class LAUVConsole extends ConsoleLayout {
         cls.getMainPanel().setRelayoutOnResize(true);
         cls.setResizable(true);
         // }
-        
+
         // 20130122 This has to be not called other wise the main panel is not shown
         // try {
         //  cls.maximizePanel((SubPanel) cls.mainPanel.getComponent(0));
@@ -194,8 +194,8 @@ public class LAUVConsole extends ConsoleLayout {
                     cls.setMainSystem(dVeh.getName());
             }
         }
-        
-        
+
+
         cls.setVisible(true);
         return cls;
     }
@@ -205,7 +205,6 @@ public class LAUVConsole extends ConsoleLayout {
     }
 
     public static void main(String[] args) {
-        ConfigFetch.initialize();
         GuiUtils.setLookAndFeel();
 
         loader = new Loader("images/neptus_loader_light.png");
