@@ -38,6 +38,7 @@ import java.awt.Graphics2D;
 import javax.swing.JLabel;
 
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -46,7 +47,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
  * @author zp
  * 
  */
-@PluginDescription(name = "Keyboard Shortcuts", icon="pt/lsts/neptus/console/plugins/planning/keyboard.png")
+@PluginDescription(name = "Keyboard Shortcuts", icon = "pt/lsts/neptus/console/plugins/planning/keyboard.png")
 @LayerPriority(priority = 200)
 public class MapShortcutsLayer extends ConsoleLayer {
 
@@ -63,25 +64,23 @@ public class MapShortcutsLayer extends ConsoleLayer {
         lbl.setBounds((int) x, (int) y, (int) d.getWidth(), (int) d.getHeight());
         lbl.paint(g);
     }
-    
+
     public static String getShortcutsHtml() {
-        return "<html>"+
-        "<body background=\"#FF0000\">"+
-        "<table border='0' align='center'>"+
-        "<tr><th>Key</th><th>Action</th></tr>"+
-        "<tr><td>plus (+)</td><td>Double the current zoom value</td></tr>"+
-        "<tr><td>minus (-)</td><td>Half the current zoom value</td></tr>"+
-        "<tr><td>left</td><td>Move the map to the west</td></tr>"+
-        "<tr><td>right</td><td>Move the map to the east</td></tr>"+
-        "<tr><td>up</td><td>Move the map towards north</td></tr>"+
-        "<tr><td>down</td><td>Move the map south</td></tr>"+
-        "<tr><td>N</td><td>Reset the current rotation (up facing north)</td></tr>"+
-        "<tr><td>F1</td><td>Reset the current view to defaults</td></tr>"+
-        "<tr><td>Control</td><td>Measure distances by click and dragging the mouse</td></tr>"+
-        "<tr><td>Shift</td><td>Rotate map by click and dragging the mouse</td></tr>"+
-        "</table>"+
-        "</body>"+
-        "</html>";
+        return "<html>" + "<body background=\"#FF0000\">" + "<table border='0' align='center'>" + "<tr><th>"
+                + I18n.text("Key") + "</th><th>" + I18n.text("Action") + "</th></tr>" + "<tr><td>"
+                + I18n.text("plus (+)") + "</td><td>" + I18n.text("Double the current zoom value") + "</td></tr>"
+                + "<tr><td>" + I18n.text("minus (-)") + "</td><td>" + I18n.text("Half the current zoom value")
+                + "</td></tr>" + "<tr><td>" + I18n.text("left") + "</td><td>" + I18n.text("Move the map to the left")
+                + "</td></tr>" + "<tr><td>" + I18n.text("right") + "</td><td>" + I18n.text("Move the map to the right")
+                + "</td></tr>" + "<tr><td>" + I18n.text("up") + "</td><td>" + I18n.text("Move the map upwards")
+                + "</td></tr>" + "<tr><td>" + I18n.text("down") + "</td><td>" + I18n.text("Move the downwards")
+                + "</td></tr>" + "<tr><td>" + I18n.text("N") + "</td><td>"
+                + I18n.text("Reset the current rotation (up facing north)") + "</td></tr>" + "<tr><td>"
+                + I18n.text("F1") + "</td><td>" + I18n.text("Reset the current view to defaults") + "</td></tr>"
+                + "<tr><td>" + I18n.text("Control") + "</td><td>"
+                + I18n.text("Measure distances by click and dragging the mouse") + "</td></tr>" + "<tr><td>"
+                + I18n.text("Shift") + "</td><td>" + I18n.text("Rotate map by click and dragging the mouse")
+                + "</td></tr>" + "</table>" + "</body>" + "</html>";
     }
 
     @Override
@@ -94,7 +93,7 @@ public class MapShortcutsLayer extends ConsoleLayer {
         lbl = new JLabel(getShortcutsHtml());
         lbl.setOpaque(true);
         lbl.setBackground(Color.black);
-        lbl.setBackground(new Color(255,255,255,200));
+        lbl.setBackground(new Color(255, 255, 255, 200));
     }
 
     @Override
