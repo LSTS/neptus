@@ -73,7 +73,7 @@ public class MapShortcutsLayer extends ConsoleLayer {
                 + "</td></tr>" + "<tr><td>" + I18n.text("left") + "</td><td>" + I18n.text("Move the map to the left")
                 + "</td></tr>" + "<tr><td>" + I18n.text("right") + "</td><td>" + I18n.text("Move the map to the right")
                 + "</td></tr>" + "<tr><td>" + I18n.text("up") + "</td><td>" + I18n.text("Move the map upwards")
-                + "</td></tr>" + "<tr><td>" + I18n.text("down") + "</td><td>" + I18n.text("Move the downwards")
+                + "</td></tr>" + "<tr><td>" + I18n.text("down") + "</td><td>" + I18n.text("Move the map downwards")
                 + "</td></tr>" + "<tr><td>" + I18n.text("N") + "</td><td>"
                 + I18n.text("Reset the current rotation (up facing north)") + "</td></tr>" + "<tr><td>"
                 + I18n.text("F1") + "</td><td>" + I18n.text("Reset the current view to defaults") + "</td></tr>"
