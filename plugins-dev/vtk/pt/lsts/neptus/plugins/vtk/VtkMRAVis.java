@@ -210,51 +210,46 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     }
 
     private void processPointCloud(PointCloud<PointXYZ> pointCloud, LoadToPointCloud load) {
-        // parse 83P data storing it on a pointcloud
-        //        loadToPointCloud = new LoadToPointCloud(source, pointCloud);
-        //        if(pointCloud.getCloudName().equals("multibeam")) {
-        //            loadToPointCloud.parseMultibeamPointCloud();
-        //        }
-        //        else if (pointCloud.getCloudName().equals("dvl")) {
-        //            loadToPointCloud.parseDVLPointCloud();
-        //        }
-        //        else {
-        //            NeptusLog.pub().error("Error while getting data.");
-        //        }
+        if(pointCloud.getCloudName().equals("multibeam")) {
+            if (pointCloud.getNumberOfPoints() != 0) { // checks wether there are any points to render!
+                if (MRAProperties.outliersRemoval) {
+                    // remove outliers
+                    // RadiusOutlierRemoval radOutRem = new RadiusOutlierRemoval();
+                    // radOutRem.applyFilter(multibeamToPointCloud.getPoints());
+                    // pointCloud.setPoints(radOutRem.getOutputPoints());
+                    // NeptusLog.pub().info("Get number of points: " + pointCloud.getPoints().GetNumberOfPoints());
 
-        if (pointCloud.getNumberOfPoints() != 0) { // checks wether there are any points to render!
-            if (MRAProperties.outliersRemoval) {
-                // remove outliers
-                // RadiusOutlierRemoval radOutRem = new RadiusOutlierRemoval();
-                // radOutRem.applyFilter(multibeamToPointCloud.getPoints());
-                // pointCloud.setPoints(radOutRem.getOutputPoints());
-                // NeptusLog.pub().info("Get number of points: " + pointCloud.getPoints().GetNumberOfPoints());
+                    StatisticalOutlierRemoval statOutRem = new StatisticalOutlierRemoval();
+                    statOutRem.setMeanK(20);
+                    statOutRem.setStdMul(0.2);
+                    statOutRem.applyFilter(load.getPoints());
+                    pointCloud.setPoints(statOutRem.getOutputPoints());
+                }
+                else
+                    pointCloud.setPoints(load.getPoints());
 
-                StatisticalOutlierRemoval statOutRem = new StatisticalOutlierRemoval();
-                statOutRem.setMeanK(20);
-                statOutRem.setStdMul(0.2);
-                statOutRem.applyFilter(load.getPoints());
-                pointCloud.setPoints(statOutRem.getOutputPoints());
+                // pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());
+                // create an actor from parsed beams
+                // if (pointCloud.isHasIntensities()) {
+                // multibeamToPointCloud.showIntensities();
+                // pointCloud.setIntensities(multibeamToPointCloud.getIntensities());
+                //
+                // pointCloud.createLODActorFromPoints(multibeamToPointCloud.getIntensities());
+                // NeptusLog.pub().info("create LOD actor with intensities");
+                // }
+                //
+                // else {
+                pointCloud.createLODActorFromPoints();
+                NeptusLog.pub().info("create LOD actor without intensities");
+                // }
+
+                // Utils.delete(loadToPointCloud.getPoints());
             }
-            else
-                pointCloud.setPoints(load.getPoints());
-
-            // pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());
-            // create an actor from parsed beams
-            // if (pointCloud.isHasIntensities()) {
-            // multibeamToPointCloud.showIntensities();
-            // pointCloud.setIntensities(multibeamToPointCloud.getIntensities());
-            //
-            // pointCloud.createLODActorFromPoints(multibeamToPointCloud.getIntensities());
-            // NeptusLog.pub().info("create LOD actor with intensities");
-            // }
-            //
-            // else {
+        }
+        else {
+            pointCloud.setPoints(load.getPoints());
             pointCloud.createLODActorFromPoints();
-            NeptusLog.pub().info("create LOD actor without intensities");
-            // }
-
-            // Utils.delete(loadToPointCloud.getPoints());
+            NeptusLog.pub().info("created LOD actor for dvl");
         }
     }
 
