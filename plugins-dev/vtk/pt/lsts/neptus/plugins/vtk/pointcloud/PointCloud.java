@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.vtk.pointcloud;
 
+import pt.lsts.neptus.plugins.vtk.mravisualizer.PointCloudHandlers;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkLODActor;
 import vtk.vtkPoints;
@@ -92,7 +93,7 @@ public class PointCloud<T extends PointXYZ> {
 
             //setBounds(PointCloudUtils.computeBounds(getPoints()));
             setBounds(getPoly().GetBounds());
-            getColorHandler().generatePointCloudColorHandlers(getPoly(), bounds);
+            getColorHandler().generatePointCloudXYZColorHandlers(getPoly(), bounds, false);
             getPoly().GetPointData().SetScalars(getColorHandler().getColorsZ());
 
             vtkPolyDataMapper map = new vtkPolyDataMapper();
