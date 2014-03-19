@@ -73,7 +73,6 @@ public class PointCloudHandlers<T extends PointXYZ> extends APointCloudColorHand
         getLutY().SetRange(bounds[2], bounds[3]);
         getLutY().SetScaleToLinear();
         getLutY().Build();
-        //getLutZ().SetValueRange(-bounds[5], -bounds[4]);
         getLutZ().SetRange(bounds[4], bounds[5]);
         getLutZ().SetScaleToLinear();
         getLutZ().Build();
@@ -137,101 +136,6 @@ public class PointCloudHandlers<T extends PointXYZ> extends APointCloudColorHand
             colorsI.InsertNextTuple3(colori[0], colori[1], colori[2]);
         }
     }   
-
-    //    /**
-    //     * @return the colorsX
-    //     */
-    //    @Override
-    //    public vtkUnsignedCharArray getColorsX() {
-    //        return colorsX;
-    //    }
-    //
-    //    /**
-    //     * @param colorsX the colorsX to set
-    //     */
-    //    @Override
-    //    private void setColorsX(vtkUnsignedCharArray colorsX) {
-    //        this.colorsX = colorsX;
-    //    }
-    //
-    //    /**
-    //     * @return the colorsY
-    //     */
-    //    @Override
-    //    public vtkUnsignedCharArray getColorsY() {
-    //        return colorsY;
-    //    }
-    //
-    //    /**
-    //     * @param colorsY the colorsY to set
-    //     */
-    //    @Override
-    //    private void setColorsY(vtkUnsignedCharArray colorsY) {
-    //        this.colorsY = colorsY;
-    //    }
-    //
-    //    /**
-    //     * @return the colorsZ
-    //     */
-    //    @Override
-    //    public vtkUnsignedCharArray getColorsZ() {
-    //        return colorsZ;
-    //    }
-    //
-    //    /**
-    //     * @param colorsZ the colorsZ to set
-    //     */
-    //    @Override
-    //    private void setColorsZ(vtkUnsignedCharArray colorsZ) {
-    //        this.colorsZ = colorsZ;
-    //    }    
-    //
-    //    /**
-    //     * @return the lutX
-    //     */
-    //    public vtkLookupTable getLutX() {
-    //        return lutX;
-    //    }
-    //
-    //    /**
-    //     * @param lutX the lutX to set
-    //     */
-    //    @Override
-    //    private void setLutX(vtkLookupTable lutX) {
-    //        this.lutX = lutX;
-    //    }
-    //
-    //    /**
-    //     * @return the lutY
-    //     */
-    //    @Override
-    //    public vtkLookupTable getLutY() {
-    //        return lutY;
-    //    }
-    //
-    //    /**
-    //     * @param lutY the lutY to set
-    //     */
-    //    @Override
-    //    private void setLutY(vtkLookupTable lutY) {
-    //        this.lutY = lutY;
-    //    }
-    //
-    //    /**
-    //     * @return the lutZ
-    //     */
-    //    @Override
-    //    public vtkLookupTable getLutZ() {
-    //        return lutZ;
-    //    }
-    //
-    //    /**
-    //     * @param lutZ the lutZ to set
-    //     */
-    //    @Override
-    //    private void setLutZ(vtkLookupTable lutZ) {
-    //        this.lutZ = lutZ;
-    //    }
 
     /**
      * @return the intensities
