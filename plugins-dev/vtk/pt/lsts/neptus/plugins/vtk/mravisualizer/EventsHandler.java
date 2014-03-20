@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.events.AEventsHandler;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import vtk.vtkActorCollection;
@@ -65,6 +66,7 @@ public class EventsHandler extends AEventsHandler {
     @Override
     protected void init() {
         colorMapRel = ColorMappingRelation.ZMAP;
+        setHelpMsg();
     }
 
     //    public void displayLookUpTable() {
@@ -124,5 +126,38 @@ public class EventsHandler extends AEventsHandler {
      */
     public void setSensorTypeInteraction(SensorTypeInteraction sensorTypeInteraction) {
         this.sensorTypeInteraction = sensorTypeInteraction;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.events.AEventsHandler#setHelpMsg()
+     */
+    @Override
+    protected void setHelpMsg() {
+        // <h1>3D Multibeam Interaction</h1>
+        msgHelp = "<html><font size='2'><br><div align='center'><table border='1' align='center'>"
+                + "<tr><th>Keys</th><th>" + I18n.text("Description") + "</th></tr>"
+                + "<tr><td>p, P</td><td>" + I18n.text("Switch to a point-based representation") + "</td>"
+                + "<tr><td>w, W </td><td>" + I18n.text("Switch to a wireframe-based representation, when available") + "</td>"
+                + "<tr><td>s, S</td><td>" + I18n.text("Switch to a surface-based representation, when available") + "</td>"
+                + "<tr><td>j, J</td><td>" + I18n.text("Take a .PNG snapshot of the current window view") + "</td>"
+                + "<tr><td>g, G</td><td>" + I18n.text("Display scale grid (on/off)") + "</td>"
+                + "<tr><td>u, U</td><td>" + I18n.text("Display lookup table (on/off)") + "</td>"
+                + "<tr><td>r, R</td><td>" + I18n.text("Reset camera view along the current view direction") + "</td>"
+                + // (to viewpoint = {0, 0, 0} -> center {x, y, z}\n");
+                "<tr><td>i, I</td><td>" + I18n.text("Information about rendered cloud") + "</td>"
+                + "<tr><td>f, F</td><td>" + I18n.text("Fly Mode - point with mouse cursor the direction and press 'f' to fly") + "</td>"
+                + "<tr><td>+/-</td><td>" + I18n.text("Increment / Decrement overall point size") + "</td>"
+                + "<tr><td>3</td><td>" + I18n.text("Toggle into an out of stereo mode") + "</td>"
+                + "<tr><td>7</td><td>" + I18n.text("Color gradient in relation with X coords (north)") + "</td>"
+                + "<tr><td>8</td><td>" + I18n.text("Color gradient in relation with Y coords (west)") + "</td>"
+                + "<tr><td>9</td><td>" + I18n.text("Color gradient in relation with Z coords (depth)") + "</td>"
+                + "<tr><th>Mouse</th><th>" + I18n.text("Description") + "</th></tr>"
+                +
+                // rotate the camera around its focal point. The rotation is in the direction defined from the center of
+                // the renderer's viewport towards the mouse position
+                "<tr><td>" + I18n.text("Left mouse button</td><td>") + I18n.text("Rotate camera around its focal point") + "</td>"
+                + "<tr><td>" + I18n.text("Middle mouse button") + "</td><td>" + I18n.text("Pan camera") + "</td>"
+                + "<tr><td>" + I18n.text("Right mouse button") + "</td><td>" + I18n.text("Zoom (In/Out) the camera") + "</td>"
+                + "<tr><td>" + I18n.text("Mouse wheel") + "</td><td>" + I18n.text("Zoom (In/Out) the camera - Static focal point") + "</td>";
     }
 }
