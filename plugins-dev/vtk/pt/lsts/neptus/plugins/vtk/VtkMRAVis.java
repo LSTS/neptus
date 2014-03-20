@@ -82,7 +82,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     private static final long serialVersionUID = 8057825167454469065L;
 
     @NeptusProperty(name = "Depth exaggeration multiplier", description = "Multiplier value for depth exaggeration.")
-    public int zExaggeration = 10;
+    public static int zExaggeration = 10;
 
     private Canvas canvas;
     private Window winCanvas;
