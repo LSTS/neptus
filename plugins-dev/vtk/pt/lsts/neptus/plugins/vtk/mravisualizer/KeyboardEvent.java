@@ -542,46 +542,4 @@ public class KeyboardEvent extends AKeyboardEvent {
     protected void setInteractorStyle(AInteractorStyleTrackballCamera interactorStyle) {
         this.interactorStyle = (InteractorStyleVis3D) interactorStyle;
     }
-
-    //    /**
-    //     * Syncronously take a snapshot of a 3D view Saves on neptus directory
-    //     */
-    //    void takeSnapShot() {
-    //        Utils.goToAWTThread(new Runnable() {
-    //
-    //            @Override
-    //            public void run() {
-    //                try {
-    //                    neptusInteractorStyle.FindPokedRenderer(interactor.GetEventPosition()[0],
-    //                            interactor.GetEventPosition()[1]);
-    //                    neptusInteractorStyle.wif.SetInput(interactor.GetRenderWindow());
-    //                    neptusInteractorStyle.wif.Modified();
-    //                    neptusInteractorStyle.snapshotWriter.Modified();
-    //
-    //                    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmssmm").format(Calendar.getInstance()
-    //                            .getTimeInMillis());
-    //                    timeStamp = "snapshot_" + timeStamp;
-    //                    NeptusLog.pub().info("timeStamp: " + timeStamp);
-    //
-    //                    neptusInteractorStyle.snapshotWriter.SetFileName(timeStamp);
-    //
-    //                    if (!canvas.isWindowSet()) {
-    //                        canvas.lock();
-    //                        canvas.Render();
-    //                        canvas.unlock();
-    //                    }
-    //
-    //                    canvas.lock();
-    //                    neptusInteractorStyle.wif.Update();
-    //                    canvas.unlock();
-    //
-    //                    neptusInteractorStyle.snapshotWriter.Write();
-    //                }
-    //                catch (Exception e) {
-    //                    e.printStackTrace();
-    //                }
-    //            }
-    //
-    //        });
-    //    }
 }
