@@ -88,7 +88,6 @@ public class Vis3DMenuBar extends JMenuBar {
     private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
     private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
 
-
     private JMenu fileMenu, editMenu, viewMenu, toolsMenu, helpMenu;
 
     // File Menu
@@ -294,7 +293,8 @@ public class Vis3DMenuBar extends JMenuBar {
     private void setUpViewMenu() {
         viewMenu = new JMenu(I18n.text("View"));
         resetViewportCamera = new VisAction(I18n.text("Reset Viewport"), ImageUtils.getIcon("images/menus/camera.png"),
-                I18n.text("Reset Viewport") + ".", KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK, true)) {
+                I18n.text("Reset Viewport") + ".", KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK,
+                        true)) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -319,8 +319,9 @@ public class Vis3DMenuBar extends JMenuBar {
     @SuppressWarnings("serial")
     private void setUpToolsMenu() {
         toolsMenu = new JMenu(I18n.text("Tools"));
-        //        takeSnapShot = new VisAction(I18n.text("Take SnapShot"), ImageUtils.getIcon("images/menus/camera.png"),
-        //                I18n.text("Take SnapShot from current Viewport") + ".", KeyStroke.getKeyStroke(KeyEvent.VK_J, InputEvent.CTRL_DOWN_MASK, true)) {
+        // takeSnapShot = new VisAction(I18n.text("Take SnapShot"), ImageUtils.getIcon("images/menus/camera.png"),
+        // I18n.text("Take SnapShot from current Viewport") + ".", KeyStroke.getKeyStroke(KeyEvent.VK_J,
+        // InputEvent.CTRL_DOWN_MASK, true)) {
         takeSnapShot = new VisAction(I18n.text("Take SnapShot"), ImageUtils.getIcon("images/menus/camera.png"),
                 I18n.text("Take SnapShot from current Viewport") + ".") {
 
@@ -347,44 +348,13 @@ public class Vis3DMenuBar extends JMenuBar {
                 GuiUtils.htmlMessage(
                         ConfigFetch.getSuperParentFrame() == null ? vtkInit : ConfigFetch.getSuperParentAsFrame(),
                                 I18n.text("3D Visualization Interaction Help") + ".",
-                                "(" + I18n.text("3D Multibeam keyboard and mouse interation") + ")", msgHelp(), ModalityType.MODELESS);
+                                "(" + I18n.text("3D Multibeam keyboard and mouse interation") + ")", events.getMsgHelp(),
+                                ModalityType.MODELESS);
 
             }
         };
 
         helpMenu.add(help);
-    }
-
-    private String msgHelp() {
-        String msgHelp;
-        // <h1>3D Multibeam Interaction</h1>
-        msgHelp = "<html><font size='2'><br><div align='center'><table border='1' align='center'>"
-                + "<tr><th>Keys</th><th>Description</th></tr>"
-                + "<tr><td>p, P</td><td>Switch to a point-based representation</td>"
-                + "<tr><td>w, W </td><td>Switch to a wireframe-based representation, when available</td>"
-                + "<tr><td>s, S</td><td>Switch to a surface-based representation, when available</td>"
-                + "<tr><td>j, J</td><td>Take a .PNG snapshot of the current window view</td>"
-                + "<tr><td>g, G</td><td>Display scale grid (on/off)</td>"
-                + "<tr><td>u, U</td><td>Display lookup table (on/off)</td>"
-                + "<tr><td>r, R</td><td>Reset camera view along the current view direction</td>"
-                + // (to viewpoint = {0, 0, 0} -> center {x, y, z}\n");
-                "<tr><td>i, I</td><td>Information about rendered cloud</td>"
-                + "<tr><td>f, F</td><td>Fly Mode - point with mouse cursor the direction and press 'f' to fly</td>"
-                + "<tr><td>+/-</td><td>Increment / Decrement overall point size</td>"
-                + "<tr><td>3</td><td>Toggle into an out of stereo mode</td>"
-                + "<tr><td>7</td><td>Color gradient in relation with X coords (north)</td>"
-                + "<tr><td>8</td><td>Color gradient in relation with Y coords (west)</td>"
-                + "<tr><td>9</td><td>Color gradient in relation with Z coords (depth)</td>"
-                + "<tr><th>Mouse</th><th>Description</th></tr>"
-                +
-                // rotate the camera around its focal point. The rotation is in the direction defined from the center of
-                // the renderer's viewport towards the mouse position
-                "<tr><td>Left mouse button</td><td>Rotate camera around its focal point</td>"
-                + "<tr><td>Middle mouse button</td><td>Pan camera</td>"
-                + "<tr><td>Right mouse button</td><td>Zoom (In/Out) the camera</td>"
-                + "<tr><td>Mouse wheel</td><td>Zoom (In/Out) the camera - Static focal point</td>";
-
-        return msgHelp;
     }
 
     @Override
