@@ -94,8 +94,6 @@ public class InteractorStyleVis3D extends AInteractorStyleTrackballCamera {
     // Actor for Compass Widget on screen
     protected Compass compass = new Compass();
 
-    //    private vtkTextActor fpsActor = new vtkTextActor();
-
     // Set true if the grid actor is enabled
     protected boolean gridEnabled;
     // Actor for 2D grid on screen
@@ -120,23 +118,6 @@ public class InteractorStyleVis3D extends AInteractorStyleTrackballCamera {
         this.camera = renderer.GetActiveCamera();
         this.linkedHashMapCloud = linkedHashMapCloud;
         this.setScalarBar(new ScalarBar());
-
-        this.setEventsHandler(new EventsHandler(this));
-        this.keyboardEvent = new KeyboardEvent(this.getCanvas(), this.linkedHashMapCloud, this, getEventsHandler());
-
-        onInitialize();
-    }
-
-    /**
-     * @param canvas
-     * @param renderer
-     * @param renWinInteractor
-     */
-    public InteractorStyleVis3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor) {
-        super(canvas, renderer, renWinInteractor);
-
-        this.camera = renderer.GetActiveCamera();
-        setScalarBar(new ScalarBar());
 
         this.setEventsHandler(new EventsHandler(this));
         this.keyboardEvent = new KeyboardEvent(this.getCanvas(), this.linkedHashMapCloud, this, getEventsHandler());
