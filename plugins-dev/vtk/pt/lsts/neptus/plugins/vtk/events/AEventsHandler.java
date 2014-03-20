@@ -35,12 +35,15 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.vtk.VtkMRAVis;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
 import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import vtk.vtkPNGWriter;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
+import vtk.vtkTextActor;
 import vtk.vtkWindowToImageFilter;
 
 /**
@@ -59,6 +62,14 @@ public abstract class AEventsHandler {
     // Internal Window to image Filter. Needed by a snapshotWriter object
     protected vtkWindowToImageFilter wif;
 
+    private vtkTextActor textProcessingActor;
+    private static String TEXT_PROCESS_ACTOR = I18n.text("Processing Data.");
+
+    private vtkTextActor textZExagInfoActor;
+    private static String TEXT_ZEXAG_INFO_ACTOR = I18n.textf("Depth multiplied by: %currenZexag", VtkMRAVis.zExaggeration);
+
+    protected String msgHelp;
+
     /**
      * @param canvas
      * @param renderer
@@ -72,14 +83,19 @@ public abstract class AEventsHandler {
         this.interactor = interactor;
         this.interactorStyle = interactorStyle;
 
+        setTextProcessingActor(new vtkTextActor());
+        setTextZExagInfoActor(new vtkTextActor());
+
         // Create the image filter and PNG writer objects
         wif = new vtkWindowToImageFilter();
         snapshotWriter = new vtkPNGWriter();
         snapshotWriter.SetInputConnection(wif.GetOutputPort());
+
+        buildTextZExagInfoActor();
+        buildTextProcessingActor();
     }
 
     /**
-     * 
      * @param interactorStyle
      */
     public AEventsHandler(AInteractorStyleTrackballCamera interactorStyle) {
@@ -132,6 +148,43 @@ public abstract class AEventsHandler {
 
             }
         });
+    }
+
+    /**
+     * Set Msg to be added on help
+     * User interactiors keyboard shortcuts
+     * Use msgHelp String var to assign text
+     */
+    protected abstract void setHelpMsg();
+
+    public String getMsgHelp() {
+        return msgHelp;
+    }
+
+    /**
+     * Build vtk 2D text Zexag Info Actor
+     */
+    private void buildTextZExagInfoActor() {
+        textZExagInfoActor.GetTextProperty().BoldOn();
+        textZExagInfoActor.GetTextProperty().ItalicOn();
+        textZExagInfoActor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
+        textZExagInfoActor.GetTextProperty().SetFontFamilyToArial();
+        textZExagInfoActor.GetTextProperty().SetFontSize(12);
+        textZExagInfoActor.SetInput(TEXT_ZEXAG_INFO_ACTOR);
+        textZExagInfoActor.VisibilityOn();
+    }
+
+    /**
+     * Build vtk 2D text procesing actor
+     */
+    private void buildTextProcessingActor() {
+        textProcessingActor.GetTextProperty().BoldOn();
+        textProcessingActor.GetTextProperty().ItalicOn();
+        textProcessingActor.GetTextProperty().SetFontSize(40);
+        textProcessingActor.GetTextProperty().SetColor(1.0, 1.0, 1.0);
+        textProcessingActor.GetTextProperty().SetFontFamilyToArial();
+        textProcessingActor.SetInput(TEXT_PROCESS_ACTOR);
+        textProcessingActor.VisibilityOn();
     }
 
     /**
@@ -190,4 +243,31 @@ public abstract class AEventsHandler {
         this.interactor = interactor;
     }
 
+    /**
+     * @return the textProcessingActor
+     */
+    protected vtkTextActor getTextProcessingActor() {
+        return textProcessingActor;
+    }
+
+    /**
+     * @param textProcessingActor the textProcessingActor to set
+     */
+    protected void setTextProcessingActor(vtkTextActor textProcessingActor) {
+        this.textProcessingActor = textProcessingActor;
+    }
+
+    /**
+     * @return the textZExagInfoActor
+     */
+    protected vtkTextActor getTextZExagInfoActor() {
+        return textZExagInfoActor;
+    }
+
+    /**
+     * @param textZExagInfoActor the textZExagInfoActor to set
+     */
+    protected void setTextZExagInfoActor(vtkTextActor textZExagInfoActor) {
+        this.textZExagInfoActor = textZExagInfoActor;
+    }
 }
