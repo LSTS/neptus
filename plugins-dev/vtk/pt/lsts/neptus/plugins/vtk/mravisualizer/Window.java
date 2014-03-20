@@ -31,7 +31,11 @@
  */
 package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
+import java.util.LinkedHashMap;
+
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
+import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.visualization.AWindow;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import vtk.vtkPanel;
@@ -44,8 +48,9 @@ public class Window extends AWindow {
 
     // the Neptus interactor Style - mouse, and keyboard events
     private InteractorStyleVis3D interacStyle;
+    private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
 
-    public Window(vtkPanel panel, InteractorStyleVis3D interactorStyle, String windowName) {
+    public Window(vtkPanel panel, InteractorStyleVis3D interactorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,  String windowName) {
         super(panel, windowName);
 
         setRenderer(panel.GetRenderer());
@@ -53,6 +58,7 @@ public class Window extends AWindow {
         setInteracStyle(interactorStyle);
         //setRenWinInteractor(getNeptusInteracStyle());
         setRenWinInteractor(panel.GetRenderWindow().GetInteractor());
+        setLinkedHashMapCloud(linkedHashMapCloud);
 
         setUpRenderer();
         setUpRenWin();
@@ -60,17 +66,18 @@ public class Window extends AWindow {
         setUpInteractorStyle();
     }
 
-    public Window(vtkPanel panel, InteractorStyleVis3D interactorStyle) {
-        this(panel, interactorStyle, I18n.text("Visualizer3D"));
+    public Window(vtkPanel panel, InteractorStyleVis3D interactorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
+        this(panel, interactorStyle, linkedHashMapCloud, I18n.text("Visualizer3D"));
     }
 
-    public Window(Canvas canvas, InteractorStyleVis3D interactorStyle, String windowName) {
+    public Window(Canvas canvas, InteractorStyleVis3D interactorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud, String windowName) {
         super(canvas, windowName);
 
         setRenderer(canvas.GetRenderer());
         setRenWin(canvas.GetRenderWindow());
         setInteracStyle(interactorStyle);
         setRenWinInteractor(canvas.getRenderWindowInteractor());
+        setLinkedHashMapCloud(linkedHashMapCloud);
 
         setUpRenderer();
         setUpRenWin();
@@ -78,8 +85,8 @@ public class Window extends AWindow {
         setUpInteractorStyle();
     }
 
-    public Window(Canvas canvas, InteractorStyleVis3D interactorStyle) {
-        this(canvas, interactorStyle, "Visualizer");
+    public Window(Canvas canvas, InteractorStyleVis3D interactorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
+        this(canvas, interactorStyle, linkedHashMapCloud, "Visualizer");
     }
 
     /* (non-Javadoc)
@@ -119,7 +126,7 @@ public class Window extends AWindow {
      */
     @Override
     public void setUpInteractorStyle() {
-        setInteracStyle(new InteractorStyleVis3D(getCanvas(), getRenderer(), getRenWinInteractor()));
+        setInteracStyle(new InteractorStyleVis3D(getCanvas(), getRenderer(), getRenWinInteractor(), getLinkedHashMapCloud()));
         getRenWinInteractor().SetInteractorStyle(getInteracStyle());
     }
 
@@ -135,6 +142,20 @@ public class Window extends AWindow {
      */
     private void setInteracStyle(InteractorStyleVis3D interacStyle) {
         this.interacStyle = interacStyle;
+    }
+
+    /**
+     * @return the linkedHashMapCloud
+     */
+    public LinkedHashMap<String, PointCloud<PointXYZ>> getLinkedHashMapCloud() {
+        return linkedHashMapCloud;
+    }
+
+    /**
+     * @param linkedHashMapCloud the linkedHashMapCloud to set
+     */
+    private void setLinkedHashMapCloud(LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
+        this.linkedHashMapCloud = linkedHashMapCloud;
     }
 
 }
