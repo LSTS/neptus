@@ -246,7 +246,7 @@ public abstract class AEventsHandler {
     /**
      * @return the textProcessingActor
      */
-    protected vtkTextActor getTextProcessingActor() {
+    public vtkTextActor getTextProcessingActor() {
         return textProcessingActor;
     }
 
@@ -260,7 +260,7 @@ public abstract class AEventsHandler {
     /**
      * @return the textZExagInfoActor
      */
-    protected vtkTextActor getTextZExagInfoActor() {
+    public vtkTextActor getTextZExagInfoActor() {
         return textZExagInfoActor;
     }
 
