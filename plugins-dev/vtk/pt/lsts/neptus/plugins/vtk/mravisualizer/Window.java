@@ -36,29 +36,34 @@ import java.util.LinkedHashMap;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.visualization.AWindow;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import vtk.vtkPanel;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class Window extends AWindow {
 
     // the Neptus interactor Style - mouse, and keyboard events
     private InteractorStyleVis3D interacStyle;
     private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
+    private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
 
-    public Window(vtkPanel panel, InteractorStyleVis3D interactorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,  String windowName) {
+    public Window(vtkPanel panel, InteractorStyleVis3D interactorStyle,
+            LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
+            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh, String windowName) {
         super(panel, windowName);
 
         setRenderer(panel.GetRenderer());
         setRenWin(panel.GetRenderWindow());
         setInteracStyle(interactorStyle);
-        //setRenWinInteractor(getNeptusInteracStyle());
+        // setRenWinInteractor(getNeptusInteracStyle());
         setRenWinInteractor(panel.GetRenderWindow().GetInteractor());
         setLinkedHashMapCloud(linkedHashMapCloud);
+        setLinkedHashMapMesh(linkedHashMapMesh);
 
         setUpRenderer();
         setUpRenWin();
@@ -66,11 +71,15 @@ public class Window extends AWindow {
         setUpInteractorStyle();
     }
 
-    public Window(vtkPanel panel, InteractorStyleVis3D interactorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
-        this(panel, interactorStyle, linkedHashMapCloud, I18n.text("Visualizer3D"));
+    public Window(vtkPanel panel, InteractorStyleVis3D interactorStyle,
+            LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
+            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh) {
+        this(panel, interactorStyle, linkedHashMapCloud, linkedHashMapMesh, I18n.text("Visualizer3D"));
     }
 
-    public Window(Canvas canvas, InteractorStyleVis3D interactorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud, String windowName) {
+    public Window(Canvas canvas, InteractorStyleVis3D interactorStyle,
+            LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
+            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh, String windowName) {
         super(canvas, windowName);
 
         setRenderer(canvas.GetRenderer());
@@ -78,6 +87,7 @@ public class Window extends AWindow {
         setInteracStyle(interactorStyle);
         setRenWinInteractor(canvas.getRenderWindowInteractor());
         setLinkedHashMapCloud(linkedHashMapCloud);
+        setLinkedHashMapMesh(linkedHashMapMesh);
 
         setUpRenderer();
         setUpRenWin();
@@ -85,11 +95,15 @@ public class Window extends AWindow {
         setUpInteractorStyle();
     }
 
-    public Window(Canvas canvas, InteractorStyleVis3D interactorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
-        this(canvas, interactorStyle, linkedHashMapCloud, "Visualizer");
+    public Window(Canvas canvas, InteractorStyleVis3D interactorStyle,
+            LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
+            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh) {
+        this(canvas, interactorStyle, linkedHashMapCloud, linkedHashMapMesh, "Visualizer");
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpRenderer()
      */
     @Override
@@ -99,7 +113,9 @@ public class Window extends AWindow {
         getRenderer().SetBackground2(0.3, 0.7, 1.0);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpRenWin()
      */
     @Override
@@ -109,10 +125,12 @@ public class Window extends AWindow {
         getRenWin().PointSmoothingOff();
         getRenWin().LineSmoothingOff();
         getRenWin().SwapBuffersOn();
-        getRenWin().SetStereoTypeToAnaglyph();        
+        getRenWin().SetStereoTypeToAnaglyph();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpRenWinInteractor()
      */
     @Override
@@ -121,12 +139,15 @@ public class Window extends AWindow {
         getRenWinInteractor().SetDesiredUpdateRate(30.0);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpInteractorStyle()
      */
     @Override
     public void setUpInteractorStyle() {
-        setInteracStyle(new InteractorStyleVis3D(getCanvas(), getRenderer(), getRenWinInteractor(), getLinkedHashMapCloud()));
+        setInteracStyle(new InteractorStyleVis3D(getCanvas(), getRenderer(), getRenWinInteractor(),
+                getLinkedHashMapCloud(), getLinkedHashMapMesh()));
         getRenWinInteractor().SetInteractorStyle(getInteracStyle());
     }
 
@@ -156,6 +177,20 @@ public class Window extends AWindow {
      */
     private void setLinkedHashMapCloud(LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
         this.linkedHashMapCloud = linkedHashMapCloud;
+    }
+
+    /**
+     * @return the linkedHashMapMesh
+     */
+    public LinkedHashMap<String, PointCloudMesh> getLinkedHashMapMesh() {
+        return linkedHashMapMesh;
+    }
+
+    /**
+     * @param linkedHashMapMesh the linkedHashMapMesh to set
+     */
+    private void setLinkedHashMapMesh(LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh) {
+        this.linkedHashMapMesh = linkedHashMapMesh;
     }
 
 }
