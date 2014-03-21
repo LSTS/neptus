@@ -53,6 +53,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.vtk.filters.StatisticalOutlierRemoval;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler;
+import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler.SensorTypeInteraction;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.InteractorStyleVis3D;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.LoadToPointCloud;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.MultibeamToolbar;
@@ -96,8 +97,8 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     private Vis3DMenuBar menuBar;
     private Vis3DToolBar toolbar2;
 
-    private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
-    private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh = new LinkedHashMap<>();
+    private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<String, PointCloud<PointXYZ>>();
+    private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh = new LinkedHashMap<String, PointCloudMesh>();
 
     // private Vector<Marker3d> markers = new Vector<>();
     public IMraLogGroup source;
@@ -134,7 +135,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             getCanvas().LightFollowCameraOn();
             getCanvas().setEnabled(true);
 
-            winCanvas = new Window(getCanvas(), interactorStyle, linkedHashMapCloud);
+            winCanvas = new Window(getCanvas(), interactorStyle, linkedHashMapCloud, linkedHashMapMesh);
             interactorStyle = winCanvas.getInteracStyle();
             setEvents(interactorStyle.getEventsHandler());
 
@@ -171,11 +172,13 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             pointCloud.setCloudName("multibeam");
             toolbar2.multibeamToggle.setSelected(true);
             load.parseMultibeamPointCloud();
+            events.setSensorTypeInteraction(SensorTypeInteraction.MULTIBEAM);
         }
         else if (source.getLsfIndex().containsMessagesOfType("Distance")) {
             pointCloud.setCloudName("dvl");
             toolbar2.dvlToggle.setSelected(true);
             load.parseDVLPointCloud(); 
+            events.setSensorTypeInteraction(SensorTypeInteraction.DVL);
         }
         else {
             String msgErrorNoData = I18n.text("No data Available") + "!";
