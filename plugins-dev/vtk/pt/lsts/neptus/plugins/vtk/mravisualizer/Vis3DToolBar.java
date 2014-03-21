@@ -47,8 +47,10 @@ import javax.swing.JButton;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.VtkMRAVis;
+import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler.RepresentationType;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler.SensorTypeInteraction;
 import pt.lsts.neptus.plugins.vtk.pointcloud.DepthExaggeration;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
@@ -167,7 +169,7 @@ public class Vis3DToolBar extends JToolBar {
         contoursToggle.setIcon(ICON_CONTOURS);
 
         meshingToggle = new JToggleButton();
-        meshingToggle.setToolTipText(I18n.text("Perform meshing on pointcloud"));
+        meshingToggle.setToolTipText(I18n.text("Perform meshing on pointcloud") + ".");
         meshingToggle.setIcon(ICON_MESHING);
 
         smoothingMeshToggle = new JToggleButton();
@@ -190,7 +192,13 @@ public class Vis3DToolBar extends JToolBar {
 
         zExaggerationToggle.addActionListener(zExaggerToggleAction);
 
+        meshingToggle.addActionListener(meshingAction);
+        smoothingMeshToggle.addActionListener(smoothingAction);
+
         resetViewportButton.addActionListener(resetViewportAction);
+
+        // set buttons selection
+        rawPointsToggle.setSelected(true);
 
         // Add Components to toolbar
         add(multibeamToggle);
@@ -224,7 +232,9 @@ public class Vis3DToolBar extends JToolBar {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            SensorTypeInteraction sensorTypeInt = events.getSensorTypeInteraction(); 
+            SensorTypeInteraction sensorTypeInt = events.getSensorTypeInteraction();
+            NeptusLog.pub().info("Sensor representation type: " + events.getSensorTypeInteraction().toString());
+            NeptusLog.pub().info("Representation type: " + events.getRepresentationType().toString());
 
             if(multibeamToggle.isSelected()) {
                 if (dvlToggle.isSelected())
@@ -247,7 +257,8 @@ public class Vis3DToolBar extends JToolBar {
                 else
                     sensorTypeInt = SensorTypeInteraction.NONE;
                 events.setSensorTypeInteraction(sensorTypeInt);
-                renderer.RemoveActor(linkedHashMapCloud.get("multibeam").getCloudLODActor());
+                if(linkedHashMapCloud.containsKey("multibeam"))
+                    renderer.RemoveActor(linkedHashMapCloud.get("multibeam").getCloudLODActor());
                 canvas.Render();
             }
             if(multibeamToggle.isSelected() && dvlToggle.isSelected())
@@ -261,7 +272,9 @@ public class Vis3DToolBar extends JToolBar {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            SensorTypeInteraction sensorTypeInt = events.getSensorTypeInteraction(); 
+            SensorTypeInteraction sensorTypeInt = events.getSensorTypeInteraction();
+            NeptusLog.pub().info("Sensor representation type: " + events.getSensorTypeInteraction().toString());
+            NeptusLog.pub().info("Representation type: " + events.getRepresentationType().toString());
 
             if(dvlToggle.isSelected()) {
                 if (multibeamToggle.isSelected())
@@ -294,18 +307,6 @@ public class Vis3DToolBar extends JToolBar {
         }
     };
 
-    ActionListener meshingAction = new ActionListener() {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            if(meshingToggle.isSelected()) {
-                canvas.lock();
-                // canvas.GetRenderer().
-            }
-
-        }
-    };
-
     /**
      * Actions for actor representation on renderer
      */
@@ -313,7 +314,11 @@ public class Vis3DToolBar extends JToolBar {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            NeptusLog.pub().info("Sensor representation type: " + events.getSensorTypeInteraction().toString());
+            NeptusLog.pub().info("Representation type: " + events.getRepresentationType().toString());
+
             if(rawPointsToggle.isSelected()) {
+                events.setRepresentationType(RepresentationType.REP_POINTS);
                 canvas.lock();
                 Set<String> meshsKeySet = linkedHashMapMesh.keySet();
                 if(meshsKeySet.size() > 0) {
@@ -321,27 +326,114 @@ public class Vis3DToolBar extends JToolBar {
                         renderer.RemoveActor(linkedHashMapMesh.get(key).getMeshCloudLODActor());
                     }
                 }
-                if(events.getSensorTypeInteraction() == SensorTypeInteraction.ALL) {
-                    if(linkedHashMapCloud.containsKey("dv"))
-                        renderer.AddActor(linkedHashMapCloud.get("dvl").getCloudLODActor());
-                    if(linkedHashMapCloud.containsKey("multibeam"))
-                        renderer.AddActor(linkedHashMapCloud.get("multibeam").getCloudLODActor());
-
-                }
-                else if ((events.getSensorTypeInteraction() == SensorTypeInteraction.MULTIBEAM) && (linkedHashMapCloud.containsKey("multibeam"))) {
-                    renderer.AddActor(linkedHashMapCloud.get("multibeam").getCloudLODActor());
-                }
-                else if ((events.getSensorTypeInteraction() == SensorTypeInteraction.DVL) && (linkedHashMapCloud.containsKey("dv"))) {
-                    renderer.AddActor(linkedHashMapCloud.get("dvl").getCloudLODActor());
+                switch (events.getSensorTypeInteraction()) {
+                    case ALL:
+                        if(linkedHashMapCloud.containsKey("dvl"))
+                            renderer.AddActor(linkedHashMapCloud.get("dvl").getCloudLODActor());
+                        if(linkedHashMapCloud.containsKey("multibeam"))
+                            renderer.AddActor(linkedHashMapCloud.get("multibeam").getCloudLODActor());
+                        break;
+                    case MULTIBEAM:
+                        if(linkedHashMapCloud.containsKey("multibeam"))
+                            renderer.AddActor(linkedHashMapCloud.get("multibeam").getCloudLODActor());
+                        break;
+                    case DVL:
+                        if(linkedHashMapCloud.containsKey("dvl"))
+                            renderer.AddActor(linkedHashMapCloud.get("dvl").getCloudLODActor());
+                        break;
+                    default:
+                        break;
                 }
                 canvas.Render();
                 canvas.unlock();
             }
             else if(wireframeToggle.isSelected()) {
+                events.setRepresentationType(RepresentationType.REP_WIREFRAME);
+                canvas.lock();
 
+                Set<String> cloudKeySet = linkedHashMapCloud.keySet();
+                for (String key : cloudKeySet) {
+                    renderer.RemoveActor(linkedHashMapCloud.get(key).getCloudLODActor());
+                }
+                Set<String> meshsKeySet = linkedHashMapMesh.keySet();
+                if(meshsKeySet.size() > 0) {
+                    for (String key : meshsKeySet) {
+                        renderer.RemoveActor(linkedHashMapMesh.get(key).getMeshCloudLODActor());
+                    }
+                }
+                switch (events.getSensorTypeInteraction()) {
+                    case ALL:
+                        if(linkedHashMapMesh.containsKey("multibeam")) {
+                            linkedHashMapMesh.get("multibeam").getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
+                            renderer.AddActor(linkedHashMapMesh.get("multibeam").getMeshCloudLODActor());
+                        }
+                        if(linkedHashMapMesh.containsKey("dvl")) {
+                            linkedHashMapMesh.get("dvl").getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
+                            renderer.AddActor(linkedHashMapMesh.get("dvl").getMeshCloudLODActor());
+                        }
+                        break;
+                    case MULTIBEAM:
+                        if(linkedHashMapMesh.containsKey("multibeam")) {
+                            linkedHashMapMesh.get("multibeam").getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
+                            renderer.AddActor(linkedHashMapMesh.get("multibeam").getMeshCloudLODActor());
+                        }
+                        break;
+                    case DVL:
+                        if(linkedHashMapMesh.containsKey("dvl")) {
+                            linkedHashMapMesh.get("dvl").getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
+                            renderer.AddActor(linkedHashMapMesh.get("dvl").getMeshCloudLODActor());
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                canvas.Render();
+                canvas.unlock();
             }
             else if(solidToggle.isSelected()) {
+                events.setRepresentationType(RepresentationType.REP_SOLID);
+                canvas.lock();
 
+                Set<String> cloudKeySet = linkedHashMapCloud.keySet();
+                for (String key : cloudKeySet) {
+                    renderer.RemoveActor(linkedHashMapCloud.get(key).getCloudLODActor());
+                }
+                Set<String> meshsKeySet = linkedHashMapMesh.keySet();
+                if(meshsKeySet.size() > 0) {
+                    for (String key : meshsKeySet) {
+                        renderer.RemoveActor(linkedHashMapMesh.get(key).getMeshCloudLODActor());
+                    }
+                }
+                switch (events.getSensorTypeInteraction()) {
+                    case ALL:
+                        if(linkedHashMapMesh.containsKey("multibeam")) {
+                            linkedHashMapMesh.get("multibeam").getMeshCloudLODActor().GetProperty().SetRepresentationToSurface();
+                            renderer.AddActor(linkedHashMapMesh.get("multibeam").getMeshCloudLODActor());
+                        }
+                        if(linkedHashMapMesh.containsKey("dvl")) {
+                            linkedHashMapMesh.get("dvl").getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
+                            renderer.AddActor(linkedHashMapMesh.get("dvl").getMeshCloudLODActor());
+                        }
+                        break;
+                    case MULTIBEAM:
+                        if(linkedHashMapMesh.containsKey("multibeam")) {
+                            linkedHashMapMesh.get("multibeam").getMeshCloudLODActor().GetProperty().SetRepresentationToSurface();
+                            renderer.AddActor(linkedHashMapMesh.get("multibeam").getMeshCloudLODActor());
+                        }
+                        break;
+                    case DVL:
+                        if(linkedHashMapMesh.containsKey("dvl")) {
+                            linkedHashMapMesh.get("dvl").getMeshCloudLODActor().GetProperty().SetRepresentationToSurface();
+                            renderer.AddActor(linkedHashMapMesh.get("dvl").getMeshCloudLODActor());
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                canvas.Render();
+                canvas.unlock();
             }
         }
     };
@@ -369,6 +461,67 @@ public class Vis3DToolBar extends JToolBar {
                 canvas.GetRenderer().ResetCamera();
                 canvas.Render();
                 canvas.unlock();
+            }
+        }
+    };
+
+    ActionListener meshingAction = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(meshingToggle.isSelected()) {
+                canvas.lock();
+                events.getTextProcessingActor().SetDisplayPosition(canvas.getWidth() / 3, canvas.getHeight() / 2);
+                canvas.GetRenderer().AddActor(events.getTextProcessingActor());
+                canvas.Render();
+                canvas.unlock();
+
+                canvas.lock();
+                if(linkedHashMapCloud.containsKey("multibeam"))
+                    if(!linkedHashMapMesh.containsKey("multibeam"))
+                        events.performMeshingOnCloud(linkedHashMapCloud.get("multibeam"));
+                if(linkedHashMapCloud.containsKey("dvl"))
+                    if(!linkedHashMapMesh.containsKey("dvl"))
+                        events.performMeshingOnCloud(linkedHashMapCloud.get("dvl"));
+                canvas.unlock();
+
+                canvas.lock();
+                canvas.GetRenderer().RemoveActor(events.getTextProcessingActor());
+                canvas.Render();
+                canvas.unlock();
+            }
+            else {
+                meshingToggle.setSelected(true);
+            }
+        }
+    };
+
+    ActionListener smoothingAction = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(smoothingMeshToggle.isSelected()) {
+                canvas.lock();
+                events.getTextProcessingActor().SetDisplayPosition(canvas.getWidth() / 3, canvas.getHeight() / 2);
+                canvas.GetRenderer().AddActor(events.getTextProcessingActor());
+                canvas.Render();
+                canvas.unlock();
+
+                canvas.lock();
+                if(linkedHashMapMesh.containsKey("multibeam"))
+                    events.performMeshSmoothing(linkedHashMapMesh.get("multibeam"));
+                if(linkedHashMapMesh.containsKey("dvl"))
+                    events.performMeshSmoothing(linkedHashMapMesh.get("dvl"));
+                canvas.unlock();
+
+                canvas.lock();
+                canvas.GetRenderer().RemoveActor(events.getTextProcessingActor());
+                canvas.Render();
+                canvas.unlock();
+
+            }
+            else {
+                smoothingMeshToggle.setSelected(true);
             }
         }
     };
