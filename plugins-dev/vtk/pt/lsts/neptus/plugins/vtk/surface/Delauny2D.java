@@ -43,46 +43,30 @@ import vtk.vtkPolyData;
  *
  */
 public class Delauny2D {
-    private vtkPolyData polyData;   
-    private vtkCleanPolyData cleanPolyData;
+    private vtkPolyData polyData;
 
-    
     public Delauny2D() {
-        
+
     }
-    
+
     public void performDelauny(PointCloud<PointXYZ> inputCloud) {
-        
+
         NeptusLog.pub().info("Delauny Triangulation time start: " + System.currentTimeMillis());
 
-        NeptusLog.pub().info("cleaning point cloud...");
-        cleanPolyData = new vtkCleanPolyData();
+        // Clean point cloud
+        vtkCleanPolyData cleanPolyData = new vtkCleanPolyData();
         cleanPolyData.SetInputConnection(inputCloud.getPoly().GetProducerPort());
         cleanPolyData.Update();
-        
-        NeptusLog.pub().info("Generate mesh...");
+
+        // Generate mesh
         vtkDelaunay2D delauny = new vtkDelaunay2D();
         delauny.SetInputConnection(cleanPolyData.GetOutputPort());
         //delauny.BoundingTriangulationOn();
         delauny.Update();
-        
+
         setPolyData(delauny.GetOutput());
-        
+
         NeptusLog.pub().info("Delauny Triangulation time end: " + System.currentTimeMillis());
-    }
-
-    /**
-     * @return the cleanPolyData
-     */
-    public vtkCleanPolyData getCleanPolyData() {
-        return cleanPolyData;
-    }
-
-    /**
-     * @param cleanPolyData the cleanPolyData to set
-     */
-    public void setCleanPolyData(vtkCleanPolyData cleanPolyData) {
-        this.cleanPolyData = cleanPolyData;
     }
 
     /**
@@ -95,7 +79,7 @@ public class Delauny2D {
     /**
      * @param polyData the polyData to set
      */
-    public void setPolyData(vtkPolyData polyData) {
+    private void setPolyData(vtkPolyData polyData) {
         this.polyData = polyData;
     }
 }
