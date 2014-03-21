@@ -31,10 +31,18 @@
  */
 package pt.lsts.neptus.plugins.vtk.mravisualizer;
 
+import java.util.LinkedHashMap;
+
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.events.AEventsHandler;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
+import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.surface.Delauny2D;
+import pt.lsts.neptus.plugins.vtk.surface.MeshSmoothingLaplacian;
+import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import vtk.vtkActorCollection;
+import vtk.vtkPolyData;
 
 
 /**
@@ -43,19 +51,30 @@ import vtk.vtkActorCollection;
  */
 public class EventsHandler extends AEventsHandler {
 
+    protected LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
+    private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
+
     private enum ColorMappingRelation {
         XMAP, YMAP, ZMAP, IMAP;
     }
-    public ColorMappingRelation colorMapRel;
+    private ColorMappingRelation colorMapRel;
 
     public enum SensorTypeInteraction {
         NONE, DVL, MULTIBEAM, ALL;
     }
+    private SensorTypeInteraction sensorTypeInteraction;
 
-    private SensorTypeInteraction sensorTypeInteraction = SensorTypeInteraction.NONE;
+    public enum RepresentationType {
+        REP_POINTS, REP_WIREFRAME, REP_SOLID;
+    }
+    private RepresentationType representationType;
 
-    public EventsHandler(InteractorStyleVis3D neptusInteractorStyle) {
-        super(neptusInteractorStyle);
+    public EventsHandler(InteractorStyleVis3D interactorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
+            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh) {
+        super(interactorStyle);
+
+        this.linkedHashMapCloud = linkedHashMapCloud;
+        this.linkedHashMapMesh = linkedHashMapMesh;
 
         init();
     }
@@ -65,7 +84,9 @@ public class EventsHandler extends AEventsHandler {
      */
     @Override
     protected void init() {
-        colorMapRel = ColorMappingRelation.ZMAP;
+        setSensorTypeInteraction(SensorTypeInteraction.NONE);
+        setColorMapRel(ColorMappingRelation.ZMAP);
+        setRepresentationType(RepresentationType.REP_POINTS);
         setHelpMsg();
     }
 
@@ -114,20 +135,6 @@ public class EventsHandler extends AEventsHandler {
         return pointCloud;
     }
 
-    /**
-     * @return the sensorTypeInteraction
-     */
-    public SensorTypeInteraction getSensorTypeInteraction() {
-        return sensorTypeInteraction;
-    }
-
-    /**
-     * @param sensorTypeInteraction the sensorTypeInteraction to set
-     */
-    public void setSensorTypeInteraction(SensorTypeInteraction sensorTypeInteraction) {
-        this.sensorTypeInteraction = sensorTypeInteraction;
-    }
-
     /* (non-Javadoc)
      * @see pt.lsts.neptus.plugins.vtk.events.AEventsHandler#setHelpMsg()
      */
@@ -159,5 +166,72 @@ public class EventsHandler extends AEventsHandler {
                 + "<tr><td>" + I18n.text("Middle mouse button") + "</td><td>" + I18n.text("Pan camera") + "</td>"
                 + "<tr><td>" + I18n.text("Right mouse button") + "</td><td>" + I18n.text("Zoom (In/Out) the camera") + "</td>"
                 + "<tr><td>" + I18n.text("Mouse wheel") + "</td><td>" + I18n.text("Zoom (In/Out) the camera - Static focal point") + "</td>";
+    }
+
+    /**
+     * @param pointCloud 
+     */
+    public void performMeshingOnCloud(PointCloud<PointXYZ> pointCloud) {
+        NeptusLog.pub().info("Create Mesh from pointcloud: " + pointCloud.getCloudName());
+
+        Delauny2D delauny = new Delauny2D();
+        delauny.performDelauny(pointCloud);
+
+        PointCloudMesh mesh = new PointCloudMesh();
+        mesh.generateLODActorFromPolyData(delauny.getPolyData());
+
+        linkedHashMapMesh.put(pointCloud.getCloudName(), mesh);
+    }
+
+    public void performMeshSmoothing(PointCloudMesh mesh) {
+        NeptusLog.pub().info("Smooth mesh: ");
+
+        MeshSmoothingLaplacian smoothing = new MeshSmoothingLaplacian();
+        smoothing.performProcessing(mesh);
+
+        mesh.setPolyData(new vtkPolyData());
+        mesh.generateLODActorFromPolyData(smoothing.getPolyData());
+    }
+
+    /**
+     * @return the sensorTypeInteraction
+     */
+    public SensorTypeInteraction getSensorTypeInteraction() {
+        return sensorTypeInteraction;
+    }
+
+    /**
+     * @param sensorTypeInteraction the sensorTypeInteraction to set
+     */
+    public void setSensorTypeInteraction(SensorTypeInteraction sensorTypeInteraction) {
+        this.sensorTypeInteraction = sensorTypeInteraction;
+    }
+
+    /**
+     * @return the representationType
+     */
+    public RepresentationType getRepresentationType() {
+        return representationType;
+    }
+
+    /**
+     * @param representationType the representationType to set
+     */
+    public void setRepresentationType(RepresentationType representationType) {
+        this.representationType = representationType;
+    }
+
+    /**
+     * @return the colorMapRel
+     */
+    protected ColorMappingRelation getColorMapRel() {
+        return colorMapRel;
+    }
+
+    /**
+     * @param colorMapRel the colorMapRel to set
+     */
+    protected void setColorMapRel(ColorMappingRelation colorMapRel) {
+        this.colorMapRel = colorMapRel;
     }
 }
