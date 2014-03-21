@@ -112,14 +112,15 @@ public class InteractorStyleVis3D extends AInteractorStyleTrackballCamera {
      * @param linkedHashMapCloud
      */
     public InteractorStyleVis3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
-            LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
+            LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud, LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh) {
         super(canvas, renderer, renWinInteractor);
 
         this.camera = renderer.GetActiveCamera();
         this.linkedHashMapCloud = linkedHashMapCloud;
+        this.linkedHashMapMesh = linkedHashMapMesh;
         this.setScalarBar(new ScalarBar());
 
-        this.setEventsHandler(new EventsHandler(this));
+        this.setEventsHandler(new EventsHandler(this, linkedHashMapCloud, linkedHashMapMesh));
         this.keyboardEvent = new KeyboardEvent(this.getCanvas(), this.linkedHashMapCloud, this, getEventsHandler());
 
         onInitialize();
