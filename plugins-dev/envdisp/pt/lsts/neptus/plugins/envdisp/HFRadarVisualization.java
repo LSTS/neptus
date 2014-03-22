@@ -166,7 +166,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     @NeptusProperty(name = "Base Folder For Waves NetCDF Files", userLevel = LEVEL.REGULAR, category="Data Update")
     public File baseFolderForWavesNetCDFFiles = new File("IHData/WAVES");
     
-    private final String currentsFilePattern = "TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv";
+    private final String currentsFilePatternTUV = "TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv";
+    private final String currentsFilePatternNetCDF = "CODAR_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.nc";
     private final String meteoFilePattern = "meteo_\\d{8}\\.nc";
     private final String wavesFilePattern = "waves_[a-zA-Z]{1,2}_\\d{8}\\.nc";
 
@@ -656,7 +657,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     }
     
     private void loadCurrentsFromFiles() {
-        File[] fileList = getFilesToLoadFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePattern);
+        // TUV files
+        File[] fileList = getFilesToLoadFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePatternTUV);
         if (fileList == null)
             return;
 
@@ -665,6 +667,18 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             if (tdp != null && tdp.size() > 0)
                 mergeCurrentsDataToInternalDataList(tdp);
         }
+
+        // NetCDF files
+        fileList = getFilesToLoadFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePatternNetCDF);
+        if (fileList == null)
+            return;
+
+        for (File fx : fileList) {
+            HashMap<String, HFRadarDataPoint> tdp = processNetCDFHFRadarTest(fx.getAbsolutePath());
+            if (tdp != null && tdp.size() > 0)
+                mergeCurrentsDataToInternalDataList(tdp);
+        }
+
     }
 
     private void loadMeteoFromFiles() {
@@ -1161,33 +1175,53 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         return ret;
     }
 
-    
-    private HashMap<?,?>[] processMeteoFile(String fileName) {
-        // InputStreamReader
-        HashMap<String, SSTDataPoint> sstdp = new HashMap<>();
-        HashMap<String, WindDataPoint> winddp = new HashMap<>();
-
-        FileReader freader = getFileReaderForFile(fileName);
-        if (freader == null)
-            return new HashMap[] { sstdp, winddp };
+    private HashMap<String, HFRadarDataPoint> processNetCDFHFRadarTest(String fileName) {
+//        HashMap<String, HFRadarDataPoint> hfdp = new HashMap<>();
+//        
+//        FileReader freader = getFileReaderForFile(fileName);
+//        if (freader == null)
+//            return hfdp;
         
         String fxName = FileUtil.getResourceAsFileKeepName(fileName);
         if (fxName == null)
             fxName = fileName;
+        if (!new File(fxName).exists())
+            return new HashMap<>();
+        HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processNetCDFHFRadar(fxName, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
+        System.out.println("*** SUCCESS reading file "+fileName);
+        return ret;
+    }
+
+    private HashMap<?,?>[] processMeteoFile(String fileName) {
+//        // InputStreamReader
+//        HashMap<String, SSTDataPoint> sstdp = new HashMap<>();
+//        HashMap<String, WindDataPoint> winddp = new HashMap<>();
+//
+//        FileReader freader = getFileReaderForFile(fileName);
+//        if (freader == null)
+//            return new HashMap[] { sstdp, winddp };
+        
+        String fxName = FileUtil.getResourceAsFileKeepName(fileName);
+        if (fxName == null)
+            fxName = fileName;
+        if (!new File(fxName).exists())
+            return new HashMap[] { new HashMap<>(), new HashMap<>() };
         return LoaderHelper.processMeteo(fxName, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
     }
 
     private HashMap<String, WavesDataPoint> processWavesFile(String fileName) {
-        // InputStreamReader
-        HashMap<String, WavesDataPoint> wavesddp = new HashMap<>();
-
-        FileReader freader = getFileReaderForFile(fileName);
-        if (freader == null)
-            return wavesddp;
+//        // InputStreamReader
+//        HashMap<String, WavesDataPoint> wavesddp = new HashMap<>();
+//
+//        FileReader freader = getFileReaderForFile(fileName);
+//        if (freader == null)
+//            return wavesddp;
         
         String fxName = FileUtil.getResourceAsFileKeepName(fileName);
         if (fxName == null)
             fxName = fileName;
+        if (!new File(fxName).exists())
+            return new HashMap<>();
         return LoaderHelper.processWavesFile(fxName, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
     }
 
