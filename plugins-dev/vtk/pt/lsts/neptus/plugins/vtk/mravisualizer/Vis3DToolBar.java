@@ -445,9 +445,9 @@ public class Vis3DToolBar extends JToolBar {
             if (zExaggerationToggle.isSelected()) {
                 canvas.lock();
                 if(linkedHashMapCloud.containsKey("multibeam"))
-                    DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get("multibeam").getPoly(), vtkInit.zExaggeration);
+                    DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get("multibeam").getPoly(), VtkMRAVis.zExaggeration);
                 if(linkedHashMapCloud.containsKey("dvl"))
-                    DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get("dvl").getPoly(), vtkInit.zExaggeration);
+                    DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get("dvl").getPoly(), VtkMRAVis.zExaggeration);
                 canvas.GetRenderer().ResetCamera();
                 canvas.Render();
                 canvas.unlock();
@@ -455,9 +455,9 @@ public class Vis3DToolBar extends JToolBar {
             else if (!zExaggerationToggle.isSelected()) {
                 canvas.lock();
                 if(linkedHashMapCloud.containsKey("multibeam"))
-                    DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get("multibeam").getPoly(), vtkInit.zExaggeration);
+                    DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get("multibeam").getPoly(), VtkMRAVis.zExaggeration);
                 if(linkedHashMapCloud.containsKey("dvl"))
-                    DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get("dvl").getPoly(), vtkInit.zExaggeration);
+                    DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get("dvl").getPoly(), VtkMRAVis.zExaggeration);
                 canvas.GetRenderer().ResetCamera();
                 canvas.Render();
                 canvas.unlock();

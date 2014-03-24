@@ -125,7 +125,7 @@ public class MultibeamToolbar {
         this.currentTimestampMultibeamIncrement = MRAProperties.timestampMultibeamIncrement;
         // this.currentYawMultibeamIncrement = vtkInit.yawMultibeamIncrement;
         this.currentYawMultibeamIncrement = MRAProperties.yawMultibeamIncrement;
-        this.currentDepthExaggeValue = vtkInit.zExaggeration;
+        this.currentDepthExaggeValue = VtkMRAVis.zExaggeration;
 
         this.lastDepthExaggeValue = currentDepthExaggeValue;
 
@@ -255,7 +255,7 @@ public class MultibeamToolbar {
 
                     lastDepthExaggeValue = currentDepthExaggeValue;
                     // addons.setCurrentZexagge(lastDepthExaggeValue);
-                    addons.setCurrentZexagge(vtkInit.zExaggeration);
+                    addons.setCurrentZexagge(VtkMRAVis.zExaggeration);
 
                     // NeptusLog.pub().info("lastDepthExaggeVue 2: " + lastDepthExaggeValue);
 
@@ -701,8 +701,8 @@ public class MultibeamToolbar {
             @Override
             public void actionPerformed(ActionEvent e) {
                 PropertiesEditor.editProperties(vtkInit, SwingUtilities.getWindowAncestor(vtkInit), true);
-                if (vtkInit.zExaggeration != currentDepthExaggeValue) {
-                    currentDepthExaggeValue = vtkInit.zExaggeration;
+                if (VtkMRAVis.zExaggeration != currentDepthExaggeValue) {
+                    currentDepthExaggeValue = VtkMRAVis.zExaggeration;
                 }
 
             }
