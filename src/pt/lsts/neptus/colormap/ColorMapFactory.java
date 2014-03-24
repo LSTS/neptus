@@ -305,9 +305,16 @@ public class ColorMapFactory {
 
     private static ColorMap redYellowGreen = null;
 
+    public static ColorMap createGreenToRedColorMap() {
+        if (redYellowGreen == null)
+            redYellowGreen = new InterpolationColorMap(I18n.textc("GreenToRed", "Colormap name"), new double[] { 0.0, 0.5, 1.0 },
+                    new Color[] { Color.green, Color.yellow, Color.red });
+        return redYellowGreen;
+    }
+
     public static ColorMap createRedYellowGreenColorMap() {
         if (redYellowGreen == null)
-            redYellowGreen = new InterpolationColorMap(I18n.textc("RedYellowBlue", "Colormap name"), new double[] { 0.0, 0.5, 1.0 },
+            redYellowGreen = new InterpolationColorMap(I18n.textc("RedYellowGreen", "Colormap name"), new double[] { 0.0, 0.5, 1.0 },
                     new Color[] { Color.red, Color.yellow, Color.green });
         return redYellowGreen;
     }

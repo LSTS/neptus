@@ -47,7 +47,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
  * @author zp
  *
  */
-public class ConsoleInteraction extends AbstractConsolePlugin implements IConsoleInteraction {
+public abstract class ConsoleInteraction extends AbstractConsolePlugin implements IConsoleInteraction {
 
     private InteractionAdapter adapter = null;
     
@@ -55,7 +55,24 @@ public class ConsoleInteraction extends AbstractConsolePlugin implements IConsol
     public final void init(ConsoleLayout console) {
         super.init(console);
         adapter = new InteractionAdapter(console);
+        initInteraction();
     }
+    
+    /**
+     * This method is called to subclasses after init() is called 
+     */
+    public abstract void initInteraction();
+    
+    
+    @Override
+    public void clean() {
+        super.clean();
+        cleanInteraction();
+    }
+    /**
+     * This method is called to subclasses before clean() is called 
+     */
+    public abstract void cleanInteraction();
     
     @Override
     public final Image getIconImage() {

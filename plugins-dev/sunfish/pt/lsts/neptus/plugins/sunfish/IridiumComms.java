@@ -345,7 +345,6 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
             else if (sinfo.getId().startsWith("spot") || sinfo.getId().startsWith("SPOT")) {
                 img = spot;
             }
-            //g.drawImage(spot, (int)(pt.getX()-spot.getWidth(this)/2), (int) (pt.getY()-spot.getHeight(this)/2), this);    
             else {
                 if (ImcSystemsHolder.getSystemWithName(sinfo.getId()) != null) {
                     VehicleType vt = ImcSystemsHolder.getSystemWithName(sinfo.getId()).getVehicle();
@@ -374,20 +373,6 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         NeptusLog.pub().info("Received text message");
         post(Notification.info("Text message", msg.getSourceName()+": "+msg.getText()));
     }
-    
-//    @Subscribe
-//    public void on(DesiredAssetPosition desiredPos) {
-//        NeptusLog.pub().info("Received desired position");
-//        RemoteSensorInfo rsi = new RemoteSensorInfo("DP_hermes", "Wave Glider", desiredPos.getLocation().getLatitudeDegs(), desiredPos.getLocation().getLongitudeDegs(), 0, 0, "");
-//        post(rsi);
-//    }
-//    
-//    @Subscribe
-//    public void on(TargetAssetPosition targetPos) {
-//        NeptusLog.pub().info("Received target position");
-//        RemoteSensorInfo rsi = new RemoteSensorInfo("TP_hermes", "Wave Glider", targetPos.getLocation().getLatitudeDegs(), targetPos.getLocation().getLongitudeDegs(), 0, 0, "");
-//        post(rsi);
-//    }
 
     @Override
     public void initSubPanel() {

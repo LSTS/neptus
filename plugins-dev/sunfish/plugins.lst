@@ -6,3 +6,4 @@
 # SVN_PATH=@SVN_PATH@
 
 pt.lsts.neptus.plugins.sunfish.IridiumComms
+pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
