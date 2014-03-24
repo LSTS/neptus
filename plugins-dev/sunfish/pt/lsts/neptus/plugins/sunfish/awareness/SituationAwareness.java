@@ -75,7 +75,7 @@ import pt.lsts.neptus.util.speech.SpeechUtil;
  * @author zp
  * 
  */
-@PluginDescription(name="Situation Awareness")
+@PluginDescription(name="Situation Awareness", icon="pt/lsts/neptus/plugins/sunfish/awareness/lamp.png")
 public class SituationAwareness extends ConsoleInteraction implements IConsoleLayer, Renderer2DPainter {
 
     private LinkedHashMap<String, AssetTrack> assets = new LinkedHashMap<String, AssetTrack>();
@@ -226,7 +226,6 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             for (String type : positions.keySet()) {
                 JMenu menu = new JMenu(type + "s");
                 for (final AssetPosition p : positions.get(type)) {
-                    
                     Color c = cmap.getColor(1-(p.getAge() / (3600000.0)));
                     String htmlColor = String.format("#%02X%02X%02X", c.getRed(), c.getGreen(), c.getBlue());
                     menu.add(

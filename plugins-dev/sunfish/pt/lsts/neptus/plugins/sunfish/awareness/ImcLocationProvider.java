@@ -84,4 +84,6 @@ public class ImcLocationProvider implements ILocationProvider {
         pos.setType(sensor.getSensorClass());
         instance.addAssetPosition(pos);
     }
+    
+    
 }
