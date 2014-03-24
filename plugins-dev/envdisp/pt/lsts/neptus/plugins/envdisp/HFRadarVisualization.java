@@ -92,7 +92,7 @@ import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
  *
  */
 @SuppressWarnings("serial")
-@PluginDescription(name="HF Radar Visualization", author="Paulo Dias", version="0.1")
+@PluginDescription(name="HF Radar Visualization", author="Paulo Dias", version="0.5")
 @LayerPriority(priority = -50)
 public class HFRadarVisualization extends ConsolePanel implements Renderer2DPainter, IPeriodicUpdates, ConfigurationListener {
 
@@ -361,7 +361,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      */
     @Override
     public synchronized boolean update() {
-        System.out.println("###### Update");
+        NeptusLog.pub().info("Update");
+        
 //        if (false && requestFromWeb) {
 //            HashMap<String, HFRadarDataPoint> dpLts = getNoaaHFRadarData();
 //            if (dpLts != null) {
@@ -1171,7 +1172,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             return hfdp;
         
         HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processTUGHFRadar(freader, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
-        System.out.println("*** SUCCESS reading file "+fileName);
+        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
         return ret;
     }
 
@@ -1188,7 +1189,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         if (!new File(fxName).exists())
             return new HashMap<>();
         HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processNetCDFHFRadar(fxName, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
-        System.out.println("*** SUCCESS reading file "+fileName);
+        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
         return ret;
     }
 
