@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="**/.svn/*|pt/up/fe/dceg/messages/|pt/up/fe/dceg/neptus/env/" kind="src" path="src">
+	<classpathentry kind="src" path="src">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Neptus/libJNI"/>
 		</attributes>
@@ -65,7 +65,6 @@
 	<classpathentry kind="lib" path="lib/fop/fop.jar"/>
 	<classpathentry kind="lib" path="lib/fop/batik.jar"/>
 	<classpathentry kind="lib" path="lib/rhino.jar"/>
-	<classpathentry kind="lib" path="lib/jsch-0.1.50.jar"/>
 	<classpathentry kind="lib" path="lib/jchart2d-1.03.jar"/>
 	<classpathentry kind="lib" path="lib/jgoodies-looks-2.5.3.jar"/>
 	<classpathentry kind="lib" path="lib/jgoodies-common-1.7.0.jar"/>
