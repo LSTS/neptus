@@ -94,7 +94,7 @@ public class SSHConnectionDialog extends JPanel {
     private JLabel userLabel = null;
     private JLabel passwordLabel = null;
     private JLabel portLabel = null;
-    
+
     private JTextField usernameField = null;
     private JTextField hostField = null;
     private JPasswordField passwordField = null;
@@ -154,68 +154,56 @@ public class SSHConnectionDialog extends JPanel {
         passwordLabel.setSize(58, 16);
 
         this.setSize(514, 123);
-//        this.setLayout(null);
-//        this.add(getPasswordField(), null);
-//        this.add(passwordLabel, null);
-//        this.add(userLabel, null);
-//        this.add(getUsernameField(), null);
-//        this.add(getOkButton(), null);
-//        this.add(getCancelButton(), null);
-//        this.add(hostLabel, null);
-//        this.add(getHostField(), null);
-//        this.add(getImageConnectSSH(), null);
-//        this.add(portLabel, null);
-//        this.add(getPortField(), null);
 
         GroupLayout layout = new GroupLayout(this);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(Alignment.LEADING)
+                layout.createParallelGroup(Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(getImageConnectSSH(), GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(ComponentPlacement.UNRELATED)
-                    .addGroup(layout.createParallelGroup(Alignment.LEADING)
-                        .addComponent(hostLabel)
-                        .addComponent(portLabel)
-                        .addComponent(userLabel)
-                        .addComponent(passwordLabel))
-                    .addPreferredGap(ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
-                    .addGroup(layout.createParallelGroup(Alignment.CENTER, false)
-                        .addComponent(getHostField(), Alignment.LEADING, 220, 220, Short.MAX_VALUE)
-                        .addComponent(getPortField(), Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(getUsernameField(), Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(getPasswordField(), Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createParallelGroup(Alignment.CENTER)
-                        .addComponent(getOkButton(), GroupLayout.PREFERRED_SIZE, 98, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(getCancelButton(), GroupLayout.PREFERRED_SIZE, 98, GroupLayout.PREFERRED_SIZE)))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGroup(layout.createParallelGroup(Alignment.LEADING)
+                        .addContainerGap()
                         .addComponent(getImageConnectSSH(), GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(Alignment.BASELINE)
+                        .addPreferredGap(ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(Alignment.LEADING)
                                 .addComponent(hostLabel)
-                                .addComponent(getHostField(), GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createParallelGroup(Alignment.BASELINE)
                                 .addComponent(portLabel)
-                                .addComponent(getPortField(), GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createParallelGroup(Alignment.BASELINE)
                                 .addComponent(userLabel)
-                                .addComponent(getUsernameField(), GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createParallelGroup(Alignment.BASELINE)
-                                .addComponent(passwordLabel)
-                                .addComponent(getPasswordField(), GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(getOkButton())
-                            .addPreferredGap(ComponentPlacement.RELATED)
-                            .addComponent(getCancelButton())))
-                    .addGap(15))
-        );
+                                .addComponent(passwordLabel))
+                                .addPreferredGap(ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(Alignment.CENTER, false)
+                                        .addComponent(getHostField(), Alignment.LEADING, 220, 220, Short.MAX_VALUE)
+                                        .addComponent(getPortField(), Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(getUsernameField(), Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(getPasswordField(), Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addGroup(layout.createParallelGroup(Alignment.CENTER)
+                                                .addComponent(getOkButton(), GroupLayout.PREFERRED_SIZE, 98, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(getCancelButton(), GroupLayout.PREFERRED_SIZE, 98, GroupLayout.PREFERRED_SIZE)))
+                );
+        layout.setVerticalGroup(
+                layout.createParallelGroup(Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(Alignment.LEADING)
+                                .addComponent(getImageConnectSSH(), GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(Alignment.BASELINE)
+                                                .addComponent(hostLabel)
+                                                .addComponent(getHostField(), GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                                .addGroup(layout.createParallelGroup(Alignment.BASELINE)
+                                                        .addComponent(portLabel)
+                                                        .addComponent(getPortField(), GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                                        .addGroup(layout.createParallelGroup(Alignment.BASELINE)
+                                                                .addComponent(userLabel)
+                                                                .addComponent(getUsernameField(), GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                                                .addGroup(layout.createParallelGroup(Alignment.BASELINE)
+                                                                        .addComponent(passwordLabel)
+                                                                        .addComponent(getPasswordField(), GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+                                                                        .addGroup(layout.createSequentialGroup()
+                                                                                .addComponent(getOkButton())
+                                                                                .addPreferredGap(ComponentPlacement.RELATED)
+                                                                                .addComponent(getCancelButton())))
+                                                                                .addGap(15))
+                );
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
-        
+
         this.setLayout(layout);
     }
 
@@ -245,6 +233,7 @@ public class SSHConnectionDialog extends JPanel {
             jDialog.setAlwaysOnTop(true);
             jDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
             jDialog.addWindowListener(new WindowAdapter() {
+                @Override
                 public void windowClosing(WindowEvent e) {
                     cancelAction();
                 }
@@ -291,6 +280,7 @@ public class SSHConnectionDialog extends JPanel {
             passwordField.setText(password);
             // passwordField.setFocusable(true);
             passwordField.addKeyListener(new KeyAdapter() {
+                @Override
                 public void keyPressed(KeyEvent e) {
                     // NeptusLog.pub().info("<###>keyPressed()");
                     if (e.getKeyCode() == KeyEvent.VK_ENTER)
@@ -377,14 +367,15 @@ public class SSHConnectionDialog extends JPanel {
             okButton = new JButton();
             okButton.setBounds(294, 15, 91, 22);
             okButton.setText(I18n.text("OK"));
-//            okButton.addKeyListener(new KeyAdapter() {
-//                public void keyPressed(KeyEvent e) {
-//                    // NeptusLog.pub().info("<###>keyPressed()");
-//                    if (e.getKeyCode() == KeyEvent.VK_ENTER)
-//                        okAction();
-//                }
-//            });
+            //            okButton.addKeyListener(new KeyAdapter() {
+            //                public void keyPressed(KeyEvent e) {
+            //                    // NeptusLog.pub().info("<###>keyPressed()");
+            //                    if (e.getKeyCode() == KeyEvent.VK_ENTER)
+            //                        okAction();
+            //                }
+            //            });
             okButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformed()");
                     okAction();
@@ -405,14 +396,15 @@ public class SSHConnectionDialog extends JPanel {
             cancelButton = new JButton();
             cancelButton.setBounds(294, 50, 91, 22);
             cancelButton.setText(I18n.text("Cancel"));
-//            cancelButton.addKeyListener(new KeyAdapter() {
-//                public void keyPressed(KeyEvent e) {
-//                    NeptusLog.pub().info("<###>keyPressed()");
-//                    if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
-//                        cancelAction();
-//                }
-//            });
+            //            cancelButton.addKeyListener(new KeyAdapter() {
+            //                public void keyPressed(KeyEvent e) {
+            //                    NeptusLog.pub().info("<###>keyPressed()");
+            //                    if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+            //                        cancelAction();
+            //                }
+            //            });
             cancelButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // NeptusLog.pub().info("<###>actionPerformed()");
                     cancelAction();
@@ -507,7 +499,7 @@ public class SSHConnectionDialog extends JPanel {
             Window parentWindow) {
         return showConnectionDialog(host, username, password, port, null, parentWindow);
     }
-    
+
     /**
      * @param host
      * @param username
@@ -536,6 +528,7 @@ public class SSHConnectionDialog extends JPanel {
 
     public class SSHConnectionFocusTraversalPolicy extends FocusTraversalPolicy {
 
+        @Override
         public Component getComponentAfter(Container focusCycleRoot, Component aComponent) {
             if (aComponent.equals(hostField)) {
                 return usernameField;
@@ -558,6 +551,7 @@ public class SSHConnectionDialog extends JPanel {
             return passwordField;
         }
 
+        @Override
         public Component getComponentBefore(Container focusCycleRoot, Component aComponent) {
             if (aComponent.equals(hostField)) {
                 return cancelButton;
@@ -580,14 +574,17 @@ public class SSHConnectionDialog extends JPanel {
             return passwordField;
         }
 
+        @Override
         public Component getDefaultComponent(Container focusCycleRoot) {
             return passwordField;
         }
 
+        @Override
         public Component getLastComponent(Container focusCycleRoot) {
             return cancelButton;
         }
 
+        @Override
         public Component getFirstComponent(Container focusCycleRoot) {
             return passwordField;
         }
