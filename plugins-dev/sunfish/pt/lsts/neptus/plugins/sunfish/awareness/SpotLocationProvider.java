@@ -38,6 +38,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.WordUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -77,7 +78,7 @@ public class SpotLocationProvider implements ILocationProvider {
                 String name = null;
                 double lat = 0, lon = 0;
                 long timestamp = System.currentTimeMillis();
-                
+                String battState = null, msgType = null;
                 for (int j = 0; j < elems.getLength(); j++) {
                     Node nd = elems.item(j); 
                     switch (nd.getNodeName()) {
@@ -93,6 +94,12 @@ public class SpotLocationProvider implements ILocationProvider {
                     case "messengerName":
                         name = nd.getTextContent();
                         break;
+                    case "batteryState":
+                        battState = nd.getTextContent();
+                        break;
+                    case "messageType":
+                        msgType = nd.getTextContent();
+                        break;
                     default:
                         break;
                     }
@@ -100,7 +107,12 @@ public class SpotLocationProvider implements ILocationProvider {
                 if (name != null) {
                     AssetPosition pos = new AssetPosition(name, lat, lon);
                     pos.setTimestamp(timestamp);
+                    pos.setSource("SPOT (Web)");
                     pos.setType("SPOT Tag");
+                    if (battState != null)
+                        pos.putExtra("Battery", WordUtils.capitalize(battState.toLowerCase()));
+                    if (msgType != null)
+                        pos.putExtra("SPOT Mode", WordUtils.capitalize(msgType.toLowerCase()));
                     parent.addAssetPosition(pos);
                 }
             }

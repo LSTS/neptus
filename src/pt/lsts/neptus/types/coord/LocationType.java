@@ -703,7 +703,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         }
 
         return latStr + nf6.format(lat) + CoordinateUtil.CHAR_DEGREE + ", " + lonStr
-                + nf6.format(lon) + CoordinateUtil.CHAR_DEGREE + ", " + nf2.format(getHeight());
+                + nf6.format(lon) + CoordinateUtil.CHAR_DEGREE + (getHeight() != 0 ? (", " +  nf2.format(getHeight())) : "");
     }
 
     //    /**

@@ -31,7 +31,10 @@
  */
 package pt.lsts.neptus.plugins.sunfish.awareness;
 
+import java.util.LinkedHashMap;
+
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.DateTimeUtil;
 
 /**
  * @author zp
@@ -46,6 +49,7 @@ public class AssetPosition implements Comparable<AssetPosition> {
     private double accuracy = Double.NaN;
     private String source = "unknown";
     private String type = "Sensor";
+    private LinkedHashMap<String, String> extraInfo = new LinkedHashMap<String, String>();
     
     public AssetPosition(String asset, double latDegrees, double lonDegrees) {
         this.timestamp = System.currentTimeMillis();
@@ -163,5 +167,25 @@ public class AssetPosition implements Comparable<AssetPosition> {
     @Override
     public int hashCode() {
         return (assetName + "_" + (getTimestamp()/1000)).hashCode();
+    }
+    
+    public void putExtra(String key, String value) {
+        extraInfo.put(key, value);
+    }
+    
+    public String getHtml() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html>").
+            append("<table><tr><th colspan='2'>"+getAssetName()+"</th></tr>").
+            append("<tr><td>Type:</td><td>"+getType()+"</td></tr>").
+            append("<tr><td>Source:</td><td>"+getSource()+"</td></tr>").
+            append("<tr><td>Age:</td><td>"+DateTimeUtil.milliSecondsToFormatedString(getAge())+"</td></tr>").
+            append("<tr><td>Location:</td><td>"+getLoc()+"</td></tr>");
+        
+        for (String key : extraInfo.keySet())
+            sb.append("<tr><td>"+key+":</td><td>"+extraInfo.get(key)+"</td></tr>");
+        
+        sb.append("</table></html>");
+        return sb.toString();
     }
 }

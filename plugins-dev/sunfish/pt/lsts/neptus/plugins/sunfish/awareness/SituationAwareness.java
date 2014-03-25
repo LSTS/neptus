@@ -33,6 +33,8 @@ package pt.lsts.neptus.plugins.sunfish.awareness;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,16 +43,19 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
 import org.jdesktop.swingx.JXTable;
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import org.reflections.Reflections;
 
 import pt.lsts.neptus.NeptusLog;
@@ -171,6 +176,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
         Thread.sleep(100000);
     }
 
+    private JLabel lbl = new JLabel();
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
         super.paintInteraction(g, source);
@@ -181,7 +187,15 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             Point2D pt = source.getScreenPosition(pivot.getLoc());
             g.setColor(Color.white);
             g.draw(new Ellipse2D.Double(pt.getX() - 6, pt.getY() - 6, 12, 12));
-            g.drawString(pivot.getAssetName() + ", age: " + getAge(pivot), 10, source.getHeight() - 50);
+            //g.drawString(pivot.getAssetName() + ", age: " + getAge(pivot), 10, source.getHeight() - 50);
+            lbl.setOpaque(true);
+            lbl.setBackground(new Color(255,255,255,128));
+            lbl.setText(pivot.getHtml());
+            Dimension d = lbl.getPreferredSize();
+            lbl.setSize(d);
+            Graphics copy = g.create();
+            copy.translate(10, 10);
+            lbl.paint(copy);
         }
 
         for (AssetTrack t : assets.values()) {
@@ -248,6 +262,16 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
                     PluginUtils.editPluginProperties(SituationAwareness.this, true);
                 }
             });
+            popup.add("Randomize colors").addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    java.util.Random rnd = new java.util.Random();
+                    for (AssetTrack track : assets.values()) {
+                        track.setColor(new Color(rnd.nextInt(255), rnd.nextInt(255), rnd.nextInt(255)));
+                    }
+                }
+            });
+            popup.addSeparator();
             popup.add("Decision Support").addActionListener(new ActionListener() {
                 
                 @Override
@@ -262,6 +286,10 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
                     LinkedHashMap<String, Vector<AssetPosition>> positions = positionsByType();
                     tags.addAll(positions.get("SPOT Tag"));
                     //FIXME add argos tags
+                    if (!assets.containsKey(uuvAsset)) {
+                        GuiUtils.errorMessage(getConsole(), "Decision Support", "UUV asset position is unknown");
+                        return;
+                    }
                     supportTable.setAssets(assets.get(uuvAsset).getLatest(), tags);
                     dialogDecisionSupport.setContentPane(new JScrollPane(new JXTable(supportTable)));
                     dialogDecisionSupport.invalidate();
@@ -317,15 +345,27 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
 
     @Override
     public void mouseMoved(MouseEvent event, StateRenderer2D source) {
-        for (AssetTrack track : assets.values()) {
-            for (AssetPosition p : track.getTrack(15, 0)) {
-                double dist = event.getPoint().distance(source.getScreenPosition(p.getLoc()));
-                if (dist < 5) {
-                    intercepted = p;
-                    return;
-                }
+        
+        List<AssetPosition> allPositions = new ArrayList<AssetPosition>();
+        
+        for (AssetTrack track : assets.values())
+            allPositions.addAll(track.getTrack(15, 0));
+        
+        Collections.sort(allPositions, new Comparator<AssetPosition>() {
+            @Override
+            public int compare(AssetPosition o1, AssetPosition o2) {
+                return (int)(o1.getAge() - o2.getAge());
+            }
+        });
+        
+        for (AssetPosition p : allPositions) {
+            double dist = event.getPoint().distance(source.getScreenPosition(p.getLoc()));
+            if (dist < 5) {
+                intercepted = p;
+                return;
             }
         }
+
         intercepted = null;
     }
 }

@@ -766,6 +766,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 if (Announce.ID_STATIC == msg.getMgid()) {
                     String localUid = announceWorker.getNeptusInstanceUniqueID();
                     String serv = announceWorker.getImcServicesFromMessage(msg);
+                    IMCDefinition.getInstance().getResolver().addEntry(msg.getSrc(), msg.getString("sys_name"));
                     String uid = IMCUtils.getUidFromServices(serv);
                     boolean sameHost = false;
                     Vector<NInterface> iList = getNetworkInterfaces();

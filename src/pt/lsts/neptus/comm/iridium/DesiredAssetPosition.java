@@ -34,12 +34,12 @@ package pt.lsts.neptus.comm.iridium;
 import java.util.Collection;
 import java.util.Vector;
 
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.RemoteSensorInfo;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
@@ -95,8 +95,9 @@ public class DesiredAssetPosition extends IridiumMessage {
         RemoteSensorInfo sensorInfo = new RemoteSensorInfo();
         sensorInfo.setLat(getLocation().getLatitudeRads());
         sensorInfo.setLon(getLocation().getLongitudeRads());
+        sensorInfo.setSensorClass("Desired Position");
         sensorInfo.setAlt(0);
-        sensorInfo.setId("DP_"+ImcSystemsHolder.translateImcIdToSystemName(asset_imc_id).replaceAll(":", ""));
+        sensorInfo.setId("DP_"+IMCDefinition.getInstance().getResolver().resolve(asset_imc_id));
         sensorInfo.setSrc(getSource());
         sensorInfo.setDst(getDestination());
         msgs.add(sensorInfo);        

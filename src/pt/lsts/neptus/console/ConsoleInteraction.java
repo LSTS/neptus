@@ -144,7 +144,7 @@ public abstract class ConsoleInteraction extends AbstractConsolePlugin implement
     public void setActive(boolean mode, StateRenderer2D source) {
        adapter.setActive(mode, source);
        if (mode) {
-           NeptusLog.pub().info(getClass()+" interaction became active");
+           NeptusLog.pub().debug(getClass()+" interaction became active");
        }
     }
     

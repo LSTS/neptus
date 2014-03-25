@@ -113,9 +113,6 @@ public class SimulatedStatePainter extends ConsolePanel implements Renderer2DPai
         lastStateMillis = System.currentTimeMillis();
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
-     */
     @Override
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
