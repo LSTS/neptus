@@ -43,7 +43,7 @@ import pt.lsts.neptus.gui.WaitPanel;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 
 /**
- * This will sync the the remote clock either by Telnet or SSH connection.
+ * FIXME: DELETE?! NOT USED!!! This will sync the the remote clock either by Telnet or SSH connection.
  * 
  * @author Paulo Dias
  */
@@ -75,6 +75,7 @@ public class SyncVehicleClock {
     }
 
     class SyncTask extends TimerTask {
+        @Override
         public void run() {
             boolean telnetSup = CommUtil.isProtocolSupported(vehicle.getId(), "telnet");
             boolean sshSup = CommUtil.isProtocolSupported(vehicle.getId(), "ssh");
