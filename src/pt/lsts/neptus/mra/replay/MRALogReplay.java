@@ -39,6 +39,7 @@ import java.awt.event.WindowEvent;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.swing.JComponent;
@@ -282,10 +283,17 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
                 MissionType mt = LogUtils.generateMission(source);
                 r2d.setMapGroup(MapGroup.getMapGroupInstance(mt));
 
+                ExecutorService executorService = Executors.newCachedThreadPool();
+                
                 for (final LogReplayLayer l : layers) {
                     try {
                         if (l.canBeApplied(source, Context.MRA)) {
-                            bootstrap(l);
+                            executorService.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    bootstrap(l);
+                                }
+                            }); 
                         }
                     }
                     catch (Exception e) {
@@ -296,7 +304,12 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
                 for (final LogReplayPanel p : panels) {
                     try {
                         if (p.canBeApplied(source, pt.lsts.neptus.mra.replay.LogReplayPanel.Context.MRA)) {
-                            bootstrapPanel(p);
+                            executorService.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    bootstrapPanel(p);
+                                }
+                            });
                         }
                     }
                     catch (Exception e) {
