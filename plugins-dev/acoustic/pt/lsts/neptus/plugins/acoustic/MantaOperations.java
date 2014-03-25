@@ -63,6 +63,7 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticSystems;
+import pt.lsts.imc.AcousticSystemsQuery;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanControl;
@@ -83,6 +84,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -129,6 +131,9 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     @NeptusProperty(name = "Display ranges in the map")
     public boolean showRanges = true;
 
+    @NeptusProperty(name = "Use system discovery", description = "Instead of a static list, receive supported systems from gateway")
+    public boolean sysDiscovery = true;
+
     /**
      * @param console
      */
@@ -147,18 +152,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     protected boolean initialized = false;
 
     private boolean sendAcoustically(IMCMessage msg) {
-        ImcSystem[] sysLst;
-
-        if (gateway.equals("any"))                    
-            sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
-                    SystemTypeEnum.ALL, true);
-        else {
-            ImcSystem sys = ImcSystemsHolder.lookupSystemByName(gateway);
-            if (sys != null)
-                sysLst = new ImcSystem[]{sys};
-            else 
-                sysLst = new ImcSystem[]{};
-        }
+        ImcSystem[] sysLst = gateways();
 
         if (sysLst.length == 0) {
             post(Notification.error(I18n.text("Send message"),
@@ -461,17 +455,18 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         propertiesChanged();
     }
 
-
     @Override
     public void propertiesChanged() {
-
         for (JRadioButton r : radioButtons.values()) {
             r.setVisible(false);
             group.remove(r);
         }
         radioButtons.clear();
 
-        for (String s : sysListing.split(",")) {
+        for (String s : sysListing.split(","))
+            knownSystems.add(s.trim()); 
+        
+        for (String s : knownSystems) {
             JRadioButton btn = new JRadioButton(s);
             btn.setActionCommand(s);
             group.add(btn);
@@ -506,7 +501,6 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     public void addText(String text) {
         bottomPane.setText(bottomPane.getText() +" \n"+text);        
         bottomPane.scrollRectToVisible(new Rectangle(0, bottomPane.getHeight()+22, 1, 1) );
-
     }
 
     protected LinkedHashMap<String, LocationType> systemLocations = new LinkedHashMap<>();
@@ -599,9 +593,40 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
     @Subscribe
     public void on(AcousticSystems systems) {
+        System.out.println("Received acoustic systems from "+systems.getSourceName());
         String acSystems = systems.getList();
+        boolean newSystem = false;
+        
         for (String s : acSystems.split(","))
-            knownSystems.add(s);
+            newSystem |= knownSystems.add(s);
+        
+        if (newSystem)
+            propertiesChanged();
+    }
+    
+    private ImcSystem[] gateways() {
+        ImcSystem[] sysLst = null;
+        if (gateway.equals("any"))                    
+            sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
+                    SystemTypeEnum.ALL, true);
+        else {
+            ImcSystem sys = ImcSystemsHolder.lookupSystemByName(gateway);
+            if (sys != null)
+                sysLst = new ImcSystem[]{sys};
+            else 
+                sysLst = new ImcSystem[]{};
+        }
+        return sysLst;
+
+    }
+    
+    @Periodic(millisBetweenUpdates=120000)
+    public void requestSysListing() {
+        if (sysDiscovery) {
+            AcousticSystemsQuery asq = new AcousticSystemsQuery();
+            for (ImcSystem s : gateways())
+                send(s.getName(), asq);            
+        }
     }
 
     protected Vector<LocationType> rangeSources = new Vector<LocationType>();
