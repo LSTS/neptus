@@ -90,7 +90,7 @@ import com.google.common.eventbus.Subscribe;
  */
 @PluginDescription(name = "FollowReference Interaction", category = CATEGORY.PLANNING, icon = "pt/lsts/neptus/plugins/followref/geolocation.png")
 public class FollowReferenceInteraction extends SimpleRendererInteraction implements IPeriodicUpdates,
-ConfigurationListener {
+        ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
     protected LinkedHashMap<String, FollowRefState> frefStates = new LinkedHashMap<>();
@@ -115,8 +115,6 @@ ConfigurationListener {
 
     public FollowReferenceInteraction(ConsoleLayout cl) {
         super(cl);
-        // Random r = new Random(System.currentTimeMillis());
-        // entity = r.nextInt(255);
         setHelpMsg();
     }
 
@@ -210,9 +208,19 @@ ConfigurationListener {
     @Subscribe
     public void on(PlanControlState controlState) {
 
+        // Check if we have already received a FollowReferenceState
+        if (!frefStates.containsKey(controlState.getSourceName()))
+            return;
+
+        // Check if vehicle is being controlled by this console
+        if (frefStates.get(controlState.getSourceName()).getControlSrc() != ImcMsgManager.getManager().getLocalId()
+                .intValue())
+            return;
+
         boolean newActivation = false;
         if (controlState.getPlanId().equals("follow_neptus")
                 && controlState.getState() == PlanControlState.STATE.EXECUTING) {
+
             newActivation = activeVehicles.add(controlState.getSourceName());
 
             if (newActivation) {
@@ -227,8 +235,6 @@ ConfigurationListener {
                 loc.convertToAbsoluteLatLonDepth();
                 ref.setLat(loc.getLatitudeRads());
                 ref.setLon(loc.getLongitudeRads());
-                // ref.setZ(new DesiredZ((float) z, DesiredZ.Z_UNITS.valueOf(z_units.name())));
-                // ref.setSpeed(new DesiredSpeed(speed, DesiredSpeed.SPEED_UNITS.METERS_PS));
                 ref.setFlags((Reference.FLAG_LOCATION /* | Reference.FLAG_SPEED | Reference.FLAG_Z */));
 
                 ReferencePlan plan = new ReferencePlan(controlState.getSourceName());
@@ -359,8 +365,8 @@ ConfigurationListener {
                     g.drawString(
                             "time left: "
                                     + GuiUtils.getNeptusDecimalFormat(0)
-                                    .format(Math.max(0, focusedWaypoint.timeLeft())), (int) pt.getX() + 15,
-                                    (int) pt.getY() + pos);
+                                            .format(Math.max(0, focusedWaypoint.timeLeft())), (int) pt.getX() + 15,
+                            (int) pt.getY() + pos);
                     pos += 15;
                 }
                 else if (focusedWaypoint.time > 0) {
@@ -520,7 +526,7 @@ ConfigurationListener {
                             man.setControlSrc(ImcMsgManager.getManager().getLocalId().intValue());
                             man.setAltitudeInterval(2);
                             man.setTimeout(referenceTimeout);
-
+                            man.setLoiterRadius(15);
                             PlanSpecification spec = new PlanSpecification();
                             spec.setPlanId("follow_neptus");
                             spec.setStartManId("1");
@@ -532,7 +538,6 @@ ConfigurationListener {
                             int reqId = 0;
                             startPlan.setRequestId(reqId);
                             startPlan.setFlags(0);
-
                             send(sysName, startPlan);
                         }
                     });
@@ -564,8 +569,8 @@ ConfigurationListener {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     GuiUtils.htmlMessage(ConfigFetch.getSuperParentFrame() == null ? FollowReferenceInteraction.this
-                            : ConfigFetch.getSuperParentAsFrame(), I18n.text("Follow Reference Interaction Helper") + ".",
-                            "", helpMsg);
+                            : ConfigFetch.getSuperParentAsFrame(), I18n.text("Follow Reference Interaction Helper")
+                            + ".", "", helpMsg);
                 }
             });
 
@@ -589,7 +594,7 @@ ConfigurationListener {
     }
 
     /**
-     * Help message to be shown 
+     * Help message to be shown
      */
     private void setHelpMsg() {
         helpMsg = "<html><font size='2'><br><div align='center'><table border='1' align='center'>" + "<tr><th>"
