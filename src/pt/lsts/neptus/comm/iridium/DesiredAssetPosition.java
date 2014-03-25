@@ -93,6 +93,7 @@ public class DesiredAssetPosition extends IridiumMessage {
         Vector<IMCMessage> msgs = new Vector<>();
 
         RemoteSensorInfo sensorInfo = new RemoteSensorInfo();
+        sensorInfo.setTimestampMillis(timestampMillis);
         sensorInfo.setLat(getLocation().getLatitudeRads());
         sensorInfo.setLon(getLocation().getLongitudeRads());
         sensorInfo.setSensorClass("Desired Position");

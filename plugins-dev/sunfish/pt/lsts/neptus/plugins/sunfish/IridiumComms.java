@@ -285,7 +285,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
             msg.setId(IMCDefinition.getInstance().getResolver().resolve(num));
         }
         catch (Exception e) {
-            NeptusLog.pub().error(e);
+            //nothing
         }
 
         sensorData.put(msg.getId(), msg);

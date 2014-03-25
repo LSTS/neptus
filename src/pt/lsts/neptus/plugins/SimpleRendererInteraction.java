@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -141,7 +142,22 @@ public abstract class SimpleRendererInteraction extends ConsolePanel implements 
     }
     
     @Override
+    public void focusGained(FocusEvent event, StateRenderer2D source) {
+        interactionAdapter.focusGained(event, source);
+    }
+    
+    @Override
+    public void focusLost(FocusEvent event, StateRenderer2D source) {
+        interactionAdapter.focusLost(event, source);
+    }
+    
+    @Override
     public void setActive(boolean mode, StateRenderer2D source) {
         this.active = mode;
+    }
+    
+    @Override
+    public void mouseExited(MouseEvent event, StateRenderer2D source) {
+        interactionAdapter.mouseExited(event, source);
     }
 }

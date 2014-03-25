@@ -41,6 +41,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -832,6 +833,11 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
         mousePoint = event.getPoint();
         adapter.mouseMoved(event, source);
     }
+    
+    @Override
+    public void mouseExited(MouseEvent event, StateRenderer2D source) {
+        adapter.mouseExited(event, source);
+    }
 
     @Override
     public void mouseReleased(MouseEvent event, StateRenderer2D source) {
@@ -954,6 +960,16 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             if (toolbar.getParent() != null)
                 toolbar.getParent().remove(toolbar);
         }
+    }
+        
+    @Override
+    public void focusGained(FocusEvent event, StateRenderer2D source) {
+        adapter.focusGained(event, source);        
+    }
+
+    @Override
+    public void focusLost(FocusEvent event, StateRenderer2D source) {
+        adapter.focusLost(event, source);
     }
 
     @Override

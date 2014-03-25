@@ -39,6 +39,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -325,6 +326,11 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
 	    source.zoomInOut(arg0.getWheelRotation() < 0, arg0.getPoint().getX(), arg0.getPoint().getY());
 		source.repaint();
 	}
+	
+	@Override
+	public void mouseExited(MouseEvent event, StateRenderer2D source) {
+	    
+	}
 
 	public void mouseClicked(MouseEvent e, StateRenderer2D source) {
         if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
@@ -339,6 +345,18 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
 
 	public void mouseMoved(MouseEvent event, StateRenderer2D source) {
 	    
+	}
+	
+	@Override
+	public void focusGained(FocusEvent event, StateRenderer2D source) {
+	    
+	}
+	
+	@Override
+	public void focusLost(FocusEvent event, StateRenderer2D source) {
+	    lastDragPoint = null;
+        firstDragPoint = null;
+        measuring = rotating = false;
 	}
 	
 	@Override
@@ -364,18 +382,12 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
         this.associatedSwitch = associatedSwitch;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#initSubPanel()
-     */
     @Override
     public void initSubPanel() {
         // TODO Auto-generated method stub
         
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
-     */
     @Override
     public void cleanSubPanel() {
         // TODO Auto-generated method stub

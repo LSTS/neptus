@@ -40,6 +40,7 @@ import java.awt.Image;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -421,6 +422,22 @@ StateRendererInteraction, IMCSerialization, PathProvider {
 
     public void keyTyped(KeyEvent event, StateRenderer2D source) {
         adapter.keyTyped(event, source);
+    }
+    
+    @Override
+    public void mouseExited(MouseEvent event, StateRenderer2D source) {
+        adapter.mouseExited(event, source);
+    }
+        
+    @Override
+    public void focusGained(FocusEvent event, StateRenderer2D source) {
+        adapter.focusGained(event, source);
+        
+    }
+
+    @Override
+    public void focusLost(FocusEvent event, StateRenderer2D source) {
+        adapter.focusLost(event, source);
     }
 
     public void setActive(boolean mode, StateRenderer2D source) {

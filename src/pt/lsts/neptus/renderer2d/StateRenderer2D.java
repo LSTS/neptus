@@ -46,6 +46,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -117,7 +119,7 @@ import com.l2fprod.common.propertysheet.Property;
  */
 public class StateRenderer2D extends JPanel implements PropertiesProvider, Renderer, MapChangeListener,
 MouseWheelListener, MouseMotionListener, MouseListener, KeyListener, PreferencesListener, ILayerPainter,
-CustomInteractionSupport, IMapPopup {
+CustomInteractionSupport, IMapPopup, FocusListener {
 
     static final long serialVersionUID = 15;
     public static final int MAP_MOVES = 0, VEHICLE_MOVES = 1;
@@ -293,6 +295,7 @@ CustomInteractionSupport, IMapPopup {
         loadCursors();
         addMouseListener(this);
         addMouseMotionListener(this);
+        addFocusListener(this);
         setBackground(new Color(2, 113, 171));
         setFocusable(true);
         addPostRenderPainter(new TransponderSecurityArea(), "Transponder Security Area");
@@ -1290,6 +1293,7 @@ CustomInteractionSupport, IMapPopup {
      */
     @Override
     public void mouseExited(MouseEvent e) {
+        activeInteraction.mouseExited(e, this);
     }
 
     /**
@@ -1312,6 +1316,18 @@ CustomInteractionSupport, IMapPopup {
         requestFocusInWindow();
         activeInteraction.mouseReleased(e, this);
         repaint();
+    }
+    
+    
+    @Override
+    public void focusGained(FocusEvent e) {
+        activeInteraction.focusGained(e, this);
+    }
+    
+    
+    @Override
+    public void focusLost(FocusEvent e) {
+        activeInteraction.focusLost(e, this);
     }
 
     /**

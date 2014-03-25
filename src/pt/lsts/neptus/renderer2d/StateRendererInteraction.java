@@ -34,6 +34,7 @@ package pt.lsts.neptus.renderer2d;
 import java.awt.Cursor;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -55,13 +56,15 @@ public interface StateRendererInteraction {
     public void mousePressed(MouseEvent event, StateRenderer2D source);
     public void mouseDragged(MouseEvent event, StateRenderer2D source);
     public void mouseMoved(MouseEvent event, StateRenderer2D source);
+    public void mouseExited(MouseEvent event, StateRenderer2D source);
     public void mouseReleased(MouseEvent event, StateRenderer2D source);
     public void wheelMoved(MouseWheelEvent event, StateRenderer2D source);
     public void setAssociatedSwitch(ToolbarSwitch tswitch);
     public void keyPressed(KeyEvent event, StateRenderer2D source);
     public void keyReleased(KeyEvent event, StateRenderer2D source);
     public void keyTyped(KeyEvent event, StateRenderer2D source);
-
+    public void focusLost(FocusEvent event, StateRenderer2D source);
+    public void focusGained(FocusEvent event, StateRenderer2D source);
     public void setActive(boolean mode, StateRenderer2D source);
     public void paintInteraction(Graphics2D g, StateRenderer2D source);
 }

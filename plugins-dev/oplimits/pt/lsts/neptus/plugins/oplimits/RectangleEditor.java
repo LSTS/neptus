@@ -42,6 +42,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -325,6 +326,21 @@ public class RectangleEditor extends JPanel implements Renderer2DPainter, StateR
 	public void keyTyped(KeyEvent event, StateRenderer2D source) {
 		adapter.keyTyped(event, source);
 	}
+	
+	@Override
+	public void mouseExited(MouseEvent event, StateRenderer2D source) {
+	    adapter.mouseExited(event, source);
+	}
+    
+    @Override
+    public void focusGained(FocusEvent event, StateRenderer2D source) {
+        adapter.focusGained(event, source);        
+    }
+
+    @Override
+    public void focusLost(FocusEvent event, StateRenderer2D source) {
+        adapter.focusLost(event, source);
+    }
 	
 	public static LocationType centroid(LocationType ... points) {
 		double latSum = 0, lonSum = 0, depthSum = 0;
