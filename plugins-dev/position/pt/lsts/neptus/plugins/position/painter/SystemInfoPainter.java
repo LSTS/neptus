@@ -43,7 +43,7 @@ import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.Heartbeat;
 import pt.lsts.imc.StorageUsage;
 import pt.lsts.imc.Voltage;
-import pt.lsts.neptus.NeptusLog;
+import pt.lsts.imc.state.ImcSysState;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
@@ -74,7 +74,7 @@ public class SystemInfoPainter extends ConsoleLayer {
     private static final int MARGIN = 5;
 
     private String strCpu, strFuel, strComms, strDisk;
-    
+
     @NeptusProperty(name = "Enable")
     public boolean enablePainter = true;
 
@@ -86,7 +86,7 @@ public class SystemInfoPainter extends ConsoleLayer {
 
     private JLabel toDraw;
     private String mainSysName;
-    
+
     long lastMessageMillis = 0;
 
     private int cpuUsage = 0;
@@ -101,7 +101,7 @@ public class SystemInfoPainter extends ConsoleLayer {
     public void initLayer() {
         mainSysName = getConsole().getMainSystem();
         toDraw = new JLabel("<html></html>");
-        
+
         strCpu = I18n.textc("CPU", "Use a single small word");
         strFuel = I18n.textc("Fuel", "Use a single small word");
         strDisk = I18n.textc("Disk", "Use a single small word");
@@ -115,7 +115,7 @@ public class SystemInfoPainter extends ConsoleLayer {
             Color.black, Color.green.darker(), Color.green.brighter().brighter() });
 
     private ColorMap rygInverted = ColorMapFactory.createInvertedColorMap(rygColorMap);
-    
+
     private String getColor(double percent, boolean inverted, boolean commsDead) {
         Color c;
         if (commsDead)
@@ -124,11 +124,11 @@ public class SystemInfoPainter extends ConsoleLayer {
             c = rygColorMap.getColor(percent / 100.0);
         else
             c = rygInverted.getColor(percent / 100.0);
-        
+
         return String.format("#%02X%02X%02X", c.getRed(), c.getGreen(), c.getBlue());        
     }
-    
-    
+
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if (!enablePainter || mainSysName == null)
@@ -139,10 +139,10 @@ public class SystemInfoPainter extends ConsoleLayer {
             batteryVoltage = fuelLevel = lastHbCount = storageUsage = cpuUsage = 0;
             commsDead = true;
         }
-        
+
         // System Info
         if (paintInfo) {
-            
+
             if (lastHbCount > 5)
                 lastHbCount = 5;
             String txt = "<html>";
@@ -161,7 +161,7 @@ public class SystemInfoPainter extends ConsoleLayer {
             toDraw.setHorizontalTextPosition(JLabel.CENTER);
             toDraw.setHorizontalAlignment(JLabel.LEFT);
             toDraw.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-            
+
             g.setColor(new Color(0, 0, 0, 200));
             g.drawRoundRect(renderer.getWidth() - RECT_WIDTH - MARGIN, renderer.getHeight() - RECT_HEIGHT - MARGIN,
                     RECT_WIDTH, RECT_HEIGHT, 20, 20);
@@ -169,11 +169,11 @@ public class SystemInfoPainter extends ConsoleLayer {
             g.fillRoundRect(renderer.getWidth() - RECT_WIDTH - MARGIN, renderer.getHeight() - RECT_HEIGHT - MARGIN,
                     RECT_WIDTH, RECT_HEIGHT, 20, 20);
             g.translate(renderer.getWidth() - RECT_WIDTH - MARGIN, renderer.getHeight() - RECT_HEIGHT - MARGIN);
-            
+
             toDraw.setBounds(0, 0, RECT_WIDTH, RECT_HEIGHT);
             toDraw.paint(g);
         }
-        
+
         double ellapsed = (System.currentTimeMillis() - lastMessageMillis);
         double val = Math.max(0, (3000 - ellapsed)/3000);
         g.setColor(greenToBlack.getColor(val));
@@ -186,14 +186,14 @@ public class SystemInfoPainter extends ConsoleLayer {
             return;
         cpuUsage = msg.getValue();
     }
-    
+
     @Subscribe
     public void consume(StorageUsage msg) {
         if (!msg.getSourceName().equals(mainSysName))
             return;
         storageUsage = 100 - msg.getValue();
     }
-    
+
     @Subscribe
     public void consume(Voltage msg) {        
         if (!msg.getSourceName().equals(mainSysName))
@@ -204,7 +204,7 @@ public class SystemInfoPainter extends ConsoleLayer {
             return;
         batteryVoltage = msg.getValue();
     }
-    
+
     @Subscribe
     public void consume(FuelLevel msg) {
         if (!msg.getSourceName().equals(mainSysName))
@@ -212,21 +212,18 @@ public class SystemInfoPainter extends ConsoleLayer {
         fuelLevel = (float)msg.getValue();
         confidenceLevel = (float)msg.getConfidence();
     }
-    
+
     @Subscribe
     public void consume(Heartbeat msg) {
         if (!msg.getSourceName().equals(mainSysName))
             return;
-        
+
         hbCount++;
         lastMessageMillis = System.currentTimeMillis();
     }
 
     @Subscribe
     public void consume(ConsoleEventMainSystemChange ev) {
-        
-        System.out.println("Main vehicle has changed");
-        
         // Resolve Batteries entity ID to check battery values
         batteryVoltage = 0.0;
         fuelLevel = 0.0f;
@@ -234,16 +231,24 @@ public class SystemInfoPainter extends ConsoleLayer {
         storageUsage = 0;
         hbCount = 0;
         mainSysName = ev.getCurrent();
-        
-        try {
-            storageUsage = 100 - getState().lastStorageUsage().getValue();
-            cpuUsage = getState().lastCpuUsage().getValue();
-            fuelLevel = (float)getState().lastFuelLevel().getValue();
-            batteryVoltage = getState().lastVoltage(batteryEntityName).getValue();      
-            lastMessageMillis = getState().lastHeartbeat().getTimestampMillis();
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error(e);            
+
+        ImcSysState state = getState();
+        if (state != null) {
+            if (state.lastHeartbeat() != null)
+                lastMessageMillis = state.lastHeartbeat().getTimestampMillis();
+            if (state.lastStorageUsage() != null)
+                storageUsage = 100 - state.lastStorageUsage().getValue();
+            if (state.lastCpuUsage() != null)
+                cpuUsage = state.lastCpuUsage().getValue();
+            if (state.lastFuelLevel() != null)
+                fuelLevel = (float)state.lastFuelLevel().getValue();
+            try {
+                if (state.lastVoltage(batteryEntityName) != null)
+                    batteryVoltage = state.lastVoltage(batteryEntityName).getValue();
+            }
+            catch (Exception e) {
+                batteryVoltage = 0.0;
+            }
         }
     }
 
@@ -254,15 +259,15 @@ public class SystemInfoPainter extends ConsoleLayer {
 
         return true;
     }
-    
+
     @Override
     public boolean userControlsOpacity() {
         return false;
     }
-    
+
     @Override
     public void cleanLayer() {
         // TODO Auto-generated method stub
-        
+
     }
 }
