@@ -42,6 +42,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -60,6 +61,7 @@ import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticSystems;
@@ -463,10 +465,15 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         }
         radioButtons.clear();
 
-        for (String s : sysListing.split(","))
+        for (String s : sysListing.split(",")) {
+            if (!s.isEmpty() && !s.endsWith(" list"))
             knownSystems.add(s.trim()); 
+        }
         
-        for (String s : knownSystems) {
+        ArrayList<String> systems = new ArrayList<String>(knownSystems);
+        Collections.sort(systems);
+        
+        for (String s : systems) {
             JRadioButton btn = new JRadioButton(s);
             btn.setActionCommand(s);
             group.add(btn);
