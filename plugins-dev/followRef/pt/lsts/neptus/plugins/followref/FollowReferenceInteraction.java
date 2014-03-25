@@ -66,6 +66,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -79,6 +80,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -86,9 +88,9 @@ import com.google.common.eventbus.Subscribe;
  * @author zp
  * 
  */
-@PluginDescription(name = "FollowReference Interaction", category = CATEGORY.PLANNING, icon="pt/lsts/neptus/plugins/followref/geolocation.png")
+@PluginDescription(name = "FollowReference Interaction", category = CATEGORY.PLANNING, icon = "pt/lsts/neptus/plugins/followref/geolocation.png")
 public class FollowReferenceInteraction extends SimpleRendererInteraction implements IPeriodicUpdates,
-        ConfigurationListener {
+ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
     protected LinkedHashMap<String, FollowRefState> frefStates = new LinkedHashMap<>();
@@ -99,6 +101,9 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     protected ReferenceWaypoint focusedWaypoint = null;
     protected double radius = 8;
     protected int entity = 255;
+
+    private String helpMsg;
+
     @NeptusProperty(name = "Use acoustic communications", description = "Setting to true will make all communications go through acoustic modem")
     public boolean useAcousticCommunications = false;
 
@@ -111,7 +116,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     public FollowReferenceInteraction(ConsoleLayout cl) {
         super(cl);
         // Random r = new Random(System.currentTimeMillis());
-        //entity = r.nextInt(255);
+        // entity = r.nextInt(255);
+        setHelpMsg();
     }
 
     @Override
@@ -353,8 +359,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                     g.drawString(
                             "time left: "
                                     + GuiUtils.getNeptusDecimalFormat(0)
-                                            .format(Math.max(0, focusedWaypoint.timeLeft())), (int) pt.getX() + 15,
-                            (int) pt.getY() + pos);
+                                    .format(Math.max(0, focusedWaypoint.timeLeft())), (int) pt.getX() + 15,
+                                    (int) pt.getY() + pos);
                     pos += 15;
                 }
                 else if (focusedWaypoint.time > 0) {
@@ -363,8 +369,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                     pos += 15;
                 }
                 else if (focusedWaypoint.time == -1) {
-                    g.drawString("time: \u221e",
-                            (int) pt.getX() + 15, (int) pt.getY() + pos);
+                    g.drawString("time: \u221e", (int) pt.getX() + 15, (int) pt.getY() + pos);
                     pos += 15;
                 }
 
@@ -489,8 +494,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                     }
                 });
                 popup.addSeparator();
-            }            
-            
+            }
+
             Vector<VehicleType> avVehicles = new Vector<VehicleType>();
 
             ImcSystem[] veh = ImcSystemsHolder.lookupActiveSystemVehicles();
@@ -553,6 +558,17 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                     PropertiesEditor.editProperties(FollowReferenceInteraction.this, getConsole(), true);
                 }
             });
+            popup.addSeparator();
+            popup.add("Follow Reference Interaction Helper").addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    GuiUtils.htmlMessage(ConfigFetch.getSuperParentFrame() == null ? FollowReferenceInteraction.this
+                            : ConfigFetch.getSuperParentAsFrame(), I18n.text("Follow Reference Interaction Helper") + ".",
+                            "", helpMsg);
+                }
+            });
+
             popup.show((Component) event.getSource(), event.getX(), event.getY());
         }
     }
@@ -570,5 +586,18 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     @Override
     public void initSubPanel() {
 
+    }
+
+    /**
+     * Help message to be shown 
+     */
+    private void setHelpMsg() {
+        helpMsg = "<html><font size='2'><br><div align='center'><table border='1' align='center'>" + "<tr><th>"
+                + I18n.text("Type") + "</th><th>" + I18n.text("Description") + "</th></tr>" + "<tr><th>"
+                + I18n.text("Mouse left double click on Reference") + "</th><th>"
+                + I18n.text("Opens reference waypoint properties") + "</th></tr>" + "<tr><th>"
+                + I18n.text("Add multiple waypoints") + "</th><th>"
+                + I18n.text("Press CTRL + Left Mouse Click + Drag Mouse") + "- ("
+                + I18n.text("It will show a blue dot that is referent to a new waypoint") + ")." + "</th></tr>";
     }
 }
