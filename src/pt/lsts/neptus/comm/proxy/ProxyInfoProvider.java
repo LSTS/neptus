@@ -60,9 +60,11 @@ import pt.lsts.neptus.plugins.PluginUtils;
 
 /**
  * @author pdias
- *
+ * 
+ * FIXME 
+ * pddias: Fix deprecated hc4.3 upgrade-
  */
-
+@SuppressWarnings("deprecation")
 public class ProxyInfoProvider {
 
     @NeptusProperty
@@ -193,7 +195,6 @@ public class ProxyInfoProvider {
     /**
      * @param client to add a route planner
      */
-    @SuppressWarnings("deprecation")
     public static void setRoutePlanner(final AbstractHttpClient client) {
         client.setRoutePlanner(new HttpRoutePlanner() {
             @Override
@@ -234,7 +235,6 @@ public class ProxyInfoProvider {
      * @param resp
      * @param localContext
      */
-    @SuppressWarnings("deprecation")
     public static void authenticateConnectionIfNeeded(HttpResponse resp, HttpContext localContext, DefaultHttpClient client) {
         {
             if (isEnableProxy()) {
