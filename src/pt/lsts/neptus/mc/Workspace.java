@@ -85,7 +85,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMessageSenderPanel;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.MonitorIMCComms;
-import pt.lsts.neptus.comm.ssh.SshShellPannel;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.actions.ExitAction;
 import pt.lsts.neptus.events.NeptusEventHiddenMenus;
@@ -134,8 +133,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     private int numFrames = 0;
     private final HashMap<String, JInternalFrame> internalFrames = new HashMap<String, JInternalFrame>();
 
-    private int nShellOpened = 0;
-
     private JFileChooser fileDialog = null;
 
     private final LinkedHashMap<JMenuItem, File> missionFilesOpened = new LinkedHashMap<JMenuItem, File>();
@@ -162,7 +159,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
 
     private static ImageIcon DISPLAY_ICON = ImageUtils.createImageIcon("images/menus/display.png");
     private static ImageIcon OPEN_ICON = ImageUtils.createImageIcon("images/menus/open.png");
-    private static ImageIcon SSH_ICON = ImageUtils.createImageIcon("images/menus/terminal.png");
 
     private static ImageIcon MRA_ICON = ImageUtils.createScaleImageIcon("images/mra-alt.png", 16, 16);
     private static ImageIcon GC_ICON = ImageUtils.createScaleImageIcon("images/buttons/gc.png", 16, 16);
@@ -197,7 +193,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     private StatusLed statusLed = null;
     private JMenuItem openMRAMenuItem = null;
     private JMenuItem editGeneralPreferencesMenuItem = null;
-    private JMenuItem sshShellMenuItem = null;
     private JMenuItem callGcMenuItem = null;
     private JMenuItem showConsoleMenuItem = null;
     private JMenuItem latLonConvMenuItem = null;
@@ -436,8 +431,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             toolsMenu.addSeparator();
             toolsMenu.add(getEditGeneralPreferencesMenuItem());
             toolsMenu.add(getDumpGeneralPropertiesDefaultsMenuItem());
-            toolsMenu.addSeparator();
-            toolsMenu.add(getSshShellMenuItem());
             toolsMenu.addSeparator();
             toolsMenu.add(getSnapShotMenuItem());
             toolsMenu.add(getMouseRecorderMenuItem());
@@ -971,12 +964,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             jif.setName(name);
             jif.setFrameIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
                     getClass().getResource("/images/menus/3d.png"))));
-        }
-        else if (newComponent instanceof SshShellPannel) {
-            // Image vimg = GuiUtils.getScaledImage("images/menus/terminal.png",
-            // 16, 16);
-            ImageIcon vicon = new ImageIcon(ImageUtils.getImage("images/menus/terminal.png"));
-            jif.setFrameIcon(vicon);
         }
         else {
             jif.setFrameIcon(new ImageIcon(Toolkit.getDefaultToolkit().getImage(
@@ -1692,53 +1679,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             });
         }
         return callGcMenuItem;
-    }
-
-    /**
-     * This method initializes sshShellMenuItem
-     * 
-     * @return javax.swing.JMenuItem
-     */
-    private JMenuItem getSshShellMenuItem() {
-        if (sshShellMenuItem == null) {
-            sshShellMenuItem = new JMenuItem();
-            sshShellMenuItem.setText(I18n.text("Open ssh shell"));
-            sshShellMenuItem.setIcon(SSH_ICON);
-            sshShellMenuItem.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    startActivity(I18n.text("Opening SSH shell ..."));
-                    SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                        @Override
-                        protected Void doInBackground() throws Exception {
-                            SshShellPannel sshPanel = new SshShellPannel(null);
-                            int idShell = ++nShellOpened;
-                            JInternalFrame ifrm = createFrame(I18n.textf("SSH Shell - %shell", idShell),
-                                    I18n.text("SSH Shell"), sshPanel);
-                            // ifrm.addInternalFrameListener(sshPanel);
-                            internalFrames.put("ssh shell-" + idShell, ifrm);
-                            ifrm.setSize(new Dimension(sshPanel.getWidth(), sshPanel.getHeight() + 120));
-                            ifrm.setResizable(true);
-                            ifrm.setMaximizable(true);
-                            return null;
-                        }
-
-                        @Override
-                        protected void done() {
-                            try {
-                                get();
-                            }
-                            catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            endActivity("");
-                        }
-                    };
-                    worker.execute();
-                }
-            });
-        }
-        return sshShellMenuItem;
     }
 
     /**
