@@ -123,8 +123,7 @@ public class IridiumManager {
         Collection<IMCMessage> msgs = msg.asImc();
         
         for (IMCMessage m : msgs) {
-            ImcMsgManager.getManager().postInternalMessage("iridium", m);
-            
+            ImcMsgManager.getManager().postInternalMessage("iridium", m);            
         }
     }
 

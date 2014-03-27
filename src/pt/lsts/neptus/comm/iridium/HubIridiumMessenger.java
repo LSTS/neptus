@@ -183,10 +183,9 @@ public class HubIridiumMessenger implements IridiumMessenger {
         
         Vector<IridiumMessage> ret = new Vector<>();        
         
-        for (HubMessage m : msgs)
+        for (HubMessage m : msgs) {
             ret.add(m.message());
-        
-        System.out.println(msgs.length+" messages retrieved");
+        }
         
         return ret;
     }

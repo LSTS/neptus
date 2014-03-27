@@ -71,6 +71,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -78,9 +79,9 @@ import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
- *
+ * 
  */
-@PluginDescription(name="Iridium Communications Plug-in", icon="pt/lsts/neptus/plugins/sunfish/iridium.png")
+@PluginDescription(name = "Iridium Communications Plug-in", icon = "pt/lsts/neptus/plugins/sunfish/iridium.png")
 public class IridiumComms extends SimpleRendererInteraction implements IPeriodicUpdates, Renderer2DPainter {
 
     private static final long serialVersionUID = -8535642303286049869L;
@@ -88,14 +89,14 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     protected LinkedHashMap<String, RemoteSensorInfo> sensorData = new LinkedHashMap<>();
     protected Image spot, desired, target, unknown;
     protected final int HERMES_ID = 0x08c1;
-    
+
     protected Vector<VirtualDrifter> drifters = new Vector<>();
-    
+
     @Override
     public long millisBetweenUpdates() {
         return 60000;
     }
-    
+
     @Override
     public boolean update() {
 
@@ -110,46 +111,47 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
             post(rsi);
             on(rsi);
         }
-        
+
         return true;
     }
-    
-    
+
     @Override
     public boolean isExclusive() {
         return true;
     }
-    
+
     public void loadImages() {
         spot = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/spot.png");
         desired = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/desired.png");
         target = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/target.png");
         unknown = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/unknown.png");
     }
-    
+
     private void sendIridiumCommand() {
-        String cmd = JOptionPane.showInputDialog(getConsole(), I18n.textf("Enter command to be sent to %vehicle", getMainVehicleId()));
+        String cmd = JOptionPane.showInputDialog(getConsole(),
+                I18n.textf("Enter command to be sent to %vehicle", getMainVehicleId()));
         if (cmd == null || cmd.isEmpty())
             return;
-        
+
         IridiumCommand command = new IridiumCommand();
         command.setCommand(cmd);
-        
+
         VehicleType vt = VehiclesHolder.getVehicleById(getMainVehicleId());
         if (vt == null) {
-            GuiUtils.errorMessage(getConsole(), "Send Iridium Command", "Could not calculate destination's IMC identifier");
+            GuiUtils.errorMessage(getConsole(), "Send Iridium Command",
+                    "Could not calculate destination's IMC identifier");
             return;
         }
         command.setDestination(vt.getImcId().intValue());
         command.setSource(ImcMsgManager.getManager().getLocalId().intValue());
         try {
-            IridiumManager.getManager().send(command);    
+            IridiumManager.getManager().send(command);
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), e);
         }
     }
-    
+
     private void setWaveGliderTargetPosition(LocationType loc) {
         TargetAssetPosition pos = new TargetAssetPosition();
         pos.setLocation(loc);
@@ -157,7 +159,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         pos.setAssetImcId(HERMES_ID);
         pos.setSource(ImcMsgManager.getManager().getLocalId().intValue());
         try {
-            IridiumManager.getManager().send(pos);    
+            IridiumManager.getManager().send(pos);
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), e);
@@ -171,97 +173,99 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         pos.setDestination(0);
         pos.setSource(ImcMsgManager.getManager().getLocalId().intValue());
         try {
-            IridiumManager.getManager().send(pos);    
+            IridiumManager.getManager().send(pos);
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), e);
         }
     }
-        
+
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
         if (event.getButton() != MouseEvent.BUTTON3)
-            super.mouseClicked(event,source);
-        
+            super.mouseClicked(event, source);
+
         final LocationType loc = source.getRealWorldLocation(event.getPoint());
         loc.convertToAbsoluteLatLonDepth();
-        
+
         JPopupMenu popup = new JPopupMenu();
-        
+
         if (IridiumManager.getManager().isActive()) {
-            popup.add(I18n.text("Deactivate Polling")).addActionListener(new ActionListener() {            
+            popup.add(I18n.text("Deactivate Polling")).addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    IridiumManager.getManager().stop();               
+                    IridiumManager.getManager().stop();
                 }
             });
         }
         else {
-            popup.add(I18n.text("Activate Polling")).addActionListener(new ActionListener() {            
+            popup.add(I18n.text("Activate Polling")).addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    IridiumManager.getManager().start();               
+                    IridiumManager.getManager().start();
                 }
             });
         }
-        
-        popup.add(I18n.text("Select Iridium gateway")).addActionListener(new ActionListener() {            
+
+        popup.add(I18n.text("Select Iridium gateway")).addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                IridiumManager.getManager().selectMessenger(getConsole());               
+                IridiumManager.getManager().selectMessenger(getConsole());
             }
         });
-        
+
         popup.addSeparator();
-        
-        popup.add(I18n.textf("Send %vehicle a command via Iridium", getMainVehicleId())).addActionListener(new ActionListener() {            
-            public void actionPerformed(ActionEvent e) {
-                sendIridiumCommand();                
-            }
-        });
 
-        popup.add(I18n.textf("Subscribe to device updates", getMainVehicleId())).addActionListener(new ActionListener() {            
-            public void actionPerformed(ActionEvent e) {
-                ActivateSubscription activate = new ActivateSubscription();
-                activate.setDestination(0xFF);
-                activate.setSource(ImcMsgManager.getManager().getLocalId().intValue());
-                try {
-                    IridiumManager.getManager().send(activate);    
-                }
-                catch (Exception ex) {
-                    GuiUtils.errorMessage(getConsole(), ex);
-                }
-            }
-        });
-        
-        popup.add(I18n.textf("Unsubscribe to device updates", getMainVehicleId())).addActionListener(new ActionListener() {            
-            public void actionPerformed(ActionEvent e) {
-                DeactivateSubscription deactivate = new DeactivateSubscription();
-                deactivate.setDestination(0xFF);
-                deactivate.setSource(ImcMsgManager.getManager().getLocalId().intValue());
-                try {
-                    IridiumManager.getManager().send(deactivate);      
-                }
-                catch (Exception ex) {
-                    GuiUtils.errorMessage(getConsole(), ex);
-                }
-            }
-        });
-        
+        popup.add(I18n.textf("Send %vehicle a command via Iridium", getMainVehicleId())).addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        sendIridiumCommand();
+                    }
+                });
 
-        popup.add("Set this as actual wave glider target").addActionListener(new ActionListener() {            
+        popup.add(I18n.textf("Subscribe to device updates", getMainVehicleId())).addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        ActivateSubscription activate = new ActivateSubscription();
+                        activate.setDestination(0xFF);
+                        activate.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+                        try {
+                            IridiumManager.getManager().send(activate);
+                        }
+                        catch (Exception ex) {
+                            GuiUtils.errorMessage(getConsole(), ex);
+                        }
+                    }
+                });
+
+        popup.add(I18n.textf("Unsubscribe to device updates", getMainVehicleId())).addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        DeactivateSubscription deactivate = new DeactivateSubscription();
+                        deactivate.setDestination(0xFF);
+                        deactivate.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+                        try {
+                            IridiumManager.getManager().send(deactivate);
+                        }
+                        catch (Exception ex) {
+                            GuiUtils.errorMessage(getConsole(), ex);
+                        }
+                    }
+                });
+
+        popup.add("Set this as actual wave glider target").addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 setWaveGliderTargetPosition(loc);
             }
         });
-        
-        popup.add("Set this as desired wave glider target").addActionListener(new ActionListener() {            
+
+        popup.add("Set this as desired wave glider target").addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 setWaveGliderDesiredPosition(loc);
             }
         });
-        
+
         popup.addSeparator();
-        
+
         popup.add("Add virtual drifter").addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 VirtualDrifter d = new VirtualDrifter(loc, 0, 0.1);
@@ -270,72 +274,73 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                 update();
             }
         });
-      
+
         popup.show(source, event.getX(), event.getY());
     }
-    
+
     @Subscribe
     public void on(RemoteSensorInfo msg) {
-        NeptusLog.pub().info("Got device update from "+msg.getId()+" sent via "+msg.getSourceName());
+        NeptusLog.pub().info("Got device update from " + msg.getId() + " sent via " + msg.getSourceName());
         String id = msg.getId();
         id = id.replaceAll("Unmanned Vehicle_", "");
         id = id.replaceAll("Unknown_", "");
         try {
-            Integer num = Integer.parseInt(id);                
+            Integer num = Integer.parseInt(id);
             msg.setId(IMCDefinition.getInstance().getResolver().resolve(num));
         }
         catch (Exception e) {
-            //nothing
+            // nothing
         }
 
-        sensorData.put(msg.getId(), msg);
+        if (sensorData.containsKey(msg.getId())) {
+            if (sensorData.get(msg.getId()).getTimestamp() < msg.getTimestamp()) {
+                sensorData.put(msg.getId(), msg);
+            }
+        }
+        else
+            sensorData.put(msg.getId(), msg);
     }
-    
+
     @Subscribe
     public void on(IridiumTxStatus status) {
-        switch(status.getStatus()) {
+        switch (status.getStatus()) {
             case ERROR:
                 post(Notification.warning(I18n.text("Iridium communications"),
-                        I18n.text("Error sending iridium message")).src(
-                                status.getSourceName()));
+                        I18n.text("Error sending iridium message")).src(status.getSourceName()));
                 break;
             case EXPIRED:
                 post(Notification.warning(I18n.text("Iridium communications"),
-                        I18n.text("Iridium message transmission time has expired")).src(
-                                status.getSourceName()));
+                        I18n.text("Iridium message transmission time has expired")).src(status.getSourceName()));
                 break;
             case OK:
                 post(Notification.success(I18n.text("Iridium communications"),
-                        I18n.text("Iridium message sent successfully")).src(
-                                status.getSourceName()));
+                        I18n.text("Iridium message sent successfully")).src(status.getSourceName()));
                 break;
             case QUEUED:
                 post(Notification.warning(I18n.text("Iridium communications"),
-                        I18n.text("Iridium message was queued for later transmission")).src(
-                                status.getSourceName()));
+                        I18n.text("Iridium message was queued for later transmission")).src(status.getSourceName()));
                 break;
             case TRANSMIT:
                 post(Notification.warning(I18n.text("Iridium communications"),
-                        I18n.text("Iridium message is being transmited")).src(
-                                status.getSourceName()));
-                break;                
+                        I18n.text("Iridium message is being transmited")).src(status.getSourceName()));
+                break;
         }
     }
-    
+
     public IridiumComms(ConsoleLayout console) {
         super(console);
     }
-    
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        
+
         for (RemoteSensorInfo sinfo : sensorData.values()) {
             LocationType loc = new LocationType();
             loc.setLatitudeRads(sinfo.getLat());
             loc.setLongitudeRads(sinfo.getLon());
             Point2D pt = renderer.getScreenPosition(loc);
             Image img = null;
-            
+
             if (sinfo.getId().startsWith("DP_")) {
                 img = desired;
             }
@@ -350,7 +355,8 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                     VehicleType vt = ImcSystemsHolder.getSystemWithName(sinfo.getId()).getVehicle();
                     if (vt != null) {
                         try {
-                            img = ImageUtils.getScaledImage(ImageIO.read(new File(vt.getTopImageHref())), 16, 16, false);
+                            img = ImageUtils
+                                    .getScaledImage(ImageIO.read(new File(vt.getTopImageHref())), 16, 16, false);
                         }
                         catch (Exception e) {
                             e.printStackTrace();
@@ -360,18 +366,24 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
             }
             if (img == null)
                 img = unknown;
-            g.drawImage(img, (int) (pt.getX()-img.getWidth(this)/2), (int) (pt.getY()-img.getHeight(this)/2), this);
-            
+            g.drawImage(img, (int) (pt.getX() - img.getWidth(this) / 2), (int) (pt.getY() - img.getHeight(this) / 2),
+                    this);
+
             g.setColor(Color.black);
-            int mins = (int)((System.currentTimeMillis() - sinfo.getTimestampMillis()) / 1000);
-            g.drawString(sinfo.getId() +" ("+mins+")", (int)(pt.getX()+img.getWidth(this)/2 + 3),  (int)(pt.getY() + 5));         
+            // int mins = (int)((System.currentTimeMillis() - sinfo.getTimestampMillis()) / 1000);
+            g.drawString(
+                    sinfo.getId()
+                            + " ("
+                            + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis()
+                                    - sinfo.getTimestampMillis()) + ")",
+                    (int) (pt.getX() + img.getWidth(this) / 2 + 3), (int) (pt.getY() + 5));
         }
     }
-    
+
     @Subscribe
     public void on(TextMessage msg) {
         NeptusLog.pub().info("Received text message");
-        post(Notification.info("Text message", msg.getSourceName()+": "+msg.getText()));
+        post(Notification.info("Text message", msg.getSourceName() + ": " + msg.getText()));
     }
 
     @Override
@@ -381,6 +393,6 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
 
     @Override
     public void cleanSubPanel() {
-        
+
     }
 }

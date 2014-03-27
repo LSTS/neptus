@@ -64,6 +64,7 @@ public class IridiumCommand extends IridiumMessage {
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
         out.writePlaintext(command);
+        out.close();
         return command.getBytes("ISO-8859-1").length + 2;
     }
 

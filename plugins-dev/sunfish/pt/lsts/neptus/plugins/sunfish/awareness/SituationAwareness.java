@@ -90,12 +90,6 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     private JDialog dialogDecisionSupport;
     private DecisionSupportTable supportTable = new DecisionSupportTable();
     
-    //@NeptusProperty
-    //public String shipAsset = "lauv-xtreme-2";
-
-    @NeptusProperty
-    public String uuvAsset = "lauv-xplore-1";
-    
     @NeptusProperty
     public double shipSpeedMps = 10;
     
@@ -286,12 +280,13 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
                     LinkedHashMap<String, Vector<AssetPosition>> positions = positionsByType();
                     tags.addAll(positions.get("SPOT Tag"));
                     //FIXME add argos tags
-                    if (!assets.containsKey(uuvAsset)) {
+                    if (!assets.containsKey(getConsole().getMainSystem())) {
                         GuiUtils.errorMessage(getConsole(), "Decision Support", "UUV asset position is unknown");
                         return;
                     }
-                    supportTable.setAssets(assets.get(uuvAsset).getLatest(), tags);
-                    dialogDecisionSupport.setContentPane(new JScrollPane(new JXTable(supportTable)));
+                    supportTable.setAssets(assets.get(getConsole().getMainSystem()).getLatest(), tags);
+                    JXTable table = new JXTable(supportTable);
+                    dialogDecisionSupport.setContentPane(new JScrollPane(table));
                     dialogDecisionSupport.invalidate();
                     dialogDecisionSupport.validate();
                     dialogDecisionSupport.setSize(600, 300);
@@ -316,7 +311,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             for (AssetPosition p : positions) {
                 Point2D pt = renderer.getScreenPosition(p.getLoc());
                 g.setColor(track.getColor());
-                if (lastLoc != null) {
+                if (lastLoc != null && lastLoc.distance(pt) < 20000) {
                     g.draw(new Line2D.Double(lastLoc, pt));
                 }
                 g.fill(new Ellipse2D.Double(pt.getX() - radius, pt.getY() - radius, radius * 2, radius * 2));

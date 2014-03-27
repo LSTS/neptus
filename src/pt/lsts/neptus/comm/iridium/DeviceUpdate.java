@@ -40,6 +40,8 @@ import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.RemoteSensorInfo;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 
 /**
  * @author zp
@@ -59,7 +61,7 @@ public class DeviceUpdate extends IridiumMessage {
     public DeviceUpdate() {
         super(2001);
     }
-    
+
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
         int read = 0;
@@ -94,22 +96,44 @@ public class DeviceUpdate extends IridiumMessage {
         }
         return read;
     }
-    
+
     @Override
     public Collection<IMCMessage> asImc() {
         Vector<IMCMessage> msgs = new Vector<>();
-        
+
         for (Position pos : positions.values()) {
             RemoteSensorInfo sensorInfo = new RemoteSensorInfo();
-            sensorInfo.setLat(Math.toRadians(pos.latitude));
-            sensorInfo.setLon(Math.toRadians(pos.longitude));
+            sensorInfo.setLat(pos.latitude);
+            sensorInfo.setLon(pos.longitude);
+            sensorInfo.setTimestamp(pos.timestamp);
             sensorInfo.setAlt(0);
             sensorInfo.setId(IMCDefinition.getInstance().getResolver().resolve(pos.id));
             sensorInfo.setSrc(getSource());
             sensorInfo.setDst(getDestination());
+            ImcSystem sys = ImcSystemsHolder.lookupSystem(pos.id);
+            if (sys != null) {
+                switch (sys.getType()) {
+                    case CCU:
+                        sensorInfo.setSensorClass("CCU");
+                    case VEHICLE:
+                        sensorInfo.setSensorClass(sys.getTypeVehicle().toString());
+                        break;
+                    case MOBILESENSOR:
+                    case STATICSENSOR:
+                        sensorInfo.setSensorClass("SENSOR");
+                        break;
+                    default:
+                        sensorInfo.setSensorClass("UNKNOWN");
+                        break;
+                }
+            }
+            else {
+                sensorInfo.setSensorClass("UNKNOWN");
+            }
+
             msgs.add(sensorInfo);
         }
-        
+
         return msgs;
     }
 
