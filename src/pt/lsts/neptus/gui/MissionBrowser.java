@@ -111,6 +111,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     private final JTree elementTree;
     final private MissionTreeModel treeModel;
 
+    private final ArrayList<String> transToMerge;
+
     /**
      * Creates a new mission browser which will display the items contained in the given mission type
      * 
@@ -133,6 +135,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
         treeModel = new MissionTreeModel();
         elementTree.setModel(treeModel);
+
+        transToMerge = new ArrayList<String>();
     }
 
     /**
@@ -167,6 +171,12 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             return null;
         ExtendedTreeNode node = (ExtendedTreeNode) elementTree.getSelectionPath().getLastPathComponent();
         return node;
+    }
+
+    public void addTransToMerge(ArrayList<NameId> remoteTrans) {
+        for (NameId nameId : remoteTrans) {
+            transToMerge.add(nameId.getIdentification());
+        }
     }
 
     /**
@@ -774,7 +784,23 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     else {
                         // Not sync
                         // set state
-                        setNodeSyncState(tempNode, State.NOT_SYNC);
+                        if (transToMerge.contains(tempTrans.getIdentification())) {
+                            ExtendedTreeNode treeNode = treeModel.findNode(lblBeacon.getBeacon(),
+                                    ParentNodes.TRANSPONDERS);
+                            TransponderElement newTrans = new TransponderElement(lblBeacon, id,
+                                    tempTrans.getMapGroup(), tempTrans.getParentMap());
+                            treeNode.setUserObject(newTrans);
+                            // System.out.println(lblBeacon.getBeacon() + " updated to "
+                            // + newTrans.getCenterLocation().getDepth() + " depth");
+                            transToMerge.remove(lblBeacon.getBeacon());
+                            setNodeSyncState(treeNode, State.SYNC);
+                            // update mission
+                            newTrans.getParentMap().addObject(newTrans);
+                            saveMission(mission);
+                        }
+                        else {
+                            setNodeSyncState(tempNode, State.NOT_SYNC);
+                        }
                         // System.out.println(" >> Not Sync.");
                     }
                     // set id

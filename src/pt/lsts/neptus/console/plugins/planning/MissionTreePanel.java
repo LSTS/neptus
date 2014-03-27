@@ -735,6 +735,28 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     });
         }
 
+        private void addActionGetRemoteTrans(final ConsoleLayout console2, JPopupMenu popupMenu,
+                final ArrayList<NameId> remoteTrans) {
+            StringBuilder itemsInString = getItemsInString(remoteTrans);
+            popupMenu.add(I18n.textf("Get %planName from %system", itemsInString, console2.getMainSystem()))
+                    .addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            // if (selection != null) {
+                            // pdbControl.setRemoteSystemId(console2.getMainSystem());
+                            for (NameId nameId : remoteTrans) {
+                                // Signal ids to merge
+                                browser.addTransToMerge(remoteTrans);
+                                // Request LBLConfig
+                                LblConfig msgLBLConfiguration = new LblConfig();
+                                msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
+                                sendMsg(msgLBLConfiguration);
+                            }
+                            // }
+                        }
+                    });
+        }
+
         private void addActionRemovePlanRemotely(final ConsoleLayout console2, final PlanDBControl pdbControl,
                 final ArrayList<NameId> synAndUnsyncPlans, JPopupMenu popupMenu) {
             popupMenu.add(
@@ -859,6 +881,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     if (selectedItems.size() == 1)
                         addActionEditTrans((TransponderElement) selectedItems.get(0), popupMenu);
                     ArrayList<TransponderElement> localTrans = new ArrayList<TransponderElement>();
+                    ArrayList<NameId> notSyncTrans = new ArrayList<NameId>();
                     State state;
                     for (ExtendedTreeNode extendedTreeNode : selectedNodes) {
                         state = (State) extendedTreeNode.getUserInfo().get(NodeInfoKey.SYNC.name());
@@ -866,9 +889,14 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                         toShare.add((NameId) extendedTreeNode.getUserObject());
                         if (state == State.LOCAL)
                             localTrans.add((TransponderElement) extendedTreeNode.getUserObject());
+                        if (state == State.NOT_SYNC)
+                            notSyncTrans.add((TransponderElement) extendedTreeNode.getUserObject());
                     }
                     if (localTrans.size() > 0) {
                         addActionRemoveTrans(localTrans, popupMenu);
+                    }
+                    if (notSyncTrans.size() > 0) {
+                        addActionGetRemoteTrans(getConsole(), popupMenu, notSyncTrans);
                     }
                     // Switch
                     JMenu switchM = new JMenu(I18n.text("Switch"));
