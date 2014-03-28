@@ -1000,6 +1000,7 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/i18n/**/*.class" />
 			<include name="pt/lsts/neptus/NeptusLog*.class" />
 			<include name="pt/lsts/neptus/app/tiles/**/*.class" />
+			<include name="pt/lsts/neptus/comm/iridium/IridiumManager*.class" />
 			<include name="pt/lsts/neptus/comm/manager/imc/ImcId16*.class" />
 			<include name="pt/lsts/neptus/comm/manager/imc/ImcSystem*.class" />
 			<include name="pt/lsts/neptus/comm/proxy/ProxyInfoProvider*.class" />
@@ -1035,6 +1036,7 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/mp/SystemPos*.class" />
 			<include name="pt/lsts/neptus/mp/MapChangeEvent.class" />
 			<exclude name="pt/lsts/neptus/mp/MissionPlanner*.class" />
+			<include name="pt/lsts/neptus/mra/replay/*.class" />
 			<include name="pt/lsts/neptus/mra/visualizations/MRAVisualization*.class" />
 			<include name="pt/lsts/neptus/mra/exporters/MRAExporter*.class" />
 			<include name="pt/lsts/neptus/mra/replay/LogReplayLayer*.class" />
