@@ -884,6 +884,7 @@ For simple use the main targets are:
 			<include name="images/files-icons/*.png"/>
 			<include name="schemas/neptus-checklist.xsd"/>
 			<include name="pt/lsts/neptus/NeptusLog*.class" />
+			<include name="pt/lsts/neptus/comm/iridium/IridiumManager*.class" />
 			<include name="pt/lsts/neptus/comm/manager/imc/ImcId16*.class"/>
 			<include name="pt/lsts/neptus/comm/transports/ImcUdpTransport*.class"/>
 			<include name="pt/lsts/neptus/comm/vehicle/*.class"/>
