@@ -195,6 +195,8 @@ public class ConfigFetch {
             ENV = ENVIROMENT.PRODUCTION;
         }
         
+        // This as to be called before logger
+        OutputMonitor.grab();
         // Config Logger
         NeptusLog.init();
         
@@ -225,6 +227,7 @@ public class ConfigFetch {
             @Override
             public void run() {
                 FileUtil.deltree(neptusTmpDir);
+                OutputMonitor.end();
             }
         }));
 
@@ -338,7 +341,7 @@ public class ConfigFetch {
         fxTmpDir.mkdirs();
         fxTmpDir.deleteOnExit();
 
-        OutputMonitor.grab();
+//        OutputMonitor.grab();
 
         try {
 //            if (ifLogger) {

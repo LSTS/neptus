@@ -194,9 +194,10 @@ public class OutputMonitor {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+//	    OutputMonitor.grab();
 		ConfigFetch.initialize();
 		
-		new OutputMonitor();
+//		new OutputMonitor();
 		NeptusLog.pub().info("<###>dsd");
 		
 		System.err.println("dsd asdf sdf sadf asdfa sdkfg aksjdgf ksdagfk jasdgfkjasgd fkajsgd fkjasgdkjf hgaskjdgfkasjd f\nsdasdf gasdf hgaskdjfg ksajdgfk asgdfk gaskdjfgkjashdgf " +
