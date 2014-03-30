@@ -78,7 +78,7 @@ public class NeptusMain {
     private static LinkedHashMap<String, Class<?>> fileHandlers = new LinkedHashMap<String, Class<?>>();
     private static Loader loader;
 
-    static {
+    private static void init() {
         GeneralPreferences.initialize();
 
         appNames.put("ws", I18n.text("Workspace"));
@@ -105,12 +105,24 @@ public class NeptusMain {
      * @param loader
      * @param appargs
      */
+    public static void launch(String appargs[]) {
+        ConfigFetch.initialize(); // Don't touch this, leave it as it his
+        if (appNames.isEmpty())
+            init();
+        
+        launch(new Loader(), appargs);
+    }
+
     public static void launch(Loader loader, String appargs[]) {
-        ConfigFetch.initialize();
+        ConfigFetch.initialize(); // Don't touch this, leave it as it his
         // benchmark
         long start = System.currentTimeMillis();
         NeptusMain.loader =  loader;
-
+        
+        if (appNames.isEmpty()) {
+            init();
+        }
+        
         String app = appargs[0];
         loader.start();
         ConfigFetch.setSuperParentFrameForced(loader);
