@@ -145,8 +145,9 @@ public class AudibleVehicleState extends ConsolePanel implements IPeriodicUpdate
         VehicleState oldState = vStatesImc.get(src);
 
         if (oldState != null) {
-            if (oldState.getOpMode() != msg.getOpMode()) {
-                
+            boolean stoppedTeleop = oldState.getManeuverType() == Teleoperation.ID_STATIC && msg.getManeuverType() != Teleoperation.ID_STATIC;
+            boolean startedTeleop = oldState.getManeuverType() != Teleoperation.ID_STATIC && msg.getManeuverType() == Teleoperation.ID_STATIC;
+            if (oldState.getOpMode() != msg.getOpMode() || startedTeleop || stoppedTeleop) {
                 String text = src + " is in " + msg.getOpMode().toString() + " mode";
                 if (msg.getManeuverType() == Teleoperation.ID_STATIC)
                     text = src + " is in teleh operation mode";

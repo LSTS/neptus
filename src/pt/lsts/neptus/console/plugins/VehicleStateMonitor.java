@@ -119,7 +119,9 @@ public class VehicleStateMonitor extends ConsolePanel implements IPeriodicUpdate
             else {
                 OP_MODE last = oldState.getOpMode();
                 OP_MODE current = msg.getOpMode();
-                if (last != current) {
+                int lastType = oldState.getManeuverType();
+                int currentType = msg.getManeuverType();
+                if (last != current || lastType != currentType) {
                     systemStates.put(src, msg);
                     if (msg.getManeuverType() == Teleoperation.ID_STATIC) {
                         post(new ConsoleEventVehicleStateChanged(src, text, STATE.TELEOPERATION));
