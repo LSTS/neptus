@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<!-- W3C specifications   http://www.w3.org/TR/xmlschema-0  -->
+
+<!-- DATA DECLARATION -->
+<xs:complexType name="data">
+  <xs:sequence>
+    <xs:element name="program" type="program" minOccurs="0" maxOccurs="unbounded"/>
+    <xs:element name="errors" type="errors" minOccurs="0"/>
+  </xs:sequence>
+  <xs:attribute name="version" type="xs:string"/>
+</xs:complexType>
+
+<!-- PROGRAM DECLARATION -->
+<xs:complexType name="program">
+  <xs:sequence>
+    <xs:element name="programNumber" type="xs:int" minOccurs="0"/>
+    <xs:element name ="platform" type="platform" minOccurs="0" maxOccurs="unbounded"/>
+  </xs:sequence>
+</xs:complexType>
+
+<!-- PLATFORM DECLARATION -->
+<xs:complexType name="platform">
+  <xs:sequence>
+    <xs:element name="platformId" type="xs:int" minOccurs="0"/>
+    <xs:element name="platformType" type="xs:string" minOccurs="0"/>
+    <xs:element name="platformName" type="xs:string" minOccurs="0"/>
+    <xs:element name="platformModel" type="xs:string" minOccurs="0"/>
+    <xs:element name="platformHexId" type="xs:string" minOccurs="0"/>
+    <xs:element name ="satellitePass" type="satellitePass" minOccurs="0" maxOccurs="unbounded"/>
+  </xs:sequence>
+</xs:complexType>
+
+<!-- SATELLITE PASS DECLARATION -->
+<xs:complexType name="satellitePass">
+  <xs:sequence>
+    <xs:element name="satellite" type="xs:string" minOccurs="0"/>
+    <xs:element name="bestMsgDate" type="xs:dateTime" minOccurs="0"/>
+    <!-- unit : second -->
+    <xs:element name="duration" type="xs:int" minOccurs="0"/>
+    <xs:element name="nbMessage" type="xs:int" minOccurs="0"/>
+    <xs:element name="message120" type="xs:int" minOccurs="0"/>
+    <!-- unit : dBm -->
+    <xs:element name="bestLevel" type="xs:int" minOccurs="0"/>
+	<!-- unit : Hertz -->
+    <xs:element name="frequency" type="xs:double" minOccurs="0"/>
+    <xs:element name="location" type="location" minOccurs="0"/>
+    <xs:element name ="message" type="message" minOccurs="0" maxOccurs="unbounded"/>
+  </xs:sequence>
+</xs:complexType>
+
+<!-- LOCATION DECLARATION -->
+<xs:complexType name="location">
+  <xs:sequence>
+  	<!-- GMT -->
+    <xs:element name="locationDate" type="xs:dateTime" minOccurs="0"/>
+    <!-- range : -90Â°..+90Â° -->
+    <xs:element name="latitude" type="xs:double" minOccurs="0"/>
+    <!-- range : -180Â°..+180Â° -->
+    <xs:element name="longitude" type="xs:double" minOccurs="0"/>
+    <!-- unit : meter -->
+    <xs:element name="altitude" type="xs:double" minOccurs="0"/>
+    <xs:element name="locationClass" type="xs:string" minOccurs="0"/>
+    <!-- unit : meter/second -->
+    <xs:element name="gpsSpeed" type="xs:float" minOccurs="0"/>
+    <!-- range : 0Â°..+360Â°, clockwise -->
+    <xs:element name="gpsHeading" type="xs:float" minOccurs="0"/>
+    <xs:element name="diagnostic" type="diagnostic" minOccurs="0"/>
+  </xs:sequence>
+</xs:complexType>
+
+<!-- DIAGNOSTIC DECLARATION -->
+<xs:complexType name="diagnostic">
+  <xs:sequence>
+  	<!-- range : -90Â°..+90Â° -->
+    <xs:element name="latitude2" type="xs:float" minOccurs="0"/>
+    <!-- range : -180Â°..+180Â° -->
+    <xs:element name="longitude2" type="xs:float" minOccurs="0"/>
+    <!-- unit : meter -->
+    <xs:element name="altitude2" type="xs:float" minOccurs="0"/>
+    <xs:element name="index" type="xs:int" minOccurs="0"/>
+    <xs:element name="nopc" type="xs:int" minOccurs="0"/>
+    <!-- unit : meter -->
+    <xs:element name="errorRadius" type="xs:float" minOccurs="0"/>
+    <!-- unit : meter -->
+    <xs:element name="semiMajor" type="xs:float" minOccurs="0"/>
+    <!-- unit : meter -->
+    <xs:element name="semiMinor" type="xs:float" minOccurs="0"/>
+    <!-- range 0Â°..180Â°, clockwise -->
+    <xs:element name="orientation" type="xs:float" minOccurs="0"/>
+    <xs:element name="hdop" type="xs:string" minOccurs="0"/>
+  </xs:sequence>
+</xs:complexType>
+
+<!-- MESSAGE DECLARATION -->
+<xs:complexType name="message">
+  <xs:sequence>
+  	<!-- GMT -->
+    <xs:element name="bestDate" type="xs:dateTime" minOccurs="0"/>
+    <xs:element name="compression" type="xs:int" minOccurs="0"/>
+    <xs:element name ="collect" type="collect" minOccurs="0" maxOccurs="unbounded"/>
+    <xs:element name ="format" type="format" minOccurs="0" maxOccurs="unbounded"/>
+  </xs:sequence>
+</xs:complexType>
+
+<!-- COLLECT DECLARATION -->
+<xs:complexType name="collect">
+  <xs:sequence>
+    <xs:element name="type" type="xs:string" minOccurs="0"/>
+    <xs:element name="alarm" type="xs:string" minOccurs="0"/>
+    <xs:element name="concatenated" type="xs:string" minOccurs="0"/>
+    <!-- GMT -->
+    <xs:element name="date" type="xs:dateTime" minOccurs="0"/>
+    <!-- unit : dBm -->
+    <xs:element name="level" type="xs:float" minOccurs="0"/>
+	<!-- unit : Hertz -->
+    <xs:element name="doppler" type="xs:double" minOccurs="0"/>
+    <xs:element name="rawData" type="xs:string" minOccurs="0"/>
+  </xs:sequence>
+</xs:complexType>
+
+
+<!-- FORMAT DECLARATION -->
+<xs:complexType name="format">
+  <xs:sequence>
+    <xs:element name="formatOrder" type="xs:int" minOccurs="0"/>
+    <xs:element name="formatName" type="xs:string" minOccurs="0"/>
+    <xs:element name ="sensor" type="sensor" minOccurs="0" maxOccurs="unbounded"/>
+  </xs:sequence>
+</xs:complexType>
+
+<!-- SENSOR DECLARATION -->
+<xs:complexType name="sensor">
+  <xs:sequence>
+    <xs:element name="order" type="xs:int" minOccurs="0"/>
+    <xs:element name="name" type="xs:string" minOccurs="0"/>
+    <xs:element name="valueType" type="xs:string" minOccurs="0"/>
+    <xs:element name="value" type="xs:string" minOccurs="0"/>
+    <xs:element name="valueStr" type="xs:string" minOccurs="0"/>
+  </xs:sequence>
+</xs:complexType>
+
+
+<!-- ERRORS DECLARATION -->
+<xs:complexType name="errors">
+  <xs:sequence>
+    <xs:element name ="error" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+      
+    </xs:element>
+  </xs:sequence>
+</xs:complexType>
+
+</xs:schema>
