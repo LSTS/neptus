@@ -31,15 +31,20 @@
  */
 package pt.lsts.neptus.plugins.sunfish.awareness;
 
+import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import javax.xml.bind.DatatypeConverter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.codec.binary.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import fr.cls.argos.dataxmldistribution.service.DixService;
-import fr.cls.argos.dataxmldistribution.service.types.XmlRequestType;
-import fr.cls.argos.dataxmldistribution.service.types.XsdRequestType;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -47,10 +52,13 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import fr.cls.argos.dataxmldistribution.service.DixService;
+import fr.cls.argos.dataxmldistribution.service.types.XmlRequestType;
+import fr.cls.argos.dataxmldistribution.service.types.XsdRequestType;
 
 /**
  * @author zp
- *
+ * 
  */
 public class ArgosLocationProvider implements ILocationProvider {
 
@@ -59,14 +67,15 @@ public class ArgosLocationProvider implements ILocationProvider {
 
     @NeptusProperty
     private String argosPassword = null;
-    
+
     @NeptusProperty
     private String platformId = "136978";
-    
+
     private boolean enabled = true;
-    
-    boolean askCredentials = true;
-    
+
+    private boolean askCredentials = true;
+    private SituationAwareness sitAwareness;
+
     {
         try {
             PluginUtils.loadProperties("conf/argosCredentials.props", this);
@@ -74,7 +83,7 @@ public class ArgosLocationProvider implements ILocationProvider {
         catch (Exception e) {
         }
     }
-    
+
     private String getArgosUsername() {
         if (argosUsername == null)
             return "";
@@ -99,22 +108,23 @@ public class ArgosLocationProvider implements ILocationProvider {
             this.argosUsername = null;
         this.argosUsername = username;
     }
-    
-    private String getXsd() throws Exception {
+
+    public String getXsd() throws Exception {
         DixService srv = new DixService();
         XsdRequestType request = new XsdRequestType();
         return srv.getDixServicePort().getXsd(request).getReturn();
     }
-    
-    @Periodic(millisBetweenUpdates=120000)
+
+    @Periodic(millisBetweenUpdates = 120000)
     public void updatePositions() {
         if (!enabled)
             return;
+
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         
         DixService srv = new DixService();
         XmlRequestType request = new XmlRequestType();
-        request.setUsername("biodivers");
-
+        
         if (askCredentials || argosPassword == null) {
             Pair<String, String> credentials = GuiUtils.askCredentials(ConfigFetch.getSuperParentFrame(),
                     "Enter Argos Credentials", getArgosUsername(), getArgosPassword());
@@ -133,23 +143,63 @@ public class ArgosLocationProvider implements ILocationProvider {
             }
             askCredentials = false;
         }
-        
+
         request.setUsername(getArgosUsername());
         request.setPassword(getArgosPassword());
+        request.setMostRecentPassages(true);
         request.setPlatformId(platformId);
-        request.setNbDaysFromNow(2);
+        request.setNbDaysFromNow(1);
         try {
-            System.out.println(srv.getDixServicePort().getXml(request).getReturn());
-            //TODO process result data (when there are positions)
+            String xml = srv.getDixServicePort().getXml(request).getReturn();
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document doc = db.parse(new ByteArrayInputStream(xml.getBytes()));
+            NodeList locations = doc.getElementsByTagName("location");
+            for (int i = 0; i < locations.getLength(); i++) {
+                Node locNode = locations.item(i);
+                Node platformNode = locNode.getParentNode().getParentNode();
+                Node platfId = platformNode.getFirstChild();
+                String id = platfId.getTextContent();
+                NodeList childs = locNode.getChildNodes();
+                String lat = null, lon = null, date = null, locClass = null;
+
+                for (int j = 0; j < childs.getLength(); j++) {
+                    Node elem = childs.item(j);
+                    switch (elem.getNodeName()) {
+                        case "locationDate":
+                            date = elem.getTextContent();
+                            break;
+                        case "latitude":
+                            lat = elem.getTextContent();
+                            break;
+                        case "longitude":
+                            lon = elem.getTextContent();
+                            break;
+                        case "locationClass":
+                            locClass = elem.getTextContent();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                AssetPosition pos = new AssetPosition("Argos_" + id, Double.parseDouble(lat), Double.parseDouble(lon));
+                pos.setSource("Argos WS");
+                pos.setType("Argos Tag");
+                pos.putExtra("Loc. Class", locClass);
+                pos.setTimestamp(df.parse(date.replaceAll("T", " ").replaceAll("Z", "")).getTime());
+                if (sitAwareness != null)
+                    sitAwareness.addAssetPosition(pos);
+            }
         }
         catch (Exception e) {
-            NeptusLog.pub().error(e);            
+            e.printStackTrace();
+            NeptusLog.pub().error(e);
         }
     }
-    
+
     @Override
     public void onInit(SituationAwareness instance) {
-    
+        this.sitAwareness = instance;
     }
 
     @Override
@@ -159,8 +209,6 @@ public class ArgosLocationProvider implements ILocationProvider {
 
     public static void main(String[] args) throws Exception {
         ArgosLocationProvider provider = new ArgosLocationProvider();
-        System.out.println(provider.getXsd());
-
         provider.updatePositions();
     }
 }

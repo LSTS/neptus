@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.sunfish.awareness;
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.types.coord.LocationType;
@@ -57,6 +58,11 @@ public class AssetPosition implements Comparable<AssetPosition> {
         this.loc = new LocationType(latDegrees, lonDegrees);
     }
 
+    @Override
+    public String toString() {
+        return assetName+"("+new Date(timestamp)+": "+loc+")";
+    }
+    
     /**
      * @return the assetName
      */
