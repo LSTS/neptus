@@ -34,6 +34,8 @@ package pt.lsts.neptus.mra.replay;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Transparency;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -145,11 +147,23 @@ public class SidescanReplay implements LogReplayLayer {
 
 
     }
+    
+    private boolean firstPaint = true;
 
     @Override
-    public void paint(Graphics2D g, StateRenderer2D renderer) {
+    public void paint(Graphics2D g, final StateRenderer2D renderer) {
         LocationType center  = renderer.getCenter().getNewAbsoluteLatLonDepth();
 
+        if (firstPaint) {
+            firstPaint = false;
+            renderer.addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    generateImage(renderer);
+                }
+            });
+        }
+        
         if(renderer.getLevelOfDetail()!= lod) 
             generate = true;
         if(generate) {
