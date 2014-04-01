@@ -37,11 +37,14 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Vector;
 
+import javax.swing.JOptionPane;
+
 import pt.lsts.imc.GpsFix;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -54,8 +57,11 @@ public class SimulationActionsPlugin extends ConsolePanel {
     protected final String menuTools = I18n.text("Tools");
     protected final String menuSimulation = I18n.text("Simulation");
     protected final String menuSendFix = I18n.text("Send GPS Fix");
-    // protected final String menuManDone = I18n.text("Flag maneuver completion");
-
+    protected final String menuChooseHeight = I18n.text("Simulated Height...");
+    
+    @NeptusProperty
+    private double simulatedHeight = 0;
+    
     private static final long serialVersionUID = 1L;
 
     public SimulationActionsPlugin(ConsoleLayout console) {
@@ -70,21 +76,27 @@ public class SimulationActionsPlugin extends ConsolePanel {
             public void actionPerformed(ActionEvent e) {
                 sendGpsFix();
             }
-        });
+        });        
         
-//        addMenuItem(menuTools+">"+menuSimulation+">"+menuManDone, null, new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                sendManeuverDone();
-//            }
-//        });
+        addMenuItem(menuTools+">"+menuSimulation+">"+menuChooseHeight, null, new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                selectHeight();
+            }
+        });
     }
 
-    // private void sendManeuverDone() {
-    // ManeuverControlState mcs = new ManeuverControlState();
-    // mcs.setState(ManeuverControlState.STATE.DONE);
-    // send(mcs);
-    // }
+    private void selectHeight() {
+        String sel = JOptionPane.showInputDialog(getConsole(), "Select Simulated Height", ""+simulatedHeight);
+        
+        try {
+            simulatedHeight = Double.parseDouble(sel);    
+        }
+        catch (Exception e) {
+            GuiUtils.errorMessage(getConsole(), e);
+        }
+    }
     
     private void sendGpsFix() {
         Vector<MapPanel> pps = getConsole().getSubPanelsOfClass(MapPanel.class); 
@@ -106,6 +118,7 @@ public class SimulationActionsPlugin extends ConsolePanel {
                     "utc_time", cal.get(Calendar.HOUR_OF_DAY) * 3600 + cal.get(Calendar.MINUTE) * 60 + cal.get(Calendar.SECOND),
                     "lat", loc.getLatitudeRads(),
                     "lon", loc.getLongitudeRads(),
+                    "height", simulatedHeight,
                     "satellites", 4,
                     "cog", 0,
                     "sog", 0,
