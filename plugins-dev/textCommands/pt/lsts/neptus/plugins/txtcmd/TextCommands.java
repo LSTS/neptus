@@ -60,6 +60,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.cmdsenders.AcousticModemSender;
 import pt.lsts.neptus.plugins.cmdsenders.ITextMsgSender;
 import pt.lsts.neptus.plugins.cmdsenders.IridiumSender;
 import pt.lsts.neptus.plugins.cmdsenders.SmsSender;
@@ -94,6 +95,7 @@ public class TextCommands extends ConsolePanel {
     private WiFiSender wifiSender = new WiFiSender();
     private IridiumSender iridiumSender = new IridiumSender();
     private SmsSender smsSender = new SmsSender();
+    private AcousticModemSender acousticSender = new AcousticModemSender();
 
     public TextCommands(ConsoleLayout console) {
         super(console);
@@ -117,7 +119,7 @@ public class TextCommands extends ConsolePanel {
         cmdList.addAll(commands.keySet());
         Collections.sort(cmdList);
         comboCmd = new JComboBox<>(cmdList.toArray(new String[0]));
-        comboMean = new JComboBox<String>(new String[] {"Wi-Fi", "Iridium", "SMS"});
+        comboMean = new JComboBox<String>(new String[] {"Wi-Fi", "Iridium", "SMS", "Acoustic Modem"});
         add(lblCmd, "0,0");
         add(lblMean, "0,1");
         add(comboCmd, "1,0");
@@ -235,6 +237,9 @@ public class TextCommands extends ConsolePanel {
                 break;
             case "Iridium":
                 sender = iridiumSender;
+                break;
+            case "Acoustic Modem":
+                sender = acousticSender;
                 break;
             default:
                 sender = wifiSender;
