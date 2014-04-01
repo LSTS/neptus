@@ -58,7 +58,7 @@ public class PlanActions {
 	/**
 	 * @return the actionMsgs
 	 */
-	public LinkedList<PlanActionElementConfig> getActionMsgs() {
+	public LinkedList<PlanActionElementConfig> getActionMsgs() {	  
 		return actionMsgs;
 	}
 
@@ -163,6 +163,7 @@ public class PlanActions {
     public void parseMessages(Vector<IMCMessage> actionsMessages) {
         // For now all are actionMsgs
         actionMsgs.clear();
+        new Exception().printStackTrace();
         for (IMCMessage msg : actionsMessages) {
             PlanActionElementConfig paec = new PlanActionElementConfig();
             paec.setMessage(msg);

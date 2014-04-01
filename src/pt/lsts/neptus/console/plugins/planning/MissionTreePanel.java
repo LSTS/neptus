@@ -45,12 +45,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.TreeMap;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -58,13 +55,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.swing.tree.TreePath;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.LblBeacon;
 import pt.lsts.imc.LblConfig;
 import pt.lsts.imc.LblConfig.OP;
@@ -88,10 +82,8 @@ import pt.lsts.neptus.console.plugins.IPlanSelection;
 import pt.lsts.neptus.console.plugins.ITransponderSelection;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
-import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBAdapter;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBControl;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBInfo;
-import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.gui.LocationPanel;
 import pt.lsts.neptus.gui.MissionBrowser;
 import pt.lsts.neptus.gui.MissionBrowser.State;
@@ -116,7 +108,6 @@ import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.mission.HomeReference;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.util.ByteUtil;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -153,105 +144,11 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
      * This adapter is called by a class monitoring PlanDB messages. It is only called if a PlanDB message with field
      * type set to success is received.
      */
-    protected PlanDBAdapter planDBListener = new PlanDBAdapter() {
-        // Called only if Type == SUCCESS in received PlanDB message
-        @Override
-        public void dbCleared() {
-        }
-
-        @Override
-        public void dbInfoUpdated(PlanDBState updatedInfo) {
-            // PlanDB Operation = GET_STATE
-            // Get state of the entire DB. Successful replies will yield a
-            // 'PlanDBState' message in the 'arg' field but without
-            // individual plan information (in the 'plans_info' field of
-            // 'PlanDBState').
-            TreePath[] selectedNodes = browser.getSelectionPath();
-
-            // browser.transUpdateElapsedTime(); //TODO
-
-            TreeMap<String, PlanType> localPlans;
-            try {
-                localPlans = getConsole().getMission().getIndividualPlansList();
-            }
-            catch (NullPointerException e) {
-                NeptusLog.pub().warn("I cannot find local plans for " + getMainVehicleId());
-                localPlans = new TreeMap<String, PlanType>();
-            }
-            browser.updatePlansStateEDT(localPlans, getMainVehicleId());
-            browser.setSelectedNodes(selectedNodes);
-//            System.out.println("dbInfoUpdated");
-        }
-
-        @Override
-        public void dbPlanReceived(PlanType spec) {
-            // PlanDB Operation = GET
-            // Get a plan stored in the DB.The 'plan_id' field identifies
-            // the plan. Successful replies will yield a
-            // 'PlanSpecification' message in the 'arg' field.
-            // Update when received remote plan into our system
-            // Put plan in mission
-            PlanType lp = getConsole().getMission().getIndividualPlansList().get(spec.getId());
-            spec.setMissionType(getConsole().getMission());
-            getConsole().getMission().addPlan(spec);
-            // Save mission
-            getConsole().getMission().save(true);
-            // Alert listeners
-            getConsole().updateMissionListeners();
-
-
-            if (debugOn && lp != null) {
-                try {
-                    IMCMessage p1 = lp.asIMCPlan(), p2 = spec.asIMCPlan();
-
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    IMCOutputStream imcOs = new IMCOutputStream(baos);
-
-                    ByteUtil.dumpAsHex(p1.payloadMD5(), System.out);
-                    ByteUtil.dumpAsHex(p2.payloadMD5(), System.out);
-
-                    // NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(p1));
-                    // NeptusLog.pub().info("<###> "+IMCUtil.getAsHtml(p2));
-
-                    p1.serialize(imcOs);
-                    ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
-
-                    baos = new ByteArrayOutputStream();
-                    imcOs = new IMCOutputStream(baos);
-                    p2.serialize(imcOs);
-                    ByteUtil.dumpAsHex(baos.toByteArray(), System.out);
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            //System.out.println("dbPlanReceived");
-        }
-
-        @Override
-        public void dbPlanRemoved(String planId) {
-            // PlanDB Operation = DEL
-            // Delete a plan from the DB. The 'plan_id' field identifies
-            // the plan to delete.
-            browser.removeCurrSelectedNodeRemotely();
-            //System.out.println("dbPlanRemoved");
-        }
-
-        @Override
-        public void dbPlanSent(String planId) {
-            // PlanDB Operation = SET message.
-            // Set a plan in the DB. The 'plan_id' field identifies the
-            // plan, and a pre-existing plan with the same identifier, if
-            // any will be overwritten. For requests, the 'arg' field must
-            // contain a 'PlanSpecification' message.
-            //System.out.println("dbPlanSent");
-            // sent plan confirmation, is now in sync
-            browser.setPlanAsSync(planId);
-        }
-    };
+    protected MissionTreePlanDbAdapter planDBListener;
 
     public MissionTreePanel(ConsoleLayout console) {
         super(console);
+        planDBListener = new MissionTreePlanDbAdapter(getConsole(), this);
         browser.setMaxAcceptableElapsedTime(maxAcceptableElapsedTime);
         removeAll();
         setPreferredSize(new Dimension(150, 400));
@@ -308,6 +205,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         inited = true;
         updatePlanDBListener(getMainVehicleId());
         browser.refreshBrowser(getConsole().getMission(), getMainVehicleId(), getConsole());
+        planDBListener.setDebugOn(debugOn);
         addClearPlanDbMenuItem();
     }
 
@@ -469,13 +367,6 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     plans.add((PlanType) o);
             }
         }
-        // final Object[] multiSel = selectedItems;
-        // if (multiSel != null) {
-        // for (Object o : multiSel) {
-        // if (o instanceof PlanType)
-        // plans.add((PlanType) o);
-        // }
-        // }
         if (plans.isEmpty() && getConsole().getPlan() != null)
             plans.add(getConsole().getPlan());
         return plans;
@@ -585,14 +476,9 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
      */
     @Override
     public void propertiesChanged() {
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                browser.setDebugOn(debugOn);
-                browser.setMaxAcceptableElapsedTime(maxAcceptableElapsedTime);
-            }
-        });
+        browser.setDebugOn(debugOn);
+        planDBListener.setDebugOn(debugOn);
+        browser.setMaxAcceptableElapsedTime(maxAcceptableElapsedTime);
     }
 
     class MissionTreeMouse extends MouseAdapter {
@@ -638,9 +524,6 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            // if (selection != null) {
-                            // if (pdbControl == null)
-                            // System.out.println("Pdb null");
                             for (NameId nameId : selectedItems) {
                                 PlanType sel = (PlanType) nameId;
                                 String mainSystem = console2.getMainSystem();
@@ -725,12 +608,9 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     .addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            // if (selection != null) {
-                            // pdbControl.setRemoteSystemId(console2.getMainSystem());
                             for (NameId nameId : remotePlans) {
                                 pdbControl.requestPlan(nameId.getIdentification());
                             }
-                            // }
                         }
                     });
         }
@@ -744,14 +624,14 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                         public void actionPerformed(ActionEvent e) {
                             // if (selection != null) {
                             // pdbControl.setRemoteSystemId(console2.getMainSystem());
-                            for (NameId nameId : remoteTrans) {
+                           // for (NameId nameId : remoteTrans) {
                                 // Signal ids to merge
                                 browser.addTransToMerge(remoteTrans);
                                 // Request LBLConfig
                                 LblConfig msgLBLConfiguration = new LblConfig();
                                 msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
                                 sendMsg(msgLBLConfiguration);
-                            }
+                            //}
                             // }
                         }
                     });

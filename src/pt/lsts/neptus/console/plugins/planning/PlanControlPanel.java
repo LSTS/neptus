@@ -873,6 +873,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
             pdb.setRequestId(reqId);
             pdb.setPlanId(plan.getId());
             pdb.setArg(planSpecificationMessage);
+            
             pdb.setInfo("Plan sent by Neptus version " + ConfigFetch.getNeptusVersion());
             registerPlanControlRequest(reqId);
             boolean ret = IMCSendMessageUtils.sendMessage(pdb, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP

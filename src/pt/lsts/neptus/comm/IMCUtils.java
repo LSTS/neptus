@@ -1246,7 +1246,7 @@ public class IMCUtils {
         for (int i = 0; i < data.length; i++) {
             if (i % 10 == 0)
                 System.out.print(" ");
-            System.out.printf("%X ", data[i]);
+            System.out.printf("%02X", data[i]);
         }
         
     }

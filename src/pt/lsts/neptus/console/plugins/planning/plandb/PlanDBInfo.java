@@ -104,9 +104,6 @@ public class PlanDBInfo implements IMCSerialization, NameId {
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.IMCSerialiazation#parseIMCMessage(pt.lsts.neptus.util.comm.vehicle.IMCMessage)
-     */
     @Override
     public void parseIMCMessage(IMCMessage imc_PlanDBInfo) {
         planId = imc_PlanDBInfo.getAsString("plan_id");
@@ -115,11 +112,7 @@ public class PlanDBInfo implements IMCSerialization, NameId {
         lastChangeName = imc_PlanDBInfo.getAsString("change_sname");
         md5 = imc_PlanDBInfo.getRawData("md5");
     }
-    
-    
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
+        
     @Override
     public String toString() {
         return planId;

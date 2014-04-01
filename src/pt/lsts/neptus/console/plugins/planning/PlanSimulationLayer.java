@@ -165,7 +165,7 @@ public class PlanSimulationLayer extends ConsoleLayer {
         }
 
         checks.addAll(validateVehicle());
-        checks.addAll(validatePayload());
+        checks.addAll(validatePlanCompatibility());
         checks.addAll(validateDistances());
         checks.addAll(validateCollisions());
 
@@ -242,7 +242,7 @@ public class PlanSimulationLayer extends ConsoleLayer {
         return checks;
     } 
 
-    private  List<Pair<PlanCheck, String>> validatePayload() {
+    private  List<Pair<PlanCheck, String>> validatePlanCompatibility() {
         ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
         try {
             PlanCompability.testCompatibility(VehiclesHolder.getVehicleById(getConsole().getMainSystem()), mainPlan);

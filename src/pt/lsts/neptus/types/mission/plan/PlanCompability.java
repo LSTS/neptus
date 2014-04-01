@@ -86,9 +86,9 @@ public class PlanCompability {
         if (!mansMissing.isEmpty())
             throw new ManeuverNotSupportedException(mansMissing.iterator().next());
         
-        Collection<String> payloadsMissing = payloadsMissing(vehicle, plan);
-        if (!payloadsMissing.isEmpty())
-            throw new PayloadNotSupportedException(mansMissing.iterator().next());
+//        Collection<String> payloadsMissing = payloadsMissing(vehicle, plan);
+//        if (!payloadsMissing.isEmpty())
+//            throw new PayloadNotSupportedException(payloadsMissing.iterator().next());
     }
     
     private static Collection<String> maneuversMissing(VehicleType v, PlanType plan) {
@@ -107,6 +107,7 @@ public class PlanCompability {
         return result;
      }
     
+    @SuppressWarnings("unused")
     private static Collection<String> payloadsMissing(VehicleType vehicle, PlanType plan) {
         
         HashSet<String> needed = new HashSet<>();

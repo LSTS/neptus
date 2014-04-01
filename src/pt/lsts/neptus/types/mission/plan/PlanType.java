@@ -36,6 +36,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Vector;
@@ -52,6 +53,7 @@ import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.PlanManeuver;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.PlanTransition;
+import pt.lsts.imc.PlanVariable;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -548,7 +550,8 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         plan.setPlanId(getId());
         plan.setDescription("");
         plan.setStartManId(getGraph().getInitialManeuverId());
-        
+        ArrayList<PlanVariable> vars = new ArrayList<PlanVariable>();
+        plan.setVariables(vars);
         IMCMessage[] msgs = getStartActions().getAllMessages();
         if (msgs != null)
             plan.setStartActions(Arrays.asList(msgs));

@@ -67,9 +67,15 @@ public class PlanDBState implements IMCSerialization {
         md5 = imc_PlanDBState.getRawData("md5");
         Vector<IMCMessage> planInfos = imc_PlanDBState.getMessageList("plans_info");        
         for (IMCMessage m : planInfos) {
-            PlanDBInfo pinfo = new PlanDBInfo();
+            String planId = m.getString("plan_id");
+            PlanDBInfo pinfo;
+            if (!storedPlans.containsKey(planId))
+                pinfo = new PlanDBInfo();
+            else 
+                pinfo = storedPlans.get(planId);
+            
             pinfo.parseIMCMessage(m);
-            storedPlans.put(pinfo.getPlanId(), pinfo);
+            storedPlans.put(planId, pinfo);
         }
         lastStateUpdated = System.currentTimeMillis();
     }
@@ -161,20 +167,10 @@ public class PlanDBState implements IMCSerialization {
         if (!storedPlans.containsKey(localPlan.getId()))
             return false;
         
-        
-        
         byte[] localMD5 = localPlan.asIMCPlan().payloadMD5();
         byte[] remoteMD5 = storedPlans.get(localPlan.getId()).md5;
+        boolean same = ByteUtil.equal(localMD5, remoteMD5);
+        return same;
         
-//        if (localMD5.length != remoteMD5.length)
-//            return false;
-//        
-//        for (int i = 0; i < localMD5.length; i++)
-//            if (localMD5[i] != remoteMD5[i])
-//                return false;
-//        
-//        return true;
-        
-        return ByteUtil.equal(localMD5, remoteMD5);
     }
 }

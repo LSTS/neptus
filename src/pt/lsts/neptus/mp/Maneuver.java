@@ -570,21 +570,13 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         loadFromXML(manXml);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
-     */
+
     public String asXML() {
         String rootElementName = getType();
         return asXML(rootElementName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
-     */
+
     public String asXML(String rootElementName) {
         String result = "";
         Document document = asDocument(rootElementName);
@@ -592,40 +584,20 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
-     */
     public Element asElement() {
         String rootElementName = getType();
         return asElement(rootElementName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
-     */
+
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
-     */
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
-     */
 
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
@@ -651,7 +623,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         manElement.addElement("maxTime").setText(String.valueOf(getMaxTime()));
 
         manElement.add(getManeuverAsDocument(getType()).getRootElement());
-        // NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(document));
         if (!customSettings.isEmpty()) {
             Element customSettingsElem = manElement.addElement("custom-settings");
 
@@ -669,9 +640,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         }
 
         Element sActionsElm = startActions.asElement("start-actions");
-        // NeptusLog.pub().info("<###>sActionsElm******************** "+ sActionsElm.asXML());
         Element eActionsElm = endActions.asElement("end-actions");
-        // NeptusLog.pub().info("<###>eActionsElm******************** "+ eActionsElm.asXML());
         if (sActionsElm.hasContent() || eActionsElm.hasContent()) {
             Element acElm = root.addElement("actions");
             if (sActionsElm.hasContent())
@@ -679,9 +648,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             if (eActionsElm.hasContent())
                 acElm.add(eActionsElm);
         }
-
-        // NeptusLog.pub().info("<###>node-----------------\n"+document.asXML());
-
         return document;
     }
 
@@ -1033,10 +999,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         else
             tt = "<html><b><font color='#00CC00'>" + getId() + "</font></b> " + I18n.text(getType());
         if (!getStartActions().isEmpty() || !getEndActions().isEmpty()) {
-//            tt += "<hr>" + I18n.text("start-actions") + "->"
-//                    + (getStartActions().isEmpty() ? I18n.text("no") : I18n.text("yes")) + " | "
-//                    + I18n.text("end-actions") + "->"
-//                    + (getEndActions().isEmpty() ? I18n.text("no") : I18n.text("yes"));
             tt += "<hr>"
                     + (getStartActions().isEmpty() ? "" : I18n.text("payload actions"))
                     + (getEndActions().isEmpty() ? "" : (getStartActions().isEmpty() ? "" : " | ")

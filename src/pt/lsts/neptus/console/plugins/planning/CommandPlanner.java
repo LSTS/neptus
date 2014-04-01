@@ -51,10 +51,9 @@ import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
-import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
@@ -219,14 +218,14 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                 vicon = new ImageIcon(vimg.getScaledInstance(40, -1, Image.SCALE_SMOOTH));
                 vehIconPool.put(v.getId(), vicon);
             }
-            
+
             menu.setIcon(vicon);
 
             boolean ok = false;
             if (v.getFeasibleManeuvers().containsValue(Goto.class.getName())) {
                 menu.add(new AbstractAction(I18n.text("Go here")) {
                     @Override
-                    public void actionPerformed(ActionEvent arg0) {
+                    public void actionPerformed(final ActionEvent arg0) {
                         new Thread() {
                             @Override
                             public void run() {
@@ -267,11 +266,8 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
                                 plan.setId(PLAN_PREFIX + "go_" + plan.getId());
-                                getConsole().getMission().addPlan(plan);
-                                getConsole().updateMissionListeners();
-                                getConsole().setPlan(plan);
-
-                                startPlan(plan, false);
+                                plan = addPlanToMission(plan);                              
+                                startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
                             }
                         }.start();
                     }
@@ -282,7 +278,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
             if (v.getFeasibleManeuvers().containsValue(StationKeeping.class.getName())) {
                 menu.add(new AbstractAction(I18n.text("Surface here")) {
                     @Override
-                    public void actionPerformed(ActionEvent arg0) {
+                    public void actionPerformed(final ActionEvent arg0) {
                         new Thread() {
                             @Override
                             public void run() {
@@ -313,11 +309,8 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
                                 plan.setId(PLAN_PREFIX + "sk_" + plan.getId());
-                                getConsole().getMission().addPlan(plan);
-                                getConsole().updateMissionListeners();
-                                getConsole().setPlan(plan);
-
-                                startPlan(plan, false);
+                                plan = addPlanToMission(plan);                                
+                                startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
                             }
                         }.start();
                     }
@@ -328,7 +321,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
             if (v.getFeasibleManeuvers().containsValue(Loiter.class.getName())) {
                 menu.add(new AbstractAction(I18n.text("Loiter here")) {
                     @Override
-                    public void actionPerformed(ActionEvent arg0) {
+                    public void actionPerformed(final ActionEvent arg0) {
                         new Thread() {
                             @Override
                             public void run() {
@@ -373,11 +366,8 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
                                 plan.setId(PLAN_PREFIX + "lt_" + plan.getId());
-                                getConsole().getMission().addPlan(plan);
-                                getConsole().updateMissionListeners();
-                                getConsole().setPlan(plan);
-
-                                startPlan(plan, false);
+                                plan = addPlanToMission(plan);
+                                startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
                             }
                         }.start();
                     }
@@ -393,24 +383,35 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
         return items;
     }
 
-    protected void startPlan(PlanType plan, boolean calibrate) {
-        
+    private PlanType addPlanToMission(PlanType plan) {
+        final String planId = plan.getId();
+        getConsole().getMission().addPlan(plan);
+        getConsole().getMission().save(true);
+        getConsole().updateMissionListeners();
+        PlanType result = getConsole().getMission().getIndividualPlansList().get(planId);
+        getConsole().setPlan(result);
+
+        return result;
+    }
+
+    protected void startPlan(PlanType plan, boolean calibrate, boolean ignoreErrors) {
+
         PlanControl startPlan = new PlanControl();
         startPlan.setType(TYPE.REQUEST);
         startPlan.setOp(OP.START);
-        startPlan.setArg(IMCUtils.generatePlanSpecification(plan));
         startPlan.setPlanId(plan.getId());
+        startPlan.setArg(plan.asIMCPlan());
         int reqId = IMCSendMessageUtils.getNextRequestId();
         startPlan.setRequestId(reqId);
-        if (calibrate)
-            startPlan.setFlags(PlanControl.FLG_CALIBRATE);
-        else
-            startPlan.setFlags(0);
-        
+
+        startPlan.setFlags(
+                (calibrate? PlanControl.FLG_CALIBRATE : 0) | 
+                (ignoreErrors? PlanControl.FLG_IGNORE_ERRORS : 0));
+
         boolean ret = IMCSendMessageUtils.sendMessage(startPlan, CommandPlanner.this,
                 "Error starting " + plan.getId() + " plan", false, true, plan.getVehicle());
         if (ret)
-            registerPlanControlRequest(reqId);
+            registerPlanControlRequest(reqId);       
     }
 
     /**
@@ -439,7 +440,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                         }
                         if (cleanReg)
                             registerRequestIdsTime.remove(reqId);
-                       
+
                     }
                 }
             }
