@@ -57,8 +57,16 @@ fi
 compressLSFFilesFromFolder()
 {
   echo "# Compressing LSF files"
-  find "$1" -name *.lsf | while read fx; do gzip -n -9 -v "$fx"; done;
-  find "$1" -name *IMC.xml | while read fx; do gzip -n -9 -v "$fx"; done;
+  find "$1" -name *.lsf | while read fx; do
+      if [ ! -f "$fx".gz ]; then
+	  gzip -n -9 -v "$fx";
+      fi
+  done;
+  find "$1" -name *IMC.xml | while read fx; do
+      if [ ! -f "$fx".gz ]; then
+	  gzip -n -9 -v "$fx";
+      fi
+  done;
 }
 
 deleteMRAProcessLogLeftOvers()
@@ -69,6 +77,7 @@ deleteMRAProcessLogLeftOvers()
   find $1 -name mra | while read fx; do rm -vRf "$fx"; done;
   find $1 -name lsf.index | while read fx; do rm -v "$fx"; done;
   find $1 -name *.lsf | while read fx; do rm -v "$fx"; done;
+  find $1 -name IMC.xml | while read fx; do rm -v "$fx"; done;
 }
 
 START_PWD=$(pwd)
@@ -146,7 +155,7 @@ if [ $? -ne 128 ]; then
   echo "" >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
   echo "" >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
   echo "------ Git Diff ------" >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
-  git diff >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
+  git diff --no-ext-diff >> $to_upload/$NEPTUSDIR/$todayDirName/scminfo.txt
 fi
 
 echo 30
