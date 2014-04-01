@@ -163,7 +163,6 @@ public class PlanActions {
     public void parseMessages(Vector<IMCMessage> actionsMessages) {
         // For now all are actionMsgs
         actionMsgs.clear();
-        new Exception().printStackTrace();
         for (IMCMessage msg : actionsMessages) {
             PlanActionElementConfig paec = new PlanActionElementConfig();
             paec.setMessage(msg);

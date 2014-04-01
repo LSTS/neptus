@@ -67,6 +67,7 @@ import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.PathProvider;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
+import pt.lsts.neptus.params.ManeuverPayloadConfig;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.NameId;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -499,7 +500,7 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
     }
 
     public String toStringWithVehicles(boolean extended) {
-        String md5 = extended ? ByteUtil.encodeAsString(asIMCPlan().payloadMD5()) : "";
+        String md5 = extended ? ByteUtil.encodeAsString(asIMCPlan(false).payloadMD5()) : "";
         String idStr = this.getId() + (extended ? "[md5:" + md5 + "]" : "");
         if (hasMultipleVehiclesAssociated()) {
             String ret = idStr+" ["+vehicles.firstElement();
@@ -541,10 +542,24 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
     }
 
 
+    public void setPayloads() {
+        Maneuver[] mans = getGraph().getAllManeuvers();
+        for (Maneuver m : mans) {
+            new ManeuverPayloadConfig(getVehicle(), m, null).getProperties();            
+        }
+    }
+    
+    public IMCMessage asIMCPlan() {
+        return asIMCPlan(false);
+    }
+    
     /**
      * @return
      */
-    public IMCMessage asIMCPlan() {
+    public IMCMessage asIMCPlan(boolean fillInPayloads) {
+        
+        if (fillInPayloads)
+            setPayloads();
         
         PlanSpecification plan = new PlanSpecification();
         plan.setPlanId(getId());

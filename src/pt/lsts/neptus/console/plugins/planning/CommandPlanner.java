@@ -400,7 +400,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
         startPlan.setType(TYPE.REQUEST);
         startPlan.setOp(OP.START);
         startPlan.setPlanId(plan.getId());
-        startPlan.setArg(plan.asIMCPlan());
+        startPlan.setArg(plan.asIMCPlan(true));
         int reqId = IMCSendMessageUtils.getNextRequestId();
         startPlan.setRequestId(reqId);
 
