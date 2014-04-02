@@ -50,12 +50,13 @@ public class SideScanComposite implements Composite {
     @Override
     public CompositeContext createContext(ColorModel srcColorModel, ColorModel dstColorModel, RenderingHints hints) {
         return new CompositeContext() {
-            
+
             @Override
             public void dispose() {
-                
+
             }
-            
+
+            @Override
             public void compose(Raster src, Raster dstIn, WritableRaster dstOut) {
                 int width = Math.min(src.getWidth(), dstIn.getWidth());
                 int height = Math.min(src.getHeight(), dstIn.getHeight());
@@ -64,8 +65,6 @@ public class SideScanComposite implements Composite {
                 int[] dstPixel = new int[4];
                 int[] srcPixels = new int[width];
                 int[] dstPixels = new int[width];
-
-//                NeptusLog.pub().info("<###> "+src.getWidth() + " " + src.getHeight() + " " + dstIn.getWidth() + " " + dstIn.getHeight());
 
                 for (int y = 0; y < height; y++) {
                     src.getDataElements(0, y, width, 1, srcPixels);
@@ -89,18 +88,19 @@ public class SideScanComposite implements Composite {
                             System.arraycopy(srcPixel, 0, dstPixel, 0, 4); 
                         }
                         dstPixels[x] = (dstPixel[3] << 24) + (dstPixel[0] << 16) + (dstPixel[1] << 8) + (dstPixel[2]); 
-//                        // mixes the result with the opacity
-//                        dstPixels[x] = ((int) (dstPixel[3] + (result[3] - dstPixel[3]) * alpha) & 0xFF) << 24 |
-//                                       ((int) (dstPixel[0] + (result[0] - dstPixel[0]) * alpha) & 0xFF) << 16 |
-//                                       ((int) (dstPixel[1] + (result[1] - dstPixel[1]) * alpha) & 0xFF) <<  8 |
-//                                        (int) (dstPixel[2] + (result[2] - dstPixel[2]) * alpha) & 0xFF;
+                        //                        // mixes the result with the opacity
+                        //                        dstPixels[x] = ((int) (dstPixel[3] + (result[3] - dstPixel[3]) * alpha) & 0xFF) << 24 |
+                        //                                       ((int) (dstPixel[0] + (result[0] - dstPixel[0]) * alpha) & 0xFF) << 16 |
+                        //                                       ((int) (dstPixel[1] + (result[1] - dstPixel[1]) * alpha) & 0xFF) <<  8 |
+                        //                                        (int) (dstPixel[2] + (result[2] - dstPixel[2]) * alpha) & 0xFF;
                     }
                     dstOut.setDataElements(0, y, width, 1, dstPixels);
                 }
             }
         };
     }
-    int pixelIntensity(int[] pixel) {
-        return (pixel[0]+pixel[1]+pixel[2])/2;
-    }
+
+    //    int pixelIntensity(int[] pixel) {
+    //        return (pixel[0]+pixel[1]+pixel[2])/2;
+    //    }
 }
