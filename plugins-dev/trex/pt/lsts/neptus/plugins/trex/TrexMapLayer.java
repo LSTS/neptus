@@ -131,7 +131,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     @NeptusProperty(name = "Water current Speed", category = "YoYo Survey", description="Speed, in mps of the surface current.")
     public float speed = 0;
     
-    private HttpClient httpclient = new DefaultHttpClient();
+    private final HttpClient httpclient = new DefaultHttpClient();
 
     private static final long serialVersionUID = 1L;
     private Maneuver lastManeuver = null;
@@ -360,8 +360,6 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                         .getLongitudeRads(), spotterHeight);
                 switch (trexDuneComms) {
                     case IMC:
-                        activateTrex();
-                        // Send goal
                         send(going.asIMCMsg());
                         break;
                     case REST:
