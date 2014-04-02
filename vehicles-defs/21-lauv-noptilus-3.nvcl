@@ -38,7 +38,7 @@
           </point>
           <radiusTolerance>5</radiusTolerance>
         </finalPoint>
-        <velocity tolerance="10" type="float" unit="RPM">900</velocity>
+        <velocity tolerance="10" type="float" unit="m/s">1.0</velocity>
         <trajectoryTolerance>
           <radiusTolerance type="float">1</radiusTolerance>
         </trajectoryTolerance>
@@ -71,7 +71,7 @@
           <bearing type="float">0</bearing>
           <direction>Clockwise</direction>
         </trajectory>
-        <velocity type="float" unit="RPM" tolerance="5">900</velocity>
+        <velocity type="float" unit="m/s" tolerance="5">1.0</velocity>
         <annotation>
           <documentation>Loiter over a point</documentation>
           <implementation-class>pt.lsts.neptus.mp.maneuvers.Loiter</implementation-class>
@@ -93,7 +93,7 @@
         </finalPoint>
         <amplitude>1</amplitude>
         <pitch>0.17453292</pitch>
-        <speed type="float" unit="RPM">900</speed>
+        <speed type="float" unit="m/s">1.0</speed>
         <annotation>
           <documentation>No documentation available</documentation>
           <implementation-class>pt.lsts.neptus.mp.maneuvers.YoYo</implementation-class>
@@ -118,20 +118,12 @@
         <trajectory>
           <radius type="float">10</radius>
         </trajectory>
-        <speed type="float" unit="RPM" tolerance="5">900</speed>
+        <speed type="float" unit="m/s" tolerance="5">1.0</speed>
         <annotation>
           <documentation>Station Keeping</documentation>
           <implementation-class>pt.lsts.neptus.mp.maneuvers.StationKeeping</implementation-class>
         </annotation>
       </StationKeeping>
-    </maneuver>    
-    <maneuver>
-      <Unconstrained kind="manual">
-        <annotation>
-          <documentation>No documentation available</documentation>
-          <implementation-class>pt.lsts.neptus.mp.maneuvers.Unconstrained</implementation-class>
-        </annotation>
-      </Unconstrained>
     </maneuver>
     <maneuver>
 	    <FollowPath kind="automatic">
@@ -147,7 +139,7 @@
 	    		<radiusTolerance>0.0</radiusTolerance>
 	    	</basePoint>
 	    	<path/>
-	    	<speed unit="RPM">1000.0</speed>
+	    	<speed unit="m/s">1.0</speed>
 	    	<annotation>
           		<documentation>No documentation available</documentation>
           		<implementation-class>pt.lsts.neptus.mp.maneuvers.FollowPath</implementation-class>
@@ -168,35 +160,12 @@
 	    		<radiusTolerance>0.0</radiusTolerance>
 	    	</basePoint>
 	    	<trajectory/>
-	    	<speed unit="RPM">1000.0</speed>
+	    	<speed unit="m/s">1.0</speed>
 	    	<annotation>
           		<documentation>No documentation available</documentation>
           		<implementation-class>pt.lsts.neptus.mp.maneuvers.FollowTrajectory</implementation-class>
         	</annotation>
 	    </FollowTrajectory>
-    </maneuver>
-    <maneuver>    
-		<VehicleFormation kind="automatic">
-  			<basePoint type="pointType">
-    			<point>
-      				<id/>      
-      				<coordinate>
-        			<latitude>0N</latitude>
-     		   		<longitude>0E</longitude>
-    	    		<depth>0.0</depth>
-      				</coordinate>
-    				</point>
-    			<radiusTolerance>0.0</radiusTolerance>
-  			</basePoint>
-  			<trajectory/>
- 			<speed unit="RPM">1000.0</speed>
-  			<startTime>0</startTime>
-  			<participants/>
-  			<annotation>
-          		<documentation>No documentation available</documentation>
-          		<implementation-class>pt.lsts.neptus.mp.maneuvers.VehicleFormation</implementation-class>
-        	</annotation>
-		</VehicleFormation>
     </maneuver>
    	<maneuver>
 		<RowsManeuver kind="automatic">
@@ -217,7 +186,7 @@
   			<hstep>27.0</hstep>
   			<vstep>0.0</vstep>
   			<bearing>0.0</bearing>
-  			<speed unit="RPM">1000.0</speed>
+  			<speed unit="m/s">1.0</speed>
   			<annotation>
           		<documentation>No documentation available</documentation>
           		<implementation-class>pt.lsts.neptus.mp.maneuvers.RowsManeuver</implementation-class>
@@ -241,7 +210,7 @@
   			<hstep>20.0</hstep>
   			<bearing>0.0</bearing>
   			<squareCurve>false</squareCurve>
-  			<speed unit="RPM">1000.0</speed>
+  			<speed unit="m/s">1.0</speed>
   			<annotation>
           		<documentation>No documentation available</documentation>
           		<implementation-class>pt.lsts.neptus.mp.maneuvers.RIPattern</implementation-class>
@@ -265,7 +234,7 @@
   			<hstep>20.0</hstep>
   			<bearing>0.0</bearing>
   			<squareCurve>false</squareCurve>
-  			<speed unit="RPM">1000.0</speed>
+  			<speed unit="m/s">1.0</speed>
   			<annotation>
           		<documentation>No documentation available</documentation>
           		<implementation-class>pt.lsts.neptus.mp.maneuvers.CrossHatchPattern</implementation-class>
@@ -289,7 +258,7 @@
 			<pitch>30</pitch>
 			<radius>10</radius>
 			<duration>0</duration>
-  			<speed unit="RPM">1000.0</speed>
+  			<speed unit="m/s">1.0</speed>
   			<annotation>
           		<documentation>No documentation available</documentation>
           		<implementation-class>pt.lsts.neptus.mp.maneuvers.Elevator</implementation-class>
@@ -340,7 +309,7 @@
 				</point>
 			</startPoint>
 			<move_threshold>30.0</move_threshold>
-			<speed unit="RPM">1000.0</speed>
+			<speed unit="m/s">1.0</speed>
 			<annotation>
           		<documentation>No documentation available</documentation>
           		<implementation-class>pt.lsts.neptus.mp.maneuvers.CommsRelay</implementation-class>
@@ -393,7 +362,7 @@
     <comm-mean>
       <name>ethernet</name>
       <type>ethernet</type>
-      <host-address>192.168.106.198</host-address>
+      <host-address>10.0.10.100</host-address>
       <credentials username="root"/>
       <protocols> imc ssh</protocols>
       <latency value="100M" unit="bps"/>
