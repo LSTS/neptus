@@ -31,7 +31,6 @@
  */
 package pt.lsts.neptus.mra.replay;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Transparency;
 import java.awt.event.ComponentAdapter;
@@ -61,24 +60,20 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
 @PluginDescription(icon="pt/lsts/neptus/mra/replay/echosounder.png")
 public class SidescanReplay implements LogReplayLayer {
 
-    List<SidescanData> dataSet = new ArrayList<SidescanData>();
-    float range = 0;
+    private final List<SidescanData> dataSet = new ArrayList<SidescanData>();
+    private float range = 0;
 
-    BufferedImage image;
-    LocationType imageLoc;
-    double imageScaleX;
+    private BufferedImage image;
+    private double imageScaleX;
 
-    boolean generate = true;
-    int lod;    
-    double top=0,bot=0,left=0,right=0;
+    private boolean generate = true;
+    private int lod;    
+    private double top=0,bot=0,left=0,right=0;
 
-    LocationType topleftLT;
-    LocationType botrightLT;
+    private LocationType topleftLT;
+    private LocationType botrightLT;
 
-    LocationType lastCenter = new LocationType();
-
-    int imageLod = 20;
-
+    private LocationType lastCenter = new LocationType();
 
     @Override
     public void cleanup() {
@@ -96,9 +91,7 @@ public class SidescanReplay implements LogReplayLayer {
         final double groundResolution = MapTileUtil.groundResolution(dataSet.get(0).loc.getLatitudeDegs(), renderer.getLevelOfDetail());
         final double invGR = 1/groundResolution;
         lod = renderer.getLevelOfDetail();
-        imageLod = lod;
         imageScaleX = range*2 * (invGR) / 2000;
-
 
         Point2D p1 = renderer.getScreenPosition(topleftLT);
         Point2D p2 = renderer.getScreenPosition(botrightLT);
@@ -116,8 +109,8 @@ public class SidescanReplay implements LogReplayLayer {
             public void run() {
                 Graphics2D g = ((Graphics2D)image.getGraphics());
 
-                g.setColor(Color.green);
-                g.drawRect(0, 0, image.getWidth() - 1, image.getHeight() - 1);
+                // g.setColor(Color.green);
+                // g.drawRect(0, 0, image.getWidth() - 1, image.getHeight() - 1);
                 g.setColor(null);
                 g.setComposite(new SideScanComposite());
 
@@ -147,7 +140,7 @@ public class SidescanReplay implements LogReplayLayer {
 
 
     }
-    
+
     private boolean firstPaint = true;
 
     @Override
@@ -163,7 +156,7 @@ public class SidescanReplay implements LogReplayLayer {
                 }
             });
         }
-        
+
         if(renderer.getLevelOfDetail()!= lod) 
             generate = true;
         if(generate) {
@@ -193,7 +186,6 @@ public class SidescanReplay implements LogReplayLayer {
 
     @Override
     public void parse(IMraLogGroup source) {
-        //NeptusLog.pub().info("<###>parsing sidescan for replay");
         IMraLog ssParse = source.getLog("SonarData");
         IMraLog esParse = source.getLog("EstimatedState");
 
@@ -209,8 +201,7 @@ public class SidescanReplay implements LogReplayLayer {
         double minLon = 360;
         double maxLon = -360;
 
-        range = (float) msgSS.getFloat("max_range");
-        // NeptusLog.pub().info("<###>Range = " + range);
+        range = msgSS.getFloat("max_range");
         while (msgSS != null) {
             if(msgSS.getInteger("type") == SonarData.TYPE.SIDESCAN.value()) {
                 msgES = esParse.getEntryAtOrAfter(msgSS.getTimestampMillis());
