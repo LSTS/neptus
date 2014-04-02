@@ -599,8 +599,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     private void setHelpMsg() {
         helpMsg = "<html><font size='2'><br><div align='center'><table border='1' align='center'>" + "<tr><th>"
                 + I18n.text("Type") + "</th><th>" + I18n.text("Description") + "</th></tr>" + "<tr><th>"
-                + I18n.text("Mouse left double click on Reference") + "</th><th>"
-                + I18n.text("Opens reference waypoint properties") + "</th></tr>" + "<tr><th>"
+                + I18n.text("Opens reference waypoint properties") + "</th><th>"
+                + I18n.text("Left Mouse double click on Reference") + "</th></tr>" + "<tr><th>"
                 + I18n.text("Add multiple waypoints") + "</th><th>"
                 + I18n.text("Press CTRL + Left Mouse Click + Drag Mouse") + "- ("
                 + I18n.text("It will show a blue dot that is referent to a new waypoint") + ")." + "</th></tr>";
