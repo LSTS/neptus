@@ -52,7 +52,7 @@ import vtk.vtkLODActor;
 public class KeyboardEvent extends AKeyboardEvent {
     private InteractorStyleVis3D interactorStyle;
 
-    private EventsHandler events;
+    private final EventsHandler events;
 
     private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
 
@@ -95,7 +95,7 @@ public class KeyboardEvent extends AKeyboardEvent {
     public void handleEvents(int keyCode) {
         switch (keyCode) {
             case KeyEvent.VK_J:
-                events.takeSnapShot();
+                events.takeSnapShot("Bathymetry_");
                 break;
             case KeyEvent.VK_U:
                 try {

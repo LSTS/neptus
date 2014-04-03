@@ -135,7 +135,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             getCanvas().LightFollowCameraOn();
             getCanvas().setEnabled(true);
 
-            winCanvas = new Window(getCanvas(), interactorStyle, linkedHashMapCloud, linkedHashMapMesh);
+            winCanvas = new Window(getCanvas(), interactorStyle, linkedHashMapCloud, linkedHashMapMesh, source);
             interactorStyle = winCanvas.getInteracStyle();
             setEvents(interactorStyle.getEventsHandler());
 
@@ -177,7 +177,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
         else if (source.getLsfIndex().containsMessagesOfType("Distance")) {
             pointCloud.setCloudName("dvl");
             toolbar2.dvlToggle.setSelected(true);
-            load.parseDVLPointCloud(); 
+            load.parseDVLPointCloud();
             events.setSensorTypeInteraction(SensorTypeInteraction.DVL);
         }
         else {
@@ -213,7 +213,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     }
 
     private void processPointCloud(PointCloud<PointXYZ> pointCloud, LoadToPointCloud load) {
-        if(pointCloud.getCloudName().equals("multibeam")) {
+        if (pointCloud.getCloudName().equals("multibeam")) {
             if (pointCloud.getNumberOfPoints() != 0) { // checks wether there are any points to render!
                 if (MRAProperties.outliersRemoval) {
                     // remove outliers
@@ -257,10 +257,10 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     }
 
     /**
-     * @param pointCloud 
+     * @param pointCloud
      */
     private void setUpRenderer(PointCloud<PointXYZ> pointCloud) {
-        if(pointCloud.getNumberOfPoints() != 0) {
+        if (pointCloud.getNumberOfPoints() != 0) {
             // add parsed beams stored on pointcloud to canvas
             getCanvas().GetRenderer().AddActor(pointCloud.getCloudLODActor());
             // set Up scalar Bar look up table
@@ -352,13 +352,13 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     @Override
     public void onCleanup() {
-        //        setVisible(false);
-        //        getCanvas().GetRenderer().RemoveAllObservers();
-        //        getCanvas().GetRenderWindow().RemoveAllObservers();
-        //        getCanvas().GetRenderWindow().Delete();
+        // setVisible(false);
+        // getCanvas().GetRenderer().RemoveAllObservers();
+        // getCanvas().GetRenderWindow().RemoveAllObservers();
+        // getCanvas().GetRenderWindow().Delete();
         //
-        //        VTKMemoryManager.GC.SetAutoGarbageCollection(true);
-        //        VTKMemoryManager.deleteAll();
+        // VTKMemoryManager.GC.SetAutoGarbageCollection(true);
+        // VTKMemoryManager.deleteAll();
     }
 
     /**

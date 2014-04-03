@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.vtk.events.AEventsHandler;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
@@ -52,7 +53,7 @@ import vtk.vtkPolyData;
 public class EventsHandler extends AEventsHandler {
 
     protected LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
-    private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
+    private final LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
 
     private enum ColorMappingRelation {
         XMAP, YMAP, ZMAP, IMAP;
@@ -70,8 +71,8 @@ public class EventsHandler extends AEventsHandler {
     private RepresentationType representationType;
 
     public EventsHandler(InteractorStyleVis3D interactorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
-            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh) {
-        super(interactorStyle);
+            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh, IMraLogGroup source) {
+        super(interactorStyle, source);
 
         this.linkedHashMapCloud = linkedHashMapCloud;
         this.linkedHashMapMesh = linkedHashMapMesh;
