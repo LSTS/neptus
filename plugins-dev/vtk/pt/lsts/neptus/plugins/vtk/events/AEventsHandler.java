@@ -36,6 +36,7 @@ import java.util.Calendar;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.vtk.VtkMRAVis;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
 import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
@@ -66,9 +67,14 @@ public abstract class AEventsHandler {
     private static String TEXT_PROCESS_ACTOR = I18n.text("Processing Data.");
 
     private vtkTextActor textZExagInfoActor;
-    private static String TEXT_ZEXAG_INFO_ACTOR = I18n.textf("Depth multiplied by: %currenZexag", VtkMRAVis.zExaggeration);
+    private static String TEXT_ZEXAG_INFO_ACTOR = I18n.textf("Depth multiplied by: %currenZexag",
+            VtkMRAVis.zExaggeration);
 
-    protected String msgHelp;
+    protected String msgHelp = "";
+
+    private IMraLogGroup source;
+
+    private static final String SNAPSHOT_FILE_EXT = ".png";
 
     /**
      * @param canvas
@@ -77,11 +83,12 @@ public abstract class AEventsHandler {
      * @param interactorStyle
      */
     public AEventsHandler(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor interactor,
-            AInteractorStyleTrackballCamera interactorStyle) {
+            AInteractorStyleTrackballCamera interactorStyle, IMraLogGroup source) {
         this.canvas = canvas;
         this.renderer = renderer;
         this.interactor = interactor;
         this.interactorStyle = interactorStyle;
+        this.source = source;
 
         setTextProcessingActor(new vtkTextActor());
         setTextZExagInfoActor(new vtkTextActor());
@@ -97,10 +104,11 @@ public abstract class AEventsHandler {
 
     /**
      * @param interactorStyle
+     * @param source
      */
-    public AEventsHandler(AInteractorStyleTrackballCamera interactorStyle) {
-        this(interactorStyle.getCanvas(), interactorStyle.getCanvas().GetRenderer(),
-                interactorStyle.getCanvas().getRenderWindowInteractor(), interactorStyle);
+    public AEventsHandler(AInteractorStyleTrackballCamera interactorStyle, IMraLogGroup source) {
+        this(interactorStyle.getCanvas(), interactorStyle.getCanvas().GetRenderer(), interactorStyle.getCanvas()
+                .getRenderWindowInteractor(), interactorStyle, source);
     }
 
     /**
@@ -111,7 +119,7 @@ public abstract class AEventsHandler {
     /**
      * Syncronously take a snapshot of a 3D view Saves on neptus directory
      */
-    public void takeSnapShot() {
+    public void takeSnapShot(final String sensorType) {
         Utils.goToAWTThread(new Runnable() {
 
             @Override
@@ -128,7 +136,12 @@ public abstract class AEventsHandler {
                     timeStamp = "snapshot_" + timeStamp;
                     NeptusLog.pub().info("Snapshot timeStamp: " + timeStamp);
 
-                    snapshotWriter.SetFileName(timeStamp);
+                    if (source != null)
+                        snapshotWriter.SetFileName(source.getDir().getAbsolutePath() + "/" + sensorType + timeStamp + SNAPSHOT_FILE_EXT);
+                    else {
+                        NeptusLog.pub().info("Source is not defined, image will be saved on neptus root file.");
+                        snapshotWriter.SetFileName(timeStamp + sensorType + SNAPSHOT_FILE_EXT);
+                    }
 
                     if (!canvas.isWindowSet()) {
                         canvas.lock();
@@ -139,24 +152,25 @@ public abstract class AEventsHandler {
                     canvas.lock();
                     wif.Update();
                     canvas.unlock();
-
+                    
+                    NeptusLog.pub().info("Snapshot saved: " + snapshotWriter.GetFileName());
                     snapshotWriter.Write();
                 }
                 catch (Exception e) {
                     e.printStackTrace();
                 }
-
             }
         });
     }
 
     /**
-     * Set Msg to be added on help
-     * User interactiors keyboard shortcuts
-     * Use msgHelp String var to assign text
+     * Set Msg to be added on help User interactiors keyboard shortcuts Use msgHelp String var to assign text
      */
     protected abstract void setHelpMsg();
 
+    /**
+     * @return msgHelp
+     */
     public String getMsgHelp() {
         return msgHelp;
     }
@@ -269,5 +283,19 @@ public abstract class AEventsHandler {
      */
     protected void setTextZExagInfoActor(vtkTextActor textZExagInfoActor) {
         this.textZExagInfoActor = textZExagInfoActor;
+    }
+
+    /**
+     * @return the source
+     */
+    protected IMraLogGroup getSource() {
+        return source;
+    }
+
+    /**
+     * @param source the source to set
+     */
+    protected void setSource(IMraLogGroup source) {
+        this.source = source;
     }
 }
