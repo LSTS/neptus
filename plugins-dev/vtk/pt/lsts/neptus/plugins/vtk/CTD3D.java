@@ -61,9 +61,9 @@ import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author hfq
- *
+ * 
  */
-@PluginDescription(author = "hfq", name = "CTD 3D", icon = "images/menus/3d.png" )
+@PluginDescription(author = "hfq", name = "CTD 3D", icon = "images/menus/3d.png")
 public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvider {
 
     private static final long serialVersionUID = 1L;
@@ -76,7 +76,7 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
 
     private CTD3DToolbar toolbar;
 
-    //private PointCloud<?> pointcloud;
+    // private PointCloud<?> pointcloud;
     public PointCloudCTD pointcloud;
 
     // private vtkScalarBarActor lutActor = new vtkScalarBarActor();
@@ -107,7 +107,7 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
         canvas.GetRenderer().AutomaticLightCreationOn();
         canvas.setEnabled(true);
 
-        winCanvas = new Window(canvas);
+        winCanvas = new Window(canvas, source);
         interactorStyle = winCanvas.getInteractorStyle();
 
         loadData();
@@ -149,9 +149,8 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return (NeptusMRA.vtkEnabled &&
-                source.getLsfIndex().getEntityId("CTD") != 255 &&
-                source.getLsfIndex().containsMessagesOfType("Conductivity"));
+        return (NeptusMRA.vtkEnabled && source.getLsfIndex().getEntityId("CTD") != 255 && source.getLsfIndex()
+                .containsMessagesOfType("Conductivity"));
     }
 
     @Override
@@ -181,7 +180,7 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
 
     @Override
     public void onShow() {
-        if(isFirstRender) {
+        if (isFirstRender) {
             canvas.lock();
 
             canvas.GetRenderer().GetActiveCamera().SetPosition(1.0, -1.0, -100.0);
