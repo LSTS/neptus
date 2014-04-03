@@ -87,15 +87,15 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
     private static final long serialVersionUID = 1L;
     private LsfIndex index;
     private IMraLogGroup source;
-    private Vector<LogReplayLayer> layers = new Vector<>();
-    private Vector<LogReplayPanel> panels = new Vector<>();
+    private final Vector<LogReplayLayer> layers = new Vector<>();
+    private final Vector<LogReplayPanel> panels = new Vector<>();
     private final AsyncEventBus replayBus = new AsyncEventBus("Replay Event bus", Executors.newFixedThreadPool(2));
     private StateRenderer2D r2d;
     private JToolBar layersToolbar;
     private MRALogReplayTimeline timeline;
-    private LinkedHashMap<String, Vector<LogReplayComponent>> observers = new LinkedHashMap<>();
-    private LinkedHashMap<LogReplayPanel, JDialog> popups = new LinkedHashMap<>();
-    private MRAPanel panel;
+    private final LinkedHashMap<String, Vector<LogReplayComponent>> observers = new LinkedHashMap<>();
+    private final LinkedHashMap<LogReplayPanel, JDialog> popups = new LinkedHashMap<>();
+    private final MRAPanel panel;
 
     public MRALogReplay(MRAPanel panel) {
         super(panel);
@@ -221,6 +221,7 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
                     d.setVisible(true);
                     d.toFront();
                     d.addWindowListener(new WindowAdapter() {
+                        @Override
                         public void windowClosed(WindowEvent e) {
                             ts.setSelected(false);
                         };
@@ -279,6 +280,7 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
         }
 
         Thread t = new Thread("Starting replay") {
+            @Override
             public void run() {
                 MissionType mt = LogUtils.generateMission(source);
                 r2d.setMapGroup(MapGroup.getMapGroupInstance(mt));
