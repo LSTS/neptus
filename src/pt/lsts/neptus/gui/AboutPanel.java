@@ -63,9 +63,9 @@ public class AboutPanel extends JFrame {
 
     private static final String COPY_YEARS = "2004-2014";
 
-    private String mainDevelopers = "Paulo Dias, José Pinto, José Correia, Hugo Dias, Margarida Faria, Hugo Queirós";
+    private String mainDevelopers = "Paulo Dias, José Pinto, Margarida Faria, Hugo Queirós";
     private String contributersDevelopers = "Ricardo Martins, Sérgio Ferreira";
-    private String pastDevelopers = "Rui Gonçalves, Eduardo Marques";
+    private String pastDevelopers = "José Correia, Hugo Dias, Rui Gonçalves, Eduardo Marques";
 
     private JPanel contentPanel = null;
     private ImagePanel imagePanel = null;
