@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.vtk.visualization;
 
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import vtk.vtkPanel;
 import vtk.vtkRenderWindow;
 import vtk.vtkRenderWindowInteractor;
@@ -49,12 +50,18 @@ public abstract class AWindow {
     private vtkRenderWindowInteractor renWinInteractor;
 
     private String windowName;
-
+    
+    private IMraLogGroup source;
+    
     /**
      * @param canvas
+     * @param windowName
+     * @param source
      */
-    public AWindow(Canvas canvas) {
-        this(canvas, "");
+    public AWindow(Canvas canvas, String windowName, IMraLogGroup source) {
+        this.setCanvas(canvas);
+        this.setWindowName(windowName);
+        this.setSource(source);
     }
 
     /**
@@ -62,26 +69,42 @@ public abstract class AWindow {
      * @param windowName
      */
     public AWindow(Canvas canvas, String windowName) {
-        this.setCanvas(canvas);
+        this(canvas, windowName, null);
+    }
+    
+    /**
+     * @param canvas
+     */
+    public AWindow(Canvas canvas) {
+        this(canvas, "", null);
+    }
+    
+    /**
+     * @param panel
+     * @param windowName
+     * @param source
+     */
+    public AWindow(vtkPanel panel, String windowName, IMraLogGroup source) {
+        this.setvtkPanel(panel);
         this.setWindowName(windowName);
+        this.setSource(source);
+    }
+    
+    /**
+     * @param panel
+     * @param windowName
+     */
+    public AWindow(vtkPanel panel, String windowName) {
+        this(panel, windowName, null);
     }
 
     /**
      * @param panel
      */
     public AWindow(vtkPanel panel) {
-        this(panel, "");
+        this(panel, "", null);
     }
-
-    /**
-     * @param panel
-     * @param windowName
-     */
-    public AWindow(vtkPanel panel, String windowName) {
-        this.setvtkPanel(panel);
-        this.setWindowName(windowName);
-    }
-
+    
     /**
      * Sets up the renderer
      */
@@ -185,5 +208,19 @@ public abstract class AWindow {
      */
     protected void setWindowName(String windowName) {
         this.windowName = windowName;
+    }
+
+    /**
+     * @return the source
+     */
+    protected IMraLogGroup getSource() {
+        return source;
+    }
+
+    /**
+     * @param source the source to set
+     */
+    protected void setSource(IMraLogGroup source) {
+        this.source = source;
     }
 }
