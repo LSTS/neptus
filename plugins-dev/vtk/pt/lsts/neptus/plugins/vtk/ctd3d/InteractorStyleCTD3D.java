@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.vtk.ctd3d;
 
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import vtk.vtkRenderWindowInteractor;
@@ -38,11 +39,14 @@ import vtk.vtkRenderer;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
 
-    private KeyboardEventCTD3D keyboardEvent;
+    private final EventsHandlerCTD3D events;
+
+    // ########## Keyboard interaction ##########
+    private final KeyboardEventCTD3D keyboardEvent;
 
     /**
      * 
@@ -50,15 +54,19 @@ public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
      * @param renderer
      * @param renWinInteractor
      */
-    public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor) {
+    public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
+            IMraLogGroup source) {
         super(canvas, renderer, renWinInteractor);
 
-        this.keyboardEvent = new KeyboardEventCTD3D(canvas, this);
+        this.events = new EventsHandlerCTD3D(this, source);
+        this.keyboardEvent = new KeyboardEventCTD3D(canvas, this, events);
 
         onInitialize();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera#initialize()
      */
     @Override
@@ -67,7 +75,8 @@ public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
         AutoAdjustCameraClippingRangeOn();
         HandleObserversOn();
 
-        getCanvas().addKeyListener(keyboardEvent);
         getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
+
+        getCanvas().addKeyListener(keyboardEvent);
     }
 }
