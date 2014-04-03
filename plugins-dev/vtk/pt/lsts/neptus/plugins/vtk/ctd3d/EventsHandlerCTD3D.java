@@ -32,22 +32,25 @@
 package pt.lsts.neptus.plugins.vtk.ctd3d;
 
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.vtk.events.AEventsHandler;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class EventsHandlerCTD3D extends AEventsHandler {
 
     /**
      * @param interactorStyle
      */
-    public EventsHandlerCTD3D(InteractorStyleCTD3D interactorStyle) {
-        super(interactorStyle);
+    public EventsHandlerCTD3D(InteractorStyleCTD3D interactorStyle, IMraLogGroup source) {
+        super(interactorStyle, source);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.plugins.vtk.events.AEventsHandler#init()
      */
     @Override
@@ -55,20 +58,43 @@ public class EventsHandlerCTD3D extends AEventsHandler {
 
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.plugins.vtk.events.AEventsHandler#setHelpMsg()
      */
     @Override
     protected void setHelpMsg() {
         msgHelp = "<html><font size='2'><br><div align='center'><table border='1' align='center'>"
-                + "<tr><th>Keys</th><th>" + I18n.text("Description") + "</th></tr>"
-                + "<tr><td>r, R</td><td>" + I18n.text("Reset camera view along the current view direction") + "</td>"
-                + "<tr><td>f, F</td><td>" + I18n.text("Fly Mode - point with mouse cursor the direction and press 'f' to fly") + "</td>"
-                + "<tr><th>Mouse</th><th>" + I18n.text("Description") + "</th></tr>"
-                + "<tr><td>" + I18n.text("Left mouse button</td><td>") + I18n.text("Rotate camera around its focal point") + "</td>"
-                + "<tr><td>" + I18n.text("Middle mouse button") + "</td><td>" + I18n.text("Pan camera") + "</td>"
-                + "<tr><td>" + I18n.text("Right mouse button") + "</td><td>" + I18n.text("Zoom (In/Out) the camera") + "</td>"
-                + "<tr><td>" + I18n.text("Mouse wheel") + "</td><td>" + I18n.text("Zoom (In/Out) the camera - Static focal point") + "</td>";
+                + "<tr><th>Keys</th><th>"
+                + I18n.text("Description")
+                + "</th></tr>"
+                + "<tr><td>r, R</td><td>"
+                + I18n.text("Reset camera view along the current view direction")
+                + "</td>"
+                + "<tr><td>f, F</td><td>"
+                + I18n.text("Fly Mode - point with mouse cursor the direction and press 'f' to fly")
+                + "</td>"
+                + "<tr><th>Mouse</th><th>"
+                + I18n.text("Description")
+                + "</th></tr>"
+                + "<tr><td>"
+                + I18n.text("Left mouse button</td><td>")
+                + I18n.text("Rotate camera around its focal point")
+                + "</td>"
+                + "<tr><td>"
+                + I18n.text("Middle mouse button")
+                + "</td><td>"
+                + I18n.text("Pan camera")
+                + "</td>"
+                + "<tr><td>"
+                + I18n.text("Right mouse button")
+                + "</td><td>"
+                + I18n.text("Zoom (In/Out) the camera")
+                + "</td>"
+                + "<tr><td>"
+                + I18n.text("Mouse wheel")
+                + "</td><td>"
+                + I18n.text("Zoom (In/Out) the camera - Static focal point") + "</td>";
     }
-
 }
