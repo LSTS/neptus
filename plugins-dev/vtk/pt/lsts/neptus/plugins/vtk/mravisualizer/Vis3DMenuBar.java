@@ -81,12 +81,12 @@ public class Vis3DMenuBar extends JMenuBar {
 
     private static final long serialVersionUID = 1L;
 
-    private VtkMRAVis vtkInit;
-    private Canvas canvas;
-    private vtkRenderer renderer;
-    private EventsHandler events;
-    private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
-    private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
+    private final VtkMRAVis vtkInit;
+    private final Canvas canvas;
+    private final vtkRenderer renderer;
+    private final EventsHandler events;
+    private final LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
+    private final LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
 
     private JMenu fileMenu, editMenu, viewMenu, toolsMenu, helpMenu;
 
@@ -173,7 +173,7 @@ public class Vis3DMenuBar extends JMenuBar {
                 FileFilter filefilter = GuiUtils.getCustomFileFilter(I18n.text("3D files ") + "*.vtk" + ", *.stl"
                         + ", *.ply" + ", *.obj" + ", *.wrl" + " *.x3d", File3DUtils.TYPES_3D_FILES);
 
-                chooser.setFileFilter((FileFilter) filefilter);
+                chooser.setFileFilter(filefilter);
 
                 int ans = chooser.showDialog(vtkInit, I18n.text("Save as") + "...");
                 if (ans == JFileChooser.APPROVE_OPTION) {
@@ -223,7 +223,7 @@ public class Vis3DMenuBar extends JMenuBar {
                 FileFilter filefilter = GuiUtils.getCustomFileFilter(I18n.text("3D files ") + "*.vtk" + ", *.stl"
                         + ", *.ply" + ", *.obj" + ", *.wrl" + " *.x3d", File3DUtils.TYPES_3D_FILES);
 
-                chooser.setFileFilter((FileFilter) filefilter);
+                chooser.setFileFilter(filefilter);
                 int ans = chooser.showDialog(vtkInit, I18n.text("Save as") + "...");
                 if (ans == JFileChooser.APPROVE_OPTION) {
                     if (chooser.getSelectedFile().exists()) {
@@ -327,7 +327,7 @@ public class Vis3DMenuBar extends JMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                events.takeSnapShot();
+                events.takeSnapShot("Bathymetry_");
             }
         };
         toolsMenu.add(takeSnapShot);
