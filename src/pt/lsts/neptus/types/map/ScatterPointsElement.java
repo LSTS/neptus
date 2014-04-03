@@ -34,7 +34,6 @@ package pt.lsts.neptus.types.map;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.Collections;
@@ -137,34 +136,42 @@ public class ScatterPointsElement extends AbstractElement {
 
 	@Override
 	public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
-		//AffineTransform t = g2.getTransform();
-		//Graphics2D g = (Graphics2D) g2.create();
-		//g.setTransform(new AffineTransform());
-		AffineTransform trans = g.getTransform();
-		double zoom = renderer.getZoom();
+		Graphics2D g2 = (Graphics2D) g.create();
+//		double zoom = renderer.getZoom();
 
 		Point2D ofs = renderer.getScreenPosition(getCenterLocation());
 
-		g.translate(ofs.getX(), ofs.getY());
-		g.rotate(rotation);
+		g2.translate(ofs.getX(), ofs.getY());
+		g2.rotate(rotation);
 		
-		g.setColor(new Color(255,255,255,200));
-		g.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g2.setColor(new Color(255, 255, 255, 200));
+		g2.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 
 		//lock.lock();       	
 		int curPoint = 0;
 
 		synchronized (points) {
 			for (Point3d pt : points) {
-				double transY = pt.x * -zoom;
-				double transX = pt.y * zoom;
+//				double transY = pt.x * -zoom;
+//				double transX = pt.y * zoom;
+//				
+//              g.setColor(cmap.getColor((double)curPoint++/(double)points.size()));
+//			    g.draw(new Line2D.Double(transX, transY, transX, transY));
+
+                LocationType locT = new LocationType(getCenterLocation());
+				locT.translatePosition(pt.x, pt.y, pt.z);
+				locT.convertToAbsoluteLatLonDepth();
+				
+				Point2D ofsT = renderer.getScreenPosition(locT);
+				double transX = ofsT.getX() - ofs.getX();
+				double transY = ofsT.getY() - ofs.getY();
 	
-				g.setColor(cmap.getColor((double)curPoint++/(double)points.size()));
-				g.draw(new Line2D.Double(transX, transY, transX, transY));
+                g2.setColor(cmap.getColor((double) curPoint++ / (double) points.size()));
+				g2.draw(new Line2D.Double(transX, transY, transX, transY));
 			}
 		}
 		//lock.unlock();
-		g.setTransform(trans);
+		g2.dispose();
 	}
 
 	@Override
