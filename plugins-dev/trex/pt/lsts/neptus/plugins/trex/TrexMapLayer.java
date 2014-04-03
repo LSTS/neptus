@@ -45,6 +45,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -63,6 +64,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PathControlState;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.imc.TrexCommand;
 import pt.lsts.imc.TrexOperation;
@@ -74,6 +77,7 @@ import pt.lsts.neptus.fileeditor.SyntaxDocument;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -95,7 +99,7 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 @SuppressWarnings("deprecation")
 @PluginDescription(name = "TrexMapLayer", icon = "pt/lsts/neptus/plugins/trex/trex.png")
-public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2DPainter {
+public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2DPainter, NeptusMessageListener {
     enum CommsChannel {
         IMC,
         REST;
@@ -144,11 +148,15 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     protected int surveyPos = 0;
     protected boolean active = false;
 
+    protected Vector<LocationType> sentPoints;
+    private LocationType currentRef;
+
     /**
      * @param console
      */
     public TrexMapLayer(ConsoleLayout console) {
         super(console);
+        sentPoints = new Vector<LocationType>();
     }
 
     @Override
@@ -358,6 +366,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 loc.convertToAbsoluteLatLonDepth();
                 UavSpotterSurvey going = new UavSpotterSurvey(loc.getLatitudeRads(), loc
                         .getLongitudeRads(), spotterHeight);
+                sentPoints.add(loc);
                 switch (trexDuneComms) {
                     case IMC:
                         send(going.asIMCMsg());
@@ -489,6 +498,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
     Image trex = null;
 
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if (trex == null)
@@ -546,8 +556,36 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
         //            g.translate(-pt.getX(), -pt.getY());
         //        }
 
+        paintUavGoals(g, renderer);
+
         if (active)
             g.drawImage(trex, 5, 50, 32, 32, this);
+    }
+
+    private void paintUavGoals(Graphics2D g, StateRenderer2D renderer) {
+        LocationType loc;
+        Point2D pt;
+        int i = 1;
+        Iterator<LocationType> iterator = sentPoints.iterator();
+        while (iterator.hasNext()) {
+            loc = iterator.next();
+            pt = renderer.getScreenPosition(loc);
+            g.translate(pt.getX(), pt.getY());
+            g.setColor(new Color(173, 94, 255));
+            g.fill(new Ellipse2D.Double(-5, -5, 10, 10));
+            g.setColor(Color.black);
+            g.drawString(i + " Goal", 10, 10);
+            g.translate(-pt.getX(), -pt.getY());
+            i++;
+        }
+        if (currentRef != null) {
+            NeptusLog.pub().warn("currentRef ["+currentRef.getLatitudeRads()+","+currentRef.getLongitudeRads()+"]");
+        pt = renderer.getScreenPosition(currentRef);
+        g.translate(pt.getX(), pt.getY());
+            g.setColor(Color.green);
+            g.drawOval(-5, -5, 10, 10);
+        g.translate(-pt.getX(), -pt.getY());
+        }
     }
 
     public static void main(String[] args) {
@@ -578,4 +616,34 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
         httpclient.getConnectionManager().shutdown();
     }
 
+    // @Subscribe
+    // private void on(PathControlState pathState) {
+    // NeptusLog.pub().warn("PathControlState");
+    // NeptusLog.pub().warn("sentPoints.size()" + sentPoints.size());
+    // if (sentPoints.size() == 0) {
+    // return;
+    // }
+    // NeptusLog.pub().warn(
+    // "Removing goal. [" + pathState.getEndLat() + "," + pathState.getEndLon() + "] different from ["
+    // + sentPoints.get(0).getLatitudeRads() + "," + sentPoints.get(0).getLongitudeRads() + "]");
+    // if (pathState.getEndLat() != sentPoints.get(0).getLatitudeRads()
+    // || pathState.getEndLon() != sentPoints.get(0).getLongitudeRads()) {
+    // sentPoints.remove(0);
+    // }
+    // }
+
+    @Override
+    public String[] getObservedMessages() {
+        String msgs[] = { "PathControlState" };
+        return msgs;
+    }
+
+    @Override
+    public void messageArrived(IMCMessage message) {
+        PathControlState pathState = (PathControlState) message;
+        NeptusLog.pub().warn("Got PathControlState");
+        currentRef = new LocationType();
+        currentRef.setLatitudeRads(pathState.getEndLat());
+        currentRef.setLongitudeRads(pathState.getEndLon());
+    }
 }
