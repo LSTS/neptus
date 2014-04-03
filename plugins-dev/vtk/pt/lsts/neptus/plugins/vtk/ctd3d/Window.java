@@ -31,31 +31,33 @@
  */
 package pt.lsts.neptus.plugins.vtk.ctd3d;
 
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.vtk.visualization.AWindow;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class Window extends AWindow {
 
     private InteractorStyleCTD3D interactorStyle;
 
     /**
-     *
      * @param canvas
+     * @param source
      */
-    public Window(Canvas canvas) {
-        this(canvas, "CTD3D");
+    public Window(Canvas canvas, IMraLogGroup source) {
+        this(canvas, source, "CTD3D");
     }
 
     /**
      * @param canvas
+     * @param source
      * @param windowName
      */
-    public Window(Canvas canvas, String windowName) {
-        super(canvas, windowName);
+    public Window(Canvas canvas, IMraLogGroup source, String windowName) {
+        super(canvas, windowName, source);
 
         setRenderer(canvas.GetRenderer());
         setRenWin(canvas.GetRenderWindow());
@@ -67,7 +69,9 @@ public class Window extends AWindow {
         setUpInteractorStyle();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpRenderer()
      */
     @Override
@@ -77,7 +81,9 @@ public class Window extends AWindow {
         getRenderer().SetBackground2(0.3, 0.7, 1.0);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpRenWin()
      */
     @Override
@@ -90,7 +96,9 @@ public class Window extends AWindow {
         getRenWin().SetStereoTypeToAnaglyph();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpRenWinInteractor()
      */
     @Override
@@ -99,12 +107,14 @@ public class Window extends AWindow {
         getRenWinInteractor().SetDesiredUpdateRate(30.0);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.plugins.vtk.visualization.AWindow#setUpInteractorStyle()
      */
     @Override
     public void setUpInteractorStyle() {
-        interactorStyle = new InteractorStyleCTD3D(getCanvas(), getRenderer(), getRenWinInteractor());
+        interactorStyle = new InteractorStyleCTD3D(getCanvas(), getRenderer(), getRenWinInteractor(), getSource());
         getRenWinInteractor().SetInteractorStyle(interactorStyle);
     }
 
