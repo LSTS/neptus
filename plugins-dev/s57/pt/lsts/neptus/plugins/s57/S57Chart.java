@@ -85,6 +85,8 @@ public class S57Chart implements MapPainterProvider {
             this.s63 = null;
         }
         this.mc = MarinerControls.forge();
+        
+        S57Utils.loadSession(s57);
     }
 
     @Override
