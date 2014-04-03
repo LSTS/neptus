@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.vtk.mravisualizer;
 import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
@@ -54,7 +55,8 @@ public class Window extends AWindow {
 
     public Window(vtkPanel panel, InteractorStyleVis3D interactorStyle,
             LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
-            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh, String windowName) {
+            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh, 
+            IMraLogGroup source, String windowName) {
         super(panel, windowName);
 
         setRenderer(panel.GetRenderer());
@@ -64,6 +66,7 @@ public class Window extends AWindow {
         setRenWinInteractor(panel.GetRenderWindow().GetInteractor());
         setLinkedHashMapCloud(linkedHashMapCloud);
         setLinkedHashMapMesh(linkedHashMapMesh);
+        this.setSource(source);
 
         setUpRenderer();
         setUpRenWin();
@@ -73,13 +76,15 @@ public class Window extends AWindow {
 
     public Window(vtkPanel panel, InteractorStyleVis3D interactorStyle,
             LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
-            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh) {
-        this(panel, interactorStyle, linkedHashMapCloud, linkedHashMapMesh, I18n.text("Visualizer3D"));
+            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh, IMraLogGroup source) {
+        this(panel, interactorStyle, linkedHashMapCloud, linkedHashMapMesh, 
+                source, I18n.text("Visualizer3D"));
     }
 
     public Window(Canvas canvas, InteractorStyleVis3D interactorStyle,
             LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
-            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh, String windowName) {
+            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh, 
+            IMraLogGroup source, String windowName) {
         super(canvas, windowName);
 
         setRenderer(canvas.GetRenderer());
@@ -88,7 +93,8 @@ public class Window extends AWindow {
         setRenWinInteractor(canvas.getRenderWindowInteractor());
         setLinkedHashMapCloud(linkedHashMapCloud);
         setLinkedHashMapMesh(linkedHashMapMesh);
-
+        this.setSource(source);
+        
         setUpRenderer();
         setUpRenWin();
         setUpRenWinInteractor();
@@ -97,8 +103,8 @@ public class Window extends AWindow {
 
     public Window(Canvas canvas, InteractorStyleVis3D interactorStyle,
             LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
-            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh) {
-        this(canvas, interactorStyle, linkedHashMapCloud, linkedHashMapMesh, "Visualizer");
+            LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh, IMraLogGroup source) {
+        this(canvas, interactorStyle, linkedHashMapCloud, linkedHashMapMesh, source, I18n.text("Visualizer3D"));
     }
 
     /*
@@ -147,7 +153,7 @@ public class Window extends AWindow {
     @Override
     public void setUpInteractorStyle() {
         setInteracStyle(new InteractorStyleVis3D(getCanvas(), getRenderer(), getRenWinInteractor(),
-                getLinkedHashMapCloud(), getLinkedHashMapMesh()));
+                getLinkedHashMapCloud(), getLinkedHashMapMesh(), getSource()));
         getRenWinInteractor().SetInteractorStyle(getInteracStyle());
     }
 

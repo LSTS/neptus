@@ -40,7 +40,7 @@ import pt.lsts.neptus.mra.importers.lsf.DVLBathymetryParser;
 
 /**
  * @author jqcorreia
- * @authos hfq
+ * @author hfq
  */
 public class BathymetryParserFactory {
     static File dir;
