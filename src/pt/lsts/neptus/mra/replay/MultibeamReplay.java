@@ -29,7 +29,7 @@
  * Author: José Correia
  * Jul 5, 2012
  */
-package pt.lsts.neptus.plugins.multibeam;
+package pt.lsts.neptus.mra.replay;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -51,7 +51,6 @@ import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
-import pt.lsts.neptus.mra.replay.LogReplayLayer;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
