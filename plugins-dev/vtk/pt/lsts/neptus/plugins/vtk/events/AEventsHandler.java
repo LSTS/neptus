@@ -119,7 +119,7 @@ public abstract class AEventsHandler {
     /**
      * Syncronously take a snapshot of a 3D view Saves on neptus directory
      */
-    public void takeSnapShot(final String sensorType) {
+    public void takeSnapShot(final String prefixSnapshotName) {
         Utils.goToAWTThread(new Runnable() {
 
             @Override
@@ -137,10 +137,10 @@ public abstract class AEventsHandler {
                     NeptusLog.pub().info("Snapshot timeStamp: " + timeStamp);
 
                     if (source != null)
-                        snapshotWriter.SetFileName(source.getDir().getAbsolutePath() + "/" + sensorType + timeStamp + SNAPSHOT_FILE_EXT);
+                        snapshotWriter.SetFileName(source.getDir().getAbsolutePath() + "/" + prefixSnapshotName + timeStamp + SNAPSHOT_FILE_EXT);
                     else {
                         NeptusLog.pub().info("Source is not defined, image will be saved on neptus root file.");
-                        snapshotWriter.SetFileName(timeStamp + sensorType + SNAPSHOT_FILE_EXT);
+                        snapshotWriter.SetFileName(timeStamp + prefixSnapshotName + SNAPSHOT_FILE_EXT);
                     }
 
                     if (!canvas.isWindowSet()) {

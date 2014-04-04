@@ -46,13 +46,16 @@ import vtk.vtkAssemblyPath;
 public class KeyboardEventCTD3D extends AKeyboardEvent {
 
     private InteractorStyleCTD3D interactorStyle;
+    private final EventsHandlerCTD3D events;
 
     /**
      * @param canvas
      * @param interactorStyleCTD3D 
+     * @param events 
      */
-    public KeyboardEventCTD3D(Canvas canvas, InteractorStyleCTD3D interactorStyleCTD3D) {
+    public KeyboardEventCTD3D(Canvas canvas, InteractorStyleCTD3D interactorStyleCTD3D, EventsHandlerCTD3D events) {
         super(canvas);
+        this.events = events;
         this.interactorStyle = interactorStyleCTD3D;
     }
 
@@ -62,6 +65,9 @@ public class KeyboardEventCTD3D extends AKeyboardEvent {
     @Override
     public void handleEvents(int keyCode) {
         switch (keyCode) {
+            case KeyEvent.VK_J:
+                events.takeSnapShot("CTD_");
+                break;
             case KeyEvent.VK_PLUS:
                 break;
             case KeyEvent.VK_MINUS:
