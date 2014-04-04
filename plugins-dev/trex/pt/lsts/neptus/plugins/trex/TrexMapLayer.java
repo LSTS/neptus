@@ -66,6 +66,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PathControlState;
+import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.imc.TrexCommand;
 import pt.lsts.imc.TrexOperation;
@@ -150,6 +151,9 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
     protected Vector<LocationType> sentPoints;
     private LocationType currentRef;
+    final String fixedTrexPlanId = "trex_plan";
+    Image trex = null;
+    private boolean trexActive;
 
     /**
      * @param console
@@ -157,6 +161,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     public TrexMapLayer(ConsoleLayout console) {
         super(console);
         sentPoints = new Vector<LocationType>();
+        trexActive = false;
     }
 
     @Override
@@ -240,8 +245,10 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             if (surveyEdit) {
                 addSurveyPointsMenu(popup);
             }
-            addDisableTrexMenu(popup);
-            addEnableTrexMenu(popup);
+            if (trexActive)
+                addDisableTrexMenu(popup);
+            else
+                addEnableTrexMenu(popup);
             popup.addSeparator();
             addVisitThisPointMenu(popup, loc);
             addAUVDrifter(popup, loc);
@@ -496,9 +503,6 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
         return true;
     }
 
-    Image trex = null;
-
-
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if (trex == null)
@@ -579,12 +583,11 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             i++;
         }
         if (currentRef != null) {
-            NeptusLog.pub().warn("currentRef ["+currentRef.getLatitudeRads()+","+currentRef.getLongitudeRads()+"]");
-        pt = renderer.getScreenPosition(currentRef);
-        g.translate(pt.getX(), pt.getY());
+            pt = renderer.getScreenPosition(currentRef);
+            g.translate(pt.getX(), pt.getY());
             g.setColor(Color.green);
             g.drawOval(-5, -5, 10, 10);
-        g.translate(-pt.getX(), -pt.getY());
+            g.translate(-pt.getX(), -pt.getY());
         }
     }
 
@@ -634,16 +637,46 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
     @Override
     public String[] getObservedMessages() {
-        String msgs[] = { "PathControlState" };
+        String msgs[] = { "PathControlState", "PlanControlState" };
         return msgs;
     }
 
     @Override
     public void messageArrived(IMCMessage message) {
+        if (message instanceof PathControlState) {
         PathControlState pathState = (PathControlState) message;
-        NeptusLog.pub().warn("Got PathControlState");
         currentRef = new LocationType();
         currentRef.setLatitudeRads(pathState.getEndLat());
         currentRef.setLongitudeRads(pathState.getEndLon());
+        }
+        else if (message instanceof PlanControlState) {
+            PlanControlState planState = (PlanControlState) message;
+            // NeptusLog.pub().warn("trexActive " + trexActive);
+            // T-Rex already inactive here
+            if (!trexActive){
+                // NeptusLog.pub().warn(
+                // "Not active. EXECUTING? " + (planState.getState() == PlanControlState.STATE.EXECUTING)
+                // + ", planid: " + planState.getPlanId());
+                // DUNE is running the t-rex plan so it's active there
+                if(planState.getState() == PlanControlState.STATE.EXECUTING
+                        && planState.getPlanId().equals(fixedTrexPlanId)) {
+                    // NeptusLog.pub().warn("Activating");
+                    trexActive = true;
+                }
+            }
+            // T-Rex already active here
+            else {
+                // NeptusLog.pub().warn(
+                // "Not active. EXECUTING? " + (planState.getState() == PlanControlState.STATE.EXECUTING)
+                // + ", planid: " + planState.getPlanId());
+                // DUNE isn't running the t-rex plan so it's inactive there
+                if(planState.getState() != PlanControlState.STATE.EXECUTING
+                        || !planState.getPlanId().equals(fixedTrexPlanId)) {
+                    // NeptusLog.pub().warn("deactivating");
+                    trexActive = false;
+                }
+            }
+        }
+
     }
 }
