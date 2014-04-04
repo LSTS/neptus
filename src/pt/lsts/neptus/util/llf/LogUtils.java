@@ -101,11 +101,9 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 
-/**
- * @author ZP
- */
 /** 
  * @author pdias
+ * @author ZP
  * 
  */
 public class LogUtils {
@@ -809,8 +807,8 @@ public class LogUtils {
         // logs that won't be logged by external systems
         String privateLogs[] = new String[] { "Voltage", "CpuUsage", "Temperature" };
 
-        for (int i = 0; i < privateLogs.length; i++) {
-            IMraLog log = source.getLog(privateLogs[i]);
+        for (String privateLog : privateLogs) {
+            IMraLog log = source.getLog(privateLog);
             if (log != null) {
                 IMCMessage msg = log.nextLogEntry();
                 if (msg == null)
