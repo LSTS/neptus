@@ -43,7 +43,6 @@ import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
@@ -513,7 +512,7 @@ public class MonitorIMCComms extends
         ret += "<br><b>" + I18n.text("Stored Plans:") + "</b><br>";
         String txt = "";
         try {
-            LinkedHashMap<String, PlanDBInfo> sp = sys.getPlanDBControl().getRemoteState().getStoredPlans();
+            Map<String, PlanDBInfo> sp = sys.getPlanDBControl().getRemoteState().getStoredPlans();
             boolean start = true;
             for (String planId : sp.keySet()) {
                 if (start) {
