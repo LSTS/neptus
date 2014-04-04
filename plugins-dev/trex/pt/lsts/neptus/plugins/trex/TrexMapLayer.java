@@ -249,6 +249,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 addDisableTrexMenu(popup);
             else
                 addEnableTrexMenu(popup);
+            addClearNeptusGoalsMenu(popup);
             popup.addSeparator();
             addVisitThisPointMenu(popup, loc);
             addAUVDrifter(popup, loc);
@@ -298,6 +299,16 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 p.add(param);
                 setParams.setParams(p);
                 ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
+            }
+        });
+    }
+
+    private void addClearNeptusGoalsMenu(JPopupMenu popup) {
+        popup.add("Clear all goals in Neptus").addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sentPoints.removeAllElements();
             }
         });
     }
