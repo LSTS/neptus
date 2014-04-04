@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -656,7 +657,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param sysName the system to consider
      */
     public void updatePlansStateEDT(final TreeMap<String, PlanType> localPlans, final String sysName) {
-        final LinkedHashMap<String, PlanDBInfo> remotePlans = getRemotePlans(sysName);
+        final Map<String, PlanDBInfo> remotePlans = getRemotePlans(sysName);
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override
@@ -687,7 +688,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param remotePlans remote plans known to IMCSystem
      * @param treeModel the model where to merge
      */
-    private HashSet<String> mergeRemotePlans(String sysName, LinkedHashMap<String, PlanDBInfo> remotePlans,
+    private HashSet<String> mergeRemotePlans(String sysName, Map<String, PlanDBInfo> remotePlans,
             MissionTreeModel treeModel, HashSet<String> existingPlans) {
         // System.out.println("Merging " + remotePlans.size() + " remote plans");
         ExtendedTreeNode target;
@@ -954,8 +955,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param sysName the name of the system you want the plans from
      * @return the plans found, an empty map if none are found
      */
-    private LinkedHashMap<String, PlanDBInfo> getRemotePlans(String sysName) {
-        LinkedHashMap<String, PlanDBInfo> remotePlans;
+    private Map<String, PlanDBInfo> getRemotePlans(String sysName) {
+        Map<String, PlanDBInfo> remotePlans;
         try {
             remotePlans = ImcSystemsHolder.lookupSystemByName(sysName).getPlanDBControl().getRemoteState()
                     .getStoredPlans();
