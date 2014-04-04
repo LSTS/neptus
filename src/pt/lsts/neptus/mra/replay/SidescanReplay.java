@@ -57,7 +57,7 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
  * @author jqcorreia
  * 
  */
-@PluginDescription(icon="pt/lsts/neptus/mra/replay/echosounder.png")
+@PluginDescription(icon = "pt/lsts/neptus/mra/replay/echosounder.png")
 public class SidescanReplay implements LogReplayLayer {
 
     private final List<SidescanData> dataSet = new ArrayList<SidescanData>();
@@ -67,13 +67,15 @@ public class SidescanReplay implements LogReplayLayer {
     private double imageScaleX;
 
     private boolean generate = true;
-    private int lod;    
-    private double top=0,bot=0,left=0,right=0;
+    private int lod;
+    private double top = 0, bot = 0, left = 0, right = 0;
 
     private LocationType topleftLT;
     private LocationType botrightLT;
 
     private LocationType lastCenter = new LocationType();
+
+    private IMraLogGroup source;
 
     @Override
     public void cleanup() {
@@ -81,17 +83,17 @@ public class SidescanReplay implements LogReplayLayer {
         dataSet.clear();
     }
 
-    protected void generateImage(StateRenderer2D renderer)
-    {
+    protected void generateImage(StateRenderer2D renderer) {
         final StateRenderer2D rend = renderer;
 
         if (dataSet.isEmpty())
             return;
 
-        final double groundResolution = MapTileUtil.groundResolution(dataSet.get(0).loc.getLatitudeDegs(), renderer.getLevelOfDetail());
-        final double invGR = 1/groundResolution;
+        final double groundResolution = MapTileUtil.groundResolution(dataSet.get(0).loc.getLatitudeDegs(),
+                renderer.getLevelOfDetail());
+        final double invGR = 1 / groundResolution;
         lod = renderer.getLevelOfDetail();
-        imageScaleX = range*2 * (invGR) / 2000;
+        imageScaleX = range * 2 * (invGR) / 2000;
 
         Point2D p1 = renderer.getScreenPosition(topleftLT);
         Point2D p2 = renderer.getScreenPosition(botrightLT);
@@ -101,13 +103,13 @@ public class SidescanReplay implements LogReplayLayer {
         right = p2.getX();
         bot = p2.getY();
 
-        image = ImageUtils.createCompatibleImage((int)(right - left), (int)(bot - top), Transparency.BITMASK);
+        image = ImageUtils.createCompatibleImage((int) (right - left), (int) (bot - top), Transparency.BITMASK);
         lastCenter = renderer.getCenter();
 
-        Thread t = new Thread() {
+        Thread t = new Thread(SidescanReplay.class.getSimpleName() + " " + source.getDir().getParent()) {
             @Override
             public void run() {
-                Graphics2D g = ((Graphics2D)image.getGraphics());
+                Graphics2D g = ((Graphics2D) image.getGraphics());
 
                 // g.setColor(Color.green);
                 // g.drawRect(0, 0, image.getWidth() - 1, image.getHeight() - 1);
@@ -116,36 +118,35 @@ public class SidescanReplay implements LogReplayLayer {
 
                 double lod = rend.getLevelOfDetail();
 
-                for(SidescanData ssd : dataSet) {
+                for (SidescanData ssd : dataSet) {
                     if (lod != rend.getLevelOfDetail())
                         return;
 
                     Point2D p = rend.getScreenPosition(ssd.loc);
-                    Graphics2D g2 = (Graphics2D)g.create();
+                    Graphics2D g2 = (Graphics2D) g.create();
 
                     g2.translate(-left, -top);
                     g2.translate(p.getX() - 1000 * imageScaleX, p.getY());
-                    g2.rotate(ssd.heading,1000*imageScaleX,0);
+                    g2.rotate(ssd.heading, 1000 * imageScaleX, 0);
                     g2.scale(imageScaleX, 1);
-                    //g2.drawImage(ssd.img, null, 0, 0);
-                    //int ysize =  (int)((ssd.alongTrackLength*invGR) > 1 ? (ssd.alongTrackLength*invGR) : 1);
-                    //                    NeptusLog.pub().info("<###> "+ysize + " " + groundResolution + " " + ssd.alongTrackLength);
+                    // g2.drawImage(ssd.img, null, 0, 0);
+                    // int ysize = (int)((ssd.alongTrackLength*invGR) > 1 ? (ssd.alongTrackLength*invGR) : 1);
+                    // NeptusLog.pub().info("<###> "+ysize + " " + groundResolution + " " + ssd.alongTrackLength);
                     g2.drawImage(ssd.img, 0, 0, null);
                     g2.dispose();
                     rend.repaint();
                 }
-            };          
+            };
         };
+        t.setDaemon(true);
         t.start();
-
-
     }
 
     private boolean firstPaint = true;
 
     @Override
     public void paint(Graphics2D g, final StateRenderer2D renderer) {
-        LocationType center  = renderer.getCenter().getNewAbsoluteLatLonDepth();
+        LocationType center = renderer.getCenter().getNewAbsoluteLatLonDepth();
 
         if (firstPaint) {
             firstPaint = false;
@@ -157,9 +158,9 @@ public class SidescanReplay implements LogReplayLayer {
             });
         }
 
-        if(renderer.getLevelOfDetail()!= lod) 
+        if (renderer.getLevelOfDetail() != lod)
             generate = true;
-        if(generate) {
+        if (generate) {
             generateImage(renderer);
             generate = false;
         }
@@ -168,8 +169,8 @@ public class SidescanReplay implements LogReplayLayer {
         left += offset[0];
         top += offset[1];
         Graphics2D g2 = (Graphics2D) g.create();
-        g2.rotate(-renderer.getRotation(), renderer.getWidth()/2, renderer.getHeight()/2);
-        g2.drawImage(image, null, (int)(left), (int)(top));
+        g2.rotate(-renderer.getRotation(), renderer.getWidth() / 2, renderer.getHeight() / 2);
+        g2.drawImage(image, null, (int) (left), (int) (top));
         g2.dispose();
         lastCenter = center;
     }
@@ -186,6 +187,8 @@ public class SidescanReplay implements LogReplayLayer {
 
     @Override
     public void parse(IMraLogGroup source) {
+        this.source = source;
+
         IMraLog ssParse = source.getLog("SonarData");
         IMraLog esParse = source.getLog("EstimatedState");
 
@@ -203,10 +206,9 @@ public class SidescanReplay implements LogReplayLayer {
 
         range = msgSS.getFloat("max_range");
         while (msgSS != null) {
-            if(msgSS.getInteger("type") == SonarData.TYPE.SIDESCAN.value()) {
+            if (msgSS.getInteger("type") == SonarData.TYPE.SIDESCAN.value()) {
                 msgES = esParse.getEntryAtOrAfter(msgSS.getTimestampMillis());
-                if(msgES == null)
-                {
+                if (msgES == null) {
                     msgSS = ssParse.nextLogEntry();
                     continue;
                 }
@@ -233,12 +235,12 @@ public class SidescanReplay implements LogReplayLayer {
                     msgSS.setValue("data", currentRaw);
                     double len = msgES.getDouble("u") * 0.063;
                     dataSet.add(new SidescanData(currentRaw, loc.getNewAbsoluteLatLonDepth(), msgES.getDouble("psi"),
-                            msgES.getDouble("alt"),len));
+                            msgES.getDouble("alt"), len));
                 }
                 else {
                     double len = msgES.getDouble("u") * 0.2;
                     dataSet.add(new SidescanData(msgSS.getRawData("data"), loc.getNewAbsoluteLatLonDepth(), msgES
-                            .getDouble("psi"), msgES.getDouble("alt"),len));
+                            .getDouble("psi"), msgES.getDouble("alt"), len));
                 }
             }
             msgSS = ssParse.nextLogEntry();
@@ -281,19 +283,20 @@ public class SidescanReplay implements LogReplayLayer {
             ColorMap cp = ColorMapFactory.createBronzeColormap();
             for (int i = 0; i < raw.length; i++) {
                 angle = startAngle + (angleStep * i);
-                double srange = (bottDistance * (2000f/100f)) / Math.cos(Math.toRadians(angle)); 
-                double d = Math.sqrt(Math.pow(srange, 2) - Math.pow(bottDistance,2));
-                int pos = (int)d *(i < 1000? -1 : 1);
-                if(pos <= -1000 || pos >= 1000) {
+                double srange = (bottDistance * (2000f / 100f)) / Math.cos(Math.toRadians(angle));
+                double d = Math.sqrt(Math.pow(srange, 2) - Math.pow(bottDistance, 2));
+                int pos = (int) d * (i < 1000 ? -1 : 1);
+                if (pos <= -1000 || pos >= 1000) {
                     continue;
                 }
-                img.setRGB(i,0,cp.getColor((raw[i] & 0xFF)/255.0).getRGB());
+                img.setRGB(i, 0, cp.getColor((raw[i] & 0xFF) / 255.0).getRGB());
             }
             this.loc = loc;
             this.heading = heading;
             this.alongTrackLength = alongTdist;
         }
     }
+
     @Override
     public boolean getVisibleByDefault() {
         return false;
