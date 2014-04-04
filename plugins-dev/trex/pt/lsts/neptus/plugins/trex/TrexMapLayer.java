@@ -245,18 +245,22 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             if (surveyEdit) {
                 addSurveyPointsMenu(popup);
             }
-            if (trexActive)
+            if (trexActive) {
                 addDisableTrexMenu(popup);
-            else
+                popup.addSeparator();
+                addUAVSpotter(popup, loc);
+                addClearNeptusGoalsMenu(popup);
+            }
+            else {
                 addEnableTrexMenu(popup);
-            addClearNeptusGoalsMenu(popup);
+                popup.addSeparator();
+                addClearNeptusGoalsMenu(popup);
+            }
             popup.addSeparator();
             addVisitThisPointMenu(popup, loc);
             addAUVDrifter(popup, loc);
             addClearGoalMenu(popup);
-            popup.addSeparator();
             //addTagSimulation(popup, loc);
-            addUAVSpotter(popup, loc);
 
             //            for (String gid : sentGoals.keySet()) {
             //                Point2D screenPos = source.getScreenPosition(sentGoals.get(gid).getLocation()); // FIXME all goals have
@@ -266,7 +270,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             //                    addRecallGoalMenu(popup, gid, goal);
             //                }
             //            }
-            addSettingMenu(popup);
+            // addSettingMenu(popup);
             popup.show(source, event.getPoint().x, event.getPoint().y);
         }
     }
