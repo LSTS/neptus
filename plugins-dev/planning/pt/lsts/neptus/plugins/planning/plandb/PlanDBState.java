@@ -31,7 +31,10 @@
  */
 package pt.lsts.neptus.plugins.planning.plandb;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import pt.lsts.imc.IMCMessage;
@@ -48,7 +51,7 @@ public class PlanDBState implements IMCSerialization {
 
     protected long lastStateUpdated = -1;
     
-    protected LinkedHashMap<String, PlanDBInfo> storedPlans = new LinkedHashMap<String, PlanDBInfo>();
+    protected Map<String, PlanDBInfo> storedPlans = Collections.synchronizedMap(new LinkedHashMap<String, PlanDBInfo>());
     // protected LinkedHashMap<String, PlanType> storedPlansTypes = new LinkedHashMap<String, PlanType>();
     protected byte[] md5 = null;
     protected Double lastChange = null;
@@ -65,19 +68,28 @@ public class PlanDBState implements IMCSerialization {
         lastChangeAddr = new ImcId16(imc_PlanDBState.getInteger("change_sid"));
         lastChangeName = imc_PlanDBState.getAsString("change_sname");
         md5 = imc_PlanDBState.getRawData("md5");
-        Vector<IMCMessage> planInfos = imc_PlanDBState.getMessageList("plans_info");        
+        Vector<IMCMessage> planInfos = imc_PlanDBState.getMessageList("plans_info");
+        ArrayList<String> plansIdInVehicle = new ArrayList<>();
         for (IMCMessage m : planInfos) {
             PlanDBInfo pinfo = new PlanDBInfo();
             pinfo.parseIMCMessage(m);
             storedPlans.put(pinfo.getPlanId(), pinfo);
+            plansIdInVehicle.add(pinfo.getPlanId());
         }
+        
+        // Let us clean the deleted ones
+        for (String key : storedPlans.keySet().toArray(new String[storedPlans.size()])) {
+            if (!plansIdInVehicle.contains(key))
+                storedPlans.remove(key);
+        }
+        
         lastStateUpdated = System.currentTimeMillis();
     }
     
     /**
      * @return the storedPlans
      */
-    public LinkedHashMap<String, PlanDBInfo> getStoredPlans() {
+    public Map<String, PlanDBInfo> getStoredPlans() {
         return storedPlans;
     }
 
