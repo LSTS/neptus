@@ -99,7 +99,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * 
  */
 @SuppressWarnings("deprecation")
-@PluginDescription(name = "TrexMapLayer", icon = "pt/lsts/neptus/plugins/trex/trex.png")
+@PluginDescription(name = "TrexMapLayer", icon = "pt/lsts/neptus/plugins/trex/smallTrex.png")
 public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2DPainter, NeptusMessageListener {
     enum CommsChannel {
         IMC,
@@ -578,7 +578,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
         paintUavGoals(g, renderer);
 
         if (active)
-            g.drawImage(trex, 5, 50, 32, 32, this);
+            g.drawImage(trex, 5, 5, 32, 32, this);
     }
 
     private void paintUavGoals(Graphics2D g, StateRenderer2D renderer) {
