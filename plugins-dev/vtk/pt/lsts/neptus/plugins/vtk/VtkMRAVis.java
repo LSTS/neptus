@@ -76,9 +76,7 @@ import com.l2fprod.common.propertysheet.Property;
 /**
  * @author hfq
  */
-
-// public class Vtk extends JPanel implements MRAVisualization, PropertiesProvider, ComponentListener {
-@PluginDescription(author = "hfq", name = "3D Visualization", icon = "images/menus/3d.png")
+@PluginDescription(author = "hfq", name = "3D Bathymetry", icon = "images/menus/3d.png")
 public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesProvider {
     private static final long serialVersionUID = 8057825167454469065L;
 
@@ -105,9 +103,6 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     public File file;
 
     private Boolean componentEnabled = false;
-
-    // public LoadToPointCloud loadToPointCloud;
-
     private Boolean isFirstRender = true;
 
     boolean mbFound = false;
@@ -122,7 +117,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     @Override
     public String getName() {
-        return I18n.text("3D Visualization");
+        return I18n.text("3D Bathymetry");
     }
 
     @Override
@@ -397,7 +392,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     @Override
     public String getPropertiesDialogTitle() {
-        return "Multibeam 3D properties";
+        return I18n.text("3D Bathymetry properties");
     }
 
     /*
