@@ -46,7 +46,6 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.api.BathymetryParser;
-import pt.lsts.neptus.mra.api.BathymetryParserFactory;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -57,7 +56,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author jqcorreia
- * 
+ * @author hfq
  */
 @PluginDescription(name = "Multibeam Replay", icon = "pt/lsts/neptus/mra/replay/echosounder.png")
 public class MultibeamReplay implements LogReplayLayer {
@@ -74,81 +73,97 @@ public class MultibeamReplay implements LogReplayLayer {
 
     private final int baseLod = 18;
     private static final String MB_IMG_FILE_PATH = "mra/multibeam.png";
+    private static final String FILE_83P_EXT = ".83P";
+
+    private boolean isFirstPaint = true;
 
     @Override
     public void cleanup() {
         img = null;
     }
 
-    public MultibeamReplay() {
-
-    }
-
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-
-        if (source.getFile(MB_IMG_FILE_PATH) != null) {
-            if (img == null) {
-                try {
-                    NeptusLog.pub().info("Loading " + MB_IMG_FILE_PATH);
-                    img = ImageIO.read(source.getFile(MB_IMG_FILE_PATH));
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        else {
-            // NeptusLog.pub().info("Top left:" + parser.getBathymetryInfo().topLeft);
-            // NeptusLog.pub().info("bottom left: " + parser.getBathymetryInfo().bottomRight);
-            double res[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(
-                    parser.getBathymetryInfo().bottomRight, baseLod);
-            // NeptusLog.pub().info("Resolution : " + res[0] + " " + res[1]);
-
-            // Create and paint image
-            img = new BufferedImage((int) res[0], (int) res[1], BufferedImage.TYPE_INT_ARGB);
-            parser.rewind();
-
-            Thread t = new Thread() {
-
-                @Override
-                public void run() {
-                    BathymetrySwath swath;
-
-                    while ((swath = parser.nextSwath(1)) != null) {
-                        LocationType loc = swath.getPose().getPosition();
-
-                        for (BathymetryPoint bp : swath.getData()) {
-                            LocationType loc2 = new LocationType(loc);
-                            if (bp == null)
-                                continue;
-
-                            loc2.translatePosition(bp.north, bp.east, 0);
-
-                            double dist[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(loc2, baseLod);
-
-                            if (dist[0] > 0 && dist[1] > 0 && dist[0] < img.getWidth() && dist[1] < img.getHeight()) {
-                                img.setRGB((int) dist[0], (int) dist[1],
-                                        cm.getColor(1 - (bp.depth / parser.getBathymetryInfo().maxDepth)).getRGB());
-                            }
-                        }
-                    }
-
+        if (isFirstPaint) {
+            isFirstPaint = false;
+            if (source.getFile(MB_IMG_FILE_PATH) != null) {
+                if (img == null) {
                     try {
-                        NeptusLog.pub().info(
-                                "Recording " + source.getFile("Data.lsf").getParent() + "/" + MB_IMG_FILE_PATH);
-                        ImageIO.write(img, "PNG", new File(source.getFile("Data.lsf").getParent() + "/"
-                                + MB_IMG_FILE_PATH));
+                        NeptusLog.pub().info("Loading " + MB_IMG_FILE_PATH);
+                        img = ImageIO.read(source.getFile(MB_IMG_FILE_PATH));
                     }
                     catch (IOException e) {
                         e.printStackTrace();
                     }
+                }
+            }
+            else if (source.getFile(MB_IMG_FILE_PATH) == null) {
+                final Graphics2D graph = g;
+                final StateRenderer2D rend = renderer;
+
+                Thread t = new Thread(MultibeamReplay.class.getSimpleName() + " " + source.getDir().getParent()) {
+
+                    @Override
+                    public void run() {
+                        NeptusLog.pub().info("Top left:" + parser.getBathymetryInfo().topLeft);
+                        // NeptusLog.pub().info("bottom left: " + parser.getBathymetryInfo().bottomRight);
+                        double res[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(
+                                parser.getBathymetryInfo().bottomRight, baseLod);
+                        // NeptusLog.pub().info("Resolution : " + res[0] + " " + res[1]);
+                        // Create and paint image
+                        img = new BufferedImage((int) res[0], (int) res[1], BufferedImage.TYPE_INT_ARGB);
+                        parser.rewind();
+                        BathymetrySwath swath;
+                        while ((swath = parser.nextSwath(1)) != null) {
+                            LocationType loc = swath.getPose().getPosition();
+
+                            for (BathymetryPoint bp : swath.getData()) {
+                                LocationType loc2 = new LocationType(loc);
+                                if (bp == null)
+                                    continue;
+
+                                loc2.translatePosition(bp.north, bp.east, 0);
+
+                                double dist[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(loc2, baseLod);
+
+                                if (dist[0] > 0 && dist[1] > 0 && dist[0] < img.getWidth() && dist[1] < img.getHeight()) {
+                                    img.setRGB((int) dist[0], (int) dist[1],
+                                            cm.getColor(1 - (bp.depth / parser.getBathymetryInfo().maxDepth)).getRGB());
+                                }
+                            }
+                            addImageToRender(graph, rend);
+                            graph.dispose();
+                            rend.repaint();
+                        }
+
+
+                        try {
+                            NeptusLog.pub().info(
+                                    "Recording " + source.getFile("Data.lsf").getParent() + "/" + MB_IMG_FILE_PATH);
+                            ImageIO.write(img, "PNG", new File(source.getFile("Data.lsf").getParent() + "/"
+                                    + MB_IMG_FILE_PATH));
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        addImageToRender(graph, rend);
+                    }
                 };
-
-            };
-            t.start();
+                t.setDaemon(true);
+                t.start();
+            }
+            addImageToRender(g, renderer);
         }
+        else {
+            addImageToRender(g, renderer);
+        }
+    }
 
+    /**
+     * @param g
+     * @param renderer
+     */
+    private void addImageToRender(Graphics2D g, StateRenderer2D renderer) {
         pos = renderer.getScreenPosition(parser.getBathymetryInfo().topLeft);
 
         int difLod = renderer.getLevelOfDetail() - baseLod;
@@ -172,7 +187,19 @@ public class MultibeamReplay implements LogReplayLayer {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source, Context context) {
-        return source.getLog("EstimatedState") != null && BathymetryParserFactory.build(source) != null;
+        if(source.getLog("EstimatedState") == null)
+            return false;
+
+        boolean canBeApplied = false;
+        if (source.getDir().isDirectory()) {
+            for (File temp : source.getDir().listFiles()) {
+                if((temp.toString()).endsWith(FILE_83P_EXT)) {
+                    canBeApplied = true;
+                }
+            }
+        }
+        return canBeApplied;
+        // return source.getLog("EstimatedState") != null && BathymetryParserFactory.build(source) != null;
     }
 
     @Override
