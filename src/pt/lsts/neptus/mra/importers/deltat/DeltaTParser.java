@@ -58,16 +58,16 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
 /**
  * @author jqcorreia
  * @author hfq
- *
+ * 
  */
 public class DeltaTParser implements BathymetryParser {
-    private IMraLogGroup source;
-    private IMraLog stateParser;
+    private final IMraLogGroup source;
+    private final IMraLog stateParser;
     private IMCMessage state;
 
     private File file;
     private FileInputStream fis;
-    private FileChannel channel;
+    private final FileChannel channel;
     private ByteBuffer buf;
     private long curPos = 0;
 
@@ -107,10 +107,10 @@ public class DeltaTParser implements BathymetryParser {
         File f = new File(source.getFile("Data.lsf").getParent() + "/mra/bathy.info");
         File folder = new File(source.getFile("Data.lsf").getParent() + "/mra/");
 
-        if(!folder.exists())
+        if (!folder.exists())
             folder.mkdirs();
 
-        if(!f.exists()) {
+        if (!f.exists()) {
             info = new BathymetryInfo();
 
             double maxLat = -90;
@@ -130,7 +130,7 @@ public class DeltaTParser implements BathymetryParser {
                 minLat = Math.min(lat, minLat);
                 minLon = Math.min(lon, minLon);
 
-                for(int c = 0; c < bs.getNumBeams(); c++) {
+                for (int c = 0; c < bs.getNumBeams(); c++) {
                     BathymetryPoint p = bs.getData()[c];
 
                     info.minDepth = Math.min(info.minDepth, p.depth);
@@ -141,8 +141,10 @@ public class DeltaTParser implements BathymetryParser {
                 realNumberOfBeams = 0;
             }
 
-            info.topLeft = new LocationType(maxLat, minLon).translatePosition(info.maxDepth, -info.maxDepth, 0).convertToAbsoluteLatLonDepth();
-            info.bottomRight = new LocationType(minLat, maxLon).translatePosition(-info.maxDepth, info.maxDepth, 0).convertToAbsoluteLatLonDepth();
+            info.topLeft = new LocationType(maxLat, minLon).translatePosition(info.maxDepth, -info.maxDepth, 0)
+                    .convertToAbsoluteLatLonDepth();
+            info.bottomRight = new LocationType(minLat, maxLon).translatePosition(-info.maxDepth, info.maxDepth, 0)
+                    .convertToAbsoluteLatLonDepth();
             info.totalNumberOfPoints = totalNumberPoints;
 
             try {
@@ -181,7 +183,6 @@ public class DeltaTParser implements BathymetryParser {
         return 0;
     }
 
-
     @Override
     public BathymetryInfo getBathymetryInfo() {
         return info;
@@ -201,7 +202,7 @@ public class DeltaTParser implements BathymetryParser {
     public BathymetrySwath nextSwath(double prob) {
 
         try {
-            if(curPos >= channel.size())
+            if (curPos >= channel.size())
                 return null;
 
             BathymetryPoint data[];
@@ -212,10 +213,10 @@ public class DeltaTParser implements BathymetryParser {
             header.parse(buf);
 
             hasIntensity = header.hasIntensity;
-            //            if (hasIntensity)
-            //                NeptusLog.pub().info("LOG has intensity");
-            //            else
-            //                NeptusLog.pub().info("Log doesn't have intensity");
+            // if (hasIntensity)
+            // NeptusLog.pub().info("LOG has intensity");
+            // else
+            // NeptusLog.pub().info("Log doesn't have intensity");
 
             // Parse and process data ( no need to create another structure for this )
             if (header.hasIntensity)
@@ -225,18 +226,19 @@ public class DeltaTParser implements BathymetryParser {
 
             data = new BathymetryPoint[header.numBeams];
 
-            // FIXME this must be known by reading only the 83P file. This way we are depending on a a 83P <-> IMC coupling
+            // FIXME this must be known by reading only the 83P file. This way we are depending on a a 83P <-> IMC
+            // coupling
             state = stateParser.getEntryAtOrAfter(header.timestamp + MRAProperties.timestampMultibeamIncrement);
 
             if (state == null)
                 return null;
 
-            if(state == null) {
+            if (state == null) {
                 NeptusLog.pub().info("State message = null");
                 return null;
             }
 
-            // Use the navigation data from EstimatedState 
+            // Use the navigation data from EstimatedState
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             pose.getPosition().setLatitudeRads(state.getDouble("lat"));
             pose.getPosition().setLongitudeRads(state.getDouble("lon"));
@@ -245,19 +247,19 @@ public class DeltaTParser implements BathymetryParser {
             pose.getPosition().setDepth(state.getDouble("depth"));
             double ang = state.getDouble("psi") + (MRAProperties.yawMultibeamIncrement ? Math.PI : 0);
             pose.setYaw(ang);
-            for(int c = 0; c < header.numBeams; c++) { 
-                double range = buf.getShort(c*2) * (header.rangeResolution / 1000.0);
+            for (int c = 0; c < header.numBeams; c++) {
+                double range = buf.getShort(c * 2) * (header.rangeResolution / 1000.0);
 
-                if(range == 0.0 || Math.random() > prob) {
+                if (range == 0.0 || Math.random() > prob) {
                     continue;
                 }
 
                 // range corrected with soundVelocity 1516 !?
                 // FIXME está a dar galhada - nos de cadiz dão direito
-                //NeptusLog.pub().info("header soundVelocity: " + header.soundVelocity);
-                //range = range * header.soundVelocity / 1500;
+                // NeptusLog.pub().info("header soundVelocity: " + header.soundVelocity);
+                // range = range * header.soundVelocity / 1500;
 
-                double angle = header.startAngle + header.angleIncrement * c;         
+                double angle = header.startAngle + header.angleIncrement * c;
                 float height = (float) (range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth());
 
                 double x = range * Math.sin(Math.toRadians(angle));
@@ -266,22 +268,22 @@ public class DeltaTParser implements BathymetryParser {
                 float ox = (float) (x * Math.sin(yawAngle));
                 float oy = (float) (x * Math.cos(yawAngle));
 
-                if (header.hasIntensity) {
-                    short intensity = buf.getShort(480 + (c*2) - 1);    // sometimes there's a return = 0
-                    data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height, intensity);
-                }
-                else {
-                    data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height);
-                }
+                // if (header.hasIntensity) {
+                // short intensity = buf.getShort(480 + (c*2) - 1); // sometimes there's a return = 0
+                // data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height, intensity);
+                // }
+                // else {
+                data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height);
+                // }
                 realNumberOfBeams++;
-            } 
+            }
 
-            //            for(int i = 0; i < header.numBeams; ++i) {
-            //                
-            //                double intensity = buf.getShort(i*2);
-            //                //NeptusLog.pub().info("intensity: " + intensity);
-            //                ++countNumberIntensities;
-            //            }      
+            // for(int i = 0; i < header.numBeams; ++i) {
+            //
+            // double intensity = buf.getShort(i*2);
+            // //NeptusLog.pub().info("intensity: " + intensity);
+            // ++countNumberIntensities;
+            // }
 
             curPos += header.numBytes; // Advance current position
 
@@ -295,9 +297,10 @@ public class DeltaTParser implements BathymetryParser {
             return null;
         }
     }
+
     public BathymetrySwath nextSwathNoData() {
         try {
-            if(curPos >= channel.size())
+            if (curPos >= channel.size())
                 return null;
 
             realNumberOfBeams = 0;
@@ -308,7 +311,7 @@ public class DeltaTParser implements BathymetryParser {
 
             state = stateParser.getEntryAtOrAfter(header.timestamp);
 
-            // Use the navigation data from EstimatedState 
+            // Use the navigation data from EstimatedState
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             pose.getPosition().setLatitudeRads(state.getDouble("lat"));
             pose.getPosition().setLongitudeRads(state.getDouble("lon"));
@@ -342,31 +345,32 @@ public class DeltaTParser implements BathymetryParser {
 
     public static void main(String[] args) {
         try {
-            LsfLogSource source = new LsfLogSource(new File("/home/lsts/Desktop/to_upload_20130715/lauv-noptilus-1/20130715/122455_out_survey/Data.lsf"), null);
+            LsfLogSource source = new LsfLogSource(new File(
+                    "/home/lsts/Desktop/to_upload_20130715/lauv-noptilus-1/20130715/122455_out_survey/Data.lsf"), null);
             DeltaTParser p = new DeltaTParser(source);
-            //            Kryo kryo = new Kryo();
-            //            Output output = new Output(new FileOutputStream("kryo.bin"));
+            // Kryo kryo = new Kryo();
+            // Output output = new Output(new FileOutputStream("kryo.bin"));
 
             int c = 0;
             BathymetrySwath s;
-            while((s = p.nextSwath()) != null) {
-                ////                for(BathymetryPoint bp : bs.getData()) {
-                ////                    double r[] = CoordinateUtil.latLonAddNE2(bp.lat, bp.lon, bp.north, bp.east);
-                ////                    float f[] = new float[2];
-                ////                    
-                ////                    f[0] = (float) (r[0] * 1000000f);
-                ////                    f[1] = new Double(r[1]).floatValue();
-                ////                    
-                ////                    NeptusLog.pub().info("<###> "+r[0]);
-                ////                    NeptusLog.pub().info("<###> " + f[0]);
-                ////                }
-                //                c++;
-                ////                kryo.writeObject(output, bs);
+            while ((s = p.nextSwath()) != null) {
+                // // for(BathymetryPoint bp : bs.getData()) {
+                // // double r[] = CoordinateUtil.latLonAddNE2(bp.lat, bp.lon, bp.north, bp.east);
+                // // float f[] = new float[2];
+                // //
+                // // f[0] = (float) (r[0] * 1000000f);
+                // // f[1] = new Double(r[1]).floatValue();
+                // //
+                // // NeptusLog.pub().info("<###> "+r[0]);
+                // // NeptusLog.pub().info("<###> " + f[0]);
+                // // }
+                // c++;
+                // // kryo.writeObject(output, bs);
 
                 System.out.println(Math.toDegrees(s.getPose().getYaw()));
 
-            } 
-            NeptusLog.pub().info("<###> "+c);
+            }
+            NeptusLog.pub().info("<###> " + c);
         }
         catch (Exception e) {
             e.printStackTrace();
