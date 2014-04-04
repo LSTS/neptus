@@ -52,6 +52,7 @@ import javax.imageio.ImageIO;
 
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.MapTileProvider;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.ColorUtils;
@@ -102,7 +103,7 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
     public final int tileX, tileY;
     public final int worldX, worldY;
     protected BufferedImage image = null;
-    protected boolean temporaryTransparencyDetectedOnImageOnDisk = false;
+    protected boolean temporaryTransparencyDetectedOnImageOnDisk = false; //only for base layers
     private boolean showTileId = false;
 
     private Image imageFromLowerLevelOfDetail = null;
@@ -446,7 +447,22 @@ public abstract class Tile implements /*Renderer2DPainter,*/ Serializable {
      * @param img
      */
     protected void testForAlfaOnLoaddImage(BufferedImage img) {
-        temporaryTransparencyDetectedOnImageOnDisk = GuiUtils.hasAlpha(img);
+        boolean isBaseOrLayer = isBaseOrLayerMap();
+        temporaryTransparencyDetectedOnImageOnDisk = isBaseOrLayer ? GuiUtils.hasAlpha(img) : false;
+    }
+
+    /**
+     * @return
+     */
+    protected boolean isBaseOrLayerMap() {
+        try {
+            MapTileProvider anotat = this.getClass().getAnnotation(MapTileProvider.class);
+            return anotat == null ? true : anotat.isBaseMapOrLayer();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return true;
+        }
     }
     
     /**
