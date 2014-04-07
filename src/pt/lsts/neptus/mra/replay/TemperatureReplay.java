@@ -32,23 +32,47 @@
 package pt.lsts.neptus.mra.replay;
 
 import java.awt.Graphics2D;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
+
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.Temperature;
+import pt.lsts.imc.lsf.IndexScanner;
+import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.ColormapOverlay;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author hfq
  * 
  */
+@LayerPriority(priority = -60)
 @PluginDescription(name = "Temperature Replay", icon = "pt/lsts/neptus/plugins/ctd/thermometer.png")
-public class TemperatureReplay implements LogReplayLayer {
+public class TemperatureReplay extends ColormapOverlay implements LogReplayLayer {
+
+    @NeptusProperty(name = "Cell width")
+    public static int cellWidth = 10;
+
+    private ColorMap cm = ColorMapFactory.createJetColorMap();
+    private static final String TEMP_IMG_FILE_PATH = "mra/temperature.png";
 
     /**
-     * 
+     * Constructor
      */
     public TemperatureReplay() {
+        super("Temperature", cellWidth, true, 0);
     }
 
     /*
@@ -59,7 +83,7 @@ public class TemperatureReplay implements LogReplayLayer {
      */
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-
+        super.paint(g, renderer);
     }
 
     /*
@@ -81,7 +105,7 @@ public class TemperatureReplay implements LogReplayLayer {
      */
     @Override
     public String getName() {
-        return null;
+        return I18n.text("Temperature Replay");
     }
 
     /*
@@ -90,8 +114,52 @@ public class TemperatureReplay implements LogReplayLayer {
      * @see pt.lsts.neptus.mra.replay.LogReplayComponent#parse(pt.lsts.neptus.mra.importers.IMraLogGroup)
      */
     @Override
-    public void parse(IMraLogGroup source) {
+    public void parse(final IMraLogGroup source) {
 
+        Thread t = new Thread(TemperatureReplay.class.getSimpleName() + " " + source.getDir().getParent()) {
+
+            @Override
+            public void run() {
+
+                LsfIndex lsfIndex = source.getLsfIndex();
+                IndexScanner indexScanner = new IndexScanner(lsfIndex);
+
+                while (true) {
+                    Temperature temp = indexScanner.next(Temperature.class, "CTD");
+
+                    if (temp == null)
+                        break;
+
+                    EstimatedState state = indexScanner.next(EstimatedState.class);
+
+                    LocationType loc = new LocationType(Math.toDegrees(state.getLat()), Math.toDegrees(state.getLon()));
+                    loc.translatePosition(state.getX(), state.getY(), 0);
+
+                    try {
+                        addSample(loc, temp.getValue());
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                generated = generateImage(cm);
+
+                if (source.getFile(TEMP_IMG_FILE_PATH) == null) {
+                    try {
+                        NeptusLog.pub().info(
+                                "Recording " + lsfIndex.getLsfFile().getParentFile() + "/" + TEMP_IMG_FILE_PATH);
+                        ImageIO.write(generated, "PNG", new File(lsfIndex.getLsfFile().getParentFile() + "/"
+                                + TEMP_IMG_FILE_PATH));
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        t.setDaemon(true);
+        t.start();
     }
 
     /*
@@ -131,7 +199,8 @@ public class TemperatureReplay implements LogReplayLayer {
      */
     @Override
     public void cleanup() {
-
+        generated = null;
+        cm = null;
     }
 
 }
