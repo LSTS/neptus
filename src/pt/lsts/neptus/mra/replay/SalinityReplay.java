@@ -63,10 +63,12 @@ import pt.lsts.neptus.types.coord.LocationType;
 public class SalinityReplay extends ColormapOverlay implements LogReplayLayer {
 
     @NeptusProperty(name = "Cell width")
-    public static int cellWidth = 10;
+    public static int cellWidth = 1;
 
     private ColorMap cm = ColorMapFactory.createJetColorMap();
     private static final String SALINITY_IMG_FILE_PATH = "mra/salinity.png";
+
+    private boolean isParsed = false;
 
     /**
      * 
@@ -80,7 +82,8 @@ public class SalinityReplay extends ColormapOverlay implements LogReplayLayer {
      */
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        super.paint(g, renderer);
+        if (isParsed)
+            super.paint(g, renderer);
     }
 
     /* (non-Javadoc)
@@ -142,6 +145,7 @@ public class SalinityReplay extends ColormapOverlay implements LogReplayLayer {
                         e.printStackTrace();
                     }
                 }
+                isParsed = true;
             }
         };
         t.setDaemon(true);
