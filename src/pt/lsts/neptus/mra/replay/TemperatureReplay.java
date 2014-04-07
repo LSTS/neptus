@@ -63,10 +63,12 @@ import pt.lsts.neptus.types.coord.LocationType;
 public class TemperatureReplay extends ColormapOverlay implements LogReplayLayer {
 
     @NeptusProperty(name = "Cell width")
-    public static int cellWidth = 10;
+    public static int cellWidth = 1;
 
     private ColorMap cm = ColorMapFactory.createJetColorMap();
     private static final String TEMP_IMG_FILE_PATH = "mra/temperature.png";
+
+    private boolean isParsed = false;
 
     /**
      * Constructor
@@ -83,7 +85,8 @@ public class TemperatureReplay extends ColormapOverlay implements LogReplayLayer
      */
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        super.paint(g, renderer);
+        if (isParsed)
+            super.paint(g, renderer);
     }
 
     /*
@@ -156,6 +159,7 @@ public class TemperatureReplay extends ColormapOverlay implements LogReplayLayer
                         e.printStackTrace();
                     }
                 }
+                isParsed = true;
             }
         };
         t.setDaemon(true);
