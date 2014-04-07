@@ -105,7 +105,7 @@ public class MultibeamReplay implements LogReplayLayer {
 
                     @Override
                     public void run() {
-                        NeptusLog.pub().info("Top left:" + parser.getBathymetryInfo().topLeft);
+                        // NeptusLog.pub().info("Top left:" + parser.getBathymetryInfo().topLeft);
                         // NeptusLog.pub().info("bottom left: " + parser.getBathymetryInfo().bottomRight);
                         double res[] = parser.getBathymetryInfo().topLeft.getDistanceInPixelTo(
                                 parser.getBathymetryInfo().bottomRight, baseLod);
