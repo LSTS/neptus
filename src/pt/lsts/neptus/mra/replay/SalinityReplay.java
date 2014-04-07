@@ -59,7 +59,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  *
  */
 @LayerPriority(priority = -60)
-@PluginDescription(name = "Salinity Replay", icon = "pt/lsts/neptus/plugins/ctd/thermometer.png")
+@PluginDescription(name = "Salinity Replay", icon = "pt/lsts/neptus/mra/replay/waterdrop.png")
 public class SalinityReplay extends ColormapOverlay implements LogReplayLayer {
 
     @NeptusProperty(name = "Cell width")
