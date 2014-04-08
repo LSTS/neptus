@@ -1250,6 +1250,43 @@ public class IMCUtils {
         }
         
     }
+    
+    /**
+     * Given an IMC ID, this method returns the system type.
+     * @see https://github.com/LSTS/imc/blob/master/IMC_Addressing_Scheme.txt
+     * @param imcId The IMC id (uint16_t)
+     * @return The type of the system. One of "UUV", "ROV", "USV", "UAV", "UXV", "CCU", "Sensor" or "Unknown".
+     */
+    public static String getSystemType(int imcId) {
+        int sys_selector = 0xE000;
+        int vtype_selector = 0x1800;
+        
+        int sys_type = (imcId & sys_selector) >> 13;
+        
+        switch (sys_type) {
+            case 0:
+            case 1:
+                switch ((imcId & vtype_selector) >> 11) {
+                    case 0:
+                        return "UUV";
+                    case 1:
+                        return "ROV";
+                    case 2:
+                        return "USV";
+                    case 3:
+                        return "UAV";
+                    default:
+                        return "UXV";
+                }
+            case 2:
+                return "CCU";
+            case 3:
+            case 4:
+                return "Sensor";
+            default:
+                return "Unknown";
+        }
+    }
 
     // ------------------------------------------------------------------------
 

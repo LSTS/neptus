@@ -89,8 +89,8 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     protected LinkedHashMap<String, RemoteSensorInfo> sensorData = new LinkedHashMap<>();
     protected Image spot, desired, target, unknown;
     protected final int HERMES_ID = 0x08c1;
-
     protected Vector<VirtualDrifter> drifters = new Vector<>();
+    protected LinkedHashMap<String, Image> systemImages = new LinkedHashMap<String, Image>();
 
     @Override
     public long millisBetweenUpdates() {
@@ -340,7 +340,6 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
             loc.setLongitudeRads(sinfo.getLon());
             Point2D pt = renderer.getScreenPosition(loc);
             Image img = null;
-
             if (sinfo.getId().startsWith("DP_")) {
                 img = desired;
             }
@@ -351,16 +350,31 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                 img = spot;
             }
             else {
-                if (ImcSystemsHolder.getSystemWithName(sinfo.getId()) != null) {
+                if (systemImages.containsKey(sinfo.getId()))
+                    img = systemImages.get(sinfo.getId());
+                else if (ImcSystemsHolder.getSystemWithName(sinfo.getId()) != null) {
+
                     VehicleType vt = ImcSystemsHolder.getSystemWithName(sinfo.getId()).getVehicle();
                     if (vt != null) {
                         try {
                             img = ImageUtils
                                     .getScaledImage(ImageIO.read(new File(vt.getTopImageHref())), 16, 16, false);
+                            systemImages.put(sinfo.getId(), img);
                         }
                         catch (Exception e) {
                             e.printStackTrace();
                         }
+                    }
+                }
+                else if (VehiclesHolder.getVehicleById(sinfo.getId()) != null) {
+                    VehicleType vt = VehiclesHolder.getVehicleById(sinfo.getId());
+                    try {
+                        img = ImageUtils
+                                .getScaledImage(ImageIO.read(new File(vt.getTopImageHref())), 16, 16, false);
+                        systemImages.put(sinfo.getId(), img);
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -373,10 +387,10 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
             // int mins = (int)((System.currentTimeMillis() - sinfo.getTimestampMillis()) / 1000);
             g.drawString(
                     sinfo.getId()
-                            + " ("
-                            + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis()
-                                    - sinfo.getTimestampMillis()) + ")",
-                    (int) (pt.getX() + img.getWidth(this) / 2 + 3), (int) (pt.getY() + 5));
+                    + " ("
+                    + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis()
+                            - sinfo.getTimestampMillis()) + ")",
+                            (int) (pt.getX() + img.getWidth(this) / 2 + 3), (int) (pt.getY() + 5));
         }
     }
 

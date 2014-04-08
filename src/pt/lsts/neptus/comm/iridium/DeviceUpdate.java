@@ -40,8 +40,7 @@ import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.RemoteSensorInfo;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.comm.IMCUtils;
 
 /**
  * @author zp
@@ -110,27 +109,7 @@ public class DeviceUpdate extends IridiumMessage {
             sensorInfo.setId(IMCDefinition.getInstance().getResolver().resolve(pos.id));
             sensorInfo.setSrc(getSource());
             sensorInfo.setDst(getDestination());
-            ImcSystem sys = ImcSystemsHolder.lookupSystem(pos.id);
-            if (sys != null) {
-                switch (sys.getType()) {
-                    case CCU:
-                        sensorInfo.setSensorClass("CCU");
-                    case VEHICLE:
-                        sensorInfo.setSensorClass(sys.getTypeVehicle().toString());
-                        break;
-                    case MOBILESENSOR:
-                    case STATICSENSOR:
-                        sensorInfo.setSensorClass("SENSOR");
-                        break;
-                    default:
-                        sensorInfo.setSensorClass("UNKNOWN");
-                        break;
-                }
-            }
-            else {
-                sensorInfo.setSensorClass("UNKNOWN");
-            }
-
+            sensorInfo.setSensorClass(IMCUtils.getSystemType(pos.id));
             msgs.add(sensorInfo);
         }
         return msgs;
