@@ -47,7 +47,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
  * @author zp
  *
  */
-public class DeviceUpdate extends IridiumMessage {
+public class ExtendedDeviceUpdate extends IridiumMessage {
 
     protected LinkedHashMap<Integer, Position> positions = new LinkedHashMap<>();
 
@@ -58,8 +58,8 @@ public class DeviceUpdate extends IridiumMessage {
         return positions;
     }
 
-    public DeviceUpdate() {
-        super(2001);
+    public ExtendedDeviceUpdate() {
+        super(2011);
     }
 
     @Override
@@ -73,7 +73,8 @@ public class DeviceUpdate extends IridiumMessage {
             out.writeInt((int)Math.round(Math.toDegrees(p.latitude) * 1000000.0));
             read+=4;
             out.writeInt((int)Math.round(Math.toDegrees(p.longitude) * 1000000.0));
-            read+=4;            
+            read+=4;
+            out.writeByte((int)p.posType.value());
         }
         return read;
     }
@@ -92,6 +93,8 @@ public class DeviceUpdate extends IridiumMessage {
             read+=4;
             pos.longitude = Math.toRadians(in.readInt() / 1000000.0);
             read+=4;
+            int type = in.readUnsignedByte();
+            pos.posType = Position.fromInt(type);
             positions.put(pos.id, pos);
         }
         return read;
@@ -133,6 +136,7 @@ public class DeviceUpdate extends IridiumMessage {
 
             msgs.add(sensorInfo);
         }
+
         return msgs;
     }
 }

@@ -81,7 +81,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
         
         DeviceUpdate up = new DeviceUpdate();
         for (HubSystemMsg s : sys) {
-            DeviceUpdate.Position pos = new DeviceUpdate.Position();
+            Position pos = new Position();
             pos.id = s.imcid;
             pos.latitude = s.coordinates[0];
             pos.longitude = s.coordinates[1];
