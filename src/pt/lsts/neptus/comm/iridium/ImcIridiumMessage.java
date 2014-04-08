@@ -47,19 +47,18 @@ public class ImcIridiumMessage extends IridiumMessage {
 
     protected IMCMessage msg;
     
+    public static int MaxPayloadSize = 270 - 12; 
+    
     public ImcIridiumMessage() {
         super(2010);    
-    }
-    
+    }    
     
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
-        
         if (msg != null) {
             out.writeUnsignedShort(msg.getMgid());
             out.writeUnsignedInt((int)msg.getTimestamp());
             int size = 6 + IMCDefinition.getInstance().serializeFields(msg, out);
-            System.out.println(size);
             return size;
         }
         return 0;

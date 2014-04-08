@@ -31,6 +31,11 @@
  */
 package pt.lsts.neptus.comm;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,6 +60,12 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCFieldType;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.IMCUtil;
+import pt.lsts.imc.types.PlanSpecificationAdapter;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -99,12 +110,6 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.PropertiesLoader;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCFieldType;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCOutputStream;
-import pt.lsts.imc.IMCUtil;
-import pt.lsts.imc.types.PlanSpecificationAdapter;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
@@ -1247,9 +1252,10 @@ public class IMCUtils {
             if (i % 10 == 0)
                 System.out.print(" ");
             System.out.printf("%02X", data[i]);
-        }
-        
+        }       
     }
+    
+    
     
     /**
      * Given an IMC ID, this method returns the system type.
@@ -1288,6 +1294,7 @@ public class IMCUtils {
         }
     }
 
+    
     // ------------------------------------------------------------------------
 
     public static void main(String[] args) {

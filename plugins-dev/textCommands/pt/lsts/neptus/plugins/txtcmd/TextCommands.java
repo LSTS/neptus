@@ -162,12 +162,6 @@ public class TextCommands extends ConsolePanel {
                 preview();
             }
         });
-        //        btnSettings.addActionListener(new ActionListener() {            
-        //            @Override
-        //            public void actionPerformed(ActionEvent e) {
-        //                settings();
-        //            }
-        //        });
 
         parse();      
 
@@ -245,7 +239,6 @@ public class TextCommands extends ConsolePanel {
                 sender = wifiSender;
                 break;
         }
-
 
         try {
             Future<String> result = sender.sendToVehicle("neptus", getConsole().getMainSystem(), command);

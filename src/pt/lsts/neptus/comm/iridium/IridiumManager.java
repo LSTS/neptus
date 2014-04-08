@@ -32,6 +32,8 @@
 package pt.lsts.neptus.comm.iridium;
 
 import java.awt.Component;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.concurrent.Executors;
@@ -40,9 +42,14 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JOptionPane;
 
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCUtil;
+import pt.lsts.imc.MessagePart;
+import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
@@ -161,7 +168,57 @@ public class IridiumManager {
         return instance;
     }
 
+    public static Collection<ImcIridiumMessage> iridiumEncode(IMCMessage msg) throws Exception {
+        if (msg.getPayloadSize() < ImcIridiumMessage.MaxPayloadSize) {
+            ImcIridiumMessage m = new ImcIridiumMessage();
+            m.setSource(msg.getSrc());
+            m.setDestination(msg.getDst());
+            m.timestampMillis = msg.getTimestampMillis();
+            m.msg = msg;
+            return Arrays.asList(m);
+        }
+        else {
+            MessagePart[] parts = new IMCFragmentHandler(IMCDefinition.getInstance()).fragment(msg, ImcIridiumMessage.MaxPayloadSize+IMCDefinition.getInstance().headerLength());
+            
+            ArrayList<ImcIridiumMessage> ret = new ArrayList<ImcIridiumMessage>();
+            for (MessagePart mp : parts) {
+                ImcIridiumMessage m = new ImcIridiumMessage();
+                m.setSource(msg.getSrc());
+                m.setDestination(msg.getDst());
+                m.timestampMillis = msg.getTimestampMillis();
+                m.msg = mp;
+                ret.add(m);
+            }
+            return ret;
+        }
+    }
 
+    public static void testMessageSerialization() {
+        IMCDefinition defs = IMCDefinition.getInstance();
+
+        for (String abbrev: defs.getMessageNames()) {
+            IMCMessage m = defs.create(abbrev);
+            IMCUtil.fillWithRandomData(m);
+            System.out.println("Message of type "+m.getAbbrev()+" and size "+(m.getPayloadSize()));
+            System.out.println(m);
+            try {
+                Collection<ImcIridiumMessage> msgs = iridiumEncode(m);
+                System.out.println(" ==> "+msgs.size()+" messages");
+                for (ImcIridiumMessage msg : msgs) {
+                    ByteUtil.dumpAsHex("Iridium message of type "+msg.getMessageType(), msg.serialize(), System.out);
+                    for (byte b : msg.serialize()) {
+                        System.out.printf("%02X",b);
+                    }
+                    System.out.println();
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    
 
     /**
      * This method will send the given message using the currently selected messenger
@@ -170,12 +227,16 @@ public class IridiumManager {
      * @return
      */
     public void send(IridiumMessage msg) throws Exception {
+        ByteUtil.dumpAsHex("Iridium message of type "+msg.getMessageType(), msg.serialize(), System.out);
+        
+        for (byte b : msg.serialize()) {
+            System.out.printf("%02X", b);
+        }
+        System.out.println();
         getCurrentMessenger().sendMessage(msg);
     }
     
-    public static void main(String[] args) {
-        IridiumManager.getManager().selectMessenger(null);
-        IridiumManager.getManager().start();
-        IridiumManager.getManager().stop();
+    public static void main(String[] args) throws Exception {
+       testMessageSerialization();
     }
 }

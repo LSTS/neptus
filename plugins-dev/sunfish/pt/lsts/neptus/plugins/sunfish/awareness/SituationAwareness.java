@@ -99,6 +99,15 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     @NeptusProperty
     public boolean audibleUpdates = true;
     
+    @NeptusProperty
+    public boolean argosWebFetching = true;
+    
+    @NeptusProperty
+    public boolean spotWebFetching = true;
+    
+    @NeptusProperty
+    public boolean hubWebFetching = true;
+    
     @Override
     public void initInteraction() {
         Reflections reflections = new Reflections(getClass().getPackage().getName());
