@@ -44,7 +44,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 public class ImcLocationProvider implements ILocationProvider {
 
     private SituationAwareness instance;
-
+    private boolean enabled = false;
     @Override
     public void onInit(SituationAwareness instance) {
         this.instance = instance;
@@ -55,12 +55,20 @@ public class ImcLocationProvider implements ILocationProvider {
     public void onCleanup() {
         ImcMsgManager.unregisterBusListener(this);
     }
+    
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+    
 
     @Subscribe
     public void on(Announce announce) {
+        if (!enabled)
+            return;
         AssetPosition pos = new AssetPosition(announce.getSysName(), Math.toDegrees(announce.getLat()),
                 Math.toDegrees(announce.getLon()));
-        pos.setSource("Announce");
+        pos.setSource(getName());
         switch (announce.getSysType()) {
             case STATICSENSOR:
             case MOBILESENSOR:
@@ -75,12 +83,22 @@ public class ImcLocationProvider implements ILocationProvider {
         instance.addAssetPosition(pos);
     }
     
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.sunfish.awareness.ILocationProvider#getName()
+     */
+    @Override
+    public String getName() {
+        return "IMC messages";
+    }
+    
     @Subscribe
     public void on(RemoteSensorInfo sensor) {
+        if (!enabled)
+            return;
         AssetPosition pos = new AssetPosition(sensor.getId(), Math.toDegrees(sensor.getLat()),
                 Math.toDegrees(sensor.getLon()));
         pos.setTimestamp(sensor.getTimestampMillis());
-        pos.setSource("RemoteSensorInfo");
+        pos.setSource(getName());
         pos.setType(sensor.getSensorClass());
         instance.addAssetPosition(pos);
     }

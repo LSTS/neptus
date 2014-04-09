@@ -183,7 +183,7 @@ public class ArgosLocationProvider implements ILocationProvider {
                     }
                 }
                 AssetPosition pos = new AssetPosition("Argos_" + id, Double.parseDouble(lat), Double.parseDouble(lon));
-                pos.setSource("Argos WS");
+                pos.setSource(getName());
                 pos.setType("Argos Tag");
                 pos.putExtra("Loc. Class", locClass);
                 pos.setTimestamp(df.parse(date.replaceAll("T", " ").replaceAll("Z", "")).getTime());
@@ -196,6 +196,11 @@ public class ArgosLocationProvider implements ILocationProvider {
             NeptusLog.pub().error(e);
         }
     }
+    
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     @Override
     public void onInit(SituationAwareness instance) {
@@ -205,6 +210,14 @@ public class ArgosLocationProvider implements ILocationProvider {
     @Override
     public void onCleanup() {
 
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.sunfish.awareness.ILocationProvider#getName()
+     */
+    @Override
+    public String getName() {
+        return "ARGOS (Web Service)";
     }
 
     public static void main(String[] args) throws Exception {

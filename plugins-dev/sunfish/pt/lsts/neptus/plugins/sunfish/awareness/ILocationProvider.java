@@ -38,4 +38,6 @@ package pt.lsts.neptus.plugins.sunfish.awareness;
 public interface ILocationProvider {
     public void onInit(SituationAwareness instance);
     public void onCleanup();
+    public String getName();
+    public void setEnabled(boolean enabled);
 }

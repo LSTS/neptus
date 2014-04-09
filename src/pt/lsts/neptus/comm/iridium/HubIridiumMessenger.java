@@ -289,10 +289,10 @@ public class HubIridiumMessenger implements IridiumMessenger {
     
     public static class HubSystemMsg {
         
-        int imcid;
-        String name;
-        String updated_at;
-        Double[] coordinates;
+        public int imcid;
+        public String name;
+        public String updated_at;
+        public Double[] coordinates;
         
         public Date updatedAt() {
             return stringToDate(updated_at);

@@ -62,7 +62,8 @@ public class SpotLocationProvider implements ILocationProvider {
     
     @Periodic(millisBetweenUpdates=1000*60)
     public void updateSpots() throws Exception {
-        
+        if (!enabled)
+            return;
         URL urlSpot = new URL(url);
         File tmp = File.createTempFile("neptus", "spots");
         FileUtils.copyURLToFile(urlSpot, tmp);
@@ -107,7 +108,7 @@ public class SpotLocationProvider implements ILocationProvider {
                 if (name != null) {
                     AssetPosition pos = new AssetPosition(name, lat, lon);
                     pos.setTimestamp(timestamp);
-                    pos.setSource("SPOT (Web)");
+                    pos.setSource(getName());
                     pos.setType("SPOT Tag");
                     if (battState != null)
                         pos.putExtra("Battery", WordUtils.capitalize(battState.toLowerCase()));
@@ -120,6 +121,20 @@ public class SpotLocationProvider implements ILocationProvider {
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.sunfish.awareness.ILocationProvider#getName()
+     */
+    @Override
+    public String getName() {
+        return "SPOT (Web API)";
+    }
+    
+    private boolean enabled = false;
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @Override
