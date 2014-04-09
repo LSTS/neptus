@@ -39,6 +39,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -47,13 +48,18 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IridiumTxStatus;
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanControl.OP;
+import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.imc.TextMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ActivateSubscription;
 import pt.lsts.neptus.comm.iridium.DeactivateSubscription;
 import pt.lsts.neptus.comm.iridium.DesiredAssetPosition;
+import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumCommand;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.iridium.TargetAssetPosition;
@@ -69,6 +75,7 @@ import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.DateTimeUtil;
@@ -127,6 +134,50 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         unknown = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/unknown.png");
     }
 
+    private void commandPlanExecution() {
+       Collection<String> planNames = getConsole().getMission().getIndividualPlansList().keySet();
+       if (planNames.isEmpty())
+           return;
+       String selectedPlan = planNames.iterator().next();
+       if (getConsole().getPlan() != null) {
+           selectedPlan = getConsole().getPlan().getId();
+       }
+       
+       final Object selection = JOptionPane.showInputDialog(getConsole(), "Select plan to be commanded via Iridium", "Start plan", JOptionPane.QUESTION_MESSAGE, null, planNames.toArray(), selectedPlan);
+       if (selection == null)
+           return;
+       
+       Thread send = new Thread("Send plan via iridium") {
+           public void run() {
+               String selectedPlan = selection.toString();
+               PlanType toSend = getConsole().getMission().getIndividualPlansList().get(selectedPlan);
+               IMCMessage msg = toSend.asIMCPlan();
+               PlanControl pc = new PlanControl();
+               pc.setArg(msg);
+               pc.setOp(OP.START);
+               pc.setType(TYPE.REQUEST);
+               pc.setPlanId(selectedPlan);
+               try {
+                   Collection<ImcIridiumMessage> irMsgs = IridiumManager.iridiumEncode(pc);
+                   int src = ImcMsgManager.getManager().getLocalId().intValue();
+                   int dst = IMCDefinition.getInstance().getResolver().resolve(getConsole().getMainSystem());
+                   
+                   NeptusLog.pub().warn("PlanControl resulted in "+irMsgs.size()+" iridium SBD messages.");
+                   for (ImcIridiumMessage irMsg : irMsgs) {
+                       irMsg.setDestination(dst);
+                       irMsg.setSource(src);
+                       IridiumManager.getManager().send(irMsg);
+                   }
+               }
+               catch (Exception e) {
+                   NeptusLog.pub().error(e);
+               }
+           };
+       };
+       send.setDaemon(true);
+       send.start();       
+    }
+    
     private void sendIridiumCommand() {
         String cmd = JOptionPane.showInputDialog(getConsole(),
                 I18n.textf("Enter command to be sent to %vehicle", getMainVehicleId()));
@@ -217,6 +268,13 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         sendIridiumCommand();
+                    }
+                });
+        
+        popup.add(I18n.textf("Command %vehicle a plan via Iridium", getMainVehicleId())).addActionListener(
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        commandPlanExecution();
                     }
                 });
 

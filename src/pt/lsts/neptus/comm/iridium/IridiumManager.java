@@ -42,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JOptionPane;
 
+import pt.lsts.imc.Abort;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
@@ -227,16 +228,18 @@ public class IridiumManager {
      * @return
      */
     public void send(IridiumMessage msg) throws Exception {
-        ByteUtil.dumpAsHex("Iridium message of type "+msg.getMessageType(), msg.serialize(), System.out);
-        
-        for (byte b : msg.serialize()) {
-            System.out.printf("%02X", b);
-        }
-        System.out.println();
+        NeptusLog.pub().info("Sending iridum message via "+getCurrentMessenger().getName()+": "+ByteUtil.encodeToHex(msg.serialize()));
         getCurrentMessenger().sendMessage(msg);
     }
     
     public static void main(String[] args) throws Exception {
-       testMessageSerialization();
+       Abort msg = new Abort();
+       msg.setSrc(22);
+       msg.setDst(IMCDefinition.getInstance().getResolver().resolve("manta-1"));
+       Collection<ImcIridiumMessage> msgs = iridiumEncode(msg);
+
+       for (ImcIridiumMessage m : msgs) {
+           System.out.println(ByteUtil.encodeToHex(m.serialize()));
+       }
     }
 }
