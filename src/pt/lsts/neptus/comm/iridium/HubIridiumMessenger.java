@@ -35,6 +35,7 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -164,10 +165,15 @@ public class HubIridiumMessenger implements IridiumMessenger {
         OutputStream os = conn.getOutputStream();
         os.write(data);
         os.close();
+
+        InputStream is = conn.getInputStream();
+        ByteArrayOutputStream incoming = new ByteArrayOutputStream();
+        IOUtils.copy(is, incoming);
+        is.close();
         
         NeptusLog.pub().info("Sent "+msg.getClass().getSimpleName()+" through HTTP: "+conn.getResponseCode()+" "+conn.getResponseMessage());        
         try {
-            logPostMessage(msg.getClass().getSimpleName()+" ("+msg.getMessageType()+")", messagesUrl, conn.getRequestMethod(), ""+conn.getResponseCode(), ByteUtil.encodeToHex(msg.serialize()));
+            logHubInteraction(msg.getClass().getSimpleName()+" ("+msg.getMessageType()+")", messagesUrl, conn.getRequestMethod(), ""+conn.getResponseCode(), ByteUtil.encodeToHex(msg.serialize()), new String(incoming.toByteArray()));
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -178,19 +184,21 @@ public class HubIridiumMessenger implements IridiumMessenger {
         }
     }
 
-    public synchronized void logPostMessage(String message, String url, String method, String statusCode, String rawData) throws Exception {
+    public synchronized void logHubInteraction(String message, String url, String method, String statusCode, String requestData, String responseData) throws Exception {
         if (! (new File("log/hub.log")).exists()) {
             BufferedWriter tmp = new BufferedWriter(new FileWriter(new File("log/hub.log"), false));
-            tmp.write("Time of Day, Message Type, URL, Method, Status Code, Raw Data (hex encoded)\n");
+            tmp.write("Time of Day, Message Type, URL, Method, Status Code, Request Data (hex encoded), Response Data\n");
             tmp.close();
         }
+        
         BufferedWriter postWriter = new BufferedWriter(new FileWriter(new File("log/hub.log"), true));
         String out = dateFormat.format(new Date());
         out += ", "+message;
         out += ", "+url;
         out += ", "+method;
         out += ", "+statusCode;
-        out += ", "+rawData;
+        out += ", "+requestData;
+        out += ", "+responseData;
         NeptusLog.pub().info(out);
 
         postWriter.write(out+"\n");
@@ -216,7 +224,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         IOUtils.copy(conn.getInputStream(), baos);
         
-        logPostMessage("Iridium Poll", u.toString(), conn.getRequestMethod(), ""+conn.getResponseCode(), ByteUtil.encodeToHex(baos.toByteArray()));
+        logHubInteraction("Iridium Poll", u.toString(), conn.getRequestMethod(), ""+conn.getResponseCode(), "", new String(baos.toByteArray()));
         
         if (conn.getResponseCode() != 200)
             throw new Exception("Hub iridium server returned "+conn.getResponseCode()+": "+conn.getResponseMessage());
@@ -290,7 +298,6 @@ public class HubIridiumMessenger implements IridiumMessenger {
             return stringToDate(updated_at);
         }
     }
-    
     
     @Override
     public void cleanup() {
