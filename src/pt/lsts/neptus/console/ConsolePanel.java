@@ -345,6 +345,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             getConsole().removePlanListener((PlanChangeListener) this);
         }
 
+        getConsole().removeMainVehicleListener(this);
+        
         if (this instanceof IPeriodicUpdates)
             PeriodicUpdatesService.unregister((IPeriodicUpdates) this);
 
@@ -484,6 +486,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     public void init() {
         mainVehicleId = getConsole().getMainSystem();
 
+        getConsole().addMainVehicleListener(this);
+        
         if (this instanceof MissionChangeListener)
             getConsole().addMissionListener((MissionChangeListener) this);
 
