@@ -31,6 +31,10 @@
  */
 package pt.lsts.neptus.comm.iridium;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -44,8 +48,11 @@ import java.util.TimeZone;
 import java.util.Vector;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.io.IOUtils;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.iridium.Position.PosType;
+import pt.lsts.neptus.util.ByteUtil;
 
 import com.google.gson.Gson;
 
@@ -86,6 +93,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
             pos.latitude = s.coordinates[0];
             pos.longitude = s.coordinates[1];
             pos.timestamp = stringToDate(s.updated_at).getTime() / 1000.0;
+            pos.posType = PosType.Unknown;
             up.getPositions().put(pos.id, pos);
         }
         
@@ -152,18 +160,47 @@ public class HubIridiumMessenger implements IridiumMessenger {
         conn.setRequestProperty( "Content-Type", "application/hub" );
         conn.setRequestProperty( "Content-Length", String.valueOf(data.length * 2) );
         conn.setConnectTimeout(timeoutMillis);
+        
         OutputStream os = conn.getOutputStream();
         os.write(data);
+        os.close();
+        
         NeptusLog.pub().info("Sent "+msg.getClass().getSimpleName()+" through HTTP: "+conn.getResponseCode()+" "+conn.getResponseMessage());        
+        try {
+            logPostMessage(msg.getClass().getSimpleName()+" ("+msg.getMessageType()+")", messagesUrl, conn.getRequestMethod(), ""+conn.getResponseCode(), ByteUtil.encodeToHex(msg.serialize()));
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
+        
         if (conn.getResponseCode() != 201) {
             throw new Exception("Server returned "+conn.getResponseCode()+": "+conn.getResponseMessage());
         }
     }
 
+    public synchronized void logPostMessage(String message, String url, String method, String statusCode, String rawData) throws Exception {
+        if (! (new File("log/hub.log")).exists()) {
+            BufferedWriter tmp = new BufferedWriter(new FileWriter(new File("log/hub.log"), false));
+            tmp.write("Time of Day, Message Type, URL, Method, Status Code, Raw Data (hex encoded)\n");
+            tmp.close();
+        }
+        BufferedWriter postWriter = new BufferedWriter(new FileWriter(new File("log/hub.log"), true));
+        String out = dateFormat.format(new Date());
+        out += ", "+message;
+        out += ", "+url;
+        out += ", "+method;
+        out += ", "+statusCode;
+        out += ", "+rawData;
+        NeptusLog.pub().info(out);
+
+        postWriter.write(out+"\n");
+        postWriter.close();
+    }
+    
     @Override
     public Collection<IridiumMessage> pollMessages(Date timeSince) throws Exception {
         
-        System.out.println("Polling messages since "+dateToString(timeSince));
+        NeptusLog.pub().info("Polling messages since "+dateToString(timeSince));
         
         String since = null;
         if (timeSince != null)
@@ -176,10 +213,14 @@ public class HubIridiumMessenger implements IridiumMessenger {
         conn.setRequestMethod( "GET" );
         conn.setConnectTimeout(timeoutMillis);
         Gson gson = new Gson();  
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IOUtils.copy(conn.getInputStream(), baos);
+        
+        logPostMessage("Iridium Poll", u.toString(), conn.getRequestMethod(), ""+conn.getResponseCode(), ByteUtil.encodeToHex(baos.toByteArray()));
         
         if (conn.getResponseCode() != 200)
             throw new Exception("Hub iridium server returned "+conn.getResponseCode()+": "+conn.getResponseMessage());
-        HubMessage[] msgs = gson.fromJson(new InputStreamReader(conn.getInputStream()), HubMessage[].class);
+        HubMessage[] msgs = gson.fromJson(baos.toString(), HubMessage[].class);
         
         Vector<IridiumMessage> ret = new Vector<>();        
         
