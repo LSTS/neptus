@@ -600,7 +600,6 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
     @Subscribe
     public void on(AcousticSystems systems) {
-        System.out.println("Received acoustic systems from "+systems.getSourceName());
         String acSystems = systems.getList();
         boolean newSystem = false;
         
