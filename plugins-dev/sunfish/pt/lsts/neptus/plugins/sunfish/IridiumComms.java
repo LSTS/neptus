@@ -233,8 +233,10 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
 
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
-        if (event.getButton() != MouseEvent.BUTTON3)
+        if (event.getButton() != MouseEvent.BUTTON3) {
             super.mouseClicked(event, source);
+            return;
+        }
 
         final LocationType loc = source.getRealWorldLocation(event.getPoint());
         loc.convertToAbsoluteLatLonDepth();
