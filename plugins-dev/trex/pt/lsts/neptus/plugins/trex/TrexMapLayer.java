@@ -44,7 +44,6 @@ import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Vector;
@@ -103,6 +102,7 @@ import pt.lsts.neptus.util.ImageUtils;
 public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2DPainter, NeptusMessageListener {
     enum CommsChannel {
         IMC,
+        IRIDIUM,
         REST;
     }
 
@@ -117,25 +117,25 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     public CommsChannel trexDuneComms = CommsChannel.IMC;
     @NeptusProperty(name = "Name of Dune task")
     public String taskName = "TREX";
-    
+
     @NeptusProperty(name = "Loiter height", description = "Height of waypoint for uav spotter plan.", category = "UAV Spotter")
     public int spotterHeight = 100;
-    
+
     @NeptusProperty(name = "Type", category = "YoYo Survey")
     public AUVDrifterSurvey.PathType path = AUVDrifterSurvey.PathType.SQUARE;
-    
+
     @NeptusProperty(name = "Survey Size", category = "YoYo Survey")
     public float size = 800;
-    
+
     @NeptusProperty(name = "Lagrangian distortion", category = "YoYo Survey", description="True if you want to apply Lagrangian distortion.")
     public boolean lagrangin = true;
-    
+
     @NeptusProperty(name = "Rotation", category = "YoYo Survey", description="In degrees, an offset to north in clockwise.")
     public float heading = 0;
-    
+
     @NeptusProperty(name = "Water current Speed", category = "YoYo Survey", description="Speed, in mps of the surface current.")
     public float speed = 0;
-    
+
     private final HttpClient httpclient = new DefaultHttpClient();
 
     private static final long serialVersionUID = 1L;
@@ -270,7 +270,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             //                    addRecallGoalMenu(popup, gid, goal);
             //                }
             //            }
-            // addSettingMenu(popup);
+            addSettingMenu(popup);
             popup.show(source, event.getPoint().x, event.getPoint().y);
         }
     }
@@ -290,12 +290,12 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+
                 if((e.getModifiers() & ActionEvent.CTRL_MASK) != 0) {
                     startTrex();
                     return;
                 }
-                
+
                 SetEntityParameters setParams = new SetEntityParameters();
                 setParams.setName("TREX");
                 EntityParameter param = new EntityParameter("Active", "true");
@@ -372,6 +372,14 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                     case IMC:
                         send(visitLocationGoal.asIMCMsg());
                         break;
+                    case IRIDIUM:
+                        try {
+                            sendViaIridium(getConsole().getMainSystem(), visitLocationGoal.asIMCMsg());
+                        }
+                        catch (Exception ex) {
+                            NeptusLog.pub().error(e);
+                        }
+                        break;
                     case REST:
                         httpPostTrex(visitLocationGoal);
                         break;
@@ -393,26 +401,34 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                     case IMC:
                         send(going.asIMCMsg());
                         break;
+                    case IRIDIUM:
+                        try {
+                            sendViaIridium(getConsole().getMainSystem(), going.asIMCMsg());
+                        }
+                        catch (Exception ex) {
+                            NeptusLog.pub().error(e);
+                        }
+                        break;
                     case REST:
                         httpPostTrex(going);
                         break;
                 }
             }
 
-            private void activateTrex() {
-                SetEntityParameters message = new SetEntityParameters();
-                message.setName(taskName);
-                EntityParameter entityParameter = new EntityParameter();
-                entityParameter.setName("Active");
-                entityParameter.setValue("true");
-                ArrayList<EntityParameter> params = new ArrayList<EntityParameter>();
-                params.add(entityParameter);
-                message.setParams(params);
-                send(message);
-            }
+//            private void activateTrex() {
+//                SetEntityParameters message = new SetEntityParameters();
+//                message.setName(taskName);
+//                EntityParameter entityParameter = new EntityParameter();
+//                entityParameter.setName("Active");
+//                entityParameter.setValue("true");
+//                ArrayList<EntityParameter> params = new ArrayList<EntityParameter>();
+//                params.add(entityParameter);
+//                message.setParams(params);
+//                send(message);
+//            }
         });
     }
-    
+
     private void addAUVDrifter(JPopupMenu popup, final LocationType loc) {
         popup.add("YoYo Survey").addActionListener(new ActionListener() {
 
@@ -426,6 +442,14 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                         // Send goal
                         send(going.asIMCMsg());
                         break;
+                    case IRIDIUM:
+                        try {
+                            sendViaIridium(getConsole().getMainSystem(), going.asIMCMsg());
+                        }
+                        catch (Exception ex) {
+                            NeptusLog.pub().error(e);
+                        }
+                        break;
                     case REST:
                         httpPostTrex(going);
                         break;
@@ -435,12 +459,12 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
         });
     }
-    
+
     private void startTrex() {
         TrexOperation op = new TrexOperation(OP.REQUEST_PLAN, "", null);
         send(op);
     }
-    
+
     private void stopTrex() {
         TrexOperation op = new TrexOperation(OP.REPORT_PLAN, "", null);
         send(op);
@@ -467,7 +491,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             httppost.setHeader("Content-Type", "application/json");
             httppost.setEntity(message);
             // Execute
-            
+
             HttpResponse response = httpclient.execute(httppost);
 
             // Get the response
@@ -659,10 +683,10 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     @Override
     public void messageArrived(IMCMessage message) {
         if (message instanceof PathControlState) {
-        PathControlState pathState = (PathControlState) message;
-        currentRef = new LocationType();
-        currentRef.setLatitudeRads(pathState.getEndLat());
-        currentRef.setLongitudeRads(pathState.getEndLon());
+            PathControlState pathState = (PathControlState) message;
+            currentRef = new LocationType();
+            currentRef.setLatitudeRads(pathState.getEndLat());
+            currentRef.setLongitudeRads(pathState.getEndLon());
         }
         else if (message instanceof PlanControlState) {
             PlanControlState planState = (PlanControlState) message;
