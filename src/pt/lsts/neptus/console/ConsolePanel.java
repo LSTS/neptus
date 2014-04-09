@@ -59,6 +59,8 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.state.ImcSysState;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
+import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
@@ -686,6 +688,19 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     public boolean send(IMCMessage message) {
         String destination = getConsole().getMainSystem();
         return send(destination, message);
+    }
+    
+    public void sendViaIridium(String destination, IMCMessage message) throws Exception {
+        Collection<ImcIridiumMessage> irMsgs = IridiumManager.iridiumEncode(message);
+        int src = ImcMsgManager.getManager().getLocalId().intValue();
+        int dst = IMCDefinition.getInstance().getResolver().resolve(destination);
+        
+        NeptusLog.pub().warn(message.getAbbrev()+" resulted in "+irMsgs.size()+" iridium SBD messages.");
+        for (ImcIridiumMessage irMsg : irMsgs) {
+            irMsg.setDestination(dst);
+            irMsg.setSource(src);
+            IridiumManager.getManager().send(irMsg);
+        }
     }
 
     /**
