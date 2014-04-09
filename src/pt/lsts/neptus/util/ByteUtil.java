@@ -147,7 +147,7 @@ public class ByteUtil {
 	public static String encodeToHex(byte[] buffer) {
 	    StringBuilder sb = new StringBuilder();
 	    for (int i = 0; i < buffer.length; i++) {
-	        sb.append(String.format("%x", buffer[i]));
+	        sb.append(String.format("%02x", buffer[i]));
 	    }
 	    
 	    return sb.toString();
