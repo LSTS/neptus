@@ -116,8 +116,8 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
     @NeptusProperty
     private String gmailAccount = "lsts.iridium";
 
-    private boolean askRockBlockPassword = false;
-    private boolean askGmailPassword = false;
+    private boolean askRockBlockPassword = true;
+    private boolean askGmailPassword = true;
 
     {
         try {
@@ -195,7 +195,7 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
             PluginUtils.saveProperties("conf/rockblock.props", this);
             askRockBlockPassword = false;
         }
-
+        
         String result = sendToRockBlockHttp(args.getImei(), getRockBlockUsername(), getRockBlockPassword(),
                 msg.serialize());
 
@@ -221,7 +221,6 @@ public class RockBlockIridiumMessenger implements IridiumMessenger {
         post.setEntity(new UrlEncodedFormEntity(urlParameters));
         post.setHeader("Content-Type", "application/x-www-form-urlencoded");
         HttpResponse response = client.execute(post);
-        System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
 
         BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
