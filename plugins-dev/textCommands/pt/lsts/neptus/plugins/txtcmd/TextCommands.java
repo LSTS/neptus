@@ -244,7 +244,7 @@ public class TextCommands extends ConsolePanel {
             Future<String> result = sender.sendToVehicle("neptus", getConsole().getMainSystem(), command);
             GuiUtils.infoMessage(getConsole(), I18n.text("Send command"), result.get());
             PlanType pt = cmd.resultingPlan(getConsole().getMission());
-
+            pt.setVehicle(getMainVehicleId());
             if (pt != null) {
                 getConsole().getMission().addPlan(pt);
                 getConsole().getMission().save(true);
