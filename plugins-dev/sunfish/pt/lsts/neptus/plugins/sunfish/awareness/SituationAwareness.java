@@ -148,7 +148,9 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
 
         for (ILocationProvider prov : localizers) {
             prov.setEnabled(updateMethodNames.contains(prov.getName()));
-        }        
+        }
+        supportTable.setShipSpeed(shipSpeedMps);
+        supportTable.setAuvSpeed(uuvSpeedMps);
     }
 
     public void addAssetPosition(AssetPosition pos) {
