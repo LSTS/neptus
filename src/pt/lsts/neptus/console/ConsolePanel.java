@@ -36,6 +36,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Vector;
 
@@ -62,6 +63,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
@@ -82,6 +84,7 @@ import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.XmlInOutMethods;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ListenerManager;
 import pt.lsts.neptus.util.ReflectionUtil;
@@ -690,16 +693,32 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         return send(destination, message);
     }
     
-    public void sendViaIridium(String destination, IMCMessage message) throws Exception {
-        Collection<ImcIridiumMessage> irMsgs = IridiumManager.iridiumEncode(message);
+    public void sendViaIridium(String destination, IMCMessage message) {
+        Collection<ImcIridiumMessage> irMsgs = new ArrayList<ImcIridiumMessage>();
+        try {
+            irMsgs = IridiumManager.iridiumEncode(message);
+        }
+        catch (Exception e) {
+            GuiUtils.errorMessage(getConsole(), e);
+            return;
+        }
         int src = ImcMsgManager.getManager().getLocalId().intValue();
         int dst = IMCDefinition.getInstance().getResolver().resolve(destination);
-        
-        NeptusLog.pub().warn(message.getAbbrev()+" resulted in "+irMsgs.size()+" iridium SBD messages.");
-        for (ImcIridiumMessage irMsg : irMsgs) {
-            irMsg.setDestination(dst);
-            irMsg.setSource(src);
-            IridiumManager.getManager().send(irMsg);
+        int count = 0;
+        try {
+            NeptusLog.pub().warn(message.getAbbrev()+" resulted in "+irMsgs.size()+" iridium SBD messages.");
+            for (ImcIridiumMessage irMsg : irMsgs) {
+                irMsg.setDestination(dst);
+                irMsg.setSource(src);
+                IridiumManager.getManager().send(irMsg);
+                count ++;
+            }
+            
+           getConsole().post(Notification.success("Iridium message sent", count+" Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
+        }
+        catch (Exception e) {
+            GuiUtils.errorMessage(getConsole(), e);
+            return;
         }
     }
 

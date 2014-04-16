@@ -59,7 +59,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ActivateSubscription;
 import pt.lsts.neptus.comm.iridium.DeactivateSubscription;
 import pt.lsts.neptus.comm.iridium.DesiredAssetPosition;
-import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumCommand;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.iridium.TargetAssetPosition;
@@ -157,21 +156,22 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                pc.setOp(OP.START);
                pc.setType(TYPE.REQUEST);
                pc.setPlanId(selectedPlan);
-               try {
-                   Collection<ImcIridiumMessage> irMsgs = IridiumManager.iridiumEncode(pc);
-                   int src = ImcMsgManager.getManager().getLocalId().intValue();
-                   int dst = IMCDefinition.getInstance().getResolver().resolve(getConsole().getMainSystem());
-                   
-                   NeptusLog.pub().warn("PlanControl resulted in "+irMsgs.size()+" iridium SBD messages.");
-                   for (ImcIridiumMessage irMsg : irMsgs) {
-                       irMsg.setDestination(dst);
-                       irMsg.setSource(src);
-                       IridiumManager.getManager().send(irMsg);
-                   }
-               }
-               catch (Exception e) {
-                   NeptusLog.pub().error(e);
-               }
+               sendViaIridium(getMainVehicleId(), pc);
+//               try {
+//                   Collection<ImcIridiumMessage> irMsgs = IridiumManager.iridiumEncode(pc);
+//                   int src = ImcMsgManager.getManager().getLocalId().intValue();
+//                   int dst = IMCDefinition.getInstance().getResolver().resolve(getConsole().getMainSystem());
+//                   
+//                   NeptusLog.pub().warn("PlanControl resulted in "+irMsgs.size()+" iridium SBD messages.");
+//                   for (ImcIridiumMessage irMsg : irMsgs) {
+//                       irMsg.setDestination(dst);
+//                       irMsg.setSource(src);
+//                       IridiumManager.getManager().send(irMsg);
+//                   }
+//               }
+//               catch (Exception e) {
+//                   NeptusLog.pub().error(e);
+//               }
            };
        };
        send.setDaemon(true);
@@ -201,6 +201,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), e);
         }
+        getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));        
     }
 
     private void setWaveGliderTargetPosition(LocationType loc) {
