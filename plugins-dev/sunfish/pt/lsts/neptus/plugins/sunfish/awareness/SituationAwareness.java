@@ -105,6 +105,9 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     @NeptusProperty(name="AUV speed (m/s)")
     public double uuvSpeedMps = 1.25;
 
+    @NeptusProperty(name="Tag safety distance (meters)", description="Minimum distance the ship can be from the tag position")
+    public double minDist = 3000;
+    
     @NeptusProperty(name="Audible position updates")
     public boolean audibleUpdates = true;
 
@@ -113,6 +116,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     
     @NeptusProperty(name="Maximum position age (hours)")
     public double maxAge = 12;
+    
     
     @Override
     public void initInteraction() {
@@ -350,8 +354,12 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
                     }
                     ArrayList<AssetPosition> tags = new ArrayList<AssetPosition>();
                     LinkedHashMap<String, Vector<AssetPosition>> positions = positionsByType();
-                    tags.addAll(positions.get("SPOT Tag"));
-                    // FIXME add argos tags
+                    Vector<AssetPosition> spots = positions.get("SPOT Tag"); 
+                    Vector<AssetPosition> argos = positions.get("Argos Tag");
+                    if (spots != null)
+                        tags.addAll(spots);
+                    if (argos != null)
+                        tags.addAll(argos);
                     if (!assets.containsKey(getConsole().getMainSystem())) {
                         GuiUtils.errorMessage(getConsole(), "Decision Support", "UUV asset position is unknown");
                         return;

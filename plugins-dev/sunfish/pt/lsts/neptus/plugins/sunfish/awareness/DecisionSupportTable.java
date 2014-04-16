@@ -64,6 +64,7 @@ public class DecisionSupportTable extends AbstractTableModel {
      */
     public void setShipSpeed(double shipSpeed) {
         this.shipSpeed = shipSpeed;
+        fireTableDataChanged();
     }
 
     /**
@@ -78,6 +79,22 @@ public class DecisionSupportTable extends AbstractTableModel {
      */
     public void setAuvSpeed(double auvSpeed) {
         this.auvSpeed = auvSpeed;
+        fireTableDataChanged();
+    }
+
+    /**
+     * @return the shipSafetyDistance
+     */
+    public double getShipSafetyDistance() {
+        return shipSafetyDistance;
+    }
+
+    /**
+     * @param shipSafetyDistance the shipSafetyDistance to set
+     */
+    public void setShipSafetyDistance(double shipSafetyDistance) {
+        this.shipSafetyDistance = shipSafetyDistance;
+        fireTableDataChanged();
     }
 
     public void setAssets(AssetPosition auv, List<AssetPosition> tags) {
@@ -106,6 +123,7 @@ public class DecisionSupportTable extends AbstractTableModel {
         double auvTagDist = auv.getLoc().getDistanceInMeters(tag.getLoc());
         double time = auvShipDist / shipSpeed;
         auvTagDist -= shipSafetyDistance;
+        auvTagDist = Math.min(shipSafetyDistance, auvTagDist);
         time += auvTagDist / shipSpeed;
         time += shipSafetyDistance / auvSpeed;
         return (long) (time * 1000.0);

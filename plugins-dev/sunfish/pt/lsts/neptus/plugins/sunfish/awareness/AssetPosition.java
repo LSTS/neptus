@@ -185,6 +185,7 @@ public class AssetPosition implements Comparable<AssetPosition> {
             append("<table><tr><th colspan='2'>"+getAssetName()+"</th></tr>").
             append("<tr><td>Type:</td><td>"+getType()+"</td></tr>").
             append("<tr><td>Source:</td><td>"+getSource()+"</td></tr>").
+            append("<tr><td>Timestamp:</td><td>"+new Date(getTimestamp())+"</td></tr>").
             append("<tr><td>Age:</td><td>"+DateTimeUtil.milliSecondsToFormatedString(getAge())+"</td></tr>").
             append("<tr><td>Location:</td><td>"+getLoc()+"</td></tr>");
         
