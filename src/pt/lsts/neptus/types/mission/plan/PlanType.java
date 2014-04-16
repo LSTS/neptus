@@ -107,7 +107,8 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
     private MapGroup mapGroup = null;
 
     private int startMode = INIT_START_WPT;    
-
+    private static final String defaultVehicle = "lauv-xplore-1";
+    
     public PlanType(MissionType mt) {
         super();
         this.graph = new GraphType();
@@ -164,15 +165,27 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         try {
             Document doc = DocumentHelper.parseText(xml);
             this.setId(((Attribute)doc.selectSingleNode("/node()/@id")).getStringValue());
-            String veh = ((Attribute)doc.selectSingleNode("/node()/@vehicle")).getStringValue();
-            if (veh.contains(",")) {
-                String[] vehs = veh.split(",");
-                vehicles.clear();
-                for (String v : vehs)
-                    addVehicle(v);
+            try {
+                String veh = ((Attribute)doc.selectSingleNode("/node()/@vehicle")).getStringValue();
+                if (veh.contains(",")) {
+                    String[] vehs = veh.split(",");
+                    vehicles.clear();
+                    for (String v : vehs)
+                        addVehicle(v);
+                }
+                else
+                    setVehicle(veh);
             }
-            else
-                setVehicle(veh);
+            catch (Exception e) {
+                if (getId() == null) {
+                    setId(NameNormalizer.getRandomID("plan"));
+                    NeptusLog.pub().error("plan has no valid id, using "+getId(), e);
+                }
+                if (getVehicle() == null) {
+                    setVehicle(defaultVehicle);
+                    NeptusLog.pub().error("plan with id "+getId()+" has no associated vehicle, using "+getVehicle(), e);
+                }                
+            }
 
             Node nd = doc.selectSingleNode("/node()/graph");
             graph = new GraphType(nd.asXML());
