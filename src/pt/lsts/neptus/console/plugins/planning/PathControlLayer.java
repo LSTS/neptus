@@ -52,6 +52,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.messages.MessageFilter;
 import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -66,6 +67,9 @@ import pt.lsts.neptus.types.coord.LocationType;
 @LayerPriority(priority=-5)
 public class PathControlLayer extends ConsolePanel implements Renderer2DPainter {
 
+    
+    @NeptusProperty(name="Consider start of path to be the vehicle's position")
+    public boolean startFromCurrentLocation = true;
 
     private static final long serialVersionUID = 1L;
     protected final int pcontrol_id = IMCDefinition.getInstance().getMessageId("PathControlState");
@@ -100,6 +104,7 @@ public class PathControlLayer extends ConsolePanel implements Renderer2DPainter 
         for (PathControlState pcs : lastMsgs.values()) {
             // System.out.println(pcs.getFlags());
             LocationType dest = new LocationType(Math.toDegrees(pcs.getEndLat()), Math.toDegrees(pcs.getEndLon()));
+            LocationType src = new LocationType(Math.toDegrees(pcs.getStartLat()), Math.toDegrees(pcs.getStartLon()));
             ImcSystem system = ImcSystemsHolder.lookupSystem(pcs.getSrc());
 
             Point2D pt = renderer.getScreenPosition(dest);
@@ -107,7 +112,9 @@ public class PathControlLayer extends ConsolePanel implements Renderer2DPainter 
             g.draw(new Ellipse2D.Double(pt.getX() - 5, pt.getY() - 5, 10, 10));
 
             if (system != null) {
-                LocationType src = system.getLocation();
+                if (startFromCurrentLocation) {
+                    src = system.getLocation();
+                }
                 Point2D ptSrc = renderer.getScreenPosition(src);
                 g.draw(new Line2D.Double(ptSrc, pt));
             }
