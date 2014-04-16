@@ -35,6 +35,7 @@ import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.DocumentBuilder;
@@ -121,6 +122,7 @@ public class ArgosLocationProvider implements ILocationProvider {
             return;
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
         
         DixService srv = new DixService();
         XmlRequestType request = new XmlRequestType();
@@ -148,7 +150,7 @@ public class ArgosLocationProvider implements ILocationProvider {
         request.setPassword(getArgosPassword());
         request.setMostRecentPassages(true);
         request.setPlatformId(platformId);
-        request.setNbDaysFromNow(1);
+        request.setNbDaysFromNow(10);
         try {
             String xml = srv.getDixServicePort().getXml(request).getReturn();
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
