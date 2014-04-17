@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.5.0-rc1 (master,4dc5644)" system="lauv-seacon-3" i18n="en_US">
+<config format="1" version="2.5.0-rc1 (master,77b8b7e)" system="lauv-seacon-3" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -211,15 +211,6 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
-    <param name="Execution Frequency">
-      <name-i18n>Execution Frequency</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>25</default>
-      <units>Hz</units>
-      <desc>Frequency at which task is executed</desc>
-    </param>
     <param name="Serial Port - Device">
       <name-i18n>Serial Port - Device</name-i18n>
       <type>string</type>
@@ -229,275 +220,15 @@
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
     </param>
-    <param name="ADC Reference Voltage">
-      <name-i18n>ADC Reference Voltage</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.1</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="ADC Sampling Frequency">
-      <name-i18n>ADC Sampling Frequency</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units>Hz</units>
-      <desc/>
-      <min>0.1</min>
-      <max>10.0</max>
-    </param>
-    <param name="Servo Rotation - Minimum">
-      <name-i18n>Servo Rotation - Minimum</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-45.0</default>
-      <units>°</units>
-      <desc/>
-      <min>-60.0</min>
-      <max>0.0</max>
-    </param>
-    <param name="Servo Rotation - Maximum">
-      <name-i18n>Servo Rotation - Maximum</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>45.0</default>
-      <units>°</units>
-      <desc/>
-      <min>0.0</min>
-      <max>60.0</max>
-    </param>
-    <param name="Servo Rotation Rate - Maximum">
-      <name-i18n>Servo Rotation Rate - Maximum</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>333.3</default>
-      <units>°/s</units>
-      <desc/>
-      <min>0.0</min>
-    </param>
-    <param name="Enable Rotation Rate Limit">
-      <name-i18n>Enable Rotation Rate Limit</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Enable limit of rotation rate according to manufacturer</desc>
-    </param>
-    <param name="Servo Renumbering">
-      <name-i18n>Servo Renumbering</name-i18n>
-      <type>list:integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0, 1, 2, 3</default>
-      <units/>
-      <desc>Servo renumbering hack</desc>
-      <size>4</size>
-    </param>
-    <param name="A/D Conversion Factors">
-      <name-i18n>A/D Conversion Factors</name-i18n>
+    <param name="Servo Directions">
+      <name-i18n>Servo Directions</name-i18n>
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.4184, 0, 1.4184, 0, 1.4184, 0, 1.4184, 0, 5.701254, 0, 100, 0</default>
+      <default>-1, 1, -1, 1</default>
       <units/>
-      <desc>A/D conversion factors</desc>
-      <size>12</size>
-    </param>
-    <param name="Servo 0 Middle">
-      <name-i18n>Servo 0 Middle</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Servo 0 Orientation">
-      <name-i18n>Servo 0 Orientation</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-1</default>
-      <units/>
-      <desc>Servo orientation</desc>
-    </param>
-    <param name="Entity Label - Current 0">
-      <name-i18n>Entity Label - Current 0</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Servo Controller (0)</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Entity Label - Servo Position 0">
-      <name-i18n>Entity Label - Servo Position 0</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Feedback Servo (0)</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Servo 1 Middle">
-      <name-i18n>Servo 1 Middle</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Servo 1 Orientation">
-      <name-i18n>Servo 1 Orientation</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1</default>
-      <units/>
-      <desc>Servo orientation</desc>
-    </param>
-    <param name="Entity Label - Current 1">
-      <name-i18n>Entity Label - Current 1</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Servo Controller (1)</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Entity Label - Servo Position 1">
-      <name-i18n>Entity Label - Servo Position 1</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Feedback Servo (1)</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Servo 2 Middle">
-      <name-i18n>Servo 2 Middle</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Servo 2 Orientation">
-      <name-i18n>Servo 2 Orientation</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-1</default>
-      <units/>
-      <desc>Servo orientation</desc>
-    </param>
-    <param name="Entity Label - Current 2">
-      <name-i18n>Entity Label - Current 2</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Servo Controller (2)</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Entity Label - Servo Position 2">
-      <name-i18n>Entity Label - Servo Position 2</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Feedback Servo (2)</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Servo 3 Middle">
-      <name-i18n>Servo 3 Middle</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Servo 3 Orientation">
-      <name-i18n>Servo 3 Orientation</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1</default>
-      <units/>
-      <desc>Servo orientation</desc>
-    </param>
-    <param name="Entity Label - Current 3">
-      <name-i18n>Entity Label - Current 3</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Servo Controller (3)</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Entity Label - Servo Position 3">
-      <name-i18n>Entity Label - Servo Position 3</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Feedback Servo (3)</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Entity Label - Voltage">
-      <name-i18n>Entity Label - Voltage</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Servo Controller (+5V)</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Entity Label - Temperature">
-      <name-i18n>Entity Label - Temperature</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Servo Controller Temperature</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Enable Leak Sensors">
-      <name-i18n>Enable Leak Sensors</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Enable leak sensors</desc>
-    </param>
-    <param name="Entity Label - Leak 0">
-      <name-i18n>Entity Label - Leak 0</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Leak Sensor (N/C)</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Entity Label - Leak 1">
-      <name-i18n>Entity Label - Leak 1</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Leak Sensor (Tail)</default>
-      <units/>
-      <desc/>
+      <desc>Direction of the servos</desc>
+      <size>4</size>
     </param>
   </section>
   <section name="TREX" name-i18n="TREX">
@@ -604,6 +335,15 @@
       <units/>
       <desc/>
       <min>0</min>
+    </param>
+    <param name="CPU Power Channel">
+      <name-i18n>CPU Power Channel</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc>Name of the auxiliary CPU's power channel</desc>
     </param>
   </section>
   <section name="Text Message Parser" name-i18n="Text Message Parser">
@@ -3589,7 +3329,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Attitude, CPU, GPS, LBL, Navigation, Operational Limits, Path Control</default>
+      <default>Attitude, CPU, GPS, Operational Limits, Path Control</default>
       <units/>
       <desc>Default entities to monitor</desc>
     </param>
@@ -3598,7 +3338,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Clock, Leak Sensor (N/C), Leak Sensor (Tail), Motor Controller, SCRT</default>
+      <default>AHRS, Clock, Fuel, Leak Sensor - Antenna, Leak Sensor - Bottom, Motor Controller, Servo Controller</default>
       <units/>
       <desc>Additional default entities to monitor in Hardware profile</desc>
     </param>
@@ -5659,7 +5399,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C (+12V_5)</default>
+      <default>AHRS (LIMU)</default>
       <units/>
       <desc/>
     </param>
@@ -5668,7 +5408,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -5713,7 +5453,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Servo Controller</default>
+      <default>Communications Board</default>
       <units/>
       <desc/>
     </param>
@@ -5803,7 +5543,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C (+5V_4)</default>
+      <default>Auxiliary CPU</default>
       <units/>
       <desc/>
     </param>
@@ -5875,7 +5615,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C (+12V_2)</default>
+      <default>Ethernet Switch</default>
       <units/>
       <desc/>
     </param>
@@ -5884,7 +5624,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -5996,7 +5736,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/ttyACM0</default>
+      <default>/dev/ttyACM2</default>
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
     </param>
@@ -6005,7 +5745,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>19200</default>
+      <default>57600</default>
       <units/>
       <desc>Serial port baud rate</desc>
     </param>
@@ -6024,7 +5764,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>GPS, LC2M</default>
       <units/>
       <desc>Device's power channels</desc>
     </param>
@@ -6042,7 +5782,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>$PUBX,40,VTG,0,0,0,1,0,0\r\n</default>
+      <default>$PUBX,40,VTG,0,1,0,0,0,0\r\n</default>
       <units/>
       <desc/>
     </param>
@@ -6060,7 +5800,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>$PUBX,40,ZDA,0,0,0,1,0,0\r\n</default>
+      <default>$PUBX,40,ZDA,0,1,0,0,0,0\r\n</default>
       <units/>
       <desc/>
     </param>
@@ -6078,7 +5818,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>$PUBX,40,00,0,0,0,1,0,0\r\n</default>
+      <default>$PUBX,40,00,0,1,0,0,0,0\r\n</default>
       <units/>
       <desc/>
     </param>
@@ -6466,7 +6206,7 @@
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>True to activate task, false otherwise</desc>
     </param>
@@ -6731,7 +6471,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0, 0, 0</default>
+      <default>0.00362, 0.008905, 0</default>
       <units>G</units>
       <desc>Hard-Iron calibration parameters</desc>
       <size>3</size>
@@ -7078,6 +6818,15 @@
       <default>false</default>
       <units/>
       <desc>Allow for the vehicle to be externally controlled</desc>
+    </param>
+    <param name="Maneuver Handling Timeout">
+      <name-i18n>Maneuver Handling Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units/>
+      <desc>Timeout for starting or stopping a maneuver</desc>
     </param>
   </section>
   <section name="Service Announcer" name-i18n="Service Announcer">
@@ -7540,7 +7289,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/ttyUSB0</default>
+      <default>/dev/ttyACM1</default>
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
     </param>
@@ -7549,7 +7298,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>57600</default>
+      <default>115200</default>
       <units/>
       <desc>Serial port baud rate</desc>
     </param>
@@ -8073,7 +7822,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>127.0.0.1:6969</default>
+      <default>10.0.10.33:6969</default>
       <units/>
       <desc>List of &lt;IPv4&gt;:&lt;Port&gt; destinations that will always receive outgoing messages</desc>
     </param>
