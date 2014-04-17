@@ -45,6 +45,8 @@ import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
 import pt.lsts.neptus.plugins.uavs.painters.background.UavVirtualHorizonPainter;
 import pt.lsts.neptus.plugins.uavs.painters.foreground.UavHUDInfoPainter;
 
+//change to Engineer console
+
 /**
  * @author sergiofereira
  * @version 0.1

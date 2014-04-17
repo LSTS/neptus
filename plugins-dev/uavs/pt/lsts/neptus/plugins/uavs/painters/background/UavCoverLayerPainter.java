@@ -52,7 +52,7 @@ import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
  *  <li><b>Key:</b> name+".Size" <b>Value:</b> int[2] </li>
  * </ul>
  * 
- * @author Sergio Ferreira
+ * @author canastaman
  * @version 2.0
  * @category UavPainter 
  * 
@@ -76,12 +76,13 @@ public class UavCoverLayerPainter implements IUavPainter{
     
     public UavCoverLayerPainter(String name) {
         this.name = name;
-        size = null;
-        gradientPoints = new Point2D[2];
-        backgroundColor = null;
-        colors = null;
-        drawPoints = null;
-        receivedArgs = new LinkedHashMap<String,Object>();
+        this.backgroundColor = null;
+        this.shape = null;
+        this.drawPoints = new int[2];
+        this.size = new int[2];
+        this.gradientPoints = new Point2D[2];
+        this.colors = new Color[2];
+        this.receivedArgs = new LinkedHashMap<String,Object>();
     }
     
     //------Implemented Interfaces------//
@@ -97,8 +98,8 @@ public class UavCoverLayerPainter implements IUavPainter{
         //checks for updates regarding window size
         if(receivedArgs.get(name+".Size") != null){
             size = (int[]) receivedArgs.get(name+".Size");
-            gradientPoints[0] = new Point2D.Double(size[0]/2,size[1]);
-            gradientPoints[1] = new Point2D.Double(size[0]/2,0);
+            gradientPoints[0] = new Point2D.Double(size[0]>>1,size[1]);
+            gradientPoints[1] = new Point2D.Double(size[0]>>1,0);
             update = true;
         }
                        

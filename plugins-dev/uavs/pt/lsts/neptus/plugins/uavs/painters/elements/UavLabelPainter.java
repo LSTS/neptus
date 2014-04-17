@@ -53,12 +53,14 @@ import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
  *  <li><b>Key:</b> name+".Text" <b>Value:</b> String </li>
  * </ul>
  * 
- * @author Sergio Ferreira
- * @version 1.0
+ * @author canastaman
+ * @version 2.0
  * @category UavPainter 
  * 
  */
 public class UavLabelPainter implements IUavPainter{
+    
+    private String name;
     
     private LinkedHashMap<String,Object> receivedArgs;
     
@@ -67,7 +69,7 @@ public class UavLabelPainter implements IUavPainter{
     private GradientPaint backgroundColor;    
     private Color[] colors;
     
-    private String name;
+    
     private String text;
     
     //X | Y
@@ -87,8 +89,6 @@ public class UavLabelPainter implements IUavPainter{
         drawPoints = new int[2];
         textDrawPoints = new int[2];
     }
-    
-    // ------Setters and Getters------//
     
     // ------Specific Methods------//
 

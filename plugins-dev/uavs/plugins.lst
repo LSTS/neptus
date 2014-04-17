@@ -6,13 +6,4 @@
 # SVN_PATH=@SVN_PATH@
 
 pt.lsts.neptus.plugins.uavs.panels.UavAltitudePanel
-pt.lsts.neptus.plugins.uavs.panels.UavAirspeedPanel
-pt.lsts.neptus.plugins.uavs.panels.UavState1Panel
-pt.lsts.neptus.plugins.uavs.panels.UavStateXPanel
-pt.lsts.neptus.plugins.uavs.panels.UavTimeToBingoPanel
 pt.lsts.neptus.plugins.uavs.panels.UavHUDPanel
-pt.lsts.neptus.plugins.uavs.panels.UavVideoPanel
-pt.lsts.neptus.plugins.uavs.panels.UavAirspeedPanel
-pt.lsts.neptus.plugins.uavs.daemons.UavPainterDaemon
-pt.lsts.neptus.plugins.uavs.daemons.UavSettingsDaemon
-pt.lsts.neptus.plugins.uavs.painters.elements.UavCameraFootprint

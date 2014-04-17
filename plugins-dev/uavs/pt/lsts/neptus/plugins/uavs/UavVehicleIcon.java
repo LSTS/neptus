@@ -36,6 +36,8 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 
+//selected for termination
+
 /**
  * @author Canasta
  *

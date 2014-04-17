@@ -33,7 +33,6 @@ package pt.lsts.neptus.plugins.uavs.painters.elements;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.RenderingHints;
 import java.util.LinkedHashMap;
 
@@ -41,25 +40,64 @@ import pt.lsts.neptus.plugins.uavs.UavVehicleIcon;
 import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
 
 /**
- * Customizable element native to Neptus's Uav Plugin. Used to represent vehicles or typical mission elements like communication nodes or gateways on 
- * Uav Panels.
- *  
- * @author Sergio Ferreira
- * @version 1.0
+ * Vehicle painter designed for use in conjunctions with Neptus' UavAltitudePanel. Its primary function is the side-ways representation of
+ * the UAVs active on the field.
+ * 
+ * <p>Accepted arguments in <code>LinkedHashMap< String,Object ></code> <b>receivedArgs</b></p> 
+ * <ul>
+ *  <li><b>Key:</b> name+".MaxAlt" <b>Value:</b> int </li>
+ *  <li><b>Key:</b> name+".VehicleList" <b>Value:</b> LinkedHashMap< String,Integer > </li>
+ * </ul>
+ * 
+ * @author canastaman
+ * @version 3.0
  * @category UavPainter  
+ * 
  */
 public class UavMissionElementPainter implements IUavPainter{
    
-    public static int WIDTH_RACIO = 10;
-    public static int HEIGHT_RACIO = 15;
+    private String name;
     
+    //predetermined width for each ruler mark
+    public static final int MARK_MIN_THICKNESS= 2;
+    
+    //predetermined spacing between each ruler marks
+    public static final int MARK_MIN_SPACING = 6;
+    
+    //predetermined number of marks per ruler section
+    public static final int MARKS_PER_SECTION = 10;
+    
+    //predetermined value to be added to the maximum altitude calculated for drawing purposes
+    public static final int MAX_ALTITUDE_BUFFER = 100;
+    
+    //altitude corresponding to the highest UAV
+    private int vehicleMaxAtl;
+    
+    //maximum drawable altitude using default range
+    private int maxDrawAlt;
+    
+    //predetermined ruler scale based on an always "double up" system starting at 100
+    private int scale;
+    
+    private int rulerSections;
+    
+    public static int WIDTH_RACIO = 5;
+    public static int HEIGHT_RACIO = 7;
+        
     private LinkedHashMap<String,Object> receivedArgs;    
     private LinkedHashMap<String,Integer> vehicleAltitudes;
-    private LinkedHashMap<String,UavVehicleIcon> vehicleIconTable = new LinkedHashMap<String,UavVehicleIcon>();
-    private Point pixelsPerMark_markGrade_Pair;
     
-    public UavMissionElementPainter() {
-        receivedArgs = new LinkedHashMap<String,Object>();
+    
+    private LinkedHashMap<String,UavVehicleIcon> vehicleIconTable = new LinkedHashMap<String,UavVehicleIcon>();
+    
+    public UavMissionElementPainter(String name) {
+        this.name = name;
+        this.receivedArgs = new LinkedHashMap<String,Object>();
+        this.vehicleAltitudes = new LinkedHashMap<String,Integer>();
+        this.vehicleMaxAtl = 0;
+        this.maxDrawAlt = 0;
+        this.scale = 100;
+        this.rulerSections = 0;
     }
     
     //------Implemented Interfaces------//
@@ -69,10 +107,24 @@ public class UavMissionElementPainter implements IUavPainter{
     public void paint(Graphics2D g, int width, int height, Object args) {
         
         receivedArgs = (LinkedHashMap<String, Object>) args;
-               
-        if(!receivedArgs.isEmpty()){
-            vehicleAltitudes = (LinkedHashMap<String, Integer>) receivedArgs.get("vehicles");
-            pixelsPerMark_markGrade_Pair = (Point) receivedArgs.get("markInfo");
+        
+        if(receivedArgs.get(name+".MaxAlt") != null){
+            vehicleMaxAtl = (int) receivedArgs.get(name+".MaxAlt");
+            vehicleMaxAtl = (int) Math.floor(vehicleMaxAtl / 100) * 100 + MAX_ALTITUDE_BUFFER;
+        }
+        
+        //standard initiation based on the premised that every draw cycle we check if the ruler scale is accurate, from scratch
+        scale = 100;
+        rulerSections = height / ((MARK_MIN_THICKNESS+MARK_MIN_SPACING)*MARKS_PER_SECTION);
+        maxDrawAlt = scale * rulerSections;
+                
+        while(maxDrawAlt < vehicleMaxAtl){
+            scale = scale << 1;
+            maxDrawAlt = scale * rulerSections;
+        }
+        
+        if(receivedArgs.get(name+".VehicleList") != null){
+            vehicleAltitudes = (LinkedHashMap<String, Integer>) receivedArgs.get(name+".VehicleList");
         }
         
         // Normalizes the graphics transformation and sets the origin at the center of the panel
@@ -90,10 +142,10 @@ public class UavMissionElementPainter implements IUavPainter{
             // setting up text font size
             g.setFont(g.getFont().deriveFont((float) 10));
 
-            int vehicleAltitudes = determineCorrectDrawAltitude(vehicle);
+            int altitude = vehicleAltitudes.get(vehicle) * ((MARK_MIN_THICKNESS+MARK_MIN_SPACING)*MARKS_PER_SECTION) / scale;
 
             // translate the drawing position to the correct altitude value
-            g.translate(0, vehicleAltitudes - (height / 2));
+            g.translate(0, altitude - (height / 2));
 
             g.scale(1, -1);
             drawVehicleLabel(g, vehicle);
@@ -103,25 +155,10 @@ public class UavMissionElementPainter implements IUavPainter{
             g.setColor(Color.white.darker());
             g.drawRect((-width / 2), 0, height, 0);
 
-            double drawingPitch = 0;
-
-            // draws the vehicle icon taking into account climb/decent pitch
-            g.rotate(drawingPitch);
             drawVehicleIcon(g, vehicle);
-            g.rotate(-drawingPitch);
 
-            g.translate(0, -(vehicleAltitudes - (height / 2)));
+            g.translate(0, -(altitude - (height / 2)));
         }     
-    }
-
-    /**
-     * @param vehicle
-     * @return
-     */
-    private int determineCorrectDrawAltitude(String vehicle) {
-        int ret = 0;
-        ret = vehicleAltitudes.get(vehicle) * pixelsPerMark_markGrade_Pair.x / pixelsPerMark_markGrade_Pair.y;
-        return ret;
     }
 
     //------Specific Methods------//
