@@ -118,7 +118,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     @NeptusProperty(name = "Name of Dune task")
     public String taskName = "TREX";
 
-    @NeptusProperty(name = "Loiter height", description = "Height of waypoint for uav spotter plan.", category = "UAV Spotter")
+    @NeptusProperty(name = "Loiter height", description = "Height of waypoint for uav spotter plan.", category = "UAV Spotter", userLevel = NeptusProperty.LEVEL.REGULAR)
     public int spotterHeight = 100;
 
     @NeptusProperty(name = "Type", category = "YoYo Survey")
