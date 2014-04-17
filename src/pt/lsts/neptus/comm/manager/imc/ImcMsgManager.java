@@ -755,6 +755,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     protected boolean processMsgLocally(MessageInfo info, IMCMessage msg) {
         // msg.dump(System.out);
         SystemImcMsgCommInfo vci = null;
+        imcState.setMessage(msg);
         try {
             ImcId16 id = new ImcId16(msg.getHeader().getValue("src"));
             // Lets clear the 2 IDs error
@@ -794,7 +795,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 return false;
             }
 
-            imcState.setMessage(msg);
+            
             
             // Handling of fragmented messages
             if (msg instanceof MessagePart) {
@@ -1661,7 +1662,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     }
 
     public ImcSysState getState(ImcId16 id) {
-        return super.getCommInfoById(id).getImcState();
+        if (super.getCommInfoById(id) != null)
+            return super.getCommInfoById(id).getImcState();
+        return new ImcSysState();
     }
 
     public ImcSysState getState(VehicleType vehicle) {
@@ -1672,7 +1675,13 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     }
 
     public ImcSysState getState(String vehicle) {
-        return getState(VehiclesHolder.getVehicleById(vehicle));
+        VehicleType vt = VehiclesHolder.getVehicleById(vehicle);
+        if (vt != null)
+            return getState(vt);
+        else {
+            int imc_id = imcDefinition.getResolver().resolve(vehicle);
+            return getState(new ImcId16(imc_id));
+        }
     }
 
     /**

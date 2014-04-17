@@ -38,8 +38,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.HashSet;
 
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -47,13 +46,15 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 
+import pt.lsts.imc.gui.ImcStatePanel;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.imc.gui.ImcStatePanel;
 
 /**
  * @author Hugo
@@ -95,10 +96,18 @@ public class IncomingDataAction extends ConsoleAction {
         dialog.add(statePanel, BorderLayout.CENTER);
         JComboBox<String> combovt = new JComboBox<String>();
         dialog.add(combovt, BorderLayout.NORTH);
-
-        final Map<String, ConsoleSystem> vehicles = console.getSystems();
-        for (Entry<String, ConsoleSystem> entry : vehicles.entrySet()) {
-            combovt.addItem(entry.getValue().getVehicleId());
+        ImcSystem[] active = ImcSystemsHolder.lookupAllActiveSystems();
+        final HashSet<String> systems = new HashSet<String>();
+        for (ImcSystem s : active) {
+            systems.add(s.getName());
+        }
+        
+        for (String s : console.getSystems().keySet()) {
+            systems.add(s);
+        }
+        
+        for (String s : systems) {
+            combovt.addItem(s);
         }
         String mainVehicle = console.getMainSystem();
         if (mainVehicle == null) {
@@ -116,12 +125,12 @@ public class IncomingDataAction extends ConsoleAction {
         combovt.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 JComboBox<?> cbox = (JComboBox<?>) evt.getSource();
-                for (Entry<String, ConsoleSystem> entry : vehicles.entrySet()) {
-                    ConsoleSystem vehicle = entry.getValue();
-                    if (vehicle.getVehicleId().equals((String) cbox.getSelectedItem())) {
+                for (String s : systems) {
+                    //ConsoleSystem vehicle = entry.getValue();
+                    if (s.equals((String) cbox.getSelectedItem())) {
                         if (imcStatePanel != null)
                             imcStatePanel.cleanup();
-                        imcStatePanel = new ImcStatePanel(ImcMsgManager.getManager().getState(vehicle.getVehicle().getId()));
+                        imcStatePanel = new ImcStatePanel(ImcMsgManager.getManager().getState(s));
                         statePanel.setViewportView(imcStatePanel);
                         statePanel.revalidate();
                         statePanel.repaint();
