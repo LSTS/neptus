@@ -68,6 +68,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
@@ -97,6 +98,12 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     protected final int HERMES_ID = 0x08c1;
     protected Vector<VirtualDrifter> drifters = new Vector<>();
     protected LinkedHashMap<String, Image> systemImages = new LinkedHashMap<String, Image>();
+
+    @NeptusProperty(name = "Wave Glider", description = "Imc id of neptus console of wave glider operator", category = "IMC id", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public int wgOpImcId = 0;
+
+    @NeptusProperty(name = "Remote neptus", description = "Imc id of neptus console operating remotely", category = "IMC id", userLevel = NeptusProperty.LEVEL.REGULAR)
+    public int neptusOpImcId = 0;
 
     @Override
     public long millisBetweenUpdates() {
@@ -147,7 +154,8 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
            return;
        
        Thread send = new Thread("Send plan via iridium") {
-           public void run() {
+           @Override
+        public void run() {
                String selectedPlan = selection.toString();
                PlanType toSend = getConsole().getMission().getIndividualPlansList().get(selectedPlan);
                IMCMessage msg = toSend.asIMCPlan();
@@ -207,7 +215,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     private void setWaveGliderTargetPosition(LocationType loc) {
         TargetAssetPosition pos = new TargetAssetPosition();
         pos.setLocation(loc);
-        pos.setDestination(0);
+        pos.setDestination(neptusOpImcId);
         pos.setAssetImcId(HERMES_ID);
         pos.setSource(ImcMsgManager.getManager().getLocalId().intValue());
         try {
@@ -222,7 +230,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         DesiredAssetPosition pos = new DesiredAssetPosition();
         pos.setAssetImcId(HERMES_ID);
         pos.setLocation(loc);
-        pos.setDestination(0);
+        pos.setDestination(wgOpImcId);
         pos.setSource(ImcMsgManager.getManager().getLocalId().intValue());
         try {
             IridiumManager.getManager().send(pos);
@@ -246,6 +254,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
 
         if (IridiumManager.getManager().isActive()) {
             popup.add(I18n.text("Deactivate Polling")).addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     IridiumManager.getManager().stop();
                 }
@@ -253,6 +262,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         }
         else {
             popup.add(I18n.text("Activate Polling")).addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     IridiumManager.getManager().start();
                 }
@@ -260,6 +270,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         }
 
         popup.add(I18n.text("Select Iridium gateway")).addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 IridiumManager.getManager().selectMessenger(getConsole());
             }
@@ -269,6 +280,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
 
         popup.add(I18n.textf("Send %vehicle a command via Iridium", getMainVehicleId())).addActionListener(
                 new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         sendIridiumCommand();
                     }
@@ -276,6 +288,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         
         popup.add(I18n.textf("Command %vehicle a plan via Iridium", getMainVehicleId())).addActionListener(
                 new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         commandPlanExecution();
                     }
@@ -283,6 +296,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
 
         popup.add(I18n.textf("Subscribe to device updates", getMainVehicleId())).addActionListener(
                 new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         ActivateSubscription activate = new ActivateSubscription();
                         activate.setDestination(0xFF);
@@ -298,6 +312,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
 
         popup.add(I18n.textf("Unsubscribe to device updates", getMainVehicleId())).addActionListener(
                 new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         DeactivateSubscription deactivate = new DeactivateSubscription();
                         deactivate.setDestination(0xFF);
@@ -312,12 +327,14 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                 });
 
         popup.add("Set this as actual wave glider target").addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 setWaveGliderTargetPosition(loc);
             }
         });
 
         popup.add("Set this as desired wave glider target").addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 setWaveGliderDesiredPosition(loc);
             }
