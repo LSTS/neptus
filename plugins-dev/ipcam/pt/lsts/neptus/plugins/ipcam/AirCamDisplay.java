@@ -43,9 +43,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.net.URL;
 
-import javax.imageio.ImageIO;
 import javax.swing.JPopupMenu;
 
 import pt.lsts.neptus.NeptusLog;
@@ -60,7 +58,6 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.util.GuiUtils;
 
-import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.xuggle.mediatool.IMediaListener;
 import com.xuggle.mediatool.IMediaReader;
 import com.xuggle.mediatool.MediaListenerAdapter;
@@ -73,11 +70,11 @@ enum Status{
 }
 
 /**
- * Neptus designed to allow operator with viewer access to on-board IP camera's video stream, through RSTP protocol
+ * Neptus panel designed to allow operator with viewer access to on-board IP camera's video stream, through RTSP protocol.
  * 
  * @author jfortuna
  * @author canastaman
- * @version 2.0
+ * @version 2.1
  * @category CameraPanel 
  *
  */
@@ -89,19 +86,16 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     private static final long serialVersionUID = 1L;
 
     @NeptusProperty(name="Camera IP", description="The IP address of the camera you want to display")
-    public String ip = "10.0.20.199";
+    public String ip = "10.0.20.209";
     
     @NeptusProperty(name="Camera Brand", description="Brand for the installed camera (not case sensitive)")
-    public String brand = "axis";
-
-    @NeptusProperty(name="Milliseconds between refresh")
-    public long millisBetweenRefresh = 500;
+    public String brand = "ubiquiti";
     
     //small listener which allows the user to quickly tap into the panel settings
     private MouseAdapter mouseListener;
 
     //represents the current state of connection between the display panel and the camera
-    private Status status;
+    private Status status = Status.INIT;
     
     //image size factor for resizing purposes
     private double factor;
@@ -172,7 +166,7 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     }
 
     public void reconnect() {
-        NeptusLog.pub().info(this.getClass().getSimpleName()+" attemptig to reconnect to "+ip+"...");    
+        NeptusLog.pub().info(this.getClass().getSimpleName()+" attemptig to reconnect to "+ip);
         
         if(status == Status.STOP){
             status = Status.INIT;
@@ -186,21 +180,23 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     
     private Thread updaterThread() {
     
-        return new Thread() {
+        return new Thread("RTSP Worker Thread") {
 
             boolean isRunning = true;
             String path = null;
             IMediaReader mediaReader;
             
             private IMediaListener mediaListener = new MediaListenerAdapter() {
-                
+                                
                 @Override
                 public void onVideoPicture(IVideoPictureEvent event) {
                     try {
                         imageToDisplay = event.getImage();
                         repaint();
                     }catch(Exception ex){
-                        ex.printStackTrace();
+                        status = Status.STOP;
+                        NeptusLog.pub().error(ex);
+                        NeptusLog.pub().warn("Verify camera settings before attempting to reconnect"); 
                     }
                 }
             };
@@ -223,14 +219,23 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                                 else if(brand.equalsIgnoreCase("ubiquiti")){
                                     path = "rtsp://"+ip+":554/live/ch00_0";
                                 }
-                                
-                                status = Status.CONN;
-                                
-                                //initializes the reader responsible for the rstp data input
-                                mediaReader = ToolFactory.makeReader(path);                                
+                                                                
+                                //initializes the reader responsible for the rtsp data input
+                                mediaReader = ToolFactory.makeReader(path);
                                 mediaReader.setBufferedImageTypeToGenerate(BufferedImage.TYPE_3BYTE_BGR);
                                 mediaReader.setQueryMetaData(false);
                                 mediaReader.addListener(mediaListener);
+                                
+                                status = Status.CONN;
+                                
+                                try {
+                                    mediaReader.open();
+                                }
+                                catch (Exception e) {
+                                    NeptusLog.pub().error(e);
+                                    NeptusLog.pub().warn("Verify camera settings before attempting to reconnect"); 
+                                    status = Status.STOP;
+                                }                                
                             }
                             else if(status == Status.RCON){                                
                                 mediaReader.removeListener(mediaListener);
@@ -246,30 +251,9 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                         
                                 if(err != null ){
                                     NeptusLog.pub().error(err);
-                                    NeptusLog.pub().warn("Verify camera settings before reconnecting");                                    
+                                    NeptusLog.pub().warn("Verify camera settings before attempting to reconnect");                                    
                                     status = Status.STOP;
                                 }
-                            }
-                            else{
-                                //dead code either move it to another type of camera viewer to delete all together
-                                try {
-                                        URL snap = new URL("http://"+ip+"/snapshot.cgi");
-                                        imageToDisplay = ImageIO.read(snap);     
-                                        repaint();
-                                }
-                                catch (Exception e) {
-                                        NeptusLog.pub().error(e.getMessage());
-                                        NeptusLog.pub().warn("Verify camera settings before reconnecting");
-                                        repaint();
-                                        status = Status.STOP;
-                                }
-                
-                                try {
-                                        Thread.sleep(millisBetweenRefresh);
-                                }
-                                catch (Exception e) {
-                                        NeptusLog.pub().warn(e);
-                                }                                
                             }
                         }
                         else
@@ -279,7 +263,8 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                         isRunning = false;
                 }
                 imageToDisplay = null;
-                NeptusLog.pub().info(this.getContextClassLoader().getClass().getSimpleName()+" exiting");
+                status = Status.STOP;
+                NeptusLog.pub().info(this.getName()+" exiting");
             }
         };
     }
@@ -289,17 +274,9 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
         status = Status.STOP;
     }
 
-    protected String previousURL = null;
-
-    @Override
-    public DefaultProperty[] getProperties() {
-        previousURL = ip;
-        return super.getProperties();
-    }
-
     @Override
     public void propertiesChanged() {
-        if (!ip.equals(previousURL))
+        if (status != Status.INIT)
             reconnect();
     }
 
@@ -308,9 +285,8 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
         setMouseListener();
         addMouseListener(mouseListener);
         addComponentListener(this);
-        
+                       
         //initialize video thread
-        status = Status.INIT;
         updater = updaterThread();
         updater.setPriority(Thread.MIN_PRIORITY);
         updater.start();
@@ -329,10 +305,12 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
      */
     @Override
     public void componentResized(ComponentEvent e) {
-        double factorw = (double) getWidth() / imageToDisplay.getWidth();
-        double factorh = (double) getHeight() / imageToDisplay.getHeight();
-        
-        factor = (factorw < factorh ? factorw : factorh);        
+        System.out.println("resized");
+        if (imageToDisplay!=null) {
+            double factorw = (double) getWidth() / imageToDisplay.getWidth();
+            double factorh = (double) getHeight() / imageToDisplay.getHeight();
+            factor = (factorw < factorh ? factorw : factorh);
+        }        
     }
 
     /* (non-Javadoc)
@@ -349,7 +327,7 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
      */
     @Override
     public void componentShown(ComponentEvent e) {
-        // TODO Auto-generated method stub
+        System.out.println("shown");
         
     }
 
@@ -358,7 +336,7 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
      */
     @Override
     public void componentHidden(ComponentEvent e) {
-        // TODO Auto-generated method stub
+        System.out.println("hidden");
         
     }
 }
