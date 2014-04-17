@@ -38,6 +38,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -59,43 +61,67 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.util.GuiUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.xuggle.mediatool.IMediaListener;
+import com.xuggle.mediatool.IMediaReader;
+import com.xuggle.mediatool.MediaListenerAdapter;
+import com.xuggle.mediatool.ToolFactory;
+import com.xuggle.mediatool.event.IVideoPictureEvent;
+import com.xuggle.xuggler.IError;
+
+enum Status{
+    INIT,CONN,STOP,RCON;
+}
 
 /**
+ * Neptus designed to allow operator with viewer access to on-board IP camera's video stream, through RSTP protocol
+ * 
  * @author jfortuna
+ * @author canastaman
+ * @version 2.0
+ * @category CameraPanel 
  *
  */
-@Popup( pos = POSITION.RIGHT, width=640/2, height=368/2)
+@Popup( pos = POSITION.RIGHT, width=640, height=400)
 @LayerPriority(priority=0)
-@PluginDescription(name="AirCam Display", author="JFortuna", description="Video display for Ubiquiti Cameras", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
-public class AirCamDisplay extends ConsolePanel implements ConfigurationListener {
+@PluginDescription(name="AirCam Display", author="Sergio Ferreira", description="Video displayer for IP Cameras", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
+public class AirCamDisplay extends ConsolePanel implements ConfigurationListener, ComponentListener{
 
     private static final long serialVersionUID = 1L;
 
     @NeptusProperty(name="Camera IP", description="The IP address of the camera you want to display")
-    public String ip = "10.0.20.209";
+    public String ip = "10.0.20.199";
+    
+    @NeptusProperty(name="Camera Brand", description="Brand for the installed camera (not case sensitive)")
+    public String brand = "axis";
 
     @NeptusProperty(name="Milliseconds between refresh")
     public long millisBetweenRefresh = 500;
+    
+    //small listener which allows the user to quickly tap into the panel settings
+    private MouseAdapter mouseListener;
 
+    //represents the current state of connection between the display panel and the camera
+    private Status status;
+    
+    //image size factor for resizing purposes
+    private double factor;
+    
     protected BufferedImage imageToDisplay = null;
-    protected boolean connected = true;
+    
+    //worker thread designed to acquire the data packet from the online camera
     protected Thread updater = null;
-    protected String status = "initializing";
-
-    public AirCamDisplay(ConsoleLayout console) {
-        super(console);
-        removeAll();
-
-        status = "initializing...";
-        updater = updaterThread();
-        updater.setPriority(Thread.MIN_PRIORITY);
-        updater.start();
-
-        addMouseListener(new MouseAdapter() {
+    
+    //Listener
+    private void setMouseListener(){
+        
+        mouseListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                
                 if (e.getButton() == MouseEvent.BUTTON3) {
+                    
                     JPopupMenu popup = new JPopupMenu();
+                    
                     popup.add("Reconnect").addActionListener(new ActionListener() {
 
                         @Override
@@ -104,7 +130,7 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                         }
                     });
 
-                    popup.add("Camera settings").addActionListener(new ActionListener() {
+                    popup.add("Settings").addActionListener(new ActionListener() {
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -113,92 +139,154 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                     });
                     popup.show((Component)e.getSource(), e.getX(), e.getY());
                 }
-
             }
-        });
+        };        
+    }
+
+    public AirCamDisplay(ConsoleLayout console) {
+        super(console);
+
+        // clears all the unused initializations of the standard ConsolePanel
+        removeAll();
     }
     
     @Override
     public void paint(Graphics g) {
+        
+        //backdrop reset
+        g.setColor(Color.black);
+        g.fillRect(0, 0, getWidth(), getHeight());
+        
         if (imageToDisplay != null) {
-            double factorw = (double) getWidth() / imageToDisplay.getWidth();
-            double factorh = (double) getHeight() / imageToDisplay.getHeight();
-            
-            double factor = (factorw < factorh ? factorw : factorh);
-            
-            double w = getWidth();
-            double h = getHeight();
-            
-            g.setColor(Color.black);
-            g.fillRect(0, 0, getWidth(), getHeight());
             ((Graphics2D)g).scale(factor,factor);
             g.drawImage(imageToDisplay,
-                    (int) ((w - factor *  imageToDisplay.getWidth())  / (factor * 2)),
-                    (int) ((h - factor * imageToDisplay.getHeight())  / (factor * 2)),
+                    (int) ((getWidth() - factor *  imageToDisplay.getWidth())  / (factor * 2)),
+                    (int) ((getHeight() - factor * imageToDisplay.getHeight())  / (factor * 2)),
                     null);
-        }
-        else {
-            g.setColor(Color.black);
-            g.fillRect(0, 0, getWidth(), getHeight());
         }
     }
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(640, 368);
+        return new Dimension(640, 400);
     }
 
     public void reconnect() {
-        NeptusLog.pub().info("AirCamDisplay: reconnecting to "+ip+"...");
-        connected = false;        
+        NeptusLog.pub().info(this.getClass().getSimpleName()+" attemptig to reconnect to "+ip+"...");    
+        
+        if(status == Status.STOP){
+            status = Status.INIT;
+            updater = updaterThread();
+            updater.setPriority(Thread.MIN_PRIORITY);
+            updater.start();
+        }      
+        else
+            status = Status.RCON;
     }
     
     private Thread updaterThread() {
     
         return new Thread() {
 
+            boolean isRunning = true;
+            String path = null;
+            IMediaReader mediaReader;
+            
+            private IMediaListener mediaListener = new MediaListenerAdapter() {
+                
+                @Override
+                public void onVideoPicture(IVideoPictureEvent event) {
+                    try {
+                        imageToDisplay = event.getImage();
+                        repaint();
+                    }catch(Exception ex){
+                        ex.printStackTrace();
+                    }
+                }
+            };
+            
             @Override
             public void run() {
 
-                while(true) {   
+                while(isRunning) {   
                     
-                    if (updater != this)
-                        return;
+                    //ensures only one thread is launched
+                    if (updater == this){
+    
+                        if(status != Status.STOP){
 
-                    if (ip == null)
-                        break;
-                    connected = true;
-                    try {
-                        URL snap = new URL("http://"+ip+"/snapshot.cgi");
-                        imageToDisplay = ImageIO.read(snap);     
-                        repaint();
+                            if(status == Status.INIT){
+                                
+                                if(brand.equalsIgnoreCase("axis")){
+                                    path = "rtsp://"+ip+"/axis-media/media.amp";
+                                }
+                                else if(brand.equalsIgnoreCase("ubiquiti")){
+                                    path = "rtsp://"+ip+":554/live/ch00_0";
+                                }
+                                
+                                status = Status.CONN;
+                                
+                                //initializes the reader responsible for the rstp data input
+                                mediaReader = ToolFactory.makeReader(path);                                
+                                mediaReader.setBufferedImageTypeToGenerate(BufferedImage.TYPE_3BYTE_BGR);
+                                mediaReader.setQueryMetaData(false);
+                                mediaReader.addListener(mediaListener);
+                            }
+                            else if(status == Status.RCON){                                
+                                mediaReader.removeListener(mediaListener);
+                                mediaReader.close();
+                                status = Status.INIT;
+                            }
+                            
+                            if(status == Status.CONN){
+                                
+                                IError err = null;
+                                if (mediaReader != null)
+                                    err = mediaReader.readPacket();
+                        
+                                if(err != null ){
+                                    NeptusLog.pub().error(err);
+                                    NeptusLog.pub().warn("Verify camera settings before reconnecting");                                    
+                                    status = Status.STOP;
+                                }
+                            }
+                            else{
+                                //dead code either move it to another type of camera viewer to delete all together
+                                try {
+                                        URL snap = new URL("http://"+ip+"/snapshot.cgi");
+                                        imageToDisplay = ImageIO.read(snap);     
+                                        repaint();
+                                }
+                                catch (Exception e) {
+                                        NeptusLog.pub().error(e.getMessage());
+                                        NeptusLog.pub().warn("Verify camera settings before reconnecting");
+                                        repaint();
+                                        status = Status.STOP;
+                                }
+                
+                                try {
+                                        Thread.sleep(millisBetweenRefresh);
+                                }
+                                catch (Exception e) {
+                                        NeptusLog.pub().warn(e);
+                                }                                
+                            }
+                        }
+                        else
+                            isRunning = false;
                     }
-                    catch (Exception e) {
-                        status = "Error: "+e.getMessage();
-                        // NeptusLog.pub().warn(e);
-                        repaint();
-                        connected = false;
-                        status = "reconnecting";
-                    }
-
-                    try {
-                        Thread.sleep(millisBetweenRefresh);
-                    }
-                    catch (Exception e) {
-                        NeptusLog.pub().warn(e);
-                    }
+                    else
+                        isRunning = false;
                 }
-                NeptusLog.pub().info("<###>Thread exiting...");
+                imageToDisplay = null;
+                NeptusLog.pub().info(this.getContextClassLoader().getClass().getSimpleName()+" exiting");
             }
         };
     }
 
     @Override
     public void cleanSubPanel() {
-        status = "stopping";
-        ip = null;
-        connected = false;
-        updater.interrupt();
+        status = Status.STOP;
     }
 
     protected String previousURL = null;
@@ -217,6 +305,15 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
 
     @Override
     public void initSubPanel() {
+        setMouseListener();
+        addMouseListener(mouseListener);
+        addComponentListener(this);
+        
+        //initialize video thread
+        status = Status.INIT;
+        updater = updaterThread();
+        updater.setPriority(Thread.MIN_PRIORITY);
+        updater.start();
     }
 
     /**
@@ -225,5 +322,43 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     public static void main(String[] args) {
         final AirCamDisplay display = new AirCamDisplay(null);
         GuiUtils.testFrame(display, "Camera Display");
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.ComponentListener#componentResized(java.awt.event.ComponentEvent)
+     */
+    @Override
+    public void componentResized(ComponentEvent e) {
+        double factorw = (double) getWidth() / imageToDisplay.getWidth();
+        double factorh = (double) getHeight() / imageToDisplay.getHeight();
+        
+        factor = (factorw < factorh ? factorw : factorh);        
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.ComponentListener#componentMoved(java.awt.event.ComponentEvent)
+     */
+    @Override
+    public void componentMoved(ComponentEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.ComponentListener#componentShown(java.awt.event.ComponentEvent)
+     */
+    @Override
+    public void componentShown(ComponentEvent e) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.ComponentListener#componentHidden(java.awt.event.ComponentEvent)
+     */
+    @Override
+    public void componentHidden(ComponentEvent e) {
+        // TODO Auto-generated method stub
+        
     }
 }
