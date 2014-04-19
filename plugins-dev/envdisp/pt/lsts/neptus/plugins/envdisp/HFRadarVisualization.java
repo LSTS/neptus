@@ -818,6 +818,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         }
         else {
             cacheImg = null;
+            clearImgCachRqst = false;
         }
         
         if (cacheImg == null) {
