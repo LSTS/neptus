@@ -81,6 +81,7 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
@@ -99,7 +100,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     /*
      * Currents, wind, waves, SST 
      */
-    
+
     @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean visible = true;
 
@@ -172,6 +173,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     private final String wavesFilePattern = "waves_[a-zA-Z]{1,2}_\\d{8}\\.nc";
 
     private boolean clearImgCachRqst = false;
+
+    private final Font font8Pt = new Font("Helvetica", Font.PLAIN, 8);
 
     public static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'SS");
     public static final SimpleDateFormat dateTimeFormaterSpacesUTC = new SimpleDateFormat("yyyy MM dd  HH mm SS");
@@ -290,6 +293,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     private final double maxWaves = 7;
 
     private BufferedImage cacheImg = null;
+    private static int offScreenBufferPixel = 400;
     private Dimension dim = null;
     private int lastLod = -1;
     private LocationType lastCenter = null;
@@ -805,16 +809,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             return;
         
         if (!clearImgCachRqst) {
-            if (dim == null || lastLod < 0 || lastCenter == null || Double.isNaN(lastRotation)) {
-                Dimension dimN = renderer.getSize(new Dimension());
-                if (dimN.height != 0 && dimN.width != 0)
-                    dim = dimN;
+            if (isToRegenerateCache(renderer))
                 cacheImg = null;
-            }
-            else if (!dim.equals(renderer.getSize()) || lastLod != renderer.getLevelOfDetail()
-                    || !lastCenter.equals(renderer.getCenter()) || Double.compare(lastRotation, renderer.getRotation()) != 0) {
-                cacheImg = null;
-            }
         }
         else {
             cacheImg = null;
@@ -831,11 +827,15 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             GraphicsDevice gs = ge.getDefaultScreenDevice();
             GraphicsConfiguration gc = gs.getDefaultConfiguration();
-            cacheImg = gc.createCompatibleImage((int) dim.getWidth(), (int) dim.getHeight(), Transparency.BITMASK); 
+            cacheImg = gc.createCompatibleImage((int) dim.getWidth() + offScreenBufferPixel * 2, (int) dim.getHeight() + offScreenBufferPixel * 2, Transparency.BITMASK); 
             Graphics2D g2 = cacheImg.createGraphics();
             
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g2.translate(offScreenBufferPixel, offScreenBufferPixel);
+            
+//            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
             
             Date dateColorLimit = new Date(System.currentTimeMillis() - 3 * DateTimeUtil.HOUR);
             Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
@@ -859,13 +859,43 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
 //                g3.rotate(-renderer.getRotation(), renderer.getWidth() / 2, renderer.getHeight() / 2);
 //            }
             // g3.drawImage(cacheImg, 0, 0, null);
-            g3.drawImage(cacheImg, 0, 0, cacheImg.getWidth(), cacheImg.getHeight(), 0, 0, cacheImg.getWidth(),
-                    cacheImg.getHeight(), null);
+
+            double[] offset = renderer.getCenter().getDistanceInPixelTo(lastCenter, renderer.getLevelOfDetail());
+            offset = AngleCalc.rotate(renderer.getRotation(), offset[0], offset[1], true);
+
+            // g3.drawImage(cacheImg, 0, 0, cacheImg.getWidth(), cacheImg.getHeight(), 0, 0, cacheImg.getWidth(), cacheImg.getHeight(), null);
+            g3.drawImage(cacheImg, null, (int) offset[0] - offScreenBufferPixel, (int) offset[1] - offScreenBufferPixel);
+
             g3.dispose();
         }
     }
 
+    /**
+     * @return 
+     * 
+     */
+    private boolean isToRegenerateCache(StateRenderer2D renderer) {
+        if (dim == null || lastLod < 0 || lastCenter == null || Double.isNaN(lastRotation)) {
+            Dimension dimN = renderer.getSize(new Dimension());
+            if (dimN.height != 0 && dimN.width != 0)
+                dim = dimN;
+            return true;
+        }
+        LocationType current = renderer.getCenter().getNewAbsoluteLatLonDepth();
+        LocationType last = lastCenter == null ? new LocationType(0, 0) : lastCenter;
+        double[] offset = current.getDistanceInPixelTo(last, renderer.getLevelOfDetail());
+        if (Math.abs(offset[0]) > offScreenBufferPixel || Math.abs(offset[1]) > offScreenBufferPixel) {
+            return true;
+        }
 
+        if (!dim.equals(renderer.getSize()) || lastLod != renderer.getLevelOfDetail()
+                /*|| !lastCenter.equals(renderer.getCenter())*/ || Double.compare(lastRotation, renderer.getRotation()) != 0) {
+            return true;
+        }
+        
+        return false;
+    }
+    
     /**
      * @param renderer
      * @param g2
@@ -908,7 +938,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             gt.rotate(-rot);
             
             if (showCurrentsLegend && renderer.getLevelOfDetail() >= showCurrentsLegendFromZoomLevel) {
-                gt.setFont(new Font("Helvetica", Font.PLAIN, 8));
+                gt.setFont(font8Pt);
                 gt.setColor(Color.WHITE);
                 gt.drawString(MathMiscUtils.round(dp.getSpeedCmS(), 1) + "cm/s", 10, 2);
             }
@@ -956,7 +986,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             gt.fill(circle);
             
             if (showSSTLegend && renderer.getLevelOfDetail() >= showSSTLegendFromZoomLevel) {
-                gt.setFont(new Font("Helvetica", Font.PLAIN, 8));
+                gt.setFont(font8Pt);
                 gt.setColor(Color.WHITE);
                 gt.drawString(MathMiscUtils.round(dp.getSst(), 1) + "\u00B0C", -15, 15);
             }
@@ -1111,7 +1141,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             gt.rotate(-rot);
             
             if (showWavesLegend && renderer.getLevelOfDetail() >= showWavesLegendFromZoomLevel) {
-                gt.setFont(new Font("Helvetica", Font.PLAIN, 8));
+                gt.setFont(font8Pt);
                 gt.setColor(Color.WHITE);
                 gt.drawString(MathMiscUtils.round(dp.getSignificantHeight(), 1) + "m", 10, -8);
             }
@@ -1127,9 +1157,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      */
     private boolean isVisibleInRender(Point2D sPos, StateRenderer2D renderer) {
         Dimension rendDim = renderer.getSize();
-        if (sPos.getX() < 0 && sPos.getY() < 0)
+        if (sPos.getX() < 0 - offScreenBufferPixel && sPos.getY() < 0 - offScreenBufferPixel)
             return false;
-        else if (sPos.getX() > rendDim.getWidth() && sPos.getY() > rendDim.getHeight())
+        else if (sPos.getX() > rendDim.getWidth() + offScreenBufferPixel && sPos.getY() > rendDim.getHeight() + offScreenBufferPixel)
             return false;
         
         return true;
