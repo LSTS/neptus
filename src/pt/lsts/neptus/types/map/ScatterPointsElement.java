@@ -142,7 +142,7 @@ public class ScatterPointsElement extends AbstractElement {
 		Point2D ofs = renderer.getScreenPosition(getCenterLocation());
 
 		g2.translate(ofs.getX(), ofs.getY());
-		g2.rotate(rotation);
+//		g2.rotate(rotation);
 		
         g2.setColor(new Color(255, 255, 255, 200));
 		g2.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
