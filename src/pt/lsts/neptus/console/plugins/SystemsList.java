@@ -1884,7 +1884,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
         }
 
         // To draw the course/speed vector
-        SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, sys, isLocationKnownUpToDate,
+        SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, sys, iconWidth, isLocationKnownUpToDate,
                 minimumSpeedToBeStopped);
 
         g2.dispose();
