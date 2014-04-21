@@ -80,7 +80,7 @@ enum Status{
  */
 @Popup( pos = POSITION.RIGHT, width=640, height=400)
 @LayerPriority(priority=0)
-@PluginDescription(name="AirCam Display", author="Sergio Ferreira", description="Video displayer for IP Cameras", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
+@PluginDescription(name="AirCam Display", version="2.1", author="Sergio Ferreira", description="Video displayer for IP Cameras", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
 public class AirCamDisplay extends ConsolePanel implements ConfigurationListener, ComponentListener{
 
     private static final long serialVersionUID = 1L;
@@ -168,7 +168,7 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     public void reconnect() {
         NeptusLog.pub().info(this.getClass().getSimpleName()+" attemptig to reconnect to "+ip);
         
-        if(status == Status.STOP){
+        if(status == Status.STOP) {
             status = Status.INIT;
             updater = updaterThread();
             updater.setPriority(Thread.MIN_PRIORITY);
@@ -179,21 +179,21 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     }
     
     private Thread updaterThread() {
-    
-        return new Thread("RTSP Worker Thread") {
+        // Could't we also initialize and start it here only if needed?
+        Thread ret = new Thread("RTSP Worker Thread") {
 
             boolean isRunning = true;
             String path = null;
             IMediaReader mediaReader;
             
             private IMediaListener mediaListener = new MediaListenerAdapter() {
-                                
                 @Override
                 public void onVideoPicture(IVideoPictureEvent event) {
                     try {
                         imageToDisplay = event.getImage();
                         repaint();
-                    }catch(Exception ex){
+                    }
+                    catch (Exception ex) {
                         status = Status.STOP;
                         NeptusLog.pub().error(ex);
                         NeptusLog.pub().warn("Verify camera settings before attempting to reconnect"); 
@@ -203,20 +203,15 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
             
             @Override
             public void run() {
-
-                while(isRunning) {   
-                    
+                while (isRunning) {
                     //ensures only one thread is launched
-                    if (updater == this){
-    
-                        if(status != Status.STOP){
-
-                            if(status == Status.INIT){
-                                
-                                if(brand.equalsIgnoreCase("axis")){
+                    if (updater == this) { // pdias: Why even start a thread if is not going to be stop?
+                        if (status != Status.STOP) {
+                            if (status == Status.INIT) {
+                                if (brand.equalsIgnoreCase("axis")) {
                                     path = "rtsp://"+ip+"/axis-media/media.amp";
                                 }
-                                else if(brand.equalsIgnoreCase("ubiquiti")){
+                                else if (brand.equalsIgnoreCase("ubiquiti")) {
                                     path = "rtsp://"+ip+":554/live/ch00_0";
                                 }
                                                                 
@@ -237,19 +232,18 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                                     status = Status.STOP;
                                 }                                
                             }
-                            else if(status == Status.RCON){                                
+                            else if (status == Status.RCON) {
                                 mediaReader.removeListener(mediaListener);
                                 mediaReader.close();
                                 status = Status.INIT;
                             }
                             
-                            if(status == Status.CONN){
-                                
+                            if (status == Status.CONN) {
                                 IError err = null;
                                 if (mediaReader != null)
                                     err = mediaReader.readPacket();
                         
-                                if(err != null ){
+                                if (err != null) {
                                     NeptusLog.pub().error(err);
                                     NeptusLog.pub().warn("Verify camera settings before attempting to reconnect");                                    
                                     status = Status.STOP;
@@ -264,9 +258,13 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                 }
                 imageToDisplay = null;
                 status = Status.STOP;
-                NeptusLog.pub().info(this.getName()+" exiting");
+                NeptusLog.pub().info(this.getName() + " exiting");
             }
         };
+        // ret.setPriority(Thread.MIN_PRIORITY); // pdias: Why not set this here?
+        // ret.start();
+
+        return ret;
     }
 
     @Override
@@ -292,14 +290,6 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
         updater.start();
     }
 
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        final AirCamDisplay display = new AirCamDisplay(null);
-        GuiUtils.testFrame(display, "Camera Display");
-    }
-
     /* (non-Javadoc)
      * @see java.awt.event.ComponentListener#componentResized(java.awt.event.ComponentEvent)
      */
@@ -319,7 +309,6 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     @Override
     public void componentMoved(ComponentEvent e) {
         // TODO Auto-generated method stub
-        
     }
 
     /* (non-Javadoc)
@@ -328,7 +317,6 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     @Override
     public void componentShown(ComponentEvent e) {
         System.out.println("shown");
-        
     }
 
     /* (non-Javadoc)
@@ -337,6 +325,13 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     @Override
     public void componentHidden(ComponentEvent e) {
         System.out.println("hidden");
-        
+    }
+    
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        final AirCamDisplay display = new AirCamDisplay(null);
+        GuiUtils.testFrame(display, "Camera Display");
     }
 }
