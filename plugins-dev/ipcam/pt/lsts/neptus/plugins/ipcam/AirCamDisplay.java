@@ -58,6 +58,7 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.StringPatternValidator;
 
 import com.xuggle.mediatool.IMediaListener;
 import com.xuggle.mediatool.IMediaReader;
@@ -90,7 +91,7 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     public String ip = "10.0.20.209";
     
     @NeptusProperty(name="Camera Brand", description="Brand for the installed camera (not case sensitive)")
-    public String brand = "ubiquiti";
+    public String brand = "ubiquiti"; // pdias: Why not use a enum since we only support 2 cameras?
     
     //small listener which allows the user to quickly tap into the panel settings
     private MouseAdapter mouseListener;
@@ -105,7 +106,23 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     
     //worker thread designed to acquire the data packet from the online camera
     protected Thread updater = null;
+
+    public AirCamDisplay(ConsoleLayout console) {
+        super(console);
+
+        // clears all the unused initializations of the standard ConsolePanel
+        removeAll();
+    }
     
+    /**
+     * In order to validate the IP address in the {@link #ip} NeptusProperty.
+     * @param value
+     * @return
+     */
+    public static String validateIP(String value) {
+        return new StringPatternValidator("\\d{2,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}").validate(value);
+    }
+
     //Listener
     private void setMouseListener() {
         
@@ -137,16 +154,8 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
         };        
     }
 
-    public AirCamDisplay(ConsoleLayout console) {
-        super(console);
-
-        // clears all the unused initializations of the standard ConsolePanel
-        removeAll();
-    }
-    
     @Override
     public void paint(Graphics g) {
-        
         //backdrop reset
         g.setColor(Color.black);
         g.fillRect(0, 0, getWidth(), getHeight());
