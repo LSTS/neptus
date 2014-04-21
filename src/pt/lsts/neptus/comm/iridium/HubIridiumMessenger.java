@@ -66,6 +66,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;
     protected String serverUrl = "http://hub.lsts.pt/api/v1/";
+    // protected String serverUrl = "http://lsts-hub/api/v1/";
     protected String systemsUrl = serverUrl+"systems";
     protected String activeSystemsUrl = systemsUrl+"/active";
     protected String messagesUrl = serverUrl+"iridium";
@@ -293,6 +294,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
         public String name;
         public String updated_at;
         public Double[] coordinates;
+        public char errorClass;
         
         public Date updatedAt() {
             return stringToDate(updated_at);
