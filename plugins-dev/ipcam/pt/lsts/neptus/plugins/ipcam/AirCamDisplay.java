@@ -50,6 +50,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -106,7 +107,7 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     protected Thread updater = null;
     
     //Listener
-    private void setMouseListener(){
+    private void setMouseListener() {
         
         mouseListener = new MouseAdapter() {
             @Override
@@ -116,21 +117,20 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                     
                     JPopupMenu popup = new JPopupMenu();
                     
-                    popup.add("Reconnect").addActionListener(new ActionListener() {
-
+                    popup.add(I18n.text("Reconnect")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             reconnect();
                         }
                     });
 
-                    popup.add("Settings").addActionListener(new ActionListener() {
-
+                    popup.add(I18n.text("Settings")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             PropertiesEditor.editProperties(AirCamDisplay.this, getConsole(), true);
                         }
                     });
+                    
                     popup.show((Component)e.getSource(), e.getX(), e.getY());
                 }
             }
