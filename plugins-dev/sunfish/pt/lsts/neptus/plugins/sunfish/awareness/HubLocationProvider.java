@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.sunfish.awareness;
 import java.io.InputStreamReader;
 import java.net.URL;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.iridium.HubIridiumMessenger;
 import pt.lsts.neptus.comm.iridium.HubIridiumMessenger.HubSystemMsg;
@@ -49,7 +50,7 @@ import com.google.gson.Gson;
 public class HubLocationProvider implements ILocationProvider {
 
     SituationAwareness parent;
-    private String systemsUrl = "http://hub.lsts.pt/api/v1/systems/active";
+    private final String systemsUrl = "http://hub.lsts.pt/api/v1/systems/active";
     
 
     @Override
@@ -62,8 +63,10 @@ public class HubLocationProvider implements ILocationProvider {
         if (!enabled)
             return;
         Gson gson = new Gson();
-        URL url = new URL(systemsUrl);        
+        URL url = new URL(systemsUrl);
+
         HubSystemMsg[] msgs = gson.fromJson(new InputStreamReader(url.openStream()), HubSystemMsg[].class);
+        NeptusLog.pub().info(" through HTTP: " + systemsUrl);
 
         for (HubSystemMsg m : msgs) {
             AssetPosition pos = new AssetPosition(m.name, m.coordinates[0],
@@ -72,6 +75,7 @@ public class HubLocationProvider implements ILocationProvider {
             pos.setTimestamp(HubIridiumMessenger.stringToDate(m.updated_at).getTime());
             pos.setSource(getName());
             parent.addAssetPosition(pos);
+            NeptusLog.pub().info(m.name + " " + m.imcid);
         }
 
     }
