@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
 "POT-Creation-Date: 2014-03-17 15:43+0000\n"
-"PO-Revision-Date: 2014-03-17 15:43+0100\n"
+"PO-Revision-Date: 2014-04-21 15:09+0100\n"
 "Last-Translator: Hugo Queirós <hugofqueiros@gmail.com>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
@@ -241,20 +241,17 @@ msgid "3D Visualization"
 msgstr "Visualização 3D"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:349
-#, fuzzy
 msgid "3D Visualization Interaction Help"
-msgstr "Visualização 3D"
+msgstr "Ajuda para a interacção com a Visualização 3D"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:174
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:224
-#, fuzzy
 msgid "3D files "
-msgstr "Ficheiros PDF"
+msgstr "Ficheiros 3D"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:278
-#, fuzzy
 msgid "3DVisualizer configurations"
-msgstr "Visualização 3D"
+msgstr "Configurações da Visualização 3D"
 
 #: src/pt/lsts/neptus/mra/exporters/PCDExporter.java:475
 msgid "83P to PCD"
@@ -472,9 +469,8 @@ msgid "Action"
 msgstr "Acção"
 
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:199
-#, fuzzy
 msgid "Activate Polling"
-msgstr "Projecção Activada"
+msgstr "Activar Polling"
 
 #: src/pt/lsts/neptus/renderer3d/ProjectionPropertiesProvider.java:73
 msgid "Activate Projection"
@@ -789,9 +785,8 @@ msgstr "Tem a certeza que quer apagar pastas de log selecionados do sistema remo
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:183
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:232
-#, fuzzy
 msgid "Are you sure you want to overwrite existing file"
-msgstr "Quer escrever por cima do ficheiro existente?"
+msgstr "Tem a certeza que quer escrever por cima do ficheiro existente?"
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:751
 msgid "Are you sure you want to send only %beaconsToSend?"
@@ -1093,9 +1088,8 @@ msgid "CTD chart"
 msgstr "Gráfico do CTD"
 
 #: Name of plugin pt.lsts.neptus.plugins.ctd.CTDSidePlot
-#, fuzzy
 msgid "CTD color map"
-msgstr "Mapa de cores"
+msgstr "Mapa de cores do CTD"
 
 #: src/pt/lsts/neptus/mp/maneuvers/PopUp.java:316
 msgid "CURR_POS"
@@ -1204,9 +1198,8 @@ msgid "Center in..."
 msgstr "Centrar em..."
 
 #: Property from pt.lsts.neptus.mp.templates.YoYoTemplate
-#, fuzzy
 msgid "Center location"
-msgstr "Localização Central:"
+msgstr "Localização Central"
 
 #: src/pt/lsts/neptus/renderer2d/FeatureFocuser.java:80
 msgid "Center map in..."
@@ -1278,9 +1271,8 @@ msgid "Choose Visible Layers"
 msgstr "Escolha das Camadas Visíveis"
 
 #: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1166
-#, fuzzy
 msgid "Choose Visible World Map"
-msgstr "Escolha das Camadas Visíveis"
+msgstr "Escolha Mapa do Mundo visivel."
 
 #: src/pt/lsts/neptus/console/plugins/MyLocationDisplay.java:563
 #: src/pt/lsts/neptus/console/plugins/MyLocationDisplay.java:615
@@ -1423,7 +1415,6 @@ msgid "Colormap"
 msgstr "Mapa de cores"
 
 #: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:86
-#, fuzzy
 msgid "Comm. Mean"
 msgstr "Canal de Comunicações"
 
@@ -1433,9 +1424,8 @@ msgid "Comma separated transports list. Valid values are (UDP, TCP). (The order 
 msgstr "Lista de transportes separados por vírgulas. Valores válidos são (UDP, TCP). (A ordem implica preferência no seu uso.)"
 
 #: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:85
-#, fuzzy
 msgid "Command"
-msgstr "Comunicações:"
+msgstr "Comandos:"
 
 #: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:207
 msgid "Command %vehicle"
@@ -1537,9 +1527,8 @@ msgid "Configuration File: "
 msgstr "Ficheiro de Configuração:"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:277
-#, fuzzy
 msgid "Configurations"
-msgstr "Configuração"
+msgstr "Configurações"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/MultibeamToolbar.java:698
 msgid "Configure"
@@ -1958,9 +1947,8 @@ msgid "Days to fetch in the past"
 msgstr ""
 
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:192
-#, fuzzy
 msgid "Deactivate Polling"
-msgstr "Projecção Activada"
+msgstr "Desactivar Polling"
 
 #: Property from pt.lsts.neptus.console.plugins.planning.MissionTreePanel
 msgid "Debug"
@@ -2397,9 +2385,8 @@ msgstr "Duração (s)"
 
 #: Description of property 'Popup duration' from
 #: pt.lsts.neptus.mp.templates.YoYoTemplate
-#, fuzzy
 msgid "Duration of the popups at corners"
-msgstr "Direcção da manobra."
+msgstr "Duração dos popups nos cantos."
 
 #: Field from Loiter.TYPE enumeration
 msgid "EIGHT"
@@ -2560,14 +2547,12 @@ msgid "Enable the partial logs downloads (resume partial downloads). NOTE: THE D
 msgstr "Habilitar descarregamento parcial dos Logs (reinicio para descarregamentos parciais). NOTA: AS CAIXAS DE DESCARREGAMENTO APENAS LÊEM ESTA OPÇÃO NA SUA CRIAÇÃO."
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:125
-#, fuzzy
 msgid "Enable/Disable Z Exaggeration"
-msgstr "Habilitar/Dasabilitar"
+msgstr "Habilitar/Dasabilitar exagero do eixo z"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:162
-#, fuzzy
 msgid "Enable/Disable contouts"
-msgstr "Habilitar/Dasabilitar"
+msgstr "Habilitar/Dasabilitar contornos"
 
 #: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:190
 msgid "End time"
@@ -2875,9 +2860,8 @@ msgid "Export CTD data to CSV"
 msgstr "Exportar dados CTD para CSV"
 
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:581
-#, fuzzy
 msgid "Export data to"
-msgstr "Exportar dados CTD para CSV"
+msgstr "Exportar dados para"
 
 #: Property from pt.lsts.neptus.plugins.spot.SpotOverlay
 #: src/pt/lsts/neptus/mra/exporters/CSVExporter.java:152
@@ -3417,9 +3401,8 @@ msgid "Help"
 msgstr "Ajuda"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:343
-#, fuzzy
 msgid "Help 3D Visualizer"
-msgstr "Visualização 3D"
+msgstr "Ajuda da Visualização 3D"
 
 #: src/pt/lsts/neptus/types/map/AbstractElement.java:760
 msgid "Hidden"
@@ -3991,9 +3974,8 @@ msgid "Key Combination"
 msgstr "Combinação de Teclas"
 
 #: Name of plugin pt.lsts.neptus.console.plugins.planning.MapShortcutsLayer
-#, fuzzy
 msgid "Keyboard Shortcuts"
-msgstr "Atalhos Log"
+msgstr "Atalhos de teclado"
 
 #: src/pt/lsts/neptus/loader/NeptusMain.java:88
 msgid "LAUV Console"
@@ -4146,9 +4128,8 @@ msgstr "Amplitude, em metros da area a ser supervisionada "
 
 #: Description of property 'Size' from
 #: pt.lsts.neptus.mp.templates.YoYoTemplate
-#, fuzzy
 msgid "Length, in meters of the side length of the survey"
-msgstr "Amplitude, em metros da area a ser supervisionada "
+msgstr "Comprimento, em metros da area supervisionada "
 
 #: src/pt/lsts/neptus/gui/objparams/ParallelepipedParameters.java:223
 msgid "Length:"
@@ -4745,9 +4726,8 @@ msgstr "Profundidade máxima para gráficos de batímetria"
 
 #: Description of property 'Maximum Depth' from
 #: pt.lsts.neptus.mp.templates.YoYoTemplate 'Minimum
-#, fuzzy
 msgid "Maximum depth of the yoyo behavior"
-msgstr "Profundidade máxima para gráficos de batímetria"
+msgstr "Profundidade máxima para o comportamento do yoyo"
 
 #: Description of property 'Maximum depth for bathymetry plots' from
 #: pt.lsts.neptus.mra.MRAProperties
@@ -4876,9 +4856,8 @@ msgid "Minimum Altitude (m)"
 msgstr "Altitude Mínima (m)"
 
 #: Property from pt.lsts.neptus.mp.templates.YoYoTemplate
-#, fuzzy
 msgid "Minimum Depth"
-msgstr "Profundidade Máxima"
+msgstr "Profundidade Mínima"
 
 #: plugins-dev/trex/pt/lsts/neptus/plugins/trex/goals/TrexGoal.java:150
 msgid "Minimum End time"
@@ -4954,9 +4933,8 @@ msgid "Mission Files ('nmisz')"
 msgstr "Ficheiros de Missão (\"nmisz\")"
 
 #: Name of plugin pt.lsts.neptus.mra.replay.MRALogReplay
-#, fuzzy
 msgid "Mission Replay"
-msgstr "Revisão da Missão"
+msgstr "Reprodução da missão"
 
 #: src/pt/lsts/neptus/mc/Workspace.java:1963
 msgid "Mission Review"
@@ -5041,14 +5019,12 @@ msgid "Move threshold"
 msgstr "Limiar de movimentação"
 
 #: Property from pt.lsts.neptus.mp.templates.YoYoTemplate
-#, fuzzy
 msgid "Movement towards east"
-msgstr "Mover o mapa para norte"
+msgstr "Mover na direcção este"
 
 #: Property from pt.lsts.neptus.mp.templates.YoYoTemplate
-#, fuzzy
 msgid "Movement towards north"
-msgstr "Mover o mapa para norte"
+msgstr "Movimento na direcção norte"
 
 #: Property from pt.lsts.neptus.plugins.ais.AisOverlay
 msgid "Moving vessel color"
@@ -5208,9 +5184,8 @@ msgid "Network"
 msgstr "Rede"
 
 #: Name of plugin pt.lsts.neptus.mra.replay.NetworkReplay
-#, fuzzy
 msgid "Network replay"
-msgstr "Rede"
+msgstr "Reprodoção da rede"
 
 #: src/pt/lsts/neptus/mc/Workspace.java:674
 #: src/pt/lsts/neptus/mc/Workspace.java:2048
@@ -5310,9 +5285,8 @@ msgid "No configuration file selected"
 msgstr "Nenhum ficheiro de configuração selecionado"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:181
-#, fuzzy
 msgid "No data Available"
-msgstr "Não foram encontradas portas série disponíveis"
+msgstr "Não existem dados disponíveis"
 
 #: src/pt/lsts/neptus/console/plugins/FunctionalitiesSettings.java:645
 msgid "No default found for class %className"
@@ -5545,9 +5519,8 @@ msgid "OK"
 msgstr "Aceitar"
 
 #: src/pt/lsts/neptus/types/map/AbstractElement.java:762
-#, fuzzy
 msgid "Object Name:"
-msgstr "Nome de Objecto:"
+msgstr "Nome do Objecto:"
 
 #: src/pt/lsts/neptus/types/map/AbstractElement.java:757
 msgid "Obstacle"
@@ -5841,9 +5814,8 @@ msgid "PathControlLayer"
 msgstr ""
 
 #: src/pt/lsts/neptus/mra/replay/MRALogReplayTimeline.java:126
-#, fuzzy
 msgid "Pause replay"
-msgstr "Reprodução do TREX"
+msgstr "Pausar reprodução"
 
 #: src/pt/lsts/neptus/gui/ChronometerPanel.java:231
 msgid "Pause/Resume"
@@ -5973,9 +5945,8 @@ msgstr "Pintor do Plano"
 
 #: Name of plugin pt.lsts.neptus.console.plugins.planning.PlanExecutionPreview
 #: pt.lsts.neptus.console.plugins.planning.PlanSimulationLayer
-#, fuzzy
 msgid "Plan Simulation"
-msgstr "Simulação"
+msgstr "Simulação do plano"
 
 #: Property from pt.lsts.neptus.plugins.noptilus.NoptilusPlanGenerator
 msgid "Plan Speed"
@@ -6096,9 +6067,8 @@ msgid "Point Pb"
 msgstr "Ponto Pb"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:141
-#, fuzzy
 msgid "Points based representation"
-msgstr "Orientação Base"
+msgstr "Representação por pontos"
 
 #: Property from pt.lsts.neptus.mra.MRAProperties
 msgid "Points to ignore on Multibeam 3D"
@@ -6109,9 +6079,8 @@ msgid "Polygon Coverage Planner"
 msgstr ""
 
 #: Property from pt.lsts.neptus.mp.templates.YoYoTemplate
-#, fuzzy
 msgid "Popup duration"
-msgstr "duração"
+msgstr "duração do Popup"
 
 #: src/pt/lsts/neptus/comm/ssh/SSHConnectionDialog.java:142
 msgid "Port"
@@ -6152,9 +6121,8 @@ msgid "Preferred Width"
 msgstr "Largura Perferida"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:190
-#, fuzzy
 msgid "Pressure Color Map"
-msgstr "Mapa de cores"
+msgstr "Mapa de cores da pressão"
 
 #: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:148
 #: src/pt/lsts/neptus/i18n/I18n.java:218
@@ -6162,9 +6130,8 @@ msgid "Preview"
 msgstr "Pré-visualização"
 
 #: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:203
-#, fuzzy
 msgid "Preview command"
-msgstr "Enviar comando"
+msgstr "Pré-visializar comando"
 
 #: plugins-dev/dev-calibration/pt/lsts/neptus/plugins/calib/CalibrationSubPanel.java:78
 msgid "Previous Step"
@@ -6624,9 +6591,8 @@ msgid "Remove Selected"
 msgstr "Remover Selecção"
 
 #: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:919
-#, fuzzy
 msgid "Remove all transponders from vehicle"
-msgstr "Remover '%transponderName'"
+msgstr "Remover todos os transponders do veículo"
 
 #: plugins-dev/position/pt/lsts/neptus/plugins/position/ContactMarker.java:258
 msgid "Remove mark"
@@ -6740,9 +6706,8 @@ msgstr "Resultado"
 
 #: src/pt/lsts/neptus/mra/replay/MRALogReplayTimeline.java:115
 #: src/pt/lsts/neptus/mra/replay/MRALogReplayTimeline.java:131
-#, fuzzy
 msgid "Resume replay"
-msgstr "Reprodução do TREX"
+msgstr "Continuar reprodução"
 
 #: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:515
 msgid "Resuming..."
@@ -6858,9 +6823,8 @@ msgid "SYSTEM_MONITOR"
 msgstr "MONITORAR_SISTEMA"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:172
-#, fuzzy
 msgid "Salinity Color Map"
-msgstr "Criar gráfico de Mapa de cores"
+msgstr "Mapa de cores da Salinidade"
 
 #: src/pt/lsts/neptus/mra/plots/SalinityVsDepthPlot.java:56
 msgid "Salinity VS Depth"
@@ -6968,15 +6932,13 @@ msgstr "Guardar alterações?"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:153
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:154
-#, fuzzy
 msgid "Save file"
 msgstr "Guardar imagem"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:184
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:233
-#, fuzzy
 msgid "Save file as"
-msgstr "Guardar como"
+msgstr "Guardar ficheiro como"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:217
 msgid "Save generated pointcloud mesh as"
@@ -6991,9 +6953,8 @@ msgid "Save image or as map"
 msgstr "Guardar imagem ou como mapa"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:218
-#, fuzzy
 msgid "Save mesh to a file"
-msgstr "Guardar imagem ou como mapa"
+msgstr "Guardar malha para um ficheiro"
 
 #: src/pt/lsts/neptus/types/mission/MissionType.java:936
 #: src/pt/lsts/neptus/types/mission/MissionType.java:944
@@ -7009,9 +6970,8 @@ msgid "Save options"
 msgstr "Opções de armazenamento"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:162
-#, fuzzy
 msgid "Save pointcloud as"
-msgstr "Guardar Consola Como"
+msgstr "Guardar nuvem de pontos como"
 
 #: Description of property 'Save mission states' from
 #: pt.lsts.neptus.console.plugins.planning.MapPanel
@@ -7097,19 +7057,16 @@ msgid "See Multibeam data"
 msgstr ""
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:115
-#, fuzzy
 msgid "See Pressure data color map"
-msgstr "Guarda Mapa de Cores de Dados"
+msgstr "Visualizar mapa de cores dos dados de pressão"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:110
-#, fuzzy
 msgid "See Salinity data color map"
-msgstr "Guarda Mapa de Cores de Dados"
+msgstr "Visualizar mapa de cores dos dados de salinidade"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:105
-#, fuzzy
 msgid "See Temperature data color map"
-msgstr "Guarda Mapa de Cores de Dados"
+msgstr "Visualizar mapa de cores dos dados de temperatura"
 
 #: src/pt/lsts/neptus/console/actions/RunChecklistConsoleAction.java:102
 msgid "Select Checklist"
@@ -7120,9 +7077,8 @@ msgid "Select Entities"
 msgstr "Seleccionar Entidades"
 
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:206
-#, fuzzy
 msgid "Select Iridium gateway"
-msgstr "Usar hardware Iridium"
+msgstr "Seleccionar a gateway Iridium"
 
 #: src/pt/lsts/neptus/console/actions/SetMainVehicleConsoleAction.java:72
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:414
@@ -7186,7 +7142,6 @@ msgstr "Selecionar isto se quiser o discurso ligado ou desligado."
 
 #: src/pt/lsts/neptus/gui/VehicleChooser.java:68
 #: src/pt/lsts/neptus/gui/VehicleChooser.java:69
-#, fuzzy
 msgid "Select vehicle"
 msgstr "Seleccionar Veículo"
 
@@ -7220,9 +7175,8 @@ msgid "Send %vehicle a command via Iridium"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:139
-#, fuzzy
 msgid "Send Acoustic Beacons"
-msgstr "Limpar Beacons Acústicos."
+msgstr "Enviar Beacons Acústicos."
 
 #: plugins-dev/simulation/pt/lsts/neptus/plugins/sim/SimulationActionsPlugin.java:56
 msgid "Send GPS Fix"
@@ -7810,9 +7764,8 @@ msgid "Smooth image resizing"
 msgstr "Suaviar ao aumentar a imagem"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:149
-#, fuzzy
 msgid "Solid based representation"
-msgstr "Orientação Base"
+msgstr "Representação sólida"
 
 #: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1432
 msgid "Some of the configuration parameters are not correct!"
@@ -8369,14 +8322,12 @@ msgid "Tail number of Points"
 msgstr "Números de pontos do trilho"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:324
-#, fuzzy
 msgid "Take SnapShot"
-msgstr "Fazer um Instantâneo"
+msgstr "Tirar um Instantâneo"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:325
-#, fuzzy
 msgid "Take SnapShot from current Viewport"
-msgstr "Iniciar da posição actual"
+msgstr "Tirar instantâneo da actual janela de visualização"
 
 #: src/pt/lsts/neptus/console/actions/TakeSnapshotConsoleAction.java:56
 msgid "Take Snapshot"
@@ -8396,9 +8347,8 @@ msgstr "Modo  de Tele-Operação"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:154
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/CTD3D.java:120
-#, fuzzy
 msgid "Temperature Color Map"
-msgstr "Temperatura vs Profundidade"
+msgstr "Mapa de cores de Temperatura"
 
 #: src/pt/lsts/neptus/mra/plots/TemperatureVsDepthPlot.java:56
 msgid "Temperature VS Depth"
@@ -8409,9 +8359,8 @@ msgid "Test"
 msgstr ""
 
 #: Name of plugin pt.lsts.neptus.plugins.txtcmd.TextCommands
-#, fuzzy
 msgid "Text Commands"
-msgstr "Enviar comando"
+msgstr "Comandos de Texto"
 
 #: Description of property 'Trailing text' from
 #: pt.lsts.neptus.plugins.position.ScriptedDisplay
@@ -9086,9 +9035,8 @@ msgid "Transponder Location Estimation"
 msgstr "Estimativa da localização do transdutor"
 
 #: Name of plugin pt.lsts.neptus.plugins.beacons.BeaconsVisibilityLayer
-#, fuzzy
 msgid "Transponder Visibility"
-msgstr "Honrar Visibilidade"
+msgstr "Visibilidade dos Transponders"
 
 #: src/pt/lsts/neptus/gui/objparams/TranspondersPositionHelper.java:300
 msgid "Transponder depth (m):"
@@ -9104,9 +9052,8 @@ msgstr "Ajuda de Localização de Transdutores"
 
 #: Description of property 'Speed' from
 #: pt.lsts.neptus.mp.templates.YoYoTemplate
-#, fuzzy
 msgid "Travelling speed (in m/s)"
-msgstr "Unidade de velocidade de viagem para AUV"
+msgstr "Unidade de velocidade de viagem (em m/s)"
 
 #: Name of plugin pt.lsts.neptus.plugins.trex.TrexMapLayer
 msgid "TrexMapLayer"
@@ -9413,9 +9360,8 @@ msgid "Use Depth"
 msgstr "Usar Profundidade"
 
 #: Property from pt.lsts.neptus.plugins.alignment.ImuAlignmentPanel
-#, fuzzy
 msgid "Use Error Notifications"
-msgstr "Notificações"
+msgstr "Usar notificações de erro"
 
 #: Property from pt.lsts.neptus.plugins.noptilus.NoptilusPlanGenerator
 msgid "Use FollowPath maneuver"
@@ -9804,9 +9750,8 @@ msgid "Visualizations"
 msgstr "Visualizações"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Window.java:64
-#, fuzzy
 msgid "Visualizer3D"
-msgstr "Visualizações"
+msgstr "Visualização3D"
 
 #: Property from pt.lsts.neptus.plugins.acoustic.LBLRangeDisplay
 msgid "Volume"
