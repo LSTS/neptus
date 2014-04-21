@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2014-03-17 15:43+0000\n"
+"POT-Creation-Date: 2014-04-21 14:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,12 +29,12 @@ msgstr ""
 msgid "%1 Colormap"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:228
+#: src/pt/lsts/neptus/mc/Workspace.java:223
 msgid "%Neptus Workspace"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1299
-#: src/pt/lsts/neptus/mc/Workspace.java:1326
+#: src/pt/lsts/neptus/mc/Workspace.java:1286
+#: src/pt/lsts/neptus/mc/Workspace.java:1313
 msgid "%checklist - Checklist"
 msgstr ""
 
@@ -75,15 +75,15 @@ msgstr ""
 msgid "%manta does not support aborting of %systemName"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:565
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:566
 msgid "%manta has no acoustic transducer connected. Connect a transducer."
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:562
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:563
 msgid "%manta is busy. Try again in a few moments"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:571
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:572
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/SimpleAbortModemRequest.java:117
 msgid "%manta timed out while trying to abort %systemName"
 msgstr ""
@@ -100,10 +100,10 @@ msgstr ""
 msgid "%number files"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:332
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:337
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:429
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:435
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:331
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:336
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:428
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:434
 msgid "%number messages"
 msgstr ""
 
@@ -133,25 +133,25 @@ msgstr ""
 msgid "%plugin parameters"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:886
-#: src/pt/lsts/neptus/mp/Maneuver.java:929
-#: src/pt/lsts/neptus/mp/Maneuver.java:980
+#: src/pt/lsts/neptus/mp/Maneuver.java:852
+#: src/pt/lsts/neptus/mp/Maneuver.java:895
+#: src/pt/lsts/neptus/mp/Maneuver.java:946
 msgid "%s custom settings"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:950
+#: src/pt/lsts/neptus/mp/Maneuver.java:916
 msgid "%s end actions"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:1019
+#: src/pt/lsts/neptus/mp/Maneuver.java:985
 msgid "%s properties"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:846
+#: src/pt/lsts/neptus/mp/Maneuver.java:812
 msgid "%s specific properties"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:941
+#: src/pt/lsts/neptus/mp/Maneuver.java:907
 msgid "%s start actions"
 msgstr ""
 
@@ -159,12 +159,12 @@ msgstr ""
 msgid "%systemName Parameters"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:559
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:560
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/SimpleAbortModemRequest.java:111
 msgid "%systemName has acknowledged abort command"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:399
+#: src/pt/lsts/neptus/mc/Workspace.java:394
 msgid "%vehiclename - Vehicle Info"
 msgstr ""
 
@@ -172,7 +172,7 @@ msgstr ""
 msgid "'%element' (%element_type)"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1207
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1225
 msgid "(Keys pressed while the Renderer component is focused)"
 msgstr ""
 
@@ -204,9 +204,8 @@ msgstr ""
 msgid "2D Image scale"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1206
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1208
 #: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1224
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1226
 msgid "2D Renderer Shortcuts"
 msgstr ""
 
@@ -214,11 +213,20 @@ msgstr ""
 msgid "2D Side View"
 msgstr ""
 
+#: Name of plugin pt.lsts.neptus.plugins.vtk.VtkMRAVis
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:120
+msgid "3D Bathymetry"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:395
+msgid "3D Bathymetry properties"
+msgstr ""
+
 #: src/pt/lsts/neptus/types/map/Model3DElement.java:551
 msgid "3D Model Scale"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1350
+#: src/pt/lsts/neptus/mc/Workspace.java:1337
 msgid "3D Model Viewer"
 msgstr ""
 
@@ -227,7 +235,7 @@ msgstr ""
 msgid "3D Model file"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:350
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:351
 msgid "3D Multibeam keyboard and mouse interation"
 msgstr ""
 
@@ -235,22 +243,20 @@ msgstr ""
 msgid "3D Plot"
 msgstr ""
 
-#: Name of plugin pt.lsts.neptus.plugins.vtk.VtkMRAVis
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:124
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:132
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:131
 msgid "3D Visualization"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:349
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:350
 msgid "3D Visualization Interaction Help"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:174
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:224
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:173
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:223
 msgid "3D files "
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:278
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:277
 msgid "3DVisualizer configurations"
 msgstr ""
 
@@ -260,10 +266,6 @@ msgstr ""
 
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/LBLRangeLabel.java:180
 msgid "<html><b>Beacon %beaconid (%range m) %datetime <br>%reason"
-msgstr ""
-
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1224
-msgid "<html><h1>"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/ConsoleLayout.java:291
@@ -280,7 +282,7 @@ msgstr ""
 msgid "<html>Error in the <b>polar offset</b> parameters:<br>%errors</html>"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1451
+#: src/pt/lsts/neptus/mc/Workspace.java:1438
 msgid ""
 "<html>The defaults of the general properties will be dumped to <br><i>%file</"
 "i> overwriting the ones already <br>modified in the existing file!<br><br> "
@@ -372,6 +374,10 @@ msgstr ""
 msgid "AUV loiter radius"
 msgstr ""
 
+#: Property from pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
+msgid "AUV speed (m/s)"
+msgstr ""
+
 #: Property from pt.lsts.neptus.console.plugins.planning.CommandPlanner
 msgid "AUV travelling depth"
 msgstr ""
@@ -384,9 +390,9 @@ msgstr ""
 msgid "AUV travelling speed units"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:400
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:424
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:443
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:396
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:420
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:439
 #: src/pt/lsts/neptus/console/plugins/AbortPanel.java:296
 msgid "Abort"
 msgstr ""
@@ -397,7 +403,7 @@ msgctxt "Abort button. Make it with less letters as possible."
 msgid "Abort"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:439
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:435
 msgid "Abort %systemName commanded to %systemCount systems"
 msgstr ""
 
@@ -413,12 +419,12 @@ msgstr ""
 msgid "Abort Request"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:568
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:569
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/SimpleAbortModemRequest.java:114
 msgid "Aborting %systemName acoustically (via %manta)..."
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:904
+#: src/pt/lsts/neptus/mc/Workspace.java:897
 #: src/pt/lsts/neptus/console/actions/AboutAction.java:58
 #: src/pt/lsts/neptus/console/actions/AboutAction.java:59
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:544
@@ -469,14 +475,14 @@ msgstr ""
 msgid "Acoustic Operations"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1210
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1226
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1228
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:70
 #: src/pt/lsts/neptus/planeditor/ManeuverTransition.java:74
 #: src/pt/lsts/neptus/controllers/ControllerPanel.java:530
 msgid "Action"
 msgstr ""
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:199
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:264
 msgid "Activate Polling"
 msgstr ""
 
@@ -513,12 +519,12 @@ msgstr ""
 msgid "Add %maneuverName1 before %maneuverName2"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:346
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:364
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:347
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:365
 msgid "Add Box2D"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:238
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:239
 msgid "Add Free-hand drawing"
 msgstr ""
 
@@ -530,8 +536,8 @@ msgstr ""
 msgid "Add My location to map as marker"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:324
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:342
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:325
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:343
 msgid "Add QRoute"
 msgstr ""
 
@@ -552,16 +558,16 @@ msgstr ""
 msgid "Add a mesh to renderer to perform smoothing"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1169
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1077
 msgid "Add a new transponder"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:259
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:276
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:260
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:277
 msgid "Add filled polygon"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:254
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:255
 msgid "Add freehand drawing"
 msgstr ""
 
@@ -571,16 +577,20 @@ msgstr ""
 msgid "Add mark"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:303
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:320
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:304
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:321
 msgid "Add mine danger area"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:683
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:604
+msgid "Add multiple waypoints"
+msgstr ""
+
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:682
 msgid "Add new system"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:727
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:726
 msgid "Add new vehicle"
 msgstr ""
 
@@ -588,7 +598,7 @@ msgstr ""
 msgid "Add plan template"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:298
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:299
 msgid "Add polygon (unfilled)"
 msgstr ""
 
@@ -596,16 +606,16 @@ msgstr ""
 msgid "Add the %mapelement '%elem'"
 msgstr ""
 
-#: src/pt/lsts/neptus/gui/MissionBrowser.java:189
-#: src/pt/lsts/neptus/gui/MissionBrowser.java:195
+#: src/pt/lsts/neptus/gui/MissionBrowser.java:200
+#: src/pt/lsts/neptus/gui/MissionBrowser.java:206
 msgid "Add transponder"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:281
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:282
 msgid "Add unfilled polygon"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:557
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:558
 msgid "Add..."
 msgstr ""
 
@@ -623,7 +633,7 @@ msgstr ""
 #: plugins-dev/messages/pt/lsts/neptus/plugins/messages/IMCInspector.java:229
 #: plugins-dev/state/pt/lsts/neptus/plugins/state/ImcStatePanel.java:66
 #: plugins-dev/position/pt/lsts/neptus/plugins/position/FindVehicle.java:122
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:315
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:213
 #: src/pt/lsts/neptus/console/plugins/SettingsWindow.java:97
 #: src/pt/lsts/neptus/console/ConsoleLayout.java:490
 msgid "Advanced"
@@ -662,7 +672,7 @@ msgstr ""
 msgid "All Files"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:153
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:152
 msgid "All Messages"
 msgstr ""
 
@@ -670,7 +680,7 @@ msgstr ""
 msgid "All maneuvers have the same values."
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:167
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:166
 msgid "All messages"
 msgstr ""
 
@@ -768,11 +778,11 @@ msgstr ""
 msgid "Android CCU Tools"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:324
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:323
 msgid "Announce not arriving for some time"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:316
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:315
 msgid "Another node with this ID detected!"
 msgstr ""
 
@@ -787,7 +797,7 @@ msgid ""
 "comm. list."
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:209
+#: src/pt/lsts/neptus/loader/NeptusMain.java:218
 msgid "Application started"
 msgstr ""
 
@@ -804,8 +814,8 @@ msgid ""
 "Are you sure you want to delete selected log folders from remote system?"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:183
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:232
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:182
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:231
 msgid "Are you sure you want to overwrite existing file"
 msgstr ""
 
@@ -823,6 +833,10 @@ msgstr ""
 
 #: src/pt/lsts/neptus/i18n/I18n.java:206
 msgid "Attributes"
+msgstr ""
+
+#: Property from pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
+msgid "Audible position updates"
 msgstr ""
 
 #: plugins-dev/state/pt/lsts/neptus/plugins/state/AudibleVehicleState.java:86
@@ -860,7 +874,7 @@ msgctxt "Colormap name"
 msgid "Autumn"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:202
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:200
 msgid "Avg depth"
 msgstr ""
 
@@ -985,7 +999,7 @@ msgstr ""
 
 #: src/pt/lsts/neptus/mp/maneuvers/Loiter.java:264
 #: src/pt/lsts/neptus/mp/maneuvers/RowsPattern.java:577
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:787
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:803
 msgid "Bearing"
 msgstr ""
 
@@ -1028,7 +1042,12 @@ msgstr ""
 msgid "Box 2d painter"
 msgstr ""
 
-#: src/pt/lsts/neptus/colormap/ColorMapFactory.java:334
+#: Description of property 'Camera Brand' from
+#: pt.lsts.neptus.plugins.ipcam.AirCamDisplay
+msgid "Brand for the installed camera (not case sensitive)"
+msgstr ""
+
+#: src/pt/lsts/neptus/colormap/ColorMapFactory.java:341
 msgctxt "Colormap name"
 msgid "Bronze"
 msgstr ""
@@ -1132,6 +1151,10 @@ msgid "Calibration Mode"
 msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.ipcam.AirCamDisplay
+msgid "Camera Brand"
+msgstr ""
+
+#: Property from pt.lsts.neptus.plugins.ipcam.AirCamDisplay
 msgid "Camera IP"
 msgstr ""
 
@@ -1142,9 +1165,9 @@ msgstr ""
 
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/BathymetryPlotter.java:319
 #: plugins-dev/dev-calibration/pt/lsts/neptus/plugins/calib/CalibrationSubPanel.java:76
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/RectangleEditor.java:105
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/RectangleEditor.java:106
 #: plugins-dev/gps/pt/lsts/neptus/plugins/gps/ConfigDialog.java:123
-#: src/pt/lsts/neptus/comm/ssh/SSHConnectionDialog.java:407
+#: src/pt/lsts/neptus/comm/ssh/SSHConnectionDialog.java:398
 #: src/pt/lsts/neptus/types/map/AbstractElement.java:784
 #: src/pt/lsts/neptus/i18n/I18n.java:170 src/pt/lsts/neptus/i18n/I18n.java:177
 #: src/pt/lsts/neptus/i18n/I18n.java:178 src/pt/lsts/neptus/i18n/I18n.java:211
@@ -1165,7 +1188,7 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1193
+#: src/pt/lsts/neptus/mc/Workspace.java:1180
 msgid "Cannot edit a directory!"
 msgstr ""
 
@@ -1177,11 +1200,11 @@ msgstr ""
 msgid "Cannot save mission: file name is non existant"
 msgstr ""
 
-#: plugins-dev/simulation/pt/lsts/neptus/plugins/sim/SimulationActionsPlugin.java:92
+#: plugins-dev/simulation/pt/lsts/neptus/plugins/sim/SimulationActionsPlugin.java:104
 msgid "Cannot send GPS fix"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:391
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:387
 msgid "Cannot send command because it has more than 64 characters."
 msgstr ""
 
@@ -1199,11 +1222,13 @@ msgid "Cell size in meters for each map square"
 msgstr ""
 
 #: Property from pt.lsts.neptus.mra.replay.ValueColorMap
+#: pt.lsts.neptus.mra.replay.SalinityReplay
+#: pt.lsts.neptus.mra.replay.TemperatureReplay
 #: pt.lsts.neptus.mra.replay.BathymetryReplay
 msgid "Cell width"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1192
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1208
 msgid "Center"
 msgstr ""
 
@@ -1211,11 +1236,11 @@ msgstr ""
 msgid "Center Location:"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:538
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:539
 msgid "Center in"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:669
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:670
 msgid "Center in..."
 msgstr ""
 
@@ -1271,7 +1296,7 @@ msgstr ""
 msgid "Charts"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:2113
+#: src/pt/lsts/neptus/mc/Workspace.java:2053
 msgid "Checklist"
 msgstr ""
 
@@ -1279,20 +1304,20 @@ msgstr ""
 msgid "Checklist files"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:595
+#: src/pt/lsts/neptus/mc/Workspace.java:588
 #: src/pt/lsts/neptus/gui/MissionTreeModel.java:72
 msgid "Checklists"
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:133
+#: src/pt/lsts/neptus/loader/NeptusMain.java:142
 msgid "Choose Application..."
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1175
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1189
 msgid "Choose Visible Layers"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1166
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1179
 msgid "Choose Visible World Map"
 msgstr ""
 
@@ -1331,7 +1356,7 @@ msgstr ""
 msgid "Choose one of the available Vehicles"
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:140
+#: src/pt/lsts/neptus/loader/NeptusMain.java:149
 msgid "Choose one of the available applications"
 msgstr ""
 
@@ -1350,8 +1375,8 @@ msgid "Choose..."
 msgstr ""
 
 #: Name of plugin pt.lsts.neptus.console.plugins.ChronometerPlugin
-#: src/pt/lsts/neptus/mc/Workspace.java:1772
-#: src/pt/lsts/neptus/mc/Workspace.java:1777
+#: src/pt/lsts/neptus/mc/Workspace.java:1712
+#: src/pt/lsts/neptus/mc/Workspace.java:1717
 msgid "Chronometer"
 msgstr ""
 
@@ -1364,7 +1389,7 @@ msgid "Class"
 msgstr ""
 
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/rtplot/RealTimePlot.java:118
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/RectangleEditor.java:106
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/RectangleEditor.java:107
 #: plugins-dev/logs/pt/lsts/neptus/plugins/logs/MultiSystemHistory.java:116
 #: src/pt/lsts/neptus/console/notifications/NotificationsDialog.java:145
 #: src/pt/lsts/neptus/controllers/ControllerPanel.java:493
@@ -1376,7 +1401,7 @@ msgstr ""
 msgid "Clear Selection"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:288
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:287
 msgid "Clear Stored Data"
 msgstr ""
 
@@ -1384,7 +1409,7 @@ msgstr ""
 msgid "Clear cache"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:231
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:232
 msgid "Clear operational area"
 msgstr ""
 
@@ -1393,7 +1418,7 @@ msgstr ""
 msgid "Clear queue"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:315
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:213
 msgid "Clear remote PlanDB for main system"
 msgstr ""
 
@@ -1428,6 +1453,18 @@ msgstr ""
 msgid "Color Map"
 msgstr ""
 
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:159
+msgid "Color gradient in relation with X coords (north)"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:160
+msgid "Color gradient in relation with Y coords (west)"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:161
+msgid "Color gradient in relation with Z coords (depth)"
+msgstr ""
+
 #: src/pt/lsts/neptus/gui/objparams/ParallelepipedParameters.java:227
 msgid "Color:"
 msgstr ""
@@ -1436,7 +1473,7 @@ msgstr ""
 msgid "Colormap"
 msgstr ""
 
-#: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:86
+#: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:87
 msgid "Comm. Mean"
 msgstr ""
 
@@ -1447,12 +1484,16 @@ msgid ""
 "implies preference of use.)"
 msgstr ""
 
-#: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:85
+#: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:86
 msgid "Command"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:207
+#: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:206
 msgid "Command %vehicle"
+msgstr ""
+
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:289
+msgid "Command %vehicle a plan via Iridium"
 msgstr ""
 
 #: Name of plugin pt.lsts.neptus.console.plugins.planning.CommandPlanner
@@ -1484,7 +1525,7 @@ msgstr ""
 msgid "Comms channel"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:321
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:320
 msgid "Comms info:"
 msgstr ""
 
@@ -1496,7 +1537,7 @@ msgstr ""
 msgid "Comms. Queue Size"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:460
+#: src/pt/lsts/neptus/mc/Workspace.java:453
 #: src/pt/lsts/neptus/plugins/PluginDescription.java:49
 msgid "Communications"
 msgstr ""
@@ -1550,7 +1591,7 @@ msgstr ""
 msgid "Configuration File: "
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:277
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:276
 msgid "Configurations"
 msgstr ""
 
@@ -1650,20 +1691,19 @@ msgstr ""
 msgid "Connection Timeout (secs)"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/ssh/SshShellPannel.java:169
-#: src/pt/lsts/neptus/comm/ssh/SshShellPannel.java:197
-msgid "Connection not possible!!"
+#: Property from pt.lsts.neptus.console.plugins.planning.PathControlLayer
+msgid "Consider start of path to be the vehicle's position"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:166
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:186
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:217
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:240
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:267
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:336
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:358
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:426
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:444
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:162
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:182
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:213
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:236
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:263
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:332
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:354
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:422
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:440
 #: src/pt/lsts/neptus/comm/IMCSendMessageUtils.java:155
 #: src/pt/lsts/neptus/console/notifications/Notification.java:59
 msgid "Console"
@@ -1711,7 +1751,7 @@ msgstr ""
 msgid "Console Lock Button"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:2104
+#: src/pt/lsts/neptus/mc/Workspace.java:2044
 msgid "Console Open/Builder"
 msgstr ""
 
@@ -1728,7 +1768,7 @@ msgstr ""
 msgid "Console files (%extensions)"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1973
+#: src/pt/lsts/neptus/mc/Workspace.java:1913
 msgid "Consoles"
 msgstr ""
 
@@ -1783,6 +1823,10 @@ msgstr ""
 msgid "Contributers:"
 msgstr ""
 
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:80
+msgid "Control"
+msgstr ""
+
 #: Property from convcao.com.caoAgent.convcaoNeptusInteraction
 msgid "Control Latency"
 msgstr ""
@@ -1825,7 +1869,7 @@ msgstr ""
 msgid "Copy HTML to clipboard"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1183
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1198
 msgid "Copy Location"
 msgstr ""
 
@@ -1862,7 +1906,7 @@ msgstr ""
 msgid "Copying %filename"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:418
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:316
 msgid "Could not ask "
 msgstr ""
 
@@ -1870,7 +1914,7 @@ msgstr ""
 msgid "Could not find PDF reader"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:652
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:653
 msgid "Could not find world image file for given image"
 msgstr ""
 
@@ -1894,7 +1938,7 @@ msgstr ""
 msgid "Course Over Ground"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/AreaCoveragePlanner.java:112
+#: src/pt/lsts/neptus/console/plugins/planning/AreaCoveragePlanner.java:113
 msgid "Coverage Planner Settings"
 msgstr ""
 
@@ -1911,7 +1955,7 @@ msgid "Creating video"
 msgstr ""
 
 #: src/pt/lsts/neptus/mp/maneuvers/RowsPattern.java:582
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:791
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:807
 msgid "Cross Angle"
 msgstr ""
 
@@ -1920,7 +1964,7 @@ msgid "Current Profile"
 msgstr ""
 
 #: src/pt/lsts/neptus/mp/maneuvers/RowsPattern.java:597
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:805
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:821
 msgid "Curve Offset"
 msgstr ""
 
@@ -1973,7 +2017,7 @@ msgstr ""
 msgid "Days to fetch in the past"
 msgstr ""
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:192
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:256
 msgid "Deactivate Polling"
 msgstr ""
 
@@ -2054,15 +2098,15 @@ msgid "Delay, in seconds, between device updates"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/planning/edit/ManeuverPropertiesPanel.java:71
-#: src/pt/lsts/neptus/gui/MissionBrowser.java:275
+#: src/pt/lsts/neptus/gui/MissionBrowser.java:286
 msgid "Delete"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:700
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:583
 msgid "Delete %planName locally"
 msgstr ""
 
-#: src/pt/lsts/neptus/gui/MissionBrowser.java:274
+#: src/pt/lsts/neptus/gui/MissionBrowser.java:285
 msgid "Delete '%transponderName'?"
 msgstr ""
 
@@ -2074,7 +2118,7 @@ msgstr ""
 msgid "Delete Selected Log Folders"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:962
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:870
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:532
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:540
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:548
@@ -2107,6 +2151,10 @@ msgstr ""
 msgid "Depth multipled by: %currentZexagge"
 msgstr ""
 
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/events/AEventsHandler.java:70
+msgid "Depth multiplied by: %currenZexag"
+msgstr ""
+
 #: Description of property 'Depth' from
 #: pt.lsts.neptus.plugins.vrp.WaypointPlanner
 msgid "Depth of the first generated plan"
@@ -2126,7 +2174,12 @@ msgstr ""
 msgid "Depths"
 msgstr ""
 
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:70
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:79
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:146
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:162
 #: plugins-dev/state/pt/lsts/neptus/plugins/state/EntitySubPanel.java:125
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:601
 #: src/pt/lsts/neptus/console/plugins/EntityStatePanel.java:395
 #: src/pt/lsts/neptus/gui/checklist/ChecklistFileChooser.java:222
 #: src/pt/lsts/neptus/gui/MissionFileChooser.java:212
@@ -2204,8 +2257,16 @@ msgstr ""
 msgid "Disk usage value"
 msgstr ""
 
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:152
+msgid "Display lookup table (on/off)"
+msgstr ""
+
 #: Property from pt.lsts.neptus.plugins.acoustic.MantaOperations
 msgid "Display ranges in the map"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:151
+msgid "Display scale grid (on/off)"
 msgstr ""
 
 #: Description of plugin pt.lsts.neptus.plugins.acoustic.LblEstimateOverlay
@@ -2240,11 +2301,11 @@ msgstr ""
 msgid "Distance from intercection"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:554
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:555
 msgid "Distance to %systemName is %distance"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:214
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:212
 msgid "Distance travelled"
 msgstr ""
 
@@ -2290,7 +2351,7 @@ msgstr ""
 msgid "Do you want to overwrite the existing file?"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:167
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:168
 msgid "Do you want to save changes?"
 msgstr ""
 
@@ -2328,8 +2389,8 @@ msgstr ""
 msgid "Done"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1212
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1228
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1230
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:71
 msgid "Double the current zoom value"
 msgstr ""
 
@@ -2354,8 +2415,8 @@ msgstr ""
 msgid "Download Log Files"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:206
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:388
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:207
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:389
 msgid "Download limits from vehicle"
 msgstr ""
 
@@ -2395,7 +2456,7 @@ msgstr ""
 msgid "Dummy sub Panel"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1427
+#: src/pt/lsts/neptus/mc/Workspace.java:1414
 msgid "Dump general preferences"
 msgstr ""
 
@@ -2447,8 +2508,8 @@ msgstr ""
 msgid "Echo Sounder Panel"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:276
-#: src/pt/lsts/neptus/mc/Workspace.java:862
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:275
+#: src/pt/lsts/neptus/mc/Workspace.java:855
 #: src/pt/lsts/neptus/console/plugins/planning/edit/ManeuverPropertiesPanel.java:70
 #: src/pt/lsts/neptus/controllers/ControllerPanel.java:492
 #: src/pt/lsts/neptus/gui/editor/XMLPropertyEditor.java:101
@@ -2471,7 +2532,7 @@ msgstr ""
 msgid "Edit file"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1642
+#: src/pt/lsts/neptus/mc/Workspace.java:1629
 msgid "Edit general preferences"
 msgstr ""
 
@@ -2513,7 +2574,7 @@ msgstr ""
 msgid "Emergency Control"
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:87
+#: src/pt/lsts/neptus/loader/NeptusMain.java:86
 msgid "Empty Console"
 msgstr ""
 
@@ -2581,19 +2642,15 @@ msgstr ""
 msgid "Enable/Disable Z Exaggeration"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:162
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:168
 msgid "Enable/Disable contouts"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:190
-msgid "End time"
-msgstr ""
-
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:131
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:191
 msgid "Enter command to be sent to %vehicle"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:387
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:383
 msgid "Enter command to send to %vehicle"
 msgstr ""
 
@@ -2636,7 +2693,7 @@ msgstr ""
 msgid "Entities in error: %errorMessage"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:456
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:455
 msgid "Entities:"
 msgstr ""
 
@@ -2663,7 +2720,7 @@ msgid "Entity identifier"
 msgstr ""
 
 #: plugins-dev/state/pt/lsts/neptus/plugins/state/EntitySubPanel.java:93
-#: src/pt/lsts/neptus/mc/Workspace.java:1165
+#: src/pt/lsts/neptus/mc/Workspace.java:1152
 #: src/pt/lsts/neptus/console/plugins/FunctionalitiesSettings.java:286
 #: src/pt/lsts/neptus/console/ConsoleLayout.java:905
 #: src/pt/lsts/neptus/mra/MRAFilesHandler.java:394
@@ -2682,7 +2739,7 @@ msgstr ""
 msgid "Error Mode"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1274
+#: src/pt/lsts/neptus/mc/Workspace.java:1261
 msgid "Error Opening Checklist"
 msgstr ""
 
@@ -2719,7 +2776,7 @@ msgstr ""
 msgid "Error loading 3D model %modelPath"
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:238
+#: src/pt/lsts/neptus/loader/NeptusMain.java:247
 msgid "Error loading systems!"
 msgstr ""
 
@@ -2739,8 +2796,8 @@ msgstr ""
 msgid "Error opening Extended Manual (%error)"
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:291
-#: src/pt/lsts/neptus/loader/NeptusMain.java:319
+#: src/pt/lsts/neptus/loader/NeptusMain.java:302
+#: src/pt/lsts/neptus/loader/NeptusMain.java:330
 msgid "Error opening file"
 msgstr ""
 
@@ -2748,11 +2805,11 @@ msgstr ""
 msgid "Error opening mission file"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1166
+#: src/pt/lsts/neptus/mc/Workspace.java:1153
 msgid "Error openning console '%file'"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:1005
+#: src/pt/lsts/neptus/mp/Maneuver.java:971
 msgid "Error parsing custom setting '%s' to '%s'!"
 msgstr ""
 
@@ -2760,7 +2817,7 @@ msgstr ""
 msgid "Error sending ABORT command message!"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:999
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1000
 msgid "Error sending PlanControl message!"
 msgstr ""
 
@@ -2768,7 +2825,7 @@ msgstr ""
 msgid "Error sending Tele-Operation message!"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:939
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:847
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:796
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:818
 msgid "Error sending acoustic beacons"
@@ -2779,7 +2836,7 @@ msgstr ""
 msgid "Error sending exiting Tele-Operation message!"
 msgstr ""
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:299
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:387
 msgid "Error sending iridium message"
 msgstr ""
 
@@ -2787,11 +2844,11 @@ msgstr ""
 msgid "Error sending message by acoustic modem!"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:879
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:880
 msgid "Error sending plan"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:916
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:917
 msgid "Error sending plan download request"
 msgstr ""
 
@@ -2801,12 +2858,12 @@ msgid ""
 "No plan spec. valid!"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:266
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:957
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:262
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:958
 msgid "Error sending start plan"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:975
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:976
 msgid "Error sending stopping plan"
 msgstr ""
 
@@ -2848,7 +2905,7 @@ msgid "Euler Angles"
 msgstr ""
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/MultibeamToolbar.java:183
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:158
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:164
 msgid "Exaggerate Z"
 msgstr ""
 
@@ -2955,8 +3012,8 @@ msgstr ""
 msgid "Extract Schema"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1222
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1238
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1240
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:79
 msgid "F1"
 msgstr ""
 
@@ -2972,7 +3029,7 @@ msgstr ""
 msgid "FILLED"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:577
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:578
 msgid "Failed to send message to %systemName."
 msgstr ""
 
@@ -2981,7 +3038,6 @@ msgstr ""
 msgid "Failure"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:329
 #: src/pt/lsts/neptus/gui/Timeline.java:78
 msgid "Faster"
 msgstr ""
@@ -3007,14 +3063,14 @@ msgstr ""
 msgid "Figure 8"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:150
-#: src/pt/lsts/neptus/mc/Workspace.java:845
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:149
+#: src/pt/lsts/neptus/mc/Workspace.java:838
 #: src/pt/lsts/neptus/console/ConsoleLayout.java:437
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:160
 msgid "File"
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:320
+#: src/pt/lsts/neptus/loader/NeptusMain.java:331
 msgid "File '%filename' of type '.%extension' is not supported."
 msgstr ""
 
@@ -3022,7 +3078,7 @@ msgstr ""
 msgid "File Name:"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:925
+#: src/pt/lsts/neptus/mc/Workspace.java:918
 msgid "File editor"
 msgstr ""
 
@@ -3079,7 +3135,7 @@ msgid "FindVehicle"
 msgstr ""
 
 #: src/pt/lsts/neptus/mp/maneuvers/RowsPattern.java:606
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:813
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:829
 msgid "First Curve Right"
 msgstr ""
 
@@ -3102,8 +3158,17 @@ msgid ""
 "render purposes."
 msgstr ""
 
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:76
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:156
+msgid "Fly Mode - point with mouse cursor the direction and press 'f' to fly"
+msgstr ""
+
 #: src/pt/lsts/neptus/i18n/I18n.java:191
 msgid "Folder Name:"
+msgstr ""
+
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:572
+msgid "Follow Reference Interaction Helper"
 msgstr ""
 
 #: Name of plugin pt.lsts.neptus.plugins.followref.FollowReferenceControl
@@ -3220,8 +3285,8 @@ msgstr ""
 msgid "GPSFixPanel"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:278
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:306
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:274
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:302
 msgid "GW: %s"
 msgstr ""
 
@@ -3259,12 +3324,13 @@ msgstr ""
 msgid "Generic Display"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:804
-#: src/pt/lsts/neptus/mp/Maneuver.java:810
+#: src/pt/lsts/neptus/mp/Maneuver.java:770
+#: src/pt/lsts/neptus/mp/Maneuver.java:776
 msgid "Generic properties"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:724
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:607
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:621
 msgid "Get %planName from %system"
 msgstr ""
 
@@ -3276,7 +3342,7 @@ msgstr ""
 msgid "Glider"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:227
+#: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:226
 msgid "Go here"
 msgstr ""
 
@@ -3300,6 +3366,11 @@ msgstr ""
 #: src/pt/lsts/neptus/colormap/ColorMapFactory.java:301
 msgctxt "Colormap name"
 msgid "GreenRadar"
+msgstr ""
+
+#: src/pt/lsts/neptus/colormap/ColorMapFactory.java:310
+msgctxt "Colormap name"
+msgid "GreenToRed"
 msgstr ""
 
 #: Property from pt.lsts.neptus.console.plugins.planning.AreaCoveragePlanner
@@ -3370,8 +3441,8 @@ msgid ""
 "Hability to only add marks by inputing the location or using an active system"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1213
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1229
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1231
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:72
 msgid "Half the current zoom value"
 msgstr ""
 
@@ -3426,10 +3497,10 @@ msgid "Height: %height m"
 msgstr ""
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/MultibeamToolbar.java:196
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:340
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:342
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:341
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:343
 #: plugins-dev/help/pt/lsts/neptus/plugins/help/ContextHelperPlugin.java:70
-#: src/pt/lsts/neptus/mc/Workspace.java:876
+#: src/pt/lsts/neptus/mc/Workspace.java:869
 #: src/pt/lsts/neptus/i18n/I18n.java:185 src/pt/lsts/neptus/i18n/I18n.java:186
 #: src/pt/lsts/neptus/console/ConsoleLayout.java:590
 #: src/pt/lsts/neptus/console/ConsoleLayout.java:1596
@@ -3437,7 +3508,7 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:343
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:344
 msgid "Help 3D Visualizer"
 msgstr ""
 
@@ -3469,11 +3540,11 @@ msgctxt "File system Home folder"
 msgid "Home"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:220
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:218
 msgid "Home Latitude"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:221
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:219
 msgid "Home Longitude"
 msgstr ""
 
@@ -3491,7 +3562,7 @@ msgid "Horizontal Accuracy"
 msgstr ""
 
 #: src/pt/lsts/neptus/mp/maneuvers/RowsPattern.java:565
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:779
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:795
 msgid "Horizontal Alternation"
 msgstr ""
 
@@ -3509,7 +3580,7 @@ msgid "Horizontal Group"
 msgstr ""
 
 #: src/pt/lsts/neptus/mp/maneuvers/RowsPattern.java:569
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:783
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:799
 msgid "Horizontal Step"
 msgstr ""
 
@@ -3542,9 +3613,9 @@ msgid "Hue"
 msgstr ""
 
 #: Field from SystemDisplayComparator.OrderOptionEnum enumeration
-#: src/pt/lsts/neptus/mp/Maneuver.java:804
-#: src/pt/lsts/neptus/mp/Maneuver.java:806
-#: src/pt/lsts/neptus/types/mission/plan/PlanType.java:650
+#: src/pt/lsts/neptus/mp/Maneuver.java:770
+#: src/pt/lsts/neptus/mp/Maneuver.java:772
+#: src/pt/lsts/neptus/types/mission/plan/PlanType.java:681
 #: src/pt/lsts/neptus/types/map/PlanUtil.java:198
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:355
 #: src/pt/lsts/neptus/planeditor/ManeuverTransition.java:71
@@ -3552,8 +3623,8 @@ msgstr ""
 msgid "ID"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:314
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:408
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:313
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:407
 msgid "ID:"
 msgstr ""
 
@@ -3581,9 +3652,9 @@ msgstr ""
 msgid "IMC Change by Source IP Request"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1893
-#: src/pt/lsts/neptus/mc/Workspace.java:1922
-#: src/pt/lsts/neptus/mc/Workspace.java:1923
+#: src/pt/lsts/neptus/mc/Workspace.java:1833
+#: src/pt/lsts/neptus/mc/Workspace.java:1862
+#: src/pt/lsts/neptus/mc/Workspace.java:1863
 msgid "IMC Comm. Monitor"
 msgstr ""
 
@@ -3596,14 +3667,14 @@ msgstr ""
 msgid "IMC Inspector"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:2121
+#: src/pt/lsts/neptus/mc/Workspace.java:2061
 #: src/pt/lsts/neptus/console/actions/OpenImcMonitorAction.java:59
 #: src/pt/lsts/neptus/console/actions/OpenImcMonitorAction.java:60
 #: src/pt/lsts/neptus/console/actions/OpenImcMonitorAction.java:71
 msgid "IMC Monitor"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:486
+#: src/pt/lsts/neptus/mc/Workspace.java:479
 msgid "IMC Msg. Sender."
 msgstr ""
 
@@ -3627,12 +3698,12 @@ msgstr ""
 msgid "IMC Unicast Annonce Enable"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:692
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:739
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:691
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:738
 msgid "IMC comm. manager is not running yet!"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1055
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1056
 msgid "IMC comms. are not running!"
 msgstr ""
 
@@ -3684,7 +3755,7 @@ msgstr ""
 msgid "IP Camera Display"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:414
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:413
 msgid "IP:"
 msgstr ""
 
@@ -3788,7 +3859,7 @@ msgstr ""
 msgid "Image files"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:606
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:607
 msgid "Image from World File"
 msgstr ""
 
@@ -3808,8 +3879,18 @@ msgstr ""
 msgid "Image width"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:611
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:612
 msgid "Images acompanied by world file"
+msgstr ""
+
+#: Description of property 'Wave Glider' from
+#: pt.lsts.neptus.plugins.sunfish.IridiumComms
+msgid "Imc id of neptus console of wave glider operator"
+msgstr ""
+
+#: Description of property 'Remote neptus' from
+#: pt.lsts.neptus.plugins.sunfish.IridiumComms
+msgid "Imc id of neptus console operating remotely"
 msgstr ""
 
 #: Description of property 'System Vehicle Class Subtype Filter' from
@@ -3826,18 +3907,22 @@ msgstr ""
 msgid "In order to execute dead reckoning missions, IMU must first be aligned."
 msgstr ""
 
-#: src/pt/lsts/neptus/console/actions/IncomingDataAction.java:69
-#: src/pt/lsts/neptus/console/actions/IncomingDataAction.java:82
+#: src/pt/lsts/neptus/console/actions/IncomingDataAction.java:70
 #: src/pt/lsts/neptus/console/actions/IncomingDataAction.java:83
+#: src/pt/lsts/neptus/console/actions/IncomingDataAction.java:84
 msgid "Incoming Data"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/actions/IncomingDataAction.java:70
+#: src/pt/lsts/neptus/console/actions/IncomingDataAction.java:71
 msgid "Incoming IMC Data"
 msgstr ""
 
 #: plugins-dev/state/pt/lsts/neptus/plugins/state/ImcStatePanel.java:66
 msgid "Incoming messages"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:157
+msgid "Increment / Decrement overall point size"
 msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.uavs.panels.UavAltitudePanel
@@ -3853,13 +3938,17 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:155
+msgid "Information about rendered cloud"
+msgstr ""
+
 #: src/pt/lsts/neptus/graph/DefaultNode.java:142
 msgid "Initial"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:809
-#: src/pt/lsts/neptus/mp/Maneuver.java:811
-#: src/pt/lsts/neptus/mp/Maneuver.java:912
+#: src/pt/lsts/neptus/mp/Maneuver.java:775
+#: src/pt/lsts/neptus/mp/Maneuver.java:777
+#: src/pt/lsts/neptus/mp/Maneuver.java:878
 msgid "Initial Maneuver"
 msgstr ""
 
@@ -3877,6 +3966,11 @@ msgstr ""
 
 #: src/pt/lsts/neptus/gui/objparams/TranspondersPositionHelper.java:297
 msgid "Inputs"
+msgstr ""
+
+#: Description of property 'Use system discovery' from
+#: pt.lsts.neptus.plugins.acoustic.MantaOperations
+msgid "Instead of a static list, receive supported systems from gateway"
 msgstr ""
 
 #: src/pt/lsts/neptus/plugins/PluginDescription.java:48
@@ -3932,10 +4026,6 @@ msgstr ""
 msgid "Invalid XML!"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/ssh/SshShellPannel.java:160
-msgid "Invalid data!!"
-msgstr ""
-
 #: src/pt/lsts/neptus/gui/SimpleLocationPanel.java:77
 msgid "Invalid input"
 msgstr ""
@@ -3946,15 +4036,15 @@ msgid "Invalid properties"
 msgstr ""
 
 #: src/pt/lsts/neptus/controllers/ControllerPanel.java:536
-#: src/pt/lsts/neptus/colormap/ColorMapFactory.java:371
+#: src/pt/lsts/neptus/colormap/ColorMapFactory.java:378
 msgid "Inverted"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1665
+#: src/pt/lsts/neptus/mc/Workspace.java:1652
 msgid "Invoke Garbage Collector"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1670
+#: src/pt/lsts/neptus/mc/Workspace.java:1657
 msgid "Invoking Garbage Collector"
 msgstr ""
 
@@ -3973,27 +4063,27 @@ msgstr ""
 msgid "Iridium Messenger"
 msgstr ""
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:298
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:303
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:308
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:313
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:318
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:386
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:390
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:394
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:398
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:402
 msgid "Iridium communications"
 msgstr ""
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:319
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:403
 msgid "Iridium message is being transmited"
 msgstr ""
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:309
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:395
 msgid "Iridium message sent successfully"
 msgstr ""
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:304
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:391
 msgid "Iridium message transmission time has expired"
 msgstr ""
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:314
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:399
 msgid "Iridium message was queued for later transmission"
 msgstr ""
 
@@ -4010,13 +4100,20 @@ msgstr ""
 msgid "Is infinite"
 msgstr ""
 
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:606
+msgid "It will show a blue dot that is referent to a new waypoint"
+msgstr ""
+
 #: src/pt/lsts/neptus/colormap/ColorMapFactory.java:232
 msgctxt "Colormap name"
 msgid "Jet"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1210
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1226
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:70
+msgid "Key"
+msgstr ""
+
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1228
 msgid "Key Combination"
 msgstr ""
 
@@ -4024,11 +4121,11 @@ msgstr ""
 msgid "Keyboard Shortcuts"
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:88
+#: src/pt/lsts/neptus/loader/NeptusMain.java:87
 msgid "LAUV Console"
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:89
+#: src/pt/lsts/neptus/loader/NeptusMain.java:88
 msgid "LAUV SE Console"
 msgstr ""
 
@@ -4100,8 +4197,8 @@ msgstr ""
 msgid "Lat/Lon"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1753
-#: src/pt/lsts/neptus/mc/Workspace.java:1758
+#: src/pt/lsts/neptus/mc/Workspace.java:1693
+#: src/pt/lsts/neptus/mc/Workspace.java:1698
 msgid "Lat/Lon Conv."
 msgstr ""
 
@@ -4159,11 +4256,20 @@ msgstr ""
 msgid "Left"
 msgstr ""
 
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:603
+msgid "Left Mouse double click on Reference"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:82
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:166
+msgid "Left mouse button</td><td>"
+msgstr ""
+
 #: Property from pt.lsts.neptus.mp.templates.RowsTemplate
 #: pt.lsts.neptus.console.plugins.MyLocationDisplay
 #: src/pt/lsts/neptus/mp/maneuvers/Loiter.java:260
 #: src/pt/lsts/neptus/mp/maneuvers/RowsPattern.java:552
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:771
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:787
 #: src/pt/lsts/neptus/types/map/PlanUtil.java:200
 msgid "Length"
 msgstr ""
@@ -4209,7 +4315,7 @@ msgid "List"
 msgstr ""
 
 #: src/pt/lsts/neptus/comm/manager/BaseAbstractCommsMonitorPanel.java:930
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:537
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:536
 msgid "Listeners:"
 msgstr ""
 
@@ -4235,20 +4341,20 @@ msgstr ""
 msgid "Loading LSF Data"
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:228
+#: src/pt/lsts/neptus/loader/NeptusMain.java:237
 msgid "Loading Look&Feel..."
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:225
+#: src/pt/lsts/neptus/loader/NeptusMain.java:234
 msgid "Loading Plug-ins..."
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:235
-#: src/pt/lsts/neptus/loader/NeptusMain.java:238
+#: src/pt/lsts/neptus/loader/NeptusMain.java:244
+#: src/pt/lsts/neptus/loader/NeptusMain.java:247
 msgid "Loading Systems"
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:241
+#: src/pt/lsts/neptus/loader/NeptusMain.java:250
 msgid "Loading Systems Parameters Files..."
 msgstr ""
 
@@ -4273,10 +4379,6 @@ msgstr ""
 msgid "Loading mission header..."
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:131
-msgid "Loading mission messages replay"
-msgstr ""
-
 #: src/pt/lsts/neptus/types/mission/MissionType.java:319
 msgid "Loading plans..."
 msgstr ""
@@ -4285,7 +4387,7 @@ msgstr ""
 msgid "Loading vehicles..."
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:157
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:156
 msgid "Local Info"
 msgstr ""
 
@@ -4297,8 +4399,8 @@ msgstr ""
 msgid "Local free disk space %usedspace of %totalspace"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:175
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:733
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:176
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:749
 msgid "Local operational limits have changes"
 msgstr ""
 
@@ -4306,10 +4408,10 @@ msgstr ""
 msgid "Local reset. Needs to be sent to system."
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:820
-#: src/pt/lsts/neptus/mp/Maneuver.java:821
-#: src/pt/lsts/neptus/mp/Maneuver.java:823
-#: src/pt/lsts/neptus/mp/Maneuver.java:826
+#: src/pt/lsts/neptus/mp/Maneuver.java:786
+#: src/pt/lsts/neptus/mp/Maneuver.java:787
+#: src/pt/lsts/neptus/mp/Maneuver.java:789
+#: src/pt/lsts/neptus/mp/Maneuver.java:792
 #: src/pt/lsts/neptus/types/map/DynamicElement.java:164
 #: src/pt/lsts/neptus/gui/MapLocationSelector.java:183
 msgid "Location"
@@ -4319,8 +4421,12 @@ msgstr ""
 msgid "Location known"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:339
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:437
+#: Property from pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
+msgid "Location sources"
+msgstr ""
+
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:338
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:436
 msgid "Location:"
 msgstr ""
 
@@ -4472,7 +4578,7 @@ msgstr ""
 msgid "Loiter height"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:329
+#: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:322
 msgid "Loiter here"
 msgstr ""
 
@@ -4510,7 +4616,7 @@ msgstr ""
 msgid "MANEUVER"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:524
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:523
 msgid "MD5:"
 msgstr ""
 
@@ -4585,15 +4691,15 @@ msgstr ""
 msgid "Maneuver Mode"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:820
+#: src/pt/lsts/neptus/mp/Maneuver.java:786
 msgid "Maneuver's location"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:826
+#: src/pt/lsts/neptus/mp/Maneuver.java:792
 msgid "Maneuver's z units"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:823
+#: src/pt/lsts/neptus/mp/Maneuver.java:789
 msgid "Maneuver's z value"
 msgstr ""
 
@@ -4677,15 +4783,15 @@ msgstr ""
 msgid "MatLab format .MAT"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:673
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:689
 msgid "Max Altitude"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:671
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:687
 msgid "Max Depth"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:679
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:695
 msgid "Max Speed"
 msgstr ""
 
@@ -4762,7 +4868,7 @@ msgstr ""
 msgid "Maximum acceptable interval between beacon ranges, in seconds."
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:201
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:199
 msgid "Maximum depth"
 msgstr ""
 
@@ -4780,7 +4886,11 @@ msgstr ""
 msgid "Maximum depth to be used in bathymetry plots."
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:975
+#: Property from pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
+msgid "Maximum position age (hours)"
+msgstr ""
+
+#: src/pt/lsts/neptus/mp/Maneuver.java:941
 msgid "Maximum time"
 msgstr ""
 
@@ -4792,12 +4902,16 @@ msgstr ""
 msgid "Mean Value (degrees)"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:215
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:213
 msgid "Mean velocity"
 msgstr ""
 
 #: plugins-dev/echosounder/pt/lsts/neptus/plugins/sidescan/SidescanToolbar.java:61
 msgid "Measure"
+msgstr ""
+
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:81
+msgid "Measure distances by click and dragging the mouse"
 msgstr ""
 
 #: plugins-dev/logs/pt/lsts/neptus/plugins/logs/LogMerger.java:140
@@ -4810,17 +4924,17 @@ msgstr ""
 msgid "Message"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:974
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:882
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:533
 msgid "Message %messageType to %destination delivery destination unreacheable"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:988
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:896
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:549
 msgid "Message %messageType to %destination delivery error. (%error)"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:980
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:888
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:541
 msgid "Message %messageType to %destination delivery timeout"
 msgstr ""
@@ -4833,20 +4947,25 @@ msgstr ""
 msgid "Message Name"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:179
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:175
 msgid "Message sent to %systemName via %systemCount acoustic gateways"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:583
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:584
 msgid "Message to %systemName has been queued in %manta."
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:574
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:575
 msgid "Message to %systemName has been sent successfully."
 msgstr ""
 
 #: src/pt/lsts/neptus/mra/MRAPanel.java:154
 msgid "Messages"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:86
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:167
+msgid "Middle mouse button"
 msgstr ""
 
 #: Property from pt.lsts.neptus.console.plugins.SystemsList
@@ -4855,10 +4974,6 @@ msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.ipcam.IPCameraDisplay
 msgid "Milliseconds between connection retries"
-msgstr ""
-
-#: Property from pt.lsts.neptus.plugins.ipcam.AirCamDisplay
-msgid "Milliseconds between refresh"
 msgstr ""
 
 #: Property from pt.lsts.neptus.console.plugins.SideState2DPanelConsole
@@ -4873,11 +4988,11 @@ msgstr ""
 msgid "Milliseconds to wait before simulation"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:675
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:691
 msgid "Min Altitude"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:677
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:693
 msgid "Min Speed"
 msgstr ""
 
@@ -4891,10 +5006,6 @@ msgstr ""
 
 #: Map element type (class MineDangerAreaElement)
 msgid "MineDangerAreaElement"
-msgstr ""
-
-#: Property from pt.lsts.neptus.plugins.uavs.panels.UavAltitudePanel
-msgid "Minimum Altitude"
 msgstr ""
 
 #: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsPanel.java:73
@@ -4933,6 +5044,11 @@ msgstr ""
 msgid "Minimum distance between waypoints"
 msgstr ""
 
+#: Description of property 'Tag safety distance (meters)' from
+#: pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
+msgid "Minimum distance the ship can be from the tag position"
+msgstr ""
+
 #: Property from pt.lsts.neptus.plugins.uavs.panels.UavAltitudePanel
 msgid "Minimum security vertical distance between UAVs"
 msgstr ""
@@ -4951,15 +5067,15 @@ msgid ""
 "Minutes after which systems disapear from render if inactive (0 to disable)"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1068
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1069
 msgid "Missing attached mission!"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1076
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1077
 msgid "Missing attached plan!"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1061
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1062
 msgid "Missing console attached!"
 msgstr ""
 
@@ -4983,12 +5099,12 @@ msgstr ""
 msgid "Mission Replay"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1963
+#: src/pt/lsts/neptus/mc/Workspace.java:1903
 msgid "Mission Review"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/actions/OpenMRAAction.java:51
-#: src/pt/lsts/neptus/loader/NeptusMain.java:86
+#: src/pt/lsts/neptus/loader/NeptusMain.java:85
 msgid "Mission Review & Analysis"
 msgstr ""
 
@@ -5000,12 +5116,11 @@ msgstr ""
 msgid "Mission Tree"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:196
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:200
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:198
 msgid "Mission duration"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:199
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:197
 msgid "Mission end time"
 msgstr ""
 
@@ -5021,7 +5136,7 @@ msgstr ""
 msgid "Mission not saved"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:198
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:196
 msgid "Mission start time"
 msgstr ""
 
@@ -5033,32 +5148,37 @@ msgstr ""
 msgid "Modified"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:331
+#: src/pt/lsts/neptus/mc/Workspace.java:326
 msgid "More"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:96
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:169
+msgid "Mouse wheel"
 msgstr ""
 
 #: plugins-dev/map/pt/lsts/neptus/plugins/map/edit/MoveObjectEdit.java:104
 msgid "Move '%element'"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1219
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1235
-msgid "Move the map south"
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1237
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:76
+msgid "Move the map downwards"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1216
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1232
-msgid "Move the map to the east"
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1233
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:73
+msgid "Move the map to the left"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1215
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1231
-msgid "Move the map to the west"
-msgstr ""
-
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1218
 #: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1234
-msgid "Move the map towards north"
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:74
+msgid "Move the map to the right"
+msgstr ""
+
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1236
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:75
+msgid "Move the map upwards"
 msgstr ""
 
 #: src/pt/lsts/neptus/mp/maneuvers/CommsRelay.java:234
@@ -5092,6 +5212,14 @@ msgstr ""
 
 #: Name of plugin pt.lsts.neptus.console.plugins.planning.MultiVehiclePlanner
 msgid "MultiVehicle Planner"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/replay/MultibeamReplay.java:207
+msgid "Multibeam Layer"
+msgstr ""
+
+#: Name of plugin pt.lsts.neptus.mra.replay.MultibeamReplay
+msgid "Multibeam Replay"
 msgstr ""
 
 #: Description of property 'IMC Multicast Enable' from
@@ -5142,8 +5270,11 @@ msgstr ""
 msgid "MyLocationDisplay"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1220
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1236
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:77
+msgid "N"
+msgstr ""
+
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1238
 msgctxt "N key"
 msgid "N"
 msgstr ""
@@ -5187,8 +5318,8 @@ msgstr ""
 msgid "Name of the modems gateway"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:313
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:407
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:312
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:406
 msgid "Name:"
 msgstr ""
 
@@ -5232,8 +5363,8 @@ msgstr ""
 msgid "Network replay"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:674
-#: src/pt/lsts/neptus/mc/Workspace.java:2048
+#: src/pt/lsts/neptus/mc/Workspace.java:667
+#: src/pt/lsts/neptus/mc/Workspace.java:1988
 msgid "New"
 msgstr ""
 
@@ -5307,17 +5438,17 @@ msgstr ""
 msgid "No Valid Solution"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:165
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:161
 msgid "No acoustic device is capable of sending this message"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:239
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:335
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:425
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:235
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:331
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:421
 msgid "No acoustic device is capable of sending this request"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:282
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:275
 msgid "No beams on Log file"
 msgstr ""
 
@@ -5329,7 +5460,7 @@ msgstr ""
 msgid "No configuration file selected"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:181
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:179
 msgid "No data Available"
 msgstr ""
 
@@ -5359,7 +5490,7 @@ msgstr ""
 msgid "No maneuver selected"
 msgstr ""
 
-#: src/pt/lsts/neptus/gui/MissionBrowser.java:196
+#: src/pt/lsts/neptus/gui/MissionBrowser.java:207
 msgid "No mission opened in the console"
 msgstr ""
 
@@ -5372,22 +5503,22 @@ msgstr ""
 msgid "No serial ports available"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:393
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:392
 msgid "No system found"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:197
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:213
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:276
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:382
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:196
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:212
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:275
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:381
 msgid "No system selected"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:267
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:263
 msgid "No system was able to send the message"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/ImcMsgManager.java:1398
+#: src/pt/lsts/neptus/comm/manager/imc/ImcMsgManager.java:1400
 msgid "No transport available to send message %message to %system."
 msgstr ""
 
@@ -5416,7 +5547,7 @@ msgstr ""
 msgid "Not a valid checklist"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1274
+#: src/pt/lsts/neptus/mc/Workspace.java:1261
 msgid "Not a valid checklist."
 msgstr ""
 
@@ -5431,10 +5562,6 @@ msgstr ""
 
 #: src/pt/lsts/neptus/mra/NeptusMRA.java:85
 msgid "Not possible to open"
-msgstr ""
-
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:147
-msgid "Not possible to replay log %log."
 msgstr ""
 
 #: src/pt/lsts/neptus/comm/manager/BaseAbstractCommsMonitorPanel.java:521
@@ -5541,9 +5668,9 @@ msgstr ""
 msgid "OFF"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/RectangleEditor.java:104
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/RectangleEditor.java:105
 #: plugins-dev/gps/pt/lsts/neptus/plugins/gps/ConfigDialog.java:96
-#: src/pt/lsts/neptus/comm/ssh/SSHConnectionDialog.java:379
+#: src/pt/lsts/neptus/comm/ssh/SSHConnectionDialog.java:369
 #: src/pt/lsts/neptus/types/map/AbstractElement.java:778
 #: src/pt/lsts/neptus/i18n/I18n.java:169 src/pt/lsts/neptus/i18n/I18n.java:210
 #: src/pt/lsts/neptus/i18n/I18n.java:214
@@ -5602,16 +5729,15 @@ msgstr ""
 msgid "OffsetN"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:153
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:154
 #: src/pt/lsts/neptus/console/plugins/containers/propeditor/MiGLayoutXmlPropertyEditor.java:128
 #: src/pt/lsts/neptus/gui/ChronometerPanel.java:414
 #: src/pt/lsts/neptus/gui/objparams/TranspondersPositionHelper.java:600
 msgid "Ok"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:612
-#: src/pt/lsts/neptus/mc/Workspace.java:1990
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:572
+#: src/pt/lsts/neptus/mc/Workspace.java:605
+#: src/pt/lsts/neptus/mc/Workspace.java:1930
 #: src/pt/lsts/neptus/i18n/I18n.java:179 src/pt/lsts/neptus/i18n/I18n.java:180
 #: src/pt/lsts/neptus/i18n/I18n.java:207
 msgid "Open"
@@ -5656,20 +5782,16 @@ msgstr ""
 msgid "Open Mission"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1705
-msgid "Open ssh shell"
-msgstr ""
-
 #: src/pt/lsts/neptus/types/vehicle/VehiclesHolder.java:451
 msgid "Opening Console"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1829
-#: src/pt/lsts/neptus/mc/Workspace.java:2053
+#: src/pt/lsts/neptus/mc/Workspace.java:1769
+#: src/pt/lsts/neptus/mc/Workspace.java:1993
 msgid "Opening Empty Console..."
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1903
+#: src/pt/lsts/neptus/mc/Workspace.java:1843
 msgid "Opening IMC Monitor ..."
 msgstr ""
 
@@ -5677,24 +5799,20 @@ msgstr ""
 msgid "Opening LSF log"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1620
+#: src/pt/lsts/neptus/mc/Workspace.java:1607
 msgid "Opening MRA..."
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1710
-msgid "Opening SSH shell ..."
-msgstr ""
-
-#: src/pt/lsts/neptus/mc/Workspace.java:1357
+#: src/pt/lsts/neptus/mc/Workspace.java:1344
 msgid "Opening Viewer3D..."
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1135
+#: src/pt/lsts/neptus/mc/Workspace.java:1122
 msgid "Opening console (%consoleName)..."
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:153
-#: src/pt/lsts/neptus/loader/NeptusMain.java:204
+#: src/pt/lsts/neptus/loader/NeptusMain.java:162
+#: src/pt/lsts/neptus/loader/NeptusMain.java:213
 msgid "Opening file..."
 msgstr ""
 
@@ -5702,10 +5820,14 @@ msgstr ""
 msgid "Opening mission: %missionfile..."
 msgstr ""
 
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:602
+msgid "Opens reference waypoint properties"
+msgstr ""
+
 #: Name of plugin pt.lsts.neptus.plugins.oplimits.OperationLimitsSubPanel
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:138
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:168
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:330
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:139
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:169
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:331
 msgid "Operation Limits"
 msgstr ""
 
@@ -5713,9 +5835,9 @@ msgstr ""
 msgid "Operation Limits File"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:292
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:404
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:667
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:293
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:405
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:683
 msgid "Operational Limits"
 msgstr ""
 
@@ -5778,7 +5900,7 @@ msgctxt ""
 msgid "POI"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:817
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:833
 msgid "Paint SideScan Range Shadow"
 msgstr ""
 
@@ -5793,6 +5915,11 @@ msgstr ""
 
 #: src/pt/lsts/neptus/renderer3d/ProjectionPropertiesProvider.java:61
 msgid "Pan angle"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:88
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:167
+msgid "Pan camera"
 msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.uavs.panels.UavAltitudePanel
@@ -5832,7 +5959,7 @@ msgstr ""
 msgid "Paste"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1178
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1086
 msgid "Paste URL"
 msgstr ""
 
@@ -5879,11 +6006,11 @@ msgstr ""
 msgid "Perform Mesh Smoothing"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:170
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:176
 msgid "Perform mesh smoothing"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:166
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:172
 msgid "Perform meshing on pointcloud"
 msgstr ""
 
@@ -5948,7 +6075,7 @@ msgstr ""
 msgid "Pitch angle to be used in yoyo maneuvers (degrees)"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:209
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:207
 msgid "Pitch min/max/amp/avg"
 msgstr ""
 
@@ -5967,7 +6094,7 @@ msgstr ""
 msgid "Plan Control"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1172
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1173
 msgid "Plan Control Error"
 msgstr ""
 
@@ -5976,7 +6103,7 @@ msgstr ""
 msgid "Plan Control State"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1231
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1232
 msgid "Plan DB Error"
 msgstr ""
 
@@ -6020,7 +6147,7 @@ msgstr ""
 msgid "Plan execution preview"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1030
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1031
 msgid "Plan not synchronized"
 msgstr ""
 
@@ -6048,11 +6175,10 @@ msgstr ""
 msgid "Plans"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:216
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:212
 msgid "Plans started acoustically cannot have an ID bigger than 1 character"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:317
 #: src/pt/lsts/neptus/gui/Timeline.java:77
 msgid "Play"
 msgstr ""
@@ -6079,7 +6205,7 @@ msgstr ""
 msgid "Please enter the desired log name (empty for default)"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:340
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:336
 msgid "Please select a system."
 msgstr ""
 
@@ -6087,7 +6213,7 @@ msgstr ""
 msgid "Please select harbor"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:227
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:223
 msgid "Please select plan to start"
 msgstr ""
 
@@ -6111,7 +6237,7 @@ msgstr ""
 msgid "Point Pb"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:141
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:147
 msgid "Points based representation"
 msgstr ""
 
@@ -6167,16 +6293,20 @@ msgstr ""
 msgid "Preferred Width"
 msgstr ""
 
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:605
+msgid "Press CTRL + Left Mouse Click + Drag Mouse"
+msgstr ""
+
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:190
 msgid "Pressure Color Map"
 msgstr ""
 
-#: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:148
+#: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:150
 #: src/pt/lsts/neptus/i18n/I18n.java:218
 msgid "Preview"
 msgstr ""
 
-#: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:203
+#: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:199
 msgid "Preview command"
 msgstr ""
 
@@ -6194,6 +6324,10 @@ msgstr ""
 
 #: src/pt/lsts/neptus/mra/exporters/CSVExporter.java:147
 msgid "Process complete"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/events/AEventsHandler.java:67
+msgid "Processing Data."
 msgstr ""
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/ToolbarAddons.java:74
@@ -6234,19 +6368,19 @@ msgstr ""
 msgid "Propagate"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:530
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:531
 #: src/pt/lsts/neptus/console/MainPanel.java:304
 msgid "Properties"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:665
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:666
 msgid "Properties..."
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/proxy/ProxyInfoProvider.java:135
-#: src/pt/lsts/neptus/comm/proxy/ProxyInfoProvider.java:143
-#: src/pt/lsts/neptus/comm/proxy/ProxyInfoProvider.java:150
-#: src/pt/lsts/neptus/comm/proxy/ProxyInfoProvider.java:159
+#: src/pt/lsts/neptus/comm/proxy/ProxyInfoProvider.java:137
+#: src/pt/lsts/neptus/comm/proxy/ProxyInfoProvider.java:145
+#: src/pt/lsts/neptus/comm/proxy/ProxyInfoProvider.java:152
+#: src/pt/lsts/neptus/comm/proxy/ProxyInfoProvider.java:161
 msgid "Proxy Configuration"
 msgstr ""
 
@@ -6306,7 +6440,7 @@ msgstr ""
 msgid "Quick Logbook Panel"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1200
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1217
 msgid "R2D Shortcuts"
 msgstr ""
 
@@ -6340,7 +6474,7 @@ msgstr ""
 #: Field from Goto.SPEED_UNITS enumeration
 #: src/pt/lsts/neptus/types/map/PlanUtil.java:220
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:962
-#: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:99
+#: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:98
 #: src/pt/lsts/neptus/console/plugins/SystemsList.java:1273
 #: src/pt/lsts/neptus/gui/GotoParameters.java:213
 msgid "RPM"
@@ -6389,26 +6523,26 @@ msgstr ""
 msgid "Rads"
 msgstr ""
 
-#: src/pt/lsts/neptus/colormap/ColorMapFactory.java:319
+#: src/pt/lsts/neptus/colormap/ColorMapFactory.java:326
 msgctxt "Colormap name"
 msgid "Rainbow"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:352
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:348
 msgid "Range %systemName commanded to %systemCount systems"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:312
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:334
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:357
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:308
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:330
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:353
 msgid "Range System"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:586
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:587
 msgid "Ranging of %systemName is in progress..."
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:589
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:590
 msgid "Ranging of %systemName timed out."
 msgstr ""
 
@@ -6441,23 +6575,23 @@ msgstr ""
 msgid "Recent:"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:557
-#: src/pt/lsts/neptus/mc/Workspace.java:576
-#: src/pt/lsts/neptus/mc/Workspace.java:653
-#: src/pt/lsts/neptus/mc/Workspace.java:2028
+#: src/pt/lsts/neptus/mc/Workspace.java:550
+#: src/pt/lsts/neptus/mc/Workspace.java:569
+#: src/pt/lsts/neptus/mc/Workspace.java:646
+#: src/pt/lsts/neptus/mc/Workspace.java:1968
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:253
 msgid "Recently opened"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:785
+#: src/pt/lsts/neptus/mc/Workspace.java:778
 msgid "Recently opened checklist files."
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:790
+#: src/pt/lsts/neptus/mc/Workspace.java:783
 msgid "Recently opened consoles files."
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:795
+#: src/pt/lsts/neptus/mc/Workspace.java:788
 msgid "Recently opened misc files."
 msgstr ""
 
@@ -6465,15 +6599,19 @@ msgstr ""
 msgid "Recently opened mission files"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:780
+#: src/pt/lsts/neptus/mc/Workspace.java:773
 msgid "Recently opened mission files."
+msgstr ""
+
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:137
+msgid "Reconnect"
 msgstr ""
 
 #: plugins-dev/echosounder/pt/lsts/neptus/plugins/sidescan/SidescanToolbar.java:65
 msgid "Record"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1864
+#: src/pt/lsts/neptus/mc/Workspace.java:1804
 msgid "Record Mouse Actions"
 msgstr ""
 
@@ -6493,16 +6631,16 @@ msgstr ""
 msgid "Red"
 msgstr ""
 
-#: src/pt/lsts/neptus/colormap/ColorMapFactory.java:310
+#: src/pt/lsts/neptus/colormap/ColorMapFactory.java:317
 msgctxt "Colormap name"
-msgid "RedYellowBlue"
+msgid "RedYellowGreen"
 msgstr ""
 
 #: Property from pt.lsts.neptus.util.conf.GeneralPreferences
 msgid "Redirect Unknown Comms. To First Vehicle In Comm. List"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:379
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:380
 #: src/pt/lsts/neptus/i18n/I18n.java:253
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:545
 msgid "Redo"
@@ -6555,7 +6693,7 @@ msgstr ""
 msgid "Reload"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1035
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:943
 msgid "Reload Panel"
 msgstr ""
 
@@ -6592,12 +6730,16 @@ msgstr ""
 msgid "Remote State simple display"
 msgstr ""
 
+#: Property from pt.lsts.neptus.plugins.sunfish.IridiumComms
+msgid "Remote neptus"
+msgstr ""
+
 #: Name of plugin pt.lsts.neptus.plugins.position.RemoteStateSimplePanel
 msgid "RemoteState Simple Display"
 msgstr ""
 
 #: plugins-dev/logs/pt/lsts/neptus/plugins/logs/LogMerger.java:117
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:546
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:547
 #: src/pt/lsts/neptus/util/llf/LogTree.java:167
 #: src/pt/lsts/neptus/console/MainPanel.java:273
 #: src/pt/lsts/neptus/console/MainPanel.java:303
@@ -6612,15 +6754,15 @@ msgstr ""
 msgid "Remove %maneuverName"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:706
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:589
 msgid "Remove %planName from mission?"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1113
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1021
 msgid "Remove %transponderName"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:741
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:643
 msgid "Remove '%planName' from %system"
 msgstr ""
 
@@ -6637,7 +6779,7 @@ msgstr ""
 msgid "Remove Selected"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:919
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:827
 msgid "Remove all transponders from vehicle"
 msgstr ""
 
@@ -6649,7 +6791,7 @@ msgstr ""
 msgid "Remove the maneuver "
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:667
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:668
 msgid "Remove..."
 msgstr ""
 
@@ -6669,7 +6811,7 @@ msgstr ""
 msgid "Renderer Update Periode For Vehicle State (ms)"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:325
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:326
 msgid "Replace current operational limits with received ones?"
 msgstr ""
 
@@ -6681,8 +6823,8 @@ msgstr ""
 msgid "Report"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:518
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1146
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:519
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1147
 msgid "Request %d completed successfully."
 msgstr ""
 
@@ -6690,7 +6832,7 @@ msgstr ""
 msgid "Request data from Web"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:215
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:216
 msgid "Request sent but limits not yet received"
 msgstr ""
 
@@ -6715,19 +6857,24 @@ msgstr ""
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:130
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/MultibeamToolbar.java:195
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:176
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:182
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:295
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:296
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:297
 msgid "Reset Viewport"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1221
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1237
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:73
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:153
+msgid "Reset camera view along the current view direction"
+msgstr ""
+
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1239
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:78
 msgid "Reset the current rotation (up facing north)"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1223
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1239
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1241
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:79
 msgid "Reset the current view to defaults"
 msgstr ""
 
@@ -6741,10 +6888,6 @@ msgstr ""
 
 #: src/pt/lsts/neptus/gui/objparams/ImageObjectParameters.java:493
 msgid "Resolution"
-msgstr ""
-
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:321
-msgid "Restart"
 msgstr ""
 
 #: src/pt/lsts/neptus/gui/objparams/TranspondersPositionHelper.java:663
@@ -6764,12 +6907,17 @@ msgstr ""
 msgid "Retract extra info."
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:2096
+#: src/pt/lsts/neptus/mc/Workspace.java:2036
 msgid "Review & Analysis"
 msgstr ""
 
 #: Field from MapPanel.PlacementEnum enumeration
 msgid "Right"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:91
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:168
+msgid "Right mouse button"
 msgstr ""
 
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/MraPhotosVisualization.java:633
@@ -6778,7 +6926,7 @@ msgstr ""
 msgid "Roll"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:204
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:202
 msgid "Roll min/max/amp/avg"
 msgstr ""
 
@@ -6786,8 +6934,17 @@ msgstr ""
 msgid "Roll:"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:360
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:359
 msgid "Root Messages Listeners:"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:83
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:166
+msgid "Rotate camera around its focal point"
+msgstr ""
+
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:82
+msgid "Rotate map by click and dragging the mouse"
 msgstr ""
 
 #: Property from pt.lsts.neptus.mp.templates.YoYoTemplate
@@ -6845,14 +7002,6 @@ msgstr ""
 msgid "SSH Connection Timeout (ms)"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1717
-msgid "SSH Shell"
-msgstr ""
-
-#: src/pt/lsts/neptus/mc/Workspace.java:1716
-msgid "SSH Shell - %shell"
-msgstr ""
-
 #: Field from Announce.SYS_TYPE enumeration VehicleType.SystemTypeEnum
 msgid "STATICSENSOR"
 msgstr ""
@@ -6871,6 +7020,11 @@ msgstr ""
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:172
 msgid "Salinity Color Map"
+msgstr ""
+
+#: Name of plugin pt.lsts.neptus.mra.replay.SalinityReplay
+#: src/pt/lsts/neptus/mra/replay/SalinityReplay.java:102
+msgid "Salinity Replay"
 msgstr ""
 
 #: src/pt/lsts/neptus/mra/plots/SalinityVsDepthPlot.java:56
@@ -6946,12 +7100,12 @@ msgstr ""
 msgid "Save Plain Image"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:163
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:162
 msgid "Save a pointcloud to a file"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:179
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:228
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:178
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:227
 #: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1481
 msgid "Save as"
 msgstr ""
@@ -6975,17 +7129,17 @@ msgstr ""
 msgid "Save changes?"
 msgstr ""
 
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:152
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:153
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:154
 msgid "Save file"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:184
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:233
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:183
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:232
 msgid "Save file as"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:217
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:216
 msgid "Save generated pointcloud mesh as"
 msgstr ""
 
@@ -6997,7 +7151,7 @@ msgstr ""
 msgid "Save image or as map"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:218
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:217
 msgid "Save mesh to a file"
 msgstr ""
 
@@ -7014,7 +7168,7 @@ msgstr ""
 msgid "Save options"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:162
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:161
 msgid "Save pointcloud as"
 msgstr ""
 
@@ -7095,11 +7249,11 @@ msgstr ""
 msgid "Seconds to display ranges"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:137
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:143
 msgid "See DVL data"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:133
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:139
 msgid "See Multibeam data"
 msgstr ""
 
@@ -7123,7 +7277,7 @@ msgstr ""
 msgid "Select Entities"
 msgstr ""
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:206
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:272
 msgid "Select Iridium gateway"
 msgstr ""
 
@@ -7145,7 +7299,7 @@ msgstr ""
 msgid "Select an image first"
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:140
+#: src/pt/lsts/neptus/loader/NeptusMain.java:149
 msgid "Select application"
 msgstr ""
 
@@ -7212,16 +7366,16 @@ msgstr ""
 msgid "Selection"
 msgstr ""
 
-#: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:147
+#: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:149
 #: src/pt/lsts/neptus/params/SystemConfigurationEditorPanel.java:179
 msgid "Send"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:635
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:521
 msgid "Send %planName to %system"
 msgstr ""
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:214
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:281
 msgid "Send %vehicle a command via Iridium"
 msgstr ""
 
@@ -7229,7 +7383,7 @@ msgstr ""
 msgid "Send Acoustic Beacons"
 msgstr ""
 
-#: plugins-dev/simulation/pt/lsts/neptus/plugins/sim/SimulationActionsPlugin.java:56
+#: plugins-dev/simulation/pt/lsts/neptus/plugins/sim/SimulationActionsPlugin.java:59
 msgid "Send GPS Fix"
 msgstr ""
 
@@ -7240,11 +7394,11 @@ msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:859
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:866
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:999
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1000
 msgid "Send Plan"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:215
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:211
 msgid "Send Plan acoustically"
 msgstr ""
 
@@ -7252,8 +7406,8 @@ msgstr ""
 msgid "Send Selected Plan"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:963
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:965
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:964
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:966
 msgid "Send Start Plan"
 msgstr ""
 
@@ -7266,9 +7420,9 @@ msgstr ""
 msgid "Send by Acoustic Modem"
 msgstr ""
 
-#: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:247
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:379
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:391
+#: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:245
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:375
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:387
 msgid "Send command"
 msgstr ""
 
@@ -7276,8 +7430,8 @@ msgstr ""
 msgid "Send device updates"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:164
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:185
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:160
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:181
 msgid "Send message"
 msgstr ""
 
@@ -7285,7 +7439,7 @@ msgstr ""
 msgid "Send the modified properties."
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:190
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:191
 msgid "Send to Vehicle"
 msgstr ""
 
@@ -7297,12 +7451,12 @@ msgstr ""
 msgid "Sender name"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:580
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:581
 msgid "Sending message to %systemName..."
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:335
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:433
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:334
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:432
 msgid "Sent messages frequency:"
 msgstr ""
 
@@ -7342,8 +7496,8 @@ msgstr ""
 msgid "Service name for acoustic message sending"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:318
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:421
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:317
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:420
 msgid "Services:"
 msgstr ""
 
@@ -7373,7 +7527,7 @@ msgstr ""
 msgid "Set Main Vehicle..."
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:149
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:150
 msgid "Set Operation Limits"
 msgstr ""
 
@@ -7381,7 +7535,7 @@ msgstr ""
 msgid "Set Properties"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1077
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:985
 msgid "Set home reference"
 msgstr ""
 
@@ -7471,8 +7625,9 @@ msgstr ""
 #: plugins-dev/odss/pt/lsts/neptus/plugins/odss/OdssRabbitMQTrackFetcher.java:451
 #: plugins-dev/odss/pt/lsts/neptus/plugins/odss/OdssRabbitMQTrackFetcher.java:472
 #: plugins-dev/odss/pt/lsts/neptus/plugins/odss/OdssRabbitMQTrackFetcher.java:473
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:144
 #: plugins-dev/web/pt/lsts/neptus/plugins/web/WebServerPlugin.java:79
-#: plugins-dev/vrp/pt/lsts/neptus/plugins/vrp/WaypointPlanner.java:310
+#: plugins-dev/vrp/pt/lsts/neptus/plugins/vrp/WaypointPlanner.java:311
 #: plugins-dev/webupdate/pt/lsts/neptus/plugins/webupdate/RemotePositionPublisherUpdater.java:252
 #: plugins-dev/webupdate/pt/lsts/neptus/plugins/webupdate/RemotePositionPublisherUpdater.java:291
 #: plugins-dev/webupdate/pt/lsts/neptus/plugins/webupdate/RemotePositionFetcherUpdater.java:223
@@ -7480,26 +7635,30 @@ msgstr ""
 #: plugins-dev/position/pt/lsts/neptus/plugins/position/FindVehicle.java:116
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/LBLRangeDisplay.java:429
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/LBLRangeDisplay.java:435
-#: src/pt/lsts/neptus/console/plugins/planning/AreaCoveragePlanner.java:112
+#: src/pt/lsts/neptus/console/plugins/planning/AreaCoveragePlanner.java:113
 #: src/pt/lsts/neptus/console/plugins/MyLocationDisplay.java:670
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:334
 msgid "Settings"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1245
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1247
 msgid "Settings..."
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:695
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:694
 msgid "Setup new system comms."
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:742
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:741
 msgid "Setup new vehicle comms."
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1157
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1065
 msgid "Share %planName"
+msgstr ""
+
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:82
+msgid "Shift"
 msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.odss.OdssStoqsTrackFetcher
@@ -7508,6 +7667,10 @@ msgstr ""
 
 #: plugins-dev/ais/pt/lsts/neptus/plugins/ais/AisOverlay.java:354
 msgid "Ship Info"
+msgstr ""
+
+#: Property from pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
+msgid "Ship speed (m/s)"
 msgstr ""
 
 #: plugins-dev/state/pt/lsts/neptus/plugins/state/EntitySubPanel.java:283
@@ -7526,7 +7689,7 @@ msgstr ""
 msgid "Show 3D replay"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1528
+#: src/pt/lsts/neptus/mc/Workspace.java:1515
 msgid "Show Console"
 msgstr ""
 
@@ -7564,7 +7727,7 @@ msgstr ""
 msgid "Show Only Declared Profiles to User"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:220
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:221
 msgid "Show Operational Area on map"
 msgstr ""
 
@@ -7572,7 +7735,7 @@ msgstr ""
 msgid "Show Piccolo Waypoints"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:365
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:361
 msgid "Show Ranges"
 msgstr ""
 
@@ -7754,11 +7917,11 @@ msgstr ""
 msgid "Shows the Vehicle's speed"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:820
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:836
 msgid "SideScan Range Shadow"
 msgstr ""
 
-#: src/pt/lsts/neptus/colormap/ColorMapFactory.java:347
+#: src/pt/lsts/neptus/colormap/ColorMapFactory.java:354
 msgctxt "Colormap name"
 msgid "Sidescan"
 msgstr ""
@@ -7776,7 +7939,7 @@ msgstr ""
 msgid "Sidescan Layer"
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/replay/SidescanReplay.java:177
+#: src/pt/lsts/neptus/mra/replay/SidescanReplay.java:185
 msgid "Sidescan Replay"
 msgstr ""
 
@@ -7787,6 +7950,10 @@ msgstr ""
 
 #: Property from pt.lsts.neptus.console.plugins.planning.PlanExecutionPreview
 msgid "Simulated (flat) bathymetry"
+msgstr ""
+
+#: plugins-dev/simulation/pt/lsts/neptus/plugins/sim/SimulationActionsPlugin.java:60
+msgid "Simulated Height..."
 msgstr ""
 
 #: Name of plugin pt.lsts.neptus.plugins.sim.SimulatedStatePainter
@@ -7801,8 +7968,12 @@ msgstr ""
 msgid "Simulating %vehicle for %time"
 msgstr ""
 
-#: plugins-dev/simulation/pt/lsts/neptus/plugins/sim/SimulationActionsPlugin.java:55
+#: plugins-dev/simulation/pt/lsts/neptus/plugins/sim/SimulationActionsPlugin.java:58
 msgid "Simulation"
+msgstr ""
+
+#: Name of plugin pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
+msgid "Situation Awareness"
 msgstr ""
 
 #: Property from pt.lsts.neptus.mp.templates.YoYoTemplate
@@ -7810,7 +7981,6 @@ msgstr ""
 msgid "Size"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:325
 #: src/pt/lsts/neptus/gui/Timeline.java:79
 msgid "Slower"
 msgstr ""
@@ -7819,7 +7989,7 @@ msgstr ""
 msgid "Smooth image resizing"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:149
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:155
 msgid "Solid based representation"
 msgstr ""
 
@@ -7862,8 +8032,8 @@ msgstr ""
 #: src/pt/lsts/neptus/mp/maneuvers/YoYo.java:289
 #: src/pt/lsts/neptus/mp/maneuvers/StationKeeping.java:185
 #: src/pt/lsts/neptus/mp/maneuvers/RowsPattern.java:587
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:795
-#: src/pt/lsts/neptus/mp/maneuvers/FollowTrajectory.java:756
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:811
+#: src/pt/lsts/neptus/mp/maneuvers/FollowTrajectory.java:773
 #: src/pt/lsts/neptus/mp/maneuvers/Goto.java:277
 #: src/pt/lsts/neptus/mp/maneuvers/Goto.java:278
 #: src/pt/lsts/neptus/mp/maneuvers/FollowSystem.java:267
@@ -7876,7 +8046,7 @@ msgstr ""
 #: src/pt/lsts/neptus/mp/maneuvers/Loiter.java:250
 #: src/pt/lsts/neptus/mp/maneuvers/StationKeeping.java:189
 #: src/pt/lsts/neptus/mp/maneuvers/RowsPattern.java:591
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:799
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:815
 msgid "Speed Units"
 msgstr ""
 
@@ -7894,7 +8064,7 @@ msgstr ""
 #: src/pt/lsts/neptus/mp/maneuvers/HeadingSpeedDepth.java:368
 #: src/pt/lsts/neptus/mp/maneuvers/CommsRelay.java:236
 #: src/pt/lsts/neptus/mp/maneuvers/YoYo.java:284
-#: src/pt/lsts/neptus/mp/maneuvers/FollowTrajectory.java:751
+#: src/pt/lsts/neptus/mp/maneuvers/FollowTrajectory.java:768
 #: src/pt/lsts/neptus/mp/maneuvers/Goto.java:271
 #: src/pt/lsts/neptus/mp/maneuvers/Goto.java:272
 #: src/pt/lsts/neptus/mp/maneuvers/FollowSystem.java:262
@@ -7922,7 +8092,7 @@ msgid "Spring"
 msgstr ""
 
 #: src/pt/lsts/neptus/mp/maneuvers/RowsPattern.java:601
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:809
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:825
 msgid "Square Curve"
 msgstr ""
 
@@ -7946,12 +8116,12 @@ msgstr ""
 msgid "Start Auto Snapshot"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:238
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:234
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:137
 msgid "Start Plan"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:203
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:199
 msgid "Start Plan By Acoustic Modem"
 msgstr ""
 
@@ -7985,12 +8155,8 @@ msgstr ""
 msgid "Start location"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:227
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:223
 msgid "Start plan"
-msgstr ""
-
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:184
-msgid "Start time"
 msgstr ""
 
 #: src/pt/lsts/neptus/gui/ChronometerPanel.java:219
@@ -8005,11 +8171,11 @@ msgstr ""
 msgid "Started Teleoperation"
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:161
+#: src/pt/lsts/neptus/loader/NeptusMain.java:170
 msgid "Starting %appname..."
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:306
+#: src/pt/lsts/neptus/loader/NeptusMain.java:317
 msgid "Starting %program %arg..."
 msgstr ""
 
@@ -8021,8 +8187,8 @@ msgstr ""
 msgid "Starting interface"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:524
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1152
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:525
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1153
 msgid "Starting of %plan was acknowledged by %system."
 msgstr ""
 
@@ -8050,7 +8216,7 @@ msgstr ""
 msgid "State '%state'"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:358
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:357
 msgid "State Listeners:"
 msgstr ""
 
@@ -8058,8 +8224,9 @@ msgstr ""
 msgid "Stationary vessel color"
 msgstr ""
 
+#: Name of plugin pt.lsts.neptus.mra.plots.StatisticsPlot
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:424
-#: src/pt/lsts/neptus/mra/plots/StatisticsPlot.java:67
+#: src/pt/lsts/neptus/mra/plots/StatisticsPlot.java:69
 msgid "Statistics"
 msgstr ""
 
@@ -8069,11 +8236,6 @@ msgstr ""
 
 #: src/pt/lsts/neptus/mra/MRAChartPanel.java:121
 msgid "Statistics..."
-msgstr ""
-
-#: Name of plugin pt.lsts.neptus.util.llf.replay.LLFMsgReplay
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:588
-msgid "Statistics/Replay Msg"
 msgstr ""
 
 #: src/pt/lsts/neptus/comm/manager/BaseAbstractCommsMonitorPanel.java:581
@@ -8121,8 +8283,8 @@ msgstr ""
 msgid "Stop all log downloads"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:528
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1156
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:529
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1157
 msgid "Stopping of %plan was acknowledged by %system."
 msgstr ""
 
@@ -8130,11 +8292,11 @@ msgstr ""
 msgid "Store Data Colormap"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:479
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:478
 msgid "Stored Data:"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:513
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:512
 msgid "Stored Plans:"
 msgstr ""
 
@@ -8158,7 +8320,7 @@ msgstr ""
 msgid "Subject"
 msgstr ""
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:220
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:297
 msgid "Subscribe to device updates"
 msgstr ""
 
@@ -8171,7 +8333,7 @@ msgctxt "Colormap name"
 msgid "Summer"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:283
+#: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:279
 msgid "Surface here"
 msgstr ""
 
@@ -8191,12 +8353,24 @@ msgstr ""
 msgid "Swatches"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:874
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:782
 msgid "Switch"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1095
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1003
 msgid "Switch %transponderName1 with %transponderName2"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:147
+msgid "Switch to a point-based representation"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:149
+msgid "Switch to a surface-based representation, when available"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:148
+msgid "Switch to a wireframe-based representation, when available"
 msgstr ""
 
 #. / This should be a very short phrase. This is a button to sync day logs. The ideal size is to match the
@@ -8222,11 +8396,11 @@ msgstr ""
 msgid "Synchronize Selected Log Folders"
 msgstr ""
 
-#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:330
+#: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/OperationLimitsSubPanel.java:331
 msgid "Syncronized"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:225
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:224
 #: src/pt/lsts/neptus/mp/maneuvers/FollowSystem.java:254
 #: src/pt/lsts/neptus/console/StatusBar.java:93
 #: src/pt/lsts/neptus/mra/MRAPanel.java:173
@@ -8249,7 +8423,7 @@ msgstr ""
 msgid "System Configuration"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:156
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:155
 msgid "System Configurations"
 msgstr ""
 
@@ -8270,7 +8444,7 @@ msgstr ""
 msgid "System Label: "
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:154
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:153
 msgid "System Messages"
 msgstr ""
 
@@ -8294,7 +8468,7 @@ msgstr ""
 msgid "System:"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:320
+#: src/pt/lsts/neptus/mc/Workspace.java:315
 msgid "Systems"
 msgstr ""
 
@@ -8303,7 +8477,7 @@ msgid "Systems Icons Size"
 msgstr ""
 
 #: Name of plugin pt.lsts.neptus.console.plugins.SystemsList
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:158
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:157
 msgid "Systems List"
 msgstr ""
 
@@ -8331,7 +8505,7 @@ msgstr ""
 msgid "T-Rex Shore port"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:419
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:418
 msgid "TCP:"
 msgstr ""
 
@@ -8352,7 +8526,7 @@ msgstr ""
 msgid "TSP Planner Daemon"
 msgstr ""
 
-#: plugins-dev/vrp/pt/lsts/neptus/plugins/vrp/WaypointPlanner.java:310
+#: plugins-dev/vrp/pt/lsts/neptus/plugins/vrp/WaypointPlanner.java:311
 msgid "TSP Settings"
 msgstr ""
 
@@ -8373,20 +8547,28 @@ msgstr ""
 msgid "Tables"
 msgstr ""
 
+#: Property from pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
+msgid "Tag safety distance (meters)"
+msgstr ""
+
 #: Property from pt.lsts.neptus.plugins.position.GPSFixPanel
 msgid "Tail number of Points"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:324
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:325
 msgid "Take SnapShot"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:325
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:326
 msgid "Take SnapShot from current Viewport"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/actions/TakeSnapshotConsoleAction.java:56
 msgid "Take Snapshot"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:150
+msgid "Take a .PNG snapshot of the current window view"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:512
@@ -8404,6 +8586,11 @@ msgstr ""
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:154
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/CTD3D.java:120
 msgid "Temperature Color Map"
+msgstr ""
+
+#: Name of plugin pt.lsts.neptus.mra.replay.TemperatureReplay
+#: src/pt/lsts/neptus/mra/replay/TemperatureReplay.java:111
+msgid "Temperature Replay"
 msgstr ""
 
 #: src/pt/lsts/neptus/mra/plots/TemperatureVsDepthPlot.java:56
@@ -8519,11 +8706,11 @@ msgstr ""
 msgid "The colormap to be used in the plot"
 msgstr ""
 
-#: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:203
+#: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:199
 msgid "The command %cmd can not be previewed"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:592
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:593
 msgid "The command is not supported by %manta."
 msgstr ""
 
@@ -8554,12 +8741,12 @@ msgstr ""
 msgid "The entered text does not represent numeric values"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:1189
+#: src/pt/lsts/neptus/mc/Workspace.java:1176
 msgid "The file doesn't exists!"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1173
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1232
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1174
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1233
 msgid ""
 "The following error arrived at @%timeArrived for a request @%timeRequested "
 "(∆t %deltaTime): %msg"
@@ -8592,7 +8779,7 @@ msgstr ""
 msgid "The given ID already exists in the map. Please choose a different one"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:807
+#: src/pt/lsts/neptus/mp/Maneuver.java:773
 msgid "The identifier for this object"
 msgstr ""
 
@@ -8601,15 +8788,15 @@ msgstr ""
 msgid "The maneuver %maneuverType can't be added"
 msgstr ""
 
-#: src/pt/lsts/neptus/types/mission/plan/PlanType.java:131
+#: src/pt/lsts/neptus/types/mission/plan/PlanType.java:135
 msgid "The maneuver '%maneuver' has Z_UNITS set to ALTITUDE and value 0!"
 msgstr ""
 
-#: src/pt/lsts/neptus/types/mission/plan/PlanType.java:128
+#: src/pt/lsts/neptus/types/mission/plan/PlanType.java:132
 msgid "The maneuver '%maneuver' has Z_UNITS set to NONE"
 msgstr ""
 
-#: src/pt/lsts/neptus/types/mission/plan/PlanType.java:141
+#: src/pt/lsts/neptus/types/mission/plan/PlanType.java:145
 msgid ""
 "The maneuver '%maneuver' has no incoming transitions and is not the initial "
 "maneuver!"
@@ -8619,11 +8806,11 @@ msgstr ""
 msgid "The maximum allowed drift in the velocity"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:978
+#: src/pt/lsts/neptus/mp/Maneuver.java:944
 msgid "The maximum time value must be greater than 0"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:973
+#: src/pt/lsts/neptus/mp/Maneuver.java:939
 msgid "The minimum time value must be greater or equal than 0"
 msgstr ""
 
@@ -8700,7 +8887,7 @@ msgstr ""
 msgid "The plan %planid was added to this mission"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1031
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1032
 msgid ""
 "The plan '%plan' is not synchronized on %system.\n"
 "You should resend the plan.\n"
@@ -8752,7 +8939,7 @@ msgstr ""
 msgid "There are no settings to display"
 msgstr ""
 
-#: plugins-dev/simulation/pt/lsts/neptus/plugins/sim/SimulationActionsPlugin.java:92
+#: plugins-dev/simulation/pt/lsts/neptus/plugins/sim/SimulationActionsPlugin.java:104
 msgid "There must be a planning panel in the console"
 msgstr ""
 
@@ -8995,8 +9182,8 @@ msgstr ""
 msgid "Title to use"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:330
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:427
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:329
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:426
 msgid "To Send messages frequency:"
 msgstr ""
 
@@ -9053,6 +9240,10 @@ msgstr ""
 msgid "Toggle grayscale filter"
 msgstr ""
 
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:158
+msgid "Toggle into an out of stereo mode"
+msgstr ""
+
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/PhotoToolbar.java:145
 msgid "Toggle sharpen filter"
 msgstr ""
@@ -9075,9 +9266,9 @@ msgstr ""
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:321
 #: plugins-dev/state/pt/lsts/neptus/plugins/state/AudibleVehicleState.java:97
-#: plugins-dev/simulation/pt/lsts/neptus/plugins/sim/SimulationActionsPlugin.java:54
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:203
-#: src/pt/lsts/neptus/mc/Workspace.java:427
+#: plugins-dev/simulation/pt/lsts/neptus/plugins/sim/SimulationActionsPlugin.java:57
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:199
+#: src/pt/lsts/neptus/mc/Workspace.java:422
 #: src/pt/lsts/neptus/console/ConsoleLayout.java:477
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:375
 msgid "Tools"
@@ -9171,6 +9362,7 @@ msgid "Turn on/off camera CPU"
 msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.trex.TrexMapLayer
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:601
 #: src/pt/lsts/neptus/i18n/I18n.java:204
 msgid "Type"
 msgstr ""
@@ -9182,7 +9374,7 @@ msgid ""
 "(false) or by a probability (true)."
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:413
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:412
 msgid "Type:"
 msgstr ""
 
@@ -9210,7 +9402,7 @@ msgstr ""
 msgid "UAV loiter radius"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:415
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:414
 msgid "UDP:"
 msgstr ""
 
@@ -9236,9 +9428,9 @@ msgstr ""
 msgid "USV"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/DateTimeUtil.java:169
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1170
-#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1229
+#: src/pt/lsts/neptus/util/DateTimeUtil.java:205
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1171
+#: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1230
 #: src/pt/lsts/neptus/console/StatusBar.java:151
 msgid "UTC"
 msgstr ""
@@ -9247,56 +9439,19 @@ msgstr ""
 msgid "UUV"
 msgstr ""
 
-#: Name of plugin pt.lsts.neptus.plugins.uavs.panels.UavAirspeedPanel
-msgid "Uav Airspeed Panel"
-msgstr ""
-
 #: Name of plugin pt.lsts.neptus.plugins.uavs.panels.UavAltitudePanel
 msgid "Uav Altitude Panel"
-msgstr ""
-
-#: Name of plugin
-#: pt.lsts.neptus.plugins.uavs.painters.elements.UavCameraFootprint
-msgid "Uav Camera Footprint"
 msgstr ""
 
 #: Name of plugin pt.lsts.neptus.plugins.uavs.panels.UavHUDPanel
 msgid "Uav HUD Panel"
 msgstr ""
 
-#: Name of plugin pt.lsts.neptus.plugins.uavs.panels.UavPTUControlPanel
-msgid "Uav PTU Control Panel"
-msgstr ""
-
-#: Name of plugin pt.lsts.neptus.plugins.uavs.daemons.UavPainterDaemon
-msgid "Uav Painter Deamon"
-msgstr ""
-
-#: Name of plugin pt.lsts.neptus.plugins.uavs.daemons.UavSettingsDaemon
-msgid "Uav Settings Deamon"
-msgstr ""
-
-#: Name of plugin pt.lsts.neptus.plugins.uavs.panels.UavState1Panel
-msgid "Uav State 1 Panel"
-msgstr ""
-
-#: Name of plugin pt.lsts.neptus.plugins.uavs.panels.UavStateXPanel
-msgid "Uav State X Panel"
-msgstr ""
-
-#: Name of plugin pt.lsts.neptus.plugins.uavs.panels.UavTimeToBingoPanel
-msgid "Uav TimeToBingo Panel"
-msgstr ""
-
-#: Name of plugin pt.lsts.neptus.plugins.uavs.panels.UavVideoPanel
-msgid "Uav Video Panel"
-msgstr ""
-
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:444
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:440
 msgid "Unable to abort selected system"
 msgstr ""
 
-#: src/pt/lsts/neptus/gui/MissionBrowser.java:190
+#: src/pt/lsts/neptus/gui/MissionBrowser.java:201
 msgid "Unable to find a parent console"
 msgstr ""
 
@@ -9310,11 +9465,11 @@ msgid ""
 "'padsp ./neptus.sh'."
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:357
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:353
 msgid "Unable to range selected system"
 msgstr ""
 
-#: src/pt/lsts/neptus/loader/NeptusMain.java:292
+#: src/pt/lsts/neptus/loader/NeptusMain.java:303
 msgid "Unable to read the file '%filename'"
 msgstr ""
 
@@ -9322,7 +9477,7 @@ msgstr ""
 msgid "Unable to read the mission file '%missionfile'"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:186
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:182
 msgid "Unable to send message to selected system"
 msgstr ""
 
@@ -9330,7 +9485,7 @@ msgstr ""
 msgid "Unable to start MIDI sound device"
 msgstr ""
 
-#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:367
+#: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:368
 #: src/pt/lsts/neptus/i18n/I18n.java:254
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:529
 msgid "Undo"
@@ -9348,8 +9503,8 @@ msgstr ""
 msgid "Unknown local disk free space"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:341
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:439
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:340
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:438
 msgid "Unknown location"
 msgstr ""
 
@@ -9357,7 +9512,7 @@ msgstr ""
 msgid "Unknown location for more than 10s"
 msgstr ""
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:234
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:313
 msgid "Unsubscribe to device updates"
 msgstr ""
 
@@ -9593,6 +9748,10 @@ msgstr ""
 msgid "Use speed to filter heading"
 msgstr ""
 
+#: Property from pt.lsts.neptus.plugins.acoustic.MantaOperations
+msgid "Use system discovery"
+msgstr ""
+
 #: Description of property 'Maximize Panel' from
 #: pt.lsts.neptus.console.plugins.containers.SplitContainer
 #: pt.lsts.neptus.console.plugins.containers.GroupLayoutContainer
@@ -9671,8 +9830,7 @@ msgstr ""
 msgid "Values lower than zero are not valid!"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:174
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:197
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:195
 #: src/pt/lsts/neptus/types/map/PlanUtil.java:229
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:356
 msgid "Vehicle"
@@ -9795,18 +9953,18 @@ msgid "Video display for Conceptronic IP Camera"
 msgstr ""
 
 #: Description of plugin pt.lsts.neptus.plugins.ipcam.AirCamDisplay
-msgid "Video display for Ubiquiti Cameras"
+msgid "Video displayer for IP Cameras"
 msgstr ""
 
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/MraPhotosVisualization.java:506
 msgid "Video saved in %filename"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:295
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:294
 #: plugins-dev/logs/pt/lsts/neptus/plugins/logs/RemoteHistory.java:143
 #: plugins-dev/logs/pt/lsts/neptus/plugins/logs/RemoteHistory.java:154
-#: src/pt/lsts/neptus/console/ConsolePanel.java:300
-#: src/pt/lsts/neptus/console/ConsolePanel.java:381
+#: src/pt/lsts/neptus/console/ConsolePanel.java:305
+#: src/pt/lsts/neptus/console/ConsolePanel.java:388
 #: src/pt/lsts/neptus/console/ConsoleLayout.java:471
 msgid "View"
 msgstr ""
@@ -9819,11 +9977,11 @@ msgstr ""
 msgid "View..."
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1125
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1033
 msgid "View/Edit %transponderName"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:1072
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:980
 msgid "View/Edit home reference"
 msgstr ""
 
@@ -9838,7 +9996,8 @@ msgstr ""
 msgid "Visualizations"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Window.java:64
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Window.java:81
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Window.java:107
 msgid "Visualizer3D"
 msgstr ""
 
@@ -9888,6 +10047,10 @@ msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.trex.TrexMapLayer
 msgid "Water current Speed"
+msgstr ""
+
+#: Property from pt.lsts.neptus.plugins.sunfish.IridiumComms
+msgid "Wave Glider"
 msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.noptilus.NoptilusPlanGenerator
@@ -9944,7 +10107,7 @@ msgstr ""
 msgid "Where to store and load operational limits"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:812
+#: src/pt/lsts/neptus/mp/Maneuver.java:778
 msgid "Whether this will be the first maneuver to be executed"
 msgstr ""
 
@@ -9952,7 +10115,7 @@ msgstr ""
 #: pt.lsts.neptus.mp.templates.InfiniteRectTemplate
 #: pt.lsts.neptus.console.plugins.MyLocationDisplay
 #: src/pt/lsts/neptus/mp/maneuvers/RowsPattern.java:557
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:775
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:791
 msgid "Width"
 msgstr ""
 
@@ -9979,7 +10142,7 @@ msgctxt "Colormap name"
 msgid "Winter"
 msgstr ""
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:145
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:151
 msgid "Wireframe based representation"
 msgstr ""
 
@@ -9987,7 +10150,7 @@ msgstr ""
 msgid "Workspace"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1684
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1716
 msgid "World Bondaries Shown"
 msgstr ""
 
@@ -9995,7 +10158,7 @@ msgstr ""
 msgid "World Map Layer"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1686
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1718
 msgid "WorldMap Shown"
 msgstr ""
 
@@ -10064,12 +10227,12 @@ msgstr ""
 msgid "Yoyo motion amplitude."
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:823
+#: src/pt/lsts/neptus/mp/Maneuver.java:789
 #: src/pt/lsts/neptus/mra/plots/ZPlot.java:118
 msgid "Z"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:824
+#: src/pt/lsts/neptus/mp/Maneuver.java:790
 msgctxt "Maneuver's z value"
 msgid "Z"
 msgstr ""
@@ -10086,11 +10249,11 @@ msgstr ""
 msgid "Z relative mode"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:826
+#: src/pt/lsts/neptus/mp/Maneuver.java:792
 msgid "Z-Units"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:827
+#: src/pt/lsts/neptus/mp/Maneuver.java:793
 msgctxt "Maneuver's z units"
 msgid "Z-Units"
 msgstr ""
@@ -10101,6 +10264,16 @@ msgstr ""
 
 #: plugins-dev/echosounder/pt/lsts/neptus/plugins/sidescan/SidescanToolbar.java:63
 msgid "Zoom"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:93
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:168
+msgid "Zoom (In/Out) the camera"
+msgstr ""
+
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:98
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:169
+msgid "Zoom (In/Out) the camera - Static focal point"
 msgstr ""
 
 #: src/pt/lsts/neptus/renderer2d/WorldRenderPainter.java:1398
@@ -10115,7 +10288,7 @@ msgstr ""
 msgid "Zoom out"
 msgstr ""
 
-#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:595
+#: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:596
 msgid "[%manta]: %status"
 msgstr ""
 
@@ -10132,7 +10305,7 @@ msgstr ""
 msgid "allowControlFromWebService"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:913
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:929
 msgid "alt"
 msgstr ""
 
@@ -10162,7 +10335,7 @@ msgstr ""
 msgid "authority"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:915
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:931
 msgid "bearing"
 msgstr ""
 
@@ -10187,11 +10360,7 @@ msgstr ""
 msgid "colormap"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/ssh/SshShellPannel.java:137
-msgid "connect"
-msgstr ""
-
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:417
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:416
 msgid "connected"
 msgstr ""
 
@@ -10199,7 +10368,7 @@ msgstr ""
 msgid "convcao Neptus Interaction"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:916
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:932
 msgid "cross angle"
 msgstr ""
 
@@ -10228,7 +10397,7 @@ msgstr ""
 msgid "debugOn"
 msgstr ""
 
-#: src/pt/lsts/neptus/params/ConfigurationManager.java:583
+#: src/pt/lsts/neptus/params/ConfigurationManager.java:585
 msgid "default"
 msgstr ""
 
@@ -10252,7 +10421,7 @@ msgstr ""
 #: Property from pt.lsts.neptus.plugins.followref.FollowReferenceControl
 #: plugins-dev/position/pt/lsts/neptus/plugins/position/AbsLatLonDepth.java:152
 #: plugins-dev/position/pt/lsts/neptus/plugins/position/AbsLatLonDepth.java:281
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:920
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:936
 #: src/pt/lsts/neptus/mp/Maneuver.java:302
 msgid "depth"
 msgstr ""
@@ -10271,16 +10440,12 @@ msgstr ""
 msgid "direction"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/ssh/SshShellPannel.java:219
-msgid "disconnect"
-msgstr ""
-
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:918
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:934
 msgid "distance"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1219
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1235
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1237
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:76
 msgid "down"
 msgstr ""
 
@@ -10306,7 +10471,7 @@ msgstr ""
 msgid "enableProxy"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/Maneuver.java:1043
+#: src/pt/lsts/neptus/mp/Maneuver.java:1005
 msgid "end actions"
 msgstr ""
 
@@ -10315,7 +10480,7 @@ msgstr ""
 msgid "end z"
 msgstr ""
 
-#: src/pt/lsts/neptus/types/mission/plan/PlanType.java:657
+#: src/pt/lsts/neptus/types/mission/plan/PlanType.java:688
 msgid "end-actions"
 msgstr ""
 
@@ -10381,7 +10546,7 @@ msgstr ""
 msgid "host name"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:914
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:930
 msgid "hstep"
 msgstr ""
 
@@ -10467,7 +10632,7 @@ msgstr ""
 msgid "integer"
 msgstr ""
 
-#: src/pt/lsts/neptus/params/ConfigurationManager.java:362
+#: src/pt/lsts/neptus/params/ConfigurationManager.java:364
 msgid "ipv4-address"
 msgstr ""
 
@@ -10504,13 +10669,13 @@ msgstr ""
 msgid "layerTransparency"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1214
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1230
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1232
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:73
 msgid "left"
 msgstr ""
 
 #: src/pt/lsts/neptus/mp/maneuvers/Loiter.java:337
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:911
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:927
 msgid "length"
 msgstr ""
 
@@ -10560,12 +10725,12 @@ msgstr ""
 #: src/pt/lsts/neptus/mp/maneuvers/CompassCalibration.java:202
 #: src/pt/lsts/neptus/mp/maneuvers/CompassCalibration.java:203
 #: src/pt/lsts/neptus/mp/maneuvers/StationKeeping.java:234
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:911
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:912
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:914
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:918
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:919
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:920
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:927
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:928
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:930
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:934
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:935
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:936
 #: src/pt/lsts/neptus/mp/maneuvers/Goto.java:345
 #: src/pt/lsts/neptus/mp/maneuvers/FollowSystem.java:326
 #: src/pt/lsts/neptus/mp/maneuvers/PopUp.java:429
@@ -10573,17 +10738,17 @@ msgstr ""
 #: src/pt/lsts/neptus/mp/Maneuver.java:302
 #: src/pt/lsts/neptus/mp/Maneuver.java:305
 #: src/pt/lsts/neptus/mp/Maneuver.java:308
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:201
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:202
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:214
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:199
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:200
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:212
 #: src/pt/lsts/neptus/gui/PolarOffsetPanel.java:95
 msgctxt "meters"
 msgid "m"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/LogUtils.java:216
+#: src/pt/lsts/neptus/util/llf/LogUtils.java:214
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:962
-#: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:114
+#: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:113
 #: src/pt/lsts/neptus/gui/editor/SpeedUnitsEditor.java:48
 #: src/pt/lsts/neptus/gui/GotoParameters.java:213
 msgid "m/s"
@@ -10593,10 +10758,10 @@ msgstr ""
 msgid "maneuver"
 msgstr ""
 
-#: src/pt/lsts/neptus/params/ConfigurationManager.java:346
-#: src/pt/lsts/neptus/params/ConfigurationManager.java:357
-#: src/pt/lsts/neptus/params/ConfigurationManager.java:504
-#: src/pt/lsts/neptus/params/ConfigurationManager.java:511
+#: src/pt/lsts/neptus/params/ConfigurationManager.java:348
+#: src/pt/lsts/neptus/params/ConfigurationManager.java:359
+#: src/pt/lsts/neptus/params/ConfigurationManager.java:506
+#: src/pt/lsts/neptus/params/ConfigurationManager.java:513
 msgid "max"
 msgstr ""
 
@@ -10617,15 +10782,15 @@ msgstr ""
 msgid "millisBetweenUpdates"
 msgstr ""
 
-#: src/pt/lsts/neptus/params/ConfigurationManager.java:344
-#: src/pt/lsts/neptus/params/ConfigurationManager.java:355
-#: src/pt/lsts/neptus/params/ConfigurationManager.java:502
-#: src/pt/lsts/neptus/params/ConfigurationManager.java:509
+#: src/pt/lsts/neptus/params/ConfigurationManager.java:346
+#: src/pt/lsts/neptus/params/ConfigurationManager.java:357
+#: src/pt/lsts/neptus/params/ConfigurationManager.java:504
+#: src/pt/lsts/neptus/params/ConfigurationManager.java:511
 msgid "min"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1213
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1229
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1231
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:72
 msgid "minus (-)"
 msgstr ""
 
@@ -10642,8 +10807,8 @@ msgstr ""
 msgid "name"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:472
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:475
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:471
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:474
 msgid "no info yet"
 msgstr ""
 
@@ -10665,7 +10830,7 @@ msgstr ""
 msgid "normalization"
 msgstr ""
 
-#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:417
+#: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:416
 msgid "not connected"
 msgstr ""
 
@@ -10681,11 +10846,7 @@ msgstr ""
 msgid "pathColor"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:532
-msgid "pause"
-msgstr ""
-
-#: src/pt/lsts/neptus/mp/Maneuver.java:1041
+#: src/pt/lsts/neptus/mp/Maneuver.java:1003
 msgid "payload actions"
 msgstr ""
 
@@ -10698,17 +10859,12 @@ msgstr ""
 msgid "plan"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:487
-#: src/pt/lsts/neptus/util/llf/replay/LLFMsgReplay.java:514
-msgid "play"
-msgstr ""
-
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1211
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1227
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1229
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:71
 msgid "plus (+)"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/maneuvers/FollowTrajectory.java:732
+#: src/pt/lsts/neptus/mp/maneuvers/FollowTrajectory.java:749
 msgid "points"
 msgstr ""
 
@@ -10813,8 +10969,8 @@ msgstr ""
 msgid "request exit remote operation"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1216
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1232
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1234
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:74
 msgid "right"
 msgstr ""
 
@@ -10883,8 +11039,8 @@ msgstr ""
 #: src/pt/lsts/neptus/mp/maneuvers/YoYo.java:362
 #: src/pt/lsts/neptus/mp/maneuvers/CompassCalibration.java:197
 #: src/pt/lsts/neptus/mp/maneuvers/StationKeeping.java:233
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:917
-#: src/pt/lsts/neptus/mp/maneuvers/FollowTrajectory.java:731
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:933
+#: src/pt/lsts/neptus/mp/maneuvers/FollowTrajectory.java:748
 #: src/pt/lsts/neptus/mp/maneuvers/Goto.java:344
 #: src/pt/lsts/neptus/mp/maneuvers/PopUp.java:428
 msgid "speed"
@@ -10902,7 +11058,7 @@ msgstr ""
 msgid "splitLocation"
 msgstr ""
 
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:919
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:935
 msgctxt "sidescan range"
 msgid "ss range"
 msgstr ""
@@ -10911,7 +11067,7 @@ msgstr ""
 msgid "start"
 msgstr ""
 
-#: src/pt/lsts/neptus/types/mission/plan/PlanType.java:654
+#: src/pt/lsts/neptus/types/mission/plan/PlanType.java:685
 msgid "start-actions"
 msgstr ""
 
@@ -11004,7 +11160,7 @@ msgstr ""
 msgid "unknown"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:955
+#: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:863
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:525
 msgid "unknown destination"
 msgstr ""
@@ -11013,8 +11169,8 @@ msgstr ""
 msgid "unknown vehicle position"
 msgstr ""
 
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1217
-#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1233
+#: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1235
+#: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:75
 msgid "up"
 msgstr ""
 
@@ -11043,12 +11199,12 @@ msgstr ""
 msgid "using"
 msgstr ""
 
-#: src/pt/lsts/neptus/mc/Workspace.java:400
+#: src/pt/lsts/neptus/mc/Workspace.java:395
 msgid "vehicle-%vehicleid"
 msgstr ""
 
 #: Property from pt.lsts.neptus.types.map.QRouteElement
-#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:912
+#: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:928
 msgid "width"
 msgstr ""
 
