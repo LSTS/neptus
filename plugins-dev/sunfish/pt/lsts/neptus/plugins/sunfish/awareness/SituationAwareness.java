@@ -257,7 +257,6 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             }
             ret.get(last.getType()).add(last);
         }
-
         return ret;
     }
 

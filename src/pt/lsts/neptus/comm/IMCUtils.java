@@ -39,6 +39,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -49,11 +51,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 
+import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.dom4j.tree.DefaultAttribute;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCFieldType;
@@ -1281,19 +1285,43 @@ public class IMCUtils {
                 }
             case 2:
                 return "CCU";
-            case 3:
-            case 4:
-                return "Sensor";
             default:
-                return "Unknown";
+                break;
+        }
+        
+        String name = IMCDefinition.getInstance().getResolver().resolve(imcId).toLowerCase();
+        if (name.contains("ccu"))
+            return "CCU";
+        if (name.contains("argos"))
+            return "Argos Tag";
+        if (name.contains("spot"))
+            return "SPOT Tag";
+        if (name.contains("manta"))
+            return "Gateway";
+        return "Unknown";
+    }
+    
+    public static void testSysTypeResolution() throws Exception {
+        String address_url = "file:///home/zp/Desktop/IMC_Addresses.xml";
+        
+        URLConnection conn = new URL(address_url).openConnection();
+        Document doc = DocumentHelper.parseText(IOUtils.toString(conn.getInputStream()));
+        List<?> nodes = doc.getRootElement().selectNodes("address/@id");
+        for (int i = 0; i < nodes.size(); i++) {
+            DefaultAttribute addrElem = (DefaultAttribute) nodes.get(i);
+            int id = Integer.parseInt(addrElem.getText().replaceAll("0x", ""), 16);
+            String name = IMCDefinition.getInstance().getResolver().resolve(id);
+            System.out.println(addrElem.getText() + ","+name+" --> "+getSystemType(id));
         }
     }
 
     
     // ------------------------------------------------------------------------
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
+        testSysTypeResolution();
+        
         String services = "dune://1294925553839635/;" + "imc+udp://192.168.106.189:6002/;"
                 + "imc+udp://172.16.13.1:6002/;" + "imc+udp://172.16.216.1:6002/;"
                 + "http://192.168.106.189:8080/dune/re;" + "http://172.16.13.1:8080/dune;"

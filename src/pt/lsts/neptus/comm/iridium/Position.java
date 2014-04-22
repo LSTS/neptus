@@ -85,6 +85,34 @@ public class Position {
         }
     }
 
+    public static PosType fromImcId(int imcId) {
+        int sys_selector = 0xE000;
+        int vtype_selector = 0x1800;
+
+        int sys_type = (imcId & sys_selector) >> 13;
+        
+        switch (sys_type) {
+            case 0:
+            case 1:
+                switch ((imcId & vtype_selector) >> 11) {
+                    case 0:
+                        return PosType.AUV;
+                    case 1:
+                        return PosType.AUV;
+                    case 2:
+                        return PosType.ASV;
+                    case 3:
+                        return PosType.UAV;
+                    default:
+                        return PosType.Unknown;
+                }
+            case 2:
+                return PosType.CCU;
+            default:
+                return PosType.Unknown;
+        }
+    }
+
     public static PosType fromInt(int i) {
         PosType type = intToTypeMap.get(Long.valueOf(i));
         if (type == null) 
