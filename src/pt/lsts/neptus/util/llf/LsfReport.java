@@ -42,6 +42,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Vector;
@@ -58,10 +60,13 @@ import org.jfree.chart.JFreeChart;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.MRAProperties;
+import pt.lsts.neptus.mra.SidescanLogMarker;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.PathElement;
@@ -77,10 +82,12 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.chart.LLFChart;
 
 import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 
@@ -155,7 +162,7 @@ public class LsfReport {
                         g2.dispose();
 
                         cb.addTemplate(tp, pageSize.getWidth()-350, pageSize.getHeight()-460);
-            }	        
+            }           
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -334,7 +341,7 @@ public class LsfReport {
             doc.addCreationDate();
             doc.addCreator("Neptus "+ConfigFetch.getNeptusVersion());
             doc.addProducer();
-            doc.addAuthor(System.getProperty("user.name"));			
+            doc.addAuthor(System.getProperty("user.name"));         
 
             PdfContentByte cb = writer.getDirectContent();
             int page = 1;
@@ -395,7 +402,15 @@ public class LsfReport {
             writePageNumber(cb, page++, llfCharts.size()+3);
             writeHeader(cb, source);
             writeFooter(cb, source);
-
+            
+            //
+            doc.newPage();
+            createTable(cb,doc,source,panel);
+            writePageNumber(cb, page++, llfCharts.size()+4);//3->4 tabela marcas
+            writeHeader(cb, source);
+            writeFooter(cb, source);
+            //
+            
             doc.newPage();
             writeDetailsPage(cb, source);
             writePageNumber(cb, page++, llfCharts.size()+3);
@@ -407,13 +422,91 @@ public class LsfReport {
             out.close();
 
         }
-        catch (Exception e) {			
+        catch (Exception e) {           
             e.printStackTrace();
             GuiUtils.errorMessage(I18n.text("Error generating report"), e.getMessage());
             return false;
         }
         return true;
     }
+    
+  //novo metodo
+    public static void createTable(PdfContentByte cb, Document doc, IMraLogGroup source, MRAPanel panel) throws DocumentException {
+        
+        try {
+            Rectangle pageSize = PageSize.A4.rotate();
+            PdfPTable table = new PdfPTable(4);
+            
+            float  tableWidth = pageSize.getWidth()*2/3;
+            table.setTotalWidth(tableWidth);
+            float[] columnWidth = {0.15f, 0.30f, 0.15f, 0.40f};
+            table.setWidthPercentage(columnWidth, pageSize);
+            ArrayList<LogMarker> markers = panel.getMarkers();
+            
+            //header:
+            table.addCell("Timestamp");table.addCell("Label");table.addCell("Location");table.addCell("Image");
+            SidescanLogMarker sd;
+            for (LogMarker m : markers){
+                String dateAsText = new SimpleDateFormat("HH:mm:ss.ms").format(m.timestamp);
+                table.addCell(dateAsText);
+                table.addCell(m.label);
+                LocationType loc = new LocationType(Math.toDegrees(m.lat), Math.toDegrees(m.lon));
+                String locString = loc.toString();
+                table.addCell(locString);
+                //14-04 | 21-04:
+                if (m.getClass()==SidescanLogMarker.class){
+                    table.addCell("");                  
+
+                }else//nao esta no sidescan
+                    table.addCell("");
+                    
+                //PdfPCell
+            }          
+            
+            cb.beginText();
+            BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+            cb.setFontAndSize(bf, 24);
+            cb.setColorFill(new Color(50, 100, 200));
+            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.text("Marks' Table"), pageSize.getWidth()/2, pageSize.getHeight()-100, 0);
+            cb.endText();
+            
+            float xpos = pageSize.getWidth()/6;
+            float ypos = pageSize.getHeight()-160;
+            
+            //headers:
+            cb.setColorFill(Color.red.brighter());
+            ypos = table.writeSelectedRows(0, 1, xpos, ypos, cb);
+            
+            //data:
+            ArrayList rows = table.getRows();
+            for (int i=1;i<rows.size();i++){
+                if (ypos<100){
+                    doc.newPage();
+                    cb.beginText();
+                    cb.setFontAndSize(bf, 24);
+                    cb.setColorFill(new Color(50, 100, 200));
+                    cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.text("Marks' Table"), pageSize.getWidth()/2, pageSize.getHeight()-100, 0);
+                    cb.endText();
+                    ypos = pageSize.getHeight()-160;
+                    cb.setColorFill(Color.red.brighter());
+                    ypos = table.writeSelectedRows(0, 1, xpos, ypos, cb);
+                }
+                if (i%2==0)
+                    cb.setColorFill(Color.gray.darker());
+                else
+                    cb.setColorFill(Color.black);
+                ypos = table.writeSelectedRows(i, i+1, xpos, ypos, cb);
+                //verificar se o ypos ainda ta dentro da pagina
+            }
+            //System.out.println("-------------------------------------\nypos="+ypos+"\n--------------------------------------------");
+            
+        }catch (Exception e) {
+            e.printStackTrace();
+            GuiUtils.errorMessage(I18n.text("Error createTable()"), e.getMessage());
+        }
+    }
+    
+//-------------------------------------------------------------------------------------------------------------
 
     public static void generateReport(LsfLogSource source, JFreeChart[] charts, File desFile) {
         Rectangle pageSize = PageSize.A4.rotate();
