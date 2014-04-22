@@ -453,7 +453,7 @@ public class LsfReport {
                 LocationType loc = new LocationType(Math.toDegrees(m.lat), Math.toDegrees(m.lon));
                 String locString = loc.toString();
                 table.addCell(locString);
-                //14-04 | 21-04:
+                
                 if (m.getClass()==SidescanLogMarker.class){
                     table.addCell("");                  
 
