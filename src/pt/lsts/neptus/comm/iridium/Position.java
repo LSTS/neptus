@@ -47,14 +47,14 @@ public class Position {
         ASV     (023, 0, "Autonomous Surface Vehicle"),
         CCU     (101, 0, "Command and Control Unit"),
         SpotTag (103, 0, "SPOT satellite tag"),
-        Argos0  (150, 3000, "Argos tag position of class 0 (more than 1500 m of uncertainty radius)"),
-        Argos1  (151, 1500, "Argos tag position of class 1 (500 m < uncertainty radius < 1500 m)"),
-        Argos2  (152, 500, "Argos tag position of class 2 (250 m < uncertainty radius < 500 m)"),
-        Argos3  (153, 250, "Argos tag position of class 3 (uncertainty radius < 250 m)"),
-        ArgosA  (154, 3000, "Argos tag position of class A (uncertainty radius > 1500 m, 3 transmissions)"),
-        ArgosB  (155, 3000, "Argos tag position of class B (uncertainty radius > 1500 m, 2 transmissions)"),
-        ArgosG  (156, 100, "Argos tag position of class G (GPS, uncertainty radius < 100 m)"),
-        ArgosZ  (157, 0, "Argos tag position of class Z (no position obtained)");    
+        Argos0  (0x30, 3000, "Argos tag position of class 0 (more than 1500 m of uncertainty radius)"),
+        Argos1  (0x31, 1500, "Argos tag position of class 1 (500 m < uncertainty radius < 1500 m)"),
+        Argos2  (0x32, 500, "Argos tag position of class 2 (250 m < uncertainty radius < 500 m)"),
+        Argos3  (0x33, 250, "Argos tag position of class 3 (uncertainty radius < 250 m)"),
+        ArgosA  (0x41, 3000, "Argos tag position of class A (uncertainty radius > 1500 m, 3 transmissions)"),
+        ArgosB  (0x42, 3000, "Argos tag position of class B (uncertainty radius > 1500 m, 2 transmissions)"),
+        ArgosG  (0x47, 100, "Argos tag position of class G (GPS, uncertainty radius < 100 m)"),
+        ArgosZ  (0x5A, 0, "Argos tag position of class Z (no position obtained)");    
 
         protected long value;
         protected long uncertainty;

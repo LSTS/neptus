@@ -42,7 +42,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JOptionPane;
 
-import pt.lsts.imc.Abort;
+import org.apache.commons.codec.binary.Hex;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
@@ -233,13 +234,12 @@ public class IridiumManager {
     }
     
     public static void main(String[] args) throws Exception {
-       Abort msg = new Abort();
-       msg.setSrc(22);
-       msg.setDst(IMCDefinition.getInstance().getResolver().resolve("manta-1"));
-       Collection<ImcIridiumMessage> msgs = iridiumEncode(msg);
-
-       for (ImcIridiumMessage m : msgs) {
-           System.out.println(ByteUtil.encodeToHex(m.serialize()));
+       String hexText = "ffff0000db07002247545653000000000000000041002147545653000000000000000042000147545653000000000000000031000047545653000000000000000032000047545653000000000000000030";
+       byte[] data = Hex.decodeHex(hexText.toCharArray());
+       
+       ExtendedDeviceUpdate devupd = (ExtendedDeviceUpdate) IridiumMessage.deserialize(data);
+       for (Position p : devupd.positions.values()) {
+           System.out.println(p.posType);
        }
     }
 }

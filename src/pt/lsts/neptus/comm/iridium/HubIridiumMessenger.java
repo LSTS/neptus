@@ -294,7 +294,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
         public String name;
         public String updated_at;
         public Double[] coordinates;
-        public char errorClass;
+        public String errorClass;
         
         public Date updatedAt() {
             return stringToDate(updated_at);

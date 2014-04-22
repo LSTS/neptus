@@ -75,6 +75,7 @@ public class ExtendedDeviceUpdate extends IridiumMessage {
             out.writeInt((int)Math.round(Math.toDegrees(p.longitude) * 1000000.0));
             read+=4;
             out.writeByte((int)p.posType.value());
+            read++;
         }
         return read;
     }
@@ -94,6 +95,8 @@ public class ExtendedDeviceUpdate extends IridiumMessage {
             pos.longitude = Math.toRadians(in.readInt() / 1000000.0);
             read+=4;
             int type = in.readUnsignedByte();
+            read++;
+            
             pos.posType = Position.fromInt(type);
             positions.put(pos.id, pos);
         }
