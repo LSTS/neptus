@@ -1224,7 +1224,14 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         return interactions.remove(interaction);
     }
     
-    public boolean addMapLayer(IConsoleLayer layer) {
+    /**
+     * Add a layer that (optionally) is not preserved in the console's layout file)
+     * @param layer The layer to be added
+     * @param storeInConsoleXml Whether the layer should be added to the console's configuration. 
+     * Use <code>false</code> if it's an internal layer.
+     * @return Whether the layer was correctly added. 
+     */
+    public boolean addMapLayer(IConsoleLayer layer, boolean storeInConsoleXml) {
         Vector<MapPanel> maps = getSubPanelsOfClass(MapPanel.class);
         
         if (layers.contains(layer)) {
@@ -1238,7 +1245,9 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
         
         layer.init(this);
-        layers.add(layer);
+        
+        if (storeInConsoleXml)
+            layers.add(layer);
         
         for (MapPanel map : maps) {
             map.addLayer(layer);            
@@ -1247,12 +1256,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         return true;
     }
     
+    public boolean addMapLayer(IConsoleLayer layer) {
+       return addMapLayer(layer, true);
+    }
+    
     public boolean removeMapLayer(IConsoleLayer layer) {
-        if (!layers.contains(layer)) {
-            NeptusLog.pub().error("Layer not found in this console.");
-            return false;
-        }
-        
         for (MapPanel map : getSubPanelsOfClass(MapPanel.class)) {
             map.removeLayer(layer);
         }
