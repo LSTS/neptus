@@ -921,10 +921,10 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
         for (InetSocketAddress add : retId) {
             if (sia.equalsIgnoreCase(add.getAddress().getHostAddress())) {
-                portUdp = add.getPort();
-                hostUdp = add.getAddress().getHostAddress();
                 if (add.getAddress().isReachable(10)) {
                     udpIpPortFound = true;
+                    portUdp = add.getPort();
+                    hostUdp = add.getAddress().getHostAddress();
                     break;
                 }
             }
@@ -946,16 +946,17 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
         for (InetSocketAddress add : retIdT) {
             if (sia.equalsIgnoreCase(add.getAddress().getHostAddress())) {
-                portTcp = add.getPort();
                 if ("".equalsIgnoreCase(hostUdp)) {
-                    hostUdp = add.getAddress().getHostAddress();
                     if (add.getAddress().isReachable(10)) {
                         tcpIpPortFound = true;
+                        hostUdp = add.getAddress().getHostAddress();
+                        portTcp = add.getPort();
                         break;
                     }
                     else
                         continue;
                 }
+                portTcp = add.getPort();
                 tcpIpPortFound = true;
                 break;
             }
