@@ -910,6 +910,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
      */
     private SystemImcMsgCommInfo processAnnounceMessage(MessageInfo info, Announce ann, SystemImcMsgCommInfo vci,
             ImcId16 id) throws IOException {
+        
+        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " );
+        
         String sia = info.getPublisherInetAddress();
         InetSocketAddress[] retId = announceWorker.getImcIpsPortsFromMessageImcUdp(ann);
         int portUdp = 0;
@@ -925,6 +928,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                     udpIpPortFound = true;
                     portUdp = add.getPort();
                     hostUdp = add.getAddress().getHostAddress();
+                    NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "UDP reachable @ " + hostUdp + ":" + portUdp);
                     break;
                 }
             }
@@ -934,6 +938,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             String ipReceived = info.getPublisherInetAddress();
             hostUdp = ipReceived;
             udpIpPortFound = true;
+            NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "no UDP reachable using " + hostUdp + ":" + portUdp);
         }
 
         InetSocketAddress[] retIdT = announceWorker.getImcIpsPortsFromMessageImcTcp(ann);
@@ -951,6 +956,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         tcpIpPortFound = true;
                         hostUdp = add.getAddress().getHostAddress();
                         portTcp = add.getPort();
+                        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "TCP reachable @ " + hostUdp + ":" + portTcp);
                         break;
                     }
                     else
@@ -958,9 +964,12 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 }
                 portTcp = add.getPort();
                 tcpIpPortFound = true;
+                NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "no TCP reachable using " + hostUdp + ":" + portTcp);
                 break;
             }
         }
+
+        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "using UDP@" + hostUdp + ":" + portUdp + " and using TCP@" + hostUdp + ":" + portTcp);
 
         boolean requestEntityList = false;
         if (vci == null) {
