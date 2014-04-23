@@ -911,9 +911,9 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     private SystemImcMsgCommInfo processAnnounceMessage(MessageInfo info, Announce ann, SystemImcMsgCommInfo vci,
             ImcId16 id) throws IOException {
         
-        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " );
-        
         String sia = info.getPublisherInetAddress();
+        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: publisher host address " + sia);
+        
         InetSocketAddress[] retId = announceWorker.getImcIpsPortsFromMessageImcUdp(ann);
         int portUdp = 0;
         String hostUdp = "";
@@ -935,7 +935,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
         if (!udpIpPortFound) {
             // Lets try to see if we received a message from any of the IPs
-            String ipReceived = info.getPublisherInetAddress();
+            String ipReceived = hostUdp.isEmpty() ? info.getPublisherInetAddress() : hostUdp;
             hostUdp = ipReceived;
             udpIpPortFound = true;
             NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "no UDP reachable using " + hostUdp + ":" + portUdp);
