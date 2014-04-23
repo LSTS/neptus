@@ -41,6 +41,7 @@ import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.Timer;
@@ -531,15 +532,56 @@ public class AnnounceWorker {
             IMCMessage msg = imcDefinition.create("Heartbeat");
             msg.setTimestamp(System.currentTimeMillis()/1000.0);
             
-            if (sys.isUDPOn() && imcManager.isUdpOn())
-                imcManager.sendMessage(msg, sys.getId(), ImcMsgManager.TRANSPORT_UDP);
+            if (sys.isUDPOn() && imcManager.isUdpOn()) {
+                imcManager.sendMessage(msg, sys.getId(), ImcMsgManager.TRANSPORT_UDP,
+                        getMessageDeliveryListenerFor(sys.getName(), "by UDP, " + " @ " + sys.getHostAddress() + ":" + sys.getRemoteUDPPort()));
+            }
             
-            if (sys.isTCPOn() && imcManager.isTcpOn())
-                imcManager.sendMessage(msg, sys.getId(), ImcMsgManager.TRANSPORT_TCP);
+            if (sys.isTCPOn() && imcManager.isTcpOn()) {
+                imcManager.sendMessage(msg, sys.getId(), ImcMsgManager.TRANSPORT_TCP,
+                        getMessageDeliveryListenerFor(sys.getName(), "by TCP" + " @ " + sys.getHostAddress() + ":" + sys.getRemoteTCPPort()));
+            }
         }
         catch (Exception e) {
             NeptusLog.pub().warn(e);
         }
+    }
+    
+    private MessageDeliveryListener getMessageDeliveryListenerFor(final String systemId, final String extraInfo) {
+        return new MessageDeliveryListener() {
+            private String getBaseDisplayMsg(final String systemId, final String extraInfo, IMCMessage message, String result) {
+                Date timeStampDate = new Date(message.getTimestampMillis());
+                return "Sent result for system " + systemId
+                        + (extraInfo != null && !extraInfo.isEmpty() ? " (" + extraInfo + ") " : "") 
+                        + " @" + DateTimeUtil.timeFormaterUTC.format(timeStampDate) + " UTC, of message "
+                        + message.getAbbrev() + " was: " + result;
+            }
+
+            @Override
+            public void deliveryUnreacheable(IMCMessage message) {
+                NeptusLog.pub().debug(getBaseDisplayMsg(systemId, extraInfo, message, "Unreacheable"));
+            }
+            
+            @Override
+            public void deliveryUncertain(IMCMessage message, Object msg) {
+                NeptusLog.pub().debug(getBaseDisplayMsg(systemId, extraInfo, message, "Uncertain" + (msg != null ? " :: " + msg : "")));
+            }
+            
+            @Override
+            public void deliveryTimeOut(IMCMessage message) {
+                NeptusLog.pub().debug(getBaseDisplayMsg(systemId, extraInfo, message, "Timeout"));
+            }
+            
+            @Override
+            public void deliverySuccess(IMCMessage message) {
+                NeptusLog.pub().debug(getBaseDisplayMsg(systemId, extraInfo, message, "Success"));
+            }
+            
+            @Override
+            public void deliveryError(IMCMessage message, Object error) {
+                NeptusLog.pub().debug(getBaseDisplayMsg(systemId, extraInfo, message, "Error" + (error != null ? " :: " + error : "")));
+            }
+        };
     }
     
     private void sendPlanDBMsgs(ImcSystem sys) {
