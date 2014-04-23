@@ -52,11 +52,13 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 
@@ -66,10 +68,16 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticSystems;
 import pt.lsts.imc.AcousticSystemsQuery;
+import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.RSSI;
+import pt.lsts.imc.StorageUsage;
 import pt.lsts.imc.TextMessage;
+import pt.lsts.imc.Voltage;
+import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -122,7 +130,8 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     protected JToggleButton toggle;
     protected String selectedSystem = null;
     protected String gateway = "any";
-
+    protected JLabel lblState = new JLabel("<html><h1>Please select a gateway</h1>");
+    
     protected LinkedHashMap<Integer, PlanControl> pendingRequests = new LinkedHashMap<>();
 
     @NeptusProperty(name = "Systems listing", description = "Use commas to separate system identifiers")
@@ -184,6 +193,48 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         }
     }
     
+    @Periodic(millisBetweenUpdates=1500) 
+    public void updateStateLabel() {
+        if (!lblState.isVisible())
+            return;
+        lblState.setText(buildState());
+    }
+    
+    private String buildState() {
+        if (gateway == null || gateway.equals("any"))
+            return I18n.text("<html><h1>Please select a gateway</h1></html>");
+        ImcSysState state = ImcMsgManager.getManager().getState(gateway);
+        StringBuilder html = new StringBuilder("<html>");
+        html.append(I18n.textf("<h1>%gateway state</h1>", gateway));
+        html.append("<blockquote><ul>\n");
+        try {
+            RSSI iridiumRSSI = state.lastRSSI("Iridium Modem");    
+            html.append(I18n.textf("<li>Iridium RSSI: %d  &#37;</li>\n", iridiumRSSI.getValue()));
+        }
+        catch (Exception e) {}
+        
+        try {
+            GpsFix gpsFix = state.lastGpsFix();    
+            html.append(I18n.textf("<li>GPS satellites: %d</li>\n", gpsFix.getSatellites()));
+        }
+        catch (Exception e) {}
+        
+        try {
+            StorageUsage storageUsage = state.lastStorageUsage();
+            html.append(I18n.textf("<li>Storage Usage: %d  &#37;</li>\n", storageUsage.getValue()));
+        }
+        catch (Exception e) {}
+        
+        try {
+            Voltage voltage = state.lastVoltage("Main Board"); 
+            html.append(I18n.textf("<li>Voltage: %d v</li>\n", voltage.getValue()));
+        }
+        catch (Exception e) {}
+
+        html.append("</html>");
+        return html.toString();
+    }
+    
     
     @Override
     public void initSubPanel() {
@@ -225,7 +276,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
                 if (option == -1)
                     return;
-                System.err.println("start plan " + ops[option]);
+                NeptusLog.pub().warn("Start plan " + ops[option]);
 
                 ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
                         SystemTypeEnum.ALL, true);
@@ -266,7 +317,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         });
 
         ImcMsgManager.getManager().addListener(this);
-
+        
         JPanel ctrlPanel = new JPanel();
         //BoxLayout layout = new BoxLayout(ctrlPanel, BoxLayout.PAGE_AXIS);
         ctrlPanel.setLayout(new GridLayout(0, 1, 2, 2));
@@ -294,12 +345,11 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                 Object gw = JOptionPane.showInputDialog(getConsole(), "Select Gateway", "Select acoustic gateway to use",
                         JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
 
-                System.out.println(gw);
-                
                 if (gw != null)
                     gateway = ""+gw;
                 
                 ((JButton)arg0.getSource()).setText(I18n.textf("GW: %s", gateway));
+                lblState.setText(buildState());
             }
         });
         ctrlPanel.add(btn);
@@ -448,9 +498,12 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         JSplitPane split1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(listPanel),
                 ctrlPanel);
         split1.setDividerLocation(180);
+        JTabbedPane tabs = new JTabbedPane();
+        tabs.addTab("Acoustic Operations", split1);
+        tabs.addTab("Gateway state", lblState);
         bottomPane.setEditable(false);
         bottomPane.setBackground(Color.white);
-        JSplitPane split2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, split1, new JScrollPane(bottomPane));
+        JSplitPane split2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tabs, new JScrollPane(bottomPane));
         split2.setDividerLocation(150);
         setLayout(new BorderLayout());
         add(split2, BorderLayout.CENTER);

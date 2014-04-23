@@ -93,7 +93,7 @@ public class SpotLocationProvider implements ILocationProvider {
                         lon = Double.parseDouble(nd.getTextContent());
                         break;
                     case "messengerName":
-                        name = nd.getTextContent();
+                        name = nd.getTextContent().toLowerCase();
                         break;
                     case "batteryState":
                         battState = nd.getTextContent();

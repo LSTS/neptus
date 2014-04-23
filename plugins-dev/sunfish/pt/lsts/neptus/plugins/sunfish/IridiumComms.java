@@ -294,7 +294,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                     }
                 });
 
-        popup.add(I18n.textf("Subscribe to device updates", getMainVehicleId())).addActionListener(
+        popup.add(I18n.textf("Subscribe to iridium device updates", getMainVehicleId())).addActionListener(
                 new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -310,7 +310,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                     }
                 });
 
-        popup.add(I18n.textf("Unsubscribe to device updates", getMainVehicleId())).addActionListener(
+        popup.add(I18n.textf("Unsubscribe to iridium device updates", getMainVehicleId())).addActionListener(
                 new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
