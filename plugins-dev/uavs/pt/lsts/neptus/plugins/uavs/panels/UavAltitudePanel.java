@@ -98,9 +98,6 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
 
     //current profile active in the host's MigLayoutPanel
     private String profile;
-
-    //structure used to house the pixels per mark and marking grade for drawing purposes
-    private Point pixelsPerMark_markGrade_Pair;
    
     //listener object which allows the panel to tap into the various IMC messages
     private MultiSystemIMCMessageListener listener;
@@ -113,11 +110,6 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
     }
 
     // ------Setters and Getters------//
-
-    // PixelsPerMark_markGrade_Pair
-    private void setPixelsPerMark_markGrade_Pair(Point point) {
-        this.pixelsPerMark_markGrade_Pair = point;
-    }
 
     // Layers
     private void setLayers(LinkedHashMap<String, IUavPainter> backgroundLayers) {
@@ -159,7 +151,6 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
         setLayers(new LinkedHashMap<String, IUavPainter>());
         setVehicleAltitudes(new LinkedHashMap<String, Integer>());
         setArgs(new LinkedHashMap<String, Object>());
-        setPixelsPerMark_markGrade_Pair(new Point());
 
         // sets up the listener to listen to all vehicles
         listener.setSystemToListen();
@@ -222,10 +213,7 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
      * @return void
      */
     private void prepareArgs() {
-        
-        //updates the UavRulerPainter's maximum altitude
-        determinePixelsPerMark(pixelsPerMark_markGrade_Pair,this.getHeight(),((Number)(Math.floor((this.getHeight())/100)*100)).intValue(),markWidth);
-               
+                      
         //preparation for UavMissionElementPainter (Uav)
         if (profile.equals("TACO")) {
 
@@ -247,8 +235,6 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
             args.put("Ruler.MaxAlt", Collections.max(vehicleAltitudes.values()));
             args.put("Uavs.MaxAlt", Collections.max(vehicleAltitudes.values()));
         }
-        
-        args.put("markInfo", pixelsPerMark_markGrade_Pair);
     }
 
     /**
@@ -267,6 +253,8 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
         args.put("Skybox.Size", new int[] {this.getWidth() - SIDE_PANEL_WIDTH, this.getHeight() - BOTTOM_LABEL_HEIGHT});
         args.put("SidePanel.Size", new int[] {SIDE_PANEL_WIDTH, this.getHeight()});
         args.put("AltitudeLabel.Size", new int[] {this.getWidth() - SIDE_PANEL_WIDTH, BOTTOM_LABEL_HEIGHT});  
+        
+        repaint();
     }
     
     /**
@@ -281,54 +269,6 @@ public class UavAltitudePanel extends ConsolePanel implements ComponentListener 
             args.put("AltitudeLabel.Text", "Alt. "+"[m]");
         else if(measure.equals("Imperial"))
             args.put("AltitudeLabel.Text", "Alt. "+"[f]"); 
-    }
-    
-    /**
-     * Method called when the bar measure units are changed.
-     * 
-     * @param height
-     * @param rulerMax
-     * @return void
-     */
-    private void determinePixelsPerMark(Point ret, int height, int rulerMax, int minMarkHeight) {
-
-        rulerMax = updateRulerMax(rulerMax);
-
-        ret.x = 0;
-        ret.y = 1;
-        int i = 0;
-
-        while ((ret.x = height / (rulerMax / ret.y)) < 2 * minMarkHeight) {
-            switch (i % 2) {
-                case 0:
-                    ret.y *= 5;
-                    break;
-                default:
-                    ret.y *= 2;
-                    break;
-            }
-            i++;
-        }
-    }
-
-    /**
-     * @param object
-     * @return
-     */
-    private int updateRulerMax(int ret) {
-
-        // determines the highest altitude value
-        for (Integer alt : vehicleAltitudes.values()) {
-            if (ret < alt) {
-                ret = alt;
-            }
-        }
-
-        if (ret % 100 != 0) {
-            ret = ((Number) (Math.floor(ret / 100) * 100 + 100)).intValue();
-        }
-
-        return ret;
     }
     
     // ------Listeners------//
