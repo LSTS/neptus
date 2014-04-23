@@ -36,6 +36,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Paint;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.io.File;
@@ -48,6 +49,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
+import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -64,7 +66,11 @@ import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.SidescanLogMarker;
+import pt.lsts.neptus.mra.api.SidescanParser;
+import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.sidescan.SidescanAnalyzer;
+import pt.lsts.neptus.plugins.sidescan.SidescanPanel;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
@@ -430,7 +436,7 @@ public class LsfReport {
         return true;
     }
     
-  //novo metodo
+  //new method
     public static void createTable(PdfContentByte cb, Document doc, IMraLogGroup source, MRAPanel panel) throws DocumentException {
         
         try {
@@ -455,12 +461,22 @@ public class LsfReport {
                 table.addCell(locString);
                 
                 if (m.getClass()==SidescanLogMarker.class){
-                    table.addCell("");                  
-
-                }else//nao esta no sidescan
+                    sd = (SidescanLogMarker) m;
+                    table.addCell("w="+sd.w+" | h="+sd.h);
+                    //com.lowagie.text.Image itextImage;//iText image type
+                    BufferedImage image;
+                    SidescanPanel ssPanel;
+                    SidescanParser ssParser = SidescanParserFactory.build(source);
+                    int subsystem = ssParser.getSubsystemList().get(0);//reboscado
+                    SidescanAnalyzer ssAnalyser = new SidescanAnalyzer(panel);
+                    ssPanel = new SidescanPanel(ssAnalyser, ssParser, subsystem);
+                    image = ssPanel.getSidescanMark(sd);
+                    if (image!=null){
+                        String path = "/home/miguel/lsts/sidescanImages/";
+                        ImageIO.write(image, "PNG", new File(path, "test("+sd.label+").png"));
+                    }              
+                }else//not in sidescan:
                     table.addCell("");
-                    
-                //PdfPCell
             }          
             
             cb.beginText();
@@ -480,7 +496,7 @@ public class LsfReport {
             //data:
             ArrayList rows = table.getRows();
             for (int i=1;i<rows.size();i++){
-                if (ypos<100){
+                if (ypos<100){//check ypos within page range
                     doc.newPage();
                     cb.beginText();
                     cb.setFontAndSize(bf, 24);
@@ -496,9 +512,8 @@ public class LsfReport {
                 else
                     cb.setColorFill(Color.black);
                 ypos = table.writeSelectedRows(i, i+1, xpos, ypos, cb);
-                //verificar se o ypos ainda ta dentro da pagina
+                
             }
-            //System.out.println("-------------------------------------\nypos="+ypos+"\n--------------------------------------------");
             
         }catch (Exception e) {
             e.printStackTrace();
@@ -583,3 +598,5 @@ public class LsfReport {
         }
     }
 }
+
+

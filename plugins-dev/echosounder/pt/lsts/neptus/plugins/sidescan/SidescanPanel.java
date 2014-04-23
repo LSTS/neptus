@@ -35,6 +35,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
@@ -56,8 +57,10 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.Timeline;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.SidescanLogMarker;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
@@ -78,7 +81,7 @@ import pt.lsts.neptus.util.VideoCreator;
  */
 public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener {
     private static final long serialVersionUID = 1L;
-
+    
     private SidescanAnalyzer parent;
     SidescanConfig config = new SidescanConfig();
     private SidescanToolbar toolbar = new SidescanToolbar(this);
@@ -118,7 +121,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     else if (parent.getTimeline().isRunning()) {           // clear points list if sidescan is running
                         pointList.clear();
                     }
-
+                    
                     drawMarks(layer.getGraphics());
                     drawRuler(layer.getGraphics());
 
@@ -344,6 +347,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         drawList.clear();
         removeList.clear();
+        
     }
 
     private void drawZoom(Graphics g) {
@@ -353,7 +357,86 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g.drawImage(ImageUtils.getFasterScaledInstance(zoomImage, 300, 300), image.getWidth() - 301,
                 image.getHeight() - 301, null);
     }
+    
+//---------------------------------------------------------------
+    public BufferedImage getSidescanMark(SidescanLogMarker mark){
+        //21-04 22-04 23-04
+        ArrayList<BufferedImage> buffImgList = new ArrayList<BufferedImage>();
 
+        int w = mark.w;
+        int h = mark.h;
+        if (w<=0 || h<=0){//point
+            w=100;
+            h=100;
+        }
+        
+        long t,t1,t2;
+        t=new Double(mark.timestamp).longValue();
+        t1=ssParser.firstPingTimestamp();
+        t2=ssParser.lastPingTimestamp();
+
+        ArrayList<SidescanLine> list = ssParser.getLinesBetween(t,t2,subsystem,sidescanParams);
+        if (list.isEmpty()){
+            System.out.println("\nList empty1\n");
+            return null;
+
+        }
+        SidescanLine line = list.get(0);//central line
+        list = ssParser.getLinesBetween(t1, t2, subsystem, sidescanParams);
+        
+        if (list.isEmpty()){
+            System.out.println("\nList empty1\n");
+            return null;
+        }
+        
+        int markY=-1;
+        for (SidescanLine ssLine : list){//add lines
+            ssLine.image = new BufferedImage(ssLine.data.length, 1, BufferedImage.TYPE_INT_RGB);
+
+            for (int c = 0; c < ssLine.data.length; c++) {
+                ssLine.image.setRGB(c, 0, config.colorMap.getColor(ssLine.data[c]).getRGB());
+            }
+            if (ssLine.image!=null)
+                buffImgList.add(ssLine.image);
+            else
+                return null;
+            if(ssLine.timestampMillis==line.timestampMillis){
+                markY=ssLine.ypos;
+            }
+                
+        }
+        
+        
+        //limits: not working
+        int bottomLim = markY - (mark.h / 2);
+        int upperLim = markY + (mark.h / 2);
+        
+        System.out.println("y="+markY+" | bot="+bottomLim+" | up="+upperLim);
+        
+        //merge all buffered images:
+        int width = w;
+        int height=0;
+        
+        if (buffImgList.size()==0)
+            return null;
+        
+        for (BufferedImage bi : buffImgList)
+            height += bi.getHeight();//get total height
+        
+        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics g = result.getGraphics();
+        double scale = (result.getWidth() / 2) / line.range;
+        int x = (int) ((result.getWidth() / 2) + (mark.x * scale));
+        int y=0;
+        for (BufferedImage bi : buffImgList){
+            g.drawImage(bi, x, y, null);
+            y += bi.getHeight();
+        }
+        
+        return result;
+    }
+    
+//------------------------------------------------------------
 
     private void drawInfo(Graphics g) {
         if (mouseSidescanLine != null) {
