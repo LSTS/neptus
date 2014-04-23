@@ -34,18 +34,25 @@ package pt.lsts.neptus.plugins.ipcam;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.LinkedHashMap;
 
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
+import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -57,7 +64,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.LayerPriority;
-import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.StringPatternValidator;
 
 import com.xuggle.mediatool.IMediaListener;
@@ -68,22 +74,21 @@ import com.xuggle.mediatool.event.IVideoPictureEvent;
 import com.xuggle.xuggler.IError;
 
 enum Status{
-    INIT,CONN,STOP,RCON;
+    OFF,INIT,CONN,STOP,RCON;
 }
 
 /**
  * Neptus panel designed to allow operator with viewer access to on-board IP camera's video stream, through RTSP protocol.
  * 
- * @author jfortuna
  * @author canastaman
- * @version 2.1
+ * @version 2.2
  * @category CameraPanel 
  *
  */
 @Popup( pos = POSITION.RIGHT, width=640, height=400)
 @LayerPriority(priority=0)
-@PluginDescription(name="AirCam Display", version="2.1", author="Sergio Ferreira", description="Video displayer for IP Cameras", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
-public class AirCamDisplay extends ConsolePanel implements ConfigurationListener, ComponentListener{
+@PluginDescription(name="AirCam Display", version="2.2", author="Sergio Ferreira", description="Video displayer for IP Cameras", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
+public class AirCamDisplay extends ConsolePanel implements ConfigurationListener, ItemListener{
 
     private static final long serialVersionUID = 1L;
 
@@ -91,22 +96,40 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     public String ip = "10.0.20.209";
     
     @NeptusProperty(name="Camera Brand", description="Brand for the installed camera (not case sensitive)")
-    public String brand = "ubiquiti"; // pdias: Why not use a enum since we only support 2 cameras?
+    public String brand = "ubiquiti";
+    
+    @NeptusProperty(name="Camera Alias", description="Camera's network alias camera (not case sensitive)")
+    public String alias = "camera-03";
+    
+    //small test with private camera element to emulate vehicle-def file loading data
+    private Camera activeCamera;
     
     //small listener which allows the user to quickly tap into the panel settings
     private MouseAdapter mouseListener;
 
     //represents the current state of connection between the display panel and the camera
-    private Status status = Status.INIT;
-    
-    //image size factor for resizing purposes
-    private double factor;
-    
-    protected BufferedImage imageToDisplay = null;
-    
+    private Status status = Status.OFF;
+        
     //worker thread designed to acquire the data packet from the online camera
     protected Thread updater = null;
 
+    //collection of 'detected' cameras on the network 
+    protected LinkedHashMap<String,Camera> cameraList;
+    
+    private JComboBox<String> choicelist = null;
+    
+    private JTextField ipField = null;
+    private JTextField positionField = null;
+    private JTextField zoomField = null;
+    
+    private JPanel propertiesPanel = null;
+    private JPanel controlPanel = null; 
+    
+    private ImagePanel imagePanel = null;
+    
+    private JToggleButton recordButton = null;
+    private JToggleButton connectButton = null;
+    
     public AirCamDisplay(ConsoleLayout console) {
         super(console);
 
@@ -133,13 +156,6 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     
                     JPopupMenu popup = new JPopupMenu();
-                    
-                    popup.add(I18n.text("Reconnect")).addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            reconnect();
-                        }
-                    });
 
                     popup.add(I18n.text("Settings")).addActionListener(new ActionListener() {
                         @Override
@@ -155,32 +171,16 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     }
 
     @Override
-    public void paint(Graphics g) {
-        //backdrop reset
-        g.setColor(Color.black);
-        g.fillRect(0, 0, getWidth(), getHeight());
-        
-        if (imageToDisplay != null) {
-            ((Graphics2D)g).scale(factor,factor);
-            g.drawImage(imageToDisplay,
-                    (int) ((getWidth() - factor *  imageToDisplay.getWidth())  / (factor * 2)),
-                    (int) ((getHeight() - factor * imageToDisplay.getHeight())  / (factor * 2)),
-                    null);
-        }
-    }
-
-    @Override
     public Dimension getPreferredSize() {
         return new Dimension(640, 400);
     }
 
-    public void reconnect() {
-        NeptusLog.pub().info(this.getClass().getSimpleName()+" attemptig to reconnect to "+ip);
-        
-        if(status == Status.STOP) {
+    public void establishConnection() {
+        NeptusLog.pub().info(this.getClass().getSimpleName()+" attemptig to establish connection with "+ip);
+         
+        if(status == Status.STOP || status == Status.OFF) {
             status = Status.INIT;
             updater = updaterThread();
-            updater.setPriority(Thread.MIN_PRIORITY);
             updater.start();
         }      
         else
@@ -188,7 +188,7 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
     }
     
     private Thread updaterThread() {
-        // Could't we also initialize and start it here only if needed?
+        
         Thread ret = new Thread("RTSP Worker Thread") {
 
             boolean isRunning = true;
@@ -199,13 +199,13 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                 @Override
                 public void onVideoPicture(IVideoPictureEvent event) {
                     try {
-                        imageToDisplay = event.getImage();
+                        imagePanel.setImage(event.getImage());
                         repaint();
                     }
                     catch (Exception ex) {
                         status = Status.STOP;
                         NeptusLog.pub().error(ex);
-                        NeptusLog.pub().warn("Verify camera settings before attempting to reconnect"); 
+                        NeptusLog.pub().warn("Verify camera settings before attempting to connect"); 
                     }
                 }
             };
@@ -214,14 +214,14 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
             public void run() {
                 while (isRunning) {
                     //ensures only one thread is launched
-                    if (updater == this) { // pdias: Why even start a thread if is not going to be stop?
+                    if (updater == this) {
                         if (status != Status.STOP) {
                             if (status == Status.INIT) {
-                                if (brand.equalsIgnoreCase("axis")) {
-                                    path = "rtsp://"+ip+"/axis-media/media.amp";
+                                if (activeCamera.brand.equalsIgnoreCase("axis")) {
+                                    path = "rtsp://"+activeCamera.ip+"/axis-media/media.amp";
                                 }
-                                else if (brand.equalsIgnoreCase("ubiquiti")) {
-                                    path = "rtsp://"+ip+":554/live/ch00_0";
+                                else if (activeCamera.brand.equalsIgnoreCase("ubiquiti")) {
+                                    path = "rtsp://"+activeCamera.ip+":554/live/ch00_0";
                                 }
                                                                 
                                 //initializes the reader responsible for the rtsp data input
@@ -237,7 +237,7 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                                 }
                                 catch (Exception e) {
                                     NeptusLog.pub().error(e);
-                                    NeptusLog.pub().warn("Verify camera settings before attempting to reconnect"); 
+                                    NeptusLog.pub().warn("Verify camera settings before attempting to connect"); 
                                     status = Status.STOP;
                                 }                                
                             }
@@ -254,7 +254,7 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                         
                                 if (err != null) {
                                     NeptusLog.pub().error(err);
-                                    NeptusLog.pub().warn("Verify camera settings before attempting to reconnect");                                    
+                                    NeptusLog.pub().warn("Verify camera settings before attempting to connect");                                    
                                     status = Status.STOP;
                                 }
                             }
@@ -265,13 +265,16 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                     else
                         isRunning = false;
                 }
-                imageToDisplay = null;
                 status = Status.STOP;
+                
+                //in case of internal thread termination
+                connectButton.setSelected(false);
+                recordButton.setSelected(false);
+                recordButton.setEnabled(false);
+                
                 NeptusLog.pub().info(this.getName() + " exiting");
             }
         };
-        // ret.setPriority(Thread.MIN_PRIORITY); // pdias: Why not set this here?
-        // ret.start();
 
         return ret;
     }
@@ -283,64 +286,225 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
 
     @Override
     public void propertiesChanged() {
-        if (status != Status.INIT)
-            reconnect();
+        
+        if(status != Status.OFF){
+            
+            Camera newCam = new Camera(ip,alias,"Nose",brand,52.0,1.0);
+            
+            if(cameraList.get(alias)!= null) {
+                choicelist.addItem(alias);
+            }
+                      
+            cameraList.put(alias, newCam);
+        }
     }
 
     @Override
     public void initSubPanel() {
         setMouseListener();
         addMouseListener(mouseListener);
-        addComponentListener(this);
-                       
-        //initialize video thread
-        updater = updaterThread();
-        updater.setPriority(Thread.MIN_PRIORITY);
-        updater.start();
+        cameraList = new LinkedHashMap<String,Camera>();
+        
+        imagePanel = new ImagePanel();
+        choicelist = new JComboBox<String>();
+        ipField = new JTextField();
+        positionField = new JTextField();
+        zoomField = new JTextField();
+        recordButton = new JToggleButton();
+        connectButton = new JToggleButton();
+        
+        //gather up camera information
+        loadCameraList();        
+        
+        propertiesPanelSetup();        
+        
+        controlPanelSetup();
+        
+        recordButton.addItemListener(this);
+        connectButton.addItemListener(this);
+        choicelist.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    
+                    //gathers new camera to connect
+                    activeCamera = cameraList.get(choicelist.getSelectedItem());
+                    
+                    ipField.setText(activeCamera.ip);
+                    positionField.setText(activeCamera.position);
+                    zoomField.setText(Double.toString(activeCamera.zoom));
+                    
+                    if(status != Status.STOP && status != Status.OFF) {                        
+                        establishConnection();
+                    }
+                }
+            }
+        );
+        
+        //panel general layout setup
+        this.setLayout(new MigLayout());
+        this.add(imagePanel,"w 100%, h 100%, span 1 2, growy");
+        this.add(propertiesPanel,"w 100px!, h 100%, wrap");
+        this.add(controlPanel,"w 100px!, h 100px!");
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.event.ComponentListener#componentResized(java.awt.event.ComponentEvent)
-     */
-    @Override
-    public void componentResized(ComponentEvent e) {
-        System.out.println("resized");
-        if (imageToDisplay!=null) {
-            double factorw = (double) getWidth() / imageToDisplay.getWidth();
-            double factorh = (double) getHeight() / imageToDisplay.getHeight();
-            factor = (factorw < factorh ? factorw : factorh);
-        }        
-    }
-
-    /* (non-Javadoc)
-     * @see java.awt.event.ComponentListener#componentMoved(java.awt.event.ComponentEvent)
-     */
-    @Override
-    public void componentMoved(ComponentEvent e) {
-        // TODO Auto-generated method stub
-    }
-
-    /* (non-Javadoc)
-     * @see java.awt.event.ComponentListener#componentShown(java.awt.event.ComponentEvent)
-     */
-    @Override
-    public void componentShown(ComponentEvent e) {
-        System.out.println("shown");
-    }
-
-    /* (non-Javadoc)
-     * @see java.awt.event.ComponentListener#componentHidden(java.awt.event.ComponentEvent)
-     */
-    @Override
-    public void componentHidden(ComponentEvent e) {
-        System.out.println("hidden");
-    }
-    
     /**
-     * @param args
+     * 
      */
-    public static void main(String[] args) {
-        final AirCamDisplay display = new AirCamDisplay(null);
-        GuiUtils.testFrame(display, "Camera Display");
+    private void controlPanelSetup() {
+        controlPanel = new JPanel(new MigLayout());
+        controlPanel.add(new JLabel(I18n.text("Connection"),SwingConstants.CENTER), "w 100%, wrap");
+            connectButton.setText(I18n.text("Off"));
+            connectButton.setBackground(Color.red.darker());
+            connectButton.setHorizontalAlignment(JButton.CENTER);
+        controlPanel.add(connectButton, "w 100%, wrap");
+        controlPanel.add(new JLabel(I18n.text("Record Stream"),SwingConstants.CENTER), "w 100%, wrap");
+            recordButton.setText(I18n.text("Off"));
+            recordButton.setBackground(Color.red.darker());
+            recordButton.setHorizontalAlignment(JButton.CENTER);
+            recordButton.setEnabled(false);
+        controlPanel.add(recordButton, "w 100%, wrap");
+    }
+
+    /**
+     * 
+     */
+    private void propertiesPanelSetup() {
+        propertiesPanel = new JPanel(new MigLayout());
+        propertiesPanel.add(new JLabel(I18n.text("Camera Alias"),SwingConstants.CENTER), "w 100%, wrap");
+        propertiesPanel.add(choicelist, "w 100%, wrap");
+        propertiesPanel.add(new JLabel(I18n.text("Ip Address"),SwingConstants.CENTER), "w 100%, wrap");
+            ipField.setText(activeCamera.ip);
+            ipField.setHorizontalAlignment(JTextField.CENTER);
+            ipField.setEditable(false);
+        propertiesPanel.add(ipField, "w 100%, wrap");
+        propertiesPanel.add(new JLabel(I18n.text("Position"),SwingConstants.CENTER), "w 100%, wrap");
+            positionField.setText(activeCamera.position);
+            positionField.setHorizontalAlignment(JTextField.CENTER);
+            positionField.setEditable(false);
+        propertiesPanel.add(positionField, "w 100%, wrap");
+        propertiesPanel.add(new JLabel(I18n.text("Zoom"),SwingConstants.CENTER), "w 100%, wrap");
+            zoomField.setText(Double.toString(activeCamera.zoom));
+            zoomField.setHorizontalAlignment(JTextField.CENTER);
+            zoomField.setEditable(false);
+        propertiesPanel.add(zoomField, "w 100%, wrap");
+    }
+
+    /**
+     * Method responsible for the collection of detected cameras
+     */
+    private void loadCameraList() {
+        activeCamera = new Camera("10.0.20.209","camera-03","Nose","Ubiquiti",52.0,1.0);
+        cameraList.put("camera-03", activeCamera);
+        cameraList.put("camera-08", new Camera("10.0.20.199","camera-08","Nose","Axis",52.0,1.0)); 
+        
+        for (Camera cam : cameraList.values()) {
+            choicelist.addItem(cam.alias);
+        }
+        choicelist.setSelectedIndex(0);
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.ItemListener#itemStateChanged(java.awt.event.ItemEvent)
+     */
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+    
+        JToggleButton input = (JToggleButton) e.getSource();
+        
+        if(input.equals(connectButton)) {
+            if(e.getStateChange() == ItemEvent.SELECTED){
+                
+                //gathers new camera to connect
+                activeCamera = cameraList.get(choicelist.getSelectedItem());
+                           
+                //changes appearance
+                connectButton.setText(I18n.text("On"));
+                ipField.setText(activeCamera.ip);
+                positionField.setText(activeCamera.position);
+                zoomField.setText(Double.toString(activeCamera.zoom));
+                
+                establishConnection();
+                
+                //enables recording
+                recordButton.setEnabled(true);
+            }
+            else{
+                status = Status.STOP;
+                
+                //changes appearance
+                connectButton.setText(I18n.text("Off"));
+                
+                //disable recording
+                recordButton.setSelected(false);
+                recordButton.setEnabled(false);
+            }
+        }
+        else if(input.equals(recordButton)) {
+            if(e.getStateChange() == ItemEvent.SELECTED){
+                NeptusLog.pub().warn("Unimplemented Feature");  
+                
+                //changes appearance
+                recordButton.setText(I18n.text("On"));
+            }
+            else{
+                NeptusLog.pub().warn("Unimplemented Feature"); 
+                
+                //changes appearance
+                recordButton.setText(I18n.text("Off")); 
+            }
+        }       
     }
 }
+
+/**
+ * Auxiliary class that emulates the existence of a camera Database, if camera data was loaded from external files this class would become obsolete
+ */
+class Camera
+{
+    /*
+     * Some of the data will be placeholder to evaluate operator receptivity
+     */
+    public String ip; 
+    public String alias;  
+    public String position; 
+    public String brand;
+    public double fov;
+    public double zoom;
+    
+    public Camera(String ip, String alias, String position, String brand, double d, double e) {
+        this.ip = ip;
+        this.alias = alias;
+        this.position = position;
+        this.brand = brand;
+        this.fov = d;
+        this.zoom = e;
+    }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return alias;
+    }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) 
+            return false;
+        if (obj == this) 
+            return true;
+        if (!(obj instanceof Camera))
+            return false;
+        
+        Camera newCamera = (Camera)obj;
+        
+        if (this.ip.equals(newCamera.ip))
+            return true;
+        else
+            return false;
+    }
+ };
