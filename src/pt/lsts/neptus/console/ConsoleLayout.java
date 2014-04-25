@@ -49,11 +49,13 @@ import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -174,10 +176,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     // Controller Manager to be used by every plugin that uses an external controller (Gamepad, etc...)
     private final ControllerManager controllerManager;
 
+    // Holders for all console panels, map layers, and map interactions 
     private final List<ConsolePanel> subPanels = new ArrayList<>();
-    private final List<IConsoleLayer> layers = new ArrayList<>();
-    private final List<IConsoleInteraction> interactions = new ArrayList<>();
-    
+    private final Map<IConsoleLayer, Boolean> layers = new LinkedHashMap<>();
+    private final Map<IConsoleInteraction, Boolean> interactions = new LinkedHashMap<>();
 
     /*
      * UI stuff
@@ -196,6 +198,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     protected ComponentSelector consolePluginSelector = null;
     protected MainSystemSelectionCombo mainSystemCombo;
     protected int startIndexForDynamicMenus = 0;
+
+    // Max/min helpers
+    private Rectangle2D minimizedBounds = null;
+    private ConsolePanel maximizedPanel = null;
 
     protected Vector<SubPanelChangeListener> subPanelListeners = new Vector<SubPanelChangeListener>();
     protected Vector<MissionChangeListener> missionListeners = new Vector<MissionChangeListener>();
@@ -846,11 +852,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             sp.init();
         }
         
-        for (IConsoleLayer layer : layers) {
+        for (IConsoleLayer layer : layers.keySet()) {
             layer.init(this);
         }
         
-        for (IConsoleInteraction inter : interactions) {
+        for (IConsoleInteraction inter : interactions.keySet()) {
             inter.init(this);
         }
     }
@@ -988,14 +994,16 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         
         if (!layers.isEmpty()) {
             Element layersElem = root.addElement("layers");
-            for (IConsoleLayer l : layers) {
-                layersElem.add(l.asElement("layer"));
+            for (IConsoleLayer l : layers.keySet()) {
+                if (layers.get(l))
+                    layersElem.add(l.asElement("layer"));
             }
         }
         
         if (!interactions.isEmpty()) {
             Element interactionsElem = root.addElement("interactions");
-            for (IConsoleInteraction i : interactions) {
+            for (IConsoleInteraction i : interactions.keySet()) {
+                    if (interactions.get(i))
                 interactionsElem.add(i.asElement("interaction"));
             }
         }
@@ -1177,19 +1185,27 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         
         // If there is a new map, add all existing layers to it        
         if (action == SubPanelChangeAction.ADDED && sub instanceof MapPanel) {
-            for (IConsoleLayer layer : layers) {
+            for (IConsoleLayer layer : layers.keySet()) {
                 ((MapPanel)sub).addPostRenderPainter(layer, layer.getName());
             }
-            for (IConsoleInteraction i : interactions) {
+            for (IConsoleInteraction i : interactions.keySet()) {
                 ((MapPanel)sub).addInteraction(i);
             }
         }
     }
     
-    public boolean addInteraction(IConsoleInteraction interaction) {
+    /**
+     * Add a layer that (optionally) is not preserved in the console's layout file)
+     * Use this for interactions added by ConsolePanels so they don't get added a second time.
+     * @param interaction
+     * @param storeInConsoleXml Whether the layer should be added to the console's configuration. 
+     * Use <code>false</code> if it's an internal layer.
+     * @return Whether the interaction was correctly added. 
+     */
+    public boolean addInteraction(IConsoleInteraction interaction, boolean storeInConsoleXml) {
         Vector<MapPanel> maps = getSubPanelsOfClass(MapPanel.class);
         
-        if (interactions.contains(interaction)) {
+        if (interactions.containsKey(interaction)) {
             NeptusLog.pub().error("Interation was already present in this console.");
             return false;
         }
@@ -1200,7 +1216,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
         
         interaction.init(this);
-        interactions.add(interaction);
+        interactions.put(interaction, storeInConsoleXml);
         
         for (MapPanel map : maps) {
             map.addInteraction(interaction);            
@@ -1208,9 +1224,13 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         
         return true;
     }
-    
+
+    public boolean addInteraction(IConsoleInteraction interaction) {
+        return addInteraction(interaction, true);
+    }
+
     public boolean removeInteraction(IConsoleInteraction interaction) {
-        if (!interactions.contains(interaction)) {
+        if (!interactions.containsKey(interaction)) {
             NeptusLog.pub().error("Interaction not found in this console.");
             return false;
         }
@@ -1226,6 +1246,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     
     /**
      * Add a layer that (optionally) is not preserved in the console's layout file)
+     * Use this for layers added by ConsolePanels so they don't get added a second time.
      * @param layer The layer to be added
      * @param storeInConsoleXml Whether the layer should be added to the console's configuration. 
      * Use <code>false</code> if it's an internal layer.
@@ -1234,7 +1255,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     public boolean addMapLayer(IConsoleLayer layer, boolean storeInConsoleXml) {
         Vector<MapPanel> maps = getSubPanelsOfClass(MapPanel.class);
         
-        if (layers.contains(layer)) {
+        if (layers.containsKey(layer)) {
             NeptusLog.pub().error("Layer was already present in this console.");
             return false;
         }
@@ -1246,8 +1267,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         
         layer.init(this);
         
-        if (storeInConsoleXml)
-            layers.add(layer);
+        layers.put(layer, storeInConsoleXml);
         
         for (MapPanel map : maps) {
             map.addLayer(layer);            
@@ -1328,21 +1348,24 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                     .get(AutoSnapshotConsoleAction.class);
             autosnapshot.cleanClose();
 
-            for (IConsoleLayer layer : layers) {
+            for (IConsoleLayer layer : layers.keySet()) {
                 layer.clean();
                 System.out.println("cleaned " + layer.getName());
             }
             layers.clear();
-            
+
+            for (IConsoleInteraction interaction : interactions.keySet()) {
+                interaction.clean();
+                System.out.println("cleaned " + interaction.getName());
+            }
+            interactions.clear();
+
             for (ConsoleSystem system : consoleSystems.values()) {
                 system.clean();
             }
             consoleSystems.clear();
             mainPanel.clean();
             statusBar.clean();
-
-            
-            
             
             this.cleanKeyBindings();
             this.imcOff();
@@ -1354,11 +1377,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         }
 
         NeptusLog.pub().info("console layout cleanup end in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
-
     }
-
-    private Rectangle2D minimizedBounds = null;
-    private ConsolePanel maximizedPanel = null;
 
     public void minimizePanel(ConsolePanel p) {
 
@@ -1814,17 +1833,17 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     /**
-     * @return the layers
+     * @return a copy of the layers
      */
     public List<IConsoleLayer> getLayers() {
-        return layers;
+        return Arrays.asList(layers.keySet().toArray(new IConsoleLayer[0]));
     }
 
     /**
-     * @return the interactions
+     * @return a copy of the interactions
      */
     public List<IConsoleInteraction> getInteractions() {
-        return interactions;
+        return Arrays.asList(interactions.keySet().toArray(new IConsoleInteraction[0]));
     }
 
     // MAIN FOR TESTING ONLY
