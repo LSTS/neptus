@@ -140,6 +140,8 @@ public class LogsDownloaderWorker {
 
     private FtpDownloader clientFtp = null;
     private FtpDownloader cameraFtp = null;
+    
+    private boolean stopLogListProcessing = false;
 
     private String host = "127.0.0.1";
     private int port = DEFAULT_PORT;
@@ -654,6 +656,9 @@ public class LogsDownloaderWorker {
                 AsyncTask task = new AsyncTask() {
                     @Override
                     public Object run() throws Exception {
+                        if (stopLogListProcessing)
+                            stopLogListProcessing = false;
+
                         // long time = System.currentTimeMillis();
                         // NeptusLog.pub().info("<###>.......downloadListAction");
                         SwingUtilities.invokeAndWait(new Runnable() {
@@ -744,7 +749,6 @@ public class LogsDownloaderWorker {
                         }
 
                         if (retList.size() == 0) {
-                            // TODO
                             SwingUtilities.invokeAndWait(new Runnable() {
                                 @Override
                                 public void run() {
@@ -769,12 +773,17 @@ public class LogsDownloaderWorker {
                         Object[] objArray = new Object[logFolderList.myModel.size()];
                         logFolderList.myModel.copyInto(objArray);
                         for (Object comp : objArray) {
+                            if (stopLogListProcessing)
+                                return null;
+                                
                             try {
                                 // NeptusLog.pub().info("<###>... upda
                                 LogFolderInfo log = (LogFolderInfo) comp;
                                 if (!retList.containsValue(log.getName())) {
                                     // retList.remove(log.getName());
                                     for (LogFileInfo lfx : log.getLogFiles()) {
+                                        if (stopLogListProcessing)
+                                            return null;
                                         lfx.setState(LogFolderInfo.State.LOCAL);
                                     }
                                     log.setState(LogFolderInfo.State.LOCAL);
@@ -791,6 +800,9 @@ public class LogsDownloaderWorker {
                         LinkedList<LogFolderInfo> existenteLogFoldersFromServer = new LinkedList<LogFolderInfo>();
                         LinkedList<LogFolderInfo> newLogFoldersFromServer = new LinkedList<LogFolderInfo>();
                         for (String newLogName : retList.values()) {
+                            if (stopLogListProcessing)
+                                return null;
+
                             final LogFolderInfo newLogDir = new LogFolderInfo(newLogName);
                             if (logFolderList.containsFolder(newLogDir)) {
                                 existenteLogFoldersFromServer.add(logFolderList.getFolder((newLogDir.getName())));
@@ -838,6 +850,9 @@ public class LogsDownloaderWorker {
 
                         // Testing for log files from each log folder
                         for (Object comp : objArray) {
+                            if (stopLogListProcessing)
+                                return null;
+
                             try {
                                 LogFolderInfo logFolder = (LogFolderInfo) comp;
 
@@ -847,6 +862,9 @@ public class LogsDownloaderWorker {
                                 LinkedHashSet<LogFileInfo> logFilesTmp = (indexLFolder != -1) ? tmpLogFolderList.get(
                                         indexLFolder).getLogFiles() : new LinkedHashSet<LogFileInfo>();
                                         for (LogFileInfo logFx : logFilesTmp) {
+                                            if (stopLogListProcessing)
+                                                return null;
+
                                             if (!logFolder.getLogFiles().contains(logFx)) {
                                                 logFolder.addFile(logFx);
                                             }
@@ -906,7 +924,7 @@ public class LogsDownloaderWorker {
 
                         // long timeF3 = System.currentTimeMillis();
                         // updateFilesListGUIForFolderSelected();
-                        new Thread() {
+                        new Thread("updateFilesListGUIForFolderSelected") {
                             @Override
                             public void run() {
                                 updateFilesListGUIForFolderSelected();
@@ -946,6 +964,8 @@ public class LogsDownloaderWorker {
 
                     @Override
                     public void finish() {
+                        stopLogListProcessing = false;
+                        
                         logFolderList.setValueIsAdjusting(false);
                         logFolderList.invalidate();
                         logFolderList.revalidate();
@@ -963,7 +983,6 @@ public class LogsDownloaderWorker {
                             this.getResultOrThrow();
                         }
                         catch (Exception e) {
-                            // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
                     }
@@ -1356,6 +1375,7 @@ public class LogsDownloaderWorker {
      * 
      */
     private void disconnectFTPClientsForListing() {
+        stopLogListProcessing = true;
         if (clientFtp != null && clientFtp.getClient().isConnected()) {
             try {
                 clientFtp.getClient().disconnect();
