@@ -70,6 +70,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
+import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.ConfigurationListener;
@@ -93,7 +94,7 @@ import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
  *
  */
 @SuppressWarnings("serial")
-@PluginDescription(name="HF Radar Visualization", author="Paulo Dias", version="0.5")
+@PluginDescription(name="HF Radar Visualization", author="Paulo Dias", version="0.9", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
 @LayerPriority(priority = -50)
 public class HFRadarVisualization extends ConsolePanel implements Renderer2DPainter, IPeriodicUpdates, ConfigurationListener {
 
@@ -101,8 +102,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      * Currents, wind, waves, SST 
      */
 
-    @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR, category="Visibility")
-    public boolean visible = true;
+//    @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR, category="Visibility")
+//    public boolean visible = true;
 
     @NeptusProperty(name = "Show currents", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean showCurrents = true;
@@ -307,7 +308,40 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     private final HashMap<String, SSTDataPoint> dataPointsSST = new HashMap<>();
     private final HashMap<String, WindDataPoint> dataPointsWind = new HashMap<>();
     private final HashMap<String, WavesDataPoint> dataPointsWaves = new HashMap<>();
+
+    @PluginDescription(name="HF Radar Visualization Layer", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
+    private class HFRadarConsoleLayer extends ConsoleLayer {
+        @Override
+        public void setVisible(boolean visible) {
+            super.setVisible(visible);
+        }
+        
+        @Override
+        public boolean userControlsOpacity() {
+            return false;
+        }
+
+        @Override
+        public void initLayer() {
+        }
+
+        @Override
+        public void cleanLayer() {
+        }
+        
+        /* (non-Javadoc)
+         * @see pt.lsts.neptus.console.ConsoleLayer#paint(java.awt.Graphics2D, pt.lsts.neptus.renderer2d.StateRenderer2D)
+         */
+        @Override
+        public void paint(Graphics2D g, StateRenderer2D renderer) {
+            super.paint(g, renderer);
+            
+            paintWorker(g, renderer);
+        }
+    }
     
+    private final HFRadarConsoleLayer consoleLayer = new HFRadarConsoleLayer();
+
     public HFRadarVisualization(ConsoleLayout console) {
         super(console);
         httpComm.initializeComm();
@@ -315,6 +349,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     
     @Override
     public void initSubPanel() {
+        getConsole().addMapLayer(consoleLayer, false);
         
 //        HashMap<String, HFRadarDataPoint> tdp = processNoaaHFRadarTest();
 //        mergeCurrentsDataToInternalDataList(tdp);
@@ -343,6 +378,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      */
     @Override
     public void cleanSubPanel() {
+        getConsole().removeMapLayer(consoleLayer);
+
         httpComm.cleanUp();
     }
     
@@ -805,9 +842,12 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      */
     @Override
     public void paint(Graphics2D go, StateRenderer2D renderer) {
-        if (!visible)
-            return;
-        
+//        if (!visible)
+//            return;
+//        paintWorker(go, renderer);
+    }
+    
+    public void paintWorker(Graphics2D go, StateRenderer2D renderer) {
         if (!clearImgCachRqst) {
             if (isToRegenerateCache(renderer))
                 cacheImg = null;
