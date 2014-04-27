@@ -429,6 +429,15 @@ For simple use the main targets are:
 		<delete dir="${build.dir}" />
 		<delete dir="${tmp.dir}" />
 		<delete dir="${plugin.dir.dest}" />
+		<delete file="${jar.file.path}" />
+		<delete>
+			<fileset dir="${bin.bundle.dir}">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${bin.dir}">
+				<include name="*.jar"/>
+			</fileset>
+		</delete>
 		<delete>
 			<fileset dir=".">
 				<include name="*.tar.gz"/>
