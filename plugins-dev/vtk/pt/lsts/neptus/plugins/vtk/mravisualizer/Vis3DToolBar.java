@@ -90,6 +90,9 @@ public class Vis3DToolBar extends JToolBar {
     private static final ImageIcon ICON_RESETVIEWPORT = ImageUtils.getScaledIcon(
             "images/menus/camera.png", ICON_SIZE, ICON_SIZE);
 
+    private static final String MB_CLOUD_NAME = "multibeam";
+    private static final String DVL_CLOUD_NAME = "dvl";
+
     private VtkMRAVis vtkInit;
     private Canvas canvas;
     private vtkRenderer renderer;
@@ -242,14 +245,11 @@ public class Vis3DToolBar extends JToolBar {
                 else
                     sensorTypeInt = SensorTypeInteraction.MULTIBEAM;
                 events.setSensorTypeInteraction(sensorTypeInt);
-                if(!linkedHashMapCloud.containsKey("multibeam")) {
-                    vtkInit.loadCloudBySensorType("multibeam");
-                    renderer.AddActor(linkedHashMapCloud.get("multibeam").getCloudLODActor());
-                    canvas.Render();
-                } else {
-                    renderer.AddActor(linkedHashMapCloud.get("multibeam").getCloudLODActor());
-                    canvas.Render();
-                }
+                // load data if it doesn't exist
+                if(!linkedHashMapCloud.containsKey(MB_CLOUD_NAME))
+                    vtkInit.loadCloudBySensorType(MB_CLOUD_NAME);
+                events.addActorToRenderer(MB_CLOUD_NAME);
+                canvas.Render();
             }
             else if(!multibeamToggle.isSelected()) {
                 if (dvlToggle.isSelected())
@@ -257,8 +257,10 @@ public class Vis3DToolBar extends JToolBar {
                 else
                     sensorTypeInt = SensorTypeInteraction.NONE;
                 events.setSensorTypeInteraction(sensorTypeInt);
-                if(linkedHashMapCloud.containsKey("multibeam"))
-                    renderer.RemoveActor(linkedHashMapCloud.get("multibeam").getCloudLODActor());
+                if(linkedHashMapCloud.containsKey(MB_CLOUD_NAME)) {
+                    renderer.RemoveActor(linkedHashMapCloud.get(MB_CLOUD_NAME).getCloudLODActor());
+                    renderer.RemoveActor(linkedHashMapMesh.get(MB_CLOUD_NAME).getMeshCloudLODActor());
+                }
                 canvas.Render();
             }
             if(multibeamToggle.isSelected() && dvlToggle.isSelected())
@@ -282,14 +284,10 @@ public class Vis3DToolBar extends JToolBar {
                 else
                     sensorTypeInt = SensorTypeInteraction.DVL;
                 events.setSensorTypeInteraction(sensorTypeInt);
-                if(!linkedHashMapCloud.containsKey("dvl")) {
-                    vtkInit.loadCloudBySensorType("dvl");
-                    renderer.AddActor(linkedHashMapCloud.get("dvl").getCloudLODActor());
-                    canvas.Render();
-                } else {
-                    renderer.AddActor(linkedHashMapCloud.get("dvl").getCloudLODActor());
-                    canvas.Render();
-                }
+                if(!linkedHashMapCloud.containsKey(DVL_CLOUD_NAME))
+                    vtkInit.loadCloudBySensorType(DVL_CLOUD_NAME);
+                events.addActorToRenderer(DVL_CLOUD_NAME);
+                canvas.Render();
             }
             else if(!dvlToggle.isSelected()) {
                 if(multibeamToggle.isSelected())
@@ -297,7 +295,8 @@ public class Vis3DToolBar extends JToolBar {
                 else
                     sensorTypeInt = SensorTypeInteraction.NONE;
                 events.setSensorTypeInteraction(sensorTypeInt);
-                canvas.GetRenderer().RemoveActor(linkedHashMapCloud.get("dvl").getCloudLODActor());
+                canvas.GetRenderer().RemoveActor(linkedHashMapCloud.get(DVL_CLOUD_NAME).getCloudLODActor());
+                canvas.GetRenderer().RemoveActor(linkedHashMapMesh.get(DVL_CLOUD_NAME).getMeshCloudLODActor());
                 canvas.Render();
             }
             if(multibeamToggle.isSelected() && dvlToggle.isSelected())
@@ -328,18 +327,18 @@ public class Vis3DToolBar extends JToolBar {
                 }
                 switch (events.getSensorTypeInteraction()) {
                     case ALL:
-                        if(linkedHashMapCloud.containsKey("dvl"))
-                            renderer.AddActor(linkedHashMapCloud.get("dvl").getCloudLODActor());
-                        if(linkedHashMapCloud.containsKey("multibeam"))
-                            renderer.AddActor(linkedHashMapCloud.get("multibeam").getCloudLODActor());
+                        if(linkedHashMapCloud.containsKey(DVL_CLOUD_NAME))
+                            renderer.AddActor(linkedHashMapCloud.get(DVL_CLOUD_NAME).getCloudLODActor());
+                        if(linkedHashMapCloud.containsKey(MB_CLOUD_NAME))
+                            renderer.AddActor(linkedHashMapCloud.get(MB_CLOUD_NAME).getCloudLODActor());
                         break;
                     case MULTIBEAM:
-                        if(linkedHashMapCloud.containsKey("multibeam"))
-                            renderer.AddActor(linkedHashMapCloud.get("multibeam").getCloudLODActor());
+                        if(linkedHashMapCloud.containsKey(MB_CLOUD_NAME))
+                            renderer.AddActor(linkedHashMapCloud.get(MB_CLOUD_NAME).getCloudLODActor());
                         break;
                     case DVL:
-                        if(linkedHashMapCloud.containsKey("dvl"))
-                            renderer.AddActor(linkedHashMapCloud.get("dvl").getCloudLODActor());
+                        if(linkedHashMapCloud.containsKey(DVL_CLOUD_NAME))
+                            renderer.AddActor(linkedHashMapCloud.get(DVL_CLOUD_NAME).getCloudLODActor());
                         break;
                     default:
                         break;
@@ -363,25 +362,25 @@ public class Vis3DToolBar extends JToolBar {
                 }
                 switch (events.getSensorTypeInteraction()) {
                     case ALL:
-                        if(linkedHashMapMesh.containsKey("multibeam")) {
-                            linkedHashMapMesh.get("multibeam").getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
-                            renderer.AddActor(linkedHashMapMesh.get("multibeam").getMeshCloudLODActor());
+                        if(linkedHashMapMesh.containsKey(MB_CLOUD_NAME)) {
+                            linkedHashMapMesh.get(MB_CLOUD_NAME).getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
+                            renderer.AddActor(linkedHashMapMesh.get(MB_CLOUD_NAME).getMeshCloudLODActor());
                         }
-                        if(linkedHashMapMesh.containsKey("dvl")) {
-                            linkedHashMapMesh.get("dvl").getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
-                            renderer.AddActor(linkedHashMapMesh.get("dvl").getMeshCloudLODActor());
+                        if(linkedHashMapMesh.containsKey(DVL_CLOUD_NAME)) {
+                            linkedHashMapMesh.get(DVL_CLOUD_NAME).getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
+                            renderer.AddActor(linkedHashMapMesh.get(DVL_CLOUD_NAME).getMeshCloudLODActor());
                         }
                         break;
                     case MULTIBEAM:
-                        if(linkedHashMapMesh.containsKey("multibeam")) {
-                            linkedHashMapMesh.get("multibeam").getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
-                            renderer.AddActor(linkedHashMapMesh.get("multibeam").getMeshCloudLODActor());
+                        if(linkedHashMapMesh.containsKey(MB_CLOUD_NAME)) {
+                            linkedHashMapMesh.get(MB_CLOUD_NAME).getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
+                            renderer.AddActor(linkedHashMapMesh.get(MB_CLOUD_NAME).getMeshCloudLODActor());
                         }
                         break;
                     case DVL:
-                        if(linkedHashMapMesh.containsKey("dvl")) {
-                            linkedHashMapMesh.get("dvl").getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
-                            renderer.AddActor(linkedHashMapMesh.get("dvl").getMeshCloudLODActor());
+                        if(linkedHashMapMesh.containsKey(DVL_CLOUD_NAME)) {
+                            linkedHashMapMesh.get(DVL_CLOUD_NAME).getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
+                            renderer.AddActor(linkedHashMapMesh.get(DVL_CLOUD_NAME).getMeshCloudLODActor());
                         }
                         break;
                     default:
@@ -407,25 +406,25 @@ public class Vis3DToolBar extends JToolBar {
                 }
                 switch (events.getSensorTypeInteraction()) {
                     case ALL:
-                        if(linkedHashMapMesh.containsKey("multibeam")) {
-                            linkedHashMapMesh.get("multibeam").getMeshCloudLODActor().GetProperty().SetRepresentationToSurface();
-                            renderer.AddActor(linkedHashMapMesh.get("multibeam").getMeshCloudLODActor());
+                        if(linkedHashMapMesh.containsKey(MB_CLOUD_NAME)) {
+                            linkedHashMapMesh.get(MB_CLOUD_NAME).getMeshCloudLODActor().GetProperty().SetRepresentationToSurface();
+                            renderer.AddActor(linkedHashMapMesh.get(MB_CLOUD_NAME).getMeshCloudLODActor());
                         }
-                        if(linkedHashMapMesh.containsKey("dvl")) {
-                            linkedHashMapMesh.get("dvl").getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
-                            renderer.AddActor(linkedHashMapMesh.get("dvl").getMeshCloudLODActor());
+                        if(linkedHashMapMesh.containsKey(DVL_CLOUD_NAME)) {
+                            linkedHashMapMesh.get(DVL_CLOUD_NAME).getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
+                            renderer.AddActor(linkedHashMapMesh.get(DVL_CLOUD_NAME).getMeshCloudLODActor());
                         }
                         break;
                     case MULTIBEAM:
-                        if(linkedHashMapMesh.containsKey("multibeam")) {
-                            linkedHashMapMesh.get("multibeam").getMeshCloudLODActor().GetProperty().SetRepresentationToSurface();
-                            renderer.AddActor(linkedHashMapMesh.get("multibeam").getMeshCloudLODActor());
+                        if(linkedHashMapMesh.containsKey(MB_CLOUD_NAME)) {
+                            linkedHashMapMesh.get(MB_CLOUD_NAME).getMeshCloudLODActor().GetProperty().SetRepresentationToSurface();
+                            renderer.AddActor(linkedHashMapMesh.get(MB_CLOUD_NAME).getMeshCloudLODActor());
                         }
                         break;
                     case DVL:
-                        if(linkedHashMapMesh.containsKey("dvl")) {
-                            linkedHashMapMesh.get("dvl").getMeshCloudLODActor().GetProperty().SetRepresentationToSurface();
-                            renderer.AddActor(linkedHashMapMesh.get("dvl").getMeshCloudLODActor());
+                        if(linkedHashMapMesh.containsKey(DVL_CLOUD_NAME)) {
+                            linkedHashMapMesh.get(DVL_CLOUD_NAME).getMeshCloudLODActor().GetProperty().SetRepresentationToSurface();
+                            renderer.AddActor(linkedHashMapMesh.get(DVL_CLOUD_NAME).getMeshCloudLODActor());
                         }
                         break;
                     default:
@@ -444,20 +443,20 @@ public class Vis3DToolBar extends JToolBar {
         public void actionPerformed(ActionEvent e) {
             if (zExaggerationToggle.isSelected()) {
                 canvas.lock();
-                if(linkedHashMapCloud.containsKey("multibeam"))
-                    DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get("multibeam").getPoly(), VtkMRAVis.zExaggeration);
-                if(linkedHashMapCloud.containsKey("dvl"))
-                    DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get("dvl").getPoly(), VtkMRAVis.zExaggeration);
+                if(linkedHashMapCloud.containsKey(MB_CLOUD_NAME))
+                    DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get(MB_CLOUD_NAME).getPoly(), VtkMRAVis.zExaggeration);
+                if(linkedHashMapCloud.containsKey(DVL_CLOUD_NAME))
+                    DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get(DVL_CLOUD_NAME).getPoly(), VtkMRAVis.zExaggeration);
                 canvas.GetRenderer().ResetCamera();
                 canvas.Render();
                 canvas.unlock();
             }
             else if (!zExaggerationToggle.isSelected()) {
                 canvas.lock();
-                if(linkedHashMapCloud.containsKey("multibeam"))
-                    DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get("multibeam").getPoly(), VtkMRAVis.zExaggeration);
-                if(linkedHashMapCloud.containsKey("dvl"))
-                    DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get("dvl").getPoly(), VtkMRAVis.zExaggeration);
+                if(linkedHashMapCloud.containsKey(MB_CLOUD_NAME))
+                    DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get(MB_CLOUD_NAME).getPoly(), VtkMRAVis.zExaggeration);
+                if(linkedHashMapCloud.containsKey(DVL_CLOUD_NAME))
+                    DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get(DVL_CLOUD_NAME).getPoly(), VtkMRAVis.zExaggeration);
                 canvas.GetRenderer().ResetCamera();
                 canvas.Render();
                 canvas.unlock();
@@ -477,12 +476,12 @@ public class Vis3DToolBar extends JToolBar {
                 canvas.unlock();
 
                 canvas.lock();
-                if(linkedHashMapCloud.containsKey("multibeam"))
-                    if(!linkedHashMapMesh.containsKey("multibeam"))
-                        events.performMeshingOnCloud(linkedHashMapCloud.get("multibeam"));
-                if(linkedHashMapCloud.containsKey("dvl"))
-                    if(!linkedHashMapMesh.containsKey("dvl"))
-                        events.performMeshingOnCloud(linkedHashMapCloud.get("dvl"));
+                if(linkedHashMapCloud.containsKey(MB_CLOUD_NAME))
+                    if(!linkedHashMapMesh.containsKey(MB_CLOUD_NAME))
+                        events.performMeshingOnCloud(linkedHashMapCloud.get(MB_CLOUD_NAME));
+                if(linkedHashMapCloud.containsKey(DVL_CLOUD_NAME))
+                    if(!linkedHashMapMesh.containsKey(DVL_CLOUD_NAME))
+                        events.performMeshingOnCloud(linkedHashMapCloud.get(DVL_CLOUD_NAME));
                 canvas.unlock();
 
                 canvas.lock();
@@ -508,10 +507,10 @@ public class Vis3DToolBar extends JToolBar {
                 canvas.unlock();
 
                 canvas.lock();
-                if(linkedHashMapMesh.containsKey("multibeam"))
-                    events.performMeshSmoothing(linkedHashMapMesh.get("multibeam"));
-                if(linkedHashMapMesh.containsKey("dvl"))
-                    events.performMeshSmoothing(linkedHashMapMesh.get("dvl"));
+                if(linkedHashMapMesh.containsKey(MB_CLOUD_NAME))
+                    events.performMeshSmoothing(linkedHashMapMesh.get(MB_CLOUD_NAME));
+                if(linkedHashMapMesh.containsKey(DVL_CLOUD_NAME))
+                    events.performMeshSmoothing(linkedHashMapMesh.get(DVL_CLOUD_NAME));
                 canvas.unlock();
 
                 canvas.lock();
