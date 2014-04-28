@@ -483,10 +483,10 @@ public class PluginUtils {
                         if ("int".equalsIgnoreCase(f.getGenericType().toString())
                                 || "Integer".equalsIgnoreCase(f.getGenericType().toString())) {
                             String className = propertyValue.getClass().getName();
-                            if(className.equals("java.lang.String")){
+                            if (className.equals("java.lang.String")) {
                                 f.set(obj, Integer.parseInt((String) propertyValue));
                             }
-                            else if (className.equals("java.lang.Long")) {
+                            else { // if (className.equals("java.lang.Long")) {
                                 f.set(obj, Integer.valueOf(((Long) propertyValue).intValue()));
                             }
                         }
