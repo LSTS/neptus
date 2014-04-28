@@ -604,7 +604,7 @@ public class LoaderHelper {
               ioe.printStackTrace();
             }
         }
-        System.out.println("*** SUCCESS reading file "+fileName);
+        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
 
         return new HashMap[] { sstdp, winddp };
     }
@@ -811,14 +811,14 @@ public class LoaderHelper {
               ioe.printStackTrace();
             }
         }
-        System.out.println("*** SUCCESS reading file "+fileName);
+        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
 
         return wavesdp;
     }
 
     /**
      * @param uDimentions
-     * @return
+     * @returns
      */
     private static Pair<Integer, Integer> getLatLonIndexOrder(String uDimentions) {
         Pair<Integer, Integer> ret = null;
