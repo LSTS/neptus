@@ -1329,9 +1329,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         LocationType loc = new LocationType();
         loc.setLatitudeStr(parts[0]);
         loc.setLongitudeStr(parts[1]);
-        loc.setHeight(Double.parseDouble(parts[2]));
-        
-
+        loc.setHeight(parts.length < 3 ? 0 : Double.parseDouble(parts[2]));
         return loc;
     }
     
