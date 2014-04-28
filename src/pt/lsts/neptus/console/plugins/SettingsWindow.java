@@ -81,16 +81,27 @@ public class SettingsWindow extends ConsolePanel {
         super(console);
 
         this.removeAll();
-        List<ConsolePanel> consolePlugins = console.getSubPanels();
-        for (ConsolePanel plugin : consolePlugins) {
+//        List<ConsolePanel> consolePlugins = console.getSubPanels();
+//        for (ConsolePanel plugin : consolePlugins) {
+//            if (plugin != null && plugin instanceof MigLayoutContainer) {
+//                List<ConsolePanel> containerPlugins = ((MigLayoutContainer) plugin).getSubPanels();
+//                for (ConsolePanel containerPlugin : containerPlugins) {
+//                    subPanels.add(containerPlugin);
+//                }
+//                
+//            }
+//        }
+
+        List<PropertiesProvider> consolePlugins = console.getAllPropertiesProviders();
+        for (PropertiesProvider plugin : consolePlugins) {
             if (plugin != null && plugin instanceof MigLayoutContainer) {
                 List<ConsolePanel> containerPlugins = ((MigLayoutContainer) plugin).getSubPanels();
                 for (ConsolePanel containerPlugin : containerPlugins) {
                     subPanels.add(containerPlugin);
                 }
-                
             }
         }
+
     }
 
     private void addButtons() {

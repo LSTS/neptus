@@ -127,6 +127,7 @@ import pt.lsts.neptus.gui.ConsoleFileChooser;
 import pt.lsts.neptus.gui.HideMenusListener;
 import pt.lsts.neptus.gui.Loader;
 import pt.lsts.neptus.gui.MissionFileChooser;
+import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.gui.WaitPanel;
 import pt.lsts.neptus.gui.checklist.exec.CheckListExe;
 import pt.lsts.neptus.gui.system.selection.MainSystemSelectionCombo;
@@ -1035,6 +1036,27 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         return subPanels;
     }
 
+    public List<PropertiesProvider> getAllPropertiesProviders() {
+        List<PropertiesProvider> ret = new ArrayList<>();
+        for (ConsolePanel sp : subPanels) {
+            if (sp instanceof PropertiesProvider)
+                ret.add((PropertiesProvider) sp);
+        }
+        for (IConsoleLayer ly : layers.keySet()) {
+            if (layers.get(ly)) {
+                if (ly instanceof PropertiesProvider)
+                    ret.add((PropertiesProvider) ly);
+            }
+        }
+        for (IConsoleInteraction in : interactions.keySet()) {
+            if (interactions.get(in)) {
+                if (in instanceof PropertiesProvider)
+                    ret.add((PropertiesProvider) in);
+            }
+        }
+        return ret;
+    }
+    
     /**
      * 
      * @param subPanelType
