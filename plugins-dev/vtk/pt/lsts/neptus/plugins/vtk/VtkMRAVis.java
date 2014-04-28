@@ -105,7 +105,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     private Boolean componentEnabled = false;
     private Boolean isFirstRender = true;
 
-    boolean mbFound = false;
+    private boolean mbFound = false;
     private static final String FILE_83P_EXT = ".83P";
 
     /**
@@ -145,9 +145,10 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             add(toolbar2, BorderLayout.WEST);
 
             add(getCanvas());
-            toolbar = new MultibeamToolbar(this);
-            toolbar.createToolbar();
-            add(toolbar.getToolbar(), BorderLayout.SOUTH);
+
+            //            toolbar = new MultibeamToolbar(this);
+            //            toolbar.createToolbar();
+            //            add(toolbar.getToolbar(), BorderLayout.SOUTH);
 
             // add axesWidget to vtk canvas fixed to a screen position
             AxesWidget axesWidget = new AxesWidget(interactorStyle.GetInteractor());
@@ -193,12 +194,12 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
         LoadToPointCloud load = new LoadToPointCloud(source, pointCloud);
         if (sensorType.equals("dvl") && source.getLsfIndex().containsMessagesOfType("Distance")) {
             pointCloud.setCloudName(sensorType);
-            NeptusLog.pub().info("Going to parse dvl data!");
+            // NeptusLog.pub().info("Going to parse dvl data!");
             load.parseDVLPointCloud();
         }
         else if (sensorType.equals("multibeam")) {
             pointCloud.setCloudName("multibeam");
-            NeptusLog.pub().info("Going to parse multibeam data!");
+            // NeptusLog.pub().info("Going to parse multibeam data!");
             load.parseMultibeamPointCloud();
         }
 
@@ -283,7 +284,6 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        // boolean beApplied = false;
 
         if (NeptusMRA.vtkEnabled) { // if it could load vtk libraries
             // Checks existance of a *.83P file
@@ -293,7 +293,6 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
                     for (File temp : file.listFiles()) {
                         if ((temp.toString()).endsWith(FILE_83P_EXT)) {
                             setLog(source);
-                            // beApplied = true;
                             mbFound = true;
                         }
                     }
