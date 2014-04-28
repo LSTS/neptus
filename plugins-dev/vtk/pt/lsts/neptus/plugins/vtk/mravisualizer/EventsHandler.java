@@ -44,6 +44,7 @@ import pt.lsts.neptus.plugins.vtk.surface.MeshSmoothingLaplacian;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import vtk.vtkActorCollection;
 import vtk.vtkPolyData;
+import vtk.vtkRenderer;
 
 
 /**
@@ -52,8 +53,10 @@ import vtk.vtkPolyData;
  */
 public class EventsHandler extends AEventsHandler {
 
+    protected vtkRenderer renderer;
+
     protected LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
-    private final LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
+    protected LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
 
     private enum ColorMappingRelation {
         XMAP, YMAP, ZMAP, IMAP;
@@ -73,6 +76,8 @@ public class EventsHandler extends AEventsHandler {
     public EventsHandler(InteractorStyleVis3D interactorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
             LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh, IMraLogGroup source) {
         super(interactorStyle, source);
+
+        this.renderer = interactorStyle.getRenderer();
 
         this.linkedHashMapCloud = linkedHashMapCloud;
         this.linkedHashMapMesh = linkedHashMapMesh;
@@ -170,7 +175,7 @@ public class EventsHandler extends AEventsHandler {
     }
 
     /**
-     * @param pointCloud 
+     * @param pointCloud
      */
     public void performMeshingOnCloud(PointCloud<PointXYZ> pointCloud) {
         NeptusLog.pub().info("Create Mesh from pointcloud: " + pointCloud.getCloudName());
@@ -192,6 +197,48 @@ public class EventsHandler extends AEventsHandler {
 
         mesh.setPolyData(new vtkPolyData());
         mesh.generateLODActorFromPolyData(smoothing.getPolyData());
+    }
+
+    /**
+     * 
+     * @param cloudName
+     */
+    public void addActorToRenderer(String cloudName) {
+        switch (getRepresentationType()) {
+            case REP_POINTS:
+                renderer.AddActor(linkedHashMapCloud.get(cloudName).getCloudLODActor());
+                break;
+            case REP_WIREFRAME:
+                if (linkedHashMapMesh.containsKey(cloudName)) {
+                    linkedHashMapMesh.get(cloudName).getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
+                    renderer.AddActor(linkedHashMapMesh.get(cloudName).getMeshCloudLODActor());
+                }
+                break;
+            case REP_SOLID:
+                if (linkedHashMapMesh.containsKey(cloudName)) {
+                    linkedHashMapMesh.get(cloudName).getMeshCloudLODActor().GetProperty().SetRepresentationToSurface();
+                    renderer.AddActor(linkedHashMapMesh.get(cloudName).getMeshCloudLODActor());
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * 
+     * @param cloudName
+     */
+    public void removeCloudFromRenderer(String cloudName) {
+        renderer.RemoveActor(linkedHashMapCloud.get(cloudName).getCloudLODActor());
+    }
+
+    /**
+     * 
+     * @param cloudName
+     */
+    public void removeMeshFromRenderer(String cloudName) {
+        renderer.RemoveActor(linkedHashMapMesh.get(cloudName).getMeshCloudLODActor());
     }
 
     /**
