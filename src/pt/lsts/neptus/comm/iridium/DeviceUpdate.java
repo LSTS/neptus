@@ -41,6 +41,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
@@ -114,4 +115,14 @@ public class DeviceUpdate extends IridiumMessage {
         }
         return msgs;
     }
+    
+    @Override
+    public String toString() {
+        String s = super.toString();
+        for (Position p : positions.values()) {
+            s += "\t("+IMCDefinition.getInstance().getResolver().resolve(p.id)+") --> "+new LocationType(Math.toDegrees(p.latitude), Math.toDegrees(p.longitude));
+        }
+        return s;         
+    }
+
 }

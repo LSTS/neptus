@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
@@ -148,6 +149,14 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
      */
     public final void setMessageType(int message_type) {
         this.message_type = message_type;
+    }
+        
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Message of type "+getClass().getSimpleName()+" {\n"); 
+        sb.append("\tSource: "+IMCDefinition.getInstance().getResolver().resolve(getSource())+"\n");
+        sb.append("\tDestination: "+IMCDefinition.getInstance().getResolver().resolve(getDestination())+"\n");
+        return sb.toString();
     }
     
     @Override

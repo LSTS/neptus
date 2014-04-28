@@ -34,6 +34,7 @@ package pt.lsts.neptus.comm.iridium;
 import java.util.Collection;
 import java.util.Vector;
 
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
@@ -91,5 +92,13 @@ public class IridiumCommand extends IridiumMessage {
         msgs.add(new TextMessage("iridium", command));
         return msgs;
     }
+    
+    @Override
+    public String toString() {
+        String s = super.toString();
+        return s + "\tCommand: "+getCommand()+"\n";         
+    }
+    
+    
 
 }

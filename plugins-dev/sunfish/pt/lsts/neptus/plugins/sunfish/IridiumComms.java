@@ -47,8 +47,12 @@ import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
+import org.apache.commons.codec.binary.Hex;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IridiumMsgRx;
+import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.imc.IridiumTxStatus;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.OP;
@@ -61,6 +65,7 @@ import pt.lsts.neptus.comm.iridium.DeactivateSubscription;
 import pt.lsts.neptus.comm.iridium.DesiredAssetPosition;
 import pt.lsts.neptus.comm.iridium.IridiumCommand;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
+import pt.lsts.neptus.comm.iridium.IridiumMessage;
 import pt.lsts.neptus.comm.iridium.TargetAssetPosition;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -108,6 +113,32 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     @Override
     public long millisBetweenUpdates() {
         return 60000;
+    }
+    
+    @Subscribe
+    public void on(IridiumMsgRx msg) {
+        try {
+            byte[] data = msg.getData();
+            NeptusLog.pub().info(msg.getSourceName()+" received iridium message with data "+new String(Hex.encodeHex(data)));
+            IridiumMessage m = IridiumMessage.deserialize(data);
+            NeptusLog.pub().info("Resulting message: "+m);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
+    }
+    
+    @Subscribe
+    public void on(IridiumMsgTx msg) {
+        try {
+            byte[] data = msg.getData();
+            NeptusLog.pub().info(msg.getSourceName()+" request sending of iridium message with data "+new String(Hex.encodeHex(data)));
+            IridiumMessage m = IridiumMessage.deserialize(data);
+            NeptusLog.pub().info("Encoded message: "+m);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
     }
 
     @Override
@@ -165,21 +196,6 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                pc.setType(TYPE.REQUEST);
                pc.setPlanId(selectedPlan);
                sendViaIridium(getMainVehicleId(), pc);
-//               try {
-//                   Collection<ImcIridiumMessage> irMsgs = IridiumManager.iridiumEncode(pc);
-//                   int src = ImcMsgManager.getManager().getLocalId().intValue();
-//                   int dst = IMCDefinition.getInstance().getResolver().resolve(getConsole().getMainSystem());
-//                   
-//                   NeptusLog.pub().warn("PlanControl resulted in "+irMsgs.size()+" iridium SBD messages.");
-//                   for (ImcIridiumMessage irMsg : irMsgs) {
-//                       irMsg.setDestination(dst);
-//                       irMsg.setSource(src);
-//                       IridiumManager.getManager().send(irMsg);
-//                   }
-//               }
-//               catch (Exception e) {
-//                   NeptusLog.pub().error(e);
-//               }
            };
        };
        send.setDaemon(true);

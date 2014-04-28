@@ -104,4 +104,11 @@ public class TargetAssetPosition extends IridiumMessage {
 
         return msgs;
     }
+    
+    @Override
+    public String toString() {
+        String s = super.toString();
+        return s + "\tAsset: "+IMCDefinition.getInstance().getResolver().resolve(getAssetImcId())+"\n" + 
+        "\tLocation: "+getLocation()+"\n";
+    }
 }

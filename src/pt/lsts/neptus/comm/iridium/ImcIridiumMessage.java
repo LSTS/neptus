@@ -70,7 +70,12 @@ public class ImcIridiumMessage extends IridiumMessage {
         long timestamp = in.readUnsignedInt();
         msg = IMCDefinition.getInstance().create(IMCDefinition.getInstance().getMessageName(type));
         msg.setTimestamp(timestamp);
-        IMCDefinition.getInstance().deserializeFields(msg, in);        
+        try {
+            IMCDefinition.getInstance().deserializeFields(msg, in);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         return msg.getPayloadSize() + 6;
     }
 
@@ -98,6 +103,12 @@ public class ImcIridiumMessage extends IridiumMessage {
        if (msg != null)
            vec.add(msg);
        return vec;
+    }
+    
+    @Override
+    public String toString() {
+        String s = super.toString();
+        return s + "\tMessage: "+getMsg().toString();         
     }
 
 }
