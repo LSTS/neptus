@@ -482,7 +482,7 @@ public class PluginUtils {
                     try {
                         if ("int".equalsIgnoreCase(f.getGenericType().toString())
                                 || "Integer".equalsIgnoreCase(f.getGenericType().toString())) {
-                            String className = propertyValue.getClass().toString();
+                            String className = propertyValue.getClass().getName();
                             if(className.equals("java.lang.String")){
                                 f.set(obj, Integer.parseInt((String) propertyValue));
                             }
