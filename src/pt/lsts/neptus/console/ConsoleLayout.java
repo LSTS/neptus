@@ -1241,7 +1241,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         
         interaction.clean();
         
-        return interactions.remove(interaction);
+        return interactions.remove(interaction) == null ? false : true;
     }
     
     /**
@@ -1282,12 +1282,30 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     
     public boolean removeMapLayer(IConsoleLayer layer) {
         for (MapPanel map : getSubPanelsOfClass(MapPanel.class)) {
-            map.removeLayer(layer);
+            try {
+                map.removeLayer(layer);
+            }
+            catch (Exception e) {
+                NeptusLog.pub()
+                        .error("Error removing layer '" + layer.getName() + "' from '" + MapPanel.class.getSimpleName()
+                                + "'!", e);
+            }
         }
         
-        layer.clean();
+        try {
+            layer.clean();
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("Error calling clean from layer '" + layer.getName() + "'!", e);
+        }
         
-        return layers.remove(layer);
+        try {
+            return layers.remove(layer) == null ? false : true;
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("Error removing layer '" + layer.getName() + "' from console layers list!", e);
+            return false;
+        }
     }
 
     /**
