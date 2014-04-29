@@ -98,6 +98,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     private JDialog dialogDecisionSupport;
     private DecisionSupportTable supportTable = new DecisionSupportTable();
     private HashSet<String> updateMethodNames = new HashSet<String>();
+    private HashSet<String> hiddenPosTypes = new HashSet<String>();
 
     @NeptusProperty(name="Ship speed (m/s)")
     public double shipSpeedMps = 10;
@@ -113,6 +114,10 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
 
     @NeptusProperty(name="Location sources", editable = false)
     public String updateMethods = "";
+    
+    @NeptusProperty(name="Hidden position types", editable = false)
+    public String hiddenTypes = "";
+    
     
     @NeptusProperty(name="Maximum position age (hours)")
     public double maxAge = 12;
@@ -149,6 +154,10 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
         updateMethodNames.clear();
         for (String s : updateMethods.split("\\s*,\\s*"))
             updateMethodNames.add(s);
+        
+        hiddenPosTypes.clear();
+        for (String s : hiddenTypes.split("\\s*,\\s*"))
+            hiddenPosTypes.add(s);
 
         for (ILocationProvider prov : localizers) {
             prov.setEnabled(updateMethodNames.contains(prov.getName()));
@@ -266,7 +275,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
         ColorMap cmap = ColorMapFactory.createRedYellowGreenColorMap();
 
         if (event.getButton() == MouseEvent.BUTTON3) {
-            LinkedHashMap<String, Vector<AssetPosition>> positions = positionsByType();
+            final LinkedHashMap<String, Vector<AssetPosition>> positions = positionsByType();
             JPopupMenu popup = new JPopupMenu();
             for (String type : positions.keySet()) {
                 JMenu menu = new JMenu(type + "s");
@@ -339,6 +348,39 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
                     propertiesChanged();
                 }
             });
+            
+            popup.add("Select hidden positions types").addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    JPanel p = new JPanel();
+                    p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
+
+                    for (String type : positions.keySet()) {
+                        JCheckBox check = new JCheckBox(type);
+                        check.setSelected(true);
+                        p.add(check);
+                        check.setSelected(hiddenPosTypes.contains(type));
+                    }
+
+                    int op = JOptionPane.showConfirmDialog(getConsole(), p, "Position types to be hidden",
+                            JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (op == JOptionPane.CANCEL_OPTION)
+                        return;
+                    
+                    Vector<String> types = new Vector<String>();
+                    for (int i = 0; i < p.getComponentCount(); i++) {
+
+                        if (p.getComponent(i) instanceof JCheckBox) {
+                            JCheckBox sel = (JCheckBox) p.getComponent(i);
+                            if (sel.isSelected())
+                                types.add(sel.getText());
+                        }
+                    }
+                    hiddenTypes = StringUtils.join(types, ", ");
+                    propertiesChanged();
+                }
+            });
 
             popup.addSeparator();
             popup.add("Decision Support").addActionListener(new ActionListener() {
@@ -387,6 +429,9 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             List<AssetPosition> positions = track.getTrack(15, 0);
             Point2D lastLoc = null;
             for (AssetPosition p : positions) {
+                if (hiddenPosTypes.contains(p.getType()))
+                    continue;
+                
                 if (p.getAge() >= maxAge * 3600 * 1000)
                     continue;
                 Point2D pt = renderer.getScreenPosition(p.getLoc());

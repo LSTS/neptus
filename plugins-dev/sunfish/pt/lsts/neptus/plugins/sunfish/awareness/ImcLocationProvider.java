@@ -31,11 +31,12 @@
  */
 package pt.lsts.neptus.plugins.sunfish.awareness;
 
-import com.google.common.eventbus.Subscribe;
-
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.RemoteSensorInfo;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -79,7 +80,7 @@ public class ImcLocationProvider implements ILocationProvider {
                 pos.setType(announce.getSysType().toString());
                 break;
         }
-        
+        pos.setSource("IMC (Announce)");
         instance.addAssetPosition(pos);
     }
     
@@ -98,8 +99,12 @@ public class ImcLocationProvider implements ILocationProvider {
         AssetPosition pos = new AssetPosition(sensor.getId(), Math.toDegrees(sensor.getLat()),
                 Math.toDegrees(sensor.getLon()));
         pos.setTimestamp(sensor.getTimestampMillis());
-        pos.setSource(getName());
+        
         pos.setType(sensor.getSensorClass());
+        if (EntitiesResolver.resolveName(sensor.getSourceName(), (int)sensor.getSrcEnt()).equals("AIS Receiver")) {
+            pos.setType("Ship");
+            pos.setSource("AIS Receiver");
+        }        
         instance.addAssetPosition(pos);
     }
     
