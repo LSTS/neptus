@@ -165,12 +165,14 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
         PointCloud<PointXYZ> pointCloud = new PointCloud<>();
         LoadToPointCloud load = new LoadToPointCloud(source, pointCloud);
         if (mbFound) {
+            NeptusLog.pub().info("Parsing Multibeam data.");
             pointCloud.setCloudName("multibeam");
             toolbar2.multibeamToggle.setSelected(true);
             load.parseMultibeamPointCloud();
             events.setSensorTypeInteraction(SensorTypeInteraction.MULTIBEAM);
         }
         else if (source.getLsfIndex().containsMessagesOfType("Distance")) {
+            NeptusLog.pub().info("Parsing DVL data.");
             pointCloud.setCloudName("dvl");
             toolbar2.dvlToggle.setSelected(true);
             load.parseDVLPointCloud();

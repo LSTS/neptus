@@ -206,7 +206,8 @@ public class EventsHandler extends AEventsHandler {
     public void addActorToRenderer(String cloudName) {
         switch (getRepresentationType()) {
             case REP_POINTS:
-                renderer.AddActor(linkedHashMapCloud.get(cloudName).getCloudLODActor());
+                if (linkedHashMapCloud.containsKey(cloudName))
+                    renderer.AddActor(linkedHashMapCloud.get(cloudName).getCloudLODActor());
                 break;
             case REP_WIREFRAME:
                 if (linkedHashMapMesh.containsKey(cloudName)) {

@@ -152,7 +152,7 @@ public abstract class AEventsHandler {
                     canvas.lock();
                     wif.Update();
                     canvas.unlock();
-                    
+
                     NeptusLog.pub().info("Snapshot saved: " + snapshotWriter.GetFileName());
                     snapshotWriter.Write();
                 }
@@ -161,6 +161,19 @@ public abstract class AEventsHandler {
                 }
             }
         });
+    }
+
+    public void resetViewport() {
+        try {
+            canvas.lock();
+            renderer.ResetCamera();
+            renderer.GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
+            canvas.Render();
+            canvas.unlock();
+        }
+        catch (Exception e1) {
+            e1.printStackTrace();
+        }
     }
 
     /**
