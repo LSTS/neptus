@@ -50,14 +50,14 @@ import vtk.vtkPoints;
  */
 public class LoadData {
 
-    private IMraLogGroup source;
+    private final IMraLogGroup source;
 
-    private PointCloudCTD pointcloud;
-    private vtkPoints points;
+    private final PointCloudCTD pointcloud;
+    private final vtkPoints points;
 
-    private vtkDoubleArray tempArray;
-    private vtkDoubleArray salinityArray;
-    private vtkDoubleArray pressureArray;
+    private final vtkDoubleArray tempArray;
+    private final vtkDoubleArray salinityArray;
+    private final vtkDoubleArray pressureArray;
 
     /**
      * @param source
@@ -85,15 +85,18 @@ public class LoadData {
                 break;
             }
 
+            EstimatedState state = indexScanner.next(EstimatedState.class);
+            if (state == null)
+                break;
+            SystemPositionAndAttitude pose = IMCUtils.parseState(state);
+
             if (temp != null)
                 tempArray.InsertValue(count, temp.getValue());
 
             if (salinity != null)
                 salinityArray.InsertValue(count, salinity.getValue());
 
-            EstimatedState state = indexScanner.next(EstimatedState.class);
 
-            SystemPositionAndAttitude pose = IMCUtils.parseState(state);
             points.InsertNextPoint(pose.getPosition().getOffsetNorth(),
                     pose.getPosition().getOffsetEast(),
                     pose.getPosition().getDepth());
