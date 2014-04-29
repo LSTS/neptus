@@ -455,6 +455,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         }
     }
     
+    @Subscribe
     public void consume(RemoteActionsRequest message) {
         if(actions == null) {
             actions = new LinkedHashMap<String, String>();
