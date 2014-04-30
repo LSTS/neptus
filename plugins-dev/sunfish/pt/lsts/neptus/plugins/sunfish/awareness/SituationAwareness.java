@@ -311,9 +311,8 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             popup.add("Randomize colors").addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    java.util.Random rnd = new java.util.Random();
                     for (AssetTrack track : assets.values()) {
-                        track.setColor(new Color(rnd.nextInt(255), rnd.nextInt(255), rnd.nextInt(255)));
+                        track.setColor(new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255)));
                     }
                 }
             });
