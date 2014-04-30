@@ -59,7 +59,6 @@ import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import vtk.vtkRenderer;
 
 /**
  * 
@@ -95,7 +94,6 @@ public class Vis3DToolBar extends JToolBar {
 
     private VtkMRAVis vtkInit;
     private Canvas canvas;
-    private vtkRenderer renderer;
     private EventsHandler events;
     private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
     private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
@@ -126,7 +124,6 @@ public class Vis3DToolBar extends JToolBar {
     public Vis3DToolBar(VtkMRAVis vtkInit) {
         this.vtkInit = vtkInit;
         this.canvas = vtkInit.getCanvas();
-        this.renderer = vtkInit.getCanvas().GetRenderer();
         this.events = vtkInit.getEvents();
         this.linkedHashMapCloud = vtkInit.getLinkedHashMapCloud();
         this.linkedHashMapMesh = vtkInit.getLinkedHashMapMesh();
@@ -196,6 +193,7 @@ public class Vis3DToolBar extends JToolBar {
         solidToggle.addActionListener(renderRepresentationTypeAction);
 
         zExaggerationToggle.addActionListener(zExaggerToggleAction);
+        contoursToggle.addActionListener(contoursToogleAction);
 
         meshingToggle.addActionListener(meshingAction);
         smoothingMeshToggle.addActionListener(smoothingAction);
@@ -439,6 +437,35 @@ public class Vis3DToolBar extends JToolBar {
                 canvas.GetRenderer().ResetCamera();
                 canvas.Render();
                 canvas.unlock();
+            }
+        }
+    };
+
+    ActionListener contoursToogleAction = new ActionListener() {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (contoursToggle.isSelected()) {
+                switch(events.getSensorTypeInteraction()) {
+                    case ALL:
+                        events.performContouring(MB_CLOUD_NAME);
+                        events.performContouring(DVL_CLOUD_NAME);
+                        break;
+                    case DVL:
+                        events.performContouring(DVL_CLOUD_NAME);
+                        break;
+                    case MULTIBEAM:
+                        events.performContouring(MB_CLOUD_NAME);
+                        break;
+                    case NONE:
+                        break;
+                    default:
+                        break;
+
+                }
+            }
+            else {
+
             }
         }
     };
