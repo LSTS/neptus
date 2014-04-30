@@ -73,7 +73,7 @@ public class SystemConfiguration extends ConsolePanel implements NeptusMessageLi
         removeAll();
         
         systemConfEditor = new SystemConfigurationEditorPanel(getMainVehicleId(), Scope.GLOBAL, Visibility.USER, true,
-                false, true, ImcMsgManager.getManager());
+                false, true, getConsole().getImcMsgManager());
         
         setLayout(new BorderLayout());
         add(systemConfEditor);
