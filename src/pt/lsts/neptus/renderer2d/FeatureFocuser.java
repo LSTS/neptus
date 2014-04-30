@@ -73,6 +73,7 @@ public class FeatureFocuser implements IEditorMenuExtension {
     protected static final ImageIcon myLocIcon = ImageUtils.getScaledIcon("images/myloc.png", 24, 24);
 
     private final ConsoleLayout console;
+    private String mainVeh = "";
 
     /**
      * @param console
@@ -89,10 +90,7 @@ public class FeatureFocuser implements IEditorMenuExtension {
         final StateRenderer2D renderer = source.getRenderer();
         MapGroup mg = renderer.getMapGroup();
 
-        //JMenu menu = new JMenu();
-
         JMenu centerInMenu = new JMenu(I18n.text("Center map in..."));
-        JMenuItem centerInMainVeh = new JMenuItem(I18n.text("Center map in main vehicle."));
 
         if (mg == null)
             return null;
@@ -236,6 +234,10 @@ public class FeatureFocuser implements IEditorMenuExtension {
         }
         MenuScroller.setScrollerFor(extMenu);
         centerInMenu.add(extMenu);
+
+        JMenuItem centerInMainVeh = new JMenuItem();
+        mainVeh = (console.getMainSystem() != null) ? console.getMainSystem() : "";
+        centerInMainVeh.setText(I18n.text("Center map in: ") + mainVeh);
 
         centerInMainVeh.addActionListener(new ActionListener() {
 
