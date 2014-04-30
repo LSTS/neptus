@@ -56,7 +56,6 @@ import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler.SensorTypeInteraction;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.InteractorStyleVis3D;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.LoadToPointCloud;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.MultibeamToolbar;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DMenuBar;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DToolBar;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Window;
@@ -91,9 +90,8 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     public vtkLODActor noBeamsTxtActor;
     public Text3D noBeamsText;
 
-    private MultibeamToolbar toolbar;
     private Vis3DMenuBar menuBar;
-    private Vis3DToolBar toolbar2;
+    private Vis3DToolBar toolbar;
 
     private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<String, PointCloud<PointXYZ>>();
     private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh = new LinkedHashMap<String, PointCloudMesh>();
@@ -140,15 +138,11 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             menuBar = new Vis3DMenuBar(this);
             menuBar.createMenuBar();
             add(menuBar, BorderLayout.NORTH);
-            toolbar2 = new Vis3DToolBar(this);
-            toolbar2.createToolBar();
-            add(toolbar2, BorderLayout.WEST);
+            toolbar = new Vis3DToolBar(this);
+            toolbar.createToolBar();
+            add(toolbar, BorderLayout.WEST);
 
             add(getCanvas());
-
-            //            toolbar = new MultibeamToolbar(this);
-            //            toolbar.createToolbar();
-            //            add(toolbar.getToolbar(), BorderLayout.SOUTH);
 
             // add axesWidget to vtk canvas fixed to a screen position
             AxesWidget axesWidget = new AxesWidget(interactorStyle.GetInteractor());
@@ -167,14 +161,14 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
         if (mbFound) {
             NeptusLog.pub().info("Parsing Multibeam data.");
             pointCloud.setCloudName("multibeam");
-            toolbar2.multibeamToggle.setSelected(true);
+            toolbar.multibeamToggle.setSelected(true);
             load.parseMultibeamPointCloud();
             events.setSensorTypeInteraction(SensorTypeInteraction.MULTIBEAM);
         }
         else if (source.getLsfIndex().containsMessagesOfType("Distance")) {
             NeptusLog.pub().info("Parsing DVL data.");
             pointCloud.setCloudName("dvl");
-            toolbar2.dvlToggle.setSelected(true);
+            toolbar.dvlToggle.setSelected(true);
             load.parseDVLPointCloud();
             events.setSensorTypeInteraction(SensorTypeInteraction.DVL);
         }
