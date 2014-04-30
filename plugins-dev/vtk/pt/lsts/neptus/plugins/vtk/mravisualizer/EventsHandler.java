@@ -37,6 +37,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.vtk.events.AEventsHandler;
+import pt.lsts.neptus.plugins.vtk.filters.Contours;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.surface.Delauny2D;
@@ -197,6 +198,14 @@ public class EventsHandler extends AEventsHandler {
 
         mesh.setPolyData(new vtkPolyData());
         mesh.generateLODActorFromPolyData(smoothing.getPolyData());
+    }
+
+    public void performContouring(String cloudName) {
+        if(linkedHashMapMesh.containsKey(cloudName)) {
+            Contours contours = linkedHashMapMesh.get(cloudName).getContours();
+            contours.generateTerrainContours();
+            renderer.AddActor(linkedHashMapMesh.get(cloudName).getContours().getIsolinesActor());
+        }
     }
 
     /**
