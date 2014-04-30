@@ -33,9 +33,7 @@ package pt.lsts.neptus.params;
 
 import java.awt.BorderLayout;
 
-import com.google.common.eventbus.Subscribe;
-
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -46,7 +44,8 @@ import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.imc.IMCMessage;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
