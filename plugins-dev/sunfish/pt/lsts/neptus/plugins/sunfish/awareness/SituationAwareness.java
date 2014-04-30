@@ -47,6 +47,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -90,6 +91,8 @@ import pt.lsts.neptus.util.speech.SpeechUtil;
 @PluginDescription(name = "Situation Awareness", icon = "pt/lsts/neptus/plugins/sunfish/awareness/lamp.png")
 public class SituationAwareness extends ConsoleInteraction implements IConsoleLayer, Renderer2DPainter,
         ConfigurationListener {
+
+    private Random random = new Random();
 
     private LinkedHashMap<String, AssetTrack> assets = new LinkedHashMap<String, AssetTrack>();
     private Vector<ILocationProvider> localizers = new Vector<ILocationProvider>();
@@ -169,8 +172,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     public void addAssetPosition(AssetPosition pos) {
         String asset = pos.getAssetName();
         if (!assets.containsKey(asset)) {
-            java.util.Random rnd = new java.util.Random();
-            AssetTrack track = new AssetTrack(asset, new Color(rnd.nextInt(255), rnd.nextInt(255), rnd.nextInt(255)));
+            AssetTrack track = new AssetTrack(asset, new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255)));
             assets.put(asset, track);
         }
         AssetTrack track = assets.get(asset);
