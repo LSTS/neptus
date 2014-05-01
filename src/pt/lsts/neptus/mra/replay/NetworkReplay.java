@@ -43,6 +43,7 @@ import javax.swing.JToggleButton;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.transports.ImcUdpTransport;
 import pt.lsts.neptus.gui.PropertiesTable;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -80,6 +81,10 @@ public class NetworkReplay extends JPanel implements LogReplayPanel {
 
     @NeptusProperty(name = "Update timestamps", description = "If selected, old messages timestamps will be replaced with current time")
     private boolean updateTimestamps = false;
+    
+    @NeptusProperty(name = "Post locally (to Neptus)", description = "If selected, messages will be received only inside this Neptus instance")
+    private boolean postLocally = false;
+    
     
     @Override
     public String getName() {
@@ -160,7 +165,10 @@ public class NetworkReplay extends JPanel implements LogReplayPanel {
         if (trans != null) {
             if (updateTimestamps)
                 m.setTimestampMillis(System.currentTimeMillis());
-            trans.sendMessage(destination, port, m);
+            if (postLocally)
+                ImcMsgManager.getManager().postInternalMessage(m.getSourceName(), m);
+            else
+                trans.sendMessage(destination, port, m);
         }
     }
 
