@@ -242,15 +242,15 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             AssetPosition prev = t.getLatest();
             AssetPosition pred = t.getPrediction();
             
-            if (prev != null && pred != null) {
-                if (prev.getAge() > maxAge * 3600 * 1000)
-                    continue;
-                g.setColor(t.getColor());
-                g.setStroke(new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f,
-                        new float[] { 3f, 3f }, 0));
-                g.draw(new Line2D.Double(source.getScreenPosition(prev.getLoc()), source.getScreenPosition(pred
-                        .getLoc())));
-            }
+//            if (prev != null && pred != null) {
+//                if (prev.getAge() > maxAge * 3600 * 1000)
+//                    continue;
+//                g.setColor(t.getColor());
+//                g.setStroke(new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f,
+//                        new float[] { 3f, 3f }, 0));
+//                g.draw(new Line2D.Double(source.getScreenPosition(prev.getLoc()), source.getScreenPosition(pred
+//                        .getLoc())));
+//            }
         }
     }
 

@@ -94,18 +94,24 @@ public class ImcLocationProvider implements ILocationProvider {
     
     @Subscribe
     public void on(RemoteSensorInfo sensor) {
-        if (!enabled)
-            return;
-        AssetPosition pos = new AssetPosition(sensor.getId(), Math.toDegrees(sensor.getLat()),
-                Math.toDegrees(sensor.getLon()));
-        pos.setTimestamp(sensor.getTimestampMillis());
-        
-        pos.setType(sensor.getSensorClass());
-        if (EntitiesResolver.resolveName(sensor.getSourceName(), (int)sensor.getSrcEnt()).equals("AIS Receiver")) {
-            pos.setType("Ship");
-            pos.setSource("AIS Receiver");
-        }        
-        instance.addAssetPosition(pos);
+        try {
+            if (!enabled)
+                return;
+            AssetPosition pos = new AssetPosition(sensor.getId(), Math.toDegrees(sensor.getLat()),
+                    Math.toDegrees(sensor.getLon()));
+            pos.setTimestamp(sensor.getTimestampMillis());
+            
+            pos.setType(sensor.getSensorClass());
+            if ("AIS Receiver".equals(EntitiesResolver.resolveName(sensor.getSourceName(), (int)sensor.getSrcEnt()))) {
+                pos.setType("Ship");
+                pos.setSource("AIS Receiver");
+            }        
+            instance.addAssetPosition(pos);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            
+        }
     }
     
     

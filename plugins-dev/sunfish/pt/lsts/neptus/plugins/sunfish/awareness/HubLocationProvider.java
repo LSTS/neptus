@@ -84,7 +84,7 @@ public class HubLocationProvider implements ILocationProvider {
     public void on(Announce announce) {
         if (announce.getLat() != 0 || announce.getLon() != 0) {
             AssetPosition pos = new AssetPosition(announce.getSysName(), Math.toDegrees(announce.getLat()), Math.toDegrees(announce.getLon()));
-            positionsToSend.put(announce.getSrc(), pos);
+            positionsToSend.put(announce.getSrc(), pos);            
         }
     }
     
@@ -129,8 +129,7 @@ public class HubLocationProvider implements ILocationProvider {
         }
         catch (Exception e) {
             NeptusLog.pub().error("Error sending updates to hub", e);
-        }
-        
+        }        
     }
      
     @Periodic(millisBetweenUpdates=1000*60)

@@ -115,7 +115,8 @@ public class IridiumManager {
             }
             catch (Exception e) {
                 e.printStackTrace();
-                NeptusLog.pub().error(e);                
+                NeptusLog.pub().error(e);
+                
             }
         }
     };
