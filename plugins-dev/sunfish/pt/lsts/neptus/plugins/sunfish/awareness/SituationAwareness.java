@@ -34,8 +34,10 @@ package pt.lsts.neptus.plugins.sunfish.awareness;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -78,10 +80,12 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
+import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.speech.SpeechUtil;
 
 /**
@@ -89,6 +93,7 @@ import pt.lsts.neptus.util.speech.SpeechUtil;
  * 
  */
 @PluginDescription(name = "Situation Awareness", icon = "pt/lsts/neptus/plugins/sunfish/awareness/lamp.png")
+@LayerPriority(priority=20)
 public class SituationAwareness extends ConsoleInteraction implements IConsoleLayer, Renderer2DPainter,
         ConfigurationListener {
 
@@ -102,29 +107,42 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     private DecisionSupportTable supportTable = new DecisionSupportTable();
     private HashSet<String> updateMethodNames = new HashSet<String>();
     private HashSet<String> hiddenPosTypes = new HashSet<String>();
-
-    @NeptusProperty(name="Ship speed (m/s)")
+    private Image spot, desired, target, unknown;
+    
+    @NeptusProperty(name = "Ship speed (m/s)")
     public double shipSpeedMps = 10;
 
-    @NeptusProperty(name="AUV speed (m/s)")
+    @NeptusProperty(name = "AUV speed (m/s)")
     public double uuvSpeedMps = 1.25;
 
-    @NeptusProperty(name="Tag safety distance (meters)", description="Minimum distance the ship can be from the tag position")
+    @NeptusProperty(name = "Tag safety distance (meters)", description = "Minimum distance the ship can be from the tag position")
     public double minDist = 3000;
-    
-    @NeptusProperty(name="Audible position updates")
+
+    @NeptusProperty(name = "Audible position updates")
     public boolean audibleUpdates = true;
 
-    @NeptusProperty(name="Location sources", editable = false)
+    @NeptusProperty(name = "Location sources", editable = false)
     public String updateMethods = "";
-    
-    @NeptusProperty(name="Hidden position types", editable = false)
+
+    @NeptusProperty(name = "Hidden position types", editable = false)
     public String hiddenTypes = "";
-    
-    
-    @NeptusProperty(name="Maximum position age (hours)")
+
+    @NeptusProperty(name = "Maximum position age (hours)")
     public double maxAge = 12;
     
+    @NeptusProperty(name = "Paint labels")
+    public boolean paintLabels = true;
+    
+    @NeptusProperty(name = "Paint icons")
+    public boolean paintIcons = false;
+    
+
+    private void loadImages() {
+        spot = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/spot.png");
+        desired = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/desired.png");
+        target = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/target.png");
+        unknown = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/unknown.png");
+    }
     
     @Override
     public void initInteraction() {
@@ -148,7 +166,8 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
 
         for (MapPanel map : getConsole().getSubPanelsOfClass(MapPanel.class))
             map.addLayer(this);
-
+        
+        loadImages();        
         propertiesChanged();
     }
 
@@ -157,7 +176,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
         updateMethodNames.clear();
         for (String s : updateMethods.split("\\s*,\\s*"))
             updateMethodNames.add(s);
-        
+
         hiddenPosTypes.clear();
         for (String s : hiddenTypes.split("\\s*,\\s*"))
             hiddenPosTypes.add(s);
@@ -172,7 +191,8 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     public void addAssetPosition(AssetPosition pos) {
         String asset = pos.getAssetName();
         if (!assets.containsKey(asset)) {
-            AssetTrack track = new AssetTrack(asset, new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255)));
+            AssetTrack track = new AssetTrack(asset, new Color(random.nextInt(255), random.nextInt(255),
+                    random.nextInt(255)));
             assets.put(asset, track);
         }
         AssetTrack track = assets.get(asset);
@@ -217,6 +237,49 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
 
     private JLabel lbl = new JLabel();
 
+    public void paintIcons(Graphics2D g, StateRenderer2D renderer) {
+        for (AssetTrack track : assets.values()) {
+            AssetPosition p = track.getLatest();
+            if (hiddenPosTypes.contains(p.getType()))
+                continue;
+            if (p.getAge() >= maxAge * 3600 * 1000)
+                continue;
+            Point2D pt = renderer.getScreenPosition(p.getLoc());
+            
+            //TODO paint icon here
+            Image img = getIcon(p);
+            if (img != null) {
+                g.drawImage(img, (int)(pt.getX()-8), (int)(pt.getY()-8), (int)(pt.getX()+8), (int)(pt.getY()+8), 0, 0, img.getWidth(null), img.getHeight(null), null);
+            }
+        }
+    }
+    
+    public Image getIcon(AssetPosition pos) {
+        return unknown;
+    }
+    
+    public void paintLabels(Graphics2D g, StateRenderer2D renderer) {
+        g.setFont(new Font("Arial", Font.PLAIN, 11));
+        
+        for (AssetTrack track : assets.values()) {
+            AssetPosition p = track.getLatest();
+            if (hiddenPosTypes.contains(p.getType()))
+                continue;
+
+            if (p.getAge() >= maxAge * 3600 * 1000)
+                continue;
+
+            Point2D pt = renderer.getScreenPosition(p.getLoc());
+            g.setColor(track.getColor());
+
+            g.setColor(Color.black);
+            g.drawString(
+                    p.getAssetName() + " ("
+                            + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - p.getTimestamp())
+                            + ")", (int) (pt.getX() + 13), (int) (pt.getY() + 5));
+        }
+    }
+
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
         super.paintInteraction(g, source);
@@ -241,16 +304,16 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
         for (AssetTrack t : assets.values()) {
             AssetPosition prev = t.getLatest();
             AssetPosition pred = t.getPrediction();
-            
-//            if (prev != null && pred != null) {
-//                if (prev.getAge() > maxAge * 3600 * 1000)
-//                    continue;
-//                g.setColor(t.getColor());
-//                g.setStroke(new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f,
-//                        new float[] { 3f, 3f }, 0));
-//                g.draw(new Line2D.Double(source.getScreenPosition(prev.getLoc()), source.getScreenPosition(pred
-//                        .getLoc())));
-//            }
+
+            if (prev != null && pred != null) {
+                if (prev.getAge() > maxAge * 3600 * 1000)
+                    continue;
+                g.setColor(new Color(t.getColor().getRed(), t.getColor().getGreen(), t.getColor().getBlue(), 128));
+                Point2D pt1 = source.getScreenPosition(prev.getLoc());
+                Point2D pt2 = source.getScreenPosition(pred.getLoc());
+                if (pt1.distance(pt2) < 1000)
+                    g.draw(new Line2D.Double(pt1, pt2));
+            }
         }
     }
 
@@ -282,7 +345,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             for (String type : positions.keySet()) {
                 JMenu menu = new JMenu(type + "s");
                 for (final AssetPosition p : positions.get(type)) {
-                    
+
                     if (p.getAge() > maxAge * 3600 * 1000)
                         continue;
 
@@ -335,7 +398,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
                             JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
                     if (op == JOptionPane.CANCEL_OPTION)
                         return;
-                    
+
                     Vector<String> methods = new Vector<String>();
                     for (int i = 0; i < p.getComponentCount(); i++) {
 
@@ -349,7 +412,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
                     propertiesChanged();
                 }
             });
-            
+
             popup.add("Select hidden positions types").addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -368,7 +431,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
                             JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
                     if (op == JOptionPane.CANCEL_OPTION)
                         return;
-                    
+
                     Vector<String> types = new Vector<String>();
                     for (int i = 0; i < p.getComponentCount(); i++) {
 
@@ -396,7 +459,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
                     }
                     ArrayList<AssetPosition> tags = new ArrayList<AssetPosition>();
                     LinkedHashMap<String, Vector<AssetPosition>> positions = positionsByType();
-                    Vector<AssetPosition> spots = positions.get("SPOT Tag"); 
+                    Vector<AssetPosition> spots = positions.get("SPOT Tag");
                     Vector<AssetPosition> argos = positions.get("Argos Tag");
                     if (spots != null)
                         tags.addAll(spots);
@@ -432,7 +495,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             for (AssetPosition p : positions) {
                 if (hiddenPosTypes.contains(p.getType()))
                     continue;
-                
+
                 if (p.getAge() >= maxAge * 3600 * 1000)
                     continue;
                 Point2D pt = renderer.getScreenPosition(p.getLoc());
@@ -447,6 +510,12 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             if (lastLoc != null)
                 g.draw(new Ellipse2D.Double(lastLoc.getX() - radius, lastLoc.getY() - radius, radius * 2, radius * 2));
         }
+        
+        if (paintLabels)
+            paintLabels(g, renderer);
+        
+        if (paintIcons)
+            paintIcons(g, renderer);
     }
 
     @Override
@@ -482,7 +551,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
         for (AssetPosition p : allPositions) {
             if (p.getAge() >= maxAge * 3600 * 1000)
                 continue;
-            
+
             double dist = event.getPoint().distance(source.getScreenPosition(p.getLoc()));
             if (dist < 5) {
                 intercepted = p;

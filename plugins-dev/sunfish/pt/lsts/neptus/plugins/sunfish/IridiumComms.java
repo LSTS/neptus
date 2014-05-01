@@ -31,25 +31,19 @@
  */
 package pt.lsts.neptus.plugins.sunfish;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import org.apache.commons.codec.binary.Hex;
 
-import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IridiumMsgRx;
 import pt.lsts.imc.IridiumMsgTx;
@@ -68,7 +62,6 @@ import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.iridium.IridiumMessage;
 import pt.lsts.neptus.comm.iridium.TargetAssetPosition;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -77,15 +70,12 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
-import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
-import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.ImageUtils;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -94,12 +84,12 @@ import com.google.common.eventbus.Subscribe;
  * 
  */
 @PluginDescription(name = "Iridium Communications Plug-in", icon = "pt/lsts/neptus/plugins/sunfish/iridium.png")
-public class IridiumComms extends SimpleRendererInteraction implements IPeriodicUpdates, Renderer2DPainter {
+public class IridiumComms extends SimpleRendererInteraction implements IPeriodicUpdates {
 
     private static final long serialVersionUID = -8535642303286049869L;
     protected long lastMessageReceivedTime = System.currentTimeMillis() - 3600000;
     protected LinkedHashMap<String, RemoteSensorInfo> sensorData = new LinkedHashMap<>();
-    protected Image spot, desired, target, unknown;
+
     protected final int HERMES_ID = 0x08c1;
     protected Vector<VirtualDrifter> drifters = new Vector<>();
     protected LinkedHashMap<String, Image> systemImages = new LinkedHashMap<String, Image>();
@@ -143,7 +133,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
 
     @Override
     public boolean update() {
-
+        System.out.println("UPDATE");
         for (VirtualDrifter d : drifters) {
             RemoteSensorInfo rsi = new RemoteSensorInfo();
             rsi.setId(d.id);
@@ -152,8 +142,8 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
             rsi.setLon(loc.getLongitudeRads());
             rsi.setTimestampMillis(System.currentTimeMillis());
             rsi.setSensorClass("drifter");
-            post(rsi);
-            on(rsi);
+            ImcMsgManager.getManager().postInternalMessage("IridiumComms", rsi);
+            post(rsi);            
         }
 
         return true;
@@ -162,13 +152,6 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     @Override
     public boolean isExclusive() {
         return true;
-    }
-
-    public void loadImages() {
-        spot = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/spot.png");
-        desired = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/desired.png");
-        target = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/target.png");
-        unknown = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/unknown.png");
     }
 
     private void commandPlanExecution() {
@@ -372,28 +355,6 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         popup.show(source, event.getX(), event.getY());
     }
 
-    @Subscribe
-    public void on(RemoteSensorInfo msg) {
-        NeptusLog.pub().info("Got device update from " + msg.getId() + " sent via " + msg.getSourceName());
-        String id = msg.getId();
-        id = id.replaceAll("Unmanned Vehicle_", "");
-        id = id.replaceAll("Unknown_", "");
-        try {
-            Integer num = Integer.parseInt(id);
-            msg.setId(IMCDefinition.getInstance().getResolver().resolve(num));
-        }
-        catch (Exception e) {
-            // nothing
-        }
-
-        if (sensorData.containsKey(msg.getId())) {
-            if (sensorData.get(msg.getId()).getTimestamp() < msg.getTimestamp()) {
-                sensorData.put(msg.getId(), msg);
-            }
-        }
-        else
-            sensorData.put(msg.getId(), msg);
-    }
 
     @Subscribe
     public void on(IridiumTxStatus status) {
@@ -425,69 +386,6 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         super(console);
     }
 
-    @Override
-    public void paint(Graphics2D g, StateRenderer2D renderer) {
-
-        for (RemoteSensorInfo sinfo : sensorData.values()) {
-            LocationType loc = new LocationType();
-            loc.setLatitudeRads(sinfo.getLat());
-            loc.setLongitudeRads(sinfo.getLon());
-            Point2D pt = renderer.getScreenPosition(loc);
-            Image img = null;
-            if (sinfo.getId().startsWith("DP_")) {
-                img = desired;
-            }
-            else if (sinfo.getId().startsWith("TP_")) {
-                img = target;
-            }
-            else if (sinfo.getId().startsWith("spot") || sinfo.getId().startsWith("SPOT")) {
-                img = spot;
-            }
-            else {
-                if (systemImages.containsKey(sinfo.getId()))
-                    img = systemImages.get(sinfo.getId());
-                else if (ImcSystemsHolder.getSystemWithName(sinfo.getId()) != null) {
-
-                    VehicleType vt = ImcSystemsHolder.getSystemWithName(sinfo.getId()).getVehicle();
-                    if (vt != null) {
-                        try {
-                            img = ImageUtils
-                                    .getScaledImage(ImageIO.read(new File(vt.getTopImageHref())), 16, 16, false);
-                            systemImages.put(sinfo.getId(), img);
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                else if (VehiclesHolder.getVehicleById(sinfo.getId()) != null) {
-                    VehicleType vt = VehiclesHolder.getVehicleById(sinfo.getId());
-                    try {
-                        img = ImageUtils
-                                .getScaledImage(ImageIO.read(new File(vt.getTopImageHref())), 16, 16, false);
-                        systemImages.put(sinfo.getId(), img);
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            if (img == null)
-                img = unknown;
-            g.drawImage(img, (int) (pt.getX() - img.getWidth(this) / 2), (int) (pt.getY() - img.getHeight(this) / 2),
-                    this);
-
-            g.setColor(Color.black);
-            // int mins = (int)((System.currentTimeMillis() - sinfo.getTimestampMillis()) / 1000);
-            g.drawString(
-                    sinfo.getId()
-                    + " ("
-                    + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis()
-                            - sinfo.getTimestampMillis()) + ")",
-                            (int) (pt.getX() + img.getWidth(this) / 2 + 3), (int) (pt.getY() + 5));
-        }
-    }
-
     @Subscribe
     public void on(TextMessage msg) {
         NeptusLog.pub().info("Received text message");
@@ -496,7 +394,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
 
     @Override
     public void initSubPanel() {
-        loadImages();
+        
     }
 
     @Override
