@@ -51,6 +51,7 @@ import pt.lsts.neptus.comm.iridium.HubIridiumMessenger;
 import pt.lsts.neptus.comm.iridium.HubIridiumMessenger.HubSystemMsg;
 import pt.lsts.neptus.comm.iridium.Position;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -129,29 +130,36 @@ public class HubLocationProvider implements ILocationProvider {
         }
         catch (Exception e) {
             NeptusLog.pub().error("Error sending updates to hub", e);
+            parent.postNotification(Notification.error("Situation Awareness", e.getClass().getSimpleName()+" while trying to send device updates to HUB.").requireHumanAction(false));            
         }        
     }
      
     @Periodic(millisBetweenUpdates=1000*60)
-    public void pollActiveSystems() throws Exception {
+    public void pollActiveSystems() {
         if (!enabled)
             return;
-        Gson gson = new Gson();
-        URL url = new URL(systemsUrl);
-
-        HubSystemMsg[] msgs = gson.fromJson(new InputStreamReader(url.openStream()), HubSystemMsg[].class);
-        NeptusLog.pub().info(" through HTTP: " + systemsUrl);
-
-        for (HubSystemMsg m : msgs) {
-            AssetPosition pos = new AssetPosition(m.name, m.coordinates[0],
-                    m.coordinates[1]);
-            pos.setType(IMCUtils.getSystemType(m.imcid));
-            pos.setTimestamp(HubIridiumMessenger.stringToDate(m.updated_at).getTime());
-            pos.setSource(getName());
-            parent.addAssetPosition(pos);
-            NeptusLog.pub().info(m.name + " " + m.imcid);
+        try {
+            Gson gson = new Gson();
+            URL url = new URL(systemsUrl);
+    
+            HubSystemMsg[] msgs = gson.fromJson(new InputStreamReader(url.openStream()), HubSystemMsg[].class);
+            NeptusLog.pub().info(" through HTTP: " + systemsUrl);
+    
+            for (HubSystemMsg m : msgs) {
+                AssetPosition pos = new AssetPosition(m.name, m.coordinates[0],
+                        m.coordinates[1]);
+                pos.setType(IMCUtils.getSystemType(m.imcid));
+                pos.setTimestamp(HubIridiumMessenger.stringToDate(m.updated_at).getTime());
+                pos.setSource(getName());
+                parent.addAssetPosition(pos);
+                NeptusLog.pub().info(m.name + " " + m.imcid);
+            }
         }
-
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+            parent.postNotification(Notification.error("Situation Awareness", e.getClass().getSimpleName()+" while polling device updates from HUB.").requireHumanAction(false));    
+        }
+        
     }
     @Override
     public String getName() {

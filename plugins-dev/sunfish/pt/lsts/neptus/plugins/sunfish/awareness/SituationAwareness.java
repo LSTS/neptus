@@ -107,7 +107,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     private DecisionSupportTable supportTable = new DecisionSupportTable();
     private HashSet<String> updateMethodNames = new HashSet<String>();
     private HashSet<String> hiddenPosTypes = new HashSet<String>();
-    private Image spot, desired, target, unknown;
+    private Image argos, spot, desired, target, unknown, auv, uav, ship, ccu;
     
     @NeptusProperty(name = "Ship speed (m/s)")
     public double shipSpeedMps = 10;
@@ -136,12 +136,21 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     @NeptusProperty(name = "Paint icons")
     public boolean paintIcons = false;
     
-
+ 
+    void postNotification(Notification notification) {
+        getConsole().post(notification);    
+    }
+    
     private void loadImages() {
         spot = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/spot.png");
         desired = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/desired.png");
         target = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/target.png");
         unknown = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/unknown.png");
+        auv = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/auv.png");
+        uav = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/uav.png");
+        ship = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/ship.png");
+        ccu = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/ccu.png");
+        argos = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/argos.png");
     }
     
     @Override
@@ -255,7 +264,28 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     }
     
     public Image getIcon(AssetPosition pos) {
-        return unknown;
+        switch (pos.getType().toLowerCase()) {
+            case "ship":
+                return ship;
+            case "uuv":
+            case "auv":
+                return auv;
+            case "uav":
+                return uav;
+            case "ccu":
+                return ccu;
+            case "argos tag":
+                return argos;
+            case "spot tag":
+                return spot;
+            case "desired position":
+                return desired;
+            case "target position":
+                return target;
+            default:
+                return unknown;        
+        }
+        
     }
     
     public void paintLabels(Graphics2D g, StateRenderer2D renderer) {

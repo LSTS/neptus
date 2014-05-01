@@ -47,6 +47,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -120,38 +121,38 @@ public class ArgosLocationProvider implements ILocationProvider {
     public void updatePositions() {
         if (!enabled)
             return;
-
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        df.setTimeZone(TimeZone.getTimeZone("GMT"));
-        
-        DixService srv = new DixService();
-        XmlRequestType request = new XmlRequestType();
-        
-        if (askCredentials || argosPassword == null) {
-            Pair<String, String> credentials = GuiUtils.askCredentials(ConfigFetch.getSuperParentFrame(),
-                    "Enter Argos Credentials", getArgosUsername(), getArgosPassword());
-            if (credentials == null) {
-                enabled = false;
-                return;
-            }
-            setArgosUsername(credentials.first());
-            setArgosPassword(credentials.second());
-            try {
-                PluginUtils.saveProperties("conf/argosCredentials.props", this);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-                return;
-            }
-            askCredentials = false;
-        }
-
-        request.setUsername(getArgosUsername());
-        request.setPassword(getArgosPassword());
-        request.setMostRecentPassages(true);
-        request.setPlatformId(platformId);
-        request.setNbDaysFromNow(10);
         try {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            df.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+            DixService srv = new DixService();
+            XmlRequestType request = new XmlRequestType();
+
+            if (askCredentials || argosPassword == null) {
+                Pair<String, String> credentials = GuiUtils.askCredentials(ConfigFetch.getSuperParentFrame(),
+                        "Enter Argos Credentials", getArgosUsername(), getArgosPassword());
+                if (credentials == null) {
+                    enabled = false;
+                    return;
+                }
+                setArgosUsername(credentials.first());
+                setArgosPassword(credentials.second());
+                try {
+                    PluginUtils.saveProperties("conf/argosCredentials.props", this);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    return;
+                }
+                askCredentials = false;
+            }
+
+            request.setUsername(getArgosUsername());
+            request.setPassword(getArgosPassword());
+            request.setMostRecentPassages(true);
+            request.setPlatformId(platformId);
+            request.setNbDaysFromNow(10);
+
             String xml = srv.getDixServicePort().getXml(request).getReturn();
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -196,9 +197,10 @@ public class ArgosLocationProvider implements ILocationProvider {
         catch (Exception e) {
             e.printStackTrace();
             NeptusLog.pub().error(e);
+            sitAwareness.postNotification(Notification.error("Situation Awareness", e.getClass().getSimpleName()+" while polling ARGOS positions from Web.").requireHumanAction(false));    
         }
     }
-    
+
     @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -213,7 +215,7 @@ public class ArgosLocationProvider implements ILocationProvider {
     public void onCleanup() {
 
     }
-    
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.plugins.sunfish.awareness.ILocationProvider#getName()
      */
