@@ -475,7 +475,7 @@ public class LsfReport {
 
                     BufferedImage image=null;
                     SidescanParser ssParser = SidescanParserFactory.build(source);
-                    image = getSidescanMark(source, ssParser, sd);
+                    image = getSidescanMarkImage(source, ssParser, sd);
                     if (image!=null){
                         /* //debug of image
                         String path = "/home/miguel/lsts/sidescanImages/";
@@ -535,8 +535,7 @@ public class LsfReport {
         }
     }
     
-    //new Method
-    public static BufferedImage getSidescanMark(IMraLogGroup source, SidescanParser ssParser, SidescanLogMarker mark) throws DocumentException {
+    public static BufferedImage getSidescanMarkImage(IMraLogGroup source, SidescanParser ssParser, SidescanLogMarker mark) throws DocumentException {
         BufferedImage result = null;
         
         int h = mark.h;
@@ -641,14 +640,19 @@ public class LsfReport {
         
         BufferedImage imgScalled = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         g2d = imgScalled.createGraphics();
-        
         g2d.drawImage(ImageUtils.getScaledImage(imgXscalled, imgScalled.getWidth(), imgXscalled.getHeight(), true), 0, y, null);
         
         result = imgScalled;
-        
         return result;
     }
     
+    /**
+     * 
+     * @param m double in meters
+     * @param range float in meters
+     * @param size max index on SidescanLine.data
+     * @return convert double m in meters to corresponding index within size
+     */
     public static int convertMtoIndex(double m, float range, int size){
         return (int) ((m/(2*range))*size);
     }
