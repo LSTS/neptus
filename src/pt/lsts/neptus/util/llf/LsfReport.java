@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
@@ -32,10 +33,14 @@
 package pt.lsts.neptus.util.llf;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Paint;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
@@ -466,7 +471,7 @@ public class LsfReport {
                     sd = (SidescanLogMarker) m;
                     table.addCell("w="+sd.w+" | h="+sd.h);
                     //com.lowagie.text.Image itextImage;//iText image type
-                    BufferedImage image;
+                    BufferedImage image=null;
                     SidescanParser ssParser = SidescanParserFactory.build(source);
                     image = getSidescanMark(source, ssParser, sd);
                     if (image!=null){//debug of image
@@ -521,28 +526,36 @@ public class LsfReport {
     
     //new Method
     public static BufferedImage getSidescanMark(IMraLogGroup source, SidescanParser ssParser, SidescanLogMarker mark) throws DocumentException {
-        BufferedImage img = null;
+        BufferedImage result = null;
         
         int h = mark.h;
         int w = mark.w;
+        double wMeters = mark.wMeters;
         
         //adjustments:
-        if (w<100 || h<100){
-            if (w<100)
+        if (w<100 || h<100 || wMeters<0.05){
+            if (w<100){
                 w=100;
+                wMeters = -1;//wMeters defined with range
+            }
             if( h<100)
                 h=100;
         }else if (w<150 || h<150){
-            if (w<150)
+            if (w<150){
                 w *= 1.2;
+                wMeters *= 1.2;
+            }
             if (h<150)
                 h *= 1.2;
         }else if (w<200 || h<200){
-            if (w<200)
+            if (w<200){
                 w *= 1.1;
+                wMeters *= 1.1;
+            }
             if (h<200)
                 h *= 1.1;
         }
+        
         
         //times
         long t,t1,t2;
@@ -556,7 +569,6 @@ public class LsfReport {
         LsfIndex index = source.getLsfIndex();
         //totalMsg = index.;//get the totalMsg of sidescan type here
         avgTBP = (lastTimestamp - firstTimestamp)/totalMsg;
-
         
         t1 = t - 250*(h/2);
         t2 = t + 250*(h/2);
@@ -571,9 +583,50 @@ public class LsfReport {
         if (list.isEmpty())
             throw new DocumentException("list of lines empty");
         
+        float range = list.get(0).range;
+        if (wMeters==-1)
+            wMeters=(list.get(0).range/5);
+        
+        double x,x1,x2;
+        x=mark.x;
+        x += range;
+        x1 = (x - (wMeters/2));
+        x2 = (x + (wMeters/2));
+        
+        //check limits
+        if (x1<0)
+            x1=0;
+        if (x2>2*range)
+            x2=2*range;
         
         
-        return img;
+        
+        int size=list.get(0).data.length;
+        int i1 = convertMtoIndex(x1,range,size);
+        int i2 = convertMtoIndex(x2,range,size);
+        
+        result = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        
+        int yref = 0;
+        ArrayList<BufferedImage> imgLineList = new ArrayList<BufferedImage>();
+        for (SidescanLine l : list){
+            //draw line with detail:
+            BufferedImage imgLine = new BufferedImage(i2-i1, 1, BufferedImage.TYPE_INT_RGB);
+            for (int c=0;c<i2-i1;c++){
+                int rgb = config.colorMap.getColor(l.data[c+i1]).getRGB();
+                imgLine.setRGB(c, 0, rgb);
+            }
+            yref++;
+            imgLineList.add(imgLine);
+        }
+        //lines painted and in imgLineList with 'max' resolution
+        //g2d.drawImage(ImageUtils.getScaledImage(sidescanLine.image, image.getWidth(), sidescanLine.ysize, true), 0, sidescanLine.ypos, null);
+        
+        return result;
+    }
+    
+    public static int convertMtoIndex(double m, float range, int size){
+        return (int) ((m/(2*range))*size);
     }
  
     public static void generateReport(LsfLogSource source, JFreeChart[] charts, File desFile) {
