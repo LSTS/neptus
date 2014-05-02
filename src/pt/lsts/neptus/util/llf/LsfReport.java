@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
@@ -619,8 +618,23 @@ public class LsfReport {
             yref++;
             imgLineList.add(imgLine);
         }
-        //lines painted and in imgLineList with 'max' resolution
-        //g2d.drawImage(ImageUtils.getScaledImage(sidescanLine.image, image.getWidth(), sidescanLine.ysize, true), 0, sidescanLine.ypos, null);
+        
+        BufferedImage imgXscalled = new BufferedImage(w, yref, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = imgXscalled.createGraphics();
+        int y=yref;
+        for (BufferedImage imgLine : imgLineList){
+            if (y<0)
+                throw new DocumentException("y<0");
+            g2d.drawImage(ImageUtils.getScaledImage(imgLine, imgXscalled.getWidth(), imgLine.getHeight(), true), 0, y, null);
+            y--;
+        }
+        
+        BufferedImage imgScalled = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        g2d = imgScalled.createGraphics();
+        
+        g2d.drawImage(ImageUtils.getScaledImage(imgXscalled, imgScalled.getWidth(), imgXscalled.getHeight(), true), 0, y, null);
+        
+        result = imgScalled;
         
         return result;
     }
