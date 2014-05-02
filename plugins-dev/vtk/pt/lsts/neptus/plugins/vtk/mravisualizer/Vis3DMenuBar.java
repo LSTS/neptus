@@ -298,16 +298,7 @@ public class Vis3DMenuBar extends JMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    canvas.lock();
-                    renderer.ResetCamera();
-                    renderer.GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
-                    canvas.Render();
-                    canvas.unlock();
-                }
-                catch (Exception e1) {
-                    e1.printStackTrace();
-                }
+                events.resetViewport();
             }
         };
         viewMenu.add(resetViewportCamera);
