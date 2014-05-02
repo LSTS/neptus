@@ -63,7 +63,6 @@ import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
-import pt.lsts.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.Text3D;
 import pt.lsts.neptus.util.ImageUtils;
@@ -143,10 +142,6 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             add(toolbar, BorderLayout.WEST);
 
             add(getCanvas());
-
-            // add axesWidget to vtk canvas fixed to a screen position
-            AxesWidget axesWidget = new AxesWidget(interactorStyle.GetInteractor());
-            axesWidget.createAxesWidget();
 
             // checks if data is available
             // first multibeam then dvl

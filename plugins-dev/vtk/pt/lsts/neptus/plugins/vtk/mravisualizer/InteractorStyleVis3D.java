@@ -38,6 +38,7 @@ import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
+import pt.lsts.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.Compass;
 import pt.lsts.neptus.plugins.vtk.visualization.ScalarBar;
@@ -106,6 +107,9 @@ public class InteractorStyleVis3D extends AInteractorStyleTrackballCamera {
     private vtkScalarBarActor lutActor = new vtkScalarBarActor();
     private ScalarBar scalarBar;
 
+    // add axesWidget to vtk canvas fixed to a screen position
+    private AxesWidget axesWidget;
+
     /**
      * @param canvas
      * @param renderer
@@ -125,6 +129,8 @@ public class InteractorStyleVis3D extends AInteractorStyleTrackballCamera {
         this.setEventsHandler(new EventsHandler(this, linkedHashMapCloud, linkedHashMapMesh, source));
         this.keyboardEvent = new KeyboardEvent(this.getCanvas(), this.linkedHashMapCloud, this, getEventsHandler());
 
+        this.setAxesWidget(new AxesWidget(renWinInteractor));
+
         onInitialize();
     }
 
@@ -136,6 +142,9 @@ public class InteractorStyleVis3D extends AInteractorStyleTrackballCamera {
         UseTimersOn();
         HandleObserversOn();
         AutoAdjustCameraClippingRangeOn();
+
+        // add axesWidget to vtk canvas fixed to a screen position
+        getAxesWidget().createAxesWidget();
 
         // Grid is disabled by default
         gridEnabled = false;
@@ -200,5 +209,19 @@ public class InteractorStyleVis3D extends AInteractorStyleTrackballCamera {
      */
     private void setEventsHandler(EventsHandler events) {
         this.events = events;
+    }
+
+    /**
+     * @return the axesWidget
+     */
+    public AxesWidget getAxesWidget() {
+        return axesWidget;
+    }
+
+    /**
+     * @param axesWidget the axesWidget to set
+     */
+    private void setAxesWidget(AxesWidget axesWidget) {
+        this.axesWidget = axesWidget;
     }
 }

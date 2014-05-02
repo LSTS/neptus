@@ -128,7 +128,7 @@ public class Vis3DMenuBar extends JMenuBar {
         setUpToolsMenu();
         setUpHelpMenu();
 
-        JLabel label = new JLabel(I18n.text("3D Visualization"));
+        JLabel label = new JLabel(I18n.text("3D Bathymetry Visualization"));
         label.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
         label.setFont(new Font("Verdana", Font.ITALIC + Font.BOLD, 10));
         label.setForeground(Color.BLACK);
