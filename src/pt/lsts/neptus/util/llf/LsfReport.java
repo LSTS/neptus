@@ -102,6 +102,8 @@ import com.lowagie.text.PageSize;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfImage;
+import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
@@ -468,14 +470,24 @@ public class LsfReport {
                 
                 if (m.getClass()==SidescanLogMarker.class){//sidescanImages
                     sd = (SidescanLogMarker) m;
-                    table.addCell("w="+sd.w+" | h="+sd.h);
-                    //com.lowagie.text.Image itextImage;//iText image type
+                    //table.addCell("w="+sd.w+" | h="+sd.h);
+                    com.lowagie.text.Image iTextImage;//iText image type
+
                     BufferedImage image=null;
                     SidescanParser ssParser = SidescanParserFactory.build(source);
                     image = getSidescanMark(source, ssParser, sd);
-                    if (image!=null){//debug of image
+                    if (image!=null){
+                        /* //debug of image
                         String path = "/home/miguel/lsts/sidescanImages/";
                         ImageIO.write(image, "PNG", new File(path, "test("+sd.label+").png"));
+                        */
+                        ImageIO.write(image, "png", new File("tmp.png"));
+                        iTextImage = com.lowagie.text.Image.getInstance("tmp.png");
+                        File file = new File("tmp.png");
+                        Boolean deleted = file.delete();
+                        if (!deleted)
+                            throw new DocumentException("file.delete() failed");
+                        table.addCell(iTextImage);
                     }              
                 }else//not in sidescan
                     table.addCell("");
@@ -488,7 +500,7 @@ public class LsfReport {
             cb.setColorFill(new Color(50, 100, 200));
             cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.text("Marks' Table"), pageSize.getWidth()/2, pageSize.getHeight()-100, 0);
             cb.endText();
-            
+
             float xpos = pageSize.getWidth()/6;
             float ypos = pageSize.getHeight()-160;
             
@@ -499,7 +511,7 @@ public class LsfReport {
             //data:
             ArrayList rows = table.getRows();
             for (int i=1;i<rows.size();i++){
-                if (ypos<100){//check ypos within page range
+                if (ypos-(table.getRow(i).getMaxHeights())<75){//check ypos within page range
                     doc.newPage();
                     cb.beginText();
                     cb.setFontAndSize(bf, 24);
@@ -597,8 +609,6 @@ public class LsfReport {
             x1=0;
         if (x2>2*range)
             x2=2*range;
-        
-        
         
         int size=list.get(0).data.length;
         int i1 = convertMtoIndex(x1,range,size);
