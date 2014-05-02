@@ -75,6 +75,7 @@ public class ScalarBar {
         textProp.ItalicOn();
         textProp.SetOpacity(0.9);
         textProp.SetFontSize(8);
+        textProp.ShadowOn();
 
         getScalarBarActor().SetLabelTextProperty(textProp);
         getScalarBarActor().SetTitleTextProperty(textProp);

@@ -40,10 +40,14 @@ import vtk.vtkRenderWindowInteractor;
  * 
  *         FIXME - Orientation Marker should be a prop from Axes or AxesActor Classes
  */
-public class AxesWidget {
+public class AxesWidget extends vtkOrientationMarkerWidget {
 
-    vtkRenderWindowInteractor interactor;
+    private final vtkRenderWindowInteractor interactor;
 
+    /**
+     * 
+     * @param interactor
+     */
     public AxesWidget(vtkRenderWindowInteractor interactor) {
         this.interactor = interactor;
     }
@@ -53,25 +57,17 @@ public class AxesWidget {
      */
     public void createAxesWidget() {
         try {
+            SetInteractor(interactor);
+
             vtkAxesActor axes = new vtkAxesActor();
 
-            vtkOrientationMarkerWidget widget = new vtkOrientationMarkerWidget();
-            widget.SetInteractor(interactor);
-            widget.SetOutlineColor(0.9300, 0.5700, 0.1300);
-            widget.SetOrientationMarker(axes);
-            // widget.SetOrientationMarker(cubeActor);
-            // widget.InteractiveOff();
+            SetOutlineColor(0.9300, 0.5700, 0.1300);
+            SetOrientationMarker(axes);
 
-            // widget.InteractiveOn();
-            // widget.SetViewport(0.77, 0.77, 1.0, 1.0); // top right
-            widget.SetViewport(0.00, 0.05, 0.23, 0.28);
-            widget.EnabledOn();
-            // widget.SetTolerance(2); // tolerance representing distance to the widget (in pixels)
-            // !??! interactive must be off because of multi-threaded events -> java: ../../src/xcb_io.c:273:
-            // poll_for_event: Assertion `!xcb_xlib_threads_sequence_lost' failed.
+            SetViewport(0.00, 0.05, 0.23, 0.28);
+            EnabledOn();
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
