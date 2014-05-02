@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.5.0-rc1 (master,77b8b7e)" system="lauv-lsts-1" i18n="en_US">
+<config format="1" version="2.5.0-rc1 (master,64c432c)" system="lauv-lsts-1" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -3918,7 +3918,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Enable position fault detection</desc>
     </param>
@@ -6351,6 +6351,15 @@
       <units>ms</units>
       <desc/>
       <min>0</min>
+    </param>
+    <param name="Transmit Only Underwater">
+      <name-i18n>Transmit Only Underwater</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Do not transmit when at water surface</desc>
     </param>
   </section>
   <section name="Mainboard" name-i18n="Mainboard">
