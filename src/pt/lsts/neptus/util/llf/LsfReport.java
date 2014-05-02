@@ -47,6 +47,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -60,16 +61,20 @@ import org.apache.batik.transcoder.print.PrintTranscoder;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.jfree.chart.JFreeChart;
 
+import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.SidescanLogMarker;
+import pt.lsts.neptus.mra.api.SidescanLine;
+import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.sidescan.SidescanAnalyzer;
+import pt.lsts.neptus.plugins.sidescan.SidescanConfig;
 import pt.lsts.neptus.plugins.sidescan.SidescanPanel;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -409,13 +414,11 @@ public class LsfReport {
             writeHeader(cb, source);
             writeFooter(cb, source);
             
-            //
             doc.newPage();
-            createTable(cb,doc,source,panel);
-            writePageNumber(cb, page++, llfCharts.size()+4);//3->4 tabela marcas
+            createTable(cb,doc,source,panel);//table with Marks
+            writePageNumber(cb, page++, llfCharts.size()+4);
             writeHeader(cb, source);
             writeFooter(cb, source);
-            //
             
             doc.newPage();
             writeDetailsPage(cb, source);
@@ -436,7 +439,6 @@ public class LsfReport {
         return true;
     }
     
-  //new method
     public static void createTable(PdfContentByte cb, Document doc, IMraLogGroup source, MRAPanel panel) throws DocumentException {
         
         try {
@@ -449,7 +451,7 @@ public class LsfReport {
             table.setWidthPercentage(columnWidth, pageSize);
             ArrayList<LogMarker> markers = panel.getMarkers();
             
-            //header:
+            //header
             table.addCell("Timestamp");table.addCell("Label");table.addCell("Location");table.addCell("Image");
             SidescanLogMarker sd;
             for (LogMarker m : markers){
@@ -460,25 +462,22 @@ public class LsfReport {
                 String locString = loc.toString();
                 table.addCell(locString);
                 
-                if (m.getClass()==SidescanLogMarker.class){
+                if (m.getClass()==SidescanLogMarker.class){//sidescanImages
                     sd = (SidescanLogMarker) m;
                     table.addCell("w="+sd.w+" | h="+sd.h);
                     //com.lowagie.text.Image itextImage;//iText image type
                     BufferedImage image;
-                    SidescanPanel ssPanel;
                     SidescanParser ssParser = SidescanParserFactory.build(source);
-                    int subsystem = ssParser.getSubsystemList().get(0);//reboscado
-                    SidescanAnalyzer ssAnalyser = new SidescanAnalyzer(panel);
-                    ssPanel = new SidescanPanel(ssAnalyser, ssParser, subsystem);
-                    image = ssPanel.getSidescanMark(sd);
-                    if (image!=null){
+                    image = getSidescanMark(source, ssParser, sd);
+                    if (image!=null){//debug of image
                         String path = "/home/miguel/lsts/sidescanImages/";
                         ImageIO.write(image, "PNG", new File(path, "test("+sd.label+").png"));
                     }              
-                }else//not in sidescan:
+                }else//not in sidescan
                     table.addCell("");
             }          
             
+            //write to pdf
             cb.beginText();
             BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
             cb.setFontAndSize(bf, 24);
@@ -511,8 +510,7 @@ public class LsfReport {
                     cb.setColorFill(Color.gray.darker());
                 else
                     cb.setColorFill(Color.black);
-                ypos = table.writeSelectedRows(i, i+1, xpos, ypos, cb);
-                
+                ypos = table.writeSelectedRows(i, i+1, xpos, ypos, cb);  
             }
             
         }catch (Exception e) {
@@ -521,8 +519,63 @@ public class LsfReport {
         }
     }
     
-//-------------------------------------------------------------------------------------------------------------
+    //new Method
+    public static BufferedImage getSidescanMark(IMraLogGroup source, SidescanParser ssParser, SidescanLogMarker mark) throws DocumentException {
+        BufferedImage img = null;
+        
+        int h = mark.h;
+        int w = mark.w;
+        
+        //adjustments:
+        if (w<100 || h<100){
+            if (w<100)
+                w=100;
+            if( h<100)
+                h=100;
+        }else if (w<150 || h<150){
+            if (w<150)
+                w *= 1.2;
+            if (h<150)
+                h *= 1.2;
+        }else if (w<200 || h<200){
+            if (w<200)
+                w *= 1.1;
+            if (h<200)
+                h *= 1.1;
+        }
+        
+        //times
+        long t,t1,t2;
+        t = (long) mark.timestamp;
+        long avgTBP;// = 250;//check whether this is a constant for this vehicle/log and get it
+        long firstTimestamp = ssParser.firstPingTimestamp();
+        long lastTimestamp = ssParser.lastPingTimestamp();
+        //LinkedHashMap<Integer, String> hash = LogUtils.getEntities(source);
+        
+        int totalMsg =1;
+        LsfIndex index = source.getLsfIndex();
+        //totalMsg = index.;//get the totalMsg of sidescan type here
+        avgTBP = (lastTimestamp - firstTimestamp)/totalMsg;
 
+        
+        t1 = t - 250*(h/2);
+        t2 = t + 250*(h/2);
+        
+        //get the lines
+        SidescanConfig config = new SidescanConfig();
+        SidescanParameters sidescanParams = new SidescanParameters(0, 0);
+        sidescanParams.setNormalization(config.normalization);
+        sidescanParams.setTvgGain(config.tvgGain);
+        ArrayList<SidescanLine> list =ssParser.getLinesBetween(t1, t2, ssParser.getSubsystemList().get(0), sidescanParams);
+        
+        if (list.isEmpty())
+            throw new DocumentException("list of lines empty");
+        
+        
+        
+        return img;
+    }
+ 
     public static void generateReport(LsfLogSource source, JFreeChart[] charts, File desFile) {
         Rectangle pageSize = PageSize.A4.rotate();
         try {

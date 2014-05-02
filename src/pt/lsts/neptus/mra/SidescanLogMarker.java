@@ -42,6 +42,7 @@ public class SidescanLogMarker extends LogMarker {
     public double y;
     public int w;
     public int h;
+    public double wMeters;//width in meters
 
     /**
      * @param label
@@ -53,11 +54,34 @@ public class SidescanLogMarker extends LogMarker {
      * @param w
      * @param h
      */
-    public SidescanLogMarker(String label, double timestamp, double lat, double lon, double x, double y, int w, int h) {
+    public SidescanLogMarker(String label, double timestamp, double lat, double lon, double x, double y, 
+            int w, int h) {
         super(label, timestamp, lat, lon);
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
     }
+    
+    /**
+     * @param label
+     * @param timestamp
+     * @param lat
+     * @param lon
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @param wMeters
+     */
+    public SidescanLogMarker(String label, double timestamp, double lat, double lon, double x, double y, 
+            int w, int h, double wMeters) {
+        super(label, timestamp, lat, lon);
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.wMeters = wMeters;
+    }
+    
 }

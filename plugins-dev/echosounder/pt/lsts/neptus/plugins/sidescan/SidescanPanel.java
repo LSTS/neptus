@@ -703,10 +703,26 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     // Distance to line center point, negative values mean portboard
                     double distanceToNadir = l.state.getPosition().getDistanceInMeters(point.location); 
                     distanceToNadir *= (x > l.xsize / 2 ? 1 : -1);
-
+                    
+                    int x1 = Math.min(mousePointXSidescan, initialPointXSidescan);
+                    int x2 = Math.max(mousePointXSidescan, initialPointXSidescan);
+                    
+                    SidescanPoint p1 = l.calcPointForCoord(x1);
+                    SidescanPoint p2 = l.calcPointForCoord(x2);
+                    
+                    double d1 = l.state.getPosition().getDistanceInMeters(p1.location); 
+                    d1 *= (x1 > l.xsize / 2 ? 1 : -1);
+                    
+                    double d2 = l.state.getPosition().getDistanceInMeters(p2.location); 
+                    d2 *= (x2 > l.xsize / 2 ? 1 : -1);
+                    
+                    d1 += l.range;
+                    d2 += l.range;
+                    double wMeters = d2-d1;
+                                        
                     parent.mraPanel.addMarker(new SidescanLogMarker(res, l.timestampMillis, point.location
                             .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, Math
-                            .abs(mouseX - initialX), Math.abs(mouseY - initialY)));
+                            .abs(mouseX - initialX), Math.abs(mouseY - initialY), wMeters));
                 }
             }
             marking = false;
