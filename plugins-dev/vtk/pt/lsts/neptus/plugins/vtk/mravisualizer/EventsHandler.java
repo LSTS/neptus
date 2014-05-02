@@ -240,7 +240,8 @@ public class EventsHandler extends AEventsHandler {
      * @param cloudName
      */
     public void removeCloudFromRenderer(String cloudName) {
-        renderer.RemoveActor(linkedHashMapCloud.get(cloudName).getCloudLODActor());
+        if (linkedHashMapCloud.containsKey(cloudName))
+            renderer.RemoveActor(linkedHashMapCloud.get(cloudName).getCloudLODActor());
     }
 
     /**
@@ -248,7 +249,8 @@ public class EventsHandler extends AEventsHandler {
      * @param cloudName
      */
     public void removeMeshFromRenderer(String cloudName) {
-        renderer.RemoveActor(linkedHashMapMesh.get(cloudName).getMeshCloudLODActor());
+        if (linkedHashMapMesh.containsKey(cloudName))
+            renderer.RemoveActor(linkedHashMapMesh.get(cloudName).getMeshCloudLODActor());
     }
 
     /**

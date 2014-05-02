@@ -156,23 +156,32 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     }
 
     private void loadCloud() {
-        PointCloud<PointXYZ> pointCloud = new PointCloud<>();
-        LoadToPointCloud load = new LoadToPointCloud(source, pointCloud);
+        PointCloud<PointXYZ> pointCloudMultibeam = new PointCloud<>();
+        LoadToPointCloud load = new LoadToPointCloud(source, pointCloudMultibeam);
         if (mbFound) {
             NeptusLog.pub().info("Parsing Multibeam data.");
-            pointCloud.setCloudName("multibeam");
+            pointCloudMultibeam.setCloudName("multibeam");
             toolbar.multibeamToggle.setSelected(true);
             load.parseMultibeamPointCloud();
             events.setSensorTypeInteraction(SensorTypeInteraction.MULTIBEAM);
+            getLinkedHashMapCloud().put(pointCloudMultibeam.getCloudName(), pointCloudMultibeam);
+            processPointCloud(pointCloudMultibeam, load);
+            setUpRenderer(pointCloudMultibeam);
         }
-        else if (source.getLsfIndex().containsMessagesOfType("Distance")) {
+        PointCloud<PointXYZ> pointCloudDVL = new PointCloud<>();
+        if (source.getLsfIndex().containsMessagesOfType("Distance")) {
             NeptusLog.pub().info("Parsing DVL data.");
-            pointCloud.setCloudName("dvl");
-            toolbar.dvlToggle.setSelected(true);
+            pointCloudDVL.setCloudName("dvl");
             load.parseDVLPointCloud();
             events.setSensorTypeInteraction(SensorTypeInteraction.DVL);
+            getLinkedHashMapCloud().put(pointCloudDVL.getCloudName(), pointCloudDVL);
+            processPointCloud(pointCloudDVL, load);
+            if (!mbFound) {
+                toolbar.dvlToggle.setSelected(true);
+                setUpRenderer(pointCloudDVL);
+            }
         }
-        else {
+        if (!mbFound && !source.getLsfIndex().containsMessagesOfType("Distance")) {
             String msgErrorNoData = I18n.text("No data Available") + "!";
             JOptionPane.showMessageDialog(null, msgErrorNoData);
 
@@ -180,9 +189,6 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             noDataText.buildText3D(msgErrorNoData, 2.0, 2.0, 2.0, 10.0);
             getCanvas().GetRenderer().AddActor(noDataText.getText3dActor());
         }
-        getLinkedHashMapCloud().put(pointCloud.getCloudName(), pointCloud);
-        processPointCloud(pointCloud, load);
-        setUpRenderer(pointCloud);
     }
 
     public void loadCloudBySensorType(String sensorType) {
