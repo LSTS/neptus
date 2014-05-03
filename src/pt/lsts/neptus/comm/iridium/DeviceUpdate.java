@@ -82,17 +82,22 @@ public class DeviceUpdate extends IridiumMessage {
     public int deserializeFields(IMCInputStream in) throws Exception {
         positions.clear();
         int read = 0;
-        while (in.available() > 14) {
-            Position pos = new Position();
-            pos.id = in.readUnsignedShort();
-            read+=2;
-            pos.timestamp = in.readUnsignedInt();
-            read+=4;
-            pos.latRads = Math.toRadians(in.readInt() / 1000000.0);
-            read+=4;
-            pos.lonRads = Math.toRadians(in.readInt() / 1000000.0);
-            read+=4;
-            positions.put(pos.id, pos);
+        while (true) {
+            try {
+                Position pos = new Position();
+                pos.id = in.readUnsignedShort();
+                read+=2;
+                pos.timestamp = in.readUnsignedInt();
+                read+=4;
+                pos.latRads = Math.toRadians(in.readInt() / 1000000.0);
+                read+=4;
+                pos.lonRads = Math.toRadians(in.readInt() / 1000000.0);
+                read+=4;
+                positions.put(pos.id, pos);
+            }
+            catch (Exception e) {
+                break;
+            }
         }
         return read;
     }
@@ -119,10 +124,11 @@ public class DeviceUpdate extends IridiumMessage {
     @Override
     public String toString() {
         String s = super.toString();
+        s +=  "\t["+positions.size()+" positions]\n";
         for (Position p : positions.values()) {
-            s += "\t("+IMCDefinition.getInstance().getResolver().resolve(p.id)+") --> "+new LocationType(Math.toDegrees(p.latRads), Math.toDegrees(p.lonRads));
+            s += "\t * ("+IMCDefinition.getInstance().getResolver().resolve(p.id)+") --> "+new LocationType(Math.toDegrees(p.latRads), Math.toDegrees(p.lonRads))+"\n";
         }
-        return s;         
+        return s;
     }
 
 }

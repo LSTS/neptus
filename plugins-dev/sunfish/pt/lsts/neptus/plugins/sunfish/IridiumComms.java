@@ -133,7 +133,6 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
 
     @Override
     public boolean update() {
-        System.out.println("UPDATE");
         for (VirtualDrifter d : drifters) {
             RemoteSensorInfo rsi = new RemoteSensorInfo();
             rsi.setId(d.id);

@@ -107,7 +107,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     private DecisionSupportTable supportTable = new DecisionSupportTable();
     private HashSet<String> updateMethodNames = new HashSet<String>();
     private HashSet<String> hiddenPosTypes = new HashSet<String>();
-    private Image argos, spot, desired, target, unknown, auv, uav, ship, ccu;
+    private Image argos, spot, desired, target, unknown, auv, uav, ship, ccu, wg;
     
     @NeptusProperty(name = "Ship speed (m/s)")
     public double shipSpeedMps = 10;
@@ -151,6 +151,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
         ship = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/ship.png");
         ccu = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/ccu.png");
         argos = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/argos.png");
+        wg = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/wg.png");
     }
     
     @Override
@@ -266,6 +267,8 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     }
     
     public Image getIcon(AssetPosition pos) {
+        if (pos.getAssetName().equals("hermes"))
+            return wg;
         switch (pos.getType().toLowerCase()) {
             case "ship":
                 return ship;

@@ -158,6 +158,9 @@ public class HubLocationProvider implements ILocationProvider {
                 pos.setType(IMCUtils.getSystemType(m.imcid));
                 pos.setTimestamp(HubIridiumMessenger.stringToDate(m.updated_at).getTime());
                 pos.setSource(getName());
+                if (pos.getAssetName().equals("hermes"))
+                    pos.setType("ASV");
+                
                 if (!m.pos_error_class.isEmpty()) {                    
                     pos.putExtra("Loc. Class", m.pos_error_class);
                 }
