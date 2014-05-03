@@ -173,8 +173,9 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             PeriodicUpdatesService.register(upd);
         }
 
-        for (MapPanel map : getConsole().getSubPanelsOfClass(MapPanel.class))
-            map.addLayer(this);
+        if (getConsole() != null)
+            for (MapPanel map : getConsole().getSubPanelsOfClass(MapPanel.class))
+                map.addLayer(this);
         
         loadImages();        
         propertiesChanged();
@@ -208,7 +209,8 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
         boolean newPos = track.addPosition(pos);
 
         if (newPos && (track.getLatest() == null || track.getLatest().getAge() > 30000)) {
-            getConsole().post(Notification.info("New Position", "Received position for " + pos.getAssetName()));
+            if (getConsole() != null)
+                getConsole().post(Notification.info("New Position", "Received position for " + pos.getAssetName()));
             if (audibleUpdates && pos.getAge() < maxAge * 3600 * 1000)
                 SpeechUtil.readSimpleText(track.getAssetName() + " has been updated");
         }

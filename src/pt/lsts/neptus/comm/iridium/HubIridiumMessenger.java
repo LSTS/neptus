@@ -77,7 +77,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     static { dateFormat.setTimeZone(tz); }
     
-    protected Thread t = null;
+   // protected Thread t = null;
 
     // public HubIridiumMessenger() {
     //  startPolling();
@@ -293,11 +293,16 @@ public class HubIridiumMessenger implements IridiumMessenger {
         public int imcid;
         public String name;
         public String updated_at;
+        public String created_at;
         public Double[] coordinates;
-        public String errorClass;
+        public String pos_error_class;
         
         public Date updatedAt() {
             return stringToDate(updated_at);
+        }
+        
+        public Date createdAt() {
+            return stringToDate(created_at);
         }
     }
     
@@ -310,8 +315,12 @@ public class HubIridiumMessenger implements IridiumMessenger {
     public static void main(String[] args) throws Exception {
         HubIridiumMessenger messenger = new HubIridiumMessenger();
         Date d = new Date(System.currentTimeMillis() - (1000 * 3600 * 60));
+        
         System.out.println(dateToString(d));
         System.out.println(messenger.pollMessages(d).size());
+        DeviceUpdate updates = messenger.pollActiveDevices();
+        
+        
     }
     
     @Override
