@@ -37,7 +37,7 @@ import java.util.Map;
 public class Position {
 
     public int id;
-    public double latitude, longitude, timestamp;
+    public double latRads, lonRads, timestamp;
     public PosType posType = PosType.Unknown;
 
     public enum PosType {

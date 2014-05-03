@@ -92,8 +92,8 @@ public class HubIridiumMessenger implements IridiumMessenger {
         for (HubSystemMsg s : sys) {
             Position pos = new Position();
             pos.id = s.imcid;
-            pos.latitude = s.coordinates[0];
-            pos.longitude = s.coordinates[1];
+            pos.latRads = s.coordinates[0];
+            pos.lonRads = s.coordinates[1];
             pos.timestamp = stringToDate(s.updated_at).getTime() / 1000.0;
             pos.posType = PosType.Unknown;
             up.getPositions().put(pos.id, pos);

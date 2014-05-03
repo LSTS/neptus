@@ -62,6 +62,7 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
 import com.google.common.eventbus.Subscribe;
 import com.google.gson.Gson;
 
+
 /**
  * @author zp
  *
@@ -71,125 +72,122 @@ public class HubLocationProvider implements ILocationProvider {
 
     SituationAwareness parent;
     private String systemsUrl = "http://hub.lsts.pt/api/v1/systems/active";
-    private String iridiumUrl = "http://hub.lsts.pt/api/v1/iridium";
+    private String iridiumUrl = "http://hub.lsts.pt/api/v1/iridium";    
 
     @Override
     public void onInit(SituationAwareness instance) {
         this.parent = instance;
-        ImcMsgManager.registerBusListener(this);
+        ImcMsgManager.registerBusListener(this);   
     }
-
-    LinkedHashMap<Integer, AssetPosition> positionsToSend = new LinkedHashMap<Integer, AssetPosition>();
-
+    
+    LinkedHashMap<Integer, AssetPosition> positionsToSend = new LinkedHashMap<Integer, AssetPosition>();  
+    
     @Subscribe
     public void on(Announce announce) {
         if (announce.getLat() != 0 || announce.getLon() != 0) {
-            AssetPosition pos = new AssetPosition(announce.getSysName(), Math.toDegrees(announce.getLat()),
-                    Math.toDegrees(announce.getLon()));
-            positionsToSend.put(announce.getSrc(), pos);
+            AssetPosition pos = new AssetPosition(announce.getSysName(), Math.toDegrees(announce.getLat()), Math.toDegrees(announce.getLon()));
+            positionsToSend.put(announce.getSrc(), pos);            
         }
     }
-
-    @Periodic(millisBetweenUpdates = 3000 * 60)
+    
+    
+       
+    @Periodic(millisBetweenUpdates=3000*60)
     public void sendToHub() {
         if (!enabled)
             return;
         NeptusLog.pub().info("Uploading device updates to Hub...");
         LinkedHashMap<Integer, AssetPosition> toSend = new LinkedHashMap<Integer, AssetPosition>();
         LocationType myLoc = MyState.getLocation();
-        AssetPosition myPos = new AssetPosition(StringUtils.toImcName(GeneralPreferences.imcCcuName),
-                myLoc.getLatitudeDegs(), myLoc.getLongitudeDegs());
+        AssetPosition myPos = new AssetPosition(StringUtils.toImcName(GeneralPreferences.imcCcuName), myLoc.getLatitudeDegs(), myLoc.getLongitudeDegs());
         toSend.put(ImcMsgManager.getManager().getLocalId().intValue(), myPos);
         toSend.putAll(positionsToSend);
         positionsToSend.clear();
-        DeviceUpdate upd = new DeviceUpdate();
-        // ExtendedDeviceUpdate upd = new ExtendedDeviceUpdate();
+        DeviceUpdate upd = new DeviceUpdate(); 
+        //ExtendedDeviceUpdate upd = new ExtendedDeviceUpdate();
         upd.source = ImcMsgManager.getManager().getLocalId().intValue();
         upd.destination = 65535;
         for (Entry<Integer, AssetPosition> pos : toSend.entrySet()) {
             Position p = new Position();
             p.id = pos.getKey();
-            p.latitude = pos.getValue().getLoc().getLatitudeDegs();
-            p.longitude = pos.getValue().getLoc().getLongitudeDegs();
+            p.latRads = pos.getValue().getLoc().getLatitudeRads();
+            p.lonRads = pos.getValue().getLoc().getLongitudeRads();
             p.posType = Position.fromImcId(p.id);
             p.timestamp = pos.getValue().getTimestamp() / 1000.0;
             upd.getPositions().put(pos.getKey(), p);
         }
+        
+        for (Position p : upd.getPositions().values()) {
+            NeptusLog.pub().info("Uploading position for "+p.id+": "+Math.toDegrees(p.latRads)+"/"+Math.toDegrees(p.lonRads)+"/"+new Date((long)(1000*p.timestamp)));
+        }
+        
         try {
             HttpPost postMethod = new HttpPost(iridiumUrl);
             postMethod.setHeader("Content-type", "application/hub");
             String data = new String(Hex.encodeHex(upd.serialize()));
-            NeptusLog.pub().info("Sending '" + data + "'");
+            NeptusLog.pub().info("Sending '"+data+"'");
             StringEntity ent = new StringEntity(data);
             postMethod.setEntity(ent);
             @SuppressWarnings("resource")
             HttpClient client = new DefaultHttpClient();
             HttpResponse response = client.execute(postMethod);
-            NeptusLog.pub().info(
-                    "Sent " + upd.getPositions().size() + " device updates to Hub: "
-                            + response.getStatusLine().toString());
-            postMethod.abort();
+            NeptusLog.pub().info("Sent "+upd.getPositions().size()+" device updates to Hub: "+response.getStatusLine().toString());
+            postMethod.abort();            
         }
         catch (Exception e) {
             NeptusLog.pub().error("Error sending updates to hub", e);
-            parent.postNotification(Notification.error("Situation Awareness",
-                    e.getClass().getSimpleName() + " while trying to send device updates to HUB.").requireHumanAction(
-                    false));
-        }
+            parent.postNotification(Notification.error("Situation Awareness", e.getClass().getSimpleName()+" while trying to send device updates to HUB.").requireHumanAction(false));            
+        }        
     }
-
-    @Periodic(millisBetweenUpdates = 1000 * 60)
+     
+    @Periodic(millisBetweenUpdates=1000*60)
     public void pollActiveSystems() {
         if (!enabled)
             return;
-
+        
         try {
             Gson gson = new Gson();
             URL url = new URL(systemsUrl);
-
+    
             HubSystemMsg[] msgs = gson.fromJson(new InputStreamReader(url.openStream()), HubSystemMsg[].class);
             NeptusLog.pub().info(" through HTTP: " + systemsUrl);
-
+    
             for (HubSystemMsg m : msgs) {
-                AssetPosition pos = new AssetPosition(m.name, m.coordinates[0], m.coordinates[1]);
+                AssetPosition pos = new AssetPosition(m.name, m.coordinates[0],
+                        m.coordinates[1]);
                 pos.setType(IMCUtils.getSystemType(m.imcid));
                 pos.setTimestamp(HubIridiumMessenger.stringToDate(m.updated_at).getTime());
                 pos.setSource(getName());
-                if (!m.pos_error_class.isEmpty()) {
+                if (!m.pos_error_class.isEmpty()) {                    
                     pos.putExtra("Loc. Class", m.pos_error_class);
                 }
                 parent.addAssetPosition(pos);
-                NeptusLog.pub().info(
-                        "Received HUB position update for " + m.name + ": " + pos.getLoc() + " @ "
-                                + new Date(pos.getTimestamp()));
+                NeptusLog.pub().info("Received HUB position update for "+m.name + ": "+pos.getLoc()+" @ "+new Date(pos.getTimestamp()));
             }
         }
         catch (Exception e) {
             e.printStackTrace();
             NeptusLog.pub().error(e);
-            parent.postNotification(Notification.error("Situation Awareness",
-                    e.getClass().getSimpleName() + " while polling device updates from HUB.").requireHumanAction(false));
+            parent.postNotification(Notification.error("Situation Awareness", e.getClass().getSimpleName()+" while polling device updates from HUB.").requireHumanAction(false));    
         }
-
+        
     }
-
     @Override
     public String getName() {
         return "HUB (Active Systems API)";
     }
 
     @Override
-    public void onCleanup() {
+    public void onCleanup() {        
         ImcMsgManager.unregisterBusListener(this);
     }
 
     private boolean enabled = false;
-
     @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
-
+    
     public static void main(String args[]) {
         SituationAwareness awareness = new SituationAwareness();
         awareness.updateMethods = "HUB (Active Systems API)";
@@ -197,6 +195,6 @@ public class HubLocationProvider implements ILocationProvider {
         provider.setEnabled(true);
         provider.onInit(awareness);
         provider.pollActiveSystems();
-
+        
     }
 }

@@ -265,7 +265,7 @@ public class CoordinateUtil {
 
     /**
      * 
-     * @param latitude
+     * @param latRads
      * @return
      */
     public static double[] parseLongitudeStringToDMS(String longitude) {
