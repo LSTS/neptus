@@ -313,7 +313,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     LblConfig msgLBLConfiguration = new LblConfig();
                     msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
                     IMCSendMessageUtils.sendMessage(msgLBLConfiguration,
-                            I18n.text("Could not ask " + getMainVehicleId() + " for it's accoustic beacons."),
+                            I18n.textf("Could not ask %vehicle for it's accoustic beacons.", getMainVehicleId()),
                             true, getMainVehicleId());
                 }
                 catch (Exception e) {

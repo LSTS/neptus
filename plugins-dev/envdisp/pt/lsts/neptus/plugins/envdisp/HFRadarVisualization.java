@@ -159,7 +159,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean useColorMapForWind = true;
 
-    @NeptusProperty(name = "Base Folder For Currents TUV Files", userLevel = LEVEL.REGULAR, category="Data Update")
+    @NeptusProperty(name = "Base Folder For Currents TUV and NetCDF Files", userLevel = LEVEL.REGULAR, category="Data Update")
     public File baseFolderForCurrentsTUVFiles = new File("IHData/CODAR");
 
     @NeptusProperty(name = "Base Folder For Meteo NetCDF Files", userLevel = LEVEL.REGULAR, category="Data Update")
