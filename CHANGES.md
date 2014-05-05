@@ -1,6 +1,12 @@
 Changes
 =======
 
+Neptus v3.1.0 (not officially released)
+-------------
+ * Updated vehicles parameters (DUNE v2.5.0-rc1, master-77b8b7e).
+ * Added UAV vehicles X8-02 and X8-03.
+ * Updated libimc.jar to the latest version (IMC v5.4.x cycle, b26419eaf9a715c8dbb24e5e2accc0e204e99a2f).
+
 Neptus v3.0.2
 -------------
  * PluginUtils: Fix a small bug introduced at 8afb5b3c making all 'int' NeptusProperties not to be loaded properly.
