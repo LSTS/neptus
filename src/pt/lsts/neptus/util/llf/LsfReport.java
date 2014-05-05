@@ -615,7 +615,18 @@ public class LsfReport {
         
         result = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         
-        int yref = 0;
+        int yref = list.size();
+        while (yref>h){
+            list.remove(0);
+            yref--;
+            if (yref>h){
+                list.remove(list.get(list.size()-1));
+                yref--;
+            }
+        }
+        if (list.size()!=h)
+            throw new DocumentException("list of lines empty");
+        
         ArrayList<BufferedImage> imgLineList = new ArrayList<BufferedImage>();
         for (SidescanLine l : list){
             //draw line with detail:
@@ -624,23 +635,19 @@ public class LsfReport {
                 int rgb = config.colorMap.getColor(l.data[c+i1]).getRGB();
                 imgLine.setRGB(c, 0, rgb);
             }
-            yref++;
             imgLineList.add(imgLine);
         }
+
         
-        BufferedImage imgXscalled = new BufferedImage(w, yref, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = imgXscalled.createGraphics();
+        BufferedImage imgScalled = new BufferedImage(w, yref, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = imgScalled.createGraphics();
         int y=yref;
         for (BufferedImage imgLine : imgLineList){
             if (y<0)
                 throw new DocumentException("y<0");
-            g2d.drawImage(ImageUtils.getScaledImage(imgLine, imgXscalled.getWidth(), imgLine.getHeight(), true), 0, y, null);
+            g2d.drawImage(ImageUtils.getScaledImage(imgLine, imgScalled.getWidth(), imgLine.getHeight(), true), 0, y, null);
             y--;
         }
-        
-        BufferedImage imgScalled = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        g2d = imgScalled.createGraphics();
-        g2d.drawImage(ImageUtils.getScaledImage(imgXscalled, imgScalled.getWidth(), imgXscalled.getHeight(), true), 0, y, null);
         
         result = imgScalled;
         return result;
