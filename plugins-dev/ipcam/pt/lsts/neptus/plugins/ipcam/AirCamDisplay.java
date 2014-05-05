@@ -372,7 +372,7 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
         propertiesPanel = new JPanel(new MigLayout());
         propertiesPanel.add(new JLabel(I18n.text("Camera Alias"),SwingConstants.CENTER), "w 100%, wrap");
         propertiesPanel.add(choicelist, "w 100%, wrap");
-        propertiesPanel.add(new JLabel(I18n.text("Ip Address"),SwingConstants.CENTER), "w 100%, wrap");
+        propertiesPanel.add(new JLabel(I18n.text("IP Address"),SwingConstants.CENTER), "w 100%, wrap");
             ipField.setText(activeCamera.ip);
             ipField.setHorizontalAlignment(JTextField.CENTER);
             ipField.setEditable(false);
