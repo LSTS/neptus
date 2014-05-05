@@ -77,7 +77,7 @@ public class SystemProperty extends DefaultProperty implements PropertyChangeLis
     }
 
     public static enum Visibility {
-        USER("user"), DEVELOPER("developer");
+        DEVELOPER("developer"), USER("user");
         private String text;
 
         Visibility(String text) {
