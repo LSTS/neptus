@@ -1,6 +1,10 @@
 Changes
 =======
 
+Neptus 3.2.0
+------------
+ * All MRA visualizations and replay layers are now plug-ins.
+
 Neptus v3.1.0 (not officially released)
 -------------
  * Updated vehicles parameters (DUNE v2.5.0-rc1, master-77b8b7e).
