@@ -227,7 +227,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         
         try {
             Voltage voltage = state.lastVoltage("Main Board"); 
-            html.append(I18n.textf("<li>Voltage: %d v</li>\n", voltage.getValue()));
+            html.append(I18n.textf("<li>Voltage: %d V</li>\n", voltage.getValue()));
         }
         catch (Exception e) {}
 

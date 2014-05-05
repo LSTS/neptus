@@ -97,7 +97,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     @NeptusProperty(name = "Wave Glider", description = "Imc id of neptus console of wave glider operator", category = "IMC id", userLevel = NeptusProperty.LEVEL.REGULAR)
     public int wgOpImcId = 0;
 
-    @NeptusProperty(name = "Remote neptus", description = "Imc id of neptus console operating remotely", category = "IMC id", userLevel = NeptusProperty.LEVEL.REGULAR)
+    @NeptusProperty(name = "Remote Neptus", description = "Imc id of neptus console operating remotely", category = "IMC id", userLevel = NeptusProperty.LEVEL.REGULAR)
     public int neptusOpImcId = 0;
 
     @Override

@@ -64,7 +64,7 @@ public abstract class AEventsHandler {
     protected vtkWindowToImageFilter wif;
 
     private vtkTextActor textProcessingActor;
-    private static String TEXT_PROCESS_ACTOR = I18n.text("Processing Data.");
+    private static String TEXT_PROCESS_ACTOR = I18n.text("Processing Data");
 
     private vtkTextActor textZExagInfoActor;
     private static String TEXT_ZEXAG_INFO_ACTOR = I18n.textf("Depth multiplied by: %currenZexag",
