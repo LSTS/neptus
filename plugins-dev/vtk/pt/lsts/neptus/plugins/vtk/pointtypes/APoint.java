@@ -45,7 +45,13 @@ public abstract class APoint {
      * Default constructor
      */
     public APoint() {
-        x = y = z = 0.0;
+        this.x = this.y = this.z = 0.0;
+    }
+
+    public APoint(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     /**
@@ -91,5 +97,8 @@ public abstract class APoint {
         this.z = z;
         return z;
     }
+
+    @Override
+    public abstract String toString();
 
 }
