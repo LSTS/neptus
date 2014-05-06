@@ -35,12 +35,10 @@ Neptus v3.0.1
  * MRA: Added a new TableModel that prevents missing messages when displaying messages table. Also some minor bugs were fixed.
  * Console.MissionTree: Added function to remove all beacons from vehicle.
  * Console.EntityStatePanel: Fix EntityStatePanel sum state color.
- * Console.ImuAlignmentPanel: Now warns the user when IMU becomes aligned / not
-    aligned. Closes #2809
+ * Console.ImuAlignmentPanel: Now warns the user when IMU becomes aligned / not aligned. Closes #2809
  * MRA: Fix calculating depth extrema statistics in MRA.
  * MRA.RevisionOverlays: Fixed log markers not showing up in the console.
- * Console.MapEditor: Fixed several issues related with map edition using object IDs different
-    of object names (using only ID for now).
+ * Console.MapEditor: Fixed several issues related with map edition using object IDs different of object names (using only ID for now).
  * Console.Planning: Fixed cloning of Rows and Formation Maneuvers (missing elements).
  * LocationType now stores latitudes and longitudes as radians.
  * Updating S57 to use v2.1. Also all extracted and cached data goes to base folder ".cache/s57".
