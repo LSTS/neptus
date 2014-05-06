@@ -1904,7 +1904,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         });
 
         String op = ""
-                + JOptionPane.showInputDialog(null, "Select console to open", "Neptus Console",
+                + JOptionPane.showInputDialog(null, I18n.text("Select console to open"), I18n.text("Neptus Console"),
                         JOptionPane.QUESTION_MESSAGE, ImageUtils.getIcon("images/neptus-icon1.png"),
                         options.toArray(new String[0]), "lauv");
 
