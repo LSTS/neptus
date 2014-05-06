@@ -33,6 +33,8 @@ package pt.lsts.neptus.plugins.vtk.utils;
 
 import java.io.File;
 
+import pt.lsts.neptus.util.FileUtil;
+
 /**
  * @author hfq
  *
@@ -58,15 +60,8 @@ public class File3DUtils {
      * @return ext 
      */
     public static String getExtension(File f) {
-        String ext = null;
-        String s = f.getName();
-        int i = s.lastIndexOf('.');
-
-        if (i > 0 && i < s.length() -1) {
-            ext = s.substring(i+1).toLowerCase();
-        }
-
-        return ext;
+        String ext = FileUtil.getFileExtension(f);
+        return ext.isEmpty() ? null : ext; // FIXME (HQ) See if the return empty string from FileUtil.getFileExtension(..) is OK 
     }
 
     /**
