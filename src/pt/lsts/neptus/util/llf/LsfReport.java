@@ -120,13 +120,13 @@ public class LsfReport {
         if (logoDoc == null) {
             String parser = XMLResourceDescriptor.getXMLParserClassName();
             SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
-            String data = FileUtil.getFileAsString(FileUtil
-                    .getResourceAsFile("/images/neptus_logo_ns.svg"));
+            String data = FileUtil.getFileAsString(FileUtil.getResourceAsFile("/images/neptus_logo_ns.svg"));
             try {
-                //logoDoc = f.createSVGDocument(null, new java.io.StringReader((String)data));
-                logoDoc = f.createDocument(null, new StringReader((String)data));
+                // logoDoc = f.createSVGDocument(null, new java.io.StringReader((String)data));
+                logoDoc = f.createDocument(null, new StringReader((String) data));
                 logoDoc = SvgUtil.cleanInkscapeSVG(logoDoc);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
@@ -134,8 +134,7 @@ public class LsfReport {
         return logoDoc;
     }
 
-
-    private static void writeDetailsPage(PdfContentByte cb,IMraLogGroup source) {
+    private static void writeDetailsPage(PdfContentByte cb, IMraLogGroup source) {
         Rectangle pageSize = PageSize.A4.rotate();
 
         try {
@@ -145,41 +144,42 @@ public class LsfReport {
 
             cb.setFontAndSize(bf, 24);
             cb.setColorFill(new Color(50, 100, 200));
-            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.text("Mission Statistics"), pageSize.getWidth()/2, pageSize.getHeight()-100, 0);
+            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.text("Mission Statistics"), pageSize.getWidth() / 2,
+                    pageSize.getHeight() - 100, 0);
 
             cb.setFontAndSize(bf, 14);
             cb.setColorFill(Color.gray.darker());
 
-            float xpos = pageSize.getWidth()/4;
-            float ypos = pageSize.getHeight()-160;
+            float xpos = pageSize.getWidth() / 4;
+            float ypos = pageSize.getHeight() - 160;
 
             LinkedHashMap<String, String> stats = LogUtils.generateStatistics(source);
 
             for (String field : stats.keySet()) {
                 cb.setColorFill(Color.blue.darker());
-                cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, field+":", xpos - 10, ypos, 0);
+                cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, field + ":", xpos - 10, ypos, 0);
                 cb.setColorFill(Color.black);
                 cb.showTextAligned(PdfContentByte.ALIGN_LEFT, stats.get(field), xpos + 10, ypos, 0);
 
-                ypos -=20;
+                ypos -= 20;
             }
             cb.endText();
 
             VehicleType vehicle = LogUtils.getVehicle(source);
 
             if (vehicle != null) {
-                Image vehicleImage = vehicle.getPresentationImageHref().equalsIgnoreCase("") ?
-                        ImageUtils.getScaledImage(vehicle.getSideImageHref(), 300, 300) :
-                            ImageUtils.getScaledImage(vehicle.getPresentationImageHref(), 300, 300);
+                Image vehicleImage = vehicle.getPresentationImageHref().equalsIgnoreCase("") ? ImageUtils
+                        .getScaledImage(vehicle.getSideImageHref(), 300, 300) : ImageUtils.getScaledImage(
+                        vehicle.getPresentationImageHref(), 300, 300);
 
-                        PdfTemplate tp = cb.createTemplate(300, 300);
+                PdfTemplate tp = cb.createTemplate(300, 300);
 
-                        java.awt.Graphics2D g2 = tp.createGraphicsShapes(300, 300);
-                        g2.drawImage(vehicleImage, 0, 0, null);
-                        g2.dispose();
+                java.awt.Graphics2D g2 = tp.createGraphicsShapes(300, 300);
+                g2.drawImage(vehicleImage, 0, 0, null);
+                g2.dispose();
 
-                        cb.addTemplate(tp, pageSize.getWidth()-350, pageSize.getHeight()-460);
-            }           
+                cb.addTemplate(tp, pageSize.getWidth() - 350, pageSize.getHeight() - 460);
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -187,15 +187,13 @@ public class LsfReport {
 
     }
 
-
     private static void writeFirstPage(PdfContentByte cb, IMraLogGroup source) {
         Rectangle pageSize = PageSize.A4.rotate();
 
         try {
 
             BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-            if (getLogoDoc() != null)
-            {
+            if (getLogoDoc() != null) {
                 PrintTranscoder prm = new PrintTranscoder();
                 prm.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, new Float(500));
                 prm.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, new Float(193));
@@ -211,7 +209,7 @@ public class LsfReport {
                 page.setPaper(paper);
                 prm.print(g2, page, 0);
                 g2.dispose();
-                cb.addTemplate(tp, pageSize.getWidth()/2-250, pageSize.getHeight()/2-91+120);
+                cb.addTemplate(tp, pageSize.getWidth() / 2 - 250, pageSize.getHeight() / 2 - 91 + 120);
             }
 
             cb.beginText();
@@ -220,14 +218,17 @@ public class LsfReport {
 
             Date d = new Date(source.getLog("EstimatedState").currentTimeMillis());
 
-            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, source.name()+ "  ("+LogUtils.getVehicle(source)+")", pageSize.getWidth()/2, pageSize.getHeight()/2-40, 0);
+            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, source.name() + "  (" + LogUtils.getVehicle(source) + ")",
+                    pageSize.getWidth() / 2, pageSize.getHeight() / 2 - 40, 0);
 
-            cb.setColorFill(new Color(200,200,200));
-            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.textf("Mission executed on %date", d.toString()), pageSize.getWidth()/2, pageSize.getHeight()/2-140, 0);
+            cb.setColorFill(new Color(200, 200, 200));
+            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.textf("Mission executed on %date", d.toString()),
+                    pageSize.getWidth() / 2, pageSize.getHeight() / 2 - 140, 0);
             cb.setFontAndSize(bf, 32);
 
             cb.setColorFill(new Color(50, 100, 200));
-            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.text("Neptus Mission Report"), pageSize.getWidth()/2, pageSize.getHeight()/2, 0);
+            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.text("Neptus Mission Report"),
+                    pageSize.getWidth() / 2, pageSize.getHeight() / 2, 0);
 
             cb.endText();
         }
@@ -248,7 +249,7 @@ public class LsfReport {
             cb.beginText();
             cb.setFontAndSize(bf, 12);
 
-            cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, curPage+"/"+totalPages, pageSize.getWidth()-10, 575, 0);
+            cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, curPage + "/" + totalPages, pageSize.getWidth() - 10, 575, 0);
             cb.endText();
         }
         catch (Exception e) {
@@ -263,11 +264,10 @@ public class LsfReport {
             cb.beginText();
             cb.setFontAndSize(bf, 12);
 
-            //cb.moveTo(200,200);
+            // cb.moveTo(200,200);
             cb.moveText(10, 575);
 
-
-            cb.showText(I18n.text("Neptus Mission Report")+" - "+source.name());
+            cb.showText(I18n.text("Neptus Mission Report") + " - " + source.name());
             cb.endText();
         }
         catch (Exception e) {
@@ -275,7 +275,7 @@ public class LsfReport {
         }
     }
 
-    private static void writeFooter(PdfContentByte cb,IMraLogGroup source) {
+    private static void writeFooter(PdfContentByte cb, IMraLogGroup source) {
         try {
             BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
             cb.setColorFill(Color.gray);
@@ -283,9 +283,10 @@ public class LsfReport {
             cb.setFontAndSize(bf, 12);
             Rectangle pageSize = PageSize.A4.rotate();
 
-            //cb.moveTo(200,200);
+            // cb.moveTo(200,200);
             cb.moveText(10, 10);
-            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.textf("Document generated by %generator on %date.", "Neptus "+ConfigFetch.getNeptusVersion(), new Date().toString()), pageSize.getWidth()/2, 10, 0);
+            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.textf("Document generated by %generator on %date.",
+                    "Neptus " + ConfigFetch.getNeptusVersion(), new Date().toString()), pageSize.getWidth() / 2, 10, 0);
 
             cb.endText();
         }
@@ -306,9 +307,9 @@ public class LsfReport {
 
             doc.addTitle(llfChart.getName());
             doc.addCreationDate();
-            doc.addCreator("Neptus "+ConfigFetch.getNeptusVersion());
+            doc.addCreator("Neptus " + ConfigFetch.getNeptusVersion());
             doc.addProducer();
-            doc.addAuthor(System.getProperty("user.name"));         
+            doc.addAuthor(System.getProperty("user.name"));
 
             PdfContentByte cb = writer.getDirectContent();
             java.awt.Graphics2D g2 = cb.createGraphicsShapes(pageSize.getWidth(), pageSize.getHeight());
@@ -318,7 +319,7 @@ public class LsfReport {
             JFreeChart chart = llfChart.getChart(source, MRAProperties.defaultTimestep);
             chart.setTitle("");
             chart.setBackgroundPaint(Color.white);
-            chart.draw(g2, new Rectangle2D.Double(25, 25, width-50, height-50));
+            chart.draw(g2, new Rectangle2D.Double(25, 25, width - 50, height - 50));
 
             g2.dispose();
             doc.close();
@@ -329,7 +330,7 @@ public class LsfReport {
         catch (Exception e) {
             e.printStackTrace();
             return false;
-        }        
+        }
     }
 
     public static boolean generateReport(IMraLogGroup source, File destination, MRAPanel panel) {
@@ -338,7 +339,7 @@ public class LsfReport {
         Vector<LLFChart> llfCharts = new Vector<>();
         for (int i = 0; i < tree.chartsNode.getChildCount(); i++) {
             try {
-                LLFChart chart = (LLFChart)((DefaultMutableTreeNode)tree.chartsNode.getChildAt(i)).getUserObject();
+                LLFChart chart = (LLFChart) ((DefaultMutableTreeNode) tree.chartsNode.getChildAt(i)).getUserObject();
                 llfCharts.add(chart);
             }
             catch (Exception e) {
@@ -354,11 +355,11 @@ public class LsfReport {
             PdfWriter writer = PdfWriter.getInstance(doc, out);
             doc.open();
 
-            doc.addTitle(I18n.text("Neptus Mission Report")+" - "+source.name());
+            doc.addTitle(I18n.text("Neptus Mission Report") + " - " + source.name());
             doc.addCreationDate();
-            doc.addCreator("Neptus "+ConfigFetch.getNeptusVersion());
+            doc.addCreator("Neptus " + ConfigFetch.getNeptusVersion());
             doc.addProducer();
-            doc.addAuthor(System.getProperty("user.name"));         
+            doc.addAuthor(System.getProperty("user.name"));
 
             PdfContentByte cb = writer.getDirectContent();
             int page = 1;
@@ -375,10 +376,10 @@ public class LsfReport {
 
                 JFreeChart chart = llfChart.getChart(source, llfChart.getDefaultTimeStep());
                 chart.setBackgroundPaint(Color.white);
-                chart.draw(g2, new Rectangle2D.Double(25, 25, width-50, height-50));
+                chart.draw(g2, new Rectangle2D.Double(25, 25, width - 50, height - 50));
 
                 g2.dispose();
-                writePageNumber(cb, page++, llfCharts.size()+3);
+                writePageNumber(cb, page++, llfCharts.size() + 3);
                 writeHeader(cb, source);
                 writeFooter(cb, source);
                 doc.newPage();
@@ -388,9 +389,9 @@ public class LsfReport {
             int width = (int) pageSize.getWidth();
             int height = (int) pageSize.getHeight();
 
-            PdfTemplate tp = cb.createTemplate(width-100, height-100);
+            PdfTemplate tp = cb.createTemplate(width - 100, height - 100);
 
-            final Graphics2D g2 = tp.createGraphicsShapes(width-100, height-100);
+            final Graphics2D g2 = tp.createGraphicsShapes(width - 100, height - 100);
 
             MissionType mt = LogUtils.generateMission(source);
             PlanType plan = LogUtils.generatePlan(mt, source);
@@ -401,12 +402,12 @@ public class LsfReport {
             po.setTransp2d(0.5);
             po.setPlan(plan);
             po.setRenderer(r2d);
-            po.setColor(new Color(255,255,255,128));
+            po.setColor(new Color(255, 255, 255, 128));
             po.setShowDistances(false);
             po.setShowManNames(false);
             r2d.addPostRenderPainter(po, "Plan Painter");
 
-            r2d.setSize(width-100, height-100);
+            r2d.setSize(width - 100, height - 100);
             r2d.focusLocation(path.getCenterPoint());
             SwingUtilities.invokeAndWait(new Runnable() {
                 @Override
@@ -416,19 +417,19 @@ public class LsfReport {
             });
             g2.dispose();
             cb.addTemplate(tp, 50, 50);
-            writePageNumber(cb, page++, llfCharts.size()+3);
+            writePageNumber(cb, page++, llfCharts.size() + 3);
             writeHeader(cb, source);
             writeFooter(cb, source);
-            
+
             doc.newPage();
-            createTable(cb,doc,source,panel);//table with Marks
-            writePageNumber(cb, page++, llfCharts.size()+4);
+            createTable(cb, doc, source, panel);// table with Marks
+            writePageNumber(cb, page++, llfCharts.size() + 4);
             writeHeader(cb, source);
             writeFooter(cb, source);
-            
+
             doc.newPage();
             writeDetailsPage(cb, source);
-            writePageNumber(cb, page++, llfCharts.size()+3);
+            writePageNumber(cb, page++, llfCharts.size() + 3);
             writeHeader(cb, source);
             writeFooter(cb, source);
 
@@ -437,222 +438,271 @@ public class LsfReport {
             out.close();
 
         }
-        catch (Exception e) {           
+        catch (Exception e) {
             e.printStackTrace();
             GuiUtils.errorMessage(I18n.text("Error generating report"), e.getMessage());
             return false;
         }
         return true;
     }
-    
-    public static void createTable(PdfContentByte cb, Document doc, IMraLogGroup source, MRAPanel panel) throws DocumentException {
-        
+
+    public static void createTable(PdfContentByte cb, Document doc, IMraLogGroup source, MRAPanel panel)
+            throws DocumentException {
+
         try {
+
+            SidescanParser ssParser = SidescanParserFactory.build(source);
+            int nSubsys = ssParser.getSubsystemList().size();
+
             Rectangle pageSize = PageSize.A4.rotate();
-            PdfPTable table = new PdfPTable(4);
-            
-            float  tableWidth = pageSize.getWidth()*2/3;
+            PdfPTable table = new PdfPTable(3 + nSubsys);
+
+            float tableWidth = pageSize.getWidth() * 5 / 6;
             table.setTotalWidth(tableWidth);
-            float[] columnWidth = {0.15f, 0.30f, 0.15f, 0.40f};
-            table.setWidthPercentage(columnWidth, pageSize);
+            float[] columnWidth = new float[3 + nSubsys];
+            if (nSubsys == 0) {
+                columnWidth[0] = 0.30f;
+                columnWidth[1] = 0.40f;
+                columnWidth[2] = 0.30f;
+            }
+            if (nSubsys > 0) {
+                columnWidth[0] = 0.15f;
+                columnWidth[1] = 0.25f;
+                columnWidth[2] = 0.15f;
+                for (int i = 3; i < 3 + nSubsys; i++) {
+                    columnWidth[i] = 0.45f / nSubsys;
+                }
+            }
+            table.setWidths(columnWidth);
             ArrayList<LogMarker> markers = panel.getMarkers();
-            
-            //header
-            table.addCell("Timestamp");table.addCell("Label");table.addCell("Location");table.addCell("Image");
+
+            // header
+            table.addCell("Timestamp");
+            table.addCell("Label");
+            table.addCell("Location");
+            for (int i = 0; i < nSubsys; i++)
+                table.addCell("Image" + i);
+
             SidescanLogMarker sd;
-            for (LogMarker m : markers){
+            for (LogMarker m : markers) {
                 String dateAsText = new SimpleDateFormat("HH:mm:ss.ms").format(m.timestamp);
                 table.addCell(dateAsText);
                 table.addCell(m.label);
                 LocationType loc = new LocationType(Math.toDegrees(m.lat), Math.toDegrees(m.lon));
                 String locString = loc.toString();
                 table.addCell(locString);
-                
-                if (m.getClass()==SidescanLogMarker.class){//sidescanImages
-                    sd = (SidescanLogMarker) m;
-                    //table.addCell("w="+sd.w+" | h="+sd.h);
-                    com.lowagie.text.Image iTextImage;//iText image type
 
-                    BufferedImage image=null;
-                    SidescanParser ssParser = SidescanParserFactory.build(source);
-                    image = getSidescanMarkImage(source, ssParser, sd);
-                    if (image!=null){
-                        /* //debug of image
-                        String path = "/home/miguel/lsts/sidescanImages/";
-                        ImageIO.write(image, "PNG", new File(path, "test("+sd.label+").png"));
-                        */
-                        ImageIO.write(image, "png", new File("tmp.png"));
-                        iTextImage = com.lowagie.text.Image.getInstance("tmp.png");
-                        File file = new File("tmp.png");
-                        Boolean deleted = file.delete();
-                        if (!deleted)
-                            throw new DocumentException("file.delete() failed");
-                        table.addCell(iTextImage);
-                    }              
-                }else//not in sidescan
-                    table.addCell("");
-            }          
-            
-            //write to pdf
+                if (m.getClass() == SidescanLogMarker.class) {// sidescanImages
+                    sd = (SidescanLogMarker) m;
+                    // table.addCell("w="+sd.w+" | h="+sd.h);
+                    for (int i = 0; i < nSubsys; i++) {
+                        com.lowagie.text.Image iTextImage;// iText image type
+                        BufferedImage image = null;
+                        image = getSidescanMarkImage(source, ssParser, sd, i);
+                        if (image != null) {
+                            /*
+                             * //debug of image String path = "/home/miguel/lsts/sidescanImages/"; ImageIO.write(image,
+                             * "PNG", new File(path, "test("+sd.label+").png"));
+                             */
+                            ImageIO.write(image, "png", new File("tmp.png"));
+                            iTextImage = com.lowagie.text.Image.getInstance("tmp.png");
+                            File file = new File("tmp.png");
+                            Boolean deleted = file.delete();
+                            if (!deleted)
+                                throw new DocumentException("file.delete() failed");
+                            PdfPCell cell = new PdfPCell(iTextImage, true);
+                            table.addCell(cell);
+                        }
+                        else {// no image to display
+                            table.addCell("");
+                        }
+                    }
+                }
+                else
+                    // not in sidescan
+                    for (int i = 0; i < nSubsys; i++)
+                        table.addCell("");
+            }
+
+            // write to pdf
             cb.beginText();
             BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
             cb.setFontAndSize(bf, 24);
             cb.setColorFill(new Color(50, 100, 200));
-            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.text("Marks' Table"), pageSize.getWidth()/2, pageSize.getHeight()-100, 0);
+            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.text("Marks' Table"), pageSize.getWidth() / 2,
+                    pageSize.getHeight() - 100, 0);
             cb.endText();
 
-            float xpos = pageSize.getWidth()/6;
-            float ypos = pageSize.getHeight()-160;
-            
-            //headers:
+            float xpos = pageSize.getWidth() / 18;
+            float ypos = pageSize.getHeight() - 175;
+
+            // headers:
             cb.setColorFill(Color.red.brighter());
             ypos = table.writeSelectedRows(0, 1, xpos, ypos, cb);
-            
-            //data:
+
+            // data:
             ArrayList rows = table.getRows();
-            for (int i=1;i<rows.size();i++){
-                if (ypos-(table.getRow(i).getMaxHeights())<75){//check ypos within page range
+            for (int i = 1; i < rows.size(); i++) {
+                if (ypos - (table.getRow(i).getMaxHeights()) < 75) {// check ypos within page range
                     doc.newPage();
                     cb.beginText();
                     cb.setFontAndSize(bf, 24);
                     cb.setColorFill(new Color(50, 100, 200));
-                    cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.text("Marks' Table"), pageSize.getWidth()/2, pageSize.getHeight()-100, 0);
+                    cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.text("Marks' Table"), pageSize.getWidth() / 2,
+                            pageSize.getHeight() - 100, 0);
                     cb.endText();
-                    ypos = pageSize.getHeight()-160;
+                    ypos = pageSize.getHeight() - 160;
                     cb.setColorFill(Color.red.brighter());
+
                     ypos = table.writeSelectedRows(0, 1, xpos, ypos, cb);
                 }
-                if (i%2==0)
+                if (i % 2 == 0)
                     cb.setColorFill(Color.gray.darker());
                 else
                     cb.setColorFill(Color.black);
-                ypos = table.writeSelectedRows(i, i+1, xpos, ypos, cb);  
+                PdfPCell[] cells = table.getRow(i).getCells();
+                for (PdfPCell cell : cells) {
+                    if (cell.getHeight() > 250) {
+                        table.getRow(i).setMaxHeights(250);
+                        break;
+                    }
+                }
+                ypos = table.writeSelectedRows(i, i + 1, xpos, ypos, cb);
             }
-            
-        }catch (Exception e) {
+
+        }
+        catch (Exception e) {
             e.printStackTrace();
             GuiUtils.errorMessage(I18n.text("Error createTable()"), e.getMessage());
         }
     }
-    
-    public static BufferedImage getSidescanMarkImage(IMraLogGroup source, SidescanParser ssParser, SidescanLogMarker mark) throws DocumentException {
+
+    public static BufferedImage getSidescanMarkImage(IMraLogGroup source, SidescanParser ssParser,
+            SidescanLogMarker mark, int subSys) throws DocumentException {
         BufferedImage result = null;
-        
+
         int h = mark.h;
         int w = mark.w;
         double wMeters = mark.wMeters;
-        
-        //adjustments:
-        if (w<100 || h<100 || wMeters<0.05){
-            if (w<100){
-                w=100;
-                wMeters = -1;//wMeters defined with range
+
+        // adjustments:
+        if (w < 100 || h < 100 || wMeters < 0.05) {
+            if (w < 100) {
+                w = 100;
+                wMeters = -1;// wMeters defined with range
             }
-            if( h<100)
-                h=100;
-        }else if (w<150 || h<150){
-            if (w<150){
+            if (h < 100)
+                h = 100;
+        }
+        else if (w < 150 || h < 150) {
+            if (w < 150) {
                 w *= 1.2;
                 wMeters *= 1.2;
             }
-            if (h<150)
+            if (h < 150)
                 h *= 1.2;
-        }else if (w<200 || h<200){
-            if (w<200){
+        }
+        else if (w < 200 || h < 200) {
+            if (w < 200) {
                 w *= 1.1;
                 wMeters *= 1.1;
             }
-            if (h<200)
+            if (h < 200)
                 h *= 1.1;
         }
-        
-        
-        //times
-        long t,t1,t2;
+
+        // times
+        long t, t1, t2;
         t = (long) mark.timestamp;
         long avgTBP;// = 250;//check whether this is a constant for this vehicle/log and get it
         long firstTimestamp = ssParser.firstPingTimestamp();
         long lastTimestamp = ssParser.lastPingTimestamp();
-        //LinkedHashMap<Integer, String> hash = LogUtils.getEntities(source);
-        
-        int totalMsg =1;
+        // LinkedHashMap<Integer, String> hash = LogUtils.getEntities(source);
+
+        int totalMsg = 1;
         LsfIndex index = source.getLsfIndex();
-        //totalMsg = index.;//get the totalMsg of sidescan type here
-        avgTBP = (lastTimestamp - firstTimestamp)/totalMsg;
-        
-        t1 = t - 250*(h/2);
-        t2 = t + 250*(h/2);
-        
-        //get the lines
+        // totalMsg = index.;//get the totalMsg of sidescan type here
+        avgTBP = (lastTimestamp - firstTimestamp) / totalMsg;
+
+        t1 = t - 250 * (h / 2);
+        t2 = t + 250 * (h / 2);
+
+        // get the lines
         SidescanConfig config = new SidescanConfig();
         SidescanParameters sidescanParams = new SidescanParameters(0, 0);
         sidescanParams.setNormalization(config.normalization);
         sidescanParams.setTvgGain(config.tvgGain);
-        ArrayList<SidescanLine> list =ssParser.getLinesBetween(t1, t2, ssParser.getSubsystemList().get(0), sidescanParams);
-        
+        ArrayList<SidescanLine> list = ssParser.getLinesBetween(t1, t2, ssParser.getSubsystemList().get(subSys),
+                sidescanParams);
+
         if (list.isEmpty())
             throw new DocumentException("list of lines empty");
-        
+
         float range = list.get(0).range;
-        if (wMeters==-1)
-            wMeters=(list.get(0).range/5);
-        
-        double x,x1,x2;
-        x=mark.x;
+        if (wMeters == -1)
+            wMeters = (list.get(0).range / 5);
+
+        double x, x1, x2;
+        x = mark.x;
         x += range;
-        x1 = (x - (wMeters/2));
-        x2 = (x + (wMeters/2));
-        
-        //check limits
-        if (x1<0)
-            x1=0;
-        if (x2>2*range)
-            x2=2*range;
-        
-        int size=list.get(0).data.length;
-        int i1 = convertMtoIndex(x1,range,size);
-        int i2 = convertMtoIndex(x2,range,size);
-        
+        x1 = (x - (wMeters / 2));
+        x2 = (x + (wMeters / 2));
+
+        // check limits & double frequency problems
+        if (x > 2 * range || x < 0)// image outside of available range
+            return null;
+        if (x1 < 0)
+            x1 = 0;
+        if (x2 > 2 * range)
+            x2 = 2 * range;
+
+        if (x1 > x2)
+            throw new DocumentException("x1>x2");
+
+        int size = list.get(0).data.length;
+        int i1 = convertMtoIndex(x1, range, size);
+        int i2 = convertMtoIndex(x2, range, size);
+
         result = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        
+
         int yref = list.size();
-        while (yref>h){
+        while (yref > h) {
             list.remove(0);
             yref--;
-            if (yref>h){
-                list.remove(list.get(list.size()-1));
+            if (yref > h) {
+                list.remove(list.get(list.size() - 1));
                 yref--;
             }
         }
-        if (list.size()!=h)
-            throw new DocumentException("list of lines empty");
-        
+        if (list.size() > h)
+            throw new DocumentException("list.size>h");
+
         ArrayList<BufferedImage> imgLineList = new ArrayList<BufferedImage>();
-        for (SidescanLine l : list){
-            //draw line with detail:
-            BufferedImage imgLine = new BufferedImage(i2-i1, 1, BufferedImage.TYPE_INT_RGB);
-            for (int c=0;c<i2-i1;c++){
-                int rgb = config.colorMap.getColor(l.data[c+i1]).getRGB();
+        for (SidescanLine l : list) {
+            // draw line with detail:
+            BufferedImage imgLine = new BufferedImage(i2 - i1, 1, BufferedImage.TYPE_INT_RGB);
+            for (int c = 0; c < i2 - i1; c++) {
+                int rgb = config.colorMap.getColor(l.data[c + i1]).getRGB();
                 imgLine.setRGB(c, 0, rgb);
             }
             imgLineList.add(imgLine);
         }
 
-        
         BufferedImage imgScalled = new BufferedImage(w, yref, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = imgScalled.createGraphics();
-        int y=yref;
-        for (BufferedImage imgLine : imgLineList){
-            if (y<0)
+        int y = yref;
+        for (BufferedImage imgLine : imgLineList) {
+            if (y < 0)
                 throw new DocumentException("y<0");
-            g2d.drawImage(ImageUtils.getScaledImage(imgLine, imgScalled.getWidth(), imgLine.getHeight(), true), 0, y, null);
+            g2d.drawImage(ImageUtils.getScaledImage(imgLine, imgScalled.getWidth(), imgLine.getHeight(), true), 0, y,
+                    null);
             y--;
         }
-        
+
         result = imgScalled;
         return result;
     }
-    
+
     /**
      * 
      * @param m double in meters
@@ -660,10 +710,10 @@ public class LsfReport {
      * @param size max index on SidescanLine.data
      * @return convert double m in meters to corresponding index within size
      */
-    public static int convertMtoIndex(double m, float range, int size){
-        return (int) ((m/(2*range))*size);
+    public static int convertMtoIndex(double m, float range, int size) {
+        return (int) ((m / (2 * range)) * size);
     }
- 
+
     public static void generateReport(LsfLogSource source, JFreeChart[] charts, File desFile) {
         Rectangle pageSize = PageSize.A4.rotate();
         try {
@@ -671,9 +721,9 @@ public class LsfReport {
 
             Document doc = new Document(pageSize);
 
-            doc.addTitle(I18n.text("Neptus Mission Report")+" - "+source.name());
+            doc.addTitle(I18n.text("Neptus Mission Report") + " - " + source.name());
             doc.addCreationDate();
-            doc.addCreator("Neptus "+ConfigFetch.getNeptusVersion());
+            doc.addCreator("Neptus " + ConfigFetch.getNeptusVersion());
             doc.addProducer();
             doc.addAuthor(System.getProperty("user.name"));
 
@@ -697,10 +747,10 @@ public class LsfReport {
 
                 Paint oldPaint = charts[i].getBackgroundPaint();
                 charts[i].setBackgroundPaint(Color.white);
-                charts[i].draw(g2, new Rectangle2D.Double(25, 25, width-50, height-50));
+                charts[i].draw(g2, new Rectangle2D.Double(25, 25, width - 50, height - 50));
                 charts[i].setBackgroundPaint(oldPaint);
                 g2.dispose();
-                writePageNumber(cb, page++, charts.length+2);
+                writePageNumber(cb, page++, charts.length + 2);
                 writeHeader(cb, source);
                 writeFooter(cb, source);
                 doc.newPage();
@@ -723,7 +773,7 @@ public class LsfReport {
                 if (fl.isDirectory()) {
                     subFolders.add(fl);
                     try {
-                        generateReport(folder, new File(f.getName()+".pdf"), panel);
+                        generateReport(folder, new File(f.getName() + ".pdf"), panel);
                     }
                     catch (Exception e) {
                         System.err.println(I18n.textf("Unable to generate report for %filename", fl.getAbsolutePath()));
@@ -739,5 +789,3 @@ public class LsfReport {
         }
     }
 }
-
-
