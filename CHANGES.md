@@ -1,11 +1,10 @@
 Changes
 =======
 
-Neptus 3.2.0
+Neptus 4.0.0 (07-05-2014)
 ------------
- * Updated vehicles parameters (DUNE v2.5.0-rc1 master,64c432c).  c33508c655cd0938ab23d11c729d139ab865569f
- * IMC: Updated libimc.jar to version 25d4b9ae31b8f9319620f7a648f7a1a8d9671c7d.
-
+ * IMC: Updated IMC and IMCJava to v5.4.0-rc1. (same as v3.1.0)
+ * Config: Updated systems parameters to DUNE 2.5.0-rc1 (HEAD,6db5dd1). (same as v3.1.0)
  * I18n: Updated POT and PO files.
  * MRA/SidescanPanel: Little tweak on the info overlay.
  Console/MapPanel/FeatureFocuser: Added center map on main vehicle/system. Closes #2981.
@@ -62,14 +61,9 @@ Neptus 3.2.0
  * Mission: Map elements now have only IDs.
  * Console: Added Plugin for exporting S57 depth soundings (to CSV).
  * Console/SpotOverlay: Update of Spot API.
- 
- * Added LAUV-Xplore-1 AUV.
- 
  * MRA: CTD to CSV exporter now also exports the vehicle medium together with C, T and D.
  * Mission: Some fixes in serialization / deserialization of plans.
-
  * Added plugin for sending of text messages to systems (IMC, SMS, and Iridium or RockBlockIridiumMessenger, or Acoustics).
- 
  * Added GSM and Iridium parameters to NP1, NP2 NP3, XT2, SC2, and SC3.
  * Added support for GSM and Iridium protocol parameters in VehicleType.
  * Console/PlanEditor: Added yoyo survey plan template.
@@ -104,7 +98,7 @@ Neptus 3.2.0
  * Console: Plan Simulation now can warn operator for AUV or UAV distances from planned positions (configurable).
  * MRA/Exporters: Exporters menu is now being loaded on tools menu.
  * Console: Fixed rotation in plan simulation overlay.
- * Console: To be able to have all default interactions (rotation and measurement) in all interactions InteractionAdapter must be called !!!!!!!!!!!!!!!!!!!!!!!!!1
+ * Console: To be able to have all default interactions (rotation and measurement) in all interactions InteractionAdapter must be called.
  * Console/PlanEditor: Plan templates are now part of PlanEditor.
  * MRA: PDF reports are now being saved on log path. The report file also has the log name not only the system millis.
  * MRA: added CTDExporter to CSV.
@@ -119,8 +113,6 @@ Neptus 3.2.0
  * Console: Single way of listening for vehicle change events (using EventBus). Use @Subscribe on a method with ConsoleEventMainSystemChange as argument.
  * Removed several static initializers that were fetching images from disk.
  * Console/ConsolePanel: SimpleSubPanel and SubPanel became one and only and then renamed as ConsolePanel. Also removed need for SubPanelProvider. 
- !!!!!!!!!!!!!!!!!!!!!!!!!Plugin extension types can now be interfaces or superclasses.
-
  * Single way of starting Workspace, MRA and Consoles (through NeptusMain).
  * Console/PlanControl: Changed PlanControlStatePanel message listening to EventBus.
  * MRA: Changed MraExporter interface by adding two parameters: source (the log to be exported), and pmonitor (a progress monitor popup that can inform the user of the operation progress).
