@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2014-05-07 12:59+0100\n"
-"PO-Revision-Date: 2014-05-07 13:01+0100\n"
+"POT-Creation-Date: 2014-05-07 13:28+0100\n"
+"PO-Revision-Date: 2014-05-07 13:29+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: ru\n"
@@ -5283,8 +5283,9 @@ msgstr ""
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:172
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:82
-msgid "Left mouse button</td><td>"
-msgstr ""
+#, fuzzy
+msgid "Left mouse button"
+msgstr "Включите кнопку маяки"
 
 #: Property from pt.lsts.neptus.console.plugins.MyLocationDisplay
 #: pt.lsts.neptus.mp.templates.RowsTemplate
@@ -6144,7 +6145,7 @@ msgid "Messages"
 msgstr "Сообщения"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:173
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:86
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:87
 #, fuzzy
 msgid "Middle mouse button"
 msgstr "Включите кнопку маяки"
@@ -6381,7 +6382,7 @@ msgid "More"
 msgstr "Больше"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:175
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:96
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:97
 msgid "Mouse wheel"
 msgstr ""
 
@@ -7315,7 +7316,7 @@ msgid "Pan angle"
 msgstr "Pan angle"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:173
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:88
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:89
 #, fuzzy
 msgid "Pan camera"
 msgstr "Pan angle"
@@ -7437,16 +7438,12 @@ msgstr "Period between updates"
 msgid "Period to fetch (hours)"
 msgstr "Period to fetch (hours)"
 
+#: Property from pt.lsts.neptus.plugins.rtplot.RealTimePlot
+#: pt.lsts.neptus.plugins.leds.LedsControlPanel
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/rtplot/RealTimePlotSettings.java:65
 #, fuzzy
 msgid "Periodicity (milliseconds)"
 msgstr "Periodicity (milliseconds)"
-
-#: Property from pt.lsts.neptus.plugins.rtplot.RealTimePlot
-#: pt.lsts.neptus.plugins.leds.LedsControlPanel
-#, fuzzy
-msgid "Periodicity millis"
-msgstr "Periodicity millis"
 
 #: src/pt/lsts/neptus/mra/plots/EulerAnglesPlot.java:65
 #: src/pt/lsts/neptus/mra/plots/EulerAnglesPlot.java:75
@@ -8528,7 +8525,7 @@ msgid "Right"
 msgstr "Право"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:174
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:91
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:92
 msgid "Right mouse button"
 msgstr ""
 
@@ -8555,7 +8552,7 @@ msgid "Root Messages Listeners:"
 msgstr "Root Messages Listeners:"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:172
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:83
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:84
 msgid "Rotate camera around its focal point"
 msgstr ""
 
@@ -9374,7 +9371,7 @@ msgstr "Set to use a system location as mine"
 msgid "Set to use a system to derive heading"
 msgstr "Set to use a system to derive heading"
 
-#: Description of property 'Periodicity millis' from
+#: Description of property 'Periodicity (milliseconds)' from
 #: pt.lsts.neptus.plugins.leds.LedsControlPanel
 #, fuzzy
 msgid "Set update periodicity in miliseconds"
@@ -12634,12 +12631,12 @@ msgid "Zoom"
 msgstr "Увеличить"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:174
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:93
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:94
 msgid "Zoom (In/Out) the camera"
 msgstr ""
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:175
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:98
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:99
 msgid "Zoom (In/Out) the camera - Static focal point"
 msgstr ""
 
@@ -13821,6 +13818,10 @@ msgstr "Δt"
 #, fuzzy
 msgid "∆tTxRx"
 msgstr "∆tTxRx"
+
+#, fuzzy
+#~ msgid "Periodicity millis"
+#~ msgstr "Periodicity millis"
 
 #, fuzzy
 #~ msgid "Add a mesh to renderer to perform smoothing"
