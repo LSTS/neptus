@@ -1,5 +1,233 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,027f14b)" system="manta-3" i18n="ru_RU">
+<config format="1" version="2.5.0-rc1 (HEAD,6db5dd1)" system="manta-3" i18n="ru_RU">
+  <section name="PTUD48" name-i18n="PTUD48">
+    <param name="Entity Label">
+      <name-i18n>Entity Этикетка</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>PTUD48</default>
+      <units/>
+      <desc>Главным образом ярлык лица</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Приоритет выполнения</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Приоритет выполнения</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Время активации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Время деактивации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Уровень отладки</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Execution Frequency">
+      <name-i18n>Частоты выполнения</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>Hz</units>
+      <desc>Частота, на которой выполняется задача</desc>
+    </param>
+    <param name="Serial Port - Device">
+      <name-i18n>Serial Port - Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/ttyUSB0</default>
+      <units/>
+      <desc>Serial port device (used to communicate with the actuator)</desc>
+    </param>
+    <param name="Serial Port - Baud Rate">
+      <name-i18n>Serial Port - Baud Rate</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>9600</default>
+      <units/>
+      <desc>Serial port baud rate</desc>
+    </param>
+    <param name="PTU Pan Continuous">
+      <name-i18n>PTU Pan Continuous</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>PTU pan continuous enable</desc>
+    </param>
+    <param name="PTU Tracking">
+      <name-i18n>PTU Tracking</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>PTU tracking mode enable</desc>
+    </param>
+    <param name="PTU Pan Speed">
+      <name-i18n>PTU Pan Speed</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1000</default>
+      <units/>
+      <desc>PTU pan speed in positions/sec</desc>
+      <min>0</min>
+    </param>
+    <param name="PTU Tilt Speed">
+      <name-i18n>PTU Tilt Speed</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1000</default>
+      <units/>
+      <desc>PTU tilt speed in positions/sec</desc>
+      <min>0</min>
+    </param>
+    <param name="PTU Pan Acceleration">
+      <name-i18n>PTU Pan Acceleration</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2000</default>
+      <units/>
+      <desc>PTU pan acceleration in positions/sec/sec</desc>
+      <min>0</min>
+    </param>
+    <param name="PTU Tilt Acceleration">
+      <name-i18n>PTU Tilt Acceleration</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2000</default>
+      <units/>
+      <desc>PTU tilt acceleration in positions/sec/sec</desc>
+      <min>0</min>
+    </param>
+  </section>
+  <section name="Antenna Tracker" name-i18n="Antenna Tracker">
+    <param name="Entity Label">
+      <name-i18n>Entity Этикетка</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Antenna Tracker</default>
+      <units/>
+      <desc>Главным образом ярлык лица</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Приоритет выполнения</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Приоритет выполнения</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Время активации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Время деактивации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Уровень отладки</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Debug</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Target Vehicle">
+      <name-i18n>Target Vehicle</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>x8-01</default>
+      <units/>
+      <desc>Vehicle to be tracked</desc>
+    </param>
+    <param name="Latitude">
+      <name-i18n>Latitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>39.10117</default>
+      <units/>
+      <desc>Fixed ground PTU position latitude</desc>
+    </param>
+    <param name="Longitude">
+      <name-i18n>Longitude</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-8.96563</default>
+      <units/>
+      <desc>Fixed ground PTU position longitude</desc>
+    </param>
+    <param name="Height">
+      <name-i18n>Height</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60</default>
+      <units/>
+      <desc>Fixed ground PTU position height</desc>
+    </param>
+    <param name="Yaw Offset">
+      <name-i18n>Yaw Offset</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Angle between north and ptu pointing direction</desc>
+    </param>
+  </section>
   <section name="Clock" name-i18n="Часы">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -1525,6 +1753,64 @@
       <desc>Timeout period of a session</desc>
     </param>
   </section>
+  <section name="Message Fragments" name-i18n="Message Fragments">
+    <param name="Entity Label">
+      <name-i18n>Entity Этикетка</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Message Fragments</default>
+      <units/>
+      <desc>Главным образом ярлык лица</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Приоритет выполнения</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Приоритет выполнения</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Время активации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Время деактивации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Уровень отладки</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Reception timeout">
+      <name-i18n>Reception timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1800</default>
+      <units/>
+      <desc>Maximum amount of seconds to wait for missing fragments in incoming messages</desc>
+    </param>
+  </section>
   <section name="HTTP Server" name-i18n="HTTP-сервер">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -1739,7 +2025,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Announce, CpuUsage, Current, EntityList, EntityState, EstimatedState, EulerAngles, GpsFix, Heartbeat, LogBookControl, LogBookEntry, LoggingControl, MagneticField, StorageUsage, Temperature, Voltage</default>
+      <default>Abort, Announce, CpuUsage, Current, EntityList, EntityState, EstimatedState, EulerAngles, GpsFix, Heartbeat, LogBookControl, LogBookEntry, LoggingControl, MagneticField, SetControlSurfaceDeflection, StorageUsage, Temperature, Voltage</default>
       <units/>
       <desc/>
     </param>
@@ -1887,7 +2173,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, CpuUsage, Current, EntityList, EntityState, EstimatedState, EulerAngles, GpsFix, Heartbeat, LogBookControl, LoggingControl, MagneticField, PlanControl, StorageUsage, Temperature, Voltage</default>
+      <default>Abort, CpuUsage, Current, EntityList, EstimatedState, EulerAngles, GpsFix, Heartbeat, LogBookControl, LoggingControl, MagneticField, PlanControl, SetControlSurfaceDeflection, StorageUsage, Temperature, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
@@ -1966,91 +2252,6 @@
       <default>0, 1, 2</default>
       <units/>
       <desc>List of button numbers</desc>
-    </param>
-  </section>
-  <section name="LCD" name-i18n="LCD">
-    <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>LCD</default>
-      <units/>
-      <desc>Главным образом ярлык лица</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Приоритет выполнения</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="I2C - Device">
-      <name-i18n>I2C - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>/dev/i2c-2</default>
-      <units/>
-      <desc>Platform dependent I2C device</desc>
-    </param>
-    <param name="Backlight - GPIO">
-      <name-i18n>Backlight - GPIO</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>133</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Backlight - Power Channel">
-      <name-i18n>Backlight - Power Channel</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>LCD Backlight</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Backlight - Timeout">
-      <name-i18n>Backlight - Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units>s</units>
-      <desc>Number of seconds of inactivity in order to power-off the back light</desc>
     </param>
   </section>
   <section name="Panel" name-i18n="Панель">

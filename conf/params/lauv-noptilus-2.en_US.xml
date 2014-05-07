@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.5.0-rc1 (master,77b8b7e)" system="lauv-noptilus-2" i18n="en_US">
+<config format="1" version="2.5.0-rc1 (HEAD,6db5dd1)" system="lauv-noptilus-2" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -3918,7 +3918,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Enable position fault detection</desc>
     </param>
