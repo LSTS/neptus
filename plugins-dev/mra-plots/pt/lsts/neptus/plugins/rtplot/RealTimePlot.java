@@ -89,7 +89,7 @@ public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, Conf
     private ScriptEnvironment env = new ScriptEnvironment();
     private JPanel bottom;
     
-    @NeptusProperty(name="Periodicity millis")
+    @NeptusProperty(name="Periodicity (milliseconds)")
     public int periodicity = 1000;
     
     @NeptusProperty(name="Maximum Number of points")
