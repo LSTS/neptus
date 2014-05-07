@@ -169,7 +169,7 @@ public class EventsHandler extends AEventsHandler {
                 +
                 // rotate the camera around its focal point. The rotation is in the direction defined from the center of
                 // the renderer's viewport towards the mouse position
-                "<tr><td>" + I18n.text("Left mouse button</td><td>") + I18n.text("Rotate camera around its focal point") + "</td>"
+                "<tr><td>" + I18n.text("Left mouse button") + "</td><td>" + I18n.text("Rotate camera around its focal point") + "</td>"
                 + "<tr><td>" + I18n.text("Middle mouse button") + "</td><td>" + I18n.text("Pan camera") + "</td>"
                 + "<tr><td>" + I18n.text("Right mouse button") + "</td><td>" + I18n.text("Zoom (In/Out) the camera") + "</td>"
                 + "<tr><td>" + I18n.text("Mouse wheel") + "</td><td>" + I18n.text("Zoom (In/Out) the camera - Static focal point") + "</td>";

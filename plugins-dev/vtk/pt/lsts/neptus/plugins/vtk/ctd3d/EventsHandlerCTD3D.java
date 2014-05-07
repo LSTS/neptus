@@ -79,7 +79,8 @@ public class EventsHandlerCTD3D extends AEventsHandler {
                 + I18n.text("Description")
                 + "</th></tr>"
                 + "<tr><td>"
-                + I18n.text("Left mouse button</td><td>")
+                + I18n.text("Left mouse button")
+                + "</td><td>"
                 + I18n.text("Rotate camera around its focal point")
                 + "</td>"
                 + "<tr><td>"
