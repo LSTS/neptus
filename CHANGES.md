@@ -1,10 +1,10 @@
 Changes
 =======
 
-Neptus v3.1.0 (not officially released)
+Neptus v3.1.0 (07-05-2014)
 -------------
- * Updated libimc.jar to the latest version (IMC v5.4.x cycle, b26419eaf9a715c8dbb24e5e2accc0e204e99a2f).
- * Updated vehicles parameters (DUNE v2.5.0-rc1, master-77b8b7e).
+ * IMC: Updated IMC and IMCJava to v5.4.0-rc1.
+ * Config: Updated systems parameters to DUNE 2.5.0-rc1 (HEAD,6db5dd1).
  * Added AUV LAUV-Lupis-1.
  * Added UAV vehicles X8-02, X8-03, and X8-04.
 
