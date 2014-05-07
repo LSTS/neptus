@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.5.0-rc1 (master,4dc5644,dirty)" system="x8-02" i18n="pt_PT">
+<config format="1" version="2.5.0-rc1 (HEAD,6db5dd1)" system="x8-02" i18n="pt_PT">
   <section name="Path Control" name-i18n="Controlo de Caminho">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -834,7 +834,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1000</default>
+      <default>1049</default>
       <units>us</units>
       <desc>Min PWM value for Roll channel</desc>
     </param>
@@ -843,7 +843,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2000</default>
+      <default>2064</default>
       <units>us</units>
       <desc>Max PWM value for Roll channel</desc>
     </param>
@@ -861,7 +861,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1000</default>
+      <default>922</default>
       <units>us</units>
       <desc>Min PWM value for Climb Rate channel</desc>
     </param>
@@ -870,7 +870,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2000</default>
+      <default>2096</default>
       <units>us</units>
       <desc>Max PWM value for Climb Rate channel</desc>
     </param>
@@ -888,7 +888,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1000</default>
+      <default>985</default>
       <units>us</units>
       <desc>Min PWM value for Air Speed channel</desc>
     </param>
@@ -897,7 +897,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2000</default>
+      <default>1926</default>
       <units>us</units>
       <desc>Max PWM value for Air Speed channel</desc>
     </param>
@@ -906,7 +906,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10.0</default>
+      <default>15.0</default>
       <units>m/s</units>
       <desc>Min Air Speed</desc>
     </param>
@@ -915,9 +915,18 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>30.0</default>
+      <default>22.0</default>
       <units>m/s</units>
       <desc>Max Air Speed</desc>
+    </param>
+    <param name="HITL">
+      <name-i18n>HITL</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Hardware in the loop</desc>
     </param>
   </section>
   <section name="Follow Path Maneuver" name-i18n="Manobra de Seguimento de Caminho">
@@ -1052,15 +1061,6 @@
       <default>150</default>
       <units>m</units>
       <desc>Default z when no vertical reference is given.</desc>
-    </param>
-    <param name="Default Z Units">
-      <name-i18n>Default Z Units</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>HEIGHT</default>
-      <units>m</units>
-      <desc>Units to use for default z reference ('DEPTH', 'ALTITUDE' or 'HEIGHT')</desc>
     </param>
   </section>
   <section name="Goto Maneuver" name-i18n="Manobra Goto">
@@ -2086,6 +2086,15 @@
       <units/>
       <desc>Allow for the vehicle to be externally controlled</desc>
     </param>
+    <param name="Maneuver Handling Timeout">
+      <name-i18n>Maneuver Handling Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units/>
+      <desc>Timeout for starting or stopping a maneuver</desc>
+    </param>
   </section>
   <section name="Announce" name-i18n="Anunciador">
     <param name="Entity Label">
@@ -2708,7 +2717,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AngularVelocity, ControlLoops, CpuUsage, Current, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, GpsFix, IndicatedSpeed, LinkLevel, LogBookEntry, ManeuverControlState, Parameter, PathControlState, PlanControl, PlanSpecification, PlanControlState, Pressure, Reference, Rpm, RSSI, SetControlSurfaceDeflection, SetThrusterActuation, StopManeuver, Temperature, TrueSpeed, TrexObservation, TrexPlan, TrexToken, VehicleCommand, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, AngularVelocity, ControlLoops, CpuUsage, Current, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, GpsFix, IndicatedSpeed, LinkLevel, LogBookEntry, ManeuverControlState, Parameter, PathControlState, PlanControl, PlanSpecification, PlanControlState, PowerChannelControl, Pressure, Reference, Rpm, RSSI, SetControlSurfaceDeflection, SetThrusterActuation, SimulatedState, StopManeuver, Temperature, TrueSpeed, TrexObservation, TrexPlan, TrexToken, VehicleCommand, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc/>
     </param>
@@ -2932,7 +2941,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, CpuUsage, Current, DesiredRoll, DesiredPath, DesiredVerticalRate, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, GpsFix, Heartbeat, LinkLevel, LogBookControl, LoggingControl, OperationalLimits, Parameter, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, SimulatedState, Target, Temperature, TrexOperation, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, CpuUsage, Current, DesiredRoll, DesiredPath, DesiredVerticalRate, DesiredZ, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, GpsFix, Heartbeat, LinkLevel, LogBookControl, LoggingControl, OperationalLimits, Parameter, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, Target, Temperature, TrexOperation, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

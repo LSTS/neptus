@@ -1,263 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.5.0-rc1 (HEAD,6db5dd1)" system="x8-03" i18n="pt_PT">
-  <section name="Autopilot" name-i18n="Piloto Automático">
-    <param name="Entity Label">
-      <name-i18n>Nome da Entidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Autopilot</default>
-      <units/>
-      <desc>Nome principal da entidade</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Prioridade de Execução</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Prioridade de execução</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Tempo de Ativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Tempo de Desativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Nível de Depuração</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Communications Timeout">
-      <name-i18n>Communications Timeout</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units>s</units>
-      <desc>Ardupilot communications timeout</desc>
-      <min>1</min>
-      <max>60</max>
-    </param>
-    <param name="Ardupilot Tracker">
-      <name-i18n>Ardupilot Tracker</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>True</default>
-      <units/>
-      <desc>Use Ardupilot's waypoint tracker</desc>
-    </param>
-    <param name="TCP - Port">
-      <name-i18n>TCP - Port</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>9999</default>
-      <units/>
-      <desc>Port for connection to Ardupilot</desc>
-    </param>
-    <param name="TCP - Address">
-      <name-i18n>TCP - Address</name-i18n>
-      <type>ipv4-address</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>127.0.0.1</default>
-      <units/>
-      <desc>Address for connection to Ardupilot</desc>
-    </param>
-    <param name="Telemetry Rate">
-      <name-i18n>Telemetry Rate</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units>Hz</units>
-      <desc>Telemetry output rate from Ardupilot</desc>
-    </param>
-    <param name="Default altitude">
-      <name-i18n>Default altitude</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>200.0</default>
-      <units>m</units>
-      <desc>Altitude to be used if desired Z has no units</desc>
-    </param>
-    <param name="Default speed">
-      <name-i18n>Default speed</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>18.0</default>
-      <units>m/s</units>
-      <desc>Speed to be used if desired speed is not specified</desc>
-    </param>
-    <param name="uBlox GPS">
-      <name-i18n>uBlox GPS</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>True</default>
-      <units/>
-      <desc>The installed GPS is uBlox</desc>
-    </param>
-    <param name="Default loiter radius">
-      <name-i18n>Default loiter radius</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-150.0</default>
-      <units>m</units>
-      <desc>Loiter radius used in LoiterHere (idle)</desc>
-    </param>
-    <param name="Loitering tolerance">
-      <name-i18n>Loitering tolerance</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units>m</units>
-      <desc>Distance to consider loitering (radius + tolerance)</desc>
-    </param>
-    <param name="Power Module">
-      <name-i18n>Power Module</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>True</default>
-      <units/>
-      <desc>There is a Power Module installed</desc>
-    </param>
-    <param name="Seconds before Waypoint">
-      <name-i18n>Seconds before Waypoint</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>4</default>
-      <units>s</units>
-      <desc>Seconds before actually reaching Waypoint that it is considered as reached</desc>
-    </param>
-    <param name="RC 1 PWM MIN">
-      <name-i18n>RC 1 PWM MIN</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1000</default>
-      <units>us</units>
-      <desc>Min PWM value for Roll channel</desc>
-    </param>
-    <param name="RC 1 PWM MAX">
-      <name-i18n>RC 1 PWM MAX</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2000</default>
-      <units>us</units>
-      <desc>Max PWM value for Roll channel</desc>
-    </param>
-    <param name="RC 1 MAX">
-      <name-i18n>RC 1 MAX</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>30.0</default>
-      <units>°</units>
-      <desc>Max Roll</desc>
-    </param>
-    <param name="RC 2 PWM MIN">
-      <name-i18n>RC 2 PWM MIN</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1000</default>
-      <units>us</units>
-      <desc>Min PWM value for Climb Rate channel</desc>
-    </param>
-    <param name="RC 2 PWM MAX">
-      <name-i18n>RC 2 PWM MAX</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2000</default>
-      <units>us</units>
-      <desc>Max PWM value for Climb Rate channel</desc>
-    </param>
-    <param name="RC 2 MAX">
-      <name-i18n>RC 2 MAX</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2.0</default>
-      <units>m/s</units>
-      <desc>Max Climb Rate</desc>
-    </param>
-    <param name="RC 3 PWM MIN">
-      <name-i18n>RC 3 PWM MIN</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1000</default>
-      <units>us</units>
-      <desc>Min PWM value for Air Speed channel</desc>
-    </param>
-    <param name="RC 3 PWM MAX">
-      <name-i18n>RC 3 PWM MAX</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>2000</default>
-      <units>us</units>
-      <desc>Max PWM value for Air Speed channel</desc>
-    </param>
-    <param name="RC 3 MIN">
-      <name-i18n>RC 3 MIN</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0</default>
-      <units>m/s</units>
-      <desc>Min Air Speed</desc>
-    </param>
-    <param name="RC 3 MAX">
-      <name-i18n>RC 3 MAX</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>30.0</default>
-      <units>m/s</units>
-      <desc>Max Air Speed</desc>
-    </param>
-    <param name="HITL">
-      <name-i18n>HITL</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Hardware in the loop</desc>
-    </param>
-  </section>
+<config format="1" version="2.5.0-rc1 (HEAD,6db5dd1)" system="hexa-00" i18n="pt_PT">
   <section name="Follow Path Maneuver" name-i18n="Manobra de Seguimento de Caminho">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -2104,7 +1846,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>/dev/ttyO0</default>
+      <default>/dev/ttyACM0</default>
       <units/>
       <desc>Serial port device used to communicate with the sensor</desc>
     </param>
@@ -2113,7 +1855,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>57600</default>
+      <default>115200</default>
       <units/>
       <desc>Serial port baud rate</desc>
     </param>
@@ -2234,7 +1976,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>EstimatedState:10,SimulatedState:0</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
     </param>
@@ -2270,7 +2012,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, CpuUsage, Current, DesiredRoll, DesiredPath, DesiredVerticalRate, DesiredZ, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, GpsFix, Heartbeat, LinkLevel, LogBookControl, LoggingControl, OperationalLimits, Parameter, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, Target, Temperature, TrexOperation, VehicleMedium, VehicleState, Voltage</default>
+      <default>CpuUsage, Current, DesiredRoll, DesiredPath, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, GpsFix, Heartbeat, LogBookControl, LoggingControl, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, QueryEntityParameters, SaveEntityParameters, SetEntityParameters, Target, Temperature, TrexOperation, VehicleState, Voltage, SimulatedState, PWM, SetPWM</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
