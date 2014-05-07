@@ -1,7 +1,7 @@
 Changes
 =======
 
-Neptus v3.0.2
+Neptus v3.0.2 (07-05-2014)
 -------------
  * Console/RealTimePlot: Roll was actually plotting psi. All angles are display now (phi, theta, and psi).
  * PluginUtils: Fix a small bug introduced at 8afb5b3c making all 'int' NeptusProperties not to be loaded properly.
