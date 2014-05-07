@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2014-05-05 17:39+0100\n"
+"POT-Creation-Date: 2014-05-07 12:59+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -515,6 +515,7 @@ msgid "Activate Projection"
 msgstr ""
 
 #: Property from pt.lsts.neptus.console.plugins.planning.PlanExecutionPreview
+#: src/pt/lsts/neptus/console/plugins/PluginManager.java:165
 msgid "Active"
 msgstr ""
 
@@ -532,6 +533,8 @@ msgstr ""
 
 #: plugins-dev/logs/pt/lsts/neptus/plugins/logs/LogMerger.java:103
 #: src/pt/lsts/neptus/planeditor/PlanTransitionsSimpleEditor.java:215
+#: src/pt/lsts/neptus/console/plugins/PluginManager.java:151
+#: src/pt/lsts/neptus/console/plugins/PluginManager.java:185
 msgid "Add"
 msgstr ""
 
@@ -892,6 +895,10 @@ msgstr ""
 #: src/pt/lsts/neptus/colormap/ColorMapFactory.java:207
 msgctxt "Colormap name"
 msgid "Autumn"
+msgstr ""
+
+#: src/pt/lsts/neptus/console/plugins/PluginManager.java:148
+msgid "Available"
 msgstr ""
 
 #: src/pt/lsts/neptus/util/llf/LogUtils.java:200
@@ -3967,6 +3974,7 @@ msgid "Infinite Rectangle"
 msgstr ""
 
 #: plugins-dev/echosounder/pt/lsts/neptus/plugins/sidescan/SidescanToolbar.java:62
+#: src/pt/lsts/neptus/console/plugins/PluginManager.java:137
 msgid "Info"
 msgstr ""
 
@@ -5370,6 +5378,7 @@ msgid "Needs 'Use Plan DB Sync. Features' on"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/ConsoleLayout.java:278
+#: src/pt/lsts/neptus/console/ConsoleLayout.java:1907
 msgid "Neptus Console"
 msgstr ""
 
@@ -5808,6 +5817,10 @@ msgstr ""
 #: src/pt/lsts/neptus/gui/MissionFileChooser.java:126
 #: src/pt/lsts/neptus/console/actions/OpenMissionConsoleAction.java:56
 msgid "Open Mission"
+msgstr ""
+
+#: src/pt/lsts/neptus/console/plugins/PluginManager.java:276
+msgid "Open settings dialog for the selected plugin"
 msgstr ""
 
 #: src/pt/lsts/neptus/types/vehicle/VehiclesHolder.java:451
@@ -6767,6 +6780,8 @@ msgstr ""
 
 #: plugins-dev/logs/pt/lsts/neptus/plugins/logs/LogMerger.java:117
 #: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:547
+#: src/pt/lsts/neptus/console/plugins/PluginManager.java:168
+#: src/pt/lsts/neptus/console/plugins/PluginManager.java:224
 #: src/pt/lsts/neptus/console/MainPanel.java:273
 #: src/pt/lsts/neptus/console/MainPanel.java:303
 #: src/pt/lsts/neptus/util/llf/LogTree.java:167
@@ -6812,6 +6827,10 @@ msgstr ""
 
 #: plugins-dev/position/pt/lsts/neptus/plugins/position/ContactMarker.java:258
 msgid "Remove mark"
+msgstr ""
+
+#: src/pt/lsts/neptus/console/plugins/PluginManager.java:262
+msgid "Remove selected plugin"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/planning/edit/ManeuverRemoved.java:79
@@ -7329,6 +7348,10 @@ msgstr ""
 msgid "Select application"
 msgstr ""
 
+#: src/pt/lsts/neptus/console/ConsoleLayout.java:1907
+msgid "Select console to open"
+msgstr ""
+
 #: plugins-dev/dev-calibration/pt/lsts/neptus/plugins/calib/CalibrationSubPanel.java:119
 #: plugins-dev/dev-calibration/pt/lsts/neptus/plugins/calib/CalibrationSubPanel.java:196
 msgid "Select entity to be calibrated"
@@ -7664,6 +7687,8 @@ msgstr ""
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:334
 #: src/pt/lsts/neptus/console/plugins/planning/AreaCoveragePlanner.java:113
 #: src/pt/lsts/neptus/console/plugins/MyLocationDisplay.java:670
+#: src/pt/lsts/neptus/console/plugins/PluginManager.java:172
+#: src/pt/lsts/neptus/console/plugins/PluginManager.java:264
 msgid "Settings"
 msgstr ""
 
@@ -9382,6 +9407,7 @@ msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.trex.TrexMapLayer
 #: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:601
+#: src/pt/lsts/neptus/console/plugins/PluginManager.java:138
 #: src/pt/lsts/neptus/i18n/I18n.java:204
 msgid "Type"
 msgstr ""
