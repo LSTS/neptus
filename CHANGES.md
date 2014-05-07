@@ -3,32 +3,54 @@ Changes
 
 Neptus 3.2.0
 ------------
- * 
- * 3c8cd72de023e1bc529124368d70f9c0087a1679
+ * Updated vehicles parameters (DUNE v2.5.0-rc1 master,64c432c).  c33508c655cd0938ab23d11c729d139ab865569f
+ * IMC: Updated libimc.jar to version 25d4b9ae31b8f9319620f7a648f7a1a8d9671c7d.
 
- * Updated vehicles parameters (DUNE v2.5.0-rc1 master,4dc5644).  d50f2962abb8bb2952d3ea7c11d50843db0600ce
- * IMC: Updated libimc.jar to version 9e496a6211.
-
- * 
- * MRA.VTK: Possiblility to take snapshots.
- * MRA.Replay: Changed MultibeamReplay from the plugin to the mrareplay package.
- * WorldMaps.S57: Fix a bug where was needed to open the S57 options dialog for proper loading of the charts. Closes #2845.
+ * I18n: Updated POT and PO files.
+ * MRA/SidescanPanel: Little tweak on the info overlay.
+ Console/MapPanel/FeatureFocuser: Added center map on main vehicle/system. Closes #2981.
+ * MRA/Exporter: Added "Updated IMC" MRA exporter (translates the messages that are compatable to the current IMC version).
+ * Console/ControllerPanel: Teleoperation is working again.
+ * Console/SettingsWindow: Map layers and interactions now appear in the SettingsWindow (needs only to be a PropertiesProviders). Also private NeptusProperties are shown.
+ * LocationType: Fix a bug introduced in 94d4c1b2 where the toString() if height is 0 does not output it. This cause a problem in the related method valueOf(..) that was expecting it.
+ * build.xml: Fixing 'clean' target to clean all generated jars.
+ * Console/MRA/LogsDownloaderWorker: Adding stopping trigger when processing log folders list.
+ * Console: Little change on saving or not into console's XML of the layers and interactions added by already console XML saved panels. When adding ConsoleLayers and ConsoleInteractions the default is to store in the Console XML.
+ * Comms/AnnounceWorker: Adding extra logging in the proccess of choosing IP for the system from Announce message.
+ * Comms/AnnounceWorker: Adding extra delivery info for heartbeat.
+ * Console/SystemsList: Better color for painting course in renderer. Closes issue #2938.
+ * Console/UAV: Some uav plugin cleanup of unused code and components.
+ * Console/AirCamDisplay: Reworked video panel.
+ * Console/Comms: When messages are sent using Iridium, provide feedback on success or failure.
+ * Console: Fixed Argos location timestamps (now using GMT timezone). Closes #2927.
+ * Interpolation/GeoLocation: Fix vectorial option in GeoCollection.
+ * Console/PathControlLayer: Can now (optionally) display the start of the commanded path instead of selecting the current vehicle position.
+ * Mission: More robust (and comprehensive error) during plan loading.
+ * Comms/Hub: Added logging to Hub iridium messenger.
+ * Console/TrexMapLayer: Added possibility to send T-REX goals directly to the vehicle via Iridium.
+ * Console/Comms: Added possibility to send any (IMC) plan via Iridium.
+ * Console: Fixed (major) bug that was preventing some ConsolePanels to correctly receive the main vehicle.
+ * MRA/Replay: Added TemperatureReplay.
+ * MRA/Replay: Added SalinityReplay.
+ * MRA/VTK: Possiblility to take snapshots.
+ * MRA/Replay: Changed MultibeamReplay from the plugin to the mrareplay package.
+ * WorldMaps/S57: Fix a bug where was needed to open the S57 options dialog for proper loading of the charts. Closes #2845.
  * MRA: Adding missing statistics visualization on mra.
  * Vehicle files definitions cleanups (speeds to m/s by default and cleanup supported maneuvers).
- * Console.TrexMapLayer: For UAVs removing automatic enable when sending goals. Adding visualization of sent Spotter goals. Adjust option enable/disable to Trex state of activation. Add option to clean goals on Neptus.
+ * Console/TrexMapLayer: For UAVs removing automatic enable when sending goals. Adding visualization of sent Spotter goals. Adjust option enable/disable to Trex state of activation. Add option to clean goals on Neptus.
  * Console: Added possibility to set height for simulated GpsFix messages.
  * Console: Some refactorings in CommandPlanner and MissionTreePanel to solve the issue of commanded plans not being synchronized.
  * Console: VehicleStateMonitor now makes a better job at distinguishing tele-operation and regular maneuvering modes.
  * Console: Added support for fetching argos data from web service (sunfish).
- * Console.MissionTree.Beacons: Adding option to get beacon configuration from vehicle when not synchronized.
+ * Console/MissionTree/Beacons: Adding option to get beacon configuration from vehicle when not synchronized.
  * MRA: Now using multiple threads to load the different MRA replay layers.
  * Console: FollowReferenceInteraction now checks for whether the vehicles are owned by this console or not before sending references.
  * Console: MantaOperations should now listen for acoustic systems announced by Manta (adding them to user-defined ones).
- * Console.Followref: Added interactions helper to popup menu. Closes #2862.
+ * Console/FollowReference: Added interactions helper to popup menu. Closes #2862.
  * Workspace: Removed all code related to the SshShell components (library jsch).
  * Console: Added plug-in for Sunfish situational awareness and decision support.
- * Console.HFRadarVisualization: Added and tested adding HF-Radar NetCDF from Spanish source. So now loads both TUV and NetCDF HF-Radar files.
- * Comms.ImcMsgManager: Fixed a null pointer introduced in ImcMsgManager.sendMessageToSystem() at commit aeea299d.
+ * Console/HFRadarVisualization: Added and tested adding HF-Radar NetCDF from Spanish source. So now loads both TUV and NetCDF HF-Radar files.
+ * Comms/ImcMsgManager: Fixed a null pointer introduced in ImcMsgManager.sendMessageToSystem() at commit aeea299d.
  * MRA: Added code for exporting CTD data in batch.
  * WorldMap: Added TiliShipTrafficDensity world map tile layer source (maximum amount of detail to 10).
  * MRA: Added CTD3D visualizer.
@@ -39,7 +61,7 @@ Neptus 3.2.0
  * Comms: Added method for waiting for result of reliable message sending.
  * Mission: Map elements now have only IDs.
  * Console: Added Plugin for exporting S57 depth soundings (to CSV).
- * Console.SpotOverlay: Update of Spot API.
+ * Console/SpotOverlay: Update of Spot API.
  
  * Added LAUV-Xplore-1 AUV.
  
@@ -48,9 +70,9 @@ Neptus 3.2.0
 
  * Added plugin for sending of text messages to systems (IMC, SMS, and Iridium or RockBlockIridiumMessenger, or Acoustics).
  
- * Added GSM and Iridium parameters to NP1, NP2 and NP3 and XT2.
+ * Added GSM and Iridium parameters to NP1, NP2 NP3, XT2, SC2, and SC3.
  * Added support for GSM and Iridium protocol parameters in VehicleType.
- * Console.PlanEditor: Added yoyo survey plan template.
+ * Console/PlanEditor: Added yoyo survey plan template.
  * MRA: Added ruler for Echosounder panel.
  * MRA: Choose Bathymetry parser by sensor type.
  * Console: Update plugin manager to the new plugin system with layers and interactions.
@@ -65,7 +87,7 @@ Neptus 3.2.0
  * Console: Removed references to the deprecated PlanStateGenerator (replaced by PlanSimulationEngine).
  * Checklist: For now remove "Variable Test" for checklists.
  * Console: PlanSimulationLayer can also check for collisions with obstacles.
- * Console.MapEditor: Improved click intersection detection in some map elements, and can now be marked as obstacles. 
+ * Console/MapEditor: Improved click intersection detection in some map elements, and can now be marked as obstacles. 
  * Updated Apache httpclient from 4.2.2 to 4.3.2 and httpcore from 4.2.2 to 4.3.1.
  * Updated Guava from 15.0 to 16.0.
  * Updated MiGLayout from 4.0 to 4.2 (separated now into two jars, swing and core).
@@ -78,33 +100,33 @@ Neptus 3.2.0
  * WorldMap: Setup of the worldmap to display is now done by right-click popup menu on the map.
  * Updated Apache commons-codec from 1.8 to 1.9.
  * MRA: Added CTD colormap (side view).
- * MRA.Exporters: VTK point-cloud and generated mesh exporter added. Allows exporting to VTK, OBJ, PLY, STL, VRML, and X3D.
+ * MRA/Exporters: VTK point-cloud and generated mesh exporter added. Allows exporting to VTK, OBJ, PLY, STL, VRML, and X3D.
  * Console: Plan Simulation now can warn operator for AUV or UAV distances from planned positions (configurable).
- * MRA.Exporters: Exporters menu is now being loaded on tools menu.
+ * MRA/Exporters: Exporters menu is now being loaded on tools menu.
  * Console: Fixed rotation in plan simulation overlay.
  * Console: To be able to have all default interactions (rotation and measurement) in all interactions InteractionAdapter must be called !!!!!!!!!!!!!!!!!!!!!!!!!1
- * Console.PlanEditor: Plan templates are now part of PlanEditor.
+ * Console/PlanEditor: Plan templates are now part of PlanEditor.
  * MRA: PDF reports are now being saved on log path. The report file also has the log name not only the system millis.
  * MRA: added CTDExporter to CSV.
  * MRA: Added MRAFilesHandler with extractors, open/close log files (extrated from NeptusMRA), and PDF generation.
  * Console: Face-lifting for SystemsInfoPainter.
- * Console.AbstractConsolePlugin: Added AbstractConsolePlugin to be base for ConsoleLayer and  ConsoleInteraction.
- * Console.ConsoleInteraction: Created class ConsoleInteraction and interface IConsoleInteraction for adding MapPanel interaction extensions (in the console).
+ * Console/AbstractConsolePlugin: Added AbstractConsolePlugin to be base for ConsoleLayer and  ConsoleInteraction.
+ * Console/ConsoleInteraction: Created class ConsoleInteraction and interface IConsoleInteraction for adding MapPanel interaction extensions (in the console).
  * Console.ConsoleLayer: Created class ConsoleLayer and interface IConsoleLayer for adding MapPanel layer extensions (in the console).
  * MRA: MRA menuBar on separate class (MRAMenuBar) and some coding revision.
  * MRA: MRA properties are on a separate class. closes #2718.
  * Console: New annotation @Periodic that can be used to annotate methods that should be called periodically in ConsolePanel's.
  * Console: Single way of listening for vehicle change events (using EventBus). Use @Subscribe on a method with ConsoleEventMainSystemChange as argument.
  * Removed several static initializers that were fetching images from disk.
- * Console.ConsolePanel: SimpleSubPanel and SubPanel became one and only and then renamed as ConsolePanel. Also removed need for SubPanelProvider. 
+ * Console/ConsolePanel: SimpleSubPanel and SubPanel became one and only and then renamed as ConsolePanel. Also removed need for SubPanelProvider. 
  !!!!!!!!!!!!!!!!!!!!!!!!!Plugin extension types can now be interfaces or superclasses.
 
  * Single way of starting Workspace, MRA and Consoles (through NeptusMain).
- * Console.PlanControlStatePanel: Changed PlanControlStatePanel message listening to EventBus.
+ * Console/PlanControl: Changed PlanControlStatePanel message listening to EventBus.
  * MRA: Changed MraExporter interface by adding two parameters: source (the log to be exported), and pmonitor (a progress monitor popup that can inform the user of the operation progress).
  * MRA: Added Sidescan Images exporter.
  * Console: Plan Simulation (PlanExecutionPreview) now supports multiple vehicles.
- * MRA.VTK: Loading DVL data to point cloud. ...
+ * MRA/VTK: Loading DVL data to point cloud. ...
  * MRA: Added DVLBathymetryParser for generating bathymetry data from DVL beams.
  * MRA: Saving markers even if MRA is closed abruptly.
  * MRA: LogMarkers are now showing in LogMarkersReplay layer. Closes #2723.
@@ -119,9 +141,9 @@ Neptus 3.2.0
  * MRA: Moved LBLRangesReplay to acoustic plugin to remove core code dependency of plugin code.
  * I18n: Added pt.lsts.neptus.i18n.Translate annotation to signal to PluginsPotGenerator to add the enum field to POT for translation.
  * All MRA visualizations and replay layers, and exporters are now plug-ins. 
- * Mission.PlanCompability and PlanSimulationLayer: Added classes for testing vehicle-plan compatibility (used for plan simulation).
+ * Mission/PlanCompability/PlanSimulationLayer: Added classes for testing vehicle-plan compatibility (used for plan simulation).
  * IMC: Current IMC definition is not stored anymore in conf/messages/IMC.xml file, now uses the one embedded in the libimc.jar.
- * MRA.VTK: Some optimizations on Multibeam and DVL visualizations.
+ * MRA/VTK: Some optimizations on Multibeam and DVL visualizations.
  * MissionTree: Optimizations on operations with beacons and multiple selected plans.
 
 Neptus v3.1.0 (not officially released)
