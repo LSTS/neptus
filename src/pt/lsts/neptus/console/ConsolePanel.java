@@ -694,6 +694,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     }
     
     public void sendViaIridium(String destination, IMCMessage message) {
+        if (message.getTimestamp() == 0)
+            message.setTimestampMillis(System.currentTimeMillis());
         Collection<ImcIridiumMessage> irMsgs = new ArrayList<ImcIridiumMessage>();
         try {
             irMsgs = IridiumManager.iridiumEncode(message);
@@ -710,6 +712,9 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             for (ImcIridiumMessage irMsg : irMsgs) {
                 irMsg.setDestination(dst);
                 irMsg.setSource(src);
+                irMsg.timestampMillis = message.getTimestampMillis();
+                if (irMsg.timestampMillis == 0)
+                    irMsg.timestampMillis = System.currentTimeMillis();
                 IridiumManager.getManager().send(irMsg);
                 count ++;
             }
