@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.5.0-rc1 (master,2230d59,dirty)" system="x8-03" i18n="en_US">
+<config format="1" version="2.5.0-rc1 (HEAD,6db5dd1)" system="x8-03" i18n="en_US">
   <section name="Autopilot" name-i18n="Autopilot">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -390,15 +390,6 @@
       <default>150</default>
       <units>m</units>
       <desc>Default z when no vertical reference is given.</desc>
-    </param>
-    <param name="Default Z Units">
-      <name-i18n>Default Z Units</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>HEIGHT</default>
-      <units>m</units>
-      <desc>Units to use for default z reference ('DEPTH', 'ALTITUDE' or 'HEIGHT')</desc>
     </param>
   </section>
   <section name="Goto Maneuver" name-i18n="Goto Maneuver">
@@ -2279,7 +2270,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, CpuUsage, Current, DesiredRoll, DesiredPath, DesiredVerticalRate, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, GpsFix, Heartbeat, LinkLevel, LogBookControl, LoggingControl, OperationalLimits, Parameter, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, SimulatedState, Target, Temperature, TrexOperation, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, CpuUsage, Current, DesiredRoll, DesiredPath, DesiredVerticalRate, DesiredZ, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, GpsFix, Heartbeat, LinkLevel, LogBookControl, LoggingControl, OperationalLimits, Parameter, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, Target, Temperature, TrexOperation, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
