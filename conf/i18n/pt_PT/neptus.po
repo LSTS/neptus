@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
 "POT-Creation-Date: 2014-05-07 12:59+0100\n"
-"PO-Revision-Date: 2014-05-07 13:05+0100\n"
+"PO-Revision-Date: 2014-05-07 13:16+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
@@ -1523,15 +1523,15 @@ msgstr "Mapa de cores"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:165
 msgid "Color gradient in relation with X coords (north)"
-msgstr ""
+msgstr "Gradiente de cor em relação à coordenada X (norte)"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:166
 msgid "Color gradient in relation with Y coords (west)"
-msgstr ""
+msgstr "Gradiente de cor em relação à coordenada Y (este)"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:167
 msgid "Color gradient in relation with Z coords (depth)"
-msgstr ""
+msgstr "Gradiente de cor em relação à coordenada Z (baixo)"
 
 #: src/pt/lsts/neptus/gui/objparams/ParallelepipedParameters.java:227
 msgid "Color:"
@@ -1773,7 +1773,7 @@ msgstr "Tempo de Expiração (secs)"
 
 #: Property from pt.lsts.neptus.console.plugins.planning.PathControlLayer
 msgid "Consider start of path to be the vehicle's position"
-msgstr ""
+msgstr "Considerar o começo do caminho como a posição do veículo"
 
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:171
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:191
@@ -2002,7 +2002,7 @@ msgstr "A copiar %filename"
 
 #: src/pt/lsts/neptus/console/plugins/planning/MissionTreePanel.java:316
 msgid "Could not ask %vehicle for it's accoustic beacons."
-msgstr ""
+msgstr "Não é possível questionar o %vehicle pelos beacons acústicos."
 
 #: src/pt/lsts/neptus/mra/MRAFilesHandler.java:424
 msgid "Could not find PDF reader"
@@ -2105,11 +2105,11 @@ msgstr "Data"
 
 #: src/pt/lsts/neptus/util/bathymetry/CachedData.java:256
 msgid "Days to fetch in the future"
-msgstr ""
+msgstr "Dias a buscar no futuro"
 
 #: src/pt/lsts/neptus/util/bathymetry/CachedData.java:240
 msgid "Days to fetch in the past"
-msgstr ""
+msgstr "Dias a buscar no passado"
 
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:255
 msgid "Deactivate Polling"
@@ -2241,7 +2241,7 @@ msgstr "Multiplicador para exagero da profundidade"
 #: Description of property 'First Depth' from
 #: convcao.com.caoAgent.convcaoNeptusInteraction
 msgid "Depth for vehicle closer to the surface"
-msgstr ""
+msgstr "Profundidade para o veículo mais perto da superfície"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/events/AEventsHandler.java:70
 msgid "Depth multiplied by: %currenZexag"
@@ -2741,7 +2741,7 @@ msgstr "Habilitar/Dasabilitar contornos"
 
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:190
 msgid "Enter command to be sent to %vehicle"
-msgstr ""
+msgstr "Introduzir comando a enviar para %vehicle"
 
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:433
 msgid "Enter command to send to %vehicle"
@@ -3387,7 +3387,7 @@ msgstr "GPSPainelFix"
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:325
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:351
 msgid "GW: %s"
-msgstr ""
+msgstr "GW: %s"
 
 #: Name of plugin pt.lsts.neptus.plugins.gauges.GaugeSubPanel
 msgid "Gauge Panel"
@@ -3612,11 +3612,11 @@ msgstr "Ajuda da Visualização 3D"
 
 #: src/pt/lsts/neptus/types/map/AbstractElement.java:760
 msgid "Hidden"
-msgstr ""
+msgstr "Escondido"
 
 #: Property from pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
 msgid "Hidden position types"
-msgstr ""
+msgstr "Tipos de posição escondidos"
 
 #: plugins-dev/state/pt/lsts/neptus/plugins/state/EntitySubPanel.java:122
 #: plugins-dev/state/pt/lsts/neptus/plugins/state/EntitySubPanel.java:280
@@ -4235,7 +4235,7 @@ msgstr "Jet"
 
 #: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:70
 msgid "Key"
-msgstr ""
+msgstr "Chave"
 
 #: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1228
 msgid "Key Combination"
@@ -4291,7 +4291,7 @@ msgstr "Pastas de Logs LSF"
 
 #: Property from pt.lsts.neptus.plugins.trex.TrexMapLayer
 msgid "Lagrangian distortion"
-msgstr ""
+msgstr "Distorção Lagrangian"
 
 #: Property from pt.lsts.neptus.util.conf.GeneralPreferences
 msgid "Language"
@@ -4374,7 +4374,7 @@ msgstr "Paínel de Controlo do Leds"
 #: plugins-dev/leds/pt/lsts/neptus/plugins/leds/LedsSlider.java:102
 #: plugins-dev/leds/pt/lsts/neptus/plugins/leds/LedsSlider.java:121
 msgid "Leds Group "
-msgstr ""
+msgstr "Grupo de LEDs"
 
 #: Field from MapPanel.PlacementEnum enumeration
 msgid "Left"
@@ -5286,7 +5286,7 @@ msgstr "Mais"
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:175
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:96
 msgid "Mouse wheel"
-msgstr ""
+msgstr "Roda do rato"
 
 #: plugins-dev/map/pt/lsts/neptus/plugins/map/edit/MoveObjectEdit.java:104
 msgid "Move '%element'"
@@ -5568,7 +5568,7 @@ msgstr "nenhum dispositivo acústico é capaz de enviar este pedido"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:273
 msgid "No beams on Log file"
-msgstr ""
+msgstr "Sem raios no ficheiro de Log"
 
 #: src/pt/lsts/neptus/console/plugins/VehicleStateMonitor.java:83
 msgid "No communication received for more than 10 seconds"
@@ -6016,7 +6016,7 @@ msgstr "Processo de Criação de PDF"
 
 #: src/pt/lsts/neptus/mra/MRAFilesHandler.java:432
 msgid "PDF Report Generated"
-msgstr ""
+msgstr "Relatório PDF Gerado"
 
 #: src/pt/lsts/neptus/mra/MRAChartPanel.java:303
 msgid "PDF files"
@@ -6046,7 +6046,7 @@ msgstr "Pintar Informação de Veiculo no painel"
 
 #: Property from pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
 msgid "Paint icons"
-msgstr ""
+msgstr "Pintar Ícones"
 
 #: Property from pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
 msgid "Paint labels"
@@ -6134,7 +6134,7 @@ msgstr "Pausar reprodução"
 
 #: src/pt/lsts/neptus/gui/ChronometerPanel.java:231
 msgid "Pause/Resume"
-msgstr ""
+msgstr "Pausar/Resumir"
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1068
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1069
@@ -7822,7 +7822,7 @@ msgstr "Partilhar '%planName'"
 
 #: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:82
 msgid "Shift"
-msgstr ""
+msgstr "Deslocar"
 
 #: Property from pt.lsts.neptus.plugins.odss.OdssStoqsTrackFetcher
 msgid "Ship"
