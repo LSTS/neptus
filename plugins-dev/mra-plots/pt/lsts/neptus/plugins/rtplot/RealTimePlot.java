@@ -96,7 +96,7 @@ public class RealTimePlot extends SimpleSubPanel implements IPeriodicUpdates, Co
     public int numPoints = 100;
     
     @NeptusProperty(name="Traces Script")
-    public String traceScripts = "roll: ${EstimatedState.psi} * 180 / Math.PI;\npitch: ${EstimatedState.theta} * 180 / Math.PI";
+    public String traceScripts = "roll: ${EstimatedState.phi} * 180 / Math.PI;\npitch: ${EstimatedState.theta} * 180 / Math.PI;\nyaw: ${EstimatedState.psi} * 180 / Math.PI";
     
     private String traceScriptsBefore = "";
     
