@@ -451,7 +451,7 @@ For simple use the main targets are:
 		</delete>
 		<delete>
 			<fileset dir=".">
-				<include name="*.tar.gz"/>
+				<!-- include name="*.tar.gz"/ --> <!-- This is not safe because is deleting the "installer" all os that is a tar.gz -->
 				<include name="s57.session"/>
 				<include name="release.json"/>
 				<include name="scm.info.txt"/>
