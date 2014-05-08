@@ -31,7 +31,6 @@
  */
 package pt.lsts.neptus.renderer2d;
 
-import java.util.Collection;
 
 /**
  * @author zp
@@ -41,8 +40,7 @@ public interface ILayerPainter {
 
 	public boolean addPostRenderPainter(Renderer2DPainter painter, String name);
 	public boolean removePostRenderPainter(Renderer2DPainter painter);
-	public Collection<Renderer2DPainter> getPostPainters();
-
+	
 	public void addPreRenderPainter(Renderer2DPainter painter);
 	public void removePreRenderPainter(Renderer2DPainter painter);
 

@@ -45,7 +45,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author zp
  *
  */
-public class ValueColorMap extends ColormapOverlay implements LogReplayLayer {
+public abstract class ValueColorMap extends ColormapOverlay implements LogReplayLayer {
 
     @NeptusProperty(name="Cell width")
     public int cellWidth = 20;
@@ -71,7 +71,7 @@ public class ValueColorMap extends ColormapOverlay implements LogReplayLayer {
     }
     
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         if (entity != null && source.getLsfIndex().getEntityId(entity) == -1)
             return false;
         return source.getLsfIndex().getFirstMessageOfType(message) != -1;

@@ -36,12 +36,12 @@ import java.awt.Color;
 
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.AlarmProviderOld;
 import pt.lsts.neptus.console.plugins.ConsoleScript;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -51,7 +51,7 @@ import pt.lsts.neptus.util.GuiUtils;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name="Generic Display", icon="pt/lsts/neptus/plugins/position/position.png", description="A display that updates itself according to a script (Javascript)")
-public class ScriptedDisplay extends SimpleSubPanel implements IPeriodicUpdates, ConfigurationListener, AlarmProviderOld {
+public class ScriptedDisplay extends ConsolePanel implements IPeriodicUpdates, ConfigurationListener, AlarmProviderOld {
 
 	private DisplayPanel display;
 	

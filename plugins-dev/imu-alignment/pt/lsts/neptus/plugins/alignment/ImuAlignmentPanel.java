@@ -54,6 +54,7 @@ import pt.lsts.imc.QueryEntityActivationState;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
@@ -64,7 +65,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -80,7 +80,7 @@ import com.google.common.eventbus.Subscribe;
  */
 @PluginDescription(author = "ZP", name = "IMU Alignment")
 @Popup(accelerator=KeyEvent.VK_I, pos=Popup.POSITION.CENTER, height=300, width=300, name="IMU Alignment")
-public class ImuAlignmentPanel extends SimpleSubPanel implements IPeriodicUpdates {
+public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates {
 
     private static final long serialVersionUID = -1330079540844029305L;
     protected JToggleButton enableImu;

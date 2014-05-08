@@ -1122,28 +1122,33 @@ public class WorldMapPanel extends JPanel {
      * @param args
      */
     public static void main(String[] args) {
-        OutputMonitor.setDisable(true);
-        // BasicConfigurator.resetConfiguration();
-        Logger.getRootLogger().setLevel(Level.FATAL);
-        NeptusLog.pubRoot().setLevel(Level.FATAL);
-
-        ConfigFetch.initialize();
-
-        Logger.getRootLogger().setLevel(Level.FATAL);
-        NeptusLog.wasteRoot().setLevel(Level.OFF);
-        NeptusLog.pubRoot().setLevel(Level.FATAL);
-
-        if (ConfigFetch.isOSEqual(ConfigFetch.OS_LINUX))
-            GuiUtils.setLookAndFeel();
-        else
-            GuiUtils.setSystemLookAndFeel();
-
-        PluginUtils.loadPlugins();
-
-        WorldMapPanel panel = new WorldMapPanel();
-        panel.getJFrame(null);
-        panel.jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        panel.jFrame.setSize(790, 580);
-        GuiUtils.centerOnScreen(panel.jFrame);
+        try {
+            OutputMonitor.setDisable(true);
+            // BasicConfigurator.resetConfiguration();
+            Logger.getRootLogger().setLevel(Level.FATAL);
+            NeptusLog.pubRoot().setLevel(Level.FATAL);
+            
+            ConfigFetch.initialize();
+            
+            Logger.getRootLogger().setLevel(Level.FATAL);
+            NeptusLog.wasteRoot().setLevel(Level.OFF);
+            NeptusLog.pubRoot().setLevel(Level.FATAL);
+            
+            if (ConfigFetch.isOSEqual(ConfigFetch.OS_LINUX))
+                GuiUtils.setLookAndFeel();
+            else
+                GuiUtils.setSystemLookAndFeel();
+            
+            PluginUtils.loadPlugins();
+            
+            WorldMapPanel panel = new WorldMapPanel();
+            panel.getJFrame(null);
+            panel.jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+            panel.jFrame.setSize(790, 580);
+            GuiUtils.centerOnScreen(panel.jFrame);
+        }
+        catch (Exception | Error e) {
+            e.printStackTrace();
+        }
     }
 }

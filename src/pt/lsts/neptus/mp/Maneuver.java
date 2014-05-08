@@ -524,7 +524,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
      * The mission preview will call this function every second to refresh the vehicle state. <br>
      * Implement this function to show how this maneuver is performed by the vehicle.
      */
-    public abstract SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState);
+    //public abstract SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState);
 
     /**
      * When the maneuver has ended, this function must be called to end the iteration
@@ -533,27 +533,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         ManeuverEnded = true;
     }
 
-    /**
-     * This function returns the state of the vehicle after performing this maneuver
-     * 
-     * @param initialVehicleState The initial state of the vehicle
-     * @return The state of the vehicle after performing this maneuver
-     */
-    public SystemPositionAndAttitude calcFinalState(SystemPositionAndAttitude initialVehicleState) {
-        ManeuverEnded = false;
-        SystemPositionAndAttitude curState = initialVehicleState;
-        int i = 0;
-        for (i = 0; (i < maxTime) && !ManeuverEnded; i++) {
-            curState = ManeuverFunction(curState);
-        }
-
-        if (i == maxTime)
-            System.err.println("Maneuver timed out!");
-
-        return curState;
-    }
-
-    /**
+     /**
      * Verifies if the execution of this maneuver has ended...
      * 
      * @return <b>true</b> if the maneuver has already ended or <b>false</b> otherwise
@@ -590,21 +570,13 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         loadFromXML(manXml);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
-     */
+
     public String asXML() {
         String rootElementName = getType();
         return asXML(rootElementName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
-     */
+
     public String asXML(String rootElementName) {
         String result = "";
         Document document = asDocument(rootElementName);
@@ -612,40 +584,20 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
-     */
     public Element asElement() {
         String rootElementName = getType();
         return asElement(rootElementName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
-     */
+
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
-     */
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
-     */
 
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
@@ -671,7 +623,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         manElement.addElement("maxTime").setText(String.valueOf(getMaxTime()));
 
         manElement.add(getManeuverAsDocument(getType()).getRootElement());
-        // NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(document));
         if (!customSettings.isEmpty()) {
             Element customSettingsElem = manElement.addElement("custom-settings");
 
@@ -689,9 +640,7 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         }
 
         Element sActionsElm = startActions.asElement("start-actions");
-        // NeptusLog.pub().info("<###>sActionsElm******************** "+ sActionsElm.asXML());
         Element eActionsElm = endActions.asElement("end-actions");
-        // NeptusLog.pub().info("<###>eActionsElm******************** "+ eActionsElm.asXML());
         if (sActionsElm.hasContent() || eActionsElm.hasContent()) {
             Element acElm = root.addElement("actions");
             if (sActionsElm.hasContent())
@@ -699,9 +648,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
             if (eActionsElm.hasContent())
                 acElm.add(eActionsElm);
         }
-
-        // NeptusLog.pub().info("<###>node-----------------\n"+document.asXML());
-
         return document;
     }
 
@@ -1053,10 +999,6 @@ public abstract class Maneuver implements XmlOutputMethods, PropertiesProvider, 
         else
             tt = "<html><b><font color='#00CC00'>" + getId() + "</font></b> " + I18n.text(getType());
         if (!getStartActions().isEmpty() || !getEndActions().isEmpty()) {
-//            tt += "<hr>" + I18n.text("start-actions") + "->"
-//                    + (getStartActions().isEmpty() ? I18n.text("no") : I18n.text("yes")) + " | "
-//                    + I18n.text("end-actions") + "->"
-//                    + (getEndActions().isEmpty() ? I18n.text("no") : I18n.text("yes"));
             tt += "<hr>"
                     + (getStartActions().isEmpty() ? "" : I18n.text("payload actions"))
                     + (getEndActions().isEmpty() ? "" : (getStartActions().isEmpty() ? "" : " | ")

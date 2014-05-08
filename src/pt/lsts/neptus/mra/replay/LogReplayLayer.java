@@ -31,21 +31,11 @@
  */
 package pt.lsts.neptus.mra.replay;
 
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 
 /**
  * @author zp
  *
  */
-public interface LogReplayLayer extends Renderer2DPainter {
-    
-    public boolean canBeApplied(IMraLogGroup source);
-    public String getName();
-    public void parse(IMraLogGroup source);
-    public String[] getObservedMessages();
-    public void onMessage(IMCMessage message);
-    public boolean getVisibleByDefault();
-    public void cleanup();
+public interface LogReplayLayer extends Renderer2DPainter, LogReplayComponent {
 }

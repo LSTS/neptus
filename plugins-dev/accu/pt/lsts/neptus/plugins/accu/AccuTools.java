@@ -45,11 +45,11 @@ import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
@@ -63,7 +63,7 @@ import pt.lsts.neptus.util.ImageUtils;
  *
  */
 @PluginDescription(name="Android CCU Tools", icon="pt/lsts/neptus/plugins/accu/accu.png")
-public class AccuTools extends SimpleSubPanel {
+public class AccuTools extends ConsolePanel {
 
     private static final long serialVersionUID = -5015167316733219875L;
     /**

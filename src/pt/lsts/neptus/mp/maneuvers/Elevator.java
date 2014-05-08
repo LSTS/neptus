@@ -49,7 +49,6 @@ import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -174,15 +173,6 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
             NeptusLog.pub().error(this, e);
             return;
         }
-    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.Maneuver#ManeuverFunction(pt.lsts.neptus.mp.VehicleState)
-     */
-    @Override
-    public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     /**
@@ -320,8 +310,8 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
         
         setMaxTime(elev.getTimeout());
         ManeuverLocation loc = new ManeuverLocation();
-        loc.setLatitudeDegs(Math.toDegrees(elev.getLat()));
-        loc.setLongitudeDegs(Math.toDegrees(elev.getLon()));
+        loc.setLatitudeRads(elev.getLat());
+        loc.setLongitudeRads(elev.getLon());
         loc.setZ(elev.getEndZ());
         NeptusLog.pub().info("<###> "+elev.getEndZUnits());
 //        loc.setZUnits(pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS.valueOf(elev.getEndZUnits().toString()));

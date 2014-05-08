@@ -43,6 +43,7 @@ import java.util.Vector;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
 import pt.lsts.neptus.console.plugins.SubPanelChangeListener;
@@ -50,7 +51,6 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -66,7 +66,7 @@ import pt.lsts.neptus.util.ReflectionUtil;
 @SuppressWarnings("serial")
 @PluginDescription(author = "Rui Gonçalves", name = "GPSFixPanel", icon = "pt/lsts/neptus/plugins/position/gpsbutton.png", description = "GPS Fix display")
 @LayerPriority(priority = 40)
-public class GPSFixPanel extends SimpleSubPanel implements MainVehicleChangeListener, Renderer2DPainter,
+public class GPSFixPanel extends ConsolePanel implements MainVehicleChangeListener, Renderer2DPainter,
         SubPanelChangeListener, NeptusMessageListener {
 
     // @NeptusProperty (name="Entity", description="The entity of GPS to display (use 'GPS' for default GPS)")

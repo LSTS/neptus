@@ -52,6 +52,7 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.CheckMenuChangeListener;
@@ -60,7 +61,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -69,7 +69,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  *
  */
 @PluginDescription(author = "zp", name = "Email State Publisher", icon = "pt/lsts/neptus/plugins/odss/mail_send.png", category = CATEGORY.WEB_PUBLISHING)
-public class OdssStatePublisher extends SimpleSubPanel implements IPeriodicUpdates, ConfigurationListener {
+public class OdssStatePublisher extends ConsolePanel implements IPeriodicUpdates, ConfigurationListener {
 
     private static final long serialVersionUID = -1397794375394456466L;
 
@@ -290,8 +290,8 @@ public class OdssStatePublisher extends SimpleSubPanel implements IPeriodicUpdat
         mail.setHostName(smtpServerName); //"smtp.gmail.com"
         mail.setSmtpPort(smtpServerPort); //587
         mail.setAuthenticator(new DefaultAuthenticator(username, password));
-        mail.setSSL(smtpServerSSL);
-        mail.setTLS(smtpServerTLS);
+        mail.setSSLOnConnect(smtpServerSSL);
+        mail.setStartTLSEnabled(smtpServerTLS);
         mail.setFrom(fromEmail, fromName);
         if (ccName != null && ccName.length() > 0)
             mail.addCc(ccEmail, ccName);

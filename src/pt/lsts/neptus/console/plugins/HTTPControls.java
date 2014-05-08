@@ -36,17 +36,17 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.ws.WebServer;
 
 /**
  * @author zepinto
  *
  */
-public class HTTPControls extends SimpleSubPanel implements ConfigurationListener {
+public class HTTPControls extends ConsolePanel implements ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
 

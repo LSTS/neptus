@@ -48,21 +48,22 @@ import vtk.vtkUnsignedCharArray;
  * Overrides some functionalities of vtkCanvas (vtkCanvas extends vtkPanel)
  */
 public class Canvas extends vtkCanvas {
-    
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = 5165188310777500794L;
-    
-    // for 2D Grapihics
+
+    // for 2D Graphics
     private vtkUnsignedCharArray buffer = new vtkUnsignedCharArray();
     private int bufferWidth, bufferHeight = 0;
 
+    /**
+     * Constructor
+     */
     public Canvas() {
+        super();
         setMinimumSize(new Dimension(0, 0));
         setPreferredSize(new Dimension(0, 0));
     }
-    
+
     /**
      * Override to correct the bug of the UpdateLight (the light position is not updated if the
      * camera is moved by programming
@@ -71,21 +72,21 @@ public class Canvas extends vtkCanvas {
         if (!isWindowSet())
             return;
         Utils.goToAWTThread(new Runnable() {
-            
+
             @Override
             public void run() {
                 Render();     
             }
         });
     }
-    
-    @Override
+
     //public void Render() {
+    @Override
     public synchronized void Render() {
         if (!rendering)
         {
             rendering = true;
-                // if there's no visible actor to render
+            // if there's no visible actor to render
             if (ren.VisibleActorCount() == 0)
             {
                 rendering = false;
@@ -115,19 +116,19 @@ public class Canvas extends vtkCanvas {
             }
         }
     }
-    
+
     @Override
     public void lock() {
         if (isWindowSet())
             super.lock();
     }
-    
+
     @Override
     public void unlock() {
         if (isWindowSet())
             super.unlock();
     }
-    
+
     /**
      * Set the immediateRenderingMode on the current view
      * @param mode
@@ -136,15 +137,15 @@ public class Canvas extends vtkCanvas {
         vtkMapper mapper;
         vtkActorCollection listOfActors = GetRenderer().GetActors();
         int nbActors = listOfActors.GetNumberOfItems();
-        
+
         listOfActors.InitTraversal();
         for (int i = 0; i < nbActors; ++i) {
-                // browing the list of actores and getting their associated mappers
+            // browing the list of actores and getting their associated mappers
             mapper = listOfActors.GetNextActor().GetMapper();
             mapper.SetImmediateModeRendering(Utils.booleanToInt(mode));
         }
     }
-    
+
     /**
      * Corrects a bug : update the reference of camera
      * Changing the original camera the light stops following the camera
@@ -153,7 +154,7 @@ public class Canvas extends vtkCanvas {
     public void UpdateLight() {
         if(LightFollowCamera == 0)
             return;
-        
+
         cam = GetRenderer().GetActiveCamera();
         super.UpdateLight();
     }
@@ -164,7 +165,7 @@ public class Canvas extends vtkCanvas {
     @Override
     public void Report() {
         Runnable updateAComponent = new Runnable() {
-            
+
             @Override
             public void run() {
                 lock();
@@ -174,10 +175,10 @@ public class Canvas extends vtkCanvas {
                 unlock();
             }
         };
-        
+
         SwingUtilities.invokeLater(updateAComponent);
     }
-    
+
     @Override
     public void paint(Graphics g) {
         if (windowset == 0 || bufferWidth != getWidth() || bufferHeight != getHeight()) {
@@ -193,33 +194,32 @@ public class Canvas extends vtkCanvas {
     public int getCtrlPressed() {
         return ctrlPressed;
     }
-    
+
     public void setCtrlPressed(int ctrlPressed) {
         this.ctrlPressed = ctrlPressed;
     }
-    
+
     public int getShiftPressed() {
         return shiftPressed;
     }
-    
+
     public void setShiftPressed(int shiftPressed) {
         this.shiftPressed = shiftPressed;
     }
-    
+
     public int getLastX() {
         return lastX;
     }
-    
+
     public void setLastX(int lastX) {
         this.lastX = lastX;
     }
-    
+
     public int getLastY() {
         return lastY;
     }
-    
+
     public void setLastY(int lastY) {
         this.lastY = lastX;
     }
-    
 }

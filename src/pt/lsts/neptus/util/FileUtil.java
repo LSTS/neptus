@@ -127,10 +127,10 @@ public class FileUtil {
     public static String getFileNameWithoutExtension(String path) {
         File f = new File(path);
         String fname = f.getName();
-        
+
         int lastDotPostion = fname.lastIndexOf('.');
-       String ret = (lastDotPostion != -1) ? (fname.substring(0, lastDotPostion)) : fname;
-       return ret;
+        String ret = (lastDotPostion != -1) ? (fname.substring(0, lastDotPostion)) : fname;
+        return ret;
     }
     
 

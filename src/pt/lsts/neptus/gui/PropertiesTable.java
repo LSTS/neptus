@@ -63,6 +63,13 @@ public class PropertiesTable extends JPanel implements PropertyChangeListener {
 	JLabel title = new JLabel("");
 	private final Vector<PropertyChangeListener> propertyListeners = new Vector<PropertyChangeListener>();	
 	
+	@Override
+	public void setEnabled(boolean enabled) {
+	    super.setEnabled(enabled);
+	    psp.setEnabled(enabled);
+	    psp.getTable().setEnabled(enabled);
+	}
+	
 	public PropertiesTable() {
 		setLayout(new BorderLayout());
 		psp.setBorder(BorderFactory.createEmptyBorder());

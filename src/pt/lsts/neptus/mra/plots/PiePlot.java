@@ -32,6 +32,9 @@
 package pt.lsts.neptus.mra.plots;
 
 import java.awt.Component;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -42,24 +45,29 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
 
+import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.LogStatisticsItem;
+import pt.lsts.neptus.mra.MRAChartPanel;
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.MraChartPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.chart.LLFChart;
-import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp
  *
  */
 public abstract class PiePlot implements LLFChart, LogMarkerListener {   
-    MRAPanel mraPanel;
-    
+    protected MRAPanel mraPanel;
+    protected LsfIndex index;
+    protected double timestep = 0;
+    protected JFreeChart chart;
+    protected LinkedHashMap<String, Double> sums = new LinkedHashMap<>();
+    //protected double total = 0;
     
     public PiePlot(MRAPanel panel) {
         this.mraPanel = panel;
@@ -68,44 +76,72 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
     public String getName() {
         return PluginUtils.getPluginName(getClass());
     }
-    
+
     public String getTitle() {
         return I18n.textf("%plotname plot", getName());
     }
-    
-    private LsfIndex index;
-    protected double timestep = 0;
-    JFreeChart chart;
-    
-    protected LinkedHashMap<String, Double> sums = new LinkedHashMap<>();
-    
+
+
     public void incValue(String name) {
         addValue(name, 1);
-        
     }
-    public void addValue(String name, double ammount) {
+
+    
+    public void cleanupSeries(double otherRatio) {
+        Vector<Pair<String, Double>> values = new Vector<>();
+        double totalSum = 0;
+        for (Entry<String, Double> k : sums.entrySet()) {
+            totalSum += k.getValue();
+            values.add(new Pair<String, Double>(k.getKey(), k.getValue()));
+        }
         
-        if (!sums.containsKey(name))
-            sums.put(name, 0d);
+        Collections.sort(values, new Comparator<Pair<String, Double>>() {
+            @Override
+            public int compare(Pair<String, Double> o1, Pair<String, Double> o2) {
+                return o1.second().compareTo(o2.second());
+            }
+        });
         
-        sums.put(name, sums.get(name)+ammount);
+        double otherSum = 0;
+        
+        for (Pair<String, Double> v : values) {
+            if ((otherSum + v.second()) / totalSum < otherRatio) {
+                otherSum += v.second();
+                sums.remove(v.first());
+            }
+            else
+                break;
+        }
+        
+        sums.put("Other", otherSum);
+        for (Entry<String, Double> k : sums.entrySet()) {
+            sums.put(k.getKey(), (k.getValue()/totalSum) * 100);
+        }
+        
     }
     
+    public void addValue(String name, double amount) {
+
+        if (!sums.containsKey(name))
+            sums.put(name, 0d);
+        sums.put(name, sums.get(name)+amount);
+    }
+
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
-        return new MraChartPanel(this, source, mraPanel);
+        return new MRAChartPanel(this, source, mraPanel);
     }
 
     @Override
     public final boolean canBeApplied(IMraLogGroup source) {     
         return canBeApplied(source.getLsfIndex());
     }
-    
+
     public abstract boolean canBeApplied(LsfIndex index);
-   
+
     @Override
     public ImageIcon getIcon() {
-        return ImageUtils.getIcon("images/menus/graph.png");
+        return ImageUtils.getIcon("pt/lsts/neptus/mra/plots/chart-pie.png");
     }
 
     @Override
@@ -115,18 +151,28 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
 
     @Override
     public boolean supportsVariableTimeSteps() {
-        return true;
+        return false;
     }
-    
-    
-    public JFreeChart createChart() {
-        
-        DefaultPieDataset dataSet = new DefaultPieDataset();
-        
-        for (Entry<String, Double> k : sums.entrySet()) {
-            dataSet.setValue(k.getKey(), k.getValue());
-        }
 
+
+    public JFreeChart createChart() {
+
+        DefaultPieDataset dataSet = new DefaultPieDataset();
+
+        // contraption for interleaving small and big values
+        ArrayList<String> keys = new ArrayList<>();
+        keys.addAll(sums.keySet());
+        boolean beginning = true;
+        while (!keys.isEmpty()) {
+            int index = 0;
+            if (!beginning)
+                index = keys.size()-1;
+            String key = keys.get(index);
+            keys.remove(index);
+            beginning = !beginning;
+            dataSet.setValue(key, sums.get(key));
+        }
+        
         JFreeChart chart = ChartFactory.createPieChart( 
                 getTitle(),
                 dataSet,
@@ -150,33 +196,35 @@ public abstract class PiePlot implements LLFChart, LogMarkerListener {
         }
         return chart;
     }
-    
+
     public abstract void process(LsfIndex source);
 
     @Override
     public Vector<LogStatisticsItem> getStatistics() {
         return null;
     }
-    
+
+    @Override
     public Type getType() {
         return Type.CHART;
     }
-    
+
     @Override
     public void onCleanup() {
         mraPanel = null;
     }
-    
+
     @Override
     public void onHide() {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
+    @Override
     public void onShow() {
         //nothing
     }
-    
+
     @Override
     public void addLogMarker(LogMarker marker) {
 

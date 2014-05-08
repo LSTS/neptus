@@ -58,7 +58,7 @@ public class PlanActions {
 	/**
 	 * @return the actionMsgs
 	 */
-	public LinkedList<PlanActionElementConfig> getActionMsgs() {
+	public LinkedList<PlanActionElementConfig> getActionMsgs() {	  
 		return actionMsgs;
 	}
 

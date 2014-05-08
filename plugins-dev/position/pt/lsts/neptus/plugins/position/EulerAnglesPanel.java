@@ -37,11 +37,11 @@ import java.text.DecimalFormat;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 
 /**
@@ -50,7 +50,7 @@ import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name="Euler Angles", icon="pt/lsts/neptus/plugins/position/position.png", description="Displays the vehicle's orientation")
-public class EulerAnglesPanel extends SimpleSubPanel implements ConfigurationListener, IPeriodicUpdates, NeptusMessageListener {
+public class EulerAnglesPanel extends ConsolePanel implements ConfigurationListener, IPeriodicUpdates, NeptusMessageListener {
 
 	private DisplayPanel displayRoll, displayPitch, displayYaw;
 	private DecimalFormat formatter = new DecimalFormat("0.00");

@@ -35,6 +35,7 @@ import java.util.Date;
 
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 
@@ -42,7 +43,8 @@ import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
  * @author zp
  *
  */
-public class TidePlot extends MraTimeSeriesPlot {
+@PluginDescription
+public class TidePlot extends MRATimeSeriesPlot {
 
     public TidePlot(MRAPanel mp) {
         super(mp);

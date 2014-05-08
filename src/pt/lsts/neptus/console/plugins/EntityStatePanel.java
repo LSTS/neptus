@@ -54,10 +54,14 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.gui.StatusLed;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
@@ -66,7 +70,6 @@ import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -75,19 +78,18 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 @Popup( pos = POSITION.TOP_LEFT, width=400, height=400, accelerator='E')
 @PluginDescription(name = "Entities", icon = "images/buttons/events.png", documentation = "entity-state/entity-state.html")
-public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageListener {
+public class EntityStatePanel extends ConsolePanel implements NeptusMessageListener {
 
     private static final long serialVersionUID = 5150530667334313096L;
 
-    public static final Color COLOR_NOT = Color.BLACK;
-    public static final Color COLOR_OFF = Color.GRAY;
-    public static final Color COLOR_GREEN = new Color(0, 200, 125);
-    public static final Color COLOR_BLUE = Color.BLUE;
-    public static final Color COLOR_YELLOW = new Color(200, 200, 0);
-    public static final Color COLOR_ORANGE = new Color(255, 127, 0); // Color(255, 180, 0);
-    public static final Color COLOR_RED = Color.RED;
+    private final Color COLOR_OFF = Color.GRAY;
+    private final Color COLOR_GREEN = new Color(0, 200, 125);
+    private final Color COLOR_BLUE = Color.BLUE;
+    private final Color COLOR_YELLOW = new Color(200, 200, 0);
+    private final Color COLOR_ORANGE = new Color(255, 127, 0); // Color(255, 180, 0);
+    private final Color COLOR_RED = Color.RED;
 
-    private static final Icon ICON_CLEAR = ImageUtils.getScaledIcon("images/buttons/clear.png", 16, 16);
+    private final Icon ICON_CLEAR = ImageUtils.getScaledIcon("images/buttons/clear.png", 16, 16);
 
     // Events Data
     private LinkedHashMap<String, EntityStateType> dataMap = new LinkedHashMap<String, EntityStateType>();
@@ -328,8 +330,8 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
 
     }
 
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange evt) {
         clearData();
     }
 
@@ -368,7 +370,7 @@ public class EntityStatePanel extends SimpleSubPanel implements NeptusMessageLis
             }
             else {
                 eType = new EntityStateType(entityName, new Enumerated(message.getMessageType().getFieldPossibleValues(
-                        "state"), message.getLong("state")), description, System.currentTimeMillis());
+                        "state"), message.getLong("state")), getDescription(), System.currentTimeMillis());
 
                 if (data.add(eType)) {
                     index = data.indexOf(eType);

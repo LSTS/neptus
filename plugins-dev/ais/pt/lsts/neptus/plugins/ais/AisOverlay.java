@@ -141,11 +141,6 @@ public class AisOverlay extends SimpleRendererInteraction implements IPeriodicUp
     }
 
     @Override
-    public String getName() {
-        return super.getName();
-    }
-
-    @Override
     public long millisBetweenUpdates() {
         return updateMillis;
     }

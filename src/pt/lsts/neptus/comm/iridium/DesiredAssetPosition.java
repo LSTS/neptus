@@ -34,12 +34,12 @@ package pt.lsts.neptus.comm.iridium;
 import java.util.Collection;
 import java.util.Vector;
 
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.RemoteSensorInfo;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
@@ -58,8 +58,8 @@ public class DesiredAssetPosition extends IridiumMessage {
     public int serializeFields(IMCOutputStream out) throws Exception {
         out.writeUnsignedShort(asset_imc_id);
         loc.convertToAbsoluteLatLonDepth();
-        out.writeUnsignedInt(Math.round(loc.getLatitudeDegs()* 1000000));
-        out.writeUnsignedInt(Math.round(loc.getLongitudeDegs()* 1000000));
+        out.writeInt((int)Math.round(loc.getLatitudeDegs() * 1000000));
+        out.writeInt((int)Math.round(loc.getLongitudeDegs()* 1000000));
         return 10;
     }
 
@@ -67,8 +67,8 @@ public class DesiredAssetPosition extends IridiumMessage {
     public int deserializeFields(IMCInputStream in) throws Exception {
         asset_imc_id = in.readUnsignedShort();
         loc = new LocationType();
-        loc.setLatitudeDegs(in.readUnsignedInt() / 1000000.0);
-        loc.setLongitudeDegs(in.readUnsignedInt() / 1000000.0);
+        loc.setLatitudeDegs(in.readInt()  / 1000000.0);
+        loc.setLongitudeDegs(in.readInt() / 1000000.0);
         return 10;
     }
 
@@ -93,15 +93,24 @@ public class DesiredAssetPosition extends IridiumMessage {
         Vector<IMCMessage> msgs = new Vector<>();
 
         RemoteSensorInfo sensorInfo = new RemoteSensorInfo();
+        sensorInfo.setTimestampMillis(timestampMillis);
         sensorInfo.setLat(getLocation().getLatitudeRads());
         sensorInfo.setLon(getLocation().getLongitudeRads());
+        sensorInfo.setSensorClass("Desired Position");
         sensorInfo.setAlt(0);
-        sensorInfo.setId("DP_"+ImcSystemsHolder.translateImcIdToSystemName(asset_imc_id));
+        sensorInfo.setId("DP_"+IMCDefinition.getInstance().getResolver().resolve(asset_imc_id));
         sensorInfo.setSrc(getSource());
         sensorInfo.setDst(getDestination());
         msgs.add(sensorInfo);        
         
         return msgs;
+    }
+    
+    @Override
+    public String toString() {
+        String s = super.toString();
+        return s + "\tAsset: "+IMCDefinition.getInstance().getResolver().resolve(getAssetImcId())+"\n" + 
+        "\tLocation: "+getLocation()+"\n";
     }
 
 }

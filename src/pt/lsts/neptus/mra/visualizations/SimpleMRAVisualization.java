@@ -39,7 +39,7 @@ import javax.swing.JPanel;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.ImageUtils;
@@ -52,55 +52,58 @@ public abstract class SimpleMRAVisualization extends JPanel implements MRAVisual
 
     private static final long serialVersionUID = 1L;
     protected MRAPanel mraPanel;
-    
+
+    @Override
     public abstract boolean canBeApplied(IMraLogGroup source);	
-	protected IMraLogGroup source;
-	protected double timestep;
-	protected MRAPanel panel;
-	
-	public SimpleMRAVisualization(MRAPanel panel) {
-	    this.mraPanel = panel;
-	}
-	
-	public void onHide() {
-	    //nothing
-	}
+    protected IMraLogGroup source;
+    protected double timestep;
+    protected MRAPanel panel;
 
-	public void onShow() {
-	    //nothing
-	}
-	
-	@Override
-	public final Component getComponent(IMraLogGroup source, double timestep) {
-		this.source = source;
-		this.timestep = timestep;
-		return getVisualization(source, timestep);
-	}
-	
-	public abstract JComponent getVisualization(IMraLogGroup source, double timestep);
-	
-	@Override
-    public Double getDefaultTimeStep() {
-        return NeptusMRA.defaultTimestep;
+    public SimpleMRAVisualization(MRAPanel panel) {
+        this.mraPanel = panel;
     }
-	
-	@Override
-	public ImageIcon getIcon() {
-		return ImageUtils.getScaledIcon(PluginUtils.getPluginIcon(this.getClass()), 16, 16);
-	}
 
-	@Override
-	public boolean supportsVariableTimeSteps() {
-		return false;
-	}
-	
-	@Override
-	public String getName() {
-		return I18n.text(PluginUtils.getPluginName(this.getClass()));
-	}
+    @Override
+    public void onHide() {
+        //nothing
+    }
 
-	@Override
-	public void onCleanup() {
-	    mraPanel = null;
-	}
+    @Override
+    public void onShow() {
+        //nothing
+    }
+
+    @Override
+    public final Component getComponent(IMraLogGroup source, double timestep) {
+        this.source = source;
+        this.timestep = timestep;
+        return getVisualization(source, timestep);
+    }
+
+    public abstract JComponent getVisualization(IMraLogGroup source, double timestep);
+
+    @Override
+    public Double getDefaultTimeStep() {
+        return MRAProperties.defaultTimestep;
+    }
+
+    @Override
+    public ImageIcon getIcon() {
+        return ImageUtils.getScaledIcon(PluginUtils.getPluginIcon(this.getClass()), 16, 16);
+    }
+
+    @Override
+    public boolean supportsVariableTimeSteps() {
+        return false;
+    }
+
+    @Override
+    public String getName() {
+        return I18n.text(PluginUtils.getPluginName(this.getClass()));
+    }
+
+    @Override
+    public void onCleanup() {
+        mraPanel = null;
+    }
 }

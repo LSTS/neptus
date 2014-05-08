@@ -39,9 +39,13 @@ import java.text.DecimalFormat;
 
 import javax.swing.JLabel;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
@@ -49,7 +53,6 @@ import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleCalc;
@@ -62,7 +65,7 @@ import pt.lsts.neptus.util.AngleCalc;
 @PluginDescription(author = "José Pinto, Paulo Dias", name = "FindVehicle", version = "1.1",
         description = "Find vehicle base on base position and orientation.",
         documentation="find-system/find-vehicle.html")
-public class FindVehicle extends SimpleSubPanel implements ConfigurationListener, IPeriodicUpdates,
+public class FindVehicle extends ConsolePanel implements ConfigurationListener, IPeriodicUpdates,
         MainVehicleChangeListener {
 
     public enum BaseOrientations {
@@ -209,9 +212,9 @@ public class FindVehicle extends SimpleSubPanel implements ConfigurationListener
 		return BaseOrientations.North;
 	}
 
-	@Override
-	public void mainVehicleChangeNotification(String id) {
-		display.setTitle(id);
+	@Subscribe
+	public void mainVehicleChangeNotification(ConsoleEventMainSystemChange evt) {
+		display.setTitle(evt.getCurrent());
 	}
 	
 	@Override

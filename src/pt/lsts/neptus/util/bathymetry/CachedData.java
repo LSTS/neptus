@@ -62,7 +62,7 @@ public class CachedData extends TidePredictionFinder {
     private boolean loading = true;
     private SortedSet<TidePeak> cachedData = null;
 
-    
+
     public CachedData(File f) {
         try {
             loadFile(f);
@@ -70,14 +70,14 @@ public class CachedData extends TidePredictionFinder {
         catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("loading finished");
+        // NeptusLog.pub().info("Loading finished");
         loading = false;
     }
-    
+
     public CachedData() {
         this(GeneralPreferences.tidesFile);
     }
-    
+
     public void loadFile(File f) throws Exception {
         cachedData = new TreeSet<>();
         if (f == null || ! f.canRead()) {
@@ -100,7 +100,7 @@ public class CachedData extends TidePredictionFinder {
         }
         br.close();
     }
-    
+
     public void saveFile(String port, File f) throws Exception {
         BufferedWriter writer = new BufferedWriter(new FileWriter(f));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -109,7 +109,7 @@ public class CachedData extends TidePredictionFinder {
         }
         writer.close();
     }
-    
+
     public void update(Vector<TidePeak> newData) {
         Collections.sort(newData);
         // remove all data contained in the new data +/- 5 hours
@@ -130,7 +130,7 @@ public class CachedData extends TidePredictionFinder {
                 e.printStackTrace();
             }
         }        
-        
+
         TidePeak instant = new TidePeak(d, 0);
         SortedSet<TidePeak> after = cachedData.tailSet(instant);
         SortedSet<TidePeak> before = cachedData.headSet(instant);
@@ -158,7 +158,7 @@ public class CachedData extends TidePredictionFinder {
             e.printStackTrace();
         }
     }
-    
+
     @Override
     public Float getTidePrediction(Date date, boolean print) throws Exception {
         if (!contains(date))
@@ -197,13 +197,13 @@ public class CachedData extends TidePredictionFinder {
         public int compareTo(TidePeak o) {
             return date.compareTo(o.date);
         }
-        
+
         @Override
         public String toString() {
             return date+": "+height+" m";
         }
     }
-    
+
     public Date fetchData(String portName, Date aroundDate) throws Exception {
         try {
             Vector<TidePeak> newData = TideDataFetcher.fetchData(portName, aroundDate);
@@ -221,20 +221,20 @@ public class CachedData extends TidePredictionFinder {
         }
         return null;
     }
-    
+
     public static void fetchData(Component parent) {
         Vector<String> harbors = new Vector<>();
         for (TideDataFetcher.Harbor h : TideDataFetcher.Harbor.values()) {
             harbors.add(h.toString());
         }
-        
+
         String harbor = (String) JOptionPane.showInputDialog(parent,
                 I18n.text("Please select harbor"), I18n.text("Fetch data"),
                 JOptionPane.QUESTION_MESSAGE, null, harbors.toArray(new String[0]), I18n.text(harbors.get(0)));
-        
+
         if (harbor == null)
             return;
-        
+
         Date start = null, end = null;
         while (start == null) {
             String startStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the past"), 365);
@@ -251,7 +251,7 @@ public class CachedData extends TidePredictionFinder {
                 e.printStackTrace();
             }
         }
-        
+
         while (end == null) {
             String endStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the future"), 365);
             try {
@@ -266,9 +266,9 @@ public class CachedData extends TidePredictionFinder {
                 e.printStackTrace();
             }
         }
-        
+
         CachedData data = new CachedData(new File("conf/tides/"+harbor+".txt"));
-        
+
         Date current = new Date(start.getTime());
 
         while (current.getTime() < end.getTime()) {
@@ -290,7 +290,7 @@ public class CachedData extends TidePredictionFinder {
         }
 
     }
-    
+
     public static void main(String[] args) throws Exception {
         GuiUtils.setLookAndFeel();
         fetchData(null);

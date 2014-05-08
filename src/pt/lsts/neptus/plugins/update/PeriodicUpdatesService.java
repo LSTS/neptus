@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.plugins.update;
 
+import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -47,12 +49,15 @@ public class PeriodicUpdatesService {
     private static Vector<IPeriodicUpdates> clients = new Vector<IPeriodicUpdates>();
     private static Vector<IPeriodicUpdates> defunctClients = new Vector<IPeriodicUpdates>();
     private static Vector<Thread> updaterThreads = new Vector<Thread>();
-    private PeriodicUpdatesService() {}
 
-    protected static LinkedHashMap<Object, Long> updateTimes = new LinkedHashMap<Object, Long>(); 
+    private PeriodicUpdatesService() {
+    }
+
+    protected static LinkedHashMap<Object, Long> updateTimes = new LinkedHashMap<Object, Long>();
 
     /**
      * Verifies that the updates are currently enabled
+     * 
      * @return <b>true</b> if updates are enabled or <b>false</b> otherwise
      */
     public static boolean isUpdatesEnabled() {
@@ -62,21 +67,24 @@ public class PeriodicUpdatesService {
     }
 
     /**
-     * Deactivates updates 
+     * Deactivates updates
      */
     public static void stopUpdating() {
         synchronized (PeriodicUpdatesService.class) {
-            updatesEnabled = false;			
+            updatesEnabled = false;
         }
     }
 
     /**
      * Adds a new client that is to be updated periodically
+     * 
      * @param client The client that wants to be warned at specific time intervals
      */
     public static void register(IPeriodicUpdates client) {
         if (clients.contains(client)) {
-            NeptusLog.pub().debug("Code in "+ReflectionUtil.getCallerStamp()+" tried to add an already registered updates client");
+            NeptusLog.pub()
+                    .info("Code in " + ReflectionUtil.getCallerStamp()
+                            + " tried to add an already registered updates client");
             return;
         }
         updateTimes.put(client, 0L);
@@ -86,7 +94,7 @@ public class PeriodicUpdatesService {
         if (!started) {
             started = true;
             for (int i = 0; i < DEFAULT_NUMBER_OF_THREADS; i++) {
-                Thread t = getUpdaterThread("Periodic Updates - "+(i+1));
+                Thread t = getUpdaterThread("Periodic Updates - " + (i + 1));
                 updaterThreads.add(t);
                 t.setDaemon(true);
                 t.start();
@@ -94,14 +102,60 @@ public class PeriodicUpdatesService {
         }
     }
 
+    public static Collection<IPeriodicUpdates> inspect(Object pojo) {
+        Vector<IPeriodicUpdates> upReq = new Vector<>();
+        Collection<Method> methods = ReflectionUtil.getMethodsAnnotatedWith(Periodic.class, pojo);
+
+        if (methods.isEmpty())
+            return upReq;
+
+        for (Method m : methods) {
+
+            if (m.getParameterTypes().length > 0) {
+                NeptusLog.pub().error(
+                        "The method " + pojo.getClass().getSimpleName() + "." + m.getName()
+                                + "() is annotated as @Periodic but has a non-empty parameters list... ignored.");
+                continue;
+            }
+
+            IPeriodicUpdates updatee = forge(pojo, m, m.getAnnotation(Periodic.class).millisBetweenUpdates());
+            upReq.add(updatee);
+        }
+
+        return upReq;
+    }
+
+    private static IPeriodicUpdates forge(final Object o, final Method m, final long millisBetweenUpdates) {
+        return new IPeriodicUpdates() {
+
+            @Override
+            public boolean update() {
+                try {
+                    Object ret = m.invoke(o);
+                    return !Boolean.FALSE.equals(ret);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+
+            @Override
+            public long millisBetweenUpdates() {
+                return millisBetweenUpdates;
+            }
+        };
+    }
+
     /**
      * Removes a client that doesn't want to be updated anymore
+     * 
      * @param client The client that wants to be removed
      */
     public static void unregister(IPeriodicUpdates client) {
-        
+
         updateTimes.remove(client);
-        
+
         if (clients.contains(client)) {
             clients.remove(client);
             if (clients.isEmpty()) {
@@ -113,11 +167,9 @@ public class PeriodicUpdatesService {
                 defunctClients.clear();
             }
             else
-                defunctClients.add(client);				
+                defunctClients.add(client);
         }
     }
-
-
 
     /**
      * Calculates the nearest upcoming update, waits the time until the update time and calls the update method
@@ -127,17 +179,17 @@ public class PeriodicUpdatesService {
 
         try {
             ur = updateRequests.take();
-            
+
             while (ur == null || ur.getNextUpdateTime() >= System.currentTimeMillis()) {
-                if(defunctClients.contains(ur.getSource())) {
+                if (defunctClients.contains(ur.getSource())) {
                     defunctClients.remove(ur.getSource());
-                    ur = null;		
+                    ur = null;
                 }
 
                 if (ur != null)
                     updateRequests.put(ur);
                 Thread.sleep(10);
-                ur = updateRequests.take();					
+                ur = updateRequests.take();
             }
             long time = System.currentTimeMillis();
             if (!updateTimes.containsKey(ur.getSource()))
@@ -152,15 +204,15 @@ public class PeriodicUpdatesService {
             catch (Error e) {
                 NeptusLog.pub().error("Error: " + ReflectionUtil.getCallerStamp(), e);
             }
-            time = System.currentTimeMillis()-time;
+            time = System.currentTimeMillis() - time;
             Long lastTime = updateTimes.get(ur.getSource());
             if (lastTime != null)
-                updateTimes.put(ur.getSource(), lastTime+time);
+                updateTimes.put(ur.getSource(), lastTime + time);
 
             if (not_finished)
                 updateRequests.add(ur);
             else
-                unregister(ur.getSource());				
+                unregister(ur.getSource());
         }
         catch (InterruptedException e) {
             return false;
@@ -172,18 +224,16 @@ public class PeriodicUpdatesService {
     }
 
     public static Thread getUpdaterThread(String name) {
-        Thread t =  new Thread(name) {
+        Thread t = new Thread(name) {
             @Override
             public void run() {
-                while(isUpdatesEnabled() && nextUpdate())
-                    ;					
+                while (isUpdatesEnabled() && nextUpdate())
+                    ;
             }
         };
         t.setPriority(Thread.MIN_PRIORITY);
         return t;
     }
-
-
 
     public static void main(String[] args) {
 
@@ -197,7 +247,7 @@ public class PeriodicUpdatesService {
 
             @Override
             public boolean update() {
-                NeptusLog.pub().info("<###>a "+(System.currentTimeMillis()-previousTime));
+                NeptusLog.pub().info("<###>a " + (System.currentTimeMillis() - previousTime));
                 previousTime = System.currentTimeMillis();
                 return true;
             }
@@ -205,6 +255,7 @@ public class PeriodicUpdatesService {
 
         PeriodicUpdatesService.register(new IPeriodicUpdates() {
             long previousTime = System.currentTimeMillis();
+
             @Override
             public long millisBetweenUpdates() {
                 return 900;
@@ -212,7 +263,7 @@ public class PeriodicUpdatesService {
 
             @Override
             public boolean update() {
-                NeptusLog.pub().info("<###>b "+(System.currentTimeMillis()-previousTime));
+                NeptusLog.pub().info("<###>b " + (System.currentTimeMillis() - previousTime));
                 previousTime = System.currentTimeMillis();
                 return true;
             }

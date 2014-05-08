@@ -41,6 +41,7 @@ import java.util.Date;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.ImcStringDefs;
 
 /**
  * @author zp
@@ -100,7 +101,8 @@ class LsfMessageLogger {
         
         File outputDir = new File(logPath);
         outputDir.mkdirs();
-        FileUtil.copyFile("conf/messages/IMC.xml", outputDir.getAbsolutePath() + "/IMC.xml");
+        
+        FileUtil.saveToFile(outputDir.getAbsolutePath() + "/IMC.xml", ImcStringDefs.getDefinitions());
 
         IMCOutputStream iosTmp = null;
         try {

@@ -41,7 +41,7 @@ import java.awt.event.MouseMotionListener;
 import javax.swing.JPanel;
 
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.doc.DocumentationPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -85,7 +85,7 @@ public class ContextHelperPlugin extends SimpleMenuAction {
 
                 Component c = getConsole().getMainPanel().findComponentAt(e.getPoint());
 
-                while (c != null && !(c instanceof SubPanel) && c != c.getParent()) {
+                while (c != null && !(c instanceof ConsolePanel) && c != c.getParent()) {
                     c = c.getParent();
                 }
 

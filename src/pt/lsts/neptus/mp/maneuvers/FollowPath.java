@@ -60,7 +60,7 @@ public class FollowPath extends FollowTrajectory {
         LocationType trajectoryStart = gotoF.destination;
         setId(gotoSequence.getManeuver(gotoSequence.getInitialManeuverId()).getId());
         setSpeed(gotoF.getSpeed());
-        setUnits(gotoF.getUnits());
+        setSpeedUnits(gotoF.getUnits());
         Maneuver[] mans = gotoSequence.getAllManeuvers();
         for (Maneuver m : mans) {
             Goto g = (Goto)m;
@@ -118,11 +118,11 @@ public class FollowPath extends FollowTrajectory {
         traj.loadFromXML("<FollowPath kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><path><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></path><speed unit=\"RPM\">1000.0</speed></FollowPath>");
         //NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowTrajectory")));
         traj.setSpeed(1);
-        traj.setUnits("m/s");        
+        traj.setSpeedUnits("m/s");        
         NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowPath")));
 
         traj.setSpeed(2);
-        traj.setUnits("m/s");        
+        traj.setSpeedUnits("m/s");        
         NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowPath")));
 
     }

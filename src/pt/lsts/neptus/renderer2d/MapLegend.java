@@ -142,8 +142,10 @@ public class MapLegend implements Renderer2DPainter {
 			
 			g.setColor(new Color(0,0,0,200));
 			g.fill(gp);
-			
-			g.setColor(Color.BLACK);
+			if (getMapRotation() == 0)
+			    g.setColor(Color.BLACK);
+			else
+			    g.setColor(Color.red.darker());
 			g.draw(gp);
 			/*
 			g.drawLine(0,-15,0,15);

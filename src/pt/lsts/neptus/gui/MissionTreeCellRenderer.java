@@ -47,10 +47,10 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBInfo;
 import pt.lsts.neptus.gui.MissionBrowser.State;
 import pt.lsts.neptus.gui.MissionTreeModel.NodeInfoKey;
 import pt.lsts.neptus.gui.tree.ExtendedTreeNode;
-import pt.lsts.neptus.plugins.planning.plandb.PlanDBInfo;
 import pt.lsts.neptus.types.checklist.ChecklistType;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapType;
@@ -171,7 +171,6 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
                     setPlanIcon(plan.getId(), state, plan.hasMultipleVehiclesAssociated());
                 }
                 catch (Exception e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 setToolTipText(plan.toStringWithVehicles());
@@ -187,7 +186,6 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
                 setText(new LocationType(((HomeReference) node.getUserObject())).toString());
                 setToolTipText("View/Edit home reference");
             }
-
             else if (node.getUserObject() instanceof MarkElement) {
                 setIcon(START_ICON);
                 setText(((MarkElement) node.getUserObject()).getPosition().toString());
@@ -236,18 +234,11 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
             }
 
             else if ((node.getUserObject() == "Mission Information") || (node.getUserObject() == "Info")) {
-                // setIcon(new ImageIcon(GuiUtils.getImage("images/menus/settings.png")));
                 setIcon(SETTINGS_ICON);
             }
 
-            // else if (node.getUserObject() == "Home Reference") {
-            // //setIcon(new ImageIcon(GuiUtils.getImage("images/menus/settings.png")));
-            // setIcon(SETTINGS_ICON);
-            // }
-
             else if ((node.getUserObject() instanceof ChecklistType)
                     || (node.getUserObject() instanceof ChecklistMission)) {
-                // setIcon(new ImageIcon(GuiUtils.getImage("images/buttons/checklist.png")));
                 setIcon(CHECKLIST_ICON);
                 setToolTipText("Edit the checklist");
             }
@@ -261,23 +252,16 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
                         .lookupSystemByName((String) info.get(NodeInfoKey.VEHICLE.name()));
                 setBeaconLabel(nodeObj, imcSystem);
                 setBeaconIcon(state, ptn);
-
             }
             else if (node.getUserObject() == "Settings") {
-                // setIcon(new ImageIcon(GuiUtils.getImage("images/menus/settings.png")));
                 setIcon(SETTINGS_ICON);
             }
-
             else {
-                // return mapCellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-                // setIcon(new ImageIcon(GuiUtils.getImage("images/menus/open.png")));
                 setIcon(expanded ? DIR_ICON : DIR_CLOSED_ICON);
             }
         }
         else {
-            // setIcon(new ImageIcon(GuiUtils.getImage("images/menus/open.png")));
-            setIcon(expanded ? DIR_ICON : DIR_CLOSED_ICON);
-            // return mapCellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            setIcon(expanded ? DIR_ICON : DIR_CLOSED_ICON);            
         }
 
         setPreferredSize(new Dimension(200, 120));

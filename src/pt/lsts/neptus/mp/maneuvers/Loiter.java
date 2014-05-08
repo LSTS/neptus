@@ -53,7 +53,6 @@ import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.renderer2d.LoiterPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -86,11 +85,6 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
         loiterDirectionConstantsMap.put(1l, I18n.textmark("Clockwise"));
         loiterDirectionConstantsMap.put(2l, I18n.textmark("Counter-Clockwise"));
         loiterDirectionConstantsMap.put(3l, I18n.textmark("Into the Wind"));
-	}
-	
-	@Override
-	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-		return lastVehicleState;
 	}
 
 	@Override
@@ -462,8 +456,8 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
                 .getDouble("radius_tolerance"));
     	
     	ManeuverLocation pos = new ManeuverLocation();
-    	pos.setLatitudeDegs(Math.toDegrees(message.getDouble("lat")));
-    	pos.setLongitudeDegs(Math.toDegrees(message.getDouble("lon")));
+    	pos.setLatitudeRads(message.getDouble("lat"));
+    	pos.setLongitudeRads(message.getDouble("lon"));
     	pos.setZ(message.getDouble("z"));
     	String zunits = message.getString("z_units");
     	if (zunits != null)
@@ -508,10 +502,11 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 	    pt.lsts.imc.Loiter loiter = new pt.lsts.imc.Loiter();
         loiter.setTimeout(this.getMaxTime());
         
-        double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
+        LocationType loc = getManeuverLocation();
+        loc.convertToAbsoluteLatLonDepth();
         
-        loiter.setLat(Math.toRadians(latLonDepth[0]));
-        loiter.setLon(Math.toRadians(latLonDepth[1]));
+        loiter.setLat(loc.getLatitudeRads());
+        loiter.setLon(loc.getLongitudeRads());
         loiter.setZ(getManeuverLocation().getZ());
         loiter.setZUnits((short)getManeuverLocation().getZUnits().value());
         loiter.setSpeed(this.getSpeed());

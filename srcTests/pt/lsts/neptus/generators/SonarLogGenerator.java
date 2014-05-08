@@ -39,6 +39,7 @@ import java.io.IOException;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.ImcStringDefs;
 import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.util.FileUtil;
 
@@ -53,7 +54,7 @@ public class SonarLogGenerator {
         try {
             new File(dirPath).mkdirs();
             out = new IMCOutputStream(IMCDefinition.getInstance(), new FileOutputStream(dirPath + "/Data.lsf"));
-            FileUtil.copyFile("conf/messages/IMC.xml", dirPath + "/IMC.xml");
+            FileUtil.saveToFile(dirPath + "/IMC.xml", ImcStringDefs.getDefinitions());
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();

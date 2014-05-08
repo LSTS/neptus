@@ -43,11 +43,13 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.preview.payloads.PayloadFactory;
 import pt.lsts.neptus.mp.preview.payloads.PayloadFingerprint;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
@@ -73,8 +75,14 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         final SimulationEngine engine = new SimulationEngine(plan);
         payloads = PayloadFactory.getPayloads(plan);
         //System.out.println(payloads.entrySet().iterator().next().getValue());
-        if (start != null)
-            engine.setState(start);
+        if (start == null) {
+            start = new SystemPositionAndAttitude(plan.getMissionType().getHomeRef(), 0, 0, 0);
+            Vector<LocatedManeuver> manLocs = PlanUtil.getLocationsAsSequence(plan);
+            
+            if (!manLocs.isEmpty()) 
+                start.setPosition(manLocs.firstElement().getStartLocation());            
+        }
+        engine.setState(start);
 
         Thread t = new Thread("Plan simulation overlay") {
             public void run() {
@@ -201,12 +209,6 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         Point2D center = renderer.getScreenPosition(ref);
         g.setColor(Color.white);
-        int time = states.size();
-        String timeUnits = "seconds";
-        if (time > 300) {
-            timeUnits = "minutes";
-            time = time / 60;
-        }
 
         for (int i = 0; i < states.size(); i++) {
             String man = simStates.get(i).getCurrentManeuver();
@@ -214,19 +216,18 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
             Point2D pt = renderer.getScreenPosition(states.get(i).getPosition());
             g2.translate(pt.getX(), pt.getY());
             g2.scale(renderer.getZoom(), renderer.getZoom());
-            g2.rotate(states.get(i).getYaw());
+            g2.rotate(-renderer.getRotation()+states.get(i).getYaw());
             
             for (PayloadFingerprint pf : payloads.get(man)) {
                 SystemPositionAndAttitude state = states.get(i);
                 state.setAltitude(SimulationEngine.simBathym.getSimulatedDepth(state.getPosition()));
                 Area a = pf.getFingerprint(states.get(i));
-                //System.out.println(a.getBounds2D());
                 g2.setColor(pf.getColor());
-                g2.fill(a);
+                g2.fill(a);                
             }
         }
         
-        g.drawString("Plan takes aproximately "+time+" "+timeUnits, 10, renderer.getHeight()-40);
+        //g.drawString("Plan takes aproximately "+time+" "+timeUnits, 10, renderer.getHeight()-40);
         g.translate(center.getX(), center.getY());
         g.rotate(-renderer.getRotation());
         for (int i = 0; i < states.size(); i++) {

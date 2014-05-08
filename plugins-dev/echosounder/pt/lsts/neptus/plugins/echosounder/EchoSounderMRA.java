@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.echosounder;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -52,7 +53,7 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -69,17 +70,20 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
 
     private static final long serialVersionUID = 1L;
 
-    private IMraLogGroup source;
+    protected IMraLogGroup source;
     protected MRAPanel mraPanel;
 
     @NeptusProperty
     public ColorMap colormap = ColorMapFactory.createJetColorMap();
 
-    private BufferedImage image = null;
-    private int imageWidth;
-    private int imageHeight;
+    protected BufferedImage image = null;
+    protected int imageWidth;
+    protected int imageHeight;
 
-    private int maxRange;
+    protected int maxRange;
+    protected int minRange;
+
+    private EchoSounderMRARuler ruler;
 
     public EchoSounderMRA(MRAPanel panel) {
         mraPanel = panel;
@@ -103,28 +107,49 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
         this.source = source;
+
+        setLayout(new BorderLayout());
+
+        getSonarDataValues();
         generateImage();
+        ruler = new EchoSounderMRARuler(this);
 
         return this;
     }
 
-    public void generateImage() {
-        NeptusLog.pub().info("<###>Generating Echo sounder image");
+    /**
+     * Gets maxRange and minRange from SonarData msgs
+     * sets up buffered image width and height
+     */
+    private void getSonarDataValues() {
         int c = 0;
-        Iterator<IMCMessage> i= source.getLsfIndex().getIterator("SonarData");
+        Iterator<IMCMessage> i = source.getLsfIndex().getIterator("SonarData");
         for(IMCMessage msg = i.next(); i.hasNext(); msg = i.next()) {
             if(msg.getInteger("type") == SonarData.TYPE.ECHOSOUNDER.value()) {
                 c++;
                 imageHeight = msg.getRawData("data").length;
                 maxRange = msg.getInteger("max_range");
+                minRange = msg.getInteger("min_range");
             }
         }
         imageWidth = c;
+    }
+
+    /**
+     * Generates buffered image from echousounder data
+     * Old msgs - SonarData msgs
+     * Current msgs Distance
+     */
+    public void generateImage() {
+        NeptusLog.pub().info("<###>Generating Echo sounder image");
+
         image = ImageUtils.createCompatibleImage(imageWidth, imageHeight, Transparency.OPAQUE);
         Graphics2D g2d = (Graphics2D) image.getGraphics();
 
-        i= source.getLsfIndex().getIterator("SonarData");
+        // for old messages
+        Iterator<IMCMessage> i = source.getLsfIndex().getIterator("SonarData");
         int x = 0;
+
         for(IMCMessage msg = i.next(); i.hasNext(); msg = i.next()) {
             if(msg.getInteger("type") == SonarData.TYPE.ECHOSOUNDER.value()) {
                 int y = 0;
@@ -137,6 +162,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
             }
         }
 
+        // Sonar Data is now stored on Distance msgs
         i = source.getLsfIndex().getIterator("Distance");
         x = 0;
 
@@ -164,10 +190,13 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
             }
         }
     }
+
     @Override
     public void paint(Graphics g) {
-        NeptusLog.pub().info("<###> "+this.getWidth() + " " + this.getHeight());
-        g.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), 0, 0, imageWidth, imageHeight,null);
+        NeptusLog.pub().info("<###> " + this.getWidth() + " " + this.getHeight());
+
+        g.drawImage(image, 0 + EchoSounderMRARuler.RULER_WIDTH + 1, 0 , this.getWidth(), this.getHeight(), 0, 0, imageWidth, imageHeight, null);
+        ruler.paintComponent(g);
     }
 
     @Override
@@ -177,7 +206,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
 
     @Override
     public Double getDefaultTimeStep() {
-        return NeptusMRA.defaultTimestep;
+        return MRAProperties.defaultTimestep;
     }
 
     @Override

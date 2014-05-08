@@ -36,18 +36,18 @@ import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.imc.lsf.LsfIterator;
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.plots.MraTimeSeriesPlot;
+import pt.lsts.neptus.mra.plots.MRATimeSeriesPlot;
 
 /**
  * @author zp
  *
  */
-public class SeaStatePlot extends MraTimeSeriesPlot {
+public class SeaStatePlot extends MRATimeSeriesPlot {
 
     public SeaStatePlot(MRAPanel panel) {
         super(panel);
     }
-    
+
     @Override
     public boolean canBeApplied(LsfIndex index) {
         LsfIterator<GpsFix> it = index.getIterator(GpsFix.class, 5000);
@@ -61,15 +61,15 @@ public class SeaStatePlot extends MraTimeSeriesPlot {
         }
         return false;
     }
-    
+
     private void addWave(EstimatedState pt1, EstimatedState pt2) {
-      
+
         double amplitude = Math.abs(pt2.getAlt() - pt1.getAlt());
         double period = pt2.getTimestamp() - pt1.getTimestamp();
-        
+
         if (period > 10 || period < 0.5)
             return;
-        
+
         addValue(pt2.getTimestampMillis(), pt1.getSourceName()+".amplitude", amplitude);
         addValue(pt2.getTimestampMillis(), pt1.getSourceName()+".period", period);
         //
@@ -79,18 +79,18 @@ public class SeaStatePlot extends MraTimeSeriesPlot {
     @Override
     public void process(LsfIndex source) {
         LsfIterator<EstimatedState> it = index.getIterator(EstimatedState.class, 200);
-        
+
         boolean ascending = false;
         EstimatedState lastMin = it.next();
-        
+
         while(lastMin.getDepth() > 0.5 && it.hasNext() || lastMin.getVx() > 0.2)
             lastMin = it.next();
-        
+
         EstimatedState lastMax = lastMin;
         if (lastMin == null || !it.hasNext())
             return;
         ascending = it.next().getAlt() >= lastMin.getAlt();
-        
+
         while (it.hasNext()) {
             EstimatedState state = it.next();
             if (state.getDepth() > 0.5 || state.getVx() > 0.2)

@@ -51,7 +51,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.ReflectionUtil;
 
 /**
  * @author jqcorreia
@@ -61,8 +60,8 @@ public class ComponentSelector extends JComboBox<Class<?>> {
     private static final long serialVersionUID = 5643009716126585165L;
 
     public ComponentSelector(final MainPanel mainPanel) {
-        Class<?>[] subpanels = ReflectionUtil.listSubPanels();
-        for (Class<?> sp : subpanels) {
+
+        for (Class<?> sp : PluginsRepository.getPanelPlugins().values()) {
             if (sp.getAnnotation(PluginDescription.class) != null)
                 PluginsRepository.addPlugin(sp.getCanonicalName());
         }

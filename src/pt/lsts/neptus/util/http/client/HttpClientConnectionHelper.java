@@ -55,6 +55,7 @@ import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
  * @author pdias
  *
  */
+@SuppressWarnings("deprecation")
 public class HttpClientConnectionHelper {
 
     private DefaultHttpClient client;

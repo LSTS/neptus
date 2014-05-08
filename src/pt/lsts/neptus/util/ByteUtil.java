@@ -143,6 +143,15 @@ public class ByteUtil {
 		}
 		pStream.println("----------------------------------------------------------  ----------------");
 	}
+	
+	public static String encodeToHex(byte[] buffer) {
+	    StringBuilder sb = new StringBuilder();
+	    for (int i = 0; i < buffer.length; i++) {
+	        sb.append(String.format("%02x", buffer[i]));
+	    }
+	    
+	    return sb.toString();
+	}
 
 	/**
 	 * The same as {@link #dumpAsHex(byte[], PrintStream)} but the output will be return as a String.

@@ -68,9 +68,7 @@ public class CalcUtils {
      * @return
      */
     public static double stddev(double sum, double sqSum, int numberValues) {
-        double stddev = 0.0;
         double variance = (sqSum - (sum * sum) / numberValues) / (numberValues - 1);
-        stddev = Math.sqrt(variance);
-        return stddev;
+        return Math.sqrt(variance);
     }
 }

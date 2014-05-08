@@ -52,8 +52,8 @@ import javax.swing.event.CaretListener;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
@@ -66,7 +66,7 @@ import pt.lsts.imc.LogBookEntry;
  */
 @PluginDescription(name="Log Book Panel", description="Allows sending entries to the logbook", icon="images/buttons/logbook.png",
 documentation="logging/logbook.html")
-public class LogBookPanel extends SimpleSubPanel implements ActionListener {
+public class LogBookPanel extends ConsolePanel implements ActionListener {
 
 	private static final long serialVersionUID = -7765372596110306525L;
 

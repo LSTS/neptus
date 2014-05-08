@@ -49,10 +49,10 @@ import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.gige.GigeManager.GigeDatagramListener;
 import pt.lsts.neptus.util.VideoCreator;
 
@@ -62,7 +62,7 @@ import pt.lsts.neptus.util.VideoCreator;
  */
 @PluginDescription(name="GiGe Panel", description="GiGe Panel")
 @Popup(name = "GiGe Panel", pos=POSITION.CENTER, width = 800, height = 600, accelerator=KeyEvent.VK_F5)
-public class GigePanel extends SimpleSubPanel implements GigeDatagramListener{
+public class GigePanel extends ConsolePanel implements GigeDatagramListener{
     private static final long serialVersionUID = 1L;
     
     static int recordNum = 0;

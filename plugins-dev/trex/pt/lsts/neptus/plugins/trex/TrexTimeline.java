@@ -37,7 +37,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.plots.MraGanttPlot;
+import pt.lsts.neptus.mra.plots.MRAGanttPlot;
 import pt.lsts.neptus.plugins.PluginDescription;
 
 /**
@@ -45,7 +45,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
  *
  */
 @PluginDescription(name="TREX Timeline")
-public class TrexTimeline extends MraGanttPlot {
+public class TrexTimeline extends MRAGanttPlot {
 
     public TrexTimeline(MRAPanel panel) {
         super(panel);
@@ -59,12 +59,12 @@ public class TrexTimeline extends MraGanttPlot {
     public void process(LsfIndex source) {
         LsfGenericIterator it = source.getIterator("TrexToken");
         LinkedHashSet<String> timelines = new LinkedHashSet<>();
-        
+
         for (IMCMessage s : it) {
             startActivity(s.getTimestamp(), s.getString("timeline"), s.getString("timeline")+"."+s.getString("predicate"));
             timelines.add(s.getString("timeline"));
         }
-        
+
         for (String s : timelines)
             endActivity(source.getEndTime(), s);
     }

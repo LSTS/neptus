@@ -67,6 +67,7 @@ import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
  * @author pdias
  *
  */
+@SuppressWarnings("deprecation")
 public abstract class TileHttpFetcher extends Tile {
 
     private static final long serialVersionUID = 536559879996297467L;

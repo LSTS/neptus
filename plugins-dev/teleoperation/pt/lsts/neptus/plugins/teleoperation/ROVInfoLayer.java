@@ -38,9 +38,9 @@ import pt.lsts.imc.DesiredHeading;
 import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -54,7 +54,7 @@ import com.google.common.eventbus.Subscribe;
  */
 @PluginDescription(name = "ROV Information Layer", icon = "pt/lsts/neptus/plugins/position/position.png", description = "ROV Information Layer", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 70)
-public class ROVInfoLayer extends SimpleSubPanel implements Renderer2DPainter
+public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
 {
     private static final long serialVersionUID = 4624519156694623532L;
     /**

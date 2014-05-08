@@ -39,19 +39,22 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
+import javax.swing.ProgressMonitor;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryParserFactory;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.PluginDescription;
 
 /**
  * Exporter from log data do XTF format
  * @author jqcorreia
  *
  */
-
+@PluginDescription
 public class XTFExporter implements MRAExporter {
     IMraLogGroup source;
     BathymetryParser parser = null;
@@ -74,11 +77,11 @@ public class XTFExporter implements MRAExporter {
     
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return BathymetryParserFactory.build(source) != null;
+        return parser != null;
     }
 
     @Override
-    public String process() {
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         try {
             outFile = new File(source.getFile("Data.lsf").getParent() + "/mra/Data.xtf");
             raf = new RandomAccessFile(outFile, "rw");

@@ -37,13 +37,15 @@ import java.util.Hashtable;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.uavs.UavPaintersBag;
 import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
 import pt.lsts.neptus.plugins.uavs.painters.background.UavVirtualHorizonPainter;
 import pt.lsts.neptus.plugins.uavs.painters.foreground.UavHUDInfoPainter;
+
+//change to Engineer console
 
 /**
  * @author sergiofereira
@@ -51,7 +53,7 @@ import pt.lsts.neptus.plugins.uavs.painters.foreground.UavHUDInfoPainter;
  * @category UavPanel
  */
 @PluginDescription(name = "Uav HUD Panel", icon = "pt/lsts/neptus/plugins/uavs/wbutt.png", author = "sergioferreira")
-public class UavHUDPanel extends SimpleSubPanel implements NeptusMessageListener {
+public class UavHUDPanel extends ConsolePanel implements NeptusMessageListener {
 
     private static final long serialVersionUID = 1L;
 

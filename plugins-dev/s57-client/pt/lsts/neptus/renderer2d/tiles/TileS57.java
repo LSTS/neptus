@@ -62,6 +62,7 @@ import com.l2fprod.common.propertysheet.Property;
  * @author pdias
  *
  */
+@SuppressWarnings("deprecation")
 @MapTileProvider(name = "S57 Client (HTTP)")
 public class TileS57 extends TileHttpFetcher {
     

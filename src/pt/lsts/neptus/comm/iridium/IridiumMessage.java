@@ -66,6 +66,8 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         iridiumTypes.put(2005, IridiumCommand.class);
         iridiumTypes.put(2006, DesiredAssetPosition.class);
         iridiumTypes.put(2007, TargetAssetPosition.class);        
+        iridiumTypes.put(2010, ImcIridiumMessage.class);
+        iridiumTypes.put(2011, ExtendedDeviceUpdate.class);
     }
     
     public byte[] serialize() throws Exception {
@@ -90,11 +92,11 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
         IridiumMessage m = null;
         if (iridiumTypes.containsKey(mgid)) {
             m = iridiumTypes.get(mgid).newInstance();
-
         }
-        else if (IMCDefinition.getInstance().getMessageName(mgid) != null) {
-            m = new ImcIridiumMessage();
-        }        
+        else {
+            iis.close();
+            throw new Exception("Unrecognized message type: "+mgid);
+        }
         
         if (m != null) {
             m.setSource(source);
@@ -147,6 +149,14 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
      */
     public final void setMessageType(int message_type) {
         this.message_type = message_type;
+    }
+        
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Message of type "+getClass().getSimpleName()+" {\n"); 
+        sb.append("\tSource: "+IMCDefinition.getInstance().getResolver().resolve(getSource())+"\n");
+        sb.append("\tDestination: "+IMCDefinition.getInstance().getResolver().resolve(getDestination())+"\n");
+        return sb.toString();
     }
     
     @Override

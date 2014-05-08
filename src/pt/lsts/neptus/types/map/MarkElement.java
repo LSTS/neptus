@@ -86,11 +86,13 @@ public class MarkElement extends AbstractElement {
 
     @Override
     public boolean containsPoint(LocationType lt, StateRenderer2D renderer) {
-        double distance = getCenterLocation().getHorizontalDistanceInMeters(lt);
-        if ((distance * renderer.getZoom()) < 10)
-            return true;
 
-        return false;
+        double distance = getCenterLocation().getHorizontalDistanceInMeters(lt);
+        
+        if (renderer == null)
+            return distance < 5;
+        else
+            return (distance * renderer.getZoom()) < 10;
     }
 
     @Override

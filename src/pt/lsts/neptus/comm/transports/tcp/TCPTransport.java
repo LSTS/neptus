@@ -914,8 +914,6 @@ public class TCPTransport {
             new Thread() {
                 @Override
                 public void run() {
-//                    GzLsf2Llf.transformLSFStream("./conf/messages/IMC.xml", 
-//                            pis, TCPMessageProcessor.this, null);
                     try {
                         while(!isInputClosed && pis.available() >= 0) { // the pis.available() not always when return '0' means end of stream
 //                            NeptusLog.pub().info("<###>pis.available()" + pis.available());

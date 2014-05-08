@@ -40,7 +40,7 @@ import java.util.concurrent.ThreadFactory;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 
 import com.google.common.eventbus.AsyncEventBus;
@@ -140,7 +140,7 @@ public enum NeptusEvents {
         if (bus == null) {
             if (!(object instanceof InteractionAdapter))
                 NeptusLog.pub().error(
-                        "tried to register in a console bus that doesnt exist. " + ((SubPanel) object).getName());
+                        "tried to register in a console bus that doesnt exist. " + ((ConsolePanel) object).getName());
         }
         else {
             bus.register(object);
@@ -203,9 +203,6 @@ public enum NeptusEvents {
             entry.getValue().unregister(INSTANCE);
         }
         INSTANCE.consoleBus.clear();
-        //INSTANCE.eventBus.unregister(INSTANCE);
-        //INSTANCE.mainSystemEventBus.unregister(INSTANCE);
-        //INSTANCE.otherSystemEventBus.unregister(INSTANCE);
     }
 
     /*

@@ -45,6 +45,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LogUtils;
 
@@ -52,6 +53,7 @@ import pt.lsts.neptus.util.llf.LogUtils;
  * @author jqcorreia
  *
  */
+@PluginDescription(author = "jqcorreia", name = "Statistics", icon = "images/menus/changelog.png")
 public class StatisticsPlot extends JPanel implements MRAVisualization {
     private static final long serialVersionUID = -2664129262334634012L;
 

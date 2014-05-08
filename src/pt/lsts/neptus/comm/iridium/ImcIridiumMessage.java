@@ -34,7 +34,6 @@ package pt.lsts.neptus.comm.iridium;
 import java.util.Collection;
 import java.util.Vector;
 
-import pt.lsts.imc.Abort;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
@@ -48,27 +47,36 @@ public class ImcIridiumMessage extends IridiumMessage {
 
     protected IMCMessage msg;
     
-    public ImcIridiumMessage() {
-        super(Abort.ID_STATIC);
-        msg = new Abort();        
-    }
+    public static int MaxPayloadSize = 270 - 12; 
     
+    public ImcIridiumMessage() {
+        super(2010);    
+    }    
     
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
         if (msg != null) {
-            return IMCDefinition.getInstance().serializeFields(msg, out);
+            out.writeUnsignedShort(msg.getMgid());
+            out.writeUnsignedInt((int)msg.getTimestamp());
+            int size = 6 + IMCDefinition.getInstance().serializeFields(msg, out);
+            return size;
         }
         return 0;
     }
 
     @Override
     public int deserializeFields(IMCInputStream in) throws Exception {
-        msg = IMCDefinition.getInstance().create(IMCDefinition.getInstance().getMessageName(message_type));
-        IMCDefinition.getInstance().deserializeFields(msg, in);        
-        msg.setSrc(source);
-        msg.setDst(destination);
-        return msg.getPayloadSize();
+        int type = in.readUnsignedShort();
+        long timestamp = in.readUnsignedInt();
+        msg = IMCDefinition.getInstance().create(IMCDefinition.getInstance().getMessageName(type));
+        msg.setTimestamp(timestamp);
+        try {
+            IMCDefinition.getInstance().deserializeFields(msg, in);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return msg.getPayloadSize() + 6;
     }
 
     /**
@@ -83,7 +91,6 @@ public class ImcIridiumMessage extends IridiumMessage {
      */
     public final void setMsg(IMCMessage msg) {
         if (msg != null) {
-            this.message_type = msg.getMgid();
             this.source = msg.getSrc();
             this.destination = msg.getDst();
         }
@@ -96,6 +103,12 @@ public class ImcIridiumMessage extends IridiumMessage {
        if (msg != null)
            vec.add(msg);
        return vec;
+    }
+    
+    @Override
+    public String toString() {
+        String s = super.toString();
+        return s + "\tMessage: "+getMsg().toString();         
     }
 
 }

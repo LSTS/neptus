@@ -48,7 +48,6 @@ import javax.swing.filechooser.FileFilter;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.renderer2d.Renderer;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.util.FileUtil;
@@ -165,7 +164,6 @@ class MapPreview extends JPanel implements PropertyChangeListener {
 	StateRenderer2D r2d = new StateRenderer2D();
 	JLabel id = new JLabel(" ");
 	public MapPreview(JFileChooser fc) {
-		r2d.setViewMode(Renderer.NONE);
 		r2d.setLegendShown(false);
 		r2d.setVisible(false);
 		setPreferredSize(new Dimension(120, 120));

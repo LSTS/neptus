@@ -73,6 +73,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.proxy.ProxyInfoProvider;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.CheckMenuChangeListener;
@@ -80,7 +81,6 @@ import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.odss.track.PlatformReportType;
 import pt.lsts.neptus.plugins.odss.track.PlatformReportType.PlatformType;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
@@ -99,10 +99,10 @@ import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
  * @author pdias
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial","deprecation"})
 @PluginDescription(name = "ODSS STOQS Track Fetcher", author = "Paulo Dias", version = "0.1",
         icon="pt/lsts/neptus/plugins/odss/odss.png")
-public class OdssStoqsTrackFetcher extends SimpleSubPanel implements IPeriodicUpdates, ConfigurationListener {
+public class OdssStoqsTrackFetcher extends ConsolePanel implements IPeriodicUpdates, ConfigurationListener {
 
     /*
      * http://beach.mbari.org/trackingdb/position/seacon-5/last/24h/data.html

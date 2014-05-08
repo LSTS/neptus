@@ -98,6 +98,42 @@ public class DateTimeUtil {
         initialTimeNanos = System.nanoTime();
     }
     
+    public static long formatedStringToMillis(String formatedTime) {
+        String time = formatedTime.replaceAll(" ", "");
+        String val = "";
+        long total = 0;
+        for (int i = 0; i < time.length(); i++) {
+            char c = time.charAt(i);
+            if (Character.isDigit(c)) {
+                val += c;
+            }
+            else {
+                switch (c) {
+                    case 's':
+                        total += Integer.parseInt(val) * 1000;
+                        val = "";
+                        break;
+                    case 'm':
+                        total += Integer.parseInt(val) * 1000 * 60;
+                        val = "";
+                        break;
+                    case 'h':
+                        total += Integer.parseInt(val) * 1000 * 60 * 60;
+                        val = "";
+                        break;
+                    case 'd':
+                        total += Integer.parseInt(val) * 1000 * 60 * 60 * 24;
+                        val = "";
+                        break;
+                    default:
+                        val = "";
+                        break;
+                }
+            }
+        }
+        return total;        
+    }
+    
 	public static final String milliSecondsToFormatedString(long timeMillis) {
 		double time = timeMillis / 1000.0;
 		//time = 3*60*60 + 2*60;

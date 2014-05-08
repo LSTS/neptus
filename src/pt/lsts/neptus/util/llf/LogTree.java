@@ -38,6 +38,7 @@ import java.awt.event.MouseEvent;
 import java.util.LinkedHashMap;
 
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -52,6 +53,7 @@ import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.GenericPlot;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.util.ImageUtils;
 
 
 /**
@@ -66,6 +68,7 @@ public class LogTree extends JTree {
     LinkedHashMap<String, Component> visList = new LinkedHashMap<String, Component>();
     IMraLogGroup source;
 
+    private 
     // Root node
     DefaultMutableTreeNode root = new DefaultMutableTreeNode("root");
 
@@ -80,22 +83,31 @@ public class LogTree extends JTree {
 
     DefaultTreeModel treeModel = new DefaultTreeModel(root);
     DefaultTreeCellRenderer treeRenderer = new DefaultTreeCellRenderer() {
-
+        
+        private LinkedHashMap<Object, ImageIcon> iconCache = new LinkedHashMap<>();
+        
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded,
                 boolean leaf, int row, boolean hasFocus) {
+            
+            
+            
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
             super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
 
             if(node.getUserObject() instanceof MRAVisualization) {
                 MRAVisualization viz = (MRAVisualization) node.getUserObject();
                 setText(viz.getName());
-                setIcon(viz.getIcon());
+                if (!iconCache.containsKey(viz))
+                    iconCache.put(viz, viz.getIcon());
+                setIcon(iconCache.get(viz));                    
             }
             if(node.getUserObject() instanceof LogMarker) {
                 LogMarker mark = (LogMarker) node.getUserObject();
                 setText(mark.label);
-                // setIcon(viz.getIcon());
+                if (!iconCache.containsKey("markers"))
+                    iconCache.put("markers", ImageUtils.getIcon("images/menus/marker.png"));
+                setIcon(iconCache.get("markers"));                
             }
 
             return this;

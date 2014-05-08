@@ -43,6 +43,7 @@ import java.util.Vector;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
 import pt.lsts.neptus.console.plugins.SubPanelChangeListener;
@@ -50,7 +51,6 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -67,7 +67,7 @@ import pt.lsts.neptus.util.ReflectionUtil;
 		description = "Stream Speed Display2")
 @LayerPriority(priority=100)
 public class StreamSpeedPanel 
-extends SimpleSubPanel  
+extends ConsolePanel  
 implements MainVehicleChangeListener, Renderer2DPainter, SubPanelChangeListener, NeptusMessageListener {
 
     private Vector<ILayerPainter> renderers = new Vector<ILayerPainter>();

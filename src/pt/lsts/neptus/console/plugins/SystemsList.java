@@ -71,6 +71,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -80,8 +82,9 @@ import pt.lsts.neptus.comm.manager.imc.MonitorIMCComms;
 import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ConsoleSystem;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.gui.ToolbarSwitch;
@@ -113,7 +116,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
@@ -151,31 +153,31 @@ import pt.lsts.imc.FuelLevel;
 @Popup(pos = POSITION.RIGHT, width = 300, height = 600, accelerator = 'S')
 @PluginDescription(author = "Paulo Dias", version = "1.7.1", name = "Systems List", icon = "images/imc.png", documentation = "systems-list/systems-list.html")
 @LayerPriority(priority = 180)
-public class SystemsList extends SimpleSubPanel implements MainVehicleChangeListener, IPeriodicUpdates,
+public class SystemsList extends ConsolePanel implements MainVehicleChangeListener, IPeriodicUpdates,
         Renderer2DPainter, SystemPainterProvider, IEditorMenuExtension, ConfigurationListener, SubPanelChangeListener,
         ISystemsSelection {
 
     private static boolean printPaintDebug = false;
 
-    private static final int ICON_SIZE = 20;
-    private static final Icon ICON_EDIT = ImageUtils.getScaledIcon("images/buttons/edit2.png", ICON_SIZE, ICON_SIZE);
-    private static final Icon ICON_CLEAR = ImageUtils.getScaledIcon("images/systems/selection-clear.png", ICON_SIZE,
+    private final int ICON_SIZE = 20;
+    private final Icon ICON_EDIT = ImageUtils.getScaledIcon("images/buttons/edit2.png", ICON_SIZE, ICON_SIZE);
+    private final Icon ICON_CLEAR = ImageUtils.getScaledIcon("images/systems/selection-clear.png", ICON_SIZE,
             ICON_SIZE);
-    private static final Icon ICON_REDO = ImageUtils.getScaledIcon("images/systems/selection-redo.png", ICON_SIZE,
+    private final Icon ICON_REDO = ImageUtils.getScaledIcon("images/systems/selection-redo.png", ICON_SIZE,
             ICON_SIZE);
-    private static final Icon ICON_FILTER = ImageUtils.getScaledIcon("images/buttons/filter.png", ICON_SIZE, ICON_SIZE);
-    private static final Icon ICON_VIEW_INFO = ImageUtils.getScaledIcon("images/systems/view-info.png", ICON_SIZE,
+    private final Icon ICON_FILTER = ImageUtils.getScaledIcon("images/buttons/filter.png", ICON_SIZE, ICON_SIZE);
+    private final Icon ICON_VIEW_INFO = ImageUtils.getScaledIcon("images/systems/view-info.png", ICON_SIZE,
             ICON_SIZE);
-    private static final Icon ICON_VIEW_EXTRA = ImageUtils.getScaledIcon("images/systems/view-extra.png", ICON_SIZE,
+    private final Icon ICON_VIEW_EXTRA = ImageUtils.getScaledIcon("images/systems/view-extra.png", ICON_SIZE,
             ICON_SIZE);
-    private static final Icon ICON_VIEW_SYMBOL = ImageUtils.getScaledIcon("images/systems/view-symbol.png", ICON_SIZE,
+    private final Icon ICON_VIEW_SYMBOL = ImageUtils.getScaledIcon("images/systems/view-symbol.png", ICON_SIZE,
             ICON_SIZE);
-    private static final Icon ICON_VIEW_EXPAND = ImageUtils.getScaledIcon("images/systems/expand.png", ICON_SIZE,
+    private final Icon ICON_VIEW_EXPAND = ImageUtils.getScaledIcon("images/systems/expand.png", ICON_SIZE,
             ICON_SIZE);
-    private static final Icon ICON_VIEW_RETREAT = ImageUtils.getScaledIcon("images/systems/retreat.png", ICON_SIZE,
+    private final Icon ICON_VIEW_RETREAT = ImageUtils.getScaledIcon("images/systems/retreat.png", ICON_SIZE,
             ICON_SIZE);
 
-    private static final Pattern RPM_PATTERN_SEARCH = Pattern.compile("^\\{[^=]+=([\\d\\.,]+)\\}$");
+    private final Pattern RPM_PATTERN_SEARCH = Pattern.compile("^\\{[^=]+=([\\d\\.,]+)\\}$");
 
     public enum SortOrderEnum {
         UNSORTED,
@@ -572,11 +574,6 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
-     */
     @Override
     public void cleanSubPanel() {
         if (renderersPopups != null) {
@@ -801,15 +798,10 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
 
     // ------------- MainVehicleChange -------------------------------------------------------------
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#mainVehicleChange(java.lang.String)
-     */
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
         update();
-        changeMainVehicle(id);
+        changeMainVehicle(ev.getCurrent());
     }
 
     /**
@@ -1306,12 +1298,8 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
      */
     private StateRendererInteraction getInteractionInterface() {
         if (stateRendererInteraction == null) {
-            stateRendererInteraction = new InteractionAdapter(console) {
-                @Override
-                public String getName() {
-                    return PluginUtils.getPluginName(SystemsList.this.getClass());
-                }
-
+            stateRendererInteraction = new InteractionAdapter(getConsole()) {
+                
                 @Override
                 public Image getIconImage() {
                     try {
@@ -1896,7 +1884,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
         }
 
         // To draw the course/speed vector
-        SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, sys, isLocationKnownUpToDate,
+        SystemPainterHelper.drawCourseSpeedVectorForSystem(renderer, g2, sys, iconWidth, isLocationKnownUpToDate,
                 minimumSpeedToBeStopped);
 
         g2.dispose();
@@ -2182,7 +2170,7 @@ public class SystemsList extends SimpleSubPanel implements MainVehicleChangeList
             // sys2.setIndicatorsSize(70);
 
             // GuiUtils.testFrame(sList);
-            ConsoleParse.dummyConsole(new SubPanel[] { sList });
+            ConsoleParse.dummyConsole(new ConsolePanel[] { sList });
 
             try {
                 Thread.sleep(5000);

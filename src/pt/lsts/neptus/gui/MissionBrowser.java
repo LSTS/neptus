@@ -50,13 +50,13 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
+import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBInfo;
 import pt.lsts.neptus.gui.MissionTreeModel.NodeInfoKey;
 import pt.lsts.neptus.gui.MissionTreeModel.ParentNodes;
 import pt.lsts.neptus.gui.tree.ExtendedTreeNode;
 import pt.lsts.neptus.gui.tree.ExtendedTreeNode.ChildIterator;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.MapChangeEvent;
-import pt.lsts.neptus.plugins.planning.plandb.PlanDBInfo;
 import pt.lsts.neptus.types.NameId;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
@@ -112,6 +112,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
     private final JTree elementTree;
     final private MissionTreeModel treeModel;
 
+    private final ArrayList<String> transToMerge;
+
     /**
      * Creates a new mission browser which will display the items contained in the given mission type
      * 
@@ -134,6 +136,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
         treeModel = new MissionTreeModel();
         elementTree.setModel(treeModel);
+
+        transToMerge = new ArrayList<String>();
     }
 
     /**
@@ -168,6 +172,12 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             return null;
         ExtendedTreeNode node = (ExtendedTreeNode) elementTree.getSelectionPath().getLastPathComponent();
         return node;
+    }
+
+    public void addTransToMerge(ArrayList<NameId> remoteTrans) {
+        for (NameId nameId : remoteTrans) {
+            transToMerge.add(nameId.getIdentification());
+        }
     }
 
     /**
@@ -534,6 +544,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
 
             @Override
             public void valueChanged(TreeSelectionEvent e) {
+
                 // if (e.isAddedPath()) {
                     TreePath selPath = elementTree.getSelectionPath();
                     if(selPath == null){
@@ -554,7 +565,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     else if (console2 != null) {
                         console2.setPlan(null);
                     }
-                // }
+
             }
 
         });
@@ -593,6 +604,7 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                         "Cannot find a plan with id " + plan.getIdentification() + ". It was not set as selected.");
                 return;
             }
+
             selPath = new TreePath(treeModel.getPathToRoot(planNode));
             elementTree.setSelectionPath(selPath);
             elementTree.scrollPathToVisible(selPath);
@@ -773,7 +785,23 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
                     else {
                         // Not sync
                         // set state
-                        setNodeSyncState(tempNode, State.NOT_SYNC);
+                        if (transToMerge.contains(tempTrans.getIdentification())) {
+                            ExtendedTreeNode treeNode = treeModel.findNode(lblBeacon.getBeacon(),
+                                    ParentNodes.TRANSPONDERS);
+                            TransponderElement newTrans = new TransponderElement(lblBeacon, id,
+                                    tempTrans.getMapGroup(), tempTrans.getParentMap());
+                            treeNode.setUserObject(newTrans);
+                            // System.out.println(lblBeacon.getBeacon() + " updated to "
+                            // + newTrans.getCenterLocation().getDepth() + " depth");
+                            transToMerge.remove(lblBeacon.getBeacon());
+                            setNodeSyncState(treeNode, State.SYNC);
+                            // update mission
+                            newTrans.getParentMap().addObject(newTrans);
+                            saveMission(mission);
+                        }
+                        else {
+                            setNodeSyncState(tempNode, State.NOT_SYNC);
+                        }
                         // System.out.println(" >> Not Sync.");
                     }
                     // set id
@@ -1244,14 +1272,6 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
         cellRenderer.maxAcceptableElapsedTime = maxAcceptableElapsedTime;
     }
 
-    // TODO On hold until removing all beacons is stable
-    // public void removeAllTransponders(MissionType mission) {
-    // ArrayList<NameId> removeAllChildren = treeModel.removeAllChildren(ParentNodes.TRANSPONDERS);
-    // for (NameId elem : removeAllChildren) {
-    // ((TransponderElement) elem).getParentMap().remove(elem.getIdentification());
-    // }
-    // saveMission(mission);
-    // }
     
     public ArrayList<TransponderElement> getTransponders(){
         ChildIterator transIt = treeModel.getIterator(ParentNodes.TRANSPONDERS);

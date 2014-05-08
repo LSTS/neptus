@@ -52,9 +52,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.reflections.Reflections;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.ConfigFetch.ENVIROMENT;
 
@@ -131,22 +131,12 @@ public class PluginsLoader {
      */
     private static void loadCorePlugins() {
 
-        List<Class<?>> classes;
-        try {
-            classes = ReflectionUtil.getClassesForPackage("pt.lsts.neptus.console.plugins");
-            for (Class<?> clazz : classes) {
-
-                if (clazz.isAnnotationPresent(PluginDescription.class)) {
-                    PluginsRepository.addPlugin(clazz.getCanonicalName());
-                    // System.out.println(clazz.toString());
-                }
+        for (String pkg : new String[] {"pt.lsts.neptus.console.plugins", "pt.lsts.neptus.mra"}) {
+            Reflections reflections = new Reflections(pkg);
+            for (Class<?> c : reflections.getTypesAnnotatedWith(PluginDescription.class)) {
+                PluginsRepository.addPlugin(c.getCanonicalName());
             }
         }
-        catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
     }
 
     private static List<Path> findJars() {

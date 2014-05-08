@@ -70,17 +70,19 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
+import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
@@ -92,16 +94,16 @@ import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
  *
  */
 @SuppressWarnings("serial")
-@PluginDescription(name="HF Radar Visualization", author="Paulo Dias", version="0.1")
+@PluginDescription(name="HF Radar Visualization", author="Paulo Dias", version="0.9", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
 @LayerPriority(priority = -50)
-public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPainter, IPeriodicUpdates, ConfigurationListener {
+public class HFRadarVisualization extends ConsolePanel implements Renderer2DPainter, IPeriodicUpdates, ConfigurationListener {
 
     /*
      * Currents, wind, waves, SST 
      */
-    
-    @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR, category="Visibility")
-    public boolean visible = true;
+
+//    @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR, category="Visibility")
+//    public boolean visible = true;
 
     @NeptusProperty(name = "Show currents", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean showCurrents = true;
@@ -157,7 +159,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean useColorMapForWind = true;
 
-    @NeptusProperty(name = "Base Folder For Currents TUV Files", userLevel = LEVEL.REGULAR, category="Data Update")
+    @NeptusProperty(name = "Base Folder For Currents TUV and NetCDF Files", userLevel = LEVEL.REGULAR, category="Data Update")
     public File baseFolderForCurrentsTUVFiles = new File("IHData/CODAR");
 
     @NeptusProperty(name = "Base Folder For Meteo NetCDF Files", userLevel = LEVEL.REGULAR, category="Data Update")
@@ -166,11 +168,14 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     @NeptusProperty(name = "Base Folder For Waves NetCDF Files", userLevel = LEVEL.REGULAR, category="Data Update")
     public File baseFolderForWavesNetCDFFiles = new File("IHData/WAVES");
     
-    private final String currentsFilePattern = "TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv";
+    private final String currentsFilePatternTUV = "TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv";
+    private final String currentsFilePatternNetCDF = "CODAR_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.nc";
     private final String meteoFilePattern = "meteo_\\d{8}\\.nc";
     private final String wavesFilePattern = "waves_[a-zA-Z]{1,2}_\\d{8}\\.nc";
 
     private boolean clearImgCachRqst = false;
+
+    private final Font font8Pt = new Font("Helvetica", Font.PLAIN, 8);
 
     public static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'SS");
     public static final SimpleDateFormat dateTimeFormaterSpacesUTC = new SimpleDateFormat("yyyy MM dd  HH mm SS");
@@ -289,6 +294,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     private final double maxWaves = 7;
 
     private BufferedImage cacheImg = null;
+    private static int offScreenBufferPixel = 400;
     private Dimension dim = null;
     private int lastLod = -1;
     private LocationType lastCenter = null;
@@ -302,7 +308,40 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     private final HashMap<String, SSTDataPoint> dataPointsSST = new HashMap<>();
     private final HashMap<String, WindDataPoint> dataPointsWind = new HashMap<>();
     private final HashMap<String, WavesDataPoint> dataPointsWaves = new HashMap<>();
+
+    @PluginDescription(name="HF Radar Visualization Layer", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
+    private class HFRadarConsoleLayer extends ConsoleLayer {
+        @Override
+        public void setVisible(boolean visible) {
+            super.setVisible(visible);
+        }
+        
+        @Override
+        public boolean userControlsOpacity() {
+            return false;
+        }
+
+        @Override
+        public void initLayer() {
+        }
+
+        @Override
+        public void cleanLayer() {
+        }
+        
+        /* (non-Javadoc)
+         * @see pt.lsts.neptus.console.ConsoleLayer#paint(java.awt.Graphics2D, pt.lsts.neptus.renderer2d.StateRenderer2D)
+         */
+        @Override
+        public void paint(Graphics2D g, StateRenderer2D renderer) {
+            super.paint(g, renderer);
+            
+            paintWorker(g, renderer);
+        }
+    }
     
+    private final HFRadarConsoleLayer consoleLayer = new HFRadarConsoleLayer();
+
     public HFRadarVisualization(ConsoleLayout console) {
         super(console);
         httpComm.initializeComm();
@@ -310,6 +349,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     
     @Override
     public void initSubPanel() {
+        getConsole().addMapLayer(consoleLayer, false);
         
 //        HashMap<String, HFRadarDataPoint> tdp = processNoaaHFRadarTest();
 //        mergeCurrentsDataToInternalDataList(tdp);
@@ -338,6 +378,8 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      */
     @Override
     public void cleanSubPanel() {
+        getConsole().removeMapLayer(consoleLayer);
+
         httpComm.cleanUp();
     }
     
@@ -360,7 +402,8 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      */
     @Override
     public synchronized boolean update() {
-        System.out.println("###### Update");
+        NeptusLog.pub().info("Update");
+        
 //        if (false && requestFromWeb) {
 //            HashMap<String, HFRadarDataPoint> dpLts = getNoaaHFRadarData();
 //            if (dpLts != null) {
@@ -656,7 +699,8 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
     }
     
     private void loadCurrentsFromFiles() {
-        File[] fileList = getFilesToLoadFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePattern);
+        // TUV files
+        File[] fileList = getFilesToLoadFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePatternTUV);
         if (fileList == null)
             return;
 
@@ -665,6 +709,18 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             if (tdp != null && tdp.size() > 0)
                 mergeCurrentsDataToInternalDataList(tdp);
         }
+
+        // NetCDF files
+        fileList = getFilesToLoadFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePatternNetCDF);
+        if (fileList == null)
+            return;
+
+        for (File fx : fileList) {
+            HashMap<String, HFRadarDataPoint> tdp = processNetCDFHFRadarTest(fx.getAbsolutePath());
+            if (tdp != null && tdp.size() > 0)
+                mergeCurrentsDataToInternalDataList(tdp);
+        }
+
     }
 
     private void loadMeteoFromFiles() {
@@ -786,23 +842,19 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      */
     @Override
     public void paint(Graphics2D go, StateRenderer2D renderer) {
-        if (!visible)
-            return;
-        
+//        if (!visible)
+//            return;
+//        paintWorker(go, renderer);
+    }
+    
+    public void paintWorker(Graphics2D go, StateRenderer2D renderer) {
         if (!clearImgCachRqst) {
-            if (dim == null || lastLod < 0 || lastCenter == null || Double.isNaN(lastRotation)) {
-                Dimension dimN = renderer.getSize(new Dimension());
-                if (dimN.height != 0 && dimN.width != 0)
-                    dim = dimN;
+            if (isToRegenerateCache(renderer))
                 cacheImg = null;
-            }
-            else if (!dim.equals(renderer.getSize()) || lastLod != renderer.getLevelOfDetail()
-                    || !lastCenter.equals(renderer.getCenter()) || Double.compare(lastRotation, renderer.getRotation()) != 0) {
-                cacheImg = null;
-            }
         }
         else {
             cacheImg = null;
+            clearImgCachRqst = false;
         }
         
         if (cacheImg == null) {
@@ -815,11 +867,15 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             GraphicsDevice gs = ge.getDefaultScreenDevice();
             GraphicsConfiguration gc = gs.getDefaultConfiguration();
-            cacheImg = gc.createCompatibleImage((int) dim.getWidth(), (int) dim.getHeight(), Transparency.BITMASK); 
+            cacheImg = gc.createCompatibleImage((int) dim.getWidth() + offScreenBufferPixel * 2, (int) dim.getHeight() + offScreenBufferPixel * 2, Transparency.BITMASK); 
             Graphics2D g2 = cacheImg.createGraphics();
             
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g2.translate(offScreenBufferPixel, offScreenBufferPixel);
+            
+//            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
             
             Date dateColorLimit = new Date(System.currentTimeMillis() - 3 * DateTimeUtil.HOUR);
             Date dateLimit = new Date(System.currentTimeMillis() - dateLimitHours * DateTimeUtil.HOUR);
@@ -843,13 +899,43 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
 //                g3.rotate(-renderer.getRotation(), renderer.getWidth() / 2, renderer.getHeight() / 2);
 //            }
             // g3.drawImage(cacheImg, 0, 0, null);
-            g3.drawImage(cacheImg, 0, 0, cacheImg.getWidth(), cacheImg.getHeight(), 0, 0, cacheImg.getWidth(),
-                    cacheImg.getHeight(), null);
+
+            double[] offset = renderer.getCenter().getDistanceInPixelTo(lastCenter, renderer.getLevelOfDetail());
+            offset = AngleCalc.rotate(renderer.getRotation(), offset[0], offset[1], true);
+
+            // g3.drawImage(cacheImg, 0, 0, cacheImg.getWidth(), cacheImg.getHeight(), 0, 0, cacheImg.getWidth(), cacheImg.getHeight(), null);
+            g3.drawImage(cacheImg, null, (int) offset[0] - offScreenBufferPixel, (int) offset[1] - offScreenBufferPixel);
+
             g3.dispose();
         }
     }
 
+    /**
+     * @return 
+     * 
+     */
+    private boolean isToRegenerateCache(StateRenderer2D renderer) {
+        if (dim == null || lastLod < 0 || lastCenter == null || Double.isNaN(lastRotation)) {
+            Dimension dimN = renderer.getSize(new Dimension());
+            if (dimN.height != 0 && dimN.width != 0)
+                dim = dimN;
+            return true;
+        }
+        LocationType current = renderer.getCenter().getNewAbsoluteLatLonDepth();
+        LocationType last = lastCenter == null ? new LocationType(0, 0) : lastCenter;
+        double[] offset = current.getDistanceInPixelTo(last, renderer.getLevelOfDetail());
+        if (Math.abs(offset[0]) > offScreenBufferPixel || Math.abs(offset[1]) > offScreenBufferPixel) {
+            return true;
+        }
 
+        if (!dim.equals(renderer.getSize()) || lastLod != renderer.getLevelOfDetail()
+                /*|| !lastCenter.equals(renderer.getCenter())*/ || Double.compare(lastRotation, renderer.getRotation()) != 0) {
+            return true;
+        }
+        
+        return false;
+    }
+    
     /**
      * @param renderer
      * @param g2
@@ -892,7 +978,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             gt.rotate(-rot);
             
             if (showCurrentsLegend && renderer.getLevelOfDetail() >= showCurrentsLegendFromZoomLevel) {
-                gt.setFont(new Font("Helvetica", Font.PLAIN, 8));
+                gt.setFont(font8Pt);
                 gt.setColor(Color.WHITE);
                 gt.drawString(MathMiscUtils.round(dp.getSpeedCmS(), 1) + "cm/s", 10, 2);
             }
@@ -940,7 +1026,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             gt.fill(circle);
             
             if (showSSTLegend && renderer.getLevelOfDetail() >= showSSTLegendFromZoomLevel) {
-                gt.setFont(new Font("Helvetica", Font.PLAIN, 8));
+                gt.setFont(font8Pt);
                 gt.setColor(Color.WHITE);
                 gt.drawString(MathMiscUtils.round(dp.getSst(), 1) + "\u00B0C", -15, 15);
             }
@@ -1095,7 +1181,7 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             gt.rotate(-rot);
             
             if (showWavesLegend && renderer.getLevelOfDetail() >= showWavesLegendFromZoomLevel) {
-                gt.setFont(new Font("Helvetica", Font.PLAIN, 8));
+                gt.setFont(font8Pt);
                 gt.setColor(Color.WHITE);
                 gt.drawString(MathMiscUtils.round(dp.getSignificantHeight(), 1) + "m", 10, -8);
             }
@@ -1111,9 +1197,9 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
      */
     private boolean isVisibleInRender(Point2D sPos, StateRenderer2D renderer) {
         Dimension rendDim = renderer.getSize();
-        if (sPos.getX() < 0 && sPos.getY() < 0)
+        if (sPos.getX() < 0 - offScreenBufferPixel && sPos.getY() < 0 - offScreenBufferPixel)
             return false;
-        else if (sPos.getX() > rendDim.getWidth() && sPos.getY() > rendDim.getHeight())
+        else if (sPos.getX() > rendDim.getWidth() + offScreenBufferPixel && sPos.getY() > rendDim.getHeight() + offScreenBufferPixel)
             return false;
         
         return true;
@@ -1157,37 +1243,57 @@ public class HFRadarVisualization extends SimpleSubPanel implements Renderer2DPa
             return hfdp;
         
         HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processTUGHFRadar(freader, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
-        System.out.println("*** SUCCESS reading file "+fileName);
+        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
         return ret;
     }
 
-    
-    private HashMap<?,?>[] processMeteoFile(String fileName) {
-        // InputStreamReader
-        HashMap<String, SSTDataPoint> sstdp = new HashMap<>();
-        HashMap<String, WindDataPoint> winddp = new HashMap<>();
-
-        FileReader freader = getFileReaderForFile(fileName);
-        if (freader == null)
-            return new HashMap[] { sstdp, winddp };
+    private HashMap<String, HFRadarDataPoint> processNetCDFHFRadarTest(String fileName) {
+//        HashMap<String, HFRadarDataPoint> hfdp = new HashMap<>();
+//        
+//        FileReader freader = getFileReaderForFile(fileName);
+//        if (freader == null)
+//            return hfdp;
         
         String fxName = FileUtil.getResourceAsFileKeepName(fileName);
         if (fxName == null)
             fxName = fileName;
+        if (!new File(fxName).exists())
+            return new HashMap<>();
+        HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processNetCDFHFRadar(fxName, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
+        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
+        return ret;
+    }
+
+    private HashMap<?,?>[] processMeteoFile(String fileName) {
+//        // InputStreamReader
+//        HashMap<String, SSTDataPoint> sstdp = new HashMap<>();
+//        HashMap<String, WindDataPoint> winddp = new HashMap<>();
+//
+//        FileReader freader = getFileReaderForFile(fileName);
+//        if (freader == null)
+//            return new HashMap[] { sstdp, winddp };
+        
+        String fxName = FileUtil.getResourceAsFileKeepName(fileName);
+        if (fxName == null)
+            fxName = fileName;
+        if (!new File(fxName).exists())
+            return new HashMap[] { new HashMap<>(), new HashMap<>() };
         return LoaderHelper.processMeteo(fxName, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
     }
 
     private HashMap<String, WavesDataPoint> processWavesFile(String fileName) {
-        // InputStreamReader
-        HashMap<String, WavesDataPoint> wavesddp = new HashMap<>();
-
-        FileReader freader = getFileReaderForFile(fileName);
-        if (freader == null)
-            return wavesddp;
+//        // InputStreamReader
+//        HashMap<String, WavesDataPoint> wavesddp = new HashMap<>();
+//
+//        FileReader freader = getFileReaderForFile(fileName);
+//        if (freader == null)
+//            return wavesddp;
         
         String fxName = FileUtil.getResourceAsFileKeepName(fileName);
         if (fxName == null)
             fxName = fileName;
+        if (!new File(fxName).exists())
+            return new HashMap<>();
         return LoaderHelper.processWavesFile(fxName, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
     }
 

@@ -40,6 +40,7 @@ import java.awt.Image;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -422,6 +423,22 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     public void keyTyped(KeyEvent event, StateRenderer2D source) {
         adapter.keyTyped(event, source);
     }
+    
+    @Override
+    public void mouseExited(MouseEvent event, StateRenderer2D source) {
+        adapter.mouseExited(event, source);
+    }
+        
+    @Override
+    public void focusGained(FocusEvent event, StateRenderer2D source) {
+        adapter.focusGained(event, source);
+        
+    }
+
+    @Override
+    public void focusLost(FocusEvent event, StateRenderer2D source) {
+        adapter.focusLost(event, source);
+    }
 
     public void setActive(boolean mode, StateRenderer2D source) {
         editing = mode;
@@ -645,8 +662,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
     public void parseIMCMessage(IMCMessage message) {
         setMaxTime(message.getAsNumber("timeout").intValue());
         startLoc = new ManeuverLocation();
-        startLoc.setLatitudeDegs(Math.toDegrees(message.getDouble("lat")));
-        startLoc.setLongitudeDegs(Math.toDegrees(message.getDouble("lon")));
+        startLoc.setLatitudeRads(message.getDouble("lat"));
+        startLoc.setLongitudeRads(message.getDouble("lon"));
         startLoc.setZ(message.getDouble("z"));
         String units = message.getString("z_units");
         if (units != null)
@@ -685,7 +702,7 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         return speed_units;
     }
 
-    public void setUnits(String units) {
+    public void setSpeedUnits(String units) {
         this.speed_units = units;
         recalculateTimes();
     }
@@ -765,12 +782,17 @@ StateRendererInteraction, IMCSerialization, PathProvider {
 
         for (Property p : properties) {
             if (p.getName().equals("Speed units")) {
-                setUnits((String)p.getValue());
+                setSpeedUnits((String)p.getValue());
             }
             else if (p.getName().equals("Speed")) {
                 setSpeed((Double)p.getValue());
             }            
         }
+    }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        
     }
 
     public static void main(String[] args) {
@@ -780,11 +802,11 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         traj.loadFromXML("<FollowTrajectory kind=\"automatic\"><basePoint type=\"pointType\"><point><id>id_53802104</id><name>id_53802104</name><coordinate><latitude>0N0'0''</latitude><longitude>0E0'0''</longitude><depth>0.0</depth></coordinate></point><radiusTolerance>0.0</radiusTolerance></basePoint><trajectory><nedOffsets northOffset=\"0.0\" eastOffset=\"1.0\" depthOffset=\"2.0\" timeOffset=\"3.0\"/><nedOffsets northOffset=\"4.0\" eastOffset=\"5.0\" depthOffset=\"6.0\" timeOffset=\"7.0\"/></trajectory><speed unit=\"RPM\">1000.0</speed></FollowTrajectory>");
         //NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowTrajectory")));
         traj.setSpeed(1);
-        traj.setUnits("m/s");        
+        traj.setSpeedUnits("m/s");        
         NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowTrajectory")));
 
         traj.setSpeed(2);
-        traj.setUnits("m/s");        
+        traj.setSpeedUnits("m/s");        
         NeptusLog.pub().info("<###> "+FileUtil.getAsPrettyPrintFormatedXMLString(traj.getManeuverAsDocument("FollowTrajectory")));
         //test2();
     }

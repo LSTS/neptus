@@ -62,6 +62,8 @@ import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.Painter;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
@@ -70,6 +72,8 @@ import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
@@ -80,7 +84,6 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
@@ -99,10 +102,10 @@ import pt.lsts.neptus.util.logdownload.LogsDownloaderWorker;
 @SuppressWarnings("serial")
 @Popup( pos = POSITION.RIGHT, width=300, height=100, accelerator='L')
 @PluginDescription(author = "Paulo Dias and José Pinto", name = "Log Download", description = "", version = "3.0.0", icon = "pt/lsts/neptus/plugins/logs/log.png", documentation = "logs-downloader/logs-downloader.html#console")
-public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChangeListener, IPeriodicUpdates,
+public class LoggingDownloader extends ConsolePanel implements MainVehicleChangeListener, IPeriodicUpdates,
         ConfigurationListener, NeptusMessageListener {
 
-    private static final ImageIcon ICON = ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/log.png");
+    private final ImageIcon ICON = ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/log.png");
 
     @NeptusProperty(name = "Log List Update Period in Seconds", userLevel = LEVEL.REGULAR)
     public short logListUpdatePeriodSeconds = 30;
@@ -700,14 +703,14 @@ public class LoggingDownloader extends SimpleSubPanel implements MainVehicleChan
             scheduleDownloadListFromServer();
     }
 
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange evt) {
         button.setEnabled(false);
         button.setToolTipText(I18n.text("Log: (updating)"));
 
         tabbledPane.setSelectedComponent(getDownloadWorker().getContentPanel());
 
-        resetDownloaderForVehicle(id);
+        resetDownloaderForVehicle(evt.getCurrent());
     }
 
     @Override

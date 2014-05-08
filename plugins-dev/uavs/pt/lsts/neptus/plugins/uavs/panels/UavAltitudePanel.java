@@ -37,19 +37,20 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
-import pt.lsts.neptus.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
 import pt.lsts.neptus.plugins.uavs.painters.background.UavCoverLayerPainter;
 import pt.lsts.neptus.plugins.uavs.painters.elements.UavLabelPainter;
@@ -57,27 +58,26 @@ import pt.lsts.neptus.plugins.uavs.painters.elements.UavMissionElementPainter;
 import pt.lsts.neptus.plugins.uavs.painters.foreground.UavRulerPainter;
 
 /**
- * Neptus panel which allows the console operator to see the current altitudes of all active vehicles, detected by the console, and filtered by the selected type.
+ * Neptus panel which allows the console operator to see the current altitudes of all active vehicles, 
+ * detected by the console, and filtered by the selected type. Current use is limited to UAVs
  * 
- * @author Sergio Ferreira
- * @version 2.0
+ * @author canastaman
+ * @version 3.0
  * @category UavPanel  
  * 
  */
-@PluginDescription(name = "Uav Altitude Panel", icon = "pt/lsts/neptus/plugins/uavs/planning.png", author = "sergioferreira",  version = "2.0", category = CATEGORY.INTERFACE)
-public class UavAltitudePanel extends SimpleSubPanel implements ComponentListener {
+@PluginDescription(name = "Uav Altitude Panel", icon = "pt/lsts/neptus/plugins/uavs/planning.png", author = "canasta",  version = "3.0", category = CATEGORY.INTERFACE)
+public class UavAltitudePanel extends ConsolePanel implements ComponentListener {
 
     private static final long serialVersionUID = 1L;
 
-    private final static int SIDE_PANEL_WIDTH = 50;
+    //values are determined empirically to allow operator readability
+    private final static int SIDE_PANEL_WIDTH = 25;
     private final static int BOTTOM_LABEL_HEIGHT = 25;
         
     @NeptusProperty(name = "Vehicles detected", category = "UAV", userLevel = LEVEL.REGULAR)
     public String vehicleType = "UAV";
-    
-    @NeptusProperty(name = "Minimum Altitude", category = "UAV", userLevel = LEVEL.REGULAR)
-    public Integer maxAlt = 200;
-    
+        
     @NeptusProperty(name = "Minimum security vertical distance between UAVs", category = "UAV", userLevel = LEVEL.REGULAR)
     public Integer secAlt = 50;
     
@@ -98,26 +98,9 @@ public class UavAltitudePanel extends SimpleSubPanel implements ComponentListene
 
     //current profile active in the host's MigLayoutPanel
     private String profile;
-
-    //structure used to house the pixels per mark and marking grade for drawing purposes
-    private Point pixelsPerMark_markGrade_Pair;
    
     //listener object which allows the panel to tap into the various IMC messages
-    private MultiSystemIMCMessageListener listener = new MultiSystemIMCMessageListener(this.getClass().getSimpleName()
-            + " [" + Integer.toHexString(hashCode()) + "]") {
-
-        @Override
-        public void messageArrived(ImcId16 id, IMCMessage msg) {
-
-            //Check if the message is coming from a UAV. Only if it is, do something
-            if (ImcSystemsHolder.lookupSystem(id).getTypeVehicle().name().equalsIgnoreCase("UAV")){
-                
-                //updates the vehicle's registered altitude
-                vehicleAltitudes.put(ImcSystemsHolder.lookupSystem(id).getName(), msg.getInteger("height") + (-msg.getInteger("z")));
-                repaint();
-            }            
-        }
-    };
+    private MultiSystemIMCMessageListener listener;
 
     public UavAltitudePanel(ConsoleLayout console) {
         super(console);
@@ -127,11 +110,6 @@ public class UavAltitudePanel extends SimpleSubPanel implements ComponentListene
     }
 
     // ------Setters and Getters------//
-
-    // PixelsPerMark_markGrade_Pair
-    private void setPixelsPerMark_markGrade_Pair(Point point) {
-        this.pixelsPerMark_markGrade_Pair = point;
-    }
 
     // Layers
     private void setLayers(LinkedHashMap<String, IUavPainter> backgroundLayers) {
@@ -147,117 +125,32 @@ public class UavAltitudePanel extends SimpleSubPanel implements ComponentListene
     private void setVehicleAltitudes(LinkedHashMap<String, Integer> layerArgs) {
         this.vehicleAltitudes = layerArgs;
     }
-
-    // ------Specific Methods------//
-
-    /**
-     * Method which makes the necessary preparations to the data that is to be sent to the UavPainters in <b>layers</b>. These preparations depend on the active <b>profile</b>
-     * 
-     * @return void
-     */
-    private void prepareArgs() {
-        
-        //updates the UavRulerPainter's maximum altitude
-        determinePixelsPerMark(pixelsPerMark_markGrade_Pair,this.getHeight(),((Number)(Math.floor((this.getHeight())/100)*100)).intValue(),markWidth); 
-        
-        if (profile.equals("TACO") || profile.equals("1vX")) {
-
-            // vehicles to draw
-            args.put("vehicles", vehicleAltitudes);
-        }
-        else {
-
-            // single vehicle to draw
-            LinkedHashMap<String, Integer> singleUav = new LinkedHashMap<String, Integer>();
-            if (vehicleAltitudes.get(this.getMainVehicleId()) != null) {
-                singleUav.put(this.getMainVehicleId(), vehicleAltitudes.get(this.getMainVehicleId()));
-            }
-            args.put("vehicles", singleUav);
-        }
-
-        args.put("markInfo", pixelsPerMark_markGrade_Pair);
-    }
-
-    /**
-     * 
-     */
-    private void updatePainterSizes() {
-        
-        //updates each of the panels draw points
-        args.put("Skybox.DrawPoint", new int[] {0, 0});
-        args.put("SidePainter.DrawPoint", new int[] {this.getWidth() - SIDE_PANEL_WIDTH, 0});  
-        args.put("AltitudeLabel.DrawPoint", new int[] {0, this.getHeight() - BOTTOM_LABEL_HEIGHT});  
-        
-        //updates each of the panels sizes
-        args.put("Skybox.Size", new int[] {this.getWidth() - SIDE_PANEL_WIDTH, this.getHeight() - BOTTOM_LABEL_HEIGHT});
-        args.put("SidePainter.Size", new int[] {SIDE_PANEL_WIDTH, this.getHeight()});
-        args.put("AltitudeLabel.Size", new int[] {this.getWidth() - SIDE_PANEL_WIDTH, BOTTOM_LABEL_HEIGHT});  
-    }
     
-    /**
-     * 
-     */
-    private void updateLabelText() {
+    //Listener
+    private void setListener(){
+        
+        listener = new MultiSystemIMCMessageListener(this.getClass().getSimpleName() + " [" + Integer.toHexString(hashCode()) + "]") {
 
-        //updates label's text
-        if(measure.equals("SI"))
-            args.put("AltitudeLabel.Text", "Alt. "+"[m]");
-        if(measure.equals("Imperial"))
-            args.put("AltitudeLabel.Text", "Alt. "+"[f]"); 
-    }
-    
-    /**
-     * @param height
-     * @param rulerMax
-     * @return
-     */
-    private void determinePixelsPerMark(Point ret, int height, int rulerMax, int minMarkHeight) {
+            @Override
+            public void messageArrived(ImcId16 id, IMCMessage msg) {
 
-        rulerMax = updateRulerMax(rulerMax);
-
-        ret.x = 0;
-        ret.y = 1;
-        int i = 0;
-
-        while ((ret.x = height / (rulerMax / ret.y)) < 2 * minMarkHeight) {
-            switch (i % 2) {
-                case 0:
-                    ret.y *= 5;
-                    break;
-                default:
-                    ret.y *= 2;
-                    break;
+                //Check if the message is coming from a UAV. Only if it is, do something
+                if (ImcSystemsHolder.lookupSystem(id).getTypeVehicle().name().equalsIgnoreCase(vehicleType)){
+                    
+                    //updates the vehicle's registered altitude
+                    vehicleAltitudes.put(ImcSystemsHolder.lookupSystem(id).getName(), msg.getInteger("height") + (-msg.getInteger("z")));
+                    repaint();
+                }            
             }
-            i++;
-        }
-    }
-
-    /**
-     * @param object
-     * @return
-     */
-    private int updateRulerMax(int ret) {
-
-        // determines the highest altitude value
-        for (Integer alt : vehicleAltitudes.values()) {
-            if (ret < alt) {
-                ret = alt;
-            }
-        }
-
-        if (ret % 100 != 0) {
-            ret = ((Number) (Math.floor(ret / 100) * 100 + 100)).intValue();
-        }
-
-        return ret;
+        };        
     }
 
     @Override
     public void initSubPanel() {
+        setListener();
         setLayers(new LinkedHashMap<String, IUavPainter>());
         setVehicleAltitudes(new LinkedHashMap<String, Integer>());
         setArgs(new LinkedHashMap<String, Object>());
-        setPixelsPerMark_markGrade_Pair(new Point());
 
         // sets up the listener to listen to all vehicles
         listener.setSystemToListen();
@@ -267,14 +160,14 @@ public class UavAltitudePanel extends SimpleSubPanel implements ComponentListene
 
         // sets up all the layers used by the panel
         layers.put("Skybox", new UavCoverLayerPainter("Skybox"));
-        layers.put("SidePainter", new UavCoverLayerPainter("SidePainter"));
+        layers.put("SidePanel", new UavCoverLayerPainter("SidePanel"));
         layers.put("AltitudeLabel", new UavLabelPainter("AltitudeLabel"));
-        layers.put("UavRulerPainter1",  new UavRulerPainter());
-        layers.put("UavMissionElement1", new UavMissionElementPainter());     
-                        
+        layers.put("UavRulerPainter",  new UavRulerPainter("Ruler"));
+        layers.put("UavMissionElement", new UavMissionElementPainter("Uavs"));     
+                                
         // sets up initial colors for the cover panels
         args.put("Skybox.Color", new Color[] {Color.blue,Color.gray.brighter()});
-        args.put("SidePainter.Color",  new Color[] {Color.gray,Color.gray});
+        args.put("SidePanel.Color",  new Color[] {Color.gray,Color.gray});
         args.put("AltitudeLabel.Color",  new Color[] {Color.gray.brighter(),Color.gray.brighter()});
        
         this.addComponentListener(this);
@@ -292,12 +185,13 @@ public class UavAltitudePanel extends SimpleSubPanel implements ComponentListene
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        //determine the active profile before making any calculation
         if(this.getConsole().getMainPanel().getComponent(0).getClass().getSimpleName().equals("MigLayoutContainer"))
             profile = ((MigLayoutContainer) this.getConsole().getMainPanel().getComponent(0)).currentProfile;
         else
             profile = "None";       
           
-        //arranges the arguments for the different operation profiles
+        //arranges the arguments for the different painter needs
         prepareArgs();
 
         synchronized (layers) {
@@ -309,7 +203,76 @@ public class UavAltitudePanel extends SimpleSubPanel implements ComponentListene
             args.clear();
         }        
     }
+    
+    // ------Specific Methods------//
 
+    /**
+     * Method which makes the necessary preparations to the data that is to be sent to the UavPainters in <b>layers</b>. 
+     * These preparations depend on the active <b>profile</b>
+     * 
+     * @return void
+     */
+    private void prepareArgs() {
+                      
+        //preparation for UavMissionElementPainter (Uav)
+        if (profile.equals("TACO")) {
+
+            // vehicles to draw
+            args.put("Uavs.VehicleList", vehicleAltitudes);
+        }
+        else {
+
+            // single vehicle to draw
+            LinkedHashMap<String, Integer> singleUav = new LinkedHashMap<String, Integer>();
+            if (vehicleAltitudes.get(this.getMainVehicleId()) != null) {
+                singleUav.put(this.getMainVehicleId(), vehicleAltitudes.get(this.getMainVehicleId()));
+            }
+            args.put("Uavs.VehicleList", singleUav);
+        }
+
+        //preparation for UavRulerPainter (Ruler)
+        if(!vehicleAltitudes.isEmpty()){
+            args.put("Ruler.MaxAlt", Collections.max(vehicleAltitudes.values()));
+            args.put("Uavs.MaxAlt", Collections.max(vehicleAltitudes.values()));
+        }
+    }
+
+    /**
+     * Method called when then panel size is altered.
+     * 
+     * @return void
+     */
+    private void updatePainterSizes() {
+        
+        //updates each of the panels draw points
+        args.put("Skybox.DrawPoint", new int[] {0, 0});
+        args.put("SidePanel.DrawPoint", new int[] {this.getWidth() - SIDE_PANEL_WIDTH, 0});  
+        args.put("AltitudeLabel.DrawPoint", new int[] {0, this.getHeight() - BOTTOM_LABEL_HEIGHT});  
+        
+        //updates each of the panels sizes
+        args.put("Skybox.Size", new int[] {this.getWidth() - SIDE_PANEL_WIDTH, this.getHeight() - BOTTOM_LABEL_HEIGHT});
+        args.put("SidePanel.Size", new int[] {SIDE_PANEL_WIDTH, this.getHeight()});
+        args.put("AltitudeLabel.Size", new int[] {this.getWidth() - SIDE_PANEL_WIDTH, BOTTOM_LABEL_HEIGHT});  
+        
+        repaint();
+    }
+    
+    /**
+     * Method called when the bar measure units are changed.
+     * 
+     * @return void
+     */
+    private void updateLabelText() {
+
+        //updates label's text
+        if(measure.equals("SI"))
+            args.put("AltitudeLabel.Text", "Alt. "+"[m]");
+        else if(measure.equals("Imperial"))
+            args.put("AltitudeLabel.Text", "Alt. "+"[f]"); 
+    }
+    
+    // ------Listeners------//
+    
     /* (non-Javadoc)
      * @see java.awt.event.ComponentListener#componentResized(java.awt.event.ComponentEvent)
      */

@@ -58,6 +58,7 @@ import org.jdesktop.swingx.JXPanel;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gps.GPSConnection;
 import pt.lsts.neptus.gps.GPSListener;
 import pt.lsts.neptus.gps.GPSState;
@@ -68,7 +69,6 @@ import pt.lsts.neptus.planeditor.IEditorMenuExtension;
 import pt.lsts.neptus.planeditor.IMapPopup;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.serial.PortSelector;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
@@ -82,7 +82,7 @@ import com.l2fprod.common.swing.JLinkButton;
 @SuppressWarnings("serial")
 @PluginDescription(icon="images/buttons/gpsbutton.png", name="GPS Panel")
 @Deprecated
-public class GPSPanel extends SimpleSubPanel implements GPSListener,
+public class GPSPanel extends ConsolePanel implements GPSListener,
 		IPeriodicUpdates, IEditorMenuExtension, SubPanelChangeListener {
 
 	@NeptusProperty (name="Use for My Location setting")

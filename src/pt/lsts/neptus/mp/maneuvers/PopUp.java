@@ -54,6 +54,7 @@ import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.util.NameNormalizer;
 
@@ -133,7 +134,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	        if (speedNode == null) 
 	        	speedNode = doc.selectSingleNode("PopUp/velocity");
 	        setSpeed(Double.parseDouble(speedNode.getText()));
-	        setUnits(speedNode.valueOf("@unit"));
+	        setSpeedUnits(speedNode.valueOf("@unit"));
 	        setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
 	        
 	        Node flagsNode = doc.selectSingleNode("PopUp/flags");
@@ -224,7 +225,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 		clone.setManeuverLocation(destination.clone());
 	    clone.setDuration(getDuration());
 	    clone.setRadiusTolerance((getRadiusTolerance()));
-	    clone.setUnits(getUnits());
+	    clone.setSpeedUnits(getUnits());
 	    clone.setSpeed(getSpeed());
 	    clone.setSpeedTolerance(getSpeedTolerance());
 	    clone.setCurrPos(isCurrPos());
@@ -269,7 +270,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
         return units;
     }
     
-    public void setUnits(String units) {
+    public void setSpeedUnits(String units) {
         this.units = units;
     }
     
@@ -330,7 +331,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
     	
     	for (Property p : properties) {
     		if (p.getName().equals("Speed units")) {
-    			setUnits((String)p.getValue());
+    			setSpeedUnits((String)p.getValue());
     		}
     		//if (p.getName().equals("Speed tolerance")) {
     		//	setSpeedTolerance((Double)p.getValue());
@@ -464,13 +465,13 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 
     	switch (msgPopup.getSpeedUnits()) {
     	    case METERS_PS:
-    	        setUnits("m/s");
+    	        setSpeedUnits("m/s");
     	        break;
     	    case RPM:
-    	        setUnits("RPM");
+    	        setSpeedUnits("RPM");
     	        break;
     	    case PERCENTAGE:
-    	        setUnits("%");
+    	        setSpeedUnits("%");
     	        break;
     	    default:
     	        break;
@@ -479,8 +480,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
         setRadiusTolerance(msgPopup.getRadius());
     	setDuration(msgPopup.getDuration());
     	ManeuverLocation pos = new ManeuverLocation();
-    	pos.setLatitudeDegs(Math.toDegrees(msgPopup.getLat()));
-    	pos.setLongitudeDegs(Math.toDegrees(msgPopup.getLon()));
+    	pos.setLatitudeRads(msgPopup.getLat());
+    	pos.setLongitudeRads(msgPopup.getLon());
     	pos.setZ(msgPopup.getZ());
         pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(msgPopup.getZUnits().toString()));
         setManeuverLocation(pos);
@@ -497,9 +498,10 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    pt.lsts.imc.PopUp msg = new pt.lsts.imc.PopUp();
 	    msg.setTimeout(getMaxTime());
 	    //double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
-	    getManeuverLocation().convertToAbsoluteLatLonDepth();
-	    msg.setLat(getManeuverLocation().getLatitudeRads());
-	    msg.setLon(getManeuverLocation().getLongitudeRads());
+	    LocationType loc = getManeuverLocation();
+	    loc.convertToAbsoluteLatLonDepth();
+	    msg.setLat(loc.getLatitudeRads());
+	    msg.setLon(loc.getLongitudeRads());
 		msg.setZ(getManeuverLocation().getZ());
 		msg.setZUnits(getManeuverLocation().getZUnits().toString());
 	    msg.setDuration(getDuration());
@@ -543,7 +545,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
         PopUp popup = new PopUp();
         popup.setRadiusTolerance(10);
         popup.setSpeed(1.2);
-        popup.setUnits("m/s");
+        popup.setSpeedUnits("m/s");
         popup.setDuration(300);
         
         popup.setCurrPos(true);

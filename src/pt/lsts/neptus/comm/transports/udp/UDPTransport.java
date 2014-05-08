@@ -627,7 +627,7 @@ public class UDPTransport {
                         }
                     }
                     catch (InterruptedException e) {
-                        NeptusLog.pub().warn(this + " Thread interrupted");
+                        NeptusLog.pub().debug(this + " Thread interrupted");
                     }
 
                     NeptusLog.pub().info(this + " Thread Stopped");
@@ -690,7 +690,7 @@ public class UDPTransport {
                     }
                 }
                 catch (InterruptedException e) {
-                    NeptusLog.pub().warn(this + " Thread interrupted");
+                    NeptusLog.pub().debug(this + " Thread interrupted");
                     informDeliveryListener(req, ResultEnum.Error, e);
                 }
 

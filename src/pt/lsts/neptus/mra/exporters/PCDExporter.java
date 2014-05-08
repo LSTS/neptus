@@ -44,10 +44,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.ProgressMonitor;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 import pt.lsts.imc.IMCMessage;
@@ -56,6 +59,7 @@ import pt.lsts.imc.IMCMessage;
  * 83P to Point Cloud Data exporter
  * @author jqcorreia
  */
+@PluginDescription
 public class PCDExporter implements MRAExporter{
     public double minLat = 180;
     public double maxLat = -180;
@@ -81,7 +85,7 @@ public class PCDExporter implements MRAExporter{
     }
     
     @SuppressWarnings("unused")
-    public String process() {
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         RandomAccessFile buf;
         FileInputStream fis;
         FileChannel channel;
@@ -453,7 +457,7 @@ public class PCDExporter implements MRAExporter{
         try {
             IMraLogGroup source = new LsfLogSource(new File(args[0]+"/Data.lsf"), null);
             PCDExporter pcde = new PCDExporter(source);
-            pcde.process();
+            pcde.process(source, null);
         }
         
         catch (Exception e) {

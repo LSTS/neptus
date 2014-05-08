@@ -47,7 +47,6 @@ import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -167,16 +166,6 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
         }
     }
 
-    
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.Maneuver#ManeuverFunction(pt.lsts.neptus.mp.VehicleState)
-     */
-    @Override
-    public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     @Override
     public ManeuverLocation getManeuverLocation() {
         return location.clone();
@@ -242,8 +231,10 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
         pt.lsts.imc.CompassCalibration man = new pt.lsts.imc.CompassCalibration();
 
         man.setTimeout(getMaxTime());
-        man.setLat(getManeuverLocation().getLatitudeRads());
-        man.setLon(getManeuverLocation().getLongitudeRads());
+        LocationType loc = getManeuverLocation();
+        loc.convertToAbsoluteLatLonDepth();
+        man.setLat(loc.getLatitudeRads());
+        man.setLon(loc.getLongitudeRads());
         man.setZ(getManeuverLocation().getZ());
         man.setZUnits(getManeuverLocation().getZUnits().toString());
         man.setPitch(Math.toRadians(pitchDegs));
@@ -285,8 +276,8 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
         
         setMaxTime(man.getTimeout());
         ManeuverLocation loc = new ManeuverLocation();
-        loc.setLatitudeDegs(Math.toDegrees(man.getLat()));
-        loc.setLongitudeDegs(Math.toDegrees(man.getLon()));
+        loc.setLatitudeRads(man.getLat());
+        loc.setLongitudeRads(man.getLon());
         loc.setZ(man.getZ());
         loc.setZUnits(ManeuverLocation.Z_UNITS.valueOf(man.getZUnits().toString()));
         setManeuverLocation(loc);

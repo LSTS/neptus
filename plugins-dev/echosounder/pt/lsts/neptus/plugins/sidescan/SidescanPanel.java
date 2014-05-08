@@ -32,8 +32,10 @@
 package pt.lsts.neptus.plugins.sidescan;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.event.ComponentAdapter;
@@ -179,13 +181,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     //    private SidescanPoint mouseSidescanPoint; // Mouse position geographical location
     private SidescanLine mouseSidescanLine;
 
-    private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(110, 60, Transparency.BITMASK);
+    private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(120, 60, Transparency.BITMASK);
 
     private List<SidescanLine> lineList = Collections.synchronizedList(new ArrayList<SidescanLine>());
     private ArrayList<SidescanLine> drawList = new ArrayList<SidescanLine>();
     private ArrayList<SidescanLine> removeList = new ArrayList<SidescanLine>();
 
-    private NumberFormat altFormat = GuiUtils.getNeptusDecimalFormat(2);
+    private NumberFormat altFormat = GuiUtils.getNeptusDecimalFormat(1);
 
     private SidescanParser ssParser;
 
@@ -235,7 +237,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         view.addMouseListener(this);
         view.addMouseMotionListener(this);
 
-        setLayout(new MigLayout("ins 0, gap 0"));
+        setLayout(new MigLayout("ins 0, gap 5"));
         add(toolbar, "w 100%, wrap");
         add(view, "w 100%, h 100%");
     }
@@ -363,10 +365,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             location2d.clearRect(0, 0, mouseLocationImage.getWidth(), mouseLocationImage.getHeight());
             location2d.drawString(CoordinateUtil.dmToLatString(CoordinateUtil.decimalDegreesToDM(loc.getLatitudeDegs())), 5, 15);
             location2d.drawString(CoordinateUtil.dmToLonString(CoordinateUtil.decimalDegreesToDM(loc.getLongitudeDegs())), 5, 26);
-            location2d.drawString(altStr+": " + altFormat.format(mouseSidescanLine.state.getAltitude()), 5, 37);
-            location2d.drawString(rollStr+": " + altFormat.format(Math.toDegrees(mouseSidescanLine.state.getRoll())), 5, 48);
+            location2d.drawString(altStr+": " + altFormat.format(mouseSidescanLine.state.getAltitude()) + " m", 5, 37);
+            location2d.drawString(rollStr+": " + altFormat.format(Math.toDegrees(mouseSidescanLine.state.getRoll())) + "\u00B0", 5, 48);
 
-            g.drawImage(mouseLocationImage, 10, 10, null);
+            g.drawImage(mouseLocationImage, 10, 20, null);
         }
     }
 
@@ -463,19 +465,32 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private void drawRuler(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
 
+        int fontSize = 11;
+        int maxesSize = 15;
+
         // Draw Horizontal Line
         g2d.drawLine(0, 0, layer.getWidth(), 0);
 
+        Rectangle drawRulerHere = new Rectangle(0, 0, layer.getWidth(), maxesSize);
+        g2d.setColor(Color.LIGHT_GRAY);
+        g2d.fill(drawRulerHere);
+
+        g2d.setFont(new Font("SansSerif", Font.PLAIN, fontSize));
+        g2d.setColor(Color.BLACK);
+
+        // Draw top line
+        g2d.drawLine(0, 0, layer.getWidth(), 0);
+
         // Draw the zero
-        g2d.drawLine(layer.getWidth() / 2, 0, layer.getWidth() / 2, 10);
-        g2d.drawString("0", layer.getWidth() / 2 - 10, 10);
+        g2d.drawLine(layer.getWidth() / 2, 0, layer.getWidth() / 2, maxesSize);
+        g2d.drawString("0", layer.getWidth() / 2 - 10, fontSize);
 
         //Draw the maxes
-        g2d.drawLine(0, 0, 0, 10);
-        g2d.drawString("" + (int)range, 2 , 10);
+        g2d.drawLine(0, 0, 0, 15);
+        g2d.drawString("" + (int)range, 2 , 11);
 
-        g2d.drawLine(layer.getWidth()-1, 0, layer.getWidth()-1, 10);
-        g2d.drawString("" + (int)range, layer.getWidth() - 20, 10);
+        g2d.drawLine(layer.getWidth()-1, 0, layer.getWidth()-1, maxesSize);
+        g2d.drawString("" + (int)range, layer.getWidth() - 20, fontSize);
 
         double step = (layer.getWidth() / ((range * 2) / rangeStep));
         double r = rangeStep;
@@ -484,12 +499,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         int c2 = (int) (layer.getWidth() / 2 + step);
 
         for(; c1 > 0; c1 -= step, c2 += step, r += rangeStep) {
-            g2d.drawLine(c1, 0, c1, 10);
-            g2d.drawLine(c2, 0, c2, 10);
-            g2d.drawString("" + (int)r, c1 + 5, 10);
-            g2d.drawString("" + (int)r, c2 - 20, 10);
+            g2d.drawLine(c1, 0, c1, maxesSize);
+            g2d.drawLine(c2, 0, c2, maxesSize);
+            g2d.drawString("" + (int)r, c1 + 5, fontSize);
+            g2d.drawString("" + (int)r, c2 - 20, fontSize);
         }
-
     }
 
     @SuppressWarnings("unused")
@@ -614,13 +628,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 // int x = (int) (mouseX * (mouseSidescanLine.xsize / (float)image.getWidth()));
                 int x = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
 
-                //                System.out.println("------------" + mouseX + "       " + x);
-                //                System.out.println("------------" + mouseSidescanLine.calcPointForCoord(mouseX) + "       " + mouseSidescanLine.calcPointForCoord(x));
                 pointList.add(mouseSidescanLine.calcPointForCoord(x));
-                //NeptusLog.pub().info("mouse coord X: " + mouseSidescanLine.calcPointForCoord(mouseX).x);
-                //NeptusLog.pub().info("mouse coord Y: " + mouseSidescanLine.calcPointForCoord(mouseX).y);
 
-                //NeptusLog.pub().info("Size pointList.size() :" + pointList.size());
                 if (pointList.size() > 2) {
                     pointList.clear();
                 }
@@ -645,8 +654,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             if(res != null) {
 
                 if (initialX == mouseX && initialY == mouseY) {
-                    NeptusLog.pub().info("Point mark");
-
                     SidescanLine sl = null;
                     for (SidescanLine line : lineList) {
                         if (initialY >= line.ypos && initialY <= (line.ypos + line.ysize)) {
@@ -701,8 +708,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                             .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, Math
                             .abs(mouseX - initialX), Math.abs(mouseY - initialY)));
                 }
-
-
             }
             marking = false;
         }

@@ -46,11 +46,11 @@ import pt.lsts.neptus.console.actions.OpenConsoleAction;
 import pt.lsts.neptus.console.actions.RunChecklistConsoleAction;
 import pt.lsts.neptus.console.actions.SaveAsConsoleAction;
 import pt.lsts.neptus.console.actions.SaveConsoleAction;
+import pt.lsts.neptus.console.plugins.SettingsWindow;
 import pt.lsts.neptus.gui.Loader;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
-import pt.lsts.neptus.plugins.configWindow.SettingsWindow;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -59,7 +59,6 @@ import pt.lsts.neptus.util.Dom4JUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
 @SuppressWarnings("serial")
 public class LAUVConsole extends ConsoleLayout {
     public static final int CLOSE_ACTION = JFrame.EXIT_ON_CLOSE;
@@ -118,7 +117,7 @@ public class LAUVConsole extends ConsoleLayout {
         loader.setText(I18n.text("Loading console..."));
 
         NeptusLog.pub().info("Loading " + LAUVConsole.class.getSimpleName() + ".");
-        
+
         final LAUVConsole cls = new LAUVConsole();
         cls.imcOn();
         // ConsoleParse.loadConsole(cls, ConfigFetch.resolvePath(consoleURL));
@@ -162,7 +161,7 @@ public class LAUVConsole extends ConsoleLayout {
         cls.getMainPanel().setRelayoutOnResize(true);
         cls.setResizable(true);
         // }
-        
+
         // 20130122 This has to be not called other wise the main panel is not shown
         // try {
         //  cls.maximizePanel((SubPanel) cls.mainPanel.getComponent(0));
@@ -195,8 +194,8 @@ public class LAUVConsole extends ConsoleLayout {
                     cls.setMainSystem(dVeh.getName());
             }
         }
-        
-        
+
+
         cls.setVisible(true);
         return cls;
     }
@@ -206,7 +205,6 @@ public class LAUVConsole extends ConsoleLayout {
     }
 
     public static void main(String[] args) {
-        ConfigFetch.initialize();
         GuiUtils.setLookAndFeel();
 
         loader = new Loader("images/neptus_loader_light.png");

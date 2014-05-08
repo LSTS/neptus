@@ -43,26 +43,26 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.tools.shell.Global;
 
+import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp
  * 
  */
-public class ScriptedPlot extends MraTimeSeriesPlot {
+public class ScriptedPlot extends MRATimeSeriesPlot {
 
     protected LinkedHashMap<String, String> traces = new LinkedHashMap<>();
     protected LinkedHashMap<String, String> hiddenTraces = new LinkedHashMap<>();
     protected LinkedHashMap<String, Script> scripts = new LinkedHashMap<>();
-    
+
     protected String init = null, end = null;
     protected Script initScript = null, endScript = null;
-    
+
     protected ScriptableIndex scIndex = null;
     protected Context context;
     protected Global global;
@@ -90,20 +90,20 @@ public class ScriptedPlot extends MraTimeSeriesPlot {
             while((line = reader.readLine()) != null) {
                 if (line.trim().isEmpty() || line.trim().startsWith("#"))
                     continue;
-                
+
                 while (line.endsWith("\\")) {
                     line = line.substring(0, line.length()-1) + reader.readLine();
                 }
-                
+
                 String parts[] = line.trim().split(":");
 
                 String script = parts[1];
-                
+
                 script = script.replaceAll("\\$\\{([^\\}]*)\\}", "log.val(\"$1\")");
                 script = script.replaceAll("mark\\(([^\\)]+)\\)", "log.mark($1)");
                 script = script.replaceAll("\\$time", "log.time()");
                 script = script.replaceAll("\\$(\\w+)", "env[\"$1\"]");
-                
+
                 if (parts[0].isEmpty())
                     hiddenTraces.put(parts[1], script);
                 else if (parts[0].equals("init"))
@@ -113,7 +113,7 @@ public class ScriptedPlot extends MraTimeSeriesPlot {
                 else
                     traces.put(parts[0], script);                
             }
-            
+
             reader.close();
         }
         catch (Exception e) {
@@ -141,7 +141,7 @@ public class ScriptedPlot extends MraTimeSeriesPlot {
             }
             NeptusLog.pub().info("<###>init");
         }
-        
+
         if (end != null) {
             try {
                 endScript = context.compileString(end, "end", 1, null);
@@ -152,7 +152,7 @@ public class ScriptedPlot extends MraTimeSeriesPlot {
             }
             NeptusLog.pub().info("<###>end");
         }
-        
+
         for (Entry<String, String> t : traces.entrySet()) {
             String script = t.getValue();
             try {
@@ -193,7 +193,7 @@ public class ScriptedPlot extends MraTimeSeriesPlot {
 
         if (initScript != null)
             initScript.exec(context, global);        
-        
+
         double step = Math.max(timestep, 0.05);
         for (int i = index.advanceToTime(0, step); i != -1; 
                 i = index.advanceToTime(i, index.timeOf(i) + step)) {
@@ -212,10 +212,10 @@ public class ScriptedPlot extends MraTimeSeriesPlot {
                 }
             }            
         }
-        
+
         if (endScript != null)
             endScript.exec(context, global);
-        
+
     }
 
     /**
@@ -239,11 +239,11 @@ public class ScriptedPlot extends MraTimeSeriesPlot {
             this.lsfIndex = source;
             this.lsfPos = curIndex;            
         }
-        
+
         public void mark(double time, String label) {
             mraPanel.addMarker(new LogMarker(label, time * 1000,0,0));
         }
-        
+
         public void mark(String label) {
             mark(lsfIndex.timeOf(lsfPos), label);
         }
@@ -296,7 +296,7 @@ public class ScriptedPlot extends MraTimeSeriesPlot {
             else {
                 int msgIdx = index.getPreviousMessageOfType(msgType, lsfPos);
                 while (msgIdx >= prevPos) {
-                    
+
                     if (msgIdx == -1)
                         return Double.NaN;
                     else if (index.entityNameOf(msgIdx).equals(entity)) {

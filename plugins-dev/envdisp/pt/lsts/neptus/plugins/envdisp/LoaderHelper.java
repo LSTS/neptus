@@ -43,8 +43,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.util.DateTimeUtil;
-import ucar.ma2.ArrayFloat;
+import ucar.ma2.Array;
+import ucar.ma2.Index3D;
 import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
@@ -156,6 +158,204 @@ public class LoaderHelper {
         return hfdp;
     }
 
+    public static final HashMap<String, HFRadarDataPoint> processNetCDFHFRadar(String fileName, Date dateLimit) {
+        boolean ignoreDateLimitToLoad = false;
+        if (dateLimit == null)
+            ignoreDateLimitToLoad = true;
+        
+        HashMap<String, HFRadarDataPoint> hfdp = new HashMap<>();
+        NetcdfFile dataFile = null;
+        
+        try {
+
+          dataFile = NetcdfFile.open(fileName, null);
+
+          // Get the latitude and longitude Variables.
+          Variable latVar = dataFile.findVariable("lat");
+          if (latVar == null) {
+            System.out.println("Cant find Variable lat");
+            return hfdp;
+          }
+
+          Variable lonVar = dataFile.findVariable("lon");
+          if (lonVar == null) {
+            System.out.println("Cant find Variable lon");
+            return hfdp;
+          }
+
+          Variable timeVar = dataFile.findVariable("time");
+          if (timeVar == null) {
+            System.out.println("Cant find Variable time");
+            return hfdp;
+          }
+
+          // Get the latitude and longitude Variables.
+          Variable uVar = dataFile.findVariable("u");
+          if (uVar == null) {
+            System.out.println("Cant find Variable u");
+            return hfdp;
+          }
+
+          // Get the latitude and longitude Variables.
+          Variable vVar = dataFile.findVariable("v");
+          if (vVar == null) {
+            System.out.println("Cant find Variable v");
+            return hfdp;
+          }
+
+//          // see if float or double
+//          String timeType = "float";
+//          Attribute timeTypeAtt = timeVar.findAttribute("dataType");
+//          if (timeTypeAtt != null)
+//              timeType = (String) timeTypeAtt.getValue(0);
+
+          
+          // Get the lat/lon data from the file.
+          Array latArray;  // ArrayFloat.D1
+          Array lonArray;  // ArrayFloat.D1
+          Array timeArray; // ArrayFloat.D1
+          Array uArray;    // ArrayFloat.D3
+          Array vArray;    // ArrayFloat.D3
+
+//          latArray = (ArrayFloat.D1) latVar.read();
+//          lonArray = (ArrayFloat.D1) lonVar.read();
+//          timeArray = (ArrayFloat.D1) timeVar.read();
+//          uArray = (ArrayFloat.D3) uVar.read();
+//          vArray = (ArrayFloat.D3) vVar.read();
+          latArray = latVar.read();
+          lonArray = lonVar.read();
+          timeArray = timeVar.read();
+          uArray = uVar.read();
+          vArray = vVar.read();
+          
+          int [] shape = uVar.getShape();
+
+          String timeUnits = "days since 00-01-00 00:00:00"; // "seconds since 2013-07-04 00:00:00"
+          Attribute timeUnitsAtt = timeVar.findAttribute("units");
+          if (timeUnitsAtt != null)
+              timeUnits = (String) timeUnitsAtt.getValue(0);
+          double[] multAndOffset = getMultiplierAndMillisOffsetFromTimeUnits(timeUnits);
+          if (multAndOffset == null) {
+              System.out.println("Cant parse units for Variable time");
+              return hfdp;
+          }
+              
+          double timeMultiplier = multAndOffset[0];
+          double timeOffset = multAndOffset[1];
+          
+          double uFillValue = Double.NaN;
+          double vFillValue = Double.NaN;
+          Attribute uFillValueAtt = uVar.findAttribute("_FillValue");
+          if (uFillValueAtt != null) {
+              try {
+                  uFillValue = (double) uFillValueAtt.getValue(0);
+              } 
+              catch (ClassCastException e) {
+                  // e.printStackTrace();
+                  uFillValue = Double.parseDouble((String) uFillValueAtt.getValue(0));
+              }
+          }
+          Attribute vFillValueAtt = vVar.findAttribute("_FillValue");
+          if (vFillValueAtt != null) {
+              try {
+                  vFillValue = (double) vFillValueAtt.getValue(0);
+              } 
+              catch (ClassCastException e) {
+                  // e.printStackTrace();
+                  vFillValue = Double.parseDouble((String) vFillValueAtt.getValue(0));
+              }
+          }
+          
+          // ucar.ma2.MAMath.
+          // ucar.ma2.DataType.
+
+          String uUnits = "cm/s";
+          Attribute uUnitsAtt = uVar.findAttribute("units");
+          if (uUnitsAtt != null)
+              uUnits = (String) uUnitsAtt.getValue(0);
+          String vUnits = "cm/s";
+          Attribute vUnitsAtt = uVar.findAttribute("units");
+          if (vUnitsAtt != null)
+              vUnits = (String) vUnitsAtt.getValue(0);
+
+//          String uDimentions = "time,lat,lon";
+//          Attribute uDimentionsAtt = uVar.findAttribute("dimentions");
+//          if (uDimentionsAtt != null)
+//              uDimentions = (String) uDimentionsAtt.getValue(0);
+
+          Pair<Integer, Integer> latLonIndexOrder = getLatLonIndexOrder(uVar.getDimensionsString());
+          
+            // int count = 0;
+          for (int timeIdx = 0; timeIdx < shape[0]; timeIdx++) {
+              double timeVal = timeArray.getDouble(timeIdx); // get(timeIdx);
+              Date dateValue = new Date((long) (timeVal * timeMultiplier + timeOffset));
+              
+              if (!ignoreDateLimitToLoad && dateValue.before(dateLimit)) {
+                  continue;
+              }
+              
+              for (int latOrLonFirstIdx = 0; latOrLonFirstIdx < shape[1]; latOrLonFirstIdx++) {
+                  for (int latOrLonSecondIdx = 0; latOrLonSecondIdx < shape[2]; latOrLonSecondIdx++) {
+                      double lat = latArray.getDouble(latLonIndexOrder.first() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
+                      double lon = lonArray.getDouble(latLonIndexOrder.second() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
+
+                      Index3D idx3d = (Index3D) uArray.getIndex();
+                      idx3d.set(timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
+                      double u = uArray.getDouble(idx3d); // (timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
+                      idx3d = (Index3D) vArray.getIndex();
+                      idx3d.set(timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
+                      double v = vArray.getDouble(idx3d); // (timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
+                      if (!Double.isNaN(u) && !Double.isNaN(v)
+                              && u != uFillValue && v != vFillValue) {
+                          u = u * getMultiplierForCmPerSecondsFromSpeedUnits(uUnits);
+                          v = v * getMultiplierForCmPerSecondsFromSpeedUnits(vUnits);
+                          double speedCmS = Math.sqrt(u * u + v * v);
+                          double heading = Math.atan2(v, u);
+
+                          HFRadarDataPoint dp = new HFRadarDataPoint(lat, lon);
+                          dp.setSpeedCmS(speedCmS);
+                          dp.setHeadingDegrees(Math.toDegrees(heading));
+                          dp.setDateUTC(dateValue);
+
+                          HFRadarDataPoint dpo = hfdp.get(HFRadarDataPoint.getId(dp));
+                          if (dpo == null) {
+                              dpo = dp.getACopyWithoutHistory();
+                              hfdp.put(HFRadarDataPoint.getId(dp), dp);
+                          }
+
+                          ArrayList<HFRadarDataPoint> lst = dpo.getHistoricalData();
+                          boolean alreadyIn = false;
+                          for (HFRadarDataPoint tmpDp : lst) {
+                              if (tmpDp.getDateUTC().equals(dp.getDateUTC())) {
+                                  alreadyIn = true;
+                                  break;
+                              }
+                          }
+                          if (!alreadyIn) {
+                              dpo.getHistoricalData().add(dp);
+                          }
+                      }
+                        // count++;
+                  }
+             }
+          }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } 
+        finally {
+          if (dataFile != null)
+            try {
+              dataFile.close();
+            } catch (IOException ioe) {
+              ioe.printStackTrace();
+            }
+        }
+        
+        return hfdp;
+    }
+
     public static final HashMap<?, ?>[] processMeteo(String fileName, Date dateLimit) {
         boolean ignoreDateLimitToLoad = false;
         if (dateLimit == null)
@@ -211,19 +411,19 @@ public class LoaderHelper {
 
 
           // Get the lat/lon data from the file.
-          ArrayFloat.D1 latArray;
-          ArrayFloat.D1 lonArray;
-          ArrayFloat.D1 timeArray;
-          ArrayFloat.D3 uArray;
-          ArrayFloat.D3 vArray;
-          ArrayFloat.D3 sstArray;
+          Array latArray;  // ArrayFloat.D1
+          Array lonArray;  // ArrayFloat.D1
+          Array timeArray; //ArrayFloat.D1
+          Array uArray;    // ArrayFloat.D3
+          Array vArray;    // ArrayFloat.D3
+          Array sstArray;  // ArrayFloat.D3
 
-          latArray = (ArrayFloat.D1) latVar.read();
-          lonArray = (ArrayFloat.D1) lonVar.read();
-          timeArray = (ArrayFloat.D1) timeVar.read();
-          uArray = (ArrayFloat.D3) uVar.read();
-          vArray = (ArrayFloat.D3) vVar.read();
-          sstArray = (ArrayFloat.D3) sstVar.read();
+          latArray = latVar.read();
+          lonArray = lonVar.read();
+          timeArray = timeVar.read();
+          uArray = uVar.read();
+          vArray = vVar.read();
+          sstArray = sstVar.read();
           
           int [] shape = uVar.getShape();
 //          int recLen = shape[0]; // number of times
@@ -293,35 +493,54 @@ public class LoaderHelper {
               }
           }
           
-            // String uUnits = "cm/s";
-            // Attribute uUnitsAtt = uVar.findAttribute("units");
-            // if (uUnitsAtt != null)
-            // uUnits = (String) uUnitsAtt.getValue(0);
-            // String vUnits = "cm/s";
-            // Attribute vUnitsAtt = uVar.findAttribute("units");
-            // if (vUnitsAtt != null)
-            // vUnits = (String) vUnitsAtt.getValue(0);
+          String uUnits = "cm/s";
+          Attribute uUnitsAtt = uVar.findAttribute("units");
+          if (uUnitsAtt != null)
+              uUnits = (String) uUnitsAtt.getValue(0);
+          String vUnits = "cm/s";
+          Attribute vUnitsAtt = uVar.findAttribute("units");
+          if (vUnitsAtt != null)
+              vUnits = (String) vUnitsAtt.getValue(0);
+          String sstUnits = "K";
+          Attribute sstUnitsAtt = sstVar.findAttribute("units");
+          if (sstUnitsAtt != null)
+              sstUnits = (String) sstUnitsAtt.getValue(0);
           
+//          String uDimentions = "time,lat,lon";
+//          Attribute uDimentionsAtt = uVar.findAttribute("dimentions");
+//          if (uDimentionsAtt != null)
+//              uDimentions = (String) uDimentionsAtt.getValue(0);
+
+          Pair<Integer, Integer> latLonIndexOrder = getLatLonIndexOrder(uVar.getDimensionsString());
+
             // int count = 0;
           for (int timeIdx = 0; timeIdx < shape[0]; timeIdx++) {
-              float timeVal = timeArray.get(timeIdx);
+              double timeVal = timeArray.getDouble(timeIdx); // get(timeIdx);
               Date dateValue = new Date((long) (timeVal * timeMultiplier + timeOffset));
               
               if (!ignoreDateLimitToLoad && dateValue.before(dateLimit)) {
                   continue;
               }
               
-              for (int lonIdx = 0; lonIdx < shape[1]; lonIdx++) {
-                  double lon = lonArray.getDouble(lonIdx);
-                  for (int latIdx = 0; latIdx < shape[2]; latIdx++) {
-                      double lat = latArray.getDouble(latIdx);
+              for (int latOrLonFirstIdx = 0; latOrLonFirstIdx < shape[1]; latOrLonFirstIdx++) {
+                  for (int latOrLonSecondIdx = 0; latOrLonSecondIdx < shape[2]; latOrLonSecondIdx++) {
+                      double lat = latArray.getDouble(latLonIndexOrder.first() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
+                      double lon = lonArray.getDouble(latLonIndexOrder.second() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
 
-                      double u = uArray.get(timeIdx, lonIdx, latIdx);
-                      double v = vArray.get(timeIdx, lonIdx, latIdx);
-                      double sst = sstArray.get(timeIdx, lonIdx, latIdx);
+                      Index3D idx3d = (Index3D) uArray.getIndex();
+                      idx3d.set(timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
+                      double u = uArray.getDouble(idx3d); // (timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
+                      idx3d = (Index3D) vArray.getIndex();
+                      idx3d.set(timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
+                      double v = vArray.getDouble(idx3d); // (timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
+                      idx3d = (Index3D) sstArray.getIndex();
+                      idx3d.set(timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
+                      double sst = sstArray.getDouble(idx3d);
                       if (!Double.isNaN(u) && !Double.isNaN(v)
                               && u != uFillValue && v != vFillValue) {
                           WindDataPoint dp = new WindDataPoint(lat, lon);
+                          u = u * getMultiplierForCmPerSecondsFromSpeedUnits(uUnits);
+                          v = v * getMultiplierForCmPerSecondsFromSpeedUnits(vUnits);
                           dp.setU(u);
                           dp.setV(v);
                           dp.setDateUTC(dateValue);
@@ -346,7 +565,8 @@ public class LoaderHelper {
                       }
                       if (!Double.isNaN(sst) && sst != sstFillValue) {
                           SSTDataPoint dp = new SSTDataPoint(lat, lon);
-                          dp.setSst(sst + SSTDataPoint.KELVIN_TO_CELSIUS);
+                          sst = getValueForDegreesCelciusFromTempUnits(sst, sstUnits);
+                          dp.setSst(sst); //) + SSTDataPoint.KELVIN_TO_CELSIUS);
                           dp.setDateUTC(dateValue);
 
                           SSTDataPoint dpo = sstdp.get(SSTDataPoint.getId(dp));
@@ -384,7 +604,7 @@ public class LoaderHelper {
               ioe.printStackTrace();
             }
         }
-        System.out.println("*** SUCCESS reading file "+fileName);
+        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
 
         return new HashMap[] { sstdp, winddp };
     }
@@ -443,19 +663,19 @@ public class LoaderHelper {
 
 
           // Get the lat/lon data from the file.
-          ArrayFloat.D1 latArray;
-          ArrayFloat.D1 lonArray;
-          ArrayFloat.D1 timeArray;
-          ArrayFloat.D3 hsArray;
-          ArrayFloat.D3 tpArray;
-          ArrayFloat.D3 pdirArray;
+          Array latArray;  // ArrayFloat.D1
+          Array lonArray;  // ArrayFloat.D1
+          Array timeArray; // ArrayFloat.D1
+          Array hsArray;   // ArrayFloat.D3
+          Array tpArray;   // ArrayFloat.D3
+          Array pdirArray; // ArrayFloat.D3
 
-          latArray = (ArrayFloat.D1) latVar.read();
-          lonArray = (ArrayFloat.D1) lonVar.read();
-          timeArray = (ArrayFloat.D1) timeVar.read();
-          hsArray = (ArrayFloat.D3) hsVar.read();
-          tpArray = (ArrayFloat.D3) tpVar.read();
-          pdirArray = (ArrayFloat.D3) pdirVar.read();
+          latArray = latVar.read();
+          lonArray = lonVar.read();
+          timeArray = timeVar.read();
+          hsArray = hsVar.read();
+          tpArray = tpVar.read();
+          pdirArray = pdirVar.read();
           
           int [] shape = hsVar.getShape();
 
@@ -518,23 +738,36 @@ public class LoaderHelper {
 //          if (vUnitsAtt != null)
 //              vUnits = (String) vUnitsAtt.getValue(0);
           
+//          String uDimentions = "time,lat,lon";
+//          Attribute uDimentionsAtt = hsVar.findAttribute("dimensions");
+//          if (uDimentionsAtt != null)
+//              uDimentions = (String) uDimentionsAtt.getValue(0);
+
+          Pair<Integer, Integer> latLonIndexOrder = getLatLonIndexOrder(hsVar.getDimensionsString());
+
             // int count = 0;
           for (int timeIdx = 0; timeIdx < shape[0]; timeIdx++) {
-              float timeVal = timeArray.get(timeIdx);
+              double timeVal = timeArray.getDouble(timeIdx); // get(timeIdx);
               Date dateValue = new Date((long) (timeVal * timeMultiplier + timeOffset));
               
               if (!ignoreDateLimitToLoad && dateValue.before(dateLimit)) {
                   continue;
               }
               
-              for (int lonIdx = 0; lonIdx < shape[1]; lonIdx++) {
-                  double lon = lonArray.getDouble(lonIdx);
-                  for (int latIdx = 0; latIdx < shape[2]; latIdx++) {
-                      double lat = latArray.getDouble(latIdx);
+              for (int latOrLonFirstIdx = 0; latOrLonFirstIdx < shape[1]; latOrLonFirstIdx++) {
+                  for (int latOrLonSecondIdx = 0; latOrLonSecondIdx < shape[2]; latOrLonSecondIdx++) {
+                      double lat = latArray.getDouble(latLonIndexOrder.first() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
+                      double lon = lonArray.getDouble(latLonIndexOrder.second() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
 
-                      double hs = hsArray.get(timeIdx, lonIdx, latIdx);
-                      double tp = tpArray.get(timeIdx, lonIdx, latIdx);
-                      double pdir = pdirArray.get(timeIdx, lonIdx, latIdx);
+                      Index3D idx3d = (Index3D) hsArray.getIndex();
+                      idx3d.set(timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
+                      double hs = hsArray.getDouble(idx3d);
+                      idx3d = (Index3D) tpArray.getIndex();
+                      idx3d.set(timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
+                      double tp = tpArray.getDouble(idx3d);
+                      idx3d = (Index3D) pdirArray.getIndex();
+                      idx3d.set(timeIdx, latOrLonFirstIdx, latOrLonSecondIdx);
+                      double pdir = pdirArray.getDouble(idx3d);
                       if (!Double.isNaN(hs) && !Double.isNaN(tp) && !Double.isNaN(pdir)
                               && hs != hsFillValue && tp != tpFillValue && pdir != pdirFillValue) {
                           WavesDataPoint dp = new WavesDataPoint(lat, lon);
@@ -578,9 +811,32 @@ public class LoaderHelper {
               ioe.printStackTrace();
             }
         }
-        System.out.println("*** SUCCESS reading file "+fileName);
+        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
 
         return wavesdp;
+    }
+
+    /**
+     * @param uDimentions
+     * @returns
+     */
+    private static Pair<Integer, Integer> getLatLonIndexOrder(String uDimentions) {
+        Pair<Integer, Integer> ret = null;
+        if (uDimentions == null || uDimentions.length() == 0)
+            return ret;
+        
+        String[] tk = uDimentions.split("[, \t]");
+        if (tk.length < 3)
+            return ret;
+        
+        int latIdx= 1;
+        int lonIdx= 2;
+        if ("lon".equalsIgnoreCase(tk[1].trim())) {
+            latIdx= 2;
+            lonIdx= 1;
+        }
+        ret = new Pair<Integer, Integer>(latIdx, lonIdx);
+        return ret;
     }
 
     public static double[] getMultiplierAndMillisOffsetFromTimeUnits(String timeStr) {
@@ -627,6 +883,52 @@ public class LoaderHelper {
         }
     }
     
+    // FIXME better control of unit for speed
+    private static double getMultiplierForCmPerSecondsFromSpeedUnits(String speedUnits) {
+        double mult = 1;
+        switch (speedUnits.trim().toLowerCase()) {
+            case "cm/s":
+            case "cm s-1":
+            case "cm s^-1":
+            case "cm.s^-1":
+                mult = 1;
+                break;
+            case "m/s":
+            case "m s-1":
+            case "m s^-1":
+            case "m.s^-1":
+                mult = 100;
+                break;
+            case "ft/s":
+            case "ft s-1":
+            case "ft s^-1":
+            case "ft.s^-1":
+                mult = 0.3048 * 100;
+        }
+        
+        return mult;
+    }
+
+    /**
+     * @param value
+     * @param units
+     * @return
+     */
+    private static double getValueForDegreesCelciusFromTempUnits(double value, String units) {
+        double ret = value;
+        switch (units.trim()) {
+            case "K":
+                ret = value + SSTDataPoint.KELVIN_TO_CELSIUS;
+                break;
+            case "\u00B0F":
+            case "ºF":
+                ret = (value - 32) / 1.8;
+                break;
+        }
+
+        return ret;
+    }
+
     /**
      * @param args
      */

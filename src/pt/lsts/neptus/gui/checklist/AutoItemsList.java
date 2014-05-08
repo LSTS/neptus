@@ -78,13 +78,13 @@ public class AutoItemsList extends JPanel{
             public void actionPerformed(ActionEvent e) {
                 int Selection;
                 Selection = getOptionsList().getSelectedIndex();
-                if (Selection == 0) {
+                if (Selection == 2) {
                     AutoItemsList.this.add(new VariableIntervalItem(AutoItemsList.this));
                 }
-                else if(Selection == 1) {
+                else if (Selection == 0) {
                     AutoItemsList.this.add(new UserActionItem(AutoItemsList.this));
                 }
-                else if(Selection == 2) {
+                else if (Selection == 1) {
                     AutoItemsList.this.add(new UserCommentItem(AutoItemsList.this));
                 }
                 repaintCheck();
@@ -108,10 +108,10 @@ public class AutoItemsList extends JPanel{
 
     private JComboBox<?> getOptionsList() {
         if(optionsList==null) {
-            optionsListString = new String [3];
-            optionsListString[0] = "Variable Test";
-            optionsListString[1] = "User Action";
-            optionsListString[2] = "User Comment";
+            optionsListString = new String [2];
+            optionsListString[0] = "User Action";
+            optionsListString[1] = "User Comment";
+            // optionsListString[2] = "Variable Test";
 
             optionsList = new JComboBox<Object> (optionsListString);
         }

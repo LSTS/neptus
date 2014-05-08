@@ -34,11 +34,11 @@ package pt.lsts.neptus.plugins.gauges;
 import java.awt.BorderLayout;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.ConsoleScript;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 
 /**
@@ -47,7 +47,7 @@ import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
  */
 @SuppressWarnings("serial")
 @PluginDescription(author = "ZP", name = "Gauge Panel", description = "This panel displays a variable as a bar gauge", icon = "pt/lsts/neptus/plugins/gauges/gauges.png")
-public class GaugeSubPanel extends SimpleSubPanel implements ConfigurationListener, IPeriodicUpdates {
+public class GaugeSubPanel extends ConsolePanel implements ConfigurationListener, IPeriodicUpdates {
     private GaugeDisplay display = new GaugeDisplay();
     private ConsoleScript script = new ConsoleScript(), textScript = new ConsoleScript();
 

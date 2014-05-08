@@ -32,13 +32,13 @@
 package pt.lsts.neptus.params;
 
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 
 /**
  * @author zp
  */
 
-public class ImcParametersSubPanel extends SimpleSubPanel {
+public class ImcParametersSubPanel extends ConsolePanel {
     private static final long serialVersionUID = 1L;
     SystemConfiguration config;
     

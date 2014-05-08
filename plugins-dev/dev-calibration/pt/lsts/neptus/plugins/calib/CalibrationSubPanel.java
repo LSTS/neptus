@@ -53,11 +53,11 @@ import pt.lsts.imc.EntityList;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 
 import com.google.common.eventbus.Subscribe;
 import com.jogamp.newt.event.KeyEvent;
@@ -68,7 +68,7 @@ import com.jogamp.newt.event.KeyEvent;
  */
 @Popup(accelerator=KeyEvent.VK_F10, width=400, height=250)
 @PluginDescription(name="Device Calibration", icon="pt/lsts/neptus/plugins/calib/calib.png")
-public class CalibrationSubPanel extends SimpleSubPanel {
+public class CalibrationSubPanel extends ConsolePanel {
 
     private static final long serialVersionUID = 1L;
 

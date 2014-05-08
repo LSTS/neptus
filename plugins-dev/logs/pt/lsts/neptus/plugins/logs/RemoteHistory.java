@@ -46,18 +46,21 @@ import javax.swing.JMenuItem;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LogBookControl;
 import pt.lsts.imc.LogBookControl.COMMAND;
 import pt.lsts.imc.LogBookEntry;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.logs.HistoryMessage.msg_type;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.ImageUtils;
@@ -69,7 +72,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "Remote History", icon = "pt/lsts/neptus/plugins/logs/queue.png", documentation = "entity-state/remotehistory.html")
-public class RemoteHistory extends SimpleSubPanel implements NeptusMessageListener, MainVehicleChangeListener {
+public class RemoteHistory extends ConsolePanel implements NeptusMessageListener, MainVehicleChangeListener {
 
     // @NeptusProperty(name = "Show popup messages when receiveing events")
     // private final boolean showPopups = true;
@@ -137,7 +140,7 @@ public class RemoteHistory extends SimpleSubPanel implements NeptusMessageListen
     @Override
     public void initSubPanel() {
         p.console = getConsole();
-        JMenu menu = console.getOrCreateJMenu(new String[] { I18n.text("View") });
+        JMenu menu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
         menu.add(menuItem);
     };
 
@@ -148,7 +151,7 @@ public class RemoteHistory extends SimpleSubPanel implements NeptusMessageListen
         }
         
         if (menuItem != null) {
-            JMenu menu = console.getOrCreateJMenu(new String[] { I18n.text("View") });
+            JMenu menu = getConsole().getOrCreateJMenu(new String[] { I18n.text("View") });
             menu.remove(menuItem);
         }
     }
@@ -167,8 +170,8 @@ public class RemoteHistory extends SimpleSubPanel implements NeptusMessageListen
         return new String[] { "LogBookControl", "LogBookEntry" };
     }
 
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange e) {
         clearHistory();
     }
 

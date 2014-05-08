@@ -41,6 +41,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -62,6 +63,7 @@ import javax.swing.undo.UndoManager;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.gui.MenuScroller;
 import pt.lsts.neptus.gui.ToolbarButton;
@@ -73,7 +75,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.map.edit.AddObjectEdit;
 import pt.lsts.neptus.plugins.map.edit.ObjectPropertiesEdit;
 import pt.lsts.neptus.plugins.map.edit.RemoveObjectEdit;
@@ -89,16 +90,9 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
-import pt.lsts.neptus.types.map.CylinderElement;
-import pt.lsts.neptus.types.map.EllipsoidElement;
 import pt.lsts.neptus.types.map.ImageElement;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
-import pt.lsts.neptus.types.map.MarkElement;
-import pt.lsts.neptus.types.map.MineDangerAreaElement;
-import pt.lsts.neptus.types.map.Model3DElement;
-import pt.lsts.neptus.types.map.ParallelepipedElement;
-import pt.lsts.neptus.types.map.QRouteElement;
 import pt.lsts.neptus.types.map.RotatableElement;
 import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -110,9 +104,9 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author zp
  * @author pdias
  */
-@PluginDescription(author = "José Pinto, Paulo Dias", name = "Map Editor", icon = "pt/lsts/neptus/plugins/map/map.png", version = "1.5", category = CATEGORY.INTERFACE)
+@PluginDescription(author = "José Pinto, Paulo Dias", name = "Map Editor", icon = "pt/lsts/neptus/plugins/map/map-edit.png", version = "1.5", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 90)
-public class MapEditor extends SimpleSubPanel implements StateRendererInteraction, Renderer2DPainter,
+public class MapEditor extends ConsolePanel implements StateRendererInteraction, Renderer2DPainter,
         MissionChangeListener, ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
@@ -146,24 +140,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
     @NeptusProperty(name = "Toolbar location")
     public ControlsLocation toolbarLocation = ControlsLocation.Right;
 
-    protected Vector<AbstractElement> elements = null;
-
-    public final Vector<AbstractElement> getElements() {
-        if (elements == null) {
-            elements = new Vector<AbstractElement>();
-            elements.add(new MarkElement());
-            elements.add(new TransponderElement());
-            elements.add(new ParallelepipedElement());
-            elements.add(new CylinderElement());
-            elements.add(new EllipsoidElement());
-            elements.add(new Model3DElement());
-            elements.add(new ImageElement());
-            elements.add(new MineDangerAreaElement(null, null));
-            elements.add(new QRouteElement(null, null));
-        }
-
-        return elements;
-    }
+    
 
     public MapEditor(ConsoleLayout console) {
         super(console);
@@ -265,7 +242,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     disableAllInteractionsBut(freehand);
-                    currentInteraction = new DrawPathInteraction(getPivot(), manager, console);
+                    currentInteraction = new DrawPathInteraction(getPivot(), manager, getConsole());
                     currentInteraction.setAssociatedSwitch(freehand);
                     currentInteraction.setActive(true, renderer);
                 }
@@ -287,7 +264,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     disableAllInteractionsBut(fp);
-                    currentInteraction = new PolygonInteraction(getPivot(), manager, true, console);
+                    currentInteraction = new PolygonInteraction(getPivot(), manager, true, getConsole());
                     currentInteraction.setAssociatedSwitch(fp);
                     currentInteraction.setActive(true, renderer);
                 }
@@ -309,7 +286,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     disableAllInteractionsBut(up);
-                    currentInteraction = new PolygonInteraction(getPivot(), manager, false, console);
+                    currentInteraction = new PolygonInteraction(getPivot(), manager, false, getConsole());
                     currentInteraction.setAssociatedSwitch(up);
                     currentInteraction.setActive(true, renderer);
                 }
@@ -331,7 +308,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     disableAllInteractionsBut(mda);
-                    currentInteraction = new MineDangerAreaInteraction(getPivot(), manager, console);
+                    currentInteraction = new MineDangerAreaInteraction(getPivot(), manager, getConsole());
                     currentInteraction.setAssociatedSwitch(mda);
                     currentInteraction.setActive(true, renderer);
                 }
@@ -353,7 +330,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     disableAllInteractionsBut(qr);
-                    currentInteraction = new QRouteInteraction(getPivot(), manager, console);
+                    currentInteraction = new QRouteInteraction(getPivot(), manager, getConsole());
                     currentInteraction.setAssociatedSwitch(qr);
                     currentInteraction.setActive(true, renderer);
                 }
@@ -375,7 +352,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     disableAllInteractionsBut(b2d);
-                    currentInteraction = new Box2DInteraction(getPivot(), manager, console);
+                    currentInteraction = new Box2DInteraction(getPivot(), manager, getConsole());
                     currentInteraction.setAssociatedSwitch(b2d);
                     currentInteraction.setActive(true, renderer);
                 }
@@ -496,22 +473,20 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
 
     protected void editElement(String elemId) {
         AbstractElement[] elements = mg.getMapObjectsByID(elemId);
-        
         if (elements.length == 0)
             return;
 
         AbstractElement element = elements[0];
         String oldXml = element.asXML();
-
         element.showParametersDialog(getConsole(), getTransNames(), element.getParentMap(), true);
         if (!element.isUserCancel()) {
+            mg.updateObjectIds();
             manager.addEdit(new ObjectPropertiesEdit(element, oldXml));
-
             MapChangeEvent mce = new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED);
             pivot = getPivot();
             mce.setSourceMap(pivot);
             mce.setChangedObject(draggedObject);
-            pivot.warnChangeListeners(mce);
+            pivot.warnChangeListeners(mce);            
         }
     }
 
@@ -602,7 +577,6 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
                                 for (AbstractElement el : mg.getAllObjects())
                                     objNames.add(el.getId());
                                 newElem.showParametersDialog(MapEditor.this, objNames.toArray(new String[0]), pivot, true);
-                                newElem.setId(newElem.getId());
                                 
                                 if (!newElem.userCancel) {
                                     pivot.addObject(newElem);
@@ -661,7 +635,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
 
                                 ImageElement el = new ImageElement(choice, file);
                                 el.setMapGroup(mg);
-                                el.showParametersDialog(MapEditor.this, pivot.getObjectNames(), pivot, true);
+                                el.showParametersDialog(MapEditor.this, pivot.getObjectIds(), pivot, true);
 
                                 if (!el.userCancel) {
                                     pivot.addObject(el);
@@ -704,8 +678,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
                             centerElem.setEnabled(true);
                     }
 
-                    editElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(
-                            new ActionListener() {
+                    editElem.add(elem.getId() + " [" + I18n.text(elem.getType()) + "]").addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             editElement(elem.getId());
@@ -779,8 +752,7 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
             return;
         }
 
-        adapter.mousePressed(event, source);
-
+        
         if (event.getButton() != MouseEvent.BUTTON1) {
             return;
         }
@@ -798,6 +770,9 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
 
             objectMoved = false;
         }
+        else 
+            adapter.mousePressed(event, source);
+
         mousePoint = event.getPoint();
 
     }
@@ -857,6 +832,11 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
         setCursor(Cursor.getDefaultCursor());
         mousePoint = event.getPoint();
         adapter.mouseMoved(event, source);
+    }
+    
+    @Override
+    public void mouseExited(MouseEvent event, StateRenderer2D source) {
+        adapter.mouseExited(event, source);
     }
 
     @Override
@@ -981,6 +961,16 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
                 toolbar.getParent().remove(toolbar);
         }
     }
+        
+    @Override
+    public void focusGained(FocusEvent event, StateRenderer2D source) {
+        adapter.focusGained(event, source);        
+    }
+
+    @Override
+    public void focusLost(FocusEvent event, StateRenderer2D source) {
+        adapter.focusLost(event, source);
+    }
 
     @Override
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {
@@ -995,6 +985,11 @@ public class MapEditor extends SimpleSubPanel implements StateRendererInteractio
     @Override
     public void initSubPanel() {
 
+    }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        adapter.paintInteraction(g, source);
     }
 
     /*

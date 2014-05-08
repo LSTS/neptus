@@ -47,6 +47,7 @@ import java.util.Comparator;
 import java.util.Vector;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -85,7 +86,7 @@ public abstract class AbstractElement
 	public enum ELEMENT_TYPE { MODEL_3D, TYPE_HOMEREFERENCE, TYPE_MARK, TYPE_PARALLELEPIPED, TYPE_ELLIPSOID, TYPE_TRANSPONDER, TYPE_PATH, TYPE_CYLINDER, TYPE_IMAGE, TYPE_OTHER };
 
 //	private static Random rnd = new Random(System.currentTimeMillis());
-    protected static final LocationType guine = LocationType.ABSOLUTE_ZERO;
+    protected static final LocationType guinea = LocationType.ABSOLUTE_ZERO;
     protected boolean isLoadOk = true;
     protected static final String DEFAULT_ROOT_ELEMENT = "mark";
     
@@ -100,7 +101,7 @@ public abstract class AbstractElement
     protected Document doc = null;
     
     protected String id = NameNormalizer.getRandomID("me"); // "obj_"+System.currentTimeMillis()+rnd.nextInt(100);
-    //protected String id = name;
+    // protected String name = id;
 
     // ===== Old MapObject
     protected boolean selected = false;
@@ -114,6 +115,8 @@ public abstract class AbstractElement
     public boolean userCancel = false, copyChars = true;
     public String[] takenNames = new String[0];
     protected JDialog dialog;
+    protected JCheckBox obstacleCheck, hiddenCheck;
+    private boolean obstacle;
     protected JTextField objName, transp;
     // ===== END Param panels
 
@@ -186,7 +189,17 @@ public abstract class AbstractElement
         if (isLoadOk())
             return false;
 
-        setId(getCenterLocation().getId());
+        try {
+            setObstacle(Boolean.parseBoolean(elem.attribute("obstacle").getText()));
+        }
+        catch (Exception e) {
+            NeptusLog.pub().debug("Loaded old mission with no obstacle information");
+            setObstacle(false);
+        }
+         
+        
+        id = getCenterLocation().getId();
+        // name = id;
         
         Node nd;
         try {
@@ -260,20 +273,13 @@ public abstract class AbstractElement
         isLoadOk =true;
         return true;
     }
-    // ===== XMLOutput Interface
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
-     */
     @Override
     public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asXML(rootElementName);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
-     */
     @Override
     public String asXML(String rootElementName) {
         String result = "";        
@@ -282,54 +288,32 @@ public abstract class AbstractElement
         return result;
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
-     */
     @Override
     public Element asElement() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asElement(rootElementName);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
-     */
     @Override
     public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
-     */
     @Override
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
-     */
     @Override
     public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
-        //Element root = document.addElement( rootElementName );
-        
-        //root.addElement( "id" ).addText(getId());
-        //root.addElement( "name" ).addText(getName());
-        
-        //Se não estiver assim entra em ciclo infinito
-     /*   LocationType lt = new LocationType();
-        lt.setLocation(getCentralLocation());
-        lt.setId(this.getId());
-        lt.setName(this.getName());*/
-        
+
         getCenterLocation().setId(getId());
+        // getCenterLocation().setName(name);
         
         Element root = getCenterLocation().asElement(rootElementName);
         
-        //TODO Testar (acho q está testado)
         if ( (phi != 0) || (theta != 0) || (psi != 0) ) {
             Element att = root.addElement("attitude");
             if (phi != 0)
@@ -338,12 +322,11 @@ public abstract class AbstractElement
                 att.addElement("theta").addText(Double.toString(theta));
             if (psi != 0)
                 att.addElement("psi").addText(Double.toString(psi));
-            
-            //root.add(att);
         }
         if (transparency != 0)
             root.addElement("transparency").addText(Double.toString(transparency));
         
+        root.addAttribute("obstacle", ""+isObstacle());
         document.add(root);
 
         return document;
@@ -517,6 +500,18 @@ public abstract class AbstractElement
     }
     // ===== END Attitude Setters and Getters
 
+    /**
+     * @return the obstacle
+     */
+    public boolean isObstacle() {
+        return obstacle;
+    }
+    /**
+     * @param obstacle the obstacle to set
+     */
+    public void setObstacle(boolean obstacle) {
+        this.obstacle = obstacle;
+    }
     public double getTopHeight() {
         return getCenterLocation().getHeight();
     }
@@ -641,9 +636,23 @@ public abstract class AbstractElement
 		return id;
 	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
+//    /**
+//     * @return the name
+//     */
+//    public final String getName() {
+//        return getId();
+//    }
+//
+//    public final void setName(String name) {
+//        setId(name);
+//    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
 
     /**
      * Returns the result of getName() - the default implementation returns the
@@ -678,20 +687,6 @@ public abstract class AbstractElement
                 return;
             }
             
-            try {
-            	double val = Double.parseDouble(transp.getText());
-            	if (val < 0)
-            		val = 0;
-            	if (val > 100)
-            		val = 100;
-            	setTransparency((int)val);
-            }
-            catch (NumberFormatException e) {
-                NeptusLog.pub().debug(e.getMessage());
-            	JOptionPane.showMessageDialog(paramsPanel, I18n.text("The object transparency is not valid"));
-            	return;
-			}
-            
             if (objName.getText().length() == 0) {
                 JOptionPane.showMessageDialog(paramsPanel, I18n.text("The object has to have a name"));
                 return;
@@ -714,6 +709,8 @@ public abstract class AbstractElement
             
             setId(objName.getText());
             
+            setObstacle(obstacleCheck.isSelected());
+            transparency = hiddenCheck.isSelected() ? 100 : 0;
             initialize(paramsPanel);
             
             dialog.setVisible(false);
@@ -753,67 +750,26 @@ public abstract class AbstractElement
         flow.setAlignment(FlowLayout.LEFT);
         idPanel.setLayout(flow);
  
+        
         objName = new JTextField(8);
         objName.setEditable(editable);
-        // objName.addKeyListener(new KeyAdapter() {
-        // @Override
-        // public void keyTyped(KeyEvent e) {
-        // super.keyTyped(e);
-        // // if (copyChars) {
-        // if (Character.isLetterOrDigit(e.getKeyChar()))
-        // objID.setText(objName.getText() + e.getKeyChar());
-        // else
-        // objID.setText(objName.getText());
-        // // }
-        // // copyChars = false;
-                // }
-        // });
-        //
-        // objID = new JTextField(8);
-        // objID.setEditable(editable);
+        objName.setText(id);
+        obstacleCheck = new JCheckBox(I18n.text("Obstacle"));
+        obstacleCheck.setSelected(isObstacle());
         
-        // int i = 1;
-        // while (getParentMap().getObject(getClass().getSimpleName() + i) != null)
-        // i++;
-        // objID.setText(getType() + i);
-        // objName.setText(getType() + i);
-        objName.setText(this.getId());
-        // objID.setText(this.getId());
-        
-        transp = new JTextField(3);
-        transp.setEditable(editable);
-        transp.setText(""+getTransparency());
-        
-        // idPanel.add(new JLabel(I18n.text("Object ID:")));
-        // idPanel.add(objID);
-        
-        idPanel.add(new JLabel(I18n.text("Object name:")));
+        hiddenCheck = new JCheckBox(I18n.text("Hidden"));
+        hiddenCheck.setSelected(transparency >= 100);
+        idPanel.add(new JLabel(I18n.text("Object Name:")));
         idPanel.add(objName);
+        idPanel.add(obstacleCheck);
+        idPanel.add(hiddenCheck);
         
-        idPanel.add(new JLabel(I18n.text("Transparency:")));
-        idPanel.add(transp);
         
         if (takenNames == null) {
             objName.setEnabled(false);
-            objName.setText(this.getId());
-            // objID.setEnabled(false);
-            // objID.setText(this.getId());
-            // copyChars = false;
+            objName.setText(id);
         }
-        
-        // objID.addKeyListener(new KeyAdapter() {
-        // @Override
-        // public void keyTyped(KeyEvent e) {
-        // super.keyTyped(e);
-        // // if (copyChars) {
-        // if (Character.isLetterOrDigit(e.getKeyChar()))
-        // objName.setText(objID.getText()+e.getKeyChar());
-        // else
-        // objName.setText(objID.getText());
-        // // }
-                // }
-        // });
-        
+
         JPanel buttonsPanel = new JPanel();
         FlowLayout layout = new FlowLayout();
         layout.setAlignment(FlowLayout.RIGHT);        
@@ -901,7 +857,7 @@ public abstract class AbstractElement
      */
     public double[] getNEDPosition() {
         NeptusLog.pub().debug(getCenterLocation().getDebugString());
-        return getCenterLocation().getOffsetFrom(guine);
+        return getCenterLocation().getOffsetFrom(guinea);
     }
     
     public AbstractElement getClone() throws Exception {

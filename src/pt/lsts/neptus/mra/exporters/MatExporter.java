@@ -37,9 +37,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
+import javax.swing.ProgressMonitor;
+
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 import pt.lsts.imc.IMCMessage;
 
@@ -52,6 +55,7 @@ import com.jmatio.types.MLStructure;
  * @author jqcorreia
  *
  */
+@PluginDescription
 public class MatExporter implements MRAExporter {
     IMraLogGroup source;
     
@@ -66,7 +70,7 @@ public class MatExporter implements MRAExporter {
     }
 
     @Override
-    public String process() {
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         Collection<String> logList = source.getLsfIndex().getDefinitions().getMessageNames();
         IMraLog parser;
         
@@ -163,6 +167,6 @@ public class MatExporter implements MRAExporter {
         IMraLogGroup source = new LsfLogSource(new File("/home/jqcorreia/lsts/logs/lauv-xtreme-2/20130405/135842_testSidescan_4m/Data.lsf"), null);
         MatExporter me = new MatExporter(source);
         
-        me.process();
+        me.process(source, null);
     }
 }

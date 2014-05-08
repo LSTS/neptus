@@ -40,15 +40,15 @@ import javax.swing.JButton;
 import javax.swing.JToggleButton;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * This class eases the creation of console buttons
  * @author ZP
  */
-public abstract class SimpleAction extends SimpleSubPanel implements ActionListener {
+public abstract class SimpleAction extends ConsolePanel implements ActionListener {
 
 	/**
      * 

@@ -1118,6 +1118,12 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                                 + fArgs.getConnectionMode()), false);
                 propertiesList.add(comP);
             }
+            else if (pArgs instanceof PropertiesProvider) {
+                for (DefaultProperty prop : ((PropertiesProvider)pArgs).getProperties()) {
+                    prop.setCategory(((PropertiesProvider) pArgs).getPropertiesDialogTitle());
+                    propertiesList.add(prop);
+                }                
+            }
         }
 
         for (CommMean cm : vehicle.getCommunicationMeans().values()) {

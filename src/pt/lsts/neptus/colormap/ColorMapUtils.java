@@ -99,7 +99,7 @@ public class ColorMapUtils {
 		}
 
         // double power = 6;
-        double power = 3;
+        double power = 2;
 
         double xPt, yPt, d, dTotal;
 		for (int kGrid = 0; kGrid < xGrid.length; kGrid++) {

@@ -50,7 +50,6 @@ import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanElement;
@@ -67,12 +66,6 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 	private double radius = MINIMUM_SK_RADIUS, speed = 30;
 	private String speedUnits = "m/s";
 	private ManeuverLocation location = new ManeuverLocation();	 
-	
-	@Override
-	public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
-		
-		return lastVehicleState;
-	}
 
 	@Override
 	public Object clone() {
@@ -311,8 +304,8 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
     	setSpeed(message.getDouble("speed"));
     	
     	ManeuverLocation pos = new ManeuverLocation();
-    	pos.setLatitudeDegs(Math.toDegrees(message.getDouble("lat")));
-    	pos.setLongitudeDegs(Math.toDegrees(message.getDouble("lon")));
+    	pos.setLatitudeRads(message.getDouble("lat"));
+    	pos.setLongitudeRads(message.getDouble("lon"));
     	pos.setZ(message.getDouble("z"));
     	String zunits = message.getString("z_units");
     	if (zunits != null)
@@ -335,9 +328,10 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 	@Override
 	public IMCMessage serializeToIMC() {
 	    pt.lsts.imc.StationKeeping message = new pt.lsts.imc.StationKeeping();
-		double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
-		message.setLat(Math.toRadians(latLonDepth[0]));
-		message.setLon(Math.toRadians(latLonDepth[1]));
+		LocationType loc = getManeuverLocation();
+		loc.convertToAbsoluteLatLonDepth();
+		message.setLat(loc.getLatitudeRads());
+		message.setLon(loc.getLongitudeRads());
 		message.setZ(getManeuverLocation().getZ());
 		message.setZUnits(getManeuverLocation().getZUnits().toString());
 		message.setDuration(getDuration());

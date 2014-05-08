@@ -63,7 +63,6 @@ import pt.lsts.neptus.gui.editor.EnumEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ReflectionUtil;
-import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -90,7 +89,7 @@ public class PluginUtils {
     public static String getPluginName(Class<?> clazz) {
         PluginDescription pd = clazz.getAnnotation(PluginDescription.class);
         String name;
-        if (pd != null)
+        if (pd != null && !pd.name().isEmpty())
             name = pd.name();
         else
             name = clazz.getSimpleName();
@@ -887,7 +886,6 @@ public class PluginUtils {
             return new String[] {};
         }
     }
-
     /**
      * Given an URL to a resource (.jar, .class, .png, ...), adds that resource to the system class path
      * 

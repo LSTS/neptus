@@ -53,10 +53,10 @@ import org.jfree.data.time.TimePeriod;
 import pt.lsts.imc.TrexToken;
 import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 
 import com.google.common.eventbus.Subscribe;
 import com.jogamp.newt.event.KeyEvent;
@@ -67,7 +67,7 @@ import com.jogamp.newt.event.KeyEvent;
  */
 @PluginDescription(name = "TREX Timeline", icon = "pt/lsts/neptus/plugins/trex/trex.png")
 @Popup(accelerator = KeyEvent.VK_F6, pos = POSITION.BOTTOM, height = 300, width = 800, icon = "pt/lsts/neptus/plugins/trex/trex.png")
-public class TrexTimelinePanel extends SimpleSubPanel {
+public class TrexTimelinePanel extends ConsolePanel {
 
     private static final long serialVersionUID = 1L;
     protected JFreeChart chart;

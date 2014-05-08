@@ -66,6 +66,7 @@ public @interface PluginDescription {
 	String version() default "1.0";
 	String documentation() default "";
 	String icon() default "";
+	boolean active() default true;
 
     CATEGORY category() default CATEGORY.UNSORTED;
 	boolean experimental() default false;

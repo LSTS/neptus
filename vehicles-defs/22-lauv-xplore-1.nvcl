@@ -298,7 +298,7 @@
     </maneuver>	
   </feasibleManeuvers>
   <protocols-supported>
-    <protocols> time-shell</protocols>
+    <protocols>gsm iridium time-shell</protocols>
     <protocols-args>
       <time-shell>
         <set-seconds>true</set-seconds>
@@ -306,6 +306,12 @@
         <use-2-digit-year>false</use-2-digit-year>
         <use-hwclock>false</use-hwclock>
       </time-shell>
+         <gsm>
+        	<number>+351962142936</number>
+         </gsm>
+         <iridium>
+           <imei>300234061464450</imei>
+         </iridium>
     </protocols-args>
   </protocols-supported>
   <communication-means>
@@ -314,7 +320,7 @@
       <type>ethernet</type>
       <host-address>192.168.106.198</host-address>
       <credentials username="root"/>
-      <protocols> imc ssh</protocols>
+      <protocols>imc ssh </protocols>
       <latency value="100M" unit="bps"/>
       <protocols-args>
         <imc>
@@ -322,7 +328,7 @@
           <udp-on>true</udp-on>
           <rtps-on>false</rtps-on>
           <imc3-id>00:1E</imc3-id>
-        </imc>
+        </imc>        
       </protocols-args>
     </comm-mean>
   </communication-means>

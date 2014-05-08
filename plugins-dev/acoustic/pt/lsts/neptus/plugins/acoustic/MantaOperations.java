@@ -42,6 +42,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -51,27 +52,38 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticSystems;
+import pt.lsts.imc.AcousticSystemsQuery;
+import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.RSSI;
+import pt.lsts.imc.StorageUsage;
 import pt.lsts.imc.TextMessage;
+import pt.lsts.imc.Voltage;
+import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.VehicleChooser;
 import pt.lsts.neptus.i18n.I18n;
@@ -82,7 +94,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -104,7 +116,7 @@ import com.google.common.eventbus.Subscribe;
 @PluginDescription(name = "Acoustic Operations", author = "ZP", icon="pt/lsts/neptus/plugins/acoustic/manta.png")
 @LayerPriority(priority = 40)
 @Popup(name="Acoustic Operations", accelerator=KeyEvent.VK_M, width=350, height=250, pos=POSITION.BOTTOM_RIGHT, icon="pt/lsts/neptus/plugins/acoustic/manta.png")
-public class MantaOperations extends SimpleSubPanel implements ConfigurationListener, Renderer2DPainter {
+public class MantaOperations extends ConsolePanel implements ConfigurationListener, Renderer2DPainter {
 
     private static final long serialVersionUID = 1L;
 
@@ -118,7 +130,8 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
     protected JToggleButton toggle;
     protected String selectedSystem = null;
     protected String gateway = "any";
-
+    protected JLabel lblState = new JLabel("<html><h1>Please select a gateway</h1>");
+    
     protected LinkedHashMap<Integer, PlanControl> pendingRequests = new LinkedHashMap<>();
 
     @NeptusProperty(name = "Systems listing", description = "Use commas to separate system identifiers")
@@ -128,6 +141,9 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
 
     @NeptusProperty(name = "Display ranges in the map")
     public boolean showRanges = true;
+
+    @NeptusProperty(name = "Use system discovery", description = "Instead of a static list, receive supported systems from gateway")
+    public boolean sysDiscovery = true;
 
     /**
      * @param console
@@ -147,18 +163,7 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
     protected boolean initialized = false;
 
     private boolean sendAcoustically(IMCMessage msg) {
-        ImcSystem[] sysLst;
-
-        if (gateway.equals("any"))                    
-            sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
-                    SystemTypeEnum.ALL, true);
-        else {
-            ImcSystem sys = ImcSystemsHolder.lookupSystemByName(gateway);
-            if (sys != null)
-                sysLst = new ImcSystem[]{sys};
-            else 
-                sysLst = new ImcSystem[]{};
-        }
+        ImcSystem[] sysLst = gateways();
 
         if (sysLst.length == 0) {
             post(Notification.error(I18n.text("Send message"),
@@ -186,6 +191,48 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                     I18n.text("Unable to send message to selected system")).src(I18n.text("Console")));
             return false;
         }
+    }
+    
+    @Periodic(millisBetweenUpdates=1500) 
+    public void updateStateLabel() {
+        if (!lblState.isVisible())
+            return;
+        lblState.setText(buildState());
+    }
+    
+    private String buildState() {
+        if (gateway == null || gateway.equals("any"))
+            return I18n.text("<html><h1>Please select a gateway</h1></html>");
+        ImcSysState state = ImcMsgManager.getManager().getState(gateway);
+        StringBuilder html = new StringBuilder("<html>");
+        html.append(I18n.textf("<h1>%gateway state</h1>", gateway));
+        html.append("<blockquote><ul>\n");
+        try {
+            RSSI iridiumRSSI = state.lastRSSI("Iridium Modem");    
+            html.append(I18n.textf("<li>Iridium RSSI: %d  &#37;</li>\n", iridiumRSSI.getValue()));
+        }
+        catch (Exception e) {}
+        
+        try {
+            GpsFix gpsFix = state.lastGpsFix();    
+            html.append(I18n.textf("<li>GPS satellites: %d</li>\n", gpsFix.getSatellites()));
+        }
+        catch (Exception e) {}
+        
+        try {
+            StorageUsage storageUsage = state.lastStorageUsage();
+            html.append(I18n.textf("<li>Storage Usage: %d  &#37;</li>\n", storageUsage.getValue()));
+        }
+        catch (Exception e) {}
+        
+        try {
+            Voltage voltage = state.lastVoltage("Main Board"); 
+            html.append(I18n.textf("<li>Voltage: %d V</li>\n", voltage.getValue()));
+        }
+        catch (Exception e) {}
+
+        html.append("</html>");
+        return html.toString();
     }
     
     
@@ -218,8 +265,8 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                     return;
                 }
 
-                VehicleType choice = VehicleChooser.showVehicleDialog(VehiclesHolder
-                        .getVehicleById(defaultVehicle));
+                VehicleType choice = VehicleChooser.showVehicleDialog(null, VehiclesHolder
+                        .getVehicleById(defaultVehicle), null);
                 if (choice == null)
                     return;
                 String[] ops = filtered.toArray(new String[0]);
@@ -229,7 +276,7 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
 
                 if (option == -1)
                     return;
-                System.err.println("start plan " + ops[option]);
+                NeptusLog.pub().warn("Start plan " + ops[option]);
 
                 ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
                         SystemTypeEnum.ALL, true);
@@ -270,7 +317,7 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
         });
 
         ImcMsgManager.getManager().addListener(this);
-
+        
         JPanel ctrlPanel = new JPanel();
         //BoxLayout layout = new BoxLayout(ctrlPanel, BoxLayout.PAGE_AXIS);
         ctrlPanel.setLayout(new GridLayout(0, 1, 2, 2));
@@ -298,12 +345,11 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
                 Object gw = JOptionPane.showInputDialog(getConsole(), "Select Gateway", "Select acoustic gateway to use",
                         JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
 
-                System.out.println(gw);
-                
                 if (gw != null)
                     gateway = ""+gw;
                 
                 ((JButton)arg0.getSource()).setText(I18n.textf("GW: %s", gateway));
+                lblState.setText(buildState());
             }
         });
         ctrlPanel.add(btn);
@@ -452,19 +498,20 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
         JSplitPane split1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(listPanel),
                 ctrlPanel);
         split1.setDividerLocation(180);
+        JTabbedPane tabs = new JTabbedPane();
+        tabs.addTab("Acoustic Operations", split1);
+        tabs.addTab("Gateway state", lblState);
         bottomPane.setEditable(false);
         bottomPane.setBackground(Color.white);
-        JSplitPane split2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, split1, new JScrollPane(bottomPane));
+        JSplitPane split2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tabs, new JScrollPane(bottomPane));
         split2.setDividerLocation(150);
         setLayout(new BorderLayout());
         add(split2, BorderLayout.CENTER);
         propertiesChanged();
     }
 
-
     @Override
     public void propertiesChanged() {
-
         for (JRadioButton r : radioButtons.values()) {
             r.setVisible(false);
             group.remove(r);
@@ -472,6 +519,14 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
         radioButtons.clear();
 
         for (String s : sysListing.split(",")) {
+            if (!s.isEmpty() && !s.endsWith(" list"))
+            knownSystems.add(s.trim()); 
+        }
+        
+        ArrayList<String> systems = new ArrayList<String>(knownSystems);
+        Collections.sort(systems);
+        
+        for (String s : systems) {
             JRadioButton btn = new JRadioButton(s);
             btn.setActionCommand(s);
             group.add(btn);
@@ -506,7 +561,6 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
     public void addText(String text) {
         bottomPane.setText(bottomPane.getText() +" \n"+text);        
         bottomPane.scrollRectToVisible(new Rectangle(0, bottomPane.getHeight()+22, 1, 1) );
-
     }
 
     protected LinkedHashMap<String, LocationType> systemLocations = new LinkedHashMap<>();
@@ -600,8 +654,38 @@ public class MantaOperations extends SimpleSubPanel implements ConfigurationList
     @Subscribe
     public void on(AcousticSystems systems) {
         String acSystems = systems.getList();
+        boolean newSystem = false;
+        
         for (String s : acSystems.split(","))
-            knownSystems.add(s);
+            newSystem |= knownSystems.add(s);
+        
+        if (newSystem)
+            propertiesChanged();
+    }
+    
+    private ImcSystem[] gateways() {
+        ImcSystem[] sysLst = null;
+        if (gateway.equals("any"))                    
+            sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
+                    SystemTypeEnum.ALL, true);
+        else {
+            ImcSystem sys = ImcSystemsHolder.lookupSystemByName(gateway);
+            if (sys != null)
+                sysLst = new ImcSystem[]{sys};
+            else 
+                sysLst = new ImcSystem[]{};
+        }
+        return sysLst;
+
+    }
+    
+    @Periodic(millisBetweenUpdates=120000)
+    public void requestSysListing() {
+        if (sysDiscovery) {
+            AcousticSystemsQuery asq = new AcousticSystemsQuery();
+            for (ImcSystem s : gateways())
+                send(s.getName(), asq);            
+        }
     }
 
     protected Vector<LocationType> rangeSources = new Vector<LocationType>();

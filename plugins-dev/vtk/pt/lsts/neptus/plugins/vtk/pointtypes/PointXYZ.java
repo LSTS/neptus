@@ -35,58 +35,28 @@ package pt.lsts.neptus.plugins.vtk.pointtypes;
  * @author hfq
  *
  */
-public class PointXYZ {
-    protected float x;
-    protected float y;
-    protected float z;
-    
+public class PointXYZ extends APoint {
+
+
+    public PointXYZ() {
+        super();
+    }
+
     /**
      * 
+     * @param x
+     * @param y
+     * @param z
      */
-    public PointXYZ() {
-        x = y = z = 0.0f;
+    public PointXYZ(double x, double y, double z) {
+        super(x, y, z);
     }
-    
-    public PointXYZ(float _x, float _y, float _z) {
-        x = _x;
-        y = _y;
-        z = _z;
-    }
-    
-    /**
-     * @return the x
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.pointtypes.APoint#toString()
      */
-    public float getX() {
-        return x;
-    }
-    /**
-     * @param x the x to set
-     */
-    public void setX(float x) {
-        this.x = x;
-    }
-    /**
-     * @return the y
-     */
-    public float getY() {
-        return y;
-    }
-    /**
-     * @param y the y to set
-     */
-    public void setY(float y) {
-        this.y = y;
-    }
-    /**
-     * @return the z
-     */
-    public float getZ() {
-        return z;
-    }
-    /**
-     * @param z the z to set
-     */
-    public void setZ(float z) {
-        this.z = z;
+    @Override
+    public String toString() {
+        return getX() + " " + getY() + " " + getZ();
     }
 }

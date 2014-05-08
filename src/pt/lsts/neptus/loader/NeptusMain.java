@@ -80,9 +80,8 @@ public class NeptusMain {
 
     private static void init() {
         GeneralPreferences.initialize();
-        
+
         appNames.put("ws", I18n.text("Workspace"));
-        // appNames.put("mp", I18n.text("Mission Planner"));
         appNames.put("mra", I18n.text("Mission Review & Analysis"));
         appNames.put("cl", I18n.text("Empty Console"));
         appNames.put("console", I18n.text("LAUV Console"));
@@ -97,13 +96,17 @@ public class NeptusMain {
         fileHandlers.put(FileUtil.FILE_TYPE_INI, EditorLauncher.class);
         fileHandlers.put(FileUtil.FILE_TYPE_RMF, RMFEditor.class);
         fileHandlers.put(FileUtil.FILE_TYPE_XML, EditorLauncher.class);
-        
+
         fileHandlers.put(FileUtil.FILE_TYPE_LSF, NeptusMRA.class);
         fileHandlers.put(FileUtil.FILE_TYPE_LSF_COMPRESSED, NeptusMRA.class);        
     }
 
+    /**
+     * @param loader
+     * @param appargs
+     */
     public static void launch(String appargs[]) {
-        ConfigFetch.initialize();
+        ConfigFetch.initialize(); // Don't touch this, leave it as it his
         if (appNames.isEmpty())
             init();
         
@@ -111,12 +114,12 @@ public class NeptusMain {
     }
 
     public static void launch(Loader loader, String appargs[]) {
+        ConfigFetch.initialize(); // Don't touch this, leave it as it his
         // benchmark
         long start = System.currentTimeMillis();
         NeptusMain.loader =  loader;
         
         if (appNames.isEmpty()) {
-            ConfigFetch.initialize();
             init();
         }
         
@@ -125,13 +128,13 @@ public class NeptusMain {
         ConfigFetch.setSuperParentFrameForced(loader);
 
         boolean neptusLookAndFeel = true;
-        for (int i = 0; i < appargs.length; i++) {
-            if (appargs[i].equals("-nlf"))
-                neptusLookAndFeel = false;
-        }
+        //        for (int i = 0; i < appargs.length; i++) {
+        //            if (appargs[i].equals("-nlf"))
+        //                neptusLookAndFeel = false;
+        //        }
 
         loadPreRequirementsDataExceptConfigFetch(loader, neptusLookAndFeel);
-        
+
         // When loading one can type the application to start
         String typ = loader.getTypedString();
         if (!typ.equalsIgnoreCase("")) {
@@ -162,7 +165,7 @@ public class NeptusMain {
             loader = null;
             return;
         }
-        
+
         String appName = appNames.get(app);
         loader.setText(I18n.textf("Starting %appname...", appName != null ? appName : ""));
 
@@ -194,7 +197,7 @@ public class NeptusMain {
             appC.setVisible(true);
             wrapMainApplicationWindowWithCloseActionWindowAdapter(appC);
         }
-        // LAUV Navy Console(!!!!!!??????)
+        // LAUV Navy Console
         else if (app.equalsIgnoreCase("la")) {
             try {
                 LAUVConsole.setLoader(loader);
@@ -245,8 +248,9 @@ public class NeptusMain {
         }
 
         loader.setText(I18n.text("Loading Systems Parameters Files..."));
-        
+
         Thread bg = new Thread("System parameters files loader") {
+            @Override
             public void run() {                
                 ConfigurationManager.getInstance();                
             };
@@ -274,8 +278,9 @@ public class NeptusMain {
                         Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(wev);
                     }
                 }
-                
+
                 Thread t = new Thread("Neptus Shutdown") {
+                    @Override
                     public void run() {
                         try { Thread.sleep(10000); } catch (InterruptedException e1) { }
                         System.out.println("Force close !");
@@ -308,8 +313,8 @@ public class NeptusMain {
             String extension = FileUtil.getFileExtension(f).toLowerCase();
             if (fileHandlers.containsKey(extension)) {
                 try {
-                    loader.setText(I18n.textf("Starting \"%file\"...", fileHandlers.get(extension).getSimpleName()));
                     FileHandler fh = ((FileHandler) fileHandlers.get(extension).newInstance());
+                    loader.setText(I18n.textf("Starting %program %arg...", fh.getName(),f.getName()));
                     if (fh instanceof JFrame) {
                         ((JFrame) fh).setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                         wrapMainApplicationWindowWithCloseActionWindowAdapter((JFrame) fh);
@@ -329,19 +334,15 @@ public class NeptusMain {
         }
     }
 
-    public static Loader getLoader() {
-        return loader;
-    }
-
     /**
      * @param args The first argument decides which application to launch - defaults to Mission Console
      */
     public static void main(String[] args) {
         if (args.length < 1) {
-            launch(new String[] { "ws" });
+            launch(new Loader(), new String[] { "ws" });
         }
         else {
-            launch(args);
+            launch(new Loader(), args);
         }
     }
 }

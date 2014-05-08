@@ -140,6 +140,8 @@ public class LogsDownloaderWorker {
 
     private FtpDownloader clientFtp = null;
     private FtpDownloader cameraFtp = null;
+    
+    private boolean stopLogListProcessing = false;
 
     private String host = "127.0.0.1";
     private int port = DEFAULT_PORT;
@@ -245,7 +247,7 @@ public class LogsDownloaderWorker {
     private void initializeComm() {
         // Init timer
         timer = new Timer("LogsDownloadWorker");
-        
+
         // Register for EntityActivationState
         messageListener = new MessageListener<MessageInfo, IMCMessage>() {
 
@@ -253,17 +255,17 @@ public class LogsDownloaderWorker {
             public void onMessage(MessageInfo info, IMCMessage msg) {
                 if (msg.getAbbrev().equals("PowerChannelState")) {
                     if (msg.getString("name").equals("Camera Module") || msg.getString("name").equals("Camera - CPU")) { // xtreme
-                                                                                                                // or
-                                                                                                                // dolphin
+                        // or
+                        // dolphin
                         //System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: PowerChannelState "
-                                //+ msg.getInteger("state"));
+                        //+ msg.getInteger("state"));
                         cameraButton.setBackground(msg.getInteger("state") == 1 ? Color.GREEN : null);
                     }
                 }
             }
         };
         ImcMsgManager.getManager().addListener(messageListener);
-        
+
         timer.scheduleAtFixedRate(new TimerTask() {
             protected  IMCMessage msg = new IMCMessage("QueryPowerChannelState");
             @Override
@@ -278,8 +280,8 @@ public class LogsDownloaderWorker {
     }
 
     /**
-	 * 
-	 */
+     * 
+     */
     private void initialize() {
         initializeActions();
 
@@ -409,7 +411,7 @@ public class LogsDownloaderWorker {
                                 if (log.exists())
                                     fx = log;
 
-                                ((NeptusMRA) mra).openLog(fx);
+                                ((NeptusMRA) mra).getMraFilesHandler().openLog(fx);
                             }
                         }).run();
                     }
@@ -477,20 +479,20 @@ public class LogsDownloaderWorker {
                 .createParallelGroup(GroupLayout.Alignment.CENTER)
                 .addGroup(
                         layoutCfg.createSequentialGroup().addComponent(hostLabel).addComponent(hostField)
-                                .addComponent(portLabel).addComponent(portField))
-                .addGroup(layoutCfg.createSequentialGroup().addComponent(baseUriLabel).addComponent(baseUriField))
-                .addGroup(layoutCfg.createSequentialGroup().addComponent(logLabelLabel).addComponent(logLabelField)));
+                        .addComponent(portLabel).addComponent(portField))
+                        .addGroup(layoutCfg.createSequentialGroup().addComponent(baseUriLabel).addComponent(baseUriField))
+                        .addGroup(layoutCfg.createSequentialGroup().addComponent(logLabelLabel).addComponent(logLabelField)));
         layoutCfg.setVerticalGroup(layoutCfg
                 .createSequentialGroup()
                 .addGroup(
                         layoutCfg.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(hostLabel)
-                                .addComponent(hostField).addComponent(portLabel).addComponent(portField))
-                .addGroup(
-                        layoutCfg.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(baseUriLabel)
+                        .addComponent(hostField).addComponent(portLabel).addComponent(portField))
+                        .addGroup(
+                                layoutCfg.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(baseUriLabel)
                                 .addComponent(baseUriField))
-                .addGroup(
-                        layoutCfg.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(logLabelLabel)
-                                .addComponent(logLabelField)));
+                                .addGroup(
+                                        layoutCfg.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(logLabelLabel)
+                                        .addComponent(logLabelField)));
         layoutCfg.linkSize(SwingConstants.VERTICAL, hostLabel, hostField, portLabel, portField, baseUriLabel,
                 baseUriField, logLabelLabel, logLabelField);
         layoutCfg.linkSize(SwingConstants.HORIZONTAL, baseUriLabel, logLabelLabel, hostLabel);
@@ -530,89 +532,89 @@ public class LogsDownloaderWorker {
                 .createParallelGroup(GroupLayout.Alignment.CENTER)
                 .addGroup(
                         layout.createSequentialGroup()
+                        .addGroup(
+                                layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                                .addComponent(logFoldersListLabel)
                                 .addGroup(
                                         layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                                                .addComponent(logFoldersListLabel)
-                                                .addGroup(
-                                                        layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                                                                .addComponent(logFolderScroll)
-                                                                .addGroup(
-                                                                        layout.createSequentialGroup()
-                                                                                .addComponent(downloadListButton, 34,
-                                                                                        34, 34)
-                                                                                .addGap(10)
-                                                                                .addComponent(
-                                                                                        downloadSelectedLogDirsButton,
-                                                                                        34, 34, 34)
-                                                                                .addComponent(
-                                                                                        downloadSelectedLogFilesButton,
-                                                                                        34, 34, 34)
-                                                                                .addGap(10)
-                                                                                .addComponent(
-                                                                                        deleteSelectedLogFoldersButton,
-                                                                                        34, 34, 34)
+                                        .addComponent(logFolderScroll)
+                                        .addGroup(
+                                                layout.createSequentialGroup()
+                                                .addComponent(downloadListButton, 34,
+                                                        34, 34)
+                                                        .addGap(10)
+                                                        .addComponent(
+                                                                downloadSelectedLogDirsButton,
+                                                                34, 34, 34)
+                                                                .addComponent(
+                                                                        downloadSelectedLogFilesButton,
+                                                                        34, 34, 34)
+                                                                        .addGap(10)
+                                                                        .addComponent(
+                                                                                deleteSelectedLogFoldersButton,
+                                                                                34, 34, 34)
                                                                                 .addComponent(
                                                                                         deleteSelectedLogFilesButton,
                                                                                         34, 34, 34)
-                                                                                .addGap(10)
-                                                                                .addComponent(stopAllButton, 34, 34, 34)
-                                                                                .addGap(10)
-                                                                                .addComponent(toggleConfPanelButton,
-                                                                                        34, 34, 34)
-                                                                                // .addComponent(toggleExtraInfoPanelButton,
-                                                                                // 25, 25, 25)
-                                                                                .addGap(10)
-                                                                                .addComponent(resetButton, 34, 34, 34)
-                                                                                .addComponent(helpButton, 34, 34, 34)
-                                                                                .addComponent(cameraButton, 34, 34, 34)
-                                                                                .addComponent(diskFreeLabel, 60, 80,
-                                                                                        120))))
-                                .addGroup(
-                                        layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                                                .addComponent(logFilesListLabel).addComponent(logFilesScroll)))
-                // .addComponent(msgPanel)
-                .addComponent(listHandlingProgressBar).addComponent(downloadWorkersScroll));
+                                                                                        .addGap(10)
+                                                                                        .addComponent(stopAllButton, 34, 34, 34)
+                                                                                        .addGap(10)
+                                                                                        .addComponent(toggleConfPanelButton,
+                                                                                                34, 34, 34)
+                                                                                                // .addComponent(toggleExtraInfoPanelButton,
+                                                                                                // 25, 25, 25)
+                                                                                                .addGap(10)
+                                                                                                .addComponent(resetButton, 34, 34, 34)
+                                                                                                .addComponent(helpButton, 34, 34, 34)
+                                                                                                .addComponent(cameraButton, 34, 34, 34)
+                                                                                                .addComponent(diskFreeLabel, 60, 80,
+                                                                                                        120))))
+                                                                                                        .addGroup(
+                                                                                                                layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                                                                                                                .addComponent(logFilesListLabel).addComponent(logFilesScroll)))
+                                                                                                                // .addComponent(msgPanel)
+                                                                                                                .addComponent(listHandlingProgressBar).addComponent(downloadWorkersScroll));
         layout.setVerticalGroup(layout
                 .createSequentialGroup()
                 .addGroup(
                         layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                        .addGroup(
+                                layout.createSequentialGroup()
+                                .addComponent(logFoldersListLabel)
                                 .addGroup(
                                         layout.createSequentialGroup()
-                                                .addComponent(logFoldersListLabel)
+                                        .addComponent(logFolderScroll, 180,
+                                                GroupLayout.PREFERRED_SIZE, Short.MAX_VALUE)
                                                 .addGroup(
-                                                        layout.createSequentialGroup()
-                                                                .addComponent(logFolderScroll, 180,
-                                                                        GroupLayout.PREFERRED_SIZE, Short.MAX_VALUE)
-                                                                .addGroup(
-                                                                        layout.createParallelGroup(
-                                                                                GroupLayout.Alignment.CENTER)
-                                                                                .addComponent(downloadListButton, 34,
-                                                                                        34, 34)
-                                                                                .addComponent(
-                                                                                        downloadSelectedLogDirsButton,
-                                                                                        34, 34, 34)
+                                                        layout.createParallelGroup(
+                                                                GroupLayout.Alignment.CENTER)
+                                                                .addComponent(downloadListButton, 34,
+                                                                        34, 34)
+                                                                        .addComponent(
+                                                                                downloadSelectedLogDirsButton,
+                                                                                34, 34, 34)
                                                                                 .addComponent(
                                                                                         downloadSelectedLogFilesButton,
                                                                                         34, 34, 34)
-                                                                                .addComponent(
-                                                                                        deleteSelectedLogFoldersButton,
-                                                                                        34, 34, 34)
-                                                                                .addComponent(
-                                                                                        deleteSelectedLogFilesButton,
-                                                                                        34, 34, 34)
-                                                                                .addComponent(stopAllButton, 34, 34, 34)
-                                                                                .addComponent(toggleConfPanelButton,
-                                                                                        34, 34, 34)
-                                                                                .addComponent(resetButton, 34, 34, 34)
-                                                                                .addComponent(helpButton, 34, 34, 34)
-                                                                                .addComponent(cameraButton, 34, 34, 34)
-                                                                                .addComponent(diskFreeLabel, 34, 34, 34))))
-                                .addGroup(
-                                        layout.createSequentialGroup()
-                                                .addComponent(logFilesListLabel)
-                                                .addComponent(logFilesScroll, 200, GroupLayout.DEFAULT_SIZE,
-                                                        Short.MAX_VALUE))).addComponent(listHandlingProgressBar)
-                .addComponent(downloadWorkersScroll, 80, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
+                                                                                        .addComponent(
+                                                                                                deleteSelectedLogFoldersButton,
+                                                                                                34, 34, 34)
+                                                                                                .addComponent(
+                                                                                                        deleteSelectedLogFilesButton,
+                                                                                                        34, 34, 34)
+                                                                                                        .addComponent(stopAllButton, 34, 34, 34)
+                                                                                                        .addComponent(toggleConfPanelButton,
+                                                                                                                34, 34, 34)
+                                                                                                                .addComponent(resetButton, 34, 34, 34)
+                                                                                                                .addComponent(helpButton, 34, 34, 34)
+                                                                                                                .addComponent(cameraButton, 34, 34, 34)
+                                                                                                                .addComponent(diskFreeLabel, 34, 34, 34))))
+                                                                                                                .addGroup(
+                                                                                                                        layout.createSequentialGroup()
+                                                                                                                        .addComponent(logFilesListLabel)
+                                                                                                                        .addComponent(logFilesScroll, 200, GroupLayout.DEFAULT_SIZE,
+                                                                                                                                Short.MAX_VALUE))).addComponent(listHandlingProgressBar)
+                                                                                                                                .addComponent(downloadWorkersScroll, 80, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
 
         // Setup of the Frame Content
         frameCompHolder = new JXPanel();
@@ -640,8 +642,8 @@ public class LogsDownloaderWorker {
     }
 
     /**
-	 * 
-	 */
+     * 
+     */
     @SuppressWarnings("serial")
     private void initializeActions() {
         downloadListAction = new AbstractAction() {
@@ -654,6 +656,9 @@ public class LogsDownloaderWorker {
                 AsyncTask task = new AsyncTask() {
                     @Override
                     public Object run() throws Exception {
+                        if (stopLogListProcessing)
+                            stopLogListProcessing = false;
+
                         // long time = System.currentTimeMillis();
                         // NeptusLog.pub().info("<###>.......downloadListAction");
                         SwingUtilities.invokeAndWait(new Runnable() {
@@ -682,7 +687,7 @@ public class LogsDownloaderWorker {
                         // long timeD1 = System.currentTimeMillis();
 
                         LinkedHashMap<FTPFile, String> retList = null;
-                        
+
                         // Getting the file list from main CPU
                         try {
                             clientFtp = new FtpDownloader(host, port);
@@ -744,7 +749,6 @@ public class LogsDownloaderWorker {
                         }
 
                         if (retList.size() == 0) {
-                            // TODO
                             SwingUtilities.invokeAndWait(new Runnable() {
                                 @Override
                                 public void run() {
@@ -769,12 +773,17 @@ public class LogsDownloaderWorker {
                         Object[] objArray = new Object[logFolderList.myModel.size()];
                         logFolderList.myModel.copyInto(objArray);
                         for (Object comp : objArray) {
+                            if (stopLogListProcessing)
+                                return null;
+                                
                             try {
                                 // NeptusLog.pub().info("<###>... upda
                                 LogFolderInfo log = (LogFolderInfo) comp;
                                 if (!retList.containsValue(log.getName())) {
                                     // retList.remove(log.getName());
                                     for (LogFileInfo lfx : log.getLogFiles()) {
+                                        if (stopLogListProcessing)
+                                            return null;
                                         lfx.setState(LogFolderInfo.State.LOCAL);
                                     }
                                     log.setState(LogFolderInfo.State.LOCAL);
@@ -791,6 +800,9 @@ public class LogsDownloaderWorker {
                         LinkedList<LogFolderInfo> existenteLogFoldersFromServer = new LinkedList<LogFolderInfo>();
                         LinkedList<LogFolderInfo> newLogFoldersFromServer = new LinkedList<LogFolderInfo>();
                         for (String newLogName : retList.values()) {
+                            if (stopLogListProcessing)
+                                return null;
+
                             final LogFolderInfo newLogDir = new LogFolderInfo(newLogName);
                             if (logFolderList.containsFolder(newLogDir)) {
                                 existenteLogFoldersFromServer.add(logFolderList.getFolder((newLogDir.getName())));
@@ -838,6 +850,9 @@ public class LogsDownloaderWorker {
 
                         // Testing for log files from each log folder
                         for (Object comp : objArray) {
+                            if (stopLogListProcessing)
+                                return null;
+
                             try {
                                 LogFolderInfo logFolder = (LogFolderInfo) comp;
 
@@ -846,48 +861,51 @@ public class LogsDownloaderWorker {
                                 int indexLFolder = tmpLogFolderList.indexOf(logFolder);
                                 LinkedHashSet<LogFileInfo> logFilesTmp = (indexLFolder != -1) ? tmpLogFolderList.get(
                                         indexLFolder).getLogFiles() : new LinkedHashSet<LogFileInfo>();
-                                for (LogFileInfo logFx : logFilesTmp) {
-                                    if (!logFolder.getLogFiles().contains(logFx)) {
-                                        logFolder.addFile(logFx);
-                                    }
-                                    else {
-                                        LogFileInfo lfx = logFolder.getLogFile(logFx.getName()/* fxStr */);
-                                        if (lfx.getSize() == -1) {
-                                            lfx.setSize(logFx.getSize()/* size */);
-                                        }
-                                        else if (lfx.getSize() != logFx.getSize()/* size */) {
-                                            if (lfx.getState() == LogFolderInfo.State.SYNC)
-                                                lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                            else if (lfx.getState() == LogFolderInfo.State.LOCAL)
-                                                lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                            lfx.setSize(logFx.getSize()/* size */);
-                                            lfx.setFile(logFx.getFile());
-                                        }
-                                        else if (lfx.getSize() == logFx.getSize()/* size */) {
-                                            if (lfx.getState() == LogFolderInfo.State.LOCAL)
-                                                lfx.setState(LogFolderInfo.State.SYNC);
-                                        }
-                                        if (!getFileTarget(lfx.getName()).exists()) {
-                                            if (lfx.getState() != LogFolderInfo.State.NEW)
-                                                lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                        }
-                                    }
-                                }
+                                        for (LogFileInfo logFx : logFilesTmp) {
+                                            if (stopLogListProcessing)
+                                                return null;
 
-                                // Put LOCAL state on files not in server
-                                LinkedHashSet<LogFileInfo> toDelFL = new LinkedHashSet<LogFileInfo>();
-                                for (LogFileInfo lfx : logFolder.getLogFiles()) {
-                                    if (!logFilesTmp.contains(lfx)
-                                    /* !res.keySet().contains(lfx.getName()) */) {
-                                        lfx.setState(LogFolderInfo.State.LOCAL);
-                                        if (!getFileTarget(lfx.getName()).exists()) {
-                                            toDelFL.add(lfx);
-                                            // logFolder.getLogFiles().remove(lfx); //This cannot be done here
+                                            if (!logFolder.getLogFiles().contains(logFx)) {
+                                                logFolder.addFile(logFx);
+                                            }
+                                            else {
+                                                LogFileInfo lfx = logFolder.getLogFile(logFx.getName()/* fxStr */);
+                                                if (lfx.getSize() == -1) {
+                                                    lfx.setSize(logFx.getSize()/* size */);
+                                                }
+                                                else if (lfx.getSize() != logFx.getSize()/* size */) {
+                                                    if (lfx.getState() == LogFolderInfo.State.SYNC)
+                                                        lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                                    else if (lfx.getState() == LogFolderInfo.State.LOCAL)
+                                                        lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                                    lfx.setSize(logFx.getSize()/* size */);
+                                                    lfx.setFile(logFx.getFile());
+                                                }
+                                                else if (lfx.getSize() == logFx.getSize()/* size */) {
+                                                    if (lfx.getState() == LogFolderInfo.State.LOCAL)
+                                                        lfx.setState(LogFolderInfo.State.SYNC);
+                                                }
+                                                if (!getFileTarget(lfx.getName()).exists()) {
+                                                    if (lfx.getState() != LogFolderInfo.State.NEW)
+                                                        lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                                }
+                                            }
                                         }
-                                    }
-                                }
-                                for (LogFileInfo lfx : toDelFL)
-                                    logFolder.getLogFiles().remove(lfx);
+
+                                        // Put LOCAL state on files not in server
+                                        LinkedHashSet<LogFileInfo> toDelFL = new LinkedHashSet<LogFileInfo>();
+                                        for (LogFileInfo lfx : logFolder.getLogFiles()) {
+                                            if (!logFilesTmp.contains(lfx)
+                                                    /* !res.keySet().contains(lfx.getName()) */) {
+                                                lfx.setState(LogFolderInfo.State.LOCAL);
+                                                if (!getFileTarget(lfx.getName()).exists()) {
+                                                    toDelFL.add(lfx);
+                                                    // logFolder.getLogFiles().remove(lfx); //This cannot be done here
+                                                }
+                                            }
+                                        }
+                                        for (LogFileInfo lfx : toDelFL)
+                                            logFolder.getLogFiles().remove(lfx);
                             }
                             catch (Exception e) {
                                 NeptusLog.pub().debug(e.getMessage());
@@ -906,7 +924,8 @@ public class LogsDownloaderWorker {
 
                         // long timeF3 = System.currentTimeMillis();
                         // updateFilesListGUIForFolderSelected();
-                        new Thread() {
+                        new Thread("updateFilesListGUIForFolderSelected") {
+                            @Override
                             public void run() {
                                 updateFilesListGUIForFolderSelected();
                             };
@@ -945,6 +964,8 @@ public class LogsDownloaderWorker {
 
                     @Override
                     public void finish() {
+                        stopLogListProcessing = false;
+                        
                         logFolderList.setValueIsAdjusting(false);
                         logFolderList.invalidate();
                         logFolderList.revalidate();
@@ -962,7 +983,6 @@ public class LogsDownloaderWorker {
                             this.getResultOrThrow();
                         }
                         catch (Exception e) {
-                            // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
                     }
@@ -1344,10 +1364,10 @@ public class LogsDownloaderWorker {
                 frame = null;
             }
         }
-        
+
         if (downHelpDialog != null)
             downHelpDialog.dispose();
-        
+
         ImcMsgManager.getManager().removeListener(messageListener);
     }
 
@@ -1355,6 +1375,7 @@ public class LogsDownloaderWorker {
      * 
      */
     private void disconnectFTPClientsForListing() {
+        stopLogListProcessing = true;
         if (clientFtp != null && clientFtp.getClient().isConnected()) {
             try {
                 clientFtp.getClient().disconnect();
@@ -1404,7 +1425,7 @@ public class LogsDownloaderWorker {
      */
     private CompoundPainter<JXPanel> getCompoundBackPainter() {
         compoundBackPainter = new CompoundPainter<JXPanel>(
-        // new MattePainter(Color.BLACK),
+                // new MattePainter(Color.BLACK),
                 getRectPainter(), new GlossPainter());
         return compoundBackPainter;
     }
@@ -1420,8 +1441,8 @@ public class LogsDownloaderWorker {
     }
 
     /**
-	 * 
-	 */
+     * 
+     */
     private void popupErrorConfigurationDialog() {
         // JOptionPane.showMessageDialog(
         // frame,
@@ -1586,8 +1607,8 @@ public class LogsDownloaderWorker {
     private final Object lock = new Object();
 
     /**
-	 * 
-	 */
+     * 
+     */
     private void updateFilesListGUIForFolderSelected() {
         if (isUpdatingFileList)
             exitRequest = true;
@@ -1999,7 +2020,7 @@ public class LogsDownloaderWorker {
                 for (String logDir : logsDirList) {
                     String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
                     if (ftpd.getClient().changeWorkingDirectory("/" + isoStr + "/") == false) // Log doesnt exist in
-                                                                                              // DOAM
+                        // DOAM
                         continue;
 
                     LogFolderInfo lFolder = null;
@@ -2059,8 +2080,8 @@ public class LogsDownloaderWorker {
     // --------------------------------------------------------------
 
     /**
-	 * 
-	 */
+     * 
+     */
     private void cleanInterface() {
         logFilesList.myModel.clear();
         logFolderList.myModel.clear();
@@ -2305,8 +2326,8 @@ public class LogsDownloaderWorker {
     }
 
     /**
-	 * 
-	 */
+     * 
+     */
     private void doStopLogFoldersDownloads(String... logList) {
         boolean stopAll = true;
         if (logList != null)
@@ -2339,9 +2360,9 @@ public class LogsDownloaderWorker {
         try {
             if (!justStopDownloads)
                 warnLongMsg(I18n.text("Resetting... Wait please..."));
-            
+
             disconnectFTPClientsForListing();
-            
+
             doStopLogFoldersDownloads();
             if (!justStopDownloads)
                 cleanInterface();

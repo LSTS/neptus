@@ -232,8 +232,8 @@ public class Spot {
         public final ArrayList<LocationType> locations;
 
         /**
-         * @param latitude
-         * @param longitude
+         * @param latRads
+         * @param lonRads
          */
         public LocationSpeedDirection(float speed, double direction, ArrayList<LocationType> locations) {
             super();

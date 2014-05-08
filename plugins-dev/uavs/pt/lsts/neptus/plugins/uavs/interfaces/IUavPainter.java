@@ -34,7 +34,7 @@ package pt.lsts.neptus.plugins.uavs.interfaces;
 import java.awt.Graphics2D;
 
 /**
- * @author canasta
+ * @author canastaman
  *
  */
 public interface IUavPainter {

@@ -40,6 +40,8 @@ import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.RemoteSensorInfo;
+import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
@@ -59,7 +61,7 @@ public class DeviceUpdate extends IridiumMessage {
     public DeviceUpdate() {
         super(2001);
     }
-    
+
     @Override
     public int serializeFields(IMCOutputStream out) throws Exception {
         int read = 0;
@@ -68,9 +70,9 @@ public class DeviceUpdate extends IridiumMessage {
             read+=2;
             out.writeUnsignedInt(Math.round(p.timestamp));
             read+=4;
-            out.writeUnsignedInt(Math.round(Math.toDegrees(p.latitude) * 1000000.0));
+            out.writeInt((int)Math.round(Math.toDegrees(p.latRads) * 1000000.0));
             read+=4;
-            out.writeUnsignedInt(Math.round(Math.toDegrees(p.longitude) * 1000000.0));
+            out.writeInt((int)Math.round(Math.toDegrees(p.lonRads) * 1000000.0));
             read+=4;            
         }
         return read;
@@ -86,35 +88,41 @@ public class DeviceUpdate extends IridiumMessage {
             read+=2;
             pos.timestamp = in.readUnsignedInt();
             read+=4;
-            pos.latitude = Math.toRadians(in.readUnsignedInt() / 1000000.0);
+            pos.latRads = Math.toRadians(in.readInt() / 1000000.0);
             read+=4;
-            pos.longitude = Math.toRadians(in.readUnsignedInt() / 1000000.0);
+            pos.lonRads = Math.toRadians(in.readInt() / 1000000.0);
             read+=4;
             positions.put(pos.id, pos);
         }
         return read;
     }
-    
+
     @Override
     public Collection<IMCMessage> asImc() {
         Vector<IMCMessage> msgs = new Vector<>();
-        
+
         for (Position pos : positions.values()) {
             RemoteSensorInfo sensorInfo = new RemoteSensorInfo();
-            sensorInfo.setLat(Math.toRadians(pos.latitude));
-            sensorInfo.setLon(Math.toRadians(pos.longitude));
+            sensorInfo.setLat(pos.latRads);
+            sensorInfo.setLon(pos.lonRads);
+            sensorInfo.setTimestamp(pos.timestamp);
             sensorInfo.setAlt(0);
             sensorInfo.setId(IMCDefinition.getInstance().getResolver().resolve(pos.id));
             sensorInfo.setSrc(getSource());
             sensorInfo.setDst(getDestination());
+            sensorInfo.setSensorClass(IMCUtils.getSystemType(pos.id));
             msgs.add(sensorInfo);
         }
-        
         return msgs;
     }
-
-    public static class Position {
-        public int id;
-        public double latitude, longitude, timestamp;
+    
+    @Override
+    public String toString() {
+        String s = super.toString();
+        for (Position p : positions.values()) {
+            s += "\t("+IMCDefinition.getInstance().getResolver().resolve(p.id)+") --> "+new LocationType(Math.toDegrees(p.latRads), Math.toDegrees(p.lonRads));
+        }
+        return s;         
     }
+
 }

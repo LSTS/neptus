@@ -94,7 +94,7 @@
 		<comm-mean>
 			<name>ethernet</name>
 			<type>ethernet</type>
-			<host-address>10.0.20.110</host-address>
+			<host-address>10.0.20.100</host-address>
 			<credentials username="root"/>
 			<protocols>imc</protocols>
 			<latency value="10M" unit="bps"/>

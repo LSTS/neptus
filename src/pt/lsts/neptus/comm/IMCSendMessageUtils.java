@@ -39,7 +39,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
@@ -150,8 +150,8 @@ public class IMCSendMessageUtils {
             }
             retAll = retAll && ret;
             if (!ret) {
-                if (parent instanceof SubPanel) {
-                    ((SubPanel) parent).post(Notification.error(I18n.text("Send Message"), errorTextForDialog).src(
+                if (parent instanceof ConsolePanel) {
+                    ((ConsolePanel) parent).post(Notification.error(I18n.text("Send Message"), errorTextForDialog).src(
                             I18n.text("Console")));
                 }
                 else {

@@ -253,6 +253,8 @@ public class ColormapOverlay implements Renderer2DPainter {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         Point2D corner = renderer.getScreenPosition(topLeft);
+        Graphics2D copy = (Graphics2D) g.create();
+        
         g.translate(corner.getX(), corner.getY());
         g.scale(cellWidth * renderer.getZoom(), cellWidth * renderer.getZoom());
         g.rotate(-renderer.getRotation());
@@ -260,7 +262,7 @@ public class ColormapOverlay implements Renderer2DPainter {
         g.rotate(renderer.getRotation());
         g.translate(-corner.getX(), -corner.getY());
         
-        drawLegend(g);        
+        drawLegend(copy);        
         
     }
     
@@ -287,7 +289,7 @@ public class ColormapOverlay implements Renderer2DPainter {
         
         g.setFont(prev);
         
-        g.translate(5, 50);
+        g.translate(5, 5);
         
         cb.paint(g);
         

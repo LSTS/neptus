@@ -37,11 +37,11 @@ import java.text.DecimalFormat;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 
 /**
@@ -50,7 +50,7 @@ import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "Vehicle Speed", author = "ZP and Paulo Dias", icon = "pt/lsts/neptus/plugins/position/position.png", description = "Shows the Vehicle's speed")
-public class SpeedPanel extends SimpleSubPanel implements IPeriodicUpdates, ConfigurationListener,
+public class SpeedPanel extends ConsolePanel implements IPeriodicUpdates, ConfigurationListener,
         NeptusMessageListener {
 
     private DisplayPanel displaySpeed;

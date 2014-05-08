@@ -35,7 +35,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.geom.Line2D;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -47,6 +47,7 @@ import java.util.Vector;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
@@ -58,8 +59,7 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.ColormapOverlay;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.WorldImage;
 import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryParserFactory;
@@ -72,7 +72,9 @@ import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParser;
+import pt.lsts.neptus.mra.importers.lsf.DVLBathymetryParser;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.ImageLayer;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -87,6 +89,7 @@ import pt.lsts.util.WGS84Utilities;
 /**
  * @author zp
  */
+@PluginDescription
 public class KMLExporter implements MRAExporter {
     public double minLat = 180;
     public double maxLat = -180;
@@ -101,7 +104,7 @@ public class KMLExporter implements MRAExporter {
 
     File f, output;
     IMraLogGroup source;
-    MRAPanel panel;
+    ProgressMonitor pmonitor;
 
     @NeptusProperty
     public double timeVariableGain = 300;
@@ -113,16 +116,26 @@ public class KMLExporter implements MRAExporter {
     public double swathLength = 1.0;
 
     @NeptusProperty
-    public double swathTransparency = 0.8;
+    public double swathTransparency = 0.25;
 
     @NeptusProperty
     public double layerTransparency = 0.5;
 
+    @NeptusProperty
+    public boolean separate_transducers = false;
 
+    @NeptusProperty
+    public boolean filterOutNadir = true;
 
-    public KMLExporter(MRAPanel panel, IMraLogGroup source) {
+    @NeptusProperty
+    public boolean removeInfiniteShadows = true;
+
+    @NeptusProperty
+    public double maximumSidescanRange = 50;
+
+    public KMLExporter(IMraLogGroup source) {
         this.source = source;
-        this.panel = panel;
+
     }
 
     @Override
@@ -215,7 +228,8 @@ public class KMLExporter implements MRAExporter {
         TidePredictionFinder finder = TidePredictionFactory.create(source);
 
         for (EstimatedState state : source.getLsfIndex().getIterator(EstimatedState.class, 100)) {
-            if (state.getAlt() < 0 || state.getDepth() < NeptusMRA.minDepthForBathymetry || Math.abs(state.getTheta()) > Math.toDegrees(10))
+            if (state.getAlt() < 0 || state.getDepth() < MRAProperties.minDepthForBathymetry
+                    || Math.abs(state.getTheta()) > Math.toDegrees(10))
                 continue;
 
             LocationType loc = new LocationType(Math.toDegrees(state.getLat()), Math.toDegrees(state.getLon()));
@@ -225,7 +239,8 @@ public class KMLExporter implements MRAExporter {
                 overlay.addSample(loc, state.getAlt() + state.getDepth());
             else {
                 try {
-                    overlay.addSample(loc, state.getAlt() + state.getDepth() - finder.getTidePrediction(state.getDate(), false));
+                    overlay.addSample(loc,
+                            state.getAlt() + state.getDepth() - finder.getTidePrediction(state.getDate(), false));
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -247,8 +262,7 @@ public class KMLExporter implements MRAExporter {
             ne.setLatitudeStr(il.getTopLeft().getLatitudeStr());
             ne.setLongitudeStr(il.getBottomRight().getLongitudeStr());
 
-            return overlay(new File(dir, "dvn.png"), "DVL Bathymetry mosaic",
-                    sw, ne);
+            return overlay(new File(dir, "dvn.png"), "DVL Bathymetry mosaic", sw, ne);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -257,10 +271,19 @@ public class KMLExporter implements MRAExporter {
 
     }
 
-    public String sidescanOverlay(File dir, double resolution, LocationType topLeft, LocationType bottomRight) {
+    enum Ducer {
+        starboard,
+        board,
+        both
+    }
+
+    public String sidescanOverlay(File dir, double resolution, LocationType topLeft, LocationType bottomRight,
+            Ducer ducer) {
         SidescanParser ssParser = SidescanParserFactory.build(source);
 
-        //FIXME temporary fix
+        double totalProg = 100;
+        double startProg = 100;
+        // FIXME temporary fix
         boolean makeAbs = (ssParser instanceof JsfSidescanParser);
 
         // System.out.println("makeAbs: "+makeAbs);
@@ -269,7 +292,7 @@ public class KMLExporter implements MRAExporter {
             return "";
 
         double[] offsets = topLeft.getOffsetFrom(bottomRight);
-        int width = (int) Math.abs(offsets[1]* resolution) ;
+        int width = (int) Math.abs(offsets[1] * resolution);
         int height = (int) Math.abs(offsets[0] * resolution);
 
         if (width <= 0 || height <= 0)
@@ -282,11 +305,12 @@ public class KMLExporter implements MRAExporter {
 
             @Override
             public void paint(java.awt.Graphics g) {
-                g.drawImage(img, 0, 0, getWidth(), getHeight(), 0, 0, img.getWidth(), img.getHeight(), null);                
+                g.drawImage(img, 0, 0, getWidth(), getHeight(), 0, 0, img.getWidth(), img.getHeight(), null);
             };
         };
 
         JFrame frm = GuiUtils.testFrame(lbl, "Creating sidescan mosaic...");
+        frm.getContentPane().setBackground(Color.white);
         frm.setSize(800, 600);
         GuiUtils.centerOnScreen(frm);
         Graphics2D g = (Graphics2D) img.getGraphics();
@@ -294,10 +318,20 @@ public class KMLExporter implements MRAExporter {
         long end = ssParser.lastPingTimestamp();
         int sys = ssParser.getSubsystemList().get(0);
         SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
+        String filename = "sidescan";
 
         BufferedImage swath = null;
         ColorMap cmap = ColorMapFactory.createBronzeColormap();
         for (long time = start; time < end - 1000; time += 1000) {
+            if (pmonitor.isCanceled()) {
+                frm.setVisible(false);
+                frm.dispose();
+                return "";
+            }
+            double progress = ((double)(time - start) / (end - start)) * totalProg + startProg;
+            pmonitor.setProgress((int)progress);
+
+
             ArrayList<SidescanLine> lines;
             try {
                 lines = ssParser.getLinesBetween(time, time + 1000, sys, params);
@@ -310,17 +344,18 @@ public class KMLExporter implements MRAExporter {
             BufferedImage previous = new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB);
             for (SidescanLine sl : lines) {
 
-                int widthPixels = (int)(sl.range * resolution * 2);
+                int widthPixels = (int) (sl.range * resolution * 2);
 
                 // Calculate nadir pixel range to be zero-alpha (transparent)
-                int nadirStartPixel = (int) ((widthPixels / 2) - (sl.state.getAltitude() * resolution));
-                int nadirFinalPixel = (int) ((widthPixels / 2) + (sl.state.getAltitude() * resolution));
+                int nadirStartPixel = (int) ((widthPixels / 2) - (sl.state.getAltitude() * resolution * 1.25));
+                int nadirFinalPixel = (int) ((widthPixels / 2) + (sl.state.getAltitude() * resolution * 1.25));
 
                 if (swath == null || swath.getWidth() != widthPixels)
                     swath = new BufferedImage(widthPixels, 3, BufferedImage.TYPE_INT_ARGB);
 
                 if (previous != null)
-                    swath.getGraphics().drawImage(previous, 0, 0, swath.getWidth(), 1, 1, 0, 2, previous.getWidth(), null);
+                    swath.getGraphics().drawImage(previous, 0, 0, swath.getWidth(), 1, 1, 0, 2, previous.getWidth(),
+                            null);
 
                 int samplesPerPixel = sl.data.length / widthPixels;
                 if (samplesPerPixel == 0)
@@ -328,40 +363,62 @@ public class KMLExporter implements MRAExporter {
                 double sum = 0;
                 int count = 0;
 
-                for (int i = 0; i < sl.data.length; i++) {
-                    if (i != 0 && i % samplesPerPixel == 0) {
-                        int alpha = (int)(swathTransparency * 255);
+                int startPixel, endPixel;
 
-                        if(i / samplesPerPixel >= nadirStartPixel || i / samplesPerPixel <= nadirFinalPixel) {
-                            alpha = 0;
+                switch (ducer) {
+                    case board:
+                        startPixel = 0;
+                        endPixel = sl.data.length / 2;
+                        filename = "sidescan_board";
+                        break;
+                    case starboard:
+                        startPixel = sl.data.length / 2;
+                        endPixel = sl.data.length;
+                        filename = "sidescan_starboard";
+                        break;
+                    default:
+                        startPixel = 0;
+                        endPixel = sl.data.length;
+                        filename = "sidescan";
+                        break;
+                }
+
+                for (int i = startPixel; i < endPixel; i++) {
+                    if (i != 0 && i % samplesPerPixel == 0) {
+                        int alpha = (int) (swathTransparency * 255);
+                        double val = sum / count;
+
+                        if (filterOutNadir && (double) i / samplesPerPixel >= nadirStartPixel
+                                && (double) i / samplesPerPixel <= nadirFinalPixel) {
+                            alpha = (int) ((1.0 - val) * (1.0 - val) * 255);
                         }
 
-                        double val = sum / count;
-                        if ((i/samplesPerPixel-1)<widthPixels)
-                            swath.setRGB(i/samplesPerPixel-1, 0, cmap.getColor(val).getRGB() | (alpha << 24));
+                        if ((i / samplesPerPixel - 1) < widthPixels)
+                            swath.setRGB(i / samplesPerPixel - 1, 0, cmap.getColor(val).getRGB()
+                                    ^ ((alpha & 0xFF) << 24));
                         sum = count = 0;
                     }
                     else {
-                        count ++;
+                        count++;
                         sum += sl.data[i];
-                    }                 
-                }                
-                Graphics2D g2 = (Graphics2D)g.create();
+                    }
+                }
+                Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                 double[] pos = sl.state.getPosition().getOffsetFrom(topLeft);
                 g2.translate(pos[1] * resolution, -pos[0] * resolution);
                 // System.out.print(Math.toDegrees(sl.state.getYaw())+" --> ");
                 if (makeAbs && sl.state.getYaw() < 0)
-                    g2.rotate(Math.toRadians(300)+sl.state.getYaw());
+                    g2.rotate(Math.toRadians(300) + sl.state.getYaw());
                 else
                     g2.rotate(sl.state.getYaw());
                 // System.out.println(Math.toDegrees(Math.abs(sl.state.getYaw())));
-                //System.out.println(Math.toDegrees(sl.state.getYaw()));
+                // System.out.println(Math.toDegrees(sl.state.getYaw()));
                 g2.setColor(Color.black);
-                g2.scale(1, swathLength*resolution);
+                g2.scale(1, swathLength * resolution);
 
-                g2.drawImage(swath, -swath.getWidth()/2, 0, null);
+                g2.drawImage(swath, -swath.getWidth() / 2, 0, null);
                 g2.dispose();
                 previous = swath;
                 lbl.repaint();
@@ -372,8 +429,8 @@ public class KMLExporter implements MRAExporter {
         frm.dispose();
 
         try {
-            ImageIO.write(img, "PNG", new File(dir, "sidescan.png"));
-            ImageLayer il = new ImageLayer("Sidescan mosaic from "+source.name(), img, topLeft, bottomRight);
+            ImageIO.write(img, "PNG", new File(dir, filename + ".png"));
+            ImageLayer il = new ImageLayer("Sidescan mosaic from " + source.name(), img, topLeft, bottomRight);
             il.setTransparency(layerTransparency);
             il.saveToFile(new File(dir.getParentFile(), "sidescan.layer"));
             return overlay(new File(dir, "sidescan.png"), "Sidescan mosaic", 
@@ -389,7 +446,7 @@ public class KMLExporter implements MRAExporter {
     public String multibeamLegend(File dir) {
         BufferedImage img = new BufferedImage(100, 170, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) img.getGraphics();
-        g.setColor(new Color(255,255,255,100));
+        g.setColor(new Color(255, 255, 255, 100));
         g.fillRect(5, 30, 70, 110);
 
         ColorMap cmap = ColorMapFactory.createJetColorMap();
@@ -405,8 +462,8 @@ public class KMLExporter implements MRAExporter {
 
         try {
             g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(0), 28, 20);
-            g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(NeptusMRA.maxBathymDepth/2), 28, 60);
-            g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(NeptusMRA.maxBathymDepth), 28, 100);
+            g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(MRAProperties.maxBathymDepth / 2), 28, 60);
+            g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(MRAProperties.maxBathymDepth), 28, 100);
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -415,7 +472,7 @@ public class KMLExporter implements MRAExporter {
 
         try {
             ImageIO.write(img, "PNG", new File(dir, "mb_legend.png"));
-            String ret= "\t\t<ScreenOverlay>\n";
+            String ret = "\t\t<ScreenOverlay>\n";
             ret += "\t\t\t<name>Multibeam layer legend</name>\n";
             ret += "\t\t\t<Icon>\n";
             ret += "\t\t\t\t<href>" + new File(dir, "mb_legend.png").toURI().toURL() + "</href>\n";
@@ -434,7 +491,16 @@ public class KMLExporter implements MRAExporter {
     }
 
     public String multibeamOverlay(File dir) {
+        if (pmonitor.isCanceled())
+            return "";
         BathymetryParser parser = BathymetryParserFactory.build(source);
+        double pixelWidth = 1.0;
+
+        double startProg = 200;
+
+        if (parser instanceof DVLBathymetryParser)
+            pixelWidth = 2.5;
+
         if (parser == null) {
             NeptusLog.pub().info(I18n.text("no multibeam data has been found."));
             return "";
@@ -447,56 +513,88 @@ public class KMLExporter implements MRAExporter {
         LocationType topLeft = new LocationType(parser.getBathymetryInfo().topLeft);
         LocationType bottomRight = new LocationType(parser.getBathymetryInfo().bottomRight);
 
-        topLeft.translatePosition(50, -50, 0);
-        bottomRight.translatePosition(-50, 50, 0);
+        topLeft.translatePosition(maximumSidescanRange, -maximumSidescanRange, 0);
+        bottomRight.translatePosition(-maximumSidescanRange, maximumSidescanRange, 0);
         topLeft.convertToAbsoluteLatLonDepth();
         bottomRight.convertToAbsoluteLatLonDepth();
 
-
         double[] offsets = topLeft.getOffsetFrom(bottomRight);
         double mult = 1.25;
-        int width = (int) Math.abs(offsets[1]* mult) ;
+        int width = (int) Math.abs(offsets[1] * mult);
         int height = (int) Math.abs(offsets[0] * mult);
 
-        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = (Graphics2D)img.getGraphics();
+        final BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = (Graphics2D) img.getGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         BathymetrySwath swath;
         long first = (long) (1000 * source.getLsfIndex().getStartTime());
         long time = (long) (1000 * source.getLsfIndex().getEndTime()) - first;
         long lastPercent = -1;
 
+        JLabel lbl = new JLabel() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void paint(java.awt.Graphics g) {
+                g.drawImage(img, 0, 0, getWidth(), getHeight(), 0, 0, img.getWidth(), img.getHeight(), null);
+            };
+        };
+
+        JFrame frm = GuiUtils.testFrame(lbl, "Creating multibeam mosaic...");
+        frm.getContentPane().setBackground(Color.black);
+        frm.setSize(800, 600);
+        GuiUtils.centerOnScreen(frm);
+
         ColorMap cmap = ColorMapFactory.createJetColorMap();
 
-        while ((swath = parser.nextSwath(1)) != null) {
 
+        while ((swath = parser.nextSwath(1)) != null) {
+            if (pmonitor.isCanceled()) {
+                frm.setVisible(false);
+                frm.dispose();
+                return "";
+            }
             LocationType loc = swath.getPose().getPosition();
 
             for (BathymetryPoint bp : swath.getData()) {
 
-                //if (Math.random() < 0.2)
-                //    continue;
+                // if (Math.random() < 0.2)
+                // continue;
                 LocationType loc2 = new LocationType(loc);
                 if (bp == null)
                     continue;
                 loc2.translatePosition(bp.north, bp.east, 0);
 
                 double[] pos = loc2.getOffsetFrom(topLeft);
-                Color c = cmap.getColor(1-(bp.depth/NeptusMRA.maxBathymDepth));
+                Color c = cmap.getColor(1 - (bp.depth / MRAProperties.maxBathymDepth));
 
                 g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 64));
-                g.draw(new Line2D.Double(pos[1] * mult, -pos[0] * mult, pos[1] * mult, -pos[0] * mult));
+                g.fill(new Ellipse2D.Double(pos[1] * mult - pixelWidth / 2, -pos[0] * mult - pixelWidth / 2,
+                        pixelWidth, pixelWidth));
             }
             long percent = ((swath.getTimestamp() - first) * 100) / time;
             if (percent != lastPercent)
-                NeptusLog.pub().info("MULTIBEAM: " + percent + "% done...");
+                pmonitor.setProgress((int)(startProg + percent));
+            //NeptusLog.pub().info("MULTIBEAM: " + percent + "% done...");
             lastPercent = percent;
+
+            lbl.repaint();
+            lbl.setBackground(Color.black);
+            try {
+                Thread.yield();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+
+        frm.setVisible(false);
+        frm.dispose();
 
         try {
             ImageIO.write(img, "PNG", new File(dir, "mb_bath2.png"));
-            ImageLayer il = new ImageLayer("Bathymetry from "+source.name(), img, topLeft, bottomRight);
+            ImageLayer il = new ImageLayer("Bathymetry from " + source.name(), img, topLeft, bottomRight);
             il.saveToFile(new File(dir.getParentFile(), "multibeam.layer"));
-
 
             return legend+overlay(new File(dir, "mb_bath2.png"), "Multibeam Bathymetry", 
                     new LocationType(bottomRight.getLatitudeDegs(), topLeft.getLongitudeDegs()),
@@ -525,7 +623,7 @@ public class KMLExporter implements MRAExporter {
         long lastPercent = -1;
 
         while ((swath = parser.nextSwath(0.1)) != null) {
-            //System.out.println("processing swath...");
+            // System.out.println("processing swath...");
             LocationType loc = swath.getPose().getPosition();
             for (BathymetryPoint bp : swath.getData()) {
 
@@ -536,7 +634,7 @@ public class KMLExporter implements MRAExporter {
                     continue;
                 loc2.translatePosition(-bp.north, -bp.east, 0);
 
-                imgMb.addPoint(loc2, 1-(bp.depth/parser.getBathymetryInfo().maxDepth));
+                imgMb.addPoint(loc2, 1 - (bp.depth / parser.getBathymetryInfo().maxDepth));
                 long percent = ((swath.getTimestamp() - first) * 100) / time;
                 if (percent != lastPercent)
                     NeptusLog.pub().info("MULTIBEAM: " + percent + "% done...");
@@ -557,11 +655,16 @@ public class KMLExporter implements MRAExporter {
     }
 
     @Override
-    public String process() {
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
+
+        this.pmonitor = pmonitor;
+        pmonitor.setMinimum(0);
+        pmonitor.setMaximum(320);
 
         PluginUtils.editPluginProperties(this, true);
 
         try {
+            pmonitor.setNote("Generating output dirs");
             File out = new File(source.getFile("mra"), "kml");
             out.mkdirs();
 
@@ -577,11 +680,17 @@ public class KMLExporter implements MRAExporter {
 
             // Path
             LsfGenericIterator it = source.getLsfIndex().getIterator("EstimatedState", 0, 3000);
+            pmonitor.setProgress(1);
+            pmonitor.setNote("Generating path");
+            double start = source.getLsfIndex().getStartTime();
+            double end = source.getLsfIndex().getEndTime();
             for (IMCMessage s : it) {
+                double progress = ((s.getTimestamp() - start) / (end - start)) * 30 + 1;
+                pmonitor.setProgress((int)progress);
                 LocationType loc = IMCUtils.parseLocation(s);
                 loc.convertToAbsoluteLatLonDepth();
                 if (bottomRight == null) {
-                    bottomRight = new LocationType(loc); 
+                    bottomRight = new LocationType(loc);
                     topLeft = new LocationType(loc);
                 }
 
@@ -602,24 +711,37 @@ public class KMLExporter implements MRAExporter {
                 bw.close();
                 throw new Exception("This log doesn't have required data (EstimatedState)");
             }
+            pmonitor.setNote("Writing path to file");
             bw.write(path(states, "Estimated State", "estate"));
-
-            // plan
+            pmonitor.setProgress(70);
             PlanType plan = null;
-            MissionType mt = LogUtils.generateMission(source);
-            if (mt != null)
-                plan = LogUtils.generatePlan(mt, source);
-            if (plan != null)
+            try {
+                MissionType mt = LogUtils.generateMission(source);
+                if (mt != null)
+                    plan = LogUtils.generatePlan(mt, source);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+            if (plan != null) {
+                pmonitor.setNote("Writing plan");
                 bw.write(path(plan.planPath(), "Planned waypoints", "plan"));
+                pmonitor.setProgress(90);
+            }
 
             topLeft.translatePosition(50, -50, 0);
             bottomRight.translatePosition(-50, 50, 0);
             topLeft.convertToAbsoluteLatLonDepth();
             bottomRight.convertToAbsoluteLatLonDepth();
 
-            bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight));
-
-            String mb = multibeamOverlay(out.getParentFile()); 
+            pmonitor.setNote("Generating sidescan overlay");
+            bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.both));
+            if (separate_transducers) {
+                bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.board));
+                bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.starboard));
+            }
+            pmonitor.setNote("Generating bathymetry overlay");
+            String mb = multibeamOverlay(out.getParentFile());
             if (!mb.isEmpty())
                 bw.write(mb);
             else {
@@ -631,26 +753,30 @@ public class KMLExporter implements MRAExporter {
                     LocationType loc = IMCUtils.parseState(s).getPosition();
                     double alt = s.getDouble("alt");
                     double depth = s.getDouble("depth");
-                    if (alt == -1 || depth < NeptusMRA.minDepthForBathymetry)
+                    if (alt == -1 || depth < MRAProperties.minDepthForBathymetry)
                         continue;
                     else
                         imgDvl.addPoint(loc, s.getDouble("alt"));
                 }
                 ImageIO.write(imgDvl.processData(), "PNG", new File(out.getParent(), "dvl_bath.png"));
                 bw.write(overlay(new File(out.getParent(), "dvl_bath.png"), "DVL Bathymetry", imgDvl.getSouthWest(),
-                        imgDvl.getNorthEast()));                
+                        imgDvl.getNorthEast()));
             }
 
             bw.write(kmlFooter());
 
             bw.close();
 
+            if (pmonitor.isCanceled())
+                return "Cancelled by the user";
+            pmonitor.close();
             return "Log exported to " + out.getAbsolutePath();
         }
         catch (Exception e) {
             GuiUtils.errorMessage("Error while exporting to KML", "Exception of type " + e.getClass().getSimpleName()
                     + " occurred: " + e.getMessage());
             e.printStackTrace();
+            pmonitor.close();
             return null;
         }
     }
@@ -661,7 +787,6 @@ public class KMLExporter implements MRAExporter {
         System.out.println(loc1.getDistanceInMeters(loc2));
         System.out.println(loc2.getDistanceInMeters(loc1));
         double[] res1 = loc2.getOffsetFrom(loc1);
-
         double[] res2 = WGS84Utilities.WGS84displacement(loc1.getLatitudeDegs(), loc1.getLongitudeDegs(), 0, loc2.getLatitudeDegs(), loc2.getLongitudeDegs(), 0);
         System.out.println(Math.sqrt(res2[0] * res2[0] + res2[1] * res2[1]));
         System.out.println(Math.sqrt(res1[0] * res1[0] + res1[1] * res1[1]));

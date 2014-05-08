@@ -32,76 +32,106 @@
 package pt.lsts.neptus.plugins.uavs.painters.foreground;
 
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.RenderingHints;
 import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.plugins.uavs.interfaces.IUavPainter;
 
 /**
- * @author Canasta
- *
+ * Neptus UavPainter intended to be used by the <b>UavAltitudePanel</b> to draw a vertical ruler which allows the viewing of the UAVs current altitude.
+ * This painter functions are limited to positive altitude so it is incompatible with AUV measures.
+ * 
+ * <p>Accepted arguments in <code>LinkedHashMap< String,Object ></code> <b>receivedArgs</b></p> 
+ * <ul>
+ *  <li><b>Key:</b> name+".MaxAlt" <b>Value:</b> int </li>
+ * </ul>
+ * 
+ * @author canastaman
+ * @version 2.0
+ * @category UavPainter  
+ * 
  */
 public class UavRulerPainter implements IUavPainter{
 
-    //predetermined base height for each ruler mark
-    public static final int MARK_MIN_HEIGHT = 4;
+    private String name;
     
-    //default number of marks per ruler section
-    public static final int DEFAULT_MARKS_PER_SECTION = 10;
+    //predetermined width for each ruler mark
+    public static final int MARK_MIN_THICKNESS= 2;
     
-    //number of marks per ruler that will be used
-    public int marksPerSection;
-			
+    //predetermined spacing between each ruler marks
+    public static final int MARK_MIN_SPACING = 6;
+    
+    //predetermined number of marks per ruler section
+    public static final int MARKS_PER_SECTION = 10;
+    
+    //predetermined value to be added to the maximum altitude calculated for drawing purposes
+    public static final int MAX_ALTITUDE_BUFFER = 100;
+    
+    //altitude corresponding to the highest UAV
+    private int vehicleMaxAtl;
+    
+    //maximum drawable altitude using default range
+    private int maxDrawAlt;
+    
+    //predetermined ruler scale based on an always "double up" system starting at 100
+    private int scale;
+    
+    private int rulerSections;
+    
 	private LinkedHashMap<String,Object> receivedArgs;	
-	private Point pixelsPerMark_markGrade_Pair;
-	
-	public UavRulerPainter(int marks_per_section){
-	    marksPerSection = marks_per_section;
-	}
-	
-	public UavRulerPainter(){
-	    marksPerSection = DEFAULT_MARKS_PER_SECTION;
+		
+	public UavRulerPainter(String name){
+	    this.name = name;
+	    this.vehicleMaxAtl = 0;
+	    this.maxDrawAlt = 0;
+	    this.scale = 100;
+	    this.rulerSections = 0;
 	}
 	
     //------Implemented Interfaces------//
 	
-	//IUavPainter_BEGIN
+    //IUavPainter_BEGIN
     @SuppressWarnings("unchecked")
     @Override
     public void paint(Graphics2D g, int width, int height, Object args) {
 
         receivedArgs = (LinkedHashMap<String, Object>) args;    
         
-        if(!receivedArgs.isEmpty()){
-            pixelsPerMark_markGrade_Pair = (Point) receivedArgs.get("markInfo"); 
+        if(receivedArgs.get(name+".MaxAlt") != null){
+            vehicleMaxAtl = (int) receivedArgs.get(name+".MaxAlt");
+            vehicleMaxAtl = (int) Math.floor(vehicleMaxAtl / 100) * 100 + MAX_ALTITUDE_BUFFER;
         }
         
-        int markHeight = pixelsPerMark_markGrade_Pair.x/4;
-        int intervalSpace = pixelsPerMark_markGrade_Pair.x-(2*markHeight);        
+        //standard initiation based on the premised that every draw cycle we check if the ruler scale is accurate, from scratch
+        scale = 100;
+        rulerSections = height / ((MARK_MIN_THICKNESS+MARK_MIN_SPACING)*MARKS_PER_SECTION);
+        maxDrawAlt = scale * rulerSections;
+                
+        while(maxDrawAlt < vehicleMaxAtl){
+            scale = scale << 1;
+            maxDrawAlt = scale * rulerSections;
+        }
+        
         int markCounter = 0;
-        int markGrade = 0;
-               
+        int markGrade = 1;
+                       
         //anti-aliasing
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
         while(height>0){         
             
-            height -= markHeight;
-            drawMark(g,height,width,markCounter,markHeight);
+            height -= MARK_MIN_THICKNESS;
+            drawMark(g,height,width,markCounter,MARK_MIN_THICKNESS);            
             
-            height -= intervalSpace;
+            if(markCounter==MARKS_PER_SECTION){
+                g.drawString(String.valueOf(markGrade*scale), width/4+3, height+MARK_MIN_THICKNESS); 
+                markCounter = 0;
+                markGrade++;
+            }
+                        
+            height -= MARK_MIN_SPACING;
             
-            markCounter++;
-            if(markCounter>marksPerSection)
-                markCounter=1;
-            
-            markGrade += pixelsPerMark_markGrade_Pair.y;  
-            
-            height -= markHeight;            
-            drawMark(g,height,width,markCounter,markHeight);
-            
-            drawText(g,height,width,markCounter,markHeight,markGrade);                  
+            markCounter++;                
         }
         
     }
@@ -109,31 +139,24 @@ public class UavRulerPainter implements IUavPainter{
    
     
     //------Specific Methods------//
-        
-    /**
-     * @param g 
-     * @param height
-     * @param i
-     * @param markHeight
-     * @param pixelsPerMark 
-     */
-    private void drawText(Graphics2D g, int height, int width, int i, int markHeight, int markGrade) {
-        if(i==marksPerSection)
-            g.drawString(String.valueOf(markGrade), width/4+3, height+markHeight);        
-    }
 
     /**
+     * Private method with draws each of the ruler marks with the appropriate in order to give a visual correlation with a real ruler
+     *  
      * @param g 
-     * @param height
-     * @param i
-     * @param markHeight
+     * @param panelHeight
+     * @param panelWidth
+     * @param markCounter
+     * @param markThickness
+     * 
+     * @return void
      */
-    private void drawMark(Graphics2D g, int height, int width, int i, int markHeight) {
-        if(i==0 || i== 10)
-            g.fillRect(0, height, width/5, markHeight);
-        else if(i==5)
-            g.fillRect(0, height, width/8, markHeight);
+    private void drawMark(Graphics2D g, int panelHeight, int panelWidth, int markCounter, int markThickness) {
+        if(markCounter==0 || markCounter== 10)
+            g.fillRect(0, panelHeight, panelWidth/5, markThickness);
+        else if(markCounter==5)
+            g.fillRect(0, panelHeight, panelWidth/8, markThickness);
         else
-            g.fillRect(0, height, width/16, markHeight);
+            g.fillRect(0, panelHeight, panelWidth/16, markThickness);
     }
 }

@@ -81,7 +81,7 @@ import pt.lsts.neptus.gui.BlockingGlassPane;
 import pt.lsts.neptus.gui.ColorMapListRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.visualizations.SimpleMRAVisualization;
@@ -138,7 +138,7 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
 
     @Override
     public Double getDefaultTimeStep() {
-        return NeptusMRA.defaultTimestep;
+        return MRAProperties.defaultTimestep;
     }
 
     @Override
@@ -708,7 +708,7 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
         timestamp = System.currentTimeMillis();
         NeptusLog.pub().debug(timestamp + " processing points");
         for (EstimatedState currEstStateMsg : lsfIndex.getIterator(EstimatedState.class)) {
-            if (currEstStateMsg.getAlt() < 0 || currEstStateMsg.getDepth() < NeptusMRA.minDepthForBathymetry
+            if (currEstStateMsg.getAlt() < 0 || currEstStateMsg.getDepth() < MRAProperties.minDepthForBathymetry
                     || Math.abs(currEstStateMsg.getTheta()) > Math.toDegrees(10)) {
                 continue;
             }

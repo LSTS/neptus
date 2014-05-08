@@ -32,8 +32,11 @@
 package pt.lsts.neptus.types.comm.protocol;
 
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.types.XmlInputMethods;
 import pt.lsts.neptus.types.XmlOutputMethods;
 
@@ -43,7 +46,8 @@ import pt.lsts.neptus.types.XmlOutputMethods;
 public abstract class ProtocolArgs implements XmlOutputMethods, XmlInputMethods {
 
     protected String DEFAULT_ROOT_ELEMENT = "protocol";
-
+    protected boolean isLoadOk = true;
+    
     public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asXML(rootElementName);
@@ -68,6 +72,23 @@ public abstract class ProtocolArgs implements XmlOutputMethods, XmlInputMethods 
     public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
+    }
+    
+    @Override
+    public boolean isLoadOk() {
+        return isLoadOk;
+    }
+    
+    public boolean load(String xml) {
+        try {
+            Document doc = DocumentHelper.parseText(xml);
+            return load(doc.getRootElement());
+        }
+        catch (DocumentException e) {
+            NeptusLog.pub().error(this, e);
+            isLoadOk = false;
+            return isLoadOk;
+        }
     }
 
 }

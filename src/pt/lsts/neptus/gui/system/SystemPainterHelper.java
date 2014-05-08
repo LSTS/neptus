@@ -328,15 +328,25 @@ public class SystemPainterHelper {
         }
     }
 
+    public static final void drawCourseSpeedVectorForSystem(StateRenderer2D renderer, Graphics2D g, ImcSystem sys, 
+            double iconWidth, boolean isLocationKnownUpToDate, double minimumSpeedToBeStopped) {
+        drawCourseSpeedVectorForSystem(renderer, g, sys, Color.WHITE, iconWidth, isLocationKnownUpToDate, minimumSpeedToBeStopped);
+    }
+
     /**
      * @param renderer
      * @param g2
      * @param sys
+     * @param iconWidth 
+     * @param color 
      * @param isLocationKnownUpToDate 
      */
-    public static final void drawCourseSpeedVectorForSystem(StateRenderer2D renderer, Graphics2D g, ImcSystem sys, boolean isLocationKnownUpToDate,
-            double minimumSpeedToBeStopped) {
+    public static final void drawCourseSpeedVectorForSystem(StateRenderer2D renderer, Graphics2D g, ImcSystem sys, Color color, 
+            double iconWidth, boolean isLocationKnownUpToDate, double minimumSpeedToBeStopped) {
         Graphics2D g2 = (Graphics2D) g.create();
+        
+        Color colorToPaint = color == null ? g2.getColor() : color;
+        int vectorOffset = (int) (iconWidth / 2d);
         
         int useTransparency = (isLocationKnownUpToDate ? 255 : AGE_TRANSPARENCY);
         if (useTransparency != 255)
@@ -355,10 +365,18 @@ public class SystemPainterHelper {
                     if (zs < 50) {
                         g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 0,
                                 new float[] { 5, 5 }, 0));
-                        g2.drawLine(0, 0, 0, -50);
+                        g2.setColor(Color.BLACK);
+                        g2.drawLine(2, -vectorOffset, 0, -50);
+                        g2.drawLine(-2, -vectorOffset, 0, -50);
+                        g2.setColor(colorToPaint);
+                        g2.drawLine(0, -vectorOffset, 0, -50);
                     }
                     g2.setStroke(new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND));
-                    g2.drawLine(0, 0, 0, -(int) zs);
+                    g2.setColor(Color.BLACK);
+                    g2.drawLine(2, -vectorOffset, 0, -(int) zs);
+                    g2.drawLine(-2, -vectorOffset, 0, -(int) zs);
+                    g2.setColor(colorToPaint);
+                    g2.drawLine(0, -vectorOffset, 0, -(int) zs);
                     g2.setStroke(cs);
                 }
             }
@@ -367,5 +385,4 @@ public class SystemPainterHelper {
         g2.dispose();
         return;
     }
-
 }

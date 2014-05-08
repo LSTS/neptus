@@ -31,16 +31,18 @@
  */
 package pt.lsts.neptus.mra.plots;
 
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.plugins.PluginDescription;
 
 /**
  * @author zp
  *
  */
-public class CtdPlot extends MraCombinedPlot {
+@PluginDescription(name="CTD chart")
+public class CtdPlot extends MRACombinedPlot {
 
     public CtdPlot(MRAPanel panel) {
         super(panel);
@@ -49,31 +51,31 @@ public class CtdPlot extends MraCombinedPlot {
     public boolean canBeApplied(LsfIndex index) {
         return index.containsMessagesOfType("Conductivity");
     }
-    
+
     @Override
     public String getName() {
         return I18n.text("CTD");
     }
-    
+
     @Override
     public void process(LsfIndex source) {
         int rightEntity = source.getMessage(source.getFirstMessageOfType(("Conductivity"))).getSrcEnt();
-        
+
         for (IMCMessage c : source.getIterator("Conductivity"))
             addValue(c.getTimestampMillis(), "Conductivity."+c.getSourceName(), c.getDouble("value"));
-            
+
         for (IMCMessage c : source.getIterator("Temperature"))
             if (c.getSrcEnt() != rightEntity)
                 continue;
             else                
                 addValue(c.getTimestampMillis(), "Temperature."+c.getSourceName(), c.getDouble("value"));
-        
+
         for (IMCMessage c : source.getIterator("Pressure"))
             if (c.getSrcEnt() != rightEntity)
                 continue;
             else                
                 addValue(c.getTimestampMillis(), "Pressure."+c.getSourceName(), c.getDouble("value"));
-        
+
     }
 
 }

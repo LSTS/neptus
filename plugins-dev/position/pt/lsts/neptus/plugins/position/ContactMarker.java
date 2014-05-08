@@ -57,6 +57,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
@@ -70,7 +71,6 @@ import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.MapGroup;
@@ -93,7 +93,7 @@ import pt.lsts.neptus.util.ReflectionUtil;
 @PluginDescription(author = "Paulo Dias, ZP", name = "Contact Marker", version = "1.6.0",
 // icon = "pt/lsts/neptus/plugins/acoustic/lbl.png",
 description = "Mark a contact on the map from a system location.", documentation = "contact-maker/contact-maker.html")
-public class ContactMarker extends SimpleSubPanel implements IEditorMenuExtension, ConfigurationListener,
+public class ContactMarker extends ConsolePanel implements IEditorMenuExtension, ConfigurationListener,
         SubPanelChangeListener, MainVehicleChangeListener {
 
     @NeptusProperty(name = "Use Single Mark Addition Mode", userLevel = LEVEL.ADVANCED, 

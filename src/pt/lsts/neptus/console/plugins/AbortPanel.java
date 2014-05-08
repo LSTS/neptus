@@ -58,6 +58,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.swing.PanicButton;
 import pt.lsts.neptus.i18n.I18n;
@@ -67,7 +68,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.imc.Abort;
@@ -79,7 +79,7 @@ import pt.lsts.imc.IMCMessage;
  */
 @SuppressWarnings("serial")
 @PluginDescription(icon = "images/buttons/important.png", name = "Abort Button", version = "1.6", documentation = "abort/abort-button.html")
-public class AbortPanel extends SimpleSubPanel implements MainVehicleChangeListener, LockableSubPanel, ConfigurationListener {
+public class AbortPanel extends ConsolePanel implements MainVehicleChangeListener, LockableSubPanel, ConfigurationListener {
 
     public enum AbortButtonShapeEnum { ROUND, RECTANGULAR };
     
@@ -269,7 +269,7 @@ public class AbortPanel extends SimpleSubPanel implements MainVehicleChangeListe
 
                             boolean aSent = true;
                             try {
-                                Vector<IAbortSenderProvider> newTrackers = console.getSubPanelsOfInterface(
+                                Vector<IAbortSenderProvider> newTrackers = getConsole().getSubPanelsOfInterface(
                                         IAbortSenderProvider.class);
                                 for (IAbortSenderProvider t : newTrackers) {
                                     boolean sent = t.sendAbortRequest();

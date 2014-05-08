@@ -32,53 +32,48 @@
 package pt.lsts.neptus.plugins.position.painter;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.geom.Ellipse2D;
 
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.NeptusLog;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+
+import pt.lsts.imc.CpuUsage;
+import pt.lsts.imc.FuelLevel;
+import pt.lsts.imc.Heartbeat;
+import pt.lsts.imc.StorageUsage;
+import pt.lsts.imc.Voltage;
+import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
-import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.ConfigurationListener;
-import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
-import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
-import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.MathMiscUtils;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * @author jqcorreia
  * 
  */
-@SuppressWarnings("serial")
-// "Information On Map"
-@PluginDescription(name = "System Information On Map", icon = "pt/lsts/neptus/plugins/position/position.png", description = "System Information display on map", documentation = "system-info/system-info.html", category = CATEGORY.INTERFACE)
+@PluginDescription(name = "System Information On Map", icon = "pt/lsts/neptus/plugins/position/painter/sysinfo.png", description = "System Information display on map", documentation = "system-info/system-info.html", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 70)
-public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPainter, NeptusMessageListener,
-        IPeriodicUpdates, ConfigurationListener {
+public class SystemInfoPainter extends ConsoleLayer {
 
-    // private static final int ICON_SIZE = 24;
-    // private final ImageIcon CPU_ICON = ImageUtils.getScaledIcon(
-    // ImageUtils.getImage(getClass().getResource("images/cpu-icon.png")), ICON_SIZE, ICON_SIZE);
-    // private final ImageIcon BATT_ICON = ImageUtils.getScaledIcon(
-    // ImageUtils.getImage(getClass().getResource("images/battery-icon.png")), ICON_SIZE, ICON_SIZE);
-    // private final ImageIcon DISK_ICON = ImageUtils.getScaledIcon(
-    // ImageUtils.getImage(getClass().getResource("images/disk-icon.png")), ICON_SIZE, ICON_SIZE);
-    // private final ImageIcon NET_ICON = ImageUtils.getScaledIcon(
-    // ImageUtils.getImage(getClass().getResource("images/wifi-icon.png")), ICON_SIZE, ICON_SIZE);
-
-    private static final int RECT_WIDTH = 250;
-    private static final int RECT_HEIGHT = 100;
+    private static final int RECT_WIDTH = 200;
+    private static final int RECT_HEIGHT = 70;
     private static final int MARGIN = 5;
+
+    private String strCpu, strFuel, strComms, strDisk;
 
     @NeptusProperty(name = "Enable")
     public boolean enablePainter = true;
@@ -86,13 +81,13 @@ public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPaint
     @NeptusProperty(name = "Enable Info", description = "Paint Vehicle Information on panel")
     public boolean paintInfo = true;
 
-    @NeptusProperty(name = "Enable Alarm", description = "Paint border on alarm state")
-    public boolean paintBorder = true;
-
     @NeptusProperty(name = "Entity Name", description = "Vehicle Battery entity name")
     public String batteryEntityName = "Batteries";
 
+    private JLabel toDraw;
     private String mainSysName;
+
+    long lastMessageMillis = 0;
 
     private int cpuUsage = 0;
     private double batteryVoltage;
@@ -102,132 +97,162 @@ public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPaint
     private int hbCount = 0;
     private int lastHbCount = 0;
 
-    private Font textFont;
-
-    public SystemInfoPainter(ConsoleLayout console) {
-        super(console);
-    }
-
     @Override
-    public void initSubPanel() {
+    public void initLayer() {
         mainSysName = getConsole().getMainSystem();
+        toDraw = new JLabel("<html></html>");
 
-        // Register as AlarmProvider for Cpu/Batt/Net/Disk
-
-        addMenuItem(
-                I18n.text("Advanced") + ">" + PluginUtils.getPluginI18nName(this.getClass()) + " "
-                        + I18n.text("Enable/Disable"), null, new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        enablePainter = !enablePainter;
-                    }
-
-                });
-
-        // Initialize the fonts
-        try {
-            textFont = new Font("Arial", Font.BOLD, 12);
-        }
-        catch (Exception e1) {
-            e1.printStackTrace();
-            NeptusLog.pub().info("<###>Font Loading Error");
-        }
+        strCpu = I18n.textc("CPU", "Use a single small word");
+        strFuel = I18n.textc("Fuel", "Use a single small word");
+        strDisk = I18n.textc("Disk", "Use a single small word");
+        strComms = I18n.textc("Comms", "Use a single small word");
     }
+
+    private InterpolationColorMap rygColorMap = new InterpolationColorMap(new double[] { 0.0, 0.01, 0.75, 1.0 }, new Color[] {
+            Color.black, Color.red.brighter(), Color.yellow, Color.green.brighter() });
+
+    private InterpolationColorMap greenToBlack = new InterpolationColorMap(new double[] { 0.0, 0.75, 1.0 }, new Color[] {
+            Color.black, Color.green.darker(), Color.green.brighter().brighter() });
+
+    private ColorMap rygInverted = ColorMapFactory.createInvertedColorMap(rygColorMap);
+
+    private String getColor(double percent, boolean inverted, boolean commsDead) {
+        Color c;
+        if (commsDead)
+            return "#777777";
+        if (!inverted)
+            c = rygColorMap.getColor(percent / 100.0);
+        else
+            c = rygInverted.getColor(percent / 100.0);
+
+        return String.format("#%02X%02X%02X", c.getRed(), c.getGreen(), c.getBlue());        
+    }
+
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if (!enablePainter || mainSysName == null)
             return;
 
+        boolean commsDead = false;
+        if (System.currentTimeMillis() - lastMessageMillis > 10000) {
+            batteryVoltage = fuelLevel = lastHbCount = storageUsage = cpuUsage = 0;
+            commsDead = true;
+        }
+
         // System Info
         if (paintInfo) {
-            g.setColor(new Color(255, 255, 255, 75));
-            // g.setFont(font);
+
+            if (lastHbCount > 5)
+                lastHbCount = 5;
+            String txt = "<html>";
+            txt += "<b>" + strCpu + ":</b> <font color=" + getColor(cpuUsage, true, commsDead) + ">" + cpuUsage + "%</font><br/>";
+            txt += "<b>" + strFuel + ":</b> <font color=" + getColor(fuelLevel, false, commsDead) + ">" + (int) fuelLevel
+                    + "%</font> <font color=#cccccc>(" + (int) (batteryVoltage * 100) / 100f + "V, ~"
+                    + MathMiscUtils.round(confidenceLevel, 2) + "%</font>)<br/>";
+            txt += "<b>" + strDisk + ":</b> <font color=" + getColor(storageUsage, false, commsDead) + ">" + storageUsage
+                    + "%</font><br/>";
+            txt += "<b>" + strComms + ":</b> <font color=" + getColor(lastHbCount * 20, false, commsDead) + ">" + (lastHbCount * 20)
+                    + "%</font><br/>";
+            txt += "</html>";
+
+            toDraw.setText(txt);
+            toDraw.setForeground(Color.white);
+            toDraw.setHorizontalTextPosition(JLabel.CENTER);
+            toDraw.setHorizontalAlignment(JLabel.LEFT);
+            toDraw.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
+            g.setColor(new Color(0, 0, 0, 200));
             g.drawRoundRect(renderer.getWidth() - RECT_WIDTH - MARGIN, renderer.getHeight() - RECT_HEIGHT - MARGIN,
                     RECT_WIDTH, RECT_HEIGHT, 20, 20);
+            g.setColor(new Color(0, 0, 0, 100));
             g.fillRoundRect(renderer.getWidth() - RECT_WIDTH - MARGIN, renderer.getHeight() - RECT_HEIGHT - MARGIN,
                     RECT_WIDTH, RECT_HEIGHT, 20, 20);
             g.translate(renderer.getWidth() - RECT_WIDTH - MARGIN, renderer.getHeight() - RECT_HEIGHT - MARGIN);
 
-            g.setColor(Color.BLACK);
-            g.setFont(textFont);
-            g.drawString(I18n.text("Vehicle")+": " + mainSysName, 5, 15);
-
-//            g.drawImage(CPU_ICON.getImage(), 5, 25, null);
-            g.drawString("CPU usage: " + cpuUsage + "%", 5, 40);
-
-//            g.drawImage(BATT_ICON.getImage(), 65, 25, null);
-            g.drawString("Fuel Level: " + (int) fuelLevel + "% " + (int) (batteryVoltage * 100) / 100f + "V " + MathMiscUtils.round(confidenceLevel, 2) + "%", 5, 55);
-//            g.drawString((int) (batteryVoltage * 100) / 100f + " V", 90, 47);
-
-//            g.drawImage(DISK_ICON.getImage(), 130, 25, null);
-            g.drawString("Storage Usage: " + storageUsage + "%", 5, 70);
-
-//            g.drawImage(NET_ICON.getImage(), 195, 25, null);
-//
-//            // Preventing an Heartbeat rate of 120%
-//            if (lastHbCount > 5)
-//                lastHbCount = 5;
-
-            g.drawString("Heartbeat: " + (lastHbCount * 20) + "%", 5, 85);
+            toDraw.setBounds(0, 0, RECT_WIDTH, RECT_HEIGHT);
+            toDraw.paint(g);
         }
+
+        double ellapsed = (System.currentTimeMillis() - lastMessageMillis);
+        double val = Math.max(0, (3000 - ellapsed)/3000);
+        g.setColor(greenToBlack.getColor(val));
+        g.fill(new Ellipse2D.Double(RECT_WIDTH-14, 9, 8, 8));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.NeptusMessageListener#getObservedMessages()
-     */
-    @Override
-    public String[] getObservedMessages() {
-        return new String[] { "CpuUsage", "StorageUsage", "Voltage", "Heartbeat", "FuelLevel" };
+    @Subscribe
+    public void consume(CpuUsage msg) {
+        if (!msg.getSourceName().equals(mainSysName))
+            return;
+        cpuUsage = msg.getValue();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.NeptusMessageListener#messageArrived(pt.lsts.neptus.imc.IMCMessage)
-     */
-    @Override
-    public void messageArrived(IMCMessage message) {
-        if (message.getAbbrev().equals("CpuUsage")) {
-            cpuUsage = message.getInteger("value");
-        }
-        else if (message.getAbbrev().equals("StorageUsage")) {
-            storageUsage = message.getInteger("value");
-        }
-        else if (message.getAbbrev().equals("Voltage")) {
-            if (message.getHeader().getInteger("src_ent") == EntitiesResolver.resolveId(getConsole().getMainSystem(),
-                    batteryEntityName))
-                batteryVoltage = message.getDouble("value");
-        }
-        else if (message.getAbbrev().equals("Heartbeat")) {
-            hbCount++;
-        }
-        else if (message.getAbbrev().equals("FuelLevel")) {
-            fuelLevel = message.getFloat("value");
-            confidenceLevel = message.getFloat("confidence");
-        }
+    @Subscribe
+    public void consume(StorageUsage msg) {
+        if (!msg.getSourceName().equals(mainSysName))
+            return;
+        storageUsage = 100 - msg.getValue();
     }
 
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    @Subscribe
+    public void consume(Voltage msg) {        
+        if (!msg.getSourceName().equals(mainSysName))
+            return;
+        int id = EntitiesResolver.resolveId(mainSysName,
+                batteryEntityName);
+        if (msg.getSrcEnt() != id)
+            return;
+        batteryVoltage = msg.getValue();
+    }
+
+    @Subscribe
+    public void consume(FuelLevel msg) {
+        if (!msg.getSourceName().equals(mainSysName))
+            return;
+        fuelLevel = (float)msg.getValue();
+        confidenceLevel = (float)msg.getConfidence();
+    }
+
+    @Subscribe
+    public void consume(Heartbeat msg) {
+        if (!msg.getSourceName().equals(mainSysName))
+            return;
+
+        hbCount++;
+        lastMessageMillis = System.currentTimeMillis();
+    }
+
+    @Subscribe
+    public void consume(ConsoleEventMainSystemChange ev) {
         // Resolve Batteries entity ID to check battery values
         batteryVoltage = 0.0;
         fuelLevel = 0.0f;
         cpuUsage = 0;
         storageUsage = 0;
         hbCount = 0;
-        mainSysName = getConsole().getMainSystem();
+        mainSysName = ev.getCurrent();
+
+        ImcSysState state = getState();
+        if (state != null) {
+            if (state.lastHeartbeat() != null)
+                lastMessageMillis = state.lastHeartbeat().getTimestampMillis();
+            if (state.lastStorageUsage() != null)
+                storageUsage = 100 - state.lastStorageUsage().getValue();
+            if (state.lastCpuUsage() != null)
+                cpuUsage = state.lastCpuUsage().getValue();
+            if (state.lastFuelLevel() != null)
+                fuelLevel = (float)state.lastFuelLevel().getValue();
+            try {
+                if (state.lastVoltage(batteryEntityName) != null)
+                    batteryVoltage = state.lastVoltage(batteryEntityName).getValue();
+            }
+            catch (Exception e) {
+                batteryVoltage = 0.0;
+            }
+        }
     }
 
-    // Periodical Update to assess the hearbeat reception rate
-    @Override
-    public long millisBetweenUpdates() {
-        return 5000;
-    }
-
-    @Override
+    @Periodic(millisBetweenUpdates=5000)
     public boolean update() {
         lastHbCount = hbCount;
         hbCount = 0;
@@ -236,13 +261,13 @@ public class SystemInfoPainter extends SimpleSubPanel implements Renderer2DPaint
     }
 
     @Override
-    public void propertiesChanged() {
-
+    public boolean userControlsOpacity() {
+        return false;
     }
 
     @Override
-    public void cleanSubPanel() {
+    public void cleanLayer() {
         // TODO Auto-generated method stub
-        
+
     }
 }

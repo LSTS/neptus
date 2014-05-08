@@ -44,28 +44,24 @@ import org.dom4j.Element;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.LockableSubPanel;
-import pt.lsts.neptus.console.plugins.SubPanelProvider;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
-
 /**
  * @author ZP
  * @author Paulo Dias
  */
-public class ContainerSubPanel extends SubPanel implements SubPanelProvider, LockableSubPanel {
+public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel {
 
     private static final long serialVersionUID = 1L;
     @NeptusProperty(name = "Maximize Panel", description = "Use this to indicate that this panel "
             + "should be maximized on load. (Only works for top level panels.)", distribution = DistributionEnum.DEVELOPER)
     public boolean maximizePanel = false;
     
-    protected List<SubPanel> panels = new ArrayList<>();
+    protected List<ConsolePanel> panels = new ArrayList<>();
 
     public ContainerSubPanel(ConsoleLayout console) {
         super(console);
@@ -84,31 +80,33 @@ public class ContainerSubPanel extends SubPanel implements SubPanelProvider, Loc
 
     @Override
     public void init() {
-        for (SubPanel sp : panels) {
+        for (ConsolePanel sp : panels) {
             sp.init();
         }
         if (maximizePanel)
             setMaximizePanel(true);
     }
+    
 
     @Override
     public void setEditMode(boolean b) {
         super.setEditMode(b);
-        for (SubPanel sp : panels)
-            sp.setEditMode(b);
+        for (ConsolePanel sp : panels) {
+            try {
+                sp.setEditMode(b);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    @Override
-    public String getName() {
-        return PluginUtils.getPluginName(getClass());
-    }
-
-    public void addSubPanel(SubPanel panel) {
+    public void addSubPanel(ConsolePanel panel) {
         panels.add(panel);
         this.add(panel);
     }
 
-    public void removeSubPanel(SubPanel sp) {
+    public void removeSubPanel(ConsolePanel sp) {
         panels.remove(sp);
         this.remove(sp);
         doLayout();
@@ -135,14 +133,14 @@ public class ContainerSubPanel extends SubPanel implements SubPanelProvider, Loc
     }
 
     public void removeSubPanel(String subPanelName) {
-        SubPanel sp = getSubPanelByName(subPanelName);
+        ConsolePanel sp = getSubPanelByName(subPanelName);
         sp.clean();
         if (sp != null)
             removeSubPanel(sp);
 
     }
 
-    public SubPanel getSubPanelByName(String name) {
+    public ConsolePanel getSubPanelByName(String name) {
         List<String> names = subPanelNames();
         int index = names.indexOf(name);
         if (index != -1)
@@ -152,7 +150,7 @@ public class ContainerSubPanel extends SubPanel implements SubPanelProvider, Loc
 
     @Override
     public void XML_ChildsWrite(Element e) {
-        for (SubPanel sp : panels) {
+        for (ConsolePanel sp : panels) {
 
             try {
                 e.add(sp.asElement("child"));
@@ -174,7 +172,7 @@ public class ContainerSubPanel extends SubPanel implements SubPanelProvider, Loc
         List<?> list = el.selectNodes("*");
         for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
             Element element = (Element) iter.next();
-            SubPanel subpanel = null;
+            ConsolePanel subpanel = null;
             // process childs 
             if ("child".equals(element.getName())) {
                 Attribute attribute = element.attribute("class");
@@ -182,7 +180,7 @@ public class ContainerSubPanel extends SubPanel implements SubPanelProvider, Loc
                 try {
                     Class<?> clazz = Class.forName(attribute.getValue());
                     try {
-                        subpanel = (SubPanel) clazz.getConstructor(ConsoleLayout.class).newInstance(console);
+                        subpanel = (ConsolePanel) clazz.getConstructor(ConsoleLayout.class).newInstance(getConsole());
                         addSubPanel(subpanel);
                         subpanel.inElement(element);
                         ConfigFetch.benchmark(attribute.getValue());
@@ -197,32 +195,7 @@ public class ContainerSubPanel extends SubPanel implements SubPanelProvider, Loc
             }
         }
     }
-
-    @Override
-    public DefaultProperty[] getProperties() {
-        return PluginUtils.getPluginProperties(this);
-    }
-
-    @Override
-    public void setProperties(Property[] properties) {
-        PluginUtils.setPluginProperties(this, properties);
-    }
-
-    @Override
-    public String getPropertiesDialogTitle() {
-        return PluginUtils.getPluginName(this.getClass()) + " parameters";
-    }
-
-    @Override
-    public String[] getPropertiesErrors(Property[] properties) {
-        return PluginUtils.validatePluginProperties(this, properties);
-    }
-
-    @Override
-    public void XML_PropertiesRead(Element e) {
-        PluginUtils.setConfigXml(this, e.asXML());
-    }
-
+   
     @Override
     public void XML_PropertiesWrite(Element e) {
         String xml = PluginUtils.getConfigXml(this);
@@ -244,7 +217,7 @@ public class ContainerSubPanel extends SubPanel implements SubPanelProvider, Loc
     public void clean() {
         super.clean();
         this.removeAll();
-        for (SubPanel panel : this.panels) {
+        for (ConsolePanel panel : this.panels) {
             panel.clean();
             System.out.println("cleaned " + panel.getName());
         }
@@ -255,7 +228,7 @@ public class ContainerSubPanel extends SubPanel implements SubPanelProvider, Loc
         if (panels.size() == 0)
             return false;
         boolean ret = true;
-        for (SubPanel subPanel : panels) {
+        for (ConsolePanel subPanel : panels) {
             try {
                 LockableSubPanel lsp = (LockableSubPanel) subPanel;
                 ret = ret && lsp.isLocked();
@@ -271,7 +244,7 @@ public class ContainerSubPanel extends SubPanel implements SubPanelProvider, Loc
 
     @Override
     public void lock() {
-        for (SubPanel subPanel : panels) {
+        for (ConsolePanel subPanel : panels) {
             try {
                 LockableSubPanel lsp = (LockableSubPanel) subPanel;
                 lsp.lock();
@@ -284,7 +257,7 @@ public class ContainerSubPanel extends SubPanel implements SubPanelProvider, Loc
 
     @Override
     public void unLock() {
-        for (SubPanel subPanel : panels) {
+        for (ConsolePanel subPanel : panels) {
             try {
                 LockableSubPanel lsp = (LockableSubPanel) subPanel;
                 lsp.unLock();
@@ -298,8 +271,20 @@ public class ContainerSubPanel extends SubPanel implements SubPanelProvider, Loc
     /**
      * @return the mySubPanels
      */
-    public List<SubPanel> getSubPanels() {
+    public List<ConsolePanel> getSubPanels() {
         return panels;
+    }
+    
+    @Override
+    public void cleanSubPanel() {
+        // TODO Auto-generated method stub
+        
+    }
+    
+    @Override
+    public void initSubPanel() {
+        // TODO Auto-generated method stub
+        
     }
 
 }

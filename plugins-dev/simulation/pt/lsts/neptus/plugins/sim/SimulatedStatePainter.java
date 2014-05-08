@@ -39,9 +39,9 @@ import java.awt.geom.Point2D;
 
 import pt.lsts.imc.SimulatedState;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -55,7 +55,7 @@ import com.google.common.eventbus.Subscribe;
  */
 @PluginDescription(author = "zp", name = "Simulated State Layer", icon = "pt/lsts/neptus/plugins/position/painter/simulator.png")
 @LayerPriority(priority = 60)
-public class SimulatedStatePainter extends SimpleSubPanel implements Renderer2DPainter {
+public class SimulatedStatePainter extends ConsolePanel implements Renderer2DPainter {
 
     /**
      * @param console
@@ -113,9 +113,6 @@ public class SimulatedStatePainter extends SimpleSubPanel implements Renderer2DP
         lastStateMillis = System.currentTimeMillis();
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
-     */
     @Override
     public void cleanSubPanel() {
         // TODO Auto-generated method stub

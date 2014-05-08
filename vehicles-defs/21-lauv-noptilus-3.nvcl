@@ -350,6 +350,12 @@
         <use-2-digit-year>false</use-2-digit-year>
         <use-hwclock>false</use-hwclock>
       </time-shell>
+      <gsm>
+      	<number>+351927319253</number>
+      </gsm>
+      <iridium>
+        <imei>300234060895910</imei>
+      </iridium>
     </protocols-args>
   </protocols-supported>
   <communication-means>

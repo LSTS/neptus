@@ -54,6 +54,7 @@ public class BathymetrySwath {
         this.timestamp = timestamp;
         this.pose = pose;
         this.data = data;
+        this.numBeams = data.length;
     }
 
     /**

@@ -42,13 +42,13 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.AlarmProviderOld;
 import pt.lsts.neptus.console.plugins.ConsoleScript;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.ConsoleParse;
 
@@ -58,7 +58,7 @@ import pt.lsts.neptus.util.ConsoleParse;
  */
 @SuppressWarnings("serial")
 @PluginDescription(author = "ZP", name = "MultiVariable Gauge", description = "This panel displays various variables simultaneously", icon = "pt/lsts/neptus/plugins/gauges/gauges.png")
-public class CpuBattDiskNetGauge extends SimpleSubPanel implements AlarmProviderOld, IPeriodicUpdates,
+public class CpuBattDiskNetGauge extends ConsolePanel implements AlarmProviderOld, IPeriodicUpdates,
         ConfigurationListener, NeptusMessageListener {
 
     private final LinkedBlockingDeque<Long> beats = new LinkedBlockingDeque<Long>();

@@ -33,6 +33,9 @@ package pt.lsts.neptus.plugins.s57;
 
 import java.awt.Graphics2D;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -41,11 +44,14 @@ import javax.swing.JDialog;
 import pt.lsts.neptus.plugins.MapTileProvider;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.coord.MapTileUtil;
 import pt.lsts.s57.S57;
 import pt.lsts.s57.S57Factory;
+import pt.lsts.s57.S57Query;
 import pt.lsts.s57.S57Utils;
+import pt.lsts.s57.entities.S57Object;
 import pt.lsts.s57.mc.MarinerControls;
 import pt.lsts.s57.painters.NeptusS57Painter;
 import pt.lsts.s57.ui.MarinerControlsOptionsPanel;
@@ -79,6 +85,8 @@ public class S57Chart implements MapPainterProvider {
             this.s63 = null;
         }
         this.mc = MarinerControls.forge();
+        
+        S57Utils.loadSession(s57);
     }
 
     @Override
@@ -117,6 +125,25 @@ public class S57Chart implements MapPainterProvider {
         return dialog;
     }
 
+    /**
+     * Returns all the found depth soundings in the loaded S57 maps
+     * @param latMinDegs Latitude minimum degrees (for bounding box)
+     * @param latMaxDegs Latitude maximum degrees (for bounding box)
+     * @param lonMinDegs Longitude minimum degrees (for bounding box)
+     * @param lonMaxDegs Longitude maximum degrees (for bounding box)
+     * @return
+     */
+    public Collection<LocationType> getDepthSoundings(double latMinDegs, double latMaxDegs, double lonMinDegs, double lonMaxDegs) {
+        List<S57Object> objs = S57Query.forge(s57).findObjectsInside(latMaxDegs, lonMinDegs, latMinDegs,lonMaxDegs, new String[] { "SOUNDG" });
+        ArrayList<LocationType> locs = new ArrayList<>();
+        for (S57Object obj : objs) {
+            LocationType loc = obj.getGeometry().getCenter();
+            loc.setDepth(obj.getGeometry().getDepth());
+            locs.add(loc);
+        }
+        return locs;    
+    }
+    
     public static int getMaxLevelOfDetail() {
         return MapTileUtil.LEVEL_MAX;
     }

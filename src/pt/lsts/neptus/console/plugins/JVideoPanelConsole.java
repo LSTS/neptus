@@ -39,7 +39,7 @@ import java.awt.image.BufferedImage;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.ImagePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer3d.Util3D;
@@ -47,7 +47,7 @@ import pt.lsts.neptus.util.ImageUtils;
 
 @SuppressWarnings("serial")
 @PluginDescription(icon = "images/buttons/quicktimebutt.png", name = "Video Panel JMF")
-public class JVideoPanelConsole extends SubPanel {
+public class JVideoPanelConsole extends ConsolePanel {
     private JWebCam jwc;
 
     BufferedImage image = new BufferedImage(Util3D.FORMAT_SIZE, Util3D.FORMAT_SIZE, BufferedImage.TYPE_INT_RGB);
@@ -136,14 +136,19 @@ public class JVideoPanelConsole extends SubPanel {
         }
     }
 
-    public void clean() {
-        super.clean();
+    @Override
+    public void cleanSubPanel() {
         try {
             jwc.finalize();
         }
         catch (Throwable e) {
             e.printStackTrace();
         }
+    }
+    
+    @Override
+    public void initSubPanel() {
+        
     }
 
 }

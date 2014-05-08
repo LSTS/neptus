@@ -50,6 +50,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NameNormalizer;
 
@@ -125,7 +126,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 	        	speedNode = doc.selectSingleNode("YoYo/velocity");
 	        setSpeed(Double.parseDouble(speedNode.getText()));
 	        String speedUnit = speedNode.valueOf("@unit");
-	        setUnits(speedUnit);
+	        setSpeedUnits(speedUnit);
 	        //setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
 	    }
 	    catch (Exception e) {
@@ -211,7 +212,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 	    clone.setManeuverLocation(destination.clone());
 	    clone.setAmplitude(getAmplitude());
 	    clone.setPitchAngle(getPitchAngle());
-	    clone.setUnits(getUnits());
+	    clone.setSpeedUnits(getUnits());
 	    clone.setSpeed(getSpeed());
 	    clone.setSpeedTolerance(getSpeedTolerance());
 	    
@@ -252,7 +253,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
         return units;
     }
     
-    public void setUnits(String units) {
+    public void setSpeedUnits(String units) {
         this.units = units;
     }
     
@@ -309,7 +310,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
     	
     	for (Property p : properties) {
     		if (p.getName().equals("Speed units")) {
-    			setUnits((String)p.getValue());
+    			setSpeedUnits((String)p.getValue());
     		}
     		if (p.getName().equals("Speed tolerance")) {
     			setSpeedTolerance((Double)p.getValue());
@@ -372,8 +373,8 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
     	setPitchAngle((float)message.getDouble("pitch"));
     	
     	ManeuverLocation pos = new ManeuverLocation();
-    	pos.setLatitudeDegs(Math.toDegrees(message.getDouble("lat")));
-    	pos.setLongitudeDegs(Math.toDegrees(message.getDouble("lon")));
+    	pos.setLatitudeRads(message.getDouble("lat"));
+    	pos.setLongitudeRads(message.getDouble("lon"));
     	pos.setZ(message.getDouble("z"));
     	pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(message.getString("z_units")));
     	
@@ -381,22 +382,23 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
     	
     	String speed_units = message.getString("speed_units");
 		if (speed_units.equals("METERS_PS"))
-			setUnits("m/s");
+			setSpeedUnits("m/s");
 		else if (speed_units.equals("RPM"))
-			setUnits("RPM");
+			setSpeedUnits("RPM");
 		else
-			setUnits("%");
+			setSpeedUnits("%");
 		setCustomSettings(message.getTupleList("custom"));
     }
     
     
 	public IMCMessage serializeToIMC() {
-		double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
+		//double[] latLonDepth = this.getManeuverLocation().getAbsoluteLatLonDepth();
 		pt.lsts.imc.YoYo yoyo = new pt.lsts.imc.YoYo();
-		
+		LocationType loc = getManeuverLocation();
+		loc.convertToAbsoluteLatLonDepth();
 		yoyo.setTimeout(getMaxTime());
-		yoyo.setLat(Math.toRadians(latLonDepth[0]));
-		yoyo.setLon(Math.toRadians(latLonDepth[1]));
+		yoyo.setLat(loc.getLatitudeRads());
+		yoyo.setLon(loc.getLongitudeRads());
 		yoyo.setZ(getManeuverLocation().getZ());
 		yoyo.setZUnits(getManeuverLocation().getZUnits().toString());
 		yoyo.setSpeed(getSpeed());

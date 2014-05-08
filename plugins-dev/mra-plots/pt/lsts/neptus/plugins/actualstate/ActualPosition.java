@@ -39,7 +39,7 @@ import pt.lsts.imc.lsf.LsfIterator;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.mra.plots.Mra2DPlot;
+import pt.lsts.neptus.mra.plots.MRA2DPlot;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -47,7 +47,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * 
  */
 
-public class ActualPosition extends Mra2DPlot {
+public class ActualPosition extends MRA2DPlot {
 
     public ActualPosition(MRAPanel panel) {
         super(panel);
@@ -70,7 +70,7 @@ public class ActualPosition extends Mra2DPlot {
         // TODO
 
     }
-    
+
     @Override
     public String getName() {
         return I18n.text("Calculated position");
@@ -90,7 +90,7 @@ public class ActualPosition extends Mra2DPlot {
 
         LocationType lastLoc = null;
         double lastTime = 0;
-        
+
         for (EstimatedState es = it.next(); es != null; es = it.next()) {
             LocationType thisLoc = new LocationType();
             thisLoc.setLatitudeRads(es.getLat());
@@ -103,8 +103,8 @@ public class ActualPosition extends Mra2DPlot {
             double speed = Math.sqrt(es.getU() * es.getU() + es.getV() * es.getV() + es.getW() * es.getW());
 
             thisLoc.convertToAbsoluteLatLonDepth();
-            
-            
+
+
             if (lastLoc != null) {
                 double expectedDiff = speed * (es.getTimestamp() - lastTime);
                 double readjustmentFactor = Math
@@ -117,7 +117,7 @@ public class ActualPosition extends Mra2DPlot {
                 }
                 else if (!nonAdjusted.isEmpty()) {
 
-                    
+
                     double[] adjustment = thisLoc.getOffsetFrom(lastLoc);
                     EstimatedState firstNonAdjusted = nonAdjusted.firstElement();
                     double timeOfAdjustment = es.getTimestamp() - firstNonAdjusted.getTimestamp();
@@ -134,7 +134,6 @@ public class ActualPosition extends Mra2DPlot {
                         addValue(adj.getTimestampMillis(), loc.getLatitudeDegs(),
                                 loc.getLongitudeDegs(), adj.getSourceName(), "Actual Position");
                     }
-                    
                     addValue(es.getTimestampMillis(), thisLoc.getLatitudeDegs(),
                             thisLoc.getLongitudeDegs(), es.getSourceName(), "GPS Readjustments");
 
@@ -148,10 +147,10 @@ public class ActualPosition extends Mra2DPlot {
             lastLoc = thisLoc;
             lastTime = es.getTimestamp();
         }
-        
+
         //LsfIterator<LblRange> rangeIt = source.getIterator(LblRange.class);
-        
-        
+
+
     }
 
 }

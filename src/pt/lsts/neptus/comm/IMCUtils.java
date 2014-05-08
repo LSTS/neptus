@@ -39,6 +39,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -49,12 +51,20 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 
+import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.dom4j.tree.DefaultAttribute;
 
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCFieldType;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.IMCUtil;
+import pt.lsts.imc.types.PlanSpecificationAdapter;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -99,12 +109,6 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.PropertiesLoader;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCFieldType;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCOutputStream;
-import pt.lsts.imc.IMCUtil;
-import pt.lsts.imc.types.PlanSpecificationAdapter;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.swing.renderer.DefaultCellRenderer;
@@ -1246,15 +1250,78 @@ public class IMCUtils {
         for (int i = 0; i < data.length; i++) {
             if (i % 10 == 0)
                 System.out.print(" ");
-            System.out.printf("%X ", data[i]);
+            System.out.printf("%02X", data[i]);
+        }       
+    }
+    
+    
+    
+    /**
+     * Given an IMC ID, this method returns the system type.
+     * @see https://github.com/LSTS/imc/blob/master/IMC_Addressing_Scheme.txt
+     * @param imcId The IMC id (uint16_t)
+     * @return The type of the system. One of "UUV", "ROV", "USV", "UAV", "UXV", "CCU", "Sensor" or "Unknown".
+     */
+    public static String getSystemType(int imcId) {
+        int sys_selector = 0xE000;
+        int vtype_selector = 0x1800;
+        
+        int sys_type = (imcId & sys_selector) >> 13;
+        
+        switch (sys_type) {
+            case 0:
+            case 1:
+                switch ((imcId & vtype_selector) >> 11) {
+                    case 0:
+                        return "UUV";
+                    case 1:
+                        return "ROV";
+                    case 2:
+                        return "USV";
+                    case 3:
+                        return "UAV";
+                    default:
+                        return "UXV";
+                }
+            case 2:
+                return "CCU";
+            default:
+                break;
         }
         
+        String name = IMCDefinition.getInstance().getResolver().resolve(imcId).toLowerCase();
+        if (name.contains("ccu"))
+            return "CCU";
+        if (name.contains("argos"))
+            return "Argos Tag";
+        if (name.contains("spot"))
+            return "SPOT Tag";
+        if (name.contains("manta"))
+            return "Gateway";
+        return "Unknown";
+    }
+    
+    public static void testSysTypeResolution() throws Exception {
+        String address_url = "file:///home/zp/Desktop/IMC_Addresses.xml";
+        
+        URLConnection conn = new URL(address_url).openConnection();
+        Document doc = DocumentHelper.parseText(IOUtils.toString(conn.getInputStream()));
+        List<?> nodes = doc.getRootElement().selectNodes("address/@id");
+        for (int i = 0; i < nodes.size(); i++) {
+            DefaultAttribute addrElem = (DefaultAttribute) nodes.get(i);
+            int id = Integer.parseInt(addrElem.getText().replaceAll("0x", ""), 16);
+            String name = IMCDefinition.getInstance().getResolver().resolve(id);
+            System.out.println(addrElem.getText() + ","+name+" --> "+getSystemType(id));
+        }
     }
 
+    
     // ------------------------------------------------------------------------
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
+        testSysTypeResolution();
+        
         String services = "dune://1294925553839635/;" + "imc+udp://192.168.106.189:6002/;"
                 + "imc+udp://172.16.13.1:6002/;" + "imc+udp://172.16.216.1:6002/;"
                 + "http://192.168.106.189:8080/dune/re;" + "http://172.16.13.1:8080/dune;"

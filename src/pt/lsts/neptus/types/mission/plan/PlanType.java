@@ -36,6 +36,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Vector;
@@ -52,6 +53,7 @@ import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.PlanManeuver;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.PlanTransition;
+import pt.lsts.imc.PlanVariable;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -65,6 +67,7 @@ import pt.lsts.neptus.mp.maneuvers.IMCSerialization;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.PathProvider;
 import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
+import pt.lsts.neptus.params.ManeuverPayloadConfig;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.NameId;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -104,7 +107,8 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
     private MapGroup mapGroup = null;
 
     private int startMode = INIT_START_WPT;    
-
+    private static final String defaultVehicle = "lauv-xplore-1";
+    
     public PlanType(MissionType mt) {
         super();
         this.graph = new GraphType();
@@ -161,15 +165,27 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         try {
             Document doc = DocumentHelper.parseText(xml);
             this.setId(((Attribute)doc.selectSingleNode("/node()/@id")).getStringValue());
-            String veh = ((Attribute)doc.selectSingleNode("/node()/@vehicle")).getStringValue();
-            if (veh.contains(",")) {
-                String[] vehs = veh.split(",");
-                vehicles.clear();
-                for (String v : vehs)
-                    addVehicle(v);
+            try {
+                String veh = ((Attribute)doc.selectSingleNode("/node()/@vehicle")).getStringValue();
+                if (veh.contains(",")) {
+                    String[] vehs = veh.split(",");
+                    vehicles.clear();
+                    for (String v : vehs)
+                        addVehicle(v);
+                }
+                else
+                    setVehicle(veh);
             }
-            else
-                setVehicle(veh);
+            catch (Exception e) {
+                if (getId() == null) {
+                    setId(NameNormalizer.getRandomID("plan"));
+                    NeptusLog.pub().error("plan has no valid id, using "+getId(), e);
+                }
+                if (getVehicle() == null) {
+                    setVehicle(defaultVehicle);
+                    NeptusLog.pub().error("plan with id "+getId()+" has no associated vehicle, using "+getVehicle(), e);
+                }                
+            }
 
             Node nd = doc.selectSingleNode("/node()/graph");
             graph = new GraphType(nd.asXML());
@@ -497,7 +513,7 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
     }
 
     public String toStringWithVehicles(boolean extended) {
-        String md5 = extended ? ByteUtil.encodeAsString(asIMCPlan().payloadMD5()) : "";
+        String md5 = extended ? ByteUtil.encodeAsString(asIMCPlan(false).payloadMD5()) : "";
         String idStr = this.getId() + (extended ? "[md5:" + md5 + "]" : "");
         if (hasMultipleVehiclesAssociated()) {
             String ret = idStr+" ["+vehicles.firstElement();
@@ -539,16 +555,31 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
     }
 
 
+    public void setPayloads() {
+        Maneuver[] mans = getGraph().getAllManeuvers();
+        for (Maneuver m : mans) {
+            new ManeuverPayloadConfig(getVehicle(), m, null).getProperties();            
+        }
+    }
+    
+    public IMCMessage asIMCPlan() {
+        return asIMCPlan(false);
+    }
+    
     /**
      * @return
      */
-    public IMCMessage asIMCPlan() {
+    public IMCMessage asIMCPlan(boolean fillInPayloads) {
+        
+        if (fillInPayloads)
+            setPayloads();
         
         PlanSpecification plan = new PlanSpecification();
         plan.setPlanId(getId());
         plan.setDescription("");
         plan.setStartManId(getGraph().getInitialManeuverId());
-        
+        ArrayList<PlanVariable> vars = new ArrayList<PlanVariable>();
+        plan.setVariables(vars);
         IMCMessage[] msgs = getStartActions().getAllMessages();
         if (msgs != null)
             plan.setStartActions(Arrays.asList(msgs));

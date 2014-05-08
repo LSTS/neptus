@@ -44,7 +44,7 @@ import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -63,6 +63,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PathControlState;
+import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.imc.TrexCommand;
 import pt.lsts.imc.TrexOperation;
@@ -74,6 +77,7 @@ import pt.lsts.neptus.fileeditor.SyntaxDocument;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -93,10 +97,12 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author zp
  * 
  */
-@PluginDescription(name = "TrexMapLayer", icon = "pt/lsts/neptus/plugins/trex/trex.png")
-public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2DPainter {
+@SuppressWarnings("deprecation")
+@PluginDescription(name = "TrexMapLayer", icon = "pt/lsts/neptus/plugins/trex/smallTrex.png")
+public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2DPainter, NeptusMessageListener {
     enum CommsChannel {
         IMC,
+        IRIDIUM,
         REST;
     }
 
@@ -111,28 +117,29 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     public CommsChannel trexDuneComms = CommsChannel.IMC;
     @NeptusProperty(name = "Name of Dune task")
     public String taskName = "TREX";
-    
-    @NeptusProperty(name = "Loiter height", description = "Height of waypoint for uav spotter plan.", category = "UAV Spotter")
+
+    @NeptusProperty(name = "Loiter height", description = "Height of waypoint for uav spotter plan.", category = "UAV Spotter", userLevel = NeptusProperty.LEVEL.REGULAR)
     public int spotterHeight = 100;
-    
+
     @NeptusProperty(name = "Type", category = "YoYo Survey")
     public AUVDrifterSurvey.PathType path = AUVDrifterSurvey.PathType.SQUARE;
-    
+
     @NeptusProperty(name = "Survey Size", category = "YoYo Survey")
     public float size = 800;
-    
+
     @NeptusProperty(name = "Lagrangian distortion", category = "YoYo Survey", description="True if you want to apply Lagrangian distortion.")
     public boolean lagrangin = true;
-    
+
     @NeptusProperty(name = "Rotation", category = "YoYo Survey", description="In degrees, an offset to north in clockwise.")
     public float heading = 0;
-    
+
     @NeptusProperty(name = "Water current Speed", category = "YoYo Survey", description="Speed, in mps of the surface current.")
     public float speed = 0;
-    
+
+    private final HttpClient httpclient = new DefaultHttpClient();
 
     private static final long serialVersionUID = 1L;
-    Maneuver lastManeuver = null;
+    private Maneuver lastManeuver = null;
 
     protected LinkedHashMap<String, TrexGoal> sentGoals = new LinkedHashMap<String, TrexGoal>();
     protected LinkedHashMap<String, TrexGoal> completeGoals = new LinkedHashMap<String, TrexGoal>();
@@ -142,11 +149,19 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     protected int surveyPos = 0;
     protected boolean active = false;
 
+    protected Vector<LocationType> sentPoints;
+    private LocationType currentRef;
+    final String fixedTrexPlanId = "trex_plan";
+    Image trex = null;
+    private boolean trexActive;
+
     /**
      * @param console
      */
     public TrexMapLayer(ConsoleLayout console) {
         super(console);
+        sentPoints = new Vector<LocationType>();
+        trexActive = false;
     }
 
     @Override
@@ -230,15 +245,22 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             if (surveyEdit) {
                 addSurveyPointsMenu(popup);
             }
-            addDisableTrexMenu(popup);
-            addEnableTrexMenu(popup);
+            if (trexActive) {
+                addDisableTrexMenu(popup);
+                popup.addSeparator();
+                addUAVSpotter(popup, loc);
+                addClearNeptusGoalsMenu(popup);
+            }
+            else {
+                addEnableTrexMenu(popup);
+                popup.addSeparator();
+                addClearNeptusGoalsMenu(popup);
+            }
             popup.addSeparator();
             addVisitThisPointMenu(popup, loc);
             addAUVDrifter(popup, loc);
             addClearGoalMenu(popup);
-            popup.addSeparator();
             //addTagSimulation(popup, loc);
-            addUAVSpotter(popup, loc);
 
             //            for (String gid : sentGoals.keySet()) {
             //                Point2D screenPos = source.getScreenPosition(sentGoals.get(gid).getLocation()); // FIXME all goals have
@@ -268,12 +290,12 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+
                 if((e.getModifiers() & ActionEvent.CTRL_MASK) != 0) {
                     startTrex();
                     return;
                 }
-                
+
                 SetEntityParameters setParams = new SetEntityParameters();
                 setParams.setName("TREX");
                 EntityParameter param = new EntityParameter("Active", "true");
@@ -281,6 +303,16 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 p.add(param);
                 setParams.setParams(p);
                 ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
+            }
+        });
+    }
+
+    private void addClearNeptusGoalsMenu(JPopupMenu popup) {
+        popup.add("Clear all goals in Neptus").addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sentPoints.removeAllElements();
             }
         });
     }
@@ -340,6 +372,14 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                     case IMC:
                         send(visitLocationGoal.asIMCMsg());
                         break;
+                    case IRIDIUM:
+                        try {
+                            sendViaIridium(getConsole().getMainSystem(), visitLocationGoal.asIMCMsg());
+                        }
+                        catch (Exception ex) {
+                            NeptusLog.pub().error(e);
+                        }
+                        break;
                     case REST:
                         httpPostTrex(visitLocationGoal);
                         break;
@@ -356,11 +396,18 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 loc.convertToAbsoluteLatLonDepth();
                 UavSpotterSurvey going = new UavSpotterSurvey(loc.getLatitudeRads(), loc
                         .getLongitudeRads(), spotterHeight);
+                sentPoints.add(loc);
                 switch (trexDuneComms) {
                     case IMC:
-                        activateTrex();
-                        // Send goal
                         send(going.asIMCMsg());
+                        break;
+                    case IRIDIUM:
+                        try {
+                            sendViaIridium(getConsole().getMainSystem(), going.asIMCMsg());
+                        }
+                        catch (Exception ex) {
+                            NeptusLog.pub().error(e);
+                        }
                         break;
                     case REST:
                         httpPostTrex(going);
@@ -368,20 +415,20 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 }
             }
 
-            private void activateTrex() {
-                SetEntityParameters message = new SetEntityParameters();
-                message.setName(taskName);
-                EntityParameter entityParameter = new EntityParameter();
-                entityParameter.setName("Active");
-                entityParameter.setValue("true");
-                ArrayList<EntityParameter> params = new ArrayList<EntityParameter>();
-                params.add(entityParameter);
-                message.setParams(params);
-                send(message);
-            }
+//            private void activateTrex() {
+//                SetEntityParameters message = new SetEntityParameters();
+//                message.setName(taskName);
+//                EntityParameter entityParameter = new EntityParameter();
+//                entityParameter.setName("Active");
+//                entityParameter.setValue("true");
+//                ArrayList<EntityParameter> params = new ArrayList<EntityParameter>();
+//                params.add(entityParameter);
+//                message.setParams(params);
+//                send(message);
+//            }
         });
     }
-    
+
     private void addAUVDrifter(JPopupMenu popup, final LocationType loc) {
         popup.add("YoYo Survey").addActionListener(new ActionListener() {
 
@@ -395,6 +442,14 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                         // Send goal
                         send(going.asIMCMsg());
                         break;
+                    case IRIDIUM:
+                        try {
+                            sendViaIridium(getConsole().getMainSystem(), going.asIMCMsg());
+                        }
+                        catch (Exception ex) {
+                            NeptusLog.pub().error(e);
+                        }
+                        break;
                     case REST:
                         httpPostTrex(going);
                         break;
@@ -404,12 +459,12 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
         });
     }
-    
+
     private void startTrex() {
         TrexOperation op = new TrexOperation(OP.REQUEST_PLAN, "", null);
         send(op);
     }
-    
+
     private void stopTrex() {
         TrexOperation op = new TrexOperation(OP.REPORT_PLAN, "", null);
         send(op);
@@ -436,7 +491,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             httppost.setHeader("Content-Type", "application/json");
             httppost.setEntity(message);
             // Execute
-            HttpClient httpclient = new DefaultHttpClient();
+
             HttpResponse response = httpclient.execute(httppost);
 
             // Get the response
@@ -453,7 +508,7 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                     }
                 }
                 finally {
-                    reader.close();
+                    reader.close();                    
                 }
             }
             if (response.getStatusLine().getStatusCode() != 200) {
@@ -486,8 +541,6 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     public boolean isExclusive() {
         return true;
     }
-
-    Image trex = null;
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
@@ -546,8 +599,35 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
         //            g.translate(-pt.getX(), -pt.getY());
         //        }
 
+        paintUavGoals(g, renderer);
+
         if (active)
-            g.drawImage(trex, 5, 50, 32, 32, this);
+            g.drawImage(trex, 5, 5, 32, 32, this);
+    }
+
+    private void paintUavGoals(Graphics2D g, StateRenderer2D renderer) {
+        LocationType loc;
+        Point2D pt;
+        int i = 1;
+        Iterator<LocationType> iterator = sentPoints.iterator();
+        while (iterator.hasNext()) {
+            loc = iterator.next();
+            pt = renderer.getScreenPosition(loc);
+            g.translate(pt.getX(), pt.getY());
+            g.setColor(new Color(173, 94, 255));
+            g.fill(new Ellipse2D.Double(-5, -5, 10, 10));
+            g.setColor(Color.black);
+            g.drawString(i + " Goal", 10, 10);
+            g.translate(-pt.getX(), -pt.getY());
+            i++;
+        }
+        if (currentRef != null) {
+            pt = renderer.getScreenPosition(currentRef);
+            g.translate(pt.getX(), pt.getY());
+            g.setColor(Color.green);
+            g.drawOval(-5, -5, 10, 10);
+            g.translate(-pt.getX(), -pt.getY());
+        }
     }
 
     public static void main(String[] args) {
@@ -575,7 +655,67 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     @Override
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
-
+        httpclient.getConnectionManager().shutdown();
     }
 
+    // @Subscribe
+    // private void on(PathControlState pathState) {
+    // NeptusLog.pub().warn("PathControlState");
+    // NeptusLog.pub().warn("sentPoints.size()" + sentPoints.size());
+    // if (sentPoints.size() == 0) {
+    // return;
+    // }
+    // NeptusLog.pub().warn(
+    // "Removing goal. [" + pathState.getEndLat() + "," + pathState.getEndLon() + "] different from ["
+    // + sentPoints.get(0).getLatitudeRads() + "," + sentPoints.get(0).getLongitudeRads() + "]");
+    // if (pathState.getEndLat() != sentPoints.get(0).getLatitudeRads()
+    // || pathState.getEndLon() != sentPoints.get(0).getLongitudeRads()) {
+    // sentPoints.remove(0);
+    // }
+    // }
+
+    @Override
+    public String[] getObservedMessages() {
+        String msgs[] = { "PathControlState", "PlanControlState" };
+        return msgs;
+    }
+
+    @Override
+    public void messageArrived(IMCMessage message) {
+        if (message instanceof PathControlState) {
+            PathControlState pathState = (PathControlState) message;
+            currentRef = new LocationType();
+            currentRef.setLatitudeRads(pathState.getEndLat());
+            currentRef.setLongitudeRads(pathState.getEndLon());
+        }
+        else if (message instanceof PlanControlState) {
+            PlanControlState planState = (PlanControlState) message;
+            // NeptusLog.pub().warn("trexActive " + trexActive);
+            // T-Rex already inactive here
+            if (!trexActive){
+                // NeptusLog.pub().warn(
+                // "Not active. EXECUTING? " + (planState.getState() == PlanControlState.STATE.EXECUTING)
+                // + ", planid: " + planState.getPlanId());
+                // DUNE is running the t-rex plan so it's active there
+                if(planState.getState() == PlanControlState.STATE.EXECUTING
+                        && planState.getPlanId().equals(fixedTrexPlanId)) {
+                    // NeptusLog.pub().warn("Activating");
+                    trexActive = true;
+                }
+            }
+            // T-Rex already active here
+            else {
+                // NeptusLog.pub().warn(
+                // "Not active. EXECUTING? " + (planState.getState() == PlanControlState.STATE.EXECUTING)
+                // + ", planid: " + planState.getPlanId());
+                // DUNE isn't running the t-rex plan so it's inactive there
+                if(planState.getState() != PlanControlState.STATE.EXECUTING
+                        || !planState.getPlanId().equals(fixedTrexPlanId)) {
+                    // NeptusLog.pub().warn("deactivating");
+                    trexActive = false;
+                }
+            }
+        }
+
+    }
 }

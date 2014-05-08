@@ -48,10 +48,12 @@ import org.apache.http.util.EntityUtils;
 
 import pt.lsts.neptus.NeptusLog;
 
+@SuppressWarnings("deprecation")
 public class HTTPPublisher {
 	
 	private URL serverURL;
-
+	private HttpClient client = new DefaultHttpClient();
+	
 	public HTTPPublisher(URL serverURL) {
 		setServerURL(serverURL);
 	}
@@ -68,21 +70,18 @@ public class HTTPPublisher {
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
     private void publish(String type, String xml) {
-		HttpClient client = new DefaultHttpClient();
+		
 //		client.getHostConfiguration().setHost(serverURL.getHost(), serverURL.getPort(), serverURL.getProtocol());
 		HttpHost target = new HttpHost(serverURL.getHost(), serverURL.getPort(), serverURL.getProtocol());
 		HttpPost post = new HttpPost(serverURL.getPath());
 		NameValuePair nvp_type = new BasicNameValuePair("type", type);
 		NameValuePair nvp_xml = new BasicNameValuePair("xml", xml);
-//		post.setRequestBody(new NameValuePair[] {nvp_type, nvp_xml});
         List <NameValuePair> nvps = new ArrayList <NameValuePair>();
         nvps.add(nvp_type);
         nvps.add(nvp_xml);
 		try {
 			post.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
-//			client.executeMethod(post);
 			HttpResponse res = client.execute(target, post);
 			
 			NeptusLog.pub().info("HTTP Response: " +
@@ -93,7 +92,7 @@ public class HTTPPublisher {
             NeptusLog.pub().error("HTTP Response: "+e.getMessage());
 		}
 		finally {
-//			post.releaseConnection();
+
 			post.abort();
 			client.getConnectionManager().shutdown();
 		}
@@ -124,5 +123,11 @@ public class HTTPPublisher {
 
 	public void setServerURL(URL serverURL) {
 		this.serverURL = serverURL;
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+	    client.getConnectionManager().shutdown();
+	    super.finalize();
 	}
 }

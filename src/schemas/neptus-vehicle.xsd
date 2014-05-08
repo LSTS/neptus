@@ -29,11 +29,15 @@
 					<xs:sequence>
 						<xs:element name="transfer">
 							<xs:complexType>
-								<xs:attribute name="mode" use="required">
+								<xs:attribute name="mode"
+									use="required">
 									<xs:simpleType>
-										<xs:restriction base="xs:string">
-											<xs:enumeration value="binary"/>
-											<xs:enumeration value="ascii"/>
+										<xs:restriction
+											base="xs:string">
+											<xs:enumeration
+												value="binary" />
+											<xs:enumeration
+												value="ascii" />
 										</xs:restriction>
 									</xs:simpleType>
 								</xs:attribute>
@@ -41,21 +45,29 @@
 						</xs:element>
 						<xs:element name="connection">
 							<xs:complexType>
-								<xs:attribute name="username" use="prohibited">
+								<xs:attribute name="username"
+									use="prohibited">
 									<xs:simpleType>
-										<xs:restriction base="xs:string"/>
+										<xs:restriction
+											base="xs:string" />
 									</xs:simpleType>
 								</xs:attribute>
-								<xs:attribute name="password" use="prohibited">
+								<xs:attribute name="password"
+									use="prohibited">
 									<xs:simpleType>
-										<xs:restriction base="xs:string"/>
+										<xs:restriction
+											base="xs:string" />
 									</xs:simpleType>
 								</xs:attribute>
-								<xs:attribute name="mode" use="required">
+								<xs:attribute name="mode"
+									use="required">
 									<xs:simpleType>
-										<xs:restriction base="xs:string">
-											<xs:enumeration value="pasv"/>
-											<xs:enumeration value="active"/>
+										<xs:restriction
+											base="xs:string">
+											<xs:enumeration
+												value="pasv" />
+											<xs:enumeration
+												value="active" />
 										</xs:restriction>
 									</xs:simpleType>
 								</xs:attribute>
@@ -67,27 +79,36 @@
 			<xs:element name="imc" minOccurs="0">
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="port" type="xs:int" default="6002"/>
-						<xs:element name="port-tcp" type="xs:int" default="6002" minOccurs="0"/>
-						<xs:element name="udp-on" type="xs:boolean" default="true" minOccurs="0"/>
-						<xs:element name="tcp-on" type="xs:boolean" default="false" minOccurs="0"/>
-						<xs:element name="rtps-on" type="xs:boolean" default="false" minOccurs="0"/>
-						<xs:element name="imc3-id" type="imc3-id-type" minOccurs="0"/>
+						<xs:element name="port" type="xs:int"
+							default="6002" />
+						<xs:element name="port-tcp" type="xs:int"
+							default="6002" minOccurs="0" />
+						<xs:element name="udp-on" type="xs:boolean"
+							default="true" minOccurs="0" />
+						<xs:element name="tcp-on" type="xs:boolean"
+							default="false" minOccurs="0" />
+						<xs:element name="rtps-on" type="xs:boolean"
+							default="false" minOccurs="0" />
+						<xs:element name="imc3-id" type="imc3-id-type"
+							minOccurs="0" />
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
 			<xs:element name="stanag4586" minOccurs="0">
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="udp-on" type="xs:boolean" default="true" minOccurs="0"/>
-						<xs:element name="rtps-on" type="xs:boolean" default="false" minOccurs="0"/>
+						<xs:element name="udp-on" type="xs:boolean"
+							default="true" minOccurs="0" />
+						<xs:element name="rtps-on" type="xs:boolean"
+							default="false" minOccurs="0" />
 						<xs:element name="vehicle-id">
 							<xs:simpleType>
 								<xs:restriction base="xs:string">
-									<xs:minLength value="7"/>
-									<xs:maxLength value="27"/>
-									<xs:whiteSpace value="collapse"/>
-									<xs:pattern value="(\d){1,3}.(\d){1,3}.(\d){1,3}.(\d){1,3}"/>
+									<xs:minLength value="7" />
+									<xs:maxLength value="27" />
+									<xs:whiteSpace value="collapse" />
+									<xs:pattern
+										value="(\d){1,3}.(\d){1,3}.(\d){1,3}.(\d){1,3}" />
 								</xs:restriction>
 							</xs:simpleType>
 						</xs:element>
@@ -96,17 +117,29 @@
 			</xs:element>
 			<xs:element name="time-shell" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>shell command in the format: 'date MMddHHmm[[[CC]yy][.ss]] &amp;&amp; hwclock --systohc'</xs:documentation>
+					<xs:documentation>
+						shell command in the format: 'date
+						MMddHHmm[[[CC]yy][.ss]] &amp;&amp; hwclock
+						--systohc'
+					</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="set-seconds" type="xs:boolean" default="true" minOccurs="0"/>
-						<xs:element name="set-year" type="xs:boolean" default="true" minOccurs="0"/>
-						<xs:element name="use-2-digit-year" type="xs:boolean" default="false" minOccurs="0"/>
-						<xs:element name="use-hwclock" type="xs:boolean" default="true" minOccurs="0"/>
+						<xs:element name="set-seconds" type="xs:boolean"
+							default="true" minOccurs="0" />
+						<xs:element name="set-year" type="xs:boolean"
+							default="true" minOccurs="0" />
+						<xs:element name="use-2-digit-year"
+							type="xs:boolean" default="false" minOccurs="0" />
+						<xs:element name="use-hwclock" type="xs:boolean"
+							default="true" minOccurs="0" />
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="gsm" type="gsmType" maxOccurs="1"
+				minOccurs="0">
+			</xs:element>
+			<xs:element name="iridium" type="iridiumType" maxOccurs="1" minOccurs="0"></xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:simpleType name="imc3-id-type">
@@ -355,4 +388,16 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:group>
+
+	<xs:complexType name="gsmType">
+		<xs:sequence>
+			<xs:element name="number" type="xs:string"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="iridiumType">
+		<xs:sequence>
+			<xs:element name="imei" type="xs:string"></xs:element>
+		</xs:sequence>
+	</xs:complexType>
 </xs:schema>

@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FileWriter;
 
 import javax.imageio.ImageIO;
+import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.lsf.LsfIterator;
@@ -54,6 +55,7 @@ import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -66,6 +68,7 @@ import convcao.com.caoAgent.NoptilusCoords;
  * @author zp
  *
  */
+@PluginDescription
 public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
 
     NoptilusCoords coords = new NoptilusCoords();
@@ -83,7 +86,7 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
     }
 
     @Override
-    public String process() {
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         PropertiesEditor.editProperties(NoptilusMapExporter.this, true);
         coords.squareCenter.convertToAbsoluteLatLonDepth();
         PluginUtils.saveProperties(this, "default");

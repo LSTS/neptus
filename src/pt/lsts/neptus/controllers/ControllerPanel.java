@@ -68,19 +68,20 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.RemoteActions;
 import pt.lsts.imc.RemoteActionsRequest;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.controllers.ControllerManager;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 
@@ -94,7 +95,7 @@ import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
  */
 @Popup(pos = POSITION.TOP_RIGHT, width = 200, height = 400, accelerator = 'J')
 @PluginDescription(author = "jquadrado", description = "Controllers Panel", name = "Controllers Panel", icon = "images/control-mode/teleoperation.png")
-public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates {
+public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
     private static final long serialVersionUID = 1L;
 
     private static final String ACTION_FILE_XML = "conf/controllers/actions.xml";
@@ -310,8 +311,8 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         requestRemoteActions();
     }
     
-    @Override
-    public void mainVehicleChangeNotification(String id) {
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange evt) {
         refreshInterface();
     }
 
@@ -454,6 +455,7 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         }
     }
     
+    @Subscribe
     public void consume(RemoteActionsRequest message) {
         if(actions == null) {
             actions = new LinkedHashMap<String, String>();
@@ -464,13 +466,6 @@ public class ControllerPanel extends SimpleSubPanel implements IPeriodicUpdates 
         
         mappedActions = getMappedActions(console.getMainSystem(), currentController);
         buildDialog();
-    }
-
-    @Override
-    public void onMessage(MessageInfo info, IMCMessage msg) {
-        if (msg.getMgid() == RemoteActionsRequest.ID_STATIC) {
-            consume((RemoteActionsRequest) msg);
-        }
     }
 
     public void cleanup() {

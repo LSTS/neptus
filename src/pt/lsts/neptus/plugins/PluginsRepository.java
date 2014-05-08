@@ -34,9 +34,13 @@ package pt.lsts.neptus.plugins;
 import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.ConsoleInteraction;
+import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.SubPanel;
-import pt.lsts.neptus.console.plugins.SubPanelProvider;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.mra.exporters.MRAExporter;
+import pt.lsts.neptus.mra.replay.LogReplayLayer;
+import pt.lsts.neptus.mra.replay.LogReplayPanel;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
 import pt.lsts.neptus.renderer2d.tiles.Tile;
@@ -44,51 +48,32 @@ import pt.lsts.neptus.util.ReflectionUtil;
 
 public class PluginsRepository {
 
-    private static LinkedHashMap<String, Class<? extends NeptusAction>> actionClasses = new LinkedHashMap<String, Class<? extends NeptusAction>>();
-    private static LinkedHashMap<String, Class<? extends SubPanelProvider>> panelClasses = new LinkedHashMap<String, Class<? extends SubPanelProvider>>();
-    private static LinkedHashMap<String, Class<? extends NeptusMessageListener>> msgListenerClasses = new LinkedHashMap<String, Class<? extends NeptusMessageListener>>();
-    private static LinkedHashMap<String, Class<? extends MRAVisualization>> visualizations = new LinkedHashMap<String, Class<? extends MRAVisualization>>();
+   
+    private static ExtensionsBag extensions = new ExtensionsBag(
+            NeptusAction.class,
+            ConsolePanel.class,
+            ConsoleLayer.class,
+            ConsoleInteraction.class,
+            MRAVisualization.class,
+            MRAExporter.class,
+            LogReplayLayer.class,
+            LogReplayPanel.class
+            );
+      
     private static LinkedHashMap<String, Class<? extends MapTileProvider>> tileProviders = new LinkedHashMap<String, Class<? extends MapTileProvider>>();
-    private static LinkedHashMap<Class<?>, LinkedHashMap<String, Class<?>>> otherPlugins = new LinkedHashMap<Class<?>, LinkedHashMap<String, Class<?>>>();
 
     @SuppressWarnings("unchecked")
     public static void addPlugin(String className) {
+        extensions.addPlugin(className);
+        
+        // Map Provider specific code FIXME
         try {
             Class<?> c = Class.forName(className);
-            NeptusLog.pub().debug("loading '" + PluginUtils.getPluginName(c) + "'...");
-
-            boolean added = false;
-
-            if (ReflectionUtil.hasInterface(c, NeptusAction.class)) {
-                actionClasses.put(PluginUtils.getPluginName(c), (Class<NeptusAction>) c);
-                added = true;
-            }
-
-            if (ReflectionUtil.hasInterface(c, SubPanelProvider.class)) {
-                panelClasses.put(PluginUtils.getPluginName(c), (Class<SubPanelProvider>) c);
-                added = true;
-            }
-
-            if (ReflectionUtil.hasInterface(c, NeptusMessageListener.class)) {
-                msgListenerClasses.put(PluginUtils.getPluginName(c), (Class<NeptusMessageListener>) c);
-                added = true;
-            }
-
-            if (ReflectionUtil.hasInterface(c, MRAVisualization.class)) {
-                visualizations.put(PluginUtils.getPluginName(c), (Class<MRAVisualization>) c);
-                added = true;
-            }
-
             if (ReflectionUtil.hasAnnotation(c, MapTileProvider.class)) {
                 if (ReflectionUtil.hasAnySuperClass(c, Tile.class)
                         || ReflectionUtil.hasInterface(c, MapPainterProvider.class)) {
                     tileProviders.put(PluginUtils.getPluginName(c), (Class<MapTileProvider>) c);
-                    added = true;
                 }
-            }
-
-            if (!added) {
-                System.err.println(c.getCanonicalName() + " not recognized");
             }
         }
         catch (Exception e) {
@@ -99,18 +84,6 @@ public class PluginsRepository {
         }
 
     }
-
-    public static void addOtherPlugin(Class<?> service, Class<?> implementation) {
-        if (!otherPlugins.containsKey(service)) {
-            otherPlugins.put(service, new LinkedHashMap<String, Class<?>>());
-        }
-        otherPlugins.get(service).put(PluginUtils.getPluginName(implementation), implementation);
-    }
-
-    public static LinkedHashMap<String, Class<?>> getImplementers(Class<?> service) {
-        return otherPlugins.get(service);
-    }
-
     /**
      * Factory for SubPanel plugins
      * 
@@ -118,72 +91,65 @@ public class PluginsRepository {
      * @param console
      * @return
      */
-    public static SubPanel getPanelPlugin(String pluginName, ConsoleLayout console) {
-        SubPanel np = null;
+    public static ConsolePanel getPanelPlugin(String pluginName, ConsoleLayout console) {
         try {
-            np = (SubPanel) panelClasses.get(pluginName).getConstructor(ConsoleLayout.class).newInstance(console);
+            ConsolePanel spprov = extensions.getPlugin(pluginName, ConsolePanel.class, console);
+            return spprov;
         }
         catch (Exception e) {
             NeptusLog.pub().error("loading panel plugin ", e);
+            return null;
         }
-
-        return np;
     }
-
-    public static NeptusAction getActionPlugin(String pluginName, String instanceName) {
+    
+    public static ConsoleLayer getConsoleLayer(String pluginName) {
         try {
-            NeptusAction act = actionClasses.get(pluginName).newInstance();
-            PluginUtils.loadProperties(act, instanceName);
-            return act;
+            ConsoleLayer spprov = extensions.getPlugin(pluginName, ConsoleLayer.class);
+            return spprov;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().error("loading layer plugin ", e);
+            return null;
         }
-        return null;
     }
-
-    public static NeptusMessageListener getMsgListenerPlugin(String pluginName, String instanceName) {
+    
+    public static ConsoleInteraction getConsoleInteraction(String pluginName) {
         try {
-            NeptusMessageListener list = msgListenerClasses.get(pluginName).newInstance();
-            PluginUtils.loadProperties(list, instanceName);
-            return list;
+            ConsoleInteraction spprov = extensions.getPlugin(pluginName, ConsoleInteraction.class);
+            return spprov;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().error("loading interaction plugin ", e);
+            return null;
         }
-        return null;
+    }
+    
+    public static <T> LinkedHashMap<String, Class<? extends T>> listExtensions(Class<T> type) {
+        return extensions.listExtensions(type);
     }
 
-    public static MRAVisualization getMraVisualization(String pluginName, String instanceName) {
-        try {
-            MRAVisualization list = visualizations.get(pluginName).newInstance();
-            PluginUtils.loadProperties(list, instanceName);
-            return list;
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    public static <T> T getPlugin(String name, Class<T> type, Object... initParams) {
+        return extensions.getPlugin(name, type, initParams);
     }
-
-    // public static Tile getTileProvider(String pluginName, String instanceName) {
-    // try {
-    // Tile list = tileProviders.get(pluginName).newInstance();
-    // PluginUtils.loadProperties(list, instanceName);
-    // return list;
-    // }
-    // catch (Exception e) {
-    // e.printStackTrace();
-    // }
-    // return null;
-    // }
-
-    public static LinkedHashMap<String, Class<? extends SubPanelProvider>> getPanelPlugins() {
-        return panelClasses;
+    
+    public static LinkedHashMap<String, Class<? extends ConsolePanel>> getPanelPlugins() {
+        return extensions.listExtensions(ConsolePanel.class);
+    }
+    
+    public static LinkedHashMap<String, Class<? extends ConsoleLayer>> getConsoleLayerPlugins() {
+        return extensions.listExtensions(ConsoleLayer.class);
+    }
+    
+    public static LinkedHashMap<String, Class<? extends ConsoleInteraction>> getConsoleInteractions() {
+        return extensions.listExtensions(ConsoleInteraction.class);
     }
 
     public static LinkedHashMap<String, Class<? extends MRAVisualization>> getMraVisualizations() {
-        return visualizations;
+        return extensions.listExtensions(MRAVisualization.class);
+    }
+    
+    public static LinkedHashMap<String, Class<? extends LogReplayLayer>> getReplayLayers() {
+        return extensions.listExtensions(LogReplayLayer.class);
     }
 
     public static LinkedHashMap<String, Class<? extends MapTileProvider>> getTileProviders() {

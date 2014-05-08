@@ -33,19 +33,21 @@ package pt.lsts.neptus.mra.plots;
 
 import org.jfree.data.xy.XYSeries;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.lsf.LsfIndex;
 
 /**
  * @author zp
  * 
  */
-public class EstimatedStatePlot extends Mra2DPlot implements LogMarkerListener {
-    
+@PluginDescription
+public class EstimatedStatePlot extends MRA2DPlot implements LogMarkerListener {
+
     /**
      * @param panel
      */
@@ -69,8 +71,8 @@ public class EstimatedStatePlot extends Mra2DPlot implements LogMarkerListener {
             addValue(state.getTimestampMillis(), loc.getLatitudeDegs(), loc.getLongitudeDegs(),
                     state.getSourceName(), "position");
         }
-        
-        
+
+
         IMCMessage estate = source.getMessage(source.getFirstMessageOfType("EstimatedState"));
         LocationType ref = new LocationType(Math.toDegrees(estate.getDouble("lat")), Math.toDegrees(estate.getDouble("lon")));
 
@@ -89,22 +91,22 @@ public class EstimatedStatePlot extends Mra2DPlot implements LogMarkerListener {
                     state.getSourceName(), "simulator");
         }
     }
-    
+
     @Override
     public String getName() {
         return I18n.text("Position");
     }
-    
+
     @Override
     public String getXAxisName() {
         return "Latitude";
     }
-    
+
     @Override
     public String getYAxisName() {
         return "Longitude";
     }
-    
+
     @Override
     public void addLogMarker(LogMarker marker) {
         XYSeries markerSeries = getMarkerSeries();
@@ -114,19 +116,19 @@ public class EstimatedStatePlot extends Mra2DPlot implements LogMarkerListener {
         loc.setLongitudeRads(state.getDouble("lon"));
         loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"));
         loc.convertToAbsoluteLatLonDepth();
-        
+
         if(markerSeries != null)
             markerSeries.add(new TimedXYDataItem(loc.getLatitudeDegs(), loc.getLongitudeDegs(), new Double(marker.timestamp).longValue(), marker.label));
     }
 
     @Override
     public void removeLogMarker(LogMarker marker) {
-        
+
     }
 
     @Override
     public void GotoMarker(LogMarker marker) {
-        
+
     }
 
 }

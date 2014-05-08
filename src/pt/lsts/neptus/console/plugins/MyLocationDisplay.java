@@ -63,6 +63,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.MapChangeEvent;
@@ -73,7 +74,6 @@ import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.LayerPriority;
@@ -101,10 +101,10 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @SuppressWarnings("serial")
 @PluginDescription(author = "Paulo Dias", name = "MyLocationDisplay", version = "1.2.1", icon = "images/myloc.png", description = "My location display.", documentation = "my-location/my-location.html")
 @LayerPriority(priority = 182)
-public class MyLocationDisplay extends SimpleSubPanel implements IPeriodicUpdates, Renderer2DPainter,
+public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates, Renderer2DPainter,
         IEditorMenuExtension, ConfigurationListener, SubPanelChangeListener, MissionChangeListener {
 
-    private static final Icon ICON = ImageUtils.getScaledIcon("images/myloc.png", 24, 24);
+    private final Icon ICON = ImageUtils.getScaledIcon("images/myloc.png", 24, 24);
 
     private static int secondsToDisplayRanges = 30;
 

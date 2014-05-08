@@ -40,9 +40,10 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.ColormapOverlay;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.NeptusMRA;
+import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.ImageLayer;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -55,6 +56,7 @@ import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
  *
  */
 @LayerPriority(priority=-60)
+@PluginDescription(icon="pt/lsts/neptus/mra/replay/color.png")
 public class BathymetryReplay extends ColormapOverlay implements LogReplayLayer {
 
     @NeptusProperty(name="Cell width")
@@ -68,7 +70,7 @@ public class BathymetryReplay extends ColormapOverlay implements LogReplayLayer 
     }
 
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         return (source.getLsfIndex().getDefinitions().getVersion().compareTo("5.0.0") >= 0 && source.getLsfIndex().containsMessagesOfType("Distance"));
     }
 
@@ -118,7 +120,7 @@ public class BathymetryReplay extends ColormapOverlay implements LogReplayLayer 
 
                     if (index.getDefinitions().getVersion().compareTo("5.0.0") >= 0) {
                         for (EstimatedState state : index.getIterator(EstimatedState.class)) {
-                            if (state.getAlt() < 0 || state.getDepth() < NeptusMRA.minDepthForBathymetry || Math.abs(state.getTheta()) > Math.toDegrees(10))
+                            if (state.getAlt() < 0 || state.getDepth() < MRAProperties.minDepthForBathymetry || Math.abs(state.getTheta()) > Math.toDegrees(10))
                                 continue;
                             LocationType loc = new LocationType(Math.toDegrees(state.getLat()), Math.toDegrees(state.getLon()));
                             loc.translatePosition(state.getX(), state.getY(), 0);

@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.vtk.visualization;
 
+import pt.lsts.neptus.i18n.I18n;
 import vtk.vtkScalarBarActor;
 import vtk.vtkScalarsToColors;
 import vtk.vtkTextProperty;
@@ -43,8 +44,15 @@ public class ScalarBar {
 
     private vtkScalarBarActor scalarBarActor;
 
+    private String scalarBarTitle;
+
     public ScalarBar() {
+        this(I18n.text("Color Map"));
+    }
+
+    public ScalarBar(String title) {
         setScalarBarActor(new vtkScalarBarActor());
+        setScalarBarTitle(title);
     }
 
     /**
@@ -58,7 +66,7 @@ public class ScalarBar {
         // getScalarBarActor().SetNumberOfLabels(getScalarBarActor().GetNumberOfLabels() * 2);
         getScalarBarActor().SetNumberOfLabels(9);
         getScalarBarActor().UseOpacityOn();
-        getScalarBarActor().SetTitle("Multibeam Color Map");
+        getScalarBarActor().SetTitle(scalarBarTitle);
 
         vtkTextProperty textProp = new vtkTextProperty();
         textProp = getScalarBarActor().GetLabelTextProperty();
@@ -67,6 +75,7 @@ public class ScalarBar {
         textProp.ItalicOn();
         textProp.SetOpacity(0.9);
         textProp.SetFontSize(8);
+        textProp.ShadowOn();
 
         getScalarBarActor().SetLabelTextProperty(textProp);
         getScalarBarActor().SetTitleTextProperty(textProp);
@@ -82,7 +91,7 @@ public class ScalarBar {
         getScalarBarActor().SetHeight(0.8);
         getScalarBarActor().SetNumberOfLabels(9);
         getScalarBarActor().UseOpacityOn();
-        getScalarBarActor().SetTitle("Multibeam Color Map");
+        getScalarBarActor().SetTitle(scalarBarTitle);
 
         vtkTextProperty textProp = new vtkTextProperty();
         textProp = getScalarBarActor().GetLabelTextProperty();
@@ -114,6 +123,20 @@ public class ScalarBar {
      */
     private void setScalarBarActor(vtkScalarBarActor scalarBarActor) {
         this.scalarBarActor = scalarBarActor;
+    }
+
+    /**
+     * @return the scalarBarTitle
+     */
+    public String getScalarBarTitle() {
+        return scalarBarTitle;
+    }
+
+    /**
+     * @param scalarBarTitle the scalarBarTitle to set
+     */
+    public void setScalarBarTitle(String scalarBarTitle) {
+        this.scalarBarTitle = scalarBarTitle;
     }
 
 }

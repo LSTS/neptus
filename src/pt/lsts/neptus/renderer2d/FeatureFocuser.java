@@ -33,6 +33,7 @@ package pt.lsts.neptus.renderer2d;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -44,6 +45,7 @@ import javax.swing.JMenuItem;
 
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.MenuScroller;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mystate.MyState;
@@ -64,93 +66,104 @@ import pt.lsts.neptus.util.ImageUtils;
  *
  */
 public class FeatureFocuser implements IEditorMenuExtension {
-    
+
     protected static final ImageIcon markIcon = ImageUtils.getIcon("images/buttons/addpoint.png");
     protected static final ImageIcon homeIcon = ImageUtils.getIcon("images/buttons/homeRef.png");
     protected static final ImageIcon transpIcon = ImageUtils.getIcon("images/transponder.png");
     protected static final ImageIcon myLocIcon = ImageUtils.getScaledIcon("images/myloc.png", 24, 24);
-    
+
+    private final ConsoleLayout console;
+    private String mainVeh = "";
+
+    /**
+     * @param console
+     */
+    public FeatureFocuser(ConsoleLayout console) {
+        this.console = console;
+    }
+
     /**
      * @see pt.lsts.neptus.planeditor.IEditorMenuExtension#getApplicableItems(pt.lsts.neptus.types.coord.LocationType, pt.lsts.neptus.planeditor.IMapPopup)
      */
     @Override
     public Collection<JMenuItem> getApplicableItems(LocationType loc, IMapPopup source) {
         final StateRenderer2D renderer = source.getRenderer();
-        MapGroup mg = renderer.getMapGroup();        
-        JMenu menu = new JMenu(I18n.text("Center map in..."));
-        
+        MapGroup mg = renderer.getMapGroup();
+
+        JMenu centerInMenu = new JMenu(I18n.text("Center map in..."));
+
         if (mg == null)
             return null;
-        
+
         final LocationType myLoc = MyState.getLocation();
         if (!myLoc.isLocationEqual(LocationType.ABSOLUTE_ZERO)) {
-            JMenuItem myLocItem = new JMenuItem(I18n.text("My location"), myLocIcon);     
+            JMenuItem myLocItem = new JMenuItem(I18n.text("My location"), myLocIcon);
             myLocItem.addActionListener(new ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) {                    
+                public void actionPerformed(ActionEvent e) {
                     renderer.focusLocation(myLoc);
                 }
             });
-            menu.add(myLocItem);
-            menu.addSeparator();
+            centerInMenu.add(myLocItem);
+            centerInMenu.addSeparator();
         }
-        
-        
+
+
         final LocationType location = mg.getHomeRef().getCenterLocation();
-        JMenuItem homeItem = new JMenuItem(I18n.text("Home Reference"), homeIcon);     
+        JMenuItem homeItem = new JMenuItem(I18n.text("Home Reference"), homeIcon);
         homeItem.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {                    
+            public void actionPerformed(ActionEvent e) {
                 renderer.focusLocation(location);
             }
         });
-        menu.add(homeItem);        
-        
+        centerInMenu.add(homeItem);
+
         JMenu marksMenu = new JMenu(I18n.text("Marks"));
         marksMenu.setIcon(markIcon);
         for (MarkElement me : mg.getAllObjectsOfType(MarkElement.class)) {
             final LocationType l = me.getPosition();
-            JMenuItem menuItem = new JMenuItem(me.getId(), markIcon);     
+            JMenuItem menuItem = new JMenuItem(me.getId(), markIcon);
             menuItem.addActionListener(new ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) {                    
+                public void actionPerformed(ActionEvent e) {
                     renderer.focusLocation(l);
                 }
             });
             marksMenu.add(menuItem);
         }
         MenuScroller.setScrollerFor(marksMenu);
-        menu.add(marksMenu);
-        
+        centerInMenu.add(marksMenu);
+
         for (TransponderElement me : mg.getAllObjectsOfType(TransponderElement.class)) {
             final LocationType l = me.getCenterLocation();
-            JMenuItem menuItem = new JMenuItem(me.getId(), transpIcon);
+            JMenuItem menuItem = new JMenuItem(me.getDisplayName(), transpIcon);
             menuItem.addActionListener(new ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) {                    
+                public void actionPerformed(ActionEvent e) {
                     renderer.focusLocation(l);
                 }
             });
-            menu.add(menuItem);
+            centerInMenu.add(menuItem);
         }
-        menu.addSeparator();
-        
-//        for (String vt : renderer.vehicleStates.keySet()) {
-//            final LocationType l = renderer.getVehicleLocation(vt);
-//            final VehicleType veh = VehiclesHolder.getVehicleById(vt);
-//            JMenuItem menuItem = veh != null ? new JMenuItem(veh.getId(), veh.getIcon()) : new JMenuItem(vt);     
-//            menuItem.addActionListener(new ActionListener() {
-//                @Override
-//                public void actionPerformed(ActionEvent e) {                    
-//                    renderer.focusLocation(l);
-//                }
-//            });
-//            menu.add(menuItem);
-//        }
+        centerInMenu.addSeparator();
+
+        //        for (String vt : renderer.vehicleStates.keySet()) {
+        //            final LocationType l = renderer.getVehicleLocation(vt);
+        //            final VehicleType veh = VehiclesHolder.getVehicleById(vt);
+        //            JMenuItem menuItem = veh != null ? new JMenuItem(veh.getId(), veh.getIcon()) : new JMenuItem(vt);
+        //            menuItem.addActionListener(new ActionListener() {
+        //                @Override
+        //                public void actionPerformed(ActionEvent e) {
+        //                    renderer.focusLocation(l);
+        //                }
+        //            });
+        //            menu.add(menuItem);
+        //        }
 
         JMenu vehMenu = new JMenu(I18n.text("Vehicles"));
-//        vehMenu.setIcon();
-//        mainSystem = ?
+        //        vehMenu.setIcon();
+        //        mainSystem = ?
         Comparator<ImcSystem> imcComparator = new Comparator<ImcSystem>() {
             @Override
             public int compare(ImcSystem o1, ImcSystem o2) {
@@ -170,17 +183,17 @@ public class FeatureFocuser implements IEditorMenuExtension {
         for (ImcSystem sys : veh) {
             final LocationType l = sys.getLocation();
             final VehicleType vehS = VehiclesHolder.getVehicleById(sys.getName());
-            JMenuItem menuItem = veh != null ? new JMenuItem(vehS.getId(), vehS.getIcon()) : new JMenuItem(sys.getName());     
+            JMenuItem menuItem = veh != null ? new JMenuItem(vehS.getId(), vehS.getIcon()) : new JMenuItem(sys.getName());
             menuItem.addActionListener(new ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) { 
+                public void actionPerformed(ActionEvent e) {
                     renderer.focusLocation(l);
                 }
             });
             vehMenu.add(menuItem);
         }
         MenuScroller.setScrollerFor(vehMenu);
-        menu.add(vehMenu);
+        centerInMenu.add(vehMenu);
 
         JMenu otherMenu = new JMenu(I18n.text("Others"));
         //      otherMenu.setIcon();
@@ -192,17 +205,17 @@ public class FeatureFocuser implements IEditorMenuExtension {
                 continue;
 
             final LocationType l = sys.getLocation();
-            JMenuItem menuItem = new JMenuItem(sys.getName());     
+            JMenuItem menuItem = new JMenuItem(sys.getName());
             menuItem.addActionListener(new ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) { 
+                public void actionPerformed(ActionEvent e) {
                     renderer.focusLocation(l);
                 }
             });
             otherMenu.add(menuItem);
         }
         MenuScroller.setScrollerFor(otherMenu);
-        menu.add(otherMenu);
+        centerInMenu.add(otherMenu);
 
         JMenu extMenu = new JMenu(I18n.text("External"));
         //      otherMenu.setIcon();
@@ -210,18 +223,40 @@ public class FeatureFocuser implements IEditorMenuExtension {
         Arrays.sort(exts);
         for (ExternalSystem ext : exts) {
             final LocationType l = ext.getLocation();
-            JMenuItem menuItem = new JMenuItem(ext.getName());     
+            JMenuItem menuItem = new JMenuItem(ext.getName());
             menuItem.addActionListener(new ActionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) { 
+                public void actionPerformed(ActionEvent e) {
                     renderer.focusLocation(l);
                 }
             });
             extMenu.add(menuItem);
         }
         MenuScroller.setScrollerFor(extMenu);
-        menu.add(extMenu);
+        centerInMenu.add(extMenu);
 
-        return Arrays.asList((JMenuItem)menu);
+        JMenuItem centerInMainVeh = new JMenuItem();
+        mainVeh = (console.getMainSystem() != null) ? console.getMainSystem() : "";
+        centerInMainVeh.setText(I18n.text("Center map in: ") + mainVeh);
+
+        centerInMainVeh.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                if (console.getMainSystem() != null) {
+                    String mainVeh = console.getMainSystem();
+                    ImcSystem sys = ImcSystemsHolder.getSystemWithName(mainVeh);
+                    LocationType lt = sys.getLocation();
+                    renderer.focusLocation(lt);
+                }
+            }
+        });
+
+        Collection<JMenuItem> listItems = new ArrayList<>();
+        listItems.add(centerInMenu);
+        listItems.add(centerInMainVeh);
+
+        return listItems;
     }
 }

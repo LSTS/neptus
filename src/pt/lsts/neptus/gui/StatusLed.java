@@ -53,58 +53,50 @@ public class StatusLed extends JPanel implements MouseListener {
     private static final long serialVersionUID = -4028301444416809125L;
 
     /** unknown value */
-    public static short LEVEL_NONE = -2;
-    public static short LEVEL_OFF = -1;
-    public static short LEVEL_0 = 0;
-    public static short LEVEL_1 = 1;
-    public static short LEVEL_2 = 2;
-    public static short LEVEL_3 = 3;
-    public static short LEVEL_4 = 4;
+    public static final short LEVEL_NONE = -2;
+    public static final short LEVEL_OFF = -1;
+    public static final short LEVEL_0 = 0;
+    public static final short LEVEL_1 = 1;
+    public static final short LEVEL_2 = 2;
+    public static final short LEVEL_3 = 3;
+    public static final short LEVEL_4 = 4;
 
-    // public static final ImageIcon LED_NOT = new ImageIcon(GuiUtils.getImage("images/led_not.png"));
-    // public static final ImageIcon LED_OFF = new ImageIcon(GuiUtils.getImage("images/led_off.png"));
-    // public static final ImageIcon LED_GREEN = new ImageIcon(GuiUtils.getImage("images/led_on.png"));
-    // public static final ImageIcon LED_BLUE = new ImageIcon(GuiUtils.getImage("images/blueled.png"));
-    // public static final ImageIcon LED_YELLOW = new ImageIcon(GuiUtils.getImage("images/yellowled.png"));
-    // public static final ImageIcon LED_ORANGE = new ImageIcon(GuiUtils.getImage("images/orangeled.png"));
-    // public static final ImageIcon LED_RED = new ImageIcon(GuiUtils.getImage("images/redled.png"));
+    private final ImageIcon LED_NOT = new ImageIcon(ImageUtils.getScaledImage("images/led_not.png", 14, 14));
+    private final ImageIcon LED_OFF = new ImageIcon(ImageUtils.getScaledImage("images/led_none.png", 14, 14));
+    private final ImageIcon LED_GREEN = new ImageIcon(ImageUtils.getScaledImage("images/led_green.png", 14, 14));
+    private final ImageIcon LED_BLUE = new ImageIcon(ImageUtils.getScaledImage("images/led_blue.png", 14, 14));
+    private final ImageIcon LED_YELLOW = new ImageIcon(ImageUtils.getScaledImage("images/led_yellow.png", 14, 14));
+    private final ImageIcon LED_ORANGE = new ImageIcon(ImageUtils.getScaledImage("images/led_orange.png", 14, 14));
+    private final ImageIcon LED_RED = new ImageIcon(ImageUtils.getScaledImage("images/led_red.png", 14, 14));
 
-    public static final ImageIcon LED_NOT = new ImageIcon(ImageUtils.getScaledImage("images/led_not.png", 14, 14));
-    public static final ImageIcon LED_OFF = new ImageIcon(ImageUtils.getScaledImage("images/led_none.png", 14, 14));
-    public static final ImageIcon LED_GREEN = new ImageIcon(ImageUtils.getScaledImage("images/led_green.png", 14, 14));
-    public static final ImageIcon LED_BLUE = new ImageIcon(ImageUtils.getScaledImage("images/led_blue.png", 14, 14));
-    public static final ImageIcon LED_YELLOW = new ImageIcon(ImageUtils.getScaledImage("images/led_yellow.png", 14, 14));
-    public static final ImageIcon LED_ORANGE = new ImageIcon(ImageUtils.getScaledImage("images/led_orange.png", 14, 14));
-    public static final ImageIcon LED_RED = new ImageIcon(ImageUtils.getScaledImage("images/led_red.png", 14, 14));
+    private final ImageIcon LED_NOT_BIG = new ImageIcon(ImageUtils.getScaledImage("images/led_not.png", 44, 44)); // 44x44
+    private final ImageIcon LED_OFF_BIG = new ImageIcon(ImageUtils.getImage("images/bola_none.png"));
+    private final ImageIcon LED_GREEN_BIG = new ImageIcon(ImageUtils.getImage("images/bola_green.png"));
+    private final ImageIcon LED_BLUE_BIG = new ImageIcon(ImageUtils.getImage("images/bola_blue.png"));
+    private final ImageIcon LED_YELLOW_BIG = new ImageIcon(ImageUtils.getImage("images/bola_yellow.png"));
+    private final ImageIcon LED_ORANGE_BIG = new ImageIcon(ImageUtils.getImage("images/bola_orange.png"));
+    private final ImageIcon LED_RED_BIG = new ImageIcon(ImageUtils.getImage("images/bola_red.png"));
 
-    public static final ImageIcon LED_NOT_BIG = new ImageIcon(ImageUtils.getScaledImage("images/led_not.png", 44, 44)); // 44x44
-    public static final ImageIcon LED_OFF_BIG = new ImageIcon(ImageUtils.getImage("images/bola_none.png"));
-    public static final ImageIcon LED_GREEN_BIG = new ImageIcon(ImageUtils.getImage("images/bola_green.png"));
-    public static final ImageIcon LED_BLUE_BIG = new ImageIcon(ImageUtils.getImage("images/bola_blue.png"));
-    public static final ImageIcon LED_YELLOW_BIG = new ImageIcon(ImageUtils.getImage("images/bola_yellow.png"));
-    public static final ImageIcon LED_ORANGE_BIG = new ImageIcon(ImageUtils.getImage("images/bola_orange.png"));
-    public static final ImageIcon LED_RED_BIG = new ImageIcon(ImageUtils.getImage("images/bola_red.png"));
-
-    public static final Color COLOR_NOT = Color.BLACK;
-    public static final Color COLOR_OFF = Color.GRAY;
-    public static final Color COLOR_GREEN = new Color(0, 200, 125);
-    public static final Color COLOR_BLUE = Color.BLUE;
+    private final Color COLOR_NOT = Color.BLACK;
+    private final Color COLOR_OFF = Color.GRAY;
+    private final Color COLOR_GREEN = new Color(0, 200, 125);
+    private final Color COLOR_BLUE = Color.BLUE;
     public static final Color COLOR_YELLOW = new Color(200, 200, 0);
     public static final Color COLOR_ORANGE = new Color(255, 180, 0);
     public static final Color COLOR_RED = Color.RED;
 
-    public static final ImageIcon IMC_GREEN = new ImageIcon(ImageUtils.getImage("images/imc_green.png"));
-    public static final ImageIcon IMC_RED = new ImageIcon(ImageUtils.getImage("images/imc_red.png"));
-    public static final ImageIcon IMC_OFF = new ImageIcon(ImageUtils.getImage("images/imc_off.png"));
+    private final ImageIcon IMC_GREEN = new ImageIcon(ImageUtils.getImage("images/imc_green.png"));
+    private final ImageIcon IMC_RED = new ImageIcon(ImageUtils.getImage("images/imc_red.png"));
+    private final ImageIcon IMC_OFF = new ImageIcon(ImageUtils.getImage("images/imc_off.png"));
 
-    public static final ImageIcon SNAPSHOT_ON = new ImageIcon(ImageUtils.getScaledImage("images/menus/snapshot.png",
+    private final ImageIcon SNAPSHOT_ON = new ImageIcon(ImageUtils.getScaledImage("images/menus/snapshot.png",
             14, 14));
-    public static final ImageIcon SNAPSHOT_OFF = new ImageIcon(ImageUtils.getScaledImage(
+    private  final ImageIcon SNAPSHOT_OFF = new ImageIcon(ImageUtils.getScaledImage(
             "images/menus/snapshot_off.png", 14, 14));
 
-    public static final ImageIcon WEB_PUBLISH_ON = new ImageIcon(ImageUtils.getScaledImage(
+    private  final ImageIcon WEB_PUBLISH_ON = new ImageIcon(ImageUtils.getScaledImage(
             "images/buttons/webup_enabled.png", 14, 14));
-    public static final ImageIcon WEB_PUBLISH_OFF = new ImageIcon(ImageUtils.getScaledImage(
+    private final ImageIcon WEB_PUBLISH_OFF = new ImageIcon(ImageUtils.getScaledImage(
             "images/buttons/webup_disabled.png", 14, 14));
 
     private LinkedHashMap<Short, Color> levelsColors;

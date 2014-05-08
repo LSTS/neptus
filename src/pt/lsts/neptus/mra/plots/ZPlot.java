@@ -31,23 +31,25 @@
  */
 package pt.lsts.neptus.mra.plots;
 
-import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.MRAPanel;
-import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
-import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 
 /**
  * @author zp
  * 
  */
-public class ZPlot extends MraTimeSeriesPlot {
+@PluginDescription
+public class ZPlot extends MRATimeSeriesPlot {
 
     public ZPlot(MRAPanel panel) {
         super(panel);
     }
-    
+
     @Override
     public String getTitle() {
         return "Z plot";
@@ -62,15 +64,15 @@ public class ZPlot extends MraTimeSeriesPlot {
     public void process(LsfIndex source) {
 
         TidePredictionFinder tide = TidePredictionFactory.create(source);
-        
+
         if (source.getDefinitions().getVersion().compareTo("5.0.0") >= 0) {
             for (IMCMessage es : source.getIterator("EstimatedState", 0, (long)(timestep * 1000))) {
                 double depth = es.getDouble("depth");
                 double alt = es.getDouble("alt");
-                
+
                 if (depth != -1)
                     addValue(es.getTimestampMillis(), es.getSourceName()+"."  + I18n.text("Depth"), depth);
-                
+
                 if (alt != -1) {
                     addValue(es.getTimestampMillis(), es.getSourceName()+"."  + I18n.text("Altitude"), alt);
                 }
@@ -79,7 +81,7 @@ public class ZPlot extends MraTimeSeriesPlot {
                         addValue(es.getTimestampMillis(), es.getSourceName()+"."  + I18n.text("Bathymetry"), Math.max(0, depth) + Math.max(0,alt));
                     else {
                         double tHeight = 0;
-                        
+
                         try {
                             tHeight = tide.getTidePrediction(es.getDate(), false);  
                             addValue(es.getTimestampMillis(), I18n.text("Tide Level"), tHeight);
@@ -105,12 +107,12 @@ public class ZPlot extends MraTimeSeriesPlot {
             }
         }
     }
-    
+
     @Override
     public String getVerticalAxisName() {
         return I18n.text("meters");
     }
-    
+
     @Override
     public String getName() {
         return I18n.text("Z");

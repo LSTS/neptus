@@ -42,15 +42,15 @@ import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.imc.IMCMessage;
 
 @PluginDescription(icon = "images/buttons/compassbutt.png", name = "Alternative Compass")
-public class AlternativeCompass extends SimpleSubPanel implements MainVehicleChangeListener, NeptusMessageListener {
+public class AlternativeCompass extends ConsolePanel implements MainVehicleChangeListener, NeptusMessageListener {
     private static final long serialVersionUID = 1L;
     @NeptusProperty
     float factor = 1.0f;

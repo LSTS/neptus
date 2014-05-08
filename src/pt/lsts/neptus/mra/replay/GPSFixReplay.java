@@ -38,11 +38,13 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Vector;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -53,11 +55,12 @@ import pt.lsts.neptus.types.coord.LocationType;
  *
  */
 @LayerPriority(priority=-40)
+@PluginDescription(icon="pt/lsts/neptus/mra/replay/geolocation.png")
 public class GPSFixReplay implements LogReplayLayer {
 
     protected LinkedList<LocationType> validFixes = new LinkedList<LocationType>();
     protected LinkedList<LocationType> invalidFixes = new LinkedList<LocationType>();
-    protected IMCMessage fixToPaint = null;
+    protected LinkedHashMap<String, IMCMessage> fixesToPaint = new LinkedHashMap<>();
 
     @Override
     public String getName() {
@@ -69,10 +72,10 @@ public class GPSFixReplay implements LogReplayLayer {
     public void cleanup() {
         validFixes.clear();
         invalidFixes.clear();
-        fixToPaint = null;
+        fixesToPaint.clear();
     }
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         return source.getLog("GpsFix") != null;
     }
 
@@ -112,7 +115,7 @@ public class GPSFixReplay implements LogReplayLayer {
 
     @Override
     public void onMessage(IMCMessage message) {
-        fixToPaint = message;
+        fixesToPaint.put(message.getSourceName(), message);
     }
 
     @Override
@@ -125,32 +128,36 @@ public class GPSFixReplay implements LogReplayLayer {
             g.drawLine((int)pt.getX(), (int)pt.getY()-3, (int)pt.getX(), (int)pt.getY()+3);
         }
 
-        if (fixToPaint == null)
+        if (fixesToPaint.isEmpty())
             return;
 
-        double lat = Math.toDegrees(fixToPaint.getDouble("lat"));
-        double lon = Math.toDegrees(fixToPaint.getDouble("lon"));
-
-        LinkedHashMap<String, Boolean> validity = fixToPaint.getBitmask("validity");
-        LocationType loc = new LocationType(lat, lon);
-
-        if (validity.get("VALID_POS")) {
-            g.setColor(Color.green.darker());
-
-            Point2D pt = renderer.getScreenPosition(loc);
-            g.setColor(new Color(255,0,25));
-            g.setStroke(new BasicStroke(2f));
-            g.drawLine((int)pt.getX()-5, (int)pt.getY(), (int)pt.getX()+5, (int)pt.getY());
-            g.drawLine((int)pt.getX(), (int)pt.getY()-5, (int)pt.getX(), (int)pt.getY()+5);
-            
-            double radius = fixToPaint.getDouble("hacc") * renderer.getZoom();
-
-            Ellipse2D ellis = new Ellipse2D.Double(pt.getX()-radius, pt.getY()-radius, radius*2, radius*2);
-            g.setColor(new Color(255,128,128,64));
-            g.fill(ellis);
-
-            g.setColor(new Color(255,128,25));
-            g.draw(ellis);
+        Vector<IMCMessage> fixes = new Vector<>();
+        fixes.addAll(fixesToPaint.values());
+        for (IMCMessage fixToPaint : fixes) {
+            double lat = Math.toDegrees(fixToPaint.getDouble("lat"));
+            double lon = Math.toDegrees(fixToPaint.getDouble("lon"));
+    
+            LinkedHashMap<String, Boolean> validity = fixToPaint.getBitmask("validity");
+            LocationType loc = new LocationType(lat, lon);
+    
+            if (validity.get("VALID_POS")) {
+                g.setColor(Color.green.darker());
+    
+                Point2D pt = renderer.getScreenPosition(loc);
+                g.setColor(new Color(255,0,25));
+                g.setStroke(new BasicStroke(2f));
+                g.drawLine((int)pt.getX()-5, (int)pt.getY(), (int)pt.getX()+5, (int)pt.getY());
+                g.drawLine((int)pt.getX(), (int)pt.getY()-5, (int)pt.getX(), (int)pt.getY()+5);
+                
+                double radius = fixToPaint.getDouble("hacc") * renderer.getZoom();
+    
+                Ellipse2D ellis = new Ellipse2D.Double(pt.getX()-radius, pt.getY()-radius, radius*2, radius*2);
+                g.setColor(new Color(255,128,128,64));
+                g.fill(ellis);
+    
+                g.setColor(new Color(255,128,25));
+                g.draw(ellis);
+            }
         }
     } 
     @Override

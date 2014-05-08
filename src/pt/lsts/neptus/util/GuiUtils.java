@@ -92,10 +92,14 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -103,7 +107,9 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.filechooser.FileFilter;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.ErrorMessageBox;
+import pt.lsts.neptus.gui.tablelayout.TableLayout;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.jgoodies.looks.LookUtils;
@@ -527,7 +533,7 @@ public class GuiUtils {
             NeptusLog.pub().error(e);
         }
     }
-    
+
     /**
      * Use this instead of JOptionPane.showMessageDialog(..., JOptionPane.INFORMATION_MESSAGE)
      * Default ModalityMode.DOCUMENT_MODAL
@@ -554,7 +560,7 @@ public class GuiUtils {
         dialog.setModalityType(modalityType);
         dialog.setVisible(true);
     }
-    
+
     /**
      * Use this instead of JOptionPane.showMessageDialog(..., JOptionPane.QUESTION_MESSAGE)
      * Default ModalityType.DOCUMENT_MODAL
@@ -577,7 +583,7 @@ public class GuiUtils {
     public static int confirmDialog(Component owner, String title, String message, ModalityType modalityType) {
         // int response = JOptionPane.showConfirmDialog(owner, message, title, JOptionPane.YES_NO_OPTION);
         // return response; // == JOptionPane.YES_OPTION;
-        
+
         JOptionPane jop = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
         JDialog dialog = jop.createDialog(owner, title);
         dialog.setModalityType(modalityType);
@@ -600,7 +606,7 @@ public class GuiUtils {
     public static void errorMessage(Component owner, String title, String message) {
         errorMessage(owner, title, message, ModalityType.DOCUMENT_MODAL);
     }
-    
+
     /**
      * Use this instead of JOptionPane.showMessageDialog(..., JOptionPane.ERROR_MESSAGE)
      * @param owner
@@ -744,7 +750,7 @@ public class GuiUtils {
             // give feedback
             NeptusLog.pub().info(
                     "Saved screen shot (" + parentImage.getWidth() + " x " + parentImage.getHeight()
-                            + " pixels) to file \"" + outFileName + "\".");
+                    + " pixels) to file \"" + outFileName + "\".");
         }
         catch (Exception e) {
             NeptusLog.pub().error("generateCompositeScreenShot()", e);
@@ -786,7 +792,7 @@ public class GuiUtils {
             NeptusLog.pub().error("error taking snapshot", e);
         }
     }
-    
+
     /**
      * Get default full path for a log file, this goes to the images folder
      * @param extension
@@ -795,7 +801,7 @@ public class GuiUtils {
     public static String getLogFileName(String extension) {
         return getLogFileName("", extension);
     }
-    
+
     /**
      * Get full path for a log
      * @param prefix some defaults map directly to a folder ( sent_rmf, mission_state, output ) everything else to images folder
@@ -805,7 +811,7 @@ public class GuiUtils {
     public static String getLogFileName(String prefix, String extension) {
         if (prefix == null)
             prefix = "";
-        
+
         prefix = prefix.toLowerCase();
 
         File fx1 = new File("log");
@@ -843,8 +849,8 @@ public class GuiUtils {
     }
 
     /**
-	 * 
-	 */
+     * 
+     */
     public static void setLookAndFeel() {
         // Tries to change the look and feel to an improved one
         PlasticLookAndFeel.setPlasticTheme(new com.jgoodies.looks.plastic.theme.SkyBlue());
@@ -876,7 +882,7 @@ public class GuiUtils {
         }
     }
 
-    public static FileFilter getCustomFileFilter(String desc, String[] validExtensions) {
+    public static FileFilter getCustomFileFilter(String desc, String... validExtensions) {
         final String d = desc;
         final String[] ext = validExtensions;
         return new FileFilter() {
@@ -1119,7 +1125,7 @@ public class GuiUtils {
         g2d.drawString(new String(new char[] { letter }), (size - width) / 2 + 1, size - 3);
         return new ImageIcon(bi);
     }
-    
+
     /**
      * Search a for a JMenu item in a JMenuBar comparing by name
      * @param bar 
@@ -1136,7 +1142,7 @@ public class GuiUtils {
         }
         return false;
     }
-    
+
     public static JMenu getJMenuByName(JMenuBar bar, String name) {
         for(Component c : bar.getComponents()) {
             if(c instanceof JMenu) {
@@ -1147,6 +1153,24 @@ public class GuiUtils {
         }
         return null;
     }
+    
+    public static Pair<String, String> askCredentials(Component parent, String title, String username, String password) {
+        TableLayout tl = new TableLayout(new double[] {0.33, 0.67}, new double[] {0.5,0.5});
+        tl.setHGap(3);
+        JPanel p = new JPanel(tl);
+        JTextField login = new JTextField(username);
+        JPasswordField pass = new JPasswordField(password);
+        
+        p.add(new JLabel("login:"), "0,0");
+        p.add(login, "1,0");
+        p.add(new JLabel("password:"),"0,1");
+        p.add(pass,"1,1");
+        int op = JOptionPane.showConfirmDialog(parent, p, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, ImageUtils.getIcon("images/key.png"));
+        if (op == JOptionPane.CANCEL_OPTION)
+            return null;
+        return new Pair<String, String>(login.getText(), new String(pass.getPassword()));
+    }
+
     /**
      * Unitary test.
      * 
@@ -1158,7 +1182,7 @@ public class GuiUtils {
          * testFrame(new JLabel("dsdssdsdsdsdssssssssssssss")); GuiUtils.errorMessage(testFrame(new JLabel("dddddddd")),
          * "No more data to read", "Reached the end of stream. Cable unplugged?");
          */
-//        testFrame(new JLabel(getLetterIcon('R', Color.white, Color.blue.darker(), 22)));
+        //        testFrame(new JLabel(getLetterIcon('R', Color.white, Color.blue.darker(), 22)));
 
         NeptusLog.pub().info("<###> "+getLogFileName("mission_state", "zip"));
     }

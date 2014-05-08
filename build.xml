@@ -55,11 +55,11 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<!-- Defines variables used by the other targets                         -->
 	<!-- =================================================================== -->
-	<property name="version.MAJOR" value="3" />
-	<property name="version.MINOR" value="1" />
+	<property name="version.MAJOR" value="4" />
+	<property name="version.MINOR" value="0" />
 	<property name="version.PATCH" value="0" />
 	<!-- Set this to '.dev' if a developer release; blank "" if maintenance release -->
-	<property name="version.DEVELOPER" value="" />
+	<property name="version.DEVELOPER" value="rc1" />
 	<!-- Set the release number. Use the form 'R1' for release 1. Or leave it blank for a non release -->
 	<property name="release.NAME" value="R14.02" />
 	<property name="release.INFO" value="${release.NAME}"/>
@@ -139,6 +139,8 @@ For simple use the main targets are:
 
 	<property name="libimc.jar.file" value="libimc.jar" />
 	<property name="libimc.jar.file.path" value="${lib.dir}/${libimc.jar.file}" />
+	
+	<property name="resources.copied" value="**/*.xml,**/*.properties,**/*.res,images/**/*.*,models/**/*.*,schemas/**/*.xsd,**/*.png,**/*.jpg,**/*.gif"/>
 
 	<!-- The bundle jars names -->
 	<property name="bundle.jar.checklist" value="${name}-check.jar" />
@@ -427,6 +429,15 @@ For simple use the main targets are:
 		<delete dir="${build.dir}" />
 		<delete dir="${tmp.dir}" />
 		<delete dir="${plugin.dir.dest}" />
+		<delete file="${jar.file.path}" />
+		<delete>
+			<fileset dir="${bin.bundle.dir}">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${bin.dir}">
+				<include name="*.jar"/>
+			</fileset>
+		</delete>
 		<delete>
 			<fileset dir=".">
 				<include name="*.tar.gz"/>
@@ -611,7 +622,7 @@ For simple use the main targets are:
 		<!-- Copy main src resources -->
 		<copy todir="${build.classes}" overwrite="true">
 			<fileset dir="${src.dir}" excludes="${exclude-defaults},**/Thumbs.db,**/thumbs.db" 
-				includes="**/*.xml,**/*.properties,**/*.res,images/**/*.*,models/**/*.*,schemas/**/*.xsd" />
+				includes="${resources.copied}" />
 		</copy>
 		<copy todir="${build.classes}" overwrite="true">
 			<fileset dir="${src.dir}">
@@ -658,7 +669,7 @@ For simple use the main targets are:
 
 		<copy todir="${tmp.main.dir}" overwrite="true">
 			<fileset dir="${src.dir}" excludes="${exclude-defaults},**/Thumbs.db,**/thumbs.db" 
-				includes="**/*.xml,**/*.properties,**/*.res,images/**/*.*,models/**/*.*,schemas/**/*.xsd" />
+				includes="${resources.copied}" />
 		</copy>
 		<copy todir="${tmp.main.dir}" overwrite="true">
 			<fileset dir="${src.dir}">
@@ -875,61 +886,50 @@ For simple use the main targets are:
                excludes="${exclude-defaults}" includes="LICENSE">
 			<include name="version.*" />
 			<include name="info*" />
-			<include name="pt/lsts/neptus/i18n/**/*.class" />
-			<include name="pt/lsts/neptus/NeptusLog*.class" />
-			<include name="pt/lsts/neptus/gui/checklist/**/*.class"/>
-			<include name="pt/lsts/neptus/messages/listener/**/*.class"/>
-			<include name="pt/lsts/neptus/messages/*.class"/>
-			<include name="pt/lsts/neptus/util/conf/*.class"/>
-			<!-- include name="pt/lsts/neptus/util/*.class"/ -->
-			<include name="pt/lsts/neptus/util/GuiUtils*.class"/>
-			<include name="pt/lsts/neptus/util/ImageUtils*.class"/>
-			<include name="pt/lsts/neptus/util/ImageLoader.class"/>
-			<include name="pt/lsts/neptus/util/FileUtil.class"/>
-			<include name="pt/lsts/neptus/util/NameNormalizer.class"/>
-			<include name="pt/lsts/neptus/util/DateTimeUtil*.class"/>
-			<include name="pt/lsts/neptus/util/PropertiesLoader*.class"/>
-			<include name="pt/lsts/neptus/util/BarCodesUtil*.class"/>
-			<include name="pt/lsts/neptus/util/output/*.class"/>
-			<include name="pt/lsts/neptus/util/xsl/*.class"/>
-			<include name="pt/lsts/neptus/gui/ModalFrame.class"/>
-			<include name="pt/lsts/neptus/gui/PropertiesProvider.class"/>
-			<include name="pt/lsts/neptus/gui/swing/NeptusFileView.class"/>
-			<include name="pt/lsts/neptus/gui/editor/*.class"/>
-			<include name="pt/lsts/neptus/types/checklist/**/*.class"/>
-			<include name="pt/lsts/neptus/types/Xml*.class"/>
-			<include name="pt/lsts/neptus/types/nativetypes/*.class"/>
-			<include name="pt/lsts/neptus/comm/vehicle/*.class"/>
-			<include name="pt/lsts/neptus/comm/transports/ImcUdpTransport*.class"/>
-			<include name="pt/lsts/neptus/comm/manager/imc/ImcId16*.class"/>
-			<!--include name="pt/lsts/neptus/util/comm/middleware/**.class"/-->
-			<include name="pt/lsts/neptus/gui/BlockingGlassPane*.class"/>
-			<include name="pt/lsts/neptus/gui/InfiniteProgressPanel*.class"/>
-			<include name="pt/lsts/neptus/gui/ClockCounter*.class"/>
-			<include name="pt/lsts/neptus/gui/ChronometerPanel*.class"/>
-			<include name="pt/lsts/neptus/vartree/*.class"/>
-			<include name="pt/lsts/vartree/*.class"/>
-			<include name="pt/lsts/neptus/plugins/PluginProperty.class"/>
-			<include name="pt/lsts/neptus/plugins/NeptusProperty*.class"/>
-			<include name="pt/lsts/neptus/types/Identifiable*.class"/>
-			<!--include name="pt/lsts/neptus/types/**/*.class"/ -->
-			<!-- include name="images/**/*.*" / -->
 			<include name="images/neptus-icon.png"/>
 			<include name="images/neptus-icon1.png"/>
 			<include name="images/neptus-icon2.png"/>
-			<!-- include name="images/neptus_logo_ns.svg"/ -->
-			<!--include name="images/box_checked.png"/>
-            <include name="images/box.png"/>
-        	<include name="images/menus/edit.png"/>
-        	<include name="images/buttons/add.png"/>
-        	<include name="images/buttons/close.png"/-->
-			<!--include name="images/files-icons/*.*"/ -->
-			<include name="images/files-icons/*.png"/>
 			<include name="images/checklists/*.png"/>
-			<!-- include name="schemas/**/*.*"/ -->
+			<include name="images/files-icons/*.png"/>
 			<include name="schemas/neptus-checklist.xsd"/>
-			<include name="version.txt"/>
-			<include name="pt/lsts/neptus/util/**/*.class"/>
+			<include name="pt/lsts/neptus/NeptusLog*.class" />
+			<include name="pt/lsts/neptus/comm/iridium/IridiumManager*.class" />
+			<include name="pt/lsts/neptus/comm/manager/imc/ImcId16*.class"/>
+			<include name="pt/lsts/neptus/comm/transports/ImcUdpTransport*.class"/>
+			<include name="pt/lsts/neptus/comm/vehicle/*.class"/>
+			<include name="pt/lsts/neptus/i18n/**/*.class" />
+			<include name="pt/lsts/neptus/gui/BlockingGlassPane*.class"/>
+			<include name="pt/lsts/neptus/gui/ChronometerPanel*.class"/>
+			<include name="pt/lsts/neptus/gui/ClockCounter*.class"/>
+			<include name="pt/lsts/neptus/gui/InfiniteProgressPanel*.class"/>
+			<include name="pt/lsts/neptus/gui/ModalFrame.class"/>
+			<include name="pt/lsts/neptus/gui/PropertiesProvider.class"/>
+			<include name="pt/lsts/neptus/gui/checklist/**/*.class"/>
+			<include name="pt/lsts/neptus/gui/editor/*.class"/>
+			<include name="pt/lsts/neptus/gui/swing/NeptusFileView.class"/>
+			<include name="pt/lsts/neptus/messages/listener/**/*.class"/>
+			<include name="pt/lsts/neptus/messages/*.class"/>
+			<include name="pt/lsts/neptus/plugins/NeptusProperty*.class"/>
+			<include name="pt/lsts/neptus/plugins/PluginProperty.class"/>
+			<include name="pt/lsts/neptus/types/Identifiable*.class"/>
+			<include name="pt/lsts/neptus/types/Xml*.class"/>
+			<include name="pt/lsts/neptus/types/checklist/**/*.class"/>
+			<include name="pt/lsts/neptus/types/nativetypes/*.class"/>
+			<include name="pt/lsts/neptus/util/BarCodesUtil*.class"/>
+			<include name="pt/lsts/neptus/util/DateTimeUtil*.class"/>
+			<include name="pt/lsts/neptus/util/ImageLoader.class"/>
+			<include name="pt/lsts/neptus/util/ImageUtils*.class"/>
+			<include name="pt/lsts/neptus/util/FileUtil.class"/>
+			<include name="pt/lsts/neptus/util/GuiUtils*.class"/>
+			<include name="pt/lsts/neptus/util/NameNormalizer.class"/>
+			<include name="pt/lsts/neptus/util/PropertiesLoader*.class"/>
+			<include name="pt/lsts/neptus/util/conf/*.class"/>
+			<include name="pt/lsts/neptus/util/output/*.class"/>
+			<include name="pt/lsts/neptus/util/xsl/*.class"/>
+			<!--include name="pt/lsts/neptus/util/**/*.class"/-->
+			<include name="pt/lsts/neptus/util/*.class"/>
+			<include name="pt/lsts/neptus/vartree/*.class"/>
+			<include name="pt/lsts/vartree/*.class"/>
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
@@ -954,8 +954,8 @@ For simple use the main targets are:
 		<unzip dest="${tmp.bundle.dir}" src="lib/dom4j/jaxen-1.1.1.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/l2fprod-common-all.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/swingx.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-looks-2.5.2.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-common-1.4.0.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-looks-2.5.3.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-common-1.7.0.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/standby.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/log4j-1.2.17.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/>
@@ -997,64 +997,76 @@ For simple use the main targets are:
                excludes="${exclude-defaults}" includes="LICENSE">
 			<include name="version.*" />
 			<include name="info*" />
+			<include name="images/neptus-icon.png"/>
+			<include name="images/neptus-icon1.png"/>
+			<include name="images/neptus-icon2.png"/>
+			<include name="images/World_Blank_Map_Mercator_projection.svg" />
+			<include name="images/ssh-connect.png"/>
+			<include name="images/cursors/*.png" />
+			<include name="images/files-icons/*.png"/>
+			<include name="images/menus/*.png" />
+			<include name="images/world/*.png"/>
+			<include name="pt/lsts/messages/Message*.class" />
 			<include name="pt/lsts/neptus/i18n/**/*.class" />
 			<include name="pt/lsts/neptus/NeptusLog*.class" />
 			<include name="pt/lsts/neptus/app/tiles/**/*.class" />
-			<include name="pt/lsts/neptus/types/coord/*.class" />
-			<include name="pt/lsts/neptus/types/**/*.class" />
-			<include name="pt/lsts/neptus/util/*.class" />
-			<include name="pt/lsts/neptus/util/conf/*.class" />
-			<include name="pt/lsts/neptus/util/coord/*.class" />
+			<include name="pt/lsts/neptus/comm/iridium/*.class" />
 			<include name="pt/lsts/neptus/comm/manager/imc/ImcId16*.class" />
+			<include name="pt/lsts/neptus/comm/manager/imc/ImcSystem*.class" />
+			<include name="pt/lsts/neptus/comm/proxy/ProxyInfoProvider*.class" />
+			<include name="pt/lsts/neptus/comm/ssh/IntFormat*.class" />
+			<include name="pt/lsts/neptus/comm/ssh/SSHConnectionDialog*.class" />
+			<include name="pt/lsts/neptus/console/AbstractConsolePlugin*.class" />
+			<include name="pt/lsts/neptus/console/ConsoleInteraction*.class" />
+			<include name="pt/lsts/neptus/console/ConsoleLayer*.class" />
+			<include name="pt/lsts/neptus/console/ConsoleLayout*.class" />
+			<include name="pt/lsts/neptus/console/ConsolePanel*.class" />
+			<include name="pt/lsts/neptus/console/IConsoleInteraction*.class" />
+			<include name="pt/lsts/neptus/console/IConsoleLayer*.class" />
+			<include name="pt/lsts/neptus/console/MainPanel*.class" />
+			<include name="pt/lsts/neptus/console/plugins/*.class" />
 			<include name="pt/lsts/neptus/gps/**.class" />
+			<include name="pt/lsts/neptus/gui/CoordinateSystemPanel*.class" />
+			<include name="pt/lsts/neptus/gui/ImagePanel*.class" />
+			<include name="pt/lsts/neptus/gui/InfiniteProgressPanel*.class" />
 			<include name="pt/lsts/neptus/gui/Properties*.class" />
+			<include name="pt/lsts/neptus/gui/ToolbarSwitch*.class" />
+			<include name="pt/lsts/neptus/gui/Vehicle*.class" />
+			<include name="pt/lsts/neptus/gui/objparams/**/*.class" />
+			<include name="pt/lsts/neptus/gui/editor/**/*.class" />
+			<include name="pt/lsts/neptus/gui/system/**/*.class" />
+			<include name="pt/lsts/neptus/messages/stanag4586/AVP*.class" />
+			<include name="pt/lsts/neptus/messages/stanag4586/ProtocolIm*.class" />
+			<!-- Needed by the Serializable interface of LocationType -->
+			<include name="pt/lsts/neptus/messages/stanag4586/Stanag4586Message.class" />
+			<include name="pt/lsts/neptus/messages/*.class" />
 			<include name="pt/lsts/neptus/mp/MapChangeEvent*.class" />
 			<include name="pt/lsts/neptus/mp/MapChangeListener*.class" />
 			<include name="pt/lsts/neptus/mp/Vehicle*.class" />
 			<include name="pt/lsts/neptus/mp/SystemPos*.class" />
 			<include name="pt/lsts/neptus/mp/MapChangeEvent.class" />
 			<exclude name="pt/lsts/neptus/mp/MissionPlanner*.class" />
-			<include name="pt/lsts/neptus/renderer2d/**/*.class" />
-			<include name="pt/lsts/neptus/messages/stanag4586/AVP*.class" />
-			<include name="pt/lsts/neptus/messages/stanag4586/ProtocolIm*.class" />
-			<include name="pt/lsts/neptus/messages/*.class" />
-			<include name="pt/lsts/neptus/gui/objparams/**/*.class" />
-			<include name="pt/lsts/neptus/gui/CoordinateSystemPanel*.class" />
-			<include name="pt/lsts/neptus/gui/Vehicle*.class" />
-			<include name="pt/lsts/neptus/gui/editor/**/*.class" />
-			<!--include name="pt/lsts/neptus/plugins/*.class" /-->
-			<include name="images/cursors/*.png" />
-			<include name="images/menus/*.png" />
-			<include name="images/World_Blank_Map_Mercator_projection.svg" />
-			<!-- Needed by the Serializable interface of LocationType -->
-			<include name="pt/lsts/neptus/messages/stanag4586/Stanag4586Message.class" />
-			<include name="pt/lsts/messages/Message*.class" />
-			<include name="images/neptus-icon.png"/>
-			<include name="images/neptus-icon1.png"/>
-			<include name="images/neptus-icon2.png"/>
-			<include name="images/files-icons/*.png"/>
-			<include name="images/world/*.png"/>
-			<include name="pt/lsts/neptus/util/output/*.class"/>
-			<include name="pt/lsts/neptus/plugins/*.class" />
-			<include name="pt/lsts/neptus/gui/InfiniteProgressPanel*.class" />
-			<include name="pt/lsts/neptus/console/plugins/SubPanelProvider*.class" />
+			<include name="pt/lsts/neptus/mra/replay/*.class" />
 			<include name="pt/lsts/neptus/mra/visualizations/MRAVisualization*.class" />
-			<include name="pt/lsts/neptus/comm/proxy/ProxyInfoProvider*.class" />
-			<include name="pt/lsts/neptus/util/comm/ssh/SSHConnectionDialog*.class" />
-			<include name="pt/lsts/neptus/util/comm/ssh/IntFormat*.class" />
-			<include name="pt/lsts/neptus/gui/ImagePanel*.class" />
+			<include name="pt/lsts/neptus/mra/exporters/MRAExporter*.class" />
+			<include name="pt/lsts/neptus/mra/replay/LogReplayLayer*.class" />
+			<include name="pt/lsts/neptus/plugins/*.class" />
+			<include name="pt/lsts/neptus/renderer2d/**/*.class" />
+			<include name="pt/lsts/neptus/types/coord/*.class" />
+			<include name="pt/lsts/neptus/types/**/*.class" />
+			<include name="pt/lsts/neptus/util/*.class" />
+			<include name="pt/lsts/neptus/util/coord/*.class" />
+			<include name="pt/lsts/neptus/util/conf/*.class" />
+			<include name="pt/lsts/neptus/util/output/*.class"/>
 			<include name="pt/lsts/neptus/planeditor/I*.class" />
-			<include name="pt/lsts/neptus/gui/system/**/*.class" />
-			<include name="pt/lsts/neptus/comm/manager/imc/ImcSystem*.class" />
-			<include name="images/ssh-connect.png"/>
 		</jar>
 		<mkdir dir="${tmp.bundle.dir}"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/dom4j/dom4j-1.6.1.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/dom4j/jaxen-1.1.1.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/l2fprod-common-all.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/swingx.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-looks-2.5.2.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-common-1.4.0.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-looks-2.5.3.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/jgoodies-common-1.7.0.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/standby.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/log4j-1.2.17.jar"/>
 		<!--unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/-->
@@ -1062,16 +1074,18 @@ For simple use the main targets are:
 		<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
 		<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-1.4.jar"/-->
 		<unzip dest="${tmp.bundle.dir}" src="lib/foxtrot.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/httpclient-4.2.2.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/httpcore-4.2.2.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/commons-codec-1.8.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/httpclient-4.3.2.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/httpcore-4.3.1.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/commons-codec-1.9.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/fop/batik.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/fop/xml-apis-ext.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/fop/xmlgraphics-commons-1.3.1.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/commons-logging-1.1.1.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/commons-logging-1.1.3.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="plugins/tiles-extra.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/libimc.jar"/>
-		<unzip dest="${tmp.bundle.dir}" src="lib/miglayout-4.0-swing.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/miglayout-core-4.2.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/miglayout-swing-4.2.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/reflections-0.9.9-RC1.jar"/>
 
 		<unzip dest="${tmp.bundle.dir}" src="${bundle.jar.worldmap.path}" overwrite="yes"/>
 		<copy flatten="false" todir="${tmp.bundle.dir}/legal">

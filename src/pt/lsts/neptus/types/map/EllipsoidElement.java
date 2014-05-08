@@ -33,6 +33,8 @@ package pt.lsts.neptus.types.map;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
@@ -79,6 +81,15 @@ public class EllipsoidElement extends GeometryElement
             double pos[] = centerLocation.getOffsetFrom(new LocationType());
             thisEllipse = new Ellipse2D.Double(pos[0]-width/2, pos[1]-height/2, width, length);
         }
+    }
+    
+    @Override
+    public boolean containsPoint(LocationType lt, StateRenderer2D renderer) {
+        double[] offsets = lt.getOffsetFrom(getCenterLocation());
+        Point2D pt = new Point2D.Double(offsets[1], -offsets[0]);
+        AffineTransform t = AffineTransform.getRotateInstance(getYawRad());
+        Shape s = t.createTransformedShape(new Ellipse2D.Double(-getWidth()/2, -getLength()/2, getWidth(), getLength()));
+        return s.contains(pt);
     }
 
     @Override

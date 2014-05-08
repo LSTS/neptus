@@ -43,12 +43,12 @@ import pt.lsts.imc.VehicleState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.util.speech.SpeechUtil;
 
@@ -59,7 +59,7 @@ import com.google.common.eventbus.Subscribe;
  * 
  */
 @PluginDescription(name = "Audio Vehicle State Alerts", category = CATEGORY.INTERFACE)
-public class AudibleVehicleState extends SimpleSubPanel implements IPeriodicUpdates {
+public class AudibleVehicleState extends ConsolePanel implements IPeriodicUpdates {
     private static final long serialVersionUID = 1L;
     protected LinkedHashMap<String, VehicleState> vStatesImc = new LinkedHashMap<>();
     //protected LinkedHashMap<String, Long> lastUpdates = new LinkedHashMap<>();
@@ -126,9 +126,14 @@ public class AudibleVehicleState extends SimpleSubPanel implements IPeriodicUpda
         return true;
     }
 
+    private String cleanUp(String text) {
+        return text
+                .replaceAll("xtreme", "extreme")
+                .replaceAll("xplore", "explore");
+    }
     public void say(String text) {
-        if (useAudioAlerts)
-            SpeechUtil.readSimpleText(text.replaceAll("xtreme", "extreme"));
+        if (useAudioAlerts) 
+            SpeechUtil.readSimpleText(cleanUp(text));
     }
 
     @Subscribe
@@ -140,8 +145,9 @@ public class AudibleVehicleState extends SimpleSubPanel implements IPeriodicUpda
         VehicleState oldState = vStatesImc.get(src);
 
         if (oldState != null) {
-            if (oldState.getOpMode() != msg.getOpMode()) {
-                
+            boolean stoppedTeleop = oldState.getManeuverType() == Teleoperation.ID_STATIC && msg.getManeuverType() != Teleoperation.ID_STATIC;
+            boolean startedTeleop = oldState.getManeuverType() != Teleoperation.ID_STATIC && msg.getManeuverType() == Teleoperation.ID_STATIC;
+            if (oldState.getOpMode() != msg.getOpMode() || startedTeleop || stoppedTeleop) {
                 String text = src + " is in " + msg.getOpMode().toString() + " mode";
                 if (msg.getManeuverType() == Teleoperation.ID_STATIC)
                     text = src + " is in teleh operation mode";

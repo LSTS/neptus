@@ -315,8 +315,6 @@ public class ImcTcpTransport {
 	        new Thread(ImcTcpTransport.class.getSimpleName() + " :: " + TCPMessageProcessor.class.getSimpleName() + "(" + TCPMessageProcessor.this.hashCode() + ")") {
 	            @Override
 	            public void run() {
-//	                GzLsf2Llf.transformLSFStream("./conf/messages/IMC.xml", 
-//	                        pis, TCPMessageProcessor.this, null);
 	                try {
 	                    //IMCInputStream iis = new IMCInputStream(pis);
 	                    

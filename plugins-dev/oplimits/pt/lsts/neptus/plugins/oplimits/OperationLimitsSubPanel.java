@@ -41,6 +41,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
@@ -69,18 +70,20 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.OperationalLimits;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.OperationLimits;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.renderer2d.CustomInteractionSupport;
 import pt.lsts.neptus.renderer2d.ILayerPainter;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
@@ -96,12 +99,14 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 
+import com.google.common.eventbus.Subscribe;
+
 /**
  * @author zp
  * 
  */
-@PluginDescription(name = "Operation Limits", category = CATEGORY.PLANNING, icon = "pt/lsts/neptus/plugins/oplimits/limits.png", documentation = "oplimits/oplimits.html")
-public class OperationLimitsSubPanel extends SimpleSubPanel implements ConfigurationListener,
+@PluginDescription(name = "Operation Limits", category = CATEGORY.PLANNING, icon = "pt/lsts/neptus/plugins/oplimits/lock.png", documentation = "oplimits/oplimits.html")
+public class OperationLimitsSubPanel extends ConsolePanel implements ConfigurationListener,
         MainVehicleChangeListener, NeptusMessageListener, Renderer2DPainter, StateRendererInteraction {
 
     private static final long serialVersionUID = 1L;
@@ -175,11 +180,11 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
 
                 }
                 else {
-                    limits.opAreaLat = before.opAreaLat;
-                    limits.opAreaLon = before.opAreaLon;
-                    limits.opAreaLength = before.opAreaLength;
-                    limits.opAreaWidth = before.opAreaWidth;
-                    limits.opRotationRads = before.opRotationRads;
+                    limits.setOpAreaLat(before.getOpAreaLat());
+                    limits.setOpAreaLon(before.getOpAreaLon());
+                    limits.setOpAreaLength(before.getOpAreaLength());
+                    limits.setOpAreaWidth(before.getOpAreaWidth());
+                    limits.setOpRotationRads(before.getOpRotationRads());
                 }
             }
         };
@@ -324,7 +329,7 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
                             }
                             else {
                                 post(Notification.success(I18n.text("Operation Limits"), I18n.text("Syncronized")).src(
-                                        console.getMainSystem()));
+                                        getConsole().getMainSystem()));
                             }
                         }
                     }
@@ -455,9 +460,8 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
             showOnMap(showOnMap);
     }
 
-    @Override
-    public void mainVehicleChangeNotification(String id) {
-        // remove oplimits renderers
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange e) {
         showOnMap(false);
 
         pp = getSelectionFromLimits(limits);
@@ -478,11 +482,6 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
     }
 
     @Override
-    public String getName() {
-        return "Edit Operational Limits";
-    }
-
-    @Override
     public boolean isExclusive() {
         return true;
     }
@@ -500,7 +499,7 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
         adapter.mouseClicked(event, source);
-
+        boolean handled = false;
         if (event.getButton() == MouseEvent.BUTTON3) {
             JPopupMenu popup = new JPopupMenu();
             popup.add(editLimits);
@@ -511,19 +510,10 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
             popup.addSeparator();
             popup.add(sendAction);
             popup.add(updateAction);
+            handled = true;
             popup.show(source, event.getX(), event.getY());
         }
-        else {
-
-            adapter.mouseClicked(event, source);
-            if (event.getButton() == MouseEvent.BUTTON3) {
-                rectangle = null;
-                pp = null;
-                clickCount = 0;
-                repaint();
-                return;
-            }
-
+        else {            
             if (rectangle == null) {
                 points[0] = source.getRealWorldLocation(event.getPoint());
                 rectangle = new PathElement(source.getMapGroup(), null, points[0]);
@@ -532,12 +522,14 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
                 rectangle.setStroke(new BasicStroke(2.0f));
                 rectangle.addPoint(0, 0, 0, false);
                 clickCount = 1;
+                handled = true;
             }
             else if (clickCount == 1) {
                 clickCount++;
                 points[1] = source.getRealWorldLocation(event.getPoint());
                 double[] offsets = points[1].getOffsetFrom(rectangle.getCenterLocation());
                 rectangle.addPoint(offsets[1], offsets[0], 0, false);
+                handled = true;
             }
             else if (clickCount == 2) {
                 clickCount++;
@@ -584,11 +576,13 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
                     pp.setCenterLocation(new LocationType(pp.getCenterLocation().translatePosition(
                             points[0].getOffsetFrom(points[2]))));
                 setLimitsFromSelection(pp);
+                handled = true;
 
-            }
+            }            
             repaint();
-
         }
+        if (!handled)
+            adapter.mouseClicked(event, source);        
     }
 
     @Override
@@ -599,7 +593,6 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
     @Override
     public void mouseDragged(MouseEvent event, StateRenderer2D source) {
         if (dragging) {
-
             double my = event.getPoint().getY() - lastDragPoint.getY();
 
             if (event.isShiftDown())
@@ -614,21 +607,25 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
             source.repaint();
         }
         else {
-            if (!event.isShiftDown())
-                adapter.mouseDragged(event, source);
+            //if (!event.isShiftDown())
+            //    adapter.mouseDragged(event, source);
+            adapter.mouseDragged(event, source);
         }
         lastDragPoint = event.getPoint();
     }
 
     @Override
     public void mousePressed(MouseEvent event, StateRenderer2D source) {
-        adapter.mousePressed(event, source);
+        boolean handled = false;
         if (editing) {
             lastDragPoint = event.getPoint();
             if (pp != null && pp.containsPoint(source.getRealWorldLocation(lastDragPoint), source)) {
                 dragging = true;
+                handled = true;
             }
         }
+        if (!handled)
+            adapter.mousePressed(event, source);
     }
 
     @Override
@@ -641,10 +638,25 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
         adapter.mouseReleased(event, source);
         if (dragging) {
             dragging = false;
-            setLimitsFromSelection(pp);
+            setLimitsFromSelection(pp);            
         }
         lastDragPoint = null;
 
+    }
+    
+    @Override
+    public void mouseExited(MouseEvent event, StateRenderer2D source) {
+        adapter.mouseExited(event, source);
+    }
+    
+    @Override
+    public void focusGained(FocusEvent event, StateRenderer2D source) {
+        adapter.focusGained(event, source);        
+    }
+
+    @Override
+    public void focusLost(FocusEvent event, StateRenderer2D source) {
+        adapter.focusLost(event, source);
     }
 
     @Override
@@ -671,16 +683,16 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
                 StringBuilder sb = new StringBuilder("<html><h3>" + I18n.text("Operational Limits")
                         + "</h3><font color='red'>");
 
-                if (limits.maxDepth != null && !limits.maxDepth.isNaN())
-                    sb.append(I18n.text("Max Depth") + ": <b>" + nf.format(limits.maxDepth) + " m</b><br>");
-                if (limits.maxAltitude != null && !limits.maxAltitude.isNaN())
-                    sb.append(I18n.text("Max Altitude") + ": <b>" + nf.format(limits.maxAltitude) + " m</b><br>");
-                if (limits.minAltitude != null && !limits.minAltitude.isNaN())
-                    sb.append(I18n.text("Min Altitude") + ": <b>" + nf.format(limits.minAltitude) + " m</b><br>");
-                if (limits.minSpeed != null && !limits.minSpeed.isNaN())
-                    sb.append(I18n.text("Min Speed") + ": <b>" + nf.format(limits.minSpeed) + " m/s</b><br>");
-                if (limits.maxSpeed != null && !limits.maxSpeed.isNaN())
-                    sb.append(I18n.text("Max Speed") + ": <b>" + nf.format(limits.maxSpeed) + " m/s</b><br>");
+                if (limits.getMaxDepth() != null && !limits.getMaxDepth().isNaN())
+                    sb.append(I18n.text("Max Depth") + ": <b>" + nf.format(limits.getMaxDepth()) + " m</b><br>");
+                if (limits.getMaxAltitude() != null && !limits.getMaxAltitude().isNaN())
+                    sb.append(I18n.text("Max Altitude") + ": <b>" + nf.format(limits.getMaxAltitude()) + " m</b><br>");
+                if (limits.getMinAltitude() != null && !limits.getMinAltitude().isNaN())
+                    sb.append(I18n.text("Min Altitude") + ": <b>" + nf.format(limits.getMinAltitude()) + " m</b><br>");
+                if (limits.getMinSpeed() != null && !limits.getMinSpeed().isNaN())
+                    sb.append(I18n.text("Min Speed") + ": <b>" + nf.format(limits.getMinSpeed()) + " m/s</b><br>");
+                if (limits.getMaxSpeed() != null && !limits.getMaxSpeed().isNaN())
+                    sb.append(I18n.text("Max Speed") + ": <b>" + nf.format(limits.getMaxSpeed()) + " m/s</b><br>");
                 sb.append("</font></html>");
 
                 label.setText(sb.toString());
@@ -714,16 +726,20 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
     public OperationLimits setLimitsFromSelection(ParallelepipedElement selection) {
 
         if (selection == null) {
-            limits.opAreaLat = limits.opAreaLon = limits.opRotationRads = limits.opAreaWidth = limits.opAreaLength = null;
+            limits.setOpAreaLat(null);
+            limits.setOpAreaLon(null);
+            limits.setOpRotationRads(null);
+            limits.setOpAreaWidth(null);
+            limits.setOpAreaLength(null);
         }
         else {
             double lld[] = selection.getCenterLocation().getAbsoluteLatLonDepth();
 
-            limits.opAreaLat = lld[0];
-            limits.opAreaLon = lld[1];
-            limits.opAreaLength = selection.getLength();
-            limits.opAreaWidth = selection.getWidth();
-            limits.opRotationRads = selection.getYawRad();
+            limits.setOpAreaLat(lld[0]);
+            limits.setOpAreaLon(lld[1]);
+            limits.setOpAreaLength(selection.getLength());
+            limits.setOpAreaWidth(selection.getWidth());
+            limits.setOpRotationRads(selection.getYawRad());
         }
         byte[] newMD5 = getLimitsMessage().payloadMD5();
         if (lastMD5 == null || !ByteUtil.equal(newMD5, lastMD5)) {
@@ -737,16 +753,16 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
     }
 
     public ParallelepipedElement getSelectionFromLimits(OperationLimits limits) {
-        if (limits.opAreaLat == null)
+        if (limits.getOpAreaLat() == null)
             pp = null;
         else {
             pp = new ParallelepipedElement(null, null);
-            pp.setWidth(limits.opAreaWidth);
-            pp.setLength(limits.opAreaLength);
-            pp.setYawDeg(Math.toDegrees(limits.opRotationRads));
+            pp.setWidth(limits.getOpAreaWidth());
+            pp.setLength(limits.getOpAreaLength());
+            pp.setYawDeg(Math.toDegrees(limits.getOpRotationRads()));
             LocationType lt = new LocationType();
-            lt.setLatitudeDegs(limits.opAreaLat);
-            lt.setLongitudeDegs(limits.opAreaLon);
+            lt.setLatitudeDegs(limits.getOpAreaLat());
+            lt.setLongitudeDegs(limits.getOpAreaLon());
             pp.setCenterLocation(lt);
             pp.setMyColor(Color.red);
         }
@@ -774,7 +790,12 @@ public class OperationLimitsSubPanel extends SimpleSubPanel implements Configura
 
     @Override
     public void setAssociatedSwitch(ToolbarSwitch tswitch) {
-
+        
+    }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        adapter.paintInteraction(g, source);
     }
 
     /*

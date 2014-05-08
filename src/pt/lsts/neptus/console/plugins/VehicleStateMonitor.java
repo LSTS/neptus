@@ -38,12 +38,12 @@ import java.util.concurrent.ConcurrentMap;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ConsoleSystem;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.imc.Teleoperation;
 import pt.lsts.imc.VehicleState;
@@ -56,7 +56,7 @@ import com.google.common.eventbus.Subscribe;
  * 
  */
 @PluginDescription(name = "Vehicle State Monitor")
-public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpdates {
+public class VehicleStateMonitor extends ConsolePanel implements IPeriodicUpdates {
 
     private static final long serialVersionUID = 1L;
     protected ConcurrentMap<String, VehicleState> systemStates = new ConcurrentHashMap<String, VehicleState>();
@@ -81,7 +81,7 @@ public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpda
                     systemStates.remove(system);
                     post(new ConsoleEventVehicleStateChanged(system,
                             I18n.text("No communication received for more than 10 seconds"), STATE.DISCONNECTED));
-                    console.getSystem(system).setVehicleState(STATE.DISCONNECTED);
+                    getConsole().getSystem(system).setVehicleState(STATE.DISCONNECTED);
                 }
             }
             catch (Exception e) {
@@ -97,7 +97,7 @@ public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpda
     public void consume(VehicleState msg) {
         try {
             String src = msg.getSourceName();
-            ConsoleSystem consoleSystem = console.getSystem(src);
+            ConsoleSystem consoleSystem = getConsole().getSystem(src);
             if (src == null || consoleSystem == null)
                 return;
             STATE systemState = STATE.valueOf(msg.getOpMode().toString());
@@ -119,7 +119,9 @@ public class VehicleStateMonitor extends SimpleSubPanel implements IPeriodicUpda
             else {
                 OP_MODE last = oldState.getOpMode();
                 OP_MODE current = msg.getOpMode();
-                if (last != current) {
+                int lastType = oldState.getManeuverType();
+                int currentType = msg.getManeuverType();
+                if (last != current || lastType != currentType) {
                     systemStates.put(src, msg);
                     if (msg.getManeuverType() == Teleoperation.ID_STATIC) {
                         post(new ConsoleEventVehicleStateChanged(src, text, STATE.TELEOPERATION));

@@ -43,10 +43,10 @@ import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.DeviceState;
 import pt.lsts.imc.Distance;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 
 import com.google.common.eventbus.Subscribe;
@@ -57,7 +57,7 @@ import com.google.common.eventbus.Subscribe;
  */
 @PluginDescription(name="Distances Panel", description="Distances Panel")
 @Popup(name = "Distances Panel", pos=POSITION.CENTER, width = 800, height = 600, accelerator=KeyEvent.VK_D)
-public class DistancesPanel extends SimpleSubPanel implements IPeriodicUpdates {
+public class DistancesPanel extends ConsolePanel implements IPeriodicUpdates {
     private static final long serialVersionUID = 1L;
 
     int w = 600;

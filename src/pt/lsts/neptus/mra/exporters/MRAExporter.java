@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.mra.exporters;
 
+import javax.swing.ProgressMonitor;
+
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 
 /**
@@ -47,9 +49,11 @@ public interface MRAExporter {
     
     /**
      * Process method to be called on Exporter selection
+     * @param source TODO
+     * @param pmonitor TODO
      * @return The result of the process (to be shown to the user)
      */
-    public String process();
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor);
     
     /**
      * Return the name that will be shown on Exporters menu 

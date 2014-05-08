@@ -33,8 +33,10 @@ package pt.lsts.neptus.params;
 
 import java.awt.BorderLayout;
 
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
@@ -42,8 +44,8 @@ import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
-import pt.lsts.imc.IMCMessage;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -53,7 +55,7 @@ import pt.lsts.imc.IMCMessage;
 @SuppressWarnings("serial")
 @PluginDescription(name="System Configuration")
 @Popup(accelerator='Z', pos=POSITION.CENTER, width=600, height=600)
-public class SystemConfiguration extends SimpleSubPanel implements NeptusMessageListener, MainVehicleChangeListener {
+public class SystemConfiguration extends ConsolePanel implements NeptusMessageListener, MainVehicleChangeListener {
 
     private SystemConfigurationEditorPanel systemConfEditor;
         
@@ -70,7 +72,7 @@ public class SystemConfiguration extends SimpleSubPanel implements NeptusMessage
         removeAll();
         
         systemConfEditor = new SystemConfigurationEditorPanel(getMainVehicleId(), Scope.GLOBAL, Visibility.USER, true,
-                false, true, ImcMsgManager.getManager());
+                false, true, getConsole().getImcMsgManager());
         
         setLayout(new BorderLayout());
         add(systemConfEditor);
@@ -79,12 +81,9 @@ public class SystemConfiguration extends SimpleSubPanel implements NeptusMessage
         repaint();
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.SimpleSubPanel#mainVehicleChangeNotification(java.lang.String)
-     */
-    @Override
-    public void mainVehicleChangeNotification(String id) {
-        systemConfEditor.setSystemId(id);
+    @Subscribe
+    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
+        systemConfEditor.setSystemId(ev.getCurrent());
     }
         
 

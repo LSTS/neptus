@@ -60,8 +60,11 @@ import pt.lsts.neptus.plugins.PluginUtils;
 
 /**
  * @author pdias
- *
+ * 
+ * FIXME 
+ * pddias: Fix deprecated hc4.3 upgrade-
  */
+@SuppressWarnings("deprecation")
 public class ProxyInfoProvider {
 
     @NeptusProperty
@@ -74,7 +77,7 @@ public class ProxyInfoProvider {
     @NeptusProperty
     public static String username = "user";
     private static String password = null;
-    
+
     private static final String ROOT_PREFIX;
     static {
         if (new File("../" + "conf").exists())
@@ -84,7 +87,7 @@ public class ProxyInfoProvider {
             new File("conf").mkdir();
         }
     }
-    
+
     static {
         try {
             String confFx = ROOT_PREFIX + "conf/" + ProxyInfoProvider.class.getSimpleName().toLowerCase() + ".properties";
@@ -100,7 +103,7 @@ public class ProxyInfoProvider {
     private ProxyInfoProvider() {
         // Don't allow initialization
     }
-    
+
     private static synchronized void savePropertiesToDisk() {
         try {
             PluginUtils.saveProperties(ROOT_PREFIX + "conf/" + ProxyInfoProvider.class.getSimpleName().toLowerCase() + ".properties",
@@ -118,7 +121,7 @@ public class ProxyInfoProvider {
     public static boolean isEnableProxy() {
         return enableProxy;
     }
-    
+
     /**
      * @param enableProxy the enableProxy to set
      */
@@ -126,7 +129,7 @@ public class ProxyInfoProvider {
         ProxyInfoProvider.enableProxy = enableProxy;
         savePropertiesToDisk();
     }
-    
+
     /**
      * @return [httpProxyHost, username, password, httpProxyPort]
      */
@@ -165,7 +168,7 @@ public class ProxyInfoProvider {
      */
     private synchronized static String[] showOrNotConfiguratonDialogAndReturnConfigurationWorker(String title,
             boolean forceShow, Window parentWindow) {
-        
+
         if (forceShow || password == null) {
             String[] ret = SSHConnectionDialog.showConnectionDialog(httpProxyHost, username, password == null ? ""
                     : password, httpProxyPort, title, parentWindow);
@@ -185,7 +188,7 @@ public class ProxyInfoProvider {
 
             savePropertiesToDisk();
         }
-        
+
         return new String[] { httpProxyHost, username, password, Short.toString(httpProxyPort) };
     }
 
@@ -194,6 +197,7 @@ public class ProxyInfoProvider {
      */
     public static void setRoutePlanner(final AbstractHttpClient client) {
         client.setRoutePlanner(new HttpRoutePlanner() {
+            @Override
             public HttpRoute determineRoute(HttpHost target, HttpRequest request, HttpContext context)
                     throws HttpException {
                 String[] ret = getConfiguratons();
@@ -219,8 +223,8 @@ public class ProxyInfoProvider {
         if (ret.length == 0)
             return new UsernamePasswordCredentials("", "");
 
-//        String proxyHost = ret[0];
-//        short proxyPort = Short.parseShort(ret[3]);
+        //        String proxyHost = ret[0];
+        //        short proxyPort = Short.parseShort(ret[3]);
         String username = ret[1];
         String password = ret[2];
 
@@ -254,11 +258,11 @@ public class ProxyInfoProvider {
                 }
             }
         }
-        
+
         { // New Authentication for httpcomponents-client-4.2
             if (isEnableProxy()) {
                 int sc = resp.getStatusLine().getStatusCode();
-                
+
                 AuthState authState = null;
                 HttpHost authhost = null;
                 if (sc == HttpStatus.SC_UNAUTHORIZED) {
@@ -280,10 +284,10 @@ public class ProxyInfoProvider {
             }
         }
     }
-    
+
     public static void main(String[] args) {
         savePropertiesToDisk();
-        
+
         NeptusLog.pub().info("<###> "+enableProxy);
         NeptusLog.pub().info("<###> "+httpProxyHost);
         NeptusLog.pub().info("<###> "+httpProxyPort);

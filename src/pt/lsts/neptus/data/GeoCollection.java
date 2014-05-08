@@ -98,15 +98,26 @@ public class GeoCollection<T> {
         }
     }
     
-    //FIXME
-    public static class Vectorial extends GeoCollection<Vector<java.lang.Double>>{
-        public Vectorial() {
+    public static class VectorialDouble extends GeoCollection<Vector<java.lang.Double>>{
+        public VectorialDouble() {
             super (new Interpolator<Vector<java.lang.Double>>() {
                 @Override
-                public java.util.Vector<java.lang.Double> interpolate(double weightTotal,
-                        java.util.Vector<Pair<java.lang.Double, java.util.Vector<java.lang.Double>>> weightToValues) {
-                    // TODO Auto-generated method stub
-                    return null;
+                public Vector<java.lang.Double> interpolate(double weightTotal,
+                        Vector<Pair<java.lang.Double, Vector<java.lang.Double>>> weightToValues) {
+                    int valSize = weightToValues.get(0).second.size();
+                    Vector<java.lang.Double> vals = new Vector<java.lang.Double>(valSize);
+                    for (int i = 0; i < valSize; i++) {
+                        vals.add(0d);
+                    }
+                    for (Pair<java.lang.Double, Vector<java.lang.Double>> p : weightToValues) {
+                        for (int i = 0; i < vals.size(); i++) {
+                            vals.set(i, vals.get(i) + p.first * p.second.get(i));
+                        }
+                    }
+                    for (int i = 0; i < vals.size(); i++) {
+                        vals.set(i, vals.get(i) / weightTotal);
+                    }
+                    return vals;
                 }
             });
         }        
@@ -341,6 +352,23 @@ public class GeoCollection<T> {
         System.out.println("Insertion took "+(System.currentTimeMillis()-start)+" milliseconds");
         start = System.currentTimeMillis();
         System.out.println(col.valueAt(new LocationType(41.23, -8)));
+        System.out.println("Calculation took "+(System.currentTimeMillis()-start)+" milliseconds");
+        
+
+        GeoCollection.VectorialDouble col2 = new GeoCollection.VectorialDouble();
+        start = System.currentTimeMillis();
+        for (double i = 0; i < 1E6; i++) {
+            double val = 40.5 + r.nextDouble();
+            double val1 = 0.5 + 0.3 * r.nextDouble();
+            double val2 = 90 + 90 * r.nextDouble();
+            Vector<java.lang.Double> vals = new Vector<java.lang.Double>();
+            vals.add(val1);
+            vals.add(val2);
+            col2.add(new LocationType(val, r.nextDouble()-8.5), vals);
+        }
+        System.out.println("Insertion took "+(System.currentTimeMillis()-start)+" milliseconds");
+        start = System.currentTimeMillis();
+        System.out.println(col2.valueAt(new LocationType(41.23, -8)));
         System.out.println("Calculation took "+(System.currentTimeMillis()-start)+" milliseconds");
     }
 }

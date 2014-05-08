@@ -39,7 +39,7 @@ import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.SubPanel;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.MiniButton;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.ImageUtils;
@@ -49,11 +49,12 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 @SuppressWarnings("serial")
 @PluginDescription(icon = "images/menus/lock.png", name = "Console Lock Button", documentation = "lock/lock-button.html")
-public class LockConsolePanel extends SubPanel implements ActionListener {
+public class LockConsolePanel extends ConsolePanel implements ActionListener {
 
-    public static final ImageIcon DEFAULT_ICON = new ImageIcon(ImageUtils.getImage("images/menus/lock.png"));
-    public static final ImageIcon LOCK_ICON_FILENAME = ImageUtils.getIcon("images/menus/lock.png");
-
+    private final ImageIcon DEFAULT_ICON = new ImageIcon(ImageUtils.getImage("images/menus/lock.png"));
+    private final ImageIcon LOCK_ICON_FILENAME = ImageUtils.getIcon("images/menus/lock.png");
+    private ImageIcon icon;
+    
     protected MiniButton lockButton = null;
 
     /**
@@ -65,7 +66,7 @@ public class LockConsolePanel extends SubPanel implements ActionListener {
     }
 
     private void initialize() {
-        imageIcon = DEFAULT_ICON;
+        icon = DEFAULT_ICON;
         this.setLayout(new BorderLayout());
         this.add(getLockButton(), BorderLayout.CENTER);
         this.setPreferredSize(new Dimension(40, 40));
@@ -74,7 +75,7 @@ public class LockConsolePanel extends SubPanel implements ActionListener {
 
     @Override
     public ImageIcon getImageIcon() {
-        return imageIcon;
+        return icon;
     }
 
     /**
@@ -111,5 +112,15 @@ public class LockConsolePanel extends SubPanel implements ActionListener {
                 e1.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void initSubPanel() {
+        
+    }
+
+    @Override
+    public void cleanSubPanel() {
+        
     }
 }

@@ -47,6 +47,7 @@ import javax.swing.Timer;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -54,7 +55,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginsLoader;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.plugins.gps.device.Device;
 import pt.lsts.neptus.plugins.gps.device.Fix;
 import pt.lsts.neptus.plugins.gps.device.FixListener;
@@ -73,7 +73,7 @@ import pt.lsts.neptus.util.ConsoleParse;
 @PluginDescription(name = "GPS Device Panel", author = "Ricardo Martins", icon = "images/buttons/gpsbutton.png",
     description = "Panel that reads NMEA sentences from a GPS device",
     documentation = "gps-panel/gps-panel.html")
-public class GPSDevicePanel extends SimpleSubPanel implements ActionListener, FixListener {
+public class GPSDevicePanel extends ConsolePanel implements ActionListener, FixListener {
     /** Not connected message string. */
     private static final String MSG_NOT_CONNECTED = "<html>" + I18n.text("Not Connected") + "</html>";
     /** Waiting for data message string. */

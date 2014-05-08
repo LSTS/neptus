@@ -38,30 +38,31 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
-import java.io.FileInputStream;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Vector;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.plots.LogMarkerListener;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
  */
-public class LogMarkersReplay implements LogReplayLayer {
+@PluginDescription(icon="images/menus/marker.png")
+public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
 
     ArrayList<LogMarker> markers = new ArrayList<>();
     Vector<LocationType> locations = new Vector<>();
     IMraLogGroup source = null;
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {        
-        
+
         for (int i = 0 ; i < markers.size(); i++) {
             Point2D pt = renderer.getScreenPosition(locations.get(i));
 
@@ -87,7 +88,7 @@ public class LogMarkersReplay implements LogReplayLayer {
     }
 
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {    
+    public boolean canBeApplied(IMraLogGroup source, Context context) {    
         return true;
     }
 
@@ -116,26 +117,29 @@ public class LogMarkersReplay implements LogReplayLayer {
         }        
     }
     
-    @SuppressWarnings("unchecked")
-    public void loadMarkers() {
-        try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(source.getFile("Data.lsf").getParent()
-                    + "/marks.dat"));
-            for (LogMarker marker : (ArrayList<LogMarker>) ois.readObject()) {
-                addMarker(marker);
-            }
-            ois.close();
-        }
-        catch (Exception e) {
-            NeptusLog.pub().info("No markers for this log, or erroneous mark file");
-        }
+    @Override
+    public void addLogMarker(LogMarker marker) {
+        addMarker(marker);
     }
 
+    @Override
+    public void removeLogMarker(LogMarker marker) {
+        removeMarker(marker);
+    }
+    
+
+    @Override
+    public void GotoMarker(LogMarker marker) {
+        //nothing
+    }
     
     @Override
     public void parse(IMraLogGroup source) {
+        Collection<LogMarker> sourceMarkers = LogMarker.load(source);
+        for (LogMarker lm : sourceMarkers) {
+            addMarker(lm); 
+        }        
         this.source = source;
-        loadMarkers();
     }
 
     @Override

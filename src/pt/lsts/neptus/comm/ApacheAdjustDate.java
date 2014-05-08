@@ -57,248 +57,175 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 /**
  * @author Paulo Dias
  */
-public class ApacheAdjustDate
-implements Runnable, TelnetNotificationHandler
-{
+public class ApacheAdjustDate implements Runnable, TelnetNotificationHandler {
     private TelnetClient tc = null;
-    
+
     /**
      * @param vehicleId
      * @return
      */
-    public boolean adjustDateTime(String vehicleId)
-    {
-        //String dateTime = "";
-        //Date trialTime = new Date();
-        
-        //MMddHHmm[[[CC]yy][.ss]]
-        //SimpleDateFormat dateFormater = new SimpleDateFormat("MMddHHmm.ss");
-        
-        //dateTime = dateFormater.format(trialTime);
-        //NeptusLog.pub().info("Date to set in vehicle: " + dateTime);
+    public boolean adjustDateTime(String vehicleId) {
 
         VehicleType vehicle = VehiclesHolder.getVehicleById(vehicleId);
-        if (vehicle == null)
-        {
-            NeptusLog.pub().error("ApacheAdjustDate :: No vehicle found for id: "
-                    + vehicleId);
-            return false;            
+        if (vehicle == null) {
+            NeptusLog.pub().error("ApacheAdjustDate :: No vehicle found for id: " + vehicleId);
+            return false;
         }
-        else
-        {
-            /*
-            CommMean cm = CommUtil.getActiveCommMean(vehicle);
-            if (cm == null)
-            {
-                NeptusLog.pub().error("ApacheAdjustDate :: No active CommMean for "
-                        + "vehicle with id: " + vehicleId);
-                return false;                            
-            }
-            if (!CommUtil.testCommMeanForProtocol(cm, "telnet"))
-            {
-                NeptusLog.pub()
-                        .error("ApacheAdjustDate :: No telnet protocol for CommMean " + "["
-                                + cm.getName() + "] for " + "vehicle with id: "
-                                + vehicleId);
-                return false;                                            
-            }
-            */
+        else {
             CommMean cm = CommUtil.getActiveCommMeanForProtocol(vehicle, "telnet");
-            if (cm == null)
-            {
-                NeptusLog.pub().error("ApacheAdjustDate :: No active CommMean for " +
-                		"telnet protocol for vehicle with id: " + vehicleId);
-                return false;                            
+            if (cm == null) {
+                NeptusLog.pub().error(
+                        "ApacheAdjustDate :: No active CommMean for " + "telnet protocol for vehicle with id: "
+                                + vehicleId);
+                return false;
             }
-            else
-            {
-                String host     = cm.getHostAddress();
-                int port        = 23;
-                String user     = cm.getUserName();
+            else {
+                String host = cm.getHostAddress();
+                int port = 23;
+                String user = cm.getUserName();
                 String password = cm.getPassword();
-                
+
                 tc = new TelnetClient();
 
-                TerminalTypeOptionHandler ttopt = new TerminalTypeOptionHandler(
-                        "VT100", false, false, true, false);
-                EchoOptionHandler echoopt = new EchoOptionHandler(true, false,
-                        true, false);
-                SuppressGAOptionHandler gaopt = new SuppressGAOptionHandler(
-                        true, true, true, true);
+                TerminalTypeOptionHandler ttopt = new TerminalTypeOptionHandler("VT100", false, false, true, false);
+                EchoOptionHandler echoopt = new EchoOptionHandler(true, false, true, false);
+                SuppressGAOptionHandler gaopt = new SuppressGAOptionHandler(true, true, true, true);
 
-                try
-                {
+                try {
                     tc.addOptionHandler(ttopt);
                     tc.addOptionHandler(echoopt);
                     tc.addOptionHandler(gaopt);
                 }
-                catch (InvalidTelnetOptionException e)
-                {
-                    NeptusLog.pub().error("ApacheAdjustDate :: Error registering option " +
-                    		"handlers: " + e.getMessage());
+                catch (InvalidTelnetOptionException | IOException e) {
+                    NeptusLog.pub().error(
+                            "ApacheAdjustDate :: Error registering option " + "handlers: " + e.getMessage());
                 }
-                
-                try
-                {
+
+                try {
                     tc.connect(host, port);
-                    Thread reader = new Thread (this);
+                    Thread reader = new Thread(this);
                     OutputStream outstr = tc.getOutputStream();
                     DataOutputStream dostream = new DataOutputStream(outstr);
                     reader.start();
-                    try
-                    {
-                        //outstr.write(buff, 0 , ret_read);
-                        //outstr.flush();
+                    try {
                         dostream.writeBytes(user + "\n");
                         dostream.flush();
                         dostream.writeBytes(password + "\n");
                         dostream.flush();
-                        
-                        //trialTime = new Date();
-                        //dateTime = dateFormater.format(trialTime);
-                        ////dostream.writeBytes("date " + dateTime + "\n");
-                        //dostream.writeBytes("date " + dateTime
-						//		+ " && hwclock --systohc" + "\n");
-                        
+
                         String command = getAdjustDateCommand(vehicle);
                         dostream.writeBytes(command + "\n");
-                        
-                        dostream.flush();
-                        //NeptusLog.pub().info("Date to set in vehicle: " + dateTime);
-                		NeptusLog.pub().info("Date to set in vehicle '" + vehicleId + "': " + command);
 
-                        //dostream.writeBytes("exit \n");
-                        //dostream.flush();
+                        dostream.flush();
+                        NeptusLog.pub().info("Date to set in vehicle '" + vehicleId + "': " + command);
+
+                        // dostream.writeBytes("exit \n");
+                        // dostream.flush();
                         Thread.sleep(5000);
-                        //reader.stop();
+                        // reader.stop();
                         tc.disconnect();
                     }
-                    catch (Exception e)
-                    {
+                    catch (Exception e) {
                         NeptusLog.pub().error("ApacheAdjustDate :: : " + e.getMessage());
                     }
 
-                    
-                } catch (SocketException e1)
-                {
-                    NeptusLog.pub().error("ApacheAdjustDate :: : " + e1.getMessage());
-                    return false;
-                } catch (IOException e1)
-                {
+                }
+                catch (SocketException e1) {
                     NeptusLog.pub().error("ApacheAdjustDate :: : " + e1.getMessage());
                     return false;
                 }
-
-
+                catch (IOException e1) {
+                    NeptusLog.pub().error("ApacheAdjustDate :: : " + e1.getMessage());
+                    return false;
+                }
             }
         }
         return true;
 
     }
 
-	private String getAdjustDateCommand(VehicleType vehicle)
-	{
-		ProtocolArgs adjParamBase = vehicle.getProtocolsArgs().get(AdjustTimeShellArgs.DEFAULT_ROOT_ELEMENT);
-		AdjustTimeShellArgs adjParam = null;
-		if (adjParamBase != null)
-			adjParam = (AdjustTimeShellArgs) adjParamBase;
-		else
-			adjParam = new AdjustTimeShellArgs();
-		String dateTime = "date ";
-        //MMddHHmm[[[CC]yy][.ss]]
-		String yearFormat = (!adjParam.isSetYear())?"":((adjParam.isUse2DigitYear())?"yy":"yyyy");
-		String secondsFormat = (!adjParam.isSetSeconds())?"":".ss";
-        //SimpleDateFormat dateFormater = new SimpleDateFormat("MMddHHmmyyyy.ss");
-        SimpleDateFormat dateFormater = new SimpleDateFormat("MMddHHmm"+yearFormat+secondsFormat);
+    private String getAdjustDateCommand(VehicleType vehicle) {
+        ProtocolArgs adjParamBase = vehicle.getProtocolsArgs().get(AdjustTimeShellArgs.DEFAULT_ROOT_ELEMENT);
+        AdjustTimeShellArgs adjParam = null;
+        if (adjParamBase != null)
+            adjParam = (AdjustTimeShellArgs) adjParamBase;
+        else
+            adjParam = new AdjustTimeShellArgs();
+        String dateTime = "date ";
+        // MMddHHmm[[[CC]yy][.ss]]
+        String yearFormat = (!adjParam.isSetYear()) ? "" : ((adjParam.isUse2DigitYear()) ? "yy" : "yyyy");
+        String secondsFormat = (!adjParam.isSetSeconds()) ? "" : ".ss";
+        // SimpleDateFormat dateFormater = new SimpleDateFormat("MMddHHmmyyyy.ss");
+        SimpleDateFormat dateFormater = new SimpleDateFormat("MMddHHmm" + yearFormat + secondsFormat);
         Date trialTime = new Date();
         dateTime += dateFormater.format(trialTime);
         if (adjParam.isUseHwClock())
-        	dateTime += " && hwclock --systohc";
+            dateTime += " && hwclock --systohc";
         return dateTime;
-	}
+    }
 
     /**
-     * Callback method called when TelnetClient receives an option
-     * negotiation command.
+     * Callback method called when TelnetClient receives an option negotiation command.
      * <p>
-     * @param negotiation_code - type of negotiation command received
-     * (RECEIVED_DO, RECEIVED_DONT, RECEIVED_WILL, RECEIVED_WONT)
-     * <p>
+     * 
+     * @param negotiation_code - type of negotiation command received (RECEIVED_DO, RECEIVED_DONT, RECEIVED_WILL,
+     *            RECEIVED_WONT)
+     *            <p>
      * @param option_code - code of the option negotiated
-     * <p>
+     *            <p>
      */
-    public void receivedNegotiation(int negotiation_code, int option_code)
-    {
+    public void receivedNegotiation(int negotiation_code, int option_code) {
         String command = null;
-        if(negotiation_code == TelnetNotificationHandler.RECEIVED_DO)
-        {
+        if (negotiation_code == TelnetNotificationHandler.RECEIVED_DO) {
             command = "DO";
         }
-        else if(negotiation_code == TelnetNotificationHandler.RECEIVED_DONT)
-        {
+        else if (negotiation_code == TelnetNotificationHandler.RECEIVED_DONT) {
             command = "DONT";
         }
-        else if(negotiation_code == TelnetNotificationHandler.RECEIVED_WILL)
-        {
+        else if (negotiation_code == TelnetNotificationHandler.RECEIVED_WILL) {
             command = "WILL";
         }
-        else if(negotiation_code == TelnetNotificationHandler.RECEIVED_WONT)
-        {
+        else if (negotiation_code == TelnetNotificationHandler.RECEIVED_WONT) {
             command = "WONT";
         }
         NeptusLog.pub().info("<###>Received " + command + " for option code " + option_code);
-   }
+    }
 
-    
     /***
-     * Reader thread.
-     * Reads lines from the TelnetClient and echoes them
-     * on the screen.
+     * Reader thread. Reads lines from the TelnetClient and echoes them on the screen.
      ***/
-    public void run()
-    {
+    public void run() {
         InputStream instr = tc.getInputStream();
 
-        try
-        {
+        try {
             byte[] buff = new byte[1024];
             int ret_read = 0;
 
-            do
-            {
+            do {
                 ret_read = instr.read(buff);
-                if(ret_read > 0)
-                {
+                if (ret_read > 0) {
                     String ret = new String(buff, 0, ret_read);
-                    //System.out.print(ret);
-                    NeptusLog.pub().info(this
-                            + " :: ApacheAdjustDate:: Echo >" + ret);
+                    // System.out.print(ret);
+                    NeptusLog.pub().info(this + " :: ApacheAdjustDate:: Echo >" + ret);
                 }
-                //System.out.print("ddd");
-            }
-            while (ret_read >= 0);
+                // System.out.print("ddd");
+            } while (ret_read >= 0);
         }
-        catch (Exception e)
-        {
-            //System.err.println("Exception while reading socket:" + e.getMessage());
-            NeptusLog.pub().error("Exception while reading socket:"
-                    + e.getMessage());
+        catch (Exception e) {
+            // System.err.println("Exception while reading socket:" + e.getMessage());
+            NeptusLog.pub().error("Exception while reading socket:" + e.getMessage());
         }
 
-        try
-        {
+        try {
             tc.disconnect();
         }
-        catch (Exception e)
-        {
-            //System.err.println("Exception while closing telnet:" + e.getMessage());
-            NeptusLog.pub().error("Exception while closing telnet:"
-                    + e.getMessage());
+        catch (Exception e) {
+            // System.err.println("Exception while closing telnet:" + e.getMessage());
+            NeptusLog.pub().error("Exception while closing telnet:" + e.getMessage());
         }
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         ConfigFetch.initialize();
         new ApacheAdjustDate().adjustDateTime("rov-ies");
     }

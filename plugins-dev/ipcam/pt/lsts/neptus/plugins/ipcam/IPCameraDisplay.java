@@ -65,13 +65,13 @@ import org.apache.http.params.HttpParams;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.SimpleSubPanel;
 import pt.lsts.neptus.util.GuiUtils;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -83,7 +83,7 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 @SuppressWarnings("deprecation")
 @Popup( pos = POSITION.RIGHT, width=400, height=400)
 @PluginDescription(name="IP Camera Display", author="ZP", description="Video display for Conceptronic IP Camera", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
-public class IPCameraDisplay extends SimpleSubPanel implements ConfigurationListener {
+public class IPCameraDisplay extends ConsolePanel implements ConfigurationListener {
 
     private static final long serialVersionUID = 1L;
 

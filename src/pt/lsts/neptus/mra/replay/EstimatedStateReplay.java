@@ -45,9 +45,11 @@ import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.llf.LogUtils;
 
@@ -56,26 +58,21 @@ import pt.lsts.neptus.util.llf.LogUtils;
  * 
  */
 @LayerPriority(priority = -10)
+@PluginDescription(icon="pt/lsts/neptus/mra/replay/globe.png")
 public class EstimatedStateReplay implements LogReplayLayer {
 
     protected HashMap<Integer, Vector<LocationType>> positions = new LinkedHashMap<Integer, Vector<LocationType>>();
     protected Vector<Double> timestamps = new Vector<Double>();
     protected HashMap<Integer, VehiclePaths> pathsList = new LinkedHashMap<Integer, VehiclePaths>();
-    
     protected int currentPos = 0;
     protected double lastZoom = -1;
     protected double lastRotation = 0;
-
+    
     @Override
     public String getName() {
         return I18n.text("EstimatedState path");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.mra.replay.LLFReplayLayer#cleanup()
-     */
     @Override
     public void cleanup() {
         positions.clear();
@@ -84,7 +81,7 @@ public class EstimatedStateReplay implements LogReplayLayer {
     }
 
     @Override
-    public boolean canBeApplied(IMraLogGroup source) {
+    public boolean canBeApplied(IMraLogGroup source, Context context) {
         return source.getLog("EstimatedState") != null;
     }
 
@@ -100,7 +97,12 @@ public class EstimatedStateReplay implements LogReplayLayer {
             if((pos = positions.get(src)) == null) {
                 pos = new Vector<LocationType>();
                 VehiclePaths paths = new VehiclePaths();
-                paths.setColor(VehiclesHolder.getVehicleWithImc(new ImcId16(src)).getIconColor());
+                VehicleType vt = VehiclesHolder.getVehicleWithImc(new ImcId16(src));
+                if (vt != null)
+                    paths.setColor(VehiclesHolder.getVehicleWithImc(new ImcId16(src)).getIconColor());
+                else
+                    paths.setColor(new Color(0, 0, 0, 128));
+                
                 pathsList.put(src, paths);
                 positions.put(src, pos);
             }
@@ -127,7 +129,7 @@ public class EstimatedStateReplay implements LogReplayLayer {
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        // If zoom changed then recalculate paths
+
         if (renderer.getZoom() != lastZoom) {
             for (int i : positions.keySet()) {
                 VehiclePaths paths = pathsList.get(i);
