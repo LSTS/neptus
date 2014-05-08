@@ -186,7 +186,17 @@ For simple use the main targets are:
 		<path refid="cp.junit" />
 	</path>
 	<path id="cp.compile.jar.main">
-		<pathelement location="${build.classes}" />
+		<!-- Classpath for main jar compile. -->
+		<!-- Leave the next line commented so that the Neptus main jar does not depends on the plugin jars. -->
+		<!-- pathelement location="${build.classes}" /-->
+		<path refid="cp.lib.jars" />
+		<path refid="cp.junit" />
+	</path>
+	<path id="cp.compile.jar.plugins">
+		<!-- Classpath for each plugin jar compile. -->
+		<file name="${jar.file.path}" />
+		<!-- Leave the next line commented so that any plugin jar does not depends on the other plugin jars. -->
+		<!-- pathelement location="${build.classes}" /-->
 		<path refid="cp.lib.jars" />
 		<path refid="cp.junit" />
 	</path>
@@ -1229,7 +1239,7 @@ For simple use the main targets are:
 		<echo message="Collecting ${plugin-name.input} plugin private jars: ${plugin.private.jars.cp}" />
 	</target>
 
-	<target name="plugin-compile-worker" depends="plugin-prop-private-jars-worker,compile.all">
+	<target name="plugin-compile-worker" depends="plugin-prop-private-jars-worker, compile.all, jar.main">
 		<local name="local.output.build.dir" />
 		<property name="local.output.build.dir" value="${build.plugins}"/>
 		<!-- plugin.dir.tmp -->
@@ -1237,6 +1247,7 @@ For simple use the main targets are:
 		<mkdir dir="${local.output.build.dir}" />
 
 		<echo message="Compiling ${plugin-name.input} plugin" />
+		<echo level="debug" message="${plugin.private.jars.cp};${class.path.compile.jar.plugins}" />
 		<javac encoding="${compile-encoding}" srcdir="${plugin-dev.dir.base}/${plugin-name.input}"
 			  includeantruntime="false"
 			  source="${compile-source}"
@@ -1245,7 +1256,7 @@ For simple use the main targets are:
 			  excludes="${exclude-defaults},old/**/*.*,**/junit/*.java" 
 			  includes="**/*.java" 
 			  deprecation="${deprecation}" debug="${debug}" 
-			  classpath="${plugin.private.jars.cp};${class.path.compile.jar.main}" 
+			  classpath="${plugin.private.jars.cp};${class.path.compile.jar.plugins}" 
 			  fork="false">
 			<compilerarg line="${extra-compile-args}" />
 		</javac>
