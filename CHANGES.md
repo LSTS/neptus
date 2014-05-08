@@ -1,7 +1,7 @@
 Changes
 =======
 
-Neptus 4.0.0 (07-05-2014)
+Neptus 4.0.0rc1 (07-05-2014)
 ------------
  * IMC: Updated IMC and IMCJava to v5.4.0-rc1. (same as v3.1.0)
  * Config: Updated systems parameters to DUNE 2.5.0-rc1 (HEAD,6db5dd1). (same as v3.1.0)
