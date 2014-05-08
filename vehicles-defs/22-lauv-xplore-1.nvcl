@@ -2,8 +2,8 @@
 <system xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\src\schemas\neptus-vehicle.xsd">
   <!-- Data saved on 2010-04-24T19:58:44.0Z with Neptus version 1.6.0dev_R8-b1 (compiled on April 22 2010). -->
   <properties>
-    <id>lauv-lsts-1</id>
-    <name>LAUV-LSTS-1</name>
+    <id>lauv-xplore-1</id>
+    <name>LAUV-Xplore-1</name>
     <type>AUV</type>
     <model>LAUV</model>
     <appearance>
@@ -321,7 +321,7 @@
           <port>6002</port>
           <udp-on>true</udp-on>
           <rtps-on>false</rtps-on>
-          <imc3-id>00:1D</imc3-id>
+          <imc3-id>00:1E</imc3-id>
         </imc>
       </protocols-args>
     </comm-mean>

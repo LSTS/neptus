@@ -136,6 +136,22 @@ public class OutputMonitor {
 		private int type = -1;
 		private String[] color = new String[] {"black", "red"};
 		
+//		private String infoColor = "#0000CC";
+//        private String warnColor = "#FFFF00";
+//        private String errorColor = "#FF9900";
+//        private String fatalColor = "#FF0033";
+//        private String debugColor = "#CC00CC";
+//        private String traceColor = "#FF33FF";
+//
+//		private String brownishColor = "#FF9900";
+//
+//		private String infoStr  = "INFO";
+//        private String warmStr  = "WARN";
+//        private String errorStr = "ERROR";
+//        private String fatalStr = "FATAL";
+//        private String debugStr = "DEBUG";
+//        private String traceStr = "TRACE";
+		
 		public FilteredStream(OutputStream aStream, int type) {
 			super(aStream);
 			this.type = type;
@@ -148,23 +164,9 @@ public class OutputMonitor {
 		    super.write(b);
 			String aString = new String(b);		
 			
-			if (lastOutputType != type && lastOutputType != -1) {
-				htmlOut.append("</pre></font>");
-			}
-			if (lastOutputType != type) {
-				htmlOut.append("<font color='"+color[type]+"'><pre>");
-			}
-			htmlOut.append(aString);
-			htmlOut.flush();
-			lastOutputType = type;
-			warnListeners(aString, type);
-			
-			if (bw != null) {
-				bw.write(aString);
-				bw.flush();
-			}
+			writeToHtmlOutput(aString);
 		}
-		
+
 		public void write(byte b[], int off, int len) throws IOException {
 		    if (mutedThreads.contains(Thread.currentThread()))
                 return;
@@ -172,31 +174,55 @@ public class OutputMonitor {
 			super.write(b, off, len);
 			String aString = new String(b , off , len);
 			
-			if (lastOutputType != type && lastOutputType != -1) {
-				htmlOut.append("</pre></font>\n");
-			}
-			if (lastOutputType != type) {
-				htmlOut.append("<font color='"+color[type]+"'><pre>");
-			}
-			htmlOut.append(aString);
-			htmlOut.flush();
-			lastOutputType = type;
-			warnListeners(aString, type);
-			
-			if (bw != null) {
-				bw.write(aString);
-				bw.flush();
-			}
+//			if (lastOutputType != type && lastOutputType != -1) {
+//				htmlOut.append("</pre></font>\n");
+//			}
+//			if (lastOutputType != type) {
+//				htmlOut.append("<font color='"+color[type]+"'><pre>");
+//			}
+//			htmlOut.append(aString);
+//			htmlOut.flush();
+//			lastOutputType = type;
+//			warnListeners(aString, type);
+//			
+//			if (bw != null) {
+//				bw.write(aString);
+//				bw.flush();
+//			}
+            writeToHtmlOutput(aString);
 		}
+
+        /**
+         * @param aString
+         * @throws IOException
+         */
+        private void writeToHtmlOutput(String aString) throws IOException {
+            if (lastOutputType != type && lastOutputType != -1) {
+                htmlOut.append("</pre></font>");
+            }
+            if (lastOutputType != type) {
+                htmlOut.append("<font color='"+color[type]+"'><pre>");
+            }
+            htmlOut.append(aString);
+            htmlOut.flush();
+            lastOutputType = type;
+            warnListeners(aString, type);
+            
+            if (bw != null) {
+                bw.write(aString);
+                bw.flush();
+            }
+        }
 	}
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+//	    OutputMonitor.grab();
 		ConfigFetch.initialize();
 		
-		new OutputMonitor();
+//		new OutputMonitor();
 		NeptusLog.pub().info("<###>dsd");
 		
 		System.err.println("dsd asdf sdf sadf asdfa sdkfg aksjdgf ksdagfk jasdgfkjasgd fkajsgd fkjasgdkjf hgaskjdgfkasjd f\nsdasdf gasdf hgaskdjfg ksajdgfk asgdfk gaskdjfgkjashdgf " +

@@ -283,7 +283,7 @@ public class ConfigurationManager {
                 Double minV = null;
                 Double maxV = null;
                 String minMaxStr = "";
-                if (minStr != null || maxStr != null) {
+                if (minStr != null) {
                     try {
                         minV = Double.parseDouble(minStr);
                     }
@@ -291,6 +291,8 @@ public class ConfigurationManager {
                         NeptusLog.pub().debug(e.getMessage());
                         minV = null;
                     }
+                }
+                if (maxStr != null) {
                     try {
                         maxV = Double.parseDouble(maxStr);
                     }

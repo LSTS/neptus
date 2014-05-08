@@ -33,6 +33,8 @@ package pt.lsts.neptus.console;
 
 import java.util.Vector;
 
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -40,6 +42,8 @@ import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged.STATE;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent;
 import pt.lsts.neptus.console.plugins.SubPanelChangeListener;
+import pt.lsts.neptus.messages.listener.MessageInfo;
+import pt.lsts.neptus.messages.listener.MessageListener;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.renderer2d.VehicleStateListener;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
@@ -52,10 +56,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
-import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.messages.listener.MessageInfo;
-import pt.lsts.neptus.messages.listener.MessageListener;
 
 /**
  * This class centralize vehicles info and it's trees for the console panels variables feed and external render.
@@ -71,7 +71,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
     public final int POS_LAT_LON_XYZ = 2; // fields x, y, z, lat, lon, depth have meaninful values
 
     protected ImcSystem imcSystem;
-    private ImcMsgManager imc;
+    private final ImcMsgManager imc;
     protected SystemPositionAndAttitude state;
     protected ConsoleLayout console;
     private LocationType vehicleHomeRef;
@@ -121,7 +121,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
         preferencesUpdated();
         GeneralPreferences.addPreferencesListener(this);
 
-        MapGroup.getMapGroupInstance(missionType).addMap(mapCS);
+        // MapGroup.getMapGroupInstance(missionType).addMap(mapCS);
         NeptusLog.pub()
                 .debug(this.getClass().getSimpleName() + " [" + this.hashCode() + "] started for vehicle "
                         + vehicle.getName());
@@ -327,7 +327,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
             scatter = null;
         }
 
-        MapGroup.getMapGroupInstance(mission).addMap(mapCS);
+        // MapGroup.getMapGroupInstance(mission).addMap(mapCS);
     }
 
     public LocationType getVehicleHomeRef() {
@@ -338,6 +338,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
         return homeRef;
     }
 
+    @Override
     public void preferencesUpdated() {
         // try {
         // minDelay = GeneralPreferences.getPropertyInteger(GeneralPreferences.RENDERER_UPDATE_VEHICLE_STATE);
