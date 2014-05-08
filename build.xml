@@ -105,8 +105,8 @@ For simple use the main targets are:
 	<property name="plugin.dir.dest" value="./plugins" />
 
 	<property name="tmp.dir" value="./.tmp" />
-	<property name="tmp.main.dir" value="${tmp.dir}/main-tmp" />
-	<property name="tmp.plugin.dir" value="${tmp.dir}/plugins-dev-tmp" />
+	<property name="tmp.compile.main.dir" value="${tmp.dir}/main-tmp" />
+	<property name="tmp.compile.plugin.dir" value="${tmp.dir}/plugins-dev-tmp" />
 	<property name="tmp.bundle.dir" value="tmpBuild" />
 
 	<property name="exclude-defaults" value="**/Thumbs.db,**/thumbs.db,**/*~,**/#*#" />
@@ -180,7 +180,7 @@ For simple use the main targets are:
 			<include name="junit*.jar" />
 		</fileset>
 	</path>
-	<path id="cp.compile">
+	<path id="cp.compile.all">
 		<path refid="cp.lib.jars" />
 		<path refid="cp.plugins.lib.jars.all" />
 		<path refid="cp.junit" />
@@ -196,8 +196,9 @@ For simple use the main targets are:
 	</path>
 
 	<property name="class.path" refid="cp.path" />
-	<property name="class.path.compile" refid="cp.compile" />
+	<property name="class.path.compile.all" refid="cp.compile.all" />
 	<property name="class.path.compile.jar.main" refid="cp.compile.jar.main" />
+	<property name="class.path.compile.jar.plugins" refid="cp.compile.jar.plugins" />
 	<property name="class.path.run" refid="cp.run" />
 
 	<property name="certs.build.file" value="./certs/ant-keys-genkeys.xml" />
@@ -589,7 +590,7 @@ For simple use the main targets are:
 	<!-- Compile entire source tree                                          -->
 	<target name="compile.all" depends="prepare" unless="already-compiled">
 		<echo message="compile entire source tree and copy .properties and .res files to build tree." />
-		<echo level="debug" message="${class.path}" />
+		<echo level="debug" message="${class.path.compile.all}" />
 		<!-- srcdir="${src.dir}" -->
 		<javac encoding="${compile-encoding}"
 			  includeantruntime="false" 
@@ -599,7 +600,7 @@ For simple use the main targets are:
 			  excludes="${exclude-defaults},old/**/*.*,**/junit/*.java" 
 			  includes="**/*.java" 
 			  deprecation="${deprecation}" debug="${debug}" 
-			  classpath="${class.path.compile}" 
+			  classpath="${class.path.compile.all}" 
 			  listfiles="false"
 			  fork="false">
 			<compilerarg line="${extra-compile-args}" />
@@ -650,14 +651,14 @@ For simple use the main targets are:
 	<target name="compile.main" depends="prepare, compile.all, jar.uptodate.test" unless="jar.build.not.required" 
 			description="Compile src the normal way">
 		<echo message="compile entire source tree and copy .properties and .res files to build tree." />
-		<echo level="debug" message="${class.path}" />
-		<mkdir dir="${tmp.main.dir}" />
+		<echo level="debug" message="${class.path.compile.jar.main}" />
+		<mkdir dir="${tmp.compile.main.dir}" />
 		<!-- srcdir="${src.dir}" -->
 		<javac encoding="${compile-encoding}" srcdir="${src.dir}"
 			  includeantruntime="false" 
 			  source="${compile-source}"
 			  target="${compile-target}"
-			  destdir="${tmp.main.dir}" 
+			  destdir="${tmp.compile.main.dir}" 
 			  excludes="${exclude-defaults},old/**/*.*,**/junit/*.java" 
 			  includes="**/*.java" 
 			  deprecation="${deprecation}" debug="${debug}" 
@@ -667,20 +668,20 @@ For simple use the main targets are:
 			<compilerarg line="${extra-compile-args}" />
 		</javac>
 
-		<copy todir="${tmp.main.dir}" overwrite="true">
+		<copy todir="${tmp.compile.main.dir}" overwrite="true">
 			<fileset dir="${src.dir}" excludes="${exclude-defaults},**/Thumbs.db,**/thumbs.db" 
 				includes="${resources.copied}" />
 		</copy>
-		<copy todir="${tmp.main.dir}" overwrite="true">
+		<copy todir="${tmp.compile.main.dir}" overwrite="true">
 			<fileset dir="${src.dir}">
 				<include name="**/version.txt" />
 				<exclude name="${exclude-defaults}" />
 			</fileset>
 			<filterset refid="neptus.filters" />
 		</copy>
-		<copy file="${scm.info.file}" tofile="${tmp.main.dir}/info" overwrite="yes" failonerror="false" />
-		<copy file="${license.file}" todir="${tmp.main.dir}" />
-		<copy todir="${tmp.main.dir}" overwrite="true">
+		<copy file="${scm.info.file}" tofile="${tmp.compile.main.dir}/info" overwrite="yes" failonerror="false" />
+		<copy file="${license.file}" todir="${tmp.compile.main.dir}" />
+		<copy todir="${tmp.compile.main.dir}" overwrite="true">
 			<fileset dir="${src.dir}">
 				<include name="totd.xml" />
 				<include name="**/*.properties" />
@@ -721,10 +722,10 @@ For simple use the main targets are:
 	<target name="jar.main" depends="compile.main,jar.main.prep" unless="jar.build.not.required" 
 			description="Creates the Neptus jar file.">
 		<echo message="Creating .jar file" />
-		<jar destfile="${jar.file.path}" basedir="${tmp.main.dir}" 
+		<jar destfile="${jar.file.path}" basedir="${tmp.compile.main.dir}" 
 				index="false" update="true" excludes="${exclude-defaults}, *.class">
 		</jar>
-		<delete dir="${tmp.main.dir}" />
+		<delete dir="${tmp.compile.main.dir}" />
 	</target>
 
 	<target name="jar.main-clean" description="Deletes the jar file">
@@ -1270,9 +1271,9 @@ For simple use the main targets are:
 
 	<target name="plugin-create-jar-worker" depends="plugin-prop-private-jars-worker, plugin-create-jar.uptodate.test" 
 			unless="plugin.jar.build.not.required">
-		<delete dir="${tmp.plugin.dir}" failonerror="true"/>
+		<delete dir="${tmp.compile.plugin.dir}" failonerror="true"/>
 		<antcall target="plugin-compile-worker" inheritall="true" inheritrefs="true">
-			<param name="build.plugins" value="${tmp.plugin.dir}" />
+			<param name="build.plugins" value="${tmp.compile.plugin.dir}" />
 		</antcall>
 
 		<delete dir="tmpjars" failonerror="true" />
@@ -1300,7 +1301,7 @@ For simple use the main targets are:
 
 		<echo message="Creating ${plugin-name.input}.jar file" />
 		<jar destfile="${plugin.dir.dest}/${plugin-name.input}.jar" 
-				basedir="${tmp.plugin.dir}" 
+				basedir="${tmp.compile.plugin.dir}" 
 				index="false" update="true" excludes="${exclude-defaults}, **/*.java">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
@@ -1317,7 +1318,7 @@ For simple use the main targets are:
 		</jar>
 
 		<delete dir="tmpjars"/>
-		<delete dir="${tmp.plugin.dir}" failonerror="true" />
+		<delete dir="${tmp.compile.plugin.dir}" failonerror="true" />
 	</target>
 
 
@@ -1346,8 +1347,8 @@ For simple use the main targets are:
 	<!-- =================================================================== -->
 	<target name="javadoc-plugin">
 		<echo message="Plugin javadocs" />
-		<delete dir="${tmp.plugin.dir}" failonerror="true"/>
-		<mkdir dir="${tmp.plugin.dir}"/>
+		<delete dir="${tmp.compile.plugin.dir}" failonerror="true"/>
+		<mkdir dir="${tmp.compile.plugin.dir}"/>
 
 		<javadoc classpath="${java.class.path}:${class.path}" protected="false" private="false"
 				sourcepath="${src.dir}" 
@@ -1355,7 +1356,7 @@ For simple use the main targets are:
 				use="true" windowtitle="${Name} Package" 
 				doctitle="${Name} Package&lt;div align='center'>&lt;img src='neptus_logo_font_500x193.png' border='0'>&lt;/div>" 
 				bottom="&lt;font size='-1' color='#3399CC'>${legal.copy.html}&lt;/font>" 
-				header="${Name}" footer="FEUP-LSTS" destdir="${tmp.plugin.dir}" docencoding="UTF-8" overview="${javadoc.overview.path}" 
+				header="${Name}" footer="FEUP-LSTS" destdir="${tmp.compile.plugin.dir}" docencoding="UTF-8" overview="${javadoc.overview.path}" 
 				packagenames="pt.lsts.neptus.plugins*,pt.lsts.neptus.console*,pt.lsts.neptus.mra*,pt.up.fe.dceg*.vartree*,pt.lsts.neptus.util*"
 			 	locale="en_US" charset="UTF-8" encoding="${compile-encoding}">
 			<group title="Plugins" packages="pt.lsts.neptus.plugins*" />
@@ -1366,19 +1367,19 @@ For simple use the main targets are:
 			<group title="Util" packages="pt.lsts.neptus.util*" />
 			<group title="Var Tree" packages="pt.lsts.neptus.vartree*,pt.lsts.vartree*" />
 		</javadoc>
-		<copy todir="${tmp.plugin.dir}">
+		<copy todir="${tmp.compile.plugin.dir}">
 			<fileset dir="${javadoc.src}" includes="neptus_logo_font_500x193.png" />
 		</copy>
-		<zip destfile="${javadoc.src}/javadoc.zip" basedir="${tmp.plugin.dir}" />
+		<zip destfile="${javadoc.src}/javadoc.zip" basedir="${tmp.compile.plugin.dir}" />
 
-		<delete dir="${tmp.plugin.dir}" failonerror="true"/>
+		<delete dir="${tmp.compile.plugin.dir}" failonerror="true"/>
 	</target>
 
 
 	<target name="javadoc-render">
 		<echo message="Render javadocs" />
-		<delete dir="${tmp.plugin.dir}" failonerror="true"/>
-		<mkdir dir="${tmp.plugin.dir}"/>
+		<delete dir="${tmp.compile.plugin.dir}" failonerror="true"/>
+		<mkdir dir="${tmp.compile.plugin.dir}"/>
 
 		<javadoc classpath="${java.class.path}:${class.path}" protected="false" private="false"
 					sourcepath="${src.dir}" 
@@ -1386,7 +1387,7 @@ For simple use the main targets are:
 					use="true" windowtitle="${Name} Package" 
 					doctitle="${Name} Package&lt;div align='center'>&lt;img src='neptus_logo_font_500x193.png' border='0'>&lt;/div>" 
 					bottom="&lt;font size='-1' color='#3399CC'>${legal.copy.html}&lt;/font>" 
-					header="${Name}" footer="FEUP-LSTS" destdir="${tmp.plugin.dir}" docencoding="UTF-8" 
+					header="${Name}" footer="FEUP-LSTS" destdir="${tmp.compile.plugin.dir}" docencoding="UTF-8" 
 					overview="${javadoc.overview.path}" 
 					packagenames="pt.lsts.neptus.types.coord*,pt.lsts.neptus.renderer2d*,pt.lsts.neptus.util.s52*"
 				 	locale="en_US" charset="UTF-8" encoding="${compile-encoding}">
@@ -1394,13 +1395,13 @@ For simple use the main targets are:
 			<group title="Util" packages="pt.lsts.neptus.util*" />
 			<group title="StateRender2D" packages="pt.lsts.neptus.renderer2d*" />
 		</javadoc>
-		<copy todir="${tmp.plugin.dir}">
+		<copy todir="${tmp.compile.plugin.dir}">
 			<fileset dir="${javadoc.src}" includes="neptus_logo_font_500x193.png" />
 		</copy>
-		<copy file="${license.file}" todir="${tmp.plugin.dir}" />
-		<zip destfile="${javadoc.src}/javadoc-render.zip" basedir="${tmp.plugin.dir}" />
+		<copy file="${license.file}" todir="${tmp.compile.plugin.dir}" />
+		<zip destfile="${javadoc.src}/javadoc-render.zip" basedir="${tmp.compile.plugin.dir}" />
 
-		<delete dir="${tmp.plugin.dir}" failonerror="true"/>
+		<delete dir="${tmp.compile.plugin.dir}" failonerror="true"/>
 
 	</target>
 
