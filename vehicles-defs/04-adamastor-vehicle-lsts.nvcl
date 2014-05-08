@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<system xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\schemas\neptus-vehicle.xsd">
+<system xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\src\schemas\neptus-vehicle.xsd">
 	<properties>
 		<id>adamastor</id>
 		<name>Adamastor</name>
@@ -29,7 +29,7 @@
 		<comm-mean>
 			<name>ethernet</name>
 			<type>ethernet</type>
-			<host-address>192.168.106.180</host-address>
+			<host-address>10.0.10.70</host-address>
 			<credentials username="root"/>
 			<protocols>imc tcp udp ftp telnet</protocols>
 			<latency value="10M" unit="bps"/>

@@ -1,6 +1,13 @@
 Changes
 =======
 
+Neptus v3.1.0 (07-05-2014)
+-------------
+ * IMC: Updated IMC and IMCJava to v5.4.0-rc1.
+ * Config: Updated systems parameters to DUNE 2.5.0-rc1 (HEAD,6db5dd1).
+ * Added AUV LAUV-Lupis-1.
+ * Added UAV vehicles X8-02, X8-03, and X8-04.
+
 Neptus v3.0.2 (07-05-2014)
 -------------
  * Console/RealTimePlot: Roll was actually plotting psi. All angles are display now (phi, theta, and psi).
