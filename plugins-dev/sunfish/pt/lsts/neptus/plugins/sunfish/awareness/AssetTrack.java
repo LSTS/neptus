@@ -44,6 +44,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 public class AssetTrack {
 
     private String assetName = null;
+    private String friendlyName = null;
     private ArrayList<AssetPosition> track = new ArrayList<AssetPosition>();
     private Color color;
     
@@ -134,6 +135,20 @@ public class AssetTrack {
         }
         track.add(position);
         return true;
+    }
+
+    /**
+     * @return the friendlyName
+     */
+    public String getFriendlyName() {
+        return friendlyName;
+    }
+
+    /**
+     * @param friendlyName the friendlyName to set
+     */
+    public void setFriendlyName(String friendlyName) {
+        this.friendlyName = friendlyName;
     }
     
 }
