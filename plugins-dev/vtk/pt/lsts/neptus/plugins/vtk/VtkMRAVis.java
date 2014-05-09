@@ -298,8 +298,11 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             catch (Exception e) {
                 e.printStackTrace();
             }
+            return mbFound || source.getLsfIndex().containsMessagesOfType("Distance");
         }
-        return mbFound || source.getLsfIndex().containsMessagesOfType("Distance");
+        else
+            return false;
+
     }
 
     @Override
