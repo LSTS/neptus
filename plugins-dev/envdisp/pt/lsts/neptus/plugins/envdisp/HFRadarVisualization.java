@@ -94,7 +94,7 @@ import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
  *
  */
 @SuppressWarnings("serial")
-@PluginDescription(name="HF Radar Visualization", author="Paulo Dias", version="0.9", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
+@PluginDescription(name="HF Radar Visualization", author="Paulo Dias", version="1.0", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
 @LayerPriority(priority = -50)
 public class HFRadarVisualization extends ConsolePanel implements Renderer2DPainter, IPeriodicUpdates, ConfigurationListener {
 
@@ -147,10 +147,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.ADVANCED, category="Data Update")
     public boolean ignoreDateLimitToLoad = false;
     
-    @NeptusProperty(name = "Request data from Web", editable=true)
+    @NeptusProperty(name = "Request data from Web", editable = true, userLevel = LEVEL.ADVANCED, category="Test", description = "Don't use this (testing purposes).")
     public boolean requestFromWeb = false;
 
-    @NeptusProperty(name = "Load data from file (hfradar.txt)", editable=true)
+    @NeptusProperty(name = "Load data from file (hfradar.txt)", editable = true, userLevel = LEVEL.ADVANCED, category="Test", description = "Don't use this (testing purposes).")
     public boolean loadFromFile = false;
     
     @NeptusProperty(name = "Show currents as most recent (true) or mean (false) value", userLevel = LEVEL.REGULAR, category="Data Update")
@@ -159,28 +159,33 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean useColorMapForWind = true;
 
-    @NeptusProperty(name = "Base Folder For Currents TUV Files", userLevel = LEVEL.REGULAR, category="Data Update")
+    @NeptusProperty(name = "Base Folder For Currents TUV or netCDF Files", userLevel = LEVEL.REGULAR, category = "Data Update", 
+            description = "The folder to look for currents data. Admissible files '*.tuv' and '*.nc'. NetCDF variables used: lat, lon, time, u, v.")
     public File baseFolderForCurrentsTUVFiles = new File("IHData/CODAR");
 
-    @NeptusProperty(name = "Base Folder For Meteo NetCDF Files", userLevel = LEVEL.REGULAR, category="Data Update")
+    @NeptusProperty(name = "Base Folder For Meteo netCDF Files", userLevel = LEVEL.REGULAR, category = "Data Update", 
+            description = "The folder to look for meteo data (wind and SST). Admissible files '*.nc'. NetCDF variables used: lat, lon, time, u, v, sst.")
     public File baseFolderForMeteoNetCDFFiles = new File("IHData/METEO");
 
-    @NeptusProperty(name = "Base Folder For Waves NetCDF Files", userLevel = LEVEL.REGULAR, category="Data Update")
+    @NeptusProperty(name = "Base Folder For Waves netCDF Files", userLevel = LEVEL.REGULAR, category = "Data Update", 
+            description = "The folder to look for waves (significant height, peak period and direction) data. Admissible files '*.nc'. NetCDF variables used: lat, lon, time, hs, tp, pdir.")
     public File baseFolderForWavesNetCDFFiles = new File("IHData/WAVES");
     
-    private final String currentsFilePatternTUV = "TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv";
-    private final String currentsFilePatternNetCDF = "CODAR_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.nc";
-    private final String meteoFilePattern = "meteo_\\d{8}\\.nc";
-    private final String wavesFilePattern = "waves_[a-zA-Z]{1,2}_\\d{8}\\.nc";
+    private static final String tuvFilePattern = ".\\.tuv$";
+    private static final String netCDFFilePattern = ".\\.nc$";
+    private static final String currentsFilePatternTUV = tuvFilePattern; // "^TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv$";
+    private static final String currentsFilePatternNetCDF = netCDFFilePattern; // "^CODAR_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.nc$";
+    private static final String meteoFilePattern = netCDFFilePattern; // "^meteo_\\d{8}\\.nc$";
+    private static final String wavesFilePattern = netCDFFilePattern; // "^waves_[a-zA-Z]{1,2}_\\d{8}\\.nc$";
 
     private boolean clearImgCachRqst = false;
 
     private final Font font8Pt = new Font("Helvetica", Font.PLAIN, 8);
 
-    public static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'SS");
-    public static final SimpleDateFormat dateTimeFormaterSpacesUTC = new SimpleDateFormat("yyyy MM dd  HH mm SS");
-    public static final SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd");
-    public static final SimpleDateFormat timeFormaterUTC = new SimpleDateFormat("HH':'mm");
+    static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'SS");
+    static final SimpleDateFormat dateTimeFormaterSpacesUTC = new SimpleDateFormat("yyyy MM dd  HH mm SS");
+    private static final SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat timeFormaterUTC = new SimpleDateFormat("HH':'mm");
     {
         dateTimeFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
         dateTimeFormaterSpacesUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -676,7 +681,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             histOrigData.addAll(toAddDP);
     }
 
-    private File[] getFilesToLoadFromDisk(File folderToLoad, final String filePattern) {
+    private static File[] getFilesToLoadFromDisk(File folderToLoad, final String filePattern) {
         if (folderToLoad != null && folderToLoad.exists()) {
             File folder = folderToLoad.isDirectory() ? folderToLoad : 
                 folderToLoad.getParentFile();
@@ -1447,6 +1452,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         Pattern pat = Pattern.compile(currentsFilePattern);
         Matcher m = pat.matcher("TOTL_TRAD_2013_07_11_0800.tuv");
         System.out.println(m.find());
-
+        
+        File[] fileList = getFilesToLoadFromDisk(new File("IHData/CODAR"), currentsFilePatternNetCDF);
+        System.out.println(Arrays.toString(fileList));
     }
 }
