@@ -48,6 +48,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IridiumMsgRx;
 import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.imc.IridiumTxStatus;
+import pt.lsts.imc.LogBookEntry;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControl.TYPE;
@@ -57,6 +58,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ActivateSubscription;
 import pt.lsts.neptus.comm.iridium.DeactivateSubscription;
 import pt.lsts.neptus.comm.iridium.DesiredAssetPosition;
+import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumCommand;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.iridium.IridiumMessage;
@@ -133,7 +135,6 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
 
     @Override
     public boolean update() {
-        System.out.println("UPDATE");
         for (VirtualDrifter d : drifters) {
             RemoteSensorInfo rsi = new RemoteSensorInfo();
             rsi.setId(d.id);
@@ -183,6 +184,33 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
        };
        send.setDaemon(true);
        send.start();       
+    }
+    
+    private void sendTextNote() {
+        String note = JOptionPane.showInputDialog(getConsole(),
+                I18n.text("Enter note to be published"));
+        
+        if (note == null || note.isEmpty())
+            return;
+        
+        LogBookEntry entry = new LogBookEntry();
+        entry.setText(note);
+        entry.setTimestampMillis(System.currentTimeMillis());
+        entry.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
+        entry.setDst(65535);
+        entry.setContext("Iridium logbook");
+        
+        ImcIridiumMessage msg = new ImcIridiumMessage();
+        msg.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+        msg.setDestination(65535);
+        msg.setMsg(entry);
+        try {
+            IridiumManager.getManager().send(msg);
+        }
+        catch (Exception e) {
+            GuiUtils.errorMessage(getConsole(), e);
+        }
+        getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
     }
     
     private void sendIridiumCommand() {
@@ -340,6 +368,15 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         });
 
         popup.addSeparator();
+        
+        popup.add(I18n.text("Send a text note")).addActionListener(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        sendTextNote();
+                    }
+                });
+        
 
         popup.add("Add virtual drifter").addActionListener(new ActionListener() {
 

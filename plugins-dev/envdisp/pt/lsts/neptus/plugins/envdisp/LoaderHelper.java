@@ -389,14 +389,14 @@ public class LoaderHelper {
             return new HashMap[] { sstdp, winddp };
           }
 
-          // Get the latitude and longitude Variables.
+          // Get the u (north) wind velocity Variables.
           Variable uVar = dataFile.findVariable("u");
           if (uVar == null) {
             System.out.println("Cant find Variable u");
             return new HashMap[] { sstdp, winddp };
           }
 
-          // Get the latitude and longitude Variables.
+          // Get the v (east) wind velocity Variables.
           Variable vVar = dataFile.findVariable("v");
           if (vVar == null) {
             System.out.println("Cant find Variable v");
@@ -641,20 +641,21 @@ public class LoaderHelper {
             return wavesdp;
           }
 
-          // Get the latitude and longitude Variables.
+          // Get the significant height Variable.
           Variable hsVar = dataFile.findVariable("hs");
           if (hsVar == null) {
             System.out.println("Cant find Variable hs");
             return wavesdp;
           }
 
-          // Get the latitude and longitude Variables.
+          // Get the peak period Variable.
           Variable tpVar = dataFile.findVariable("tp");
           if (tpVar == null) {
             System.out.println("Cant find Variable tp");
             return wavesdp;
           }
 
+          // Get the peak direction Variable.
           Variable pdirVar = dataFile.findVariable("pdir");
           if (pdirVar == null) {
             System.out.println("Cant find Variable pdir");
@@ -931,8 +932,9 @@ public class LoaderHelper {
 
     /**
      * @param args
+     * @throws Exception 
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         String str = "    -7.3280918  36.4298738  -24.540   15.514          0      15.440       2.180     -25.700     10.5000    -48.0000   49.1357   167.7     29.033     302.3      1   1";
         String[] tokens = str.trim().split("[\\t ,]+");
         System.out.println(tokens.length);
@@ -943,11 +945,24 @@ public class LoaderHelper {
         val = getMultiplierAndMillisOffsetFromTimeUnits("seconds since 2013-07-04 00:00:00");
         System.out.println(val[0] + "    " + val[1]);
         
-        Pattern timeStringPattern = Pattern.compile("^(\\w+?)\\ssince\\s(\\w+?)");
-        String timeUnits = "days since 00-01-00 00:00:00";
-        Matcher matcher = timeStringPattern.matcher(timeUnits);
+        try {
+            Pattern timeStringPattern = Pattern.compile("^(\\w+?)\\ssince\\s(\\w+?)");
+            String timeUnits = "days since 00-01-00 00:00:00";
+            Matcher matcher = timeStringPattern.matcher(timeUnits);
 
-        System.out.println(matcher.group(1));
+            System.out.println(matcher.group(1));
+        }
+        catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        
+        Date date = HFRadarVisualization.dateTimeFormaterUTC.parse("0001-01-01 00:00:00");
+        System.out.println(date.getTime());
+        
+        Date ndate = new Date(date.getTime() + DateTimeUtil.DAYS_SINCE_YEAR_0_TILL_1970 * DateTimeUtil.DAY);
+        System.out.println(ndate + "           " + ndate.getTime());
     }
 
 }

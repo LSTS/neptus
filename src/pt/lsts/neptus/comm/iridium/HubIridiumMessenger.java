@@ -277,9 +277,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
         String updated_at;
         
         public IridiumMessage message() throws Exception {
-            char[] chars = new char[msg.length()];
-            msg.getChars(0, msg.length(), chars, 0);
-            byte[] data = Hex.decodeHex(chars);
+            byte[] data = Hex.decodeHex(msg.toCharArray());
             return IridiumMessage.deserialize(data);
         }
         
@@ -318,7 +316,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
         
         System.out.println(dateToString(d));
         System.out.println(messenger.pollMessages(d).size());
-        DeviceUpdate updates = messenger.pollActiveDevices();
+        
         
         
     }

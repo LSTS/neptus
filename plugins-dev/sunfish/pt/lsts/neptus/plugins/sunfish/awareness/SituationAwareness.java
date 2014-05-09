@@ -67,9 +67,10 @@ import org.jdesktop.swingx.JXTable;
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import org.reflections.Reflections;
 
+import pt.lsts.colormap.ColorMap;
+import pt.lsts.colormap.ColorMapFactory;
+import pt.lsts.imc.annotations.Periodic;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.colormap.ColorMap;
-import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.IConsoleLayer;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -78,6 +79,7 @@ import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.sunfish.awareness.SunfishAssetProperties.AssetDesc;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.renderer2d.LayerPriority;
@@ -107,7 +109,9 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     private DecisionSupportTable supportTable = new DecisionSupportTable();
     private HashSet<String> updateMethodNames = new HashSet<String>();
     private HashSet<String> hiddenPosTypes = new HashSet<String>();
-    private Image argos, spot, desired, target, unknown, auv, uav, ship, ccu;
+    private Image argos, spot, desired, target, unknown, auv, uav, ship, ccu, wg;
+    private SunfishAssetProperties props = new SunfishAssetProperties();
+    private LinkedHashMap<String, SunfishAssetProperties.AssetDesc> assetProperties = new LinkedHashMap<>();
     
     @NeptusProperty(name = "Ship speed (m/s)")
     public double shipSpeedMps = 10;
@@ -151,6 +155,15 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
         ship = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/ship.png");
         ccu = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/ccu.png");
         argos = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/argos.png");
+        wg = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/wg.png");
+    }
+    
+    @Periodic
+    public void fetchAssetProperties() {
+        NeptusLog.pub().info("Fetching asset properties");
+        for (AssetDesc a : props.fetchAssets()) {
+            assetProperties.put(a.name, a);
+        }        
     }
     
     @Override
@@ -179,6 +192,14 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
         
         loadImages();        
         propertiesChanged();
+        
+        Thread t = new Thread("Asset Properties Loader") {
+            public void run() {
+                fetchAssetProperties();
+            }
+        };
+        t.setDaemon(true);
+        t.start();
     }
 
     @Override
@@ -266,6 +287,8 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     }
     
     public Image getIcon(AssetPosition pos) {
+        if (pos.getAssetName().equals("hermes"))
+            return wg;
         switch (pos.getType().toLowerCase()) {
             case "ship":
                 return ship;
@@ -305,8 +328,9 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             g.setColor(track.getColor());
 
             g.setColor(Color.black);
+            String name = assetProperties.containsKey(p.getAssetName()) ? assetProperties.get(p.getAssetName()).friendly : p.getAssetName();
             g.drawString(
-                    p.getAssetName() + " ("
+                    name + " ("
                             + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - p.getTimestamp())
                             + ")", (int) (pt.getX() + 13), (int) (pt.getY() + 5));
         }
@@ -322,7 +346,8 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             Point2D pt = source.getScreenPosition(pivot.getLoc());
             g.setColor(Color.white);
             g.draw(new Ellipse2D.Double(pt.getX() - 6, pt.getY() - 6, 12, 12));
-            // g.drawString(pivot.getAssetName() + ", age: " + getAge(pivot), 10, source.getHeight() - 50);
+            if (assetProperties.containsKey(pivot.getAssetName()))
+                pivot.putExtra("Description", assetProperties.get(pivot.getAssetName()).description);            
             lbl.setOpaque(true);
             lbl.setBackground(new Color(255, 255, 255, 128));
             lbl.setText(pivot.getHtml());
@@ -403,12 +428,14 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
                     PluginUtils.editPluginProperties(SituationAwareness.this, true);
                 }
             });
-            popup.add("Randomize colors").addActionListener(new ActionListener() {
+            
+            popup.add("Fetch asset properties").addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    for (AssetTrack track : assets.values()) {
-                        track.setColor(new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255)));
-                    }
+//                    for (AssetTrack track : assets.values()) {
+//                        track.setColor(new Color(random.nextInt(255), random.nextInt(255), random.nextInt(255)));
+//                    }
+                    fetchAssetProperties();
                 }
             });
 
@@ -531,7 +558,10 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
                 if (p.getAge() >= maxAge * 3600 * 1000)
                     continue;
                 Point2D pt = renderer.getScreenPosition(p.getLoc());
-                g.setColor(track.getColor());
+                if (assetProperties.containsKey(track.getAssetName()))
+                    g.setColor(assetProperties.get(track.getAssetName()).color);                
+                else
+                    g.setColor(track.getColor());
                 if (lastLoc != null && lastLoc.distance(pt) < 20000) {
                     g.draw(new Line2D.Double(lastLoc, pt));
                 }
