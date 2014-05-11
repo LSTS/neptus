@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2014-05-07 13:28+0100\n"
-"PO-Revision-Date: 2014-05-11 22:32+0100\n"
+"POT-Creation-Date: 2014-05-11 22:44+0100\n"
+"PO-Revision-Date: 2014-05-11 22:51+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
@@ -224,7 +224,7 @@ msgstr "Batimetria 3D"
 msgid "3D Bathymetry Visualization"
 msgstr "Visualização 3D Batimetria"
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:391
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:394
 msgid "3D Bathymetry properties"
 msgstr "Propriedades da Batimetria 3D"
 
@@ -517,7 +517,7 @@ msgstr "Operações Acústicas"
 msgid "Action"
 msgstr "Acção"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:263
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:291
 msgid "Activate Polling"
 msgstr "Activar Polling"
 
@@ -965,16 +965,16 @@ msgid "Base"
 msgstr "Base"
 
 #: Property from pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
-msgid "Base Folder For Currents TUV and NetCDF Files"
-msgstr "Directório base para ficheiros de correntes TUV e NetCDF"
+msgid "Base Folder For Currents TUV or netCDF Files"
+msgstr "Directório base para ficheiros de correntes TUV ou netCDF"
 
 #: Property from pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
-msgid "Base Folder For Meteo NetCDF Files"
-msgstr "Directório base para ficheiros de meteorologia NetCDF"
+msgid "Base Folder For Meteo netCDF Files"
+msgstr "Directório base para ficheiros de meteorologia netCDF"
 
 #: Property from pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
-msgid "Base Folder For Waves NetCDF Files"
-msgstr "Directório base para ficheiros de ondas NetCDF"
+msgid "Base Folder For Waves netCDF Files"
+msgstr "Directório base para ficheiros de ondas netCDF"
 
 #: Property from pt.lsts.neptus.plugins.position.FindVehicle
 msgid "Base Location"
@@ -1207,7 +1207,7 @@ msgid "Calibration Mode"
 msgstr "Modo de Calibração"
 
 #: Property from pt.lsts.neptus.plugins.ipcam.AirCamDisplay
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:373
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:408
 msgid "Camera Alias"
 msgstr "Pseudónimo da Câmara"
 
@@ -1564,7 +1564,7 @@ msgstr "Comandos:"
 msgid "Command %vehicle"
 msgstr "Comandar %vehicle"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:288
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:316
 msgid "Command %vehicle a plan via Iridium"
 msgstr "Comandar plano para %vehicle via Iridium"
 
@@ -1765,7 +1765,7 @@ msgstr "A ligar"
 msgid "Connecting to remote system for log list update..."
 msgstr "A ligar com sistema remoto para actualização de lista de log..."
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:355
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:390
 msgid "Connection"
 msgstr "Ligação"
 
@@ -1997,6 +1997,10 @@ msgstr "Copiar esta localização para o clipboard"
 msgid "Copy time"
 msgstr "Copiar tempo"
 
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/iridium/IridiumHtmlVisualization.java:91
+msgid "Copy to clipboard"
+msgstr "Copiar para o clipboard"
+
 #: src/pt/lsts/neptus/mra/importers/lsf/ConcatenateLsfLog.java:75
 #: src/pt/lsts/neptus/mra/importers/lsf/ConcatenateLsfLog.java:79
 msgid "Copying %filename"
@@ -2113,7 +2117,7 @@ msgstr "Dias a buscar no futuro"
 msgid "Days to fetch in the past"
 msgstr "Dias a buscar no passado"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:255
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:283
 msgid "Deactivate Polling"
 msgstr "Desactivar Polling"
 
@@ -2468,6 +2472,12 @@ msgstr "Documento gerado por %generator em %date."
 msgid "Don't Play Sound"
 msgstr "Não Tocar Som"
 
+#: Description of property 'Request data from Web'
+#: pt.lsts.neptus.plugins.envdisp.HFRadarVisualization 'Load file
+#: (hfradar.txt)'
+msgid "Don't use this (testing purposes)."
+msgstr ""
+
 #: src/pt/lsts/neptus/console/plugins/containers/propeditor/HorizontalGroupPropertyEditor.java:53
 #: src/pt/lsts/neptus/console/plugins/containers/propeditor/VerticalGroupPropertyEditor.java:49
 #: src/pt/lsts/neptus/console/plugins/containers/propeditor/LinkSizeVerticalPropertyEditor.java:49
@@ -2741,7 +2751,7 @@ msgstr "Habilitar/Dasabilitar exagero do eixo z"
 msgid "Enable/Disable contouts"
 msgstr "Habilitar/Dasabilitar contornos"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:190
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:218
 msgid "Enter command to be sent to %vehicle"
 msgstr "Introduzir comando a enviar para %vehicle"
 
@@ -2752,6 +2762,10 @@ msgstr "Inserir comando a enviar para %vehicle"
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:993
 msgid "Enter new speed (%speedUnit)"
 msgstr "Estabelecer nova velocidade (%speedUnit)"
+
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:191
+msgid "Enter note to be published"
+msgstr "Introduza nota para ser publicada"
 
 #: src/pt/lsts/neptus/gui/ChronometerPanel.java:410
 msgid "Enter the max. time"
@@ -2932,7 +2946,7 @@ msgstr "Erro ao enviar beacons acústicas"
 msgid "Error sending exiting Tele-Operation message!"
 msgstr "Erro ao enviar mensagem de saída de Teleoperação!"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:364
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:401
 msgid "Error sending iridium message"
 msgstr "Erro no envio de mensage Iridium"
 
@@ -3857,7 +3871,7 @@ msgstr "INICIALIZAR"
 msgid "IP"
 msgstr "IP"
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:375
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:410
 msgid "IP Address"
 msgstr "Endereço IP"
 
@@ -4189,27 +4203,27 @@ msgstr "Plu-in de Comunicações por Iridium"
 msgid "Iridium Messenger"
 msgstr "Mensageiro por Iridium"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:363
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:367
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:371
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:375
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:379
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:400
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:404
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:408
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:412
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:416
 msgid "Iridium communications"
 msgstr "Comunicações Iridium"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:380
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:417
 msgid "Iridium message is being transmited"
 msgstr "Mensagem Iridium está a ser transmitida"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:372
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:409
 msgid "Iridium message sent successfully"
 msgstr "Mensagem Iridium enviada com sucesso"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:368
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:405
 msgid "Iridium message transmission time has expired"
 msgstr "Transmissão de mensagem Iridium expirou por tempo"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:376
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:413
 msgid "Iridium message was queued for later transmission"
 msgstr "Mensagem Iridium foi colocada na fila para posterior transmissão"
 
@@ -5699,6 +5713,10 @@ msgstr "Não está em funcionamento."
 msgid "Notifications"
 msgstr "Notificações"
 
+#: Property from pt.lsts.neptus.plugins.trex.TrexMapLayer
+msgid "Notifications for received T-REX observations"
+msgstr ""
+
 #. / Nr.=number
 #: src/pt/lsts/neptus/comm/manager/BaseAbstractCommsMonitorPanel.java:629
 msgid "Nr. systems:"
@@ -5818,10 +5836,10 @@ msgstr "Nome do Objecto:"
 msgid "Obstacle"
 msgstr "Obstáculo"
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:356
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:361
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:435
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:453
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:391
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:396
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:471
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:489
 msgid "Off"
 msgstr "Desligado"
 
@@ -5864,8 +5882,8 @@ msgstr "NDesvio"
 msgid "Ok"
 msgstr "OK"
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:421
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:447
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:457
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:483
 msgid "On"
 msgstr "Ligado"
 
@@ -6416,7 +6434,7 @@ msgstr "Porto:"
 msgid "Pos. external"
 msgstr "Pos. externa"
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:380
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:415
 #: src/pt/lsts/neptus/mra/plots/EstimatedStatePlot.java:97
 #: src/pt/lsts/neptus/types/map/Model3DElement.java:514
 msgid "Position"
@@ -6747,7 +6765,7 @@ msgstr "Gravar"
 msgid "Record Mouse Actions"
 msgstr "Gravar Ações do Rato"
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:360
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:395
 msgid "Record Stream"
 msgstr "Gravar Fluxo"
 
@@ -7152,7 +7170,7 @@ msgstr "SENSORESTÁTICO"
 
 #: src/pt/lsts/neptus/mp/maneuvers/PopUp.java:317
 msgid "STATION_KEEP"
-msgstr ""
+msgstr "MANTER_POSIÇÃO"
 
 #: Field from ImcSystem.IMCAuthorityState enumeration
 msgid "SYSTEM_FULL"
@@ -7331,28 +7349,28 @@ msgid "Saves the visible entities sections in the vehicle."
 msgstr "Guarda as secções vísiveis das entidades no veículo."
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/io/Writer3D.java:105
-msgid "Saving to a OBL file"
-msgstr ""
+msgid "Saving to a OBJ file"
+msgstr "A guardar para ficheiro OBJ"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/io/Writer3D.java:120
 msgid "Saving to a PLY file"
-msgstr ""
+msgstr "A guardar para ficheiro PLY"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/io/Writer3D.java:90
 msgid "Saving to a STL file"
-msgstr ""
+msgstr "A guardar para ficheiro STL"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/io/Writer3D.java:135
 msgid "Saving to a VTK file"
-msgstr ""
+msgstr "A guardar para ficheiro VTK"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/io/Writer3D.java:150
 msgid "Saving to a WRL file"
-msgstr ""
+msgstr "A guardar para ficheiro WRL"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/io/Writer3D.java:165
 msgid "Saving to a X3D file"
-msgstr ""
+msgstr "A guardar para ficheiro X3D"
 
 #: src/pt/lsts/neptus/gui/objparams/ImageObjectParameters.java:271
 msgid "Scale (m/pixel):"
@@ -7423,7 +7441,7 @@ msgstr "Seleccionar Checklist"
 msgid "Select Entities"
 msgstr "Seleccionar Entidades"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:271
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:299
 msgid "Select Iridium gateway"
 msgstr "Seleccionar a gateway Iridium"
 
@@ -7529,7 +7547,7 @@ msgstr "Enviar"
 msgid "Send %planName to %system"
 msgstr "Enviar '%planName' para %system"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:280
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:308
 msgid "Send %vehicle a command via Iridium"
 msgstr ""
 
@@ -7564,6 +7582,10 @@ msgstr "Enviar Plano Seleccionado"
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:966
 msgid "Send Start Plan"
 msgstr "Enviar Iniciar Plano"
+
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:372
+msgid "Send a text note"
+msgstr "Enviar uma nota em texto"
 
 #: src/pt/lsts/neptus/console/plugins/AbortPanel.java:94
 msgid ""
@@ -7776,7 +7798,7 @@ msgstr "Configurar periodicidade de actualização para milisegundos"
 msgid "Setting to true will make all communications go through acoustic modem"
 msgstr ""
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:160
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:166
 #: plugins-dev/odss/pt/lsts/neptus/plugins/odss/OdssStoqsTrackFetcher.java:238
 #: plugins-dev/odss/pt/lsts/neptus/plugins/odss/OdssStoqsTrackFetcher.java:252
 #: plugins-dev/odss/pt/lsts/neptus/plugins/odss/OdssStatePublisher.java:186
@@ -7941,7 +7963,7 @@ msgstr "Mostrar Titulo em Linha para Toda a Entidade"
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/LBLRangeDisplay.java:389
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/LBLRangeDisplay.java:392
 msgid "Show Tracker Data"
-msgstr ""
+msgstr "Mostrar Dados de Seguimento"
 
 #: Property from pt.lsts.neptus.plugins.position.MultiEntityDisplayPanel
 msgid "Show Unit in the Title"
@@ -8474,7 +8496,7 @@ msgstr ""
 msgid "Subject"
 msgstr "Assunto"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:296
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:324
 msgid "Subscribe to iridium device updates"
 msgstr "Subscrever actualizações do dispositivo por Iridium"
 
@@ -8493,7 +8515,7 @@ msgstr "Viajar à superficie para aqui"
 
 #: Property from pt.lsts.neptus.plugins.acoustic.LBLRangeDisplay
 msgid "Surface range color"
-msgstr ""
+msgstr "Cor de uma distância à superfície"
 
 #: Property from pt.lsts.neptus.plugins.trex.TrexMapLayer
 msgid "Survey Size"
@@ -8900,6 +8922,28 @@ msgstr "O texto introduzido não representa valores numericos"
 #: src/pt/lsts/neptus/mc/Workspace.java:1176
 msgid "The file doesn't exists!"
 msgstr "O ficheiro não existe!"
+
+#: Description of property 'Base Folder For Currents TUV or netCDF Files' from
+#: pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
+msgid ""
+"The folder to look for currents data. Admissible files '*.tuv' and '*.nc'. "
+"NetCDF variables used: lat, lon, time, u, v."
+msgstr ""
+
+#: Description of property 'Base Folder For Meteo netCDF Files' from
+#: pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
+msgid ""
+"The folder to look for meteo data (wind and SST). Admissible files '*.nc'. "
+"NetCDF variables used: lat, lon, time, u, v, sst."
+msgstr ""
+
+#: Description of property 'Base Folder For Waves netCDF Files' from
+#: pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
+msgid ""
+"The folder to look for waves (significant height, peak period and direction) "
+"data. Admissible files '*.nc'. NetCDF variables used: lat, lon, time, hs, "
+"tp, pdir."
+msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1174
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1233
@@ -9697,7 +9741,7 @@ msgstr "Localização desconhecida"
 msgid "Unknown location for more than 10s"
 msgstr "Localização desconhecida por mais de 10s"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:312
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:340
 msgid "Unsubscribe to iridium device updates"
 msgstr "Cancelar subscrição da actuazação de dispositivo por Iridium"
 
@@ -10454,7 +10498,7 @@ msgstr "Unidades-Z"
 msgid "Zenith"
 msgstr "Zénite"
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:385
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:420
 #: plugins-dev/echosounder/pt/lsts/neptus/plugins/sidescan/SidescanToolbar.java:63
 msgid "Zoom"
 msgstr "Zoom"
