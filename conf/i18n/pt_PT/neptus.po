@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
 "POT-Creation-Date: 2014-05-07 13:28+0100\n"
-"PO-Revision-Date: 2014-05-07 13:35+0100\n"
+"PO-Revision-Date: 2014-05-11 22:32+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
@@ -137,7 +137,7 @@ msgstr "Parâmetros de %plugin"
 #: src/pt/lsts/neptus/mp/Maneuver.java:895
 #: src/pt/lsts/neptus/mp/Maneuver.java:946
 msgid "%s custom settings"
-msgstr "Preferencias de %s"
+msgstr "Preferências de %s"
 
 #: src/pt/lsts/neptus/mp/Maneuver.java:916
 msgid "%s end actions"
@@ -190,6 +190,8 @@ msgstr "1- Prioridade Minima <br>10- Prioridade Maxima<br>5- Prioridade Normal"
 msgid ""
 "180 Yaw (psi) increment for the 83P parser, set true to increment +180°."
 msgstr ""
+"Incremento de 180° em Yaw (psi) para o processador de 83P, colocar a "
+"verdadeiro para incrementar +180°."
 
 #: src/pt/lsts/neptus/gui/objparams/ImageObjectParameters.java:354
 msgid "2 locations..."
@@ -1270,7 +1272,7 @@ msgstr "Não é possível enviar fix GPS"
 
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:437
 msgid "Cannot send command because it has more than 64 characters."
-msgstr ""
+msgstr "Não é possível enviar comando porque contém mais do que 64 caracteres."
 
 #: src/pt/lsts/neptus/gui/ErrorMessageBox.java:117
 msgid "Cause"
@@ -2351,7 +2353,7 @@ msgstr "Valor do valor de disco"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:158
 msgid "Display lookup table (on/off)"
-msgstr ""
+msgstr "Mostrar tabela de procura (ligar/desligar)"
 
 #: Property from pt.lsts.neptus.plugins.acoustic.MantaOperations
 msgid "Display ranges in the map"
@@ -2359,11 +2361,11 @@ msgstr "Mostrar distâncias no mapa"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:157
 msgid "Display scale grid (on/off)"
-msgstr ""
+msgstr "Mostrar grelha de escala (ligar/desligar)"
 
 #: Description of plugin pt.lsts.neptus.plugins.acoustic.LblEstimateOverlay
 msgid "Displays LBL position estimations calculated by AUVs"
-msgstr ""
+msgstr "Mostra posições estimadas dos beacons acústicos calculadas pelos AUVs"
 
 #: Description of plugin pt.lsts.neptus.plugins.acoustic.LBLRangeDisplay
 msgid "Displays the LblRanges and LblRangeRejections."
@@ -2383,7 +2385,7 @@ msgstr "Distância"
 
 #: Property from pt.lsts.neptus.plugins.acoustic.LblEstimateOverlay
 msgid "Distance above which user will be warned about estimations"
-msgstr ""
+msgstr "Distância acima da qual o operador é avisado acerca das estimativas"
 
 #: Property from pt.lsts.neptus.plugins.vrp.WaypointPlanner
 msgid "Distance between generated plans"
@@ -2905,7 +2907,7 @@ msgstr "Erro a abrir consola '%file'"
 
 #: src/pt/lsts/neptus/mp/Maneuver.java:971
 msgid "Error parsing custom setting '%s' to '%s'!"
-msgstr ""
+msgstr "Erro a processar preferência '%s' para '%s'!"
 
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/SimpleAbortModemRequest.java:155
 msgid "Error sending ABORT command message!"
@@ -3064,7 +3066,7 @@ msgstr "Exportadores"
 
 #: src/pt/lsts/neptus/mra/exporters/CSVExporter.java:131
 msgid "Exporting %message data to %csvfile..."
-msgstr ""
+msgstr "A exportar dados de %message para %csvfile..."
 
 #: Description of property 'CPU load value' from
 #: pt.lsts.neptus.plugins.gauges.CpuBattDiskNetGauge
@@ -3336,7 +3338,7 @@ msgstr "Variavel da distancia frontal"
 #: plugins-dev/position/pt/lsts/neptus/plugins/position/painter/SystemInfoPainter.java:106
 msgctxt "Use a single small word"
 msgid "Fuel"
-msgstr ""
+msgstr "Combustível"
 
 #: src/pt/lsts/neptus/console/plugins/SystemsList.java:968
 msgid "Fuel Level: %fuelValue% with %confidanceValue% confidance"
@@ -3405,7 +3407,7 @@ msgstr "Gerar Relatório PDF"
 
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:287
 msgid "Generate a pdf file report from Log"
-msgstr ""
+msgstr "Gerar um relatório PDF do Log"
 
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:326
 msgid "Generate report from selected log files"
@@ -3543,7 +3545,7 @@ msgstr ""
 #: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:72
 #: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1231
 msgid "Half the current zoom value"
-msgstr ""
+msgstr "Metade do valor de zoom corrente"
 
 #: src/pt/lsts/neptus/console/plugins/SystemsList.java:1249
 #: src/pt/lsts/neptus/console/plugins/MyLocationDisplay.java:471
@@ -3631,7 +3633,7 @@ msgstr "Esconder '%element'"
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/LBLRangeDisplay.java:394
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/LBLRangeDisplay.java:399
 msgid "Hide Tracker Data"
-msgstr ""
+msgstr "Esconder Dados de Seguimento"
 
 #: Property from pt.lsts.neptus.plugins.acoustic.LBLRangeDisplay
 msgid "Hide or fade the old ranges"
@@ -4046,7 +4048,7 @@ msgstr "Mensagens chegadas"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:163
 msgid "Increment / Decrement overall point size"
-msgstr ""
+msgstr "Incrementar/Decrementar tamanho dos pontos na globalidade"
 
 #: Property from pt.lsts.neptus.plugins.uavs.panels.UavAltitudePanel
 msgid "Individual ruler mark width in pixels"
@@ -4064,7 +4066,7 @@ msgstr "Informação"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:161
 msgid "Information about rendered cloud"
-msgstr ""
+msgstr "Informação acerca da nuvem renderizada"
 
 #: src/pt/lsts/neptus/graph/DefaultNode.java:142
 msgid "Initial"
@@ -4185,7 +4187,7 @@ msgstr "Plu-in de Comunicações por Iridium"
 
 #: Property from pt.lsts.neptus.util.conf.GeneralPreferences
 msgid "Iridium Messenger"
-msgstr ""
+msgstr "Mensageiro por Iridium"
 
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:363
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:367
@@ -4197,24 +4199,24 @@ msgstr "Comunicações Iridium"
 
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:380
 msgid "Iridium message is being transmited"
-msgstr ""
+msgstr "Mensagem Iridium está a ser transmitida"
 
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:372
 msgid "Iridium message sent successfully"
-msgstr ""
+msgstr "Mensagem Iridium enviada com sucesso"
 
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:368
 msgid "Iridium message transmission time has expired"
-msgstr ""
+msgstr "Transmissão de mensagem Iridium expirou por tempo"
 
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:376
 msgid "Iridium message was queued for later transmission"
-msgstr ""
+msgstr "Mensagem Iridium foi colocada na fila para posterior transmissão"
 
 #: Description of property 'Iridium Messenger' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 msgid "Iridium messaging implementation"
-msgstr ""
+msgstr "Implementação de mensageiro de Iridium"
 
 #: src/pt/lsts/neptus/gui/objparams/ImageObjectParameters.java:431
 msgid "Is bathymetric"
@@ -4259,7 +4261,7 @@ msgstr "Faróis LBL"
 
 #: Name of plugin pt.lsts.neptus.plugins.acoustic.LblEstimateOverlay
 msgid "LBL Estimates Overlay"
-msgstr ""
+msgstr "Camada de Estimativas de LBL"
 
 #: Name of plugin pt.lsts.neptus.plugins.acoustic.LBLRangesReplay
 #: pt.lsts.neptus.plugins.acoustic.LBLRangeDisplay
@@ -4382,7 +4384,7 @@ msgstr "Esquerda"
 
 #: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:603
 msgid "Left Mouse double click on Reference"
-msgstr ""
+msgstr "Clicar com botão Esquerdo do Rato na referência"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:172
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:82
@@ -5040,7 +5042,7 @@ msgstr "Medição"
 
 #: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:81
 msgid "Measure distances by click and dragging the mouse"
-msgstr ""
+msgstr "Clicar e arrastar com o Rato par medir distâncias"
 
 #: plugins-dev/logs/pt/lsts/neptus/plugins/logs/LogMerger.java:140
 msgid "Merge"
@@ -5677,7 +5679,7 @@ msgstr "Missão não válida"
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1061
 msgid "Not all maneuvers have the same values."
-msgstr ""
+msgstr "Nem todas as manobras têm os mesmos valores."
 
 #: src/pt/lsts/neptus/mra/NeptusMRA.java:85
 msgid "Not possible to open"
@@ -6087,7 +6089,7 @@ msgstr "Parâmetros para %mapElementType"
 
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumMessageDebugger.java:63
 msgid "Parse"
-msgstr ""
+msgstr "Processar"
 
 #: Property from pt.lsts.neptus.plugins.odss.OdssStatePublisher
 #: src/pt/lsts/neptus/comm/ssh/SSHConnectionDialog.java:152
@@ -6438,7 +6440,7 @@ msgstr "Largura Perferida"
 
 #: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:605
 msgid "Press CTRL + Left Mouse Click + Drag Mouse"
-msgstr ""
+msgstr "Premir CTRL + Botão Esquerdo do Rato + Arrastar Rato"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:190
 msgid "Pressure Color Map"
@@ -6968,7 +6970,7 @@ msgstr "Relatório"
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:572
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1147
 msgid "Request %d completed successfully."
-msgstr ""
+msgstr "Pedido %d completado com sucesso"
 
 #: Property from pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
 msgid "Request data from Web"
