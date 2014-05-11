@@ -45,6 +45,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -196,6 +197,17 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
         Thread t = new Thread("Asset Properties Loader") {
             public void run() {
                 fetchAssetProperties();
+                try {
+                    Collection<AssetPosition> dailyPositions = PositionHistory.dailyPositions();
+                    for (AssetPosition p : dailyPositions) {
+                        p.setSource("Daily Positions CSV");
+                        addAssetPosition(p);
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                
             }
         };
         t.setDaemon(true);

@@ -1104,7 +1104,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     public boolean sendMessageToSystem(IMCMessage message, String systemName, String sendProperties, MessageDeliveryListener listener) {
         ImcSystem system = ImcSystemsHolder.lookupSystemByName(systemName);
-
+        
         if (system != null)
             return sendMessage(message, system.id, sendProperties, listener);
         if (listener != null)
