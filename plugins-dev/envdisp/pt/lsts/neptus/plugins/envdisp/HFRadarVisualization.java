@@ -182,16 +182,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
 
     private final Font font8Pt = new Font("Helvetica", Font.PLAIN, 8);
 
-    static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'SS");
-    static final SimpleDateFormat dateTimeFormaterSpacesUTC = new SimpleDateFormat("yyyy MM dd  HH mm SS");
-    private static final SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd");
-    private static final SimpleDateFormat timeFormaterUTC = new SimpleDateFormat("HH':'mm");
-    {
-        dateTimeFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-        dateTimeFormaterSpacesUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-        dateFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-        timeFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
+    static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'ss") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+    static final SimpleDateFormat dateTimeFormaterSpacesUTC = new SimpleDateFormat("yyyy MM dd  HH mm ss") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+    private static final SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+    private static final SimpleDateFormat timeFormaterUTC = new SimpleDateFormat("HH':'mm") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
     
     private final static Path2D.Double arrow = new Path2D.Double();
     static {
@@ -1455,5 +1449,14 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         
         File[] fileList = getFilesToLoadFromDisk(new File("IHData/CODAR"), currentsFilePatternNetCDF);
         System.out.println(Arrays.toString(fileList));
+        
+        HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processNetCDFHFRadar("IHData/CODAR/mola_his_z-20140508.nc", null);
+        System.out.println("First :: " + ret.values().iterator().next());
+        HFRadarDataPoint lastdp = null;
+        for (HFRadarDataPoint dp : ret.values().iterator().next().getHistoricalData()) {
+            lastdp = dp;
+        }
+        System.out.println("Last  :: " + lastdp);
+
     }
 }
