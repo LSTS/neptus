@@ -44,6 +44,7 @@ import javax.swing.JPopupMenu;
 
 import org.apache.commons.codec.binary.Hex;
 
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IridiumMsgRx;
 import pt.lsts.imc.IridiumMsgTx;
@@ -55,13 +56,16 @@ import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.imc.TextMessage;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.iridium.ActivateSubscription;
 import pt.lsts.neptus.comm.iridium.DeactivateSubscription;
 import pt.lsts.neptus.comm.iridium.DesiredAssetPosition;
+import pt.lsts.neptus.comm.iridium.ExtendedDeviceUpdate;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumCommand;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.iridium.IridiumMessage;
+import pt.lsts.neptus.comm.iridium.Position;
 import pt.lsts.neptus.comm.iridium.TargetAssetPosition;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -113,6 +117,25 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
             byte[] data = msg.getData();
             NeptusLog.pub().info(msg.getSourceName()+" received iridium message with data "+new String(Hex.encodeHex(data)));
             IridiumMessage m = IridiumMessage.deserialize(data);
+            
+            if (m instanceof ExtendedDeviceUpdate) {
+                ExtendedDeviceUpdate upd = (ExtendedDeviceUpdate) m;
+                for (Position p : upd.getPositions().values()) {
+                    RemoteSensorInfo rsi = new RemoteSensorInfo();
+                    rsi.setTimestamp(p.timestamp);
+                    rsi.setLat(p.latRads);
+                    rsi.setLon(p.lonRads);
+                    String name = IMCDefinition.getInstance().getResolver().resolve(p.id);
+                    if (name != null)
+                        rsi.setId(IMCDefinition.getInstance().getResolver().resolve(p.id));
+                    else
+                        rsi.setId(String.format("Unknown (%X)" , p.id));
+                    
+                    rsi.setSensorClass(IMCUtils.getSystemType(p.id));
+                    ImcMsgManager.getManager().postInternalMessage("IridiumComms", rsi);
+                }
+            }
+            
             NeptusLog.pub().info("Resulting message: "+m);
         }
         catch (Exception e) {
@@ -330,6 +353,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                         activate.setSource(ImcMsgManager.getManager().getLocalId().intValue());
                         try {
                             IridiumManager.getManager().send(activate);
+                            getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
                         }
                         catch (Exception ex) {
                             GuiUtils.errorMessage(getConsole(), ex);

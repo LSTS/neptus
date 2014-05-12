@@ -111,6 +111,8 @@ public class DuneIridiumMessenger implements IridiumMessenger, MessageListener<M
         
         ImcSystem system = ImcSystemsHolder.lookupSystemByName(providers.iterator().next());
         
+        System.out.println("Subscribed to Iridium Device Updates through "+system.getName());
+        
         // Activate and deactivate subscriptions should use the id of the used gateway
         //if (msg instanceof ActivateSubscription || msg instanceof DeactivateSubscription) {
         //    ImcSystem system = ImcSystemsHolder.lookupSystemByName(messengerName);

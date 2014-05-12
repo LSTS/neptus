@@ -37,6 +37,7 @@ import java.io.Reader;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -841,41 +842,104 @@ public class LoaderHelper {
     }
 
     public static double[] getMultiplierAndMillisOffsetFromTimeUnits(String timeStr) {
-        if ("days since 00-01-00 00:00:00".equalsIgnoreCase(timeStr)) {
+        if ("days since 00-01-00 00:00:00".equalsIgnoreCase(timeStr) || "days since 00-01-00".equalsIgnoreCase(timeStr)) {
+            // Reference time in year zero has special meaning
             return new double[] { DateTimeUtil.DAY, - DateTimeUtil.DAYS_SINCE_YEAR_0_TILL_1970 * DateTimeUtil.DAY};
         }
         else {
-            String[] tk = timeStr.trim().split("[ ]", 3);
+            String[] tk = timeStr.trim().split("[ ]");
             if (tk.length < 3) {
                 return null;
             }
             else {
                 double mult = 1;
                 double off = 1;
-                switch (tk[0].toLowerCase()) {
+                switch (tk[0].trim().toLowerCase().replace(".", "")) {
                     case "days":
                     case "day":
+                    case "d":
                         mult = DateTimeUtil.DAY;
                         break;
                     case "hours":
                     case "hour":
+                    case "hr":
+                    case "h":
                         mult = DateTimeUtil.HOUR;
                         break;
                     case "minutes":
                     case "minute":
+                    case "min":
                         mult = DateTimeUtil.MINUTE;
                         break;
                     case "seconds":
                     case "second":
+                    case "sec":
+                    case "s":
                         mult = DateTimeUtil.SECOND;
                         break;
                 }
                 
+                String dateTkStr = tk[2];
+                String timeTkStr = tk.length > 3 ? tk[3] : "0:0:0";
+                String timeZoneTkStr = tk.length > 4 ? tk[4] : "";
+                
                 try {
-                    Date date = HFRadarVisualization.dateTimeFormaterUTC.parse(tk[2]);
+                    Date date = HFRadarVisualization.dateTimeFormaterUTC.parse(dateTkStr + " " + timeTkStr);
                     off = date.getTime();
+                    
+                    // Let us see if milliseconds are present
+                    String[] mSplitArray = timeTkStr.split("\\.");
+                    if (mSplitArray.length > 1) {
+                        String millisStr = mSplitArray[1];
+                        int millisSize = millisStr.length();
+                        switch (millisSize) {
+                            case 1:
+                                off += Integer.parseInt(millisStr) * 100;
+                                break;
+                            case 2:
+                                off += Integer.parseInt(millisStr) * 10;
+                                break;
+                            case 3:
+                                off += Integer.parseInt(millisStr);
+                                break;
+                            default:
+                                off += Integer.parseInt(millisStr.substring(0, 3));
+                                break;
+                        }
+                    }
                 }
                 catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                
+                try {
+                    if (!timeZoneTkStr.isEmpty()) { // So we have a time zone and so it's not UTC
+                        // The time zone specification
+                        // can also be written without a colon using one or two-digits
+                        // (indicating hours) or three or four digits (indicating hours
+                        // and minutes)
+                        String[] tzStrs = timeZoneTkStr.split(":");
+                        if (tzStrs.length > 1) { // Has colon
+                            int hrTzNb = Integer.parseInt(tzStrs[0]); 
+                            off -= hrTzNb * DateTimeUtil.HOUR;
+                            off -= Integer.parseInt(tzStrs[1]) * Math.signum(hrTzNb) * DateTimeUtil.MINUTE;
+                        }
+                        else {
+                            String tzSt = timeZoneTkStr.replace(":", "");
+                            int tzNb = Integer.parseInt(tzSt);
+                            if (Math.abs(tzNb) < 100) { // It's hours
+                                off -= tzNb * DateTimeUtil.HOUR;
+                            }
+                            else { // It's hours plus minutes
+                                int hrTzNb = tzNb / 100;
+                                off -= hrTzNb * DateTimeUtil.HOUR;
+                                int minTzNb = tzNb - hrTzNb * 100;
+                                off -= minTzNb * DateTimeUtil.MINUTE;
+                            }
+                        }
+                    }
+                }
+                catch (Exception e) {
                     e.printStackTrace();
                 }
                 
@@ -940,10 +1004,16 @@ public class LoaderHelper {
         System.out.println(tokens.length);
         
 
-        double[] val = getMultiplierAndMillisOffsetFromTimeUnits("days since 00-01-00 00:00:00");
-        System.out.println(val[0] + "    " + val[1]);
-        val = getMultiplierAndMillisOffsetFromTimeUnits("seconds since 2013-07-04 00:00:00");
-        System.out.println(val[0] + "    " + val[1]);
+        try {
+            double[] val = getMultiplierAndMillisOffsetFromTimeUnits("days since 00-01-00 00:00:00");
+            System.out.println(val[0] + "    " + val[1]);
+            val = getMultiplierAndMillisOffsetFromTimeUnits("seconds since 2013-07-04 00:00:00");
+            System.out.println(val[0] + "    " + val[1]);
+        }
+        catch (Exception e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
         
         try {
             Pattern timeStringPattern = Pattern.compile("^(\\w+?)\\ssince\\s(\\w+?)");
@@ -958,11 +1028,95 @@ public class LoaderHelper {
         }
         
         
-        Date date = HFRadarVisualization.dateTimeFormaterUTC.parse("0001-01-01 00:00:00");
-        System.out.println(date.getTime());
+        try {
+            Date date = HFRadarVisualization.dateTimeFormaterUTC.parse("0001-01-01 00:00:00");
+            System.out.println(date.getTime());
+            
+            Date ndate = new Date(date.getTime() + DateTimeUtil.DAYS_SINCE_YEAR_0_TILL_1970 * DateTimeUtil.DAY);
+            System.out.println(ndate + "           " + ndate.getTime());
+        }
+        catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         
-        Date ndate = new Date(date.getTime() + DateTimeUtil.DAYS_SINCE_YEAR_0_TILL_1970 * DateTimeUtil.DAY);
-        System.out.println(ndate + "           " + ndate.getTime());
-    }
+        System.out.println("------ Test time load -----");
+        String dateT1Str = "2013-07-04 00:00:00";
+        Date dateT1 = HFRadarVisualization.dateTimeFormaterUTC.parse(dateT1Str);
+        System.out.printf("%22s  ==  %s \t%s\n", dateT1Str, dateT1, dateT1.getTime());
 
+        dateT1Str = "2013-7-4 0:0:0";
+        dateT1 = HFRadarVisualization.dateTimeFormaterUTC.parse(dateT1Str);
+        System.out.printf("%22s  ==  %s \t%s\n", dateT1Str, dateT1, dateT1.getTime());
+
+        dateT1Str = "2013-7-4 13:3:4.32";
+        dateT1 = HFRadarVisualization.dateTimeFormaterUTC.parse(dateT1Str);
+        System.out.printf("%22s  ==  %s \t%s\n", dateT1Str, dateT1, dateT1.getTime());
+        
+        dateT1Str = "2013-7-4 13:3:4";
+        dateT1 = HFRadarVisualization.dateTimeFormaterUTC.parse(dateT1Str);
+        System.out.printf("%22s  ==  %s \t%s\n", dateT1Str, dateT1, dateT1.getTime());
+        
+        String dateT2Str = "2013-7-4 13:3:4.32";
+        System.out.println(Arrays.toString(dateT2Str.split("\\.")));
+        dateT2Str = "2013-7-4 13:3:4";
+        System.out.println(Arrays.toString(dateT2Str.split("\\.")));
+        dateT2Str = "2013-7-4 13:3:4.";
+        System.out.println(Arrays.toString(dateT2Str.split("\\.")));
+        dateT2Str = "2013-7-4 13:3:4.262626";
+        System.out.println(Arrays.toString(dateT2Str.split("\\.")));
+
+        
+        String dateT3Str = "seconds since 2013-7-4 13:3:4.32";
+        double[] multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        Date dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        System.out.println("\nEvery resulting date should result in the same values!");
+        dateT3Str = "seconds since 2013-7-4 13:3:4";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 14:3:4 +1:0";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 14:3:4 1";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 14:3:4 100";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 12:3:4 -100";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 11:33:4 -130";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 11:33:4 -1:30";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 14:33:4 +130";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 14:33:04 +1:30";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+    }
 }
