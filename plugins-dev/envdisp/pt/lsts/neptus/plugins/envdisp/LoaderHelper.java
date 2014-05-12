@@ -164,8 +164,13 @@ public class LoaderHelper {
         if (dateLimit == null)
             ignoreDateLimitToLoad = true;
         
+        NeptusLog.pub().info("Starting processing Currents netCDF file '" + fileName + "'." + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
+        
         HashMap<String, HFRadarDataPoint> hfdp = new HashMap<>();
         NetcdfFile dataFile = null;
+
+        Date fromDate = null;
+        Date toDate = null;
         
         try {
 
@@ -174,34 +179,34 @@ public class LoaderHelper {
           // Get the latitude and longitude Variables.
           Variable latVar = dataFile.findVariable("lat");
           if (latVar == null) {
-            System.out.println("Cant find Variable lat");
-            return hfdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'lat' for netCDF file '" + fileName + "'.");
+              return hfdp;
           }
 
           Variable lonVar = dataFile.findVariable("lon");
           if (lonVar == null) {
-            System.out.println("Cant find Variable lon");
-            return hfdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'lon' for netCDF file '" + fileName + "'.");
+              return hfdp;
           }
 
           Variable timeVar = dataFile.findVariable("time");
           if (timeVar == null) {
-            System.out.println("Cant find Variable time");
-            return hfdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'time' for netCDF file '" + fileName + "'.");
+              return hfdp;
           }
 
           // Get the latitude and longitude Variables.
           Variable uVar = dataFile.findVariable("u");
           if (uVar == null) {
-            System.out.println("Cant find Variable u");
-            return hfdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'u' for netCDF file '" + fileName + "'.");
+              return hfdp;
           }
 
           // Get the latitude and longitude Variables.
           Variable vVar = dataFile.findVariable("v");
           if (vVar == null) {
-            System.out.println("Cant find Variable v");
-            return hfdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'v' for netCDF file '" + fileName + "'.");
+              return hfdp;
           }
 
 //          // see if float or double
@@ -237,10 +242,10 @@ public class LoaderHelper {
               timeUnits = (String) timeUnitsAtt.getValue(0);
           double[] multAndOffset = getMultiplierAndMillisOffsetFromTimeUnits(timeUnits);
           if (multAndOffset == null) {
-              System.out.println("Cant parse units for Variable time");
+              NeptusLog.pub().error("Aborting. Can't parse units for variable 'time' (was '" + timeUnits + "') for netCDF file '" + fileName + "'.");
               return hfdp;
           }
-              
+          
           double timeMultiplier = multAndOffset[0];
           double timeOffset = multAndOffset[1];
           
@@ -295,6 +300,21 @@ public class LoaderHelper {
                   continue;
               }
               
+              if (fromDate == null) {
+                  fromDate = dateValue;
+              }
+              else {
+                  if (dateValue.before(fromDate))
+                      fromDate = dateValue;
+              }
+              if (toDate == null) {
+                  toDate = dateValue;
+              }
+              else {
+                  if (dateValue.after(toDate))
+                      toDate = dateValue;
+              }
+              
               for (int latOrLonFirstIdx = 0; latOrLonFirstIdx < shape[1]; latOrLonFirstIdx++) {
                   for (int latOrLonSecondIdx = 0; latOrLonSecondIdx < shape[2]; latOrLonSecondIdx++) {
                       double lat = latArray.getDouble(latLonIndexOrder.first() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
@@ -346,12 +366,15 @@ public class LoaderHelper {
             return null;
         } 
         finally {
-          if (dataFile != null)
-            try {
-              dataFile.close();
-            } catch (IOException ioe) {
-              ioe.printStackTrace();
+            if (dataFile != null) {
+                try {
+                    dataFile.close();
+                }
+                catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
             }
+            NeptusLog.pub().info("Ending processing Currents netCDF file '" + fileName + "'. Reading from date '" + fromDate + "' till '" + toDate + "'.");
         }
         
         return hfdp;
@@ -362,10 +385,15 @@ public class LoaderHelper {
         if (dateLimit == null)
             ignoreDateLimitToLoad = true;
         
+        NeptusLog.pub().info("Starting processing Meteo (wind and SST) netCDF file '" + fileName + "'." + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
+
         HashMap<String, SSTDataPoint> sstdp = new HashMap<>();
         HashMap<String, WindDataPoint> winddp = new HashMap<>();
 
         NetcdfFile dataFile = null;
+        
+        Date fromDate = null;
+        Date toDate = null;
         
         try {
 
@@ -374,40 +402,40 @@ public class LoaderHelper {
           // Get the latitude and longitude Variables.
           Variable latVar = dataFile.findVariable("lat");
           if (latVar == null) {
-            System.out.println("Cant find Variable lat");
-            return new HashMap[] { sstdp, winddp };
+              NeptusLog.pub().error("Aborting. Can't find variable 'lat' for netCDF file '" + fileName + "'.");
+              return new HashMap[] { sstdp, winddp };
           }
 
           Variable lonVar = dataFile.findVariable("lon");
           if (lonVar == null) {
-            System.out.println("Cant find Variable lon");
-            return new HashMap[] { sstdp, winddp };
+              NeptusLog.pub().error("Aborting. Can't find variable 'lon' for netCDF file '" + fileName + "'.");
+              return new HashMap[] { sstdp, winddp };
           }
 
           Variable timeVar = dataFile.findVariable("time");
           if (timeVar == null) {
-            System.out.println("Cant find Variable time");
-            return new HashMap[] { sstdp, winddp };
+              NeptusLog.pub().error("Aborting. Can't find variable 'time' for netCDF file '" + fileName + "'.");
+              return new HashMap[] { sstdp, winddp };
           }
 
           // Get the u (north) wind velocity Variables.
           Variable uVar = dataFile.findVariable("u");
           if (uVar == null) {
-            System.out.println("Cant find Variable u");
-            return new HashMap[] { sstdp, winddp };
+              NeptusLog.pub().error("Aborting. Can't find variable 'u' for netCDF file '" + fileName + "'.");
+              return new HashMap[] { sstdp, winddp };
           }
 
           // Get the v (east) wind velocity Variables.
           Variable vVar = dataFile.findVariable("v");
           if (vVar == null) {
-            System.out.println("Cant find Variable v");
-            return new HashMap[] { sstdp, winddp };
+              NeptusLog.pub().error("Aborting. Can't find variable 'v' for netCDF file '" + fileName + "'.");
+              return new HashMap[] { sstdp, winddp };
           }
 
           Variable sstVar = dataFile.findVariable("sst");
           if (sstVar == null) {
-            System.out.println("Cant find Variable SST");
-            return new HashMap[] { sstdp, winddp };
+              NeptusLog.pub().error("Aborting. Can't find variable 'sst' for netCDF file '" + fileName + "'.");
+              return new HashMap[] { sstdp, winddp };
           }
 
 
@@ -450,7 +478,7 @@ public class LoaderHelper {
               timeUnits = (String) timeUnitsAtt.getValue(0);
           double[] multAndOffset = getMultiplierAndMillisOffsetFromTimeUnits(timeUnits);
           if (multAndOffset == null) {
-              System.out.println("Cant parse units for Variable time");
+              NeptusLog.pub().error("Aborting. Can't parse units for variable 'time' (was '" + timeUnits + "') for netCDF file '" + fileName + "'.");
               return new HashMap[] { sstdp, winddp };
           }
               
@@ -523,6 +551,21 @@ public class LoaderHelper {
                   continue;
               }
               
+              if (fromDate == null) {
+                  fromDate = dateValue;
+              }
+              else {
+                  if (dateValue.before(fromDate))
+                      fromDate = dateValue;
+              }
+              if (toDate == null) {
+                  toDate = dateValue;
+              }
+              else {
+                  if (dateValue.after(toDate))
+                      toDate = dateValue;
+              }
+
               for (int latOrLonFirstIdx = 0; latOrLonFirstIdx < shape[1]; latOrLonFirstIdx++) {
                   for (int latOrLonSecondIdx = 0; latOrLonSecondIdx < shape[2]; latOrLonSecondIdx++) {
                       double lat = latArray.getDouble(latLonIndexOrder.first() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
@@ -598,14 +641,16 @@ public class LoaderHelper {
             return null;
         } 
         finally {
-          if (dataFile != null)
-            try {
-              dataFile.close();
-            } catch (IOException ioe) {
-              ioe.printStackTrace();
+            if (dataFile != null) {
+                try {
+                    dataFile.close();
+                }
+                catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
             }
+            NeptusLog.pub().info("Ending processing Meteo (wind and SST) netCDF file '" + fileName + "'. Reading from date '" + fromDate + "' till '" + toDate + "'.");
         }
-        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
 
         return new HashMap[] { sstdp, winddp };
     }
@@ -615,10 +660,15 @@ public class LoaderHelper {
         if (dateLimit == null)
             ignoreDateLimitToLoad = true;
         
+        NeptusLog.pub().info("Starting processing Waves netCDF file '" + fileName + "'." + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
+
         HashMap<String, WavesDataPoint> wavesdp = new HashMap<>();
 
         NetcdfFile dataFile = null;
         
+        Date fromDate = null;
+        Date toDate = null;
+
         try {
 
           dataFile = NetcdfFile.open(fileName, null);
@@ -626,41 +676,41 @@ public class LoaderHelper {
           // Get the latitude and longitude Variables.
           Variable latVar = dataFile.findVariable("lat");
           if (latVar == null) {
-            System.out.println("Cant find Variable lat");
-            return wavesdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'lat' for netCDF file '" + fileName + "'.");
+              return wavesdp;
           }
 
           Variable lonVar = dataFile.findVariable("lon");
           if (lonVar == null) {
-            System.out.println("Cant find Variable lon");
-            return wavesdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'lon' for netCDF file '" + fileName + "'.");
+              return wavesdp;
           }
 
           Variable timeVar = dataFile.findVariable("time");
           if (timeVar == null) {
-            System.out.println("Cant find Variable time");
-            return wavesdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'time' for netCDF file '" + fileName + "'.");
+              return wavesdp;
           }
 
           // Get the significant height Variable.
           Variable hsVar = dataFile.findVariable("hs");
           if (hsVar == null) {
-            System.out.println("Cant find Variable hs");
-            return wavesdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'hs' for netCDF file '" + fileName + "'.");
+              return wavesdp;
           }
 
           // Get the peak period Variable.
           Variable tpVar = dataFile.findVariable("tp");
           if (tpVar == null) {
-            System.out.println("Cant find Variable tp");
-            return wavesdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'tp' for netCDF file '" + fileName + "'.");
+              return wavesdp;
           }
 
           // Get the peak direction Variable.
           Variable pdirVar = dataFile.findVariable("pdir");
           if (pdirVar == null) {
-            System.out.println("Cant find Variable pdir");
-            return wavesdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'pdir' for netCDF file '" + fileName + "'.");
+              return wavesdp;
           }
 
 
@@ -687,7 +737,7 @@ public class LoaderHelper {
               timeUnits = (String) timeUnitsAtt.getValue(0);
           double[] multAndOffset = getMultiplierAndMillisOffsetFromTimeUnits(timeUnits);
           if (multAndOffset == null) {
-              System.out.println("Cant parse units for Variable time");
+              NeptusLog.pub().error("Aborting. Can't parse units for variable 'time' (was '" + timeUnits + "') for netCDF file '" + fileName + "'.");
               return wavesdp;
           }
               
@@ -756,6 +806,21 @@ public class LoaderHelper {
                   continue;
               }
               
+              if (fromDate == null) {
+                  fromDate = dateValue;
+              }
+              else {
+                  if (dateValue.before(fromDate))
+                      fromDate = dateValue;
+              }
+              if (toDate == null) {
+                  toDate = dateValue;
+              }
+              else {
+                  if (dateValue.after(toDate))
+                      toDate = dateValue;
+              }
+              
               for (int latOrLonFirstIdx = 0; latOrLonFirstIdx < shape[1]; latOrLonFirstIdx++) {
                   for (int latOrLonSecondIdx = 0; latOrLonSecondIdx < shape[2]; latOrLonSecondIdx++) {
                       double lat = latArray.getDouble(latLonIndexOrder.first() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
@@ -806,14 +871,16 @@ public class LoaderHelper {
             return null;
         } 
         finally {
-          if (dataFile != null)
-            try {
-              dataFile.close();
-            } catch (IOException ioe) {
-              ioe.printStackTrace();
+            if (dataFile != null) {
+                try {
+                    dataFile.close();
+                }
+                catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
             }
+            NeptusLog.pub().info("Ending processing Waves netCDF file '" + fileName + "'. Reading from date '" + fromDate + "' till '" + toDate + "'.");
         }
-        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
 
         return wavesdp;
     }
