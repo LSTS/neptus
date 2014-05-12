@@ -854,21 +854,27 @@ public class LoaderHelper {
             else {
                 double mult = 1;
                 double off = 1;
-                switch (tk[0].toLowerCase()) {
+                switch (tk[0].trim().toLowerCase().replace(".", "")) {
                     case "days":
                     case "day":
+                    case "d":
                         mult = DateTimeUtil.DAY;
                         break;
                     case "hours":
                     case "hour":
+                    case "hr":
+                    case "h":
                         mult = DateTimeUtil.HOUR;
                         break;
                     case "minutes":
                     case "minute":
+                    case "min":
                         mult = DateTimeUtil.MINUTE;
                         break;
                     case "seconds":
                     case "second":
+                    case "sec":
+                    case "s":
                         mult = DateTimeUtil.SECOND;
                         break;
                 }
