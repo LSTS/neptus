@@ -908,10 +908,29 @@ public class LoaderHelper {
                 
                 try {
                     if (!timeZoneTkStr.isEmpty()) { // So we have a time zone and so it's not UTC
+                        // The time zone specification
+                        // can also be written without a colon using one or two-digits
+                        // (indicating hours) or three or four digits (indicating hours
+                        // and minutes)
                         String[] tzStrs = timeZoneTkStr.split(":");
-                        off -= Integer.parseInt(tzStrs[0]) * DateTimeUtil.HOUR;
-                        if (tzStrs.length > 1)
-                            off -= Integer.parseInt(tzStrs[1]) * DateTimeUtil.MINUTE;
+                        if (tzStrs.length > 1) { // Has colon
+                            int hrTzNb = Integer.parseInt(tzStrs[0]); 
+                            off -= hrTzNb * DateTimeUtil.HOUR;
+                            off -= Integer.parseInt(tzStrs[1]) * Math.signum(hrTzNb) * DateTimeUtil.MINUTE;
+                        }
+                        else {
+                            String tzSt = timeZoneTkStr.replace(":", "");
+                            int tzNb = Integer.parseInt(tzSt);
+                            if (Math.abs(tzNb) < 100) { // It's hours
+                                off -= tzNb * DateTimeUtil.HOUR;
+                            }
+                            else { // It's hours plus minutes
+                                int hrTzNb = tzNb / 100;
+                                off -= hrTzNb * DateTimeUtil.HOUR;
+                                int minTzNb = tzNb - hrTzNb * 100;
+                                off -= minTzNb * DateTimeUtil.MINUTE;
+                            }
+                        }
                     }
                 }
                 catch (Exception e) {
@@ -1045,21 +1064,53 @@ public class LoaderHelper {
         String dateT3Str = "seconds since 2013-7-4 13:3:4.32";
         double[] multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
         Date dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
-        System.out.printf("%35s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
 
+        System.out.println("\nEvery resulting date should result in the same values!");
         dateT3Str = "seconds since 2013-7-4 13:3:4";
         multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
         dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
-        System.out.printf("%35s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
 
         dateT3Str = "seconds since 2013-7-4 14:3:4 +1:0";
         multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
         dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
-        System.out.printf("%35s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
 
         dateT3Str = "seconds since 2013-7-4 14:3:4 1";
         multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
         dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
-        System.out.printf("%35s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 14:3:4 100";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 12:3:4 -100";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 11:33:4 -130";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 11:33:4 -1:30";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 14:33:4 +130";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 14:33:04 +1:30";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
     }
 }
