@@ -970,10 +970,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             if (dp.getDateUTC().before(dateColorLimit))
                 color = ColorUtils.setTransparencyToColor(color, 128);
             gt.setColor(color);
-            double rot = -Math.toRadians(headingV) - renderer.getRotation();
+            double rot = Math.toRadians(headingV) - renderer.getRotation();
             gt.rotate(rot);
             gt.fill(arrow);
-
             gt.rotate(-rot);
             
             if (showCurrentsLegend && renderer.getLevelOfDetail() >= showCurrentsLegendFromZoomLevel) {
@@ -1076,8 +1075,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             if (dp.getDateUTC().before(dateColorLimit))
                 color = ColorUtils.setTransparencyToColor(color, 128);
             gt.setColor(color);
-            gt.rotate(-Math.toRadians(headingV) - renderer.getRotation());
-            // gt.fill(arrow);
+            
+            gt.rotate(Math.toRadians(headingV) - renderer.getRotation());
             
             double speedKnots = speedV * m_sToKnotConv;
             if (speedKnots >= 2) {
@@ -1173,10 +1172,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             if (dp.getDateUTC().before(dateColorLimit))
                 color = ColorUtils.setTransparencyToColor(color, 128);
             gt.setColor(color);
-            double rot = -Math.toRadians(headingV) - renderer.getRotation();
+            double rot = Math.toRadians(headingV) - renderer.getRotation();
             gt.rotate(rot);
             gt.fill(arrow);
-
             gt.rotate(-rot);
             
             if (showWavesLegend && renderer.getLevelOfDetail() >= showWavesLegendFromZoomLevel) {
@@ -1242,7 +1240,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             return hfdp;
         
         HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processTUGHFRadar(freader, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
-        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
+//        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
         return ret;
     }
 
@@ -1259,7 +1257,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         if (!new File(fxName).exists())
             return new HashMap<>();
         HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processNetCDFHFRadar(fxName, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
-        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
+//        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
         return ret;
     }
 
