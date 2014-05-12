@@ -1240,7 +1240,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             return hfdp;
         
         HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processTUGHFRadar(freader, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
-        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
+//        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
         return ret;
     }
 
@@ -1257,7 +1257,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         if (!new File(fxName).exists())
             return new HashMap<>();
         HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processNetCDFHFRadar(fxName, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
-        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
+//        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
         return ret;
     }
 
