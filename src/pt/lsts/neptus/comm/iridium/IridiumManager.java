@@ -132,7 +132,7 @@ public class IridiumManager {
     
     public void processMessage(IridiumMessage msg) {
         
-        if (msg.getSource() != ImcMsgManager.getManager().getLocalId().intValue()) {
+        //if (msg.getSource() != ImcMsgManager.getManager().getLocalId().intValue()) {
             try {
                 IridiumMsgTx transmission = new IridiumMsgTx();
                 transmission.setData(msg.serialize());
@@ -144,7 +144,7 @@ public class IridiumManager {
             catch (Exception e) {
                 NeptusLog.pub().error(e);
             }
-        }
+        //}
         
         Collection<IMCMessage> msgs = msg.asImc();
         

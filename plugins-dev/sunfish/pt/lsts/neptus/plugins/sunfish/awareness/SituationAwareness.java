@@ -591,6 +591,10 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
         if (paintIcons)
             paintIcons(g, renderer);
     }
+    
+    public static void exportKml() {
+        
+    }
 
     @Override
     public float getOpacity() {
