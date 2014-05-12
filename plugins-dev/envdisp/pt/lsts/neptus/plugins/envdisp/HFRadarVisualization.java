@@ -1455,6 +1455,13 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             lastdp = dp;
         }
         System.out.println("Last  :: " + lastdp);
-
+        
+        // Test update to the most recent
+        HFRadarDataPoint dp = ret.values().iterator().next();
+        System.out.println("" + dp);
+        Date newDate = new Date(dp.dateUTC.getTime() + DateTimeUtil.HOUR * 3 + DateTimeUtil.MINUTE * 30);
+        System.out.println(newDate);
+        dp.useMostRecent(newDate);
+        System.out.println("" + dp);
     }
 }
