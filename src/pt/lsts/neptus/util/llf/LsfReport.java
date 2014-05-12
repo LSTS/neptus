@@ -614,33 +614,76 @@ public class LsfReport {
         // times
         long t, t1, t2;
         t = (long) mark.timestamp;
-        long avgTBP;// = 250;//check whether this is a constant for this vehicle/log and get it
         long firstTimestamp = ssParser.firstPingTimestamp();
         long lastTimestamp = ssParser.lastPingTimestamp();
-        // LinkedHashMap<Integer, String> hash = LogUtils.getEntities(source);
-
-        int totalMsg = 1;
-        LsfIndex index = source.getLsfIndex();
-        // totalMsg = index.;//get the totalMsg of sidescan type here
-        avgTBP = (lastTimestamp - firstTimestamp) / totalMsg;
 
         t1 = t - 250 * (h / 2);
         t2 = t + 250 * (h / 2);
+
+        if (t1 < firstTimestamp) {
+            t1 = firstTimestamp;
+        }
+        if (t2 > lastTimestamp) {
+            t2 = lastTimestamp;
+        }
 
         // get the lines
         SidescanConfig config = new SidescanConfig();
         SidescanParameters sidescanParams = new SidescanParameters(0, 0);
         sidescanParams.setNormalization(config.normalization);
         sidescanParams.setTvgGain(config.tvgGain);
-        ArrayList<SidescanLine> list = ssParser.getLinesBetween(t1, t2, ssParser.getSubsystemList().get(subSys),
-                sidescanParams);
+        ArrayList<SidescanLine> list = null;
+        boolean getLinesBool = true;
+        while (getLinesBool) {// ArrayIndexOutOfBoundsException on getLinesBetween
+            try {
+                list = ssParser.getLinesBetween(t1, t2, ssParser.getSubsystemList().get(subSys), sidescanParams);
+                getLinesBool = false;
+            }
+            catch (java.lang.ArrayIndexOutOfBoundsException e) {
+                getLinesBool = true;
+                t2 -= 1000;
+                continue;
+            }
+        }
+        if (list.size() < h) {// not enough lines
+            getLinesBool = true;
+            t1 = t - 1500 * (h / 2);
+            t2 = t + 1500 * (h / 2);
+            if (t1 < firstTimestamp) {
+                t1 = firstTimestamp;
+            }
+            if (t2 > lastTimestamp) {
+                t2 = lastTimestamp;
+            }
+            while (getLinesBool) {// ArrayIndexOutOfBoundsException on getLinesBetween
+                try {
+                    list = ssParser.getLinesBetween(t1, t2, ssParser.getSubsystemList().get(subSys), sidescanParams);
+                    getLinesBool = false;
+                }
+                catch (java.lang.ArrayIndexOutOfBoundsException e) {
+                    getLinesBool = true;
+                    t2 -= 250;
+                    continue;
+                }
+            }
+        }
 
         if (list.isEmpty())
             throw new DocumentException("list of lines empty");
 
-        float range = list.get(0).range;
+        int yref = list.size();
+        while (yref > h) {
+            list.remove(0);
+            yref--;
+            if (yref > h) {
+                list.remove(list.get(list.size() - 1));
+                yref--;
+            }
+        }
+
+        float range = list.get(list.size() / 2).range;
         if (wMeters == -1)
-            wMeters = (list.get(0).range / 5);
+            wMeters = (list.get(list.size() / 2).range / 5);
 
         double x, x1, x2;
         x = mark.x;
@@ -659,23 +702,15 @@ public class LsfReport {
         if (x1 > x2)
             throw new DocumentException("x1>x2");
 
-        int size = list.get(0).data.length;
+        int size = list.get(list.size() / 2).data.length;
         int i1 = convertMtoIndex(x1, range, size);
         int i2 = convertMtoIndex(x2, range, size);
-
-        result = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-
-        int yref = list.size();
-        while (yref > h) {
-            list.remove(0);
-            yref--;
-            if (yref > h) {
-                list.remove(list.get(list.size() - 1));
-                yref--;
-            }
+        if (i2 > size) {
+            i2 = size;
         }
-        if (list.size() > h)
-            throw new DocumentException("list.size>h");
+        if (i1 < 0) {
+            i1 = 0;
+        }
 
         ArrayList<BufferedImage> imgLineList = new ArrayList<BufferedImage>();
         for (SidescanLine l : list) {
@@ -688,7 +723,7 @@ public class LsfReport {
             imgLineList.add(imgLine);
         }
 
-        BufferedImage imgScalled = new BufferedImage(w, yref, BufferedImage.TYPE_INT_RGB);
+        BufferedImage imgScalled = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = imgScalled.createGraphics();
         int y = yref;
         for (BufferedImage imgLine : imgLineList) {
@@ -698,8 +733,15 @@ public class LsfReport {
                     null);
             y--;
         }
-
-        result = imgScalled;
+        result = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        if (imgScalled.getWidth() != result.getWidth() || imgScalled.getHeight() != result.getHeight()) {
+            g2d = result.createGraphics();
+            g2d.drawImage(ImageUtils.getScaledImage(imgScalled, result.getWidth(), result.getHeight(), true), 0, 0,
+                    null);
+        }
+        else {
+            result = imgScalled;
+        }
         return result;
     }
 
