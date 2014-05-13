@@ -78,7 +78,7 @@ public class PositionHistory {
         while ((line = reader.readLine()) != null) {
             String parts[] = line.split(",");
             Date time = fmt2.parse(parts[0]);
-            String id = parts[1].trim();
+            String id = parts[1].trim().toLowerCase();
             double lat_degs = Double.parseDouble(parts[2].trim());
             double lon_degs = Double.parseDouble(parts[3].trim());
             AssetPosition position = new AssetPosition(id, lat_degs, lon_degs);

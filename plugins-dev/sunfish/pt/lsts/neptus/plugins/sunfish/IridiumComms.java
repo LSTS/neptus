@@ -95,6 +95,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     private static final long serialVersionUID = -8535642303286049869L;
     protected long lastMessageReceivedTime = System.currentTimeMillis() - 3600000;
     protected LinkedHashMap<String, RemoteSensorInfo> sensorData = new LinkedHashMap<>();
+    private static final String[] iridiumDestinations = new String[] {"broadcast","manta-1", "manta-11", "lauv-xplore-1", "lauv-seacon-2", "lauv-seacon-3"}; 
 
     protected final int HERMES_ID = 0x08c1;
     protected Vector<VirtualDrifter> drifters = new Vector<>();
@@ -220,11 +221,19 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         entry.setText(note);
         entry.setTimestampMillis(System.currentTimeMillis());
         entry.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
-        entry.setDst(65535);
-        entry.setContext("Iridium logbook");
         
+        //(Component parentComponent, Object message, String title, int messageType, Icon icon,  Object[] selectionValues, Object initialSelectionValue)
+        Object selection = JOptionPane.showInputDialog(getConsole(), "Please enter destination of this message", "Send Text Note", JOptionPane.QUESTION_MESSAGE, null, iridiumDestinations, "manta-1");
+        if (selection == null)
+            return;
+        else if (selection.equals("broadcast"))
+            entry.setDst(65535);
+        else
+            entry.setDst(IMCDefinition.getInstance().getResolver().resolve(""+selection));
+        entry.setContext("Iridium logbook");
         ImcIridiumMessage msg = new ImcIridiumMessage();
         msg.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+        
         msg.setDestination(65535);
         msg.setMsg(entry);
         try {

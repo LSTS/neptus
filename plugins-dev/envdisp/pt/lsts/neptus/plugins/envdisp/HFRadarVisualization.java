@@ -135,8 +135,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     @NeptusProperty(name = "Show waves legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category="Visibility")
     public int showWavesLegendFromZoomLevel = 13;
 
-    @NeptusProperty(name = "Seconds between updates", category="Data Update")
-    public long updateSeconds = 60;
+    @NeptusProperty(name = "Minutes between file updates", category="Data Update")
+    public long updateFileDataMinutes = 5;
 
     @NeptusProperty(name = "Data limit validity (hours)", userLevel = LEVEL.REGULAR, category="Data Update")
     public int dateLimitHours = 12;
@@ -186,7 +186,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     static final SimpleDateFormat dateTimeFormaterSpacesUTC = new SimpleDateFormat("yyyy MM dd  HH mm ss") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
     private static final SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
     private static final SimpleDateFormat timeFormaterUTC = new SimpleDateFormat("HH':'mm") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
-    
+
+    private long updateSeconds = 60;
+    private long lastMillisFileDataUpdated = -1;
+
     private final static Path2D.Double arrow = new Path2D.Double();
     static {
         arrow.moveTo(-5, 6);
@@ -410,14 +413,14 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
 //                
 //            }
 //        }
-        
-        loadCurrentsFromFiles();
-        loadMeteoFromFiles();
-        loadWavesFromFiles();
-        
-//        updateValues();
-//        cleanDataPointsBeforeDate();
-//        clearImgCachRqst = true;
+        if (lastMillisFileDataUpdated <= 0
+                || System.currentTimeMillis() - lastMillisFileDataUpdated >= updateFileDataMinutes * 60 * 1000) {
+            lastMillisFileDataUpdated = System.currentTimeMillis();
+            loadCurrentsFromFiles();
+            loadMeteoFromFiles();
+            loadWavesFromFiles();
+        }
+
         propertiesChanged();
         
         return true;
