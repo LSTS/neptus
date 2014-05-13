@@ -171,6 +171,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             description = "The folder to look for waves (significant height, peak period and direction) data. Admissible files '*.nc'. NetCDF variables used: lat, lon, time, hs, tp, pdir.")
     public File baseFolderForWavesNetCDFFiles = new File("IHData/WAVES");
     
+    @NeptusProperty(name = "Show currents visible data date-time interval", userLevel = LEVEL.ADVANCED, category = "Test", 
+            description = "Draws the string with visible curents data date-time interval.")
+    public boolean showDataDebugLegend = false;
+    
     private static final String tuvFilePattern = ".\\.tuv$";
     private static final String netCDFFilePattern = ".\\.nc$";
     private static final String currentsFilePatternTUV = tuvFilePattern; // "^TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv$";
@@ -431,6 +435,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      */
     @Override
     public void propertiesChanged() {
+        lastMillisFileDataUpdated = -1;
+        
         cleanDataPointsBeforeDate();
         updateValues();
         clearImgCachRqst = true;
@@ -448,7 +454,6 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     
     private void updateValues() {
         Date nowDate = createDateToMostRecent();
-        
 
         for (String dpID : dataPointsCurrents.keySet().toArray(new String[0])) {
             HFRadarDataPoint dp = dataPointsCurrents.get(dpID);
@@ -946,6 +951,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      */
     private void paintHFRadarInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
         LocationType loc = new LocationType();
+        
+        Date fromDate = null;
+        Date toDate = null;
+        
         for (HFRadarDataPoint dp : dataPointsCurrents.values().toArray(new HFRadarDataPoint[0])) {
             if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
                 continue;
@@ -965,8 +974,23 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             if (!isVisibleInRender(pt, renderer))
                 continue;
             
-            Graphics2D gt = (Graphics2D) g2.create();
+            if (fromDate == null) {
+                fromDate = dp.getDateUTC();
+            }
+            else {
+                if (dp.getDateUTC().before(fromDate))
+                    fromDate = dp.getDateUTC();
+            }
+            if (toDate == null) {
+                toDate = dp.getDateUTC();
+            }
+            else {
+                if (dp.getDateUTC().after(toDate))
+                    toDate = dp.getDateUTC();
+            }
             
+            Graphics2D gt = (Graphics2D) g2.create();
+
             gt.translate(pt.getX(), pt.getY());
             Color color = Color.WHITE;
             color = colorMapCurrents.getColor(dp.getSpeedCmS() / maxCurrentCmS);
@@ -984,6 +1008,16 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                 gt.drawString(MathMiscUtils.round(dp.getSpeedCmS(), 1) + "cm/s", 10, 2);
             }
             
+            gt.dispose();
+        }
+        
+        
+        if (showDataDebugLegend) {
+            String txtMsg = "Currents data from '" + fromDate + "' till '" + toDate + "'";
+            Graphics2D gt = (Graphics2D) g2.create();
+            gt.setFont(font8Pt);
+            gt.setColor(Color.WHITE);
+            gt.drawString(txtMsg, 10, 52);
             gt.dispose();
         }
     }
@@ -1451,7 +1485,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         File[] fileList = getFilesToLoadFromDisk(new File("IHData/CODAR"), currentsFilePatternNetCDF);
         System.out.println(Arrays.toString(fileList));
         
-        HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processNetCDFHFRadar("IHData/CODAR/mola_his_z-20140508.nc", null);
+        HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processNetCDFHFRadar("IHData/CODAR/mola_his_z-20140512.nc", null);
         System.out.println("First :: " + ret.values().iterator().next());
         HFRadarDataPoint lastdp = null;
         for (HFRadarDataPoint dp : ret.values().iterator().next().getHistoricalData()) {
