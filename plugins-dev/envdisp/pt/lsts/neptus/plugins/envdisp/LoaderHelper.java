@@ -330,7 +330,7 @@ public class LoaderHelper {
                               && u != uFillValue && v != vFillValue) {
                           u = u * getMultiplierForCmPerSecondsFromSpeedUnits(uUnits);
                           v = v * getMultiplierForCmPerSecondsFromSpeedUnits(vUnits);
-                          double speedCmS = Math.sqrt(u * u + v * v);
+                          double speedCmS = Math.sqrt(u * u + v * v) * 100;
                           double heading = Math.atan2(v, u);
 
                           HFRadarDataPoint dp = new HFRadarDataPoint(lat, lon);

@@ -282,8 +282,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     
     protected final double m_sToKnotConv = 1.94384449244;
     
-    private final ColorMap colorMapCurrents = new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
-            new Color(0, 0, 255), new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0), new Color(255, 0, 0) });
+    private final ColorMap colorMapCurrents = ColorMapFactory.createJetColorMap(); //new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
+            //new Color(0, 0, 255), new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0), new Color(255, 0, 0) });
     // private final double minCurrentCmS = 0;
     private final double maxCurrentCmS = 200;
 
