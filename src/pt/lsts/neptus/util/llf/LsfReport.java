@@ -637,11 +637,20 @@ public class LsfReport {
         while (getLinesBool) {// ArrayIndexOutOfBoundsException on getLinesBetween
             try {
                 list = ssParser.getLinesBetween(t1, t2, ssParser.getSubsystemList().get(subSys), sidescanParams);
+                if (!list.isEmpty()) {
+                    while (list.get(0).timestampMillis > t) {
+                        t1 -= 250;
+                        list = ssParser
+                                .getLinesBetween(t1, t2, ssParser.getSubsystemList().get(subSys), sidescanParams);
+                    }
+                }
                 getLinesBool = false;
             }
             catch (java.lang.ArrayIndexOutOfBoundsException e) {
                 getLinesBool = true;
                 t2 -= 1000;
+                if (t2 < t)
+                    t2 = t + 1;
                 continue;
             }
         }
@@ -658,11 +667,20 @@ public class LsfReport {
             while (getLinesBool) {// ArrayIndexOutOfBoundsException on getLinesBetween
                 try {
                     list = ssParser.getLinesBetween(t1, t2, ssParser.getSubsystemList().get(subSys), sidescanParams);
+                    if (!list.isEmpty()) {
+                        while (list.get(0).timestampMillis > t) {
+                            t1 -= 250;
+                            list = ssParser.getLinesBetween(t1, t2, ssParser.getSubsystemList().get(subSys),
+                                    sidescanParams);
+                        }
+                    }
                     getLinesBool = false;
                 }
                 catch (java.lang.ArrayIndexOutOfBoundsException e) {
                     getLinesBool = true;
                     t2 -= 250;
+                    if (t2 < t)
+                        t2 = t + 1;
                     continue;
                 }
             }
@@ -673,12 +691,29 @@ public class LsfReport {
 
         int yref = list.size();
         while (yref > h) {
-            list.remove(0);
-            yref--;
-            if (yref > h) {
-                list.remove(list.get(list.size() - 1));
+            long tFirst = list.get(0).timestampMillis;
+            long tLast = list.get(list.size() - 1).timestampMillis;
+            if (tFirst == t) {
+                list.remove(list.size() - 1);
                 yref--;
+                continue;
             }
+            if (tLast == t) {
+                list.remove(0);
+                yref--;
+                continue;
+            }
+            if (Math.abs(t - tFirst) < Math.abs(t - tLast)) {
+                list.remove(list.size() - 1);
+                yref--;
+                continue;
+            }
+            if (Math.abs(t - tFirst) >= Math.abs(t - tLast)) {
+                list.remove(0);
+                yref--;
+                continue;
+            }
+
         }
 
         float range = list.get(list.size() / 2).range;
