@@ -290,7 +290,7 @@
     <comm-mean>
       <name>ethernet</name>
       <type>ethernet</type>
-      <host-address>10.0.10.80</host-address>
+      <host-address>10.0.10.130</host-address>
       <credentials username="root"/>
       <protocols> imc ssh</protocols>
       <latency value="100M" unit="bps"/>
