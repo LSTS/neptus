@@ -999,15 +999,17 @@ public class LogsDownloaderWorker {
                     popupErrorConfigurationDialog();
                     return;
                 }
+                downloadSelectedLogDirsButton.setEnabled(false);
                 AsyncTask task = new AsyncTask() {
                     @Override
                     public Object run() throws Exception {
-                        downloadSelectedLogDirsButton.setEnabled(false);
                         for (Object comp : logFolderList.getSelectedValues()) {
                             try {
                                 // NeptusLog.pub().info("<###>... updateFilesForFolderSelected");
                                 LogFolderInfo logFd = (LogFolderInfo) comp;
                                 for (LogFileInfo lfx : logFd.getLogFiles()) {
+//                                    if (downloadSelectedLogDirsButton.isEnabled())
+//                                        break; // If button enabled a reset was called, so let's interrupt all 
                                     singleLogFileDownloadWorker(lfx, logFd);
                                 }
                             }
@@ -2086,6 +2088,13 @@ public class LogsDownloaderWorker {
         logFilesList.myModel.clear();
         logFolderList.myModel.clear();
         downloadWorkersHolder.removeAll();
+        
+        // Protected against disable problems
+        downloadListButton.setEnabled(true);
+        downloadSelectedLogDirsButton.setEnabled(true);
+        downloadSelectedLogFilesButton.setEnabled(true);
+        deleteSelectedLogFoldersButton.setEnabled(true);
+        deleteSelectedLogFilesButton.setEnabled(true);
     }
 
     // --------------------------------------------------------------
@@ -2357,22 +2366,35 @@ public class LogsDownloaderWorker {
     }
 
     public synchronized boolean doReset(boolean justStopDownloads) {
+        boolean resetRes = true;
+        if (!justStopDownloads)
+            warnLongMsg(I18n.text("Resetting... Wait please..."));
         try {
-            if (!justStopDownloads)
-                warnLongMsg(I18n.text("Resetting... Wait please..."));
-
             disconnectFTPClientsForListing();
-
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+            resetRes &= false;
+        }
+        try {
             doStopLogFoldersDownloads();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+            resetRes &= false;
+        }
+        try {
             if (!justStopDownloads)
                 cleanInterface();
         }
         catch (Exception e) {
             e.printStackTrace();
             warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-            return false;
+            resetRes &= false;
         }
-        return true;
+        return resetRes;
     }
 
     /**
