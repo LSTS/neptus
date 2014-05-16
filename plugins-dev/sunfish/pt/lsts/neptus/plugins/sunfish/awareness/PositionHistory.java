@@ -51,51 +51,92 @@ import pt.lsts.neptus.NeptusLog;
  */
 public class PositionHistory {
 
-    private static final String positions_url = "http://hub.lsts.pt/api/v1/csvTag";
+    private static final String positions_url = "http://hub.lsts.pt/api/v1/csvTag/";
     private static DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
     private static DateFormat fmt2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
-    public static void downloadDailyPositions() throws Exception {
-        
-        NeptusLog.pub().info("Downloading daily positions");
-        URL urlData = new URL(positions_url+"/"+fmt.format(new Date()));
-        File tmp = new File("positions/"+fmt.format(new Date()));
-        FileUtils.copyURLToFile(urlData, tmp);        
+//    public static void downloadDailyPositions() throws Exception {
+//        
+//        NeptusLog.pub().info("Downloading daily positions");
+//        URL urlData = new URL(positions_url+"/"+fmt.format(new Date()));
+//        File tmp = new File("positions/"+fmt.format(new Date()));
+//        FileUtils.copyURLToFile(urlData, tmp);        
+//    }
+    
+    public static void downloadCsv(String day, boolean force) throws Exception {
+        File tmp = new File("positions/"+day);
+        if (!force && tmp.exists()) {
+            NeptusLog.pub().info("Downloading positions for day "+day+" not necessary.");   
+            return;
+        }
+        NeptusLog.pub().info("Downloading positions for day "+day+"...");
+        URL urlData = new URL(positions_url+day);        
+        FileUtils.copyURLToFile(urlData, tmp);  
     }
     
-    public static Collection<AssetPosition> dailyPositions() throws Exception {
+    public static void downloadData() throws Exception {
+        Date d = new Date();
+        SimpleDateFormat dayFormat = new SimpleDateFormat("YYYY-MM-dd");
+        downloadCsv(dayFormat.format(d), true);
+        for (int i = 0; i < 30; i++) {
+            d.setTime(d.getTime() - 1000 * 24 * 3600);
+            String day = dayFormat.format(d);
+            if (i == 0)
+                downloadCsv(day, true);
+            else
+                downloadCsv(day, false);
+        }
+    }
+    
+    public static Collection<AssetPosition> getHistory() throws Exception {
+        
         try {
-            downloadDailyPositions();
+            downloadData();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
         
-        BufferedReader reader = new BufferedReader(new FileReader("positions/"+fmt.format(new Date())));
-        
-        String line;
         Vector<AssetPosition> positions = new Vector<>();
-        while ((line = reader.readLine()) != null) {
-            String parts[] = line.split(",");
-            Date time = fmt2.parse(parts[0]);
-            String id = parts[1].trim().toLowerCase();
-            double lat_degs = Double.parseDouble(parts[2].trim());
-            double lon_degs = Double.parseDouble(parts[3].trim());
-            AssetPosition position = new AssetPosition(id, lat_degs, lon_degs);
-            position.setTimestamp(time.getTime());
-            if (id.toLowerCase().startsWith("spot"))
-                position.setType("Spot Tag");
-            else if (id.toLowerCase().startsWith("argos"))
-                position.setType("Argos Tag");
+        SimpleDateFormat dayFormat = new SimpleDateFormat("YYYY-MM-dd");
+        Date current = new Date();
+        Date d = new Date();
+        for (int i = 30; i >= 0; i--) {
+            d.setTime(current.getTime() - i * (1000 * 24 * 3600));
+            String day = dayFormat.format(d);
+            downloadCsv(day, false);      
+            BufferedReader reader = new BufferedReader(new FileReader("positions/"+day));
+            String line;
             
-            positions.add(position);
+            while ((line = reader.readLine()) != null) {
+                String parts[] = line.split(",");
+                if (parts.length < 4)
+                    continue;
+                try {
+                    Date time = fmt2.parse(parts[0]);
+                    String id = parts[1].trim().toLowerCase();
+                    double lat_degs = Double.parseDouble(parts[2].trim());
+                    double lon_degs = Double.parseDouble(parts[3].trim());
+                    AssetPosition position = new AssetPosition(id, lat_degs, lon_degs);
+                    position.setTimestamp(time.getTime());
+                    if (id.toLowerCase().startsWith("spot"))
+                        position.setType("Spot Tag");
+                    else if (id.toLowerCase().startsWith("argos"))
+                        position.setType("Argos Tag");
+                    
+                    positions.add(position);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error("Error parsing history line: "+line);
+                }
+            }
+            reader.close();
         }
-        reader.close();
         return positions;
     }
  
     public static void main(String args[]) throws Exception {
-        System.out.println(PositionHistory.dailyPositions().size());
+        System.out.println(PositionHistory.getHistory().size());
     }
     
 }

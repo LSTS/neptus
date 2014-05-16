@@ -100,7 +100,7 @@ public class SunfishAssetProperties {
         System.out.println(props.fetchAssets().size());
     }
     
-    static class AssetDesc {
+    public static class AssetDesc {
         public String name, description, url, friendly;
         public Color color;
     }

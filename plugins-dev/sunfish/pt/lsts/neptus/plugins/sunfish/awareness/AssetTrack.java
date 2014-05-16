@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.sunfish.awareness;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import pt.lsts.neptus.types.coord.LocationType;
@@ -80,6 +81,15 @@ public class AssetTrack {
     
     public AssetPosition getLatest() {
         return track.get(track.size()-1);                
+    }
+    
+    public AssetPosition getLatest(long beforeDate) {
+        AssetPosition valid = null;
+        for (AssetPosition p : getTrack()) {
+            if (p.getTimestamp() <= beforeDate)
+                valid = p;
+        }
+        return valid;
     }
     
     public AssetPosition getPrediction() {
