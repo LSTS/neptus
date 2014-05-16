@@ -589,6 +589,14 @@ public class LsfReport {
         int h = mark.h;
         int w = mark.w;
         double wMeters = mark.wMeters;
+        boolean point = false;
+
+        if (w == 0 && h == 0) {
+            point = true;
+            w = 100;
+            h = 100;
+            wMeters = -1;
+        }
 
         // adjustments:
         if (w < 100 || h < 100 || wMeters < 0.05) {
@@ -752,6 +760,7 @@ public class LsfReport {
             i1 = 0;
         }
 
+        Color color = null;
         ArrayList<BufferedImage> imgLineList = new ArrayList<BufferedImage>();
         for (SidescanLine l : list) {
             // draw line with detail:
@@ -761,6 +770,13 @@ public class LsfReport {
                 imgLine.setRGB(c, 0, rgb);
             }
             imgLineList.add(imgLine);
+            if (point == true && l.timestampMillis == t) {
+                int indexX = convertMtoIndex(mark.x + l.range, l.range, l.data.length);
+                color = config.colorMap.getColor(l.data[indexX]);
+            }
+        }
+        if (point == true && color == null) {
+            throw new DocumentException("color==null");
         }
 
         BufferedImage imgScalled = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
@@ -773,6 +789,7 @@ public class LsfReport {
                     null);
             y--;
         }
+
         result = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         if (imgScalled.getWidth() != result.getWidth() || imgScalled.getHeight() != result.getHeight()) {
             g2d = result.createGraphics();
