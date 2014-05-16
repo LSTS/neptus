@@ -52,7 +52,6 @@ import pt.lsts.neptus.NeptusLog;
 public class PositionHistory {
 
     private static final String positions_url = "http://hub.lsts.pt/api/v1/csvTag/";
-    private static DateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
     private static DateFormat fmt2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
 //    public static void downloadDailyPositions() throws Exception {

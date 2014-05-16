@@ -33,7 +33,6 @@ package pt.lsts.neptus.plugins.sunfish.awareness;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import pt.lsts.neptus.types.coord.LocationType;
