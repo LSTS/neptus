@@ -33,16 +33,17 @@ package pt.lsts.neptus.mra;
 
 /**
  * @author jqcorreia
- *
+ * 
  */
 public class SidescanLogMarker extends LogMarker {
     private static final long serialVersionUID = 1L;
-    
+
     public double x;
     public double y;
     public int w;
     public int h;
-    public double wMeters;//width in meters
+    public double wMeters;// width in meters
+    public int subSys;// created on subSys
 
     /**
      * @param label
@@ -54,15 +55,16 @@ public class SidescanLogMarker extends LogMarker {
      * @param w
      * @param h
      */
-    public SidescanLogMarker(String label, double timestamp, double lat, double lon, double x, double y, 
-            int w, int h) {
+    public SidescanLogMarker(String label, double timestamp, double lat, double lon, double x, double y, int w, int h,
+            int subSys) {
         super(label, timestamp, lat, lon);
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
+        this.subSys = subSys;
     }
-    
+
     /**
      * @param label
      * @param timestamp
@@ -73,15 +75,17 @@ public class SidescanLogMarker extends LogMarker {
      * @param w
      * @param h
      * @param wMeters
+     * @param subSys
      */
-    public SidescanLogMarker(String label, double timestamp, double lat, double lon, double x, double y, 
-            int w, int h, double wMeters) {
+    public SidescanLogMarker(String label, double timestamp, double lat, double lon, double x, double y, int w, int h,
+            double wMeters, int subSys) {
         super(label, timestamp, lat, lon);
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
         this.wMeters = wMeters;
+        this.subSys = subSys;
     }
-    
+
 }
