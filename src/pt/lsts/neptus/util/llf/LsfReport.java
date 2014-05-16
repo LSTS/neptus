@@ -116,6 +116,8 @@ public class LsfReport {
 
     protected static org.w3c.dom.Document logoDoc = null;
 
+    private static int page = 1;
+
     public static org.w3c.dom.Document getLogoDoc() {
         if (logoDoc == null) {
             String parser = XMLResourceDescriptor.getXMLParserClassName();
@@ -237,7 +239,7 @@ public class LsfReport {
         }
     }
 
-    private static void writePageNumber(PdfContentByte cb, int curPage, int totalPages) {
+    private static void writePageNumber(PdfContentByte cb, int curPage) {
 
         if (!MRAProperties.printPageNumbers)
             return;
@@ -249,7 +251,7 @@ public class LsfReport {
             cb.beginText();
             cb.setFontAndSize(bf, 12);
 
-            cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, curPage + "/" + totalPages, pageSize.getWidth() - 10, 575, 0);
+            cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, Integer.toString(curPage), pageSize.getWidth() - 10, 575, 0);
             cb.endText();
         }
         catch (Exception e) {
@@ -362,7 +364,7 @@ public class LsfReport {
             doc.addAuthor(System.getProperty("user.name"));
 
             PdfContentByte cb = writer.getDirectContent();
-            int page = 1;
+            page = 1;
             writeFirstPage(cb, source);
             page++;
 
@@ -379,7 +381,7 @@ public class LsfReport {
                 chart.draw(g2, new Rectangle2D.Double(25, 25, width - 50, height - 50));
 
                 g2.dispose();
-                writePageNumber(cb, page++, llfCharts.size() + 3);
+                writePageNumber(cb, page++);
                 writeHeader(cb, source);
                 writeFooter(cb, source);
                 doc.newPage();
@@ -417,19 +419,18 @@ public class LsfReport {
             });
             g2.dispose();
             cb.addTemplate(tp, 50, 50);
-            writePageNumber(cb, page++, llfCharts.size() + 3);
+            writePageNumber(cb, page++);
             writeHeader(cb, source);
             writeFooter(cb, source);
 
             doc.newPage();
             createTable(cb, doc, source, panel);// table with Marks
-            writePageNumber(cb, page++, llfCharts.size() + 4);
             writeHeader(cb, source);
             writeFooter(cb, source);
 
             doc.newPage();
             writeDetailsPage(cb, source);
-            writePageNumber(cb, page++, llfCharts.size() + 3);
+            writePageNumber(cb, page++);
             writeHeader(cb, source);
             writeFooter(cb, source);
 
@@ -481,7 +482,7 @@ public class LsfReport {
             table.addCell("Label");
             table.addCell("Location");
             for (int i = 0; i < nSubsys; i++)
-                table.addCell("Image" + i);
+                table.addCell("Image" + ssParser.getSubsystemList().get(i));
 
             SidescanLogMarker sd;
             for (LogMarker m : markers) {
@@ -526,11 +527,13 @@ public class LsfReport {
 
             // write to pdf
             cb.beginText();
+            writePageNumber(cb, page++);
             BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
             cb.setFontAndSize(bf, 24);
             cb.setColorFill(new Color(50, 100, 200));
             cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.text("Marks' Table"), pageSize.getWidth() / 2,
                     pageSize.getHeight() - 100, 0);
+
             cb.endText();
 
             float xpos = pageSize.getWidth() / 18;
@@ -546,10 +549,12 @@ public class LsfReport {
                 if (ypos - (table.getRow(i).getMaxHeights()) < 75) {// check ypos within page range
                     doc.newPage();
                     cb.beginText();
+                    writePageNumber(cb, page++);
                     cb.setFontAndSize(bf, 24);
                     cb.setColorFill(new Color(50, 100, 200));
                     cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.text("Marks' Table"), pageSize.getWidth() / 2,
                             pageSize.getHeight() - 100, 0);
+
                     cb.endText();
                     ypos = pageSize.getHeight() - 160;
                     cb.setColorFill(Color.red.brighter());
@@ -827,7 +832,7 @@ public class LsfReport {
                 charts[i].draw(g2, new Rectangle2D.Double(25, 25, width - 50, height - 50));
                 charts[i].setBackgroundPaint(oldPaint);
                 g2.dispose();
-                writePageNumber(cb, page++, charts.length + 2);
+                writePageNumber(cb, page++);
                 writeHeader(cb, source);
                 writeFooter(cb, source);
                 doc.newPage();
