@@ -38,9 +38,7 @@ import java.io.FileWriter;
 import javax.swing.JFileChooser;
 import javax.swing.ProgressMonitor;
 
-import pt.lsts.imc.Conductivity;
 import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.Salinity;
 import pt.lsts.imc.Temperature;
 import pt.lsts.imc.VehicleMedium;
 import pt.lsts.imc.lsf.IndexScanner;
@@ -51,16 +49,15 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
  * @author zp
  * 
  */
-@PluginDescription(name = "Export CTD data to CSV")
-public class CTDExporter implements MRAExporter {
+@PluginDescription(name = "Sea surface temperature")
+public class SurfaceTempExporter implements MRAExporter {
 
-    public CTDExporter(IMraLogGroup source) {
+    public SurfaceTempExporter(IMraLogGroup source) {
 
     }
 
@@ -98,11 +95,11 @@ public class CTDExporter implements MRAExporter {
 
         pmonitor.setNote("Exporting...");
         int count = 0;
-        File out = new File(dir, "CTD.csv");
+        File out = new File(dir, "SeaSurfaceTemp.csv");
         BufferedWriter writer;
         try {
             writer = new BufferedWriter(new FileWriter(out));
-            writer.write("timestamp, latitude, longitude, conductivity, temperature, salinity, depth, medium\n");
+            writer.write("timestamp, latitude, longitude, temperature\n");
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -111,11 +108,11 @@ public class CTDExporter implements MRAExporter {
 
         while (true) {
 
-            Conductivity c = scanner.next(Conductivity.class, "CTD");
-            if (c == null)
+            Temperature t = scanner.next(Temperature.class, "CTD");
+            if (t == null)
                 return finish(writer, count);
             int idx = scanner.getIndex();
-
+            
             VehicleMedium m = scanner.next(VehicleMedium.class);
             try {
                 scanner.setIndex(idx);
@@ -123,12 +120,8 @@ public class CTDExporter implements MRAExporter {
             catch (Exception e) {
                 e.printStackTrace();                
             }
-            Temperature t = scanner.next(Temperature.class, "CTD");
-            if (t == null)
-                return finish(writer, count);
-            Salinity s = scanner.next(Salinity.class, "CTD");
-            if (s == null)
-                return finish(writer, count);
+            if (m.getMedium() != VehicleMedium.MEDIUM.WATER)
+                continue;
             
             EstimatedState d = scanner.next(EstimatedState.class);
 
@@ -138,18 +131,10 @@ public class CTDExporter implements MRAExporter {
 
             LocationType loc = IMCUtils.parseLocation(d).convertToAbsoluteLatLonDepth();
             try {
-                String medium = "UNKNOWN";
-                if (m != null)
-                    medium = m.getMedium().toString();
-
                 writer.write(t.getTimestamp()+", "+
                         loc.getLatitudeDegs()+", "+
                         loc.getLongitudeDegs()+", "+
-                        c.getValue()+", "+
-                        t.getValue()+", "+
-                        s.getValue()+", "+
-                        d.getDepth()+", "+
-                        medium+"\n");          
+                        t.getValue()+"\n");          
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
@@ -159,38 +144,6 @@ public class CTDExporter implements MRAExporter {
         }
     }
 
-    private static void exportRecursively(File root) {
-        for (File f : root.listFiles()) {
-            if (f.isDirectory()) {
-                exportRecursively(f);
-            }
-            else if (f.getName().endsWith(".lsf") || f.getName().endsWith(".lsf.gz")) {
-                if (!f.getAbsolutePath().contains("trex_plan"))
-                    continue;
-                try {
-                    System.out.println(export(f));
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    private static String export(File source) throws Exception {
-
-        IMraLogGroup group = new LsfLogSource(source, null);
-        CTDExporter exporter = new CTDExporter(group);
-        ProgressMonitor pm = new ProgressMonitor(null, "Processing "+source.getAbsolutePath(), "processing", 0, 1000);
-        if (exporter.canBeApplied(group)) {
-            System.out.println("processing "+source.getAbsolutePath());
-            String res = exporter.process(group, pm);
-            pm.close();
-            return res;
-        }
-        return null;
-    }
-
     public static void main(String[] args) {
 
         JFileChooser chooser = new JFileChooser();
@@ -198,8 +151,6 @@ public class CTDExporter implements MRAExporter {
         int op = chooser.showOpenDialog(null);
         if (op == JFileChooser.APPROVE_OPTION) {
             File root = chooser.getSelectedFile();
-            exportRecursively(root);
-
         }
     }
 }

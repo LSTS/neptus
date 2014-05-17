@@ -31,15 +31,22 @@
  */
 package pt.lsts.neptus.console;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Collection;
+import java.util.Vector;
 
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
 import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
@@ -63,6 +70,7 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
     private ConsoleLayout console;
     private ImageIcon icon;
     private Collection<IPeriodicUpdates> periodicMethods = null;
+    private final Vector<String> addedMenus = new Vector<String>();
     
     @Override
     public final DefaultProperty[] getProperties() {
@@ -83,6 +91,62 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
     @Override
     public final String[] getPropertiesErrors(Property[] properties) {
         return PluginUtils.validatePluginProperties(this, properties);
+    }
+    
+    public JMenu addMenu(String itemPath, ImageIcon icon) {
+        String[] ptmp = itemPath.split(">");
+        if (ptmp.length < 1) {
+            NeptusLog.pub().error("Menu path has to have at least one component");
+            return null;
+        }
+
+        String[] path = new String[ptmp.length - 1];
+        System.arraycopy(ptmp, 0, path, 0, path.length);
+
+        JMenu menu = getConsole().getOrCreateJMenu(path);
+        addedMenus.add(itemPath);
+        return menu;
+    }
+    
+    /**
+     * Creates and retrieves a console menu item
+     * 
+     * @param itemPath The path to the menu item separated by ">". Examples: <li>
+     *            <b>"Tools > Local Network > Test Network"</b> <li><b>"Tools>Test Network"</b>
+     * @param icon The icon to be used in the menu item. <br>
+     *            Size is automatically adjusted to 16x16 pixels.
+     * @param actionListener The {@link ActionListener} that will be warned on menu activation
+     * @return The created {@link JMenuItem} or <b>null</b> if an error as occurred.
+     */
+    public JMenuItem addMenuItem(String itemPath, ImageIcon icon, ActionListener actionListener) {
+        String[] ptmp = itemPath.split(">");
+        if (ptmp.length < 2) {
+            NeptusLog.pub().error("Menu path has to have at least two components");
+            return null;
+        }
+
+        String[] path = new String[ptmp.length - 1];
+        System.arraycopy(ptmp, 0, path, 0, path.length);
+
+        String menuName = ptmp[ptmp.length - 1];
+
+        JMenu menu = getConsole().getOrCreateJMenu(path);
+
+        final ActionListener l = actionListener;
+        AbstractAction action = new AbstractAction(menuName) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                l.actionPerformed(e);
+            }
+        };
+        if (icon != null)
+            action.putValue(AbstractAction.SMALL_ICON, ImageUtils.getScaledIcon(icon.getImage(), 16, 16));
+
+        JMenuItem item = menu.add(action);
+        addedMenus.add(itemPath);
+        return item;
     }
     
     public Element asElement(String rootElement) {
