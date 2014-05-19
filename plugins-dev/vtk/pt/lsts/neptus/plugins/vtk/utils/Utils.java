@@ -57,6 +57,8 @@ public class Utils {
 
     private final static Logger LOGGER = Logger.getLogger(Utils.class.getName());
 
+    public static boolean hasTryedToLoadVtkLib = false;
+
     public static void loadVTKLibraries() {
         try {
             System.loadLibrary("jawt");
@@ -162,6 +164,8 @@ public class Utils {
             // NeptusLog.pub().info("Java Class path" + p.getProperty("java.class.path"));
             // vtkJavaTesting.Initialize(null , true); // <- crashs app
         }
+
+        hasTryedToLoadVtkLib = true;
     }
 
     public static void goToAWTThread(Runnable runnable) {

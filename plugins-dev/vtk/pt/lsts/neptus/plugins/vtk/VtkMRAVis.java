@@ -109,7 +109,8 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
      * @param panel
      */
     public VtkMRAVis(MRAPanel panel) {
-        Utils.loadVTKLibraries();
+        if (!Utils.hasTryedToLoadVtkLib)
+            Utils.loadVTKLibraries();
     }
 
     @Override
