@@ -593,6 +593,7 @@ public class LsfReport {
         double wMeters = mark.wMeters;
         boolean point = false;
         int indexX = -1;
+        int indexY = -1;
 
         if (w == 0 && h == 0) {
             point = true;
@@ -774,8 +775,9 @@ public class LsfReport {
         Color color = null;
 
         ArrayList<BufferedImage> imgLineList = new ArrayList<BufferedImage>();
-        for (SidescanLine l : list) {
+        for (int i = 0; i < list.size(); i++) {
             // draw line with detail:
+            SidescanLine l = list.get(i);
             BufferedImage imgLine = new BufferedImage(i2 - i1, 1, BufferedImage.TYPE_INT_RGB);
             for (int c = 0; c < i2 - i1; c++) {
                 int rgb = config.colorMap.getColor(l.data[c + i1]).getRGB();
@@ -783,6 +785,7 @@ public class LsfReport {
             }
             imgLineList.add(imgLine);
             if (point == true && l.timestampMillis == t) {
+                indexY = i;
                 int index = convertMtoIndex(mark.x + l.range, l.range, l.data.length);
                 color = config.colorMap.getColor(l.data[index]);
                 if (border == true) {
