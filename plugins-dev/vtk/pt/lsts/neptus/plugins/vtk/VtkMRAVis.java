@@ -63,6 +63,7 @@ import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
+import pt.lsts.neptus.plugins.vtk.utils.VTKMemoryManager;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.Text3D;
 import pt.lsts.neptus.util.ImageUtils;
@@ -74,7 +75,7 @@ import com.l2fprod.common.propertysheet.Property;
 /**
  * @author hfq
  */
-@PluginDescription(author = "hfq", name = "3D Bathymetry", icon = "images/menus/3d.png")
+@PluginDescription(author = "hfq", name = "Bathymetry 3D", icon = "images/menus/3d.png")
 public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesProvider {
     private static final long serialVersionUID = 8057825167454469065L;
 
@@ -121,6 +122,8 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
         if (!componentEnabled) {
+            VTKMemoryManager.GC.SetAutoGarbageCollection(true);
+
             componentEnabled = true;
             this.source = source;
 
@@ -147,6 +150,11 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             // checks if data is available
             // first multibeam then dvl
             loadCloud();
+
+            if (!mbFound)
+                toolbar.remove(toolbar.multibeamToggle);
+            if (!source.getLsfIndex().containsMessagesOfType("Distance"))
+                toolbar.remove(toolbar.dvlToggle);
         }
         return this;
     }
@@ -338,13 +346,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     @Override
     public void onCleanup() {
-        // setVisible(false);
-        // getCanvas().GetRenderer().RemoveAllObservers();
-        // getCanvas().GetRenderWindow().RemoveAllObservers();
-        // getCanvas().GetRenderWindow().Delete();
-        //
-        // VTKMemoryManager.GC.SetAutoGarbageCollection(true);
-        // VTKMemoryManager.deleteAll();
+        VTKMemoryManager.deleteAll();
     }
 
     /**
