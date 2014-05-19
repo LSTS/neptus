@@ -501,10 +501,12 @@ public class LsfReport {
                         BufferedImage image = null;
                         image = getSidescanMarkImage(source, ssParser, sd, i);
                         if (image != null) {
+
                             /*
                              * //debug of image String path = "/home/miguel/lsts/sidescanImages/"; ImageIO.write(image,
                              * "PNG", new File(path, "test("+sd.label+").png"));
                              */
+
                             ImageIO.write(image, "png", new File("tmp.png"));
                             iTextImage = com.lowagie.text.Image.getInstance("tmp.png");
                             File file = new File("tmp.png");
@@ -590,6 +592,7 @@ public class LsfReport {
         int w = mark.w;
         double wMeters = mark.wMeters;
         boolean point = false;
+        int indexX = -1;
 
         if (w == 0 && h == 0) {
             point = true;
@@ -742,10 +745,15 @@ public class LsfReport {
         // check limits & double frequency problems
         if (x > 2 * range || x < 0)// image outside of available range
             return null;
-        if (x1 < 0)
+        boolean border = false;
+        if (x1 < 0) {
             x1 = 0;
-        if (x2 > 2 * range)
+            border = true;
+        }
+        if (x2 > 2 * range) {
             x2 = 2 * range;
+            border = true;
+        }
 
         if (x1 > x2)
             throw new DocumentException("x1>x2");
@@ -753,14 +761,18 @@ public class LsfReport {
         int size = list.get(list.size() / 2).data.length;
         int i1 = convertMtoIndex(x1, range, size);
         int i2 = convertMtoIndex(x2, range, size);
+
         if (i2 > size) {
             i2 = size;
+
         }
         if (i1 < 0) {
             i1 = 0;
+
         }
 
         Color color = null;
+
         ArrayList<BufferedImage> imgLineList = new ArrayList<BufferedImage>();
         for (SidescanLine l : list) {
             // draw line with detail:
@@ -771,8 +783,17 @@ public class LsfReport {
             }
             imgLineList.add(imgLine);
             if (point == true && l.timestampMillis == t) {
-                int indexX = convertMtoIndex(mark.x + l.range, l.range, l.data.length);
-                color = config.colorMap.getColor(l.data[indexX]);
+                int index = convertMtoIndex(mark.x + l.range, l.range, l.data.length);
+                color = config.colorMap.getColor(l.data[index]);
+                if (border == true) {
+                    if (index > (i2 - i1)) {
+                        index = index - i1;
+                    }
+                    indexX = (int) (((double) ((double) index / (double) (i2 - i1))) * 100);
+                }
+                else {
+                    indexX = 50;
+                }
             }
         }
         if (point == true && color == null) {
