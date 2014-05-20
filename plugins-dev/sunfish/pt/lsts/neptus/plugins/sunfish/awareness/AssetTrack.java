@@ -82,6 +82,15 @@ public class AssetTrack {
         return track.get(track.size()-1);                
     }
     
+    public AssetPosition getLatest(long beforeDate) {
+        AssetPosition valid = null;
+        for (AssetPosition p : getTrack()) {
+            if (p.getTimestamp() <= beforeDate)
+                valid = p;
+        }
+        return valid;
+    }
+    
     public AssetPosition getPrediction() {
         if (track.size() > 2) {
             AssetPosition last = getLatest();

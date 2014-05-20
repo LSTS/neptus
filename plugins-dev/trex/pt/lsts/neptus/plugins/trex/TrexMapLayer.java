@@ -310,7 +310,22 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 Vector<EntityParameter> p = new Vector<>();
                 p.add(param);
                 setParams.setParams(p);
-                ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
+                switch (trexDuneComms) {
+                    case IMC:
+                    case REST:
+                        ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
+                        break;
+                    case IRIDIUM:
+                        try {
+                            sendViaIridium(getConsole().getMainSystem(), setParams);
+                        }
+                        catch (Exception ex) {
+                            NeptusLog.pub().error(e);
+                        }
+                        break;
+                }
+                
+                //ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
             }
         });
     }
@@ -340,7 +355,23 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 Vector<EntityParameter> p = new Vector<>();
                 p.add(param);
                 setParams.setParams(p);
-                ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
+                
+                switch (trexDuneComms) {
+                    case IMC:
+                    case REST:
+                        ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
+                        break;
+                    case IRIDIUM:
+                        try {
+                            sendViaIridium(getConsole().getMainSystem(), setParams);
+                        }
+                        catch (Exception ex) {
+                            NeptusLog.pub().error(e);
+                        }
+                        break;
+                }
+                
+                
             }
         });
     }

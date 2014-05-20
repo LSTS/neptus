@@ -69,7 +69,6 @@ import org.apache.http.client.methods.HttpGet;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
-import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -199,7 +198,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         arrow.moveTo(-5, 6);
         arrow.lineTo(0, -6);
         arrow.lineTo(5, 6);
-        arrow.lineTo(0, 6 * 1 / 20);
+        arrow.lineTo(0, 3);
+        arrow.lineTo(-5, 6);
         arrow.closePath();
     }
 
@@ -282,8 +282,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     
     protected final double m_sToKnotConv = 1.94384449244;
     
-    private final ColorMap colorMapCurrents = new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
-            new Color(0, 0, 255), new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0), new Color(255, 0, 0) });
+    private final ColorMap colorMapCurrents = ColorMapFactory.createJetColorMap(); //new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
+            //new Color(0, 0, 255), new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0), new Color(255, 0, 0) });
     // private final double minCurrentCmS = 0;
     private final double maxCurrentCmS = 200;
 
@@ -988,16 +988,16 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                 if (dp.getDateUTC().after(toDate))
                     toDate = dp.getDateUTC();
             }
-            
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             Graphics2D gt = (Graphics2D) g2.create();
-
             gt.translate(pt.getX(), pt.getY());
             Color color = Color.WHITE;
             color = colorMapCurrents.getColor(dp.getSpeedCmS() / maxCurrentCmS);
             if (dp.getDateUTC().before(dateColorLimit))
                 color = ColorUtils.setTransparencyToColor(color, 128);
             gt.setColor(color);
-            double rot = Math.toRadians(headingV) - renderer.getRotation();
+            double rot = Math.toRadians(-headingV + 90) - renderer.getRotation();
             gt.rotate(rot);
             gt.fill(arrow);
             gt.rotate(-rot);
