@@ -78,8 +78,8 @@ public class WgCtdLayer extends ConsoleLayer implements PropertiesProvider {
     private final TreeMap<Long, CtdData> ctdHistory = new TreeMap<Long, CtdData>();
 
     // GUI variables
-    private double maxTemp = 25;
-    private double minTemp = 16;
+    private double maxTemp = 0;
+    private double minTemp = 0;
     private JLabel caption;
     private static final int RECT_WIDTH = 350;
     private static final int RECT_HEIGHT = 70;
@@ -121,6 +121,9 @@ public class WgCtdLayer extends ConsoleLayer implements PropertiesProvider {
                 paintCaption(g);
             }
         }
+        else {
+            System.out.println("Waiting");
+        }
     }
 
     private boolean paintHistory(Graphics2D g, StateRenderer2D renderer) {
@@ -128,17 +131,17 @@ public class WgCtdLayer extends ConsoleLayer implements PropertiesProvider {
         Long endMark = dataDateEnd.getTime();
         Long timeMark = dataDateStart.getTime();
         CtdData dataPoint;
-        double tempMaxTemp, tempMinTemp;
-        timeMark = ctdHistory.higherKey(timeMark);
-        if (timeMark != null) {
-            dataPoint = ctdHistory.get(timeMark);
-            tempMaxTemp = dataPoint.temperature;
-            tempMinTemp = dataPoint.temperature;
-        }
-        else {
-            tempMaxTemp = maxTemp;
-            tempMinTemp = minTemp;
-        }
+        // double tempMaxTemp, tempMinTemp;
+        // timeMark = ctdHistory.higherKey(timeMark);
+        // if (timeMark != null) {
+        // dataPoint = ctdHistory.get(timeMark);
+        // tempMaxTemp = dataPoint.temperature;
+        // tempMinTemp = dataPoint.temperature;
+        // }
+        // else {
+        // tempMaxTemp = maxTemp;
+        // tempMinTemp = minTemp;
+        // }
         Color color;
         Graphics2D gt;
         Point2D pt;
@@ -170,10 +173,6 @@ public class WgCtdLayer extends ConsoleLayer implements PropertiesProvider {
                     if (!isVisibleInRender(pt, renderer)) {
                         continue;
                     }
-                    if (dataPoint.temperature < tempMinTemp)
-                        tempMinTemp = dataPoint.temperature;
-                    if (dataPoint.temperature > tempMaxTemp)
-                        tempMaxTemp = dataPoint.temperature;
                     // check if it is visible
                     gt = (Graphics2D) g.create();
                     color = genColor(dataPoint.temperature);
@@ -182,8 +181,6 @@ public class WgCtdLayer extends ConsoleLayer implements PropertiesProvider {
                     gt.dispose();
                     paintedToRender = true;
                 }
-                maxTemp = tempMaxTemp;
-                minTemp = tempMinTemp;
             }
             catch (NullPointerException e) {
                 System.out.println("timeMark");
@@ -195,22 +192,37 @@ public class WgCtdLayer extends ConsoleLayer implements PropertiesProvider {
     private boolean fetchHistory(String url) {
         try {
             URL urlAssets = new URL(url);
-            File tmp = File.createTempFile("neptus", "assets");
+            // File tmp = File.createTempFile("neptus", "assets");
+            File tmp = new File("ctdLR.txt");
             FileUtils.copyURLToFile(urlAssets, tmp);
 
             BufferedReader reader = new BufferedReader(new FileReader(tmp));
 
             String line = reader.readLine(); // header line
 
+            boolean init = true;
+
             while ((line = reader.readLine()) != null) {
                 String parts[] = line.split(",");
+                System.out.println(line);
                 LocationType loc = new LocationType(Double.parseDouble(parts[0].trim()), Double.parseDouble(parts[1]
                         .trim()));
                 long timestamp = Long.parseLong(parts[2].trim());
-                CtdData asset = new CtdData(loc, timestamp, Double.parseDouble(parts[3].trim()),
+                CtdData dataPoint = new CtdData(loc, timestamp, Double.parseDouble(parts[3].trim()),
                         Double.parseDouble(parts[6].trim()), Double.parseDouble(parts[7].trim()),
                         Double.parseDouble(parts[8].trim()), Double.parseDouble(parts[9].trim()));
-                ctdHistory.put(timestamp, asset);
+                ctdHistory.put(timestamp, dataPoint);
+
+                if (init) {
+                    minTemp = maxTemp = dataPoint.temperature;
+                    init = false;
+                }
+                else {
+                    if (dataPoint.temperature < minTemp)
+                        minTemp = dataPoint.temperature;
+                    if (dataPoint.temperature > maxTemp)
+                        maxTemp = dataPoint.temperature;
+                }
             }
 
             reader.close();
