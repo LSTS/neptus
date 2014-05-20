@@ -67,6 +67,7 @@ import org.jfree.chart.JFreeChart;
 
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -454,6 +455,71 @@ public class LsfReport {
 
             SidescanParser ssParser = SidescanParserFactory.build(source);
             int nSubsys = ssParser.getSubsystemList().size();
+            SidescanConfig config = new SidescanConfig();
+            int colorMapCode = MRAProperties.sidescanColorMap;
+            switch (colorMapCode) {
+                case 0:
+                    config.colorMap = ColorMapFactory.createBronzeColormap();
+                    break;
+                case 1:
+                    config.colorMap = ColorMapFactory.createStoreDataColormap();
+                    break;
+                case 2:
+                    config.colorMap = ColorMapFactory.createRainbowColormap();
+                    break;
+                case 3:
+                    config.colorMap = ColorMapFactory.createRedYellowGreenColorMap();
+                    break;
+                case 4:
+                    config.colorMap = ColorMapFactory.createGreenRadarColorMap();
+                    break;
+                case 5:
+                    config.colorMap = ColorMapFactory.createPinkColorMap();
+                    break;
+                case 6:
+                    config.colorMap = ColorMapFactory.createBlueToRedColorMap();
+                    break;
+                case 7:
+                    config.colorMap = ColorMapFactory.createRedGreenBlueColorMap();
+                    break;
+                case 8:
+                    config.colorMap = ColorMapFactory.createWinterColorMap();
+                    break;
+                case 9:
+                    config.colorMap = ColorMapFactory.createAutumnColorMap();
+                    break;
+                case 10:
+                    config.colorMap = ColorMapFactory.createSummerColorMap();
+                    break;
+                case 11:
+                    config.colorMap = ColorMapFactory.createSpringColorMap();
+                    break;
+                case 12:
+                    config.colorMap = ColorMapFactory.createBoneColorMap();
+                    break;
+                case 13:
+                    config.colorMap = ColorMapFactory.createCopperColorMap();
+                    break;
+                case 14:
+                    config.colorMap = ColorMapFactory.createHotColorMap();
+                    break;
+                case 15:
+                    config.colorMap = ColorMapFactory.createCoolColorMap();
+                    break;
+                case 16:
+                    config.colorMap = ColorMapFactory.createJetColorMap();
+                    break;
+                case 17:
+                    config.colorMap = ColorMapFactory.createGrayScaleColorMap();
+                    break;
+                default:
+                    config.colorMap = ColorMapFactory.createBronzeColormap();
+                    NeptusLog.pub().info("colorMap code not found, using default Bronze");
+                    break;
+            }
+            SidescanParameters sidescanParams = new SidescanParameters(0, 0);
+            sidescanParams.setNormalization(config.normalization);
+            sidescanParams.setTvgGain(config.tvgGain);
 
             Rectangle pageSize = PageSize.A4.rotate();
             PdfPTable table = new PdfPTable(3 + nSubsys);
@@ -499,7 +565,7 @@ public class LsfReport {
                     for (int i = 0; i < nSubsys; i++) {
                         com.lowagie.text.Image iTextImage;// iText image type
                         BufferedImage image = null;
-                        image = getSidescanMarkImage(source, ssParser, sd, i);
+                        image = getSidescanMarkImage(source, ssParser, sidescanParams, config, sd, i);
                         if (image != null) {
 
                             /*
@@ -585,7 +651,8 @@ public class LsfReport {
     }
 
     public static BufferedImage getSidescanMarkImage(IMraLogGroup source, SidescanParser ssParser,
-            SidescanLogMarker mark, int subSys) throws DocumentException {
+            SidescanParameters sidescanParams, SidescanConfig config, SidescanLogMarker mark, int subSys)
+            throws DocumentException {
         BufferedImage result = null;
 
         int h = mark.h;
@@ -645,10 +712,6 @@ public class LsfReport {
         }
 
         // get the lines
-        SidescanConfig config = new SidescanConfig();
-        SidescanParameters sidescanParams = new SidescanParameters(0, 0);
-        sidescanParams.setNormalization(config.normalization);
-        sidescanParams.setTvgGain(config.tvgGain);
         ArrayList<SidescanLine> list = null;
         boolean getLinesBool = true;
         while (getLinesBool) {// ArrayIndexOutOfBoundsException on getLinesBetween
