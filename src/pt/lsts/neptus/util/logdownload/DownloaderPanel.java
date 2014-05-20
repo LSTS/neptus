@@ -521,6 +521,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 downloadedSize = begByte;
                 client.getClient().setRestartOffset(begByte);
                 System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "using resume");
+                begByte = client.getClient().getRestartOffset();
             }
 			
 			// System.out.println("FTP Client is connected " + client.getClient().isConnected());
