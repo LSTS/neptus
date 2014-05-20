@@ -44,18 +44,12 @@
 
 # /conf/
 /conf/*.properties
-/conf/3d_recent.xml
+/conf/*.props
+/conf/ro*.xml
+/conf/*recent.xml
 /conf/general-properties.xml
-/conf/mp_recent.xml
-/conf/mra.properties
-/conf/mra_recent.xml
 /conf/mystate.xml
 /conf/oplimits
-/conf/rocheck.xml
-/conf/roconsoles.xml
-/conf/romisc.xml
-/conf/romissions.xml
-/conf/romap.xml
 
 # /conf/i18n/
 /conf/i18n/en
@@ -67,43 +61,11 @@
 
 # /dist/
 /dist/*.jnlp
-
-# /dist/jre-linux/
 /dist/jre-linux/*
-
-# /dist/jre-windows/
 /dist/jre-windows/*
 
-# /doc/manual/abort/
-
-# /doc/manual/chronometer/
-
-# /doc/manual/contact-maker/
-
-# /doc/manual/entity-state/
-
-# /doc/manual/find-system/
-
-# /doc/manual/gps-panel/
-
-# /doc/manual/lbl-ranges/
-
-# /doc/manual/lock/
-
-# /doc/manual/logging/
-
-# /doc/manual/logs-downloader/
-
-# /doc/manual/my-location/
-
-# /doc/manual/plan-control/
-
-# /doc/manual/systems-list/
-
-# /doc/manual/world-overlay/
-
 # /maps/
-/maps/PT528505.000
+/maps/*.000
 
 # /plugins-dev/3D/assets/Textures/Terrain/splat/mapas/
 /plugins-dev/3D/assets/Textures/Terrain/splat/mapas/leixoesheightMap.jpg
@@ -186,6 +148,7 @@ Thumbs.db
 /neptus.sh
 /*.log
 /windows_dist
+/linux_dist
 /release.json
 /git.branch
 TCL*.tmp
@@ -205,3 +168,4 @@ dev-scripts/grow_pot.sh
 
 /*_dist
 /positions
+
