@@ -413,7 +413,10 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             g.setColor(Color.white);
             g.draw(new Ellipse2D.Double(pt.getX() - 6, pt.getY() - 6, 12, 12));
             if (assetProperties.containsKey(pivot.getAssetName()))
-                pivot.putExtra("Description", assetProperties.get(pivot.getAssetName()).description);            
+                pivot.putExtra("Description", assetProperties.get(pivot.getAssetName()).description);   
+            if (assetProperties.containsKey(pivot.getAssetName()))
+                pivot.putExtra("Friendly name", assetProperties.get(pivot.getAssetName()).friendly);   
+            
             lbl.setOpaque(true);
             lbl.setBackground(new Color(255, 255, 255, 128));
             lbl.setText(pivot.getHtml());
