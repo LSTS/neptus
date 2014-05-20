@@ -124,14 +124,23 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
     public synchronized void on(IMCMessage m) {
         try {
             if (observers.containsKey(m.getAbbrev())) {
-                for (LogReplayComponent c : observers.get(m.getAbbrev()))
-                    c.onMessage(m);
+                for (LogReplayComponent c : observers.get(m.getAbbrev())) {
+                    try {
+                        c.onMessage(m);
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(
+                                "Error occured while sending replayed message '" + m.getAbbrev() + "' to component '"
+                                        + c.getName() + "'");
+                    }
+                }
                 r2d.repaint();
             }
     
             if (m.getAbbrev().equals("EstimatedState")) {
                 SystemPositionAndAttitude state = IMCUtils.parseState(m);
                 r2d.vehicleStateChanged(m.getSourceName(), state);
+                r2d.repaint();
             }
         }
         catch (Exception e) {
