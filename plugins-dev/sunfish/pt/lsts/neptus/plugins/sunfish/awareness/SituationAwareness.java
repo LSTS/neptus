@@ -394,7 +394,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             g.setColor(track.getColor());
 
             g.setColor(Color.black);
-            String name = assetProperties.containsKey(p.getAssetName()) ? assetProperties.get(p.getAssetName()).friendly : p.getAssetName();
+            String name = p.getAssetName();//assetProperties.containsKey(p.getAssetName()) ? assetProperties.get(p.getAssetName()).friendly : p.getAssetName();
             g.drawString(
                     name + " ("
                             + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - p.getTimestamp())
