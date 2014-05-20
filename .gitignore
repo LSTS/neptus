@@ -147,8 +147,6 @@ Thumbs.db
 /neptus.bat
 /neptus.sh
 /*.log
-/windows_dist
-/linux_dist
 /release.json
 /git.branch
 TCL*.tmp
