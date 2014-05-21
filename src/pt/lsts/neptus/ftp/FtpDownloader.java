@@ -83,11 +83,13 @@ public class FtpDownloader {
             }
         }
         
-        client = new FTPClient();
-        conf = new FTPClientConfig(FTPClientConfig.SYST_UNIX);
+        if (client == null) {
+            client = new FTPClient();
+            conf = new FTPClientConfig(FTPClientConfig.SYST_UNIX);
 
 //        client.setDataTimeout(30000);
 //        client.setSoTimeout(30000);
+        }
         
         System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "connecting to " + host + ":" + port);
         client.connect(host, port);
@@ -113,6 +115,22 @@ public class FtpDownloader {
      */
     public int getPort() {
         return port;
+    }
+
+    /**
+     * @param host the host to set
+     */
+    public void setHostAndPort(String host, int port) {
+        if (this.host != host || this.port != port) {
+            try {
+                renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        this.host = host;
+        this.port = port;
     }
     
     public void downloadDirectory(String path, String destPath) throws Exception {

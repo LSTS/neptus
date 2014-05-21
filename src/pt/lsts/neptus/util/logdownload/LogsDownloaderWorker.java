@@ -690,7 +690,11 @@ public class LogsDownloaderWorker {
 
                         // Getting the file list from main CPU
                         try {
-                            clientFtp = new FtpDownloader(host, port);
+                            if (clientFtp == null)
+                                clientFtp = new FtpDownloader(host, port);
+                            else
+                                clientFtp.setHostAndPort(host, port);
+                            
                             retList = clientFtp.listLogs();
                         }
                         catch (Exception e) {
@@ -703,7 +707,10 @@ public class LogsDownloaderWorker {
                         if (cameraHost.length() > 0) {
                             LinkedHashMap<FTPFile, String> retCamList = null;
                             try {
-                                cameraFtp = new FtpDownloader(cameraHost, port);
+                                if (cameraFtp == null)
+                                    cameraFtp = new FtpDownloader(cameraHost, port);
+                                else
+                                    cameraFtp.setHostAndPort(cameraHost, port);
                                 retCamList = cameraFtp.listLogs();
                             }
                             catch (Exception e) {
