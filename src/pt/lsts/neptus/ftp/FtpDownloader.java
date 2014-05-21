@@ -83,11 +83,13 @@ public class FtpDownloader {
             }
         }
         
-        client = new FTPClient();
-        conf = new FTPClientConfig(FTPClientConfig.SYST_UNIX);
+        if (client == null) {
+            client = new FTPClient();
+            conf = new FTPClientConfig(FTPClientConfig.SYST_UNIX);
 
 //        client.setDataTimeout(30000);
 //        client.setSoTimeout(30000);
+        }
         
         System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "connecting to " + host + ":" + port);
         client.connect(host, port);
@@ -114,6 +116,22 @@ public class FtpDownloader {
     public int getPort() {
         return port;
     }
+
+    /**
+     * @param host the host to set
+     */
+    public void setHostAndPort(String host, int port) {
+        if (this.host != host || this.port != port) {
+            try {
+                renewClient();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        this.host = host;
+        this.port = port;
+    }
     
     public void downloadDirectory(String path, String destPath) throws Exception {
         System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "Path :" + path);
@@ -129,14 +147,14 @@ public class FtpDownloader {
             }
         }
 
-        boolean ret = client.changeWorkingDirectory(new String(path.getBytes(), "ISO-8859-1"));
-        if (!ret) {
-            NeptusLog.pub().warn(
-                    FtpDownloader.class.getSimpleName() + " :: Error downloading folder '" + path + "' from " + host);
-            return;
-        }
+//        boolean ret = client.changeWorkingDirectory(new String(path.getBytes(), "ISO-8859-1"));
+//        if (!ret) {
+//            NeptusLog.pub().warn(
+//                    FtpDownloader.class.getSimpleName() + " :: Error downloading folder '" + path + "' from " + host);
+//            return;
+//        }
         
-        for (FTPFile f : client.listFiles()) {
+        for (FTPFile f : client.listFiles(new String(path.getBytes(), "ISO-8859-1"))) {
             if(f.isDirectory()) {
                 toDoList.add(f);
             }
@@ -165,14 +183,14 @@ public class FtpDownloader {
             }
         }
 
-        boolean ret = client.changeWorkingDirectory(new String(path.getBytes(), "ISO-8859-1"));
-        if (!ret) {
-            NeptusLog.pub().warn(
-                    FtpDownloader.class.getSimpleName() + " :: Error listing folder '" + path + "' from " + host);
-            return finalList;
-        }
+//        boolean ret = client.changeWorkingDirectory(new String(path.getBytes(), "ISO-8859-1"));
+//        if (!ret) {
+//            NeptusLog.pub().warn(
+//                    FtpDownloader.class.getSimpleName() + " :: Error listing folder '" + path + "' from " + host);
+//            return finalList;
+//        }
         
-        for (FTPFile f : client.listFiles()) {
+        for (FTPFile f : client.listFiles(new String(path.getBytes(), "ISO-8859-1"))) {
             if(f.isDirectory()) {
                 toDoList.add(f);
             }
@@ -199,27 +217,31 @@ public class FtpDownloader {
             }
         }
 
-        boolean ret = client.changeWorkingDirectory("/");
-        if (!ret) {
-            NeptusLog.pub().warn(
-                    FtpDownloader.class.getSimpleName() + " :: Error downloading folder '/' from " + host);
-            return list;
-        }
+//        boolean ret = client.changeWorkingDirectory("/");
+//        if (!ret) {
+//            NeptusLog.pub().warn(
+//                    FtpDownloader.class.getSimpleName() + " :: Error downloading folder '/' from " + host);
+//            return list;
+//        }
         
         
-        for (FTPFile f : client.listFiles()) {
+        for (FTPFile f : client.listFiles("/")) {
             if(f.isDirectory()) {
-                boolean ret1 = client.changeWorkingDirectory("/" + new String(f.getName().getBytes(), "ISO-8859-1"));
-                if (!ret1) {
-                    NeptusLog.pub().warn(
-                            FtpDownloader.class.getSimpleName() + " :: Error listing folder '" + f.getName() + "' from " + host);
-                    continue;
-                }
-                FTPFile[] files = client.listFiles();
+//                boolean ret1 = client.changeWorkingDirectory("/" + new String(f.getName().getBytes(), "ISO-8859-1"));
+//                if (!ret1) {
+//                    NeptusLog.pub().warn(
+//                            FtpDownloader.class.getSimpleName() + " :: Error listing folder '" + f.getName() + "' from " + host);
+//                    continue;
+//                }
+                String workingDirectory = "/" + new String(f.getName().getBytes(), "ISO-8859-1"); 
+                FTPFile[] files = client.listFiles(workingDirectory);
                 
                 if(files.length == 0) {
-                    NeptusLog.pub().warn(":: " + client.printWorkingDirectory() + " has 0 files. Deleting folder");
-                    client.deleteFile(client.printWorkingDirectory());
+                    NeptusLog.pub().warn(":: " + workingDirectory + " has 0 files. Deleting folder");
+                    boolean deletionOfEmptyLogFolder = client.deleteFile(workingDirectory);
+                    if (!deletionOfEmptyLogFolder) {
+                        NeptusLog.pub().warn(":: " + workingDirectory + " has 0 files. Fail deletion of folder");
+                    }
                 }
                 for (FTPFile f2 : files) {
                     list.put(f2, f.getName() + "/" + f2.getName());

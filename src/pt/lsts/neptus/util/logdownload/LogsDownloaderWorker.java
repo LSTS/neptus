@@ -690,11 +690,15 @@ public class LogsDownloaderWorker {
 
                         // Getting the file list from main CPU
                         try {
-                            clientFtp = new FtpDownloader(host, port);
+                            if (clientFtp == null)
+                                clientFtp = new FtpDownloader(host, port);
+                            else
+                                clientFtp.setHostAndPort(host, port);
+                            
                             retList = clientFtp.listLogs();
                         }
                         catch (Exception e) {
-                            e.printStackTrace();
+                            NeptusLog.pub().error("Connecting with " + host + ":" + port + " with error: " + e.getMessage());
                         }
 
                         //Getting the log list from Camera CPU
@@ -703,11 +707,14 @@ public class LogsDownloaderWorker {
                         if (cameraHost.length() > 0) {
                             LinkedHashMap<FTPFile, String> retCamList = null;
                             try {
-                                cameraFtp = new FtpDownloader(cameraHost, port);
+                                if (cameraFtp == null)
+                                    cameraFtp = new FtpDownloader(cameraHost, port);
+                                else
+                                    cameraFtp.setHostAndPort(cameraHost, port);
                                 retCamList = cameraFtp.listLogs();
                             }
                             catch (Exception e) {
-                                e.printStackTrace();
+                                NeptusLog.pub().error("Connecting with " + cameraHost + ":" + port + " with error: " + e.getMessage());
                             }
                             if (retCamList != null) {
                                 if (retList == null) {
@@ -1761,7 +1768,14 @@ public class LogsDownloaderWorker {
         }
         DownloaderPanel workerD = null;
         try {
-            workerD = new DownloaderPanel(new FtpDownloader(lfx.getHost(), port), lfx.getFile(), lfx.getName(),
+            FtpDownloader ftpDownloader = null;
+//            if (clientFtp != null && clientFtp.getHost().equals(lfx.getHost()))
+//                ftpDownloader = clientFtp;
+//            else if (cameraFtp != null && cameraFtp.getHost().equals(lfx.getHost()))
+//                ftpDownloader = cameraFtp;
+//            else
+                ftpDownloader = new FtpDownloader(lfx.getHost(), port);
+            workerD = new DownloaderPanel(ftpDownloader, lfx.getFile(), lfx.getName(),
                     getFileTarget(lfx.getName()));
         }
         catch (Exception e1) {
@@ -1967,8 +1981,9 @@ public class LogsDownloaderWorker {
 
     private boolean deleteLogFolderFromCameraServer(String path) {
         try {
-            if (cameraFtp != null)
+            if (cameraFtp != null) {
                 return cameraFtp.getClient().deleteFile("/" + path);
+            }
             else
                 return false;
         }
@@ -1997,12 +2012,12 @@ public class LogsDownloaderWorker {
         try {
             for (String logDir : logsDirList) {
                 String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
-                boolean ret = clientFtp.getClient().changeWorkingDirectory("/" + isoStr + "/");
-                if (!ret)
-                    continue;
+//                boolean ret = clientFtp.getClient().changeWorkingDirectory("/" + isoStr + "/");
+//                if (!ret)
+//                    continue;
                 LogFolderInfo lFolder = new LogFolderInfo(logDir);
 
-                FTPFile[] files = clientFtp.getClient().listFiles();
+                FTPFile[] files = clientFtp.getClient().listFiles("/" + isoStr + "/");
                 for (FTPFile file : files) {
                     String name = logDir + "/" + file.getName();
                     String uriPartial = logDir + "/" + file.getName();
@@ -2017,13 +2032,13 @@ public class LogsDownloaderWorker {
             }
 
             // REDO the same thing if cameraHost exists with the difference of a another client
-            if (cameraHost != null) {
-                FtpDownloader ftpd = new FtpDownloader(cameraHost, port);
+            if (cameraHost != null && cameraFtp != null) {
+                FtpDownloader ftpd = cameraFtp; // new FtpDownloader(cameraHost, port);
                 for (String logDir : logsDirList) {
                     String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
-                    if (ftpd.getClient().changeWorkingDirectory("/" + isoStr + "/") == false) // Log doesnt exist in
-                        // DOAM
-                        continue;
+//                    if (ftpd.getClient().changeWorkingDirectory("/" + isoStr + "/") == false) // Log doesnt exist in
+//                        // DOAM
+//                        continue;
 
                     LogFolderInfo lFolder = null;
 
@@ -2035,7 +2050,7 @@ public class LogsDownloaderWorker {
                         lFolder = new LogFolderInfo(logDir);
                     }
 
-                    for (FTPFile file : ftpd.getClient().listFiles()) {
+                    for (FTPFile file : ftpd.getClient().listFiles("/" + isoStr + "/")) {
                         String name = logDir + "/" + file.getName();
                         String uriPartial = logDir + "/" + file.getName();
                         LogFileInfo logFileTmp = new LogFileInfo(name);
