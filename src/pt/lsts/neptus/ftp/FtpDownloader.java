@@ -233,11 +233,15 @@ public class FtpDownloader {
 //                            FtpDownloader.class.getSimpleName() + " :: Error listing folder '" + f.getName() + "' from " + host);
 //                    continue;
 //                }
-                FTPFile[] files = client.listFiles("/" + new String(f.getName().getBytes(), "ISO-8859-1"));
+                String workingDirectory = "/" + new String(f.getName().getBytes(), "ISO-8859-1"); 
+                FTPFile[] files = client.listFiles(workingDirectory);
                 
                 if(files.length == 0) {
-                    NeptusLog.pub().warn(":: " + client.printWorkingDirectory() + " has 0 files. Deleting folder");
-                    client.deleteFile(client.printWorkingDirectory());
+                    NeptusLog.pub().warn(":: " + workingDirectory + " has 0 files. Deleting folder");
+                    boolean deletionOfEmptyLogFolder = client.deleteFile(workingDirectory);
+                    if (!deletionOfEmptyLogFolder) {
+                        NeptusLog.pub().warn(":: " + workingDirectory + " has 0 files. Fail deletion of folder");
+                    }
                 }
                 for (FTPFile f2 : files) {
                     list.put(f2, f.getName() + "/" + f2.getName());
