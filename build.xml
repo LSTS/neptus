@@ -194,7 +194,8 @@ For simple use the main targets are:
 	</path>
 	<path id="cp.compile.jar.plugins">
 		<!-- Classpath for each plugin jar compile. -->
-		<file name="${jar.file.path}" />
+		<!-- Leave the next line commented because in some Ants because may not exist yet gives an error of 'unbound file resource' and it's not added. Fixed bellow -->
+		<!--file name="${jar.file.path}" /-->
 		<!-- Leave the next line commented so that any plugin jar does not depends on the other plugin jars. -->
 		<!-- pathelement location="${build.classes}" /-->
 		<path refid="cp.lib.jars" />
@@ -208,7 +209,9 @@ For simple use the main targets are:
 	<property name="class.path" refid="cp.path" />
 	<property name="class.path.compile.all" refid="cp.compile.all" />
 	<property name="class.path.compile.jar.main" refid="cp.compile.jar.main" />
-	<property name="class.path.compile.jar.plugins" refid="cp.compile.jar.plugins" />
+	<local name="tmp-cp-plg"/>
+	<property name="tmp-cp-plg" refid="cp.compile.jar.plugins"/>
+	<property name="class.path.compile.jar.plugins" value="${jar.file.path};${tmp-cp-plg}" />
 	<property name="class.path.run" refid="cp.run" />
 
 	<property name="certs.build.file" value="./certs/ant-keys-genkeys.xml" />
