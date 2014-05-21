@@ -1769,9 +1769,9 @@ public class LogsDownloaderWorker {
         DownloaderPanel workerD = null;
         try {
             FtpDownloader ftpDownloader = null;
-//            if (clientFtp.getHost().equals(lfx.getHost()))
+//            if (clientFtp != null && clientFtp.getHost().equals(lfx.getHost()))
 //                ftpDownloader = clientFtp;
-//            else if (cameraFtp.getHost().equals(lfx.getHost()))
+//            else if (cameraFtp != null && cameraFtp.getHost().equals(lfx.getHost()))
 //                ftpDownloader = cameraFtp;
 //            else
                 ftpDownloader = new FtpDownloader(lfx.getHost(), port);
@@ -2031,7 +2031,7 @@ public class LogsDownloaderWorker {
             }
 
             // REDO the same thing if cameraHost exists with the difference of a another client
-            if (cameraHost != null) {
+            if (cameraHost != null && cameraFtp != null) {
                 FtpDownloader ftpd = cameraFtp; // new FtpDownloader(cameraHost, port);
                 for (String logDir : logsDirList) {
                     String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
