@@ -1981,8 +1981,9 @@ public class LogsDownloaderWorker {
 
     private boolean deleteLogFolderFromCameraServer(String path) {
         try {
-            if (cameraFtp != null)
+            if (cameraFtp != null) {
                 return cameraFtp.getClient().deleteFile("/" + path);
+            }
             else
                 return false;
         }
@@ -2011,12 +2012,12 @@ public class LogsDownloaderWorker {
         try {
             for (String logDir : logsDirList) {
                 String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
-                boolean ret = clientFtp.getClient().changeWorkingDirectory("/" + isoStr + "/");
-                if (!ret)
-                    continue;
+//                boolean ret = clientFtp.getClient().changeWorkingDirectory("/" + isoStr + "/");
+//                if (!ret)
+//                    continue;
                 LogFolderInfo lFolder = new LogFolderInfo(logDir);
 
-                FTPFile[] files = clientFtp.getClient().listFiles();
+                FTPFile[] files = clientFtp.getClient().listFiles("/" + isoStr + "/");
                 for (FTPFile file : files) {
                     String name = logDir + "/" + file.getName();
                     String uriPartial = logDir + "/" + file.getName();
@@ -2035,9 +2036,9 @@ public class LogsDownloaderWorker {
                 FtpDownloader ftpd = cameraFtp; // new FtpDownloader(cameraHost, port);
                 for (String logDir : logsDirList) {
                     String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
-                    if (ftpd.getClient().changeWorkingDirectory("/" + isoStr + "/") == false) // Log doesnt exist in
-                        // DOAM
-                        continue;
+//                    if (ftpd.getClient().changeWorkingDirectory("/" + isoStr + "/") == false) // Log doesnt exist in
+//                        // DOAM
+//                        continue;
 
                     LogFolderInfo lFolder = null;
 
@@ -2049,7 +2050,7 @@ public class LogsDownloaderWorker {
                         lFolder = new LogFolderInfo(logDir);
                     }
 
-                    for (FTPFile file : ftpd.getClient().listFiles()) {
+                    for (FTPFile file : ftpd.getClient().listFiles("/" + isoStr + "/")) {
                         String name = logDir + "/" + file.getName();
                         String uriPartial = logDir + "/" + file.getName();
                         LogFileInfo logFileTmp = new LogFileInfo(name);
