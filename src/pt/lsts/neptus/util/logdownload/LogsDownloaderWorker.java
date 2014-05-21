@@ -698,7 +698,7 @@ public class LogsDownloaderWorker {
                             retList = clientFtp.listLogs();
                         }
                         catch (Exception e) {
-                            e.printStackTrace();
+                            NeptusLog.pub().error("Connecting with " + host + ":" + port + " with error: " + e.getMessage());
                         }
 
                         //Getting the log list from Camera CPU
@@ -714,7 +714,7 @@ public class LogsDownloaderWorker {
                                 retCamList = cameraFtp.listLogs();
                             }
                             catch (Exception e) {
-                                e.printStackTrace();
+                                NeptusLog.pub().error("Connecting with " + cameraHost + ":" + port + " with error: " + e.getMessage());
                             }
                             if (retCamList != null) {
                                 if (retList == null) {
