@@ -2018,7 +2018,7 @@ public class LogsDownloaderWorker {
 
             // REDO the same thing if cameraHost exists with the difference of a another client
             if (cameraHost != null) {
-                FtpDownloader ftpd = new FtpDownloader(cameraHost, port);
+                FtpDownloader ftpd = cameraFtp; // new FtpDownloader(cameraHost, port);
                 for (String logDir : logsDirList) {
                     String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
                     if (ftpd.getClient().changeWorkingDirectory("/" + isoStr + "/") == false) // Log doesnt exist in
