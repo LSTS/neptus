@@ -1768,7 +1768,14 @@ public class LogsDownloaderWorker {
         }
         DownloaderPanel workerD = null;
         try {
-            workerD = new DownloaderPanel(new FtpDownloader(lfx.getHost(), port), lfx.getFile(), lfx.getName(),
+            FtpDownloader ftpDownloader = null;
+//            if (clientFtp.getHost().equals(lfx.getHost()))
+//                ftpDownloader = clientFtp;
+//            else if (cameraFtp.getHost().equals(lfx.getHost()))
+//                ftpDownloader = cameraFtp;
+//            else
+                ftpDownloader = new FtpDownloader(lfx.getHost(), port);
+            workerD = new DownloaderPanel(ftpDownloader, lfx.getFile(), lfx.getName(),
                     getFileTarget(lfx.getName()));
         }
         catch (Exception e1) {
