@@ -194,7 +194,7 @@ For simple use the main targets are:
 	</path>
 	<path id="cp.compile.jar.plugins">
 		<!-- Classpath for each plugin jar compile. -->
-		<!-- Leave the next line commented because in some Ants because may not exist yet gives an error of 'unbound file resource' and it's not added. Fixed bellow -->
+		<!-- Leave the next line commented because in some Ants the neptus.jar may not yet exist. So it gives an error of 'unbound file resource' and the neptus.jar it's not added to the classpathS. Fixed bellow -->
 		<!--file name="${jar.file.path}" /-->
 		<!-- Leave the next line commented so that any plugin jar does not depends on the other plugin jars. -->
 		<!-- pathelement location="${build.classes}" /-->
