@@ -52,13 +52,14 @@ public class IndexedLogTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;
     // map from rows to message index in the log
-    private LinkedHashMap<Integer, Integer> rowToIndex = new LinkedHashMap<>();
+    private final LinkedHashMap<Integer, Integer> rowToIndex = new LinkedHashMap<>();
     // cache of recently retrieved messages from the log (heavy operation)
-    private LRUMap cache = new LRUMap(100);
+    private final LRUMap cache = new LRUMap(100);
     private int rowCount = 1;
-    private LsfIndex index;
-    private IMCMessageType imcMsgType;
+    private final LsfIndex index;
+    private final IMCMessageType imcMsgType;
     private Vector<String> names = null;
+    private Vector<String> msgNames = null;
 
     // This method returns the message that should go into the given table row
     private synchronized IMCMessage getMessage(int row) {
@@ -94,7 +95,7 @@ public class IndexedLogTableModel extends AbstractTableModel {
             if (time > finalTime)
                 break;
             else if (time >= initTime || initTime < 0) {
-                rowToIndex.put(rowIndex++, curIndex);                
+                rowToIndex.put(rowIndex++, curIndex);
             }
 
             curIndex = index.getNextMessageOfType(mgid, curIndex);
@@ -122,10 +123,24 @@ public class IndexedLogTableModel extends AbstractTableModel {
         names.add("src_ent");
         names.add("dst");
         names.add("dst_ent");
-        names.addAll(imcMsgType.getFieldNames());
+
+        for (String element : imcMsgType.getFieldNames()) {
+            if (imcMsgType.getFieldUnits(element) != null && !imcMsgType.getFieldUnits(element).isEmpty()) {
+                names.add(element + " " + "(" + imcMsgType.getFieldUnits(element) + ")");
+            }
+        }
+
+        // msg names to use on getValueAt() method
+        msgNames = new Vector<String>();
+        msgNames.add("time");
+        msgNames.add("src");
+        msgNames.add("src_ent");
+        msgNames.add("dst");
+        msgNames.add("dst_ent");
+        msgNames.addAll(imcMsgType.getFieldNames());
 
         // load the "row <-> msg index" table
-        loadIndexes(initTime/1000.0, finalTime/1000.0);            
+        loadIndexes(initTime/1000.0, finalTime/1000.0);
     }
 
     @Override
@@ -152,7 +167,7 @@ public class IndexedLogTableModel extends AbstractTableModel {
         IMCMessage m = getMessage(rowIndex);
         // given the column name show the resulting value
         if (m != null) {
-            switch (names.get(columnIndex)) {
+            switch (msgNames.get(columnIndex)) {
                 case "time":
                     return m.getTimestampMillis();
                 case "src":
@@ -163,11 +178,17 @@ public class IndexedLogTableModel extends AbstractTableModel {
                     return index.getSystemName(m.getDst());
                 case "dst_ent":
                     return index.getEntityName(m.getDst(), m.getDstEnt());
-                default:
-                    return m.getString(names.get(columnIndex));
+                default: {
+                    return m.getValue(msgNames.get(columnIndex));
+                }
             }
         }
         return null;
+    }
+
+    @Override
+    public Class<?> getColumnClass(int c) {
+        return getValueAt(0, c).getClass();
     }
 
     @Override

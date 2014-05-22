@@ -49,6 +49,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.TableCellRenderer;
@@ -143,6 +144,10 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
             }
         };
 
+        table.setAutoCreateRowSorter(true);
+        table.setFillsViewportHeight(true);
+        table.setCellSelectionEnabled(true);
+        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         table.setHighlighters(HighlighterFactory.createAlternateStriping());
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -155,7 +160,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                     int curIndex = 0;
                     for (int i = 0; i <= msgIndex; i++) {
                         curIndex = index.getNextMessageOfType(log.name(), curIndex);
-                    }                        
+                    }
                     mraPanel.loadVisualization(new MessageHtmlVisualization(index.getMessage(curIndex)), true);
                 }
             };
