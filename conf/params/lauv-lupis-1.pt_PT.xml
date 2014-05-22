@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,0bf9aaa)" system="lauv-lupis-1" i18n="pt_PT">
+<config format="1" version="2.6.x (master,919ecfd)" system="lauv-lupis-1" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -465,7 +465,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0, 0.0, 0.2</default>
+      <default>0.4, 0.0, 0.03</default>
       <units/>
       <desc>PID gains for Roll controller</desc>
       <size>3</size>
@@ -541,7 +541,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.5, 0.0, 0.0</default>
+      <default>1.2, 0.0, 0.0</default>
       <units/>
       <desc>PID gains for Heading Rate controller</desc>
       <size>3</size>
@@ -1086,7 +1086,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1000.0</default>
+      <default>800.0</default>
       <units/>
       <desc>MPS controller feedforward gain</desc>
     </param>
@@ -1135,6 +1135,15 @@
       <default>200</default>
       <units>r/min</units>
       <desc>Minimum value admissible for desired RPMs</desc>
+    </param>
+    <param name="Maximum RPM Limit">
+      <name-i18n>Maximum RPM Limit</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1800</default>
+      <units>r/min</units>
+      <desc>Maximum value admissible for desired RPMs for the MPS controller</desc>
     </param>
     <param name="Maximum RPM Acceleration">
       <name-i18n>Maximum RPM Acceleration</name-i18n>
@@ -1856,118 +1865,6 @@
       <desc>Units to use for default z reference (one of 'DEPTH', 'ALTITUDE' or 'HEIGHT')</desc>
     </param>
   </section>
-  <section name="Follow System Maneuver" name-i18n="Manobra de Seguimento de Sistema">
-    <param name="Entity Label">
-      <name-i18n>Nome da Entidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Follow System Maneuver</default>
-      <units/>
-      <desc>Nome principal da entidade</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Prioridade de Execução</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Prioridade de execução</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Tempo de Ativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Tempo de Desativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Nível de Depuração</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Loitering Radius">
-      <name-i18n>Loitering Radius</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-1.0</default>
-      <units>m</units>
-      <desc>Radius of the loiter when waiting for new waypoint</desc>
-    </param>
-    <param name="Timeout">
-      <name-i18n>Timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60.0</default>
-      <units>s</units>
-      <desc>Maneuver timeout</desc>
-    </param>
-    <param name="Using Announce">
-      <name-i18n>Using Announce</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Using announce to track system</desc>
-    </param>
-    <param name="Using RemoteState">
-      <name-i18n>Using RemoteState</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Using remote state for tracking system</desc>
-    </param>
-    <param name="Min Displace">
-      <name-i18n>Min Displace</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>5.0</default>
-      <units>m</units>
-      <desc>Minimum target displacement for computing new heading</desc>
-    </param>
-    <param name="Heading Cooldown">
-      <name-i18n>Heading Cooldown</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>15.0</default>
-      <units>s</units>
-      <desc/>
-    </param>
-    <param name="Minimum Safe Distance">
-      <name-i18n>Minimum Safe Distance</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>20.0</default>
-      <units>m</units>
-      <desc>Minimum safe distance to target system</desc>
-    </param>
-  </section>
   <section name="Follow Trajectory (PID) Maneuver" name-i18n="Follow Trajectory (PID) Maneuver">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -2477,163 +2374,6 @@
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
   </section>
-  <section name="Vehicle Formation (SMC) Maneuver" name-i18n="Vehicle Formation (SMC) Maneuver">
-    <param name="Entity Label">
-      <name-i18n>Nome da Entidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Vehicle Formation (SMC) Maneuver</default>
-      <units/>
-      <desc>Nome principal da entidade</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Prioridade de Execução</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Prioridade de execução</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Tempo de Ativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Tempo de Desativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Nível de Depuração</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Control Step Frequency">
-      <name-i18n>Control Step Frequency</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>-1.0</default>
-      <units>Hz</units>
-      <desc>Ignored on negative values</desc>
-    </param>
-    <param name="Formation Gain (kf)">
-      <name-i18n>Formation Gain (kf)</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.3</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Trajectory Gain (kt)">
-      <name-i18n>Trajectory Gain (kt)</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.5</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug">
-      <name-i18n>Debug</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable or disable debug</desc>
-    </param>
-    <param name="MPS Control">
-      <name-i18n>MPS Control</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable or disable meter per second control</desc>
-    </param>
-    <param name="Max Speed MPS">
-      <name-i18n>Max Speed MPS</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.6</default>
-      <units>m/s</units>
-      <desc>Maximum speed in meters per second</desc>
-    </param>
-    <param name="Min Speed MPS">
-      <name-i18n>Min Speed MPS</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.6</default>
-      <units>m/s</units>
-      <desc>Minimum speed in meters per second</desc>
-    </param>
-    <param name="Max Actuation">
-      <name-i18n>Max Actuation</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>60</default>
-      <units/>
-      <desc>Maximum actuation</desc>
-    </param>
-    <param name="Min Actuation">
-      <name-i18n>Min Actuation</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>15</default>
-      <units/>
-      <desc>Minimum actuation</desc>
-    </param>
-    <param name="Max Step Actuation">
-      <name-i18n>Max Step Actuation</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Maximum step in actuation per command</desc>
-    </param>
-    <param name="Delta Bounds">
-      <name-i18n>Delta Bounds</name-i18n>
-      <type>list:real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>9, 9</default>
-      <units/>
-      <desc>Bounds on the trajectory tracking</desc>
-    </param>
-    <param name="Formation Error Bounds">
-      <name-i18n>Formation Error Bounds</name-i18n>
-      <type>list:real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>20, 20</default>
-      <units/>
-      <desc/>
-    </param>
-  </section>
   <section name="Yo-Yo Maneuver" name-i18n="Yo-Yo Maneuver">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -3107,7 +2847,7 @@
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>idle</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
     </param>
@@ -4245,7 +3985,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.3</default>
+      <default>0.46</default>
       <units>m</units>
       <desc>Distance between DVL and vehicle Center of Gravity</desc>
       <min>0.0</min>
@@ -4255,7 +3995,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.28</default>
+      <default>0.25</default>
       <units>m</units>
       <desc>Distance between GPS and vehicle Center of Gravity</desc>
       <min>0.0</min>
@@ -4275,7 +4015,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5.0, 1.5</default>
+      <default>3.0, 1.0</default>
       <units/>
       <desc>DVL absolute thresholds</desc>
       <size>2</size>
@@ -4882,7 +4622,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.078</default>
+      <default>1.081</default>
       <units>V</units>
       <desc>ADC Reference Voltage</desc>
     </param>
@@ -6017,7 +5757,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0, 0, 0</default>
+      <default>0.025702, -0.021641, 0.0</default>
       <units>G</units>
       <desc>Hard-Iron calibration parameters</desc>
       <size>3</size>
