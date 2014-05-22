@@ -34,7 +34,6 @@ package pt.lsts.neptus.plugins.uavs.panels;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.Collections;
