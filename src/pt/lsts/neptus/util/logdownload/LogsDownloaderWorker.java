@@ -86,7 +86,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
-import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.doc.NeptusDoc;
 import pt.lsts.neptus.ftp.FtpDownloader;
@@ -145,7 +144,7 @@ public class LogsDownloaderWorker {
 
     private String host = "127.0.0.1";
     private int port = DEFAULT_PORT;
-    private String basePath = "/dune/logs/";
+//    private String basePath = "/dune/logs/";
 
     private String dirBaseToStoreFiles = "log/downloaded";
 
@@ -171,11 +170,11 @@ public class LogsDownloaderWorker {
     private JXPanel frameCompHolder = null;
     private JTextField hostField = null;
     private JTextField portField = null;
-    private JTextField baseUriField = null;
+//    private JTextField baseUriField = null;
     private JTextField logLabelField = null;
     private JLabel hostLabel = null;
     private JLabel portLabel = null;
-    private JLabel baseUriLabel = null;
+//    private JLabel baseUriLabel = null;
     private JLabel logLabelLabel = null;
     private MessagePanel msgPanel = null;
     private JXLabel logFoldersListLabel = null;
@@ -299,9 +298,9 @@ public class LogsDownloaderWorker {
         portField = new JTextField(5);
         // portField = new JFormattedTextField(NumberFormat.getInstance());
         portField.setText("" + port);
-        baseUriLabel = new JLabel(I18n.text("Base URI Path: "));
-        baseUriField = new JTextField(40);
-        baseUriField.setText(basePath);
+//        baseUriLabel = new JLabel(I18n.text("Base URI Path: "));
+//        baseUriField = new JTextField(40);
+//        baseUriField.setText(basePath);
         logLabelLabel = new JLabel(I18n.text("System Label: "));
         logLabelField = new JTextField(40);
         logLabelField.setText(logLabel);
@@ -480,22 +479,25 @@ public class LogsDownloaderWorker {
                 .addGroup(
                         layoutCfg.createSequentialGroup().addComponent(hostLabel).addComponent(hostField)
                         .addComponent(portLabel).addComponent(portField))
-                        .addGroup(layoutCfg.createSequentialGroup().addComponent(baseUriLabel).addComponent(baseUriField))
+//                        .addGroup(layoutCfg.createSequentialGroup().addComponent(baseUriLabel).addComponent(baseUriField))
                         .addGroup(layoutCfg.createSequentialGroup().addComponent(logLabelLabel).addComponent(logLabelField)));
         layoutCfg.setVerticalGroup(layoutCfg
                 .createSequentialGroup()
                 .addGroup(
                         layoutCfg.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(hostLabel)
                         .addComponent(hostField).addComponent(portLabel).addComponent(portField))
-                        .addGroup(
-                                layoutCfg.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(baseUriLabel)
-                                .addComponent(baseUriField))
+//                        .addGroup(
+//                                layoutCfg.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(baseUriLabel)
+//                                .addComponent(baseUriField))
                                 .addGroup(
                                         layoutCfg.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(logLabelLabel)
                                         .addComponent(logLabelField)));
-        layoutCfg.linkSize(SwingConstants.VERTICAL, hostLabel, hostField, portLabel, portField, baseUriLabel,
-                baseUriField, logLabelLabel, logLabelField);
-        layoutCfg.linkSize(SwingConstants.HORIZONTAL, baseUriLabel, logLabelLabel, hostLabel);
+        layoutCfg.linkSize(SwingConstants.VERTICAL, hostLabel, hostField, portLabel, portField, 
+//                baseUriLabel, baseUriField, 
+                logLabelLabel, logLabelField);
+        layoutCfg.linkSize(SwingConstants.HORIZONTAL, 
+//                baseUriLabel, 
+                logLabelLabel, hostLabel);
 
         // This is called here (After the group layout configuration) because of an IllegalStateException during collape
         // redraw
@@ -630,7 +632,7 @@ public class LogsDownloaderWorker {
         downHelpDialog = new DownloaderHelp(frame);
 
         setEnableLogLabel(false);
-        setVisibleBasePath(false);
+//        setVisibleBasePath(false);
 
         setEnableHost(true);
 
@@ -1512,16 +1514,16 @@ public class LogsDownloaderWorker {
         if ("".equalsIgnoreCase(logLabelField.getText()))
             return false;
 
-        String bs = baseUriField.getText().replace("\\", "/");
-        if (!bs.startsWith("/"))
-            bs = "/" + bs;
-        if (!bs.endsWith("/"))
-            bs = bs + "/";
-        bs.replace("\\", "").replaceAll("/", "").replaceAll("\\s", "");
+//        String bs = baseUriField.getText().replace("\\", "/");
+//        if (!bs.startsWith("/"))
+//            bs = "/" + bs;
+//        if (!bs.endsWith("/"))
+//            bs = bs + "/";
+//        bs.replace("\\", "").replaceAll("/", "").replaceAll("\\s", "");
+//        basePath = bs;
 
         host = hostField.getText();
         port = iPort;
-        basePath = bs;
         logLabel = logLabelField.getText();
         if ("".equalsIgnoreCase(logLabel))
             logLabel = I18n.text("unknown");
@@ -1555,20 +1557,14 @@ public class LogsDownloaderWorker {
         portField.setText("" + port);
     }
 
-    /**
-     * @return
-     */
-    public String getBasePath() {
-        return basePath;
-    }
-
-    /**
-     * @param basePath
-     */
-    public void setBasePath(String basePath) {
-        this.basePath = basePath;
-        baseUriField.setText(basePath);
-    }
+//    public String getBasePath() {
+//        return basePath;
+//    }
+//
+//    public void setBasePath(String basePath) {
+//        this.basePath = basePath;
+//        baseUriField.setText(basePath);
+//    }
 
     public String getLogLabel() {
         return logLabel;
@@ -2114,13 +2110,10 @@ public class LogsDownloaderWorker {
 
     // --------------------------------------------------------------
 
-    /**
-     * @param visible
-     */
-    public void setVisibleBasePath(boolean visible) {
-        baseUriField.setVisible(visible);
-        baseUriLabel.setVisible(visible);
-    }
+//    public void setVisibleBasePath(boolean visible) {
+//        baseUriField.setVisible(visible);
+//        baseUriLabel.setVisible(visible);
+//    }
 
     /**
      * @param visible
@@ -2153,12 +2146,9 @@ public class LogsDownloaderWorker {
         configCollapsiblePanel.setCollapsed(!visible);
     }
 
-    /**
-     * @param enable
-     */
-    public void setEnableBasePath(boolean enable) {
-        baseUriField.setEnabled(enable);
-    }
+//    public void setEnableBasePath(boolean enable) {
+//        baseUriField.setEnabled(enable);
+//    }
 
     /**
      * @param enable
@@ -2651,40 +2641,57 @@ public class LogsDownloaderWorker {
         // frame.add(tabbledPane);
         // frame.setVisible(true);
         //
-        // Register for EntityActivationStateActivationState
-        ImcMsgManager.getManager().addListener(new MessageListener<MessageInfo, IMCMessage>() {
+        
+        
+//        // Register for EntityActivationStateActivationState
+//        {
+//            ImcMsgManager.getManager().addListener(new MessageListener<MessageInfo, IMCMessage>() {
+//                
+//                @Override
+//                public void onMessage(MessageInfo info, IMCMessage msg) {
+//                    if (msg.getAbbrev().equals("PowerChannelState")) {
+//                        System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + msg);
+//                    }
+//                }
+//            });
+//            
+//            ImcMsgManager.getManager().start();
+//            new Thread(new Runnable() {
+//                
+//                @Override
+//                public void run() {
+//                    
+//                    while (true) {
+//                        int ent = EntitiesResolver.resolveId("lauv-xtreme-2", "Camera Module");
+//                        System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + "Entity ID: " + ent);
+//                        
+//                        IMCMessage msg = new IMCMessage("QueryPowerChannelState");
+//                        msg.setDstEnt(255);
+//                        
+//                        ImcMsgManager.getManager().sendMessageToSystem(msg, "lauv-xtreme-2");
+//                        
+//                        try {
+//                            Thread.sleep(1000);
+//                        }
+//                        catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
+//            }, "Query DOAM Activation").start();
+//        }
+        
+        {
+            GuiUtils.setLookAndFeel();
 
-            @Override
-            public void onMessage(MessageInfo info, IMCMessage msg) {
-                if (msg.getAbbrev().equals("PowerChannelState")) {
-                    System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + msg);
-                }
-            }
-        });
+            final LogsDownloaderWorker logFetcher = new LogsDownloaderWorker();
 
-        ImcMsgManager.getManager().start();
-        new Thread(new Runnable() {
+            logFetcher.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            logFetcher.frame.setVisible(true);
 
-            @Override
-            public void run() {
+            // logFetcher.setHost("10.0.2.90");
+            // logFetcher.setPort(8080);
 
-                while (true) {
-                    int ent = EntitiesResolver.resolveId("lauv-xtreme-2", "Camera Module");
-                    System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + "Entity ID: " + ent);
-
-                    IMCMessage msg = new IMCMessage("QueryPowerChannelState");
-                    msg.setDstEnt(255);
-
-                    ImcMsgManager.getManager().sendMessageToSystem(msg, "lauv-xtreme-2");
-
-                    try {
-                        Thread.sleep(1000);
-                    }
-                    catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }, "Query DOAM Activation").start();
+        }
     }
 }
