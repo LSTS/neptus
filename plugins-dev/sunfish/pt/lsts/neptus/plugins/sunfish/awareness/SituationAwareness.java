@@ -394,7 +394,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             g.setColor(track.getColor());
 
             g.setColor(Color.black);
-            String name = assetProperties.containsKey(p.getAssetName()) ? assetProperties.get(p.getAssetName()).friendly : p.getAssetName();
+            String name = p.getAssetName();//assetProperties.containsKey(p.getAssetName()) ? assetProperties.get(p.getAssetName()).friendly : p.getAssetName();
             g.drawString(
                     name + " ("
                             + DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - p.getTimestamp())
@@ -413,7 +413,10 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
             g.setColor(Color.white);
             g.draw(new Ellipse2D.Double(pt.getX() - 6, pt.getY() - 6, 12, 12));
             if (assetProperties.containsKey(pivot.getAssetName()))
-                pivot.putExtra("Description", assetProperties.get(pivot.getAssetName()).description);            
+                pivot.putExtra("Description", assetProperties.get(pivot.getAssetName()).description);   
+            if (assetProperties.containsKey(pivot.getAssetName()))
+                pivot.putExtra("Friendly name", assetProperties.get(pivot.getAssetName()).friendly);   
+            
             lbl.setOpaque(true);
             lbl.setBackground(new Color(255, 255, 255, 128));
             lbl.setText(pivot.getHtml());
