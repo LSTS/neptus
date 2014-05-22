@@ -1,6 +1,22 @@
 Changes
 =======
 
+Neptus 4.0.0rc2 (??-05-2014)
+------------
+ * IMC: Updated IMC and IMCJava to v5.4.0.
+ * Config: Updated systems parameters to DUNE 2.5.0 (release/dune-2.5.x,b8da6dd).
+ * I18n: Updated POT and PO files.
+ * Ant/build.xml: Some corrections in order to compile main source without plugin dependencies, also each plugin doesn't compile with others plugins dependency.
+ * MRA: Sort columns values is now working properly added single table cell selection. Closes #3012.
+ * MRA/MRALogReplay: Added temporary fix for MRALogReplayTimeline interval collection of messages to replay. (We need to rethink the ordering of messages in the index.)
+ * Log/Config: Little update on log4j configuration. Also added more clear example for extended debug configuration.
+ * Consoles/lauv.ncon: Re-added marks interaction on right Map mouse click (contact marker).
+ * LogsDownloaderWorker: Some cleanups.
+ * Console: Fix some problems with hidden Abort button and MissionTree scrollbar in console layout lauv.ncon.
+ * MRA/VTK/Vis3D: Some bug fixeds.
+ * MRA/Exporters: Added Video Overlay MRA exporter (EstimatedState needed).
+ * Console/HFRadarVisualization: Fixes reading and displaying data. 
+
 Neptus 4.0.0rc1 (07-05-2014)
 ------------
  * IMC: Updated IMC and IMCJava to v5.4.0-rc1. (same as v3.1.0)
