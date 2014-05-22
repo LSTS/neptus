@@ -143,7 +143,11 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	private JXLabel msgLabel = null;
 	private MiniButton stopButton = null;
 	private MiniButton downloadButton = null;
-	
+
+	//Background Painter Stuff
+    private RectanglePainter rectPainter;
+    private CompoundPainter<JXPanel> compoundBackPainter;
+
 	public DownloaderPanel() {
 		initialize();
 	}
@@ -222,15 +226,12 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         		getDownloadButton());
 	}
 
-	//Background Painter Stuff
-	private RectanglePainter rectPainter;
-	private CompoundPainter<JXPanel> compoundBackPainter;
 	/**
 	 * @return the rectPainter
 	 */
 	private RectanglePainter getRectPainter() {
 		if (rectPainter == null) {
-	        rectPainter = new RectanglePainter(5,5,5,5, 10,10);
+	        rectPainter = new RectanglePainter(5, 5, 5, 5, 10, 10);
 	        rectPainter.setFillPaint(COLOR_IDLE);
 	        rectPainter.setBorderPaint(COLOR_IDLE.darker().darker().darker());
 	        rectPainter.setStyle(RectanglePainter.Style.BOTH);
@@ -350,25 +351,21 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		State oldState = this.state;
 		this.state = state;
 		if (state == State.WORKING) {
-			//this.setBackground(COLOR_WORKING);
 			updateBackColor(COLOR_WORKING);
 			getStopButton().setEnabled(true);
 			getDownloadButton().setEnabled(false);
 		}
 		else if (state == State.ERROR) {
-			//this.setBackground(COLOR_ERROR);
 			updateBackColor(COLOR_ERROR);
 			getStopButton().setEnabled(false);
 			getDownloadButton().setEnabled(true);
 		}
 		else if (state == State.DONE) {
-			//this.setBackground(COLOR_DONE);
 			updateBackColor(COLOR_DONE);
 			getStopButton().setEnabled(false);
 			getDownloadButton().setEnabled(true);
 		}
 		else if (state == State.NOT_DONE) {
-			//this.setBackground(COLOR_NOT_DONE);
 			updateBackColor(COLOR_NOT_DONE);
 			getStopButton().setEnabled(false);
 			getDownloadButton().setEnabled(true);
@@ -379,7 +376,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             getDownloadButton().setEnabled(true);
         }
 		else {
-			//this.setBackground(COLOR_IDLE);
 			updateBackColor(COLOR_IDLE);
 			getStopButton().setEnabled(false);
 			getDownloadButton().setEnabled(true);
@@ -416,8 +412,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	 * @param newState
 	 * @param oldState
 	 */
-	private void warnStateListener(DownloaderPanel.State newState,
-			DownloaderPanel.State oldState) {
+	private void warnStateListener(DownloaderPanel.State newState, DownloaderPanel.State oldState) {
 		if (stateListener != null)
 			stateListener.downloaderStateChange(newState, oldState);
 	}
@@ -456,7 +451,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		}
 	}
 
-	//FIXME
+	/**
+	 * Called to start the download
+	 */
 	public void actionDownload () {
 		new Thread() {
 			@Override
@@ -470,7 +467,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	}
 	
 	/**
-	 * 
+	 * Called to stop the download
 	 */
 	public void actionStop() {
 		new Thread() {
@@ -484,7 +481,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	protected boolean doDownload() {
 	    if(isDirectory)
             return doDownloadDirectory();
-	    
 	    
 	    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
 		if (getState() == State.WORKING)
