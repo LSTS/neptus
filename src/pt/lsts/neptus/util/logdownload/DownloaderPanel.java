@@ -685,7 +685,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                     continue;
                 }
                 
-                // stream = client.getClient().retrieveFileStream(key);
                 stream = client.getClient().retrieveFileStream(new String(key.getBytes(), "ISO-8859-1"));
                 
                 out.getParentFile().mkdirs();
@@ -718,7 +717,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             }
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            NeptusLog.pub().warn(ex);
             if (ex.getMessage() != null && ex.getMessage().startsWith("Timeout waiting for connection")) {
                 isOnTimeout = true;
                 getProgressBar().setString(" " + I18n.text("Error:") + " " + ex.getMessage());
@@ -741,7 +740,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             }
         }
         if (isOnTimeout) {
-            new Thread() {
+            new Thread(DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'") {
                 @Override
                 public void run() {
                     try { Thread.sleep(8000); } catch (InterruptedException e) { }
@@ -768,6 +767,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		    setStateNotDone();
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 	    if(this == obj)
@@ -790,14 +792,14 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	}
 
 
+	/**
+	 * For use internally
+	 * @author pdias
+	 */
 	private class FilterDownloadDataMonitor extends FilterInputStream {
 
-		//private DownloaderPanel downloadPanel = null;
-		
         private static final int MAX_TIME_MINUTES_LEFT_TO_SHOW = 180;
 
-        //private long fullSize = -1;
-		//private long bytesRead = 0;
 		private long prec = 0;
 		
 		private long timeC = -1;
@@ -805,18 +807,15 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		
 		private Timer timer = new Timer(DownloaderPanel.class.getName() + " "
 				+ DownloaderPanel.this.hashCode());
-        private TimerTask ttask = null, ttaskIdle = null;
+        private TimerTask ttask = null;
         
         private MovingAverage movingAverage = new MovingAverage((short) 25);
 		
 		/**
 		 * @param in
 		 */
-		public FilterDownloadDataMonitor(InputStream in) {//, DownloaderPanel downloadPanel, long fullSize) {
+		public FilterDownloadDataMonitor(InputStream in) {
 			super(in);
-			//this.downloadPanel = downloadPanel;
-			//this.fullSize = fullSize;
-//			downloadedSize = 0;
 		}
 
 		public void stopDisplayUpdate() {
@@ -838,7 +837,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			return tmp;
 		}
 		
-		/*This one justs calls "read(byte[] b, int off, int len)",
+		/*This one just calls "read(byte[] b, int off, int len)",
 		 * so no need to implemented
 		 */
 		//public int read(byte[] b) throws IOException {
@@ -862,10 +861,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 					ttask = null;
 					updateProgressInfo();
 				}
-//				if (ttaskIdle != null) {
-//					ttaskIdle.cancel();
-//					ttaskIdle = null;
-//				}
 			}
 			else {
 				if (ttask == null) {
@@ -877,7 +872,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		}
 		
 		private void updateProgressInfo () {
-			
 			double bps = -1;
 			if (timeC != -1) {
 				long ct =  System.currentTimeMillis();
@@ -899,14 +893,11 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			prec = (long) ((double)downloadedSize/(double)fullSize*100.0);
 			getProgressBar().setValue((int) prec);
 			//"346652bytes (95.9KB/s),00:00:07s left"
-			//getProgressLabel().setText(
 			getProgressBar().setString(I18n.textf("%downloadedSize of %fullSize %dataRate - %remainingSize remaining", 
 			        MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize, 1) + "B",
 			        MathMiscUtils.parseToEngineeringRadix2Notation(fullSize, 1) + "B",
 			        ((bps < 0) ? "" : " @"+MathMiscUtils.parseToEngineeringRadix2Notation(movingAverage.mean(), 1) + "B/s"),
 			        getTimeLeft(movingAverage.mean())));
-			
-//			NeptusLog.pub().info("<###> "+movingAverage);
 		}
 		
 		/**
@@ -927,35 +918,12 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 
 		private TimerTask getTimerTask() {
 			return new TimerTask() {
-				
 				@Override
 				public void run() {
-//					NeptusLog.pub().info("<###>............ "+DateTimeUtil.dateTimeFormater.format(new Date(System.currentTimeMillis())));
-//					System.out.flush();
-//					if (ttaskIdle != null) {
-//						ttaskIdle.cancel();
-//						ttaskIdle = null;
-//					}
 					ttask = null;
 					if (downloadedSize >= fullSize)
 						return;
 					updateProgressInfo();
-					
-//					ttaskIdle = getTimerTaskIdle();
-//					timer.schedule(ttaskIdle, 998, 1000);
-				}
-			};
-		}
-		
-        private TimerTask getTimerTaskIdle() {
-			return new TimerTask() {
-				@Override
-				public void run() {
-//					NeptusLog.pub().info("<###>     ------------S "+DateTimeUtil.dateTimeFormater.format(new Date(System.currentTimeMillis())));
-//					System.out.flush();
-					updateValueInMessagePanel();
-					//updateProgressInfo();
-					ttaskIdle = null;
 				}
 			};
 		}
