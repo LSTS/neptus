@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.5.0-rc1 (HEAD,6db5dd1)" system="cularis-04" i18n="ru_RU">
+<config format="1" version="2.5.0 (release/dune-2.5.x,b8da6dd)" system="cularis-04" i18n="ru_RU">
   <section name="Autopilot" name-i18n="Автопилот">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -989,6 +989,15 @@
       <desc>Type of vehicle</desc>
       <values>UUV, ASV, UAV</values>
       <values-i18n>UUV, ASV, UAV</values-i18n>
+    </param>
+    <param name="Entity Label - Medium Sensor">
+      <name-i18n>Entity Label - Medium Sensor</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Medium Sensor</default>
+      <units/>
+      <desc>Entity label of 'EntityState' Medium Sensor messages</desc>
     </param>
   </section>
   <section name="Plan Database" name-i18n="План баз данных">
@@ -2237,6 +2246,15 @@
       <default/>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
+    </param>
+    <param name="Filtered Entities">
+      <name-i18n>Filtered Entities</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>
     <param name="Announce Service">
       <name-i18n>Announce Service</name-i18n>

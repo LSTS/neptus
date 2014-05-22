@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<config format="1" version="2.5.0-rc1 (HEAD,6db5dd1)" system="doam" i18n="pt_PT">
+<config format="1" version="2.5.0 (release/dune-2.5.x,b8da6dd)" system="doam" i18n="pt_PT">
 <section name="Thermal Zone" name-i18n="Zona Térmica">
 <param name="Entity Label">
 <name-i18n>Nome da Entidade</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Thermal Zone</default><units></units><desc>Nome principal da entidade</desc></param>
