@@ -62,63 +62,7 @@ public class ColorMapPropertyEditor extends AbstractPropertyEditor {
 	}
 	
 	@Override
-	public Object getValue() {
-	    
-        if (combo.getSelectedItem().equals(ColorMapFactory.createBronzeColormap())) {
-            MRAProperties.sidescanColorMap = 0;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createStoreDataColormap())) {
-            MRAProperties.sidescanColorMap = 1;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createRainbowColormap())) {
-            MRAProperties.sidescanColorMap = 2;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createRedYellowGreenColorMap())) {
-            MRAProperties.sidescanColorMap = 3;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createGreenRadarColorMap())) {
-            MRAProperties.sidescanColorMap = 4;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createPinkColorMap())) {
-            MRAProperties.sidescanColorMap = 5;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createBlueToRedColorMap())) {
-            MRAProperties.sidescanColorMap = 6;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createRedGreenBlueColorMap())) {
-            MRAProperties.sidescanColorMap = 7;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createWinterColorMap())) {
-            MRAProperties.sidescanColorMap = 8;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createAutumnColorMap())) {
-            MRAProperties.sidescanColorMap = 9;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createSummerColorMap())) {
-            MRAProperties.sidescanColorMap = 10;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createSpringColorMap())) {
-            MRAProperties.sidescanColorMap = 11;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createBoneColorMap())) {
-            MRAProperties.sidescanColorMap = 12;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createCopperColorMap())) {
-            MRAProperties.sidescanColorMap = 13;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createHotColorMap())) {
-            MRAProperties.sidescanColorMap = 14;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createCoolColorMap())) {
-            MRAProperties.sidescanColorMap = 15;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createJetColorMap())) {
-            MRAProperties.sidescanColorMap = 16;
-        }
-        if (combo.getSelectedItem().equals(ColorMapFactory.createGrayScaleColorMap())) {
-            MRAProperties.sidescanColorMap = 17;
-        }
-	    
+	public Object getValue() {	    
 		return combo.getSelectedItem();
 	}
 	
