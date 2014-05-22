@@ -849,17 +849,27 @@ public class LsfReport {
             imgLineList.add(imgLine);
             if (point == true && l.timestampMillis == t) {
                 indexY = i;
-                int index = convertMtoIndex(mark.x + l.range, l.range, l.data.length);
-                color = config.colorMap.getColor(l.data[index]);
-                if (border == true) {
-                    if (index > (i2 - i1)) {
-                        index = index - i1;
-                    }
-                    indexX = (int) (((double) ((double) index / (double) (i2 - i1))) * 100);
+            }
+        }
+        if (point == true) {
+            if (mark.subSys != ssParser.getSubsystemList().get(subSys)) {
+                indexY = 50;
+            }
+            ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - 1, t + 1, mark.subSys, sidescanParams);
+            if (list2.isEmpty()) {
+                throw new DocumentException(mark.label + " | list2.isEmpty()");
+            }
+            SidescanLine l = list2.get(0);
+            int index = convertMtoIndex(mark.x + l.range, l.range, l.data.length);
+            color = config.colorMap.getColor(l.data[index]);
+            if (border == true) {
+                if (index > (i2 - i1)) {
+                    index = index - i1;
                 }
-                else {
-                    indexX = 50;
-                }
+                indexX = (int) (((double) ((double) index / (double) (i2 - i1))) * 100);
+            }
+            else {
+                indexX = 50;
             }
         }
         if (point == true && color == null) {
