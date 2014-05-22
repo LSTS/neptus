@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2014-05-11 22:44+0100\n"
-"PO-Revision-Date: 2014-05-11 22:51+0100\n"
+"POT-Creation-Date: 2014-05-22 17:37+0100\n"
+"PO-Revision-Date: 2014-05-22 17:43+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
@@ -51,7 +51,7 @@ msgstr "Monitor de comunicações %commName"
 msgid "%deltaTime with no messages"
 msgstr "%deltaTime sem mensagens"
 
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:899
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:892
 msgid "%downloadedSize of %fullSize %dataRate - %remainingSize remaining"
 msgstr "%downloadedSize de %fullSize %dataRate - %remainingSize em falta"
 
@@ -63,7 +63,7 @@ msgstr "%fullSize concluído (em %time) @%dataRate"
 msgid "%fullSize partially [%partialSize] done (in %time) @%dataRate"
 msgstr "%fullSize parcialmente [%partialSize] concluído (em %time) @%dataRate"
 
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:703
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:702
 msgid "%listSize files done (in %time) @%dataRate"
 msgstr "%listSize ficheiros concluídos (em %time) @%dataRate"
 
@@ -88,7 +88,7 @@ msgstr "%manta está ocupada. Tente novamente dentro de momentos."
 msgid "%manta timed out while trying to abort %systemName"
 msgstr "%manta expirou o tempo enquanto tentava abortar %systemName"
 
-#: src/pt/lsts/neptus/util/llf/LogTableVisualization.java:184
+#: src/pt/lsts/neptus/util/llf/LogTableVisualization.java:189
 msgid "%msgtype messages"
 msgstr "Mensagens %msgtype"
 
@@ -215,8 +215,7 @@ msgstr "Atalhos do Renderer 2D"
 msgid "2D Side View"
 msgstr "Visualização Lateral 2D"
 
-#: Name of plugin pt.lsts.neptus.plugins.vtk.VtkMRAVis
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:117
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:119
 msgid "3D Bathymetry"
 msgstr "Batimetria 3D"
 
@@ -224,7 +223,7 @@ msgstr "Batimetria 3D"
 msgid "3D Bathymetry Visualization"
 msgstr "Visualização 3D Batimetria"
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:394
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:388
 msgid "3D Bathymetry properties"
 msgstr "Propriedades da Batimetria 3D"
 
@@ -517,7 +516,7 @@ msgstr "Operações Acústicas"
 msgid "Action"
 msgstr "Acção"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:291
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:323
 msgid "Activate Polling"
 msgstr "Activar Polling"
 
@@ -849,13 +848,13 @@ msgstr "Aplicação iniciada"
 msgid "Approach to ignore points on Multibeam 3D"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1178
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1138
 msgid "Are you sure you want to delete selected log files from remote system?"
 msgstr ""
 "Tem a certeza que quer apagar ficheiros de log selecionados do sistema "
 "remoto?"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1098
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1058
 msgid ""
 "Are you sure you want to delete selected log folders from remote system?"
 msgstr ""
@@ -992,11 +991,7 @@ msgstr "Mapas Base"
 msgid "Base Orientation"
 msgstr "Orientação Base"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:302
-msgid "Base URI Path: "
-msgstr "Caminho URI Base:"
-
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:419
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:401
 msgid "Basic log folder not synchronized. Can't open MRA"
 msgstr "Pasta de Log básico não sincronizada. Não é possível abrir o MRA"
 
@@ -1022,6 +1017,10 @@ msgstr "Batimetria"
 #: Name of plugin pt.lsts.neptus.plugins.mraplots.BathymetryPlotter
 msgid "Bathymetry 2D"
 msgstr "Batimetria 2D"
+
+#: Name of plugin pt.lsts.neptus.plugins.vtk.VtkMRAVis
+msgid "Bathymetry 3D"
+msgstr "Batimetria 3D"
 
 #: src/pt/lsts/neptus/mra/replay/BathymetryReplay.java:84
 msgid "Bathymetry layer"
@@ -1178,7 +1177,7 @@ msgid "CTD"
 msgstr "CTD"
 
 #: Name of plugin pt.lsts.neptus.plugins.vtk.CTD3D
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/CTD3D.java:96
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/CTD3D.java:97
 msgid "CTD 3D"
 msgstr "CTD 3D"
 
@@ -1207,7 +1206,7 @@ msgid "Calibration Mode"
 msgstr "Modo de Calibração"
 
 #: Property from pt.lsts.neptus.plugins.ipcam.AirCamDisplay
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:408
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:406
 msgid "Camera Alias"
 msgstr "Pseudónimo da Câmara"
 
@@ -1564,7 +1563,7 @@ msgstr "Comandos:"
 msgid "Command %vehicle"
 msgstr "Comandar %vehicle"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:316
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:348
 msgid "Command %vehicle a plan via Iridium"
 msgstr "Comandar plano para %vehicle via Iridium"
 
@@ -1655,7 +1654,7 @@ msgid "Config"
 msgstr "Configuração"
 
 #: src/pt/lsts/neptus/gui/SimpleTransponderPanel.java:97
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:472
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:454
 msgid "Configuration"
 msgstr "Configuração"
 
@@ -1761,11 +1760,11 @@ msgstr "Ligar com Hospedeiro Remoto"
 msgid "Connecting"
 msgstr "A ligar"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:684
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:635
 msgid "Connecting to remote system for log list update..."
 msgstr "A ligar com sistema remoto para actualização de lista de log..."
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:390
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:388
 msgid "Connection"
 msgstr "Ligação"
 
@@ -1862,7 +1861,7 @@ msgstr "Marcador de Contactos"
 msgid "Contact info:"
 msgstr "Informação de contacto:"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:829
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:787
 msgid "Contacting remote system for complete log file list..."
 msgstr "A contactar sistema remoto para lista de ficheiro log completa..."
 
@@ -2117,7 +2116,7 @@ msgstr "Dias a buscar no futuro"
 msgid "Days to fetch in the past"
 msgstr "Dias a buscar no passado"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:283
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:315
 msgid "Deactivate Polling"
 msgstr "Desactivar Polling"
 
@@ -2212,11 +2211,11 @@ msgstr "Apagar %planName localmente"
 msgid "Delete '%transponderName'?"
 msgstr "Apagar '%transponderName'?"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:464
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:446
 msgid "Delete Selected Log Files"
 msgstr "Apagar Ficheiros de Log Seleccionados"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:459
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:441
 msgid "Delete Selected Log Folders"
 msgstr "Apagar Pastas de Log Seleccionadas"
 
@@ -2488,8 +2487,8 @@ msgstr "Não usar este elemento de topo (isto é informativo)"
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/BathymetryPlotter.java:413
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:284
 #: src/pt/lsts/neptus/mra/MRAFilesHandler.java:223
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:733
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:959
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:691
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:917
 msgid "Done"
 msgstr "Concluído"
 
@@ -2515,7 +2514,7 @@ msgid "Download Helper"
 msgstr "Ajuda do Descarregador"
 
 #: plugins-dev/logs/pt/lsts/neptus/plugins/logs/LoggingDownloader.java:221
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:116
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:115
 msgid "Download Log Files"
 msgstr "Descarregar Ficheiros de Log"
 
@@ -2532,7 +2531,7 @@ msgstr "Descarregar logs da localização."
 msgid "Download logs from location (FTP)"
 msgstr "Descarregar Logs da localização (FTP)"
 
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:282
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:283
 msgid "Downloading..."
 msgstr "A descarregar..."
 
@@ -2549,6 +2548,11 @@ msgstr "Desenhar Distância Para Cima Ou Para Baixo Do Ponto"
 #: Property from pt.lsts.neptus.console.plugins.SystemsList
 msgid "Draw System Label"
 msgstr "Desenhar Etiqueta de Sistema"
+
+#: Description of property 'Show currents visible data date-time interval'
+#: from pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
+msgid "Draws the string with visible curents data date-time interval."
+msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.odss.OdssStoqsTrackFetcher
 msgid "Drifter"
@@ -2751,7 +2755,7 @@ msgstr "Habilitar/Dasabilitar exagero do eixo z"
 msgid "Enable/Disable contouts"
 msgstr "Habilitar/Dasabilitar contornos"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:218
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:250
 msgid "Enter command to be sent to %vehicle"
 msgstr "Introduzir comando a enviar para %vehicle"
 
@@ -2763,7 +2767,7 @@ msgstr "Inserir comando a enviar para %vehicle"
 msgid "Enter new speed (%speedUnit)"
 msgstr "Estabelecer nova velocidade (%speedUnit)"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:191
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:215
 msgid "Enter note to be published"
 msgstr "Introduza nota para ser publicada"
 
@@ -2862,7 +2866,9 @@ msgstr "Erro a Enviar Abortar por Modem por '%sendermodemid'"
 msgid "Error adding maneuver"
 msgstr "Erro ao adicionar manobra"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:2372
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:2287
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:2295
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:2304
 msgid "Error couth on resetting: %errormessage"
 msgstr "Erro apanhado no reiniciar: %errormessage"
 
@@ -2894,7 +2900,7 @@ msgstr "Erro ao carregar sistemas!"
 msgid "Error monitor"
 msgstr "Monitor de erro"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1454
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1403
 msgid "Error on configuration"
 msgstr "Erro em configuração"
 
@@ -2946,7 +2952,7 @@ msgstr "Erro ao enviar beacons acústicas"
 msgid "Error sending exiting Tele-Operation message!"
 msgstr "Erro ao enviar mensagem de saída de Teleoperação!"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:401
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:434
 msgid "Error sending iridium message"
 msgstr "Erro no envio de mensage Iridium"
 
@@ -2989,8 +2995,8 @@ msgstr "Erro durante o carregar o XML:"
 
 #: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:579
 #: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:584
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:720
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:725
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:719
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:724
 msgid "Error:"
 msgstr "Erro:"
 
@@ -3230,7 +3236,7 @@ msgstr ""
 msgid "Filter to Show Only Main Vehicle's Piccolo Waypoints"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:769
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:727
 msgid "Filtering list..."
 msgstr "A filtrar lista..."
 
@@ -3706,7 +3712,7 @@ msgstr "Passo Horizontal"
 msgid "Host"
 msgstr "Anfitrião"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:295
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:293
 msgid "Host: "
 msgstr "Anfitrião:"
 
@@ -3871,7 +3877,7 @@ msgstr "INICIALIZAR"
 msgid "IP"
 msgstr "IP"
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:410
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:408
 msgid "IP Address"
 msgstr "Endereço IP"
 
@@ -4203,27 +4209,27 @@ msgstr "Plu-in de Comunicações por Iridium"
 msgid "Iridium Messenger"
 msgstr "Mensageiro por Iridium"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:400
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:404
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:408
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:412
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:416
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:433
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:437
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:441
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:445
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:449
 msgid "Iridium communications"
 msgstr "Comunicações Iridium"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:417
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:450
 msgid "Iridium message is being transmited"
 msgstr "Mensagem Iridium está a ser transmitida"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:409
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:442
 msgid "Iridium message sent successfully"
 msgstr "Mensagem Iridium enviada com sucesso"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:405
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:438
 msgid "Iridium message transmission time has expired"
 msgstr "Transmissão de mensagem Iridium expirou por tempo"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:413
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:446
 msgid "Iridium message was queued for later transmission"
 msgstr "Mensagem Iridium foi colocada na fila para posterior transmissão"
 
@@ -4535,7 +4541,7 @@ msgstr "Informação Local"
 msgid "Local Modem Location in Map"
 msgstr "Localização de Modem Local no Mapa"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1325
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1284
 msgid "Local free disk space %usedspace of %totalspace"
 msgstr "Disco local com  %usedspace espaço usado de um total de %totalspace"
 
@@ -4590,15 +4596,15 @@ msgstr "Painel de Livro Log"
 msgid "Log Download"
 msgstr "Descarregar Logs"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:314
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:309
 msgid "Log Files"
 msgstr "Ficheiros de Log"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:313
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:308
 msgid "Log Folders"
 msgstr "Pastas de Log"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:736
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:694
 msgid "Log Folders: %numberoffolders"
 msgstr "Pastas de Logs: %numberoffolders"
 
@@ -5030,10 +5036,6 @@ msgstr "Profundidade máxima para o comportamento do yoyo"
 msgid "Maximum depth to be used in bathymetry plots."
 msgstr "Profundidade máxima pare ser usado para gráficos de batímetria"
 
-#: Property from pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
-msgid "Maximum position age (hours)"
-msgstr "Máximo de idade para posição (horas)"
-
 #: src/pt/lsts/neptus/mp/Maneuver.java:941
 msgid "Maximum time"
 msgstr "Tempo máximo"
@@ -5213,6 +5215,10 @@ msgid ""
 msgstr ""
 "Minutos a partir do qual os sistemas desaparecem do render se inactivos (0 "
 "para desabilitar)"
+
+#: Property from pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
+msgid "Minutes between file updates"
+msgstr "Minutos entre actualizações de ficheiros"
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1069
 msgid "Missing attached mission!"
@@ -5594,7 +5600,7 @@ msgstr "Comunicação não recebida por mais de 10s"
 msgid "No configuration file selected"
 msgstr "Nenhum ficheiro de configuração selecionado"
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:180
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:190
 msgid "No data Available"
 msgstr "Não existem dados disponíveis"
 
@@ -5611,7 +5617,7 @@ msgstr "Nenhuma pré-definição encontrada para campo %fieldName"
 msgid "No extra info"
 msgstr "Sem informação extra"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:757
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:715
 msgid "No logs..."
 msgstr "Sem Logs..."
 
@@ -5836,10 +5842,10 @@ msgstr "Nome do Objecto:"
 msgid "Obstacle"
 msgstr "Obstáculo"
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:391
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:396
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:471
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:489
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:389
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:394
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:469
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:487
 msgid "Off"
 msgstr "Desligado"
 
@@ -5882,8 +5888,8 @@ msgstr "NDesvio"
 msgid "Ok"
 msgstr "OK"
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:457
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:483
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:455
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:481
 msgid "On"
 msgstr "Ligado"
 
@@ -6426,7 +6432,7 @@ msgid ""
 "follow a tag."
 msgstr ""
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:298
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:296
 msgid "Port: "
 msgstr "Porto:"
 
@@ -6434,7 +6440,7 @@ msgstr "Porto:"
 msgid "Pos. external"
 msgstr "Pos. externa"
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:415
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:413
 #: src/pt/lsts/neptus/mra/plots/EstimatedStatePlot.java:97
 #: src/pt/lsts/neptus/types/map/Model3DElement.java:514
 msgid "Position"
@@ -6493,7 +6499,7 @@ msgstr "Processamento completo."
 msgid "Processing Data"
 msgstr "A Processar Dados"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:833
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:791
 msgid "Processing log list..."
 msgstr "A processar lista de logs..."
 
@@ -6765,7 +6771,7 @@ msgstr "Gravar"
 msgid "Record Mouse Actions"
 msgstr "Gravar Ações do Rato"
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:395
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:393
 msgid "Record Stream"
 msgstr "Gravar Fluxo"
 
@@ -6853,8 +6859,8 @@ msgstr "Re-Carregar"
 msgid "Reload Panel"
 msgstr "Re-Carregar Painel"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1101
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1180
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1061
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1140
 msgid "Remote Delete Confirmation"
 msgstr "Confirmação de Apagar Remoto"
 
@@ -7026,9 +7032,8 @@ msgstr "Reiniciar Vista"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:159
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:73
-#, fuzzy
 msgid "Reset camera view along the current view direction"
-msgstr "Reiniciar a vista corrente para os valores pré-definidos"
+msgstr "Reiniciar a vista da câmara ao longo da direcção da vista corrente"
 
 #: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:78
 #: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1239
@@ -7040,11 +7045,11 @@ msgstr "Reiniciar a rotação currente (apontar para norte)"
 msgid "Reset the current view to defaults"
 msgstr "Reiniciar a vista corrente para os valores pré-definidos"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:320
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:315
 msgid "Reset the interface"
 msgstr "Reiniciar a Interface"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:2362
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:2281
 msgid "Resetting... Wait please..."
 msgstr "A reiniciar... Aguarde por favor..."
 
@@ -7061,7 +7066,7 @@ msgstr "Resultado"
 msgid "Resume replay"
 msgstr "Continuar reprodução"
 
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:515
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:511
 msgid "Resuming..."
 msgstr "Resumindo..."
 
@@ -7340,7 +7345,7 @@ msgid "Save the mission states whenever the mission is changed"
 msgstr "Guardar os estados da missão sempre que a missão é alterada"
 
 #: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:569
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:708
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:707
 msgid "Saved in '%filePath'"
 msgstr "Guardado em '%filePath'"
 
@@ -7397,10 +7402,6 @@ msgstr ""
 msgid "Seconds between history update requests"
 msgstr "Segundos entre pedidos de actualizações da história remota"
 
-#: Property from pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
-msgid "Seconds between updates"
-msgstr "Segundos entre actualizações"
-
 #: Description of property 'Update Interval' from
 #: pt.lsts.neptus.plugins.odss.OdssStatePublisher
 msgid "Seconds between updates."
@@ -7415,11 +7416,11 @@ msgstr "Segundos para mostrar distâncias"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:145
 msgid "See DVL data"
-msgstr ""
+msgstr "Ver dados de DVL"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DToolBar.java:141
 msgid "See Multibeam data"
-msgstr ""
+msgstr "Ver dados de Multi-feixe"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:115
 msgid "See Pressure data color map"
@@ -7441,7 +7442,7 @@ msgstr "Seleccionar Checklist"
 msgid "Select Entities"
 msgstr "Seleccionar Entidades"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:299
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:331
 msgid "Select Iridium gateway"
 msgstr "Seleccionar a gateway Iridium"
 
@@ -7547,7 +7548,7 @@ msgstr "Enviar"
 msgid "Send %planName to %system"
 msgstr "Enviar '%planName' para %system"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:308
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:340
 msgid "Send %vehicle a command via Iridium"
 msgstr ""
 
@@ -7583,7 +7584,7 @@ msgstr "Enviar Plano Seleccionado"
 msgid "Send Start Plan"
 msgstr "Enviar Iniciar Plano"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:372
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:405
 msgid "Send a text note"
 msgstr "Enviar uma nota em texto"
 
@@ -7798,7 +7799,7 @@ msgstr "Configurar periodicidade de actualização para milisegundos"
 msgid "Setting to true will make all communications go through acoustic modem"
 msgstr ""
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:166
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:164
 #: plugins-dev/odss/pt/lsts/neptus/plugins/odss/OdssStoqsTrackFetcher.java:238
 #: plugins-dev/odss/pt/lsts/neptus/plugins/odss/OdssStoqsTrackFetcher.java:252
 #: plugins-dev/odss/pt/lsts/neptus/plugins/odss/OdssStatePublisher.java:186
@@ -7894,7 +7895,7 @@ msgstr "Mostrar Icones de Sistemas Externos"
 msgid "Show GPS Fix Icon"
 msgstr "Mostrar ícone de GPS Fix"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:516
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:492
 msgid "Show Help"
 msgstr "Mostrar Ajuda"
 
@@ -7993,6 +7994,10 @@ msgstr "Mostrar legenda de correntes"
 msgid "Show currents legend from zoom level bigger than"
 msgstr ""
 
+#: Property from pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
+msgid "Show currents visible data date-time interval"
+msgstr ""
+
 #: Property from pt.lsts.neptus.console.plugins.SideState2DPanelConsole
 msgid "Show down distance"
 msgstr "Mostrar distancia para baixo"
@@ -8077,11 +8082,11 @@ msgstr "Mostrar vento"
 msgid "Show world map"
 msgstr "Mostrar mapa mundo"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:506
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:482
 msgid "Show/Hide Configuration Panel"
 msgstr "Mostrar/Esconder Painel de Configurações"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:511
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:487
 msgid "Show/Hide Download Panel"
 msgstr "Mostrar/Esconder Painel do Descarregador"
 
@@ -8169,7 +8174,7 @@ msgstr "Suaviar ao aumentar a imagem"
 msgid "Solid based representation"
 msgstr "Representação sólida"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1452
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1401
 msgid "Some of the configuration parameters are not correct!"
 msgstr "Alguns dos parâmetros de configuração não estão correctos!"
 
@@ -8372,8 +8377,8 @@ msgstr ""
 msgid "Starting up"
 msgstr "A iniciar"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:668
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:515
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:619
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:511
 #: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:648
 msgid "Starting..."
 msgstr "A iniciar..."
@@ -8455,7 +8460,7 @@ msgstr "Parar Plano"
 msgid "Stop Tele-Operation"
 msgstr "Sair de Teleoperação"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:325
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:320
 msgid "Stop all log downloads"
 msgstr "Parar todas as operações de descarregar logs"
 
@@ -8496,7 +8501,7 @@ msgstr ""
 msgid "Subject"
 msgstr "Assunto"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:324
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:356
 msgid "Subscribe to iridium device updates"
 msgstr "Subscrever actualizações do dispositivo por Iridium"
 
@@ -8560,15 +8565,15 @@ msgstr "Sinc. Logs"
 msgid "Sync day Mission Logs"
 msgstr "Sinc. Logs de Missão do dia"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:444
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:426
 msgid "Synchronize List of Log Folders"
 msgstr "Sincronizar Lista de Pastas de Logs"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:454
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:436
 msgid "Synchronize Selected Log Files"
 msgstr "Sincronizar Ficheiros de Log Seleccionados"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:449
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:431
 msgid "Synchronize Selected Log Folders"
 msgstr "Sincronizar Pastas de Log Seleccionadas"
 
@@ -8616,7 +8621,7 @@ msgstr "Informação de Sistema no Mapa"
 msgid "System Information display on map"
 msgstr "Informação do Sistema mostrada no mapa"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:305
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:300
 msgid "System Label: "
 msgstr "Etiqueta de Sistema:"
 
@@ -8759,7 +8764,7 @@ msgstr "Teleoperação"
 msgid "Tele-operation Mode"
 msgstr "Modo  de Tele-Operação"
 
-#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/CTD3D.java:120
+#: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/CTD3D.java:121
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:154
 msgid "Temperature Color Map"
 msgstr "Mapa de cores de Temperatura"
@@ -8775,7 +8780,7 @@ msgstr "Temperatura vs Profundidade"
 
 #: src/pt/lsts/neptus/console/plugins/containers/propeditor/MiGLayoutXmlPropertyEditor.java:120
 msgid "Test"
-msgstr ""
+msgstr "Teste"
 
 #: Name of plugin pt.lsts.neptus.plugins.txtcmd.TextCommands
 msgid "Text Commands"
@@ -9290,7 +9295,7 @@ msgstr ""
 msgid "This vehicle does not support IMU alignment."
 msgstr ""
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:308
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:303
 msgid "This will dictate the directory where the logs will go."
 msgstr "Isto vai ditar o directorio para onde o log irá."
 
@@ -9583,7 +9588,7 @@ msgstr "Velocidade Verdadeira ou Indicada"
 msgid "True to hide the range and false to fade when display time elapses."
 msgstr ""
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:330
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:325
 msgid "Turn on/off camera CPU"
 msgstr "Ligar/desligar CPU da câmara"
 
@@ -9728,7 +9733,7 @@ msgstr "Unidade"
 msgid "Unknown Mode"
 msgstr "Modo Desconhecido"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1336
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1295
 msgid "Unknown local disk free space"
 msgstr "Espaço livre de disco local desconhecido"
 
@@ -9741,7 +9746,7 @@ msgstr "Localização desconhecida"
 msgid "Unknown location for more than 10s"
 msgstr "Localização desconhecida por mais de 10s"
 
-#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:340
+#: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:373
 msgid "Unsubscribe to iridium device updates"
 msgstr "Cancelar subscrição da actuazação de dispositivo por Iridium"
 
@@ -9791,11 +9796,11 @@ msgstr "Actualizar navios"
 msgid "Updating AIS layer..."
 msgstr "A actualizar camada AIS..."
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:941
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:899
 msgid "Updating GUI..."
 msgstr "A actualizar GUI..."
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:847
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:805
 msgid "Updating logs info..."
 msgstr "A actualizar info de logs..."
 
@@ -10289,6 +10294,10 @@ msgstr "Velocidade da corrente da água"
 msgid "Wave Glider"
 msgstr "Wave Glider"
 
+#: Name of plugin pt.lsts.neptus.plugins.wg.WgCtdLayer
+msgid "Wave Glider CTD"
+msgstr "Dados CTD do Wave Glider"
+
 #: Property from pt.lsts.neptus.plugins.noptilus.NoptilusPlanGenerator
 msgid "Waypoints folder"
 msgstr "Pasta de pontos de caminho"
@@ -10498,7 +10507,7 @@ msgstr "Unidades-Z"
 msgid "Zenith"
 msgstr "Zénite"
 
-#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:420
+#: plugins-dev/ipcam/pt/lsts/neptus/plugins/ipcam/AirCamDisplay.java:418
 #: plugins-dev/echosounder/pt/lsts/neptus/plugins/sidescan/SidescanToolbar.java:63
 msgid "Zoom"
 msgstr "Zoom"
@@ -11389,8 +11398,8 @@ msgstr "verdadeiro para m/s falso para nós"
 msgid "tvgGain"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:152
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1518
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:150
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1459
 msgid "unknown"
 msgstr "indefinido"
 
@@ -11493,6 +11502,15 @@ msgstr "Δt"
 #: src/pt/lsts/neptus/comm/manager/BaseAbstractCommsMonitorPanel.java:373
 msgid "∆tTxRx"
 msgstr "∆tTxRx"
+
+#~ msgid "Base URI Path: "
+#~ msgstr "Caminho URI Base:"
+
+#~ msgid "Maximum position age (hours)"
+#~ msgstr "Máximo de idade para posição (horas)"
+
+#~ msgid "Seconds between updates"
+#~ msgstr "Segundos entre actualizações"
 
 #~ msgid "Left mouse button</td><td>"
 #~ msgstr "Botão esquerdo do rato"
