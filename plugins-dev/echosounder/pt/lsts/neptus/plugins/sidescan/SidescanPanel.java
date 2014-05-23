@@ -682,7 +682,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                     parent.mraPanel.addMarker(new SidescanLogMarker(res, sl.timestampMillis, point.location
                             .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, Math.abs(mouseX
-                            - initialX), Math.abs(mouseY - initialY), subsystem));
+                            - initialX), Math.abs(mouseY - initialY), subsystem, config.colorMap));
                 }
                 else {
                     // Calc the center of the rectangle
@@ -733,7 +733,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                     parent.mraPanel.addMarker(new SidescanLogMarker(res, l.timestampMillis, point.location
                             .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, Math.abs(mouseX
-                            - initialX), Math.abs(mouseY - initialY), wMeters, subsystem));
+                            - initialX), Math.abs(mouseY - initialY), wMeters, subsystem, config.colorMap));
                 }
             }
             marking = false;
