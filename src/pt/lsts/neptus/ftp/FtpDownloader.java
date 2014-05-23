@@ -82,6 +82,10 @@ public class FtpDownloader {
 
 //        client.setDataTimeout(30000);
 //        client.setSoTimeout(30000);
+
+          client.setDataTimeout(15000);
+//          client.setSoTimeout(300000); // N funciona, não liga
+
         }
         
         System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "connecting to " + host + ":" + port);
