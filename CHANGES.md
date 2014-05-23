@@ -7,6 +7,7 @@ Neptus 4.0.0rc2 (??-05-2014)
  * Config: Updated systems parameters to DUNE 2.5.0 (release/dune-2.5.x,b8da6dd).
  * I18n: Updated POT and PO files.
  * Ant/build.xml: Some corrections in order to compile main source without plugin dependencies, also each plugin doesn't compile with others plugins dependency.
+ * General/NeptusProperty: Fix a problem that was not properly fix with editable property setting (rename from hidden was not completely finished).
  * MRA: Sort columns values is now working properly added single table cell selection. Closes #3012.
  * MRA/MRALogReplay: Added temporary fix for MRALogReplayTimeline interval collection of messages to replay. (We need to rethink the ordering of messages in the index.)
  * Log/Config: Little update on log4j configuration. Also added more clear example for extended debug configuration.
