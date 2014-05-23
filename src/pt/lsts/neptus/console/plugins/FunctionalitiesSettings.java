@@ -622,7 +622,7 @@ public class FunctionalitiesSettings extends JPanel {
         pp.setValue(fieldValue);
 
         // Editable
-        if (neptusProperty.editable() == true) {
+        if (neptusProperty.editable() == false) {
             pp.setEditable(false);
         }
         else {

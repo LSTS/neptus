@@ -77,10 +77,10 @@ public class ImageLayers extends SimpleRendererInteraction {
 
     private static final long serialVersionUID = 6903794413087312334L;
 
-    @NeptusProperty(editable=false)
+    @NeptusProperty(editable = false)
     public String layerFiles = "";
 
-    @NeptusProperty(editable=false)
+    @NeptusProperty(editable = false)
     public String lastDir = ".";
 
     private Vector<ImageLayer> layers = new Vector<>();    

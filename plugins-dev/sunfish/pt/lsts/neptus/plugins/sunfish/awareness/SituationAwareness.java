@@ -146,10 +146,10 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
     @NeptusProperty(name = "Audible position updates")
     public boolean audibleUpdates = true;
 
-    @NeptusProperty(name = "Location sources", editable = false)
+    @NeptusProperty(name = "Location sources", editable = false) 
     public String updateMethods = "";
 
-    @NeptusProperty(name = "Hidden position types", editable = false)
+    @NeptusProperty(name = "Hidden position types", editable = false) 
     public String hiddenTypes = "";
 
     //@NeptusProperty(name = "Maximum position age (hours)")

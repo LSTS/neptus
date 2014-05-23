@@ -146,7 +146,7 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
     @NeptusProperty
     public boolean publishOn = true;
 
-    @NeptusProperty(editable = true)
+    @NeptusProperty(editable = false)
     public String publishMessagesListStd = "EstimatedState, LbLConfig, PlanSpecification, "
             + "VehicleState, PlanControlState, EntityList";
 

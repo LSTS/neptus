@@ -146,10 +146,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.ADVANCED, category="Data Update")
     public boolean ignoreDateLimitToLoad = false;
     
-    @NeptusProperty(name = "Request data from Web", editable = true, userLevel = LEVEL.ADVANCED, category="Test", description = "Don't use this (testing purposes).")
+    @NeptusProperty(name = "Request data from Web", editable = false, userLevel = LEVEL.ADVANCED, category="Test", description = "Don't use this (testing purposes).")
     public boolean requestFromWeb = false;
 
-    @NeptusProperty(name = "Load data from file (hfradar.txt)", editable = true, userLevel = LEVEL.ADVANCED, category="Test", description = "Don't use this (testing purposes).")
+    @NeptusProperty(name = "Load data from file (hfradar.txt)", editable = false, userLevel = LEVEL.ADVANCED, category="Test", description = "Don't use this (testing purposes).")
     public boolean loadFromFile = false;
     
     @NeptusProperty(name = "Show currents as most recent (true) or mean (false) value", userLevel = LEVEL.REGULAR, category="Data Update")

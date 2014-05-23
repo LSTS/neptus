@@ -68,7 +68,7 @@ public class CoverArea extends AbstractImcManeuver<pt.lsts.imc.CoverArea> implem
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
 
-    @NeptusProperty(name="polygon", editable=true)
+    @NeptusProperty(name = "polygon", editable = false)
     public String polygonPoints = "";
 
     protected Vector<LocationType> points = new Vector<LocationType>();

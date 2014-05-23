@@ -80,7 +80,7 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
 
     private static final long serialVersionUID = 1L;
 
-    @NeptusProperty(name = "Logs folder", editable = true)
+    @NeptusProperty(name = "Logs folder", editable = true) 
     public String logsFolder = ".";
 
     @NeptusProperty(name = "Number of iterations")
