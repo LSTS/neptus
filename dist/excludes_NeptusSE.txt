@@ -15,4 +15,6 @@ plugins/sunfish.jar
 plugins/trex*.jar
 plugins/vrp.jar
 plugins/vtk.jar
+plugins/waveglider.jar
 plugins/webupdate.jar
+
