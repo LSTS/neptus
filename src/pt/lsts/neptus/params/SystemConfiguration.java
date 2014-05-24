@@ -53,7 +53,7 @@ import com.google.common.eventbus.Subscribe;
  * @author pdias
  */
 @SuppressWarnings("serial")
-@PluginDescription(name="System Configuration")
+@PluginDescription(name = "System Configuration", icon = "images/settings2.png")
 @Popup(accelerator='Z', pos=POSITION.CENTER, width=600, height=600)
 public class SystemConfiguration extends ConsolePanel implements NeptusMessageListener, MainVehicleChangeListener {
 
