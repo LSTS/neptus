@@ -155,7 +155,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         // Register listeners
         console.addMainVehicleListener(this);
         PeriodicUpdatesService.register(this);
-        ImcMsgManager.getManager().addListener(this);
+        getConsole().getImcMsgManager().addListener(this);
     }
 
     
@@ -219,7 +219,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         // Unregister listeners
         console.removeMainVehicleListener(this);
         PeriodicUpdatesService.unregister(this);
-        ImcMsgManager.getManager().removeListener(this);
+        getConsole().getImcMsgManager().removeListener(this);
     }
     
     public void buildDialog() {
