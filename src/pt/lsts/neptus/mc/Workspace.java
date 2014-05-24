@@ -939,7 +939,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
      * @param newComponent The component to be shown in the new frame
      */
     @Override
-    public JInternalFrame createFrame(String title, String name, JComponent newComponent) {
+    public JInternalFrame createFrame(String title, String name, final JComponent newComponent) {
         JInternalFrame jif = new JInternalFrame(title, true, true, true, true);
         jif.setName(name);
 
@@ -977,6 +977,11 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 internalFrames.remove(ifrm.getName());
                 ifrm.dispose();
                 numFrames--;
+                
+                if (newComponent instanceof ChronometerPanel) {
+                    ((ChronometerPanel) newComponent).stop();
+                }
+
             }
         });
 
