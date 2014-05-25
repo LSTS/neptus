@@ -515,6 +515,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
                 JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(SystemDisplay.this));
                 dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
                 dialog.add(systemConfEditor);
+                dialog.setSize(600, 600);
                 dialog.setVisible(true);
             };
         };
