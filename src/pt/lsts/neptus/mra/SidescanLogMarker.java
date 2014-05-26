@@ -46,7 +46,7 @@ public class SidescanLogMarker extends LogMarker {
     public int h;
     public double wMeters;// width in meters
     public int subSys;// created on subSys
-    public ColorMap colorMap;
+    public String colorMap;
 
     /**
      * @param label
@@ -68,7 +68,7 @@ public class SidescanLogMarker extends LogMarker {
         this.w = w;
         this.h = h;
         this.subSys = subSys;
-        this.colorMap = colorMap;
+        this.colorMap = colorMap.toString();
     }
 
     /**
@@ -93,7 +93,7 @@ public class SidescanLogMarker extends LogMarker {
         this.h = h;
         this.wMeters = wMeters;
         this.subSys = subSys;
-        this.colorMap = colorMap;
+        this.colorMap = colorMap.toString();
     }
 
 }

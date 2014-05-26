@@ -843,7 +843,7 @@ public class LsfReport {
 
         Color color = null;
         if (globalColorMap==false){
-            config.colorMap=mark.colorMap;
+            config.colorMap=ColorMapFactory.getColorMapByName(mark.colorMap);
         }
         ArrayList<BufferedImage> imgLineList = new ArrayList<BufferedImage>();
         for (int i = 0; i < list.size(); i++) {
