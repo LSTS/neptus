@@ -55,7 +55,7 @@ import com.jmatio.types.MLStructure;
  * @author jqcorreia
  *
  */
-@PluginDescription
+//@PluginDescription
 public class MatExporter implements MRAExporter {
     IMraLogGroup source;
     
@@ -74,7 +74,8 @@ public class MatExporter implements MRAExporter {
         Collection<String> logList = source.getLsfIndex().getDefinitions().getMessageNames();
         IMraLog parser;
         
-        File outFile = new File("/home/jqcorreia/test.mat");
+        File outFile = new File(source.getDir(), "mra/DataIMC.mat");
+        outFile.getParentFile().mkdir();
         MatFileWriter writer = new MatFileWriter();
         
         MLStructure struct;
