@@ -842,8 +842,8 @@ public class LsfReport {
         }
 
         Color color = null;
-        if (globalColorMap==false){
-            config.colorMap=ColorMapFactory.getColorMapByName(mark.colorMap);
+        if (globalColorMap == false) {
+            config.colorMap = ColorMapFactory.getColorMapByName(mark.colorMap);
         }
         ArrayList<BufferedImage> imgLineList = new ArrayList<BufferedImage>();
         for (int i = 0; i < list.size(); i++) {
@@ -906,6 +906,54 @@ public class LsfReport {
         else {
             result = imgScalled;
         }
+
+        if (point == true) {
+            result = paintPointHighlight(result, indexX, indexY, color);
+        }
+
+        return result;
+    }
+
+    public static BufferedImage paintPointHighlight(BufferedImage original, int x, int y, Color color) {
+        BufferedImage result = original;
+        Graphics2D g2d = result.createGraphics();
+
+        int w = 10;
+        int h = 10;
+        x -= w / 2;
+        y -= h / 2;
+
+        Color c = getContrastColor(color);
+        g2d.setColor(c);
+        int shape = MRAProperties.sidescanMarksPointsShape;
+        switch (shape) {
+            case 0:
+                g2d.drawRect(x, y, w, h);
+                break;
+            case 1:
+                g2d.drawOval(x, y, w, h);
+                break;
+            default:
+                NeptusLog.pub().info("Sidescan Point Marks Shape Code not found, using 0 square instead");
+                g2d.drawRect(x, y, w, h);
+                break;
+        }
+
+        return result;
+    }
+
+    public static Color getContrastColor(Color color) {
+        Color result = null;
+
+        int r = color.getRed();
+        int g = color.getGreen();
+        int b = color.getBlue();
+        int newR = 255 - r;
+        int newG = 255 - g;
+        int newB = 255 - b;
+
+        result = new Color(newR, newG, newB);
+
         return result;
     }
 

@@ -79,7 +79,9 @@ public class MRAProperties implements PropertiesProvider{
     
     @NeptusProperty(name = "Sidescan ColorMap", description = "None selected: -1 | Default(Bronze)=0")
     public static int sidescanColorMap = -1;
-
+    
+    @NeptusProperty(name = "Shape around Sidescan Points Marks", description = "Square=0 | Circle=1")
+    public static int sidescanMarksPointsShape = 0;
 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.gui.PropertiesProvider#getProperties()
