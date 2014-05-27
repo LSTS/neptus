@@ -514,6 +514,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
                 dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
                 dialog.add(systemConfEditor);
                 dialog.setSize(600, 600);
+                GuiUtils.centerParent(dialog, dialog.getOwner());
                 dialog.setVisible(true);
             };
         };
