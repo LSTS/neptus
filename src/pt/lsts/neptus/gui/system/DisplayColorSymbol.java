@@ -93,16 +93,16 @@ public class DisplayColorSymbol extends SymbolLabel {
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.scale(width/10.0, height/10.0);
 		
-		RoundRectangle2D rect = new RoundRectangle2D.Double(1,1,10,10, 0,0);
-		g2.setColor(new Color(0,0,0,0));
+		RoundRectangle2D rect = new RoundRectangle2D.Double(0, 0,10 ,10, 0, 0);
+		g2.setColor(new Color(0, 0, 0, 0));
 		g2.fill(rect);
 		
 		if (isActive()) {
 			g2.setColor(getActiveColor());
-			Shape shape = new RoundRectangle2D.Double(0, 0, 10, 10, 2, 2);
+			Shape shape = new RoundRectangle2D.Double(1, 1, 8, 8, 2, 2);
 			g2.fill(shape);
             g2.setColor(getDisplayColor());
-            shape = new RoundRectangle2D.Double(1, 1, 8, 8, 2, 2);
+            shape = new RoundRectangle2D.Double(2, 2, 6, 6, 2, 2);
             g2.fill(shape);
 		}
 	}

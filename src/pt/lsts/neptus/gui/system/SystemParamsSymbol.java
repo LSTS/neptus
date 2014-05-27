@@ -62,6 +62,7 @@ public class SystemParamsSymbol extends SymbolLabel {
 		setSize(10, 10);
 		setPreferredSize(new Dimension(10, 10));
 		super.initialize();
+//		setColorHover(Color.YELLOW);
 	}
 	
 	/* (non-Javadoc)
@@ -74,17 +75,17 @@ public class SystemParamsSymbol extends SymbolLabel {
         g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		g2.scale(width/10.0, height/10.0);
 		
-		RoundRectangle2D rect = new RoundRectangle2D.Double(1,1,10,10, 0,0);
-		g2.setColor(new Color(0,0,0,0));
+		RoundRectangle2D rect = new RoundRectangle2D.Double(0, 0, 10, 10, 0, 0);
+        g2.setColor(new Color(0, 0, 0, 0));
 		g2.fill(rect);
 		
 		if (isActive()) {
 			g2.setColor(getActiveColor());
-			Shape shape = new RoundRectangle2D.Double(0, 0, 10, 10, 2, 2);
+			Shape shape = new RoundRectangle2D.Double(1, 1, 8, 8, 2, 2);
 			g2.fill(shape);
 	        g2.scale(10.0/width, 10.0/height);
 	        
-            g2.scale(width / (image.getWidth(null) + 10.), 1. * height / (image.getWidth(null) + 10.));
+            g2.scale(width / (image.getWidth(null) + 16.), 1. * height / (image.getWidth(null) + 16.));
             g2.drawImage(image, 5, 5, null);
 		}
 	}
