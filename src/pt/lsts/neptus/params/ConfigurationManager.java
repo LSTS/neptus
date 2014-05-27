@@ -767,18 +767,25 @@ public class ConfigurationManager {
     }
 
     public ArrayList<SystemProperty> getPropertiesByEntity(String system, String entity, Visibility vis, Scope scope) {
+        return getPropertiesByEntityWorker(system, entity, vis, scope, false);
+    }
+
+    private ArrayList<SystemProperty> getPropertiesByEntityWorker(String system, String entity, Visibility vis, Scope scope, boolean giveUpSearchOnFirstFound) {
         ArrayList<SystemProperty> list = new ArrayList<>();
         HashMap<String, SystemProperty> sy = map.get(system);
         if (sy != null) {
             for(SystemProperty p : sy.values()) {
                 if ((entity == null || p.getCategory().equals(entity)) && p.getVisibility() == vis
-                        && (p.getScope() == scope || scope == Scope.GLOBAL))
+                        && (p.getScope() == scope || scope == Scope.GLOBAL)) {
                     list.add(p);
+                    if (giveUpSearchOnFirstFound)
+                        break;
+                }
             }
         }
         return list;
     }
-
+    
     public ArrayList<SystemProperty> getClonedProperties(String system, Visibility vis, Scope scope) {
         ArrayList<SystemProperty> props = getPropertiesByEntity(system, null, vis, scope);
         Map<String, CustomSystemPropertyEditor> customEditors = new HashMap<>();
@@ -842,6 +849,10 @@ public class ConfigurationManager {
 
     public ArrayList<SystemProperty> getProperties(String system, Visibility vis, Scope scope) {
         return getPropertiesByEntity(system, null, vis, scope);
+    }
+
+    public boolean hasProperties(String system, Visibility vis, Scope scope) {
+        return getPropertiesByEntityWorker(system, null, vis, scope, true).size() > 0;
     }
 
     /**

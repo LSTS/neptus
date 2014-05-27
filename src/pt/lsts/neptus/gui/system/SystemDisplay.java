@@ -81,6 +81,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.gui.system.ConnectionSymbol.ConnectionStrengthEnum;
 import pt.lsts.neptus.gui.system.EmergencyTaskSymbol.EmergencyStatus;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.params.SystemConfigurationEditorPanel;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
@@ -190,7 +191,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
         return !isShowExtraInfoVisible() ? super.getPreferredSize() : new Dimension((int)super
                 .getPreferredSize().getWidth(), (int)super.getPreferredSize().getHeight() + label.getHeight() + infoLabel.getHeight()); // 40
 	}
-		
+	
 	private void initialize() {
 	    initializeSymbols();
 	    
@@ -358,15 +359,12 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
                 .addComponent(infoLabel)
 		);
         
-        //layout.linkSize(SwingConstants.VERTICAL, label, symConnected, symAuth);
 		layout.linkSize(SwingConstants.VERTICAL, symConnected, symMain, symLoc,
 				symAuth, symTask, symAttention, symType, symIdAttention, sysEmergencyTask,
 				symDisplayColor, symSystemParamsSymbol, symFuelLevel);
 		layout.linkSize(SwingConstants.HORIZONTAL, symConnected, symMain, symLoc,
 				symAuth, symTask, symAttention, symType, symIdAttention,sysEmergencyTask,
                 symDisplayColor, symSystemParamsSymbol, symFuelLevel);
-
-        //updateBackColor(COLOR_ACCEPT);
 	}
 
    /**
@@ -519,7 +517,10 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
                 dialog.setVisible(true);
             };
         };
-        symSystemParamsSymbol.setActive(true);
+        if (ConfigurationManager.getInstance().hasProperties(id, Visibility.USER, Scope.GLOBAL))
+            symSystemParamsSymbol.setActive(true);
+        else
+            symSystemParamsSymbol.setActive(false);
         
         symFuelLevel = new FuelLevelSymbol();
     }
@@ -658,15 +659,14 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
 		return id;
 	}
 
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
+//	/**
+//	 * @param id the id to set
+//	 */
+//	private void setId(String id) {
+//		this.id = id;
+//	}
 	
-	
-	/**
+    /**
 	 * @return the systemImage
 	 */
 	public Image getSystemImage() {
