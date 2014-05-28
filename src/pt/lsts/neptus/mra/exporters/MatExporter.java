@@ -118,6 +118,22 @@ public class MatExporter implements MRAExporter {
             IMCMessage m = parser.firstLogEntry();
             LinkedHashMap<String, MLArray> fieldMap = new LinkedHashMap<String, MLArray>();
             
+            // The API only is hable to write to file the following types
+            // MLArray.mxUINT8_CLASS 
+            // MLArray.mxINT8_CLASS 
+            // MLArray.mxINT16_CLASS 
+            // MLArray.mxINT64_CLASS 
+            // MLArray.mxUINT64_CLASS
+            // 
+            // MLArray.mxSINGLE_CLASS 
+            // MLArray.mxDOUBLE_CLASS
+            // 
+            // MLArray.mxCHAR_CLASS
+            // 
+            // MLArray.mxSTRUCT_CLASS
+            // MLArray.mxCELL_CLASS:
+            // MLArray.mxSPARSE_CLASS
+            
             // Setup arrays for struct
             for(String field : m.getFieldNames()) {
                 IMCFieldType filedType = m.getMessageType().getFieldType(field);
@@ -138,7 +154,7 @@ public class MatExporter implements MRAExporter {
                         fieldMap.put(field, new MLInt16(field, new int[] { numEntries, 1 }));
                         ((MLInt16) fieldMap.get(field)).set((short) m.getInteger(field), numInserted);
                         break;
-                    case TYPE_INT32:
+                    case TYPE_INT32: // Not in the write to file from API
 //                        fieldMap.put(field, new MLInt32(field, new int[] { numEntries, 1 }));
 //                        ((MLInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
 //                        break;
@@ -150,12 +166,12 @@ public class MatExporter implements MRAExporter {
                         fieldMap.put(field, new MLUInt8(field, new int[] { numEntries, 1 }));
                         ((MLUInt8) fieldMap.get(field)).set((byte) m.getInteger(field), numInserted);
                         break;
-                    case TYPE_UINT16:
-                    case TYPE_UINT32:
+                    case TYPE_UINT16: // Not in the write to file from API
+                    case TYPE_UINT32: // Not in the write to file from API
 //                        fieldMap.put(field, new MLUInt32(field, new int[] { numEntries, 1 }));
 //                        ((MLUInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
 //                        break;
-//                    case TYPE_UINT64:
+//                    case TYPE_UINT64: // IMC don't have uint64 yet
                         fieldMap.put(field, new MLUInt64(field, new int[] { numEntries, 1 }));
                         ((MLUInt64) fieldMap.get(field)).set(m.getLong(field), numInserted);
                         break;
@@ -186,7 +202,7 @@ public class MatExporter implements MRAExporter {
                         case TYPE_INT16:
                             ((MLInt16) fieldMap.get(field)).set((short) m.getInteger(field), numInserted);
                             break;
-                        case TYPE_INT32:
+                        case TYPE_INT32: // Not in the write to file from API
 //                            ((MLInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
 //                            break;
                         case TYPE_INT64:
@@ -195,11 +211,11 @@ public class MatExporter implements MRAExporter {
                         case TYPE_UINT8:
                             ((MLUInt8) fieldMap.get(field)).set((byte) m.getInteger(field), numInserted);
                             break;
-                        case TYPE_UINT16:
-                        case TYPE_UINT32:
+                        case TYPE_UINT16: // Not in the write to file from API
+                        case TYPE_UINT32: // Not in the write to file from API
 //                            ((MLUInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
 //                            break;
-//                        case TYPE_UINT64:
+//                        case TYPE_UINT64: // IMC don't have uint64 yet
                             ((MLUInt64) fieldMap.get(field)).set(m.getLong(field), numInserted);
                             break;
                         case TYPE_PLAINTEXT:
