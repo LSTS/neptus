@@ -68,6 +68,8 @@ public class MatExporter implements MRAExporter {
 
     private IMraLogGroup source;
     
+    private String[] ignoreHeaderFields = { "sync", "mgid", "size" };
+    
     public MatExporter(IMraLogGroup source) {
         this.source = source;
     }
@@ -123,8 +125,11 @@ public class MatExporter implements MRAExporter {
             LinkedHashMap<String, MLArray> fieldMap = new LinkedHashMap<String, MLArray>();
             
             // Setup arrays for struct
+            for(String field : m.getHeader().getFieldNames()) {
+                processField(field, m, numEntries, numInserted, fieldMap, false);
+            }
             for(String field : m.getFieldNames()) {
-                processField(field, m, numEntries, numInserted, fieldMap);
+                processField(field, m, numEntries, numInserted, fieldMap, false);
             }
             
             numInserted++;
@@ -134,8 +139,11 @@ public class MatExporter implements MRAExporter {
                     break;
                 }
                 
+                for(String field : m.getHeader().getFieldNames()) {
+                    processField(field, m, numEntries, numInserted, fieldMap, false);
+                }
                 for(String field : m.getFieldNames()) {
-                    processField(field, m, numEntries, numInserted, fieldMap);
+                    processField(field, m, numEntries, numInserted, fieldMap, false);
                 }
                 numInserted++;
             }
@@ -188,7 +196,7 @@ public class MatExporter implements MRAExporter {
      * @param fieldMap
      */
     private void processField(String field, IMCMessage message, int totalEntries, int indexToInsert,
-            LinkedHashMap<String, MLArray> fieldMap) {
+            LinkedHashMap<String, MLArray> fieldMap, boolean ignoreIfHeaderField) {
         // The API only is able to write to file the following types
         // MLArray.mxUINT8_CLASS 
         // MLArray.mxINT8_CLASS 
@@ -206,6 +214,13 @@ public class MatExporter implements MRAExporter {
         // MLArray.mxSPARSE_CLASS
 
         IMCFieldType filedType = message.getMessageType().getFieldType(field);
+        if (filedType == null) {
+            filedType = message.getHeader().getMessageType().getFieldType(field);
+            for (String ignoreFieldName : ignoreHeaderFields) {
+                if (ignoreFieldName.equalsIgnoreCase(field))
+                    return;
+            }
+        }
         switch (filedType) {
             case TYPE_FP32:
                 if (fieldMap.get(field) == null) 
