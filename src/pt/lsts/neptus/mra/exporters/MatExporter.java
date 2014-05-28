@@ -257,6 +257,31 @@ public class MatExporter implements MRAExporter {
                 ((MLUInt64) fieldMap.get(field)).set(message.getLong(field), indexToInsert);
                 break;
             case TYPE_MESSAGE:
+//                if (fieldMap.get(field) == null) 
+//                    fieldMap.put(field, new MLStructure(field, new int[] {1, 1}));
+//                IMCMessage inlineMsg = message.getMessage(field);
+//                
+//                int numEntries = 1;
+//                int numInserted = 0;
+//                LinkedHashMap<String, MLArray> fieldMessageListMap = new LinkedHashMap<String, MLArray>();
+//
+//                if (inlineMsg != null) {
+////                // Getting the header
+////                for(String fieldInline : inlineMsg.getHeader().getFieldNames()) {
+////                    processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
+////                }
+//                    // Getting the fields
+//                    for(String fieldInline : inlineMsg.getFieldNames()) {
+//                        processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
+//                    }
+//                }
+//
+//                // Adding Field values to struct
+//                for(String fieldInline : fieldMessageListMap.keySet()) {
+//                    ((MLStructure) fieldMap.get(field)).setField(fieldInline, fieldMessageListMap.get(field));
+//                }
+//                
+//                break;
             case TYPE_MESSAGELIST:
             case TYPE_PLAINTEXT:
             case TYPE_RAWDATA:
