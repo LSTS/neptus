@@ -97,13 +97,12 @@ public class MatExporter implements MRAExporter {
         final double structFullPrec = 60;
         final double writeFullPrec = 100 - structFullPrec;
         for(String messageLog : logList) {
-            if (pmonitor.isCanceled()) {
+            if (pmonitor.isCanceled())
                 break;
-            }
             
             parser = source.getLog(messageLog);
             
-            if(parser == null) {
+            if(parser == null || parser.getNumberOfEntries() == 0) {
                 System.out.println("Reading nothing for " + messageLog);
                 if (pmonitor != null)
                     pmonitor.setNote(I18n.textf("Reading nothing for %message", messageLog));
@@ -121,45 +120,34 @@ public class MatExporter implements MRAExporter {
             int numEntries = parser.getNumberOfEntries();
             int numInserted = 0;
             
-            IMCMessage m = parser.firstLogEntry();
             LinkedHashMap<String, MLArray> fieldMap = new LinkedHashMap<String, MLArray>();
             
             // Setup arrays for struct
-            for(String field : m.getHeader().getFieldNames()) {
-                processField(field, m, numEntries, numInserted, fieldMap, false);
-            }
-            for(String field : m.getFieldNames()) {
-                processField(field, m, numEntries, numInserted, fieldMap, false);
-            }
-            
-            numInserted++;
-            
-            while((m = parser.nextLogEntry()) != null) {
-                if (pmonitor.isCanceled()) {
+            IMCMessage m = parser.firstLogEntry();
+            do {
+                if (pmonitor.isCanceled())
                     break;
-                }
-                
+                // Getting the header
                 for(String field : m.getHeader().getFieldNames()) {
                     processField(field, m, numEntries, numInserted, fieldMap, false);
                 }
+                // Getting the fields
                 for(String field : m.getFieldNames()) {
                     processField(field, m, numEntries, numInserted, fieldMap, false);
                 }
                 numInserted++;
-            }
+            } while ((m = parser.nextLogEntry()) != null);
             
+            // Adding Field values to struct
             for(String field : fieldMap.keySet()) {
-                if (pmonitor.isCanceled()) {
+                if (pmonitor.isCanceled())
                     break;
-                }
-                
                 struct.setField(field, fieldMap.get(field));
-//                System.out.println(source.getLsfIndex().getDefinitions().getType(log).getFieldType(field).getJavaType() == double.class);
-//                if(source.getLsfIndex().getDefinitions().getType(log).getFieldType(field).getJavaType() == double.class) {
-//                    struct.setField(field, new MLDouble(field, (Double[]) fieldMap.get(field).toArray(new Double[fieldMap.get(field).size()]), fieldMap.get(field).size()));
-//                }
             }
             
+            if (pmonitor.isCanceled())
+                break;
+
             progress += structFullPrec * messageLogPartialPerc;
             if (pmonitor != null)
                 pmonitor.setProgress((int) progress);
@@ -171,7 +159,7 @@ public class MatExporter implements MRAExporter {
             try {
                 writer.write(outFile, baseMatLabDataToWrite, (c++ == 0));
             }
-            catch (IOException e) {
+            catch (Exception e) {
                 e.printStackTrace();
                 return e.getClass().getSimpleName()+" while exporting to MAT: "+e.getMessage();
             }
@@ -268,7 +256,10 @@ public class MatExporter implements MRAExporter {
                     fieldMap.put(field, new MLUInt64(field, new int[] { totalEntries, 1 }));
                 ((MLUInt64) fieldMap.get(field)).set(message.getLong(field), indexToInsert);
                 break;
+            case TYPE_MESSAGE:
+            case TYPE_MESSAGELIST:
             case TYPE_PLAINTEXT:
+            case TYPE_RAWDATA:
             default:
                 if (fieldMap.get(field) == null) 
                     fieldMap.put(field, new MLChar(field, new int[] { totalEntries, MAX_PLAINTEXT_RAWDATA_LENGHT }, MLArray.mxCHAR_CLASS, 0));
