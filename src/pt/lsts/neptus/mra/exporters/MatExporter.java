@@ -166,8 +166,6 @@ public class MatExporter implements MRAExporter {
                         ((MLChar) fieldMap.get(field)).set(val == null ? "" : val, numInserted);
                         break;
                 }
-//                fieldMap.put(field, new MLDouble(field, new int[] { numEntries, 1 }));
-//                ((MLDouble)fieldMap.get(field)).set(m.getDouble(field), numInserted );
             }
             
             numInserted++;
@@ -210,7 +208,6 @@ public class MatExporter implements MRAExporter {
                             ((MLChar) fieldMap.get(field)).set(val == null ? "" : val, numInserted);
                             break;
                     }
-//                    ((MLDouble)fieldMap.get(field)).set(m.getDouble(field), numInserted);
                 }
                 numInserted++;
             }
