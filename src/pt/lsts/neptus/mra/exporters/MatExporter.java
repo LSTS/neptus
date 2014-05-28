@@ -39,36 +39,34 @@ import java.util.LinkedHashMap;
 
 import javax.swing.ProgressMonitor;
 
+import pt.lsts.imc.IMCFieldType;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.llf.LsfLogSource;
-import pt.lsts.imc.IMCFieldType;
-import pt.lsts.imc.IMCMessage;
 
 import com.jmatio.io.MatFileWriter;
 import com.jmatio.types.MLArray;
 import com.jmatio.types.MLChar;
 import com.jmatio.types.MLDouble;
 import com.jmatio.types.MLInt16;
-import com.jmatio.types.MLInt32;
 import com.jmatio.types.MLInt64;
 import com.jmatio.types.MLInt8;
 import com.jmatio.types.MLSingle;
 import com.jmatio.types.MLStructure;
-import com.jmatio.types.MLUInt32;
 import com.jmatio.types.MLUInt64;
 import com.jmatio.types.MLUInt8;
 
 /**
  * @author jqcorreia
- *
+ * @author pdias
  */
 //@PluginDescription
 public class MatExporter implements MRAExporter {
-    IMraLogGroup source;
-    
+    private static final int MAX_PLAINTEXT_RAWDATA_LENGHT = 256; //256; 0xFFFF
+
+    private IMraLogGroup source;
     
     public MatExporter(IMraLogGroup source) {
         this.source = source;
@@ -90,20 +88,30 @@ public class MatExporter implements MRAExporter {
         
         MLStructure struct;
         
-        Collection<MLArray> l = new ArrayList<MLArray>();
+        Collection<MLArray> baseMatLabDataToWrite = new ArrayList<MLArray>();
         int c = 0;
-        
-        for(String log : logList) {
-            parser = source.getLog(log);
+        double messageLogPartialPerc = 1. / logList.size();
+        double progress = 0;
+        final double structFullPrec = 60;
+        final double writeFullPrec = 100 - structFullPrec;
+        for(String messageLog : logList) {
+            parser = source.getLog(messageLog);
             
-            if(parser == null)
+            if(parser == null) {
+                System.out.println("Reading nothing for " + messageLog);
+                if (pmonitor != null)
+                    pmonitor.setNote(I18n.textf("Reading nothing for %message", messageLog));
+                progress += (structFullPrec + writeFullPrec) * messageLogPartialPerc;
+                if (pmonitor != null)
+                    pmonitor.setProgress((int) progress);
                 continue;
+            }
             
-//            if(!log.equals("EstimatedState") && !log.equals("Acceleration"))
-//                continue;
-//            
-            System.out.println("Reading " + log);
-            struct = new MLStructure(log, new int[] {1, 1});
+            System.out.println("Reading " + messageLog);
+            if (pmonitor != null)
+                pmonitor.setNote(I18n.textf("Reading %message", messageLog));
+            
+            struct = new MLStructure(messageLog, new int[] {1, 1});
             int numEntries = parser.getNumberOfEntries();
             int numInserted = 0;
             
@@ -153,8 +161,7 @@ public class MatExporter implements MRAExporter {
                         break;
                     case TYPE_PLAINTEXT:
                     default:
-//                        fieldMap.put(field, new MLChar(field, new String[numEntries], 256));
-                        fieldMap.put(field, new MLChar(field, new int[] { numEntries, 256 }, MLArray.mxCHAR_CLASS, 0));
+                        fieldMap.put(field, new MLChar(field, new int[] { numEntries, MAX_PLAINTEXT_RAWDATA_LENGHT }, MLArray.mxCHAR_CLASS, 0));
                         String val = m.getAsString(field);
                         ((MLChar) fieldMap.get(field)).set(val == null ? "" : val, numInserted);
                         break;
@@ -216,39 +223,31 @@ public class MatExporter implements MRAExporter {
 //                }
             }
             
-            l.add(struct);
-            System.out.println("Writing " + log);
+            progress += structFullPrec * messageLogPartialPerc;
+            if (pmonitor != null)
+                pmonitor.setProgress((int) progress);
+            
+            baseMatLabDataToWrite.add(struct);
+            System.out.println("Writing " + messageLog);
+            if (pmonitor != null)
+                pmonitor.setNote(I18n.textf("Writing %message", messageLog));
             try {
-                writer.write(outFile, l, (c++ == 0));
+                writer.write(outFile, baseMatLabDataToWrite, (c++ == 0));
             }
             catch (IOException e) {
                 e.printStackTrace();
                 return e.getClass().getSimpleName()+" while exporting to MAT: "+e.getMessage();
             }
+            
+            progress += writeFullPrec * messageLogPartialPerc;
+            if (pmonitor != null)
+                pmonitor.setProgress((int) progress);
         }
-//        
-//        
-//
-//        System.out.println("creating objects");
-//        MLDouble mld = new MLDouble("foo", new int[] { 10000000, 1 });
-//        
-//        for(int i = 0; i < 10000000; i++)
-//        {
-//            mld.set(0.0, i);
-//        }
-//        
-//        ArrayList<MLArray> z = new ArrayList<MLArray>();
-//        System.out.println("creating objects #2");
-//        System.out.println("creating objects #3");
-//        z.add(mld);
-//        System.out.println("starting write");
-//        try {
-//            new MatFileWriter("/home/jqcorreia/foo.mat", z);
-//        }
-//        catch (IOException e) {
-//            e.printStackTrace();
-//        }
         
+        if (pmonitor != null) {
+            pmonitor.setNote(I18n.text("Log exported to MAT successfully"));
+            pmonitor.setProgress(100);
+        }
         return "Log exported to MAT successfully";
     }
 
@@ -258,9 +257,29 @@ public class MatExporter implements MRAExporter {
     }
 
     public static void main(String[] args) throws Exception {
+
+//      System.out.println("creating objects");
+//      MLDouble mld = new MLDouble("foo", new int[] { 10000000, 1 });
+//      
+//      for(int i = 0; i < 10000000; i++)
+//      {
+//          mld.set(0.0, i);
+//      }
+//      
+//      ArrayList<MLArray> z = new ArrayList<MLArray>();
+//      System.out.println("creating objects #2");
+//      System.out.println("creating objects #3");
+//      z.add(mld);
+//      System.out.println("starting write");
+//      try {
+//          new MatFileWriter("/home/jqcorreia/foo.mat", z);
+//      }
+//      catch (IOException e) {
+//          e.printStackTrace();
+//      }
+        
         IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\142100\\Data.lsf.gz"), null);
         MatExporter me = new MatExporter(source);
-        
-        me.process(source, null);
+        me.process(source, new ProgressMonitor(null, "", "", 0, 100));
     }
 }
