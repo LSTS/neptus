@@ -95,6 +95,10 @@ public class MatExporter implements MRAExporter {
         final double structFullPrec = 60;
         final double writeFullPrec = 100 - structFullPrec;
         for(String messageLog : logList) {
+            if (pmonitor.isCanceled()) {
+                break;
+            }
+            
             parser = source.getLog(messageLog);
             
             if(parser == null) {
@@ -125,7 +129,11 @@ public class MatExporter implements MRAExporter {
             
             numInserted++;
             
-            while((m = parser.nextLogEntry()) != null) { 
+            while((m = parser.nextLogEntry()) != null) {
+                if (pmonitor.isCanceled()) {
+                    break;
+                }
+                
                 for(String field : m.getFieldNames()) {
                     processField(field, m, numEntries, numInserted, fieldMap);
                 }
@@ -133,6 +141,10 @@ public class MatExporter implements MRAExporter {
             }
             
             for(String field : fieldMap.keySet()) {
+                if (pmonitor.isCanceled()) {
+                    break;
+                }
+                
                 struct.setField(field, fieldMap.get(field));
 //                System.out.println(source.getLsfIndex().getDefinitions().getType(log).getFieldType(field).getJavaType() == double.class);
 //                if(source.getLsfIndex().getDefinitions().getType(log).getFieldType(field).getJavaType() == double.class) {
