@@ -929,13 +929,22 @@ public class LsfReport {
         switch (shape) {
             case 0:
                 g2d.drawRect(x, y, w, h);
+                g2d.setColor(color);
+                g2d.drawRect(x - 1, y - 1, w + 2, h + 2);
+                // g2d.drawRect(x + 1, y + 1, w - 2, h - 2);
                 break;
             case 1:
                 g2d.drawOval(x, y, w, h);
+                g2d.setColor(color);
+                g2d.drawOval(x - 1, y - 1, w + 2, h + 2);
+                // g2d.drawOval(x + 1, y + 1, w - 2, h - 2);
                 break;
             default:
                 NeptusLog.pub().info("Sidescan Point Marks Shape Code not found, using 0 square instead");
                 g2d.drawRect(x, y, w, h);
+                g2d.setColor(color);
+                g2d.drawRect(x - 1, y - 1, w + 2, h + 2);
+                // g2d.drawRect(x + 1, y + 1, w - 2, h - 2);
                 break;
         }
 
