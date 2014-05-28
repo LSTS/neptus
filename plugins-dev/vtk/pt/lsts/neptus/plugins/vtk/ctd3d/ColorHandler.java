@@ -40,11 +40,11 @@ import vtk.vtkUnsignedCharArray;
  *
  */
 public class ColorHandler {
-    private PointCloudCTD pointcloud;
+    private final PointCloudCTD pointcloud;
 
-    private vtkDoubleArray temperatureArray;
-    private vtkDoubleArray salinityArray;
-    private vtkDoubleArray pressureArray;
+    private final vtkDoubleArray temperatureArray;
+    private final vtkDoubleArray salinityArray;
+    private final vtkDoubleArray pressureArray;
 
     private vtkUnsignedCharArray colorsTemperature;
     private vtkUnsignedCharArray colorsSalinity;
@@ -54,8 +54,10 @@ public class ColorHandler {
     private vtkLookupTable lutSalinity;
     private vtkLookupTable lutPressure;
 
+
     /**
      * 
+     * @param pointcloud
      */
     public ColorHandler(PointCloudCTD pointcloud) {
         this.pointcloud = pointcloud;

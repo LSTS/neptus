@@ -125,7 +125,7 @@ public final class VTKMemoryManager {
      */
     public static void delete(vtkObjectBase o) {
         if (OBJECT_MAP != null) {
-            WeakReference<?> ref = (WeakReference) OBJECT_MAP.get(o.GetVTKId());
+            WeakReference<?> ref = OBJECT_MAP.get(o.GetVTKId());
             ref.clear();
         }
         else { // OBJECT_MANAGER != null

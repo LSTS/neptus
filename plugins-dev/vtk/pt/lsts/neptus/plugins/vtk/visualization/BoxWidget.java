@@ -43,10 +43,13 @@ import vtk.vtkRenderer;
  * 
  */
 public class BoxWidget {
-    public BoxWidget() {
 
-    }
-
+    /**
+     * 
+     * @param ren
+     * @param interactor
+     * @param dataSet
+     */
     public static void addBoxWidget1ToVisualizer(vtkRenderer ren, vtkRenderWindowInteractor interactor,
             vtkDataSet dataSet) {
         vtkBoxWidget widget = new vtkBoxWidget();
@@ -60,6 +63,11 @@ public class BoxWidget {
         widget.EnabledOn();
     }
 
+    /**
+     * 
+     * @param ren
+     * @param interactor
+     */
     public static void addBoxWidget2Tovisualizer(vtkRenderer ren, vtkRenderWindowInteractor interactor) {
         vtkBoxWidget2 widget = new vtkBoxWidget2();
 

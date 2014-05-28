@@ -71,6 +71,9 @@ public class LoadData {
         this.pressureArray = new vtkDoubleArray();
     }
 
+    /**
+     * 
+     */
     public void loadCTDData() {
         LsfIndex lsfIndex = source.getLsfIndex();
         IndexScanner indexScanner = new IndexScanner(lsfIndex);

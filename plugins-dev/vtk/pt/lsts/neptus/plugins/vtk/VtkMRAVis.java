@@ -63,7 +63,6 @@ import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
-import pt.lsts.neptus.plugins.vtk.utils.VTKMemoryManager;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.Text3D;
 import pt.lsts.neptus.util.ImageUtils;
@@ -110,8 +109,10 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
      * @param panel
      */
     public VtkMRAVis(MRAPanel panel) {
-        if (!Utils.hasTryedToLoadVtkLib)
+        if (!Utils.hasTryedToLoadVtkLib) {
             Utils.loadVTKLibraries();
+            // VTKMemoryManager.GC.SetAutoGarbageCollection(true);
+        }
     }
 
     @Override
@@ -122,8 +123,6 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
         if (!componentEnabled) {
-            VTKMemoryManager.GC.SetAutoGarbageCollection(true);
-
             componentEnabled = true;
             this.source = source;
 
@@ -346,7 +345,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     @Override
     public void onCleanup() {
-        VTKMemoryManager.deleteAll();
+        // VTKMemoryManager.deleteAll();
     }
 
     /**

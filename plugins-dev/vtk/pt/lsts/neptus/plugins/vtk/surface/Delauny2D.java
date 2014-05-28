@@ -31,7 +31,6 @@
  */
 package pt.lsts.neptus.plugins.vtk.surface;
 
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkCleanPolyData;
@@ -51,8 +50,6 @@ public class Delauny2D {
 
     public void performDelauny(PointCloud<PointXYZ> inputCloud) {
 
-        NeptusLog.pub().info("Delauny Triangulation time start: " + System.currentTimeMillis());
-
         // Clean point cloud
         vtkCleanPolyData cleanPolyData = new vtkCleanPolyData();
         cleanPolyData.SetInputConnection(inputCloud.getPoly().GetProducerPort());
@@ -65,8 +62,6 @@ public class Delauny2D {
         delauny.Update();
 
         setPolyData(delauny.GetOutput());
-
-        NeptusLog.pub().info("Delauny Triangulation time end: " + System.currentTimeMillis());
     }
 
     /**
