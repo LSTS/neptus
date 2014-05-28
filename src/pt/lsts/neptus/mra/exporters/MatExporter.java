@@ -118,112 +118,16 @@ public class MatExporter implements MRAExporter {
             IMCMessage m = parser.firstLogEntry();
             LinkedHashMap<String, MLArray> fieldMap = new LinkedHashMap<String, MLArray>();
             
-            // The API only is hable to write to file the following types
-            // MLArray.mxUINT8_CLASS 
-            // MLArray.mxINT8_CLASS 
-            // MLArray.mxINT16_CLASS 
-            // MLArray.mxINT64_CLASS 
-            // MLArray.mxUINT64_CLASS
-            // 
-            // MLArray.mxSINGLE_CLASS 
-            // MLArray.mxDOUBLE_CLASS
-            // 
-            // MLArray.mxCHAR_CLASS
-            // 
-            // MLArray.mxSTRUCT_CLASS
-            // MLArray.mxCELL_CLASS:
-            // MLArray.mxSPARSE_CLASS
-            
             // Setup arrays for struct
             for(String field : m.getFieldNames()) {
-                IMCFieldType filedType = m.getMessageType().getFieldType(field);
-                switch (filedType) {
-                    case TYPE_FP32:
-                        fieldMap.put(field, new MLSingle(field, new int[] { numEntries, 1 }, MLArray.mxSINGLE_CLASS, 0));
-                        ((MLSingle) fieldMap.get(field)).set((float) m.getDouble(field), numInserted);
-                        break;
-                    case TYPE_FP64:
-                        fieldMap.put(field, new MLDouble(field, new int[] { numEntries, 1 }));
-                        ((MLDouble) fieldMap.get(field)).set(m.getDouble(field), numInserted);
-                        break;
-                    case TYPE_INT8:
-                        fieldMap.put(field, new MLInt8(field, new int[] { numEntries, 1 }));
-                        ((MLInt8) fieldMap.get(field)).set((byte) m.getInteger(field), numInserted);
-                        break;
-                    case TYPE_INT16:
-                        fieldMap.put(field, new MLInt16(field, new int[] { numEntries, 1 }));
-                        ((MLInt16) fieldMap.get(field)).set((short) m.getInteger(field), numInserted);
-                        break;
-                    case TYPE_INT32: // Not in the write to file from API
-//                        fieldMap.put(field, new MLInt32(field, new int[] { numEntries, 1 }));
-//                        ((MLInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
-//                        break;
-                    case TYPE_INT64:
-                        fieldMap.put(field, new MLInt64(field, new int[] { numEntries, 1 }));
-                        ((MLInt64) fieldMap.get(field)).set(m.getLong(field), numInserted);
-                        break;
-                    case TYPE_UINT8:
-                        fieldMap.put(field, new MLUInt8(field, new int[] { numEntries, 1 }));
-                        ((MLUInt8) fieldMap.get(field)).set((byte) m.getInteger(field), numInserted);
-                        break;
-                    case TYPE_UINT16: // Not in the write to file from API
-                    case TYPE_UINT32: // Not in the write to file from API
-//                        fieldMap.put(field, new MLUInt32(field, new int[] { numEntries, 1 }));
-//                        ((MLUInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
-//                        break;
-//                    case TYPE_UINT64: // IMC don't have uint64 yet
-                        fieldMap.put(field, new MLUInt64(field, new int[] { numEntries, 1 }));
-                        ((MLUInt64) fieldMap.get(field)).set(m.getLong(field), numInserted);
-                        break;
-                    case TYPE_PLAINTEXT:
-                    default:
-                        fieldMap.put(field, new MLChar(field, new int[] { numEntries, MAX_PLAINTEXT_RAWDATA_LENGHT }, MLArray.mxCHAR_CLASS, 0));
-                        String val = m.getAsString(field);
-                        ((MLChar) fieldMap.get(field)).set(val == null ? "" : val, numInserted);
-                        break;
-                }
+                processField(field, m, numEntries, numInserted, fieldMap);
             }
             
             numInserted++;
             
             while((m = parser.nextLogEntry()) != null) { 
                 for(String field : m.getFieldNames()) {
-                    IMCFieldType filedType = m.getMessageType().getFieldType(field);
-                    switch (filedType) {
-                        case TYPE_FP32:
-                            ((MLSingle) fieldMap.get(field)).set((float) m.getDouble(field), numInserted);
-                            break;
-                        case TYPE_FP64:
-                            ((MLDouble) fieldMap.get(field)).set(m.getDouble(field), numInserted);
-                            break;
-                        case TYPE_INT8:
-                            ((MLInt8) fieldMap.get(field)).set((byte) m.getInteger(field), numInserted);
-                            break;
-                        case TYPE_INT16:
-                            ((MLInt16) fieldMap.get(field)).set((short) m.getInteger(field), numInserted);
-                            break;
-                        case TYPE_INT32: // Not in the write to file from API
-//                            ((MLInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
-//                            break;
-                        case TYPE_INT64:
-                            ((MLInt64) fieldMap.get(field)).set(m.getLong(field), numInserted);
-                            break;
-                        case TYPE_UINT8:
-                            ((MLUInt8) fieldMap.get(field)).set((byte) m.getInteger(field), numInserted);
-                            break;
-                        case TYPE_UINT16: // Not in the write to file from API
-                        case TYPE_UINT32: // Not in the write to file from API
-//                            ((MLUInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
-//                            break;
-//                        case TYPE_UINT64: // IMC don't have uint64 yet
-                            ((MLUInt64) fieldMap.get(field)).set(m.getLong(field), numInserted);
-                            break;
-                        case TYPE_PLAINTEXT:
-                        default:
-                            String val = m.getAsString(field);
-                            ((MLChar) fieldMap.get(field)).set(val == null ? "" : val, numInserted);
-                            break;
-                    }
+                    processField(field, m, numEntries, numInserted, fieldMap);
                 }
                 numInserted++;
             }
@@ -262,6 +166,89 @@ public class MatExporter implements MRAExporter {
             pmonitor.setProgress(100);
         }
         return "Log exported to MAT successfully";
+    }
+
+    /**
+     * @param field
+     * @param message
+     * @param totalEntries
+     * @param indexToInsert
+     * @param fieldMap
+     */
+    private void processField(String field, IMCMessage message, int totalEntries, int indexToInsert,
+            LinkedHashMap<String, MLArray> fieldMap) {
+        // The API only is able to write to file the following types
+        // MLArray.mxUINT8_CLASS 
+        // MLArray.mxINT8_CLASS 
+        // MLArray.mxINT16_CLASS 
+        // MLArray.mxINT64_CLASS 
+        // MLArray.mxUINT64_CLASS
+        // 
+        // MLArray.mxSINGLE_CLASS 
+        // MLArray.mxDOUBLE_CLASS
+        // 
+        // MLArray.mxCHAR_CLASS
+        // 
+        // MLArray.mxSTRUCT_CLASS
+        // MLArray.mxCELL_CLASS:
+        // MLArray.mxSPARSE_CLASS
+
+        IMCFieldType filedType = message.getMessageType().getFieldType(field);
+        switch (filedType) {
+            case TYPE_FP32:
+                if (fieldMap.get(field) == null) 
+                    fieldMap.put(field, new MLSingle(field, new int[] { totalEntries, 1 }, MLArray.mxSINGLE_CLASS, 0));
+                ((MLSingle) fieldMap.get(field)).set((float) message.getDouble(field), indexToInsert);
+                break;
+            case TYPE_FP64:
+                if (fieldMap.get(field) == null) 
+                    fieldMap.put(field, new MLDouble(field, new int[] { totalEntries, 1 }));
+                ((MLDouble) fieldMap.get(field)).set(message.getDouble(field), indexToInsert);
+                break;
+            case TYPE_INT8:
+                if (fieldMap.get(field) == null) 
+                    fieldMap.put(field, new MLInt8(field, new int[] { totalEntries, 1 }));
+                ((MLInt8) fieldMap.get(field)).set((byte) message.getInteger(field), indexToInsert);
+                break;
+            case TYPE_INT16:
+                if (fieldMap.get(field) == null) 
+                    fieldMap.put(field, new MLInt16(field, new int[] { totalEntries, 1 }));
+                ((MLInt16) fieldMap.get(field)).set((short) message.getInteger(field), indexToInsert);
+                break;
+            case TYPE_INT32: // Not in the write to file from API
+//                        if (fieldMap.get(field) == null) 
+//                             fieldMap.put(field, new MLInt32(field, new int[] { numEntries, 1 }));
+//                        ((MLInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
+//                        break;
+            case TYPE_INT64:
+                if (fieldMap.get(field) == null) 
+                    fieldMap.put(field, new MLInt64(field, new int[] { totalEntries, 1 }));
+                ((MLInt64) fieldMap.get(field)).set(message.getLong(field), indexToInsert);
+                break;
+            case TYPE_UINT8:
+                if (fieldMap.get(field) == null) 
+                    fieldMap.put(field, new MLUInt8(field, new int[] { totalEntries, 1 }));
+                ((MLUInt8) fieldMap.get(field)).set((byte) message.getInteger(field), indexToInsert);
+                break;
+            case TYPE_UINT16: // Not in the write to file from API
+            case TYPE_UINT32: // Not in the write to file from API
+//                        if (fieldMap.get(field) == null) 
+//                             fieldMap.put(field, new MLUInt32(field, new int[] { numEntries, 1 }));
+//                        ((MLUInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
+//                        break;
+//                    case TYPE_UINT64: // IMC don't have uint64 yet
+                if (fieldMap.get(field) == null) 
+                    fieldMap.put(field, new MLUInt64(field, new int[] { totalEntries, 1 }));
+                ((MLUInt64) fieldMap.get(field)).set(message.getLong(field), indexToInsert);
+                break;
+            case TYPE_PLAINTEXT:
+            default:
+                if (fieldMap.get(field) == null) 
+                    fieldMap.put(field, new MLChar(field, new int[] { totalEntries, MAX_PLAINTEXT_RAWDATA_LENGHT }, MLArray.mxCHAR_CLASS, 0));
+                String val = message.getAsString(field);
+                ((MLChar) fieldMap.get(field)).set(val == null ? "" : val, indexToInsert);
+                break;
+        }
     }
 
     @Override
