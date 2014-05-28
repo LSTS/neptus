@@ -47,7 +47,6 @@ import pt.lsts.imc.lsf.IndexScanner;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.replay.MraVehiclePosHud;
-import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 
 import com.xuggle.mediatool.IMediaReader;
@@ -61,7 +60,7 @@ import com.xuggle.mediatool.event.IVideoPictureEvent;
  * @author zp
  *
  */
-@PluginDescription
+// @PluginDescription
 public class VideoOverlayExporter implements MRAExporter {
 
     @Override
@@ -83,9 +82,10 @@ public class VideoOverlayExporter implements MRAExporter {
         int op = chooser.showOpenDialog(null);
         if (op == JFileChooser.APPROVE_OPTION) {
             videoIn = chooser.getSelectedFile();
+
             videoOut = new File(chooser.getSelectedFile().getAbsolutePath()+".out.avi");
         }
-        else 
+        else
             return "User cancelled the operation";
         String time = JOptionPane.showInputDialog("Enter the log time, in seconds when the video starts");
         double startTime = 0;
@@ -96,7 +96,7 @@ public class VideoOverlayExporter implements MRAExporter {
             e.printStackTrace();
             return "Given time was not understood";
         }
-        
+
         IMediaReader reader = ToolFactory.makeReader(videoIn.toString());
         reader.setBufferedImageTypeToGenerate(BufferedImage.TYPE_3BYTE_BGR);
         IMediaWriter writer = ToolFactory.makeWriter(videoOut.toString(), reader);
@@ -110,8 +110,8 @@ public class VideoOverlayExporter implements MRAExporter {
         while (reader.readPacket() == null) {
 
         }
-        
-        
+
+
         return "done";
     }
 
@@ -123,11 +123,11 @@ public class VideoOverlayExporter implements MRAExporter {
 
     static class TimeStampTool extends MediaToolAdapter
     {
-        private ProgressMonitor pmonitor;
-        private double timeOffset;
-        private IndexScanner scanner;
-        private IndexScanner tempScanner;
-        private MraVehiclePosHud hud;
+        private final ProgressMonitor pmonitor;
+        private final double timeOffset;
+        private final IndexScanner scanner;
+        private final IndexScanner tempScanner;
+        private final MraVehiclePosHud hud;
         JLabel lbl = new JLabel("<html>?</html>");
         public TimeStampTool(double timeOffset, IMraLogGroup log, ProgressMonitor pmonitor) {
             this.pmonitor = pmonitor;
@@ -136,14 +136,14 @@ public class VideoOverlayExporter implements MRAExporter {
             tempScanner = new IndexScanner(log.getLsfIndex());
             hud = new MraVehiclePosHud(log.getLsfIndex(), 200, 200);
             lbl.setBounds(0, 0, 200, 190);
-            lbl.setOpaque(false);            
+            lbl.setOpaque(false);
         }
 
         @Override
         public void onVideoPicture(IVideoPictureEvent event)
         {
             Graphics2D g = event.getImage().createGraphics();
-            
+
             pmonitor.setProgress((int)(event.getPicture().getTimeStamp()/1000000));
             try {
                 scanner.setTime(timeOffset+event.getPicture().getTimeStamp()/1000000.0);
@@ -159,11 +159,11 @@ public class VideoOverlayExporter implements MRAExporter {
                     LocationType loc = IMCUtils.parseLocation(state);
                     loc.convertToAbsoluteLatLonDepth();
                     lbl.setText("<html><h3>"+loc.getLatitudeAsPrettyString()+"<br>"+loc.getLongitudeAsPrettyString()+"</h3>"+
-                    "<h3>Depth: "+depth+" m<br>" +
-                    "Roll: "+roll+" º<br>" +
-                    "Pitch: "+pitch+" º<br>" +
-                    "Yaw: "+yaw+" º<br>"+
-                    "Temp.: "+t+" ºC</h3></html>");
+                            "<h3>Depth: "+depth+" m<br>" +
+                            "Roll: "+roll+" º<br>" +
+                            "Pitch: "+pitch+" º<br>" +
+                            "Yaw: "+yaw+" º<br>"+
+                            "Temp.: "+t+" ºC</h3></html>");
                     g.drawImage(hud.getImage(timeOffset+event.getPicture().getTimeStamp()/1000000.0), event.getPicture().getWidth()-210, 10, null);
                     g.translate(10, 10);
                     lbl.setForeground(Color.black);
@@ -176,7 +176,7 @@ public class VideoOverlayExporter implements MRAExporter {
             catch (Exception e) {
                 return;
             }
-            
+
             super.onVideoPicture(event);
         }
     }
