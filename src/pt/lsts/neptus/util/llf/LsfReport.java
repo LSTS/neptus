@@ -850,13 +850,13 @@ public class LsfReport {
         }
 
         if (point == true) {
-            result = paintPointHighlight(result, indexX, indexY, color);
+            result = paintPointHighlight(result, indexX, indexY, color, config.colorMap);
         }
 
         return result;
     }
 
-    public static BufferedImage paintPointHighlight(BufferedImage original, int x, int y, Color color) {
+    public static BufferedImage paintPointHighlight(BufferedImage original, int x, int y, Color color, ColorMap colorMap) {
         BufferedImage result = original;
         Graphics2D g2d = result.createGraphics();
 
@@ -864,8 +864,13 @@ public class LsfReport {
         int h = 10;
         x -= w / 2;
         y -= h / 2;
-
-        Color c = getContrastColor(color);
+        Color c = null;
+        if (MRAProperties.sidescanMarksPointsFixedColor == 0) {
+            c = getFixedColor(colorMap);
+        }
+        else {
+            c = getContrastColor(color);
+        }
         g2d.setColor(c);
         int shape = MRAProperties.sidescanMarksPointsShape;
         switch (shape) {
@@ -891,6 +896,19 @@ public class LsfReport {
         }
 
         return result;
+    }
+
+    public static Color getFixedColor(ColorMap colorMap) {
+        String colorMapString = colorMap.toString().toLowerCase();
+        switch(colorMapString){
+            case "bronze":
+                
+                break;
+            default:
+                
+                break;
+        }
+        return null;
     }
 
     public static Color getContrastColor(Color color) {
