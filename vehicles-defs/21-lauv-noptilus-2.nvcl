@@ -342,14 +342,8 @@
 	</maneuver>	
   </feasibleManeuvers>
   <protocols-supported>
-    <protocols> time-shell</protocols>
+    <protocols>gsm iridium</protocols>
     <protocols-args>
-      <time-shell>
-        <set-seconds>true</set-seconds>
-        <set-year>true</set-year>
-        <use-2-digit-year>false</use-2-digit-year>
-        <use-hwclock>false</use-hwclock>
-      </time-shell>
       <gsm>
       	<number>+351925978180</number>
       </gsm>
@@ -364,27 +358,22 @@
       <type>ethernet</type>
       <host-address>10.0.10.90</host-address>
       <credentials username="root"/>
-      <protocols> imc ssh</protocols>
+      <protocols>imc</protocols>
       <latency value="100M" unit="bps"/>
       <protocols-args>
         <imc>
           <port>6002</port>
+          <port-tcp>6002</port-tcp>
           <udp-on>true</udp-on>
-          <rtps-on>false</rtps-on>
+          <tcp-on>false</tcp-on>
           <imc3-id>00:1B</imc3-id>
         </imc>
       </protocols-args>
     </comm-mean>
   </communication-means>
   <consoles>
-    <console name="LAUV SeaCon Light">
-      <xml-file>../conf/consoles/seacon-light.ncon</xml-file>
-    </console>
-    <console name="LAUV SeaCon Basic">
-      <xml-file>../conf/consoles/seacon-basic.ncon</xml-file>
-    </console>
-    <console name="LAUV SeaCon Console">
-      <xml-file>../conf/consoles/xtreme-console.ncon</xml-file>
+    <console name="LAUV">
+      <xml-file>../conf/consoles/lauv.ncon</xml-file>
     </console>
   </consoles>
 </system>
