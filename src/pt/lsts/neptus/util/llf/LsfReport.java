@@ -67,6 +67,7 @@ import org.jfree.chart.JFreeChart;
 
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
@@ -462,66 +463,7 @@ public class LsfReport {
                 globalColorMap = false;
             }
             else {
-                switch (colorMapCode) {
-                    case 0:
-                        config.colorMap = ColorMapFactory.createBronzeColormap();
-                        break;
-                    case 1:
-                        config.colorMap = ColorMapFactory.createStoreDataColormap();
-                        break;
-                    case 2:
-                        config.colorMap = ColorMapFactory.createRainbowColormap();
-                        break;
-                    case 3:
-                        config.colorMap = ColorMapFactory.createRedYellowGreenColorMap();
-                        break;
-                    case 4:
-                        config.colorMap = ColorMapFactory.createGreenRadarColorMap();
-                        break;
-                    case 5:
-                        config.colorMap = ColorMapFactory.createPinkColorMap();
-                        break;
-                    case 6:
-                        config.colorMap = ColorMapFactory.createBlueToRedColorMap();
-                        break;
-                    case 7:
-                        config.colorMap = ColorMapFactory.createRedGreenBlueColorMap();
-                        break;
-                    case 8:
-                        config.colorMap = ColorMapFactory.createWinterColorMap();
-                        break;
-                    case 9:
-                        config.colorMap = ColorMapFactory.createAutumnColorMap();
-                        break;
-                    case 10:
-                        config.colorMap = ColorMapFactory.createSummerColorMap();
-                        break;
-                    case 11:
-                        config.colorMap = ColorMapFactory.createSpringColorMap();
-                        break;
-                    case 12:
-                        config.colorMap = ColorMapFactory.createBoneColorMap();
-                        break;
-                    case 13:
-                        config.colorMap = ColorMapFactory.createCopperColorMap();
-                        break;
-                    case 14:
-                        config.colorMap = ColorMapFactory.createHotColorMap();
-                        break;
-                    case 15:
-                        config.colorMap = ColorMapFactory.createCoolColorMap();
-                        break;
-                    case 16:
-                        config.colorMap = ColorMapFactory.createJetColorMap();
-                        break;
-                    case 17:
-                        config.colorMap = ColorMapFactory.createGrayScaleColorMap();
-                        break;
-                    default:
-                        config.colorMap = ColorMapFactory.createBronzeColormap();
-                        NeptusLog.pub().info("colorMap code not found, using default Bronze");
-                        break;
-                }
+                config.colorMap = getColorMapFromCode(colorMapCode);
             }
             SidescanParameters sidescanParams = new SidescanParameters(0, 0);
             sidescanParams.setNormalization(config.normalization);
@@ -964,6 +906,50 @@ public class LsfReport {
         result = new Color(newR, newG, newB);
 
         return result;
+    }
+
+    public static ColorMap getColorMapFromCode(int colorMapCode) {
+        switch (colorMapCode) {
+            case 0:
+                return ColorMapFactory.createBronzeColormap();
+            case 1:
+                return ColorMapFactory.createStoreDataColormap();
+            case 2:
+                return ColorMapFactory.createRainbowColormap();
+            case 3:
+                return ColorMapFactory.createRedYellowGreenColorMap();
+            case 4:
+                return ColorMapFactory.createGreenRadarColorMap();
+            case 5:
+                return ColorMapFactory.createPinkColorMap();
+            case 6:
+                return ColorMapFactory.createBlueToRedColorMap();
+            case 7:
+                return ColorMapFactory.createRedGreenBlueColorMap();
+            case 8:
+                return ColorMapFactory.createWinterColorMap();
+            case 9:
+                return ColorMapFactory.createAutumnColorMap();
+            case 10:
+                return ColorMapFactory.createSummerColorMap();
+            case 11:
+                return ColorMapFactory.createSpringColorMap();
+            case 12:
+                return ColorMapFactory.createBoneColorMap();
+            case 13:
+                return ColorMapFactory.createCopperColorMap();
+            case 14:
+                return ColorMapFactory.createHotColorMap();
+            case 15:
+                return ColorMapFactory.createCoolColorMap();
+            case 16:
+                return ColorMapFactory.createJetColorMap();
+            case 17:
+                return ColorMapFactory.createGrayScaleColorMap();
+            default:
+                NeptusLog.pub().info("colorMap code not found, using default Bronze");
+                return ColorMapFactory.createBronzeColormap();
+        }
     }
 
     /**
