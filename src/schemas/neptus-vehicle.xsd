@@ -87,8 +87,6 @@
 							default="true" minOccurs="0" />
 						<xs:element name="tcp-on" type="xs:boolean"
 							default="false" minOccurs="0" />
-						<xs:element name="rtps-on" type="xs:boolean"
-							default="false" minOccurs="0" />
 						<xs:element name="imc3-id" type="imc3-id-type"
 							minOccurs="0" />
 					</xs:sequence>
@@ -99,8 +97,6 @@
 					<xs:sequence>
 						<xs:element name="udp-on" type="xs:boolean"
 							default="true" minOccurs="0" />
-						<xs:element name="rtps-on" type="xs:boolean"
-							default="false" minOccurs="0" />
 						<xs:element name="vehicle-id">
 							<xs:simpleType>
 								<xs:restriction base="xs:string">

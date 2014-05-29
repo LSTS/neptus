@@ -1086,9 +1086,6 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                 comP = PropertiesEditor.getPropertyInstance("imc.tcp-on", categoryBase, Boolean.class, new Boolean(
                         nArgs.isTcpOn()), true);
                 propertiesList.add(comP);
-                comP = PropertiesEditor.getPropertyInstance("imc.rtps-on", categoryBase, Boolean.class, new Boolean(
-                        nArgs.isRtpsOn()), true);
-                propertiesList.add(comP);
                 comP = PropertiesEditor.getPropertyInstance("imc.imc3-id", categoryBase, ImcId16.class,
                         (nArgs.getImc3Id() == null) ? ImcId16.NULL_ID : nArgs.getImc3Id(), true);
                 propertiesList.add(comP);
@@ -1165,9 +1162,6 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                     propertiesList.add(comP);
                     comP = PropertiesEditor.getPropertyInstance("imc.tcp-on", category, Boolean.class, new Boolean(
                             nArgs.isTcpOn()), true);
-                    propertiesList.add(comP);
-                    comP = PropertiesEditor.getPropertyInstance("imc.rtps-on", category, Boolean.class, new Boolean(
-                            nArgs.isRtpsOn()), true);
                     propertiesList.add(comP);
                     comP = PropertiesEditor.getPropertyInstance("imc.imc3-id", category, ImcId16.class,
                             (nArgs.getImc3Id() == null) ? ImcId16.NULL_ID : nArgs.getImc3Id(), true);
@@ -1255,8 +1249,6 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                                     ((IMCArgs) protoArgs).setUdpOn((Boolean) prop.getValue());
                                 else if (prop.getName().equals("imc.tcp-on"))
                                     ((IMCArgs) protoArgs).setTcpOn((Boolean) prop.getValue());
-                                else if (prop.getName().equals("imc.rtps-on"))
-                                    ((IMCArgs) protoArgs).setRtpsOn((Boolean) prop.getValue());
                                 else if (prop.getName().equals("imc.imc3-id"))
                                     ((IMCArgs) protoArgs).setImc3Id((ImcId16) prop.getValue());
                             }
@@ -1305,8 +1297,6 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                                         ((IMCArgs) protoArgs).setUdpOn((Boolean) prop.getValue());
                                     else if (prop.getName().equals("imc.tcp-on"))
                                         ((IMCArgs) protoArgs).setTcpOn((Boolean) prop.getValue());
-                                    else if (prop.getName().equals("imc.rtps-on"))
-                                        ((IMCArgs) protoArgs).setRtpsOn((Boolean) prop.getValue());
                                     else if (prop.getName().equals("imc.imc3-id"))
                                         ((IMCArgs) protoArgs).setImc3Id((ImcId16) prop.getValue());
                                 }
