@@ -516,10 +516,9 @@ public class LsfReport {
                         image = getSidescanMarkImage(source, ssParser, sidescanParams, config, globalColorMap, sd, i);
                         if (image != null) {
 
-                            /*
-                             * //debug of image String path = "/home/miguel/lsts/sidescanImages/"; ImageIO.write(image,
-                             * "PNG", new File(path, "test("+sd.label+").png"));
-                             */
+                            // debug of image
+                            // String path = "/home/miguel/lsts/sidescanImages/";
+                            // ImageIO.write(image, "PNG", new File(path, sd.label + ".png"));
 
                             ImageIO.write(image, "png", new File("tmp.png"));
                             iTextImage = com.lowagie.text.Image.getInstance("tmp.png");
@@ -900,12 +899,12 @@ public class LsfReport {
 
     public static Color getFixedColor(ColorMap colorMap) {
         String colorMapString = colorMap.toString().toLowerCase();
-        switch(colorMapString){
+        switch (colorMapString) {
             case "bronze":
-                
+
                 break;
             default:
-                
+
                 break;
         }
         return null;
