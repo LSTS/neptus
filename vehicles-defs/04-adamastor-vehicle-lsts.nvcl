@@ -30,18 +30,15 @@
 			<name>ethernet</name>
 			<type>ethernet</type>
 			<host-address>10.0.10.70</host-address>
-			<credentials username="root"/>
-			<protocols>imc tcp udp ftp telnet</protocols>
-			<latency value="10M" unit="bps"/>
-			<protocols-args>
-				<ftp>
-					<transfer mode="binary" />
-					<connection mode="pasv" />
-				</ftp>
-				<imc>
-					<port>6002</port>
-					<udp-on>true</udp-on>
-					<rtps-on>false</rtps-on>
+		    <credentials username="root"/>
+		    <protocols>imc</protocols>
+		    <latency value="100M" unit="bps"/>
+		    <protocols-args>
+		        <imc>
+		          	<port>6002</port>
+		          	<port-tcp>6002</port-tcp>
+		          	<udp-on>true</udp-on>
+		          	<tcp-on>false</tcp-on>
 					<imc3-id>04:02</imc3-id>
 				</imc>
 			</protocols-args>
@@ -52,9 +49,6 @@
 	<consoles>
 		<console name="Adamastor Console">
 			<xml-file>../conf/consoles/adamastor-light.ncon</xml-file>
-		</console>
-		<console name="Adamastor Console old">
-			<xml-file>../conf/consoles/adamastor-console.ncon</xml-file>
 		</console>
 	</consoles>
 </system>
