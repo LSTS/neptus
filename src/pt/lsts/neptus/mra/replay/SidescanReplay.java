@@ -67,6 +67,7 @@ public class SidescanReplay implements LogReplayLayer {
     private double imageScaleX;
 
     private boolean generate = true;
+    private boolean imgOutOfWindow = false;
     private int lod;
     private double top = 0, bot = 0, left = 0, right = 0;
 
@@ -103,43 +104,51 @@ public class SidescanReplay implements LogReplayLayer {
         right = p2.getX();
         bot = p2.getY();
 
-        image = ImageUtils.createCompatibleImage((int) (right - left), (int) (bot - top), Transparency.BITMASK);
-        lastCenter = renderer.getCenter();
+        int width = (int) (right - left);
+        int height = (int) (bot - top);
+        if (width > 1 && height > 1) {
+            image = ImageUtils.createCompatibleImage(width, height, Transparency.BITMASK);
+            lastCenter = renderer.getCenter();
+            Thread t = new Thread(SidescanReplay.class.getSimpleName() + " " + source.getDir().getParent()) {
+                @Override
+                public void run() {
+                    Graphics2D g = ((Graphics2D) image.getGraphics());
 
-        Thread t = new Thread(SidescanReplay.class.getSimpleName() + " " + source.getDir().getParent()) {
-            @Override
-            public void run() {
-                Graphics2D g = ((Graphics2D) image.getGraphics());
+                    // g.setColor(Color.green);
+                    // g.drawRect(0, 0, image.getWidth() - 1, image.getHeight() - 1);
+                    g.setColor(null);
+                    g.setComposite(new SideScanComposite());
 
-                // g.setColor(Color.green);
-                // g.drawRect(0, 0, image.getWidth() - 1, image.getHeight() - 1);
-                g.setColor(null);
-                g.setComposite(new SideScanComposite());
+                    double lod = rend.getLevelOfDetail();
 
-                double lod = rend.getLevelOfDetail();
+                    for (SidescanData ssd : dataSet) {
+                        if (lod != rend.getLevelOfDetail())
+                            return;
 
-                for (SidescanData ssd : dataSet) {
-                    if (lod != rend.getLevelOfDetail())
-                        return;
+                        Point2D p = rend.getScreenPosition(ssd.loc);
 
-                    Point2D p = rend.getScreenPosition(ssd.loc);
-                    Graphics2D g2 = (Graphics2D) g.create();
+                        if (p.getX() < 0 || p.getY() < 0 || p.getX() > rend.getWidth() || p.getY() > rend.getHeight()) {
+                            imgOutOfWindow = true;
+                            continue;
+                        }
+                        Graphics2D g2 = (Graphics2D) g.create();
 
-                    g2.translate(-left, -top);
-                    g2.translate(p.getX() - 1000 * imageScaleX, p.getY());
-                    g2.rotate(ssd.heading, 1000 * imageScaleX, 0);
-                    g2.scale(imageScaleX, 1);
-                    // g2.drawImage(ssd.img, null, 0, 0);
-                    // int ysize = (int)((ssd.alongTrackLength*invGR) > 1 ? (ssd.alongTrackLength*invGR) : 1);
-                    // NeptusLog.pub().info("<###> "+ysize + " " + groundResolution + " " + ssd.alongTrackLength);
-                    g2.drawImage(ssd.img, 0, 0, null);
-                    g2.dispose();
-                    rend.repaint();
-                }
+                        g2.translate(-left, -top);
+                        g2.translate(p.getX() - 1000 * imageScaleX, p.getY());
+                        g2.rotate(ssd.heading, 1000 * imageScaleX, 0);
+                        g2.scale(imageScaleX, 1);
+                        // g2.drawImage(ssd.img, null, 0, 0);
+                        // int ysize = (int)((ssd.alongTrackLength*invGR) > 1 ? (ssd.alongTrackLength*invGR) : 1);
+                        // NeptusLog.pub().info("<###> "+ysize + " " + groundResolution + " " + ssd.alongTrackLength);
+                        g2.drawImage(ssd.img, 0, 0, null);
+                        g2.dispose();
+                        rend.repaint();
+                    }
+                };
             };
-        };
-        t.setDaemon(true);
-        t.start();
+            t.setDaemon(true);
+            t.start();
+        }
     }
 
     private boolean firstPaint = true;
@@ -156,6 +165,12 @@ public class SidescanReplay implements LogReplayLayer {
                     generateImage(renderer);
                 }
             });
+        }
+
+        // If the map was dragged and the zoom is big enough to draw only a part of the sidescan image
+
+        if (lastCenter.compareTo(renderer.getCenter()) != 0 && imgOutOfWindow) {
+            generate = true;
         }
 
         if (renderer.getLevelOfDetail() != lod)
