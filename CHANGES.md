@@ -1,11 +1,21 @@
 Changes
 =======
 
-Neptus 4.0.0rc2 (??-05-2014)
+Neptus 4.0.0 (30-05-2014)
 ------------
  * IMC: Updated IMC and IMCJava to v5.4.0.
  * Config: Updated systems parameters to DUNE 2.5.0 (release/dune-2.5.x,b8da6dd).
  * I18n: Updated POT and PO files.
+ * Vehicles/Defs: Modified default CompassCalibration duration to 20 minutes.
+ * Vehicles/Defs: Clean vehicles conf files (normalization and cleanup).
+ * MRA/Plots: Fixed Corrected Position plot.
+ * MRA/Exporters: Removed plugin description (not loaded as plugin) from exporters not yet ready.
+ * Installers/Linux: Added creation of GNOME launchers for Linux SFX installers.
+ * MRA: Protecting from error decompressing Data.lsf.gz.
+ * ChronometerPanel: Replaced Timer with a Thread. (Panels using this panel sould stop the chronometer for proper thread cleanup.)
+ * Joystick/ControllerPanel: Adding a proper cleanup.
+ * Installers: Adjusts on NeptusSE installer files to include.
+ * LogsDownloaderWorker/FtpDownloader: Set a 15s data timeout.
  * Ant/build.xml: Some corrections in order to compile main source without plugin dependencies, also each plugin doesn't compile with others plugins dependency.
  * General/NeptusProperty: Fix a problem that was not properly fix with editable property setting (rename from hidden was not completely finished).
  * MRA: Sort columns values is now working properly added single table cell selection. Closes #3012.
