@@ -114,7 +114,7 @@ import pt.lsts.neptus.util.lbl.LBLTriangulationHelper;
  */
 @SuppressWarnings("serial")
 @Popup( pos = POSITION.RIGHT, width=300, height=250, accelerator='B')
-@PluginDescription(author = "Paulo Dias", name = "LBL Ranges", icon = "pt/lsts/neptus/plugins/acoustic/lbl.png", description = "Displays the LblRanges and LblRangeRejections.", documentation = "lbl-ranges/lbl-ranges.html", category = CATEGORY.INTERFACE)
+@PluginDescription(author = "Paulo Dias", name = "LBL Ranges", icon = "pt/lsts/neptus/plugins/acoustic/lbl.png", description = "Displays the LblRangesAcceptances.", documentation = "lbl-ranges/lbl-ranges.html", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 40)
 public class LBLRangeDisplay extends ConsolePanel implements MainVehicleChangeListener, Renderer2DPainter,
 SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationListener, NeptusMessageListener {
