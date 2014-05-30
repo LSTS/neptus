@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -57,40 +56,35 @@ public enum NeptusEvents {
     private EventBus eventBus;
     private EventBus mainSystemEventBus;
     private EventBus otherSystemEventBus;
-    private Map<ConsoleLayout, EventBus> consoleBus = new HashMap<>();
+    private final Map<ConsoleLayout, EventBus> consoleBus = new HashMap<>();
 
     private NeptusEvents() {
-        ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
-                t.setName("global events handler");
-                t.setDaemon(true);
-                return t;
-            }
-        });
+        ExecutorService service = Executors.newFixedThreadPool(10);/*
+                                                                    * newCachedThreadPool(new ThreadFactory() {
+                                                                    * 
+                                                                    * @Override public Thread newThread(Runnable r) {
+                                                                    * Thread t = new Thread(r);
+                                                                    * t.setName("global events handler");
+                                                                    * t.setDaemon(true); return t; } });
+                                                                    */
         eventBus = new AsyncEventBus(service);
         eventBus.register(this);
-        service = Executors.newCachedThreadPool(new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
-                t.setName("main system events handler");
-                t.setDaemon(true);
-                return t;
-            }
-        });
+        service = Executors.newFixedThreadPool(10);/*
+                                                    * newCachedThreadPool(new ThreadFactory() {
+                                                    * 
+                                                    * @Override public Thread newThread(Runnable r) { Thread t = new
+                                                    * Thread(r); t.setName("main system events handler");
+                                                    * t.setDaemon(true); return t; } });
+                                                    */
         mainSystemEventBus = new AsyncEventBus(service);
         mainSystemEventBus.register(this);
-        service = Executors.newCachedThreadPool(new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
-                t.setName("other system events handler");
-                t.setDaemon(true);
-                return t;
-            }
-        });
+        service = Executors.newFixedThreadPool(10);/*
+                                                    * newCachedThreadPool(new ThreadFactory() {
+                                                    * 
+                                                    * @Override public Thread newThread(Runnable r) { Thread t = new
+                                                    * Thread(r); t.setName("other system events handler");
+                                                    * t.setDaemon(true); return t; } });
+                                                    */
         otherSystemEventBus = new AsyncEventBus(service);
         otherSystemEventBus.register(this);
     }
@@ -178,16 +172,7 @@ public enum NeptusEvents {
      */
     public static void create(ConsoleLayout console) {
         // EventBus
-        ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
-
-            @Override
-            public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
-                t.setName("console event bus");
-                t.setDaemon(true);
-                return t;
-            }
-        });
+        ExecutorService service = Executors.newFixedThreadPool(10);
         AsyncEventBus newBus = new AsyncEventBus(service);
         INSTANCE.consoleBus.put(console, newBus);
         newBus.register(INSTANCE);

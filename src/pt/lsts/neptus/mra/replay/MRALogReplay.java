@@ -89,13 +89,14 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
     private IMraLogGroup source;
     private final Vector<LogReplayLayer> layers = new Vector<>();
     private final Vector<LogReplayPanel> panels = new Vector<>();
-    private final AsyncEventBus replayBus = new AsyncEventBus("Replay Event bus", Executors.newFixedThreadPool(2));
+    private final AsyncEventBus replayBus = new AsyncEventBus("Replay Event bus", Executors.newFixedThreadPool(20));
     private StateRenderer2D r2d;
     private JToolBar layersToolbar;
     private MRALogReplayTimeline timeline;
     private final LinkedHashMap<String, Vector<LogReplayComponent>> observers = new LinkedHashMap<>();
     private final LinkedHashMap<LogReplayPanel, JDialog> popups = new LinkedHashMap<>();
     private final MRAPanel panel;
+    private final int maxThreads = 10;
 
     public MRALogReplay(MRAPanel panel) {
         super(panel);
@@ -294,7 +295,7 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
                 MissionType mt = LogUtils.generateMission(source);
                 r2d.setMapGroup(MapGroup.getMapGroupInstance(mt));
 
-                ExecutorService executorService = Executors.newCachedThreadPool();
+                ExecutorService executorService = Executors.newFixedThreadPool(maxThreads);// newCachedThreadPool();
                 
                 for (final LogReplayLayer l : layers) {
                     try {

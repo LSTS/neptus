@@ -156,7 +156,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     //    protected Vector<Object> registeredObjects = new Vector<>();
 
     // EventBus
-    private final ExecutorService service = Executors.newCachedThreadPool(new ThreadFactory() {
+    private final ExecutorService service = Executors.newFixedThreadPool(10);/*(new ThreadFactory() {
         private long counter = 0;
         @Override
         public Thread newThread(Runnable r) {
@@ -165,7 +165,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
             t.setDaemon(true);
             return t;
         }
-    });
+    });*/
     protected AsyncEventBus bus = new AsyncEventBus(service);
 
     protected HashSet<Object> busListeners = new HashSet<>();
