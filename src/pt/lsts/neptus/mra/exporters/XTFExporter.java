@@ -54,7 +54,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
  * @author jqcorreia
  *
  */
-@PluginDescription
+//@PluginDescription
 public class XTFExporter implements MRAExporter {
     IMraLogGroup source;
     BathymetryParser parser = null;
