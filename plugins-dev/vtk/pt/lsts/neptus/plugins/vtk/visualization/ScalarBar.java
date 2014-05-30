@@ -46,10 +46,17 @@ public class ScalarBar {
 
     private String scalarBarTitle;
 
+    /**
+     * 
+     */
     public ScalarBar() {
         this(I18n.text("Color Map"));
     }
 
+    /**
+     * 
+     * @param title
+     */
     public ScalarBar(String title) {
         setScalarBarActor(new vtkScalarBarActor());
         setScalarBarTitle(title);

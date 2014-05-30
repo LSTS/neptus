@@ -53,6 +53,10 @@ public class PointCloudMesh {
         setContours(new Contours(this));
     }
 
+    /**
+     * 
+     * @param polyData
+     */
     public void generateLODActorFromPolyData(vtkPolyData polyData) {
         setPolyData(new vtkPolyData());
         setPolyData(polyData);

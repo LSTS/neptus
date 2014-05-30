@@ -128,7 +128,7 @@ public class GeneralPreferences implements PropertiesProvider {
 
     @NeptusProperty(name = "Logs Downloader - Enable Parcial Download", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED, 
             description = "Enable the partial logs downloads (resume partial downloads). NOTE: THE DOWNLOAD BOXES ONLY READ THIS OPTION UPON CREATION.")
-    public static boolean logsDownloaderEnablePartialDownload = true;
+    public static boolean logsDownloaderEnablePartialDownload = false;
 
     // -------------------------------------------------------------------------
 
@@ -181,15 +181,15 @@ public class GeneralPreferences implements PropertiesProvider {
             description = "Select the comms. separation time in miliseconds that a message (by type) should be warn. Use \"-1\" for always warn.")
     public static int commsMsgSeparationMillis = -1;
 
-    @NeptusProperty(name = "Filter UDP Redirect Also By Port", editable = true, category = "IMC Communications", userLevel = LEVEL.ADVANCED)
+    @NeptusProperty(name = "Filter UDP Redirect Also By Port", editable = false, category = "IMC Communications", userLevel = LEVEL.ADVANCED)
     public static boolean filterUdpAlsoByPort = false;
 
-    @NeptusProperty(name = "Redirect Unknown Comms. To First Vehicle In Comm. List", editable = true, category = "IMC Communications", userLevel = LEVEL.ADVANCED,
+    @NeptusProperty(name = "Redirect Unknown Comms. To First Vehicle In Comm. List", editable = false, category = "IMC Communications", userLevel = LEVEL.ADVANCED,
             description = "Any messages comming from unknown vehicle will be redirect to the first on comm. list.")
     public static boolean redirectUnknownIdsToFirstCommVehicle = false;
     
 
-    @NeptusProperty(name = "Use New System Activity Counter", editable = true, category = "IMC Communications", userLevel = LEVEL.ADVANCED)
+    @NeptusProperty(name = "Use New System Activity Counter", editable = false, category = "IMC Communications", userLevel = LEVEL.ADVANCED)
     public static boolean commsUseNewSystemActivityCounter = true;
 
     // -------------------------------------------------------------------------

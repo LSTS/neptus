@@ -47,6 +47,7 @@ import org.apache.commons.codec.binary.Hex;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
+import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
@@ -130,6 +131,21 @@ public class IridiumManager {
     }
     
     public void processMessage(IridiumMessage msg) {
+        
+        //if (msg.getSource() != ImcMsgManager.getManager().getLocalId().intValue()) {
+            try {
+                IridiumMsgTx transmission = new IridiumMsgTx();
+                transmission.setData(msg.serialize());
+                transmission.setSrc(msg.getSource());
+                transmission.setDst(msg.getDestination());
+                transmission.setTimestamp(msg.timestampMillis/1000.0);
+                ImcMsgManager.getManager().postInternalMessage("IridiumManager", transmission);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+        //}
+        
         Collection<IMCMessage> msgs = msg.asImc();
         
         for (IMCMessage m : msgs) {

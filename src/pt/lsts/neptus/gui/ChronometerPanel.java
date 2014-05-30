@@ -46,8 +46,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.ParseException;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,6 +64,7 @@ import javax.swing.text.DefaultFormatter;
 
 import pt.lsts.neptus.gui.ClockCounter.ClockState;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 
@@ -118,8 +117,9 @@ public class ChronometerPanel extends JPanel implements ActionListener {
 
     protected CronState cState = CronState.STOPED;
 
-    private Timer timer = new Timer(this.getClass().getSimpleName() + ": " + this.hashCode(), true);
-    private TimerTask tTask = null;
+//    private Timer timer = new Timer(this.getClass().getSimpleName() + ": " + this.hashCode(), true);
+//    private TimerTask tTask = null;
+    private Thread guiUpdateThread = null;
 
     // Visual components
     private ClockCounter display = null;
@@ -481,21 +481,45 @@ public class ChronometerPanel extends JPanel implements ActionListener {
     }
 
     protected void startDisplayUpdate() {
-        if (tTask != null)
-            stopDisplayUpdate();
-        tTask = new TimerTask() {
-            @Override
-            public void run() {
-                updateDisplay();
-            }
-        };
-        timer.scheduleAtFixedRate(tTask, 0, 250);
+//        if (tTask != null)
+//            stopDisplayUpdate();
+//        tTask = new TimerTask() {
+//            @Override
+//            public void run() {
+//                updateDisplay();
+//            }
+//        };
+//        timer.scheduleAtFixedRate(tTask, 0, 250);
+        
+        if (guiUpdateThread == null) {
+            guiUpdateThread = new Thread(this.getClass().getSimpleName() + ":" + Integer.toHexString(this.hashCode())) {
+                @Override
+                public void run() {
+                    try {
+                        while (true) {
+                            updateDisplay();
+                            Thread.sleep(250);
+                            Thread.yield();
+                        }
+                    }
+                    catch (Exception e) {
+                        // Nothing to do
+                    }
+                    guiUpdateThread = null;
+                }
+            };
+            guiUpdateThread.setDaemon(true);
+            guiUpdateThread.start();
+        }
     }
 
     protected void stopDisplayUpdate() {
-        if (tTask != null) {
-            tTask.cancel();
-            tTask = null;
+//        if (tTask != null) {
+//            tTask.cancel();
+//            tTask = null;
+//        }
+        if (guiUpdateThread != null) {
+            guiUpdateThread.interrupt();
         }
     }
 
@@ -614,5 +638,10 @@ public class ChronometerPanel extends JPanel implements ActionListener {
         String time = "" + hrS + ClockCounter.HOURS_SEPARATOR + miS + ClockCounter.MINUTES_SEPARATOR + secS + ClockCounter.SECONDS_SEPARATOR;
 
         return time;
+    }
+    
+    public static void main(String[] args) {
+        ChronometerPanel chronometerPanel = new ChronometerPanel();
+        GuiUtils.testFrame(chronometerPanel, ChronometerPanel.class.getSimpleName(), 400, 204);
     }
 }

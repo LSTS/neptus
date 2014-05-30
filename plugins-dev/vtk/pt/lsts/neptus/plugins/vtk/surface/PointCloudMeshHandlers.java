@@ -48,6 +48,9 @@ public class PointCloudMeshHandlers {
     private vtkLookupTable lutY;
     private vtkLookupTable lutZ;
 
+    /**
+     * 
+     */
     public PointCloudMeshHandlers() {
         setColorsX(new vtkUnsignedCharArray());
         setColorsY(new vtkUnsignedCharArray());
@@ -57,6 +60,11 @@ public class PointCloudMeshHandlers {
         setLutZ(new vtkLookupTable());
     }
 
+    /**
+     * 
+     * @param polyData
+     * @param bounds
+     */
     public void generateMeshColorHandlers(vtkPolyData polyData, double[] bounds) {
         getLutX().SetRange(bounds[0], bounds[1]);
         getLutX().SetScaleToLinear();

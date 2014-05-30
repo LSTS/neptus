@@ -59,7 +59,7 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.LblBeacon;
 import pt.lsts.imc.LblConfig;
-import pt.lsts.imc.LblRange;
+import pt.lsts.imc.LblRangeAcceptance;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -80,7 +80,7 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
 
     private static final long serialVersionUID = 1L;
 
-    @NeptusProperty(name = "Logs folder", editable = true)
+    @NeptusProperty(name = "Logs folder", editable = true) 
     public String logsFolder = ".";
 
     @NeptusProperty(name = "Number of iterations")
@@ -155,12 +155,12 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
         LinkedHashMap<Short, double[]> beaconLocations = new LinkedHashMap<Short, double[]>();
         LinkedHashMap<Short, String> beaconNames = new LinkedHashMap<Short, String>();
 
-        int curPos = index.getFirstMessageOfType(LblRange.ID_STATIC);
+        int curPos = index.getFirstMessageOfType(LblRangeAcceptance.ID_STATIC);
 
         while (curPos != -1) {
-            LblRange range = LblRange.clone(index.getMessage(curPos));
+            LblRangeAcceptance range = LblRangeAcceptance.clone(index.getMessage(curPos));
             if (!ranges.containsKey(range.getId()))
-                ranges.put((short)range.getId(), new Vector<double[]>());
+                ranges.put(range.getId(), new Vector<double[]>());
             int estate = index.getNextMessageOfType(EstimatedState.ID_STATIC, curPos);
 
             if (estate != -1) {
@@ -169,7 +169,7 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
                         range.getRange() };
                 ranges.get(range.getId()).add(values);
             }
-            curPos = index.getNextMessageOfType(LblRange.ID_STATIC, curPos);
+            curPos = index.getNextMessageOfType(LblRangeAcceptance.ID_STATIC, curPos);
         }
 
         int lblIndex = index.getFirstMessageOfType(LblConfig.ID_STATIC);
@@ -280,6 +280,7 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     ClipboardOwner owner = new ClipboardOwner() {
+                        @Override
                         public void lostOwnership(java.awt.datatransfer.Clipboard clipboard, java.awt.datatransfer.Transferable contents) {};                       
                     };
                     Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(loc.getClipboardText()), owner);

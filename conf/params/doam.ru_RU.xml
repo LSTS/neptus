@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<config format="1" version="2.5.0-rc1 (HEAD,6db5dd1)" system="doam" i18n="ru_RU">
+<config format="1" version="2.5.0 (release/dune-2.5.x,b8da6dd)" system="doam" i18n="ru_RU">
 <section name="Thermal Zone" name-i18n="Термальная зона">
 <param name="Entity Label">
 <name-i18n>Entity Этикетка</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>Thermal Zone</default><units></units><desc>Главным образом ярлык лица</desc></param>

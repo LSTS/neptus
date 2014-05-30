@@ -74,7 +74,7 @@ import com.l2fprod.common.propertysheet.Property;
 /**
  * @author hfq
  */
-@PluginDescription(author = "hfq", name = "3D Bathymetry", icon = "images/menus/3d.png")
+@PluginDescription(author = "hfq", name = "Bathymetry 3D", icon = "images/menus/3d.png")
 public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesProvider {
     private static final long serialVersionUID = 8057825167454469065L;
 
@@ -109,7 +109,10 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
      * @param panel
      */
     public VtkMRAVis(MRAPanel panel) {
-        Utils.loadVTKLibraries();
+        if (!Utils.hasTryedToLoadVtkLib) {
+            Utils.loadVTKLibraries();
+            // VTKMemoryManager.GC.SetAutoGarbageCollection(true);
+        }
     }
 
     @Override
@@ -146,14 +149,19 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             // checks if data is available
             // first multibeam then dvl
             loadCloud();
+
+            if (!mbFound)
+                toolbar.remove(toolbar.multibeamToggle);
+            if (!source.getLsfIndex().containsMessagesOfType("Distance"))
+                toolbar.remove(toolbar.dvlToggle);
         }
         return this;
     }
 
     private void loadCloud() {
-        PointCloud<PointXYZ> pointCloudMultibeam = new PointCloud<>();
-        LoadToPointCloud load = new LoadToPointCloud(source, pointCloudMultibeam);
         if (mbFound) {
+            PointCloud<PointXYZ> pointCloudMultibeam = new PointCloud<>();
+            LoadToPointCloud load = new LoadToPointCloud(source, pointCloudMultibeam);
             NeptusLog.pub().info("Parsing Multibeam data.");
             pointCloudMultibeam.setCloudName("multibeam");
             toolbar.multibeamToggle.setSelected(true);
@@ -163,20 +171,21 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             processPointCloud(pointCloudMultibeam, load);
             setUpRenderer(pointCloudMultibeam);
         }
-        PointCloud<PointXYZ> pointCloudDVL = new PointCloud<>();
         if (source.getLsfIndex().containsMessagesOfType("Distance")) {
+            PointCloud<PointXYZ> pointCloudDVL = new PointCloud<>();
+            LoadToPointCloud load2 = new LoadToPointCloud(source, pointCloudDVL);
             NeptusLog.pub().info("Parsing DVL data.");
             pointCloudDVL.setCloudName("dvl");
-            load.parseDVLPointCloud();
+            load2.parseDVLPointCloud();
             events.setSensorTypeInteraction(SensorTypeInteraction.DVL);
             getLinkedHashMapCloud().put(pointCloudDVL.getCloudName(), pointCloudDVL);
-            processPointCloud(pointCloudDVL, load);
+            processPointCloud(pointCloudDVL, load2);
             if (!mbFound) {
                 toolbar.dvlToggle.setSelected(true);
                 setUpRenderer(pointCloudDVL);
             }
         }
-        if (!mbFound && !source.getLsfIndex().containsMessagesOfType("Distance")) {
+        if (!source.getLsfIndex().containsMessagesOfType("Distance") && !mbFound) {
             String msgErrorNoData = I18n.text("No data Available") + "!";
             JOptionPane.showMessageDialog(null, msgErrorNoData);
 
@@ -191,12 +200,10 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
         LoadToPointCloud load = new LoadToPointCloud(source, pointCloud);
         if (sensorType.equals("dvl") && source.getLsfIndex().containsMessagesOfType("Distance")) {
             pointCloud.setCloudName(sensorType);
-            // NeptusLog.pub().info("Going to parse dvl data!");
             load.parseDVLPointCloud();
         }
         else if (sensorType.equals("multibeam")) {
             pointCloud.setCloudName("multibeam");
-            // NeptusLog.pub().info("Going to parse multibeam data!");
             load.parseMultibeamPointCloud();
         }
 
@@ -259,15 +266,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             // set Up scalar Bar look up table
             interactorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
             getCanvas().GetRenderer().AddActor(winCanvas.getInteracStyle().getScalarBar().getScalarBarActor());
-
-            // set up camera to +z viewpoint looking down
-            // double[] center = new double[3];
-            // center = PointCloudUtils.computeCenter(pointCloud);
-            // canvas.GetRenderer().GetActiveCamera().SetPosition(center[0], center[1], center[2] - 200);
-            // canvas.GetRenderer().GetActiveCamera().SetPosition(0, 0, 0 - 200);
-            // canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
         }
-
         else { // if no beams were parsed
             String msgErrorMultibeam;
             msgErrorMultibeam = I18n.text("No beams on Log file") + "!";
@@ -298,8 +297,11 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             catch (Exception e) {
                 e.printStackTrace();
             }
+            return mbFound || source.getLsfIndex().containsMessagesOfType("Distance");
         }
-        return mbFound || source.getLsfIndex().containsMessagesOfType("Distance");
+        else
+            return false;
+
     }
 
     @Override
@@ -343,12 +345,6 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     @Override
     public void onCleanup() {
-        // setVisible(false);
-        // getCanvas().GetRenderer().RemoveAllObservers();
-        // getCanvas().GetRenderWindow().RemoveAllObservers();
-        // getCanvas().GetRenderWindow().Delete();
-        //
-        // VTKMemoryManager.GC.SetAutoGarbageCollection(true);
         // VTKMemoryManager.deleteAll();
     }
 

@@ -155,7 +155,7 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         // Register listeners
         console.addMainVehicleListener(this);
         PeriodicUpdatesService.register(this);
-        ImcMsgManager.getManager().addListener(this);
+        getConsole().getImcMsgManager().addListener(this);
     }
 
     
@@ -214,6 +214,14 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         refreshInterface();
     }
 
+    @Override
+    public void cleanSubPanel() {
+        // Unregister listeners
+        console.removeMainVehicleListener(this);
+        PeriodicUpdatesService.unregister(this);
+        getConsole().getImcMsgManager().removeListener(this);
+    }
+    
     public void buildDialog() {
         removeAll();
         setSize(300, 200);
@@ -468,10 +476,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
         buildDialog();
     }
 
-    public void cleanup() {
-        ImcMsgManager.getManager().removeListener(this);
-    }
-
     /**
      * @author jqcorreia
      */
@@ -513,11 +517,6 @@ public class ControllerPanel extends ConsolePanel implements IPeriodicUpdates {
             });
 
         }
-    }
-    
-    @Override
-    public void cleanSubPanel() {
-        
     }
     
     @SuppressWarnings("serial")

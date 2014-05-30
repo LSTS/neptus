@@ -102,7 +102,7 @@ public class Writer3D {
                 NeptusLog.pub().info("Saving OBJ file.");
                 try {
                     Text3D text3d = new Text3D();
-                    text3d.buildText3D(I18n.text("Saving to a OBL file") + ".", 2.0, 2.0, 2.0, 8.0);
+                    text3d.buildText3D(I18n.text("Saving to a OBJ file") + ".", 2.0, 2.0, 2.0, 8.0);
                     canvas.GetRenderer().AddActor(text3d.getText3dActor());
 
                     exportToOBJFileFormat(file, polydata, canvas.GetRenderWindow());

@@ -44,7 +44,7 @@ import vtk.vtkVertexGlyphFilter;
  */
 public class PointCloudCTD {
 
-    private String cloudName;
+    private final String cloudName;
     private vtkPoints points;
     private vtkPolyData polyData;
     private vtkLODActor cloudLODActor;
@@ -116,6 +116,9 @@ public class PointCloudCTD {
         }
     }
 
+    /**
+     * 
+     */
     public void handlePointCloudColors() {
         setColorHandler(new ColorHandler(this));
         getColorHandler().gerenerateColors();

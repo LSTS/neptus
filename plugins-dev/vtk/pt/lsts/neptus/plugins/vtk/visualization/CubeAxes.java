@@ -41,17 +41,13 @@ import vtk.vtkRenderer;
  */
 public class CubeAxes {
 
-    // private vtkStringArray xLabel;
-    // private vtkStringArray yLabel;
-    // private vtkStringArray zLabel;
-
-    private static vtkCubeAxesActor cubeAxesActor;
+    private vtkCubeAxesActor cubeAxesActor;
 
     public CubeAxes() {
 
     }
 
-    public static vtkActor AddCubeAxesToVisualizer(vtkRenderer renderer, vtkPolyData polyData) {
+    public vtkActor AddCubeAxesToVisualizer(vtkRenderer renderer, vtkPolyData polyData) {
 
         cubeAxesActor = new vtkCubeAxesActor();
 
@@ -75,11 +71,6 @@ public class CubeAxes {
         // cubeAxesActor.SetZAxisMinorTickVisibility(0);
         cubeAxesActor.DrawZGridlinesOn();
         cubeAxesActor.SetZUnits("m");
-
-        // não colocar
-        // cubeAxesActor.SetCornerOffset(1);
-        // não faz nada aparentemente
-        // cubeAxesActor.SetInertia(0);
 
         // propriedades do actor
         // cubeAxesActor.GetProperty().SetDiffuseColor(0.0, 1.0, 0.0);

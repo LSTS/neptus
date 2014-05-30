@@ -44,22 +44,28 @@ import javax.swing.JPopupMenu;
 
 import org.apache.commons.codec.binary.Hex;
 
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IridiumMsgRx;
 import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.imc.IridiumTxStatus;
+import pt.lsts.imc.LogBookEntry;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.OP;
 import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.imc.TextMessage;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.iridium.ActivateSubscription;
 import pt.lsts.neptus.comm.iridium.DeactivateSubscription;
 import pt.lsts.neptus.comm.iridium.DesiredAssetPosition;
+import pt.lsts.neptus.comm.iridium.ExtendedDeviceUpdate;
+import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumCommand;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.iridium.IridiumMessage;
+import pt.lsts.neptus.comm.iridium.Position;
 import pt.lsts.neptus.comm.iridium.TargetAssetPosition;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -89,6 +95,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     private static final long serialVersionUID = -8535642303286049869L;
     protected long lastMessageReceivedTime = System.currentTimeMillis() - 3600000;
     protected LinkedHashMap<String, RemoteSensorInfo> sensorData = new LinkedHashMap<>();
+    private static final String[] iridiumDestinations = new String[] {"broadcast","manta-1", "manta-11", "lauv-xplore-1", "lauv-seacon-2", "lauv-seacon-3"}; 
 
     protected final int HERMES_ID = 0x08c1;
     protected Vector<VirtualDrifter> drifters = new Vector<>();
@@ -111,6 +118,25 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
             byte[] data = msg.getData();
             NeptusLog.pub().info(msg.getSourceName()+" received iridium message with data "+new String(Hex.encodeHex(data)));
             IridiumMessage m = IridiumMessage.deserialize(data);
+            
+            if (m instanceof ExtendedDeviceUpdate) {
+                ExtendedDeviceUpdate upd = (ExtendedDeviceUpdate) m;
+                for (Position p : upd.getPositions().values()) {
+                    RemoteSensorInfo rsi = new RemoteSensorInfo();
+                    rsi.setTimestamp(p.timestamp);
+                    rsi.setLat(p.latRads);
+                    rsi.setLon(p.lonRads);
+                    String name = IMCDefinition.getInstance().getResolver().resolve(p.id);
+                    if (name != null)
+                        rsi.setId(IMCDefinition.getInstance().getResolver().resolve(p.id));
+                    else
+                        rsi.setId(String.format("Unknown (%X)" , p.id));
+                    
+                    rsi.setSensorClass(IMCUtils.getSystemType(p.id));
+                    ImcMsgManager.getManager().postInternalMessage("IridiumComms", rsi);
+                }
+            }
+            
             NeptusLog.pub().info("Resulting message: "+m);
         }
         catch (Exception e) {
@@ -133,7 +159,6 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
 
     @Override
     public boolean update() {
-        System.out.println("UPDATE");
         for (VirtualDrifter d : drifters) {
             RemoteSensorInfo rsi = new RemoteSensorInfo();
             rsi.setId(d.id);
@@ -183,6 +208,41 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
        };
        send.setDaemon(true);
        send.start();       
+    }
+    
+    private void sendTextNote() {
+        String note = JOptionPane.showInputDialog(getConsole(),
+                I18n.text("Enter note to be published"));
+        
+        if (note == null || note.isEmpty())
+            return;
+        
+        LogBookEntry entry = new LogBookEntry();
+        entry.setText(note);
+        entry.setTimestampMillis(System.currentTimeMillis());
+        entry.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
+        
+        //(Component parentComponent, Object message, String title, int messageType, Icon icon,  Object[] selectionValues, Object initialSelectionValue)
+        Object selection = JOptionPane.showInputDialog(getConsole(), "Please enter destination of this message", "Send Text Note", JOptionPane.QUESTION_MESSAGE, null, iridiumDestinations, "manta-1");
+        if (selection == null)
+            return;
+        else if (selection.equals("broadcast"))
+            entry.setDst(65535);
+        else
+            entry.setDst(IMCDefinition.getInstance().getResolver().resolve(""+selection));
+        entry.setContext("Iridium logbook");
+        ImcIridiumMessage msg = new ImcIridiumMessage();
+        msg.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+        
+        msg.setDestination(65535);
+        msg.setMsg(entry);
+        try {
+            IridiumManager.getManager().send(msg);
+        }
+        catch (Exception e) {
+            GuiUtils.errorMessage(getConsole(), e);
+        }
+        getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
     }
     
     private void sendIridiumCommand() {
@@ -302,6 +362,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                         activate.setSource(ImcMsgManager.getManager().getLocalId().intValue());
                         try {
                             IridiumManager.getManager().send(activate);
+                            getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
                         }
                         catch (Exception ex) {
                             GuiUtils.errorMessage(getConsole(), ex);
@@ -340,6 +401,15 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         });
 
         popup.addSeparator();
+        
+        popup.add(I18n.text("Send a text note")).addActionListener(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        sendTextNote();
+                    }
+                });
+        
 
         popup.add("Add virtual drifter").addActionListener(new ActionListener() {
 

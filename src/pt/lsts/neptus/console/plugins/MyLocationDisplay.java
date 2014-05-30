@@ -116,16 +116,16 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
     @NeptusProperty(name = "My Heading", userLevel = LEVEL.REGULAR)
     public double headingDegrees = 0;
 
-    @NeptusProperty(editable = true, category = "Follow System", userLevel = LEVEL.ADVANCED)
+    @NeptusProperty(editable = false, category = "Follow System", userLevel = LEVEL.ADVANCED)
     private String followingPositionOf = "";
 
-    @NeptusProperty(editable = true, category = "Follow System", userLevel = LEVEL.ADVANCED)
+    @NeptusProperty(editable = false, category = "Follow System", userLevel = LEVEL.ADVANCED)
     private String useSystemToDeriveHeadingOf = "";
 
-    @NeptusProperty(editable = true, category = "Follow System", userLevel = LEVEL.ADVANCED)
+    @NeptusProperty(editable = false, category = "Follow System", userLevel = LEVEL.ADVANCED)
     private short useHeadingAngleToDerivedHeading = 0;
 
-    @NeptusProperty(editable = true, category = "Follow System", userLevel = LEVEL.ADVANCED)
+    @NeptusProperty(editable = false, category = "Follow System", userLevel = LEVEL.ADVANCED)
     private short useHeadingOffsetFromDerivedHeading = 0;
 
     @NeptusProperty(name = "Length", category = "Dimension", userLevel = LEVEL.REGULAR)

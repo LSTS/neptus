@@ -41,7 +41,9 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -68,9 +70,11 @@ import pt.lsts.neptus.util.conf.StringPatternValidator;
 
 import com.xuggle.mediatool.IMediaListener;
 import com.xuggle.mediatool.IMediaReader;
+import com.xuggle.mediatool.IMediaWriter;
 import com.xuggle.mediatool.MediaListenerAdapter;
 import com.xuggle.mediatool.ToolFactory;
 import com.xuggle.mediatool.event.IVideoPictureEvent;
+import com.xuggle.xuggler.ICodec;
 import com.xuggle.xuggler.IError;
 
 enum Status{
@@ -192,17 +196,43 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
         Thread ret = new Thread("RTSP Worker Thread") {
 
             boolean isRunning = true;
+            boolean isRecording = false;
             String path = null;
+            String recordPath = "./log/";
+            Calendar date = Calendar.getInstance();
             IMediaReader mediaReader;
+            IMediaWriter mediaWriter;
             
             private IMediaListener mediaListener = new MediaListenerAdapter() {
                 @Override
                 public void onVideoPicture(IVideoPictureEvent event) {
                     try {
+                        
                         imagePanel.setImage(event.getImage());
+                        
+                        if(recordButton.isSelected()){
+                            
+                            if(!isRecording){
+                                //initializes the writer responsible for recording
+                                date.setTimeInMillis(System.currentTimeMillis());                               
+                                mediaWriter = ToolFactory.makeWriter(recordPath+date.getTime()+"_"+activeCamera.alias+".mp4");
+                                mediaWriter.addVideoStream(0, 0, ICodec.ID.CODEC_ID_H264,event.getImage().getWidth(),event.getImage().getHeight());
+                                isRecording = true;
+                            }
+                            
+                            mediaWriter.encodeVideo(0,event.getImage(),System.currentTimeMillis(),TimeUnit.MILLISECONDS);
+                        }
+                        else{
+                            
+                            if(isRecording)
+                                mediaWriter.close();
+                            
+                            isRecording = recordButton.isSelected();
+                        }
+                        
                         repaint();
                     }
-                    catch (Exception ex) {
+                    catch (Exception ex) {                        
                         status = Status.STOP;
                         NeptusLog.pub().error(ex);
                         NeptusLog.pub().warn("Verify camera settings before attempting to connect"); 
@@ -252,7 +282,7 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                                 if (mediaReader != null)
                                     err = mediaReader.readPacket();
                         
-                                if (err != null) {
+                                if (err != null) {                                    
                                     NeptusLog.pub().error(err);
                                     NeptusLog.pub().warn("Verify camera settings before attempting to connect");                                    
                                     status = Status.STOP;
@@ -271,6 +301,9 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
                 connectButton.setSelected(false);
                 recordButton.setSelected(false);
                 recordButton.setEnabled(false);
+                              
+                if(isRecording)
+                    mediaWriter.close();
                 
                 NeptusLog.pub().info(this.getName() + " exiting");
             }
@@ -394,6 +427,7 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
      */
     private void loadCameraList() {
         activeCamera = new Camera("10.0.20.209","camera-03","Nose","Ubiquiti",52.0,1.0);
+        cameraList.put("camera-04", new Camera("10.0.20.97","camera-04","Nose","Ubiquiti",52.0,1.0));
         cameraList.put("camera-03", activeCamera);
         cameraList.put("camera-08", new Camera("10.0.20.199","camera-08","Nose","Axis",52.0,1.0)); 
         
@@ -441,13 +475,13 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
         }
         else if(input.equals(recordButton)) {
             if(e.getStateChange() == ItemEvent.SELECTED){
-                NeptusLog.pub().warn("Unimplemented Feature");  
+                NeptusLog.pub().info("Starting recording");
                 
                 //changes appearance
                 recordButton.setText(I18n.text("On"));
             }
             else{
-                NeptusLog.pub().warn("Unimplemented Feature"); 
+                NeptusLog.pub().info("Stopping recording");
                 
                 //changes appearance
                 recordButton.setText(I18n.text("Off")); 

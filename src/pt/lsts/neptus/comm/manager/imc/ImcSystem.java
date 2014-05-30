@@ -596,7 +596,6 @@ public class ImcSystem implements Comparable<ImcSystem> {
         nArgs.setPort(port);
         nArgs.setPortTCP(portTCP);
 		nArgs.setImc3Id(imcId);
-		//nArgs.setRtpsOn(rtpsOn);
 		nArgs.setUdpOn(udpOn);
 		nArgs.setTcpOn(tcpOn);
 		

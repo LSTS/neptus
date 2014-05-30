@@ -70,9 +70,11 @@ import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.imc.TrexCommand;
 import pt.lsts.imc.TrexOperation;
 import pt.lsts.imc.TrexOperation.OP;
+import pt.lsts.imc.TrexToken;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.fileeditor.SyntaxDocument;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.mp.Maneuver;
@@ -92,6 +94,8 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -135,6 +139,10 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
 
     @NeptusProperty(name = "Water current Speed", category = "YoYo Survey", description="Speed, in mps of the surface current.")
     public float speed = 0;
+    
+    @NeptusProperty(name = "Notifications for received T-REX observations")
+    public boolean postNotifications = true;
+    
 
     private final HttpClient httpclient = new DefaultHttpClient();
 
@@ -302,7 +310,22 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 Vector<EntityParameter> p = new Vector<>();
                 p.add(param);
                 setParams.setParams(p);
-                ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
+                switch (trexDuneComms) {
+                    case IMC:
+                    case REST:
+                        ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
+                        break;
+                    case IRIDIUM:
+                        try {
+                            sendViaIridium(getConsole().getMainSystem(), setParams);
+                        }
+                        catch (Exception ex) {
+                            NeptusLog.pub().error(e);
+                        }
+                        break;
+                }
+                
+                //ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
             }
         });
     }
@@ -332,7 +355,23 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
                 Vector<EntityParameter> p = new Vector<>();
                 p.add(param);
                 setParams.setParams(p);
-                ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
+                
+                switch (trexDuneComms) {
+                    case IMC:
+                    case REST:
+                        ImcMsgManager.getManager().sendMessageToSystem(setParams, getConsole().getMainSystem());
+                        break;
+                    case IRIDIUM:
+                        try {
+                            sendViaIridium(getConsole().getMainSystem(), setParams);
+                        }
+                        catch (Exception ex) {
+                            NeptusLog.pub().error(e);
+                        }
+                        break;
+                }
+                
+                
             }
         });
     }
@@ -678,6 +717,31 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
     public String[] getObservedMessages() {
         String msgs[] = { "PathControlState", "PlanControlState" };
         return msgs;
+    }
+    
+    @Subscribe
+    public void on(TrexOperation msg) {
+        if (!postNotifications)
+            return;
+            
+        TrexToken token = msg.getToken();
+        if (token == null)
+            return;
+        String pred, timeline;
+        switch(msg.getOp()) {
+            case POST_TOKEN:
+                pred = token.getPredicate();
+                timeline = token.getTimeline();
+                post(Notification.success("T-REX Observation", timeline+"."+pred));
+                break;
+            case POST_GOAL:
+                pred = token.getPredicate();
+                timeline = token.getTimeline();
+                post(Notification.success("T-REX Goal", timeline+"."+pred));
+                break;
+            default:
+                break;
+        }        
     }
 
     @Override

@@ -114,7 +114,7 @@ import pt.lsts.neptus.util.lbl.LBLTriangulationHelper;
  */
 @SuppressWarnings("serial")
 @Popup( pos = POSITION.RIGHT, width=300, height=250, accelerator='B')
-@PluginDescription(author = "Paulo Dias", name = "LBL Ranges", icon = "pt/lsts/neptus/plugins/acoustic/lbl.png", description = "Displays the LblRanges and LblRangeRejections.", documentation = "lbl-ranges/lbl-ranges.html", category = CATEGORY.INTERFACE)
+@PluginDescription(author = "Paulo Dias", name = "LBL Ranges", icon = "pt/lsts/neptus/plugins/acoustic/lbl.png", description = "Displays the LBL ranges.", documentation = "lbl-ranges/lbl-ranges.html", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 40)
 public class LBLRangeDisplay extends ConsolePanel implements MainVehicleChangeListener, Renderer2DPainter,
 SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationListener, NeptusMessageListener {
@@ -158,7 +158,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
     @NeptusProperty(name = "MIDI Channel", category = "Communication")
     public int midi_channel = 13;
 
-    @NeptusProperty(name = "Number of distinct frequencies", category = "Communication", editable = true, userLevel = LEVEL.REGULAR)
+    @NeptusProperty(name = "Number of distinct frequencies", category = "Communication", editable = false, userLevel = LEVEL.REGULAR)
     public int numFreqs = 8;
 
     @NeptusProperty(name = "Volume")

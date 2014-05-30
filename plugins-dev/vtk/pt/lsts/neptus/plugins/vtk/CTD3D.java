@@ -88,7 +88,10 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
      * 
      */
     public CTD3D(MRAPanel mraPanel) {
-        Utils.loadVTKLibraries();
+        if (!Utils.hasTryedToLoadVtkLib) {
+            Utils.loadVTKLibraries();
+            // VTKMemoryManager.GC.SetAutoGarbageCollection(true);
+        }
     }
 
     @Override
@@ -197,7 +200,7 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
 
     @Override
     public void onCleanup() {
-
+        // VTKMemoryManager.deleteAll();
     }
 
     @Override

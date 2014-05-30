@@ -44,10 +44,21 @@ import vtk.vtkVectorText;
 public class Text3D {
     private vtkLODActor text3dActor;
 
+    /**
+     * 
+     */
     public Text3D() {
         setText3dActor(new vtkLODActor());
     }
 
+    /**
+     * 
+     * @param msgInput
+     * @param posX
+     * @param posY
+     * @param posZ
+     * @param scale
+     */
     public void buildText3D(String msgInput, double posX, double posY, double posZ, double scale) {
         String msg = I18n.text(msgInput);
 

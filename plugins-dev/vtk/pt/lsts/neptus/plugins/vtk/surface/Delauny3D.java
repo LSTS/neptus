@@ -31,7 +31,6 @@
  */
 package pt.lsts.neptus.plugins.vtk.surface;
 
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
 import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import vtk.vtkActor;
@@ -46,12 +45,12 @@ import vtk.vtkDelaunay3D;
 public class Delauny3D {
 
     public PointCloud<PointXYZ> pointCloud;
-    
+
     private vtkActor delaunyActor;
-    
+
     public Delauny3D(PointCloud<PointXYZ> pointCloud) {
         this.pointCloud = pointCloud;
- 
+
     }
 
     /**
@@ -60,18 +59,15 @@ public class Delauny3D {
      * hull of the original points.
      */
     public void performDelauny() {
-        NeptusLog.pub().info("Delauny Triangulation time start: " + System.currentTimeMillis());
 
-            // clean the polydata. this will remove duplicate points that may be present in the input data  
-        
-        NeptusLog.pub().info("cleaning point cloud...");
+        // clean the polydata. this will remove duplicate points that may be present in the input data
+
         vtkCleanPolyData cleaner = new vtkCleanPolyData();
         cleaner.SetInputConnection(pointCloud.getPoly().GetProducerPort());
         cleaner.Update();
         //cleaner.SetInput(pointCloud.getPoly());
-        
-            // Generate a tetrahedral mesh from the input points. by default, the generated volume is the convex hull of the points       
-        NeptusLog.pub().info("Generate mesh...");
+
+        // Generate a tetrahedral mesh from the input points. by default, the generated volume is the convex hull of the points
         vtkDelaunay3D delauny3D = new vtkDelaunay3D();
         delauny3D.SetInputConnection(cleaner.GetOutputPort());
         //delauny3D.SetAlpha(0.5);
@@ -80,14 +76,11 @@ public class Delauny3D {
         //delauny3D.Modified();
         delauny3D.Update();
 
-        NeptusLog.pub().info("setting mapper...");
         vtkDataSetMapper delaunyMapper = new vtkDataSetMapper();
         delaunyMapper.SetInputConnection(delauny3D.GetOutputPort());
-        
+
         setDelaunyActor(new vtkActor());
         getDelaunyActor().SetMapper(delaunyMapper);
-        
-        NeptusLog.pub().info("Delauny Triangulation time end: " + System.currentTimeMillis());
     }
 
     /**
@@ -103,5 +96,5 @@ public class Delauny3D {
     public void setDelaunyActor(vtkActor delaunyActor) {
         this.delaunyActor = delaunyActor;
     }
-    
+
 }

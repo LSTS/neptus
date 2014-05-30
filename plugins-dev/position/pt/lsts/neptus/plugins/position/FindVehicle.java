@@ -77,18 +77,18 @@ public class FindVehicle extends ConsolePanel implements ConfigurationListener, 
 
 	private final DecimalFormat formatter = new DecimalFormat("0.00");
 
-	@NeptusProperty(name="Use My Heading", editable=true, description="Use My Heading for the base location. Don't forget to set it first.")
+	@NeptusProperty(name="Use My Heading", editable = true, description="Use My Heading for the base location. Don't forget to set it first.")
 	public boolean useMyHeading = true;
 
 	@NeptusProperty(name="Base Orientation", description="Where the operator in the basestation is looking at")
 	public BaseOrientations baseOrientation = BaseOrientations.North;
 	
-	@NeptusProperty(name="Use My Location", editable=true, description="Use My Location for the base location. Don't forget to set it first.")
+	@NeptusProperty(name="Use My Location", editable = true, description="Use My Location for the base location. Don't forget to set it first.")
 	public boolean useMyLocation = true;
 	
 	private static int secondsBeforeMyStatePosOldAge = 30;
 	
-	@NeptusProperty(name="Base Location", editable=true, description="Where is the base located")
+	@NeptusProperty(name="Base Location", editable = true, description="Where is the base located")
 	public LocationType baseLocation = new LocationType();
 	
 	@NeptusProperty(name="Font Size", description="The font size. Use '0' for automatic.")

@@ -63,7 +63,7 @@ public class LoadToPointCloud {
     public BathymetryInfo batInfo;
 
     public BathymetryParser parser;
-    public PointCloud<PointXYZ> pointCloud;    
+    public PointCloud<PointXYZ> pointCloud;
     private TidePredictionFinder finder;
 
     private vtkPoints points;
@@ -109,7 +109,7 @@ public class LoadToPointCloud {
         int countPoints = 0;
         LocationType initLoc = null;
 
-        while ((bs = parser.nextSwath()) != null) {                   
+        while ((bs = parser.nextSwath()) != null) {
             LocationType loc = bs.getPose().getPosition();
 
             if(initLoc == null)
@@ -133,8 +133,8 @@ public class LoadToPointCloud {
                     // add data to pointcloud
                     double offset[] = tempLoc.getOffsetFrom(initLoc);
                     //System.out.println(offset[0] + " " + offset[1]);
-                    getPoints().InsertNextPoint(offset[0], 
-                            offset[1], 
+                    getPoints().InsertNextPoint(offset[0],
+                            offset[1],
                             p.depth - tideOffset);
 
                     if (parser.getHasIntensity()) {
@@ -154,15 +154,15 @@ public class LoadToPointCloud {
                     if (p == null)
                         continue;
                     // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
-                    LocationType tempLoc = new LocationType(loc);                         
+                    LocationType tempLoc = new LocationType(loc);
 
                     tempLoc.translatePosition(p.north, p.east, 0);
 
                     // add data to pointcloud
                     double offset[] = tempLoc.getOffsetFrom(initLoc);
                     //System.out.println(offset[0] + " " + offset[1]);
-                    getPoints().InsertNextPoint(offset[0], 
-                            offset[1], 
+                    getPoints().InsertNextPoint(offset[0],
+                            offset[1],
                             p.depth - tideOffset);
 
                     //                    if (multibeamDeltaTParser.getHasIntensity()) {
@@ -195,7 +195,6 @@ public class LoadToPointCloud {
     }
 
     public void parseDVLPointCloud() {
-        //parser = BathymetryParserFactory.build(this.source);
         parser = BathymetryParserFactory.build(this.source, "dvl");
 
         if (parser instanceof DVLBathymetryParser) {
@@ -232,9 +231,8 @@ public class LoadToPointCloud {
 
                     // add data to pointcloud
                     double offset[] = tempLoc.getOffsetFrom(initLoc);
-                    //System.out.println(offset[0] + " " + offset[1]);
-                    getPoints().InsertNextPoint(offset[0], 
-                            offset[1], 
+                    getPoints().InsertNextPoint(offset[0],
+                            offset[1],
                             p.depth - tideOffset);
 
                     ++countPoints;
@@ -286,34 +284,34 @@ public class LoadToPointCloud {
     }
 
     //    /**
-    //     * 
+    //     *
     //     */
     //    private void getMyDeltaTHeader() {
-    //        file = source.getFile("multibeam.83P");  
+    //        file = source.getFile("multibeam.83P");
     //        //System.out.println("print parent: " + file.toString());
     //        try {
     //            fileInputStream = new FileInputStream(file);
     //        }
     //        catch (FileNotFoundException e) {
-    //            NeptusLog.pub().info("File not found: " + e);        
+    //            NeptusLog.pub().info("File not found: " + e);
     //            e.printStackTrace();
     //        }
     //        catch (IOException ioe) {
     //            NeptusLog.pub().info("Exception while reading the file: " + ioe);
     //            ioe.printStackTrace();
     //        }
-    //    
-    //        channel = fileInputStream.getChannel();      
+    //
+    //        channel = fileInputStream.getChannel();
     //        long posOnFile = 0;
-    //        long sizeOfRegionToMap = 256;   // 256 bytes currespondent to the header of each ping         
+    //        long sizeOfRegionToMap = 256;   // 256 bytes currespondent to the header of each ping
     //        try {
     //            buf = channel.map(MapMode.READ_ONLY, posOnFile, sizeOfRegionToMap);
     //        }
     //        catch (IOException e) {
     //            e.printStackTrace();
-    //        } 
-    //        
+    //        }
+    //
     //        MultibeamDeltaTHeader deltaTHeader = new MultibeamDeltaTHeader(buf);
-    //        deltaTHeader.parseHeader();     
+    //        deltaTHeader.parseHeader();
     //    }
 }

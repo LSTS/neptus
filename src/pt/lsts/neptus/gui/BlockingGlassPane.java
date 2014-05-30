@@ -91,6 +91,10 @@ public class BlockingGlassPane extends JPanel {
         addMouseListener(blockMouse);
     }
 
+    public String getText() {
+        return ipp.getText();
+    }
+    
     /**
      * @param message
      */

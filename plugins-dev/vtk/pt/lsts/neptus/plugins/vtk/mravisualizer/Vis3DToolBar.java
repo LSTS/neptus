@@ -216,7 +216,7 @@ public class Vis3DToolBar extends JToolBar {
         addSeparator();
 
         add(zExaggerationToggle);
-        add(contoursToggle);
+        // add(contoursToggle);
 
         addSeparator();
 
@@ -515,7 +515,8 @@ public class Vis3DToolBar extends JToolBar {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (smoothingMeshToggle.isSelected()) {
+
+            if (smoothingMeshToggle.isSelected() && meshingToggle.isSelected()) {
                 canvas.lock();
                 events.getTextProcessingActor().SetDisplayPosition(canvas.getWidth() / 3, canvas.getHeight() / 2);
                 canvas.GetRenderer().AddActor(events.getTextProcessingActor());

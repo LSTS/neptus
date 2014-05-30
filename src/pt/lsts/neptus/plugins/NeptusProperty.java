@@ -97,9 +97,9 @@ public @interface NeptusProperty {
     Class<? extends PropertyEditor> editorClass() default PropertyEditor.class;
     
     /**
-     * Whether this property is to be hidden in user-input dialogs (changed only in code)
+     * Whether this property is to be not editable in user-input dialogs (changed only in code)
      */
-    boolean editable() default false;
+    boolean editable() default true;
 
     /**
      * Visibility of setting: 

@@ -44,18 +44,28 @@ import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.llf.LsfLogSource;
+import pt.lsts.imc.IMCFieldType;
 import pt.lsts.imc.IMCMessage;
 
 import com.jmatio.io.MatFileWriter;
 import com.jmatio.types.MLArray;
+import com.jmatio.types.MLChar;
 import com.jmatio.types.MLDouble;
+import com.jmatio.types.MLInt16;
+import com.jmatio.types.MLInt32;
+import com.jmatio.types.MLInt64;
+import com.jmatio.types.MLInt8;
+import com.jmatio.types.MLSingle;
 import com.jmatio.types.MLStructure;
+import com.jmatio.types.MLUInt32;
+import com.jmatio.types.MLUInt64;
+import com.jmatio.types.MLUInt8;
 
 /**
  * @author jqcorreia
  *
  */
-@PluginDescription
+//@PluginDescription
 public class MatExporter implements MRAExporter {
     IMraLogGroup source;
     
@@ -74,7 +84,8 @@ public class MatExporter implements MRAExporter {
         Collection<String> logList = source.getLsfIndex().getDefinitions().getMessageNames();
         IMraLog parser;
         
-        File outFile = new File("/home/jqcorreia/test.mat");
+        File outFile = new File(source.getDir(), "mra/DataIMC.mat");
+        outFile.getParentFile().mkdir();
         MatFileWriter writer = new MatFileWriter();
         
         MLStructure struct;
@@ -101,15 +112,98 @@ public class MatExporter implements MRAExporter {
             
             // Setup arrays for struct
             for(String field : m.getFieldNames()) {
-                fieldMap.put(field, new MLDouble(field, new int[] { numEntries, 1 }));
-                ((MLDouble)fieldMap.get(field)).set(m.getDouble(field), numInserted );
+                IMCFieldType filedType = m.getMessageType().getFieldType(field);
+                switch (filedType) {
+                    case TYPE_FP32:
+                        fieldMap.put(field, new MLSingle(field, new int[] { numEntries, 1 }, MLArray.mxSINGLE_CLASS, 0));
+                        ((MLSingle) fieldMap.get(field)).set((float) m.getDouble(field), numInserted);
+                        break;
+                    case TYPE_FP64:
+                        fieldMap.put(field, new MLDouble(field, new int[] { numEntries, 1 }));
+                        ((MLDouble) fieldMap.get(field)).set(m.getDouble(field), numInserted);
+                        break;
+                    case TYPE_INT8:
+                        fieldMap.put(field, new MLInt8(field, new int[] { numEntries, 1 }));
+                        ((MLInt8) fieldMap.get(field)).set((byte) m.getInteger(field), numInserted);
+                        break;
+                    case TYPE_INT16:
+                        fieldMap.put(field, new MLInt16(field, new int[] { numEntries, 1 }));
+                        ((MLInt16) fieldMap.get(field)).set((short) m.getInteger(field), numInserted);
+                        break;
+                    case TYPE_INT32:
+//                        fieldMap.put(field, new MLInt32(field, new int[] { numEntries, 1 }));
+//                        ((MLInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
+//                        break;
+                    case TYPE_INT64:
+                        fieldMap.put(field, new MLInt64(field, new int[] { numEntries, 1 }));
+                        ((MLInt64) fieldMap.get(field)).set(m.getLong(field), numInserted);
+                        break;
+                    case TYPE_UINT8:
+                        fieldMap.put(field, new MLUInt8(field, new int[] { numEntries, 1 }));
+                        ((MLUInt8) fieldMap.get(field)).set((byte) m.getInteger(field), numInserted);
+                        break;
+                    case TYPE_UINT16:
+                    case TYPE_UINT32:
+//                        fieldMap.put(field, new MLUInt32(field, new int[] { numEntries, 1 }));
+//                        ((MLUInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
+//                        break;
+//                    case TYPE_UINT64:
+                        fieldMap.put(field, new MLUInt64(field, new int[] { numEntries, 1 }));
+                        ((MLUInt64) fieldMap.get(field)).set(m.getLong(field), numInserted);
+                        break;
+                    case TYPE_PLAINTEXT:
+                    default:
+//                        fieldMap.put(field, new MLChar(field, new String[numEntries], 256));
+                        fieldMap.put(field, new MLChar(field, new int[] { numEntries, 256 }, MLArray.mxCHAR_CLASS, 0));
+                        String val = m.getAsString(field);
+                        ((MLChar) fieldMap.get(field)).set(val == null ? "" : val, numInserted);
+                        break;
+                }
+//                fieldMap.put(field, new MLDouble(field, new int[] { numEntries, 1 }));
+//                ((MLDouble)fieldMap.get(field)).set(m.getDouble(field), numInserted );
             }
             
             numInserted++;
             
             while((m = parser.nextLogEntry()) != null) { 
                 for(String field : m.getFieldNames()) {
-                    ((MLDouble)fieldMap.get(field)).set(m.getDouble(field), numInserted);
+                    IMCFieldType filedType = m.getMessageType().getFieldType(field);
+                    switch (filedType) {
+                        case TYPE_FP32:
+                            ((MLSingle) fieldMap.get(field)).set((float) m.getDouble(field), numInserted);
+                            break;
+                        case TYPE_FP64:
+                            ((MLDouble) fieldMap.get(field)).set(m.getDouble(field), numInserted);
+                            break;
+                        case TYPE_INT8:
+                            ((MLInt8) fieldMap.get(field)).set((byte) m.getInteger(field), numInserted);
+                            break;
+                        case TYPE_INT16:
+                            ((MLInt16) fieldMap.get(field)).set((short) m.getInteger(field), numInserted);
+                            break;
+                        case TYPE_INT32:
+//                            ((MLInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
+//                            break;
+                        case TYPE_INT64:
+                            ((MLInt64) fieldMap.get(field)).set(m.getLong(field), numInserted);
+                            break;
+                        case TYPE_UINT8:
+                            ((MLUInt8) fieldMap.get(field)).set((byte) m.getInteger(field), numInserted);
+                            break;
+                        case TYPE_UINT16:
+                        case TYPE_UINT32:
+//                            ((MLUInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
+//                            break;
+//                        case TYPE_UINT64:
+                            ((MLUInt64) fieldMap.get(field)).set(m.getLong(field), numInserted);
+                            break;
+                        case TYPE_PLAINTEXT:
+                        default:
+                            String val = m.getAsString(field);
+                            ((MLChar) fieldMap.get(field)).set(val == null ? "" : val, numInserted);
+                            break;
+                    }
+//                    ((MLDouble)fieldMap.get(field)).set(m.getDouble(field), numInserted);
                 }
                 numInserted++;
             }
@@ -164,7 +258,7 @@ public class MatExporter implements MRAExporter {
     }
 
     public static void main(String[] args) throws Exception {
-        IMraLogGroup source = new LsfLogSource(new File("/home/jqcorreia/lsts/logs/lauv-xtreme-2/20130405/135842_testSidescan_4m/Data.lsf"), null);
+        IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\142100\\Data.lsf.gz"), null);
         MatExporter me = new MatExporter(source);
         
         me.process(source, null);

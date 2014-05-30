@@ -26,15 +26,44 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: hfq
- * May 30, 2013
+ * Author: meg
+ * May 19, 2014
  */
-package pt.lsts.neptus.plugins.vtk.mravisualizer;
+package pt.lsts.neptus.plugins.wg;
+
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
- * @author hfq
+ * @author meg
  *
  */
-public class Splash {
+public class CtdData {
+    public final Long time;
+    public final Double conductivity;
+    public final Double oxygenSolubility;
+    public final Double pressure;
+    public final Double salinity;
+    public final Double temperature;
+    public final LocationType location;
+
+    /**
+     * @param time
+     * @param conductivity
+     * @param oxygenSolubility
+     * @param pressure
+     * @param salinity
+     * @param temperature
+     */
+    public CtdData(LocationType location, Long time, Double conductivity, Double oxygenSolubility, Double pressure,
+            Double salinity, Double temperature) {
+        super();
+        this.time = time;
+        this.conductivity = conductivity;
+        this.oxygenSolubility = oxygenSolubility;
+        this.pressure = pressure;
+        this.salinity = salinity;
+        this.temperature = temperature;
+        this.location = location;
+    }
 
 }
