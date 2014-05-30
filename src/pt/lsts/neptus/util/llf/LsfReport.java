@@ -911,11 +911,42 @@ public class LsfReport {
         String colorMapString = colorMap.toString().toLowerCase();
         Color c = null;
         switch (colorMapString) {
-            case "bronze":
-
+            case "redyellowgreen":
+            case "autumn":
+            case "summer":
+            case "spring":
+                c = new Color(0, 0, 0);// black
                 break;
-            default:
+            case "rainbow":
+                c = new Color(255, 255, 255);// white
+                break;
+            case "winter":
+            case "cool":
+            case "gray scale":
+                c = new Color(255, 0, 0);// red
+                break;
+            case "pink":
+                c = new Color(0, 255, 0);// green
+                break;
+            case "bronze":
+            case "storedata":
+            case "copper":
+            case "hot":
+                c = new Color(0, 0, 255);// blue
+                break;
+            case "blue to red":
+            case "rgb":
+            case "jet":
+                c = new Color(255, 255, 0);// yellow
+                break;
+            case "greenradar":
+            case "bone":
+                c = new Color(255, 0, 255);// purple
+                break;
 
+            default:
+                NeptusLog.pub().info("ColorMap.toString() not found, assuming bronze code");
+                c = new Color(0, 0, 255);
                 break;
         }
         return c;
