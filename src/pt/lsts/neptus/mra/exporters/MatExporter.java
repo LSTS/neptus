@@ -50,6 +50,7 @@ import com.jmatio.io.MatFileWriter;
 import com.jmatio.types.MLArray;
 import com.jmatio.types.MLChar;
 import com.jmatio.types.MLDouble;
+import com.jmatio.types.MLEmptyArray;
 import com.jmatio.types.MLInt16;
 import com.jmatio.types.MLInt64;
 import com.jmatio.types.MLInt8;
@@ -84,7 +85,7 @@ public class MatExporter implements MRAExporter {
         Collection<String> logList = source.getLsfIndex().getDefinitions().getMessageNames();
         IMraLog parser;
         
-        File outFile = new File(source.getDir(), "mra/DataIMC.mat");
+        File outFile = new File(source.getDir(), "mra/Data.mat");
         outFile.getParentFile().mkdir();
         MatFileWriter writer = new MatFileWriter();
         
@@ -257,31 +258,36 @@ public class MatExporter implements MRAExporter {
                 ((MLUInt64) fieldMap.get(field)).set(message.getLong(field), indexToInsert);
                 break;
             case TYPE_MESSAGE:
-//                if (fieldMap.get(field) == null) 
-//                    fieldMap.put(field, new MLStructure(field, new int[] {1, 1}));
-//                IMCMessage inlineMsg = message.getMessage(field);
-//                
-//                int numEntries = 1;
-//                int numInserted = 0;
-//                LinkedHashMap<String, MLArray> fieldMessageListMap = new LinkedHashMap<String, MLArray>();
-//
-//                if (inlineMsg != null) {
-////                // Getting the header
-////                for(String fieldInline : inlineMsg.getHeader().getFieldNames()) {
-////                    processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
-////                }
-//                    // Getting the fields
-//                    for(String fieldInline : inlineMsg.getFieldNames()) {
-//                        processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
-//                    }
+                if (fieldMap.get(field) == null) 
+                    fieldMap.put(field, new MLStructure(field, new int[] {1, 1}));
+                IMCMessage inlineMsg = message.getMessage(field);
+                
+                int numEntries = 1;
+                int numInserted = 0;
+                LinkedHashMap<String, MLArray> fieldMessageListMap = new LinkedHashMap<String, MLArray>();
+
+                if (inlineMsg != null) {
+//                // Getting the header
+//                for(String fieldInline : inlineMsg.getHeader().getFieldNames()) {
+//                    processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
 //                }
-//
-//                // Adding Field values to struct
-//                for(String fieldInline : fieldMessageListMap.keySet()) {
-//                    ((MLStructure) fieldMap.get(field)).setField(fieldInline, fieldMessageListMap.get(field));
-//                }
-//                
-//                break;
+                    // Getting the fields
+                    for(String fieldInline : inlineMsg.getFieldNames()) {
+                        processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
+                    }
+                }
+                else {
+                    fieldMap.put(field, new MLDouble(field, new int[] { 1, 1 }));
+                    ((MLDouble) fieldMap.get(field)).set(Double.NaN, 0);
+                }
+
+                // Adding Field values to struct
+                for(String fieldInline : fieldMessageListMap.keySet()) {
+                    if (fieldMap.get(field) instanceof MLStructure)
+                        ((MLStructure) fieldMap.get(field)).setField(fieldInline, fieldMessageListMap.get(field));
+                }
+                
+                break;
             case TYPE_MESSAGELIST:
             case TYPE_PLAINTEXT:
             case TYPE_RAWDATA:
@@ -321,7 +327,8 @@ public class MatExporter implements MRAExporter {
 //          e.printStackTrace();
 //      }
         
-        IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\142100\\Data.lsf.gz"), null);
+        // IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\142100\\Data.lsf.gz"), null);
+        IMraLogGroup source = new LsfLogSource(new File("/home/pdias/LSTS-Logs/2014-03-27-apdl-xplore1-noptilus2/logs/lauv-xplore-1/20140327/142100/Data.lsf.gz"), null);
         MatExporter me = new MatExporter(source);
         me.process(source, new ProgressMonitor(null, "", "", 0, 100));
     }
