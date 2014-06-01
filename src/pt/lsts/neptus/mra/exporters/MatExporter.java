@@ -284,7 +284,7 @@ public class MatExporter implements MRAExporter {
                 // Adding Field values to struct
                 for(String fieldInline : fieldMessageListMap.keySet()) {
                     if (fieldMap.get(field) instanceof MLStructure)
-                        ((MLStructure) fieldMap.get(field)).setField(fieldInline, fieldMessageListMap.get(field));
+                        ((MLStructure) fieldMap.get(field)).setField(fieldInline, fieldMessageListMap.get(fieldInline));
                 }
                 
                 break;
