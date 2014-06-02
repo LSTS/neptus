@@ -48,6 +48,7 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
 
 import com.jmatio.io.MatFileWriter;
 import com.jmatio.types.MLArray;
+import com.jmatio.types.MLCell;
 import com.jmatio.types.MLChar;
 import com.jmatio.types.MLDouble;
 import com.jmatio.types.MLEmptyArray;
@@ -274,8 +275,10 @@ public class MatExporter implements MRAExporter {
                 ((MLUInt64) fieldMap.get(field)).set(message.getLong(field), indexToInsert);
                 break;
             case TYPE_MESSAGE:
-                if (fieldMap.get(field) == null) 
-                    fieldMap.put(field, new MLStructure(field, new int[] {1, 1}));
+                if (fieldMap.get(field) == null)
+                    fieldMap.put(field, new MLCell(field, new int[] {totalEntries, 1}));
+                
+                MLStructure struct = new MLStructure(field, new int[] {1, 1});
                 IMCMessage inlineMsg = message.getMessage(field);
                 
                 int numEntries = 1;
@@ -283,26 +286,21 @@ public class MatExporter implements MRAExporter {
                 LinkedHashMap<String, MLArray> fieldMessageListMap = new LinkedHashMap<String, MLArray>();
 
                 if (inlineMsg != null) {
-//                // Getting the header
-//                for(String fieldInline : inlineMsg.getHeader().getFieldNames()) {
-//                    processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
-//                }
+                    // Getting the header
+                    for(String fieldInline : inlineMsg.getHeader().getFieldNames()) {
+                        processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
+                    }
                     // Getting the fields
                     for(String fieldInline : inlineMsg.getFieldNames()) {
                         processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
                     }
                 }
-                else {
-//                    fieldMap.put(field, new MLDouble(field, new int[] { 1, 1 }));
-//                    ((MLDouble) fieldMap.get(field)).set(Double.NaN, 0);
-                }
 
                 // Adding Field values to struct
                 for(String fieldInline : fieldMessageListMap.keySet()) {
-                    if (fieldMap.get(field) instanceof MLStructure)
-                        ((MLStructure) fieldMap.get(field)).setField(fieldInline, fieldMessageListMap.get(fieldInline));
+                    struct.setField(fieldInline, fieldMessageListMap.get(fieldInline));
                 }
-                
+                ((MLCell) fieldMap.get(field)).set(struct, indexToInsert);
                 break;
             case TYPE_MESSAGELIST:
 //                Vector<IMCMessage> inlineMsgList = message.getMessageList(field);
