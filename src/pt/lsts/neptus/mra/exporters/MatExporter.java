@@ -289,6 +289,35 @@ public class MatExporter implements MRAExporter {
                 
                 break;
             case TYPE_MESSAGELIST:
+//                Vector<IMCMessage> inlineMsgList = message.getMessageList(field);
+//                if (fieldMap.get(field) == null) 
+//                    fieldMap.put(field, new MLCell(field, new int[] {inlineMsgList.size(), inlineMsgList.size() != 0 ? 1 : 0}));
+//
+//                int counter = 0;
+//                for (IMCMessage imcMsgLstElem : inlineMsgList) {
+//                    MLStructure structLstMsg = new MLStructure(field, new int[] {1, 1});
+//                    LinkedHashMap<String, MLArray> imcMsgLstfieldMessageListMap = new LinkedHashMap<String, MLArray>();
+//
+////                  // Getting the header
+////                  for(String fieldInline : imcMsgLstElem.getHeader().getFieldNames()) {
+////                      processField(fieldInline, imcMsgLstElem, inlineMsgList.size(), counter, imcMsgLstfieldMessageListMap, false);
+////                  }
+//                    // Getting the fields
+//                    for (String fieldInline : imcMsgLstElem.getFieldNames()) {
+//                        processField(fieldInline, imcMsgLstElem, inlineMsgList.size(), counter, imcMsgLstfieldMessageListMap, false);
+//                    }
+//                    counter++;
+//                    
+//                    // Adding Field values to struct
+//                    for(String fieldInline : imcMsgLstfieldMessageListMap.keySet()) {
+//                        if (fieldMap.get(field) instanceof MLStructure)
+//                            ((MLStructure) fieldMap.get(field)).set(imcMsgLstfieldMessageListMap.get(fieldInline));
+//                    }
+//
+//                }
+//                
+//                
+//                break;
             case TYPE_PLAINTEXT:
             case TYPE_RAWDATA:
             default:
