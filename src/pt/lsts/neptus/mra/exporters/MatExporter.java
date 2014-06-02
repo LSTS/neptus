@@ -32,10 +32,10 @@
 package pt.lsts.neptus.mra.exporters;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Vector;
 
 import javax.swing.ProgressMonitor;
 
@@ -51,7 +51,6 @@ import com.jmatio.types.MLArray;
 import com.jmatio.types.MLCell;
 import com.jmatio.types.MLChar;
 import com.jmatio.types.MLDouble;
-import com.jmatio.types.MLEmptyArray;
 import com.jmatio.types.MLInt16;
 import com.jmatio.types.MLInt64;
 import com.jmatio.types.MLInt8;
@@ -276,36 +275,76 @@ public class MatExporter implements MRAExporter {
                 ((MLUInt64) fieldMap.get(field)).set(message.getLong(field), indexToInsert);
                 break;
             case TYPE_MESSAGE:
-                if (fieldMap.get(field) == null)
-                    fieldMap.put(field, new MLCell(field, new int[] {totalEntries, 1}));
-                
-                MLStructure struct = new MLStructure(field, new int[] {1, 1});
-                IMCMessage inlineMsg = message.getMessage(field);
-                
-                int numEntries = 1;
-                int numInserted = 0;
-                LinkedHashMap<String, MLArray> fieldMessageListMap = new LinkedHashMap<String, MLArray>();
-
-                if (inlineMsg != null) {
-                    if (flagWriteHeaderFieldsForInlineMessages) {
-                        // Getting the header
-                        for(String fieldInline : inlineMsg.getHeader().getFieldNames()) {
-                            processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
+                {
+                    if (fieldMap.get(field) == null)
+                        fieldMap.put(field, new MLCell(field, new int[] {totalEntries, 1}));
+                    
+                    MLStructure struct = new MLStructure(field, new int[] {1, 1});
+                    IMCMessage inlineMsg = message.getMessage(field);
+                    
+    //                int numEntries = 1;
+    //                int numInserted = 0;
+                    LinkedHashMap<String, MLArray> fieldMessageListMap = new LinkedHashMap<String, MLArray>();
+                    
+                    if (inlineMsg != null) {
+                        if (flagWriteHeaderFieldsForInlineMessages) {
+                            // Getting the header
+                            for(String fieldInline : inlineMsg.getHeader().getFieldNames()) {
+                                processField(fieldInline, inlineMsg, 1, 0, fieldMessageListMap, false);
+                            }
+                        }
+                        // Getting the fields
+                        for(String fieldInline : inlineMsg.getFieldNames()) {
+                            processField(fieldInline, inlineMsg, 1, 0, fieldMessageListMap, false);
                         }
                     }
-                    // Getting the fields
-                    for(String fieldInline : inlineMsg.getFieldNames()) {
-                        processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
+                    
+                    // Adding Field values to struct
+                    for(String fieldInline : fieldMessageListMap.keySet()) {
+                        struct.setField(fieldInline, fieldMessageListMap.get(fieldInline));
                     }
+                    ((MLCell) fieldMap.get(field)).set(struct, indexToInsert);
+                    break;
                 }
-
-                // Adding Field values to struct
-                for(String fieldInline : fieldMessageListMap.keySet()) {
-                    struct.setField(fieldInline, fieldMessageListMap.get(fieldInline));
-                }
-                ((MLCell) fieldMap.get(field)).set(struct, indexToInsert);
-                break;
             case TYPE_MESSAGELIST:
+//                {
+//                    if (fieldMap.get(field) == null)
+//                        fieldMap.put(field, new MLCell(field, new int[] {totalEntries, 1}));
+//                    
+//                    Vector<IMCMessage> inlineMsgList = message.getMessageList(field);
+//                    MLCell cell = new MLCell(field, new int[] {inlineMsgList.size(), inlineMsgList.size() != 0 ? 1 : 0});
+//                    int numEntries = inlineMsgList.size();
+//                    int numInserted = 0;
+//                    
+//                    for (IMCMessage inlineMsg : inlineMsgList) {
+//                        MLStructure struct = new MLStructure(field, new int[] {1, 1});
+//                        LinkedHashMap<String, MLArray> fieldMessageListMap = new LinkedHashMap<String, MLArray>();
+//                        
+//                        if (inlineMsg != null) {
+//                            if (flagWriteHeaderFieldsForInlineMessages) {
+//                                // Getting the header
+//                                for(String fieldInline : inlineMsg.getHeader().getFieldNames()) {
+//                                    processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
+//                                }
+//                            }
+//                            // Getting the fields
+//                            for(String fieldInline : inlineMsg.getFieldNames()) {
+//                                processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
+//                            }
+//                        }
+//                        
+//                        // Adding Field values to struct
+//                        for(String fieldInline : fieldMessageListMap.keySet()) {
+//                            struct.setField(fieldInline, fieldMessageListMap.get(fieldInline));
+//                        }
+//                        cell.set(struct, numInserted);
+//                        numInserted++;
+//                    }
+//                    ((MLCell) fieldMap.get(field)).set(cell, indexToInsert);
+//                    break;
+//                }
+
+                
 //                Vector<IMCMessage> inlineMsgList = message.getMessageList(field);
 //                if (fieldMap.get(field) == null) 
 //                    fieldMap.put(field, new MLCell(field, new int[] {inlineMsgList.size(), inlineMsgList.size() != 0 ? 1 : 0}));
