@@ -71,6 +71,7 @@ public class MatExporter implements MRAExporter {
     private IMraLogGroup source;
     
     private String[] ignoreHeaderFields = { "sync", "mgid", "size" };
+    private boolean flagWriteHeaderFieldsForInlineMessages = false;
     
     public MatExporter(IMraLogGroup source) {
         this.source = source;
@@ -286,9 +287,11 @@ public class MatExporter implements MRAExporter {
                 LinkedHashMap<String, MLArray> fieldMessageListMap = new LinkedHashMap<String, MLArray>();
 
                 if (inlineMsg != null) {
-                    // Getting the header
-                    for(String fieldInline : inlineMsg.getHeader().getFieldNames()) {
-                        processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
+                    if (flagWriteHeaderFieldsForInlineMessages) {
+                        // Getting the header
+                        for(String fieldInline : inlineMsg.getHeader().getFieldNames()) {
+                            processField(fieldInline, inlineMsg, numEntries, numInserted, fieldMessageListMap, false);
+                        }
                     }
                     // Getting the fields
                     for(String fieldInline : inlineMsg.getFieldNames()) {
