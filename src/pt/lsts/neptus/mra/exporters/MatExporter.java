@@ -154,9 +154,26 @@ public class MatExporter implements MRAExporter {
                 pmonitor.setProgress((int) progress);
             
             baseMatLabDataToWrite.add(struct);
-            System.out.println("Writing " + messageLog);
+//            System.out.println("Writing " + messageLog);
+//            if (pmonitor != null)
+//                pmonitor.setNote(I18n.textf("Writing %message", messageLog));
+//            try {
+//                writer.write(outFile, baseMatLabDataToWrite, (c++ == 0));
+//            }
+//            catch (Exception e) {
+//                e.printStackTrace();
+//                return e.getClass().getSimpleName()+" while exporting to MAT: "+e.getMessage();
+//            }
+//            
+//            progress += writeFullPrec * messageLogPartialPerc;
+//            if (pmonitor != null)
+//                pmonitor.setProgress((int) progress);
+        }
+
+        { // Not sure if JQuadrado changed the original lib but this still is not incremental, so writing all at once
+            System.out.println("Writing data");
             if (pmonitor != null)
-                pmonitor.setNote(I18n.textf("Writing %message", messageLog));
+                pmonitor.setNote(I18n.text("Writing data"));
             try {
                 writer.write(outFile, baseMatLabDataToWrite, (c++ == 0));
             }
@@ -164,8 +181,7 @@ public class MatExporter implements MRAExporter {
                 e.printStackTrace();
                 return e.getClass().getSimpleName()+" while exporting to MAT: "+e.getMessage();
             }
-            
-            progress += writeFullPrec * messageLogPartialPerc;
+            progress += writeFullPrec;
             if (pmonitor != null)
                 pmonitor.setProgress((int) progress);
         }
@@ -277,8 +293,8 @@ public class MatExporter implements MRAExporter {
                     }
                 }
                 else {
-                    fieldMap.put(field, new MLDouble(field, new int[] { 1, 1 }));
-                    ((MLDouble) fieldMap.get(field)).set(Double.NaN, 0);
+//                    fieldMap.put(field, new MLDouble(field, new int[] { 1, 1 }));
+//                    ((MLDouble) fieldMap.get(field)).set(Double.NaN, 0);
                 }
 
                 // Adding Field values to struct
@@ -357,7 +373,8 @@ public class MatExporter implements MRAExporter {
 //      }
         
         // IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\142100\\Data.lsf.gz"), null);
-        IMraLogGroup source = new LsfLogSource(new File("/home/pdias/LSTS-Logs/2014-03-27-apdl-xplore1-noptilus2/logs/lauv-xplore-1/20140327/142100/Data.lsf.gz"), null);
+        IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\152506_test_pitch_3\\Data.lsf.gz"), null);
+        // IMraLogGroup source = new LsfLogSource(new File("/home/pdias/LSTS-Logs/2014-03-27-apdl-xplore1-noptilus2/logs/lauv-xplore-1/20140327/142100/Data.lsf.gz"), null);
         MatExporter me = new MatExporter(source);
         me.process(source, new ProgressMonitor(null, "", "", 0, 100));
     }
