@@ -71,6 +71,7 @@ public class MatExporter implements MRAExporter {
     
     private String[] ignoreHeaderFields = { "sync", "mgid", "size" };
     private boolean flagWriteHeaderFieldsForInlineMessages = false;
+    private boolean flagWriteEnumeratedAndBitfieldAsString = true; 
     
     public MatExporter(IMraLogGroup source) {
         this.source = source;
@@ -232,6 +233,23 @@ public class MatExporter implements MRAExporter {
                     return;
             }
         }
+        
+        // Getting field unit
+        String fieldUnit = message.getMessageType().getFieldUnits(field);
+        if (fieldUnit == null) {
+            fieldUnit = message.getHeader().getMessageType().getFieldUnits(field);
+        }
+
+        // For Enumerated and Bitfield to be written as string
+        if (flagWriteEnumeratedAndBitfieldAsString
+                && ("Enumerated".equalsIgnoreCase(fieldUnit) || "Bitfield".equalsIgnoreCase(fieldUnit))) {
+            if (fieldMap.get(field) == null) 
+                fieldMap.put(field, new MLChar(field, new int[] { totalEntries, MAX_PLAINTEXT_RAWDATA_LENGHT }, MLArray.mxCHAR_CLASS, 0));
+            String val = message.getString(field);
+            ((MLChar) fieldMap.get(field)).set(val == null ? "" : val, indexToInsert);
+            return;
+        }
+        // Other fields
         switch (filedType) {
             case TYPE_FP32:
                 if (fieldMap.get(field) == null) 
