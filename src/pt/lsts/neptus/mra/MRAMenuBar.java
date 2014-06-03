@@ -85,6 +85,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LogUtils.LogValidity;
 import pt.lsts.neptus.util.llf.LsfReport;
+import pt.lsts.neptus.util.llf.LsfReportProperties;
 import pt.lsts.neptus.util.logdownload.LogsDownloaderWorker;
 import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
@@ -110,6 +111,7 @@ public class MRAMenuBar {
 
     private AbstractAction openLsf, exit;
     protected AbstractAction genReport;
+    protected AbstractAction reportOptions;
     private AbstractAction batchReport;
     private AbstractAction preferences;
     private AbstractAction httpDuneDownload, httpVehicleDownload, concatenateLSFLogs, fuseLSFLogs;
@@ -266,8 +268,21 @@ public class MRAMenuBar {
      */
     private void setUpReportMenu() {
         reportMenu = new JMenu(I18n.text("Report"));
-        genReport = new AbstractAction(I18n.text("Save as PDF"), ImageUtils.getIcon("images/menus/document-pdf.png")) {
+        reportOptions = new AbstractAction(I18n.text("PDF Report Options"), ImageUtils.getIcon("images/menus/settings.png")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
+                PropertiesEditor.editProperties(mra.getReportProperties(), mra, true);
+                try {
+                    PluginUtils.saveProperties("conf/report.properties", mra.getReportProperties());
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        };
+        genReport = new AbstractAction(I18n.text("Save as PDF"), ImageUtils.getIcon("images/menus/document-pdf.png")) {
+        
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -325,6 +340,8 @@ public class MRAMenuBar {
         };
         batchReport.putValue(Action.SHORT_DESCRIPTION, I18n.text("Generate report from selected log files") + ".");
         reportMenu.add(batchReport);
+        reportMenu.addSeparator();
+        reportMenu.add(reportOptions);
     }
 
     /**
