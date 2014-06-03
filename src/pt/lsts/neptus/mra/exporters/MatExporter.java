@@ -38,13 +38,15 @@ import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import javax.swing.ProgressMonitor;
-import javax.swing.SwingUtilities;
 
 import pt.lsts.imc.IMCFieldType;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
@@ -62,17 +64,25 @@ import com.jmatio.types.MLUInt64;
 import com.jmatio.types.MLUInt8;
 
 /**
- * @author jqcorreia
  * @author pdias
+ * @author jqcorreia
  */
-//@PluginDescription
+@PluginDescription
 public class MatExporter implements MRAExporter {
+    @NeptusProperty(editable = false)
     private static final int MAX_PLAINTEXT_RAWDATA_LENGHT = 256; //256; 0xFFFF
+    @NeptusProperty(editable = false)
+    private static final int MAX_ENUMERATED_LENGHT = 50;
+    @NeptusProperty(editable = false)
+    private static final int MAX_BITFIELD_LENGHT = 256;
 
     private IMraLogGroup source;
     
+    @NeptusProperty(editable = false)
     private String[] ignoreHeaderFields = { "sync", "mgid", "size" };
+    @NeptusProperty(editable = true)
     private boolean flagWriteHeaderFieldsForInlineMessages = false;
+    @NeptusProperty(editable = true)
     private boolean flagWriteEnumeratedAndBitfieldAsString = true; 
     
     public MatExporter(IMraLogGroup source) {
@@ -87,6 +97,8 @@ public class MatExporter implements MRAExporter {
     @Override
     public String process(IMraLogGroup logSource, ProgressMonitor pmonitor) {
         this.source = logSource;
+        
+        PluginUtils.editPluginProperties(this, true);
         
         Collection<String> logList = source.getLsfIndex().getDefinitions().getMessageNames();
         IMraLog parser;
@@ -262,8 +274,11 @@ public class MatExporter implements MRAExporter {
         // For Enumerated and Bitfield to be written as string
         if (flagWriteEnumeratedAndBitfieldAsString
                 && ("Enumerated".equalsIgnoreCase(fieldUnit) || "Bitfield".equalsIgnoreCase(fieldUnit))) {
-            if (fieldMap.get(field) == null) 
-                fieldMap.put(field, new MLChar(field, new int[] { totalEntries, MAX_PLAINTEXT_RAWDATA_LENGHT }, MLArray.mxCHAR_CLASS, 0));
+            boolean enumeratedOrBitfield = "Enumerated".equalsIgnoreCase(fieldUnit);
+            if (fieldMap.get(field) == null) {
+                fieldMap.put(field, new MLChar(field, new int[] { totalEntries,
+                        enumeratedOrBitfield ? MAX_ENUMERATED_LENGHT : MAX_BITFIELD_LENGHT }, MLArray.mxCHAR_CLASS, 0));
+            }
             String val = message.getString(field);
             ((MLChar) fieldMap.get(field)).set(val == null ? "" : val, indexToInsert);
             return;
@@ -412,9 +427,11 @@ public class MatExporter implements MRAExporter {
 //      }
         
         // IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\142100\\Data.lsf.gz"), null);
-        // IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\152506_test_pitch_3\\Data.lsf.gz"), null);
         // IMraLogGroup source = new LsfLogSource(new File("/home/pdias/LSTS-Logs/2014-03-27-apdl-xplore1-noptilus2/logs/lauv-xplore-1/20140327/142100/Data.lsf.gz"), null);
-        IMraLogGroup source = new LsfLogSource(new File("/home/pdias/Desktop/Sunfish-CTD/20140507-concat/Data.lsf"), null);
+        // IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\152506_test_pitch_3\\Data.lsf.gz"), null);
+        // IMraLogGroup source = new LsfLogSource(new File("/home/pdias/LSTS-Logs/2014-03-27-apdl-xplore1-noptilus2/logs/lauv-xplore-1/20140327/152506_test_pitch_3/Data.lsf.gz"), null);
+        // IMraLogGroup source = new LsfLogSource(new File("/home/pdias/Desktop/Sunfish-CTD/20140507-concat/Data.lsf"), null);
+        IMraLogGroup source = new LsfLogSource(new File("/home/pdias/Desktop/Sunfish-CTD/20140513/135733_sample_front/Data.lsf"), null);
         
         MatExporter me = new MatExporter(source);
         me.process(source, new ProgressMonitor(null, "", "", 0, 100));
