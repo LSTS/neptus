@@ -38,12 +38,14 @@ import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import javax.swing.ProgressMonitor;
+import javax.swing.SwingUtilities;
 
 import pt.lsts.imc.IMCFieldType;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
 import com.jmatio.io.MatFileWriter;
@@ -102,62 +104,63 @@ public class MatExporter implements MRAExporter {
         final double structFullPrec = 60;
         final double writeFullPrec = 100 - structFullPrec;
         for(String messageLog : logList) {
-            if (pmonitor.isCanceled())
-                break;
-            
-            parser = source.getLog(messageLog);
-            
-            if(parser == null || parser.getNumberOfEntries() == 0) {
-                System.out.println("Reading nothing for " + messageLog);
+            try {
+                if (pmonitor.isCanceled())
+                    break;
+                
+                parser = source.getLog(messageLog);
+                
+                if(parser == null || parser.getNumberOfEntries() == 0) {
+                    System.out.println("Reading nothing for " + messageLog);
+                    if (pmonitor != null)
+                        pmonitor.setNote(I18n.textf("Reading nothing for %message", messageLog));
+                    progress += (structFullPrec + writeFullPrec) * messageLogPartialPerc;
+                    if (pmonitor != null)
+                        pmonitor.setProgress((int) progress);
+                    continue;
+                }
+                
+                System.out.println("Reading " + messageLog);
                 if (pmonitor != null)
-                    pmonitor.setNote(I18n.textf("Reading nothing for %message", messageLog));
-                progress += (structFullPrec + writeFullPrec) * messageLogPartialPerc;
+                    pmonitor.setNote(I18n.textf("Reading %message", messageLog));
+                
+                struct = new MLStructure(messageLog, new int[] {1, 1});
+                int numEntries = parser.getNumberOfEntries();
+                int numInserted = 0;
+                
+                LinkedHashMap<String, MLArray> fieldMap = new LinkedHashMap<String, MLArray>();
+                
+                // Setup arrays for struct
+                IMCMessage m = parser.firstLogEntry();
+                do {
+                    if (pmonitor.isCanceled())
+                        break;
+                    // Getting the header
+                    for(String field : m.getHeader().getFieldNames()) {
+                        processField(field, m, numEntries, numInserted, fieldMap);
+                    }
+                    // Getting the fields
+                    for(String field : m.getFieldNames()) {
+                        processField(field, m, numEntries, numInserted, fieldMap);
+                    }
+                    numInserted++;
+                } while ((m = parser.nextLogEntry()) != null);
+                
+                // Adding Field values to struct
+                for(String field : fieldMap.keySet()) {
+                    if (pmonitor.isCanceled())
+                        break;
+                    struct.setField(field, fieldMap.get(field));
+                }
+                
+                if (pmonitor.isCanceled())
+                    break;
+
+                progress += structFullPrec * messageLogPartialPerc;
                 if (pmonitor != null)
                     pmonitor.setProgress((int) progress);
-                continue;
-            }
-            
-            System.out.println("Reading " + messageLog);
-            if (pmonitor != null)
-                pmonitor.setNote(I18n.textf("Reading %message", messageLog));
-            
-            struct = new MLStructure(messageLog, new int[] {1, 1});
-            int numEntries = parser.getNumberOfEntries();
-            int numInserted = 0;
-            
-            LinkedHashMap<String, MLArray> fieldMap = new LinkedHashMap<String, MLArray>();
-            
-            // Setup arrays for struct
-            IMCMessage m = parser.firstLogEntry();
-            do {
-                if (pmonitor.isCanceled())
-                    break;
-                // Getting the header
-                for(String field : m.getHeader().getFieldNames()) {
-                    processField(field, m, numEntries, numInserted, fieldMap);
-                }
-                // Getting the fields
-                for(String field : m.getFieldNames()) {
-                    processField(field, m, numEntries, numInserted, fieldMap);
-                }
-                numInserted++;
-            } while ((m = parser.nextLogEntry()) != null);
-            
-            // Adding Field values to struct
-            for(String field : fieldMap.keySet()) {
-                if (pmonitor.isCanceled())
-                    break;
-                struct.setField(field, fieldMap.get(field));
-            }
-            
-            if (pmonitor.isCanceled())
-                break;
-
-            progress += structFullPrec * messageLogPartialPerc;
-            if (pmonitor != null)
-                pmonitor.setProgress((int) progress);
-            
-            baseMatLabDataToWrite.add(struct);
+                
+                baseMatLabDataToWrite.add(struct);
 
 //            System.out.println("Writing " + messageLog);
 //            if (pmonitor != null)
@@ -174,6 +177,21 @@ public class MatExporter implements MRAExporter {
 //            progress += writeFullPrec * messageLogPartialPerc;
 //            if (pmonitor != null)
 //                pmonitor.setProgress((int) progress);
+            }
+            catch (Exception e) {
+                System.out.println("Error processing " + messageLog + ". " + e.getMessage() + "!");
+                String txt = I18n.textf("Error processing %message. %error error.", messageLog, e.getMessage());
+                if (pmonitor != null)
+                    pmonitor.setNote(txt);
+                GuiUtils.errorMessage(MatExporter.class.getSimpleName(), txt);
+            }
+            catch (OutOfMemoryError e) {
+                System.out.println("Error processing " + messageLog + ". OutOfMemoryError!");
+                String txt = I18n.textf("Error processing %message. %error error.", messageLog, "OutOfMemoryError");
+                if (pmonitor != null)
+                    pmonitor.setNote(txt);
+                GuiUtils.errorMessage(MatExporter.class.getSimpleName(), txt);
+            }
         }
 
         { // Not sure how JQuadrado changed the original lib but this still is not incremental, so writing all at once
@@ -394,8 +412,10 @@ public class MatExporter implements MRAExporter {
 //      }
         
         // IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\142100\\Data.lsf.gz"), null);
-        IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\152506_test_pitch_3\\Data.lsf.gz"), null);
+        // IMraLogGroup source = new LsfLogSource(new File("D:\\LSTS-Logs\\2014-03-27-apdl-xplore1-noptilus2\\logs\\lauv-xplore-1\\20140327\\152506_test_pitch_3\\Data.lsf.gz"), null);
         // IMraLogGroup source = new LsfLogSource(new File("/home/pdias/LSTS-Logs/2014-03-27-apdl-xplore1-noptilus2/logs/lauv-xplore-1/20140327/142100/Data.lsf.gz"), null);
+        IMraLogGroup source = new LsfLogSource(new File("/home/pdias/Desktop/Sunfish-CTD/20140507-concat/Data.lsf"), null);
+        
         MatExporter me = new MatExporter(source);
         me.process(source, new ProgressMonitor(null, "", "", 0, 100));
     }
