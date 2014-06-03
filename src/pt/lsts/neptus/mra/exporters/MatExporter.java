@@ -83,8 +83,8 @@ public class MatExporter implements MRAExporter {
     }
 
     @Override
-    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-        this.source = source;
+    public String process(IMraLogGroup logSource, ProgressMonitor pmonitor) {
+        this.source = logSource;
         
         Collection<String> logList = source.getLsfIndex().getDefinitions().getMessageNames();
         IMraLog parser;
@@ -96,7 +96,7 @@ public class MatExporter implements MRAExporter {
         MLStructure struct;
         
         Collection<MLArray> baseMatLabDataToWrite = new ArrayList<MLArray>();
-        int c = 0;
+//        int c = 0;
         double messageLogPartialPerc = 1. / logList.size();
         double progress = 0;
         final double structFullPrec = 60;
@@ -176,7 +176,7 @@ public class MatExporter implements MRAExporter {
 //                pmonitor.setProgress((int) progress);
         }
 
-        { // Not sure if JQuadrado changed the original lib but this still is not incremental, so writing all at once
+        { // Not sure how JQuadrado changed the original lib but this still is not incremental, so writing all at once
             System.out.println("Writing data");
             if (pmonitor != null)
                 pmonitor.setNote(I18n.text("Writing data"));
@@ -225,6 +225,7 @@ public class MatExporter implements MRAExporter {
         // MLArray.mxCELL_CLASS:
         // MLArray.mxSPARSE_CLASS
 
+        // Getting field type
         IMCFieldType filedType = message.getMessageType().getFieldType(field);
         if (filedType == null) {
             filedType = message.getHeader().getMessageType().getFieldType(field);
@@ -272,10 +273,6 @@ public class MatExporter implements MRAExporter {
                 ((MLInt16) fieldMap.get(field)).set((short) message.getInteger(field), indexToInsert);
                 break;
             case TYPE_INT32: // Not in the write to file from API
-//                        if (fieldMap.get(field) == null) 
-//                             fieldMap.put(field, new MLInt32(field, new int[] { numEntries, 1 }));
-//                        ((MLInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
-//                        break;
             case TYPE_INT64:
                 if (fieldMap.get(field) == null) 
                     fieldMap.put(field, new MLInt64(field, new int[] { totalEntries, 1 }));
@@ -288,11 +285,7 @@ public class MatExporter implements MRAExporter {
                 break;
             case TYPE_UINT16: // Not in the write to file from API
             case TYPE_UINT32: // Not in the write to file from API
-//                        if (fieldMap.get(field) == null) 
-//                             fieldMap.put(field, new MLUInt32(field, new int[] { numEntries, 1 }));
-//                        ((MLUInt32) fieldMap.get(field)).set(m.getInteger(field), numInserted);
-//                        break;
-//                    case TYPE_UINT64: // IMC don't have uint64 yet
+//            case TYPE_UINT64: // IMC don't have uint64 yet
                 if (fieldMap.get(field) == null) 
                     fieldMap.put(field, new MLUInt64(field, new int[] { totalEntries, 1 }));
                 ((MLUInt64) fieldMap.get(field)).set(message.getLong(field), indexToInsert);
