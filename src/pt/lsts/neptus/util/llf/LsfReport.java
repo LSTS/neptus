@@ -243,7 +243,7 @@ public class LsfReport {
 
     private static void writePageNumber(PdfContentByte cb, int curPage) {
 
-        if (!MRAProperties.printPageNumbers)
+        if (LsfReportProperties.printPageNumbers==false)
             return;
 
         Rectangle pageSize = PageSize.A4.rotate();
@@ -457,7 +457,7 @@ public class LsfReport {
             SidescanParser ssParser = SidescanParserFactory.build(source);
             int nSubsys = ssParser.getSubsystemList().size();
             SidescanConfig config = new SidescanConfig();
-            int colorMapCode = MRAProperties.sidescanColorMap;
+            int colorMapCode = LsfReportProperties.sidescanColorMap;
             boolean globalColorMap = true;
             if (colorMapCode == -1) {
                 globalColorMap = false;
@@ -865,7 +865,7 @@ public class LsfReport {
         y -= h / 2;
         Color c = null;
         boolean fixedColor = true;
-        if (MRAProperties.sidescanMarksPointsFixedColor == 0) {
+        if (LsfReportProperties.sidescanMarksPointsFixedColor == 0) {
             fixedColor = false;
         }
         if (fixedColor == true) {
@@ -875,7 +875,7 @@ public class LsfReport {
             c = getContrastColor(color);
         }
         g2d.setColor(c);
-        int shape = MRAProperties.sidescanMarksPointsShape;
+        int shape = LsfReportProperties.sidescanMarksPointsShape;
         switch (shape) {
             case 0:
                 g2d.drawRect(x, y, w, h);
