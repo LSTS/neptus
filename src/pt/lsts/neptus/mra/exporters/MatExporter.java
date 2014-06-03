@@ -134,11 +134,11 @@ public class MatExporter implements MRAExporter {
                     break;
                 // Getting the header
                 for(String field : m.getHeader().getFieldNames()) {
-                    processField(field, m, numEntries, numInserted, fieldMap, false);
+                    processField(field, m, numEntries, numInserted, fieldMap);
                 }
                 // Getting the fields
                 for(String field : m.getFieldNames()) {
-                    processField(field, m, numEntries, numInserted, fieldMap, false);
+                    processField(field, m, numEntries, numInserted, fieldMap);
                 }
                 numInserted++;
             } while ((m = parser.nextLogEntry()) != null);
@@ -208,7 +208,7 @@ public class MatExporter implements MRAExporter {
      * @param fieldMap
      */
     private void processField(String field, IMCMessage message, int totalEntries, int indexToInsert,
-            LinkedHashMap<String, MLArray> fieldMap, boolean ignoreIfHeaderField) {
+            LinkedHashMap<String, MLArray> fieldMap) {
         // The API only is able to write to file the following types
         // MLArray.mxUINT8_CLASS 
         // MLArray.mxINT8_CLASS 
@@ -303,12 +303,12 @@ public class MatExporter implements MRAExporter {
                         if (flagWriteHeaderFieldsForInlineMessages) {
                             // Getting the header
                             for(String fieldInline : inlineMsg.getHeader().getFieldNames()) {
-                                processField(fieldInline, inlineMsg, 1, 0, fieldMessageListMap, false);
+                                processField(fieldInline, inlineMsg, 1, 0, fieldMessageListMap);
                             }
                         }
                         // Getting the fields
                         for(String fieldInline : inlineMsg.getFieldNames()) {
-                            processField(fieldInline, inlineMsg, 1, 0, fieldMessageListMap, false);
+                            processField(fieldInline, inlineMsg, 1, 0, fieldMessageListMap);
                         }
                     }
                     
@@ -336,12 +336,12 @@ public class MatExporter implements MRAExporter {
                             if (flagWriteHeaderFieldsForInlineMessages) {
                                 // Getting the header
                                 for(String fieldInline : inlineMsg.getHeader().getFieldNames()) {
-                                    processField(fieldInline, inlineMsg, 1, 0, fieldMessageListMap, false);
+                                    processField(fieldInline, inlineMsg, 1, 0, fieldMessageListMap);
                                 }
                             }
                             // Getting the fields
                             for(String fieldInline : inlineMsg.getFieldNames()) {
-                                processField(fieldInline, inlineMsg, 1, 0, fieldMessageListMap, false);
+                                processField(fieldInline, inlineMsg, 1, 0, fieldMessageListMap);
                             }
                         }
                         
