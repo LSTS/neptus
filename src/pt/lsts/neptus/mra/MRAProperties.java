@@ -76,15 +76,7 @@ public class MRAProperties implements PropertiesProvider{
 
     @NeptusProperty(name = "Print page number in generated reports")
     public static boolean printPageNumbers = true;
-    
-    @NeptusProperty(name = "Sidescan ColorMap", description = "None selected: -1 | Default(Bronze)=0")
-    public static int sidescanColorMap = -1;
-    
-    @NeptusProperty(name = "Shape around Sidescan Points Marks", description = "Square=0 | Circle=1")
-    public static int sidescanMarksPointsShape = 0;
-    
-    @NeptusProperty(name = "Fixed Color Around Sidescan Points Mark", description = "Dynamic=0 | Fixed=1 ")
-    public static int sidescanMarksPointsFixedColor = 0;
+
 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.gui.PropertiesProvider#getProperties()
