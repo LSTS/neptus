@@ -4,6 +4,7 @@ Changes
 Neptus 4.1.0 dev (??-??-2014)
 ------------
  * MRA/Exporters: MatLab exporter reworked.
+ * Vehicles/SystemsList: Added possibility to edit system parameters in the SystemsList.
 
 Neptus 4.0.0 (30-05-2014)
 ------------
