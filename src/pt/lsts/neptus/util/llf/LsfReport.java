@@ -597,9 +597,13 @@ public class LsfReport {
         }
     }
 
+    /**
+     *
+     * @param subSysN = 0/1 index in list, subSys = ssParser.getSubsystemList().get(subSysN)
+     */
     public static BufferedImage getSidescanMarkImage(IMraLogGroup source, SidescanParser ssParser,
             SidescanParameters sidescanParams, SidescanConfig config, boolean globalColorMap, SidescanLogMarker mark,
-            int subSys) throws DocumentException {
+            int subSysN) throws DocumentException {
         BufferedImage result = null;
 
         int h = mark.h;
@@ -658,17 +662,18 @@ public class LsfReport {
             t2 = lastTimestamp;
         }
 
+        int subSys = ssParser.getSubsystemList().get(subSysN);
         // get the lines
         ArrayList<SidescanLine> list = null;
         boolean getLinesBool = true;
         while (getLinesBool) {// ArrayIndexOutOfBoundsException on getLinesBetween
             try {
-                list = ssParser.getLinesBetween(t1, t2, ssParser.getSubsystemList().get(subSys), sidescanParams);
+                list = ssParser.getLinesBetween(t1, t2, subSys, sidescanParams);
                 if (!list.isEmpty()) {
                     while (list.get(0).timestampMillis > t) {
                         t1 -= 250;
                         list = ssParser
-                                .getLinesBetween(t1, t2, ssParser.getSubsystemList().get(subSys), sidescanParams);
+                                .getLinesBetween(t1, t2, subSys, sidescanParams);
                     }
                 }
                 getLinesBool = false;
@@ -693,12 +698,11 @@ public class LsfReport {
             }
             while (getLinesBool) {// ArrayIndexOutOfBoundsException on getLinesBetween
                 try {
-                    list = ssParser.getLinesBetween(t1, t2, ssParser.getSubsystemList().get(subSys), sidescanParams);
+                    list = ssParser.getLinesBetween(t1, t2, subSys, sidescanParams);
                     if (!list.isEmpty()) {
                         while (list.get(0).timestampMillis > t) {
                             t1 -= 250;
-                            list = ssParser.getLinesBetween(t1, t2, ssParser.getSubsystemList().get(subSys),
-                                    sidescanParams);
+                            list = ssParser.getLinesBetween(t1, t2, subSys, sidescanParams);
                         }
                     }
                     getLinesBool = false;
@@ -801,7 +805,7 @@ public class LsfReport {
             }
         }
         if (point == true) {
-            if (mark.subSys != ssParser.getSubsystemList().get(subSys)) {
+            if (mark.subSys != subSys) {
                 indexY = 50;
             }
             int d = 1;
