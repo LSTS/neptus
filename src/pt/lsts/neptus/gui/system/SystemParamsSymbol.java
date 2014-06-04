@@ -35,6 +35,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.RoundRectangle2D;
@@ -42,15 +43,16 @@ import java.awt.geom.RoundRectangle2D;
 import org.jdesktop.swingx.JXPanel;
 
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author pdias
  *
  */
 @SuppressWarnings("serial")
-public class DisplayColorSymbol extends SymbolLabel {
+public class SystemParamsSymbol extends SymbolLabel {
 
-    private Color displayColor = Color.MAGENTA;
+    private Image image = ImageUtils.getImage("images/settings2.png");
     
 	/* (non-Javadoc)
 	 * @see pt.lsts.neptus.gui.system.SymbolLabel#initialize()
@@ -60,29 +62,8 @@ public class DisplayColorSymbol extends SymbolLabel {
 		setSize(10, 10);
 		setPreferredSize(new Dimension(10, 10));
 		super.initialize();
+//		setColorHover(Color.YELLOW);
 	}
-	
-//	/* (non-Javadoc)
-//	 * @see pt.lsts.neptus.gui.system.SymbolLabel#isRightClickable()
-//	 */
-//	@Override
-//	public boolean isRightClickable() {
-//	    return super.isActive();
-//	}
-	
-	/**
-     * @return the displayColor
-     */
-    public Color getDisplayColor() {
-        return displayColor;
-    }
-    
-    /**
-     * @param displayColor the displayColor to set
-     */
-    public void setDisplayColor(Color displayColor) {
-        this.displayColor = displayColor;
-    }
 	
 	/* (non-Javadoc)
 	 * @see pt.lsts.neptus.gui.system.SymbolLabel#paint(java.awt.Graphics2D, org.jdesktop.swingx.JXPanel, int, int)
@@ -91,24 +72,26 @@ public class DisplayColorSymbol extends SymbolLabel {
 	public void paint(Graphics2D g, JXPanel c, int width, int height) {
 		Graphics2D g2 = (Graphics2D)g.create();
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		g2.scale(width/10.0, height/10.0);
 		
-		RoundRectangle2D rect = new RoundRectangle2D.Double(0, 0,10 ,10, 0, 0);
-		g2.setColor(new Color(0, 0, 0, 0));
+		RoundRectangle2D rect = new RoundRectangle2D.Double(0, 0, 10, 10, 0, 0);
+        g2.setColor(new Color(0, 0, 0, 0));
 		g2.fill(rect);
 		
 		if (isActive()) {
 			g2.setColor(getActiveColor());
 			Shape shape = new RoundRectangle2D.Double(1, 1, 8, 8, 2, 2);
 			g2.fill(shape);
-            g2.setColor(getDisplayColor());
-            shape = new RoundRectangle2D.Double(2, 2, 6, 6, 2, 2);
-            g2.fill(shape);
+	        g2.scale(10.0/width, 10.0/height);
+	        
+            g2.scale(width / (image.getWidth(null) + 16.), 1. * height / (image.getWidth(null) + 16.));
+            g2.drawImage(image, 5, 5, null);
 		}
 	}
 	
 	public static void main(String[] args) {
-		DisplayColorSymbol symb1 = new DisplayColorSymbol();
+		SystemParamsSymbol symb1 = new SystemParamsSymbol();
 		symb1.setActive(true);
 		symb1.setSize(50, 50);
 		JXPanel panel = new JXPanel();
