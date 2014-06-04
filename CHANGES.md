@@ -1,6 +1,10 @@
 Changes
 =======
 
+Neptus 4.1.0 dev (??-??-2014)
+------------
+ * MRA/Exporters: MatLab exporter reworked.
+
 Neptus 4.0.0 (30-05-2014)
 ------------
  * IMC: Updated IMC and IMCJava to v5.4.0.
