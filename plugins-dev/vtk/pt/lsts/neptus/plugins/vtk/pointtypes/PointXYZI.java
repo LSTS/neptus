@@ -36,14 +36,14 @@ package pt.lsts.neptus.plugins.vtk.pointtypes;
  *
  */
 public class PointXYZI extends APoint {
-    private double intensity;
+    private int intensity;
 
     public PointXYZI() {
         super();
-        setIntensity(0.0);
+        setIntensity(0);
     }
 
-    public PointXYZI (double x, double y, double z, double intensity) {
+    public PointXYZI (double x, double y, double z, int intensity) {
         super(x, y, z);
         setIntensity(intensity);
     }
@@ -51,14 +51,14 @@ public class PointXYZI extends APoint {
     /**
      * @return the intensity
      */
-    public double getIntensity() {
+    public int getIntensity() {
         return intensity;
     }
 
     /**
      * @param intensity the intensity to set
      */
-    private void setIntensity(double intensity) {
+    private void setIntensity(int intensity) {
         this.intensity = intensity;
     }
 
