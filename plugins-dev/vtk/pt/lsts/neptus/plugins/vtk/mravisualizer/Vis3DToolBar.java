@@ -52,9 +52,8 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.VtkMRAVis;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler.RepresentationType;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler.SensorTypeInteraction;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
 import pt.lsts.neptus.plugins.vtk.pointcloud.DepthExaggeration;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.util.GuiUtils;
@@ -95,7 +94,7 @@ public class Vis3DToolBar extends JToolBar {
     private VtkMRAVis vtkInit;
     private Canvas canvas;
     private EventsHandler events;
-    private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
+    private LinkedHashMap<String, APointCloud<?>> linkedHashMapCloud;
     private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
 
     public JToggleButton multibeamToggle;
@@ -417,10 +416,10 @@ public class Vis3DToolBar extends JToolBar {
             if (zExaggerationToggle.isSelected()) {
                 canvas.lock();
                 if (linkedHashMapCloud.containsKey(MB_CLOUD_NAME))
-                    DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get(MB_CLOUD_NAME).getPoly(),
+                    DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get(MB_CLOUD_NAME).getPolyData(),
                             VtkMRAVis.zExaggeration);
                 if (linkedHashMapCloud.containsKey(DVL_CLOUD_NAME))
-                    DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get(DVL_CLOUD_NAME).getPoly(),
+                    DepthExaggeration.performDepthExaggeration(linkedHashMapCloud.get(DVL_CLOUD_NAME).getPolyData(),
                             VtkMRAVis.zExaggeration);
                 canvas.GetRenderer().ResetCamera();
                 canvas.Render();
@@ -429,10 +428,10 @@ public class Vis3DToolBar extends JToolBar {
             else if (!zExaggerationToggle.isSelected()) {
                 canvas.lock();
                 if (linkedHashMapCloud.containsKey(MB_CLOUD_NAME))
-                    DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get(MB_CLOUD_NAME).getPoly(),
+                    DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get(MB_CLOUD_NAME).getPolyData(),
                             VtkMRAVis.zExaggeration);
                 if (linkedHashMapCloud.containsKey(DVL_CLOUD_NAME))
-                    DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get(DVL_CLOUD_NAME).getPoly(),
+                    DepthExaggeration.reverseDepthExaggeration(linkedHashMapCloud.get(DVL_CLOUD_NAME).getPolyData(),
                             VtkMRAVis.zExaggeration);
                 canvas.GetRenderer().ResetCamera();
                 canvas.Render();
@@ -516,39 +515,43 @@ public class Vis3DToolBar extends JToolBar {
         @Override
         public void actionPerformed(ActionEvent e) {
 
-            if (smoothingMeshToggle.isSelected() && meshingToggle.isSelected()) {
-                canvas.lock();
-                events.getTextProcessingActor().SetDisplayPosition(canvas.getWidth() / 3, canvas.getHeight() / 2);
-                canvas.GetRenderer().AddActor(events.getTextProcessingActor());
-                canvas.Render();
-                canvas.unlock();
+            if(meshingToggle.isSelected()) {
+                NeptusLog.pub().info("MeshingToogle is selected");
+                if (smoothingMeshToggle.isSelected()) {
+                    NeptusLog.pub().info("smoothingMeshToggle is selected");
+                    canvas.lock();
+                    events.getTextProcessingActor().SetDisplayPosition(canvas.getWidth() / 3, canvas.getHeight() / 2);
+                    canvas.GetRenderer().AddActor(events.getTextProcessingActor());
+                    canvas.Render();
+                    canvas.unlock();
 
-                canvas.lock();
-                if (linkedHashMapMesh.containsKey(MB_CLOUD_NAME)) {
-                    events.removeCloudFromRenderer(MB_CLOUD_NAME);
-                    events.removeMeshFromRenderer(MB_CLOUD_NAME);
-                    events.performMeshSmoothing(linkedHashMapMesh.get(MB_CLOUD_NAME));
-                    if (events.getSensorTypeInteraction() == SensorTypeInteraction.MULTIBEAM
-                            || events.getSensorTypeInteraction() == SensorTypeInteraction.ALL)
-                        events.addActorToRenderer(MB_CLOUD_NAME);
-                }
-                if (linkedHashMapMesh.containsKey(DVL_CLOUD_NAME)) {
-                    events.removeCloudFromRenderer(DVL_CLOUD_NAME);
-                    events.removeMeshFromRenderer(DVL_CLOUD_NAME);
-                    events.performMeshSmoothing(linkedHashMapMesh.get(DVL_CLOUD_NAME));
-                    if (events.getSensorTypeInteraction() == SensorTypeInteraction.DVL
-                            || events.getSensorTypeInteraction() == SensorTypeInteraction.ALL)
-                        events.addActorToRenderer(DVL_CLOUD_NAME);
-                }
-                canvas.unlock();
+                    canvas.lock();
+                    if (linkedHashMapMesh.containsKey(MB_CLOUD_NAME)) {
+                        events.removeCloudFromRenderer(MB_CLOUD_NAME);
+                        events.removeMeshFromRenderer(MB_CLOUD_NAME);
+                        events.performMeshSmoothing(linkedHashMapMesh.get(MB_CLOUD_NAME));
+                        if (events.getSensorTypeInteraction() == SensorTypeInteraction.MULTIBEAM
+                                || events.getSensorTypeInteraction() == SensorTypeInteraction.ALL)
+                            events.addActorToRenderer(MB_CLOUD_NAME);
+                    }
+                    if (linkedHashMapMesh.containsKey(DVL_CLOUD_NAME)) {
+                        events.removeCloudFromRenderer(DVL_CLOUD_NAME);
+                        events.removeMeshFromRenderer(DVL_CLOUD_NAME);
+                        events.performMeshSmoothing(linkedHashMapMesh.get(DVL_CLOUD_NAME));
+                        if (events.getSensorTypeInteraction() == SensorTypeInteraction.DVL
+                                || events.getSensorTypeInteraction() == SensorTypeInteraction.ALL)
+                            events.addActorToRenderer(DVL_CLOUD_NAME);
+                    }
+                    canvas.unlock();
 
-                canvas.lock();
-                canvas.GetRenderer().RemoveActor(events.getTextProcessingActor());
-                canvas.Render();
-                canvas.unlock();
+                    canvas.lock();
+                    canvas.GetRenderer().RemoveActor(events.getTextProcessingActor());
+                    canvas.Render();
+                    canvas.unlock();
+                }
             }
             else {
-                smoothingMeshToggle.setSelected(true);
+                smoothingMeshToggle.setSelected(false);
             }
         }
     };

@@ -59,8 +59,7 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.VtkMRAVis;
 import pt.lsts.neptus.plugins.vtk.io.Writer3D;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.utils.File3DUtils;
 import pt.lsts.neptus.plugins.vtk.utils.File3DUtils.FileType;
@@ -85,7 +84,7 @@ public class Vis3DMenuBar extends JMenuBar {
     private final Canvas canvas;
     private final vtkRenderer renderer;
     private final EventsHandler events;
-    private final LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
+    private final LinkedHashMap<String, APointCloud<?>> linkedHashMapCloud;
     private final LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
 
     private JMenu fileMenu, editMenu, viewMenu, toolsMenu, helpMenu;
@@ -202,9 +201,9 @@ public class Vis3DMenuBar extends JMenuBar {
                         tempActor = (vtkLODActor) actorCollection.GetNextActor();
                         Set<String> setOfClouds = linkedHashMapCloud.keySet();
                         for (String cloudsKey : setOfClouds) {
-                            PointCloud<PointXYZ> pointCloud = linkedHashMapCloud.get(cloudsKey);
+                            APointCloud<?> pointCloud = linkedHashMapCloud.get(cloudsKey);
                             if (tempActor.equals(pointCloud.getCloudLODActor())) {
-                                poly = pointCloud.getPoly();
+                                poly = pointCloud.getPolyData();
                             }
                         }
                     }

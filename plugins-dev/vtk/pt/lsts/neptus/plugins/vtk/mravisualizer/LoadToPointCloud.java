@@ -43,8 +43,7 @@ import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.DVLBathymetryParser;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
@@ -63,7 +62,7 @@ public class LoadToPointCloud {
     public BathymetryInfo batInfo;
 
     public BathymetryParser parser;
-    public PointCloud<PointXYZ> pointCloud;
+    public APointCloud<?> pointCloud;
     private TidePredictionFinder finder;
 
     private vtkPoints points;
@@ -78,7 +77,7 @@ public class LoadToPointCloud {
      * @param log
      * @param pointCloud
      */
-    public LoadToPointCloud(IMraLogGroup log, PointCloud<PointXYZ> pointCloud) {
+    public LoadToPointCloud(IMraLogGroup log, APointCloud<?> pointCloud) {
         this.source = log;
         this.pointCloud = pointCloud;
     }
@@ -139,7 +138,7 @@ public class LoadToPointCloud {
 
                     if (parser.getHasIntensity()) {
                         getIntensities().InsertValue(c, p.intensity);
-                        pointCloud.setHasIntensities(true);
+                        // pointCloud.setHasIntensities(true);
                     }
 
                     ++countPoints;

@@ -36,8 +36,9 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 
 import pt.lsts.neptus.plugins.vtk.events.AKeyboardEvent;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudHandlerXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudHandlerXYZI;
 import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.InfoPointcloud2DText;
@@ -54,11 +55,11 @@ public class KeyboardEvent extends AKeyboardEvent {
 
     private final EventsHandler events;
 
-    private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<>();
+    private final LinkedHashMap<String, APointCloud<?>> linkedHashMapCloud;
 
     private Set<String> setOfClouds;
 
-    private PointCloud<PointXYZ> pointCloud;
+    private APointCloud<?> pointCloud;
 
     // private vtkLODActor marker = new vtkLODActor();
     private boolean markerEnabled = false;
@@ -80,7 +81,7 @@ public class KeyboardEvent extends AKeyboardEvent {
      * @param linkedHashMapCloud
      * @param neptusInteractorStyle
      */
-    public KeyboardEvent(Canvas canvas, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
+    public KeyboardEvent(Canvas canvas, LinkedHashMap<String, APointCloud<?>> linkedHashMapCloud,
             InteractorStyleVis3D interactorStyle, EventsHandler events) {
         super(canvas);
         setInteractorStyle(interactorStyle);
@@ -118,17 +119,21 @@ public class KeyboardEvent extends AKeyboardEvent {
                                 switch (colorMapRel) {
                                     case xMap:
                                         interactorStyle.getScalarBar().setUpScalarBarLookupTable(
-                                                pointCloud.getColorHandler().getLutX());
+                                                ((PointCloudHandlerXYZ) pointCloud.getColorHandler()).getLutX());
                                         break;
                                     case yMap:
                                         interactorStyle.getScalarBar().setUpScalarBarLookupTable(
-                                                pointCloud.getColorHandler().getLutY());
+                                                ((PointCloudHandlerXYZ) pointCloud.getColorHandler()).getLutY());
                                         break;
                                     case zMap:
                                         interactorStyle.getScalarBar().setUpScalarBarLookupTable(
-                                                pointCloud.getColorHandler().getLutZ());
+                                                ((PointCloudHandlerXYZ) pointCloud.getColorHandler()).getLutZ());
                                         break;
                                     case iMap:
+                                        if (pointCloud.getColorHandler() instanceof PointCloudHandlerXYZI) {
+                                            interactorStyle.getScalarBar().setUpScalarBarLookupTable(
+                                                    ((PointCloudHandlerXYZI) pointCloud.getColorHandler()).getLutI());
+                                        }
                                         break;
                                     default:
                                         break;
@@ -306,9 +311,10 @@ public class KeyboardEvent extends AKeyboardEvent {
                         // }
                         // }
                         // setOfClouds = linkedHashMapCloud.keySet();
-                        captionInfo = new InfoPointcloud2DText(4, 250, linkedHashMapCloud.get("multibeam").getNumberOfPoints(),
-                                linkedHashMapCloud.get("multibeam").getCloudName(), linkedHashMapCloud.get("multibeam")
-                                .getBounds(), linkedHashMapCloud.get("multibeam").getMemorySize());
+                        captionInfo = new InfoPointcloud2DText(4, 250, linkedHashMapCloud.get("multibeam")
+                                .getNumberOfPoints(), linkedHashMapCloud.get("multibeam").getCloudName(),
+                                linkedHashMapCloud.get("multibeam").getBounds(), linkedHashMapCloud.get("multibeam")
+                                .getMemorySize());
 
                         getRenderer().AddActor(captionInfo.getCaptionNumberOfPointsActor());
                         getRenderer().AddActor(captionInfo.getCaptionCloudNameActor());
@@ -408,30 +414,30 @@ public class KeyboardEvent extends AKeyboardEvent {
                 // }
                 // neptusInteractorStyle.interactor.Render();
                 // break;
-            case KeyEvent.VK_6:
-                try {
-                    if (!(colorMapRel == ColorMappingRelation.iMap)) {
-                        setOfClouds = linkedHashMapCloud.keySet();
-                        for (String sKey : setOfClouds) {
-                            pointCloud = linkedHashMapCloud.get(sKey);
-                            if (pointCloud.isHasIntensities()) {
-                                pointCloud.getPoly().GetPointData()
-                                .SetScalars(pointCloud.getColorHandler().getIntensities());
-                                if (interactorStyle.lutEnabled)
-                                    interactorStyle.getScalarBar().setUpScalarBarLookupTable(
-                                            pointCloud.getColorHandler().getLutIntensities());
-                                colorMapRel = ColorMappingRelation.iMap;
-                            }
-                        }
-                        getCanvas().lock();
-                        getCanvas().Render();
-                        getCanvas().unlock();
-                    }
-                }
-                catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-                break;
+                // case KeyEvent.VK_6:
+                // try {
+                // if (!(colorMapRel == ColorMappingRelation.iMap)) {
+                // setOfClouds = linkedHashMapCloud.keySet();
+                // for (String sKey : setOfClouds) {
+                // pointCloud = linkedHashMapCloud.get(sKey);
+                // if (pointCloud.isHasIntensities()) {
+                // pointCloud.getPoly().GetPointData()
+                // .SetScalars(pointCloud.getColorHandler().getIntensities());
+                // if (interactorStyle.lutEnabled)
+                // interactorStyle.getScalarBar().setUpScalarBarLookupTable(
+                // pointCloud.getColorHandler().getLutIntensities());
+                // colorMapRel = ColorMappingRelation.iMap;
+                // }
+                // }
+                // getCanvas().lock();
+                // getCanvas().Render();
+                // getCanvas().unlock();
+                // }
+                // }
+                // catch (Exception e1) {
+                // e1.printStackTrace();
+                // }
+                // break;
 
             case KeyEvent.VK_7: // color map X axis related
                 try {
@@ -440,10 +446,11 @@ public class KeyboardEvent extends AKeyboardEvent {
                         setOfClouds = linkedHashMapCloud.keySet();
                         for (String sKey : setOfClouds) {
                             pointCloud = linkedHashMapCloud.get(sKey);
-                            pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getColorsX());
+                            pointCloud.getPolyData().GetPointData()
+                            .SetScalars(((PointCloudHandlerXYZ) pointCloud.getColorHandler()).getColorsX());
                             if (interactorStyle.lutEnabled)
                                 interactorStyle.getScalarBar().setUpScalarBarLookupTable(
-                                        pointCloud.getColorHandler().getLutX());
+                                        ((PointCloudHandlerXYZ) pointCloud.getColorHandler()).getLutX());
                             colorMapRel = ColorMappingRelation.xMap;
 
                         }
@@ -462,10 +469,11 @@ public class KeyboardEvent extends AKeyboardEvent {
                         setOfClouds = linkedHashMapCloud.keySet();
                         for (String sKey : setOfClouds) {
                             pointCloud = linkedHashMapCloud.get(sKey);
-                            pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getColorsY());
+                            pointCloud.getPolyData().GetPointData()
+                            .SetScalars(((PointCloudHandlerXYZ) pointCloud.getColorHandler()).getColorsY());
                             if (interactorStyle.lutEnabled)
                                 interactorStyle.getScalarBar().setUpScalarBarLookupTable(
-                                        pointCloud.getColorHandler().getLutY());
+                                        ((PointCloudHandlerXYZ) pointCloud.getColorHandler()).getLutY());
                             colorMapRel = ColorMappingRelation.yMap;
                         }
                         getCanvas().lock();
@@ -483,10 +491,11 @@ public class KeyboardEvent extends AKeyboardEvent {
                         setOfClouds = linkedHashMapCloud.keySet();
                         for (String sKey : setOfClouds) {
                             pointCloud = linkedHashMapCloud.get(sKey);
-                            pointCloud.getPoly().GetPointData().SetScalars(pointCloud.getColorHandler().getColorsZ());
+                            pointCloud.getPolyData().GetPointData()
+                            .SetScalars(((PointCloudHandlerXYZ) pointCloud.getColorHandler()).getColorsZ());
                             if (interactorStyle.lutEnabled)
                                 interactorStyle.getScalarBar().setUpScalarBarLookupTable(
-                                        pointCloud.getColorHandler().getLutZ());
+                                        ((PointCloudHandlerXYZ) pointCloud.getColorHandler()).getLutZ());
                             colorMapRel = ColorMappingRelation.zMap;
                         }
                         getCanvas().lock();
@@ -515,10 +524,10 @@ public class KeyboardEvent extends AKeyboardEvent {
                 getCanvas().lock();
 
                 vtkAssemblyPath path = null;
-                interactorStyle.FindPokedRenderer(getInteractor().GetEventPosition()[0],
-                        getInteractor().GetEventPosition()[1]);
-                getInteractor().GetPicker().Pick(getInteractor().GetEventPosition()[0], getInteractor().GetEventPosition()[1], 0.0,
-                        getRenderer());
+                interactorStyle.FindPokedRenderer(getInteractor().GetEventPosition()[0], getInteractor()
+                        .GetEventPosition()[1]);
+                getInteractor().GetPicker().Pick(getInteractor().GetEventPosition()[0],
+                        getInteractor().GetEventPosition()[1], 0.0, getRenderer());
 
                 vtkAbstractPropPicker picker;
                 if ((picker = (vtkAbstractPropPicker) getInteractor().GetPicker()) != null) {
@@ -535,8 +544,12 @@ public class KeyboardEvent extends AKeyboardEvent {
         }
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.plugins.vtk.visualization.AKeyboardEvent#setInteractorStyle(pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * pt.lsts.neptus.plugins.vtk.visualization.AKeyboardEvent#setInteractorStyle(pt.lsts.neptus.plugins.vtk.visualization
+     * .AInteractorStyleTrackballCamera)
      */
     @Override
     protected void setInteractorStyle(AInteractorStyleTrackballCamera interactorStyle) {
