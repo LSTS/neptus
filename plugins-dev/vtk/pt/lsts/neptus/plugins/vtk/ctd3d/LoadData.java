@@ -42,12 +42,13 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudCTD;
+import pt.lsts.neptus.types.coord.LocationType;
 import vtk.vtkDoubleArray;
 import vtk.vtkPoints;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class LoadData {
 
@@ -79,8 +80,10 @@ public class LoadData {
         LsfIndex lsfIndex = source.getLsfIndex();
         IndexScanner indexScanner = new IndexScanner(lsfIndex);
 
+        LocationType initLoc = null;
+
         int count = 0;
-        while(true) {
+        while (true) {
             Temperature temp = indexScanner.next(Temperature.class, "CTD");
             Salinity salinity = indexScanner.next(Salinity.class, "CTD");
             Pressure pressure = indexScanner.next(Pressure.class, "CTD");
@@ -93,6 +96,10 @@ public class LoadData {
             if (state == null)
                 break;
             SystemPositionAndAttitude pose = IMCUtils.parseState(state);
+            LocationType currentLoc = pose.getPosition();
+            if (initLoc == null)
+                initLoc = new LocationType(currentLoc);
+            double pointPose[] = currentLoc.getOffsetFrom(initLoc);
 
             if (temp != null)
                 tempArray.InsertValue(count, temp.getValue());
@@ -100,10 +107,7 @@ public class LoadData {
             if (salinity != null)
                 salinityArray.InsertValue(count, salinity.getValue());
 
-
-            points.InsertNextPoint(pose.getPosition().getOffsetNorth(),
-                    pose.getPosition().getOffsetEast(),
-                    pose.getPosition().getDepth());
+            points.InsertNextPoint(pointPose[0], pointPose[1], pose.getPosition().getDepth());
 
             if (pressure != null) {
                 pressureArray.InsertValue(count, pressure.getValue());
@@ -112,7 +116,6 @@ public class LoadData {
                 Depth depth = indexScanner.next(Depth.class);
                 if (depth != null)
                     pressureArray.InsertValue(count, depth.getValue());
-                //pressureArray.InsertValue(count, convertDepthToPressure(depth.getValue(), pose.getPosition().getOffsetEast()));
             }
             ++count;
         }
