@@ -162,6 +162,7 @@ public class Utils {
             NeptusLog.pub().info("VTK Library Dir (searches for vtk.jar): " + vtkSettings.GetVTKLibraryDir());
             // NeptusLog.pub().info("Kits: " + vtkSettings.GetKits());
             // NeptusLog.pub().info("Java Class path" + p.getProperty("java.class.path"));
+            VTKMemoryManager.GC.SetAutoGarbageCollection(false);
         }
 
         hasTryedToLoadVtkLib = true;
