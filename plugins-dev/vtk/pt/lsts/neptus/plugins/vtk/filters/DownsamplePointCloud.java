@@ -31,11 +31,9 @@
  */
 package pt.lsts.neptus.plugins.vtk.filters;
 
-import java.util.Date;
-
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudXYZ;
 import vtk.vtkCleanPolyData;
 
 /**
@@ -44,62 +42,29 @@ import vtk.vtkCleanPolyData;
  */
 public class DownsamplePointCloud {
     protected int numberOfPoints = 0;
-    public PointCloud<PointXYZ> pointCloud;
-    private PointCloud<PointXYZ> outputDownsampledCloud;
-    private double tolerance;
+    public APointCloud<?> pointCloud;
+    private PointCloudXYZ outputDownsampledCloud;
+    private final double tolerance;
     public Boolean isDownsampleDone = false;
 
-    public DownsamplePointCloud(PointCloud<PointXYZ> pointCloud, double tolerance) {
-        long lDateTime = new Date().getTime();
-        NeptusLog.pub().info("Init downsampling - Time in milliseconds: " + lDateTime);
-
+    public DownsamplePointCloud(APointCloud<?> pointCloud, double tolerance) {
         this.pointCloud = pointCloud;
         this.numberOfPoints = pointCloud.getNumberOfPoints();
         this.tolerance = tolerance;
-        outputDownsampledCloud = new PointCloud<>();
-        NeptusLog.pub().info("constructor class donwnsample");
+        setOutputDownsampledCloud(new PointCloudXYZ());
         downsample();
-
-        long lDateTime2 = new Date().getTime();
-        NeptusLog.pub().info("Final downsampling - Time in milliseconds: " + lDateTime2);
     }
 
     private void downsample() {
         try {
             vtkCleanPolyData cleanPolyData = new vtkCleanPolyData();
-            // cleanPolyData.SetInput(pointCloud.getPoly());
-            cleanPolyData.SetInputConnection(pointCloud.getPoly().GetProducerPort());
+            cleanPolyData.SetInputConnection(pointCloud.getPolyData().GetProducerPort());
             cleanPolyData.SetTolerance(tolerance);
             cleanPolyData.Update();
 
-            NeptusLog.pub().info(
-                    "Number of Points from cleanPolyData: "
-                            + String.valueOf(cleanPolyData.GetOutput().GetPoints().GetNumberOfPoints()));
-
-            // outputDownsampledCloud.setPoly(cleanPolyData.GetOutput());
-            // outputDownsampledCloud.setPoints(outputDownsampledCloud.getPoly().GetPoints());
-
             outputDownsampledCloud.setCloudName("downsampledCloud");
-            NeptusLog.pub().info("cloud name: " + outputDownsampledCloud.getCloudName());
-            outputDownsampledCloud.setPoints(cleanPolyData.GetOutput().GetPoints());
-            outputDownsampledCloud.setNumberOfPoints(outputDownsampledCloud.getPoints().GetNumberOfPoints());
-            NeptusLog.pub().info("Number of points: " + outputDownsampledCloud.getNumberOfPoints());
-
-            //vtkPoints points = outputDownsampledCloud.getPoints();
-
-            for (int i = 0; i < outputDownsampledCloud.getNumberOfPoints(); ++i) {
-                //                outputDownsampledCloud.getVerts().InsertNextCell(1);
-                //                outputDownsampledCloud.getVerts().InsertCellPoint(
-                //                        pointCloud.getPoints().InsertNextPoint(points.GetPoint(i)));
-            }
-
-            // outputDownsampledCloud.setVerts()
-
-            // outputDownsampledCloud.createLODActorFromPoints();
-
-            // vtkPolyDataMapper outputDataMapper = new vtkPolyDataMapper();
-            // outputDataMapper.SetInputConnection(cleanPolyData.GetOutputPort());
-            // outputDownsampledCloud.setNumberOfPoints(cleanPolyData.
+            outputDownsampledCloud.setXYZPoints(cleanPolyData.GetOutput().GetPoints());
+            outputDownsampledCloud.setNumberOfPoints(outputDownsampledCloud.getXYZPoints().GetNumberOfPoints());
 
             isDownsampleDone = true;
         }
@@ -112,14 +77,14 @@ public class DownsamplePointCloud {
     /**
      * @return the outputDownsampledCloud
      */
-    public PointCloud<PointXYZ> getOutputDownsampledCloud() {
+    public PointCloudXYZ getOutputDownsampledCloud() {
         return outputDownsampledCloud;
     }
 
     /**
      * @param outputDownsampledCloud the outputDownsampledCloud to set
      */
-    public void setOutputDownsampledCloud(PointCloud<PointXYZ> outputDownsampledCloud) {
+    private void setOutputDownsampledCloud(PointCloudXYZ outputDownsampledCloud) {
         this.outputDownsampledCloud = outputDownsampledCloud;
     }
 }
