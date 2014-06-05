@@ -41,6 +41,7 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudCTD;
 import vtk.vtkDoubleArray;
 import vtk.vtkPoints;
 
@@ -65,7 +66,7 @@ public class LoadData {
     public LoadData(IMraLogGroup source) {
         this.source = source;
         this.pointcloud = new PointCloudCTD();
-        this.points = pointcloud.getPoints();
+        this.points = pointcloud.getXYZPoints();
         this.tempArray = new vtkDoubleArray();
         this.salinityArray = new vtkDoubleArray();
         this.pressureArray = new vtkDoubleArray();
@@ -117,10 +118,10 @@ public class LoadData {
         }
 
         pointcloud.setNumberOfPoints(points.GetNumberOfPoints());
-        pointcloud.setPoints(points);
-        pointcloud.setTemperatureArray(tempArray);
-        pointcloud.setSalinityArray(salinityArray);
-        pointcloud.setPressureArray(pressureArray);
+        pointcloud.setXYZPoints(points);
+        pointcloud.setTemperatures(tempArray);
+        pointcloud.setSalinities(salinityArray);
+        pointcloud.setPressures(pressureArray);
     }
 
     /**
