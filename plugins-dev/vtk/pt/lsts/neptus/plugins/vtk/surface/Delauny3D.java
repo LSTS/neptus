@@ -31,8 +31,7 @@
  */
 package pt.lsts.neptus.plugins.vtk.surface;
 
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
 import vtk.vtkActor;
 import vtk.vtkCleanPolyData;
 import vtk.vtkDataSetMapper;
@@ -44,11 +43,11 @@ import vtk.vtkDelaunay3D;
  */
 public class Delauny3D {
 
-    public PointCloud<PointXYZ> pointCloud;
+    public APointCloud<?> pointCloud;
 
     private vtkActor delaunyActor;
 
-    public Delauny3D(PointCloud<PointXYZ> pointCloud) {
+    public Delauny3D(APointCloud<?> pointCloud) {
         this.pointCloud = pointCloud;
 
     }
@@ -63,7 +62,7 @@ public class Delauny3D {
         // clean the polydata. this will remove duplicate points that may be present in the input data
 
         vtkCleanPolyData cleaner = new vtkCleanPolyData();
-        cleaner.SetInputConnection(pointCloud.getPoly().GetProducerPort());
+        cleaner.SetInputConnection(pointCloud.getPolyData().GetProducerPort());
         cleaner.Update();
         //cleaner.SetInput(pointCloud.getPoly());
 
