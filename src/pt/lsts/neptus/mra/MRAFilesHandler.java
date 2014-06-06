@@ -168,6 +168,7 @@ public class MRAFilesHandler implements FileHandler {
         mra.validate();
         mra.getMRAMenuBar().getSetMissionMenuItem().setEnabled(true);
         mra.getMRAMenuBar().getGenReportMenuItem().setEnabled(true);
+        mra.getMRAMenuBar().getGenReportCustomOptionsMenuItem().setEnabled(true);
     }
 
     /**

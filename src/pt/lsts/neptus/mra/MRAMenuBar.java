@@ -111,6 +111,7 @@ public class MRAMenuBar {
 
     private AbstractAction openLsf, exit;
     protected AbstractAction genReport;
+    protected AbstractAction genReportCustomOptions;
     protected AbstractAction reportOptions;
     private AbstractAction batchReport;
     private AbstractAction preferences;
@@ -340,8 +341,40 @@ public class MRAMenuBar {
         };
         batchReport.putValue(Action.SHORT_DESCRIPTION, I18n.text("Generate report from selected log files") + ".");
         reportMenu.add(batchReport);
+
         reportMenu.addSeparator();
         reportMenu.add(reportOptions);
+
+        genReportCustomOptions = new AbstractAction(I18n.text("Save as PDF with custom settings"), ImageUtils.getIcon("images/menus/document-pdf.png")) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                PropertiesEditor.editProperties(mra.getReportProperties(), mra, true);
+                try {
+                    PluginUtils.saveProperties("conf/report.properties", mra.getReportProperties());
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+                File f = new File(mra.getMraPanel().getSource().getDir().toString() + "/" + mra.getMraPanel().getSource().name() + " - " + System.currentTimeMillis() + ".pdf");
+                if (f.exists()) {
+                    int resp = JOptionPane.showConfirmDialog(mra,
+                            I18n.text("Do you want to overwrite the existing file?"));
+                    if (resp != JOptionPane.YES_OPTION)
+                        return;
+                }
+                mra.getBgp().block(true);
+                mra.getBgp().setText(I18n.text("Generating PDF Report"));
+                mra.getMraFilesHandler().generatePDFReport(f);
+                mra.getBgp().setText(I18n.text("Done"));
+            }
+        };
+        genReportCustomOptions.putValue(Action.SHORT_DESCRIPTION, I18n.text("Generate a pdf file report from Log with custom options") + ".");
+        reportMenu.add(genReportCustomOptions);
+        genReportCustomOptions.setEnabled(false);
+
     }
 
     /**
@@ -657,6 +690,14 @@ public class MRAMenuBar {
      */
     public AbstractAction getGenReportMenuItem() {
         return this.genReport;
+    }
+
+    /**
+     * Gets genReportCustomOptions MenuItem
+     * @return genReport
+     */
+    public AbstractAction getGenReportCustomOptionsMenuItem() {
+        return this.genReportCustomOptions;
     }
 
     /**
