@@ -41,7 +41,6 @@ import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudHandlerXYZ;
 import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudHandlerXYZI;
 import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
-import pt.lsts.neptus.plugins.vtk.visualization.InfoPointcloud2DText;
 import vtk.vtkAbstractPropPicker;
 import vtk.vtkActorCollection;
 import vtk.vtkAssemblyPath;
@@ -72,9 +71,6 @@ public class KeyboardEvent extends AKeyboardEvent {
     }
 
     public ColorMappingRelation colorMapRel;
-
-    private InfoPointcloud2DText captionInfo;
-    private Boolean captionEnabled = false;
 
     /**
      * @param canvas
@@ -209,65 +205,6 @@ public class KeyboardEvent extends AKeyboardEvent {
                 // e4.printStackTrace();
                 // }
                 // break;
-                // case KeyEvent.VK_W:
-                // try {
-                // if (!neptusInteractorStyle.wireframeRepEnabled) {
-                // neptusInteractorStyle.wireframeRepEnabled = true;
-                // neptusInteractorStyle.solidRepEnabled = false;
-                // neptusInteractorStyle.pointRepEnabled = false;
-                //
-                // setOfClouds = linkedHashMapCloud.keySet();
-                // for (String sKey : setOfClouds) {
-                // vtkLODActor tempActor = new vtkLODActor();
-                // pointCloud = linkedHashMapCloud.get(sKey);
-                // tempActor = pointCloud.getCloudLODActor();
-                // tempActor.GetProperty().SetRepresentationToWireframe();
-                // }
-                // }
-                // }
-                // catch (Exception e3) {
-                // e3.printStackTrace();
-                // }
-                // break;
-                // case KeyEvent.VK_S:
-                // try {
-                // if (!neptusInteractorStyle.solidRepEnabled) {
-                // neptusInteractorStyle.solidRepEnabled = true;
-                // neptusInteractorStyle.wireframeRepEnabled = false;
-                // neptusInteractorStyle.pointRepEnabled = false;
-                //
-                // for (String sKey : setOfClouds) {
-                // vtkLODActor tempActor = new vtkLODActor();
-                // pointCloud = linkedHashMapCloud.get(sKey);
-                // tempActor = pointCloud.getCloudLODActor();
-                // tempActor.GetProperty().SetRepresentationToSurface();
-                // }
-                // }
-                // }
-                // catch (Exception e2) {
-                // e2.printStackTrace();
-                // }
-                // break;
-            case KeyEvent.VK_P: // FIXME the default vtk key handler creates a vtkOpenGL object that sends a exception
-                // on depth exaggeration (casting vtkLODActor to vtkOpenGL)
-                try {
-                    // if (!neptusInteractorStyle.pointRepEnabled) {
-                    // neptusInteractorStyle.pointRepEnabled = true;
-                    // neptusInteractorStyle.solidRepEnabled = false;
-                    // neptusInteractorStyle.wireframeRepEnabled = false;
-                    //
-                    // for (String sKey : setOfClouds) {
-                    // vtkLODActor tempActor = new vtkLODActor();
-                    // pointCloud = linkedHashMapCloud.get(sKey);
-                    // tempActor = pointCloud.getCloudLODActor();
-                    // tempActor.GetProperty().SetRepresentationToPoints();
-                    // }
-                    // }
-                }
-                catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-                break;
             case KeyEvent.VK_M:
                 try {
                     getCanvas().lock();
@@ -285,64 +222,41 @@ public class KeyboardEvent extends AKeyboardEvent {
                 }
                 break;
             case KeyEvent.VK_I:
-                if (!captionEnabled) {
-                    try {
-                        getCanvas().lock();
-                        // vtkActorCollection actorCollection = new vtkActorCollection();
-                        // actorCollection = renderer.GetActors();
-                        // actorCollection.InitTraversal();
-                        // for (int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
-                        // vtkLODActor tempActor = new vtkLODActor();
-                        // tempActor = (vtkLODActor) actorCollection.GetNextActor();
-                        // setOfClouds = linkedHashMapCloud.keySet();
-                        // for (String sKey : setOfClouds) {
-                        // vtkLODActor tempActorFromHashMap = new vtkLODActor();
-                        // pointCloud = linkedHashMapCloud.get(sKey);
-                        // tempActorFromHashMap = pointCloud.getCloudLODActor();
-                        // if (tempActor.equals(tempActorFromHashMap)) {
-                        // captionInfo = new Caption(4, 250, pointCloud.getNumberOfPoints(), pointCloud.getCloudName(),
-                        // pointCloud.getBounds(), pointCloud.getMemorySize());
-                        // renderer.AddActor(captionInfo.getCaptionNumberOfPointsActor());
-                        // renderer.AddActor(captionInfo.getCaptionCloudNameActor());
-                        // renderer.AddActor(captionInfo.getCaptionMemorySizeActor());
-                        // renderer.AddActor(captionInfo.getCaptionCloudBoundsActor());
-                        // interactor.Render();
-                        // }
-                        // }
-                        // }
-                        // setOfClouds = linkedHashMapCloud.keySet();
-                        captionInfo = new InfoPointcloud2DText(4, 250, linkedHashMapCloud.get("multibeam")
-                                .getNumberOfPoints(), linkedHashMapCloud.get("multibeam").getCloudName(),
-                                linkedHashMapCloud.get("multibeam").getBounds(), linkedHashMapCloud.get("multibeam")
-                                .getMemorySize());
-
-                        getRenderer().AddActor(captionInfo.getCaptionNumberOfPointsActor());
-                        getRenderer().AddActor(captionInfo.getCaptionCloudNameActor());
-                        getRenderer().AddActor(captionInfo.getCaptionMemorySizeActor());
-                        getRenderer().AddActor(captionInfo.getCaptionCloudBoundsActor());
-
-                        captionEnabled = true;
-                        getCanvas().unlock();
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                else {
-                    try {
-                        getCanvas().lock();
-                        getRenderer().RemoveActor(captionInfo.getCaptionNumberOfPointsActor());
-                        getRenderer().RemoveActor(captionInfo.getCaptionCloudNameActor());
-                        getRenderer().RemoveActor(captionInfo.getCaptionMemorySizeActor());
-                        getRenderer().RemoveActor(captionInfo.getCaptionCloudBoundsActor());
-                        captionEnabled = false;
-                        getCanvas().Render();
-                        getCanvas().unlock();
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+                //                if (!captionEnabled) {
+                //                    try {
+                //                        getCanvas().lock();
+                //                        captionInfo = new InfoPointcloud2DText(4, 250, linkedHashMapCloud.get("multibeam")
+                //                                .getNumberOfPoints(), linkedHashMapCloud.get("multibeam").getCloudName(),
+                //                                linkedHashMapCloud.get("multibeam").getBounds(), linkedHashMapCloud.get("multibeam")
+                //                                .getMemorySize());
+                //
+                //                        getRenderer().AddActor(captionInfo.getCaptionNumberOfPointsActor());
+                //                        getRenderer().AddActor(captionInfo.getCaptionCloudNameActor());
+                //                        getRenderer().AddActor(captionInfo.getCaptionMemorySizeActor());
+                //                        getRenderer().AddActor(captionInfo.getCaptionCloudBoundsActor());
+                //
+                //                        captionEnabled = true;
+                //                        getCanvas().unlock();
+                //                    }
+                //                    catch (Exception e) {
+                //                        e.printStackTrace();
+                //                    }
+                //                }
+                //                else {
+                //                    try {
+                //                        getCanvas().lock();
+                //                        getRenderer().RemoveActor(captionInfo.getCaptionNumberOfPointsActor());
+                //                        getRenderer().RemoveActor(captionInfo.getCaptionCloudNameActor());
+                //                        getRenderer().RemoveActor(captionInfo.getCaptionMemorySizeActor());
+                //                        getRenderer().RemoveActor(captionInfo.getCaptionCloudBoundsActor());
+                //                        captionEnabled = false;
+                //                        getCanvas().Render();
+                //                        getCanvas().unlock();
+                //                    }
+                //                    catch (Exception e) {
+                //                        e.printStackTrace();
+                //                    }
+                //                }
                 break;
             case KeyEvent.VK_PLUS: // increment size of rendered cell point
                 try {
@@ -402,43 +316,6 @@ public class KeyboardEvent extends AKeyboardEvent {
                     e.printStackTrace();
                 }
                 break;
-                // case '1':
-                // //int numberOfProps = neptusInteractorStyle.renderer.GetNumberOfPropsRendered();
-                // //System.out.println("numberOfProps: " + numberOfProps);
-                // setOfClouds = linkedHashMapCloud.keySet();
-                // for (String sKey : setOfClouds) {
-                // //System.out.println("String from set: " + setOfClouds);
-                // vtkLODActor tempActor = new vtkLODActor();
-                // tempActor = linkedHashMapCloud.get(sKey);
-                // //tempActor.GetProperty().SetColor(PointCloudHandlers.getRandomColor());
-                // }
-                // neptusInteractorStyle.interactor.Render();
-                // break;
-                // case KeyEvent.VK_6:
-                // try {
-                // if (!(colorMapRel == ColorMappingRelation.iMap)) {
-                // setOfClouds = linkedHashMapCloud.keySet();
-                // for (String sKey : setOfClouds) {
-                // pointCloud = linkedHashMapCloud.get(sKey);
-                // if (pointCloud.isHasIntensities()) {
-                // pointCloud.getPoly().GetPointData()
-                // .SetScalars(pointCloud.getColorHandler().getIntensities());
-                // if (interactorStyle.lutEnabled)
-                // interactorStyle.getScalarBar().setUpScalarBarLookupTable(
-                // pointCloud.getColorHandler().getLutIntensities());
-                // colorMapRel = ColorMappingRelation.iMap;
-                // }
-                // }
-                // getCanvas().lock();
-                // getCanvas().Render();
-                // getCanvas().unlock();
-                // }
-                // }
-                // catch (Exception e1) {
-                // e1.printStackTrace();
-                // }
-                // break;
-
             case KeyEvent.VK_7: // color map X axis related
                 try {
 

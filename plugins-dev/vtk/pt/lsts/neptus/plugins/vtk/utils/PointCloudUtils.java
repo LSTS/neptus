@@ -44,25 +44,6 @@ public class PointCloudUtils {
     protected static double[] center;
 
     /**
-     * class vtkCenterOfMass doesn't exist for Java on vtk 5.8
-     * 
-     * @param pointCloud
-     * @return
-     */
-    public static double[] computeCenterOfMass(APointCloud<?> pointCloud) {
-        double[] center = computeCenter(pointCloud);
-
-        // vtkCenterOfMass centerOfMassFilter = new vtkCenterOfMass();
-        // centerOfMassFilter.SetInputData(poly);
-        // centerOfMassFilter.SetUseScalarAsWeights(false);
-        // centerOfMassFilter.Update();
-        //
-        // centerOfMassFilter.GetCenter(center);
-
-        return center;
-    }
-
-    /**
      * @param points
      * @return
      */

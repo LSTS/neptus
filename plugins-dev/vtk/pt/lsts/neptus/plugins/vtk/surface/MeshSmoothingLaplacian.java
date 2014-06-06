@@ -44,13 +44,13 @@ public class MeshSmoothingLaplacian {
     private vtkPolyData polyData;
 
     // number of of iteretaion over each vertex
-    private int numIterations = 40; // 30
+    private int numIterations = 40;
 
     private float convergence = 0.0f;
-    private float relaxationFactor = 0.08f; // 0.01f ou 0.06
-    private boolean featureEdgeSmoothing = false;  // false
-    private float featureAngle = 90.f;  // 45.f ou 110
-    private float edgeAngle = 5.f; // 15
+    private float relaxationFactor = 0.08f;
+    private boolean featureEdgeSmoothing = false;
+    private float featureAngle = 90.f;
+    private float edgeAngle = 5.f;
     private boolean boundarySmoothing = false;
 
     /**

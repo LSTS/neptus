@@ -72,7 +72,6 @@ public class LoadToPointCloud {
     // private int countIntens = 0;
     // private int countIntensZero = 0;
 
-
     /**
      * @param log
      * @param pointCloud
@@ -93,7 +92,6 @@ public class LoadToPointCloud {
     }
 
     public void parseMultibeamPointCloud () {
-        //parser = BathymetryParserFactory.build(this.source);
         parser = BathymetryParserFactory.build(this.source, "multibeam");
 
         finder = TidePredictionFactory.create(this.source.getLsfIndex());
@@ -114,8 +112,6 @@ public class LoadToPointCloud {
             if(initLoc == null)
                 initLoc = new LocationType(loc);
 
-            //double tideOffset = getTideOffset(bs.getTimestamp());
-            //finder.getTidePrediction(state.getDate(), false)
             double tideOffset = getTideOffset(bs.getTimestamp());
 
             if (!MRAProperties.approachToIgnorePts) {
@@ -124,14 +120,14 @@ public class LoadToPointCloud {
                     if (p == null)
                         continue;
 
-                    // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
+                    // gets offset north and east and adds with bathymetry point p.north and p.east respectively
                     LocationType tempLoc = new LocationType(loc);
 
                     tempLoc.translatePosition(p.north, p.east, 0);
 
                     // add data to pointcloud
                     double offset[] = tempLoc.getOffsetFrom(initLoc);
-                    //System.out.println(offset[0] + " " + offset[1]);
+
                     getPoints().InsertNextPoint(offset[0],
                             offset[1],
                             p.depth - tideOffset);
@@ -152,7 +148,7 @@ public class LoadToPointCloud {
                     BathymetryPoint p = bs.getData()[c];
                     if (p == null)
                         continue;
-                    // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
+                    // gets offset north and east and adds with bathymetry point p.north and p.east respectively
                     LocationType tempLoc = new LocationType(loc);
 
                     tempLoc.translatePosition(p.north, p.east, 0);

@@ -36,6 +36,7 @@ import java.nio.ByteBuffer;
 import java.util.Calendar;
 
 /**
+ * FIXME DELETE
  * @author hfq
  * bytes 0 through 255 contain the following File Header info
  * 
@@ -89,14 +90,14 @@ import java.util.Calendar;
  * 118-119  -   Ping Latency - Time from sonar ping interrogation to actual ping (in units of 100 microseconds)
  * 120-121  -   Data Latency - time from sonar ping interrogation to 83P UDP datagram (in units of 100 microseconds)
  * 122      -   Sample Rate ( 0 = Standard Resolution (1 in 500) - 1 = High Resolution (1 in 5000)
- * 123      -   Options Flags 
+ * 123      -   Options Flags
  *              Bit 0 - 1 = data is corrected for roll
  *              Bit 1 - 1 = data is corrected for ray bending
  *              Bit 2 - 1 = sonar is operating in overlapped mode
  *              Bit 3 - 0 .... all others are 0
  * 124      -   Reserved - 0;
  * 125      -   Number of Pings Averaged - 0 to 25
- * 126-127  -   Center Ping time Offset - The Center Pint time offset is the time difference between the center ping interrogation 
+ * 126-127  -   Center Ping time Offset - The Center Pint time offset is the time difference between the center ping interrogation
  *              and the current ping interrogation.
  *              Current Ping time = Sonar Ping Interrogation Timespamp - Center Ping Time Offset + Ping Latency;
  * 128-131  -   Heave (from External Sensor) - 4 byte single precision floating point number
@@ -109,7 +110,7 @@ import java.util.Calendar;
  * 150      -   Transmit Scan Flag
  * 151-154  -   Transmit Scan Angle
  * 155-255  -   Reserved - always 0
- * FIXME - to be deleted   
+ * FIXME - to be deleted
  */
 public class MultibeamDeltaTHeader {
     ByteBuffer buf;
