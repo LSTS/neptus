@@ -366,6 +366,7 @@ public class MRAFilesHandler implements FileHandler {
         SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
             @Override
             protected Boolean doInBackground() throws Exception {
+                mra.getMRAMenuBar().getReportOptionsMenuItem().setEnabled(false);
                 return LsfReport.generateReport(mra.getMraPanel().getSource(), f, mra.getMraPanel());
             }
             @Override
@@ -397,6 +398,7 @@ public class MRAFilesHandler implements FileHandler {
                 }
                 finally {
                     mra.getBgp().block(false);
+                    mra.getMRAMenuBar().getReportOptionsMenuItem().setEnabled(true);
                 }
             }
         };

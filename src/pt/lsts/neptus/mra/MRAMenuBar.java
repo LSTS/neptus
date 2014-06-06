@@ -701,6 +701,14 @@ public class MRAMenuBar {
     }
 
     /**
+     * Gets genReportCustomOptions MenuItem
+     * @return genReport
+     */
+    public AbstractAction getReportOptionsMenuItem() {
+        return this.reportOptions;
+    }
+
+    /**
      * @return the exporters
      */
     private JMenu getExportersMenu() {
