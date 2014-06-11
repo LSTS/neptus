@@ -76,6 +76,7 @@ import pt.lsts.neptus.mra.plots.MRATimeSeriesPlot;
 import pt.lsts.neptus.mra.plots.TimedXYDataItem;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.llf.LsfReport;
+import pt.lsts.neptus.util.llf.LsfReportProperties;
 import pt.lsts.neptus.util.llf.chart.LLFChart;
 
 /**
@@ -291,6 +292,13 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         cpanel.getPopupMenu().add(I18n.text("Add Mark")).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                if (LsfReportProperties.generatingReport==true){
+                    GuiUtils.infoMessage(mraPanel.getRootPane(), I18n.text("Can not add Marks"), I18n.text("Can not add Marks - Generating Report."));
+                    return;
+                }
+
+
                 String res = JOptionPane.showInputDialog(I18n.text("Marker name"));
                 mraPanel.addMarker(new LogMarker(res, mouseValue, 0, 0));
             }

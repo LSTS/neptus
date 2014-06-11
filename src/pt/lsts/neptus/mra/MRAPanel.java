@@ -68,9 +68,11 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LogTree;
 import pt.lsts.neptus.util.llf.LogUtils;
+import pt.lsts.neptus.util.llf.LsfReportProperties;
 import pt.lsts.neptus.util.llf.LsfTree;
 import pt.lsts.neptus.util.llf.LsfTreeMouseAdapter;
 import pt.lsts.neptus.util.llf.chart.MRAChartFactory;
@@ -354,6 +356,11 @@ public class MRAPanel extends JPanel {
      * @param marker
      */
     public void addMarker(LogMarker marker) {
+
+        if (LsfReportProperties.generatingReport==true){
+            GuiUtils.infoMessage(getRootPane(), I18n.text("Can not add Marks"), I18n.text("Can not add Marks - Generating Report."));
+            return;
+        }
 
         if (existsMark(marker))
             return;

@@ -70,6 +70,7 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.VideoCreator;
+import pt.lsts.neptus.util.llf.LsfReportProperties;
 
 /**
  * MRA sidescan panel
@@ -627,6 +628,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
 
             if (imode == InteractionMode.MARK && !parent.getTimeline().isRunning()) {
+
+                if (LsfReportProperties.generatingReport==true){
+                    GuiUtils.infoMessage(getRootPane(), I18n.text("Can not add Marks"), I18n.text("Can not add Marks - Generating Report."));
+                    return;
+                }
+
                 marking = true;
                 initialX = mouseX;
                 initialY = mouseY;
