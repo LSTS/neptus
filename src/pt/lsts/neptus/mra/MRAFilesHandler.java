@@ -62,6 +62,7 @@ import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 import pt.lsts.neptus.util.llf.LsfReport;
+import pt.lsts.neptus.util.llf.LsfReportProperties;
 
 /**
  * MRA Files Handler
@@ -366,7 +367,9 @@ public class MRAFilesHandler implements FileHandler {
         SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
             @Override
             protected Boolean doInBackground() throws Exception {
-                mra.getMRAMenuBar().getReportOptionsMenuItem().setEnabled(false);
+                GuiUtils.infoMessage(mra, I18n.text("Generating PDF Report..."), I18n.text("Generating PDF Report..."));
+                mra.getMRAMenuBar().getReportMenuItem().setEnabled(false);
+                LsfReportProperties.generatingReport=true;
                 return LsfReport.generateReport(mra.getMraPanel().getSource(), f, mra.getMraPanel());
             }
             @Override
@@ -398,7 +401,8 @@ public class MRAFilesHandler implements FileHandler {
                 }
                 finally {
                     mra.getBgp().block(false);
-                    mra.getMRAMenuBar().getReportOptionsMenuItem().setEnabled(true);
+                    mra.getMRAMenuBar().getReportMenuItem().setEnabled(true);
+                    LsfReportProperties.generatingReport=false;
                 }
             }
         };

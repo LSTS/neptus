@@ -693,6 +693,14 @@ public class MRAMenuBar {
     }
 
     /**
+     * Gets report MenuItem
+     * @return genReport
+     */
+    public JMenu getReportMenuItem() {
+        return this.reportMenu;
+    }
+
+    /**
      * Gets genReportCustomOptions MenuItem
      * @return genReport
      */

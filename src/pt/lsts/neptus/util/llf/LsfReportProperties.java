@@ -56,6 +56,8 @@ public class LsfReportProperties implements PropertiesProvider {
     @NeptusProperty(name = "Fixed Color Around Sidescan Points Mark", description = "Dynamic=0 | Fixed=1 ")
     public static int sidescanMarksPointsFixedColor = 0;
 
+    public static boolean generatingReport = false;
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.gui.PropertiesProvider#getProperties()
      */
