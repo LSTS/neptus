@@ -391,6 +391,12 @@ public class MRAPanel extends JPanel {
      * @param marker
      */
     public void removeMarker(LogMarker marker) {
+
+        if (LsfReportProperties.generatingReport==true){
+            GuiUtils.infoMessage(getRootPane(), I18n.text("Can not remove Marks"), I18n.text("Can not remove Marks - Generating Report."));
+            return;
+        }
+
         logTree.removeMarker(marker);
         logMarkers.remove(marker);
         for (MRAVisualization vis : visualizationList.values()) {
