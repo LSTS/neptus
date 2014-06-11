@@ -294,10 +294,10 @@ public class MRAMenuBar {
                     if (resp != JOptionPane.YES_OPTION)
                         return;
                 }
-                mra.getBgp().block(true);
-                mra.getBgp().setText(I18n.text("Generating PDF Report"));
+                //mra.getBgp().block(true);
+                //mra.getBgp().setText(I18n.text("Generating PDF Report"));
                 mra.getMraFilesHandler().generatePDFReport(f);
-                mra.getBgp().setText(I18n.text("Done"));
+                //mra.getBgp().setText(I18n.text("Done"));
             }
         };
         genReport.putValue(Action.SHORT_DESCRIPTION, I18n.text("Generate a pdf file report from Log") + ".");
@@ -365,10 +365,10 @@ public class MRAMenuBar {
                     if (resp != JOptionPane.YES_OPTION)
                         return;
                 }
-                mra.getBgp().block(true);
-                mra.getBgp().setText(I18n.text("Generating PDF Report"));
+                //mra.getBgp().block(true);
+                //mra.getBgp().setText(I18n.text("Generating PDF Report"));
                 mra.getMraFilesHandler().generatePDFReport(f);
-                mra.getBgp().setText(I18n.text("Done"));
+                //mra.getBgp().setText(I18n.text("Done"));
             }
         };
         genReportCustomOptions.putValue(Action.SHORT_DESCRIPTION, I18n.text("Generate a pdf file report from Log with custom options") + ".");
