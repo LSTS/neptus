@@ -358,7 +358,7 @@ public class MRAPanel extends JPanel {
     public void addMarker(LogMarker marker) {
 
         if (LsfReportProperties.generatingReport==true){
-            GuiUtils.infoMessage(getRootPane(), I18n.text("Can not add Marks"), I18n.text("Can not add Marks - Generating Report."));
+            //GuiUtils.infoMessage(getRootPane(), I18n.text("Can not add Marks"), I18n.text("Can not add Marks - Generating Report."));
             return;
         }
 
