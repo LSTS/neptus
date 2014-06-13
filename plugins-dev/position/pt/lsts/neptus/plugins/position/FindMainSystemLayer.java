@@ -33,7 +33,6 @@ package pt.lsts.neptus.plugins.position;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.text.DecimalFormat;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -48,27 +47,40 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * @author pdias
  *
  */
-@PluginDescription(author = "Paulo Dias", name = "Find Main System", version = "0.9", 
+@PluginDescription(author = "Paulo Dias", name = "Find Main System", version = "1.0", 
 icon = "pt/lsts/neptus/plugins/position/findsys.png", description = "Points to where to look to find the main system.")
 @LayerPriority(priority = 182)
 public class FindMainSystemLayer extends ConsoleLayer {
 
+    private static final Color COLOR_WHITE_200 = ColorUtils.setTransparencyToColor(Color.WHITE, 200);
+    private static final Color COLOR_GREEN_DARK_220 = ColorUtils.setTransparencyToColor(Color.GREEN.darker(), 220);
+    private static final Color COLOR_GREEN_DARK_100 = ColorUtils.setTransparencyToColor(Color.GREEN.darker(), 100);
+    private static final Color COLOR_RED_DARK_100 = ColorUtils.setTransparencyToColor(Color.RED.darker(), 100);
+    private static final Color COLOR_BLACK_200 = ColorUtils.setTransparencyToColor(Color.BLACK, 200);
+    private static final Color COLOR_BLACK_100 = ColorUtils.setTransparencyToColor(Color.BLACK, 100);
+
+    private static final int RECT_WIDTH = 80;
+    private static final int RECT_HEIGHT = 80;
+    private static final int MARGIN_INT = 5;
+    private static final int MARGIN_EXT = 5;
+
     private static int secondsBeforeMyStatePosOldAge = 30;
 
-    private final DecimalFormat formatter = new DecimalFormat("0.00");
     private final OrientationIcon icon = new OrientationIcon(80, 2) {{ 
-        setBackgroundColor(ColorUtils.setTransparencyToColor(Color.WHITE, 100));
-        setForegroundColor(ColorUtils.setTransparencyToColor(Color.GREEN.darker(), 100));
+        setBackgroundColor(COLOR_RED_DARK_100);
+        setForegroundColor(COLOR_GREEN_DARK_100);
     }};
 
     private double baseOrientationRadians = 0; 
-    private BaseOrientations baseOrientation = BaseOrientations.North;
+    private BaseOrientations absHeadingRadsToLookOrientation = BaseOrientations.North;
 
     private double absDistanceToLook = Double.NaN;
     private double absHeadingRadsToLook = Double.NaN;
@@ -78,6 +90,11 @@ public class FindMainSystemLayer extends ConsoleLayer {
     private JLabel toDraw = new JLabel();
 
     public FindMainSystemLayer() {
+        toDraw.setForeground(Color.WHITE);
+        toDraw.setHorizontalTextPosition(JLabel.CENTER);
+        toDraw.setHorizontalAlignment(JLabel.CENTER);
+        toDraw.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        toDraw.setBounds(0, 0, RECT_WIDTH, RECT_HEIGHT);
     }
 
     /* (non-Javadoc)
@@ -111,69 +128,92 @@ public class FindMainSystemLayer extends ConsoleLayer {
 
         oldData = false;
         ImcSystem sys = ImcSystemsHolder.lookupSystemByName(getConsole().getMainSystem());
-        if (sys == null) {
-            icon.setAngleRadians(Double.NaN);
-            baseOrientationRadians = Double.NaN;
-            absDistanceToLook = Double.NaN;
-            absHeadingRadsToLook = Double.NaN;
+        if (sys == null || LocationType.ABSOLUTE_ZERO.equals(sys.getLocation())) {
+            clearData();
         }
         else {
             try {
                 lt.setLocation(sys.getLocation());
                 if (System.currentTimeMillis() - sys.getLocationTimeMillis() > secondsBeforeMyStatePosOldAge * 1000)
-                    oldData |= true;;
+                    oldData |= true;
             }
             catch (Exception e) {
-                icon.setAngleRadians(Double.NaN);
-                baseOrientationRadians = Double.NaN;
-                absDistanceToLook = Double.NaN;
-                absHeadingRadsToLook = Double.NaN;
+                clearData();
                 return true;
             }
-            
+
             LocationType baseLocation = MyState.getLocation();
+            if (LocationType.ABSOLUTE_ZERO.equals(baseLocation)) {
+                clearData();
+                return true;
+            }
             baseOrientationRadians = MyState.getHeadingInRadians();
-            baseOrientation = FindVehicle.convertToBaseOrientation(baseOrientationRadians);
-            baseOrientation.getAbbrev();
-            
+
             if (System.currentTimeMillis() - MyState.getLastLocationUpdateTimeMillis() < secondsBeforeMyStatePosOldAge * 1000)
-                oldData |= true;;
-                
-                absDistanceToLook = baseLocation.getHorizontalDistanceInMeters(lt);
-                double angleRads = baseLocation.getXYAngle(lt);
-                absHeadingRadsToLook = angleRads - baseOrientationRadians;
-                icon.setAngleRadians(absHeadingRadsToLook);
+                oldData |= true;
+
+            absDistanceToLook = baseLocation.getHorizontalDistanceInMeters(lt);
+            double angleRads = baseLocation.getXYAngle(lt);
+            absHeadingRadsToLook = AngleCalc.nomalizeAngleRads2Pi(angleRads);
+            absHeadingRadsToLookOrientation = FindVehicle.convertToBaseOrientation(absHeadingRadsToLook);
+            icon.setAngleRadians(angleRads - baseOrientationRadians);
         }
 
         return true;
     }
 
+    private void clearData() {
+        icon.setAngleRadians(Double.NaN);
+        baseOrientationRadians = Double.NaN;
+        absDistanceToLook = Double.NaN;
+        absHeadingRadsToLook = Double.NaN;
+    }
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        if (Double.isNaN(absDistanceToLook))
-            return;
+        boolean validData = true;
+        if (Double.isNaN(absDistanceToLook) || Double.isInfinite(absHeadingRadsToLook))
+            validData = false;
         
         Graphics2D g2 = (Graphics2D) g.create();
         
-        String txt = baseOrientation.getAbbrev();
+        String txt = "<html><b>";
+        if (!validData) {
+            txt += "?";
+        }
+        else {
+            txt += absHeadingRadsToLookOrientation.getAbbrev() + "<br/>"
+                    + (Math.round(Math.toDegrees(absHeadingRadsToLook))) + "\u00B0" + "<br/>"
+                    + MathMiscUtils.parseToEngineeringNotation(absDistanceToLook, 0) + "m";
+        }
         toDraw.setText(txt);
-        toDraw.setForeground(Color.white);
-        toDraw.setHorizontalTextPosition(JLabel.CENTER);
-        toDraw.setHorizontalAlignment(JLabel.LEFT);
-        toDraw.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-        g2.translate(renderer.getWidth() - 10 - icon.getIconWidth(), 100);
+        g2.setColor(COLOR_BLACK_200);
+        g2.drawRoundRect(renderer.getWidth() - RECT_WIDTH - (MARGIN_INT + MARGIN_EXT), 300 - RECT_HEIGHT
+                - (MARGIN_INT + MARGIN_EXT), RECT_WIDTH + MARGIN_INT, RECT_HEIGHT + MARGIN_INT, 20, 20);
+        g2.setColor(COLOR_BLACK_100);
+        g2.fillRoundRect(renderer.getWidth() - RECT_WIDTH - (MARGIN_INT + MARGIN_EXT), 300 - RECT_HEIGHT
+                - (MARGIN_INT + MARGIN_EXT), RECT_WIDTH + MARGIN_INT, RECT_HEIGHT + MARGIN_INT, 20, 20);
+        g2.translate(renderer.getWidth() - RECT_WIDTH - (MARGIN_INT + MARGIN_EXT), 300 - RECT_HEIGHT
+                - (MARGIN_INT + MARGIN_EXT));
         
-        if (oldData)
-            icon.setBackgroundColor(ColorUtils.setTransparencyToColor(Color.RED.darker(), 100));
-        else
-            icon.setBackgroundColor(ColorUtils.setTransparencyToColor(Color.WHITE.darker(), 100));
-        icon.paintIcon(null, g2, 0, 0);
+        if (oldData) {
+            icon.setForegroundColor(COLOR_GREEN_DARK_100);
+            icon.setBackgroundColor(COLOR_RED_DARK_100);
+        }
+        else {
+            icon.setForegroundColor(COLOR_GREEN_DARK_220);
+            icon.setBackgroundColor(COLOR_WHITE_200);
+        }
+        if (validData)
+            icon.paintIcon(null, g2, 0, 0);
         
-//        toDraw.setBounds(0, 0, RECT_WIDTH, RECT_HEIGHT);
+        toDraw.setForeground(!oldData ? COLOR_WHITE_200 : COLOR_BLACK_200);
+        toDraw.paint(g2);
+        toDraw.setForeground(oldData ? COLOR_WHITE_200 : COLOR_BLACK_200);
+        g2.translate(1, 1);
         toDraw.paint(g2);
 
-        
         g2.dispose();
     }
 }
