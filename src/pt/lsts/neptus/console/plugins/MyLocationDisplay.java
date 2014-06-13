@@ -435,7 +435,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 I18n.text("Me")
                         + (followPositionOf != null && followPositionOf.length() != 0 ? " "
                                 + I18n.text("Pos. external") : "")
-                        + (useSystemToDeriveHeading != null && useSystemToDeriveHeading.length() != 0 ? " "
+                        + (useSystemToDeriveHeading != null && useSystemToDeriveHeading.length() != 0
+                                || followHeadingOf != null && followHeadingOf.length() != 0 ? " "
                                 + I18n.textc("Heading external",
                                         "indication that the heading comes from external source") : ""), 18, 14);
         g.translate(-centerPos.getX(), -centerPos.getY());
@@ -660,7 +661,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 }
 
                 String[] aopt = options.toArray(new String[options.size()]);
-                String ret = (String) JOptionPane.showInputDialog(getConsole(), I18n.text("Set to use a system location as mine"),
+                String ret = (String) JOptionPane.showInputDialog(getConsole(), I18n.text("Set to use a system to derive heading"),
                         I18n.text("Choose a system"), JOptionPane.QUESTION_MESSAGE, ICON, aopt, initialValue);
                 if (ret == null)
                     return;
@@ -673,7 +674,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     boolean validValue = false;
                     while (!validValue) {
                         String res = JOptionPane.showInputDialog(getConsole(),
-                                I18n.text("Introduce the heading angle to derived heading"),
+                                I18n.text("Introduce the angle offset to front from derived heading"),
                                 Double.valueOf(AngleCalc.nomalizeAngleDegrees180(angleOffsetToFrontFromDerivedHeading))
                                         .shortValue());
                         if (res == null)
@@ -685,7 +686,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                         catch (Exception ex) {
                             NeptusLog.pub().debug(ex.getMessage());
                             GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(),
-                                    I18n.text("Introduce the heading angle to derived heading"),
+                                    I18n.text("Introduce the angle offset to front from derived heading"),
                                     I18n.text("Value must be a numeric value from [-180, 180]"));
                         }
                     }
@@ -693,7 +694,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     validValue = false;
                     while (!validValue) {
                         String res = JOptionPane.showInputDialog(getConsole(),
-                                I18n.text("Introduce the offset angle to add to the derived heading"),
+                                I18n.text("Introduce the angle offset to front from where the operator is looking"),
                                 Double.valueOf(AngleCalc.nomalizeAngleDegrees180(angleOffsetToFrontFromWhereTheOperatorIsLooking))
                                         .shortValue());
                         if (res == null)
@@ -705,7 +706,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                         catch (Exception ex) {
                             NeptusLog.pub().debug(ex.getMessage());
                             GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(),
-                                    I18n.text("Introduce the offset angle to add to the derived heading"),
+                                    I18n.text("Introduce the angle offset to front from where the operator is looking"),
                                     I18n.text("Value must be a numeric value from [-180, 180]"));
                         }
                     }
