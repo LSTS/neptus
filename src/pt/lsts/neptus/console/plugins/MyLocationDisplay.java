@@ -121,6 +121,10 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             description ="Uses position and heading of other system as mine.")
     private String followPositionOf = "";
 
+    @NeptusProperty(name = "Follow Heading Of", editable = false, 
+            category = "Follow System", userLevel = LEVEL.ADVANCED,
+            description ="Uses heading of other system as mine.")
+    private String followHeadingOf = "";
 
     @NeptusProperty(name = "Use System to Derive Heading", editable = false, 
             category = "Derive Heading", userLevel = LEVEL.ADVANCED,
@@ -206,10 +210,15 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
     @Override
     public boolean update() {
         location = MyState.getLocation();
-        headingDegrees = MyState.getAxisAnglesDegrees()[2];
+        LocationType newLocation = location;
+        headingDegrees = MyState.getHeadingInDegrees();
+        double newHeadingDegrees = headingDegrees;
         lastCalcPosTimeMillis = MyState.getLastLocationUpdateTimeMillis();
         length = MyState.getLength();
         width = MyState.getWidth();
+        
+        boolean updateLocation = false;
+        boolean updateHeading = false;
 
         // update pos if following system
         if (followPositionOf != null && followPositionOf.length() != 0) {
@@ -229,16 +238,39 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 if (ext != null) {
                     loc = ext.getLocation();
                     locTime = ext.getLocationTimeMillis();
+                    headingDegrees = ext.getYawDegrees();
                     headingDegreesTime = ext.getAttitudeTimeMillis();
                 }
             }
-            if (loc != null) {
-                if (locTime - lastCalcPosTimeMillis > 0) {
-                    if (headingDegreesTime - lastCalcPosTimeMillis > 0)
-                        MyState.setLocationAndAxis(loc, headingDegrees);
-                    else
-                        MyState.setLocation(loc);
+            if (loc != null && locTime - lastCalcPosTimeMillis > 0) {
+                updateLocation = true;
+                newLocation = loc;
+            }
+            if (headingDegreesTime - lastCalcPosTimeMillis > 0) {
+                updateHeading = true;
+                newHeadingDegrees = headingDegrees;
+            }
+        }
+
+        // update just heading if following system
+        if (followHeadingOf != null && followHeadingOf.length() != 0) {
+            ImcSystem sys = ImcSystemsHolder.lookupSystemByName(followHeadingOf);
+            double headingDegrees = 0;
+            long headingDegreesTime = -1;
+            if (sys != null) {
+                headingDegrees = sys.getYawDegrees();
+                headingDegreesTime = sys.getAttitudeTimeMillis();
+            }
+            else {
+                ExternalSystem ext = ExternalSystemsHolder.lookupSystem(followHeadingOf);
+                if (ext != null) {
+                    headingDegrees = ext.getYawDegrees();
+                    headingDegreesTime = ext.getAttitudeTimeMillis();
                 }
+            }
+            if (headingDegreesTime - lastCalcPosTimeMillis > 0) {
+                updateHeading = true;
+                newHeadingDegrees = headingDegrees;
             }
         }
 
@@ -258,13 +290,21 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 }
             }
             if (loc != null) {
-                double[] bearingRange = CoordinateUtil.getNEBearingDegreesAndRange(location, loc);
+                double[] bearingRange = CoordinateUtil.getNEBearingDegreesAndRange(newLocation, loc);
                 bearingRange[0] += -angleOffsetToFrontFromDerivedHeading + angleOffsetToFrontFromWhereTheOperatorIsLooking;
                 // if (Math.abs(locTime - lastCalcPosTimeMillis) < DateTimeUtil.MINUTE * 5) {
-                MyState.setHeadingInDegrees(AngleCalc.nomalizeAngleDegrees360(bearingRange[0]));
+                updateHeading = true;
+                newHeadingDegrees = bearingRange[0];
                 // }
             }
         }
+
+        if (updateLocation && updateHeading)
+            MyState.setLocationAndAxis(newLocation, AngleCalc.nomalizeAngleDegrees360(newHeadingDegrees));
+        else if (updateLocation)
+            MyState.setLocation(newLocation);
+        else if (updateHeading)
+            MyState.setHeadingInDegrees(AngleCalc.nomalizeAngleDegrees360(newHeadingDegrees));
 
         return true;
     }
