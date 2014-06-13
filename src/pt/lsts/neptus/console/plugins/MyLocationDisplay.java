@@ -623,6 +623,53 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         };
         myLocMenu.add(new JMenuItem(useThisLoc));
 
+        String txtUseThisHeading = followHeadingOf != null && followHeadingOf.length() != 0 ? " [" +
+                I18n.text("using") + " " + followHeadingOf + "]" : "";
+        txtUseThisHeading = (txtUsingSysLoc.length() == 0 ? I18n.text("Set to use a system heading as mine")
+                : I18n.text("Change the system to use heading from") + txtUseThisHeading);
+        AbstractAction useThisHeading = new AbstractAction(txtUseThisHeading) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Vector<String> options = new Vector<String>();
+                String noneStr = I18n.text("NONE");
+                options.add(noneStr);
+                options.add(getConsole().getMainSystem());
+                String initialValue = followHeadingOf == null || followHeadingOf.length() == 0 ? noneStr
+                        : followHeadingOf;
+
+                // fill the options
+                Vector<String> sysList = new Vector<String>();
+                for (ImcSystem sys : ImcSystemsHolder.lookupAllSystems()) {
+                    if (!options.contains(sys.getName()))
+                        sysList.add(sys.getName());
+                }
+                Collections.sort(sysList);
+                options.addAll(sysList);
+                Vector<String> extList = new Vector<String>();
+                for (ExternalSystem ext : ExternalSystemsHolder.lookupAllSystems()) {
+                    if (!options.contains(ext.getName()))
+                        sysList.add(ext.getName());
+                }
+                Collections.sort(extList);
+                options.addAll(extList);
+                if (!options.contains(initialValue))
+                    options.add(2, initialValue);
+
+                String[] aopt = options.toArray(new String[options.size()]);
+                String ret = (String) JOptionPane.showInputDialog(getConsole(), I18n.text("Set to use a system heading as mine"),
+                        I18n.text("Choose a system"), JOptionPane.QUESTION_MESSAGE, ICON, aopt, initialValue);
+                if (ret == null)
+                    return;
+
+                if (noneStr.equalsIgnoreCase(ret))
+                    followHeadingOf = "";
+                else {
+                    followHeadingOf = ret;
+                }
+            }
+        };
+        myLocMenu.add(new JMenuItem(useThisHeading));
+
         String txtUsingSysDeriveHeading = useSystemToDeriveHeading != null
                 && useSystemToDeriveHeading.length() != 0 ? " [" + I18n.text("using") + " " + useSystemToDeriveHeading + "]" : "";
         txtUsingSysDeriveHeading = (txtUsingSysDeriveHeading.length() == 0 ? I18n.text("Set to use a system to derive heading")
