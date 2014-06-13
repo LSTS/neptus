@@ -537,8 +537,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
 
         String txtUsingSysLoc = followPositionOf != null && followPositionOf.length() != 0 ? " [" +
         		I18n.text("using") + " " + followPositionOf + "]" : "";
-        txtUsingSysLoc = (txtUsingSysLoc.length() == 0 ? I18n.text("Set to use a system location as mine")
-                : I18n.text("Change the system to use location from") + txtUsingSysLoc);
+        txtUsingSysLoc = (txtUsingSysLoc.length() == 0 ? I18n.text("Set to use a system position and heading as mine")
+                : I18n.text("Change the system to use position and heading from") + txtUsingSysLoc);
         AbstractAction useThisLoc = new AbstractAction(txtUsingSysLoc) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -568,7 +568,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     options.add(2, initialValue);
 
                 String[] aopt = options.toArray(new String[options.size()]);
-                String ret = (String) JOptionPane.showInputDialog(getConsole(), I18n.text("Set to use a system location as mine"),
+                String ret = (String) JOptionPane.showInputDialog(getConsole(), I18n.text("Set to use a system position and heading as mine"),
                         I18n.text("Choose a system"), JOptionPane.QUESTION_MESSAGE, ICON, aopt, initialValue);
                 if (ret == null)
                     return;
