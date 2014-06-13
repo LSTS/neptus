@@ -116,17 +116,25 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
     @NeptusProperty(name = "My Heading", userLevel = LEVEL.REGULAR)
     public double headingDegrees = 0;
 
-    @NeptusProperty(editable = false, category = "Follow System", userLevel = LEVEL.ADVANCED)
+    @NeptusProperty(name = "Follow Position Of", editable = false, 
+            category = "Follow System: Position", userLevel = LEVEL.ADVANCED,
+            description ="Uses position and heading of other system as mine.")
     private String followingPositionOf = "";
 
-    @NeptusProperty(editable = false, category = "Follow System", userLevel = LEVEL.ADVANCED)
-    private String useSystemToDeriveHeadingOf = "";
+    @NeptusProperty(name = "Use System to Derive Heading", editable = false, 
+            category = "Follow System: Heading", userLevel = LEVEL.ADVANCED,
+            description = "Uses the angle between me and another system to derive mine heading.")
+    private String useSystemToDeriveHeading = "";
 
-    @NeptusProperty(editable = false, category = "Follow System", userLevel = LEVEL.ADVANCED)
-    private short useHeadingAngleToDerivedHeading = 0;
+    @NeptusProperty(name = "Angle Offset to Front from Derived Heading", editable = false, 
+            category = "Follow System: Heading", userLevel = LEVEL.ADVANCED,
+            description = "This is the angle offset between the derived heading and what you consider front.")
+    private short angleOffsetToFrontFromDerivedHeading = 0;
 
-    @NeptusProperty(editable = false, category = "Follow System", userLevel = LEVEL.ADVANCED)
-    private short useHeadingOffsetFromDerivedHeading = 0;
+    @NeptusProperty(name = "Angle Offset to Front from Where the Operator is Looking", editable = false, 
+            category = "Follow System: Heading", userLevel = LEVEL.ADVANCED,
+            description = "This is the angle offset between where the operator is looking and what you consider front.")
+    private short angleOffsetToFrontFromWhereTheOperatorIsLooking = 0;
 
     @NeptusProperty(name = "Length", category = "Dimension", userLevel = LEVEL.REGULAR)
     public double length = 0;
@@ -233,8 +241,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             }
         }
 
-        if (useSystemToDeriveHeadingOf != null && useSystemToDeriveHeadingOf.length() != 0) {
-            ImcSystem sys = ImcSystemsHolder.lookupSystemByName(useSystemToDeriveHeadingOf);
+        if (useSystemToDeriveHeading != null && useSystemToDeriveHeading.length() != 0) {
+            ImcSystem sys = ImcSystemsHolder.lookupSystemByName(useSystemToDeriveHeading);
             LocationType loc = null;
             // long locTime = -1;
             if (sys != null) {
@@ -242,7 +250,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 // locTime = sys.getLocationTimeMillis();
             }
             else {
-                ExternalSystem ext = ExternalSystemsHolder.lookupSystem(useSystemToDeriveHeadingOf);
+                ExternalSystem ext = ExternalSystemsHolder.lookupSystem(useSystemToDeriveHeading);
                 if (ext != null) {
                     loc = ext.getLocation();
                     // locTime = ext.getLocationTimeMillis();
@@ -250,7 +258,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             }
             if (loc != null) {
                 double[] bearingRange = CoordinateUtil.getNEBearingDegreesAndRange(location, loc);
-                bearingRange[0] += -useHeadingAngleToDerivedHeading + useHeadingOffsetFromDerivedHeading;
+                bearingRange[0] += -angleOffsetToFrontFromDerivedHeading + angleOffsetToFrontFromWhereTheOperatorIsLooking;
                 // if (Math.abs(locTime - lastCalcPosTimeMillis) < DateTimeUtil.MINUTE * 5) {
                 MyState.setHeadingInDegrees(AngleCalc.nomalizeAngleDegrees360(bearingRange[0]));
                 // }
@@ -308,8 +316,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
 
                 gt.translate(centerPos.getX(), centerPos.getY());
                 gt.rotate(Math.PI + Math.toRadians(headingDegrees) - renderer.getRotation());
-                if (useSystemToDeriveHeadingOf != null && useSystemToDeriveHeadingOf.length() != 0) {
-                    gt.rotate(Math.toRadians(-(-useHeadingAngleToDerivedHeading * 0 + useHeadingOffsetFromDerivedHeading)));
+                if (useSystemToDeriveHeading != null && useSystemToDeriveHeading.length() != 0) {
+                    gt.rotate(Math.toRadians(-(-angleOffsetToFrontFromDerivedHeading * 0 + angleOffsetToFrontFromWhereTheOperatorIsLooking)));
                 }
 
                 gt.scale(scaleX, scaleY);
@@ -386,7 +394,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 I18n.text("Me")
                         + (followingPositionOf != null && followingPositionOf.length() != 0 ? " "
                                 + I18n.text("Pos. external") : "")
-                        + (useSystemToDeriveHeadingOf != null && useSystemToDeriveHeadingOf.length() != 0 ? " "
+                        + (useSystemToDeriveHeading != null && useSystemToDeriveHeading.length() != 0 ? " "
                                 + I18n.textc("Heading external",
                                         "indication that the heading comes from external source") : ""), 18, 14);
         g.translate(-centerPos.getX(), -centerPos.getY());
@@ -573,8 +581,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         };
         myLocMenu.add(new JMenuItem(useThisLoc));
 
-        String txtUsingSysDeriveHeading = useSystemToDeriveHeadingOf != null
-                && useSystemToDeriveHeadingOf.length() != 0 ? " [" + I18n.text("using") + " " + useSystemToDeriveHeadingOf + "]" : "";
+        String txtUsingSysDeriveHeading = useSystemToDeriveHeading != null
+                && useSystemToDeriveHeading.length() != 0 ? " [" + I18n.text("using") + " " + useSystemToDeriveHeading + "]" : "";
         txtUsingSysDeriveHeading = (txtUsingSysDeriveHeading.length() == 0 ? I18n.text("Set to use a system to derive heading")
                 : I18n.text("Change the system to derive heading from") + txtUsingSysDeriveHeading);
         AbstractAction useThisForHeading = new AbstractAction(txtUsingSysDeriveHeading) {
@@ -584,8 +592,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 String noneStr = I18n.text("NONE");
                 options.add(noneStr);
                 options.add(getConsole().getMainSystem());
-                String initialValue = useSystemToDeriveHeadingOf == null || useSystemToDeriveHeadingOf.length() == 0 ? noneStr
-                        : useSystemToDeriveHeadingOf;
+                String initialValue = useSystemToDeriveHeading == null || useSystemToDeriveHeading.length() == 0 ? noneStr
+                        : useSystemToDeriveHeading;
 
                 // fill the options
                 Vector<String> sysList = new Vector<String>();
@@ -617,20 +625,20 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     return;
 
                 if (noneStr.equalsIgnoreCase(ret))
-                    useSystemToDeriveHeadingOf = "";
+                    useSystemToDeriveHeading = "";
                 else {
-                    useSystemToDeriveHeadingOf = ret;
+                    useSystemToDeriveHeading = ret;
 
                     boolean validValue = false;
                     while (!validValue) {
                         String res = JOptionPane.showInputDialog(getConsole(),
                                 I18n.text("Introduce the heading angle to derived heading"),
-                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(useHeadingAngleToDerivedHeading))
+                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(angleOffsetToFrontFromDerivedHeading))
                                         .shortValue());
                         if (res == null)
                             return;
                         try {
-                            useHeadingAngleToDerivedHeading = Short.parseShort(res);
+                            angleOffsetToFrontFromDerivedHeading = Short.parseShort(res);
                             validValue = true;
                         }
                         catch (Exception ex) {
@@ -645,12 +653,12 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     while (!validValue) {
                         String res = JOptionPane.showInputDialog(getConsole(),
                                 I18n.text("Introduce the offset angle to add to the derived heading"),
-                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(useHeadingOffsetFromDerivedHeading))
+                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(angleOffsetToFrontFromWhereTheOperatorIsLooking))
                                         .shortValue());
                         if (res == null)
                             return;
                         try {
-                            useHeadingOffsetFromDerivedHeading = Short.parseShort(res);
+                            angleOffsetToFrontFromWhereTheOperatorIsLooking = Short.parseShort(res);
                             validValue = true;
                         }
                         catch (Exception ex) {
