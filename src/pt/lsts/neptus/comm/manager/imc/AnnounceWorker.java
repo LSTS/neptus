@@ -46,7 +46,12 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
+import pt.lsts.imc.AcousticSystemsQuery;
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
@@ -59,10 +64,6 @@ import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.NetworkInterfacesUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-import pt.lsts.imc.AcousticSystemsQuery;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCOutputStream;
 
 /**
  * @author pdias
@@ -659,6 +660,31 @@ public class AnnounceWorker {
 		}
 	}
 
+    /**
+     * @param resSys
+     * @return
+     */
+    public static double processHeadingDegreesFromServices(ImcSystem resSys) {
+        Vector<URI> sp = resSys.getServiceProvided("heading", "*");
+        // heading://0.0.0.0/120.3/
+        if (!sp.isEmpty()) {
+            for (URI uri : sp) {
+                String headingPath = uri.getPath();
+                if (headingPath == null || headingPath.isEmpty())
+                    continue;
+                
+                headingPath = headingPath.replace("/", "");
+                try {
+                    return Double.parseDouble(headingPath);
+                }
+                catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return Double.NaN;
+    }
+
 	public static void main(String[] args) {
 		// dune://1288093292613093000/;
 		// imc+udp://169.254.161.13:6002/;
@@ -721,5 +747,15 @@ public class AnnounceWorker {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		try {
+            String headingStr = "heading://0.0.0.0/120.3/";
+            URI hURI = new URI(headingStr);
+            System.out.println(hURI.getPath());
+        }
+        catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 	}
 }

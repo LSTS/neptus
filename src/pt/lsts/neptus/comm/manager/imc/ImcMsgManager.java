@@ -1053,6 +1053,13 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 e.printStackTrace();
             }
 
+            // Adding temp getting heading from services
+            double headingDegreesFromServices = AnnounceWorker.processHeadingDegreesFromServices(resSys);
+            if (!Double.isNaN(headingDegreesFromServices) && !Double.isInfinite(headingDegreesFromServices)) {
+                long attTime = (long) (info.getTimeSentSec() * 1000);
+                resSys.setAttitudeDegrees(headingDegreesFromServices, attTime);
+            }
+            
             Map<Integer, String> er = EntitiesResolver.getEntities(resSys.getName());
             if (er == null || er.size() == 0)
                 requestEntityList = true;
