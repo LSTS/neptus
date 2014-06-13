@@ -370,6 +370,7 @@ public class MRAFilesHandler implements FileHandler {
                 GuiUtils.infoMessage(mra, I18n.text("Generating PDF Report..."), I18n.text("Generating PDF Report..."));
                 mra.getMRAMenuBar().getReportMenuItem().setEnabled(false);
                 LsfReportProperties.generatingReport=true;
+                mra.getMraPanel().addStatusBarMsg("Generating Report...");
                 return LsfReport.generateReport(mra.getMraPanel().getSource(), f, mra.getMraPanel());
             }
             @Override
@@ -403,6 +404,7 @@ public class MRAFilesHandler implements FileHandler {
                     mra.getBgp().block(false);
                     mra.getMRAMenuBar().getReportMenuItem().setEnabled(true);
                     LsfReportProperties.generatingReport=false;
+                    mra.getMraPanel().reDrawStatusBar();
                 }
             }
         };
