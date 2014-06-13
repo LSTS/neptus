@@ -117,9 +117,10 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
     public double headingDegrees = 0;
 
     @NeptusProperty(name = "Follow Position Of", editable = false, 
-            category = "Follow System: Position", userLevel = LEVEL.ADVANCED,
+            category = "Follow System", userLevel = LEVEL.ADVANCED,
             description ="Uses position and heading of other system as mine.")
-    private String followingPositionOf = "";
+    private String followPositionOf = "";
+
 
     @NeptusProperty(name = "Use System to Derive Heading", editable = false, 
             category = "Derive Heading", userLevel = LEVEL.ADVANCED,
@@ -211,8 +212,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         width = MyState.getWidth();
 
         // update pos if following system
-        if (followingPositionOf != null && followingPositionOf.length() != 0) {
-            ImcSystem sys = ImcSystemsHolder.lookupSystemByName(followingPositionOf);
+        if (followPositionOf != null && followPositionOf.length() != 0) {
+            ImcSystem sys = ImcSystemsHolder.lookupSystemByName(followPositionOf);
             LocationType loc = null;
             long locTime = -1;
             double headingDegrees = 0;
@@ -224,7 +225,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 headingDegreesTime = sys.getAttitudeTimeMillis();
             }
             else {
-                ExternalSystem ext = ExternalSystemsHolder.lookupSystem(followingPositionOf);
+                ExternalSystem ext = ExternalSystemsHolder.lookupSystem(followPositionOf);
                 if (ext != null) {
                     loc = ext.getLocation();
                     locTime = ext.getLocationTimeMillis();
@@ -392,7 +393,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         // + ")]" : ""), 18, 14);
         g.drawString(
                 I18n.text("Me")
-                        + (followingPositionOf != null && followingPositionOf.length() != 0 ? " "
+                        + (followPositionOf != null && followPositionOf.length() != 0 ? " "
                                 + I18n.text("Pos. external") : "")
                         + (useSystemToDeriveHeading != null && useSystemToDeriveHeading.length() != 0 ? " "
                                 + I18n.textc("Heading external",
@@ -534,8 +535,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         };
         myLocMenu.add(new JMenuItem(add));
 
-        String txtUsingSysLoc = followingPositionOf != null && followingPositionOf.length() != 0 ? " [" +
-        		I18n.text("using") + " " + followingPositionOf + "]" : "";
+        String txtUsingSysLoc = followPositionOf != null && followPositionOf.length() != 0 ? " [" +
+        		I18n.text("using") + " " + followPositionOf + "]" : "";
         txtUsingSysLoc = (txtUsingSysLoc.length() == 0 ? I18n.text("Set to use a system location as mine")
                 : I18n.text("Change the system to use location from") + txtUsingSysLoc);
         AbstractAction useThisLoc = new AbstractAction(txtUsingSysLoc) {
@@ -545,8 +546,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 String noneStr = I18n.text("NONE");
                 options.add(noneStr);
                 options.add(getConsole().getMainSystem());
-                String initialValue = followingPositionOf == null || followingPositionOf.length() == 0 ? noneStr
-                        : followingPositionOf;
+                String initialValue = followPositionOf == null || followPositionOf.length() == 0 ? noneStr
+                        : followPositionOf;
 
                 // fill the options
                 Vector<String> sysList = new Vector<String>();
@@ -573,9 +574,9 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     return;
 
                 if (noneStr.equalsIgnoreCase(ret))
-                    followingPositionOf = "";
+                    followPositionOf = "";
                 else {
-                    followingPositionOf = ret;
+                    followPositionOf = ret;
                 }
             }
         };
@@ -613,9 +614,9 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 if (!options.contains(initialValue))
                     options.add(2, initialValue);
 
-                if (followingPositionOf != null && followingPositionOf.length() > 0) {
-                    if (options.contains(followingPositionOf))
-                        options.remove(followingPositionOf);
+                if (followPositionOf != null && followPositionOf.length() > 0) {
+                    if (options.contains(followPositionOf))
+                        options.remove(followPositionOf);
                 }
 
                 String[] aopt = options.toArray(new String[options.size()]);
