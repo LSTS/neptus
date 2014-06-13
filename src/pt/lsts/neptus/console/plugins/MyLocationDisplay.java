@@ -122,17 +122,17 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
     private String followingPositionOf = "";
 
     @NeptusProperty(name = "Use System to Derive Heading", editable = false, 
-            category = "Follow System: Heading", userLevel = LEVEL.ADVANCED,
+            category = "Derive Heading", userLevel = LEVEL.ADVANCED,
             description = "Uses the angle between me and another system to derive mine heading.")
     private String useSystemToDeriveHeading = "";
 
     @NeptusProperty(name = "Angle Offset to Front from Derived Heading", editable = false, 
-            category = "Follow System: Heading", userLevel = LEVEL.ADVANCED,
+            category = "Derive Heading", userLevel = LEVEL.ADVANCED,
             description = "This is the angle offset between the derived heading and what you consider front.")
     private short angleOffsetToFrontFromDerivedHeading = 0;
 
     @NeptusProperty(name = "Angle Offset to Front from Where the Operator is Looking", editable = false, 
-            category = "Follow System: Heading", userLevel = LEVEL.ADVANCED,
+            category = "Derive Heading", userLevel = LEVEL.ADVANCED,
             description = "This is the angle offset between where the operator is looking and what you consider front.")
     private short angleOffsetToFrontFromWhereTheOperatorIsLooking = 0;
 
