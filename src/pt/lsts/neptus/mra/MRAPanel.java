@@ -175,6 +175,20 @@ public class MRAPanel extends JPanel {
                 + ((veh != null) ? " | <b>" + I18n.text("System") + ":</b> " + veh.getName() : "")));
     }
 
+    public void addStatusBarMsg(String msg){
+        JLabel jlabel = new JLabel(msg);
+        statusBar.add(jlabel);
+        updateUI();
+    }
+
+    public void reDrawStatusBar(){
+        statusBar.removeAll();
+        remove(statusBar);
+        setUpStatusBar();
+        add(statusBar, BorderLayout.SOUTH);
+        updateUI();
+    }
+
     /**
      * Load MRA visualizations from Plugins Repo
      */
