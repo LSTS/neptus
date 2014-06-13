@@ -54,8 +54,8 @@ import pt.lsts.neptus.util.ColorUtils;
  * @author pdias
  *
  */
-@PluginDescription(author = "Paulo Dias", name = "Find Main System", version = "0.9",
-description = "Points to where to look to find the main system.")
+@PluginDescription(author = "Paulo Dias", name = "Find Main System", version = "0.9", 
+icon = "pt/lsts/neptus/plugins/position/findsys.png", description = "Points to where to look to find the main system.")
 @LayerPriority(priority = 182)
 public class FindMainSystemLayer extends ConsoleLayer {
 
