@@ -99,7 +99,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * 
  */
 @SuppressWarnings("serial")
-@PluginDescription(author = "Paulo Dias", name = "MyLocationDisplay", version = "1.2.1", icon = "images/myloc.png", description = "My location display.", documentation = "my-location/my-location.html")
+@PluginDescription(author = "Paulo Dias", name = "MyLocationDisplay", version = "1.3.0", icon = "images/myloc.png", description = "My location display.", documentation = "my-location/my-location.html")
 @LayerPriority(priority = 182)
 public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates, Renderer2DPainter,
         IEditorMenuExtension, ConfigurationListener, SubPanelChangeListener, MissionChangeListener {
