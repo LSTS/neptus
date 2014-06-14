@@ -625,7 +625,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
 
         String txtUseThisHeading = followHeadingOf != null && followHeadingOf.length() != 0 ? " [" +
                 I18n.text("using") + " " + followHeadingOf + "]" : "";
-        txtUseThisHeading = (txtUsingSysLoc.length() == 0 ? I18n.text("Set to use a system heading as mine")
+        txtUseThisHeading = (txtUseThisHeading.length() == 0 ? I18n.text("Set to use a system heading as mine")
                 : I18n.text("Change the system to use heading from") + txtUseThisHeading);
         AbstractAction useThisHeading = new AbstractAction(txtUseThisHeading) {
             @Override
