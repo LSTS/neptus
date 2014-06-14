@@ -131,14 +131,14 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             description = "Uses the angle between me and another system to derive mine heading.")
     private String useSystemToDeriveHeading = "";
 
-    @NeptusProperty(name = "Angle Offset to Front from Derived Heading", editable = false, 
+    @NeptusProperty(name = "Angle Offset from Front to Derived Heading", editable = false, 
             category = "Derive Heading", userLevel = LEVEL.ADVANCED,
-            description = "This is the angle offset between the derived heading and what you consider front.")
+            description = "This is the angle offset between what you consider front and the line from you to derive heading system. (Clockwise positive angle.)")
     private short angleOffsetFromFrontToDerivedHeading = 0;
 
-    @NeptusProperty(name = "Angle Offset to Front from Where the Operator is Looking", editable = false, 
+    @NeptusProperty(name = "Angle Offset from Front to Where the Operator is Looking", editable = false, 
             category = "Derive Heading", userLevel = LEVEL.ADVANCED,
-            description = "This is the angle offset between where the operator is looking and what you consider front.")
+            description = "This is the angle offset between what you consider front and where the operator is looking. (Clockwise positive angle.)")
     private short angleOffsetFromFrontToWhereTheOperatorIsLooking = 0;
 
     @NeptusProperty(name = "Length", category = "Dimension", userLevel = LEVEL.REGULAR)
@@ -721,7 +721,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     boolean validValue = false;
                     while (!validValue) {
                         String res = JOptionPane.showInputDialog(getConsole(),
-                                I18n.text("Introduce the angle offset to front from derived heading"),
+                                I18n.text("Introduce the angle offset from front to derived heading (clockwise positive angle)"),
                                 Double.valueOf(AngleCalc.nomalizeAngleDegrees180(angleOffsetFromFrontToDerivedHeading))
                                         .shortValue());
                         if (res == null)
@@ -733,7 +733,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                         catch (Exception ex) {
                             NeptusLog.pub().debug(ex.getMessage());
                             GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(),
-                                    I18n.text("Introduce the angle offset to front from derived heading"),
+                                    I18n.text("Introduce the angle offset from front to derived heading (clockwise positive angle)"),
                                     I18n.text("Value must be a numeric value from [-180, 180]"));
                         }
                     }
@@ -741,7 +741,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     validValue = false;
                     while (!validValue) {
                         String res = JOptionPane.showInputDialog(getConsole(),
-                                I18n.text("Introduce the angle offset to front from where the operator is looking"),
+                                I18n.text("Introduce the angle offset from front to where the operator is looking (clockwise positive angle)"),
                                 Double.valueOf(AngleCalc.nomalizeAngleDegrees180(angleOffsetFromFrontToWhereTheOperatorIsLooking))
                                         .shortValue());
                         if (res == null)
@@ -753,7 +753,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                         catch (Exception ex) {
                             NeptusLog.pub().debug(ex.getMessage());
                             GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(),
-                                    I18n.text("Introduce the angle offset to front from where the operator is looking"),
+                                    I18n.text("Introduce the angle offset from front to where the operator is looking (clockwise positive angle)"),
                                     I18n.text("Value must be a numeric value from [-180, 180]"));
                         }
                     }
