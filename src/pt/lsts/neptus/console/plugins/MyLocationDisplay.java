@@ -134,12 +134,12 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
     @NeptusProperty(name = "Angle Offset to Front from Derived Heading", editable = false, 
             category = "Derive Heading", userLevel = LEVEL.ADVANCED,
             description = "This is the angle offset between the derived heading and what you consider front.")
-    private short angleOffsetToFrontFromDerivedHeading = 0;
+    private short angleOffsetFromFrontToDerivedHeading = 0;
 
     @NeptusProperty(name = "Angle Offset to Front from Where the Operator is Looking", editable = false, 
             category = "Derive Heading", userLevel = LEVEL.ADVANCED,
             description = "This is the angle offset between where the operator is looking and what you consider front.")
-    private short angleOffsetToFrontFromWhereTheOperatorIsLooking = 0;
+    private short angleOffsetFromFrontToWhereTheOperatorIsLooking = 0;
 
     @NeptusProperty(name = "Length", category = "Dimension", userLevel = LEVEL.REGULAR)
     public double length = 0;
@@ -291,7 +291,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             }
             if (loc != null) {
                 double[] bearingRange = CoordinateUtil.getNEBearingDegreesAndRange(newLocation, loc);
-                bearingRange[0] += -angleOffsetToFrontFromDerivedHeading + angleOffsetToFrontFromWhereTheOperatorIsLooking;
+                bearingRange[0] += -angleOffsetFromFrontToDerivedHeading + angleOffsetFromFrontToWhereTheOperatorIsLooking;
                 // if (Math.abs(locTime - lastCalcPosTimeMillis) < DateTimeUtil.MINUTE * 5) {
                 updateHeading = true;
                 newHeadingDegrees = bearingRange[0];
@@ -358,7 +358,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 gt.translate(centerPos.getX(), centerPos.getY());
                 gt.rotate(Math.PI + Math.toRadians(headingDegrees) - renderer.getRotation());
                 if (useSystemToDeriveHeading != null && useSystemToDeriveHeading.length() != 0) {
-                    gt.rotate(Math.toRadians(-(-angleOffsetToFrontFromDerivedHeading * 0 + angleOffsetToFrontFromWhereTheOperatorIsLooking)));
+                    gt.rotate(Math.toRadians(-(-angleOffsetFromFrontToDerivedHeading * 0 + angleOffsetFromFrontToWhereTheOperatorIsLooking)));
                 }
 
                 gt.scale(scaleX, scaleY);
@@ -722,12 +722,12 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     while (!validValue) {
                         String res = JOptionPane.showInputDialog(getConsole(),
                                 I18n.text("Introduce the angle offset to front from derived heading"),
-                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(angleOffsetToFrontFromDerivedHeading))
+                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(angleOffsetFromFrontToDerivedHeading))
                                         .shortValue());
                         if (res == null)
                             return;
                         try {
-                            angleOffsetToFrontFromDerivedHeading = Short.parseShort(res);
+                            angleOffsetFromFrontToDerivedHeading = Short.parseShort(res);
                             validValue = true;
                         }
                         catch (Exception ex) {
@@ -742,12 +742,12 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     while (!validValue) {
                         String res = JOptionPane.showInputDialog(getConsole(),
                                 I18n.text("Introduce the angle offset to front from where the operator is looking"),
-                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(angleOffsetToFrontFromWhereTheOperatorIsLooking))
+                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(angleOffsetFromFrontToWhereTheOperatorIsLooking))
                                         .shortValue());
                         if (res == null)
                             return;
                         try {
-                            angleOffsetToFrontFromWhereTheOperatorIsLooking = Short.parseShort(res);
+                            angleOffsetFromFrontToWhereTheOperatorIsLooking = Short.parseShort(res);
                             validValue = true;
                         }
                         catch (Exception ex) {
