@@ -126,6 +126,11 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             description ="Uses heading of other system as mine.")
     private String followHeadingOf = "";
 
+    @NeptusProperty(name = "Follow Heading Of with Angle Offset", editable = false, 
+            category = "Follow System", userLevel = LEVEL.ADVANCED,
+            description ="Adds an angle offset to the heading of other system.")
+    private short followHeadingOfAngleOffset = 0;
+
     @NeptusProperty(name = "Use System to Derive Heading", editable = false, 
             category = "Derive Heading", userLevel = LEVEL.ADVANCED,
             description = "Uses the angle between me and another system to derive mine heading.")
@@ -270,7 +275,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             }
             if (headingDegreesTime - lastCalcPosTimeMillis > 0) {
                 updateHeading = true;
-                newHeadingDegrees = headingDegrees;
+                newHeadingDegrees = headingDegrees + followHeadingOfAngleOffset;
             }
         }
 
@@ -358,7 +363,10 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 gt.translate(centerPos.getX(), centerPos.getY());
                 gt.rotate(Math.PI + Math.toRadians(headingDegrees) - renderer.getRotation());
                 if (useSystemToDeriveHeading != null && useSystemToDeriveHeading.length() != 0) {
-                    gt.rotate(Math.toRadians(-(-angleOffsetFromFrontToDerivedHeading * 0 + angleOffsetFromFrontToWhereTheOperatorIsLooking)));
+                    gt.rotate(Math.toRadians(-angleOffsetFromFrontToWhereTheOperatorIsLooking));
+                }
+                else if (followHeadingOf != null && followHeadingOf.length() != 0) {
+                    gt.rotate(Math.toRadians(-followHeadingOfAngleOffset));
                 }
 
                 gt.scale(scaleX, scaleY);
@@ -665,6 +673,27 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     followHeadingOf = "";
                 else {
                     followHeadingOf = ret;
+                    
+                    boolean validValue = false;
+                    while (!validValue) {
+                        String res = JOptionPane.showInputDialog(getConsole(),
+                                I18n.text("Introduce the angle offset from system to use heading from (clockwise positive angle)"),
+                                Double.valueOf(AngleCalc.nomalizeAngleDegrees180(followHeadingOfAngleOffset))
+                                        .shortValue());
+                        if (res == null)
+                            return;
+                        try {
+                            followHeadingOfAngleOffset = Short.parseShort(res);
+                            validValue = true;
+                        }
+                        catch (Exception ex) {
+                            NeptusLog.pub().debug(ex.getMessage());
+                            GuiUtils.errorMessage(ConfigFetch.getSuperParentFrame(),
+                                    I18n.text("Introduce the angle offset from system to use heading from (clockwise positive angle)"),
+                                    I18n.text("Value must be a numeric value from [-180, 180]"));
+                        }
+                    }
+
                 }
             }
         };
