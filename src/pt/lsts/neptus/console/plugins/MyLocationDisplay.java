@@ -110,7 +110,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
 
     private final Color orangeNINFO = new Color(230, 121, 56);
 
-    @NeptusProperty(userLevel = LEVEL.ADVANCED)
+    @NeptusProperty(name = "Location", userLevel = LEVEL.ADVANCED)
     public LocationType location = MyState.getLocation();
 
     @NeptusProperty(name = "My Heading", userLevel = LEVEL.REGULAR)
