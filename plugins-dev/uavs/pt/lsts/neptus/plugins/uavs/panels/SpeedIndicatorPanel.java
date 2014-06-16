@@ -58,6 +58,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -78,10 +79,10 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
     
     private static final long serialVersionUID = 1L;
 
-    @NeptusProperty(name="Minimum Speed", description="Speed below which the vehicle enters VStall (m/s)")
+    @NeptusProperty(name="Minimum Speed", description="Speed below which the vehicle enters VStall (m/s)",  userLevel = LEVEL.REGULAR)
     public double minSpeed = 12.0;
     
-    @NeptusProperty(name="Maximum Speed", description="Speed above which it's undesirable to fly (m/s)")
+    @NeptusProperty(name="Maximum Speed", description="Speed above which it's undesirable to fly (m/s)",  userLevel = LEVEL.REGULAR)
     public double maxSpeed = 25.0;
     
     //To be used if other speed units are desired
@@ -115,6 +116,7 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
     
     private JPanel aSpeedPanel = null;
     private JPanel gSpeedPanel = null;
+    private JPanel vStallPanel = null;
     
     private JLabel aSpeedLabel = null;
     private JLabel gSpeedLabel = null;
@@ -274,10 +276,14 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
             
             speedGraphPanel = new JPanel(new MigLayout("ins 0, rtl"));
             speedGraphPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-            aSpeedPanel = new JPanel();
+            aSpeedPanel = new JPanel(new MigLayout("ins 0, gap 0 0, rtl"));
             aSpeedPanel.setBackground(Color.cyan.darker());
             gSpeedPanel = new JPanel();
-            gSpeedPanel.setBackground(Color.GREEN.darker());
+            gSpeedPanel.setBackground(Color.green.darker());
+            vStallPanel = new JPanel();
+            vStallPanel.setBackground(Color.red.darker());
+            vStallPanel.add(new JLabel(I18n.text("VStall")),SwingConstants.CENTER);
+            
             speedLabelPositionUpdate();
                                     
         speedPanel.add(speedNumberPanel, "w 20%, h 100%");
@@ -305,16 +311,28 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
         aSpeedLabel.setText(formatter.format(aSpeed));
         gSpeedLabel.setText(formatter.format(gSpeed));
         
-        int tPercent = (int)(aSpeed*100/maxSpeed);
-
-        speedGraphPanel.remove(aSpeedPanel);
-        speedGraphPanel.add(aSpeedPanel, "w "+tPercent+"%, h 50%, wrap");
+        int tPercent1 = 0;
+        int tPercent2 = 0;
+        int tPercent3 = 0;
+        
+        tPercent1 = (int)(aSpeed*100/maxSpeed);
+        
+        if(tPercent1 != 0){
+            tPercent2 = (int)(minSpeed*100/maxSpeed);
+            tPercent2 = tPercent2*100/tPercent1;
+        }
+        
+        tPercent3 = (int)(gSpeed*100/maxSpeed);
+        
+        aSpeedPanel.remove(vStallPanel);
+        aSpeedPanel.add(vStallPanel, "w "+tPercent2+"%, h 100%");
                 
-        int tPercent2 = (int)(gSpeed*100/maxSpeed);
+        speedGraphPanel.remove(aSpeedPanel);
+        speedGraphPanel.add(aSpeedPanel, "w "+tPercent1+"%, h 50%, wrap");
         
         speedGraphPanel.remove(gSpeedPanel);
-        speedGraphPanel.add(gSpeedPanel, "w "+tPercent2+"%, h 50%");
-        
+        speedGraphPanel.add(gSpeedPanel, "w "+tPercent3+"%, h 50%");
+               
         revalidate();
     }
     
