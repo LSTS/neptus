@@ -276,6 +276,13 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	}
 	
 	/**
+     * @return the uri
+     */
+    public String getUri() {
+        return uri;
+    }
+	
+	/**
 	 * @return the infoLabel
 	 */
 	private JXLabel getInfoLabel() {
@@ -749,15 +756,20 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
     }
 	
 	protected void doStop() {
+	    stopping = true;
 		try {
-		    stopping = true;
 		    stream.close();
-//            client.getClient().disconnect();
-            setStateNotDone();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
+        try {
+            client.getClient().disconnect();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        setStateNotDone();
 		
 		if (getState() == State.TIMEOUT)
 		    setStateNotDone();
