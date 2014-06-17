@@ -1961,16 +1961,25 @@ public class LogsDownloaderWorker {
                         lFolder = new LogFolderInfo(logDir);
                     }
 
-                    for (FTPFile file : ftpd.getClient().listFiles("/" + isoStr + "/")) {
-                        String name = logDir + "/" + file.getName();
-                        String uriPartial = logDir + "/" + file.getName();
-                        LogFileInfo logFileTmp = new LogFileInfo(name);
-                        logFileTmp.setUriPartial(uriPartial);
-                        logFileTmp.setSize(file.getSize());
-                        logFileTmp.setFile(file);
-                        logFileTmp.setHost(cameraHost);
-                        lFolder.addFile(logFileTmp);
-                        tmpLogFolders.add(lFolder);
+//                    if (!ftpd.getClient().isConnected())
+                        ftpd.renewClient();
+                    
+                    try {
+                        for (FTPFile file : ftpd.getClient().listFiles("/" + isoStr + "/")) {
+                            String name = logDir + "/" + file.getName();
+                            String uriPartial = logDir + "/" + file.getName();
+                            LogFileInfo logFileTmp = new LogFileInfo(name);
+                            logFileTmp.setUriPartial(uriPartial);
+                            logFileTmp.setSize(file.getSize());
+                            logFileTmp.setFile(file);
+                            logFileTmp.setHost(cameraHost);
+                            lFolder.addFile(logFileTmp);
+                            tmpLogFolders.add(lFolder);
+                        }
+                    }
+                    catch (Exception e) {
+                        System.err.println(isoStr);
+                        e.printStackTrace();
                     }
                 }
             }
