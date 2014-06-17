@@ -40,8 +40,6 @@ import java.util.TimeZone;
 import javax.swing.JFileChooser;
 import javax.swing.ProgressMonitor;
 
-import com.gargoylesoftware.htmlunit.javascript.host.geo.Position;
-
 import pt.lsts.imc.Conductivity;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.Temperature;
