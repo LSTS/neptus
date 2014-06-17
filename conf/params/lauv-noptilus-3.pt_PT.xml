@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,9083237)" system="lauv-noptilus-3" i18n="pt_PT">
+<config format="1" version="2.6.x (master,9c7e8fc)" system="lauv-noptilus-3" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -4649,7 +4649,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>lauv-noptilus-3-aux</default>
       <units/>
       <desc>Name of the slave system</desc>
     </param>
@@ -5060,7 +5060,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Communications Board</default>
+      <default>Camera - CPU</default>
       <units/>
       <desc/>
     </param>
@@ -5069,7 +5069,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>0</default>
       <units/>
       <desc/>
     </param>
@@ -5078,7 +5078,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Camera - CPU</default>
+      <default>Echo Sounder</default>
       <units/>
       <desc/>
     </param>
@@ -5087,7 +5087,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
