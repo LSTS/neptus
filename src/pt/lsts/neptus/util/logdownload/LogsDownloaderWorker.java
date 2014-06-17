@@ -2300,7 +2300,7 @@ public class LogsDownloaderWorker {
                     
                     while (workerD.getState() == DownloaderPanel.State.WORKING) {
                         try { Thread.sleep(100); } catch (Exception e) { }
-                        NeptusLog.pub().warn("Waiting for '" + workerD.getName() + "' to stop!");
+                        NeptusLog.pub().warn("Waiting for '" + workerD.getUri() + "' to stop!");
                     }
                 }
             }

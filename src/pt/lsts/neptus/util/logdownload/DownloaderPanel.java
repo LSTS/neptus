@@ -276,6 +276,13 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	}
 	
 	/**
+     * @return the uri
+     */
+    public String getUri() {
+        return uri;
+    }
+	
+	/**
 	 * @return the infoLabel
 	 */
 	private JXLabel getInfoLabel() {
