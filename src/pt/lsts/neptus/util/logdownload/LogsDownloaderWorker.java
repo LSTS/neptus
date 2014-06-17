@@ -100,6 +100,7 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
 
@@ -2244,9 +2245,6 @@ public class LogsDownloaderWorker {
         return res;
     }
 
-    /**
-     * 
-     */
     private void doStopLogFoldersDownloads(String... logList) {
         boolean stopAll = true;
         if (logList != null)
@@ -2275,6 +2273,43 @@ public class LogsDownloaderWorker {
         }
     }
 
+    private void waitForStopOnAllLogFoldersDownloads(String... logList) {
+        if (!GeneralPreferences.logsDownloaderWaitForAllToStop)
+            return;
+        
+        boolean waitStopAll = true;
+        if (logList != null)
+            if (logList.length > 0)
+                waitStopAll = false;
+        Component[] components = downloadWorkersHolder.getComponents();
+        for (Component cp : components) {
+            try {
+                DownloaderPanel workerD = (DownloaderPanel) cp;
+                boolean wait = false;
+                if (workerD.getState() == DownloaderPanel.State.WORKING) {
+                    if (!waitStopAll) {
+                        for (String prefix : logList) {
+                            if (workerD.getName().startsWith(prefix)) {
+                                wait = true;
+                                break;
+                            }
+                        }
+                        if (!wait)
+                            continue;
+                    }
+                    
+                    while (workerD.getState() == DownloaderPanel.State.WORKING) {
+                        try { Thread.sleep(100); } catch (Exception e) { }
+                        NeptusLog.pub().warn("Waiting for '" + workerD.getName() + "' to stop!");
+                    }
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
     public synchronized boolean doReset(boolean justStopDownloads) {
         boolean resetRes = true;
         if (!justStopDownloads)
@@ -2289,6 +2324,7 @@ public class LogsDownloaderWorker {
         }
         try {
             doStopLogFoldersDownloads();
+            waitForStopOnAllLogFoldersDownloads();
         }
         catch (Exception e) {
             e.printStackTrace();
