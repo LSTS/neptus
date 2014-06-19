@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.5.0 (release/dune-2.5.x,b8da6dd)" system="lauv-seacon-1" i18n="en_US">
+<config format="1" version="2.6.x (master,d314614)" system="lauv-seacon-1" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1596,7 +1596,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5.0</default>
+      <default>50</default>
       <units/>
       <desc>Number of 360 degree turns until calibration</desc>
     </param>
@@ -8088,7 +8088,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AlignmentState:0.5, Distance:0.2, EntityState:1, EstimatedState:2, FuelLevel:0.1, Rpm:1, SimulatedState:0.5, StorageUsage:0.05, Temperature:0.1, Voltage:0.1</default>
+      <default>AlignmentState:0.5, CpuUsage:0.2, Distance:0.2, EntityState:1, EstimatedState:2, FuelLevel:0.1, Rpm:1, SimulatedState:0.5, StorageUsage:0.05, Temperature:0.1, Voltage:0.1</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
     </param>
@@ -8097,7 +8097,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CpuUsage:Daemon, Distance:Altimeter+DVL Filtered+Echo Sounder, PowerChannelState:Camera Module, Temperature:CTD+Depth Sensor, Voltage:Batteries,</default>
+      <default>CpuUsage:Daemon, Distance:Altimeter+DVL Filtered+Echo Sounder, Temperature:CTD+Depth Sensor, Voltage:Batteries,</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>
@@ -8133,7 +8133,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRange, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, Parameter, ParameterControl, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, QueryEntityParameters, RemoteActions, RemoteActionsRequest, Rpm, SaveEntityParameters, SetEntityParameters, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexToken, TrexPlan, VehicleState, Voltage</default>
+      <default>AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, Parameter, ParameterControl, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, QueryEntityParameters, RemoteActions, RemoteActionsRequest, Rpm, SaveEntityParameters, SetEntityParameters, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexToken, TrexPlan, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
