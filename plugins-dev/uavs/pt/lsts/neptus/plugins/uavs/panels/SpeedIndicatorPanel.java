@@ -34,28 +34,28 @@ package pt.lsts.neptus.plugins.uavs.panels;
 import java.awt.Color;
 import java.text.DecimalFormat;
 
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IndicatedSpeed;
 import pt.lsts.imc.Maneuver;
+import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanControlState.STATE;
 import pt.lsts.imc.PlanManeuver;
 import pt.lsts.imc.PlanSpecification;
+import pt.lsts.imc.TrueSpeed;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
-import pt.lsts.neptus.comm.manager.imc.ImcId16;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.MultiSystemIMCMessageListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -70,42 +70,43 @@ import com.google.common.eventbus.Subscribe;
  * minimum acceptable velocity.
  * 
  * @author canastaman
+ * @author jfortuna
  * @version 3.0
  * @category UavPanel  
  * 
  */
 @PluginDescription(name = "Speed Indicator Panel", icon = "pt/lsts/neptus/plugins/uavs/speed.png", author = "canasta",  version = "3.0", category = CATEGORY.INTERFACE)
-public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChangeListener{
-    
+public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChangeListener {
+
     private static final long serialVersionUID = 1L;
 
     @NeptusProperty(name="Minimum Speed", description="Speed below which the vehicle enters VStall (m/s)",  userLevel = LEVEL.REGULAR)
     public double minSpeed = 12.0;
-    
+
     @NeptusProperty(name="Maximum Speed", description="Speed above which it's undesirable to fly (m/s)",  userLevel = LEVEL.REGULAR)
     public double maxSpeed = 25.0;
-    
+
     //To be used if other speed units are desired
     static public final double MS_TO_KNOTS_CONV = 1.94384449244;
-    
+
     //Illustrative icons to differentiate speeds
     private ImageIcon ICON_TSPEED;
     private ImageIcon ICON_GSPEED;
     private ImageIcon ICON_ASPEED;
-        
+
     //indicates if the UAV as changed plan and needs to update it's command speed value
     private boolean samePlan = false;
-    
+
     private String currentPlan = null;
     private String currentManeuver = null;
-    
+
     private PlanSpecification planSpec = null;
-    
+
     //various speeds
     private double aSpeed = 0.0;
     private double gSpeed = 0.0;
     private double tSpeed = 0.0;
-    
+
     //sub panels used to better accommodate the information through the use of the layout manager
     private JPanel titlePanel = null;
     private JPanel topLabelPanel = null; 
@@ -113,121 +114,108 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
     private JPanel speedNumberPanel = null;
     private JPanel speedGraphPanel = null; 
     private JPanel bottomLabelPanel = null;
-    
-    private JPanel aSpeedPanel = null;
-    private JPanel gSpeedPanel = null;
-    private JPanel vStallPanel = null;
-    
+
+    private JProgressBar aSpeedBar = null;
+    private JProgressBar gSpeedBar = null;
+
     private JLabel aSpeedLabel = null;
     private JLabel gSpeedLabel = null;
     private JLabel tSpeedLabel = null;
     private JLabel maxSpeedLabel = null;
-    
+
     //display output formatter
     private DecimalFormat formatter = new DecimalFormat("0.0");
-    
-    //listener object which allows the panel to tap into the various IMC messages
-    private MultiSystemIMCMessageListener listener;
 
     public SpeedIndicatorPanel(ConsoleLayout console) {
         super(console);
-        
+
         // clears all the unused initializations of the standard SimpleSubPanel
         removeAll();
     }
-    
-    //Listener
-    private void setListener(){
-        
-        listener = new MultiSystemIMCMessageListener(this.getClass().getSimpleName() + " [" + Integer.toHexString(hashCode()) + "]") {
 
-            @Override
-            public void messageArrived(ImcId16 id, IMCMessage msg) {
+    //Listeners
+    @Subscribe
+    public void on(TrueSpeed msg) {
+        if(msg.getSourceName().equals(getConsole().getMainSystem())) {
+            gSpeed = msg.getValue();
 
-                //gets the direct values for ground and air speed
-                if(msg.getAbbrev().equals("EstimatedState")){
-                    gSpeed = Math.sqrt(
-                            msg.getDouble("vx") * msg.getDouble("vx") +
-                            msg.getDouble("vy") * msg.getDouble("vy") +
-                            msg.getDouble("vz") * msg.getDouble("vz"));
-                   
-                    aSpeed = Math.sqrt(
-                            msg.getDouble("u") * msg.getDouble("u") +
-                            msg.getDouble("v") * msg.getDouble("v") +
-                            msg.getDouble("w") * msg.getDouble("w"));
-                    
-                    //speeds updated
-                    speedLabelPositionUpdate();
-               }
-               else if(msg.getAbbrev().equals("PlanControlState")){
-                   //if the vehicle is currently executing a plan we ask for that plan 
-                   //and then identify what maneuver is being executed                   
-                   if(msg.getAsNumber("state").longValue() == STATE.EXECUTING.value()){    
-                       
-                       if(!msg.getAsString("plan_id").equals(currentPlan))
-                           samePlan = false;
-                       
-                       currentPlan = msg.getAsString("plan_id");
-                       currentManeuver = msg.getAsString("man_id");
-                       
-                       if(planSpec != null && samePlan){
-                           for(PlanManeuver planMan: planSpec.getManeuvers()){
-                               if(planMan.getManeuverId().equals(currentManeuver)){
-                                   Maneuver man = planMan.getData();
-                                   tSpeed = man.getAsNumber("speed").doubleValue();
-                                   
-                                   //plan updated
-                                   tSpeedLabelPositionUpdate();
-                               }
-                           }
-                       }
-                                              
-                       if(!samePlan){
-                           IMCMessage planControlMessage = IMCDefinition.getInstance().create("PlanControl");
-                           planControlMessage.setValue("type", 0);        
-                           planControlMessage.setValue("op", "GET");
-                           planControlMessage.setValue("request_id",IMCSendMessageUtils.getNextRequestId());
-                           
-                           IMCSendMessageUtils.sendMessage(planControlMessage, I18n.text("Error requesting plan specificaion"),true, 
-                                   getConsole().getMainSystem());
-                       }
-                   }
-                   else{
-                       samePlan = false;
-                   }
-               }
-               else if(msg.getAbbrev().equals("PlanControl") && !samePlan){
-                   
-                   if(msg.getMessage("arg").getAbbrev().equals("PlanSpecification")){
-                       planSpec = (PlanSpecification) msg.getMessage("arg");
-                       samePlan = true;                      
-                   }                   
-               }
-
-               update();              
-            }
-        };        
+            //speeds updated
+            speedLabelPositionUpdate();
+        }
     }
+    
+    @Subscribe
+    public void on(IndicatedSpeed msg) {
+        if(msg.getSourceName().equals(getConsole().getMainSystem())) {
+            aSpeed = msg.getValue();
 
+            //speeds updated
+            speedLabelPositionUpdate();
+        }
+    }
+    
+    @Subscribe
+    public void on(PlanControlState msg) {
+        if(msg.getSourceName().equals(getConsole().getMainSystem())) {
+            //if the vehicle is currently executing a plan we ask for that plan 
+            //and then identify what maneuver is being executed                   
+            if(msg.getAsNumber("state").longValue() == STATE.EXECUTING.value()){    
+
+                if(!msg.getAsString("plan_id").equals(currentPlan))
+                    samePlan = false;
+
+                currentPlan = msg.getAsString("plan_id");
+                currentManeuver = msg.getAsString("man_id");
+
+                if(planSpec != null && samePlan){
+                    for(PlanManeuver planMan: planSpec.getManeuvers()){
+                        if(planMan.getManeuverId().equals(currentManeuver)){
+                            Maneuver man = planMan.getData();
+                            tSpeed = man.getAsNumber("speed").doubleValue();
+
+                            //plan updated
+                            tSpeedLabelPositionUpdate();
+                        }
+                    }
+                }
+
+                if(!samePlan){
+                    IMCMessage planControlMessage = IMCDefinition.getInstance().create("PlanControl");
+                    planControlMessage.setValue("type", 0);        
+                    planControlMessage.setValue("op", "GET");
+                    planControlMessage.setValue("request_id",IMCSendMessageUtils.getNextRequestId());
+
+                    IMCSendMessageUtils.sendMessage(planControlMessage, I18n.text("Error requesting plan specificaion"),true, 
+                            getConsole().getMainSystem());
+                }
+            }
+            else{
+                samePlan = false;
+            }
+        }
+    }
+    
+    @Subscribe
+    public void on(PlanControl msg) {
+        if(msg.getSourceName().equals(getConsole().getMainSystem()) && !samePlan) {
+            if(msg.getMessage("arg").getAbbrev().equals("PlanSpecification")){
+                planSpec = (PlanSpecification) msg.getMessage("arg");
+                samePlan = true;                      
+            }                   
+        }
+    }
+    
     @Override
     public void initSubPanel() {
-        setListener();
-        
-        // sets up the listener to listen to all vehicles
-        listener.setSystemToListen(ImcSystemsHolder.lookupSystemByName(getConsole().getMainSystem()).getId());
-
-        // which messages are listened to
-        listener.setMessagesToListen("EstimatedState","PlanControlState","PlanControl");       
-        
         ICON_TSPEED = ImageUtils.createScaleImageIcon("pt/lsts/neptus/plugins/uavs/icons/target.png",(int)(this.getHeight()*0.2),(int)(this.getHeight()*0.2));
         ICON_GSPEED = ImageUtils.createScaleImageIcon("pt/lsts/neptus/plugins/uavs/icons/ground.png",(int)(this.getHeight()*0.2),(int)(this.getHeight()*0.2));
         ICON_ASPEED = ImageUtils.createScaleImageIcon("pt/lsts/neptus/plugins/uavs/icons/air.png",(int)(this.getHeight()*0.2),(int)(this.getHeight()*0.2));
-        
+
         titlePanelSetup();
         topLabelPanelSetup();
         bottomLabelPanelSetup();
         speedPanelSetup();
-        
+
         //panel general layout setup
         this.setLayout(new MigLayout("gap 0 0, ins 0"));
         this.add(titlePanel,"w 100%, h 15%!, wrap"); 
@@ -243,53 +231,52 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
         titlePanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
         titlePanel.add(new JLabel(I18n.text("Speed Indicator"),SwingConstants.CENTER), "w 100%, h 100%");
     }
-    
+
     /**
      * 
      */
     private void topLabelPanelSetup() {
-        maxSpeedLabel = new JLabel(formatter.format(maxSpeed),SwingConstants.LEFT);    
+        maxSpeedLabel = new JLabel(formatter.format(maxSpeed),SwingConstants.RIGHT);    
         topLabelPanel = new JPanel(new MigLayout("gap 0 0, ins 0, rtl"));
-        
-            JPanel tempPanel2 = new JPanel(new MigLayout("ins 0"));                    
-            tempPanel2.add(maxSpeedLabel, "w 50%, h 100%");
-            tempPanel2.add(new JLabel("0.0",SwingConstants.RIGHT), "w 50%, h 100%");
-        
+
+        JPanel tempPanel2 = new JPanel(new MigLayout("ins 0"));
+        tempPanel2.add(new JLabel("0.0",SwingConstants.LEFT), "w 50%, h 100%");                    
+        tempPanel2.add(maxSpeedLabel, "w 50%, h 100%");
+
         topLabelPanel.add(tempPanel2, "w 80%, h 100%");
     }
-    
+
     /**
      * 
      */
     private void speedPanelSetup() {
         speedPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
+
+        speedNumberPanel = new JPanel(new MigLayout("ins 0"));
+        aSpeedLabel = new JLabel(ICON_ASPEED);
+        gSpeedLabel = new JLabel(ICON_GSPEED);
+        speedNumberPanel.add(aSpeedLabel, "w 100%, h 50%, wrap");
+        speedNumberPanel.add(gSpeedLabel, "w 100%, h 50%");
+
+        speedGraphPanel = new JPanel(new MigLayout("ins 0, rtl"));
         
-            speedNumberPanel = new JPanel(new MigLayout("ins 0"));
-            aSpeedLabel = new JLabel(ICON_ASPEED);
-            gSpeedLabel = new JLabel(ICON_GSPEED);
-            aSpeedLabel.setHorizontalTextPosition(SwingConstants.LEADING);
-            gSpeedLabel.setHorizontalTextPosition(SwingConstants.LEADING);
-            aSpeedLabel.setHorizontalAlignment(SwingConstants.RIGHT); 
-            gSpeedLabel.setHorizontalAlignment(SwingConstants.RIGHT); 
-            speedNumberPanel.add(aSpeedLabel, "w 100%, h 50%, wrap");
-            speedNumberPanel.add(gSpeedLabel, "w 100%, h 50%");
-            
-            speedGraphPanel = new JPanel(new MigLayout("ins 0, rtl"));
-            speedGraphPanel.setBorder(BorderFactory.createLineBorder(Color.black));
-            aSpeedPanel = new JPanel(new MigLayout("ins 0, gap 0 0, rtl"));
-            aSpeedPanel.setBackground(Color.cyan.darker());
-            gSpeedPanel = new JPanel();
-            gSpeedPanel.setBackground(Color.green.darker());
-            vStallPanel = new JPanel();
-            vStallPanel.setBackground(Color.red.darker());
-            vStallPanel.add(new JLabel(I18n.text("VStall")),SwingConstants.CENTER);
-            
-            speedLabelPositionUpdate();
-                                    
+        aSpeedBar = new JProgressBar(0, (int)(maxSpeed * 10));
+        aSpeedBar.setForeground(Color.cyan.darker());
+        aSpeedBar.setBorderPainted(false);
+        
+        gSpeedBar = new JProgressBar(0, (int)(maxSpeed * 10));
+        gSpeedBar.setForeground(Color.green.darker());
+        gSpeedBar.setBorderPainted(false);
+        
+        speedGraphPanel.add(aSpeedBar, "w 100%, h 50%, wrap");
+        speedGraphPanel.add(gSpeedBar, "w 100%, h 50%");
+
+        speedLabelPositionUpdate();
+
         speedPanel.add(speedNumberPanel, "w 20%, h 100%");
         speedPanel.add(speedGraphPanel, "w 80%, h 100%");
     }
-    
+
     /**
      * 
      */
@@ -298,69 +285,52 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
         tSpeedLabel = new JLabel(ICON_TSPEED);
         tSpeedLabel.setHorizontalTextPosition(SwingConstants.LEADING);
         tSpeedLabel.setHorizontalAlignment(SwingConstants.LEFT);       
-        
+
         tSpeedLabelPositionUpdate();
     }
-    
+
     /**
      * 
      */
     private void speedLabelPositionUpdate() {
         //lazy workaround
         maxSpeedLabel.setText(formatter.format(maxSpeed));
-        aSpeedLabel.setText(formatter.format(aSpeed));
-        gSpeedLabel.setText(formatter.format(gSpeed));
-        
-        int tPercent1 = 0;
-        int tPercent2 = 0;
-        int tPercent3 = 0;
-        
-        tPercent1 = (int)(aSpeed*100/maxSpeed);
-        
-        if(tPercent1 != 0){
-            tPercent2 = (int)(minSpeed*100/maxSpeed);
-            tPercent2 = tPercent2*100/tPercent1;
+
+        aSpeedBar.setValue((int)(aSpeed * 10));
+        if (aSpeed < minSpeed) {
+            aSpeedBar.setForeground(Color.red.darker());
         }
-        
-        tPercent3 = (int)(gSpeed*100/maxSpeed);
-        
-        aSpeedPanel.remove(vStallPanel);
-        aSpeedPanel.add(vStallPanel, "w "+tPercent2+"%, h 100%");
-                
-        speedGraphPanel.remove(aSpeedPanel);
-        speedGraphPanel.add(aSpeedPanel, "w "+tPercent1+"%, h 50%, wrap");
-        
-        speedGraphPanel.remove(gSpeedPanel);
-        speedGraphPanel.add(gSpeedPanel, "w "+tPercent3+"%, h 50%");
-               
+        else {
+            aSpeedBar.setForeground(Color.cyan.darker());
+        }
+        aSpeedBar.setString(formatter.format(aSpeed));
+        aSpeedBar.setStringPainted(true);
+        gSpeedBar.setValue((int)(gSpeed * 10));
+        gSpeedBar.setString(formatter.format(gSpeed));
+        gSpeedBar.setStringPainted(true);
+
         revalidate();
     }
-    
+
     /**
      * 
      */
+    // TODO Fix position
     private void tSpeedLabelPositionUpdate() {
         tSpeedLabel.setText(formatter.format(tSpeed));
         int iconSizePercent = ICON_TSPEED.getIconWidth()*50/this.getWidth();
-        int tPercent = (int)(tSpeed*80/maxSpeed) + tSpeedLabel.getMinimumSize().width*100/this.getWidth() - iconSizePercent; 
-                
+        int tPercent = (int)(tSpeed*80/maxSpeed) + tSpeedLabel.getMinimumSize().width*100/this.getWidth() + iconSizePercent; 
+
         bottomLabelPanel.remove(tSpeedLabel);
-        bottomLabelPanel.add(tSpeedLabel, "w "+tPercent+"%, h 100%");
+        bottomLabelPanel.add(tSpeedLabel, "w "+ (100-tPercent) +"%, h 100%");
     }
-    
-    @Subscribe
-    public void mainVehicleChangeNotification(ConsoleEventMainSystemChange ev) {
-        listener.setSystemToListen(ImcSystemsHolder.lookupSystemByName(getConsole().getMainSystem()).getId());
-    }
-    
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
+     */
     @Override
     public void cleanSubPanel() {
-        listener.clean();
-    }
-    
-    private void update(){
-//        speedLabelPositionUpdate();
-//        tSpeedLabelPositionUpdate();
-        repaint();
+        // TODO Auto-generated method stub
+        
     }
 }
