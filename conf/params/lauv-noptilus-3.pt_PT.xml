@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,9c7e8fc)" system="lauv-noptilus-3" i18n="pt_PT">
+<config format="1" version="2.6.x (master,d314614)" system="lauv-noptilus-3" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -465,7 +465,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0, 0.0, 0.2</default>
+      <default>0.7, 0.0, 0.2</default>
       <units/>
       <desc>PID gains for Roll controller</desc>
       <size>3</size>
@@ -513,7 +513,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.20</default>
+      <default>10.0</default>
       <units>°</units>
       <desc>Integral limit for Depth controller</desc>
     </param>
@@ -541,7 +541,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.5, 0.0, 0.0</default>
+      <default>1.2, 0.0, 0.0</default>
       <units/>
       <desc>PID gains for Heading Rate controller</desc>
       <size>3</size>
@@ -1596,7 +1596,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5.0</default>
+      <default>50</default>
       <units/>
       <desc>Number of 360 degree turns until calibration</desc>
     </param>
@@ -3985,7 +3985,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.36</default>
+      <default>0.51</default>
       <units>m</units>
       <desc>Distance between DVL and vehicle Center of Gravity</desc>
       <min>0.0</min>
@@ -4005,7 +4005,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.09</default>
+      <default>0.86</default>
       <units>m</units>
       <desc>Distance between LBL receiver and GPS in the vehicle</desc>
       <min>0.0</min>
@@ -6238,7 +6238,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.049043, 0.002837, 0.000000</default>
+      <default>0.0558, 0.0216, 0.0000</default>
       <units>G</units>
       <desc>Hard-Iron calibration parameters</desc>
       <size>3</size>
@@ -6355,7 +6355,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.09, 0, 0.12</default>
+      <default>0.86, 0, 0.12</default>
       <units/>
       <desc>Device position relative to navigation estimation (relative to GPS sensor)</desc>
       <size>3</size>
@@ -8014,7 +8014,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CpuUsage:Daemon, Distance:Altimeter+DVL Filtered+Echo Sounder, PowerChannelState:Camera Module, Temperature:CTD+Depth Sensor, Voltage:Batteries,</default>
+      <default>CpuUsage:Daemon, Distance:Altimeter+DVL Filtered+Echo Sounder, Temperature:CTD+Depth Sensor, Voltage:Batteries,</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>
