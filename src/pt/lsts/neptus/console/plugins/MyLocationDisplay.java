@@ -99,7 +99,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * 
  */
 @SuppressWarnings("serial")
-@PluginDescription(author = "Paulo Dias", name = "MyLocationDisplay", version = "1.3.0", icon = "images/myloc.png", description = "My location display.", documentation = "my-location/my-location.html")
+@PluginDescription(author = "Paulo Dias", name = "MyLocationDisplay", version = "1.3.1", icon = "images/myloc.png", description = "My location display.", documentation = "my-location/my-location.html")
 @LayerPriority(priority = 182)
 public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates, Renderer2DPainter,
         IEditorMenuExtension, ConfigurationListener, SubPanelChangeListener, MissionChangeListener {
@@ -251,14 +251,16 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 updateLocation = true;
                 newLocation = loc;
             }
-            if (headingDegreesTime - lastCalcPosTimeMillis > 0) {
+            // If the time of update of heading is old or we are using other way to calculate heading, don't updated
+            if (headingDegreesTime - lastCalcPosTimeMillis > 0
+                    && !(isFollowingHeadingOfFilled() || isSystemToDeriveHeadingFilled())) {
                 updateHeading = true;
                 newHeadingDegrees = headingDegrees;
             }
         }
 
         // update just heading if following system
-        if (followHeadingOf != null && followHeadingOf.length() != 0) {
+        if (isFollowingHeadingOfFilled()) {
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(followHeadingOf);
             double headingDegrees = 0;
             long headingDegreesTime = -1;
@@ -279,7 +281,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             }
         }
 
-        if (useSystemToDeriveHeading != null && useSystemToDeriveHeading.length() != 0) {
+        if (isSystemToDeriveHeadingFilled()) {
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(useSystemToDeriveHeading);
             LocationType loc = null;
             // long locTime = -1;
@@ -312,6 +314,14 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             MyState.setHeadingInDegrees(AngleCalc.nomalizeAngleDegrees360(newHeadingDegrees));
 
         return true;
+    }
+
+    private boolean isSystemToDeriveHeadingFilled() {
+        return useSystemToDeriveHeading != null && useSystemToDeriveHeading.isEmpty();
+    }
+
+    private boolean isFollowingHeadingOfFilled() {
+        return followHeadingOf != null && followHeadingOf.isEmpty();
     }
 
     /*
@@ -347,7 +357,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         Graphics2D g = (Graphics2D) g2.create();
         g.setStroke(new BasicStroke(2));
         
-        {
+        { // Paint the vessel icon
             double diameter = Math.max(length, width);
             if (diameter > 0) {
                 Graphics2D gt = (Graphics2D) g.create();
@@ -362,10 +372,10 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
 
                 gt.translate(centerPos.getX(), centerPos.getY());
                 gt.rotate(Math.PI + Math.toRadians(headingDegrees) - renderer.getRotation());
-                if (useSystemToDeriveHeading != null && useSystemToDeriveHeading.length() != 0) {
+                if (isSystemToDeriveHeadingFilled()) {
                     gt.rotate(Math.toRadians(-angleOffsetFromFrontToWhereTheOperatorIsLooking));
                 }
-                else if (followHeadingOf != null && followHeadingOf.length() != 0) {
+                else if (isFollowingHeadingOfFilled()) {
                     gt.rotate(Math.toRadians(-followHeadingOfAngleOffset));
                 }
 
@@ -443,8 +453,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 I18n.text("Me")
                         + (followPositionOf != null && followPositionOf.length() != 0 ? " "
                                 + I18n.text("Pos. external") : "")
-                        + (useSystemToDeriveHeading != null && useSystemToDeriveHeading.length() != 0
-                                || followHeadingOf != null && followHeadingOf.length() != 0 ? " "
+                        + (isSystemToDeriveHeadingFilled()
+                                || isFollowingHeadingOfFilled() ? " "
                                 + I18n.textc("Heading external",
                                         "indication that the heading comes from external source") : ""), 18, 14);
         g.translate(-centerPos.getX(), -centerPos.getY());
@@ -631,7 +641,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         };
         myLocMenu.add(new JMenuItem(useThisLoc));
 
-        String txtUseThisHeading = followHeadingOf != null && followHeadingOf.length() != 0 ? " [" +
+        String txtUseThisHeading = isFollowingHeadingOfFilled() ? " [" +
                 I18n.text("using") + " " + followHeadingOf + "]" : "";
         txtUseThisHeading = (txtUseThisHeading.length() == 0 ? I18n.text("Set to use a system heading as mine")
                 : I18n.text("Change the system to use heading from") + txtUseThisHeading);
@@ -699,8 +709,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         };
         myLocMenu.add(new JMenuItem(useThisHeading));
 
-        String txtUsingSysDeriveHeading = useSystemToDeriveHeading != null
-                && useSystemToDeriveHeading.length() != 0 ? " [" + I18n.text("using") + " " + useSystemToDeriveHeading + "]" : "";
+        String txtUsingSysDeriveHeading = isSystemToDeriveHeadingFilled() ? " [" + I18n.text("using") + " " + useSystemToDeriveHeading + "]" : "";
         txtUsingSysDeriveHeading = (txtUsingSysDeriveHeading.length() == 0 ? I18n.text("Set to use a system to derive heading")
                 : I18n.text("Change the system to derive heading from") + txtUsingSysDeriveHeading);
         AbstractAction useThisForHeading = new AbstractAction(txtUsingSysDeriveHeading) {
