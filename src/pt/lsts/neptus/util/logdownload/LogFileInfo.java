@@ -159,4 +159,10 @@ public class LogFileInfo {
 	public int hashCode() {
 		return name.hashCode();
 	}
+	
+    public boolean isDirectory() {
+        if (file != null && file.isDirectory())
+            return true;
+        return false;
+    }
 }
