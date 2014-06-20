@@ -500,6 +500,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             catch (Exception e) {
                 e.printStackTrace();
                 setStateError();
+                return false;
             }
 		}
 		
@@ -632,6 +633,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             catch (Exception e) {
                 e.printStackTrace();
                 setStateError();
+                return false;
             }
         }
 
