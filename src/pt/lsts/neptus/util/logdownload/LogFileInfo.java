@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.util.logdownload;
 
+import java.util.List;
+
 import org.apache.commons.net.ftp.FTPFile;
 
 import pt.lsts.neptus.util.logdownload.LogFolderInfo.State;
@@ -51,6 +53,9 @@ public class LogFileInfo {
 	private String host = null;
 	
 	private long size = -1;
+	
+	// In case is a directory
+	private List<LogFileInfo> directoryContents = null;
 	
 	/**
 	 * @param name
@@ -164,5 +169,19 @@ public class LogFileInfo {
         if (file != null && file.isDirectory())
             return true;
         return false;
+    }
+    
+    /**
+     * @return the directoryContents
+     */
+    public List<LogFileInfo> getDirectoryContents() {
+        return directoryContents;
+    }
+    
+    /**
+     * @param directoryContents the directoryContents to set
+     */
+    public void setDirectoryContents(List<LogFileInfo> directoryContents) {
+        this.directoryContents = directoryContents;
     }
 }
