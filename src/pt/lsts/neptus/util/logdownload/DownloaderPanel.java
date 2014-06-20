@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -128,6 +129,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 
     private FtpDownloader client = null;
     private FTPFile ftpFile;
+    private HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
     
     private boolean isDirectory = false;
     
@@ -151,14 +153,24 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	public DownloaderPanel() {
 		initialize();
 	}
-
 	
 	/**
 	 * @param client
 	 * @param id
 	 * @param uri
 	 */
-	public DownloaderPanel(FtpDownloader client, FTPFile ftpFile, String uri, File outFile) {
+    public DownloaderPanel(FtpDownloader client, FTPFile ftpFile, String uri, File outFile) {
+        this(client, ftpFile, uri, outFile, null);
+    }
+
+    /**
+     * @param client
+     * @param ftpFile
+     * @param uri
+     * @param outFile
+     * @param directoryContentsList
+     */
+    public DownloaderPanel(FtpDownloader client, FTPFile ftpFile, String uri, File outFile, HashMap<String, FTPFile> directoryContentsList) {
 	    this();
 		this.client = client;
 		this.ftpFile = ftpFile;
@@ -167,6 +179,13 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		this.outFile = outFile;
 		
 		this.isDirectory = ftpFile.isDirectory();
+		
+		if (this.isDirectory) {
+		    if (directoryContentsList != null && !directoryContentsList.isEmpty()) {
+		        this.directoryContentsList.putAll(directoryContentsList);
+		    }
+		}
+		
 		getInfoLabel().setText(name + " (" + uri + ")");
 	}
 
@@ -650,7 +669,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         }
         
         try {
-            LinkedHashMap<String, FTPFile> fileList = client.listDirectory("/" + uri);
+            HashMap<String, FTPFile> fileList = directoryContentsList; // client.listDirectory("/" + uri);
             
             System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "Number of FTPFiles in folder: " + fileList.size());
 
@@ -681,30 +700,35 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             
             doneFilesForDirectory = 0;
             for(String key : fileList.keySet()) {
-                if(stopping)
-                    break;
-                
-                File out = new File(basePath + "/" + key);
-                
-                if(out.exists() && fileList.get(key).getSize() == out.length()) {
-                    doneFilesForDirectory++;
-                    continue;
-                }
-                
-                stream = client.getClient().retrieveFileStream(new String(key.getBytes(), "ISO-8859-1"));
-                
-                out.getParentFile().mkdirs();
                 try {
-                    out.createNewFile();
+                    if(stopping)
+                        break;
+                    
+                    File out = new File(basePath + "/" + key);
+                    
+                    if(out.exists() && fileList.get(key).getSize() == out.length()) {
+                        doneFilesForDirectory++;
+                        continue;
+                    }
+                    
+                    stream = client.getClient().retrieveFileStream(new String(key.getBytes(), "ISO-8859-1"));
+                    
+                    out.getParentFile().mkdirs();
+                    try {
+                        out.createNewFile();
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    
+                    boolean streamRes = StreamUtil.copyStreamToFile(stream, out, false);
+                    out.setLastModified(fileList.get(key).getTimestamp().getTimeInMillis());
+                    client.getClient().completePendingCommand();
+                    doneFilesForDirectory++;
                 }
-                catch (IOException e) {
+                catch (Exception e) {
                     e.printStackTrace();
                 }
-                
-                boolean streamRes = StreamUtil.copyStreamToFile(stream, out, false);
-                out.setLastModified(fileList.get(key).getTimestamp().getTimeInMillis());
-                client.getClient().completePendingCommand();
-                doneFilesForDirectory++;
             }
             
             endTimeMillis = System.currentTimeMillis();
