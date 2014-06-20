@@ -692,6 +692,7 @@ public class LogsDownloaderWorker {
                             msgPanel.writeMessageTextln(I18n.text("Done"));
                             return null;
                         }
+                        
                         msgPanel.writeMessageTextln(I18n.textf("Log Folders: %numberoffolders", retList.size()));
 
                         // Added in order not to show the active log (the last one
@@ -717,6 +718,17 @@ public class LogsDownloaderWorker {
                                 }
                             });
                             return null;
+                        }
+                        else {
+                            final String msg1 = I18n.textf("Log Folders: %numberoffolders", retList.size());
+                            SwingUtilities.invokeAndWait(new Runnable() {
+                                @Override
+                                public void run() {
+//                                    listHandlingProgressBar.setValue(10);
+//                                    listHandlingProgressBar.setIndeterminate(true);
+                                    listHandlingProgressBar.setString(msg1);
+                                }
+                            });
                         }
 
                         // ->Removing from already existing LogFolders to LOCAL state
