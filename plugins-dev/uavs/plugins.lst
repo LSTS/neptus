@@ -8,3 +8,4 @@
 pt.lsts.neptus.plugins.uavs.panels.UavAltitudePanel
 pt.lsts.neptus.plugins.uavs.panels.UavHUDPanel
 pt.lsts.neptus.plugins.uavs.panels.SpeedIndicatorPanel
+pt.lsts.neptus.plugins.uavs.panels.AutopilotModePanel
