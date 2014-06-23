@@ -113,6 +113,9 @@ import foxtrot.AsyncWorker;
 @NeptusDoc(ArticleFilename = "logs-downloader/logs-downloader.html#worker", ArticleTitle = "Logs Downloader Worker", Section = "Logs")
 public class LogsDownloaderWorker {
 
+    private static final String SERVER_MAIN = "main";
+    private static final String SERVER_CAM = "cam";
+
     private static final int DEFAULT_PORT = 30021;
 
     private static final String DEFAULT_TITLE = I18n.text("Download Log Files");
@@ -641,6 +644,7 @@ public class LogsDownloaderWorker {
                         // long timeD1 = System.currentTimeMillis();
 
                         LinkedHashMap<FTPFile, String> retList = null;
+                        LinkedHashMap<String, String> serversLogPresenceList = new LinkedHashMap<>(); 
 
                         // Getting the file list from main CPU
                         try {
@@ -650,6 +654,10 @@ public class LogsDownloaderWorker {
                                 clientFtp.setHostAndPort(host, port);
                             
                             retList = clientFtp.listLogs();
+                            
+                            for (String partialUri : retList.values()) {
+                                serversLogPresenceList.put(partialUri, SERVER_MAIN);
+                            }
                         }
                         catch (Exception e) {
                             NeptusLog.pub().error("Connecting with " + host + ":" + port + " with error: " + e.getMessage());
@@ -673,15 +681,22 @@ public class LogsDownloaderWorker {
                             if (retCamList != null) {
                                 if (retList == null) {
                                     retList = retCamList;
+
+                                    for (String partialUri : retList.values()) {
+                                        serversLogPresenceList.put(partialUri, SERVER_CAM);
+                                    }
+                                    
                                 }
                                 else {
                                     for (FTPFile camFTPFile : retCamList.keySet()) {
                                         String val = retCamList.get(camFTPFile);
                                         if (retList.containsValue(val)) {
+                                            serversLogPresenceList.put(val, serversLogPresenceList.get(val) + " " + SERVER_CAM);
                                             continue;
                                         }
                                         else {
                                             retList.put(camFTPFile, val);
+                                            serversLogPresenceList.put(val, SERVER_CAM);
                                         }
                                     }
                                 }
@@ -810,8 +825,7 @@ public class LogsDownloaderWorker {
                         objArray = new Object[logFolderList.myModel.size()];
                         logFolderList.myModel.copyInto(objArray);
 
-                        LinkedList<LogFolderInfo> tmpLogFolderList = getLogFileList(new LinkedHashSet<String>(
-                                retList.values()));
+                        LinkedList<LogFolderInfo> tmpLogFolderList = getLogFileList(serversLogPresenceList); //new LinkedHashSet<String>(retList.values()));
                         SwingUtilities.invokeAndWait(new Runnable() {
                             @Override
                             public void run() {
@@ -1965,12 +1979,12 @@ public class LogsDownloaderWorker {
 
     /**
      * @param docList
-     * @param logsDirList
+     * @param serversLogPresenceList
      * @return
      */
-    private LinkedList<LogFolderInfo> getLogFileList(LinkedHashSet<String> logsDirList) {
+    private LinkedList<LogFolderInfo> getLogFileList(LinkedHashMap<String, String> serversLogPresenceList) {
 
-        if (logsDirList.size() == 0)
+        if (serversLogPresenceList.size() == 0)
             return new LinkedList<LogFolderInfo>();
 
         LinkedList<LogFolderInfo> tmpLogFolders = new LinkedList<LogFolderInfo>();
@@ -1980,7 +1994,10 @@ public class LogsDownloaderWorker {
         System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + cameraHost + " " + getLogLabel());
 
         try {
-            for (String logDir : logsDirList) {
+            for (String logDir : serversLogPresenceList.keySet()) {
+                if (!serversLogPresenceList.get(logDir).contains(SERVER_MAIN))
+                    continue;
+                
                 String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
 //                boolean ret = clientFtp.getClient().changeWorkingDirectory("/" + isoStr + "/");
 //                if (!ret)
@@ -2027,7 +2044,10 @@ public class LogsDownloaderWorker {
             // REDO the same thing if cameraHost exists with the difference of a another client
             if (cameraHost != null && cameraFtp != null) {
                 FtpDownloader ftpd = cameraFtp; // new FtpDownloader(cameraHost, port);
-                for (String logDir : logsDirList) {
+                for (String logDir : serversLogPresenceList.keySet()) {
+                    if (!serversLogPresenceList.get(logDir).contains(SERVER_CAM))
+                        continue;
+
                     String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
 //                    if (ftpd.getClient().changeWorkingDirectory("/" + isoStr + "/") == false) // Log doesnt exist in
 //                        // DOAM
@@ -2043,7 +2063,7 @@ public class LogsDownloaderWorker {
                         lFolder = new LogFolderInfo(logDir);
                     }
 
-//                    if (!ftpd.getClient().isConnected())
+                    if (!ftpd.getClient().isConnected())
                         ftpd.renewClient();
                     
                     try {
