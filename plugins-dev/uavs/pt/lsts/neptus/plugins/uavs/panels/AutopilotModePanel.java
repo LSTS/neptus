@@ -70,6 +70,9 @@ public class AutopilotModePanel extends ConsolePanel implements MainVehicleChang
     // Listener
     @Subscribe
     public void on(AutopilotMode msg) {
+        if(!msg.getSourceName().equals(getConsole().getMainSystem()))
+            return;
+        
         currentMode = msg.getMode();
         autonomyLevel = msg.getAutonomy();
         
