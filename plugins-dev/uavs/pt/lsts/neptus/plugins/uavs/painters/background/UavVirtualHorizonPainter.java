@@ -88,7 +88,7 @@ public class UavVirtualHorizonPainter implements IUavPainter{
         //normalizes the graphics transformation and sets the origin at the center of the panel
         g.translate(width / 2, currentHorizonHeight);
         g.scale(-1, 1);
-        g.setPaint(gradientColorer(width, height, Color.orange.darker(), Color.gray.darker()));
+        g.setPaint(gradientColorer(width, height, Color.gray.darker(), Color.orange.darker()));
         g.rotate(Math.toRadians(roll));
         g.fill(ground);
         drawPitchRuler(g,width,height,20,4);
