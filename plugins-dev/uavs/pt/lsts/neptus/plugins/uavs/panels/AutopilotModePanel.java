@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.uavs.panels;
 
 import java.awt.Color;
+import java.awt.Font;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -74,19 +75,23 @@ public class AutopilotModePanel extends ConsolePanel implements MainVehicleChang
         
         modePanel.removeAll();
         
+        JLabel modeLabel = new JLabel(currentMode,SwingConstants.CENTER);
+        modeLabel.setFont(new Font(modeLabel.getFont().getFontName(),Font.BOLD,modeLabel.getFont().getSize()));
+        
         switch (autonomyLevel) {
             case MANUAL:
                 modePanel.setBackground(Color.yellow);
                 break;
             case ASSISTED:
                 modePanel.setBackground(Color.blue);
+                modeLabel.setForeground(Color.white);
                 break;
             case AUTO:
-                modePanel.setBackground(Color.green);
+                modePanel.setBackground(Color.green.darker());
                 break;
         };
         
-        modePanel.add(new JLabel(currentMode,SwingConstants.CENTER), "w 100%, h 100%");
+        modePanel.add(modeLabel, "w 100%, h 100%");
     }
 
     /**
