@@ -1,7 +1,7 @@
 #!/bin/bash
 #############################################################################
 # Copyright (c) 2004-2013 Universidade do Porto - Faculdade de Engenharia   #
-# Laboratório de Sistemas e Tecnologia Subaquática (LSTS)                   #
+# Laboratï¿½rio de Sistemas e Tecnologia Subaquï¿½tica (LSTS)                   #
 # All rights reserved.                                                      #
 # Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal            #
 #                                                                           #
@@ -27,7 +27,7 @@
 #                                                                           #
 # For more information please see <http://lsts.fe.up.pt/neptus>.            #
 #############################################################################
-# Author: Paulo Dias, José Pinto                                            #
+# Author: Paulo Dias, Josï¿½ Pinto                                            #
 #############################################################################
 
 PROGNAME=$0
@@ -62,9 +62,9 @@ LIBS=".:libJNI"
 if test -d jre/bin; then JAVA_BIN_FOLDER="jre/bin/"; else JAVA_BIN_FOLDER=""; fi
 
 JAVA_MACHINE_TYPE=$($JAVA_BIN_FOLDER"java" -cp bin/neptus.jar pt.lsts.neptus.loader.helper.CheckJavaOSArch)
-if [ ${JAVA_MACHINE_TYPE} == 'x64' ]; then
+if [ ${JAVA_MACHINE_TYPE} == 'linux.x64' ]; then
  LIBS=".:libJNI/x64:libJNI:/usr/lib/jni:/usr/lib/vtk-5.10:libJNI/gdal/linux/x64:libJNI/europa/x64"
-else
+elif [ ${JAVA_MACHINE_TYPE} == 'linux.x86' ]; then
   LIBS=".:libJNI/x86:libJNI:/usr/lib/jni:/usr/lib/vtk-5.10:libJNI/gdal/linux/x86"
 fi
 

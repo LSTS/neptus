@@ -42,10 +42,12 @@ public class CheckJavaOSArch {
      * @param args
      */
     public static void main(String[] args) {
+
+        String osName = System.getProperty("os.name").toLowerCase();
         String osArch = System.getProperty("os.arch");
         String arch = "x86";
         if (osArch.contains("64"))
             arch = "x64";
-        System.out.println(arch); 
+        System.out.println(osName+"-"+arch); 
     }
 }
