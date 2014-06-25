@@ -88,10 +88,10 @@ public class FtpDownloader {
 
         }
         
-        System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "connecting to " + host + ":" + port);
+        NeptusLog.pub().warn(FtpDownloader.class.getSimpleName() + " :: " + "connecting to " + host + ":" + port);
         long t1 = System.currentTimeMillis();
         client.connect(host, port);
-        System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "connected to " + host + ":" + port + " took " + (System.currentTimeMillis() - t1) + "ms");
+        NeptusLog.pub().warn(FtpDownloader.class.getSimpleName() + " :: " + "connected to " + host + ":" + port + " took " + (System.currentTimeMillis() - t1) + "ms");
         client.configure(conf);
 
         client.enterLocalPassiveMode();
