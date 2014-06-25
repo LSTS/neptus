@@ -39,6 +39,8 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -70,6 +72,7 @@ import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.WindowConstants;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -107,6 +110,9 @@ import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
 
 /**
+ * This is the log downloader worker panel. You can put it into an external frame using
+ * the proper constructor. In this case you HAVE TO CALL the {@link #cleanup()}.
+ * 
  * @author pdias
  * 
  */
@@ -294,8 +300,16 @@ public class LogsDownloaderWorker {
             frame.setSize(900, 560);
             frame.setIconImages(ConfigFetch.getIconImagesForFrames());
             frame.setTitle(DEFAULT_TITLE + " - " + logLabel);
+            frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    super.windowClosed(e);
+                    cleanup();
+                }
+            });
         }
-
+        
         hostLabel = new JLabel(I18n.text("Host: "));
         hostField = new JTextField(20);
         hostField.setText(host);
