@@ -56,7 +56,6 @@ class Auv extends Timeline {
     predicate Execute {
 		Task task;
 		float speed, distance;
-		//distance == task.distance;
 		start >= 0;
     }
 	
@@ -79,8 +78,6 @@ Auv::Execute {
 		distance == task.distance;
 	}
 	distance >= min_dist;
-	
-	//contained_by(AuvActions.ExecTask);
 }
 
 AuvActions::Transit {

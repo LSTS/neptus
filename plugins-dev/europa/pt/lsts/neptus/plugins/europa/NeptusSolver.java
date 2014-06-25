@@ -46,6 +46,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author zp
@@ -56,9 +57,10 @@ public class NeptusSolver {
     private PSEngine europa;
     private PSSolver solver;
     private PSPlanDatabaseClient planDb;
-
     private LinkedHashMap<String, PSObject> vehicleObjects = new LinkedHashMap<>();
     private LinkedHashMap<String, PSObject> planObjects = new LinkedHashMap<>();
+    
+    private String extraNDDL = "";
     
     public NeptusSolver() throws Exception {
         EuropaUtils.loadLibrary("Neptus");
@@ -68,8 +70,8 @@ public class NeptusSolver {
     }
     
     public PSObject addVehicle(String name, LocationType position) throws Exception {
-        EuropaUtils.eval(europa, "Auv v_"+EuropaUtils.clearVarName(name)+" = new Auv();");
         position.convertToAbsoluteLatLonDepth();
+        eval("Auv v_"+EuropaUtils.clearVarName(name)+" = new Auv(); /* lat="+position.getLatitudeDegs()+",lon="+position.getLongitudeDegs()+",depth="+position.getDepth()+"*/");
         PSObject varVehicle = europa.getObjectByName("v_"+EuropaUtils.clearVarName(name)), vehiclePos;
         
         // Stupid europa require the full name of the attribute prefixed with the object name ...
@@ -94,6 +96,11 @@ public class NeptusSolver {
         return varVehicle;
     }
     
+    public void eval(String nddl) throws Exception {
+        EuropaUtils.eval(europa, nddl);
+        extraNDDL += nddl+"\n";
+    }
+    
     public PSObject addTask(PlanType plan) throws Exception {
         String planName = plan.getId();
         //FIXME
@@ -106,7 +113,7 @@ public class NeptusSolver {
         LocationType startLoc = new LocationType(mans.firstElement().getStartLocation()), 
                 endLoc = new LocationType(mans.lastElement().getEndLocation());
 
-        EuropaUtils.eval(europa, String.format("Task t_%s = new Task(%.7f, %.7f, %.7f, %.7f, %.1f);",
+        eval(String.format("Task t_%s = new Task(%.7f, %.7f, %.7f, %.7f, %.1f);",
                 EuropaUtils.clearVarName(planName),
                 startLoc.getLatitudeDegs(),
                 startLoc.getLongitudeDegs(),
@@ -181,10 +188,12 @@ public class NeptusSolver {
         //for (PlanType pt : mt.getIndividualPlansList().values()) {
            PSToken goal = solver.addGoal("lauv-xplore-1", mt.getIndividualPlansList().values().iterator().next().getId(), 1.1);            
         //}
-        
+       
+           System.out.println(FileUtil.getFileAsString("conf/nddl/neptus/auv_model.nddl"));
+           System.out.println(solver.extraNDDL);
        solver.solve(10000);
        System.out.println(solver.europa.planDatabaseToString());
-        System.out.println(goal.toLongString());
+       System.out.println(goal.toLongString());
         
     }
 }
