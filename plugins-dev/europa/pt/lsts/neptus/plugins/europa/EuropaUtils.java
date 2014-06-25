@@ -38,6 +38,10 @@ import java.util.Vector;
 import org.apache.commons.lang.StringUtils;
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
+import psengine.PSEngine;
+import psengine.PSLanguageExceptionList;
+import psengine.PSSolver;
+import psengine.PSStringList;
 import pt.lsts.neptus.NeptusLog;
 
 /**
@@ -45,7 +49,98 @@ import pt.lsts.neptus.NeptusLog;
  *
  */
 public class EuropaUtils {
-    
+
+    private static final String modelDir = new File("conf/nddl").getAbsolutePath(); 
+
+    public static String clearVarName(String varName) {
+        return varName.replaceAll("[^a-zA-Z0-9_]", "_");
+    }
+
+    public static PSEngine createPlanner(String model) {
+        try {
+            EuropaUtils.loadLibrary("System_o");
+
+            final PSEngine europa = PSEngine.makeInstance();
+            europa.start();
+
+            String nddlInclude = modelDir;
+
+            if (model.contains("/")) {
+                String[] folders = model.split("/");
+                String folder = "";
+                for (int i = 0; i < folders.length; i++) {
+                    folder += File.separator+folders[i];
+                    if (new File(modelDir+folder).isDirectory())
+                        nddlInclude+= ":"+modelDir+folder;
+                }
+            }
+
+            europa.getConfig().setProperty("nddl.includePath", nddlInclude);
+            europa.executeScript("nddl", modelDir + File.separator+ model, true);
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    europa.shutdown();
+                }
+            });            
+            return europa;            
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+            return null;
+        }
+    }
+
+    public static void eval(PSEngine engine, String nddl) throws PSLanguageExceptionList {
+        engine.executeScript("nddl", nddl, false);
+    }
+
+    public static void dumpNddlException(PSLanguageExceptionList e) {
+        for (int i = 0; i < e.getExceptionCount(); i++)
+            System.err.println(e.getException(i).getFileName() + " (" + e.getException(i).getLine() + "): "
+                    + e.getException(i).getMessage());
+    }
+
+    public static PSSolver createSolver(PSEngine engine, int endHorizon) {
+
+        String plannerConfig = modelDir+File.separator+"PlannerConfig.xml";
+        PSSolver solver = engine.createSolver(plannerConfig);
+        solver.configure(0, endHorizon);
+        engine.getConfig().readFromXML(modelDir+File.separator+"NDDL.cfg", true);
+        return solver;
+    }
+
+    public static boolean failed(PSSolver solver) {
+        return (solver.isExhausted() || solver.isTimedOut());
+    }
+
+    public static boolean complete(PSSolver solver) {
+        System.out.println(solver.getFlaws().size()+" flaws are still left");
+        return solver.getFlaws().size() == 0;
+    }
+
+    public static boolean succeeded(PSSolver solver) {
+        return complete(solver) && !failed(solver);
+    }
+
+    public static boolean step(PSSolver solver) {
+        System.out.println("step "+solver.getStepCount());
+        if (failed(solver))
+            return false;
+        else {
+            solver.step();
+            return (!complete(solver) && !failed(solver));
+        }
+    }
+
+    public static void printFlaws(PSSolver solver) {
+        System.out.println("Flaws: ");
+        PSStringList fls = solver.getFlaws();
+        for (int j = 0; j < fls.size(); j++)
+            System.out.println("  - " + fls.get(j));
+        System.out.println();
+    }
+
     @SuppressWarnings("unchecked")
     public static String loadLibrary(String lib) throws Exception {
         String lookFor = System.mapLibraryName(lib);
@@ -54,7 +149,7 @@ public class EuropaUtils {
             path.add(System.getenv("EUROPA_HOME") + File.separator + "lib");
         path.addAll(Arrays.asList(System.getProperty("java.library.path").split(File.pathSeparator)));
         path.addAll(Arrays.asList(System.getenv("LD_LIBRARY_PATH").split(File.pathSeparator)));
-        
+
         for (String s : path)
             if (new File(s, lookFor).exists()) {
                 String library = new File(s, lookFor).getAbsolutePath();
@@ -63,5 +158,10 @@ public class EuropaUtils {
                 return s;
             }
         throw new FileNotFoundException("Library "+System.mapLibraryName(lib)+" was not found in "+StringUtils.join(path, File.pathSeparator));
+    }
+
+    public static void main(String[] args) {
+        System.out.println(clearVarName("lau0v_sxplore-1"));
+        //EuropaUtils.createPlanner("neptus/auv_model.nddl");
     }
 }

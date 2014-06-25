@@ -56,7 +56,7 @@ class Auv extends Timeline {
     predicate Execute {
 		Task task;
 		float speed, distance;
-		distance == task.distance;
+		//distance == task.distance;
 		start >= 0;
     }
 	
@@ -73,11 +73,14 @@ Auv::Execute {
 	speed == sp.speed;
 	
 	float min_dist;
-	ll_distance(min_dist, task.entry_latitude, task.entry_longitude,
+	if( task ) {
+		ll_distance(min_dist, task.entry_latitude, task.entry_longitude,
 						  task.exit_latitude, task.exit_longitude);
+		distance == task.distance;
+	}
 	distance >= min_dist;
 	
-	contained_by(AuvActions.ExecTask);
+	//contained_by(AuvActions.ExecTask);
 }
 
 AuvActions::Transit {
@@ -112,25 +115,26 @@ AuvActions::ExecTask {
 	equals(effect Auv.Execute  exec);
 	task == exec.task;
 	
+	if (task) {
+		meets(effect Position.Pos dest);
+		dest.from_task == true;
+		starts(condition Position.Pos source);
+		
+		me == exec.object;
+		me.my_actions == object;
+		me.position == dest.object;
+		me.position == source.object;
+		
+		source.latitude == task.entry_latitude;
+		source.longitude == task.entry_longitude;
 	
-	meets(effect Position.Pos dest);
-	dest.from_task == true;
-	starts(condition Position.Pos source);
-	
-	me == exec.object;
-	me.my_actions == object;
-	me.position == dest.object;
-	me.position == source.object;
-	
-	source.latitude == task.entry_latitude;
-	source.longitude == task.entry_longitude;
-
-	dest.latitude == task.exit_latitude;
-	dest.longitude == task.exit_longitude;
-	
-	// the addition of 1.0 is to properly handle rounding error 
-	(dur_secs + 1.0) * exec.speed == exec.distance;
-	duration >= dur_secs;
+		dest.latitude == task.exit_latitude;
+		dest.longitude == task.exit_longitude;
+		
+		// the addition of 1.0 is to properly handle rounding error 
+		(dur_secs + 1.0) * exec.speed == exec.distance;
+		duration >= dur_secs;
+	}
 	start + duration == end;
 	
 }

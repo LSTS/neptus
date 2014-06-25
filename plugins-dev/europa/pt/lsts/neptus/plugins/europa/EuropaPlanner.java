@@ -58,9 +58,12 @@ public class EuropaPlanner {
     
     public static void main(String args[]) throws Exception {
 
+        EuropaUtils.createPlanner("neptus/auv_model.nddl");
+    
         EuropaUtils.loadLibrary("System_o");
         EuropaUtils.loadLibrary("Neptus");
-        final PSEngine europa = makePSEngine("o");
+        final PSEngine europa = PSEngine.makeInstance();
+        
         europa.start();
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -98,8 +101,7 @@ public class EuropaPlanner {
         });
 
         try {
-            String res = europa
-                    .executeScript("nddl", models.getAbsolutePath() + "/neptus/auv_model.nddl", true/* isFile */);
+            europa.executeScript("nddl", models.getAbsolutePath() + "/neptus/auv_model.nddl", true/* isFile */);
 
             europa.executeScript("nddl", "Auv xtreme1 = new Auv();", false);
 
