@@ -535,7 +535,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	    if(isDirectory)
             return doDownloadDirectory();
 	    
-	    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
+	    NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
 		if (getState() == State.WORKING)
 			return false;
 		
@@ -554,7 +554,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		long begByte = 0;
 		if (usePartialDownload && prevState != State.DONE && outFile.exists() && outFile.isFile() && !isDirectory) {
 		    begByte = outFile.length();
-		    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "!begin byte: " + begByte);
+		    NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "!begin byte: " + begByte);
 		}
 		setStateWorking();
 		
@@ -597,6 +597,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 
 			if (debug) {
 			    NeptusLog.pub().info("<###>To receive / received: " + (begByte > 0 ? fullSize - begByte: fullSize) + "/" + downloadedSize);
+			}
+			else {
+			    NeptusLog.pub().debug("To receive / received: " + (begByte > 0 ? fullSize - begByte: fullSize) + "/" + downloadedSize);
 			}
 			
 			endTimeMillis = System.currentTimeMillis();
@@ -672,8 +675,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	}
 	
 	protected boolean doDownloadDirectory() {
-	    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "DOWNLOADING DIRECTORY");
-	    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading " + name + " " + uri + " " + outFile.getAbsolutePath());
+	    NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading directory " + name + " " + uri + " " + outFile.getAbsolutePath());
 
 	    String basePath = outFile.getParentFile().getParentFile().getParentFile().getAbsolutePath();
 	    
@@ -706,7 +708,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         try {
             HashMap<String, FTPFile> fileList = directoryContentsList; // client.listDirectory("/" + uri);
             
-            System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "Number of FTPFiles in folder: " + fileList.size());
+            NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "Number of FTPFiles in folder: " + fileList.size());
 
             getProgressBar().setValue(0);
             getProgressBar().setString(I18n.text("Starting..."));
