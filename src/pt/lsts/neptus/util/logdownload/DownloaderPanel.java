@@ -43,6 +43,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
@@ -149,6 +152,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	//Background Painter Stuff
     private RectanglePainter rectPainter;
     private CompoundPainter<JXPanel> compoundBackPainter;
+    
+    // Executer for periodic tasks
+    private ScheduledThreadPoolExecutor threadScheduledPool;
 
 	public DownloaderPanel() {
 		initialize();
@@ -159,8 +165,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	 * @param id
 	 * @param uri
 	 */
-    public DownloaderPanel(FtpDownloader client, FTPFile ftpFile, String uri, File outFile) {
-        this(client, ftpFile, uri, outFile, null);
+    public DownloaderPanel(FtpDownloader client, FTPFile ftpFile, String uri, File outFile,
+            ScheduledThreadPoolExecutor threadScheduledPool) {
+        this(client, ftpFile, uri, outFile, null, threadScheduledPool);
     }
 
     /**
@@ -170,13 +177,16 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
      * @param outFile
      * @param directoryContentsList
      */
-    public DownloaderPanel(FtpDownloader client, FTPFile ftpFile, String uri, File outFile, HashMap<String, FTPFile> directoryContentsList) {
+    public DownloaderPanel(FtpDownloader client, FTPFile ftpFile, String uri, File outFile,
+            HashMap<String, FTPFile> directoryContentsList, ScheduledThreadPoolExecutor threadScheduledPool) {
 	    this();
 		this.client = client;
 		this.ftpFile = ftpFile;
 		this.name = ftpFile.getName();
 		this.uri = uri;
 		this.outFile = outFile;
+		
+		this.threadScheduledPool = threadScheduledPool;
 		
 		this.isDirectory = ftpFile.isDirectory();
 		
@@ -564,7 +574,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 				e.printStackTrace();
 			}
 
-			FilterDownloadDataMonitor ioS = new FilterDownloadDataMonitor(stream);
+			FilterDownloadDataMonitor ioS = new FilterDownloadDataMonitor(stream, threadScheduledPool);
 			boolean streamRes = StreamUtil.copyStreamToFile(ioS, outFile, begByte == 0 ? false : true);
 			outFile.setLastModified(ftpFile.getTimestamp().getTimeInMillis());
 
@@ -686,17 +696,27 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                     (listSize >= 0 ? I18n.textf("%number files", MathMiscUtils.parseToEngineeringRadix2Notation(fullSize,1)) : "unknown files"));
             //msgPanel.writeMessageText("["+MathMiscUtils.parseToEngineeringNotation(cSize,1)+" bytes] ...");
 
-            final Timer t = new Timer(DownloaderPanel.class.getSimpleName() + " :: progress for files for directory " + basePath);
-            t.scheduleAtFixedRate(new TimerTask() {
+//            final Timer t = new Timer(DownloaderPanel.class.getSimpleName() + " :: progress for files for directory " + basePath);
+//            t.scheduleAtFixedRate(new TimerTask() {
+//                @Override
+//                public void run() {
+//                    getProgressBar().setValue((int) ((doneFilesForDirectory / (float)listSize) * 100));
+//                    getProgressBar().setString(doneFilesForDirectory + " out of " + listSize);
+//                    
+//                    if (state != State.WORKING)
+//                        t.cancel();
+//                }
+//            }, 0, 100);
+            threadScheduledPool.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
                     getProgressBar().setValue((int) ((doneFilesForDirectory / (float)listSize) * 100));
                     getProgressBar().setString(doneFilesForDirectory + " out of " + listSize);
                     
                     if (state != State.WORKING)
-                        t.cancel();
+                        threadScheduledPool.remove(this);
                 }
-            }, 0, 100);
+            }, 10, 100, TimeUnit.MILLISECONDS);
             
             doneFilesForDirectory = 0;
             for(String key : fileList.keySet()) {
@@ -841,22 +861,26 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		private long timeC = -1;
 		private long btimer = 0;
 		
-		private Timer timer = new Timer(DownloaderPanel.class.getName() + " "
-				+ DownloaderPanel.this.hashCode());
-        private TimerTask ttask = null;
+//		private Timer timer = new Timer(DownloaderPanel.class.getName() + " "
+//				+ DownloaderPanel.this.hashCode());
+		private ScheduledThreadPoolExecutor threadScheduledPool = null;
+        private Runnable ttask = null;
         
         private MovingAverage movingAverage = new MovingAverage((short) 25);
 		
 		/**
 		 * @param in
 		 */
-		public FilterDownloadDataMonitor(InputStream in) {
+		public FilterDownloadDataMonitor(InputStream in, ScheduledThreadPoolExecutor threadScheduledPool) {
 			super(in);
+			this.threadScheduledPool = threadScheduledPool;
 		}
 
 		public void stopDisplayUpdate() {
-			if (ttask != null)
-				ttask.cancel();
+			if (ttask != null) {
+//				ttask.cancel();
+				threadScheduledPool.remove(ttask);
+			}
             prec = (long) ((double) downloadedSize / (double) fullSize * 100.0);
 			getProgressBar().setValue((int) prec);
 		}
@@ -893,7 +917,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		private void updateValueInMessagePanel() {
 			if (downloadedSize >= fullSize) {
 				if (ttask != null) {
-					ttask.cancel();
+//					ttask.cancel();
+					threadScheduledPool.remove(ttask);
 					ttask = null;
 					updateProgressInfo();
 				}
@@ -901,7 +926,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			else {
 				if (ttask == null) {
 					ttask = getTimerTask();
-					timer.schedule(ttask, 150);
+//					timer.schedule(ttask, 150);
+					threadScheduledPool.schedule(ttask, 150, TimeUnit.MILLISECONDS);
 				}
 			}
 				

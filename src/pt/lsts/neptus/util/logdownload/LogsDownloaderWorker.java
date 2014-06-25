@@ -52,7 +52,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Vector;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
@@ -228,7 +228,7 @@ public class LogsDownloaderWorker {
 
 //    private Timer timer = null;
 //    private TimerTask ttaskLocalDiskSpace = null;
-    private ScheduledExecutorService threadScheduledPool = null;
+    private ScheduledThreadPoolExecutor threadScheduledPool = null;
     private Runnable ttaskLocalDiskSpace = null;
 
     private MessageListener<MessageInfo, IMCMessage> messageListener;
@@ -263,7 +263,7 @@ public class LogsDownloaderWorker {
     private void initializeComm() {
         // Init timer
 //        timer = new Timer("LogsDownloadWorker");
-        threadScheduledPool = Executors.newScheduledThreadPool(1, new ThreadFactory() {
+        threadScheduledPool = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1, new ThreadFactory() {
             private long count = 0;
             @Override
             public Thread newThread(Runnable r) {
@@ -1796,11 +1796,11 @@ public class LogsDownloaderWorker {
                     directoryContentsList.put(lfi.getUriPartial(), lfx.getFile());
                 }
                 workerD = new DownloaderPanel(ftpDownloader, lfx.getFile(), lfx.getName(),
-                        getFileTarget(lfx.getName()), directoryContentsList);
+                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool);
             }
             else {
                 workerD = new DownloaderPanel(ftpDownloader, lfx.getFile(), lfx.getName(),
-                        getFileTarget(lfx.getName()));
+                        getFileTarget(lfx.getName()), threadScheduledPool);
             }
         }
         catch (Exception e1) {
@@ -2537,11 +2537,11 @@ public class LogsDownloaderWorker {
                     directoryContentsList.put(lfi.getUriPartial(), lfx.getFile());
                 }
                 workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-                        getFileTarget(lfx.getName()), directoryContentsList);
+                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool);
             }
             else {
                 workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-                        getFileTarget(lfx.getName()));
+                        getFileTarget(lfx.getName()), threadScheduledPool);
             }
 
             Component[] components = downloadWorkersHolder.getComponents();
