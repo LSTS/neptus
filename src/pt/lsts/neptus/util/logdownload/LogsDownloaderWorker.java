@@ -41,8 +41,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -110,6 +112,9 @@ import foxtrot.AsyncWorker;
  */
 @NeptusDoc(ArticleFilename = "logs-downloader/logs-downloader.html#worker", ArticleTitle = "Logs Downloader Worker", Section = "Logs")
 public class LogsDownloaderWorker {
+
+    private static final String SERVER_MAIN = "main";
+    private static final String SERVER_CAM = "cam";
 
     private static final int DEFAULT_PORT = 30021;
 
@@ -639,6 +644,7 @@ public class LogsDownloaderWorker {
                         // long timeD1 = System.currentTimeMillis();
 
                         LinkedHashMap<FTPFile, String> retList = null;
+                        LinkedHashMap<String, String> serversLogPresenceList = new LinkedHashMap<>(); 
 
                         // Getting the file list from main CPU
                         try {
@@ -648,6 +654,10 @@ public class LogsDownloaderWorker {
                                 clientFtp.setHostAndPort(host, port);
                             
                             retList = clientFtp.listLogs();
+                            
+                            for (String partialUri : retList.values()) {
+                                serversLogPresenceList.put(partialUri, SERVER_MAIN);
+                            }
                         }
                         catch (Exception e) {
                             NeptusLog.pub().error("Connecting with " + host + ":" + port + " with error: " + e.getMessage());
@@ -671,15 +681,22 @@ public class LogsDownloaderWorker {
                             if (retCamList != null) {
                                 if (retList == null) {
                                     retList = retCamList;
+
+                                    for (String partialUri : retList.values()) {
+                                        serversLogPresenceList.put(partialUri, SERVER_CAM);
+                                    }
+                                    
                                 }
                                 else {
                                     for (FTPFile camFTPFile : retCamList.keySet()) {
                                         String val = retCamList.get(camFTPFile);
                                         if (retList.containsValue(val)) {
+                                            serversLogPresenceList.put(val, serversLogPresenceList.get(val) + " " + SERVER_CAM);
                                             continue;
                                         }
                                         else {
                                             retList.put(camFTPFile, val);
+                                            serversLogPresenceList.put(val, SERVER_CAM);
                                         }
                                     }
                                 }
@@ -692,6 +709,7 @@ public class LogsDownloaderWorker {
                             msgPanel.writeMessageTextln(I18n.text("Done"));
                             return null;
                         }
+                        
                         msgPanel.writeMessageTextln(I18n.textf("Log Folders: %numberoffolders", retList.size()));
 
                         // Added in order not to show the active log (the last one
@@ -717,6 +735,17 @@ public class LogsDownloaderWorker {
                                 }
                             });
                             return null;
+                        }
+                        else {
+                            final String msg1 = I18n.textf("Log Folders: %numberoffolders", retList.size());
+                            SwingUtilities.invokeAndWait(new Runnable() {
+                                @Override
+                                public void run() {
+//                                    listHandlingProgressBar.setValue(10);
+//                                    listHandlingProgressBar.setIndeterminate(true);
+                                    listHandlingProgressBar.setString(msg1);
+                                }
+                            });
                         }
 
                         // ->Removing from already existing LogFolders to LOCAL state
@@ -796,8 +825,7 @@ public class LogsDownloaderWorker {
                         objArray = new Object[logFolderList.myModel.size()];
                         logFolderList.myModel.copyInto(objArray);
 
-                        LinkedList<LogFolderInfo> tmpLogFolderList = getLogFileList(new LinkedHashSet<String>(
-                                retList.values()));
+                        LinkedList<LogFolderInfo> tmpLogFolderList = getLogFileList(serversLogPresenceList); //new LinkedHashSet<String>(retList.values()));
                         SwingUtilities.invokeAndWait(new Runnable() {
                             @Override
                             public void run() {
@@ -825,9 +853,11 @@ public class LogsDownloaderWorker {
                                                 return null;
 
                                             if (!logFolder.getLogFiles().contains(logFx)) {
+                                                // The file or directory is new
                                                 logFolder.addFile(logFx);
                                             }
                                             else {
+                                                // The file or directory is already known so let us update
                                                 LogFileInfo lfx = logFolder.getLogFile(logFx.getName()/* fxStr */);
                                                 if (lfx.getSize() == -1) {
                                                     lfx.setSize(logFx.getSize()/* size */);
@@ -844,9 +874,41 @@ public class LogsDownloaderWorker {
                                                     if (lfx.getState() == LogFolderInfo.State.LOCAL)
                                                         lfx.setState(LogFolderInfo.State.SYNC);
                                                 }
+                                                
+                                                if (logFx.isDirectory()) {
+                                                    ArrayList<LogFileInfo> notMatchElements = new ArrayList<>();
+                                                    notMatchElements.addAll(lfx.getDirectoryContents());
+                                                    for (LogFileInfo lfi : logFx.getDirectoryContents()) {
+                                                        boolean alreadyExists = false;
+                                                        for (LogFileInfo lfiLocal : lfx.getDirectoryContents()) {
+                                                            if (lfi.equals(lfiLocal)) {
+                                                                alreadyExists = true;
+                                                                notMatchElements.remove(lfiLocal);
+                                                                lfi.setSize(lfiLocal.getSize());
+                                                            }
+                                                        }
+                                                        if (!alreadyExists) {
+                                                            lfx.getDirectoryContents().add(lfi);
+                                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                                        }
+                                                    }
+                                                    for (LogFileInfo lfi : notMatchElements) {
+                                                        lfx.getDirectoryContents().remove(lfi);
+                                                    }
+                                                }
+                                                
                                                 if (!getFileTarget(lfx.getName()).exists()) {
                                                     if (lfx.getState() != LogFolderInfo.State.NEW)
                                                         lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                                }
+                                                if (lfx.isDirectory()) {
+                                                    for (LogFileInfo lfi : lfx.getDirectoryContents()) {
+                                                        if (!getFileTarget(lfi.getName()).exists()) {
+                                                            if (lfx.getState() != LogFolderInfo.State.NEW)
+                                                                lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                                            break;
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -1686,8 +1748,19 @@ public class LogsDownloaderWorker {
 //                ftpDownloader = cameraFtp;
 //            else
                 ftpDownloader = new FtpDownloader(lfx.getHost(), port);
-            workerD = new DownloaderPanel(ftpDownloader, lfx.getFile(), lfx.getName(),
-                    getFileTarget(lfx.getName()));
+                
+            if (lfx.isDirectory()) {
+                HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
+                for (LogFileInfo lfi : lfx.getDirectoryContents()) {
+                    directoryContentsList.put(lfi.getUriPartial(), lfx.getFile());
+                }
+                workerD = new DownloaderPanel(ftpDownloader, lfx.getFile(), lfx.getName(),
+                        getFileTarget(lfx.getName()), directoryContentsList);
+            }
+            else {
+                workerD = new DownloaderPanel(ftpDownloader, lfx.getFile(), lfx.getName(),
+                        getFileTarget(lfx.getName()));
+            }
         }
         catch (Exception e1) {
             // TODO Auto-generated catch block
@@ -1906,12 +1979,12 @@ public class LogsDownloaderWorker {
 
     /**
      * @param docList
-     * @param logsDirList
+     * @param serversLogPresenceList
      * @return
      */
-    private LinkedList<LogFolderInfo> getLogFileList(LinkedHashSet<String> logsDirList) {
+    private LinkedList<LogFolderInfo> getLogFileList(LinkedHashMap<String, String> serversLogPresenceList) {
 
-        if (logsDirList.size() == 0)
+        if (serversLogPresenceList.size() == 0)
             return new LinkedList<LogFolderInfo>();
 
         LinkedList<LogFolderInfo> tmpLogFolders = new LinkedList<LogFolderInfo>();
@@ -1921,13 +1994,17 @@ public class LogsDownloaderWorker {
         System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + cameraHost + " " + getLogLabel());
 
         try {
-            for (String logDir : logsDirList) {
+            for (String logDir : serversLogPresenceList.keySet()) {
+                if (!serversLogPresenceList.get(logDir).contains(SERVER_MAIN))
+                    continue;
+                
                 String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
 //                boolean ret = clientFtp.getClient().changeWorkingDirectory("/" + isoStr + "/");
 //                if (!ret)
 //                    continue;
                 LogFolderInfo lFolder = new LogFolderInfo(logDir);
 
+                // Updating the LogFiles for each LogFolder
                 FTPFile[] files = clientFtp.getClient().listFiles("/" + isoStr + "/");
                 for (FTPFile file : files) {
                     String name = logDir + "/" + file.getName();
@@ -1937,6 +2014,28 @@ public class LogsDownloaderWorker {
                     logFileTmp.setSize(file.getSize());
                     logFileTmp.setFile(file);
                     logFileTmp.setHost(getHost());
+                    // Let us see if its a directory
+                    if (file.isDirectory()) {
+                        logFileTmp.setSize(-1); // Set size to -1 if directory
+                        long allSize = 0;
+                        
+                        LinkedHashMap<String, FTPFile> dirListing = clientFtp.listDirectory(logFileTmp.getName()); // Here there are no directories
+                        ArrayList<LogFileInfo> directoryContents = new ArrayList<>();
+                        for (String fName : dirListing.keySet()) {
+                            FTPFile fFile = dirListing.get(fName);
+                            String fURIPartial = fName;
+                            LogFileInfo fLogFileTmp = new LogFileInfo(fName);
+                            fLogFileTmp.setUriPartial(fURIPartial);
+                            fLogFileTmp.setSize(fFile.getSize());
+                            fLogFileTmp.setFile(fFile);
+                            fLogFileTmp.setHost(getHost());
+                            
+                            allSize += fLogFileTmp.getSize();
+                            directoryContents.add(fLogFileTmp);
+                        }
+                        logFileTmp.setDirectoryContents(directoryContents);
+                        logFileTmp.setSize(allSize);
+                    }
                     lFolder.addFile(logFileTmp);
                     tmpLogFolders.add(lFolder);
                 }
@@ -1945,7 +2044,10 @@ public class LogsDownloaderWorker {
             // REDO the same thing if cameraHost exists with the difference of a another client
             if (cameraHost != null && cameraFtp != null) {
                 FtpDownloader ftpd = cameraFtp; // new FtpDownloader(cameraHost, port);
-                for (String logDir : logsDirList) {
+                for (String logDir : serversLogPresenceList.keySet()) {
+                    if (!serversLogPresenceList.get(logDir).contains(SERVER_CAM))
+                        continue;
+
                     String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
 //                    if (ftpd.getClient().changeWorkingDirectory("/" + isoStr + "/") == false) // Log doesnt exist in
 //                        // DOAM
@@ -1961,7 +2063,7 @@ public class LogsDownloaderWorker {
                         lFolder = new LogFolderInfo(logDir);
                     }
 
-//                    if (!ftpd.getClient().isConnected())
+                    if (!ftpd.getClient().isConnected())
                         ftpd.renewClient();
                     
                     try {
@@ -1973,6 +2075,28 @@ public class LogsDownloaderWorker {
                             logFileTmp.setSize(file.getSize());
                             logFileTmp.setFile(file);
                             logFileTmp.setHost(cameraHost);
+                            // Let us see if its a directory
+                            if (file.isDirectory()) {
+                                logFileTmp.setSize(-1); // Set size to -1 if directory
+                                long allSize = 0;
+                                
+                                LinkedHashMap<String, FTPFile> dirListing = ftpd.listDirectory(logFileTmp.getName()); // Here there are no directories
+                                ArrayList<LogFileInfo> directoryContents = new ArrayList<>();
+                                for (String fName : dirListing.keySet()) {
+                                    FTPFile fFile = dirListing.get(fName);
+                                    String fURIPartial = fName;
+                                    LogFileInfo fLogFileTmp = new LogFileInfo(fName);
+                                    fLogFileTmp.setUriPartial(fURIPartial);
+                                    fLogFileTmp.setSize(fFile.getSize());
+                                    fLogFileTmp.setFile(fFile);
+                                    fLogFileTmp.setHost(cameraHost);
+                                    
+                                    allSize += fLogFileTmp.getSize();
+                                    directoryContents.add(fLogFileTmp);
+                                }
+                                logFileTmp.setDirectoryContents(directoryContents);
+                                logFileTmp.setSize(allSize);
+                            }
                             lFolder.addFile(logFileTmp);
                             tmpLogFolders.add(lFolder);
                         }
@@ -2363,8 +2487,19 @@ public class LogsDownloaderWorker {
         LinkedHashSet<LogFileInfo> toDelFL = new LinkedHashSet<LogFileInfo>();
         for (LogFileInfo lfx : logFiles) {
             lfx.setState(LogFolderInfo.State.LOCAL);
-            DownloaderPanel workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-                    getFileTarget(lfx.getName()));
+            DownloaderPanel workerD;
+            if (lfx.isDirectory()) {
+                HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
+                for (LogFileInfo lfi : lfx.getDirectoryContents()) {
+                    directoryContentsList.put(lfi.getUriPartial(), lfx.getFile());
+                }
+                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
+                        getFileTarget(lfx.getName()), directoryContentsList);
+            }
+            else {
+                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
+                        getFileTarget(lfx.getName()));
+            }
 
             Component[] components = downloadWorkersHolder.getComponents();
             for (Component cp : components) {
@@ -2635,6 +2770,7 @@ public class LogsDownloaderWorker {
             GuiUtils.setLookAndFeel();
 
             final LogsDownloaderWorker logFetcher = new LogsDownloaderWorker();
+            logFetcher.setEnableLogLabel(true);
 
             logFetcher.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             logFetcher.frame.setVisible(true);
