@@ -50,9 +50,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Vector;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -224,8 +226,10 @@ public class LogsDownloaderWorker {
     private RectanglePainter rectPainter;
     private CompoundPainter<JXPanel> compoundBackPainter;
 
-    private Timer timer = null;
-    private TimerTask ttaskLocalDiskSpace = null;
+//    private Timer timer = null;
+//    private TimerTask ttaskLocalDiskSpace = null;
+    private ScheduledExecutorService threadScheduledPool = null;
+    private Runnable ttaskLocalDiskSpace = null;
 
     private MessageListener<MessageInfo, IMCMessage> messageListener;
     
@@ -258,7 +262,18 @@ public class LogsDownloaderWorker {
 
     private void initializeComm() {
         // Init timer
-        timer = new Timer("LogsDownloadWorker");
+//        timer = new Timer("LogsDownloadWorker");
+        threadScheduledPool = Executors.newScheduledThreadPool(1, new ThreadFactory() {
+            private long count = 0;
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(r);
+                t.setName(LogsDownloaderWorker.class.getSimpleName() + "::"
+                        + Integer.toHexString(LogsDownloaderWorker.this.hashCode()) + "::" + count++);
+                t.setDaemon(true);
+                return t;
+            }
+        });
 
         // Register for EntityActivationState
         messageListener = new MessageListener<MessageInfo, IMCMessage>() {
@@ -276,7 +291,18 @@ public class LogsDownloaderWorker {
         };
         ImcMsgManager.getManager().addListener(messageListener);
 
-        timer.scheduleAtFixedRate(new TimerTask() {
+//        timer.scheduleAtFixedRate(new TimerTask() {
+//            protected  IMCMessage msg = new IMCMessage("QueryPowerChannelState");
+//            @Override
+//            public void run() {
+//                if (getLogLabel() == null || getLogLabel().length() == 0)
+//                    return;
+//                
+//                msg.setTimestampMillis(System.currentTimeMillis());
+//                ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
+//            }
+//        }, 500, 5000);
+        threadScheduledPool.scheduleAtFixedRate(new Runnable() {
             protected  IMCMessage msg = new IMCMessage("QueryPowerChannelState");
             @Override
             public void run() {
@@ -286,12 +312,9 @@ public class LogsDownloaderWorker {
                 msg.setTimestampMillis(System.currentTimeMillis());
                 ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
             }
-        }, 500, 5000);
+        }, 500, 5000, TimeUnit.MILLISECONDS);
     }
 
-    /**
-     * 
-     */
     private void initialize() {
         initializeActions();
 
@@ -609,7 +632,8 @@ public class LogsDownloaderWorker {
             GuiUtils.centerOnScreen(frame);
 
         ttaskLocalDiskSpace = getTimerTaskLocalDiskSpace();
-        timer.scheduleAtFixedRate(ttaskLocalDiskSpace, 500, 5000);
+//        timer.scheduleAtFixedRate(ttaskLocalDiskSpace, 500, 5000);
+        threadScheduledPool.scheduleAtFixedRate(ttaskLocalDiskSpace, 500, 5000, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -1340,9 +1364,9 @@ public class LogsDownloaderWorker {
     /**
      * @return
      */
-    private TimerTask getTimerTaskLocalDiskSpace() {
+    private Runnable getTimerTaskLocalDiskSpace() {
         if (ttaskLocalDiskSpace == null) {
-            ttaskLocalDiskSpace = new TimerTask() {
+            ttaskLocalDiskSpace = new Runnable() {
                 @Override
                 public void run() {
                     // NeptusLog.pub().info("<###>Usable space: " + MathMiscUtils.parseToEngineeringRadix2Notation(new
@@ -1383,13 +1407,16 @@ public class LogsDownloaderWorker {
     public void cleanup() {
         disconnectFTPClientsForListing();
 
-        if (ttaskLocalDiskSpace != null) {
-            ttaskLocalDiskSpace.cancel();
-            ttaskLocalDiskSpace = null;
-        }
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
+//        if (ttaskLocalDiskSpace != null) {
+//            ttaskLocalDiskSpace.cancel();
+//            ttaskLocalDiskSpace = null;
+//        }
+//        if (timer != null) {
+//            timer.cancel();
+//            timer = null;
+//        }
+        if (threadScheduledPool != null) {
+            threadScheduledPool.shutdownNow();
         }
         if (frame != null) {
             if (!frameIsExternalControlled) {
@@ -1828,7 +1855,7 @@ public class LogsDownloaderWorker {
                 }
 
                 if (newState == DownloaderPanel.State.DONE) {
-                    TimerTask task = new TimerTask() {
+                    Runnable task = new Runnable() {
                         @Override
                         public void run() {
                             try {
@@ -1843,10 +1870,11 @@ public class LogsDownloaderWorker {
                             }
                         }
                     };
-                    timer.schedule(task, DELTA_TIME_TO_CLEAR_DONE);
+//                    timer.schedule(task, DELTA_TIME_TO_CLEAR_DONE);
+                    threadScheduledPool.schedule(task, DELTA_TIME_TO_CLEAR_DONE, TimeUnit.MILLISECONDS);
                 }
                 else if (newState != DownloaderPanel.State.TIMEOUT) { // FIXME VERIFICAR SE OK OU TIRAR
-                    TimerTask task = new TimerTask() {
+                    Runnable task = new Runnable() {
                         @Override
                         public void run() {
                             try {
@@ -1861,7 +1889,8 @@ public class LogsDownloaderWorker {
                             }
                         }
                     };
-                    timer.schedule(task, DELTA_TIME_TO_CLEAR_NOT_WORKING);
+//                    timer.schedule(task, DELTA_TIME_TO_CLEAR_NOT_WORKING);
+                    threadScheduledPool.schedule(task, DELTA_TIME_TO_CLEAR_NOT_WORKING, TimeUnit.MILLISECONDS);
                 }
             }
         });
