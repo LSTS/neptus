@@ -94,6 +94,8 @@ import foxtrot.AsyncWorker;
 @SuppressWarnings({"serial","unused","deprecation"})
 public class DownloaderPanel extends JXPanel implements ActionListener {
 
+    private static final int DELAY_START_ON_TIMEOUT = 8000;
+
     private static boolean debug = false;
     
 	public static final ImageIcon ICON_STOP = ImageUtils.getIcon("images/stop.png");
@@ -491,27 +493,42 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	 * Called to start the download
 	 */
 	public void actionDownload () {
-		new Thread() {
-			@Override
-			public void run() {
-				if(!isDirectory)
-				    doDownload();
-				else
-				    doDownloadDirectory();
-			}
-		}.start();
+//		new Thread() {
+//			@Override
+//			public void run() {
+//				if(!isDirectory)
+//				    doDownload();
+//				else
+//				    doDownloadDirectory();
+//			}
+//		}.start();
+		threadScheduledPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                if(!isDirectory)
+                    doDownload();
+                else
+                    doDownloadDirectory();
+            }
+        });
 	}
 	
 	/**
 	 * Called to stop the download
 	 */
 	public void actionStop() {
-		new Thread() {
-			@Override
-			public void run() {
-				doStop();
-			}
-		}.start();
+//		new Thread() {
+//			@Override
+//			public void run() {
+//				doStop();
+//			}
+//		}.start();
+		threadScheduledPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                doStop();
+            }
+        });
 	}
 
 	protected boolean doDownload() {
@@ -634,14 +651,22 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             }
 		}
 		if (isOnTimeout) {
-		    new Thread() {
-	            @Override
-	            public void run() {
-	                try { Thread.sleep(8000); } catch (InterruptedException e) { }
-	                if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
-	                    doDownload();
-	            }
-	        }.start();
+//		    new Thread() {
+//	            @Override
+//	            public void run() {
+//	                try { Thread.sleep(DELAY_START_ON_TIMEOUT); } catch (InterruptedException e) { }
+//	                if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
+//	                    doDownload();
+//	            }
+//	        }.start();
+	        Runnable command = new Runnable() {
+                @Override
+                public void run() {
+                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
+                        doDownload();
+                }
+            };
+	        threadScheduledPool.schedule(command, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
 		}
 		return true;
 	}
@@ -791,14 +816,22 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             }
         }
         if (isOnTimeout) {
-            new Thread(DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'") {
+//            new Thread(DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'") {
+//                @Override
+//                public void run() {
+//                    try { Thread.sleep(DELAY_START_ON_TIMEOUT); } catch (InterruptedException e) { }
+//                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
+//                        doDownloadDirectory();
+//                }
+//            }.start();
+            Runnable command = new Runnable() {
                 @Override
                 public void run() {
-                    try { Thread.sleep(8000); } catch (InterruptedException e) { }
                     if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
                         doDownloadDirectory();
                 }
-            }.start();
+            };
+            threadScheduledPool.schedule(command, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
         }
         return true;
     }
