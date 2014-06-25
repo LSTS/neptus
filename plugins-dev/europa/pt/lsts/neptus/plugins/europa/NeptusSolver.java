@@ -63,8 +63,8 @@ public class NeptusSolver {
     private String extraNDDL = "";
     
     public NeptusSolver() throws Exception {
-        EuropaUtils.loadLibrary("Neptus");
         europa = EuropaUtils.createPlanner("neptus/auv_model.nddl");
+        EuropaUtils.loadModule(europa, "Neptus");
         planDb = europa.getPlanDatabaseClient();
         
     }

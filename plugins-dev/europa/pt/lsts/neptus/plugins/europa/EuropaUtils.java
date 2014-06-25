@@ -141,24 +141,40 @@ public class EuropaUtils {
         System.out.println();
     }
 
-    @SuppressWarnings("unchecked")
-    public static String loadLibrary(String lib) throws Exception {
+    protected static String locateLibrary(String lib) throws Exception {
         String lookFor = System.mapLibraryName(lib);
         Vector<String> path = new Vector<>();
         if (System.getenv("EUROPA_HOME") != null && new File(System.getenv("EUROPA_HOME")).isDirectory())
             path.add(System.getenv("EUROPA_HOME") + File.separator + "lib");
         path.addAll(Arrays.asList(System.getProperty("java.library.path").split(File.pathSeparator)));
+        //FIXME Following line can throw a nullPointerException if LD_LIBRARY_PATH is not set
         path.addAll(Arrays.asList(System.getenv("LD_LIBRARY_PATH").split(File.pathSeparator)));
-
-        for (String s : path)
-            if (new File(s, lookFor).exists()) {
-                String library = new File(s, lookFor).getAbsolutePath();
-                NeptusLog.pub().info("native library loaded from "+library+".");
-                System.load(library);
-                return s;
+        for (String s : path) {
+            File f = new File(s, lookFor);
+            if ( f.exists() ) {
+                return f.getAbsolutePath();
             }
-        throw new FileNotFoundException("Library "+System.mapLibraryName(lib)+" was not found in "+StringUtils.join(path, File.pathSeparator));
+        }
+        throw new FileNotFoundException("Library "+System.mapLibraryName(lib)+" was not found in "
+					+StringUtils.join(path, File.pathSeparator));
     }
+
+    @SuppressWarnings("unchecked")
+    public static String loadLibrary(String lib) throws Exception {
+	String library = locateLibrary(lib);
+        NeptusLog.pub().info("native library loaded from "+library+".");
+        System.load(library);
+        return library;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static String loadModule(PSEngine europa, String lib) throws Exception {
+	String library = locateLibrary(lib);
+        NeptusLog.pub().info("europa native extension library loaded from "+library+".");
+        europa.loadModule(library);
+        return library;
+    }
+    
 
     public static void main(String[] args) {
         System.out.println(clearVarName("lau0v_sxplore-1"));
