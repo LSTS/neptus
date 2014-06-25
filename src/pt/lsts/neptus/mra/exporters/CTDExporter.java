@@ -109,7 +109,7 @@ public class CTDExporter implements MRAExporter {
         BufferedWriter writer;
         try {
             writer = new BufferedWriter(new FileWriter(out));
-            writer.write("timestamp, gmt_time, latitude, longitude, fixed_lat, fixed_lon, conductivity, temperature, depth, medium\n");
+            writer.write("timestamp, gmt_time, latitude, longitude, corrected_lat, corrected_lon, conductivity, temperature, depth, medium\n");
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);

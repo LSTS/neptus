@@ -1,0 +1,137 @@
+/*
+ * Note for accuracy reasons all latitude & longitudes will be in degrees 
+ */
+
+class Task {
+    float entry_latitude, entry_longitude;
+    float exit_latitude, exit_longitude;
+    float distance;	
+	
+    Task(float lat_i, float lon_i, float lat_e, float lon_e, float d) {
+		entry_latitude = lat_i;
+		entry_longitude = lon_i;
+		exit_latitude = lat_e;
+		exit_longitude = lon_e;
+		distance = d;
+    }
+};
+
+class Position extends Timeline {
+    predicate Pos {
+		float latitude, longitude, depth;
+		bool  from_task;
+		duration == 1;
+    }	 		
+};
+
+class SpeedControl extends Timeline {
+    predicate Holds {
+		float speed;
+		speed > 0.0;
+    }
+}
+
+
+class AuvActions extends Timeline {
+
+    action Transit {
+    	float distance;
+    	float speed;
+    	start >= 0;
+    }
+    action ExecTask {
+     	float dur_secs;
+     	start >= 0;
+    }
+
+    AuvActions() {}
+
+};
+
+class Auv extends Timeline {
+    Position position;
+    SpeedControl ctrl;
+    AuvActions    my_actions;
+	
+    predicate Execute {
+		Task task;
+		float speed, distance;
+		distance == task.distance;
+		start >= 0;
+    }
+	
+    Auv() {
+		position = new Position();
+		ctrl = new SpeedControl();
+		my_actions = new AuvActions();
+    }
+};
+
+Auv::Execute {
+	contained_by(SpeedControl.Holds sp);
+	sp.object == object.ctrl;
+	speed == sp.speed;
+	
+	float min_dist;
+	ll_distance(min_dist, task.entry_latitude, task.entry_longitude,
+						  task.exit_latitude, task.exit_longitude);
+	distance >= min_dist;
+	
+	contained_by(AuvActions.ExecTask);
+}
+
+AuvActions::Transit {
+	Auv me;
+	me.my_actions == object;
+	
+	meets(effect Position.Pos dest);
+	dest.from_task == false;
+	starts(condition Position.Pos source);
+	me.position == dest.object;
+	me.position == source.object;
+
+	contained_by(SpeedControl.Holds sp);
+	sp.object == me.ctrl;
+	speed == sp.speed;
+	
+	ll_distance(distance, source.latitude, source.longitude,
+						  dest.latitude, dest.longitude);
+	float dur_secs;
+	// the addition of 1.0 is to properly handle rounding error 
+	(dur_secs + 1.0) * speed == distance;
+	duration >= dur_secs;
+	start + duration == end;
+						  
+	
+}
+
+AuvActions::ExecTask {
+	Auv me;
+	Task task;
+
+	equals(effect Auv.Execute  exec);
+	task == exec.task;
+	
+	
+	meets(effect Position.Pos dest);
+	dest.from_task == true;
+	starts(condition Position.Pos source);
+	
+	me == exec.object;
+	me.my_actions == object;
+	me.position == dest.object;
+	me.position == source.object;
+	
+	source.latitude == task.entry_latitude;
+	source.longitude == task.entry_longitude;
+
+	dest.latitude == task.exit_latitude;
+	dest.longitude == task.exit_longitude;
+	
+	// the addition of 1.0 is to properly handle rounding error 
+	(dur_secs + 1.0) * exec.speed == exec.distance;
+	duration >= dur_secs;
+	start + duration == end;
+	
+}
+
