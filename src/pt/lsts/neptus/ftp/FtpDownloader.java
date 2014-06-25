@@ -48,6 +48,8 @@ import pt.lsts.neptus.NeptusLog;
  * 
  */
 public class FtpDownloader {
+    private static final int DATA_TIMEOUT_MILLIS = 15000;
+
     private FTPClient client;
 
     private FTPClientConfig conf;
@@ -83,7 +85,7 @@ public class FtpDownloader {
 //        client.setDataTimeout(30000);
 //        client.setSoTimeout(30000);
 
-          client.setDataTimeout(15000);
+          client.setDataTimeout(DATA_TIMEOUT_MILLIS);
 //          client.setSoTimeout(300000); // N funciona, não liga
 
         }
