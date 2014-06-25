@@ -43,11 +43,17 @@ public class CheckJavaOSArch {
      */
     public static void main(String[] args) {
 
-        String osName = System.getProperty("os.name").toLowerCase();
+        String osName = System.getProperty("os.name").toLowerCase().replaceAll(" ", "");
+        
+        if (osName.contains("mac"))
+            osName = "osx";
+        if (osName.contains("win"))
+            osName = "windows";
         String osArch = System.getProperty("os.arch");
         String arch = "x86";
         if (osArch.contains("64"))
             arch = "x64";
+        
         System.out.println(osName+"-"+arch); 
     }
 }
