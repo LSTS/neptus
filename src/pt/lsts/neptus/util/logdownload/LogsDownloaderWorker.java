@@ -123,6 +123,7 @@ import foxtrot.AsyncWorker;
 @NeptusDoc(ArticleFilename = "logs-downloader/logs-downloader.html#worker", ArticleTitle = "Logs Downloader Worker", Section = "Logs")
 public class LogsDownloaderWorker {
 
+    private static final int QUERYPOWERCHANNEL_PERIOD_MILLIS = 5000;
     private static final String SERVER_MAIN = "main";
     private static final String SERVER_CAM = "cam";
 
@@ -319,7 +320,7 @@ public class LogsDownloaderWorker {
                 msg.setTimestampMillis(System.currentTimeMillis());
                 ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
             }
-        }, 500, 5000, TimeUnit.MILLISECONDS);
+        }, 500, QUERYPOWERCHANNEL_PERIOD_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     private void initialize() {
