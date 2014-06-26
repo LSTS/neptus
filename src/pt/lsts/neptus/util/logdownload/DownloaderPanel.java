@@ -805,6 +805,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                     
                     if(out.exists() && fileList.get(key).getSize() == out.length()) {
                         doneFilesForDirectory++;
+                        NeptusLog.pub().debug("File for folder already synchronized: " + doneFilesForDirectory + " | "+ key);
                         continue;
                     }
                     
