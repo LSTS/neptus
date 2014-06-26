@@ -575,15 +575,21 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		
 		boolean isToBeQueued = !queueWorkTickets.lease(this);
 		if (isToBeQueued) {
-		    Runnable command = new Runnable() {
+		    final Runnable command = new Runnable() {
                 @Override
                 public void run() {
                     if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED) {
                         doDownload();
+                        System.out.println(DownloaderPanel.this.getState());
                     }
                 }
             };
-            threadScheduledPool.schedule(command, DELAY_START_ON_QUEUE, TimeUnit.MILLISECONDS);
+            threadScheduledPool.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
+                }
+            }, DELAY_START_ON_QUEUE, TimeUnit.MILLISECONDS);
             
             setStateQueued();
             
@@ -696,14 +702,19 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 //	                    doDownload();
 //	            }
 //	        }.start();
-	        Runnable command = new Runnable() {
+	        final Runnable command = new Runnable() {
                 @Override
                 public void run() {
                     if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
                         doDownload();
                 }
             };
-	        threadScheduledPool.schedule(command, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
+	        threadScheduledPool.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
+                }
+            }, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
 		}
 		return true;
 	}
@@ -735,14 +746,19 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         
         boolean isToBeQueued = !queueWorkTickets.lease(this);
         if (isToBeQueued) {
-            Runnable command = new Runnable() {
+            final Runnable command = new Runnable() {
                 @Override
                 public void run() {
                     if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED)
                         doDownload();
                 }
             };
-            threadScheduledPool.schedule(command, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
+            threadScheduledPool.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
+                }
+            }, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
             
             setStateQueued();
             
@@ -879,14 +895,20 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 //                        doDownloadDirectory();
 //                }
 //            }.start();
-            Runnable command = new Runnable() {
+            final Runnable command = new Runnable() {
                 @Override
                 public void run() {
-                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
+                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT) {
                         doDownloadDirectory();
+                    }
                 }
             };
-            threadScheduledPool.schedule(command, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
+            threadScheduledPool.schedule(new Runnable() {
+                @Override
+                public void run() {
+                    new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
+                }
+            }, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
         }
         return true;
     }
