@@ -918,6 +918,7 @@ public class LogsDownloaderWorker {
                                                     lfx.setSize(logFx.getSize()/* size */);
                                                 }
                                                 else if (lfx.getSize() != logFx.getSize()/* size */) {
+                                                    System.out.println("//////////// " + lfx.getSize() + "  " + logFx.getSize());
                                                     if (lfx.getState() == LogFolderInfo.State.SYNC)
                                                         lfx.setState(LogFolderInfo.State.INCOMPLETE);
                                                     else if (lfx.getState() == LogFolderInfo.State.LOCAL)
@@ -954,13 +955,15 @@ public class LogsDownloaderWorker {
                                                 }
                                                 
                                                 if (!getFileTarget(lfx.getName()).exists()) {
-                                                    if (lfx.getState() != LogFolderInfo.State.NEW)
+                                                    if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING) {
                                                         lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                                        System.out.println("//////////// " + lfx.getName() + "  " + getFileTarget(lfx.getName()).exists());
+                                                    }
                                                 }
                                                 if (lfx.isDirectory()) {
                                                     for (LogFileInfo lfi : lfx.getDirectoryContents()) {
                                                         if (!getFileTarget(lfi.getName()).exists()) {
-                                                            if (lfx.getState() != LogFolderInfo.State.NEW)
+                                                            if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING)
                                                                 lfx.setState(LogFolderInfo.State.INCOMPLETE);
                                                             break;
                                                         }
@@ -1747,6 +1750,9 @@ public class LogsDownloaderWorker {
         for (LogFolderInfo lf : newLogFoldersFromServer) {
             File testFile = new File(getDirTarget(), lf.getName());
             if (testFile.exists()) {
+                if (lf.getState() == LogFolderInfo.State.DOWNLOADING)
+                    continue;
+
                 lf.setState(LogFolderInfo.State.UNKNOWN);
                 for (LogFileInfo lfx : lf.getLogFiles()) {
                     File testFx = new File(getDirTarget(), lfx.getName());
@@ -1759,6 +1765,7 @@ public class LogsDownloaderWorker {
                         }
                         else {
                             lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                            System.out.println("//////////// " + lfx + "  incomplete " + lfx.getSize());
                         }
                     }
                 }
@@ -1781,6 +1788,15 @@ public class LogsDownloaderWorker {
         else if (fileTarget.exists()) {
             if (fileTarget.isFile()) {
                 return fileTarget.length();
+            }
+            else if (fileTarget.isDirectory()) {
+                long allSize = 0;
+                for (LogFileInfo dirFileInfo : fx.getDirectoryContents()) {
+                    long dfSize = getDiskSizeFromLocal(dirFileInfo);
+                    if (dfSize >= 0)
+                        allSize += dfSize;
+                }
+                return allSize;
             }
             else
                 return -500;
