@@ -493,42 +493,42 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	 * Called to start the download
 	 */
 	public void actionDownload () {
-//		new Thread() {
-//			@Override
-//			public void run() {
-//				if(!isDirectory)
-//				    doDownload();
-//				else
-//				    doDownloadDirectory();
-//			}
-//		}.start();
-		threadScheduledPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                if(!isDirectory)
-                    doDownload();
-                else
-                    doDownloadDirectory();
-            }
-        });
+		new Thread() {
+			@Override
+			public void run() {
+				if(!isDirectory)
+				    doDownload();
+				else
+				    doDownloadDirectory();
+			}
+		}.start();
+//		threadScheduledPool.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                if(!isDirectory)
+//                    doDownload();
+//                else
+//                    doDownloadDirectory();
+//            }
+//        });
 	}
 	
 	/**
 	 * Called to stop the download
 	 */
 	public void actionStop() {
-//		new Thread() {
-//			@Override
-//			public void run() {
-//				doStop();
-//			}
-//		}.start();
-		threadScheduledPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                doStop();
-            }
-        });
+		new Thread() {
+			@Override
+			public void run() {
+				doStop();
+			}
+		}.start();
+//		threadScheduledPool.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                doStop();
+//            }
+//        });
 	}
 
 	protected boolean doDownload() {
