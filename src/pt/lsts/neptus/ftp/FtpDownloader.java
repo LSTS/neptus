@@ -60,7 +60,7 @@ public class FtpDownloader {
     public FtpDownloader(String host, int port) throws Exception {
         this.host = host;
         this.port = port;
-        renewClient();
+//        renewClient();
     }
 
     /**
@@ -204,7 +204,7 @@ public class FtpDownloader {
     public LinkedHashMap<FTPFile, String> listLogs() throws IOException {
         LinkedHashMap<FTPFile, String> list = new LinkedHashMap<FTPFile, String>();
         
-        if (!client.isConnected()) {
+        if (isConnected()) {
             try {
                 renewClient();
             }
@@ -242,7 +242,7 @@ public class FtpDownloader {
 //        String toks[] = filePath.split("/");
 //        String fileName = toks[toks.length - 1];
 //
-//        if (!client.isConnected()) {
+//        if (!isConnected()) {
 //            try {
 //                renewClient();
 //            }
@@ -292,8 +292,16 @@ public class FtpDownloader {
         return client;
     }
     
+    public boolean isConnected() {
+        if (client == null)
+            return false;
+        
+        return client.isConnected();
+    }
+    
     public void close() throws IOException {
-        client.disconnect();
+        if (client != null)
+            client.disconnect();
     }
 
     public static void main(String[] args) throws Exception {

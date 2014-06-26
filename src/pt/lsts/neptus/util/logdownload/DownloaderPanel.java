@@ -580,7 +580,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 
 		NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
 
-		if (!client.getClient().isConnected()) {
+		if (!client.isConnected()) {
 		    try {
                 client.renewClient();
             }
@@ -686,7 +686,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		}
 		finally {
             try {
-                if (client.getClient().isConnected())
+                if (client.isConnected())
                     client.getClient().disconnect();
             }
             catch (IOException e) {
@@ -730,7 +730,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         if (getState() == State.WORKING)
             return false;
         
-        if (!client.getClient().isConnected()) {
+        if (!client.isConnected()) {
             try {
                 client.renewClient();
             }
@@ -881,7 +881,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         }
         finally {
             try {
-                if (client.getClient().isConnected())
+                if (client.isConnected())
                     client.getClient().disconnect();
             }
             catch (IOException e) {
@@ -925,7 +925,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             e.printStackTrace();
         }
         try {
-            client.getClient().disconnect();
+            if (client.isConnected())
+                client.getClient().disconnect();
         }
         catch (IOException e) {
             e.printStackTrace();

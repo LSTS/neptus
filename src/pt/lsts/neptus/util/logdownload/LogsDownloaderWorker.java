@@ -708,6 +708,9 @@ public class LogsDownloaderWorker {
                             else
                                 clientFtp.setHostAndPort(host, port);
                             
+                            if (!clientFtp.isConnected())
+                                clientFtp.renewClient();
+                            
                             retList = clientFtp.listLogs();
                             
                             for (String partialUri : retList.values()) {
@@ -728,6 +731,10 @@ public class LogsDownloaderWorker {
                                     cameraFtp = new FtpDownloader(cameraHost, port);
                                 else
                                     cameraFtp.setHostAndPort(cameraHost, port);
+                                
+                                if (!cameraFtp.isConnected())
+                                    cameraFtp.renewClient();
+                                
                                 retCamList = cameraFtp.listLogs();
                             }
                             catch (Exception e) {
@@ -2169,7 +2176,7 @@ public class LogsDownloaderWorker {
                         lFolder = new LogFolderInfo(logDir);
                     }
 
-                    if (!ftpd.getClient().isConnected())
+                    if (!ftpd.isConnected())
                         ftpd.renewClient();
                     
                     try {
