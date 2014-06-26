@@ -269,11 +269,17 @@ public class LogsDownloaderWorker {
     private void initializeComm() {
         // Init timer
 //        timer = new Timer("LogsDownloadWorker");
-        threadScheduledPool = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1, new ThreadFactory() {
+        threadScheduledPool = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(4, new ThreadFactory() {
+            private ThreadGroup group;
             private long count = 0;
+            {
+                SecurityManager s = System.getSecurityManager();
+                group = (s != null) ? s.getThreadGroup() :
+                                      Thread.currentThread().getThreadGroup();
+            }
             @Override
             public Thread newThread(Runnable r) {
-                Thread t = new Thread(r);
+                Thread t = new Thread(group, r);
                 t.setName(LogsDownloaderWorker.class.getSimpleName() + "::"
                         + Integer.toHexString(LogsDownloaderWorker.this.hashCode()) + "::" + count++);
                 t.setDaemon(true);
