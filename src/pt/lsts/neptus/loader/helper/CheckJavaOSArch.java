@@ -45,11 +45,6 @@ public class CheckJavaOSArch {
 
         String osName = System.getProperty("os.name").toLowerCase().replaceAll(" ", "");
         
-        //System.setProperty("java.library.path", System.getProperty("java.library.path")+System.getProperty("path.separator")+"/home/zp/workspace/neptus/libJNI/europa/x64");
-        //System.out.println(System.getProperty("java.library.path"));
-        
-        System.load("/home/zp/workspace/neptus/libJNI/europa/x64/"+System.mapLibraryName("Neptus"));
-        
         if (osName.contains("mac"))
             osName = "osx";
         if (osName.contains("win"))
