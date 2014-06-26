@@ -770,8 +770,10 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                     
                     boolean streamRes = StreamUtil.copyStreamToFile(stream, out, false);
                     out.setLastModified(fileList.get(key).getTimestamp().getTimeInMillis());
-                    client.getClient().completePendingCommand();
-                    doneFilesForDirectory++;
+                    if (client.getClient() != null)
+                        client.getClient().completePendingCommand();
+                    if (streamRes)
+                        doneFilesForDirectory++;
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -841,6 +843,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	protected void doStop() {
 	    stopping = true;
 		try {
+		    if (stream != null)
 		    stream.close();
         }
         catch (IOException e) {
