@@ -144,33 +144,55 @@ public class EuropaUtils {
     protected static String locateLibrary(String lib) throws Exception {
         String lookFor = System.mapLibraryName(lib);
         Vector<String> path = new Vector<>();
-        if (System.getenv("EUROPA_HOME") != null && new File(System.getenv("EUROPA_HOME")).isDirectory())
-            path.add(System.getenv("EUROPA_HOME") + File.separator + "lib");
+        String ldPath = System.getenv("LD_LIBRARY_PATH"), europa = System.getenv("EUROPA_HOME");
+        // Check for explicit info about europa location
+        if( europa==null ) {
+            // Attempt to get PLASMA_HOME instead
+            europa = System.getenv("PLASMA_HOME");
+        }     
+        if (europa != null && new File(europa).isDirectory())
+            path.add(europa + File.separator + "lib");
+        // Get the java library path where jnilibs are expected to be
         path.addAll(Arrays.asList(System.getProperty("java.library.path").split(File.pathSeparator)));
-        //FIXME Following line can throw a nullPointerException if LD_LIBRARY_PATH is not set
-        path.addAll(Arrays.asList(System.getenv("LD_LIBRARY_PATH").split(File.pathSeparator)));
+        // finally add LD_LIBRARY_PATH if it exists
+        if( ldPath != null ) {        
+            path.addAll(Arrays.asList(ldPath.split(File.pathSeparator)));
+        }
+        
+        // Now iterate through all these paths to locate the library
         for (String s : path) {
             File f = new File(s, lookFor);
             if ( f.exists() ) {
+                // found it => return the fully qualified path
                 return f.getAbsolutePath();
             }
         }
+        // If we reach this point the library was nowhere to be found
         throw new FileNotFoundException("Library "+System.mapLibraryName(lib)+" was not found in "
 					+StringUtils.join(path, File.pathSeparator));
     }
 
     @SuppressWarnings("unchecked")
     public static String loadLibrary(String lib) throws Exception {
-	String library = locateLibrary(lib);
+        // Loook for it
+        String library = locateLibrary(lib);
+        
         NeptusLog.pub().info("native library loaded from "+library+".");
+        // load the library directly
         System.load(library);
         return library;
     }
 
     @SuppressWarnings("unchecked")
     public static String loadModule(PSEngine europa, String lib) throws Exception {
-	String library = locateLibrary(lib);
+        // Look for it
+        String library = locateLibrary(lib);
+        
         NeptusLog.pub().info("europa native extension library loaded from "+library+".");
+        // add the extension to the europa engine this will:
+        //   - load the library
+        //   - call a special function that will create the module class
+        //   - initialize the module class for this engine attaching all the extensions
         europa.loadModule(library);
         return library;
     }
