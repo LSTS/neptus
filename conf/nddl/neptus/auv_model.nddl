@@ -55,7 +55,7 @@ class Auv extends Timeline {
 	
     predicate Execute {
 		Task task;
-		float speed, distance;
+		float speed, distance, min_dist;
 		start >= 0;
     }
 	
@@ -71,13 +71,9 @@ Auv::Execute {
 	sp.object == object.ctrl;
 	speed == sp.speed;
 	
-	float min_dist;
-	if( task ) {
-		ll_distance(min_dist, task.entry_latitude, task.entry_longitude,
-						  task.exit_latitude, task.exit_longitude);
-		distance == task.distance;
-	}
-	distance >= min_dist;
+	distance == task.distance;
+	ll_dist(task.entry_latitude, task.entry_longitude,
+			task.exit_latitude, task.exit_longitude) <= distance;
 }
 
 AuvActions::Transit {
@@ -85,54 +81,52 @@ AuvActions::Transit {
 	me.my_actions == object;
 	
 	meets(effect Position.Pos dest);
+	dest.object == me.position;
 	dest.from_task == false;
+	
 	starts(condition Position.Pos source);
-	me.position == dest.object;
-	me.position == source.object;
-
+	source.object == me.position;
+	
+	distance == ll_dist(source.latitude, source.longitude, 
+						dest.latitude, dest.longitude);
+						
 	contained_by(SpeedControl.Holds sp);
 	sp.object == me.ctrl;
 	speed == sp.speed;
-	
-	ll_distance(distance, source.latitude, source.longitude,
-						  dest.latitude, dest.longitude);
+
 	float dur_secs;
-	// the addition of 1.0 is to properly handle rounding error 
+	// compute the duration taking into account rounding error
 	(dur_secs + 1.0) * speed == distance;
-	duration >= dur_secs;
-	start + duration == end;
-						  
 	
+	duration >= dur_secs;
+	start+duration == end;
 }
 
 AuvActions::ExecTask {
 	Auv me;
 	Task task;
-
-	equals(effect Auv.Execute  exec);
+	
+	equals(effect Auv.Execute exec);
 	task == exec.task;
+	me == exec.object;
 	
-	if (task) {
-		meets(effect Position.Pos dest);
-		dest.from_task == true;
-		starts(condition Position.Pos source);
-		
-		me == exec.object;
-		me.my_actions == object;
-		me.position == dest.object;
-		me.position == source.object;
-		
-		source.latitude == task.entry_latitude;
-		source.longitude == task.entry_longitude;
+	meets(effect Position.Pos dest);
+	dest.object == me.position;
+	dest.from_task == true;
+	dest.latitude == task.exit_latitude;
+	dest.longitude == task.exit_longitude;
 	
-		dest.latitude == task.exit_latitude;
-		dest.longitude == task.exit_longitude;
-		
-		// the addition of 1.0 is to properly handle rounding error 
-		(dur_secs + 1.0) * exec.speed == exec.distance;
-		duration >= dur_secs;
-	}
-	start + duration == end;
 	
+	starts(condition Position.Pos source);
+	source.object == me.position;
+	source.latitude == task.entry_latitude;
+	source.longitude == task.entry_longitude;
+	
+	// compute the duration taking into account rounding error
+	(dur_secs + 1.0) * exec.speed == exec.distance;
+	
+	duration >= dur_secs;
+	start+duration == end;
 }
+
 

@@ -56,28 +56,13 @@ public class EuropaUtils {
         return varName.replaceAll("[^a-zA-Z0-9_]", "_");
     }
 
-    public static PSEngine createPlanner(String model) {
+    public static PSEngine createPlanner() {
         try {
             EuropaUtils.loadLibrary("System_o");
 
             final PSEngine europa = PSEngine.makeInstance();
             europa.start();
-
-            String nddlInclude = modelDir;
-
-            if (model.contains("/")) {
-                String[] folders = model.split("/");
-                String folder = "";
-                for (int i = 0; i < folders.length; i++) {
-                    folder += File.separator+folders[i];
-                    if (new File(modelDir+folder).isDirectory())
-                        nddlInclude+= ":"+modelDir+folder;
-                }
-            }
-
-            europa.getConfig().setProperty("nddl.includePath", nddlInclude);
-            europa.executeScript("nddl", modelDir + File.separator+ model, true);
-
+ 
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
                     europa.shutdown();
@@ -89,6 +74,23 @@ public class EuropaUtils {
             NeptusLog.pub().error(e);
             return null;
         }
+    }
+    
+    public static void loadModel(PSEngine engine, String nddlFile) throws PSLanguageExceptionList {
+        String nddlInclude = modelDir;
+        
+        if( nddlFile.contains("/") ) {
+            String[] folders = nddlFile.split("/");
+            String folder = "";
+            
+            for (int i = 0; i < folders.length; i++) {
+                folder += File.separator+folders[i];
+                if (new File(modelDir+folder).isDirectory())
+                    nddlInclude+= ":"+modelDir+folder;
+            }
+        }
+       engine.getConfig().setProperty("nddl.includePath", nddlInclude);
+       engine.executeScript("nddl", modelDir + File.separator + nddlFile, true);        
     }
 
     public static void eval(PSEngine engine, String nddl) throws PSLanguageExceptionList {

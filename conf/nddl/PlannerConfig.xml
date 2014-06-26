@@ -1,4 +1,4 @@
-<Solver name="DefaultTestSolver">
+<Solver name="Default">
   <!--   FlawFilter component="HorizonFilter" policy="PartiallyContained"/ -->
 
   <ThreatManager defaultPriority="0">
