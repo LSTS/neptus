@@ -95,6 +95,7 @@ import foxtrot.AsyncWorker;
 public class DownloaderPanel extends JXPanel implements ActionListener {
 
     private static final int DELAY_START_ON_TIMEOUT = 8000;
+    private static final int DELAY_START_ON_QUEUE = 1000;
 
     private static boolean debug = false;
     
@@ -105,16 +106,17 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 //    private static final Color COLOR_FRONT = Color.GRAY;
 
     private static final Color COLOR_IDLE = new JXPanel().getBackground();
-    private static final Color COLOR_DONE = new Color(140, 255, 170);
-    private static final Color COLOR_NOT_DONE = new Color(255, 210, 140);
-    private static final Color COLOR_TIMEOUT = new Color(173, 154, 79);
-    private static final Color COLOR_ERROR = new Color(255, 100, 100);
-    private static final Color COLOR_WORKING = new Color(190, 220, 240); // blue
+    private static final Color COLOR_DONE = new Color(140, 255, 170); // grennish
+    private static final Color COLOR_NOT_DONE = new Color(255, 210, 140); // beigeish
+    private static final Color COLOR_TIMEOUT = new Color(173, 154, 79); // brownnish
+    private static final Color COLOR_QUEUED = new Color(255, 240, 245); // LavenderBlush
+    private static final Color COLOR_ERROR = new Color(255, 100, 100); // redish
+    private static final Color COLOR_WORKING = new Color(190, 220, 240); // blueish
 
 	public static final String ACTION_STOP = "Stop";
 	public static final String ACTION_DOWNLOAD = "Download";
 	
-	public static enum State {IDLE, WORKING, DONE, ERROR, NOT_DONE, TIMEOUT};
+	public static enum State {IDLE, WORKING, DONE, ERROR, NOT_DONE, TIMEOUT, QUEUED};
 	
 	private State state = State.IDLE;
 	
@@ -157,6 +159,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
     
     // Executer for periodic tasks
     private ScheduledThreadPoolExecutor threadScheduledPool;
+    
+    private QueueWorkTickets<DownloaderPanel> queueWorkTickets;
 
 	public DownloaderPanel() {
 		initialize();
@@ -168,8 +172,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	 * @param uri
 	 */
     public DownloaderPanel(FtpDownloader client, FTPFile ftpFile, String uri, File outFile,
-            ScheduledThreadPoolExecutor threadScheduledPool) {
-        this(client, ftpFile, uri, outFile, null, threadScheduledPool);
+            ScheduledThreadPoolExecutor threadScheduledPool, QueueWorkTickets<DownloaderPanel> queueWorkTickets) {
+        this(client, ftpFile, uri, outFile, null, threadScheduledPool, queueWorkTickets);
     }
 
     /**
@@ -180,7 +184,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
      * @param directoryContentsList
      */
     public DownloaderPanel(FtpDownloader client, FTPFile ftpFile, String uri, File outFile,
-            HashMap<String, FTPFile> directoryContentsList, ScheduledThreadPoolExecutor threadScheduledPool) {
+            HashMap<String, FTPFile> directoryContentsList, ScheduledThreadPoolExecutor threadScheduledPool,
+            QueueWorkTickets<DownloaderPanel> queueWorkTickets) {
 	    this();
 		this.client = client;
 		this.ftpFile = ftpFile;
@@ -189,6 +194,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		this.outFile = outFile;
 		
 		this.threadScheduledPool = threadScheduledPool;
+		this.queueWorkTickets = queueWorkTickets;
 		
 		this.isDirectory = ftpFile.isDirectory();
 		
@@ -413,6 +419,11 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             getStopButton().setEnabled(true);
             getDownloadButton().setEnabled(true);
         }
+        else if (state == State.QUEUED) {
+            updateBackColor(COLOR_QUEUED);
+            getStopButton().setEnabled(true);
+            getDownloadButton().setEnabled(true);
+        }
 		else {
 			updateBackColor(COLOR_IDLE);
 			getStopButton().setEnabled(false);
@@ -445,7 +456,11 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	private void setStateTimeout() {
         setState(State.TIMEOUT);
     }	
-	
+
+	private void setStateQueued() {
+	    setState(State.QUEUED);
+	}   
+
 	/**
 	 * @param newState
 	 * @param oldState
@@ -558,6 +573,23 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		}
 		setStateWorking();
 		
+		boolean isToBeQueued = !queueWorkTickets.lease(this);
+		if (isToBeQueued) {
+		    Runnable command = new Runnable() {
+                @Override
+                public void run() {
+                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED) {
+                        doDownload();
+                    }
+                }
+            };
+            threadScheduledPool.schedule(command, DELAY_START_ON_QUEUE, TimeUnit.MILLISECONDS);
+            
+            setStateQueued();
+            
+            return true;
+		}
+		
 		boolean isOnTimeout = false;
 		
 		try {
@@ -652,6 +684,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             catch (IOException e) {
                 e.printStackTrace();
             }
+            
+            queueWorkTickets.release(this);
 		}
 		if (isOnTimeout) {
 //		    new Thread() {
@@ -698,6 +732,22 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         
         setStateWorking();
         stopping = false;
+        
+        boolean isToBeQueued = !queueWorkTickets.lease(this);
+        if (isToBeQueued) {
+            Runnable command = new Runnable() {
+                @Override
+                public void run() {
+                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED)
+                        doDownload();
+                }
+            };
+            threadScheduledPool.schedule(command, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
+            
+            setStateQueued();
+            
+            return true;
+        }
         
         boolean isOnTimeout = false;
 
@@ -857,8 +907,10 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         }
         setStateNotDone();
 		
-		if (getState() == State.TIMEOUT)
+		if (getState() == State.TIMEOUT || getState() == State.QUEUED)
 		    setStateNotDone();
+		
+		queueWorkTickets.release(this);
 	}
 	
 	/* (non-Javadoc)

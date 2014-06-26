@@ -124,6 +124,7 @@ import foxtrot.AsyncWorker;
 public class LogsDownloaderWorker {
 
     private static final int QUERYPOWERCHANNEL_PERIOD_MILLIS = 5000;
+    private static final int ACTIVE_DOWNLOADS_QUEUE_SIZE = 4;
     private static final String SERVER_MAIN = "main";
     private static final String SERVER_CAM = "cam";
 
@@ -240,6 +241,8 @@ public class LogsDownloaderWorker {
     private boolean isUpdatingFileList = false;
     private boolean exitRequest = false;
     private final Object lock = new Object();
+    
+    private QueueWorkTickets<DownloaderPanel> queueWorkTickets = new QueueWorkTickets<>(ACTIVE_DOWNLOADS_QUEUE_SIZE);
 
     /**
      * This will create a panel and a frame to control the logs downloading. Use {@link #setVisible(boolean)} to show
@@ -931,6 +934,7 @@ public class LogsDownloaderWorker {
                                                                 alreadyExists = true;
                                                                 notMatchElements.remove(lfiLocal);
                                                                 lfi.setSize(lfiLocal.getSize());
+                                                                lfi.setFile(lfiLocal.getFile());
                                                             }
                                                         }
                                                         if (!alreadyExists) {
@@ -1440,6 +1444,8 @@ public class LogsDownloaderWorker {
             downHelpDialog.dispose();
 
         ImcMsgManager.getManager().removeListener(messageListener);
+        
+        queueWorkTickets.cancelAll();
     }
 
     /**
@@ -1801,14 +1807,14 @@ public class LogsDownloaderWorker {
             if (lfx.isDirectory()) {
                 HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
                 for (LogFileInfo lfi : lfx.getDirectoryContents()) {
-                    directoryContentsList.put(lfi.getUriPartial(), lfx.getFile());
+                    directoryContentsList.put(lfi.getUriPartial(), lfi.getFile());
                 }
                 workerD = new DownloaderPanel(ftpDownloader, lfx.getFile(), lfx.getName(),
-                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool);
+                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool, queueWorkTickets);
             }
             else {
                 workerD = new DownloaderPanel(ftpDownloader, lfx.getFile(), lfx.getName(),
-                        getFileTarget(lfx.getName()), threadScheduledPool);
+                        getFileTarget(lfx.getName()), threadScheduledPool, queueWorkTickets);
             }
         }
         catch (Exception e1) {
@@ -1824,6 +1830,7 @@ public class LogsDownloaderWorker {
                     if (workerD.getState() == DownloaderPanel.State.ERROR
                             || workerD.getState() == DownloaderPanel.State.IDLE
                             || workerD.getState() == DownloaderPanel.State.TIMEOUT
+                            || workerD.getState() == DownloaderPanel.State.QUEUED
                             || workerD.getState() == DownloaderPanel.State.NOT_DONE) {
                         workerD.actionDownload();
                     }
@@ -1881,12 +1888,15 @@ public class LogsDownloaderWorker {
 //                    timer.schedule(task, DELTA_TIME_TO_CLEAR_DONE);
                     threadScheduledPool.schedule(task, DELTA_TIME_TO_CLEAR_DONE, TimeUnit.MILLISECONDS);
                 }
-                else if (newState != DownloaderPanel.State.TIMEOUT) { // FIXME VERIFICAR SE OK OU TIRAR
+                else if (newState != DownloaderPanel.State.TIMEOUT && newState != DownloaderPanel.State.QUEUED) { // FIXME VERIFICAR SE OK OU TIRAR
                     Runnable task = new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                if (workerDFinal.getState() != DownloaderPanel.State.WORKING) {
+                                if (workerDFinal.getState() != DownloaderPanel.State.WORKING
+                                        && workerDFinal.getState() != DownloaderPanel.State.TIMEOUT
+                                        && workerDFinal.getState() != DownloaderPanel.State.QUEUED) {
+                                    workerDFinal.doStop();
                                     downloadWorkersHolder.remove(workerDFinal);
                                     downloadWorkersHolder.revalidate();
                                     downloadWorkersHolder.repaint();
@@ -2438,7 +2448,7 @@ public class LogsDownloaderWorker {
         for (Component cp : components) {
             try {
                 DownloaderPanel workerD = (DownloaderPanel) cp;
-                if (workerD.getState() == DownloaderPanel.State.WORKING) {
+//                if (workerD.getState() == DownloaderPanel.State.WORKING) {
                     if (!stopAll) {
                         for (String prefix : logList) {
                             if (workerD.getName().startsWith(prefix)) {
@@ -2449,7 +2459,7 @@ public class LogsDownloaderWorker {
                         continue;
                     }
                     workerD.actionStop();
-                }
+//                }
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -2545,11 +2555,11 @@ public class LogsDownloaderWorker {
                     directoryContentsList.put(lfi.getUriPartial(), lfx.getFile());
                 }
                 workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool);
+                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool, queueWorkTickets);
             }
             else {
                 workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-                        getFileTarget(lfx.getName()), threadScheduledPool);
+                        getFileTarget(lfx.getName()), threadScheduledPool, queueWorkTickets);
             }
 
             Component[] components = downloadWorkersHolder.getComponents();
