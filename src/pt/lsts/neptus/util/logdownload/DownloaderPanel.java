@@ -550,10 +550,36 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	    if(isDirectory)
             return doDownloadDirectory();
 	    
-	    NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
 		if (getState() == State.WORKING)
 			return false;
 		
+        State prevState = getState();
+        setStateWorking();
+
+		boolean isToBeQueued = !queueWorkTickets.lease(this);
+		if (isToBeQueued) {
+		    final Runnable command = new Runnable() {
+		        @Override
+		        public void run() {
+		            if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED) {
+		                doDownload();
+		            }
+		        }
+		    };
+		    threadScheduledPool.schedule(new Runnable() {
+		        @Override
+		        public void run() {
+		            new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
+		        }
+		    }, DELAY_START_ON_QUEUE, TimeUnit.MILLISECONDS);
+
+		    setStateQueued();
+
+		    return true;
+		}
+
+		NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
+
 		if (!client.getClient().isConnected()) {
 		    try {
                 client.renewClient();
@@ -565,36 +591,12 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             }
 		}
 		
-		State prevState = getState();
 		long begByte = 0;
 		if (usePartialDownload && prevState != State.DONE && outFile.exists() && outFile.isFile() && !isDirectory) {
 		    begByte = outFile.length();
 		    NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "!begin byte: " + begByte);
 		}
 		setStateWorking();
-		
-		boolean isToBeQueued = !queueWorkTickets.lease(this);
-		if (isToBeQueued) {
-		    final Runnable command = new Runnable() {
-                @Override
-                public void run() {
-                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED) {
-                        doDownload();
-                        System.out.println(DownloaderPanel.this.getState());
-                    }
-                }
-            };
-            threadScheduledPool.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
-                }
-            }, DELAY_START_ON_QUEUE, TimeUnit.MILLISECONDS);
-            
-            setStateQueued();
-            
-            return true;
-		}
 		
 		boolean isOnTimeout = false;
 		
