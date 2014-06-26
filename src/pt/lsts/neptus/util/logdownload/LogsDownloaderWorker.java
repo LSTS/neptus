@@ -1800,7 +1800,30 @@ public class LogsDownloaderWorker {
                 || lfx.getState() == LogFolderInfo.State.LOCAL) {
             return;
         }
+        
+        // Let us see if already exists in download list
+        Component[] components = downloadWorkersHolder.getComponents();
+        for (Component cp : components) {
+            try {
+                DownloaderPanel dpp = (DownloaderPanel) cp;
+                if (lfx.getName().equals(dpp.getUri())) {
+                    if (dpp.getState() == DownloaderPanel.State.ERROR
+                            || dpp.getState() == DownloaderPanel.State.IDLE
+                            || dpp.getState() == DownloaderPanel.State.TIMEOUT
+                            || dpp.getState() == DownloaderPanel.State.QUEUED
+                            || dpp.getState() == DownloaderPanel.State.NOT_DONE) {
+                        dpp.actionDownload();
+                    }
+                    return;
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         DownloaderPanel workerD = null;
+        
         try {
             FtpDownloader ftpDownloader = null;
 //            if (clientFtp != null && clientFtp.getHost().equals(lfx.getHost()))
@@ -1827,26 +1850,26 @@ public class LogsDownloaderWorker {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-        Component[] components = downloadWorkersHolder.getComponents();
-        for (Component cp : components) {
-            try {
-                DownloaderPanel dpp = (DownloaderPanel) cp;
-                if (workerD.equals(dpp)) {
-                    workerD = dpp;
-                    if (workerD.getState() == DownloaderPanel.State.ERROR
-                            || workerD.getState() == DownloaderPanel.State.IDLE
-                            || workerD.getState() == DownloaderPanel.State.TIMEOUT
-                            || workerD.getState() == DownloaderPanel.State.QUEUED
-                            || workerD.getState() == DownloaderPanel.State.NOT_DONE) {
-                        workerD.actionDownload();
-                    }
-                    break;
-                }
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+//        Component[] components = downloadWorkersHolder.getComponents();
+//        for (Component cp : components) {
+//            try {
+//                DownloaderPanel dpp = (DownloaderPanel) cp;
+//                if (workerD.equals(dpp)) {
+//                    workerD = dpp;
+//                    if (workerD.getState() == DownloaderPanel.State.ERROR
+//                            || workerD.getState() == DownloaderPanel.State.IDLE
+//                            || workerD.getState() == DownloaderPanel.State.TIMEOUT
+//                            || workerD.getState() == DownloaderPanel.State.QUEUED
+//                            || workerD.getState() == DownloaderPanel.State.NOT_DONE) {
+//                        workerD.actionDownload();
+//                    }
+//                    break;
+//                }
+//            }
+//            catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
         final LogFolderInfo lfdfinal = logFd;
         final LogFileInfo lfxfinal = lfx;
         final DownloaderPanel workerDFinal = workerD;
