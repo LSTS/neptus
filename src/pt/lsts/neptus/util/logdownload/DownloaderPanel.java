@@ -688,15 +688,15 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		    }
 		}
 		finally {
-            try {
+		    queueWorkTickets.release(this);
+
+		    try {
                 if (client.isConnected())
                     client.getClient().disconnect();
             }
             catch (IOException e) {
                 e.printStackTrace();
             }
-            
-            queueWorkTickets.release(this);
 		}
 		if (isOnTimeout) {
 //		    new Thread() {
@@ -887,6 +887,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             }
         }
         finally {
+            queueWorkTickets.release(this);
             try {
                 if (client.isConnected())
                     client.getClient().disconnect();
