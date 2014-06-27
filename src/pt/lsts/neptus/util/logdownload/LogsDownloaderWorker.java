@@ -1897,16 +1897,20 @@ public class LogsDownloaderWorker {
         final LogFileInfo lfxfinal = lfx;
         final DownloaderPanel workerDFinal = workerD;
         workerD.addStateChangeListener(new DownloadStateListener() {
-            LogFileInfo fxLog = lfxfinal;
-
+            private LogFileInfo fxLog = lfxfinal;
+            private Runnable task = null;
+            
             @Override
             public void downloaderStateChange(DownloaderPanel.State newState, DownloaderPanel.State oldState) {
+                System.out.println("State state update for " + fxLog.getUriPartial() + " " + fxLog.getState() + "::" + oldState + "::" + newState);
+
                 if (fxLog.getState() != LogFolderInfo.State.LOCAL) {
                     if (newState == DownloaderPanel.State.DONE)
                         fxLog.setState(LogFolderInfo.State.SYNC);
                     else if (newState == DownloaderPanel.State.ERROR)
                         fxLog.setState(LogFolderInfo.State.ERROR);
-                    else if (newState == DownloaderPanel.State.WORKING)
+                    else if (newState == DownloaderPanel.State.WORKING || newState == DownloaderPanel.State.TIMEOUT
+                            || newState == DownloaderPanel.State.QUEUED)
                         fxLog.setState(LogFolderInfo.State.DOWNLOADING);
                     else if (newState == DownloaderPanel.State.NOT_DONE)
                         fxLog.setState(LogFolderInfo.State.INCOMPLETE);
@@ -1917,12 +1921,17 @@ public class LogsDownloaderWorker {
                         logFilesList.revalidate();
                         logFilesList.repaint();
                     }
-
+                    
                     updateLogFolderState(lfdfinal);
                 }
-
-                if (newState == DownloaderPanel.State.DONE) {
-                    Runnable task = new Runnable() {
+                
+                if (newState == DownloaderPanel.State.WORKING || newState == DownloaderPanel.State.TIMEOUT
+                        || newState == DownloaderPanel.State.QUEUED) {
+                    cancelTasksIfSchedule();
+                }
+                else if (newState == DownloaderPanel.State.DONE) {
+                    cancelTasksIfSchedule();
+                    task = new Runnable() {
                         @Override
                         public void run() {
                             try {
@@ -1940,8 +1949,9 @@ public class LogsDownloaderWorker {
 //                    timer.schedule(task, DELTA_TIME_TO_CLEAR_DONE);
                     threadScheduledPool.schedule(task, DELTA_TIME_TO_CLEAR_DONE, TimeUnit.MILLISECONDS);
                 }
-                else if (newState != DownloaderPanel.State.TIMEOUT && newState != DownloaderPanel.State.QUEUED) { // FIXME VERIFICAR SE OK OU TIRAR
-                    Runnable task = new Runnable() {
+                else { //if (newState != DownloaderPanel.State.WORKING && newState != DownloaderPanel.State.TIMEOUT && newState != DownloaderPanel.State.QUEUED) { // FIXME VERIFICAR SE OK OU TIRAR
+                    cancelTasksIfSchedule();
+                    task = new Runnable() {
                         @Override
                         public void run() {
                             try {
@@ -1961,6 +1971,13 @@ public class LogsDownloaderWorker {
                     };
 //                    timer.schedule(task, DELTA_TIME_TO_CLEAR_NOT_WORKING);
                     threadScheduledPool.schedule(task, DELTA_TIME_TO_CLEAR_NOT_WORKING, TimeUnit.MILLISECONDS);
+                }
+            }
+
+            private void cancelTasksIfSchedule() {
+                if (task != null) {
+                    threadScheduledPool.remove(task);
+                    threadScheduledPool.purge();
                 }
             }
         });
