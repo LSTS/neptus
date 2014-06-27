@@ -44,6 +44,7 @@ import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -989,6 +990,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 //				+ DownloaderPanel.this.hashCode());
 		private ScheduledThreadPoolExecutor threadScheduledPool = null;
         private Runnable ttask = null;
+        private ScheduledFuture<?> taskFuture = null;
         
         private MovingAverage movingAverage = new MovingAverage((short) 25);
 		
@@ -1003,8 +1005,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		public void stopDisplayUpdate() {
 			if (ttask != null) {
 //				ttask.cancel();
-				threadScheduledPool.remove(ttask);
-				threadScheduledPool.purge();
+//				threadScheduledPool.remove(ttask);
+//				threadScheduledPool.purge();
+				taskFuture.cancel(true);
 			}
             prec = (long) ((double) downloadedSize / (double) fullSize * 100.0);
 			getProgressBar().setValue((int) prec);
@@ -1043,9 +1046,10 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			if (downloadedSize >= fullSize) {
 				if (ttask != null) {
 //					ttask.cancel();
-					threadScheduledPool.remove(ttask);
+//					threadScheduledPool.remove(ttask);
+					taskFuture.cancel(true);
 					ttask = null;
-					threadScheduledPool.purge();
+//					threadScheduledPool.purge();
 					updateProgressInfo();
 				}
 			}
@@ -1053,7 +1057,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 				if (ttask == null) {
 					ttask = getTimerTask();
 //					timer.schedule(ttask, 150);
-					threadScheduledPool.schedule(ttask, 150, TimeUnit.MILLISECONDS);
+					taskFuture = threadScheduledPool.schedule(ttask, 150, TimeUnit.MILLISECONDS);
 				}
 			}
 				
