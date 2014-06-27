@@ -48,6 +48,13 @@ public class QueueWorkTickets <C extends Object> {
         this.maximumTickets = maximumTickets;
     }
     
+    /**
+     * Call this to lease a working ticket.
+     * If is immediately granted, return true. If not returns false and one should {@link #release(Object)}
+     * or periodically check with {@link #isLeased(Object)}. 
+     * @param client
+     * @return
+     */
     public boolean lease(C client) {
         if (waitingClients.contains(client)) {
             return false;
