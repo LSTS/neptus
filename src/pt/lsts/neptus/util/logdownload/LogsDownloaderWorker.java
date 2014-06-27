@@ -124,7 +124,7 @@ import foxtrot.AsyncWorker;
 public class LogsDownloaderWorker {
 
     private static final int QUERYPOWERCHANNEL_PERIOD_MILLIS = 5000;
-    private static final int ACTIVE_DOWNLOADS_QUEUE_SIZE = 4;
+    private static final int ACTIVE_DOWNLOADS_QUEUE_SIZE = 1;
     private static final String SERVER_MAIN = "main";
     private static final String SERVER_CAM = "cam";
 
