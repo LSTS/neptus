@@ -557,7 +557,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         State prevState = getState();
         setStateWorking();
 
-		boolean isToBeQueued = !queueWorkTickets.lease(this);
+		boolean isToBeQueued = GeneralPreferences.logsNumberSimultaneousDownloadsControl ? !queueWorkTickets.lease(this) : false;
 		if (isToBeQueued) {
 		    final Runnable command = new Runnable() {
 		        @Override
@@ -749,7 +749,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         setStateWorking();
         stopping = false;
         
-        boolean isToBeQueued = !queueWorkTickets.lease(this);
+        boolean isToBeQueued = GeneralPreferences.logsNumberSimultaneousDownloadsControl ? !queueWorkTickets.lease(this) : false;
         if (isToBeQueued) {
             final Runnable command = new Runnable() {
                 @Override
