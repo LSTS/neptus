@@ -66,7 +66,8 @@ void neptus_module::initialize(EngineId engine) {
   std::string where = engine->getConfig()->getProperty("neptus.cfgPath");
   if( !where.empty() ) {
     // First make sure that debug messages will be redirected to a file
-    m_dbg_out.open(where+"/Europa.log", std::ofstream::out | std::ofstream::app);
+    m_dbg_out.open((where+"/Europa.log").c_str(),
+                   std::ofstream::out | std::ofstream::app);
     // Produce a Marker
     std::time_t my_date = std::time(NULL);
     m_dbg_out<<"\n>>>>>>>>>>>> "<<std::asctime(std::localtime(&my_date))
