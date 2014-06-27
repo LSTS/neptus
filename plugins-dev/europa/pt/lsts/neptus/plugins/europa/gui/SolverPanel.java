@@ -34,18 +34,24 @@ package pt.lsts.neptus.plugins.europa.gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
+import java.util.Vector;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
+import psengine.PSToken;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.plugins.europa.NeptusSolver;
 import pt.lsts.neptus.plugins.europa.PlanTask;
+import pt.lsts.neptus.plugins.europa.PlanTimeline;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
@@ -62,8 +68,10 @@ public class SolverPanel extends JPanel {
     JComboBox<VehicleType> vehicles = new JComboBox<>();
     JComboBox<PlanType> plans = new JComboBox<>();
     JFormattedTextField speed = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(2));
+    ConsoleLayout console;
     
-    public SolverPanel(Collection<VehicleType> vehicles, Collection<PlanType> plans) {
+    public SolverPanel(ConsoleLayout console, Collection<VehicleType> vehicles, Collection<PlanType> plans) {
+        this.console = console;
         
         for (VehicleType vt : vehicles)
             this.vehicles.addItem(vt);
@@ -72,6 +80,43 @@ public class SolverPanel extends JPanel {
             this.plans.addItem(pt);
         
         initialize();
+    }
+    
+    private void solve() {
+        
+        Vector<PSToken> goals = new Vector<>();
+        
+        try {
+            NeptusSolver solver = new NeptusSolver();
+            
+            for (int i = 0;i < vehicles.getItemCount(); i++) {
+                // FIXME
+                solver.addVehicle(vehicles.getItemAt(i).getId(), console.getMission().getHomeRef(), 0.7, 1.0, 1.3, 8 * 3600 * 1000, 6 * 3600 * 1000, 4 * 3600 * 1000);                
+            }
+            
+            for (int i = 0;i < plans.getItemCount(); i++)
+                solver.addTask(plans.getItemAt(i));
+            
+            for (int i = 0;i < listModel.getSize(); i++) {
+                PlanTask pt = listModel.get(i);
+                goals.add(solver.addGoal(pt.vehicle.getId(), pt.plan.getId(), pt.speed));
+            }
+            
+            solver.solve(1000);
+             
+            PlanTimeline timeline = new PlanTimeline(solver);
+            timeline.setPlan(solver.getPlan("lauv-xtreme-2"));
+            JFrame frm = GuiUtils.testFrame(timeline);
+            frm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            
+            for (PSToken goal : goals) {
+                System.out.println(goal.toLongString());
+            }
+        }
+        catch (Exception e) {
+            GuiUtils.errorMessage(console, e);
+        }
+        
     }
     
     private void initialize() {
@@ -95,7 +140,15 @@ public class SolverPanel extends JPanel {
         });
         tasks.setBorder(new TitledBorder("Tasks"));
         add(tasks, "span");
+        
+        JButton solveBtn = new JButton("Solve");
+        solveBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                solve();
+            }
+        });
+        
+        add(solveBtn, "span");
     }
-    
-    
 }

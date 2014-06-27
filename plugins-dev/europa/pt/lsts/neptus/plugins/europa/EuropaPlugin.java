@@ -71,7 +71,7 @@ public class EuropaPlugin extends ConsolePanel {
 
     @Override
     public void initSubPanel() {
-        addMenuItem("Tools>Europa>Generate Mission", null, new ActionListener() {
+        addMenuItem("Tools>Mission Planner>Generate Mission", null, new ActionListener() {
             
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -94,8 +94,8 @@ public class EuropaPlugin extends ConsolePanel {
     }
     
     private void generateMission() {
-        SolverPanel sp = new SolverPanel(getVehicles(), getPlans());
-        JFrame frame = new JFrame("Europa Solver");
+        SolverPanel sp = new SolverPanel(getConsole(), getVehicles(), getPlans());
+        JFrame frame = new JFrame("Mission Planner");
         frame.setContentPane(sp);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(600, 600);

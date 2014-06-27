@@ -152,6 +152,7 @@ public class NeptusSolver {
         tok.getParameter("longitude").specifyValue(PSVarValue.getInstance(position.getLongitudeDegs()));
         tok.getParameter("depth").specifyValue(PSVarValue.getInstance(position.getDepth()));
 
+        System.out.println(vehicleObjects);
         return varVehicle;
     }
 

@@ -40,9 +40,9 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
  */
 public class PlanTask {
 
-    private PlanType plan;
-    private VehicleType vehicle;
-    private double speed;
+    public PlanType plan;
+    public VehicleType vehicle;
+    public double speed;
     
     public PlanTask(PlanType plan, VehicleType vehicle, double speed) {
         this.plan = plan;
