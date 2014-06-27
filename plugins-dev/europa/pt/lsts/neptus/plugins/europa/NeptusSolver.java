@@ -31,9 +31,13 @@
  */
 package pt.lsts.neptus.plugins.europa;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Locale.Category;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import psengine.PSEngine;
@@ -41,6 +45,7 @@ import psengine.PSObject;
 import psengine.PSPlanDatabaseClient;
 import psengine.PSSolver;
 import psengine.PSToken;
+import psengine.PSTokenList;
 import psengine.PSVarValue;
 import psengine.PSVariable;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -49,6 +54,7 @@ import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp
@@ -71,6 +77,45 @@ public class NeptusSolver {
         EuropaUtils.loadModel(europa, "neptus/auv_model.nddl");
         planDb = europa.getPlanDatabaseClient();
 
+    }
+    
+    public String resolveVehicleName(String mangledName) {
+        for (Entry<String, PSObject> entry : vehicleObjects.entrySet()) {
+            if (entry.getValue().getEntityName().equals(mangledName))
+                return entry.getKey();
+        }
+        return null;
+    }
+    
+    public String resolvePlanName(String mangledName) {
+        for (Entry<String, PSObject> entry : planObjects.entrySet()) {
+            if (entry.getValue().getEntityName().equals(mangledName))
+                return entry.getKey();
+        }
+        return null;
+    }
+    
+    public Collection<PSToken> getPlan(String vehicle) throws Exception {
+        PSObject vObj = vehicleObjects.get(vehicle);
+        if (vObj == null)
+            throw new Exception("Unknown vehicle");
+        
+        PSTokenList plan1 = vObj.getTokens();
+        Vector<PSToken> plan = new Vector<>();
+        
+        for (int i = 0; i < plan1.size(); i++) {
+            //PSToken tok = plan1.get(i);
+            plan.add(plan1.get(i));
+        }
+        
+        Collections.sort(plan, new Comparator<PSToken>() {
+            @Override
+            public int compare(PSToken o1, PSToken o2) {
+                return new Double(o1.getStart().getLowerBound()).compareTo(o2.getStart().getLowerBound());
+            }
+        });
+
+        return plan;
     }
 
     public PSObject addVehicle(String name, LocationType position) throws Exception {
@@ -107,8 +152,6 @@ public class NeptusSolver {
 
     public PSObject addTask(PlanType plan) throws Exception {
         String planName = plan.getId();
-        //FIXME
-        double planLength = 2000;
 
         Vector<LocatedManeuver> mans = PlanUtil.getLocationsAsSequence(plan);
         if (mans.isEmpty() )
@@ -195,15 +238,17 @@ public class NeptusSolver {
 
         solver.closeDomain();
         for (PlanType pt : mt.getIndividualPlansList().values()) {
-            PSToken goal = solver.addGoal("lauv-xplore-1", pt.getId(), 1.1);            
+            solver.addGoal("lauv-xplore-1", pt.getId(), 1.1);            
         }
 
         System.out.println(FileUtil.getFileAsString("conf/nddl/neptus/auv_model.nddl"));
         System.out.println(solver.extraNDDL);
+        
+        
         solver.solve(10000);
         
-        System.out.println(solver.europa.planDatabaseToString());
-        
-
+        PlanTimeline timeline = new PlanTimeline(solver);
+        timeline.setPlan(solver.getPlan("lauv-xplore-1"));
+        GuiUtils.testFrame(timeline);
     }
 }

@@ -74,6 +74,7 @@ public class EuropaUtils {
             return europa;            
         }
         catch (Exception e) {
+            e.printStackTrace();
             NeptusLog.pub().error(e);
             return null;
         }
@@ -146,6 +147,7 @@ public class EuropaUtils {
         System.out.println();
     }
 
+    @SuppressWarnings("unchecked")
     protected static String locateLibrary(String lib) throws Exception {
         String lookFor = System.mapLibraryName(lib);
         Vector<String> path = new Vector<>();
@@ -177,7 +179,6 @@ public class EuropaUtils {
 					+StringUtils.join(path, File.pathSeparator));
     }
 
-    @SuppressWarnings("unchecked")
     public static String loadLibrary(String lib) throws Exception {
         // Loook for it
         String library = locateLibrary(lib);
@@ -188,7 +189,6 @@ public class EuropaUtils {
         return library;
     }
 
-    @SuppressWarnings("unchecked")
     public static String loadModule(PSEngine europa, String lib) throws Exception {
         // Look for it
         String library = locateLibrary(lib);
