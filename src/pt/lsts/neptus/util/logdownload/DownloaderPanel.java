@@ -462,11 +462,12 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	}   
 
 	/**
+	 * Only warns if a state change happens. 
 	 * @param newState
 	 * @param oldState
 	 */
 	private void warnStateListener(DownloaderPanel.State newState, DownloaderPanel.State oldState) {
-		if (stateListener != null)
+		if (stateListener != null && newState != oldState)
 			stateListener.downloaderStateChange(newState, oldState);
 	}
 	
