@@ -29,7 +29,7 @@
  * Author: zp
  * Jun 27, 2014
  */
-package pt.lsts.neptus.plugins.europa;
+package pt.lsts.neptus.plugins.europa.gui;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
@@ -43,11 +43,14 @@ import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import javax.swing.JPanel;
 
 import psengine.PSToken;
+import pt.lsts.neptus.plugins.europa.NeptusSolver;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp
@@ -57,6 +60,7 @@ public class PlanTimeline extends JPanel implements MouseMotionListener, MouseLi
 
     private static final long serialVersionUID = 4762326206387225633L;
     private Vector<PlanToken> plan = new Vector<>();
+    private LinkedHashMap<PlanToken, PSToken> original = new LinkedHashMap<>();
     private long startTime = System.currentTimeMillis(), endTime = System.currentTimeMillis() + 3600 * 1000;
     private NeptusSolver solver;
     private PlanToken selectedToken = null;
@@ -77,10 +81,12 @@ public class PlanTimeline extends JPanel implements MouseMotionListener, MouseLi
      */
     public void setPlan(Collection<PSToken> p) {
         plan.clear();
-        long lastTime = System.currentTimeMillis();
+        original.clear();
+        
+        long lastTime = startTime = System.currentTimeMillis();
         for (PSToken tok : p) {
             PlanToken t = new PlanToken();
-            System.out.println(tok.toLongString());
+            
             t.start = System.currentTimeMillis() + (long)((tok.getStart().getLowerBound() * 1000));
             t.end = System.currentTimeMillis() + (long)((tok.getEnd().getLowerBound() * 1000));
             t.id = tok.getParameter("task").getSingletonValue().asObject().getEntityName();
@@ -88,8 +94,10 @@ public class PlanTimeline extends JPanel implements MouseMotionListener, MouseLi
             if (name != null)
                 t.id = name;
             t.speed = (float)tok.getParameter("speed").getLowerBound();
+            original.put(t, tok);
             addToken(t);
             lastTime = Math.max(lastTime, t.end);
+            startTime = Math.min(startTime, t.start);
         }
         endTime = lastTime;
     }
@@ -163,6 +171,10 @@ public class PlanTimeline extends JPanel implements MouseMotionListener, MouseLi
     public void mouseClicked(MouseEvent e) {
         selectedToken = intercepted(e);
         if (e.getButton() == MouseEvent.BUTTON3) {
+            if (selectedToken != null) {
+                GuiUtils.showInfoPopup("Token",  original.get(selectedToken).toLongString());
+            }
+            
             System.out.println(selectedToken);
         }
         repaint();
@@ -186,6 +198,5 @@ public class PlanTimeline extends JPanel implements MouseMotionListener, MouseLi
     @Override
     public void mouseReleased(MouseEvent e) {
         
-    }
-    
+    }    
 }
