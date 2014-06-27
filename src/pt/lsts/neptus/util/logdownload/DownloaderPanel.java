@@ -672,7 +672,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			}
 		}
 		catch (Exception ex) {
-			ex.printStackTrace();
+			if (!stopping)
+			    ex.printStackTrace();
+			
 		    if (ex.getMessage() != null && ex.getMessage().startsWith("Timeout waiting for connection")) {
 		        isOnTimeout = true;
                 getProgressBar().setString(" " + I18n.text("Error:") + " " + ex.getMessage());
@@ -842,13 +844,15 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                     
                     boolean streamRes = StreamUtil.copyStreamToFile(stream, out, false);
                     out.setLastModified(fileList.get(key).getTimestamp().getTimeInMillis());
-                    if (client.getClient() != null)
+                    if (client.getClient() != null) {
                         client.getClient().completePendingCommand();
+                    }
                     if (streamRes)
                         doneFilesForDirectory++;
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    if (!stopping)
+                        e.printStackTrace();
                 }
             }
             
