@@ -2,12 +2,12 @@
  * Note for accuracy reasons all latitude & longitudes will be in degrees 
  */
 
-class Task {
+class DuneTask {
     float entry_latitude, entry_longitude;
     float exit_latitude, exit_longitude;
     float distance;	
 	
-    Task(float lat_i, float lon_i, float lat_e, float lon_e, float d) {
+    DuneTask(float lat_i, float lon_i, float lat_e, float lon_e, float d) {
 		entry_latitude = lat_i;
 		entry_longitude = lon_i;
 		exit_latitude = lat_e;
@@ -25,12 +25,32 @@ class Position extends Timeline {
 };
 
 class SpeedControl extends Timeline {
+	float min_speed, nominal_speed, max_speed;
+	int min_bat, nominal_bat, max_bat;
+
     predicate Holds {
 		float speed;
 		speed > 0.0;
     }
+
+	SpeedControl(float _mi_s, int _mi_b, float _nom_s, int _nom_b, float _ma_s, int _ma_b) {
+		min_speed     = _mi_s;
+		nominal_speed = _nom_s;
+		max_speed     = _ma_s;
+		min_bat     = _mi_b;
+		nominal_bat = _nom_b;
+		max_bat     = _ma_b;
+	}
 }
 
+SpeedControl::Holds {	
+	start >= 0;
+	start+duration == end;
+	end <= object.min_bat;
+	
+	object.min_speed <= speed;
+	speed <= object.max_speed;
+}
 
 class AuvActions extends Timeline {
 
@@ -52,16 +72,23 @@ class Auv extends Timeline {
     Position position;
     SpeedControl ctrl;
     AuvActions    my_actions;
+    
 	
     predicate Execute {
-		Task task;
+		DuneTask task;
 		float speed, distance, min_dist;
 		start >= 0;
     }
 	
     Auv() {
 		position = new Position();
-		ctrl = new SpeedControl();
+		// Default values for an Auv taken using some rule of thumb with no real justification
+		ctrl = new SpeedControl(0.5, 72000, 1.1, 36000, 1.5, 25200);
+		my_actions = new AuvActions();
+    }
+    Auv(float _min_s, int _min_b, float _nom_s, int _nom_b, float _max_s, int _max_b) {
+		position = new Position();
+		ctrl = new SpeedControl(_min_s, _min_b, _nom_s, _nom_b, _max_s, _max_b);
 		my_actions = new AuvActions();
     }
 };
@@ -104,7 +131,7 @@ AuvActions::Transit {
 
 AuvActions::ExecTask {
 	Auv me;
-	Task task;
+	DuneTask task;
 	
 	equals(effect Auv.Execute exec);
 	task == exec.task;
