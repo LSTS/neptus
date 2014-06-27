@@ -9,6 +9,10 @@
 
 #include <PLASMA/CFunctions.hh>
 #include <PLASMA/Module.hh>
+#include <PLASMA/Debug.hh>
+
+#include <fstream>
+#include <ctime>
 
 namespace EUROPA {
   
@@ -28,6 +32,8 @@ public:
   void initialize(EUROPA::EngineId engine);
   void uninitialize(EUROPA::EngineId engine);
   
+  
+  std::ofstream m_dbg_out;
 };
 
 extern "C" {
@@ -56,6 +62,25 @@ void neptus_module::initialize(EngineId engine) {
   ConstraintEngineId ce;
   ce = dynamic_cast<EUROPA::ConstraintEngine *>(engine->getComponent("ConstraintEngine"))->getId();
   CESchemaId s = ce->getCESchema();
+  
+  std::string where = engine->getConfig()->getProperty("neptus.cfgPath");
+  if( !where.empty() ) {
+    // First make sure that debug messages will be redirected to a file
+    m_dbg_out.open(where+"/Europa.log", std::ofstream::out | std::ofstream::app);
+    // Produce a Marker
+    std::time_t my_date = std::time(NULL);
+    m_dbg_out<<"\n>>>>>>>>>>>> "<<std::asctime(std::localtime(&my_date))
+             <<" <<<<<<<<<<<<<<<<<\n"<<std::endl;
+    DebugMessage::setStream(m_dbg_out);
+    std::cout<<"Europa debug redirected to "<<where<<"/Europa.log"<<std::endl;
+    
+    // Then load the configuration
+    where += "/Debug.cfg";
+    std::ifstream dbg(where.c_str());
+    DebugMessage::readConfigFile(dbg);
+  }
+  
+  
   
   REGISTER_CONSTRAINT(s, LatLonDist, "ll_distance", "Default");
   // this should define the function ll_dist

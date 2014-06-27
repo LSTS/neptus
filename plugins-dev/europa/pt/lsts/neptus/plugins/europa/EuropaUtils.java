@@ -62,6 +62,9 @@ public class EuropaUtils {
 
             final PSEngine europa = PSEngine.makeInstance();
             europa.start();
+            
+            // Inject information that can be used by Neptus module to locate files
+            europa.getConfig().setProperty("neptus.cfgPath", modelDir);
  
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
