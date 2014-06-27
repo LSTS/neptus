@@ -32,6 +32,8 @@
 package pt.lsts.neptus.plugins.europa;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Locale.Category;
 import java.util.Vector;
 
 import psengine.PSEngine;
@@ -59,29 +61,30 @@ public class NeptusSolver {
     private PSPlanDatabaseClient planDb;
     private LinkedHashMap<String, PSObject> vehicleObjects = new LinkedHashMap<>();
     private LinkedHashMap<String, PSObject> planObjects = new LinkedHashMap<>();
-    
+
     private String extraNDDL = "";
-    
+
     public NeptusSolver() throws Exception {
         europa = EuropaUtils.createPlanner();
+        System.out.println(europa);
         EuropaUtils.loadModule(europa, "Neptus");
         EuropaUtils.loadModel(europa, "neptus/auv_model.nddl");
         planDb = europa.getPlanDatabaseClient();
-        
+
     }
-    
+
     public PSObject addVehicle(String name, LocationType position) throws Exception {
         position.convertToAbsoluteLatLonDepth();
         eval("Auv v_"+EuropaUtils.clearVarName(name)+" = new Auv(); /* lat="+position.getLatitudeDegs()+",lon="+position.getLongitudeDegs()+",depth="+position.getDepth()+"*/");
         PSObject varVehicle = europa.getObjectByName("v_"+EuropaUtils.clearVarName(name)), vehiclePos;
-        
+
         // Stupid europa require the full name of the attribute prefixed with the object name ...
         PSVariable varPosition = varVehicle.getMemberVariable(varVehicle.getEntityName() + ".position");
         // I need this to make sure that the location will ba associeted to xtreme1
         vehicleObjects.put(name, varVehicle);
-        
+
         vehiclePos = PSObject.asPSObject(varPosition.getSingletonValue().asObject());
-        
+
         // Create my factual position
         PSToken tok = planDb.createToken("Position.Pos", false, true);
         // specify that it is the position of xtreme1
@@ -93,45 +96,47 @@ public class NeptusSolver {
         tok.getParameter("latitude").specifyValue(PSVarValue.getInstance(position.getLatitudeDegs()));
         tok.getParameter("longitude").specifyValue(PSVarValue.getInstance(position.getLongitudeDegs()));
         tok.getParameter("depth").specifyValue(PSVarValue.getInstance(position.getDepth()));
-        
+
         return varVehicle;
     }
-    
+
     public void eval(String nddl) throws Exception {
         EuropaUtils.eval(europa, nddl);
         extraNDDL += nddl+"\n";
     }
-    
+
     public PSObject addTask(PlanType plan) throws Exception {
         String planName = plan.getId();
         //FIXME
         double planLength = 2000;
-        
+
         Vector<LocatedManeuver> mans = PlanUtil.getLocationsAsSequence(plan);
         if (mans.isEmpty() )
             throw new Exception("Cannot compute plan locations");
-        
+
         LocationType startLoc = new LocationType(mans.firstElement().getStartLocation()), 
                 endLoc = new LocationType(mans.lastElement().getEndLocation());
 
-        eval(String.format("Task t_%s = new Task(%.7f, %.7f, %.7f, %.7f, %.1f);",
+        
+        
+        eval(String.format("DuneTask t_%s = new DuneTask(%.7f, %.7f, %.7f, %.7f, %.1f);",
                 EuropaUtils.clearVarName(planName),
                 startLoc.getLatitudeDegs(),
                 startLoc.getLongitudeDegs(),
                 endLoc.getLatitudeDegs(),
                 endLoc.getLongitudeDegs(),
                 startLoc.getHorizontalDistanceInMeters(endLoc)+100));
-        
+
         PSObject varTask = europa.getObjectByName("t_"+EuropaUtils.clearVarName(planName));
-        
-        
-        
+
+        System.out.println(varTask.getMemberVariable(varTask.getEntityName()+".entry_latitude").toLongString());
+
         planObjects.put(planName, varTask);
         return varTask;
     }
-    
+
     public PSToken addGoal(String vehicle, String planId, double speed) throws Exception {
-        
+
         PSToken g_tok = planDb.createToken("Auv.Execute", true, false);
         // If I wanted to force it to xtreme1 I would do:
         g_tok.getParameter("object").specifyValue(vehicleObjects.get(vehicle).asPSVarValue());
@@ -139,20 +144,20 @@ public class NeptusSolver {
         g_tok.getParameter("task").specifyValue(planObjects.get(planId).asPSVarValue());
         // the speed is 1.5m/s
         g_tok.getParameter("speed").specifyValue(PSVarValue.getInstance(speed));
-        
+
         //EuropaUtils.eval(europa, g_tok.getEntityName()+".end <= 26100;");
 
         return g_tok;
     }
-    
+
     public void closeDomain() {
         planDb.close();
     }
-    
+
     public void solve(int maxSteps) throws Exception {
-       
+
         solver = EuropaUtils.createSolver(europa, 26100);
-        
+
         while(solver.getStepCount() < maxSteps) {
             EuropaUtils.printFlaws(solver);
             if (!EuropaUtils.step(solver)) {
@@ -166,35 +171,39 @@ public class NeptusSolver {
         }
         throw new Exception("Solver could not find a plan in "+maxSteps+" steps");
     }
-    
+
     public void resetSolver() {
         solver.reset();
     }
-    
+
     public static void main(String[] args) throws Exception {
+        System.out.println(Locale.getDefault());
+        Locale.setDefault(Category.FORMAT, Locale.US);
+        Locale.setDefault(Locale.US);
         MissionType mt = new MissionType("missions/APDL/missao-apdl.nmisz");
-        
+
         LocationType loc1 = new LocationType(mt.getHomeRef());
         LocationType loc2 = new LocationType(loc1).translatePosition(200, 180, 0);
-        
+
         NeptusSolver solver = new NeptusSolver();
-        //solver.addVehicle("lauv-xtreme-2", loc1);
-       solver.addVehicle("lauv-xplore-1", loc2);
-        
+        solver.addVehicle("lauv-xtreme-2", loc1);
+        solver.addVehicle("lauv-xplore-1", loc2);
+
         for (PlanType pt : mt.getIndividualPlansList().values()) {
             solver.addTask(pt);            
         }
-        
+
         solver.closeDomain();
-        //for (PlanType pt : mt.getIndividualPlansList().values()) {
-           PSToken goal = solver.addGoal("lauv-xplore-1", mt.getIndividualPlansList().values().iterator().next().getId(), 1.1);            
-        //}
-       
-           System.out.println(FileUtil.getFileAsString("conf/nddl/neptus/auv_model.nddl"));
-           System.out.println(solver.extraNDDL);
-       solver.solve(10000);
-       System.out.println(solver.europa.planDatabaseToString());
-       System.out.println(goal.toLongString());
+        for (PlanType pt : mt.getIndividualPlansList().values()) {
+            PSToken goal = solver.addGoal("lauv-xplore-1", pt.getId(), 1.1);            
+        }
+
+        System.out.println(FileUtil.getFileAsString("conf/nddl/neptus/auv_model.nddl"));
+        System.out.println(solver.extraNDDL);
+        solver.solve(10000);
         
+        System.out.println(solver.europa.planDatabaseToString());
+        
+
     }
 }

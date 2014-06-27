@@ -13,6 +13,7 @@
 
 #include <fstream>
 #include <ctime>
+#include <locale.h>
 
 namespace EUROPA {
   
@@ -37,11 +38,14 @@ public:
 };
 
 extern "C" {
-  
+
   EUROPA::ModuleId initializeModule() {
+	  // NDDL Parser requires is locale-dependent (en_US.UTF8 and this one are known to work)
+	  std::cout << "Former locale was " << setlocale(LC_ALL, NULL) << std::endl;
+	  setlocale(LC_ALL, "C");
+	  std::cout << "Current locale is " << setlocale(LC_ALL, NULL) << std::endl;
     return (new neptus_module())->getId();
   }
-  
 }
 
 /*
