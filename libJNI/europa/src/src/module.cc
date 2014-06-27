@@ -70,7 +70,7 @@ void neptus_module::initialize(EngineId engine) {
     // Produce a Marker
     std::time_t my_date = std::time(NULL);
     m_dbg_out<<"\n>>>>>>>>>>>> "<<std::asctime(std::localtime(&my_date))
-             <<" <<<<<<<<<<<<<<<<<\n"<<std::endl;
+             <<std::endl;
     DebugMessage::setStream(m_dbg_out);
     std::cout<<"Europa debug redirected to "<<where<<"/Europa.log"<<std::endl;
     
