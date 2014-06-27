@@ -168,7 +168,6 @@ public class QueueWorkTickets <C extends Object> {
         private Callable<Boolean> callable = null;
         private Boolean result = null;
         private boolean canceled = false;
-        private long start = System.currentTimeMillis();
         
         public QueueFuture(Callable<Boolean> callable) {
             this.callable = callable;
@@ -210,9 +209,10 @@ public class QueueWorkTickets <C extends Object> {
         @Override
         public Boolean get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
                 TimeoutException {
+            long startTime = System.currentTimeMillis();
             while (result == null) {
                 Thread.sleep(100);
-                if (System.currentTimeMillis() - start > unit.toMillis(timeout))
+                if (System.currentTimeMillis() - startTime > unit.toMillis(timeout))
                     throw new TimeoutException("Time out while waiting");
             }
             return result;
