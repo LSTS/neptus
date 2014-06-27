@@ -31,8 +31,13 @@
  */
 package pt.lsts.neptus.util.logdownload;
 
+import java.util.HashMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author pdias
@@ -43,6 +48,7 @@ public class QueueWorkTickets <C extends Object> {
     private int maximumTickets = 10;
     private LinkedBlockingQueue<C> waitingClients = new LinkedBlockingQueue<>();
     private LinkedBlockingQueue<C> workingClients = new LinkedBlockingQueue<>();
+    private HashMap<C, QueueFuture> futures = new HashMap<>();
 
     public QueueWorkTickets(int maximumTickets) {
         this.maximumTickets = maximumTickets;
@@ -71,7 +77,39 @@ public class QueueWorkTickets <C extends Object> {
         leaseNext();
         return isLeased(client);
     }
+
+    public Future<Boolean> leaseAndWait(C client) {
+        return leaseAndWait(client, null);
+    }
+
+    public Future<Boolean> leaseAndWait(C client, Callable<Boolean> callable) {
+        QueueFuture future = new QueueFuture(callable);
+        if (futures.containsKey(client)) {
+            QueueFuture fTmp = futures.remove(client);
+            fTmp.cancel(true);
+        }
+        boolean res = lease(client);
+        if (res)
+            runFuture(future);
+        else
+            futures.put(client, future);
+        return future;
+    }
+
     
+    /**
+     * @param future
+     */
+    private void runFuture(final QueueFuture future) {
+        new Thread(QueueWorkTickets.class.getSimpleName() + ":: "
+                + Integer.toHexString(QueueWorkTickets.this.hashCode())) {
+            @Override
+            public void run() {
+                future.run();
+            }  
+        }.start();;
+    }
+
     public boolean isLeased(C client) {
         boolean ret = workingClients.contains(client);
         if (!ret) {
@@ -85,6 +123,10 @@ public class QueueWorkTickets <C extends Object> {
         boolean ret;
         synchronized (workingClients) {
             ret = workingClients.remove(client);
+            ret |= waitingClients.remove(client);
+            QueueFuture fTmp = futures.remove(client);
+            if (fTmp != null)
+                fTmp.cancel(true);
         }
         
         leaseNext();
@@ -99,6 +141,9 @@ public class QueueWorkTickets <C extends Object> {
                     C client = waitingClients.poll(100, TimeUnit.MILLISECONDS);
                     if (client != null) {
                         workingClients.offer(client);
+                        QueueFuture future = futures.remove(client);
+                        if (future != null)
+                            runFuture(future);
                     }
                 }
                 catch (InterruptedException e) {
@@ -112,9 +157,78 @@ public class QueueWorkTickets <C extends Object> {
         synchronized (workingClients) {
             workingClients.clear();
             waitingClients.clear();
+            for (QueueFuture ft : futures.values()) {
+                ft.cancel(true);
+            }
         }
     }
 
+    private class QueueFuture implements Future<Boolean> {
+
+        private Callable<Boolean> callable = null;
+        private Boolean result = null;
+        private boolean canceled = false;
+        private long start = System.currentTimeMillis();
+        
+        public QueueFuture(Callable<Boolean> callable) {
+            this.callable = callable;
+        }
+
+        boolean run() {
+            if (canceled == true) {
+                result = false;
+            }
+            else if (callable != null) {
+                try {
+                    result = callable.call();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    result = false;
+                }
+            }
+            else {
+                result = true;
+            }
+            return result;
+        }
+        
+        @Override
+        public Boolean get() throws InterruptedException, ExecutionException {
+            while (result == null) {
+                Thread.sleep(100);
+            }
+            return result;
+        }
+
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning) {
+            canceled = true;
+            return false;
+        }
+
+        @Override
+        public Boolean get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
+                TimeoutException {
+            while (result == null) {
+                Thread.sleep(100);
+                if (System.currentTimeMillis() - start > unit.toMillis(timeout))
+                    throw new TimeoutException("Time out while waiting");
+            }
+            return result;
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return canceled;
+        }
+
+        @Override
+        public boolean isDone() {
+            return result != null;
+        }
+    }
+    
     /**
      * @param args
      */
@@ -133,5 +247,28 @@ public class QueueWorkTickets <C extends Object> {
         System.out.println("true = " + qt.release(o2));
         System.out.println("true = " + qt.lease(o3));
         System.out.println("false = " + qt.lease(o4));
+        
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println("----------------------------------");
+        
+        qt.cancelAll();
+        
+        System.out.println("true = " + qt.lease(o1));
+        System.out.println("true = " + qt.lease(o2));
+        
+        Future<Boolean> ft = qt.leaseAndWait(o3, new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                System.out.println("true = o3");
+                return true;
+            }
+        });
+        try { Thread.sleep(5000); } catch (InterruptedException e) { }
+        System.out.println("true = " + qt.release(o2));
+        try { System.out.println("true = " + ft.get()); } catch (Exception e) { e.printStackTrace(); }
+        
     }
 }
+
