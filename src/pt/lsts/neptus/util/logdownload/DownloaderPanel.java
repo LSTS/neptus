@@ -809,8 +809,10 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                     getProgressBar().setValue((int) ((doneFilesForDirectory / (float)listSize) * 100));
                     getProgressBar().setString(doneFilesForDirectory + " out of " + listSize);
                     
-                    if (state != State.WORKING)
+                    if (state != State.WORKING) {
                         threadScheduledPool.remove(this);
+                        threadScheduledPool.purge();
+                    }
                 }
             }, 10, 100, TimeUnit.MILLISECONDS);
             
@@ -997,6 +999,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			if (ttask != null) {
 //				ttask.cancel();
 				threadScheduledPool.remove(ttask);
+				threadScheduledPool.purge();
 			}
             prec = (long) ((double) downloadedSize / (double) fullSize * 100.0);
 			getProgressBar().setValue((int) prec);
@@ -1037,6 +1040,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 //					ttask.cancel();
 					threadScheduledPool.remove(ttask);
 					ttask = null;
+					threadScheduledPool.purge();
 					updateProgressInfo();
 				}
 			}
