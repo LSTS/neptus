@@ -265,6 +265,7 @@ public class QueueWorkTickets <C extends Object> {
                 return true;
             }
         });
+        try { ft.get(2, TimeUnit.SECONDS); } catch (TimeoutException | ExecutionException | InterruptedException e) { e.printStackTrace(); }
         try { Thread.sleep(5000); } catch (InterruptedException e) { }
         System.out.println("true = " + qt.release(o2));
         try { System.out.println("true = " + ft.get()); } catch (Exception e) { e.printStackTrace(); }
