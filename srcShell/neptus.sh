@@ -64,9 +64,9 @@ if test -d jre/bin; then JAVA_BIN_FOLDER="jre/bin/"; else JAVA_BIN_FOLDER=""; fi
 JAVA_MACHINE_TYPE=$($JAVA_BIN_FOLDER"java" -cp bin/neptus.jar pt.lsts.neptus.loader.helper.CheckJavaOSArch)
 echo "Found machine type: $JAVA_MACHINE_TYPE"
 if [ ${JAVA_MACHINE_TYPE} == 'linux-x64' ]; then
- LIBS=".:libJNI/x64:libJNI:/usr/lib/jni:/usr/lib/vtk-5.10:libJNI/gdal/linux/x64:libJNI/europa/x64"
+ LIBS=".:libJNI/x64:libJNI:/usr/lib/jni:libJNI/gdal/linux/x64:libJNI/europa/x64"
 elif [ ${JAVA_MACHINE_TYPE} == 'linux-x86' ]; then
-  LIBS=".:libJNI/x86:libJNI:/usr/lib/jni:/usr/lib/vtk-5.10:libJNI/gdal/linux/x86"
+  LIBS=".:libJNI/x86:libJNI:/usr/lib/jni:libJNI/gdal/linux/x86"
 elif [ ${JAVA_MACHINE_TYPE} == 'osx-x64' ]; then
   LIBS=".:libJNI/osx:libJNI:/usr/lib/jni"
 fi
