@@ -48,10 +48,14 @@ import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
 import psengine.PSToken;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.europa.NeptusSolver;
 import pt.lsts.neptus.plugins.europa.PlanTask;
 import pt.lsts.neptus.plugins.europa.PlanTimeline;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
@@ -88,10 +92,18 @@ public class SolverPanel extends JPanel {
         
         try {
             NeptusSolver solver = new NeptusSolver();
-            
+
             for (int i = 0;i < vehicles.getItemCount(); i++) {
+                String vehicle = vehicles.getItemAt(i).getId();
+                LocationType loc = console.getMission().getHomeRef();
+                
+                if (ImcMsgManager.getManager().getState(vehicle).isActive()) {
+                    EstimatedState pos = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
+                    loc = IMCUtils.getLocation(pos);
+                }
+                
                 // FIXME
-                solver.addVehicle(vehicles.getItemAt(i).getId(), console.getMission().getHomeRef(), 0.7, 1.0, 1.3, 8 * 3600 * 1000, 6 * 3600 * 1000, 4 * 3600 * 1000);                
+                solver.addVehicle(vehicles.getItemAt(i).getId(), loc, 0.7, 1.0, 1.3, 8 * 3600 * 1000, 6 * 3600 * 1000, 4 * 3600 * 1000);                
             }
             
             for (int i = 0;i < plans.getItemCount(); i++)
@@ -139,7 +151,7 @@ public class SolverPanel extends JPanel {
             }
         });
         tasks.setBorder(new TitledBorder("Tasks"));
-        add(tasks, "span");
+        add(tasks, "span growx growy");
         
         JButton solveBtn = new JButton("Solve");
         solveBtn.addActionListener(new ActionListener() {
