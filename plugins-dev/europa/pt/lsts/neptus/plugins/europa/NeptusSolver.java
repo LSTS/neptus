@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.europa;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -49,6 +50,7 @@ import psengine.PSTokenList;
 import psengine.PSVarValue;
 import psengine.PSVariable;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.plugins.europa.gui.PlanVisualization;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -230,6 +232,12 @@ public class NeptusSolver {
 
     public static void main(String[] args) throws Exception {
         System.out.println(Locale.getDefault());
+        
+        String oldPath = System.getProperty("java.library.path");
+        System.setProperty("java.library.path", "."+File.pathSeparator + oldPath + File.pathSeparator+new File(".", "libJNI/europa/x64").getCanonicalPath());
+        oldPath = System.getProperty("java.library.path");
+        System.setProperty("java.library.path", oldPath + File.pathSeparator+"/opt/europa-2.6/lib");
+        
         Locale.setDefault(Category.FORMAT, Locale.US);
         Locale.setDefault(Locale.US);
         MissionType mt = new MissionType("missions/APDL/missao-apdl.nmisz");
@@ -255,8 +263,10 @@ public class NeptusSolver {
 
         solver.solve(10000);
 
-        PlanTimeline timeline = new PlanTimeline(solver);
-        timeline.setPlan(solver.getPlan("lauv-xplore-1"));
-        GuiUtils.testFrame(timeline);
+        
+        System.out.println(solver.europa.planDatabaseToString());
+        //PlanTimeline timeline = new PlanTimeline(solver);
+        //timeline.setPlan(solver.getPlan("lauv-xplore-1"));
+        GuiUtils.testFrame(new PlanVisualization(solver.getPlan("lauv-xplore-1")));
     }
 }

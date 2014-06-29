@@ -196,6 +196,12 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/neptus/libJNI/europa/PSEngine-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/jung/collections-generic-4.01.jar"/>
+	<classpathentry kind="lib" path="lib/jung/colt-1.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-algorithms-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-api-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-graph-impl-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jung/jung-visualization-2.0.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>

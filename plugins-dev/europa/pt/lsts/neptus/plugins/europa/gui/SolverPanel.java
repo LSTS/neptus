@@ -46,6 +46,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
+import net.miginfocom.layout.CC;
 import net.miginfocom.swing.MigLayout;
 import psengine.PSToken;
 import pt.lsts.imc.EstimatedState;
@@ -120,6 +121,11 @@ public class SolverPanel extends JPanel {
             timeline.setPlan(solver.getPlan("lauv-xtreme-2"));
             JFrame frm = GuiUtils.testFrame(timeline);
             frm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            PlanVisualization pv = new PlanVisualization(solver.getPlan("lauv-xtreme-2"));
+            frm = GuiUtils.testFrame(pv);
+            frm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            
+            
             
             for (PSToken goal : goals) {
                 System.out.println(goal.toLongString());
@@ -142,7 +148,7 @@ public class SolverPanel extends JPanel {
         add(speed);
         add(new JLabel(" m/s "));
         JButton addBtn = new JButton("OK");
-        add(addBtn, "wrap");
+        add(addBtn, "span");
         addBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -151,7 +157,7 @@ public class SolverPanel extends JPanel {
             }
         });
         tasks.setBorder(new TitledBorder("Tasks"));
-        add(tasks, "span growx growy");
+        add(tasks, new CC().grow().span());
         
         JButton solveBtn = new JButton("Solve");
         solveBtn.addActionListener(new ActionListener() {

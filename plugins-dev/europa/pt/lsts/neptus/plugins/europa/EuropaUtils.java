@@ -43,6 +43,7 @@ import psengine.PSLanguageExceptionList;
 import psengine.PSSolver;
 import psengine.PSStringList;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.loader.helper.CheckJavaOSArch;
 
 /**
  * @author zp
@@ -151,6 +152,15 @@ public class EuropaUtils {
     protected static String locateLibrary(String lib) throws Exception {
         String lookFor = System.mapLibraryName(lib);
         Vector<String> path = new Vector<>();
+        
+        switch (CheckJavaOSArch.getOs()) {
+            case "linux-x64":
+                path.add(new File("libJNI/europa/x64").getAbsolutePath());
+                break;
+            default:
+                break;
+        }
+        
         String ldPath = System.getenv("LD_LIBRARY_PATH"), europa = System.getenv("EUROPA_HOME");
         // Check for explicit info about europa location
         if( europa==null ) {
