@@ -66,7 +66,7 @@ class SpeedControl extends Timeline {
 SpeedControl::Holds {	
 	start >= 0;
 	start+duration == end;
-	end <= object.min_bat;
+	//end <= object.min_bat; // this line is useless now that we compute the profile
 	
 	object.min_speed <= speed;
 	speed <= object.max_speed;
@@ -215,6 +215,7 @@ AuvActions::Transit {
 AuvActions::ExecTask {
 	Auv me;
 	DuneTask task;
+	me.my_actions == object;
 	
 	starts(effect Auv.Execute exec);
 	task == exec.task;
