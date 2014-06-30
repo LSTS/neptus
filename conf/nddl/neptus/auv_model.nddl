@@ -20,9 +20,14 @@ class Position extends Timeline {
     predicate Pos {
 		float latitude, longitude, depth;
 		bool  from_task;
-		duration == 1;
     }	 		
 };
+
+Position::Pos {
+	if( start==0 ) {
+		duration == 1; 
+	}	
+}
 
 class Battery extends Reservoir {
 	string profileType;
@@ -148,7 +153,9 @@ class Auv extends Timeline {
 		DuneTask task;
 		float speed, distance, min_dist;
 		int id;
+		int idleTime;
 		start >= 0;
+		idleTime >= 0;
     }
 	
     Auv() {
@@ -168,10 +175,13 @@ Auv::Execute {
 	contained_by(SpeedControl.Holds sp);
 	sp.object == object.ctrl;
 	speed == sp.speed;
-	
+	start + duration == end;
+	idleTime <= duration; 
 	distance == task.distance;
 	ll_dist(task.entry_latitude, task.entry_longitude,
 			task.exit_latitude, task.exit_longitude) <= distance;
+			
+	
 }
 
 AuvActions::Transit {
@@ -182,8 +192,10 @@ AuvActions::Transit {
 	dest.object == me.position;
 	dest.from_task == false;
 	
-	starts(condition Position.Pos source);
+	starts_during(condition Position.Pos source);
 	source.object == me.position;
+	temporalDistance(start, 1, source.end); 
+	
 	
 	distance == ll_dist(source.latitude, source.longitude, 
 						dest.latitude, dest.longitude);
@@ -204,8 +216,9 @@ AuvActions::ExecTask {
 	Auv me;
 	DuneTask task;
 	
-	equals(effect Auv.Execute exec);
+	starts(effect Auv.Execute exec);
 	task == exec.task;
+	end + exec.idleTime <= exec.end;
 	me == exec.object;
 	
 	meets(effect Position.Pos dest);
@@ -213,10 +226,11 @@ AuvActions::ExecTask {
 	dest.from_task == true;
 	dest.latitude == task.exit_latitude;
 	dest.longitude == task.exit_longitude;
+	exec ends_after_start dest; 
 	
-	
-	starts(condition Position.Pos source);
+	starts_during(condition Position.Pos source);
 	source.object == me.position;
+	temporalDistance(start, 1, source.end); 
 	source.latitude == task.entry_latitude;
 	source.longitude == task.entry_longitude;
 	
