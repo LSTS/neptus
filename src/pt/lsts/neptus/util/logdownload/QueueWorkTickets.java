@@ -39,6 +39,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import pt.lsts.neptus.NeptusLog;
+
 /**
  * @author pdias
  *
@@ -88,11 +90,10 @@ public class QueueWorkTickets <C extends Object> {
             QueueFuture fTmp = futures.remove(client);
             fTmp.cancel(true);
         }
+        futures.put(client, future);
         boolean res = lease(client);
-        if (res)
-            runFuture(future);
-        else
-            futures.put(client, future);
+//        if (res)
+//            runFuture(future);
         return future;
     }
 
@@ -101,16 +102,18 @@ public class QueueWorkTickets <C extends Object> {
      * @param future
      */
     private void runFuture(final QueueFuture future) {
-        new Thread(QueueWorkTickets.class.getSimpleName() + ":: "
-                + Integer.toHexString(QueueWorkTickets.this.hashCode())) {
-            @Override
-            public void run() {
-                future.run();
-            }  
-        }.start();;
+//        new Thread(QueueWorkTickets.class.getSimpleName() + ":: "
+//                + Integer.toHexString(QueueWorkTickets.this.hashCode())) {
+//            @Override
+//            public void run() {
+//                future.run();
+//            }  
+//        }.start();;
+        future.run();
     }
 
     public boolean isLeased(C client) {
+//        System.out.println(QueueWorkTickets.class.getSimpleName() + " .................... size of workers=" + workingClients.size() + "  waiting=" + waitingClients.size());
         boolean ret = workingClients.contains(client);
         if (!ret) {
             leaseNext();
@@ -119,6 +122,14 @@ public class QueueWorkTickets <C extends Object> {
         return ret;
     }
 
+    public boolean isQueued(C client) {
+        boolean ret = false;
+        synchronized (workingClients) {
+            ret = workingClients.contains(client) || waitingClients.contains(client);
+        }
+        return ret;
+    }
+    
     public boolean release(C client) {
         boolean ret;
         synchronized (workingClients) {
@@ -151,6 +162,7 @@ public class QueueWorkTickets <C extends Object> {
                 }
             }
         }
+        NeptusLog.pub().debug(QueueWorkTickets.class.getSimpleName() + " |................... size of workers=" + workingClients.size() + "  waiting=" + waitingClients.size());
     }
 
     public void cancelAll() {
@@ -179,7 +191,20 @@ public class QueueWorkTickets <C extends Object> {
             }
             else if (callable != null) {
                 try {
-                    result = callable.call();
+//                    result = callable.call();
+                    new Thread(QueueWorkTickets.class.getSimpleName() + ":: "
+                            + Integer.toHexString(QueueWorkTickets.this.hashCode())) {
+                        @Override
+                        public void run() {
+                            try {
+                                callable.call();
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }  
+                    }.start();
+                    result = true;
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -269,6 +294,22 @@ public class QueueWorkTickets <C extends Object> {
         try { Thread.sleep(5000); } catch (InterruptedException e) { }
         System.out.println("true = " + qt.release(o2));
         try { System.out.println("true = " + ft.get()); } catch (Exception e) { e.printStackTrace(); }
+        
+        qt.cancelAll();
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        System.out.println("----------------------------------");
+
+        Future<Boolean> ft1 = qt.leaseAndWait(o1, new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                System.out.println("true = o1");
+                return true;
+            }
+        });
+        try { ft1.get(2, TimeUnit.SECONDS); } catch (TimeoutException | ExecutionException | InterruptedException e) { e.printStackTrace(); }
+
         
     }
 }
