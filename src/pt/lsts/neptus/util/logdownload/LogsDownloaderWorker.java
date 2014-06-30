@@ -370,7 +370,7 @@ public class LogsDownloaderWorker {
 
         diskFreeLabel = new JXLabel("<html><b>?", JLabel.CENTER);
         diskFreeLabel.setBackgroundPainter(getCompoundBackPainter());
-
+        
         resetButton = new MiniButton();
         resetButton.setToolTipText(I18n.text("Reset the interface"));
         resetButton.setIcon(ICON_RESET);
@@ -1006,6 +1006,8 @@ public class LogsDownloaderWorker {
                         for (LogFolderInfo logFolder : existenteLogFoldersFromServer) {
                             updateLogFolderState(logFolder);
                         }
+                        updateLogStateIconForAllLogFolders();
+                        
                         // NeptusLog.pub().info("<###>.......Updating LogFolders State " +
                         // (System.currentTimeMillis()-timeF2));
 
@@ -1352,6 +1354,7 @@ public class LogsDownloaderWorker {
                 resetButton.setEnabled(false);
                 doReset(false);
                 resetButton.setEnabled(true);
+                updateLogStateIconForAllLogFolders();
             }
         };
 
@@ -1782,6 +1785,8 @@ public class LogsDownloaderWorker {
                 lf.setState(LogFolderInfo.State.NEW);
             }
         }
+        
+        updateLogStateIconForAllLogFolders();
     }
 
     /**
@@ -1923,6 +1928,7 @@ public class LogsDownloaderWorker {
                     }
                     
                     updateLogFolderState(lfdfinal);
+                    updateLogStateIconForAllLogFolders();
                 }
                 
                 if (newState == DownloaderPanel.State.WORKING || newState == DownloaderPanel.State.TIMEOUT
@@ -1987,6 +1993,67 @@ public class LogsDownloaderWorker {
         workerD.actionDownload();
     }
 
+    private void updateLogStateIconForAllLogFolders() {
+        Object[] objArray = new Object[logFolderList.myModel.size()];
+        logFolderList.myModel.copyInto(objArray);
+        long nTotal = 0, nDownloading = 0, nError = 0, nNew = 0, nIncomplete = 0, nLocal = 0, nSync = 0, nUnknown = 0;
+        for (Object comp : objArray) {
+            LogFolderInfo log = (LogFolderInfo) comp;
+            nTotal++;
+            switch (log.getState()) {
+                case DOWNLOADING:
+                    nDownloading++;
+                    break;
+                case ERROR:
+                    nError++;
+                    break;
+                case NEW:
+                    nNew++;
+                    break;
+                case SYNC:
+                    nSync++;
+                    break;
+                case INCOMPLETE:
+                    nIncomplete++;
+                    break;
+                case UNKNOWN:
+                    nUnknown++;
+                    break;
+                case LOCAL:
+                    nLocal++;
+                    break;
+            }
+        }
+        
+        if (objArray.length == 0) {
+            logFoldersListLabel.setIcon(null);
+        }
+        else if (nDownloading > 0) {
+            logFoldersListLabel.setIcon(LogFolderInfoList.ICON_DOWN);
+        }
+        else if (nError > 0) {
+            logFoldersListLabel.setIcon(LogFolderInfoList.ICON_ERROR);
+        }
+        else if (nSync == nTotal) {
+            logFoldersListLabel.setIcon(LogFolderInfoList.ICON_SYNC);
+        }
+        else if (nNew + nLocal == nTotal) {
+            logFoldersListLabel.setIcon(LogFolderInfoList.ICON_NEW);
+        }
+        else if (nSync + nIncomplete + nUnknown + nNew + nLocal == nTotal) {
+            logFoldersListLabel.setIcon(LogFolderInfoList.ICON_INCOMP);
+        }
+        else if (nLocal == nTotal) {
+            logFoldersListLabel.setIcon(LogFolderInfoList.ICON_LOCAL);
+        }
+        else if (nNew == nTotal) {
+            logFoldersListLabel.setIcon(LogFolderInfoList.ICON_NEW);
+        }
+        else {
+            logFoldersListLabel.setIcon(LogFolderInfoList.ICON_UNKNOWN);
+        }
+    }
+    
     /**
      * @param logFolder
      */
@@ -1996,26 +2063,28 @@ public class LogsDownloaderWorker {
         long nTotal = 0, nDownloading = 0, nError = 0, nNew = 0, nIncomplete = 0, nLocal = 0, nSync = 0, nUnknown = 0;
         for (LogFileInfo tlfx : logFolder.getLogFiles()) {
             nTotal++;
-            if (tlfx.getState() == LogFolderInfo.State.DOWNLOADING) {
-                nDownloading++;
-            }
-            else if (tlfx.getState() == LogFolderInfo.State.ERROR) {
-                nError++;
-            }
-            else if (tlfx.getState() == LogFolderInfo.State.NEW) {
-                nNew++;
-            }
-            else if (tlfx.getState() == LogFolderInfo.State.SYNC) {
-                nSync++;
-            }
-            else if (tlfx.getState() == LogFolderInfo.State.INCOMPLETE) {
-                nIncomplete++;
-            }
-            else if (tlfx.getState() == LogFolderInfo.State.UNKNOWN) {
-                nUnknown++;
-            }
-            else if (tlfx.getState() == LogFolderInfo.State.LOCAL) {
-                nLocal++;
+            switch (tlfx.getState()) {
+                case DOWNLOADING:
+                    nDownloading++;
+                    break;
+                case ERROR:
+                    nError++;
+                    break;
+                case NEW:
+                    nNew++;
+                    break;
+                case SYNC:
+                    nSync++;
+                    break;
+                case INCOMPLETE:
+                    nIncomplete++;
+                    break;
+                case UNKNOWN:
+                    nUnknown++;
+                    break;
+                case LOCAL:
+                    nLocal++;
+                    break;
             }
         }
 
