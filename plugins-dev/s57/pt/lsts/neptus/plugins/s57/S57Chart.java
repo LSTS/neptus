@@ -92,7 +92,7 @@ public class S57Chart implements MapPainterProvider {
                 path = "libJNI/windows32";
                 break;
             case "windows-x64":
-                path = "libJNI/window64";
+                path = "libJNI/windows64";
                 break;
         }
         
