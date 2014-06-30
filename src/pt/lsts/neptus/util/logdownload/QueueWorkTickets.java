@@ -42,6 +42,10 @@ import java.util.concurrent.TimeoutException;
 import pt.lsts.neptus.NeptusLog;
 
 /**
+ * This class implements a maximum simultaneous workers and a waiting FIFO queue.
+ * It provides a {@link Future} for waiting the result and allows adding a {@link Callable} to
+ * be run upon lease. The callable is run on a separate thread.
+ * 
  * @author pdias
  *
  */
