@@ -213,7 +213,7 @@ public class QueueWorkTickets <C extends Object> {
             while (result == null) {
                 Thread.sleep(100);
                 if (System.currentTimeMillis() - startTime > unit.toMillis(timeout))
-                    throw new TimeoutException("Time out while waiting");
+                    throw new TimeoutException("Timeout while waiting");
             }
             return result;
         }

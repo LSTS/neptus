@@ -107,7 +107,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 //    private static final Color COLOR_FRONT = Color.GRAY;
 
     private static final Color COLOR_IDLE = new JXPanel().getBackground();
-    private static final Color COLOR_DONE = new Color(140, 255, 170); // grennish
+    private static final Color COLOR_DONE = new Color(140, 255, 170); // greennish
     private static final Color COLOR_NOT_DONE = new Color(255, 210, 140); // beigeish
     private static final Color COLOR_TIMEOUT = new Color(173, 154, 79); // brownnish
     private static final Color COLOR_QUEUED = new Color(255, 240, 245); // LavenderBlush
@@ -212,13 +212,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	 * 
 	 */
 	private void initialize() {
-//	    try {
-//            usePartialDownload = GeneralPreferences.getPropertyBoolean(GeneralPreferences.LOGS_DOWNLOADER_ENABLE_PARTIAL_DOWNLOAD);
-//        }
-//        catch (GeneralPreferencesException e) {
-//            e.printStackTrace();
-//            usePartialDownload = true;
-//        }
 	    usePartialDownload = GeneralPreferences.logsDownloaderEnablePartialDownload;
 	    
 		//this.setBackground(Color.WHITE);
