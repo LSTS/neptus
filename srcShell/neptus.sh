@@ -64,11 +64,11 @@ if test -d jre/bin; then JAVA_BIN_FOLDER="jre/bin/"; else JAVA_BIN_FOLDER=""; fi
 JAVA_MACHINE_TYPE=$($JAVA_BIN_FOLDER"java" -cp bin/neptus.jar pt.lsts.neptus.loader.helper.CheckJavaOSArch)
 echo "Found machine type: $JAVA_MACHINE_TYPE"
 if [ ${JAVA_MACHINE_TYPE} == 'linux-x64' ]; then
- LIBS=".:libJNI/x64:libJNI:/usr/lib/jni:libJNI/gdal/linux/x64:libJNI/europa/x64"
+ LIBS="libJNI/linux64:libJNI/linux:pluginsJNI/linux64:pluginsJNI/linux:/usr/lib/jni:."
 elif [ ${JAVA_MACHINE_TYPE} == 'linux-x86' ]; then
-  LIBS=".:libJNI/x86:libJNI:/usr/lib/jni:libJNI/gdal/linux/x86"
+  LIBS="libJNI/linux32:libJNI/linux:pluginsJNI/linux32:pluginsJNI/linux:/usr/lib/jni:."
 elif [ ${JAVA_MACHINE_TYPE} == 'osx-x64' ]; then
-  LIBS=".:libJNI/osx:libJNI:/usr/lib/jni"
+  LIBS="libJNI/osx:pluginsJNI/osx64:pluginsJNI/osx:libJNI:."
 fi
 
 export VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"

@@ -41,6 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JDialog;
 
+import pt.lsts.neptus.loader.helper.CheckJavaOSArch;
 import pt.lsts.neptus.plugins.MapTileProvider;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
@@ -77,7 +78,25 @@ public class S57Chart implements MapPainterProvider {
     public S57Chart() {
         File cacheFile = new File(System.getProperty("user.dir") + "/.cache/s57");
         cacheFile.mkdirs();
-        this.s57 = S57Factory.build(cacheFile, new File("libJNI/gdal/" + S57Utils.getPlatformPath()));
+        
+        String path = "libJNI";
+        
+        switch (CheckJavaOSArch.getOs()) {
+            case "linux-x86":
+                path = "libJNI/linux32";
+                break;
+            case "linux-x64":
+                path = "libJNI/linux64";
+                break;
+            case "windows-x86":
+                path = "libJNI/windows32";
+                break;
+            case "windows-x64":
+                path = "libJNI/window64";
+                break;
+        }
+        
+        this.s57 = S57Factory.build(cacheFile, new File(path));
         try {
             this.s63 = S63.forge(this.s57);
         }

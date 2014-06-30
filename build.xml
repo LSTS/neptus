@@ -103,7 +103,8 @@ For simple use the main targets are:
 
 	<property name="plugin-dev.dir.base" value="./plugins-dev" />
 	<property name="plugin.dir.dest" value="./plugins" />
-
+	<property name="plugins.jni" value="./pluginsJNI" />
+	
 	<property name="tmp.dir" value="./.tmp" />
 	<property name="tmp.compile.main.dir" value="${tmp.dir}/main-tmp" />
 	<property name="tmp.compile.plugin.dir" value="${tmp.dir}/plugins-dev-tmp" />
@@ -425,6 +426,7 @@ For simple use the main targets are:
 		<mkdir dir="${dist.base.dir}" />
 		<mkdir dir="${dist.dir}" />
 		<mkdir dir="${bin.dir}" />
+		<mkdir dir="${plugins.jni}" />
 	</target>
 
 	<!-- Prepares the docs directories                                       -->
@@ -443,6 +445,7 @@ For simple use the main targets are:
 		<delete dir="${build.dir}" />
 		<delete dir="${tmp.dir}" />
 		<delete dir="${plugin.dir.dest}" />
+		<delete dir="${plugins.jni}" />
 		<delete file="${jar.file.path}" />
 		<delete failonerror="false">
 			<fileset dir="${bin.bundle.dir}">
@@ -631,7 +634,7 @@ For simple use the main targets are:
 
 		<!-- Copy plugins src resources -->
 		<copy todir="${build.classes}" overwrite="true" verbose="false">
-			<fileset dir="${plugin-dev.dir.base}" excludes="${exclude-defaults},**/Thumbs.db,**/thumbs.db,**/*.java,**/*.jar,**/*plugins.lst" />
+			<fileset dir="${plugin-dev.dir.base}" excludes="${exclude-defaults},**/Thumbs.db,**/thumbs.db,**/*.java,**/*.jar,**/*plugins.lst,libJNI/*" />
 			<regexpmapper from="^([^/]+/)(.*)([^/]+\.[^/]+)$$" to="\2\3" handledirsep="true"/>
 		</copy>
 
@@ -1288,6 +1291,9 @@ For simple use the main targets are:
 	<target name="plugin-create-jar-worker" depends="plugin-prop-private-jars-worker, plugin-create-jar.uptodate.test" 
 			unless="plugin.jar.build.not.required">
 		<delete dir="${tmp.compile.plugin.dir}" failonerror="true"/>
+		<copy todir="${plugins.jni}" verbose="true" failonerror="false">
+			<fileset dir="plugins-dev/${plugin-name.input}/libJNI" includes="**/*" excludes="${exclude-defaults}"/>
+		</copy>
 		<antcall target="plugin-compile-worker" inheritall="true" inheritrefs="true">
 			<param name="build.plugins" value="${tmp.compile.plugin.dir}" />
 		</antcall>

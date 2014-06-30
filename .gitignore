@@ -171,3 +171,4 @@ dev-scripts/grow_pot.sh
 conf/nddl/Europa.log
 
 plan.sh
+/pluginsJNI

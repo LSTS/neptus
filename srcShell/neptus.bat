@@ -46,7 +46,9 @@ set DEFAULT=pt.lsts.neptus.loader.NeptusMain
 
 set CLASSPATH=.;bin/neptus.jar;conf@NEPTUS_LIBS@
 
-set LIBRARYPATH=.;libJNI
+set VTK_HOME=%PROGRAMFILES%\VTK
+
+set LIBRARYPATH=.;libJNI;libJNI\windows;pluginsJNI\windows;%VTK_HOME%\bin
 
 if exist jre\bin ( 
     set JAVA_BIN_FOLDER=jre\bin\
@@ -57,9 +59,9 @@ if exist jre\bin (
 for /f "delims=" %%a in ('%JAVA_BIN_FOLDER%java -cp bin/neptus.jar pt.lsts.neptus.loader.helper.CheckJavaOSArch') do (@set JAVA_MACHINE_TYPE=%%a)
 
 if %JAVA_MACHINE_TYPE%==windows-x86 (
-	set LIBRARYPATH=.;libJNI\x86;libJNI;%PROGRAMFILES%\VTK\bin	
+	set LIBRARYPATH=libJNI\windows32;libJNI\windows;pluginsJNI\windows32;pluginsJNI\windows;libJNI;.;%VTK_HOME%\bin	
 ) else (
-	set LIBRARYPATH=.;libJNI\x64;libJNI;%PROGRAMFILES%\VTK\bin
+	set LIBRARYPATH=libJNI\windows64;libJNI\windows;pluginsJNI\windows64;pluginsJNI\windows;libJNI;.;%VTK_HOME%\bin
 )
 
 if not "%1"=="ws" goto end2
