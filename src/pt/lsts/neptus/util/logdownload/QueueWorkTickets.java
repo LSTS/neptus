@@ -91,6 +91,7 @@ public class QueueWorkTickets <C extends Object> {
             fTmp.cancel(true);
         }
         futures.put(client, future);
+        @SuppressWarnings("unused")
         boolean res = lease(client);
 //        if (res)
 //            runFuture(future);
