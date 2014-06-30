@@ -50,7 +50,7 @@ import psengine.PSTokenList;
 import psengine.PSVarValue;
 import psengine.PSVariable;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
-import pt.lsts.neptus.plugins.europa.gui.PlanVisualization;
+import pt.lsts.neptus.plugins.europa.gui.TimelineView;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -230,6 +230,13 @@ public class NeptusSolver {
         solver.reset();
     }
 
+    /**
+     * @return the europa
+     */
+    public PSEngine getEuropa() {
+        return europa;
+    }
+
     public static void main(String[] args) throws Exception {
         System.out.println(Locale.getDefault());
         
@@ -260,13 +267,12 @@ public class NeptusSolver {
 
         System.out.println(FileUtil.getFileAsString("conf/nddl/neptus/auv_model.nddl"));
         System.out.println(solver.extraNDDL);
-
+        
         solver.solve(10000);
-
         
         System.out.println(solver.europa.planDatabaseToString());
-        //PlanTimeline timeline = new PlanTimeline(solver);
-        //timeline.setPlan(solver.getPlan("lauv-xplore-1"));
-        GuiUtils.testFrame(new PlanVisualization(solver.getPlan("lauv-xplore-1")));
+        TimelineView timeline = new TimelineView(solver);
+        timeline.setPlan(solver.getPlan("lauv-xplore-1"));
+        GuiUtils.testFrame(timeline);
     }
 }

@@ -42,31 +42,97 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.Collection;
-import java.util.Date;
-import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.JPanel;
 
+import psengine.PSConstraint;
+import psengine.PSConstraintEngineListener;
+import psengine.PSPlanDatabaseListener;
 import psengine.PSToken;
+import psengine.PSVarValue;
+import psengine.PSVariable;
+import psengine.PSVariableList;
 import pt.lsts.neptus.plugins.europa.NeptusSolver;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 /**
  * @author zp
  *
  */
-public class PlanTimeline extends JPanel implements MouseMotionListener, MouseListener {
+public class TimelineView extends JPanel implements MouseMotionListener, MouseListener {
 
     private static final long serialVersionUID = 4762326206387225633L;
     private Vector<PlanToken> plan = new Vector<>();
-    private LinkedHashMap<PlanToken, PSToken> original = new LinkedHashMap<>();
-    private long startTime = System.currentTimeMillis(), endTime = System.currentTimeMillis() + 3600 * 1000;
+    private BiMap<PlanToken, PSToken> original = HashBiMap.create();
+    private long startTime = 0, endTime = startTime + 3600 * 1000;
     private NeptusSolver solver;
     private PlanToken selectedToken = null;
     
-    public PlanTimeline(NeptusSolver solver) {
+    private PlanToken lookFor(int key) {
+        for (Entry<PlanToken, PSToken> entry : original.entrySet())
+            if (entry.getValue().getEntityKey() == key)
+                return entry.getKey();
+        return null;
+    }
+    
+    
+    public TimelineView(NeptusSolver solver) {
         this.solver = solver;
+        solver.getEuropa().addPlanDatabaseListener(new PSPlanDatabaseListener() {
+
+            @Override
+            public void notifyDeactivated(PSToken token) {
+                super.notifyDeactivated(token);
+                System.out.println("DEACTIVATED "+token.getFullTokenType()+" ("+token.getEntityKey()+")");
+            }
+        });
+        solver.getEuropa().addConstraintEngineListener(new PSConstraintEngineListener() {
+
+            
+            @Override
+            public void notifyChanged(PSVariable variable, PSChangeType changeType) {
+                super.notifyChanged(variable, changeType);
+                
+                if (!variable.getEntityName().equals("start") && !variable.getEntityName().equals("end")) {
+                    return;
+                }
+                
+                int key = variable.getParent().getEntityKey();
+                PSToken token = TimelineView.this.solver.getEuropa().getTokenByKey(key);
+                
+                if (token == null) {
+                    return;
+                }
+                
+                token = token.getActive() != null ? token.getActive() : token;
+                PlanToken pt = lookFor(key);
+                
+                if (pt != null) {
+                    switch (variable.getEntityName()) {
+                        case "start":
+                            pt.start = startTime + (long)(token.getStart().getLowerBound() * 1000);
+                            //System.out.println(token.getFullTokenType()+" ("+token.getEntityKey()+") <"+changeType+"> "+token.getStart().getLowerBound());
+                            break;
+                        case "end":
+                            pt.end = startTime + (long)(token.getEnd().getLowerBound() * 1000);
+                            //System.out.println(token.getFullTokenType()+" ("+token.getEntityKey()+") <"+changeType+"> "+token.getEnd().getLowerBound());
+                            break;
+                            
+                        default:
+                            break;
+                    }
+
+                    repaint();
+                }
+            }
+        });
+        
         addMouseMotionListener(this);
         addMouseListener(this);
     }
@@ -83,12 +149,12 @@ public class PlanTimeline extends JPanel implements MouseMotionListener, MouseLi
         plan.clear();
         original.clear();
         
-        long lastTime = startTime = System.currentTimeMillis();
+        long lastTime = startTime = 0;
         for (PSToken tok : p) {
             PlanToken t = new PlanToken();
             
-            t.start = System.currentTimeMillis() + (long)((tok.getStart().getLowerBound() * 1000));
-            t.end = System.currentTimeMillis() + (long)((tok.getEnd().getLowerBound() * 1000));
+            t.start = startTime + (long)((tok.getStart().getLowerBound() * 1000));
+            t.end = startTime + (long)((tok.getEnd().getLowerBound() * 1000));
             t.id = tok.getParameter("task").getSingletonValue().asObject().getEntityName();
             String name = solver.resolvePlanName(t.id);
             if (name != null)
@@ -106,8 +172,9 @@ public class PlanTimeline extends JPanel implements MouseMotionListener, MouseLi
         double scale = (double)(endTime - startTime) / getWidth();
         return startTime + (long)(scale * pointOnScreen.getX());
     }
+    
+    
     private double timeOnScreen(long timeMillis) {
-        
         return (double)(timeMillis - startTime) / (endTime - startTime) * getWidth();
     }
     
@@ -138,12 +205,39 @@ public class PlanTimeline extends JPanel implements MouseMotionListener, MouseLi
         long start, end;
         float speed;
         String id;
+        PSConstraint startConstraint = null;
     }
 
+    Point2D lastDragPoint = null;
     @Override
-    public void mouseDragged(MouseEvent e) {
-        // TODO Auto-generated method stub
-        
+    public void mouseDragged(MouseEvent e) {    
+        if (selectedToken != null && lastDragPoint != null) {
+            double xDragAmount = e.getX() - lastDragPoint.getX();
+            double scale = (double)(endTime - startTime) / getWidth();
+            long timeIncrease = (long)(xDragAmount * scale);
+            
+            PSToken tok = original.get(selectedToken);
+            PSVariableList list = new PSVariableList();
+            PSVariable var = solver.getEuropa().getPlanDatabaseClient().createVariable("int", "selected_start_"+selectedToken.hashCode(), true);
+            
+            int newTime = (int)((selectedToken.start + timeIncrease) - startTime)/1000;
+            var.specifyValue(PSVarValue.getInstance(newTime));
+            list.push_back(var);
+            list.push_back(tok.getStart());
+            PSConstraint created = solver.getEuropa().getPlanDatabaseClient().createConstraint("leq", list);
+            boolean propResult = solver.getEuropa().propagate();
+            
+            if (!propResult) {
+                solver.getEuropa().getPlanDatabaseClient().deleteConstraint(created);
+                solver.getEuropa().propagate();
+            }
+            else {
+                if (selectedToken.startConstraint != null)
+                    solver.getEuropa().getPlanDatabaseClient().deleteConstraint(selectedToken.startConstraint);
+                selectedToken.startConstraint = created;
+            } 
+        }
+        lastDragPoint = e.getPoint();
     }
 
     private PlanToken intercepted(MouseEvent e) {
@@ -164,7 +258,7 @@ public class PlanTimeline extends JPanel implements MouseMotionListener, MouseLi
         if (intercepted != null)
             selected = intercepted.id+" ";
         
-        setToolTipText(selected+new Date(screenToTime(e.getPoint())));
+        setToolTipText(selected+DateTimeUtil.milliSecondsToFormatedString(screenToTime(e.getPoint())));
     }
     
     @Override
@@ -174,8 +268,6 @@ public class PlanTimeline extends JPanel implements MouseMotionListener, MouseLi
             if (selectedToken != null) {
                 GuiUtils.showInfoPopup("Token",  original.get(selectedToken).toLongString());
             }
-            
-            System.out.println(selectedToken);
         }
         repaint();
     }
@@ -192,11 +284,16 @@ public class PlanTimeline extends JPanel implements MouseMotionListener, MouseLi
     
     @Override
     public void mousePressed(MouseEvent e) {
+        selectedToken = intercepted(e);
+        
         
     }
     
     @Override
     public void mouseReleased(MouseEvent e) {
-        
+        lastDragPoint = null;
+        System.out.println(DateTimeUtil.milliSecondsToFormatedString(endTime)+" --> "+DateTimeUtil.milliSecondsToFormatedString(plan.lastElement().end));
+        endTime = plan.lastElement().end;
+        repaint();
     }    
 }

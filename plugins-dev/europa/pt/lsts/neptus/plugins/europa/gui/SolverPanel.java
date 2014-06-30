@@ -55,7 +55,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.europa.NeptusSolver;
 import pt.lsts.neptus.plugins.europa.PlanTask;
-import pt.lsts.neptus.plugins.europa.PlanTimeline;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -117,7 +116,7 @@ public class SolverPanel extends JPanel {
             
             solver.solve(1000);
              
-            PlanTimeline timeline = new PlanTimeline(solver);
+            TimelineView timeline = new TimelineView(solver);
             timeline.setPlan(solver.getPlan("lauv-xtreme-2"));
             JFrame frm = GuiUtils.testFrame(timeline);
             frm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
