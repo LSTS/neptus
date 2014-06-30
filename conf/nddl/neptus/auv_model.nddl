@@ -29,8 +29,9 @@ class SpeedControl extends Timeline {
 	int min_bat, nominal_bat, max_bat;
 
     predicate Holds {
-		float speed;
+		float speed, bat_ratio;
 		speed > 0.0;
+		bat_ratio > 0.0;
     }
 
 	SpeedControl(float _mi_s, int _mi_b, float _nom_s, int _nom_b, float _ma_s, int _ma_b) {
@@ -50,6 +51,56 @@ SpeedControl::Holds {
 	
 	object.min_speed <= speed;
 	speed <= object.max_speed;
+		
+	// square_fact * speed^2 + lin_fact * speed + padding == battery
+	// I need to identify the factors from the 3 points I have
+	// Most of the lines below do define how to resolve this "simple"
+	// equation with 3 unknowns
+	float square_fact, lin_fact, padding;
+	float min_sp_2, nom_sp_2, max_sp_2, speed_2;
+	
+	object.min_speed == sqrt(min_sp_2);
+	object.nominal_speed == sqrt(nom_sp_2);
+	object.max_speed == sqrt(max_sp_2);
+	speed == sqrt(speed_2);
+	
+	float min_b, nom_b, max_b;
+	min_b == to_float(object.min_bat);
+	nom_b == to_float(object.nominal_bat);
+	max_b == to_float(object.max_bat);
+	
+	float a_1_2, a_2_3, b_1_2, b_2_3, c_1_2,c_2_3;
+	
+	nom_sp_2 + a_1_2 == max_sp_2;
+	object.nominal_speed + b_1_2 == object.max_speed;
+	nom_b + c_1_2 == max_b;
+	
+	min_sp_2 + a_2_3 == nom_sp_2;
+	object.min_speed + b_2_3 == object.nominal_speed;
+	min_b + c_2_3 == nom_b;
+
+	float norm_b, a, c;
+	
+	a + (a_2_3 * b_1_2) == a_1_2 * b_2_3;
+	c + (c_2_3 * b_1_2) == c_2_3 * b_2_3;
+	
+	// All t his mees is to end up to these 3  finals equations that 
+	// compute the quadratic representation of my battery profile in 
+	// relation to vehicle speed
+	square_fact * a == c;
+	(square_fact * a_1_2) + (lin_fact * b_1_2) == c_1_2;
+	(square_fact * min_sp_2) + (lin_fact * object.min_speed) + padding == min_b;
+	   	   
+	   
+	float my_b;
+	// based on this I can compute Waht is my battery duration for the given speed
+	(square_fact * speed_2) + (lin_fact * speed) + padding == my_b;
+	bat_ratio * min_b == my_b; 
+	
+	// bat_ratio tells me how much of the resource is used per tick relative to 
+	// the best possible choice I can now apply this value to compute how much  
+	// of the battery I will use based on the tasks duration
+	
 }
 
 class AuvActions extends Timeline {

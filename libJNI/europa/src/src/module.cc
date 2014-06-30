@@ -6,6 +6,8 @@
  */
 
 #include "LatLonDist.hh"
+#include "to_float.hh"
+#include "sqrt.hh"
 
 #include <PLASMA/CFunctions.hh>
 #include <PLASMA/Module.hh>
@@ -20,6 +22,10 @@ namespace EUROPA {
   // Define the function ll_dist based on the ll_distance constraint
   DECLARE_FUNCTION_TYPE(LatLonDist, ll_dist,
                         "ll_distance", EUROPA::FloatDT, 4);
+  DECLARE_FUNCTION_TYPE(float_to_int, to_float,
+			"float_from_int", EUROPA::FloatDT, 1); 
+  DECLARE_FUNCTION_TYPE(sqrt_cstr, sqrt,
+			"sqrtf", EUROPA::FloatDT, 1);
 
 } // EUROPA
 
@@ -88,8 +94,12 @@ void neptus_module::initialize(EngineId engine) {
   
   
   REGISTER_CONSTRAINT(s, LatLonDist, "ll_distance", "Default");
+  REGISTER_CONSTRAINT(s, float_to_int, "float_from_int", "Default");
+  REGISTER_CONSTRAINT(s, sqrt_cstr, "sqrtf", "Default");
   // this should define the function ll_dist
   s->registerCFunction((new LatLonDistFunction())->getId());
+  s->registerCFunction((new float_to_intFunction())->getId());
+  s->registerCFunction((new sqrt_cstrFunction())->getId());
 }
 
 void neptus_module::uninitialize(EUROPA::EngineId engine) {

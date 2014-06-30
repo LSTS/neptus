@@ -83,7 +83,11 @@ include_directories(${EUROPA_INCLUDE_DIRS} src)
 add_library(Neptus SHARED
   src/module.cc
   src/LatLonDist.cc
-  src/LatLonDist.hh)
+  src/sqrt.cc
+  src/to_float.cc
+  src/LatLonDist.hh
+  src/sqrt.hh
+  src/to_float.hh)
 
 set_target_properties(Neptus PROPERTIES 
   COMPILE_DEFINITIONS "${EUROPA_FLAGS}")
