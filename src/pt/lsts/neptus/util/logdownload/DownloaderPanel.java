@@ -561,6 +561,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 return doDownloadWorker();
             }
             else if (queueWorkTickets.isQueued(this)) {
+                System.out.println("Is not leased but is queued! " + name);
                 return true;
             }
             else if (GeneralPreferences.logsNumberSimultaneousDownloadsControl) {
