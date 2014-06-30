@@ -41,6 +41,8 @@ import java.util.Locale.Category;
 import java.util.Map.Entry;
 import java.util.Vector;
 
+import javax.swing.JFrame;
+
 import psengine.PSEngine;
 import psengine.PSObject;
 import psengine.PSPlanDatabaseClient;
@@ -50,7 +52,7 @@ import psengine.PSTokenList;
 import psengine.PSVarValue;
 import psengine.PSVariable;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
-import pt.lsts.neptus.plugins.europa.gui.TimelineView;
+import pt.lsts.neptus.plugins.europa.gui.PlanView;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -81,6 +83,10 @@ public class NeptusSolver {
 
     }
 
+    public Collection<String> getVehicles() {
+        return vehicleObjects.keySet();
+    }
+    
     public String resolveVehicleName(String mangledName) {
         for (Entry<String, PSObject> entry : vehicleObjects.entrySet()) {
             if (entry.getValue().getEntityName().equals(mangledName))
@@ -253,26 +259,37 @@ public class NeptusSolver {
         LocationType loc2 = new LocationType(loc1).translatePosition(200, 180, 0);
 
         NeptusSolver solver = new NeptusSolver();
-        solver.addVehicle("lauv-xtreme-2", loc1, 0.7, 1.0, 1.3, 8 * 3600 * 1000, 6 * 3600 * 1000, 4 * 3600 * 1000);
-        solver.addVehicle("lauv-xplore-1", loc2, 0.7, 1.0, 1.3, 8 * 3600 * 1000, 6 * 3600 * 1000, 4 * 3600 * 1000);
+        String[] vehicles = new String[2];
+        vehicles[0] = "lauv-xtreme-2";
+        vehicles[1] = "lauv-xplore-1";
+        
+        solver.addVehicle(vehicles[0], loc1, 0.7, 1.0, 1.3, 8 * 3600 * 1000, 6 * 3600 * 1000, 4 * 3600 * 1000);
+        solver.addVehicle(vehicles[1], loc2, 0.7, 1.0, 1.3, 8 * 3600 * 1000, 6 * 3600 * 1000, 4 * 3600 * 1000);
 
         for (PlanType pt : mt.getIndividualPlansList().values()) {
             solver.addTask(pt);
         }
 
         solver.closeDomain();
-        for (PlanType pt : mt.getIndividualPlansList().values()) {
-            solver.addGoal("lauv-xplore-1", pt.getId(), 1.1);
-        }
-
+        
+        int count = 0;
+        //for (PlanType pt : mt.getIndividualPlansList().values()) {
+          //  solver.addGoal(vehicles[0], pt.getId(), 1.1);
+        //}
+        
+        solver.addGoal(vehicles[1], mt.getIndividualPlansList().values().iterator().next().getId(), 1.1);
+        solver.addGoal(vehicles[0], mt.getIndividualPlansList().values().iterator().next().getId(), 1.1);
+        solver.addGoal(vehicles[0], mt.getIndividualPlansList().values().iterator().next().getId(), 1.1);
+        
         System.out.println(FileUtil.getFileAsString("conf/nddl/neptus/auv_model.nddl"));
         System.out.println(solver.extraNDDL);
-        
         solver.solve(10000);
         
-        System.out.println(solver.europa.planDatabaseToString());
-        TimelineView timeline = new TimelineView(solver);
-        timeline.setPlan(solver.getPlan("lauv-xplore-1"));
-        GuiUtils.testFrame(timeline);
+        PlanView view = new PlanView(solver);
+        //System.out.println(solver.europa.planDatabaseToString());
+        //TimelineView timeline = new TimelineView(solver);
+        //timeline.setPlan(solver.getPlan("lauv-xplore-1"));
+        JFrame frm = GuiUtils.testFrame(view);
+        frm.pack();
     }
 }
