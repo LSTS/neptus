@@ -543,7 +543,10 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             }
         }
         else {
-            return askForLease();
+            if (GeneralPreferences.logsNumberSimultaneousDownloadsControl)
+                return askForLease();
+            else
+                return doDownloadWorker();
         }
 	}
 
