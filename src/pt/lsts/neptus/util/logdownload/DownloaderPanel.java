@@ -636,24 +636,6 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             startTimeMillis = System.currentTimeMillis();
             getInfoLabel().setText(name + " (" + uri + ")");
             
-            if (isDirectory) {
-                getProgressBar().setString(I18n.text("Starting... ") + 
-                        (listSize >= 0 ? I18n.textf("%number files", MathMiscUtils.parseToEngineeringRadix2Notation(fullSize,1)) : "unknown files"));
-                
-                threadScheduledPool.scheduleAtFixedRate(new Runnable() {
-                    @Override
-                    public void run() {
-                        getProgressBar().setValue((int) ((doneFilesForDirectory / (float)listSize) * 100));
-                        getProgressBar().setString(doneFilesForDirectory + " out of " + listSize);
-                        
-                        if (state != State.WORKING) {
-                            threadScheduledPool.remove(this);
-                            threadScheduledPool.purge();
-                        }
-                    }
-                }, 10, 100, TimeUnit.MILLISECONDS);
-            }
-            
             if (!isDirectory) {
                 if (begByte > 0) {
                     downloadedSize = begByte;
@@ -719,6 +701,22 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 }
             }
             else { // isDirectory
+                getProgressBar().setString(I18n.text("Starting... ") + 
+                        (listSize >= 0 ? I18n.textf("%number files", MathMiscUtils.parseToEngineeringRadix2Notation(fullSize,1)) : "unknown files"));
+                
+                threadScheduledPool.scheduleAtFixedRate(new Runnable() {
+                    @Override
+                    public void run() {
+                        getProgressBar().setValue((int) ((doneFilesForDirectory / (float)listSize) * 100));
+                        getProgressBar().setString(doneFilesForDirectory + " out of " + listSize);
+                        
+                        if (state != State.WORKING) {
+                            threadScheduledPool.remove(this);
+                            threadScheduledPool.purge();
+                        }
+                    }
+                }, 10, 100, TimeUnit.MILLISECONDS);
+
                 doneFilesForDirectory = 0;
                 for(String key : fileList.keySet()) {
                     try {
