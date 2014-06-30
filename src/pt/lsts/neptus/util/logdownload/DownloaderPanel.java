@@ -209,8 +209,34 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		    }
 		}
 		
-		getInfoLabel().setText(name + " (" + uri + ")");
+		updateInfoLabel();
 	}
+
+    /**
+     * @param uri
+     */
+    private void updateInfoLabel() {
+        String prefixTxt = "";
+        String txt = name + " (" + uri + ")";
+        switch (getState()) {
+            case ERROR:
+                prefixTxt = I18n.text("Error");
+                break;
+            case NOT_DONE:
+                prefixTxt = I18n.text("Incomplete");
+                break;
+            case TIMEOUT:
+                prefixTxt = I18n.text("Timeout");
+                break;
+            case QUEUED:
+                prefixTxt = I18n.text("Queued");
+                break;
+            default:
+                break;
+        }
+        txt = prefixTxt + (prefixTxt.isEmpty() ? "" : " :: ") + txt;
+        getInfoLabel().setText(txt);
+    }
 
 	/**
 	 * 
@@ -427,6 +453,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 			getStopButton().setEnabled(false);
 			getDownloadButton().setEnabled(true);
 		}
+		
+		updateInfoLabel();
 		
 		warnStateListener(this.state, oldState);
 	}
