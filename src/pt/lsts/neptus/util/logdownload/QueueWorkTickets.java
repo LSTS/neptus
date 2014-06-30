@@ -118,12 +118,12 @@ public class QueueWorkTickets <C extends Object> {
     }
 
     public boolean isLeased(C client) {
-//        System.out.println(QueueWorkTickets.class.getSimpleName() + " .................... size of workers=" + workingClients.size() + "  waiting=" + waitingClients.size());
         boolean ret = workingClients.contains(client);
         if (!ret) {
             leaseNext();
             return workingClients.contains(client);
         }
+        NeptusLog.pub().warn((QueueWorkTickets.class.getSimpleName() + " .................... size of workers=" + workingClients.size() + "  waiting=" + waitingClients.size()));
         return ret;
     }
 
@@ -167,7 +167,7 @@ public class QueueWorkTickets <C extends Object> {
                 }
             }
         }
-        NeptusLog.pub().debug(QueueWorkTickets.class.getSimpleName() + " |................... size of workers=" + workingClients.size() + "  waiting=" + waitingClients.size());
+        NeptusLog.pub().warn(QueueWorkTickets.class.getSimpleName() + " |................... size of workers=" + workingClients.size() + "  waiting=" + waitingClients.size());
     }
 
     public void cancelAll() {
