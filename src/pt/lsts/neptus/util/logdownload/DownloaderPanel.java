@@ -43,10 +43,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
@@ -542,6 +546,44 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 	}
 
 	protected boolean doDownload() {
+        if (getState() == State.QUEUED) {
+            if (queueWorkTickets.isLeased(this)) {
+                return doDownloadWorker();
+            }
+            else if (queueWorkTickets.isQueued(this)) {
+                return true;
+            }
+            else if (GeneralPreferences.logsNumberSimultaneousDownloadsControl) {
+                return askForLease();
+            }
+            else {
+                return doDownloadWorker();
+            }
+        }
+        else {
+            return askForLease();
+        }
+	}
+
+    /**
+     * @return
+     */
+    private boolean askForLease() {
+        setStateQueued();
+        Future<Boolean> future = queueWorkTickets.leaseAndWait(this, new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED) {
+                    NeptusLog.pub().debug("callable download for " + getName());
+                    return doDownloadWorker();
+                }
+                return true;
+            }
+        });
+        return true;
+    }
+
+	protected boolean doDownloadWorker() {
 	    if(isDirectory)
             return doDownloadDirectory();
 	    
@@ -551,29 +593,56 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         State prevState = getState();
         setStateWorking();
 
-		boolean isToBeQueued = GeneralPreferences.logsNumberSimultaneousDownloadsControl ? !queueWorkTickets.lease(this) : false;
-		if (isToBeQueued) {
-		    final Runnable command = new Runnable() {
-		        @Override
-		        public void run() {
-		            if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED) {
-		                doDownload();
-		            }
-		        }
-		    };
-		    threadScheduledPool.schedule(new Runnable() {
-		        @Override
-		        public void run() {
-		            new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
-		        }
-		    }, DELAY_START_ON_QUEUE, TimeUnit.MILLISECONDS);
+//		boolean isToBeQueued = GeneralPreferences.logsNumberSimultaneousDownloadsControl ? !queueWorkTickets.lease(this) : false;
+//		if (isToBeQueued) {
+//		    final Runnable command = new Runnable() {
+//		        @Override
+//		        public void run() {
+//		            if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED) {
+//		                doDownload();
+//		            }
+//		        }
+//		    };
+//		    threadScheduledPool.schedule(new Runnable() {
+//		        @Override
+//		        public void run() {
+//		            new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
+//		        }
+//		    }, DELAY_START_ON_QUEUE, TimeUnit.MILLISECONDS);
+//
+//		    setStateQueued();
+//
+//		    return true;
+//		}
+//        if (GeneralPreferences.logsNumberSimultaneousDownloadsControl) {
+//            setStateQueued();
+//		    Future<Boolean> future = queueWorkTickets.leaseAndWait(this, new Callable<Boolean>() {
+//                @Override
+//                public Boolean call() throws Exception {
+//                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED) {
+//                        System.out.println("!!!!!!!!!!!! " + getName());
+//                        return doDownload();
+//                    }
+//                    return true;
+//                }
+//            });
+////		    boolean leaseResult = false;
+////		    try {
+////	             leaseResult = future.get(10, TimeUnit.MILLISECONDS);
+////            }
+////		    catch (TimeoutException | InterruptedException  | ExecutionException e) {
+////                leaseResult = false;
+////		    }
+////		    if (!leaseResult) {
+////		        setStateQueued();
+////		        return true;
+////		    }
+//          return true;
+//		}
 
-		    setStateQueued();
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
 
-		    return true;
-		}
-
-		NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
+		NeptusLog.pub().debug(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
 
 		if (!client.isConnected()) {
 		    try {
@@ -763,7 +832,9 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             
             return true;
         }
-        
+
+//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+
         boolean isOnTimeout = false;
 
         if (debug) {

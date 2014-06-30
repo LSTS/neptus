@@ -1902,7 +1902,7 @@ public class LogsDownloaderWorker {
             
             @Override
             public void downloaderStateChange(DownloaderPanel.State newState, DownloaderPanel.State oldState) {
-                System.out.println("State state update for " + fxLog.getUriPartial() + " " + fxLog.getState() + "::" + oldState + "::" + newState);
+//                System.out.println("State state update for " + fxLog.getUriPartial() + " " + fxLog.getState() + "::" + oldState + "::" + newState);
 
                 if (fxLog.getState() != LogFolderInfo.State.LOCAL) {
                     if (newState == DownloaderPanel.State.DONE)
