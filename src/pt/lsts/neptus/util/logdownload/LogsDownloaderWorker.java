@@ -1824,7 +1824,7 @@ public class LogsDownloaderWorker {
      * @param logFd
      */
     private void singleLogFileDownloadWorker(LogFileInfo lfx, LogFolderInfo logFd) {
-        if (lfx.getState() == LogFolderInfo.State.SYNC || lfx.getState() == LogFolderInfo.State.DOWNLOADING
+        if (lfx.getState() == LogFolderInfo.State.SYNC // || lfx.getState() == LogFolderInfo.State.DOWNLOADING
                 || lfx.getState() == LogFolderInfo.State.LOCAL) {
             return;
         }
