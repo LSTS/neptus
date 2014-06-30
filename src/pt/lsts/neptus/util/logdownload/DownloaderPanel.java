@@ -510,10 +510,11 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		new Thread() {
 			@Override
 			public void run() {
-				if(!isDirectory)
-				    doDownload();
-				else
-				    doDownloadDirectory();
+//				if(!isDirectory)
+//				    doDownload();
+//				else
+//				    doDownloadDirectory();
+				doDownload();
 			}
 		}.start();
 //		threadScheduledPool.execute(new Runnable() {
@@ -583,219 +584,22 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         return true;
     }
 
-	protected boolean doDownloadWorker() {
-	    if(isDirectory)
-            return doDownloadDirectory();
-	    
-		if (getState() == State.WORKING)
-			return false;
-		
+    protected boolean doDownloadWorker() {
+        if (getState() == State.WORKING)
+            return false;
+
         State prevState = getState();
         setStateWorking();
-
-//		boolean isToBeQueued = GeneralPreferences.logsNumberSimultaneousDownloadsControl ? !queueWorkTickets.lease(this) : false;
-//		if (isToBeQueued) {
-//		    final Runnable command = new Runnable() {
-//		        @Override
-//		        public void run() {
-//		            if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED) {
-//		                doDownload();
-//		            }
-//		        }
-//		    };
-//		    threadScheduledPool.schedule(new Runnable() {
-//		        @Override
-//		        public void run() {
-//		            new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
-//		        }
-//		    }, DELAY_START_ON_QUEUE, TimeUnit.MILLISECONDS);
-//
-//		    setStateQueued();
-//
-//		    return true;
-//		}
-//        if (GeneralPreferences.logsNumberSimultaneousDownloadsControl) {
-//            setStateQueued();
-//		    Future<Boolean> future = queueWorkTickets.leaseAndWait(this, new Callable<Boolean>() {
-//                @Override
-//                public Boolean call() throws Exception {
-//                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED) {
-//                        System.out.println("!!!!!!!!!!!! " + getName());
-//                        return doDownload();
-//                    }
-//                    return true;
-//                }
-//            });
-////		    boolean leaseResult = false;
-////		    try {
-////	             leaseResult = future.get(10, TimeUnit.MILLISECONDS);
-////            }
-////		    catch (TimeoutException | InterruptedException  | ExecutionException e) {
-////                leaseResult = false;
-////		    }
-////		    if (!leaseResult) {
-////		        setStateQueued();
-////		        return true;
-////		    }
-//          return true;
-//		}
+        stopping = false;
 
 //        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
 
-		NeptusLog.pub().debug(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
+        String basePath = outFile.getParentFile().getParentFile().getParentFile().getAbsolutePath();
 
-		if (!client.isConnected()) {
-		    try {
-                client.renewClient();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-                setStateError();
-                return false;
-            }
-		}
-		
-		long begByte = 0;
-		if (usePartialDownload && prevState != State.DONE && outFile.exists() && outFile.isFile() && !isDirectory) {
-		    begByte = outFile.length();
-		    NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "!begin byte: " + begByte);
-		}
-		setStateWorking();
-		
-		boolean isOnTimeout = false;
-		
-		try {
-			getProgressBar().setValue(0);
-			getProgressBar().setString(begByte == 0 ? I18n.text("Starting...") : I18n.text("Resuming..."));
-			getMsgLabel().setText("");
-			startTimeMillis = System.currentTimeMillis();
-			getInfoLabel().setText(name + " (" + uri + ")");
-			
-			if (begByte > 0) {
-                downloadedSize = begByte;
-                client.getClient().setRestartOffset(begByte);
-                System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "using resume");
-                begByte = client.getClient().getRestartOffset();
-            }
-			else {
-			    downloadedSize = 0;
-			}
-			
-			// System.out.println("FTP Client is connected " + client.getClient().isConnected());
-			stream = client.getClient().retrieveFileStream(new String(uri.getBytes(), "ISO-8859-1"));
+        NeptusLog.pub().debug(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading"
+                + (isDirectory ? " directory" : "")
+                + " '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
 
-			fullSize = ftpFile.getSize();
-
-			outFile.getParentFile().mkdirs();
-			
-			try {
-				outFile.createNewFile();
-			} 
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			FilterDownloadDataMonitor ioS = new FilterDownloadDataMonitor(stream, threadScheduledPool);
-			boolean streamRes = StreamUtil.copyStreamToFile(ioS, outFile, begByte == 0 ? false : true);
-			outFile.setLastModified(ftpFile.getTimestamp().getTimeInMillis());
-
-			if (debug) {
-			    NeptusLog.pub().info("<###>To receive / received: " + (begByte > 0 ? fullSize - begByte: fullSize) + "/" + downloadedSize);
-			}
-			else {
-			    NeptusLog.pub().debug("To receive / received: " + (begByte > 0 ? fullSize - begByte: fullSize) + "/" + downloadedSize);
-			}
-			
-			endTimeMillis = System.currentTimeMillis();
-			ioS.stopDisplayUpdate();
-
-			if (streamRes  && fullSize == downloadedSize) {
-                getProgressBar().setString(I18n.textf("%fullSize done (in %time) @%dataRate", 
-                        MathMiscUtils.parseToEngineeringRadix2Notation(fullSize, 1) + "B",
-                        DateTimeUtil.milliSecondsToFormatedString(endTimeMillis - startTimeMillis),
-                        (MathMiscUtils.parseToEngineeringRadix2Notation((begByte > 0 ? downloadedSize - begByte: downloadedSize)
-                                / ((endTimeMillis - startTimeMillis) / 1000.0), 1)) + "B/s"));
-			}
-			else {
-			    getProgressBar().setString(I18n.textf("%fullSize partially [%partialSize] done (in %time) @%dataRate", 
-			            MathMiscUtils.parseToEngineeringRadix2Notation(fullSize, 1) + "B",
-			            MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize, 1)+ "B",
-			            DateTimeUtil.milliSecondsToFormatedString(endTimeMillis - startTimeMillis),
-			            (MathMiscUtils.parseToEngineeringRadix2Notation((begByte > 0 ? downloadedSize - begByte: downloadedSize)
-			                    / ((endTimeMillis - startTimeMillis) / 1000.0), 1)) + "B/s"));
-			}
-			if(streamRes && fullSize == downloadedSize) {
-				setStateDone();
-				// downloadButton.setEnabled(false); //FIXME pdias 20130805 For now disable redownload because the get stream above from client cames null
-				// client.getClient().disconnect();
-				getMsgLabel().setText(I18n.textf("Saved in '%filePath'", outFile.getAbsolutePath()));
-			}
-			else {
-				setStateNotDone();
-			}
-		}
-		catch (Exception ex) {
-			if (!stopping)
-			    ex.printStackTrace();
-			
-		    if (ex.getMessage() != null && ex.getMessage().startsWith("Timeout waiting for connection")) {
-		        isOnTimeout = true;
-                getProgressBar().setString(" " + I18n.text("Error:") + " " + ex.getMessage());
-                setStateTimeout();
-		    }
-		    else {
-                getProgressBar().setString(
-                        I18n.text("Error:") + " "
-                                + (ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName()));
-		        setStateError();
-		    }
-		}
-		finally {
-		    queueWorkTickets.release(this);
-
-		    try {
-                if (client.isConnected())
-                    client.getClient().disconnect();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-		}
-		if (isOnTimeout) {
-//		    new Thread() {
-//	            @Override
-//	            public void run() {
-//	                try { Thread.sleep(DELAY_START_ON_TIMEOUT); } catch (InterruptedException e) { }
-//	                if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
-//	                    doDownload();
-//	            }
-//	        }.start();
-	        final Runnable command = new Runnable() {
-                @Override
-                public void run() {
-                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
-                        doDownload();
-                }
-            };
-	        threadScheduledPool.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
-                }
-            }, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
-		}
-		return true;
-	}
-	
-	protected boolean doDownloadDirectory() {
-	    NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading directory " + name + " " + uri + " " + outFile.getAbsolutePath());
-
-	    String basePath = outFile.getParentFile().getParentFile().getParentFile().getAbsolutePath();
-	    
-        // Get file list for directory 
-        if (getState() == State.WORKING)
-            return false;
-        
         if (!client.isConnected()) {
             try {
                 client.renewClient();
@@ -806,139 +610,174 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                 return false;
             }
         }
-
-        State prevState = getState();
         
-        setStateWorking();
-        stopping = false;
-        
-        boolean isToBeQueued = GeneralPreferences.logsNumberSimultaneousDownloadsControl ? !queueWorkTickets.lease(this) : false;
-        if (isToBeQueued) {
-            final Runnable command = new Runnable() {
-                @Override
-                public void run() {
-                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED)
-                        doDownload();
-                }
-            };
-            threadScheduledPool.schedule(new Runnable() {
-                @Override
-                public void run() {
-                    new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
-                }
-            }, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
-            
-            setStateQueued();
-            
-            return true;
+        long begByte = 0;
+        if (usePartialDownload && prevState != State.DONE && outFile.exists() && outFile.isFile() && !isDirectory) {
+            begByte = outFile.length();
+            NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "!begin byte: " + begByte);
         }
-
-//        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
-
+        setStateWorking();
+        
         boolean isOnTimeout = false;
-
+        
         if (debug) {
             NeptusLog.pub().info("<###>URI: " + uri);
         }
         
         try {
+            // For directory
             HashMap<String, FTPFile> fileList = directoryContentsList; // client.listDirectory("/" + uri);
-            
-            NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "Number of FTPFiles in folder: " + fileList.size());
+            long contentLengh = ftpFile.getSize();
+            final long listSize = fileList.size();
 
             getProgressBar().setValue(0);
-            getProgressBar().setString(I18n.text("Starting..."));
+            getProgressBar().setString(begByte == 0 ? I18n.text("Starting...") : I18n.text("Resuming..."));
             getMsgLabel().setText("");
             startTimeMillis = System.currentTimeMillis();
             getInfoLabel().setText(name + " (" + uri + ")");
             
-            long contentLengh = ftpFile.getSize();
-            final long listSize = fileList.size();
-            
-            getProgressBar().setString(I18n.text("Starting... ") + 
-                    (listSize >= 0 ? I18n.textf("%number files", MathMiscUtils.parseToEngineeringRadix2Notation(fullSize,1)) : "unknown files"));
-            //msgPanel.writeMessageText("["+MathMiscUtils.parseToEngineeringNotation(cSize,1)+" bytes] ...");
-
-//            final Timer t = new Timer(DownloaderPanel.class.getSimpleName() + " :: progress for files for directory " + basePath);
-//            t.scheduleAtFixedRate(new TimerTask() {
-//                @Override
-//                public void run() {
-//                    getProgressBar().setValue((int) ((doneFilesForDirectory / (float)listSize) * 100));
-//                    getProgressBar().setString(doneFilesForDirectory + " out of " + listSize);
-//                    
-//                    if (state != State.WORKING)
-//                        t.cancel();
-//                }
-//            }, 0, 100);
-            threadScheduledPool.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    getProgressBar().setValue((int) ((doneFilesForDirectory / (float)listSize) * 100));
-                    getProgressBar().setString(doneFilesForDirectory + " out of " + listSize);
-                    
-                    if (state != State.WORKING) {
-                        threadScheduledPool.remove(this);
-                        threadScheduledPool.purge();
+            if (isDirectory) {
+                getProgressBar().setString(I18n.text("Starting... ") + 
+                        (listSize >= 0 ? I18n.textf("%number files", MathMiscUtils.parseToEngineeringRadix2Notation(fullSize,1)) : "unknown files"));
+                
+                threadScheduledPool.scheduleAtFixedRate(new Runnable() {
+                    @Override
+                    public void run() {
+                        getProgressBar().setValue((int) ((doneFilesForDirectory / (float)listSize) * 100));
+                        getProgressBar().setString(doneFilesForDirectory + " out of " + listSize);
+                        
+                        if (state != State.WORKING) {
+                            threadScheduledPool.remove(this);
+                            threadScheduledPool.purge();
+                        }
                     }
-                }
-            }, 10, 100, TimeUnit.MILLISECONDS);
+                }, 10, 100, TimeUnit.MILLISECONDS);
+            }
             
-            doneFilesForDirectory = 0;
-            for(String key : fileList.keySet()) {
+            if (!isDirectory) {
+                if (begByte > 0) {
+                    downloadedSize = begByte;
+                    client.getClient().setRestartOffset(begByte);
+                    System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "using resume");
+                    begByte = client.getClient().getRestartOffset();
+                }
+                else {
+                    downloadedSize = 0;
+                }
+                
+                // System.out.println("FTP Client is connected " + client.getClient().isConnected());
+                stream = client.getClient().retrieveFileStream(new String(uri.getBytes(), "ISO-8859-1"));
+                
+                fullSize = ftpFile.getSize();
+                
+                outFile.getParentFile().mkdirs();
+                
                 try {
-                    if(stopping)
-                        break;
-                    
-                    File out = new File(basePath + "/" + key);
-                    
-                    if(out.exists() && fileList.get(key).getSize() == out.length()) {
-                        doneFilesForDirectory++;
-                        NeptusLog.pub().debug("File for folder already synchronized: " + doneFilesForDirectory + " | "+ key);
-                        continue;
-                    }
-                    
-                    stream = client.getClient().retrieveFileStream(new String(key.getBytes(), "ISO-8859-1"));
-                    
-                    out.getParentFile().mkdirs();
+                    outFile.createNewFile();
+                } 
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                
+                FilterDownloadDataMonitor ioS = new FilterDownloadDataMonitor(stream, threadScheduledPool);
+                boolean streamRes = StreamUtil.copyStreamToFile(ioS, outFile, begByte == 0 ? false : true);
+                outFile.setLastModified(ftpFile.getTimestamp().getTimeInMillis());
+                
+                if (debug) {
+                    NeptusLog.pub().info("<###>To receive / received: " + (begByte > 0 ? fullSize - begByte: fullSize) + "/" + downloadedSize);
+                }
+                else {
+                    NeptusLog.pub().debug("To receive / received: " + (begByte > 0 ? fullSize - begByte: fullSize) + "/" + downloadedSize);
+                }
+                
+                endTimeMillis = System.currentTimeMillis();
+                ioS.stopDisplayUpdate();
+                
+                if (streamRes  && fullSize == downloadedSize) {
+                    getProgressBar().setString(I18n.textf("%fullSize done (in %time) @%dataRate", 
+                            MathMiscUtils.parseToEngineeringRadix2Notation(fullSize, 1) + "B",
+                            DateTimeUtil.milliSecondsToFormatedString(endTimeMillis - startTimeMillis),
+                            (MathMiscUtils.parseToEngineeringRadix2Notation((begByte > 0 ? downloadedSize - begByte: downloadedSize)
+                                    / ((endTimeMillis - startTimeMillis) / 1000.0), 1)) + "B/s"));
+                }
+                else {
+                    getProgressBar().setString(I18n.textf("%fullSize partially [%partialSize] done (in %time) @%dataRate", 
+                            MathMiscUtils.parseToEngineeringRadix2Notation(fullSize, 1) + "B",
+                            MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize, 1)+ "B",
+                            DateTimeUtil.milliSecondsToFormatedString(endTimeMillis - startTimeMillis),
+                            (MathMiscUtils.parseToEngineeringRadix2Notation((begByte > 0 ? downloadedSize - begByte: downloadedSize)
+                                    / ((endTimeMillis - startTimeMillis) / 1000.0), 1)) + "B/s"));
+                }
+                if(streamRes && fullSize == downloadedSize) {
+                    setStateDone();
+                    // downloadButton.setEnabled(false); //FIXME pdias 20130805 For now disable redownload because the get stream above from client cames null
+                    // client.getClient().disconnect();
+                    getMsgLabel().setText(I18n.textf("Saved in '%filePath'", outFile.getAbsolutePath()));
+                }
+                else {
+                    setStateNotDone();
+                }
+            }
+            else { // isDirectory
+                doneFilesForDirectory = 0;
+                for(String key : fileList.keySet()) {
                     try {
-                        out.createNewFile();
+                        if(stopping)
+                            break;
+                        
+                        File out = new File(basePath + "/" + key);
+                        
+                        if(out.exists() && fileList.get(key).getSize() == out.length()) {
+                            doneFilesForDirectory++;
+                            NeptusLog.pub().debug("File for folder already synchronized: " + doneFilesForDirectory + " | "+ key);
+                            continue;
+                        }
+                        
+                        stream = client.getClient().retrieveFileStream(new String(key.getBytes(), "ISO-8859-1"));
+                        
+                        out.getParentFile().mkdirs();
+                        try {
+                            out.createNewFile();
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        
+                        boolean streamRes = StreamUtil.copyStreamToFile(stream, out, false);
+                        out.setLastModified(fileList.get(key).getTimestamp().getTimeInMillis());
+                        if (client.getClient() != null) {
+                            client.getClient().completePendingCommand();
+                        }
+                        if (streamRes)
+                            doneFilesForDirectory++;
                     }
-                    catch (IOException e) {
-                        e.printStackTrace();
+                    catch (Exception e) {
+                        if (!stopping)
+                            e.printStackTrace();
                     }
-                    
-                    boolean streamRes = StreamUtil.copyStreamToFile(stream, out, false);
-                    out.setLastModified(fileList.get(key).getTimestamp().getTimeInMillis());
-                    if (client.getClient() != null) {
-                        client.getClient().completePendingCommand();
-                    }
-                    if (streamRes)
-                        doneFilesForDirectory++;
                 }
-                catch (Exception e) {
-                    if (!stopping)
-                        e.printStackTrace();
+                
+                endTimeMillis = System.currentTimeMillis();
+                
+                if (doneFilesForDirectory == listSize) {
+                    getProgressBar().setString(I18n.textf("%listSize files done (in %time) @%dataRate", 
+                            listSize,
+                            DateTimeUtil.milliSecondsToFormatedString(endTimeMillis - startTimeMillis),
+                            (MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize
+                                    / ((endTimeMillis - startTimeMillis) / 1000.0), 1)) + "B/s"));
+                    getMsgLabel().setText(I18n.textf("Saved in '%filePath'", outFile.getAbsolutePath()));
+                    setStateDone();
+                    // client.getClient().disconnect();
                 }
-            }
-            
-            endTimeMillis = System.currentTimeMillis();
-            
-            if (doneFilesForDirectory == listSize) {
-                getProgressBar().setString(I18n.textf("%listSize files done (in %time) @%dataRate", 
-                        listSize,
-                        DateTimeUtil.milliSecondsToFormatedString(endTimeMillis - startTimeMillis),
-                        (MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize
-                                / ((endTimeMillis - startTimeMillis) / 1000.0), 1)) + "B/s"));
-                getMsgLabel().setText(I18n.textf("Saved in '%filePath'", outFile.getAbsolutePath()));
-                setStateDone();
-                // client.getClient().disconnect();
-            }
-            else { 
-                setStateNotDone();
+                else { 
+                    setStateNotDone();
+                }
             }
         }
         catch (Exception ex) {
-            NeptusLog.pub().warn(ex);
+            if (!stopping)
+                NeptusLog.pub().warn(ex, ex);
+            
             if (ex.getMessage() != null && ex.getMessage().startsWith("Timeout waiting for connection")) {
                 isOnTimeout = true;
                 getProgressBar().setString(" " + I18n.text("Error:") + " " + ex.getMessage());
@@ -962,20 +801,19 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             }
         }
         if (isOnTimeout) {
-//            new Thread(DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'") {
-//                @Override
-//                public void run() {
-//                    try { Thread.sleep(DELAY_START_ON_TIMEOUT); } catch (InterruptedException e) { }
-//                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
-//                        doDownloadDirectory();
-//                }
-//            }.start();
+//          new Thread() {
+//              @Override
+//              public void run() {
+//                  try { Thread.sleep(DELAY_START_ON_TIMEOUT); } catch (InterruptedException e) { }
+//                  if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
+//                      doDownload();
+//              }
+//          }.start();
             final Runnable command = new Runnable() {
                 @Override
                 public void run() {
-                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT) {
-                        doDownloadDirectory();
-                    }
+                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
+                        doDownload();
                 }
             };
             threadScheduledPool.schedule(new Runnable() {
@@ -987,6 +825,411 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         }
         return true;
     }
+
+//	protected boolean doDownloadWorker() {
+//	    if(isDirectory)
+//            return doDownloadDirectory();
+//	    
+//		if (getState() == State.WORKING)
+//			return false;
+//		
+//        State prevState = getState();
+//        setStateWorking();
+//
+////		boolean isToBeQueued = GeneralPreferences.logsNumberSimultaneousDownloadsControl ? !queueWorkTickets.lease(this) : false;
+////		if (isToBeQueued) {
+////		    final Runnable command = new Runnable() {
+////		        @Override
+////		        public void run() {
+////		            if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED) {
+////		                doDownload();
+////		            }
+////		        }
+////		    };
+////		    threadScheduledPool.schedule(new Runnable() {
+////		        @Override
+////		        public void run() {
+////		            new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
+////		        }
+////		    }, DELAY_START_ON_QUEUE, TimeUnit.MILLISECONDS);
+////
+////		    setStateQueued();
+////
+////		    return true;
+////		}
+////        if (GeneralPreferences.logsNumberSimultaneousDownloadsControl) {
+////            setStateQueued();
+////		    Future<Boolean> future = queueWorkTickets.leaseAndWait(this, new Callable<Boolean>() {
+////                @Override
+////                public Boolean call() throws Exception {
+////                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED) {
+////                        System.out.println("!!!!!!!!!!!! " + getName());
+////                        return doDownload();
+////                    }
+////                    return true;
+////                }
+////            });
+//////		    boolean leaseResult = false;
+//////		    try {
+//////	             leaseResult = future.get(10, TimeUnit.MILLISECONDS);
+//////            }
+//////		    catch (TimeoutException | InterruptedException  | ExecutionException e) {
+//////                leaseResult = false;
+//////		    }
+//////		    if (!leaseResult) {
+//////		        setStateQueued();
+//////		        return true;
+//////		    }
+////          return true;
+////		}
+//
+////        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//
+//		NeptusLog.pub().debug(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading '" + name + "' from '" + uri + "' to " + outFile.getAbsolutePath());
+//
+//		if (!client.isConnected()) {
+//		    try {
+//                client.renewClient();
+//            }
+//            catch (Exception e) {
+//                e.printStackTrace();
+//                setStateError();
+//                return false;
+//            }
+//		}
+//		
+//		long begByte = 0;
+//		if (usePartialDownload && prevState != State.DONE && outFile.exists() && outFile.isFile() && !isDirectory) {
+//		    begByte = outFile.length();
+//		    NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "!begin byte: " + begByte);
+//		}
+//		setStateWorking();
+//		
+//		boolean isOnTimeout = false;
+//		
+//		try {
+//			getProgressBar().setValue(0);
+//			getProgressBar().setString(begByte == 0 ? I18n.text("Starting...") : I18n.text("Resuming..."));
+//			getMsgLabel().setText("");
+//			startTimeMillis = System.currentTimeMillis();
+//			getInfoLabel().setText(name + " (" + uri + ")");
+//			
+//			if (begByte > 0) {
+//                downloadedSize = begByte;
+//                client.getClient().setRestartOffset(begByte);
+//                System.out.println(DownloaderPanel.class.getSimpleName() + " :: " + "using resume");
+//                begByte = client.getClient().getRestartOffset();
+//            }
+//			else {
+//			    downloadedSize = 0;
+//			}
+//			
+//			// System.out.println("FTP Client is connected " + client.getClient().isConnected());
+//			stream = client.getClient().retrieveFileStream(new String(uri.getBytes(), "ISO-8859-1"));
+//
+//			fullSize = ftpFile.getSize();
+//
+//			outFile.getParentFile().mkdirs();
+//			
+//			try {
+//				outFile.createNewFile();
+//			} 
+//			catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//
+//			FilterDownloadDataMonitor ioS = new FilterDownloadDataMonitor(stream, threadScheduledPool);
+//			boolean streamRes = StreamUtil.copyStreamToFile(ioS, outFile, begByte == 0 ? false : true);
+//			outFile.setLastModified(ftpFile.getTimestamp().getTimeInMillis());
+//
+//			if (debug) {
+//			    NeptusLog.pub().info("<###>To receive / received: " + (begByte > 0 ? fullSize - begByte: fullSize) + "/" + downloadedSize);
+//			}
+//			else {
+//			    NeptusLog.pub().debug("To receive / received: " + (begByte > 0 ? fullSize - begByte: fullSize) + "/" + downloadedSize);
+//			}
+//			
+//			endTimeMillis = System.currentTimeMillis();
+//			ioS.stopDisplayUpdate();
+//
+//			if (streamRes  && fullSize == downloadedSize) {
+//                getProgressBar().setString(I18n.textf("%fullSize done (in %time) @%dataRate", 
+//                        MathMiscUtils.parseToEngineeringRadix2Notation(fullSize, 1) + "B",
+//                        DateTimeUtil.milliSecondsToFormatedString(endTimeMillis - startTimeMillis),
+//                        (MathMiscUtils.parseToEngineeringRadix2Notation((begByte > 0 ? downloadedSize - begByte: downloadedSize)
+//                                / ((endTimeMillis - startTimeMillis) / 1000.0), 1)) + "B/s"));
+//			}
+//			else {
+//			    getProgressBar().setString(I18n.textf("%fullSize partially [%partialSize] done (in %time) @%dataRate", 
+//			            MathMiscUtils.parseToEngineeringRadix2Notation(fullSize, 1) + "B",
+//			            MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize, 1)+ "B",
+//			            DateTimeUtil.milliSecondsToFormatedString(endTimeMillis - startTimeMillis),
+//			            (MathMiscUtils.parseToEngineeringRadix2Notation((begByte > 0 ? downloadedSize - begByte: downloadedSize)
+//			                    / ((endTimeMillis - startTimeMillis) / 1000.0), 1)) + "B/s"));
+//			}
+//			if(streamRes && fullSize == downloadedSize) {
+//				setStateDone();
+//				// downloadButton.setEnabled(false); //FIXME pdias 20130805 For now disable redownload because the get stream above from client cames null
+//				// client.getClient().disconnect();
+//				getMsgLabel().setText(I18n.textf("Saved in '%filePath'", outFile.getAbsolutePath()));
+//			}
+//			else {
+//				setStateNotDone();
+//			}
+//		}
+//		catch (Exception ex) {
+//			if (!stopping)
+//			    ex.printStackTrace();
+//			
+//		    if (ex.getMessage() != null && ex.getMessage().startsWith("Timeout waiting for connection")) {
+//		        isOnTimeout = true;
+//                getProgressBar().setString(" " + I18n.text("Error:") + " " + ex.getMessage());
+//                setStateTimeout();
+//		    }
+//		    else {
+//                getProgressBar().setString(
+//                        I18n.text("Error:") + " "
+//                                + (ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName()));
+//		        setStateError();
+//		    }
+//		}
+//		finally {
+//		    queueWorkTickets.release(this);
+//
+//		    try {
+//                if (client.isConnected())
+//                    client.getClient().disconnect();
+//            }
+//            catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//		}
+//		if (isOnTimeout) {
+////		    new Thread() {
+////	            @Override
+////	            public void run() {
+////	                try { Thread.sleep(DELAY_START_ON_TIMEOUT); } catch (InterruptedException e) { }
+////	                if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
+////	                    doDownload();
+////	            }
+////	        }.start();
+//	        final Runnable command = new Runnable() {
+//                @Override
+//                public void run() {
+//                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
+//                        doDownload();
+//                }
+//            };
+//	        threadScheduledPool.schedule(new Runnable() {
+//                @Override
+//                public void run() {
+//                    new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
+//                }
+//            }, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
+//		}
+//		return true;
+//	}
+//	
+//	protected boolean doDownloadDirectory() {
+//	    NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "Downloading directory " + name + " " + uri + " " + outFile.getAbsolutePath());
+//
+//	    String basePath = outFile.getParentFile().getParentFile().getParentFile().getAbsolutePath();
+//	    
+//        // Get file list for directory 
+//        if (getState() == State.WORKING)
+//            return false;
+//        
+//        if (!client.isConnected()) {
+//            try {
+//                client.renewClient();
+//            }
+//            catch (Exception e) {
+//                e.printStackTrace();
+//                setStateError();
+//                return false;
+//            }
+//        }
+//
+//        State prevState = getState();
+//        
+//        setStateWorking();
+//        stopping = false;
+//        
+//        boolean isToBeQueued = GeneralPreferences.logsNumberSimultaneousDownloadsControl ? !queueWorkTickets.lease(this) : false;
+//        if (isToBeQueued) {
+//            final Runnable command = new Runnable() {
+//                @Override
+//                public void run() {
+//                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.QUEUED)
+//                        doDownload();
+//                }
+//            };
+//            threadScheduledPool.schedule(new Runnable() {
+//                @Override
+//                public void run() {
+//                    new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
+//                }
+//            }, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
+//            
+//            setStateQueued();
+//            
+//            return true;
+//        }
+//
+////        try { Thread.sleep(5000); } catch (InterruptedException e1) { }
+//
+//        boolean isOnTimeout = false;
+//
+//        if (debug) {
+//            NeptusLog.pub().info("<###>URI: " + uri);
+//        }
+//        
+//        try {
+//            HashMap<String, FTPFile> fileList = directoryContentsList; // client.listDirectory("/" + uri);
+//            
+//            NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "Number of FTPFiles in folder: " + fileList.size());
+//
+//            getProgressBar().setValue(0);
+//            getProgressBar().setString(I18n.text("Starting..."));
+//            getMsgLabel().setText("");
+//            startTimeMillis = System.currentTimeMillis();
+//            getInfoLabel().setText(name + " (" + uri + ")");
+//            
+//            long contentLengh = ftpFile.getSize();
+//            final long listSize = fileList.size();
+//            
+//            getProgressBar().setString(I18n.text("Starting... ") + 
+//                    (listSize >= 0 ? I18n.textf("%number files", MathMiscUtils.parseToEngineeringRadix2Notation(fullSize,1)) : "unknown files"));
+//            //msgPanel.writeMessageText("["+MathMiscUtils.parseToEngineeringNotation(cSize,1)+" bytes] ...");
+//
+////            final Timer t = new Timer(DownloaderPanel.class.getSimpleName() + " :: progress for files for directory " + basePath);
+////            t.scheduleAtFixedRate(new TimerTask() {
+////                @Override
+////                public void run() {
+////                    getProgressBar().setValue((int) ((doneFilesForDirectory / (float)listSize) * 100));
+////                    getProgressBar().setString(doneFilesForDirectory + " out of " + listSize);
+////                    
+////                    if (state != State.WORKING)
+////                        t.cancel();
+////                }
+////            }, 0, 100);
+//            threadScheduledPool.scheduleAtFixedRate(new Runnable() {
+//                @Override
+//                public void run() {
+//                    getProgressBar().setValue((int) ((doneFilesForDirectory / (float)listSize) * 100));
+//                    getProgressBar().setString(doneFilesForDirectory + " out of " + listSize);
+//                    
+//                    if (state != State.WORKING) {
+//                        threadScheduledPool.remove(this);
+//                        threadScheduledPool.purge();
+//                    }
+//                }
+//            }, 10, 100, TimeUnit.MILLISECONDS);
+//            
+//            doneFilesForDirectory = 0;
+//            for(String key : fileList.keySet()) {
+//                try {
+//                    if(stopping)
+//                        break;
+//                    
+//                    File out = new File(basePath + "/" + key);
+//                    
+//                    if(out.exists() && fileList.get(key).getSize() == out.length()) {
+//                        doneFilesForDirectory++;
+//                        NeptusLog.pub().debug("File for folder already synchronized: " + doneFilesForDirectory + " | "+ key);
+//                        continue;
+//                    }
+//                    
+//                    stream = client.getClient().retrieveFileStream(new String(key.getBytes(), "ISO-8859-1"));
+//                    
+//                    out.getParentFile().mkdirs();
+//                    try {
+//                        out.createNewFile();
+//                    }
+//                    catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    
+//                    boolean streamRes = StreamUtil.copyStreamToFile(stream, out, false);
+//                    out.setLastModified(fileList.get(key).getTimestamp().getTimeInMillis());
+//                    if (client.getClient() != null) {
+//                        client.getClient().completePendingCommand();
+//                    }
+//                    if (streamRes)
+//                        doneFilesForDirectory++;
+//                }
+//                catch (Exception e) {
+//                    if (!stopping)
+//                        e.printStackTrace();
+//                }
+//            }
+//            
+//            endTimeMillis = System.currentTimeMillis();
+//            
+//            if (doneFilesForDirectory == listSize) {
+//                getProgressBar().setString(I18n.textf("%listSize files done (in %time) @%dataRate", 
+//                        listSize,
+//                        DateTimeUtil.milliSecondsToFormatedString(endTimeMillis - startTimeMillis),
+//                        (MathMiscUtils.parseToEngineeringRadix2Notation(downloadedSize
+//                                / ((endTimeMillis - startTimeMillis) / 1000.0), 1)) + "B/s"));
+//                getMsgLabel().setText(I18n.textf("Saved in '%filePath'", outFile.getAbsolutePath()));
+//                setStateDone();
+//                // client.getClient().disconnect();
+//            }
+//            else { 
+//                setStateNotDone();
+//            }
+//        }
+//        catch (Exception ex) {
+//            NeptusLog.pub().warn(ex);
+//            if (ex.getMessage() != null && ex.getMessage().startsWith("Timeout waiting for connection")) {
+//                isOnTimeout = true;
+//                getProgressBar().setString(" " + I18n.text("Error:") + " " + ex.getMessage());
+//                setStateTimeout();
+//            }
+//            else {
+//                getProgressBar().setString(
+//                        I18n.text("Error:") + " "
+//                                + (ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName()));
+//                setStateError();
+//            }
+//        }
+//        finally {
+//            queueWorkTickets.release(this);
+//            try {
+//                if (client.isConnected())
+//                    client.getClient().disconnect();
+//            }
+//            catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        if (isOnTimeout) {
+////            new Thread(DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'") {
+////                @Override
+////                public void run() {
+////                    try { Thread.sleep(DELAY_START_ON_TIMEOUT); } catch (InterruptedException e) { }
+////                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT)
+////                        doDownloadDirectory();
+////                }
+////            }.start();
+//            final Runnable command = new Runnable() {
+//                @Override
+//                public void run() {
+//                    if (DownloaderPanel.this.getState() == DownloaderPanel.State.TIMEOUT) {
+//                        doDownloadDirectory();
+//                    }
+//                }
+//            };
+//            threadScheduledPool.schedule(new Runnable() {
+//                @Override
+//                public void run() {
+//                    new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
+//                }
+//            }, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
+//        }
+//        return true;
+//    }
 	
 	protected void doStop() {
 	    stopping = true;
