@@ -286,7 +286,7 @@ public class NeptusSolver {
         solver.solve(10000);
         
         PlanView view = new PlanView(solver);
-        //System.out.println(solver.europa.planDatabaseToString());
+        System.out.println(solver.europa.planDatabaseToString());
         //TimelineView timeline = new TimelineView(solver);
         //timeline.setPlan(solver.getPlan("lauv-xplore-1"));
         JFrame frm = GuiUtils.testFrame(view);
