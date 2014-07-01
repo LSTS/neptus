@@ -343,6 +343,9 @@ public class Vis3DToolBar extends JToolBar {
                 canvas.unlock();
             }
             else if (wireframeToggle.isSelected()) {
+                if (!meshingToggle.isSelected())
+                    meshingToggle.doClick();
+
                 events.setRepresentationType(RepresentationType.REP_WIREFRAME);
                 canvas.lock();
 
@@ -375,6 +378,9 @@ public class Vis3DToolBar extends JToolBar {
                 canvas.unlock();
             }
             else if (solidToggle.isSelected()) {
+                if (!meshingToggle.isSelected())
+                    meshingToggle.doClick();
+                
                 events.setRepresentationType(RepresentationType.REP_SOLID);
                 canvas.lock();
 
