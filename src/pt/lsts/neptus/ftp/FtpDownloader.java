@@ -48,6 +48,8 @@ import pt.lsts.neptus.NeptusLog;
  * 
  */
 public class FtpDownloader {
+    private static final int DATA_TIMEOUT_MILLIS = 15000;
+
     private FTPClient client;
 
     private FTPClientConfig conf;
@@ -58,7 +60,7 @@ public class FtpDownloader {
     public FtpDownloader(String host, int port) throws Exception {
         this.host = host;
         this.port = port;
-        renewClient();
+//        renewClient();
     }
 
     /**
@@ -83,15 +85,15 @@ public class FtpDownloader {
 //        client.setDataTimeout(30000);
 //        client.setSoTimeout(30000);
 
-          client.setDataTimeout(15000);
+          client.setDataTimeout(DATA_TIMEOUT_MILLIS);
 //          client.setSoTimeout(300000); // N funciona, não liga
 
         }
         
-        System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "connecting to " + host + ":" + port);
+        NeptusLog.pub().warn(FtpDownloader.class.getSimpleName() + " :: " + "connecting to " + host + ":" + port);
         long t1 = System.currentTimeMillis();
         client.connect(host, port);
-        System.out.println(FtpDownloader.class.getSimpleName() + " :: " + "connected to " + host + ":" + port + " took " + (System.currentTimeMillis() - t1) + "ms");
+        NeptusLog.pub().warn(FtpDownloader.class.getSimpleName() + " :: " + "connected to " + host + ":" + port + " took " + (System.currentTimeMillis() - t1) + "ms");
         client.configure(conf);
 
         client.enterLocalPassiveMode();
@@ -202,7 +204,7 @@ public class FtpDownloader {
     public LinkedHashMap<FTPFile, String> listLogs() throws IOException {
         LinkedHashMap<FTPFile, String> list = new LinkedHashMap<FTPFile, String>();
         
-        if (!client.isConnected()) {
+        if (isConnected()) {
             try {
                 renewClient();
             }
@@ -240,7 +242,7 @@ public class FtpDownloader {
 //        String toks[] = filePath.split("/");
 //        String fileName = toks[toks.length - 1];
 //
-//        if (!client.isConnected()) {
+//        if (!isConnected()) {
 //            try {
 //                renewClient();
 //            }
@@ -290,8 +292,16 @@ public class FtpDownloader {
         return client;
     }
     
+    public boolean isConnected() {
+        if (client == null)
+            return false;
+        
+        return client.isConnected();
+    }
+    
     public void close() throws IOException {
-        client.disconnect();
+        if (client != null)
+            client.disconnect();
     }
 
     public static void main(String[] args) throws Exception {
