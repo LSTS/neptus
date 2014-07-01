@@ -2154,6 +2154,8 @@ public class LogsDownloaderWorker {
     private boolean deleteLogFolderFromServer(String path) {
         try {
             System.out.println("Deleting folder");
+            if (!clientFtp.isConnected())
+                clientFtp.renewClient();
             return clientFtp.getClient().deleteFile("/" + path);
         }
         catch (IOException e) {
@@ -2165,6 +2167,8 @@ public class LogsDownloaderWorker {
     private boolean deleteLogFolderFromCameraServer(String path) {
         try {
             if (cameraFtp != null) {
+                if (!cameraFtp.isConnected())
+                    cameraFtp.renewClient();
                 return cameraFtp.getClient().deleteFile("/" + path);
             }
             else
