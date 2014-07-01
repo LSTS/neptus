@@ -845,7 +845,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         catch (IOException e) {
             e.printStackTrace();
         }
-        setStateNotDone();
+        if (getState() != State.DONE)
+            setStateNotDone();
 		
 		if (getState() == State.TIMEOUT || getState() == State.QUEUED)
 		    setStateNotDone();
