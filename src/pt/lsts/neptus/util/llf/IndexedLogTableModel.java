@@ -181,7 +181,7 @@ public class IndexedLogTableModel extends AbstractTableModel {
                 case "dst_ent":
                     return index.getEntityName(m.getDst(), m.getDstEnt());
                 default: {
-                    return m.getValue(msgNames.get(columnIndex));
+                    return ""+m.getString(msgNames.get(columnIndex), false);
                 }
             }
         }
