@@ -45,13 +45,11 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.JPanel;
 
 import psengine.PSConstraint;
-import psengine.PSConstraintEngineListener;
 import psengine.PSConstraintList;
 import psengine.PSToken;
 import psengine.PSVarValue;
@@ -91,13 +89,6 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
         listeners.remove(listener);
     }
 
-    private PlanToken lookFor(int key) {
-        for (Entry<PlanToken, PSToken> entry : original.entrySet())
-            if (entry.getValue().getEntityKey() == key)
-                return entry.getKey();
-        return null;
-    }
-
     public long computeEndTime() {
         if (plan.isEmpty())
             return 0;
@@ -108,45 +99,6 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
         this.solver = solver;
         setMinimumSize(new Dimension(50, 50));
         setPreferredSize(new Dimension(600, 50));
-        solver.getEuropa().addConstraintEngineListener(new PSConstraintEngineListener() {
-            @Override
-            public void notifyChanged(PSVariable variable, PSChangeType changeType) {
-                super.notifyChanged(variable, changeType);
-
-                if (!variable.getEntityName().equals("start") && !variable.getEntityName().equals("end")) {
-                    return;
-                }
-
-                int key = variable.getParent().getEntityKey();
-                PSToken token = TimelineView.this.solver.getEuropa().getTokenByKey(key);
-
-                if (token == null) {
-                    return;
-                }
-
-                token = token.getActive() != null ? token.getActive() : token;
-                PlanToken pt = lookFor(key);
-
-                if (pt != null) {
-                    switch (variable.getEntityName()) {
-                        case "start":
-                            pt.start = startTime + (long) (token.getStart().getLowerBound() * 1000);
-                            break;
-                        case "end":
-                            long previousEnd = computeEndTime();
-                            pt.end = startTime + (long) (token.getEnd().getLowerBound() * 1000);
-                            if (computeEndTime() != previousEnd)
-                                for (TimelineViewListener l : listeners)
-                                    l.endTimeChanged(TimelineView.this, computeEndTime());
-                            break;
-                        default:
-                            break;
-                    }
-
-                    repaint();
-                }
-            }
-        });
 
         addMouseMotionListener(this);
         addMouseListener(this);
