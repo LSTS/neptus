@@ -156,6 +156,19 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
         plan.add(tok);
         repaint();
     }
+    
+    public void reloadPlan() {
+        long end = endTime;
+        for (PlanToken p : plan) {
+            synchronized (solver.getEuropa()) {
+                p.start = (long)(1000*p.original.getStart().getLowerBound());
+                p.end = (long)(1000*p.original.getEnd().getLowerBound());
+            }
+        }
+        if (computeEndTime() > end)
+            for (TimelineViewListener l : listeners)
+                l.endTimeChanged(this, computeEndTime());
+    }
 
     /**
      * @param plan the plan to set
@@ -167,17 +180,25 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
         synchronized (solver.getEuropa()) {
             long startTime = 0;
             for (PSToken tok : p) {
+                
                 PlanToken t = new PlanToken();
 
                 t.start = startTime + (long) ((tok.getStart().getLowerBound() * 1000));
                 t.end = startTime + (long) ((tok.getEnd().getLowerBound() * 1000));
                 t.original = tok;
-                t.id = tok.getParameter("task").getSingletonValue().asObject().getEntityName();
-                String name = solver.resolvePlanName(t.id);
-                if (name != null)
-                    t.id = name;
-                t.speed = (float) tok.getParameter("speed").getLowerBound();
-                original.put(t, tok);
+                if (tok.getParameter("task") != null) {
+                    t.id = tok.getParameter("task").getSingletonValue().asObject().getEntityName();
+                    String name = solver.resolvePlanName(t.id);
+                    if (name != null)
+                        t.id = name;
+                    t.speed = (float) tok.getParameter("speed").getLowerBound();
+                    original.put(t, tok);
+                }
+                else {
+                    t.id = "Transit";
+                    t.speed = (float) tok.getParameter("speed").getLowerBound();                    
+                }
+                
                 addToken(t);
                 long newStart = Math.min(startTime, t.start);
                 long newEnd = Math.max(endTime, t.end);
@@ -338,6 +359,7 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
         System.out.println(var.toLongString());
         System.out.println("     >>> constrained to "+value);
         System.out.println("# constraints: "+var.getConstraints().size());
+        PSConstraint created = null;
         
         synchronized (solver.getEuropa()) {
             System.out.println("# inside!");
@@ -349,7 +371,7 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
             list.push_back(varNew);
             list.push_back(var);
             
-            PSConstraint created = solver.getEuropa().getPlanDatabaseClient().createConstraint("leq", list);
+            created = solver.getEuropa().getPlanDatabaseClient().createConstraint("leq", list);
             boolean propResult = solver.getEuropa().propagate();
             solver.getEuropa().setAutoPropagation(true);
         
@@ -364,6 +386,7 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
                 solver.getEuropa().propagate();
                 solver.getEuropa().setAutoPropagation(true);
                 System.out.println(var.toLongString());
+                created = null;
                 return existing;
             }
             else {
@@ -371,12 +394,15 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
                     solver.getEuropa().setAutoPropagation(false);
                     solver.getEuropa().getPlanDatabaseClient().deleteConstraint(existing);
                     solver.getEuropa().propagate();
-                    solver.getEuropa().setAutoPropagation(true);
+                    solver.getEuropa().setAutoPropagation(true);                     
                 }
-                System.out.println(var.toLongString());
-                return created;
+                System.out.println(var.toLongString());                
             }
-        }        
+        }
+        
+        for (TimelineViewListener l : listeners)
+            l.planChanged();
+        return created;        
     }
 
     @Override
@@ -384,16 +410,22 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
 
         if (ghostToken != null) {
             PSToken tok = ghostToken.original;
-           
+            
             if (ghostStartOffset != 0) {
                 int newTime = (int) ((ghostToken.start + ghostStartOffset) - startTime) / 1000;
                 ghostToken.startConstraint = addConstraint(tok.getStart(), newTime, ghostToken.startConstraint);
             }
 
+//            if (ghostEndOffset != 0) {
+//                int newTime = (int) ((ghostToken.end + ghostEndOffset) - startTime) / 1000;
+//                ghostToken.endConstraint = addConstraint(tok.getEnd(), newTime, ghostToken.endConstraint);
+//            }
+            
             if (ghostEndOffset != 0) {
-                int newTime = (int) ((ghostToken.end + ghostEndOffset) - startTime) / 1000;
-                ghostToken.endConstraint = addConstraint(tok.getEnd(), newTime, ghostToken.endConstraint);
+                int newTime = (int) Math.min(tok.getDuration().getUpperBound(), ((ghostToken.end-ghostToken.start) + ghostEndOffset) / 1000);
+                ghostToken.endConstraint = addConstraint(tok.getDuration(), newTime, ghostToken.endConstraint);
             }             
+
         }
 
         ghostToken = null;

@@ -27,7 +27,7 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: zp
- * Jun 30, 2014
+ * Jul 1, 2014
  */
 package pt.lsts.neptus.plugins.europa.gui;
 
@@ -37,11 +37,6 @@ import pt.lsts.neptus.plugins.europa.gui.TimelineView.PlanToken;
  * @author zp
  *
  */
-public interface TimelineViewListener {
-
-    public void startTimeChanged(TimelineView source, long startTimeMillis);
-    public void endTimeChanged(TimelineView source, long startTimeMillis);
-    public void tokenSelected(TimelineView source, PlanToken token);
-    public void planChanged();
-    
+public interface PlanViewListener {
+    public void tokenSelected(PlanToken token);
 }

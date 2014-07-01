@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.europa.gui;
 
 import java.awt.Color;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Vector;
 
 import javax.swing.JLabel;
@@ -54,6 +55,7 @@ public class PlanView extends JPanel implements TimelineViewListener {
     private static final long serialVersionUID = 25568315874216387L;
     private Vector<TimelineView> timelines = new Vector<>();
     private NeptusSolver solver;
+    private HashSet<PlanViewListener> listeners = new HashSet<>();
     
     public PlanView(NeptusSolver solver) {
         setBackground(Color.white);
@@ -107,6 +109,14 @@ public class PlanView extends JPanel implements TimelineViewListener {
             v.setEndTime(maxEnd);        
     }
 
+    public void addListener(PlanViewListener l) {
+        listeners.add(l);
+    }
+    
+    public void removeListener(PlanViewListener l) {
+        listeners.remove(l);
+    }
+    
     @Override
     public void tokenSelected(TimelineView source, PlanToken token) {
         for (TimelineView v : timelines) {
@@ -114,5 +124,14 @@ public class PlanView extends JPanel implements TimelineViewListener {
                 continue;
             v.setSelectedToken(null);
         }
+        
+        for (PlanViewListener l : listeners)
+            l.tokenSelected(token);
+    }
+    
+    @Override
+    public void planChanged() {
+        for (TimelineView v : timelines)
+            v.reloadPlan();        
     }
 }

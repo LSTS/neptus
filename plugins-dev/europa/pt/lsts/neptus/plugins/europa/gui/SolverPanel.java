@@ -51,11 +51,13 @@ import net.miginfocom.swing.MigLayout;
 import psengine.PSObject;
 import psengine.PSToken;
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.europa.NeptusSolver;
 import pt.lsts.neptus.plugins.europa.PlanTask;
+import pt.lsts.neptus.plugins.europa.gui.TimelineView.PlanToken;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -63,10 +65,10 @@ import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp
- *
+ * 
  */
 public class SolverPanel extends JPanel {
-    
+
     private static final long serialVersionUID = -7352001540896377542L;
     DefaultListModel<PlanTask> listModel = new DefaultListModel<>();
     JList<PlanTask> tasks = new JList<>(listModel);
@@ -74,62 +76,68 @@ public class SolverPanel extends JPanel {
     JComboBox<PlanType> plans = new JComboBox<>();
     JFormattedTextField speed = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat(2));
     ConsoleLayout console;
-    
+
     public SolverPanel(ConsoleLayout console, Collection<VehicleType> vehicles, Collection<PlanType> plans) {
         this.console = console;
-        
+
         for (VehicleType vt : vehicles)
             this.vehicles.addItem(vt);
-        
+
         for (PlanType pt : plans)
             this.plans.addItem(pt);
-        
+
         initialize();
     }
-    
+
     private void solve() {
-        
+
         Vector<PSToken> goals = new Vector<>();
-        
+
         try {
             NeptusSolver solver = new NeptusSolver();
 
-            for (int i = 0;i < vehicles.getItemCount(); i++) {
+            for (int i = 0; i < vehicles.getItemCount(); i++) {
                 String vehicle = vehicles.getItemAt(i).getId();
                 LocationType loc = console.getMission().getHomeRef();
-                
+
                 if (ImcMsgManager.getManager().getState(vehicle).isActive()) {
                     EstimatedState pos = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
                     loc = IMCUtils.getLocation(pos);
                 }
-                
+
                 // FIXME
-                PSObject obj = solver.addVehicle(vehicles.getItemAt(i).getId(), loc, 0.7, 1.0, 1.3, 8 * 3600 * 1000, 6 * 3600 * 1000, 4 * 3600 * 1000);   
-                
-                System.out.println("Added this vehicle: "+vehicles.getItemAt(i).getId()+": "+obj);
+                PSObject obj = solver.addVehicle(vehicles.getItemAt(i).getId(), loc, 0.7, 1.0, 1.3, 8 * 3600 * 1000,
+                        6 * 3600 * 1000, 4 * 3600 * 1000);
+
+                System.out.println("Added this vehicle: " + vehicles.getItemAt(i).getId() + ": " + obj);
             }
-            
-            for (int i = 0;i < plans.getItemCount(); i++)
+
+            for (int i = 0; i < plans.getItemCount(); i++)
                 solver.addTask(plans.getItemAt(i));
-            
-            for (int i = 0;i < listModel.getSize(); i++) {
+
+            for (int i = 0; i < listModel.getSize(); i++) {
                 PlanTask pt = listModel.get(i);
                 goals.add(solver.addGoal(pt.vehicle.getId(), pt.plan.getId(), pt.speed));
             }
-            
+
             solver.solve(1000);
-             
-            //TimelineView timeline = new TimelineView(solver);
             PlanView plan = new PlanView(solver);
-            //timeline.setPlan(solver.getPlan("lauv-xtreme-2"));
             JFrame frm = GuiUtils.testFrame(plan);
             frm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            //PlanVisualization pv = new PlanVisualization(solver.getPlan("lauv-xtreme-2"));
-            //frm = GuiUtils.testFrame(pv);
-            //frm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            
-            
-            
+
+            plan.addListener(new PlanViewListener() {
+
+                @Override
+                public void tokenSelected(PlanToken token) {
+                    try {
+                        console.setPlan(console.getMission().getIndividualPlansList().get(token.id));
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(e);
+                    }
+                }
+            });
+
             for (PSToken goal : goals) {
                 System.out.println(goal.toLongString());
             }
@@ -137,9 +145,9 @@ public class SolverPanel extends JPanel {
         catch (Exception e) {
             GuiUtils.errorMessage(console, e);
         }
-        
+
     }
-    
+
     private void initialize() {
         setLayout(new MigLayout());
         speed.setColumns(4);
@@ -155,13 +163,14 @@ public class SolverPanel extends JPanel {
         addBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                PlanTask pt = new PlanTask((PlanType)plans.getSelectedItem(), (VehicleType)vehicles.getSelectedItem(), Double.parseDouble(speed.getText()));
+                PlanTask pt = new PlanTask((PlanType) plans.getSelectedItem(),
+                        (VehicleType) vehicles.getSelectedItem(), Double.parseDouble(speed.getText()));
                 listModel.addElement(pt);
             }
         });
         tasks.setBorder(new TitledBorder("Tasks"));
         add(tasks, new CC().grow().span());
-        
+
         JButton solveBtn = new JButton("Solve");
         solveBtn.addActionListener(new ActionListener() {
             @Override
@@ -169,7 +178,7 @@ public class SolverPanel extends JPanel {
                 solve();
             }
         });
-        
+
         add(solveBtn, "span");
     }
 }

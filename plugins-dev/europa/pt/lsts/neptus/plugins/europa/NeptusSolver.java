@@ -276,13 +276,13 @@ public class NeptusSolver {
         solver.closeDomain();
         
         int count = 0;
-        //for (PlanType pt : mt.getIndividualPlansList().values()) {
-          //  solver.addGoal(vehicles[0], pt.getId(), 1.1);
-        //}
+        for (PlanType pt : mt.getIndividualPlansList().values()) {
+            solver.addGoal(vehicles[count++%2], pt.getId(), Math.random()*0.6 + 0.7);
+        }
         
-        solver.addGoal(vehicles[1], mt.getIndividualPlansList().values().iterator().next().getId(), 1.1);
-        solver.addGoal(vehicles[0], mt.getIndividualPlansList().values().iterator().next().getId(), 1.3);
-        solver.addGoal(vehicles[0], mt.getIndividualPlansList().values().iterator().next().getId(), 1.1);
+//        solver.addGoal(vehicles[count++%2], mt.getIndividualPlansList().values().iterator().next().getId(), 1.1);
+//        solver.addGoal(vehicles[0], mt.getIndividualPlansList().values().iterator().next().getId(), 1.3);
+//        solver.addGoal(vehicles[0], mt.getIndividualPlansList().values().iterator().next().getId(), 1.1);
         
         System.out.println(FileUtil.getFileAsString("conf/nddl/neptus/auv_model.nddl"));
         System.out.println(solver.extraNDDL);

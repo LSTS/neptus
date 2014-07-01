@@ -47,7 +47,6 @@ import javax.swing.JPanel;
 import psengine.PSToken;
 import psengine.PSTokenList;
 import psengine.PSVariable;
-import psengine.PSVariableList;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.DirectedSparseGraph;

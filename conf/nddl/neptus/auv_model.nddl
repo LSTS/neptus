@@ -25,9 +25,9 @@ class Position extends Timeline {
 };
 
 Position::Pos {
-    if( start==0 ) {
-	duration == 1; 
-    }	
+    //if( start==0 ) {
+	//duration == 1; 
+    //}	
 }
 
 class Battery extends Reservoir {
@@ -148,6 +148,10 @@ class Auv extends Timeline {
 	start >= 0;
 	idleTime >= 0;
     }
+    
+    predicate Transit {
+    	float speed;
+    }
 	
     Auv() {
 	position = new Position();
@@ -191,10 +195,13 @@ AuvActions::Transit {
     Auv me;
     me.my_actions == object;
 	
+	equals(effect me.Transit t);
+		t.speed == speed;
+		
     meets(effect Position.Pos dest);
     dest.object == me.position;
     dest.from_task == false;
-	
+	dest.duration == 1;
     starts_during(condition Position.Pos source);
     source.object == me.position;
     temporalDistance(start, 1, source.end); 
@@ -206,7 +213,7 @@ AuvActions::Transit {
     contained_by(SpeedControl.Holds sp);
     sp.object == me.ctrl;
     speed == sp.speed;
-
+	
     float dur_secs;
     // compute the duration taking into account rounding error
     (dur_secs + 1.0) * speed == distance;
@@ -241,7 +248,8 @@ AuvActions::ExecTask {
     dest.from_task == true;
     dest.latitude == task.exit_latitude;
     dest.longitude == task.exit_longitude;
-    exec ends_after_start dest; 
+   	// exec ends_after_start dest; 
+	temporalDistance(exec.end, 1, dest.end);
 	
     starts_during(condition Position.Pos source);
     source.object == me.position;
@@ -257,7 +265,7 @@ AuvActions::ExecTask {
     start+duration == end;
     
     contained_by(condition SpeedControl.Holds sp);
-    
+    sp.object == me.ctrl;
     Battery batt;
     batt == sp.object.battery;
  
