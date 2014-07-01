@@ -52,6 +52,7 @@ import javax.swing.JPanel;
 
 import psengine.PSConstraint;
 import psengine.PSConstraintEngineListener;
+import psengine.PSConstraintList;
 import psengine.PSToken;
 import psengine.PSVarValue;
 import psengine.PSVariable;
@@ -74,6 +75,10 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
     private long startTime = 0, endTime = startTime + 3600 * 1000;
     private NeptusSolver solver;
     private PlanToken selectedToken = null;
+    private PlanToken ghostToken = null;
+    private long ghostStartOffset = 0, ghostEndOffset;
+    private static int count = 0;
+
     private Color c1 = new Color(255, 255, 255);
     private Color c2 = new Color(192, 192, 192);
     private HashSet<TimelineViewListener> listeners = new HashSet<>();
@@ -128,7 +133,11 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
                             pt.start = startTime + (long) (token.getStart().getLowerBound() * 1000);
                             break;
                         case "end":
+                            long previousEnd = computeEndTime();
                             pt.end = startTime + (long) (token.getEnd().getLowerBound() * 1000);
+                            if (computeEndTime() != previousEnd)
+                                for (TimelineViewListener l : listeners)
+                                    l.endTimeChanged(TimelineView.this, computeEndTime());
                             break;
                         default:
                             break;
@@ -155,35 +164,37 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
         plan.clear();
         original.clear();
 
-        long startTime = 0;
-        for (PSToken tok : p) {
-            PlanToken t = new PlanToken();
+        synchronized (solver.getEuropa()) {
+            long startTime = 0;
+            for (PSToken tok : p) {
+                PlanToken t = new PlanToken();
 
-            t.start = startTime + (long) ((tok.getStart().getLowerBound() * 1000));
-            t.end = startTime + (long) ((tok.getEnd().getLowerBound() * 1000));
-            t.id = tok.getParameter("task").getSingletonValue().asObject().getEntityName();
-            String name = solver.resolvePlanName(t.id);
-            if (name != null)
-                t.id = name;
-            t.speed = (float) tok.getParameter("speed").getLowerBound();
-            original.put(t, tok);
-            addToken(t);
-            long newStart = Math.min(startTime, t.start);
-            long newEnd = Math.max(endTime, t.end);
+                t.start = startTime + (long) ((tok.getStart().getLowerBound() * 1000));
+                t.end = startTime + (long) ((tok.getEnd().getLowerBound() * 1000));
+                t.original = tok;
+                t.id = tok.getParameter("task").getSingletonValue().asObject().getEntityName();
+                String name = solver.resolvePlanName(t.id);
+                if (name != null)
+                    t.id = name;
+                t.speed = (float) tok.getParameter("speed").getLowerBound();
+                original.put(t, tok);
+                addToken(t);
+                long newStart = Math.min(startTime, t.start);
+                long newEnd = Math.max(endTime, t.end);
 
-            if (newEnd != endTime) {
-                endTime = newEnd;
-                for (TimelineViewListener l : listeners)
-                    l.endTimeChanged(this, endTime);
-            }
+                if (newEnd != endTime) {
+                    endTime = newEnd;
+                    for (TimelineViewListener l : listeners)
+                        l.endTimeChanged(this, endTime);
+                }
 
-            if (newStart != startTime) {
-                startTime = newStart;
-                for (TimelineViewListener l : listeners)
-                    l.startTimeChanged(this, startTime);
+                if (newStart != startTime) {
+                    startTime = newStart;
+                    for (TimelineViewListener l : listeners)
+                        l.startTimeChanged(this, startTime);
+                }
             }
         }
-
     }
 
     private long screenToTime(Point2D pointOnScreen) {
@@ -215,29 +226,35 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
 
         synchronized (plan) {
             for (PlanToken tok : plan) {
-                double start = timeOnScreen(tok.start);
-                double end = timeOnScreen(tok.end);
                 if (selectedToken == tok)
-                    g2d.setPaint(new GradientPaint(new Point2D.Double(start, 0), new Color(128, 255, 128, 224),
-                            new Point2D.Double(end, getHeight()), new Color(255, 255, 255, 224)));
+                    paintToken(tok, 0, 0, g2d, new Color(128, 255, 128, 224), new Color(255, 255, 255, 224));
                 else
-                    g2d.setPaint(new GradientPaint(new Point2D.Double(start, 0), new Color(255, 255, 128, 224),
-                            new Point2D.Double(end, getHeight()), new Color(192, 192, 64, 224)));
-                g2d.fill(new RoundRectangle2D.Double(start, 2, end - start, getHeight() - 4, 12, 12));
-                g2d.setColor(Color.black);
-                g2d.draw(new RoundRectangle2D.Double(start, 2, end - start, getHeight() - 4, 12, 12));
-                g2d.drawString(tok.id, (int) start + 5, 14);
-                g2d.drawString(String.format("%.1f m/s", tok.speed), (int) start + 5, 30);
+                    paintToken(tok, 0, 0, g2d, new Color(255, 255, 128, 224), new Color(192, 192, 64, 224));
             }
         }
+
+        if (ghostToken != null) {
+            paintToken(ghostToken, ghostStartOffset, ghostEndOffset, g2d, new Color(192, 128, 128, 64), new Color(192,
+                    192, 64, 64));
+        }
+    }
+
+    private void paintToken(PlanToken tok, long startOffset, long endOffset, Graphics2D g2d, Color c1, Color c2) {
+        double start = timeOnScreen(tok.start + startOffset);
+        double end = timeOnScreen(tok.end + endOffset);
+        g2d.setPaint(new GradientPaint(new Point2D.Double(start, 0), c1, new Point2D.Double(end, getHeight()), c2));
+        g2d.fill(new RoundRectangle2D.Double(start, 2, end - start, getHeight() - 4, 12, 12));
         g2d.setColor(Color.black);
-        g2d.drawString(DateTimeUtil.milliSecondsToFormatedString(endTime), 10, 10);
+        g2d.draw(new RoundRectangle2D.Double(start, 2, end - start, getHeight() - 4, 12, 12));
+        g2d.drawString(tok.id, (int) start + 5, 14);
+        g2d.drawString(String.format("%.1f m/s", tok.speed), (int) start + 5, 30);
     }
 
     static class PlanToken {
         long start, end;
         float speed;
         String id;
+        PSToken original = null;
         PSConstraint startConstraint = null;
         PSConstraint endConstraint = null;
     }
@@ -246,62 +263,22 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        if (selectedToken != null && lastDragPoint != null) {
+
+        if (ghostToken != null) {
             double xDragAmount = e.getX() - lastDragPoint.getX();
             double scale = (double) (endTime - startTime) / getWidth();
             long timeIncrease = (long) (xDragAmount * scale);
-            PSToken tok = original.get(selectedToken);
-            PSVariableList list = new PSVariableList();
-            
-           // if (e.getButton() == MouseEvent.BUTTON1) {
-                PSVariable var = solver.getEuropa().getPlanDatabaseClient()
-                        .createVariable("int", "selected_start_" + selectedToken.hashCode(), true);
 
-                int newTime = (int) ((selectedToken.start + timeIncrease) - startTime) / 1000;
-                var.specifyValue(PSVarValue.getInstance(newTime));
-                list.push_back(var);
-                list.push_back(tok.getStart());
-                PSConstraint created = solver.getEuropa().getPlanDatabaseClient().createConstraint("leq", list);
-                boolean propResult = solver.getEuropa().propagate();
-
-                if (!propResult) {
-                    solver.getEuropa().getPlanDatabaseClient().deleteConstraint(created);
-                    solver.getEuropa().propagate();
-                }
-                else {
-                    PSConstraint existing = selectedToken.startConstraint;
-                    if (existing != null)
-                        solver.getEuropa().getPlanDatabaseClient().deleteConstraint(existing);
-                    selectedToken.startConstraint = created;
-                }
+            if (!e.isControlDown()) {
+                ghostStartOffset += timeIncrease;
+                repaint();
+            }
+            else {
+                ghostEndOffset += timeIncrease;
+                repaint();
+            }
+            lastDragPoint = e.getPoint();
         }
-                lastDragPoint = e.getPoint();
-//            }
-//            else if (e.getButton() == MouseEvent.BUTTON3) {
-//                PSVariable var = solver.getEuropa().getPlanDatabaseClient()
-//                        .createVariable("int", "selected_end_" + selectedToken.hashCode(), true);
-//
-//                int newTime = (int) ((selectedToken.end + timeIncrease) - startTime) / 1000;
-//                var.specifyValue(PSVarValue.getInstance(newTime));
-//                list.push_back(var);
-//                list.push_back(tok.getEnd());
-//                PSConstraint created = solver.getEuropa().getPlanDatabaseClient().createConstraint("geq", list);
-//                boolean propResult = solver.getEuropa().propagate();
-//
-//                if (!propResult) {
-//                    solver.getEuropa().getPlanDatabaseClient().deleteConstraint(created);
-//                    solver.getEuropa().propagate();
-//                }
-//                else {
-//                    PSConstraint existing = selectedToken.endConstraint;
-//                    if (existing != null)
-//                        solver.getEuropa().getPlanDatabaseClient().deleteConstraint(existing);
-//                    selectedToken.endConstraint = created;
-//                }
-//                lastDragPoint = e.getPoint();
-//            }
-//            
-//        }
 
     }
 
@@ -324,10 +301,16 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
             selected = intercepted.id + " ";
 
         setToolTipText(selected + DateTimeUtil.milliSecondsToFormatedString(screenToTime(e.getPoint())));
+        repaint();
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        PlanToken before = getSelectedToken();
+        setSelectedToken(intercepted(e));
+        if (getSelectedToken() != before)
+            for (TimelineViewListener l : listeners)
+                l.tokenSelected(this, getSelectedToken());
     }
 
     @Override
@@ -342,27 +325,81 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
 
     @Override
     public void mousePressed(MouseEvent e) {
-        PlanToken before = getSelectedToken();
-        setSelectedToken(intercepted(e));
-        if (getSelectedToken() != before)
-            for (TimelineViewListener l : listeners)
-                l.tokenSelected(this, getSelectedToken());
+        PlanToken intercepted = intercepted(e);
+        if (intercepted != null) {
+            ghostToken = intercepted;// .clone();
+            ghostStartOffset = ghostEndOffset = 0;
+            lastDragPoint = e.getPoint();
+        }
+    }
+    
+    private PSConstraint addConstraint(PSVariable var, int value, PSConstraint existing) {
+        
+        System.out.println(var.toLongString());
+        System.out.println("     >>> constrained to "+value);
+        System.out.println("# constraints: "+var.getConstraints().size());
+        
+        synchronized (solver.getEuropa()) {
+            System.out.println("# inside!");
+            solver.getEuropa().setAutoPropagation(false);
+            PSVariableList list = new PSVariableList();
+            PSVariable varNew = solver.getEuropa().getPlanDatabaseClient()
+                    .createVariable("int", "var_"+(++count), true);
+            varNew.specifyValue(PSVarValue.getInstance(value));
+            list.push_back(varNew);
+            list.push_back(var);
+            
+            PSConstraint created = solver.getEuropa().getPlanDatabaseClient().createConstraint("leq", list);
+            boolean propResult = solver.getEuropa().propagate();
+            solver.getEuropa().setAutoPropagation(true);
+        
+            if (!propResult) {
+                PSConstraintList pcl = solver.getEuropa().getAllViolations();
+                for (int i = 0; i < pcl.size(); i++) {
+                    System.out.println("VIOLATION ");
+                    System.out.println(pcl.get(i).toLongString());
+                }
+                solver.getEuropa().setAutoPropagation(false);
+                solver.getEuropa().getPlanDatabaseClient().deleteConstraint(created);
+                solver.getEuropa().propagate();
+                solver.getEuropa().setAutoPropagation(true);
+                System.out.println(var.toLongString());
+                return existing;
+            }
+            else {
+                if (existing != null) {
+                    solver.getEuropa().setAutoPropagation(false);
+                    solver.getEuropa().getPlanDatabaseClient().deleteConstraint(existing);
+                    solver.getEuropa().propagate();
+                    solver.getEuropa().setAutoPropagation(true);
+                }
+                System.out.println(var.toLongString());
+                return created;
+            }
+        }        
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+
+        if (ghostToken != null) {
+            PSToken tok = ghostToken.original;
+           
+            if (ghostStartOffset != 0) {
+                int newTime = (int) ((ghostToken.start + ghostStartOffset) - startTime) / 1000;
+                ghostToken.startConstraint = addConstraint(tok.getStart(), newTime, ghostToken.startConstraint);
+            }
+
+            if (ghostEndOffset != 0) {
+                int newTime = (int) ((ghostToken.end + ghostEndOffset) - startTime) / 1000;
+                ghostToken.endConstraint = addConstraint(tok.getEnd(), newTime, ghostToken.endConstraint);
+            }             
+        }
+
+        ghostToken = null;
+        ghostStartOffset = ghostEndOffset = 0;
         lastDragPoint = null;
-        if (plan.isEmpty())
-            return;
         
-        for (TimelineViewListener l : listeners)
-            l.endTimeChanged(TimelineView.this, plan.lastElement().end);
-        
-//        if (plan.lastElement().end != endTime) {
-//            endTime = plan.lastElement().end;
-//            for (TimelineViewListener l : listeners)
-//                l.endTimeChanged(this, endTime);
-//        }
         repaint();
     }
 

@@ -48,6 +48,7 @@ import javax.swing.border.TitledBorder;
 
 import net.miginfocom.layout.CC;
 import net.miginfocom.swing.MigLayout;
+import psengine.PSObject;
 import psengine.PSToken;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -103,7 +104,9 @@ public class SolverPanel extends JPanel {
                 }
                 
                 // FIXME
-                solver.addVehicle(vehicles.getItemAt(i).getId(), loc, 0.7, 1.0, 1.3, 8 * 3600 * 1000, 6 * 3600 * 1000, 4 * 3600 * 1000);                
+                PSObject obj = solver.addVehicle(vehicles.getItemAt(i).getId(), loc, 0.7, 1.0, 1.3, 8 * 3600 * 1000, 6 * 3600 * 1000, 4 * 3600 * 1000);   
+                
+                System.out.println("Added this vehicle: "+vehicles.getItemAt(i).getId()+": "+obj);
             }
             
             for (int i = 0;i < plans.getItemCount(); i++)
@@ -116,13 +119,14 @@ public class SolverPanel extends JPanel {
             
             solver.solve(1000);
              
-            TimelineView timeline = new TimelineView(solver);
-            timeline.setPlan(solver.getPlan("lauv-xtreme-2"));
-            JFrame frm = GuiUtils.testFrame(timeline);
+            //TimelineView timeline = new TimelineView(solver);
+            PlanView plan = new PlanView(solver);
+            //timeline.setPlan(solver.getPlan("lauv-xtreme-2"));
+            JFrame frm = GuiUtils.testFrame(plan);
             frm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            PlanVisualization pv = new PlanVisualization(solver.getPlan("lauv-xtreme-2"));
-            frm = GuiUtils.testFrame(pv);
-            frm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            //PlanVisualization pv = new PlanVisualization(solver.getPlan("lauv-xtreme-2"));
+            //frm = GuiUtils.testFrame(pv);
+            //frm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             
             
             
