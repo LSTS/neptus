@@ -128,6 +128,8 @@ public class IndexedLogTableModel extends AbstractTableModel {
             if (imcMsgType.getFieldUnits(element) != null && !imcMsgType.getFieldUnits(element).isEmpty()) {
                 names.add(element + " " + "(" + imcMsgType.getFieldUnits(element) + ")");
             }
+            else
+                names.add(element);
         }
 
         // msg names to use on getValueAt() method
@@ -138,7 +140,7 @@ public class IndexedLogTableModel extends AbstractTableModel {
         msgNames.add("dst");
         msgNames.add("dst_ent");
         msgNames.addAll(imcMsgType.getFieldNames());
-
+        
         // load the "row <-> msg index" table
         loadIndexes(initTime/1000.0, finalTime/1000.0);
     }
