@@ -46,7 +46,10 @@ import javax.swing.JFrame;
 import psengine.PSEngine;
 import psengine.PSObject;
 import psengine.PSPlanDatabaseClient;
+import psengine.PSResource;
+import psengine.PSResourceProfile;
 import psengine.PSSolver;
+import psengine.PSTimePointList;
 import psengine.PSToken;
 import psengine.PSTokenList;
 import psengine.PSVarValue;
@@ -285,8 +288,24 @@ public class NeptusSolver {
         System.out.println(solver.extraNDDL);
         solver.solve(10000);
         
+        // Extract resource profile
+        for(PSObject vehicle: solver.vehicleObjects.values()) {
+           PSResource batt = PSResource.asPSResource(solver.europa.getObjectByName(vehicle.getEntityName()+".ctrl.battery"));
+          
+           PSResourceProfile prof = batt.getVDLevels();
+           
+           PSTimePointList dates = prof.getTimes();
+           System.out.println(batt.toLongString());
+           for(int i = 0; i<dates.size(); i++) {
+               int tp = dates.get(i);
+               System.out.println("\t - at "+tp+" = ["+prof.getLowerBound(tp)+", "+prof.getUpperBound(tp)+"]");    
+           }
+           
+           
+        }
+        
         PlanView view = new PlanView(solver);
-        System.out.println(solver.europa.planDatabaseToString());
+        //System.out.println(solver.europa.planDatabaseToString());
         //TimelineView timeline = new TimelineView(solver);
         //timeline.setPlan(solver.getPlan("lauv-xplore-1"));
         JFrame frm = GuiUtils.testFrame(view);

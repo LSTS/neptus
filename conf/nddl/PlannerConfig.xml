@@ -1,17 +1,24 @@
 <Solver name="Default">
-  <!--   FlawFilter component="HorizonFilter" policy="PartiallyContained"/ -->
+  <!-- FlawFilter component="HorizonFilter" policy="PossiblyContained"/ -->
+
+
+
 
   <ThreatManager defaultPriority="0">
     <FlawHandler component="StandardThreatHandler"/>
     <FlawFilter class-match="Reservoir"/>
-    <FlawFilter class-match="Reusable"/>
   </ThreatManager>
+
 
   <OpenConditionManager defaultPriority="0">
     <FlawHandler component="StandardOpenConditionHandler"/>
   </OpenConditionManager>
 
-  <!-- UnboundVariableManager defaultPriority="0">
+  <ResourceThreatManager order="least,earliest" defaultPriority="0">
+    <FlawHandler component="ResourceThreatHandler"/>
+  </ResourceThreatManager>
+
+  <!-- UnboundVariableManager defaultPriority="2">
     <FlawFilter var-match="start"/>
     <FlawFilter var-match="end"/>
     <FlawFilter var-match="duration"/>
