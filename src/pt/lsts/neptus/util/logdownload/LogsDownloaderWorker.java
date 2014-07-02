@@ -703,13 +703,14 @@ public class LogsDownloaderWorker {
 
                         // Getting the file list from main CPU
                         try {
-                            if (clientFtp == null)
-                                clientFtp = new FtpDownloader(host, port);
-                            else
-                                clientFtp.setHostAndPort(host, port);
-                            
-                            if (!clientFtp.isConnected())
-                                clientFtp.renewClient();
+//                            if (clientFtp == null)
+//                                clientFtp = new FtpDownloader(host, port);
+//                            else
+//                                clientFtp.setHostAndPort(host, port);
+//                            
+//                            if (!clientFtp.isConnected())
+//                                clientFtp.renewClient();
+                            clientFtp = getOrRenewFtpDownloader(clientFtp, host, port);
                             
                             retList = clientFtp.listLogs();
                             
@@ -727,13 +728,14 @@ public class LogsDownloaderWorker {
                         if (cameraHost.length() > 0) {
                             LinkedHashMap<FTPFile, String> retCamList = null;
                             try {
-                                if (cameraFtp == null)
-                                    cameraFtp = new FtpDownloader(cameraHost, port);
-                                else
-                                    cameraFtp.setHostAndPort(cameraHost, port);
-                                
-                                if (!cameraFtp.isConnected())
-                                    cameraFtp.renewClient();
+//                                if (cameraFtp == null)
+//                                    cameraFtp = new FtpDownloader(cameraHost, port);
+//                                else
+//                                    cameraFtp.setHostAndPort(cameraHost, port);
+//                                
+//                                if (!cameraFtp.isConnected())
+//                                    cameraFtp.renewClient();
+                                cameraFtp = getOrRenewFtpDownloader(cameraFtp, cameraHost, port);
                                 
                                 retCamList = cameraFtp.listLogs();
                             }
@@ -1432,6 +1434,18 @@ public class LogsDownloaderWorker {
         return ttaskLocalDiskSpace;
     }
 
+    private FtpDownloader getOrRenewFtpDownloader(FtpDownloader clientFtp, String host, int port) throws Exception {
+        if (clientFtp == null)
+            clientFtp = new FtpDownloader(host, port);
+        else
+            clientFtp.setHostAndPort(host, port);
+        
+        if (!clientFtp.isConnected())
+            clientFtp.renewClient();
+
+        return clientFtp;
+    }
+    
     /**
      * This is used to clean and dispose safely of this component
      */
@@ -2154,8 +2168,14 @@ public class LogsDownloaderWorker {
     private boolean deleteLogFolderFromServer(String path) {
         try {
             System.out.println("Deleting folder");
-            if (!clientFtp.isConnected())
-                clientFtp.renewClient();
+//            if (!clientFtp.isConnected())
+//                clientFtp.renewClient();
+            try {
+                clientFtp = getOrRenewFtpDownloader(clientFtp, host, port);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
             return clientFtp.getClient().deleteFile("/" + path);
         }
         catch (IOException e) {
@@ -2167,8 +2187,14 @@ public class LogsDownloaderWorker {
     private boolean deleteLogFolderFromCameraServer(String path) {
         try {
             if (cameraFtp != null) {
-                if (!cameraFtp.isConnected())
-                    cameraFtp.renewClient();
+//                if (!cameraFtp.isConnected())
+//                    cameraFtp.renewClient();
+                try {
+                    cameraFtp = getOrRenewFtpDownloader(cameraFtp, getCameraHost(host), port);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
                 return cameraFtp.getClient().deleteFile("/" + path);
             }
             else
