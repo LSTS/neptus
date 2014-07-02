@@ -115,7 +115,6 @@ public class NeptusSolver {
         Vector<PSToken> plan = new Vector<>();
 
         for (int i = 0; i < plan1.size(); i++) {
-            // PSToken tok = plan1.get(i);
             plan.add(plan1.get(i));
         }
 
@@ -158,12 +157,10 @@ public class NeptusSolver {
         // specify that this happens at the tick 0
         tok.getStart().specifyValue(PSVarValue.getInstance(0));
 
-        // Make the vehicle starts at (-0.1, 0.02) which is 11km from (0.0,0.0)
         tok.getParameter("latitude").specifyValue(PSVarValue.getInstance(position.getLatitudeDegs()));
         tok.getParameter("longitude").specifyValue(PSVarValue.getInstance(position.getLongitudeDegs()));
         tok.getParameter("depth").specifyValue(PSVarValue.getInstance(position.getDepth()));
 
-        System.out.println(vehicleObjects);
         return varVehicle;
     }
 
@@ -179,20 +176,22 @@ public class NeptusSolver {
         if (mans.isEmpty())
             throw new Exception("Cannot compute plan locations");
 
-        System.out.println(plan.getId() +" starts at "+PlanUtil.getFirstLocation(plan));
+        //System.out.println(plan.getId() +" starts at "+PlanUtil.getFirstLocation(plan));
         double dist = PlanUtil.getPlanLength(plan);
         LocationType startLoc = PlanUtil.getFirstLocation(plan);
         LocationType endLoc = PlanUtil.getEndLocation(plan);
         startLoc.convertToAbsoluteLatLonDepth();
         endLoc.convertToAbsoluteLatLonDepth();
-        eval(String.format("DuneTask t_%s = new DuneTask(%.8f, %.8f, %.8f, %.8f, %.1f);",
+        String nddl = String.format("DuneTask t_%s = new DuneTask(%.8f, %.8f, %.8f, %.8f, %.1f);",
                 EuropaUtils.clearVarName(planName), startLoc.getLatitudeDegs(), startLoc.getLongitudeDegs(),
                 endLoc.getLatitudeDegs(), endLoc.getLongitudeDegs(),
-                dist));
+                dist); 
+        eval(nddl);
 
+        System.out.println(nddl);
         PSObject varTask = europa.getObjectByName("t_" + EuropaUtils.clearVarName(planName));
 
-        System.out.println(varTask.getMemberVariable(varTask.getEntityName() + ".entry_latitude").toLongString());
+        //System.out.println(varTask.getMemberVariable(varTask.getEntityName() + ".entry_latitude").toLongString());
 
         planObjects.put(planName, varTask);
         return varTask;
@@ -279,10 +278,6 @@ public class NeptusSolver {
         for (PlanType pt : mt.getIndividualPlansList().values()) {
             solver.addGoal(vehicles[count++%2], pt.getId(), Math.random()*0.6 + 0.7);
         }
-        
-//        solver.addGoal(vehicles[count++%2], mt.getIndividualPlansList().values().iterator().next().getId(), 1.1);
-//        solver.addGoal(vehicles[0], mt.getIndividualPlansList().values().iterator().next().getId(), 1.3);
-//        solver.addGoal(vehicles[0], mt.getIndividualPlansList().values().iterator().next().getId(), 1.1);
         
         System.out.println(FileUtil.getFileAsString("conf/nddl/neptus/auv_model.nddl"));
         System.out.println(solver.extraNDDL);

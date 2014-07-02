@@ -60,14 +60,12 @@ public class PlanView extends JPanel implements TimelineViewListener {
     public PlanView(NeptusSolver solver) {
         setBackground(Color.white);
         setLayout(new MigLayout(new LC().fillX().gridGap("5px", "0px")));
-        long maxEndTime = 0;
         for (String v : solver.getVehicles()) {
             try {
                 TimelineView tl = new TimelineView(solver);
                 tl.setPlan(solver.getPlan(v));
                 add(new JLabel(v));
                 add(tl, new CC().growX().wrap());
-                maxEndTime = Math.max(maxEndTime, tl.getEndTime());
                 tl.addListener(this);
                 timelines.add(tl);
             }
@@ -76,9 +74,7 @@ public class PlanView extends JPanel implements TimelineViewListener {
             }
         }
         
-        for (TimelineView tl : timelines) {
-            tl.setEndTime(maxEndTime);
-        }
+        endTimeChanged(null, 0);
     }
     
     public TimelineView addTimeline(String name, Collection<PSToken> plan) {
@@ -97,6 +93,8 @@ public class PlanView extends JPanel implements TimelineViewListener {
         for (TimelineView v : timelines)
             v.setStartTime(minStart);        
     }
+    
+    
 
     @Override
     public void endTimeChanged(TimelineView source, long startTimeMillis) {

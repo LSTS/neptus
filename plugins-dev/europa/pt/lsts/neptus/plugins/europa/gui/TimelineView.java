@@ -81,6 +81,9 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
     private Color c2 = new Color(192, 192, 192);
     private HashSet<TimelineViewListener> listeners = new HashSet<>();
 
+    
+    private static final String TRANSIT_ID = "__TRANSIT__";
+    
     public void addListener(TimelineViewListener listener) {
         listeners.add(listener);
     }
@@ -147,7 +150,7 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
                     original.put(t, tok);
                 }
                 else {
-                    t.id = "Transit";
+                    t.id = TRANSIT_ID;
                     t.speed = (float) tok.getParameter("speed").getLowerBound();                    
                 }
                 
@@ -215,12 +218,25 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
     private void paintToken(PlanToken tok, long startOffset, long endOffset, Graphics2D g2d, Color c1, Color c2) {
         double start = timeOnScreen(tok.start + startOffset);
         double end = timeOnScreen(tok.end + endOffset);
-        g2d.setPaint(new GradientPaint(new Point2D.Double(start, 0), c1, new Point2D.Double(end, getHeight()), c2));
-        g2d.fill(new RoundRectangle2D.Double(start, 2, end - start, getHeight() - 4, 12, 12));
-        g2d.setColor(Color.black);
-        g2d.draw(new RoundRectangle2D.Double(start, 2, end - start, getHeight() - 4, 12, 12));
-        g2d.drawString(tok.id, (int) start + 5, 14);
-        g2d.drawString(String.format("%.1f m/s", tok.speed), (int) start + 5, 30);
+        
+        if (!tok.id.equals(TRANSIT_ID)) {
+            g2d.setPaint(new GradientPaint(new Point2D.Double(start, 0), c1, new Point2D.Double(end, getHeight()), c2));
+            g2d.fill(new RoundRectangle2D.Double(start, 2, end - start, getHeight() - 4, 12, 12));
+            g2d.setColor(Color.black);
+            g2d.draw(new RoundRectangle2D.Double(start, 2, end - start, getHeight() - 4, 12, 12));
+            g2d.drawString(tok.id, (int) start + 5, 14);
+            g2d.drawString(String.format("%.1f m/s", tok.speed), (int) start + 5, 30);
+        }
+        else {
+            c1 = c1.darker();
+            c1 = new Color(c1.getRed(), c1.getGreen(), c1.getBlue(), c1.getAlpha()/2);
+            c2 = c2.darker();
+            c2 = new Color(c2.getRed(), c2.getGreen(), c2.getBlue(), c2.getAlpha()/2);
+            g2d.setPaint(new GradientPaint(new Point2D.Double(start, 0), c1, new Point2D.Double(end, getHeight()), c2));
+            g2d.fill(new RoundRectangle2D.Double(start, 2, end - start, getHeight() - 4, 12, 12));
+            g2d.setColor(Color.gray.darker());
+            g2d.drawString(String.format("%.1f m/s", tok.speed), (int) start + 5, 30);
+        }
     }
 
     static class PlanToken {

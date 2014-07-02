@@ -33,20 +33,16 @@ package pt.lsts.neptus.plugins.europa;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Collection;
-import java.util.HashSet;
 
 import javax.swing.JFrame;
 
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.europa.gui.SolverPanel;
-import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author zp
@@ -56,7 +52,8 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 public class EuropaPlugin extends ConsolePanel {
 
     private static final long serialVersionUID = -9214738581059126395L;
-
+    private SolverPanel solverPanel = null;
+    private JFrame solverFrame = null;
     /**
      * @param console
      */
@@ -71,7 +68,7 @@ public class EuropaPlugin extends ConsolePanel {
 
     @Override
     public void initSubPanel() {
-        addMenuItem("Tools>Mission Planner>Generate Mission", null, new ActionListener() {
+        addMenuItem("Tools>Mission Planner", null, new ActionListener() {
             
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -80,25 +77,19 @@ public class EuropaPlugin extends ConsolePanel {
         });
     }
     
-    private Collection<VehicleType> getVehicles() {
-        HashSet<VehicleType> ret = new HashSet<>();
-        for (ImcSystem sys : ImcSystemsHolder.lookupActiveSystemVehicles()) {
-            ret.add(sys.getVehicle());
-        }
-        ret.add(VehiclesHolder.getVehicleById(getConsole().getMainSystem()));
-        return ret;
-    }
-    
-    private Collection<PlanType> getPlans() {        
-        return getConsole().getMission().getIndividualPlansList().values();
-    }
-    
     private void generateMission() {
-        SolverPanel sp = new SolverPanel(getConsole(), getVehicles(), getPlans());
-        JFrame frame = new JFrame("Mission Planner");
-        frame.setContentPane(sp);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(600, 600);
-        frame.setVisible(true);        
+        if (solverPanel == null) {
+            solverPanel = new SolverPanel(getConsole());
+        }
+        if (solverFrame == null) {
+            solverFrame = new JFrame("Mission Planner");    
+            solverFrame.setContentPane(solverPanel);
+            solverFrame.setIconImage(ImageUtils.getImage(PluginUtils.getPluginIcon(getClass())));
+            solverFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            solverFrame.pack();
+            GuiUtils.centerOnScreen(solverFrame);
+        }
+        solverFrame.setVisible(true);
+        solverFrame.toFront();
     }
 }

@@ -29,7 +29,7 @@
  * Author: zp
  * Jun 27, 2014
  */
-package pt.lsts.neptus.plugins.europa;
+package pt.lsts.neptus.plugins.europa.gui;
 
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
