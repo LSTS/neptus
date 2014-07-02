@@ -74,7 +74,7 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
     private NeptusSolver solver;
     private PlanToken selectedToken = null;
     private PlanToken ghostToken = null;
-    private long ghostStartOffset = 0, ghostEndOffset;
+    private long ghostStartOffset = 0, ghostDurationOffset;
     private static int count = 0;
 
     private Color c1 = new Color(255, 255, 255);
@@ -210,7 +210,8 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
         }
 
         if (ghostToken != null) {
-            paintToken(ghostToken, ghostStartOffset, ghostEndOffset, g2d, new Color(192, 128, 128, 64), new Color(192,
+            long durationInc = ghostDurationOffset;
+            paintToken(ghostToken, ghostStartOffset-durationInc/2, ghostStartOffset+durationInc/2, g2d, new Color(192, 128, 128, 64), new Color(192,
                     192, 64, 64));
         }
     }
@@ -263,7 +264,7 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
                 repaint();
             }
             else {
-                ghostEndOffset += timeIncrease;
+                ghostDurationOffset += timeIncrease;
                 repaint();
             }
             lastDragPoint = e.getPoint();
@@ -317,7 +318,7 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
         PlanToken intercepted = intercepted(e);
         if (intercepted != null) {
             ghostToken = intercepted;// .clone();
-            ghostStartOffset = ghostEndOffset = 0;
+            ghostStartOffset = ghostDurationOffset = 0;
             lastDragPoint = e.getPoint();
         }
     }
@@ -389,15 +390,15 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
 //                ghostToken.endConstraint = addConstraint(tok.getEnd(), newTime, ghostToken.endConstraint);
 //            }
             
-            if (ghostEndOffset != 0) {
-                int newTime = (int) Math.min(tok.getDuration().getUpperBound(), ((ghostToken.end-ghostToken.start) + ghostEndOffset) / 1000);
+            if (ghostDurationOffset != 0) {
+                int newTime = (int) Math.min(tok.getDuration().getUpperBound(), ((ghostToken.end-ghostToken.start) + ghostDurationOffset) / 1000);
                 ghostToken.endConstraint = addConstraint(tok.getDuration(), newTime, ghostToken.endConstraint);
             }             
 
         }
 
         ghostToken = null;
-        ghostStartOffset = ghostEndOffset = 0;
+        ghostStartOffset = ghostDurationOffset = 0;
         lastDragPoint = null;
         
         repaint();
