@@ -83,7 +83,7 @@ public class LoadToPointCloud {
 
     private double getTideOffset(long timestampMillis) {
         try {
-            return finder.getTidePrediction(new Date(timestampMillis), false);
+            return finder == null ? 0 : finder.getTidePrediction(new Date(timestampMillis), false);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -94,7 +94,7 @@ public class LoadToPointCloud {
     public void parseMultibeamPointCloud () {
         parser = BathymetryParserFactory.build(this.source, "multibeam");
 
-        finder = TidePredictionFactory.create(this.source.getLsfIndex());
+        getOrCreateTideDataProvider();
 
         parser.rewind();
 
@@ -193,7 +193,7 @@ public class LoadToPointCloud {
         parser = BathymetryParserFactory.build(this.source, "dvl");
 
         if (parser instanceof DVLBathymetryParser) {
-            finder = TidePredictionFactory.create(this.source.getLsfIndex());
+            getOrCreateTideDataProvider();
 
             NeptusLog.pub().info("Parsing dvl points to vtk points");
 
@@ -240,6 +240,13 @@ public class LoadToPointCloud {
 
             pointCloud.setNumberOfPoints(parser.getBathymetryInfo().totalNumberOfPoints);
         }
+    }
+
+    private void getOrCreateTideDataProvider() {
+        if (finder == null)
+            finder = TidePredictionFactory.create(this.source.getLsfIndex());
+        if (finder == null)
+            NeptusLog.pub().warn("No tides data found!!");
     }
 
     /**
