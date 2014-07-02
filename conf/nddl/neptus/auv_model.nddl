@@ -20,27 +20,42 @@ class Position extends Timeline {
     predicate Pos {
 	float latitude, longitude, depth;
 	bool  from_task;
-	//duration == 1;
+	start >= 0;
     }	 		
 };
 
-Position::Pos {
-    //if( start==0 ) {
-	//duration == 1; 
-    //}	
+
+class Battery extends Timeline {
+  float max_level;
+
+  predicate consume {
+    float quantity;
+    float current_level;
+
+    0.0 <= quantity;
+    quantity <= current_level;
+    start >= 0;
+  }
+
+  Battery(float _max) {
+    max_level = _max;
+  }
 }
 
-class Battery extends Reservoir {
-    string profileType;
-    string detectorType;
 
-    Battery(float ic, float ll_min, float ll_max) {
-	super(ic, ll_min, ll_max);
-	profileType = "IncrementalFlowProfile";
-	detectorType = "ClosedWorldFVDetector";
-        //profileType = "GroundedProfile";
-        //detectorType = "GroundedFVDetector";
-    }
+Battery::consume {
+  float prev_level;
+  0 <= prev_level;
+  prev_level <= object.max_level;
+
+  current_level + quantity == prev_level;
+  
+  if( start==0 ) {
+    prev_level == object.max_level;
+  } else {
+    met_by(consume pred);
+    prev_level == pred.current_level;
+  }
 }
 
 class SpeedControl extends Timeline {
@@ -50,8 +65,9 @@ class SpeedControl extends Timeline {
     int min_bat, nominal_bat, max_bat;
 
     predicate Holds {
-	float speed, speed_bat;
-	speed > 0.0;
+      float speed, speed_bat, max_duration;
+      speed > 0.0;
+      duration <= max_duration;
     }
 
     SpeedControl(float _mi_s, int _mi_b, float _nom_s, int _nom_b, float _ma_s, int _ma_b) {
@@ -62,7 +78,7 @@ class SpeedControl extends Timeline {
 	nominal_bat = _nom_b;
 	max_bat     = _ma_b;
 	// My battery has 1000 units
-	battery = new Battery(1000.0, 0.0, 1000.0);
+	battery = new Battery(1000.0);
     }
 }
 
@@ -114,8 +130,24 @@ SpeedControl::Holds {
     (square_fact * min_sp_2) + (lin_fact * object.min_speed) + padding == min_b;
 	   	   
 	   
-    // based on this I can compute Waht is my battery duration for the given speed
+    // based on this I can compute What is my battery duration for the given speed
     (square_fact * speed_2) + (lin_fact * speed) + padding == speed_bat;
+
+    Battery batt;
+    batt == object.battery;
+
+    // I use batt.max_level over speed_bat 
+    // therefore batt.max_level / speed_batt is my rate of concumption
+    // and consumption = duration * batt.max_level / speed_batt
+
+    max_duration <= duration + 1;
+
+    float consumption;
+
+    speed_bat * consumption == ( max_duration - 1.0 ) * batt.max_level;
+
+    starts(batt.consume tx);
+    tx.quantity == consumption;
 }
 
 class AuvActions extends Timeline {
@@ -175,20 +207,6 @@ Auv::Execute {
     distance == task.distance;
     ll_dist(task.entry_latitude, task.entry_longitude,
 	    task.exit_latitude, task.exit_longitude) <= distance;
-    // Ideally I should  consume the idle time here but I won't for now 
-    // unless the idleTime is already bounded    
-    if( 2.0*to_float(idleTime) <= sp.speed_bat ) {
-     	Battery batt;
-    	batt == sp.object.battery;
- 
-    	float consumption;
-    	consumption * sp.speed_bat == to_float(idleTime) * 1000.0;
-    	consumption >= 0.0;
-    	consumption <= 1000.0;
-
-    	starts(effect batt.consume tx);
-    	tx.quantity == consumption;
-    } 
 }
 
 AuvActions::Transit {
@@ -220,17 +238,6 @@ AuvActions::Transit {
     duration >= dur_secs;
     2.0 * dur_secs + 100.0 >= duration; 
     start+duration == end;
-
-    Battery batt;
-    batt == sp.object.battery;
-
-    float consumption;
-    consumption * sp.speed_bat == to_float(duration) * 1000.0;
-    consumption >= 0.0;
-    consumption <= 1000.0;
-
-    starts(effect batt.consume tx);
-    tx.quantity == consumption;
 }
 
 AuvActions::ExecTask {
@@ -263,19 +270,18 @@ AuvActions::ExecTask {
     duration >= dur_secs;
     2.0 * dur_secs + 100.0 >= duration; 
     start+duration == end;
-    
-    contained_by(condition SpeedControl.Holds sp);
-    sp.object == me.ctrl;
-    Battery batt;
-    batt == sp.object.battery;
- 
-    float consumption;
-    consumption * sp.speed_bat == to_float(duration) * 1000.0;
-    consumption >= 0.0;
-    consumption <= 1000.0;
-
-    starts(effect batt.consume tx);
-    tx.quantity == consumption;
 }
 
 
+Position::Pos {
+  if( start==0 ) {
+    Auv me;
+    SpeedControl ctrl;
+    me.position == object;
+    ctrl == me.ctrl;
+
+    starts(Battery.consume init);
+    init.object == ctrl.battery;
+    init.quantity == 0.0;
+  }	
+}

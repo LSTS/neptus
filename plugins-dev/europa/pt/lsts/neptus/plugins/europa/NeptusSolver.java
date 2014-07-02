@@ -281,23 +281,7 @@ public class NeptusSolver {
         
         System.out.println(FileUtil.getFileAsString("conf/nddl/neptus/auv_model.nddl"));
         System.out.println(solver.extraNDDL);
-        solver.solve(10000);
-        
-        // Extract resource profile
-        for(PSObject vehicle: solver.vehicleObjects.values()) {
-           PSResource batt = PSResource.asPSResource(solver.europa.getObjectByName(vehicle.getEntityName()+".ctrl.battery"));
-          
-           PSResourceProfile prof = batt.getVDLevels();
-           
-           PSTimePointList dates = prof.getTimes();
-           System.out.println(batt.toLongString());
-           for(int i = 0; i<dates.size(); i++) {
-               int tp = dates.get(i);
-               System.out.println("\t - at "+tp+" = ["+prof.getLowerBound(tp)+", "+prof.getUpperBound(tp)+"]");    
-           }
-           
-           
-        }
+        solver.solve(1000);
         
         PlanView view = new PlanView(solver);
         //System.out.println(solver.europa.planDatabaseToString());
