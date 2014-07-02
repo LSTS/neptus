@@ -2159,8 +2159,10 @@ public class LogsDownloaderWorker {
         // Not the best way but for now lets try like this
         if (hostFx.equals(host))
             return deleteLogFolderFromServer(path);
-        else
+        else if (hostFx.equals(getCameraHost(host)))
             return deleteLogFolderFromCameraServer(path);
+        else
+            return false;
     }
 
     /**
