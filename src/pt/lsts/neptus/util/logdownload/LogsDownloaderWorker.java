@@ -1488,7 +1488,7 @@ public class LogsDownloaderWorker {
      */
     private void disconnectFTPClientsForListing() {
         stopLogListProcessing = true;
-        if (clientFtp != null && clientFtp.getClient().isConnected()) {
+        if (clientFtp != null && clientFtp.isConnected()) {
             try {
                 clientFtp.getClient().disconnect();
             }
@@ -1496,7 +1496,7 @@ public class LogsDownloaderWorker {
                 e.printStackTrace();
             }
         }
-        if (cameraFtp != null && cameraFtp.getClient().isConnected()) {
+        if (cameraFtp != null && cameraFtp.isConnected()) {
             try {
                 cameraFtp.getClient().disconnect();
             }
