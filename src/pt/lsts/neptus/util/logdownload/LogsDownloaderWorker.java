@@ -939,6 +939,7 @@ public class LogsDownloaderWorker {
                                                     if (lfx.getState() == LogFolderInfo.State.LOCAL)
                                                         lfx.setState(LogFolderInfo.State.SYNC);
                                                 }
+                                                lfx.setHost(logFx.getHost());
                                                 
                                                 if (logFx.isDirectory()) {
                                                     ArrayList<LogFileInfo> notMatchElements = new ArrayList<>();
@@ -951,6 +952,7 @@ public class LogsDownloaderWorker {
                                                                 notMatchElements.remove(lfiLocal);
                                                                 lfi.setSize(lfiLocal.getSize());
                                                                 lfi.setFile(lfiLocal.getFile());
+                                                                lfi.setHost(lfiLocal.getHost());
                                                             }
                                                         }
                                                         if (!alreadyExists) {
