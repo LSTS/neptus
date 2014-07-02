@@ -2652,7 +2652,7 @@ public class LogsDownloaderWorker {
             try {
                 DownloaderPanel workerD = (DownloaderPanel) cp;
                 boolean wait = false;
-                if (workerD.getState() == DownloaderPanel.State.WORKING) {
+                if (workerD.getState() == DownloaderPanel.State.WORKING || workerD.getState() == DownloaderPanel.State.QUEUED) {
                     if (!waitStopAll) {
                         for (String prefix : logList) {
                             if (workerD.getName().startsWith(prefix)) {
@@ -2664,7 +2664,7 @@ public class LogsDownloaderWorker {
                             continue;
                     }
                     
-                    while (workerD.getState() == DownloaderPanel.State.WORKING) {
+                    while (workerD.getState() == DownloaderPanel.State.WORKING || workerD.getState() == DownloaderPanel.State.QUEUED) {
                         try { Thread.sleep(100); } catch (Exception e) { }
                         NeptusLog.pub().warn("Waiting for '" + workerD.getUri() + "' to stop!");
                     }
