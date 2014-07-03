@@ -73,7 +73,6 @@ import org.jdesktop.swingx.JXTable;
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import org.reflections.Reflections;
 
-import pt.lsts.imc.annotations.Periodic;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
@@ -89,6 +88,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.sunfish.awareness.SunfishAssetProperties.AssetDesc;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
