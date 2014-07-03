@@ -2411,6 +2411,8 @@ public class LogsDownloaderWorker {
         downloadSelectedLogFilesButton.setEnabled(true);
         deleteSelectedLogFoldersButton.setEnabled(true);
         deleteSelectedLogFilesButton.setEnabled(true);
+        
+        logFoldersListLabel.setIcon(null);
     }
 
     // --------------------------------------------------------------
