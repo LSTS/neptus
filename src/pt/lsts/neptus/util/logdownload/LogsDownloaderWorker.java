@@ -2720,32 +2720,31 @@ public class LogsDownloaderWorker {
         LinkedHashSet<LogFileInfo> toDelFL = new LinkedHashSet<LogFileInfo>();
         for (LogFileInfo lfx : logFiles) {
             lfx.setState(LogFolderInfo.State.LOCAL);
-            DownloaderPanel workerD;
-            if (lfx.isDirectory()) {
-                HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
-                for (LogFileInfo lfi : lfx.getDirectoryContents()) {
-                    directoryContentsList.put(lfi.getUriPartial(), lfx.getFile());
-                }
-                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool, queueWorkTickets);
-            }
-            else {
-                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-                        getFileTarget(lfx.getName()), threadScheduledPool, queueWorkTickets);
-            }
+//            DownloaderPanel workerD;
+//            if (lfx.isDirectory()) {
+//                HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
+//                for (LogFileInfo lfi : lfx.getDirectoryContents()) {
+//                    directoryContentsList.put(lfi.getUriPartial(), lfx.getFile());
+//                }
+//                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
+//                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool, queueWorkTickets);
+//            }
+//            else {
+//                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
+//                        getFileTarget(lfx.getName()), threadScheduledPool, queueWorkTickets);
+//            }
 
             Component[] components = downloadWorkersHolder.getComponents();
             for (Component cp : components) {
                 try {
                     DownloaderPanel dpp = (DownloaderPanel) cp;
                     // NeptusLog.pub().info("<###>........... "+dpp.getName());
-                    if (workerD.getName().equals(dpp.getName())) {
+                    if (lfx.getName().equals(dpp.getUri())) {
                         // NeptusLog.pub().info("<###>...........");
-                        workerD = dpp;
-                        if (workerD.getState() == DownloaderPanel.State.WORKING) {
-                            workerD.addStateChangeListener(null);
-                            workerD.actionStop();
-                            final DownloaderPanel workerDFinal = workerD;
+                        if (dpp.getState() == DownloaderPanel.State.WORKING || dpp.getState() == DownloaderPanel.State.QUEUED) {
+                            dpp.addStateChangeListener(null);
+                            dpp.actionStop();
+                            final DownloaderPanel workerDFinal = dpp;
                             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                                 @Override
                                 protected Void doInBackground() throws Exception {
