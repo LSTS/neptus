@@ -1379,8 +1379,7 @@ public class LogsDownloaderWorker {
             public void actionPerformed(ActionEvent e) {
                 resetButton.setEnabled(false);
                 doReset(false);
-                resetButton.setEnabled(true);
-                updateLogStateIconForAllLogFolders();
+//                resetButton.setEnabled(true);
             }
         };
 
@@ -1389,7 +1388,8 @@ public class LogsDownloaderWorker {
             public void actionPerformed(ActionEvent e) {
                 stopAllButton.setEnabled(false);
                 doReset(true);
-                stopAllButton.setEnabled(true);
+//                stopAllButton.setEnabled(true);
+//                updateLogStateIconForAllLogFolders();
             }
         };
 
@@ -2637,7 +2637,7 @@ public class LogsDownloaderWorker {
         return res;
     }
 
-    private void doStopLogFoldersDownloads(String... logList) {
+    private void doStopLogFoldersDownloads(boolean invalidateComponents, String... logList) {
         boolean stopAll = true;
         if (logList != null)
             if (logList.length > 0)
@@ -2650,7 +2650,10 @@ public class LogsDownloaderWorker {
                     if (!stopAll) {
                         for (String prefix : logList) {
                             if (workerD.getName().startsWith(prefix)) {
-                                workerD.actionStop();
+                                if (!invalidateComponents)
+                                    workerD.actionStop();
+                                else
+                                    workerD.actionStopAndInvalidate();
                                 break;
                             }
                         }
@@ -2702,37 +2705,141 @@ public class LogsDownloaderWorker {
         }
     }
     
-    public synchronized boolean doReset(boolean justStopDownloads) {
-        boolean resetRes = true;
-        if (!justStopDownloads)
-            warnLongMsg(I18n.text("Resetting... Wait please..."));
-        try {
-            disconnectFTPClientsForListing();
+    public synchronized boolean doReset(final boolean justStopDownloads) {
+        boolean isEventDispatchThread = SwingUtilities.isEventDispatchThread();
+        
+        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                if (!justStopDownloads)
+                    resetting = true;
+                
+                boolean resetRes = true;
+                if (!justStopDownloads) {
+                    SwingUtilities.invokeAndWait(new Runnable() {
+                        @Override
+                        public void run() {
+                            warnLongMsg(I18n.text("Resetting... Wait please..."));
+                        }
+                    });
+                }
+                try {
+                    disconnectFTPClientsForListing();
+                }
+                catch (final Exception e) {
+                    e.printStackTrace();
+                    SwingUtilities.invokeAndWait(new Runnable() {
+                        @Override
+                        public void run() {
+                            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+                        }
+                    });
+                    resetRes &= false;
+                }
+                try {
+                    if (!justStopDownloads)
+                        doStopLogFoldersDownloads(true);
+                    else
+                        doStopLogFoldersDownloads(false);
+                    waitForStopOnAllLogFoldersDownloads();
+                }
+                catch (final Exception e) {
+                    e.printStackTrace();
+                    SwingUtilities.invokeAndWait(new Runnable() {
+                        @Override
+                        public void run() {
+                            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+                        }
+                    });
+                    resetRes &= false;
+                }
+                try {
+                    if (!justStopDownloads) {
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                cleanInterface();
+                            }
+                        });
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+                    resetRes &= false;
+                }
+                
+                if (!justStopDownloads)
+                    resetting = false;
+
+                return resetRes;
+            }
+            
+            @Override
+            protected void done() {
+                if (!justStopDownloads) {
+                    resetButton.setEnabled(true);
+                }
+                else {
+                    stopAllButton.setEnabled(true);
+                    updateLogStateIconForAllLogFolders();
+                }
+            }
+        };
+        worker.execute();
+        
+        if (!isEventDispatchThread) {
+            try {
+                return worker.get();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-            resetRes &= false;
-        }
-        try {
-            doStopLogFoldersDownloads();
-            waitForStopOnAllLogFoldersDownloads();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-            resetRes &= false;
-        }
-        try {
-            if (!justStopDownloads)
-                cleanInterface();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-            resetRes &= false;
-        }
-        return resetRes;
+        
+        return true;
+//        if (!justStopDownloads)
+//            resetting = true;
+//        
+//        boolean resetRes = true;
+//        if (!justStopDownloads)
+//            warnLongMsg(I18n.text("Resetting... Wait please..."));
+//        try {
+//            disconnectFTPClientsForListing();
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+//            resetRes &= false;
+//        }
+//        try {
+//            if (!justStopDownloads)
+//                doStopLogFoldersDownloads(true);
+//            else
+//                doStopLogFoldersDownloads(false);
+//            waitForStopOnAllLogFoldersDownloads();
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+//            resetRes &= false;
+//        }
+//        try {
+//            if (!justStopDownloads)
+//                cleanInterface();
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+//            resetRes &= false;
+//        }
+//        
+//        if (!justStopDownloads)
+//            resetting = false;
+//        
+//        return resetRes;
     }
 
     /**
@@ -2775,6 +2882,7 @@ public class LogsDownloaderWorker {
                                 @Override
                                 protected Void doInBackground() throws Exception {
                                     if (workerDFinal.getState() == DownloaderPanel.State.IDLE) {
+                                        workerDFinal.doStopAndInvalidate();
                                         downloadWorkersHolder.remove(workerDFinal);
                                         downloadWorkersHolder.revalidate();
                                         downloadWorkersHolder.repaint();
