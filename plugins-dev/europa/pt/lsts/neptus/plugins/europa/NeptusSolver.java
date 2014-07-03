@@ -81,10 +81,11 @@ public class NeptusSolver {
 
     public NeptusSolver() throws Exception {
         logDir = new File("log/europa/"+new SimpleDateFormat("YYYY-MM-dd_HHmmss").format(new Date()));
+        logDir.mkdirs();
+        
         europa = EuropaUtils.createPlanner(logDir.getCanonicalPath());
         EuropaUtils.loadModule(europa, "Neptus");
         
-        logDir.mkdirs();
         logWriter = new BufferedWriter(new FileWriter(new File(logDir,"NeptusSolver.log")));
         
         try {
