@@ -159,6 +159,7 @@ public class LogsDownloaderWorker {
     private FtpDownloader cameraFtp = null;
     
     private boolean stopLogListProcessing = false;
+    private boolean resetting = false;
 
     private String host = "127.0.0.1";
     private int port = DEFAULT_PORT;
@@ -1103,12 +1104,18 @@ public class LogsDownloaderWorker {
                                 for (LogFileInfo lfx : logFd.getLogFiles()) {
 //                                    if (downloadSelectedLogDirsButton.isEnabled())
 //                                        break; // If button enabled a reset was called, so let's interrupt all 
+                                    if (resetting)
+                                        break;
+                                    
                                     singleLogFileDownloadWorker(lfx, logFd);
                                 }
                             }
                             catch (Exception e) {
                                 NeptusLog.pub().debug(e.getMessage());
                             }
+
+                            if (resetting)
+                                break;
                         }
                         return true;
                     }
@@ -1142,6 +1149,9 @@ public class LogsDownloaderWorker {
                         downloadSelectedLogFilesButton.setEnabled(false);
 
                         for (Object comp : logFilesList.getSelectedValues()) {
+                            if (resetting)
+                                break;
+
                             try {
                                 // NeptusLog.pub().info("<###>... updateFilesForFolderSelected");
                                 // FIXME Find out LogFolderInfo for LogFileInfo
@@ -1218,13 +1228,20 @@ public class LogsDownloaderWorker {
                                     LinkedHashSet<LogFileInfo> logFiles = logFd.getLogFiles();
 
                                     LinkedHashSet<LogFileInfo> toDelFL = updateLogFilesStateDeleted(logFiles);
-                                    for (LogFileInfo lfx : toDelFL)
+                                    for (LogFileInfo lfx : toDelFL) {
+                                        if (resetting)
+                                            break;
+
                                         logFd.getLogFiles().remove(lfx);
+                                    }
                                 }
                             }
                             catch (Exception e) {
                                 NeptusLog.pub().debug(e.getMessage());
                             }
+
+                            if (resetting)
+                                break;
                         }
                         updateFilesListGUIForFolderSelected();
                         return true;
@@ -1290,6 +1307,9 @@ public class LogsDownloaderWorker {
 
                         LinkedHashSet<LogFileInfo> logFiles = new LinkedHashSet<LogFileInfo>();
                         for (Object comp : objArray) {
+                            if (resetting)
+                                break;
+
                             try {
                                 LogFileInfo lfx = (LogFileInfo) comp;
                                 if (deleteLogFileFromServer(lfx))
@@ -1299,9 +1319,11 @@ public class LogsDownloaderWorker {
                                 NeptusLog.pub().debug(e.getMessage());
                             }
                         }
-                        updateLogFilesStateDeleted(logFiles);
-
-                        updateFilesListGUIForFolderSelected();
+                        if (!resetting) {
+                            updateLogFilesStateDeleted(logFiles);
+                            
+                            updateFilesListGUIForFolderSelected();
+                        }
                         return true;
                     }
 
