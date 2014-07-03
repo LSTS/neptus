@@ -489,6 +489,10 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		return true;
 	}
 
+	public boolean removeStateChangeListener() {
+		this.stateListener = null;
+		return true;
+	}
 	
 	/* (non-Javadoc)
 	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
@@ -536,6 +540,18 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 				doStop();
 			}
 		}.start();
+	}
+
+	/**
+	 * Called to stop the download and invalidate the component by removing the FTP client.
+	 */
+	public void actionStopAndInvalidate() {
+	    new Thread() {
+	        @Override
+	        public void run() {
+	            doStopAndInvalidate();
+	        }
+	    }.start();
 	}
 
 	private boolean doDownload() {
@@ -812,7 +828,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         return true;
     }
 
-	protected void doStop() {
+	private void doStop(boolean invalidate) {
 	    stopping = true;
 		try {
 		    if (stream != null)
@@ -822,8 +838,10 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             e.printStackTrace();
         }
         try {
-            if (client.isConnected())
+            if (client != null && client.isConnected())
                 client.getClient().disconnect();
+            if (invalidate)
+                client = null;
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -834,8 +852,19 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		if (getState() == State.TIMEOUT || getState() == State.QUEUED)
 		    setStateNotDone();
 		
+		if (invalidate)
+		    stateListener = null;
+		
 		queueWorkTickets.release(this);
 	}
+
+    protected void doStop() {
+        doStop(false);
+    }
+	
+	protected void doStopAndInvalidate() {
+        doStop(true);
+    }
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)

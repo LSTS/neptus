@@ -1980,6 +1980,7 @@ public class LogsDownloaderWorker {
                         public void run() {
                             try {
                                 if (workerDFinal.getState() == DownloaderPanel.State.DONE) {
+                                    workerDFinal.doStopAndInvalidate();
                                     downloadWorkersHolder.remove(workerDFinal);
                                     downloadWorkersHolder.revalidate();
                                     downloadWorkersHolder.repaint();
@@ -2002,7 +2003,8 @@ public class LogsDownloaderWorker {
                                 if (workerDFinal.getState() != DownloaderPanel.State.WORKING
                                         && workerDFinal.getState() != DownloaderPanel.State.TIMEOUT
                                         && workerDFinal.getState() != DownloaderPanel.State.QUEUED) {
-                                    workerDFinal.doStop();
+                                    workerDFinal.doStopAndInvalidate();
+//                                    waitForStopOnAllLogFoldersDownloads(workerDFinal.getName());
                                     downloadWorkersHolder.remove(workerDFinal);
                                     downloadWorkersHolder.revalidate();
                                     downloadWorkersHolder.repaint();
