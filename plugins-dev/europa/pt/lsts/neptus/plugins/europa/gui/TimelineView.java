@@ -50,7 +50,6 @@ import java.util.Vector;
 import javax.swing.JPanel;
 
 import psengine.PSConstraint;
-import psengine.PSConstraintList;
 import psengine.PSToken;
 import psengine.PSVarValue;
 import psengine.PSVariable;
@@ -325,13 +324,26 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
     
     private PSConstraint addConstraint(PSVariable var, int value, PSConstraint existing) {
         
-        System.out.println(var.toLongString());
-        System.out.println("     >>> constrained to "+value);
-        System.out.println("# constraints: "+var.getConstraints().size());
+        try {
+            String prefix = "";
+            
+            if (var.getParent() != null) {
+                PSToken token = solver.getEuropa().getTokenByKey(var.getParent().getEntityKey());
+                if (token != null) {
+                    prefix = token.getFullTokenType()+" ("+token.getEntityKey()+").";
+                }
+            }
+            
+            solver.log(" --"+prefix+var.toLongString() +" constrained to ["+value+", +inf]");            
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        
         PSConstraint created = null;
         
         synchronized (solver.getEuropa()) {
-            System.out.println("# inside!");
             solver.getEuropa().setAutoPropagation(false);
             PSVariableList list = new PSVariableList();
             PSVariable varNew = solver.getEuropa().getPlanDatabaseClient()
@@ -345,16 +357,16 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
             solver.getEuropa().setAutoPropagation(true);
         
             if (!propResult) {
-                PSConstraintList pcl = solver.getEuropa().getAllViolations();
-                for (int i = 0; i < pcl.size(); i++) {
-                    System.out.println("VIOLATION ");
-                    System.out.println(pcl.get(i).toLongString());
+                try {
+                    solver.log("Adding constraint failed.");
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
                 }
                 solver.getEuropa().setAutoPropagation(false);
                 solver.getEuropa().getPlanDatabaseClient().deleteConstraint(created);
                 solver.getEuropa().propagate();
                 solver.getEuropa().setAutoPropagation(true);
-                System.out.println(var.toLongString());
                 created = null;
                 return existing;
             }
@@ -365,7 +377,15 @@ public class TimelineView extends JPanel implements MouseMotionListener, MouseLi
                     solver.getEuropa().propagate();
                     solver.getEuropa().setAutoPropagation(true);                     
                 }
-                System.out.println(var.toLongString());                
+                try {
+                    solver.log("\n\n--PLAN --\n");
+                    solver.log(solver.getEuropa().planDatabaseToString());
+                    solver.log("\n--PLAN END --\n");
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                //System.out.println(var.toLongString());                
             }
         }
         

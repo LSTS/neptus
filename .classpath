@@ -202,6 +202,7 @@
 	<classpathentry kind="lib" path="lib/jung/jung-api-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jung/jung-graph-impl-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/jung/jung-visualization-2.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/Jama-1.0.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>

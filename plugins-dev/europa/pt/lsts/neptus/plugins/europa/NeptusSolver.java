@@ -31,10 +31,14 @@
  */
 package pt.lsts.neptus.plugins.europa;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Locale.Category;
@@ -44,12 +48,10 @@ import java.util.Vector;
 import javax.swing.JFrame;
 
 import psengine.PSEngine;
+import psengine.PSLanguageExceptionList;
 import psengine.PSObject;
 import psengine.PSPlanDatabaseClient;
-import psengine.PSResource;
-import psengine.PSResourceProfile;
 import psengine.PSSolver;
-import psengine.PSTimePointList;
 import psengine.PSToken;
 import psengine.PSTokenList;
 import psengine.PSVarValue;
@@ -74,18 +76,37 @@ public class NeptusSolver {
     private PSPlanDatabaseClient planDb;
     private LinkedHashMap<String, PSObject> vehicleObjects = new LinkedHashMap<>();
     private LinkedHashMap<String, PSObject> planObjects = new LinkedHashMap<>();
-
-    private String extraNDDL = "";
+    private File logDir; 
+    BufferedWriter logWriter;
 
     public NeptusSolver() throws Exception {
-        europa = EuropaUtils.createPlanner();
-        System.out.println(europa);
+        logDir = new File("log/europa/"+new SimpleDateFormat("YYYY-MM-dd_HHmmss").format(new Date()));
+        europa = EuropaUtils.createPlanner(logDir.getCanonicalPath());
         EuropaUtils.loadModule(europa, "Neptus");
-        EuropaUtils.loadModel(europa, "neptus/auv_model.nddl");
+        
+        logDir.mkdirs();
+        logWriter = new BufferedWriter(new FileWriter(new File(logDir,"NeptusSolver.log")));
+        
+        try {
+            EuropaUtils.loadModel(europa, "neptus/auv_model.nddl");
+        }
+        catch (PSLanguageExceptionList list) {
+            EuropaUtils.dumpNddlException(list);
+            throw list;
+        }
+        FileUtil.saveToFile(new File(logDir, "auv_model.nddl").getAbsolutePath(), EuropaUtils.getModel("neptus/auv_model.nddl"));
+        
         planDb = europa.getPlanDatabaseClient();
 
     }
 
+    public synchronized void log(String message) throws Exception {
+        if (!message.endsWith("\n"))
+            message = message + "\n";
+        logWriter.write(message);
+        logWriter.flush();
+    }
+    
     public Collection<String> getVehicles() {
         return vehicleObjects.keySet();
     }
@@ -133,10 +154,16 @@ public class NeptusSolver {
         
         position.convertToAbsoluteLatLonDepth();
         // Auv(float _min_s, int _min_b, float _nom_s, int _nom_b, float _max_s, int _max_b)
+        double[] pol_factors = EuropaUtils.findPolynomialFactors(new double[] {minSpeed, nomSpeed, maxSpeed}, new double[] {minSpeedBattMillis/1000.0, nomSpeedBattMillis/1000.0, maxSpeedBattMillis/1000.0});
         
-        String nddl = String.format("Auv v_%s = new Auv(%.2f, %d, %.2f, %d, %.2f, %d);", 
-                EuropaUtils.clearVarName(name),
-                minSpeed, minSpeedBattMillis/1000, nomSpeed, nomSpeedBattMillis/1000, maxSpeed, maxSpeedBattMillis/1000                
+        for (int i = 0; i < pol_factors.length; i++) {
+            if (Math.abs(pol_factors[i]) < 1E-6)
+                pol_factors[i] = 0;
+        }
+        String nddl = String.format("Auv v_%s = new Auv(%.2f, %.2f, %.2f, %.6f, %.6f, %.6f);", 
+                    EuropaUtils.clearVarName(name),
+                    minSpeed, nomSpeed, maxSpeed,
+                    pol_factors[0], pol_factors[1], pol_factors[2]
                 );
         
         eval(nddl+" /* lat=" + position.getLatitudeDegs() + ",lon="
@@ -165,8 +192,12 @@ public class NeptusSolver {
     }
 
     public void eval(String nddl) throws Exception {
+        
         EuropaUtils.eval(europa, nddl);
-        extraNDDL += nddl + "\n";
+        
+        BufferedWriter bw = new BufferedWriter(new FileWriter(new File(logDir, "auv_model.nddl"), true));
+        bw.write(nddl+"\n");
+        bw.close();
     }
 
     public PSObject addTask(PlanType plan) throws Exception {
@@ -218,19 +249,30 @@ public class NeptusSolver {
 
     public void solve(int maxSteps) throws Exception {
 
+        
+        
         solver = EuropaUtils.createSolver(europa, 26100);
 
+        
         while (solver.getStepCount() < maxSteps) {
-            EuropaUtils.printFlaws(solver);
+            log("\n\n--STEP "+solver.getStepCount()+ " DEPTH: "+solver.getDepth()+"--\n");
+            log(EuropaUtils.printFlaws(solver));
+            log("\n\n--PLAN ("+solver.getStepCount()+")--\n");
+            log(europa.planDatabaseToString());
+            log("\n--PLAN END ("+solver.getStepCount()+")--\n");
             if (!EuropaUtils.step(solver)) {
                 if (EuropaUtils.failed(solver)) {
+                    log("\n\n--Solver failed to find a plan--\n");
                     throw new Exception("Solver failed to find a plan");
                 }
                 else {
+                    log("\n--Search finished--\n");
                     return;
                 }
             }
         }
+        log("\n\n--Solver failed to find a plan in "+ maxSteps + " steps--\n");
+        
         throw new Exception("Solver could not find a plan in " + maxSteps + " steps");
     }
 
@@ -245,8 +287,20 @@ public class NeptusSolver {
         return europa;
     }
 
+    public synchronized void shutdown() throws Exception {
+        if (europa != null) {
+            europa.shutdown();    
+        }
+        europa = null;
+        
+        if (logWriter != null)
+            logWriter.close();
+        logWriter = null;            
+        
+    }
+    
     public static void main(String[] args) throws Exception {
-        System.out.println(Locale.getDefault());
+        //System.out.println(Locale.getDefault());
         
         String oldPath = System.getProperty("java.library.path");
         System.setProperty("java.library.path", "."+File.pathSeparator + oldPath + File.pathSeparator+new File(".", "libJNI/europa/x64").getCanonicalPath());
@@ -270,23 +324,21 @@ public class NeptusSolver {
 
         for (PlanType pt : mt.getIndividualPlansList().values()) {
             solver.addTask(pt);
+            //String xml = pt.asIMCPlan().asXmlStripped(true);
+            //System.out.println(xml);
+            //System.out.println(IMCMessage.parseXml(xml));
+            
         }
-
+        
         solver.closeDomain();
         
         int count = 0;
         for (PlanType pt : mt.getIndividualPlansList().values()) {
             solver.addGoal(vehicles[count++%2], pt.getId(), Math.random()*0.6 + 0.7);
         }
-        
-        System.out.println(FileUtil.getFileAsString("conf/nddl/neptus/auv_model.nddl"));
-        System.out.println(solver.extraNDDL);
         solver.solve(1000);
         
         PlanView view = new PlanView(solver);
-        //System.out.println(solver.europa.planDatabaseToString());
-        //TimelineView timeline = new TimelineView(solver);
-        //timeline.setPlan(solver.getPlan("lauv-xplore-1"));
         JFrame frm = GuiUtils.testFrame(view);
         frm.pack();
     }

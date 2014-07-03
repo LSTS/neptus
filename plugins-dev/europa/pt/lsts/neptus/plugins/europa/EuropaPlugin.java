@@ -63,7 +63,8 @@ public class EuropaPlugin extends ConsolePanel {
 
     @Override
     public void cleanSubPanel() {
-
+        if (solverPanel != null)
+            solverPanel.reset();
     }
 
     @Override

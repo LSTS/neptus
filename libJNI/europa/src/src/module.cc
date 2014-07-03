@@ -73,17 +73,23 @@ void neptus_module::initialize(EngineId engine) {
   ce = dynamic_cast<EUROPA::ConstraintEngine *>(engine->getComponent("ConstraintEngine"))->getId();
   CESchemaId s = ce->getCESchema();
   
-  std::string where = engine->getConfig()->getProperty("neptus.cfgPath");
+  std::string where = engine->getConfig()->getProperty("neptus.cfgPath"),
+		  log = engine->getConfig()->getProperty("neptus.logDir");
   if( !where.empty() ) {
+	if( log.empty() )
+		log = where;
+
     // First make sure that debug messages will be redirected to a file
-    m_dbg_out.open((where+"/Europa.log").c_str(),
-                   std::ofstream::out | std::ofstream::app);
+    m_dbg_out.open((log+"/Europa.log").c_str(),
+                   std::ofstream::out | std::ofstream::trunc);
+    if( !m_dbg_out )
+    	std::cerr<<"Failed to create log"<<std::endl;
     // Produce a Marker
     std::time_t my_date = std::time(NULL);
     m_dbg_out<<"\n>>>>>>>>>>>> "<<std::asctime(std::localtime(&my_date))
              <<std::endl;
     DebugMessage::setStream(m_dbg_out);
-    std::cout<<"Europa debug redirected to "<<where<<"/Europa.log"<<std::endl;
+    std::cout<<"Europa debug redirected to "<<log<<"/Europa.log"<<std::endl;
     
     // Then load the configuration
     where += "/Debug.cfg";

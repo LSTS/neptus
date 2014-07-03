@@ -44,6 +44,8 @@ import psengine.PSSolver;
 import psengine.PSStringList;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.loader.helper.CheckJavaOSArch;
+import pt.lsts.neptus.util.FileUtil;
+import Jama.Matrix;
 
 /**
  * @author zp
@@ -57,7 +59,7 @@ public class EuropaUtils {
         return varName.replaceAll("[^a-zA-Z0-9_]", "_");
     }
 
-    public static PSEngine createPlanner() {
+    public static PSEngine createPlanner(String logDir) throws Exception {
         try {
             EuropaUtils.loadLibrary("System_o");
 
@@ -66,7 +68,7 @@ public class EuropaUtils {
             
             // Inject information that can be used by Neptus module to locate files
             europa.getConfig().setProperty("neptus.cfgPath", modelDir);
- 
+            europa.getConfig().setProperty("neptus.logDir", logDir);
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
                     europa.shutdown();
@@ -74,11 +76,14 @@ public class EuropaUtils {
             });            
             return europa;            
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            NeptusLog.pub().error(e);
-            return null;
+        catch (PSLanguageExceptionList e) {
+            dumpNddlException(e);
+            throw e;
         }
+    }
+    
+    public static String getModel(String relativePath) {
+        return FileUtil.getFileAsString(new File(modelDir + File.separator + relativePath));
     }
     
     public static void loadModel(PSEngine engine, String nddlFile) throws PSLanguageExceptionList {
@@ -122,7 +127,6 @@ public class EuropaUtils {
     }
 
     public static boolean complete(PSSolver solver) {
-        System.out.println(solver.getFlaws().size()+" flaws are still left");
         return solver.getFlaws().size() == 0;
     }
 
@@ -131,7 +135,6 @@ public class EuropaUtils {
     }
 
     public static boolean step(PSSolver solver) {
-        System.out.println("step "+solver.getStepCount());
         if (failed(solver))
             return false;
         else {
@@ -140,12 +143,12 @@ public class EuropaUtils {
         }
     }
 
-    public static void printFlaws(PSSolver solver) {
-        System.out.println("Flaws: ");
+    public static String printFlaws(PSSolver solver) {
+        String flaws = "";
         PSStringList fls = solver.getFlaws();
         for (int j = 0; j < fls.size(); j++)
-            System.out.println("  - " + fls.get(j));
-        System.out.println();
+            flaws +=("  - " + fls.get(j)+"\n");
+        return flaws;
     }
 
     @SuppressWarnings("unchecked")
@@ -186,7 +189,7 @@ public class EuropaUtils {
         }
         // If we reach this point the library was nowhere to be found
         throw new FileNotFoundException("Library "+System.mapLibraryName(lib)+" was not found in "
-					+StringUtils.join(path, File.pathSeparator));
+                    +StringUtils.join(path, File.pathSeparator));
     }
 
     public static String loadLibrary(String lib) throws Exception {
@@ -197,6 +200,41 @@ public class EuropaUtils {
         // load the library directly
         System.load(library);
         return library;
+    }
+    
+    /**
+     * Given n points (x0,y0)...(xn-1,yn-1), the following methid computes the polynomial factors of the n-1't degree
+     * polynomial passing through the n points.
+     * 
+     * Example: Passing in three points (2,3) (1,4) and (3,7) will produce the results [2.5, -8.5, 10] which means that
+     * the points is on the curve y = 2.5x² - 8.5x + 10.
+     * 
+     * @author <a href="mailto:info@geosoft.no">GeoSoft</a>
+     */
+    public static double[] findPolynomialFactors(double[] x, double[] y) throws RuntimeException {
+        int n = x.length;
+
+        double[][] data = new double[n][n];
+        double[] rhs = new double[n];
+
+        for (int i = 0; i < n; i++) {
+            double v = 1;
+            for (int j = 0; j < n; j++) {
+                data[i][n - j - 1] = v;
+                v *= x[i];
+            }
+
+            rhs[i] = y[i];
+        }
+
+        // Solve m * s = b
+
+        Matrix m = new Matrix(data);
+        Matrix b = new Matrix(rhs, n);
+
+        Matrix s = m.solve(b);
+
+        return s.getRowPackedCopy();
     }
 
     public static String loadModule(PSEngine europa, String lib) throws Exception {
@@ -212,9 +250,16 @@ public class EuropaUtils {
         return library;
     }
     
-
     public static void main(String[] args) {
-        System.out.println(clearVarName("lau0v_sxplore-1"));
+        double x[] = new double[] {0.7, 1.1, 1.3}, y[] = new double[] {28449,18104,15319};
+        double sol[] = findPolynomialFactors(x, y);
+        
+        for (int i = 0; i < sol.length; i++) {
+            System.out.println(sol[i]);
+            System.out.println((sol[0] * 1.2*1.2)+(sol[1] * 1.2)+sol[2]+" == "+y[i]);
+        }
+        
+        //System.out.println(clearVarName("lau0v_sxplore-1"));
         //EuropaUtils.createPlanner("neptus/auv_model.nddl");
     }
 }

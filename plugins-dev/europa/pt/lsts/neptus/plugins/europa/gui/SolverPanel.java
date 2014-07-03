@@ -116,7 +116,7 @@ public class SolverPanel extends JPanel {
         return console.getMission().getIndividualPlansList().values();
     }
 
-    private void reset() {
+    public void reset() {
         this.vehicles.removeAllItems();
         this.plans.removeAllItems();
         planViewHolder.removeAll();
@@ -128,9 +128,12 @@ public class SolverPanel extends JPanel {
             this.plans.addItem(pt);
 
         if (solver != null) {
-            synchronized (solver.getEuropa()) {
-                solver.getEuropa().shutdown();
+            try {
+                solver.shutdown();
             }
+            catch (Exception e) {
+                e.printStackTrace();
+            }            
         }
 
         planViewHolder.removeAll();
@@ -169,8 +172,8 @@ public class SolverPanel extends JPanel {
                         double speed3 = 1.3;
 
                         long speed2Batt = 5 * 3600 * 1000;
-                        long speed1Batt = (long) (speed2Batt * (speed1 / speed2));
-                        long speed3Batt = (long) (speed2Batt * (speed3 / speed2));
+                        long speed1Batt = (long) (speed2Batt * (speed2 / speed1));
+                        long speed3Batt = (long) (speed2Batt * (speed2 / speed3));
 
                         if (ImcMsgManager.getManager().getState(vehicle).isActive()) {
                             EstimatedState pos = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
@@ -181,8 +184,8 @@ public class SolverPanel extends JPanel {
                                 // speed conversion is not linear but this is just for demonstration sake...
                                 if (opModes != null && opModes.containsKey("Motion")) {
                                     speed2Batt = (long) (Double.parseDouble(opModes.get("Motion")) * 3600 * 1000);
-                                    speed1Batt = (long) (speed2Batt * (speed1 / speed2));
-                                    speed3Batt = (long) (speed2Batt * (speed3 / speed2));
+                                    speed1Batt = (long) (speed2Batt * (speed2 / speed1));
+                                    speed3Batt = (long) (speed2Batt * (speed2 / speed3));
                                 }
                             }
 
@@ -202,6 +205,7 @@ public class SolverPanel extends JPanel {
 
                     try {
                         solver.solve(1000);
+                        System.out.println(solver.getEuropa().planDatabaseToString());
                     }
                     catch (Exception e) {
                         GuiUtils.errorMessage(SolverPanel.this, I18n.text("Mission Planner"),
