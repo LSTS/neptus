@@ -62,76 +62,45 @@ class SpeedControl extends Timeline {
     Battery battery;
 	
     float min_speed, nominal_speed, max_speed;
-    int min_bat, nominal_bat, max_bat;
+    float square_fact, linear_fact, padding;
+    
 
     predicate Holds {
       float speed, speed_bat, max_duration;
       speed > 0.0;
-      duration <= max_duration;
     }
 
-    SpeedControl(float _mi_s, int _mi_b, float _nom_s, int _nom_b, float _ma_s, int _ma_b) {
+    SpeedControl(float _mi_s, float _nom_s, float _ma_s, float a, float b, float c) {
 	min_speed     = _mi_s;
 	nominal_speed = _nom_s;
 	max_speed     = _ma_s;
-	min_bat     = _mi_b;
-	nominal_bat = _nom_b;
-	max_bat     = _ma_b;
+	
+	square_fact = a;
+	linear_fact = b;
+	padding 	= c;
+	
 	// My battery has 1000 units
 	battery = new Battery(1000.0);
     }
 }
 
-SpeedControl::Holds {	
+SpeedControl::Holds {
+
+	float speed_2, square_fact, linear_fact, padding;
+	
+	square_fact == object.square_fact;
+	linear_fact == object.linear_fact;
+	padding == object.padding;
+	speed == sqrt(speed_2);
+		
     start >= 0;
     start+duration == end;
-    end <= object.min_bat; // this line is useless now that we compute the profile
-	
+    
     object.min_speed <= speed;
     speed <= object.max_speed;
-		
-    // square_fact * speed^2 + lin_fact * speed + padding == battery
-    // I need to identify the factors from the 3 points I have
-    // Most of the lines below do define how to resolve this "simple"
-    // equation with 3 unknowns
-    float square_fact, lin_fact, padding;
-    float min_sp_2, nom_sp_2, max_sp_2, speed_2;
-	
-    object.min_speed == sqrt(min_sp_2);
-    object.nominal_speed == sqrt(nom_sp_2);
-    object.max_speed == sqrt(max_sp_2);
-    speed == sqrt(speed_2);
-	
-    float min_b, nom_b, max_b;
-    min_b == to_float(object.min_bat);
-    nom_b == to_float(object.nominal_bat);
-    max_b == to_float(object.max_bat);
-	
-    float a_1_2, a_2_3, b_1_2, b_2_3, c_1_2,c_2_3;
-	
-    nom_sp_2 + a_1_2 == max_sp_2;
-    object.nominal_speed + b_1_2 == object.max_speed;
-    nom_b + c_1_2 == max_b;
-	
-    min_sp_2 + a_2_3 == nom_sp_2;
-    object.min_speed + b_2_3 == object.nominal_speed;
-    min_b + c_2_3 == nom_b;
-
-    float norm_b, a, c;
-	
-    a + (a_2_3 * b_1_2) == a_1_2 * b_2_3;
-    c + (c_2_3 * b_1_2) == c_2_3 * b_2_3;
-	
-    // All t his mees is to end up to these 3  finals equations that 
-    // compute the quadratic representation of my battery profile in 
-    // relation to vehicle speed
-    square_fact * a == c;
-    (square_fact * a_1_2) + (lin_fact * b_1_2) == c_1_2;
-    (square_fact * min_sp_2) + (lin_fact * object.min_speed) + padding == min_b;
-	   	   
-	   
+		    	
     // based on this I can compute What is my battery duration for the given speed
-    (square_fact * speed_2) + (lin_fact * speed) + padding == speed_bat;
+    (square_fact * speed_2) + (linear_fact * speed) + padding == speed_bat;
 
     Battery batt;
     batt == object.battery;
@@ -140,6 +109,7 @@ SpeedControl::Holds {
     // therefore batt.max_level / speed_batt is my rate of concumption
     // and consumption = duration * batt.max_level / speed_batt
 
+	duration <= max_duration; 
     max_duration <= duration + 1;
 
     float consumption;
