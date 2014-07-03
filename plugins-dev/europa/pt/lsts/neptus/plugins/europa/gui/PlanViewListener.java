@@ -15,7 +15,7 @@
  *
  * European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -26,37 +26,17 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Paulo Dias
- * 3 de Out de 2012
+ * Author: zp
+ * Jul 1, 2014
  */
-package pt.lsts.neptus.loader.helper;
+package pt.lsts.neptus.plugins.europa.gui;
 
+import pt.lsts.neptus.plugins.europa.gui.TimelineView.PlanToken;
 
 /**
- * Used in the bat and sh lauchers. Don't use Neptus log.
- * @author pdias
+ * @author zp
  *
  */
-public class CheckJavaOSArch {
-    
-    public static String getOs() {
-        String osName = System.getProperty("os.name").toLowerCase().replaceAll(" ", "");
-        
-        if (osName.contains("mac"))
-            osName = "osx";
-        if (osName.contains("win"))
-            osName = "windows";
-        String osArch = System.getProperty("os.arch");
-        String arch = "x86";
-        if (osArch.contains("64"))
-            arch = "x64";
-        
-        return osName+"-"+arch;
-    }
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        System.out.println(getOs()); 
-    }
+public interface PlanViewListener {
+    public void tokenSelected(PlanToken token);
 }

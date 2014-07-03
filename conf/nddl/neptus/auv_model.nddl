@@ -1,0 +1,257 @@
+/*
+ * Note for accuracy reasons all latitude & longitudes will be in degrees 
+ */
+
+class DuneTask {
+    float entry_latitude, entry_longitude;
+    float exit_latitude, exit_longitude;
+    float distance;	
+	
+    DuneTask(float lat_i, float lon_i, float lat_e, float lon_e, float d) {
+	entry_latitude = lat_i;
+	entry_longitude = lon_i;
+	exit_latitude = lat_e;
+	exit_longitude = lon_e;
+	distance = d;
+    }
+};
+
+class Position extends Timeline {
+    predicate Pos {
+	float latitude, longitude, depth;
+	bool  from_task;
+	start >= 0;
+    }	 		
+};
+
+
+class Battery extends Timeline {
+  float max_level;
+
+  predicate consume {
+    float quantity;
+    float current_level;
+
+    0.0 <= quantity;
+    quantity <= current_level;
+    start >= 0;
+  }
+
+  Battery(float _max) {
+    max_level = _max;
+  }
+}
+
+
+Battery::consume {
+  float prev_level;
+  0 <= prev_level;
+  prev_level <= object.max_level;
+
+  current_level + quantity == prev_level;
+  
+  if( start==0 ) {
+    prev_level == object.max_level;
+  } else {
+    met_by(consume pred);
+    prev_level == pred.current_level;
+  }
+}
+
+class SpeedControl extends Timeline {
+    Battery battery;
+	
+    float min_speed, nominal_speed, max_speed;
+    float square_fact, linear_fact, padding;
+    
+
+    predicate Holds {
+      float speed, speed_bat, max_duration;
+      speed > 0.0;
+    }
+
+    SpeedControl(float _mi_s, float _nom_s, float _ma_s, float a, float b, float c) {
+	min_speed     = _mi_s;
+	nominal_speed = _nom_s;
+	max_speed     = _ma_s;
+	
+	square_fact = a;
+	linear_fact = b;
+	padding 	= c;
+	
+	// My battery has 1000 units
+	battery = new Battery(1000.0);
+    }
+}
+
+SpeedControl::Holds {
+
+	float speed_2, square_fact, linear_fact, padding;
+	
+	square_fact == object.square_fact;
+	linear_fact == object.linear_fact;
+	padding == object.padding;
+	speed == sqrt(speed_2);
+		
+    start >= 0;
+    start+duration == end;
+    
+    object.min_speed <= speed;
+    speed <= object.max_speed;
+		    	
+    // based on this I can compute What is my battery duration for the given speed
+    (square_fact * speed_2) + (linear_fact * speed) + padding == speed_bat;
+
+    Battery batt;
+    batt == object.battery;
+
+    // I use batt.max_level over speed_bat 
+    // therefore batt.max_level / speed_batt is my rate of concumption
+    // and consumption = duration * batt.max_level / speed_batt
+
+	duration <= max_duration; 
+    max_duration <= duration + 1;
+
+    float consumption;
+
+    speed_bat * consumption == ( max_duration - 1.0 ) * batt.max_level;
+
+    starts(batt.consume tx);
+    tx.quantity == consumption;
+}
+
+class AuvActions extends Timeline {
+
+    action Transit {
+    	float distance;
+    	float speed;
+    	start >= 0;
+    }
+    action ExecTask {
+     	float dur_secs;
+     	start >= 0;
+    }
+
+    AuvActions() {}
+
+};
+
+class Auv extends Timeline {
+    Position position;
+    SpeedControl ctrl;
+    AuvActions    my_actions;
+    
+	
+    predicate Execute {
+	DuneTask task;
+	float speed, distance, min_dist;
+	int id;
+	int idleTime;
+	start >= 0;
+	idleTime >= 0;
+    }
+    
+    predicate Transit {
+    	float speed;
+    }
+	
+    Auv() {
+	position = new Position();
+	// Default values for an Auv taken using some rule of thumb with no real justification
+	ctrl = new SpeedControl(0.5, 72000, 1.1, 36000, 1.5, 25200);
+	my_actions = new AuvActions();
+    }
+    Auv(float _min_s, int _min_b, float _nom_s, int _nom_b, float _max_s, int _max_b) {
+	position = new Position();
+	ctrl = new SpeedControl(_min_s, _min_b, _nom_s, _nom_b, _max_s, _max_b);
+	my_actions = new AuvActions();
+    }
+};
+
+Auv::Execute {
+    contained_by(SpeedControl.Holds sp);
+    sp.object == object.ctrl;
+    speed == sp.speed;
+    start + duration == end;
+    idleTime <= duration; 
+    distance == task.distance;
+    ll_dist(task.entry_latitude, task.entry_longitude,
+	    task.exit_latitude, task.exit_longitude) <= distance;
+}
+
+AuvActions::Transit {
+    Auv me;
+    me.my_actions == object;
+	
+	equals(effect me.Transit t);
+		t.speed == speed;
+		
+    meets(effect Position.Pos dest);
+    dest.object == me.position;
+    dest.from_task == false;
+	dest.duration == 1;
+    starts_during(condition Position.Pos source);
+    source.object == me.position;
+    temporalDistance(start, 1, source.end); 
+	
+	
+    distance == ll_dist(source.latitude, source.longitude, 
+			dest.latitude, dest.longitude);
+						
+    contained_by(SpeedControl.Holds sp);
+    sp.object == me.ctrl;
+    speed == sp.speed;
+	
+    float dur_secs;
+    // compute the duration taking into account rounding error
+    (dur_secs + 1.0) * speed == distance;
+    duration >= dur_secs;
+    2.0 * dur_secs + 100.0 >= duration; 
+    start+duration == end;
+}
+
+AuvActions::ExecTask {
+    Auv me;
+    DuneTask task;
+    me.my_actions == object;
+	
+    starts(effect Auv.Execute exec);
+    task == exec.task;
+    end + exec.idleTime <= exec.end;
+    me == exec.object;
+	
+    meets(effect Position.Pos dest);
+    dest.object == me.position;
+    dest.from_task == true;
+    dest.latitude == task.exit_latitude;
+    dest.longitude == task.exit_longitude;
+   	// exec ends_after_start dest; 
+	temporalDistance(exec.end, 1, dest.end);
+	
+    starts_during(condition Position.Pos source);
+    source.object == me.position;
+    temporalDistance(start, 1, source.end); 
+    source.latitude == task.entry_latitude;
+    source.longitude == task.entry_longitude;
+	
+    // compute the duration taking into account rounding error
+    (dur_secs + 1.0) * exec.speed == exec.distance;
+	
+    duration >= dur_secs;
+    2.0 * dur_secs + 100.0 >= duration; 
+    start+duration == end;
+}
+
+
+Position::Pos {
+  if( start==0 ) {
+    Auv me;
+    SpeedControl ctrl;
+    me.position == object;
+    ctrl == me.ctrl;
+
+    starts(Battery.consume init);
+    init.object == ctrl.battery;
+    init.quantity == 0.0;
+  }	
+}
