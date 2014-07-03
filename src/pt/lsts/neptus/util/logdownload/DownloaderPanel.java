@@ -626,6 +626,8 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
         long begByte = 0;
         if (usePartialDownload && prevState != State.DONE && outFile.exists() && outFile.isFile() && !isDirectory) {
             begByte = outFile.length();
+            if (begByte > ftpFile.getSize())
+                begByte = 0;
             NeptusLog.pub().warn(DownloaderPanel.class.getSimpleName() + " :: " + "!begin byte: " + begByte);
         }
         setStateWorking();
