@@ -159,6 +159,7 @@ public class LogsDownloaderWorker {
     private FtpDownloader cameraFtp = null;
     
     private boolean stopLogListProcessing = false;
+    private boolean resetting = false;
 
     private String host = "127.0.0.1";
     private int port = DEFAULT_PORT;
@@ -703,13 +704,14 @@ public class LogsDownloaderWorker {
 
                         // Getting the file list from main CPU
                         try {
-                            if (clientFtp == null)
-                                clientFtp = new FtpDownloader(host, port);
-                            else
-                                clientFtp.setHostAndPort(host, port);
-                            
-                            if (!clientFtp.isConnected())
-                                clientFtp.renewClient();
+//                            if (clientFtp == null)
+//                                clientFtp = new FtpDownloader(host, port);
+//                            else
+//                                clientFtp.setHostAndPort(host, port);
+//                            
+//                            if (!clientFtp.isConnected())
+//                                clientFtp.renewClient();
+                            clientFtp = getOrRenewFtpDownloader(clientFtp, host, port);
                             
                             retList = clientFtp.listLogs();
                             
@@ -727,13 +729,14 @@ public class LogsDownloaderWorker {
                         if (cameraHost.length() > 0) {
                             LinkedHashMap<FTPFile, String> retCamList = null;
                             try {
-                                if (cameraFtp == null)
-                                    cameraFtp = new FtpDownloader(cameraHost, port);
-                                else
-                                    cameraFtp.setHostAndPort(cameraHost, port);
-                                
-                                if (!cameraFtp.isConnected())
-                                    cameraFtp.renewClient();
+//                                if (cameraFtp == null)
+//                                    cameraFtp = new FtpDownloader(cameraHost, port);
+//                                else
+//                                    cameraFtp.setHostAndPort(cameraHost, port);
+//                                
+//                                if (!cameraFtp.isConnected())
+//                                    cameraFtp.renewClient();
+                                cameraFtp = getOrRenewFtpDownloader(cameraFtp, cameraHost, port);
                                 
                                 retCamList = cameraFtp.listLogs();
                             }
@@ -937,6 +940,7 @@ public class LogsDownloaderWorker {
                                                     if (lfx.getState() == LogFolderInfo.State.LOCAL)
                                                         lfx.setState(LogFolderInfo.State.SYNC);
                                                 }
+                                                lfx.setHost(logFx.getHost());
                                                 
                                                 if (logFx.isDirectory()) {
                                                     ArrayList<LogFileInfo> notMatchElements = new ArrayList<>();
@@ -949,6 +953,7 @@ public class LogsDownloaderWorker {
                                                                 notMatchElements.remove(lfiLocal);
                                                                 lfi.setSize(lfiLocal.getSize());
                                                                 lfi.setFile(lfiLocal.getFile());
+                                                                lfi.setHost(lfiLocal.getHost());
                                                             }
                                                         }
                                                         if (!alreadyExists) {
@@ -1099,12 +1104,18 @@ public class LogsDownloaderWorker {
                                 for (LogFileInfo lfx : logFd.getLogFiles()) {
 //                                    if (downloadSelectedLogDirsButton.isEnabled())
 //                                        break; // If button enabled a reset was called, so let's interrupt all 
+                                    if (resetting)
+                                        break;
+                                    
                                     singleLogFileDownloadWorker(lfx, logFd);
                                 }
                             }
                             catch (Exception e) {
                                 NeptusLog.pub().debug(e.getMessage());
                             }
+
+                            if (resetting)
+                                break;
                         }
                         return true;
                     }
@@ -1138,6 +1149,9 @@ public class LogsDownloaderWorker {
                         downloadSelectedLogFilesButton.setEnabled(false);
 
                         for (Object comp : logFilesList.getSelectedValues()) {
+                            if (resetting)
+                                break;
+
                             try {
                                 // NeptusLog.pub().info("<###>... updateFilesForFolderSelected");
                                 // FIXME Find out LogFolderInfo for LogFileInfo
@@ -1214,13 +1228,20 @@ public class LogsDownloaderWorker {
                                     LinkedHashSet<LogFileInfo> logFiles = logFd.getLogFiles();
 
                                     LinkedHashSet<LogFileInfo> toDelFL = updateLogFilesStateDeleted(logFiles);
-                                    for (LogFileInfo lfx : toDelFL)
+                                    for (LogFileInfo lfx : toDelFL) {
+                                        if (resetting)
+                                            break;
+
                                         logFd.getLogFiles().remove(lfx);
+                                    }
                                 }
                             }
                             catch (Exception e) {
                                 NeptusLog.pub().debug(e.getMessage());
                             }
+
+                            if (resetting)
+                                break;
                         }
                         updateFilesListGUIForFolderSelected();
                         return true;
@@ -1286,6 +1307,9 @@ public class LogsDownloaderWorker {
 
                         LinkedHashSet<LogFileInfo> logFiles = new LinkedHashSet<LogFileInfo>();
                         for (Object comp : objArray) {
+                            if (resetting)
+                                break;
+
                             try {
                                 LogFileInfo lfx = (LogFileInfo) comp;
                                 if (deleteLogFileFromServer(lfx))
@@ -1295,9 +1319,11 @@ public class LogsDownloaderWorker {
                                 NeptusLog.pub().debug(e.getMessage());
                             }
                         }
-                        updateLogFilesStateDeleted(logFiles);
-
-                        updateFilesListGUIForFolderSelected();
+                        if (!resetting) {
+                            updateLogFilesStateDeleted(logFiles);
+                            
+                            updateFilesListGUIForFolderSelected();
+                        }
                         return true;
                     }
 
@@ -1353,8 +1379,7 @@ public class LogsDownloaderWorker {
             public void actionPerformed(ActionEvent e) {
                 resetButton.setEnabled(false);
                 doReset(false);
-                resetButton.setEnabled(true);
-                updateLogStateIconForAllLogFolders();
+//                resetButton.setEnabled(true);
             }
         };
 
@@ -1363,7 +1388,8 @@ public class LogsDownloaderWorker {
             public void actionPerformed(ActionEvent e) {
                 stopAllButton.setEnabled(false);
                 doReset(true);
-                stopAllButton.setEnabled(true);
+//                stopAllButton.setEnabled(true);
+//                updateLogStateIconForAllLogFolders();
             }
         };
 
@@ -1432,6 +1458,18 @@ public class LogsDownloaderWorker {
         return ttaskLocalDiskSpace;
     }
 
+    private FtpDownloader getOrRenewFtpDownloader(FtpDownloader clientFtp, String host, int port) throws Exception {
+        if (clientFtp == null)
+            clientFtp = new FtpDownloader(host, port);
+        else
+            clientFtp.setHostAndPort(host, port);
+        
+        if (!clientFtp.isConnected())
+            clientFtp.renewClient();
+
+        return clientFtp;
+    }
+    
     /**
      * This is used to clean and dispose safely of this component
      */
@@ -1472,7 +1510,7 @@ public class LogsDownloaderWorker {
      */
     private void disconnectFTPClientsForListing() {
         stopLogListProcessing = true;
-        if (clientFtp != null && clientFtp.getClient().isConnected()) {
+        if (clientFtp != null && clientFtp.isConnected()) {
             try {
                 clientFtp.getClient().disconnect();
             }
@@ -1480,7 +1518,7 @@ public class LogsDownloaderWorker {
                 e.printStackTrace();
             }
         }
-        if (cameraFtp != null && cameraFtp.getClient().isConnected()) {
+        if (cameraFtp != null && cameraFtp.isConnected()) {
             try {
                 cameraFtp.getClient().disconnect();
             }
@@ -1942,6 +1980,7 @@ public class LogsDownloaderWorker {
                         public void run() {
                             try {
                                 if (workerDFinal.getState() == DownloaderPanel.State.DONE) {
+                                    workerDFinal.doStopAndInvalidate();
                                     downloadWorkersHolder.remove(workerDFinal);
                                     downloadWorkersHolder.revalidate();
                                     downloadWorkersHolder.repaint();
@@ -1964,7 +2003,8 @@ public class LogsDownloaderWorker {
                                 if (workerDFinal.getState() != DownloaderPanel.State.WORKING
                                         && workerDFinal.getState() != DownloaderPanel.State.TIMEOUT
                                         && workerDFinal.getState() != DownloaderPanel.State.QUEUED) {
-                                    workerDFinal.doStop();
+                                    workerDFinal.doStopAndInvalidate();
+//                                    waitForStopOnAllLogFoldersDownloads(workerDFinal.getName());
                                     downloadWorkersHolder.remove(workerDFinal);
                                     downloadWorkersHolder.revalidate();
                                     downloadWorkersHolder.repaint();
@@ -2143,8 +2183,10 @@ public class LogsDownloaderWorker {
         // Not the best way but for now lets try like this
         if (hostFx.equals(host))
             return deleteLogFolderFromServer(path);
-        else
+        else if (hostFx.equals(getCameraHost(host)))
             return deleteLogFolderFromCameraServer(path);
+        else
+            return false;
     }
 
     /**
@@ -2154,8 +2196,14 @@ public class LogsDownloaderWorker {
     private boolean deleteLogFolderFromServer(String path) {
         try {
             System.out.println("Deleting folder");
-            if (!clientFtp.isConnected())
-                clientFtp.renewClient();
+//            if (!clientFtp.isConnected())
+//                clientFtp.renewClient();
+            try {
+                clientFtp = getOrRenewFtpDownloader(clientFtp, host, port);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
             return clientFtp.getClient().deleteFile("/" + path);
         }
         catch (IOException e) {
@@ -2167,8 +2215,14 @@ public class LogsDownloaderWorker {
     private boolean deleteLogFolderFromCameraServer(String path) {
         try {
             if (cameraFtp != null) {
-                if (!cameraFtp.isConnected())
-                    cameraFtp.renewClient();
+//                if (!cameraFtp.isConnected())
+//                    cameraFtp.renewClient();
+                try {
+                    cameraFtp = getOrRenewFtpDownloader(cameraFtp, getCameraHost(host), port);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
                 return cameraFtp.getClient().deleteFile("/" + path);
             }
             else
@@ -2357,6 +2411,8 @@ public class LogsDownloaderWorker {
         downloadSelectedLogFilesButton.setEnabled(true);
         deleteSelectedLogFoldersButton.setEnabled(true);
         deleteSelectedLogFilesButton.setEnabled(true);
+        
+        logFoldersListLabel.setIcon(null);
     }
 
     // --------------------------------------------------------------
@@ -2581,7 +2637,7 @@ public class LogsDownloaderWorker {
         return res;
     }
 
-    private void doStopLogFoldersDownloads(String... logList) {
+    private void doStopLogFoldersDownloads(boolean invalidateComponents, String... logList) {
         boolean stopAll = true;
         if (logList != null)
             if (logList.length > 0)
@@ -2594,7 +2650,10 @@ public class LogsDownloaderWorker {
                     if (!stopAll) {
                         for (String prefix : logList) {
                             if (workerD.getName().startsWith(prefix)) {
-                                workerD.actionStop();
+                                if (!invalidateComponents)
+                                    workerD.actionStop();
+                                else
+                                    workerD.actionStopAndInvalidate();
                                 break;
                             }
                         }
@@ -2622,7 +2681,7 @@ public class LogsDownloaderWorker {
             try {
                 DownloaderPanel workerD = (DownloaderPanel) cp;
                 boolean wait = false;
-                if (workerD.getState() == DownloaderPanel.State.WORKING) {
+                if (workerD.getState() == DownloaderPanel.State.WORKING || workerD.getState() == DownloaderPanel.State.QUEUED) {
                     if (!waitStopAll) {
                         for (String prefix : logList) {
                             if (workerD.getName().startsWith(prefix)) {
@@ -2634,7 +2693,7 @@ public class LogsDownloaderWorker {
                             continue;
                     }
                     
-                    while (workerD.getState() == DownloaderPanel.State.WORKING) {
+                    while (workerD.getState() == DownloaderPanel.State.WORKING || workerD.getState() == DownloaderPanel.State.QUEUED) {
                         try { Thread.sleep(100); } catch (Exception e) { }
                         NeptusLog.pub().warn("Waiting for '" + workerD.getUri() + "' to stop!");
                     }
@@ -2646,37 +2705,141 @@ public class LogsDownloaderWorker {
         }
     }
     
-    public synchronized boolean doReset(boolean justStopDownloads) {
-        boolean resetRes = true;
-        if (!justStopDownloads)
-            warnLongMsg(I18n.text("Resetting... Wait please..."));
-        try {
-            disconnectFTPClientsForListing();
+    public synchronized boolean doReset(final boolean justStopDownloads) {
+        boolean isEventDispatchThread = SwingUtilities.isEventDispatchThread();
+        
+        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                if (!justStopDownloads)
+                    resetting = true;
+                
+                boolean resetRes = true;
+                if (!justStopDownloads) {
+                    SwingUtilities.invokeAndWait(new Runnable() {
+                        @Override
+                        public void run() {
+                            warnLongMsg(I18n.text("Resetting... Wait please..."));
+                        }
+                    });
+                }
+                try {
+                    disconnectFTPClientsForListing();
+                }
+                catch (final Exception e) {
+                    e.printStackTrace();
+                    SwingUtilities.invokeAndWait(new Runnable() {
+                        @Override
+                        public void run() {
+                            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+                        }
+                    });
+                    resetRes &= false;
+                }
+                try {
+                    if (!justStopDownloads)
+                        doStopLogFoldersDownloads(true);
+                    else
+                        doStopLogFoldersDownloads(false);
+                    waitForStopOnAllLogFoldersDownloads();
+                }
+                catch (final Exception e) {
+                    e.printStackTrace();
+                    SwingUtilities.invokeAndWait(new Runnable() {
+                        @Override
+                        public void run() {
+                            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+                        }
+                    });
+                    resetRes &= false;
+                }
+                try {
+                    if (!justStopDownloads) {
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                cleanInterface();
+                            }
+                        });
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+                    resetRes &= false;
+                }
+                
+                if (!justStopDownloads)
+                    resetting = false;
+
+                return resetRes;
+            }
+            
+            @Override
+            protected void done() {
+                if (!justStopDownloads) {
+                    resetButton.setEnabled(true);
+                }
+                else {
+                    stopAllButton.setEnabled(true);
+                    updateLogStateIconForAllLogFolders();
+                }
+            }
+        };
+        worker.execute();
+        
+        if (!isEventDispatchThread) {
+            try {
+                return worker.get();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-            resetRes &= false;
-        }
-        try {
-            doStopLogFoldersDownloads();
-            waitForStopOnAllLogFoldersDownloads();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-            resetRes &= false;
-        }
-        try {
-            if (!justStopDownloads)
-                cleanInterface();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-            resetRes &= false;
-        }
-        return resetRes;
+        
+        return true;
+//        if (!justStopDownloads)
+//            resetting = true;
+//        
+//        boolean resetRes = true;
+//        if (!justStopDownloads)
+//            warnLongMsg(I18n.text("Resetting... Wait please..."));
+//        try {
+//            disconnectFTPClientsForListing();
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+//            resetRes &= false;
+//        }
+//        try {
+//            if (!justStopDownloads)
+//                doStopLogFoldersDownloads(true);
+//            else
+//                doStopLogFoldersDownloads(false);
+//            waitForStopOnAllLogFoldersDownloads();
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+//            resetRes &= false;
+//        }
+//        try {
+//            if (!justStopDownloads)
+//                cleanInterface();
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+//            resetRes &= false;
+//        }
+//        
+//        if (!justStopDownloads)
+//            resetting = false;
+//        
+//        return resetRes;
     }
 
     /**
@@ -2690,36 +2853,36 @@ public class LogsDownloaderWorker {
         LinkedHashSet<LogFileInfo> toDelFL = new LinkedHashSet<LogFileInfo>();
         for (LogFileInfo lfx : logFiles) {
             lfx.setState(LogFolderInfo.State.LOCAL);
-            DownloaderPanel workerD;
-            if (lfx.isDirectory()) {
-                HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
-                for (LogFileInfo lfi : lfx.getDirectoryContents()) {
-                    directoryContentsList.put(lfi.getUriPartial(), lfx.getFile());
-                }
-                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool, queueWorkTickets);
-            }
-            else {
-                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-                        getFileTarget(lfx.getName()), threadScheduledPool, queueWorkTickets);
-            }
+//            DownloaderPanel workerD;
+//            if (lfx.isDirectory()) {
+//                HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
+//                for (LogFileInfo lfi : lfx.getDirectoryContents()) {
+//                    directoryContentsList.put(lfi.getUriPartial(), lfx.getFile());
+//                }
+//                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
+//                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool, queueWorkTickets);
+//            }
+//            else {
+//                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
+//                        getFileTarget(lfx.getName()), threadScheduledPool, queueWorkTickets);
+//            }
 
             Component[] components = downloadWorkersHolder.getComponents();
             for (Component cp : components) {
                 try {
                     DownloaderPanel dpp = (DownloaderPanel) cp;
                     // NeptusLog.pub().info("<###>........... "+dpp.getName());
-                    if (workerD.getName().equals(dpp.getName())) {
+                    if (lfx.getName().equals(dpp.getUri())) {
                         // NeptusLog.pub().info("<###>...........");
-                        workerD = dpp;
-                        if (workerD.getState() == DownloaderPanel.State.WORKING) {
-                            workerD.addStateChangeListener(null);
-                            workerD.actionStop();
-                            final DownloaderPanel workerDFinal = workerD;
+                        if (dpp.getState() == DownloaderPanel.State.WORKING || dpp.getState() == DownloaderPanel.State.QUEUED) {
+                            dpp.addStateChangeListener(null);
+                            dpp.actionStop();
+                            final DownloaderPanel workerDFinal = dpp;
                             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                                 @Override
                                 protected Void doInBackground() throws Exception {
                                     if (workerDFinal.getState() == DownloaderPanel.State.IDLE) {
+                                        workerDFinal.doStopAndInvalidate();
                                         downloadWorkersHolder.remove(workerDFinal);
                                         downloadWorkersHolder.revalidate();
                                         downloadWorkersHolder.repaint();
