@@ -966,19 +966,33 @@ public class LogsDownloaderWorker {
                                                     }
                                                 }
                                                 
-                                                if (!getFileTarget(lfx.getName()).exists()) {
-                                                    if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING) {
-                                                        lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                                        System.out.println("//////////// " + lfx.getName() + "  " + getFileTarget(lfx.getName()).exists());
+                                                if (lfx.isDirectory()) {
+                                                    if (!getFileTarget(lfx.getName()).exists()) {
+                                                        for (LogFileInfo lfi : lfx.getDirectoryContents()) {
+                                                            if (!getFileTarget(lfi.getName()).exists()) {
+                                                                if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING)
+                                                                    lfx.setState(LogFolderInfo.State.INCOMPLETE);
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                    else {
+                                                        long sizeD = getDiskSizeFromLocal(lfx);
+                                                        if (lfx.getSize() != sizeD && lfx.getState() == LogFolderInfo.State.SYNC)
+                                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
                                                     }
                                                 }
-                                                if (lfx.isDirectory()) {
-                                                    for (LogFileInfo lfi : lfx.getDirectoryContents()) {
-                                                        if (!getFileTarget(lfi.getName()).exists()) {
-                                                            if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING)
-                                                                lfx.setState(LogFolderInfo.State.INCOMPLETE);
-                                                            break;
+                                                else {
+                                                    if (!getFileTarget(lfx.getName()).exists()) {
+                                                        if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING) {
+                                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
+//                                                        System.out.println("//////////// " + lfx.getName() + "  " + getFileTarget(lfx.getName()).exists());
                                                         }
+                                                    }
+                                                    else {
+                                                        long sizeD = getDiskSizeFromLocal(lfx);
+                                                        if (lfx.getSize() != sizeD && lfx.getState() == LogFolderInfo.State.SYNC)
+                                                            lfx.setState(LogFolderInfo.State.INCOMPLETE);
                                                     }
                                                 }
                                             }
