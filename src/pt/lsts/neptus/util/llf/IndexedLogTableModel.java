@@ -190,6 +190,8 @@ public class IndexedLogTableModel extends AbstractTableModel {
 
     @Override
     public Class<?> getColumnClass(int c) {
+        if (getValueAt(0, c) == null)
+            return String.class;
         return getValueAt(0, c).getClass();
     }
 
