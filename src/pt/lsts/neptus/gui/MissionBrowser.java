@@ -692,7 +692,8 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
             MissionTreeModel treeModel, HashSet<String> existingPlans) {
         // System.out.println("Merging " + remotePlans.size() + " remote plans");
         ExtendedTreeNode target;
-        Set<String> remotePlansIds = remotePlans.keySet();
+        Set<String> remotePlansIds = new HashSet<>();
+        remotePlansIds.addAll(remotePlans.keySet());
         for (String planId : remotePlansIds) {
             existingPlans.add(planId);
             target = treeModel.findNode(planId, ParentNodes.PLANS);
