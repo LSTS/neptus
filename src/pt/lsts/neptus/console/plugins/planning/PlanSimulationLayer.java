@@ -43,6 +43,7 @@ import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.preview.PlanSimulationListener;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -55,6 +56,7 @@ import pt.lsts.neptus.types.mission.plan.PlanCompability;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.ImageUtils;
 
 import com.google.common.eventbus.Subscribe;
@@ -64,7 +66,7 @@ import com.google.common.eventbus.Subscribe;
  * 
  */
 @PluginDescription(name = "Plan Simulation", icon = "images/planning/robot.png")
-public class PlanSimulationLayer extends ConsoleLayer {
+public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationListener {
 
     private PlanSimulationOverlay simOverlay = null;
     private PlanType mainPlan = null;
@@ -109,6 +111,12 @@ public class PlanSimulationLayer extends ConsoleLayer {
     }
 
     @Override
+    public void simulationFinished(PlanSimulationOverlay source) {
+        source.removeListener(this);
+        validatePlan();                
+    }
+    
+    @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
         if (simOverlay != null) {
@@ -144,12 +152,12 @@ public class PlanSimulationLayer extends ConsoleLayer {
     private void refreshOverlay() {
         if (mainPlan != null) {
             synchronized (PlanSimulationLayer.this) {
-                simOverlay = new PlanSimulationOverlay(mainPlan, 0, 4, null);            
+                simOverlay = new PlanSimulationOverlay(mainPlan, 0, 4, null);
+                simOverlay.addListener(this);
             }
         }
         else
             simOverlay = null;
-        validatePlan();
     }
 
     private synchronized void validatePlan() {
@@ -164,13 +172,14 @@ public class PlanSimulationLayer extends ConsoleLayer {
             checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Error, e.getMessage()));
         }
 
-        checks.addAll(validateVehicle());
+        System.out.println(simOverlay.simulationFinished);
+        //checks.addAll(validateVehicle());
         checks.addAll(validatePlanCompatibility());
         checks.addAll(validateDistances());
         checks.addAll(validateCollisions());
 
         if (checks.isEmpty()) {
-            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Fine, "Plan takes approximately "+simOverlay.getSimStates().size()+" seconds"));
+            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Fine, "Plan takes approximately "+DateTimeUtil.milliSecondsToFormatedString(simOverlay.getSimStates().size()*1000)));
         }
     }
 
@@ -213,16 +222,16 @@ public class PlanSimulationLayer extends ConsoleLayer {
         return checks;
     }
 
-    private List<Pair<PlanCheck, String>> validateVehicle() {
-        ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
-        if (!mainPlan.getVehicle().equals(getConsole().getMainSystem())) {
-            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning,
-                    "Console and plan vehicles differ"));
-        }
-
-        return checks;
-    }
-    
+//    private List<Pair<PlanCheck, String>> validateVehicle() {
+//        ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
+//        if (!mainPlan.getVehicle().equals(getConsole().getMainSystem())) {
+//            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning,
+//                    "Console and plan vehicles differ"));
+//        }
+//
+//        return checks;
+//    }
+//    
     private List<Pair<PlanCheck, String>> validateCollisions() {
         ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
         Vector<AbstractElement> obstacles = MapGroup.getMapGroupInstance(getConsole().getMission()).getObstacles();

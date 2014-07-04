@@ -36,6 +36,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -64,6 +65,7 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
     protected Vector<SimulationState> simStates = new Vector<>();
     public boolean simulationFinished = false;
     public static double bottomDepth = 10;
+    private HashSet<PlanSimulationListener> listeners = new HashSet<>();
     
     protected LinkedHashMap<String, Collection<PayloadFingerprint>> payloads;
 
@@ -107,11 +109,23 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
                     Thread.yield();
                 }
                 simulationFinished = true;
+                for (PlanSimulationListener l : listeners)
+                    l.simulationFinished(PlanSimulationOverlay.this);
             };
         };
         t.setDaemon(true);
         t.start();
     }
+    
+    public void addListener(PlanSimulationListener l) {
+        listeners.add(l);
+    }
+    
+    public void removeListener(PlanSimulationListener l) {
+        listeners.remove(l);
+    }
+    
+    
 
     protected void addPoint(double northing, double easting, Color color) {
         LocationType loc = new LocationType(ref);        
