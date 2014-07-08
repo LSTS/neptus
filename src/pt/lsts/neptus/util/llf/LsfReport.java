@@ -509,6 +509,7 @@ public class LsfReport {
 
                 if (m.getClass() == SidescanLogMarker.class) {// sidescanImages
                     sd = (SidescanLogMarker) m;
+                    sd.setDefaults(ssParser.getSubsystemList().get(0));//setDefaults if they are N/A
                     // table.addCell("w="+sd.w+" | h="+sd.h);
                     for (int i = 0; i < nSubsys; i++) {
                         com.lowagie.text.Image iTextImage;// iText image type

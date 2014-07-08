@@ -32,6 +32,7 @@
 package pt.lsts.neptus.mra;
 
 import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
 
 /**
  * @author jqcorreia
@@ -94,6 +95,16 @@ public class SidescanLogMarker extends LogMarker {
         this.wMeters = wMeters;
         this.subSys = subSys;
         this.colorMap = colorMap.toString();
+    }
+
+    public void setDefaults(int subSys){//reset Defaults for N/A values
+        if (this.subSys==0){
+            this.subSys=subSys;
+        }
+        if (colorMap==null){
+            colorMap = ColorMapFactory.createBronzeColormap().toString();
+
+        }
     }
 
 }
