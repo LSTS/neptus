@@ -32,14 +32,10 @@
 package pt.lsts.neptus.util.llf;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Paint;
-import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
@@ -51,7 +47,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -65,7 +60,6 @@ import org.apache.batik.transcoder.print.PrintTranscoder;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.jfree.chart.JFreeChart;
 
-import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
@@ -79,9 +73,7 @@ import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.sidescan.SidescanAnalyzer;
 import pt.lsts.neptus.plugins.sidescan.SidescanConfig;
-import pt.lsts.neptus.plugins.sidescan.SidescanPanel;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
@@ -104,7 +96,6 @@ import com.lowagie.text.PageSize;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfContentByte;
-import com.lowagie.text.pdf.PdfImage;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfTemplate;
@@ -469,81 +460,42 @@ public class LsfReport {
             sidescanParams.setNormalization(config.normalization);
             sidescanParams.setTvgGain(config.tvgGain);
 
-            Rectangle pageSize = PageSize.A4.rotate();
             PdfPTable table = new PdfPTable(3 + nSubsys);
 
-            float tableWidth = pageSize.getWidth() * 5 / 6;
-            table.setTotalWidth(tableWidth);
-            float[] columnWidth = new float[3 + nSubsys];
-            if (nSubsys == 0) {
-                columnWidth[0] = 0.30f;
-                columnWidth[1] = 0.40f;
-                columnWidth[2] = 0.30f;
-            }
-            if (nSubsys > 0) {
-                columnWidth[0] = 0.15f;
-                columnWidth[1] = 0.25f;
-                columnWidth[2] = 0.15f;
-                for (int i = 3; i < 3 + nSubsys; i++) {
-                    columnWidth[i] = 0.45f / nSubsys;
-                }
-            }
-            table.setWidths(columnWidth);
+            Rectangle pageSize = PageSize.A4.rotate();
+
+            setRowsWidth(table,nSubsys);
+
+            writeHeader(table, ssParser.getSubsystemList());
+
             ArrayList<LogMarker> markers = panel.getMarkers();
-
-            // header
-            table.addCell("Timestamp");
-            table.addCell("Label");
-            table.addCell("Location");
-            for (int i = 0; i < nSubsys; i++)
-                table.addCell("Image" + ssParser.getSubsystemList().get(i));
-
-            SidescanLogMarker sd;
             for (LogMarker m : markers) {
-                String dateAsText = new SimpleDateFormat("HH:mm:ss.ms").format(m.timestamp);
-                table.addCell(dateAsText);
-                table.addCell(m.label);
-                LocationType loc = new LocationType(Math.toDegrees(m.lat), Math.toDegrees(m.lon));
-                String locString = loc.toString();
-                table.addCell(locString);
-
+                createPdfMarksRows(table, m);
                 if (m.getClass() == SidescanLogMarker.class) {// sidescanImages
-                    sd = (SidescanLogMarker) m;
-                    sd.setDefaults(ssParser.getSubsystemList().get(0));//setDefaults if they are N/A
-                    // table.addCell("w="+sd.w+" | h="+sd.h);
+                    createPdfSidescanMarks(table, m, nSubsys, ssParser, config, source, sidescanParams, globalColorMap);
+                }
+                else {// not in sidescan
                     for (int i = 0; i < nSubsys; i++) {
-                        com.lowagie.text.Image iTextImage;// iText image type
-                        BufferedImage image = null;
-                        image = getSidescanMarkImage(source, ssParser, sidescanParams, config, globalColorMap, sd, i);
-                        if (image != null) {
-
-                            // debug of image
-                            // String path = "/home/miguel/lsts/sidescanImages/";
-                            // ImageIO.write(image, "PNG", new File(path, sd.label + ".png"));
-
-                            ImageIO.write(image, "png", new File("tmp.png"));
-                            iTextImage = com.lowagie.text.Image.getInstance("tmp.png");
-                            File file = new File("tmp.png");
-                            Boolean deleted = file.delete();
-                            if (!deleted)
-                                throw new DocumentException("file.delete() failed");
-                            PdfPCell cell = new PdfPCell(iTextImage, true);
-                            table.addCell(cell);
-                        }
-                        else {// no image to display
-                            table.addCell("");
-                        }
+                        table.addCell("");
                     }
                 }
-                else
-                    // not in sidescan
-                    for (int i = 0; i < nSubsys; i++)
-                        table.addCell("");
             }
 
-            // write to pdf
-            cb.beginText();
-            writePageNumber(cb, page++);
+            actualWriteToPdf(cb, table, doc);
+
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            GuiUtils.errorMessage(I18n.text("Error createTable()"), e.getMessage());
+        }
+    }
+
+    public static void actualWriteToPdf(PdfContentByte cb, PdfPTable table, Document doc){
+        Rectangle pageSize = PageSize.A4.rotate();
+        cb.beginText();
+        writePageNumber(cb, page++);
+        try{
             BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
             cb.setFontAndSize(bf, 24);
             cb.setColorFill(new Color(50, 100, 200));
@@ -590,12 +542,95 @@ public class LsfReport {
                 }
                 ypos = table.writeSelectedRows(i, i + 1, xpos, ypos, cb);
             }
+        }catch(Exception e){
+            NeptusLog.pub().error(e.getMessage());
+        }
+    }
 
+    public static void createPdfSidescanMarks(PdfPTable table, LogMarker m, int nSubsys, SidescanParser ssParser,
+                                              SidescanConfig config, IMraLogGroup source, SidescanParameters sidescanParams,
+                                              boolean globalColorMap){
+        SidescanLogMarker sd = (SidescanLogMarker) m;
+        sd.setDefaults(ssParser.getSubsystemList().get(0));//setDefaults if they are N/A
+        // table.addCell("w="+sd.w+" | h="+sd.h);
+        for (int i = 0; i < nSubsys; i++) {
+            com.lowagie.text.Image iTextImage=null;// iText image type
+            BufferedImage image = null;
+            try {
+                image = getSidescanMarkImage(source, ssParser, sidescanParams, config, globalColorMap, sd, i);
+            }catch(Exception e){
+                NeptusLog.pub().error(e.getMessage());
+            }
+
+            if (image != null) {
+
+                // debug of image
+                // String path = "/home/miguel/lsts/sidescanImages/";
+                // ImageIO.write(image, "PNG", new File(path, sd.label + ".png"));
+
+                try {
+                    ImageIO.write(image, "png", new File("tmp.png"));
+                    iTextImage = com.lowagie.text.Image.getInstance("tmp.png");
+                    File file = new File("tmp.png");
+                    Boolean deleted = file.delete();
+                    if (!deleted)
+                        throw new DocumentException("file.delete() failed");
+                }catch(Exception e){
+                    NeptusLog.pub().error(e.getMessage());
+                }
+                PdfPCell cell = new PdfPCell(iTextImage, true);
+                table.addCell(cell);
+            }
+            else {// no image to display
+                table.addCell("");
+            }
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            GuiUtils.errorMessage(I18n.text("Error createTable()"), e.getMessage());
+    }
+
+    public static void createPdfMarksRows(PdfPTable table, LogMarker m){
+        String dateAsText = new SimpleDateFormat("HH:mm:ss.ms").format(m.timestamp);
+        table.addCell(dateAsText);
+        table.addCell(m.label);
+        LocationType loc = new LocationType(Math.toDegrees(m.lat), Math.toDegrees(m.lon));
+        String locString = loc.toString();
+        table.addCell(locString);
+    }
+
+    public static void setRowsWidth(PdfPTable table, int nSubsys){
+
+        Rectangle pageSize = PageSize.A4.rotate();
+        float tableWidth = pageSize.getWidth() * 5 / 6;
+        table.setTotalWidth(tableWidth);
+        float[] columnWidth = new float[3 + nSubsys];
+        if (nSubsys == 0) {
+            columnWidth[0] = 0.30f;
+            columnWidth[1] = 0.40f;
+            columnWidth[2] = 0.30f;
         }
+        if (nSubsys > 0) {
+            columnWidth[0] = 0.15f;
+            columnWidth[1] = 0.25f;
+            columnWidth[2] = 0.15f;
+            for (int i = 3; i < 3 + nSubsys; i++) {
+                columnWidth[i] = 0.45f / nSubsys;
+            }
+        }
+        try{
+            table.setWidths(columnWidth);
+        }catch(Exception e){
+            NeptusLog.pub().error(e.getMessage());
+        }
+
+    }
+
+    public static void writeHeader(PdfPTable table, ArrayList<Integer> subSysList){
+        // header
+        table.addCell("Timestamp");
+        table.addCell("Label");
+        table.addCell("Location");
+        int nSubsys = subSysList.size();
+        for (int i = 0; i < nSubsys; i++)
+            table.addCell("Image" + subSysList.get(i));
     }
 
     /**
