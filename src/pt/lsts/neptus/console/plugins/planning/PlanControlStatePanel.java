@@ -49,6 +49,7 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.DateTimeUtil;
@@ -85,8 +86,8 @@ public class PlanControlStatePanel extends ConsolePanel {
     private long nodeEtaSec = -1;
     private long lastUpdated = -1;
 
-    @NeptusProperty(name = "Request plans automatically", description = "Select if Neptus should ask the vehicle for plans it is executing but Neptus doesn't know about")
-    public boolean requestPlans = true;
+    @NeptusProperty(name = "Request plans automatically", userLevel=LEVEL.ADVANCED, category="Planning", description = "Select if Neptus should ask the vehicle for plans it is executing but Neptus doesn't know about")
+    public boolean requestPlans = false;
 
     public PlanControlStatePanel(ConsoleLayout console) {
         super(console);
