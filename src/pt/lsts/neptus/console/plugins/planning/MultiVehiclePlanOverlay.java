@@ -61,14 +61,14 @@ import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
- *
+ * 
  */
-@PluginDescription(name="Multi-Vehicle plan overlay")
+@PluginDescription(name = "Multi-Vehicle plan overlay")
 public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DPainter, MissionChangeListener {
 
     private static final long serialVersionUID = 1L;
     protected LinkedHashMap<String, String> vehicleToPlanIds = new LinkedHashMap<>();
-    protected LinkedHashMap<String, Vector<LocationType>> planToLocations = new LinkedHashMap<>();    
+    protected LinkedHashMap<String, Vector<LocationType>> planToLocations = new LinkedHashMap<>();
     protected LinkedHashMap<String, Vector<Point2D>> planPoints = new LinkedHashMap<>();
     protected double lastZoom;
     protected LocationType lastCenter;
@@ -84,7 +84,7 @@ public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DP
 
     @Override
     public void initSubPanel() {
-      
+
     }
 
     @Override
@@ -101,6 +101,10 @@ public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DP
 
     @Subscribe
     public void consume(PlanControlState pcstate) {
+
+        if (pcstate.getPlanId().isEmpty())
+            return;
+
         ImcSystem system = ImcSystemsHolder.lookupSystem(pcstate.getSrc());
         if (system == null)
             return;
@@ -116,7 +120,6 @@ public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DP
                 break;
         }
     }
-    
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
@@ -131,7 +134,8 @@ public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DP
             });
         }
 
-        if (renderer.getZoom() != lastZoom || !renderer.getCenter().equals(lastCenter) || renderer.getRotation() != lastRotation) {
+        if (renderer.getZoom() != lastZoom || !renderer.getCenter().equals(lastCenter)
+                || renderer.getRotation() != lastRotation) {
             planPoints.clear();
         }
 
@@ -171,17 +175,19 @@ public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DP
                     g.draw(new Line2D.Double(prev, cur));
                 prev = cur;
                 g.setColor(c.brighter());
-                g.fill(new Ellipse2D.Double(cur.getX()-2, cur.getY()-2, 4, 4));
-            }            
+                g.fill(new Ellipse2D.Double(cur.getX() - 2, cur.getY() - 2, 4, 4));
+            }
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
      */
     @Override
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
-        
+
     }
 }
