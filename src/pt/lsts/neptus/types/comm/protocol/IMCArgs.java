@@ -54,7 +54,6 @@ public class IMCArgs extends ProtocolArgs {
     protected int portTCP = DEFAULT_PORT;
     protected boolean udpOn = true;
     protected boolean tcpOn = false;
-    protected boolean rtpsOn = false;
 
     protected ImcId16 imc3Id = null;
 
@@ -130,20 +129,6 @@ public class IMCArgs extends ProtocolArgs {
     }
 
     /**
-     * @return the rtpsOn
-     */
-    public boolean isRtpsOn() {
-        return rtpsOn;
-    }
-
-    /**
-     * @param rtpsOn the rtpsOn to set
-     */
-    public void setRtpsOn(boolean rtpsOn) {
-        this.rtpsOn = rtpsOn;
-    }
-
-    /**
      * @return the imc3Id
      */
     public ImcId16 getImc3Id() {
@@ -188,12 +173,6 @@ public class IMCArgs extends ProtocolArgs {
                 tcpOn = Boolean.parseBoolean(node.getText());
             else
                 tcpOn = false;
-
-            node = doc.selectSingleNode("//rtps-on");
-            if (node != null)
-                rtpsOn = Boolean.parseBoolean(node.getText());
-            else
-                rtpsOn = false;
 
             node = doc.selectSingleNode("//imc3-id");
             if (node != null)
@@ -291,7 +270,6 @@ public class IMCArgs extends ProtocolArgs {
         root.addElement("port-tcp").setText(Integer.toString(portTCP));
         root.addElement("udp-on").setText(Boolean.toString(isUdpOn()));
         root.addElement("tcp-on").setText(Boolean.toString(isTcpOn()));
-        root.addElement("rtps-on").setText(Boolean.toString(isRtpsOn()));
 
         if (getImc3Id() != null)
             root.addElement("imc3-id").setText(getImc3Id().toPrettyString());

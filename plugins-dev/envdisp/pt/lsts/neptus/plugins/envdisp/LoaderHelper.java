@@ -37,6 +37,7 @@ import java.io.Reader;
 import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -163,8 +164,13 @@ public class LoaderHelper {
         if (dateLimit == null)
             ignoreDateLimitToLoad = true;
         
+        NeptusLog.pub().info("Starting processing Currents netCDF file '" + fileName + "'." + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
+        
         HashMap<String, HFRadarDataPoint> hfdp = new HashMap<>();
         NetcdfFile dataFile = null;
+
+        Date fromDate = null;
+        Date toDate = null;
         
         try {
 
@@ -173,34 +179,34 @@ public class LoaderHelper {
           // Get the latitude and longitude Variables.
           Variable latVar = dataFile.findVariable("lat");
           if (latVar == null) {
-            System.out.println("Cant find Variable lat");
-            return hfdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'lat' for netCDF file '" + fileName + "'.");
+              return hfdp;
           }
 
           Variable lonVar = dataFile.findVariable("lon");
           if (lonVar == null) {
-            System.out.println("Cant find Variable lon");
-            return hfdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'lon' for netCDF file '" + fileName + "'.");
+              return hfdp;
           }
 
           Variable timeVar = dataFile.findVariable("time");
           if (timeVar == null) {
-            System.out.println("Cant find Variable time");
-            return hfdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'time' for netCDF file '" + fileName + "'.");
+              return hfdp;
           }
 
           // Get the latitude and longitude Variables.
           Variable uVar = dataFile.findVariable("u");
           if (uVar == null) {
-            System.out.println("Cant find Variable u");
-            return hfdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'u' for netCDF file '" + fileName + "'.");
+              return hfdp;
           }
 
           // Get the latitude and longitude Variables.
           Variable vVar = dataFile.findVariable("v");
           if (vVar == null) {
-            System.out.println("Cant find Variable v");
-            return hfdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'v' for netCDF file '" + fileName + "'.");
+              return hfdp;
           }
 
 //          // see if float or double
@@ -236,10 +242,10 @@ public class LoaderHelper {
               timeUnits = (String) timeUnitsAtt.getValue(0);
           double[] multAndOffset = getMultiplierAndMillisOffsetFromTimeUnits(timeUnits);
           if (multAndOffset == null) {
-              System.out.println("Cant parse units for Variable time");
+              NeptusLog.pub().error("Aborting. Can't parse units for variable 'time' (was '" + timeUnits + "') for netCDF file '" + fileName + "'.");
               return hfdp;
           }
-              
+          
           double timeMultiplier = multAndOffset[0];
           double timeOffset = multAndOffset[1];
           
@@ -294,6 +300,21 @@ public class LoaderHelper {
                   continue;
               }
               
+              if (fromDate == null) {
+                  fromDate = dateValue;
+              }
+              else {
+                  if (dateValue.before(fromDate))
+                      fromDate = dateValue;
+              }
+              if (toDate == null) {
+                  toDate = dateValue;
+              }
+              else {
+                  if (dateValue.after(toDate))
+                      toDate = dateValue;
+              }
+              
               for (int latOrLonFirstIdx = 0; latOrLonFirstIdx < shape[1]; latOrLonFirstIdx++) {
                   for (int latOrLonSecondIdx = 0; latOrLonSecondIdx < shape[2]; latOrLonSecondIdx++) {
                       double lat = latArray.getDouble(latLonIndexOrder.first() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
@@ -309,7 +330,7 @@ public class LoaderHelper {
                               && u != uFillValue && v != vFillValue) {
                           u = u * getMultiplierForCmPerSecondsFromSpeedUnits(uUnits);
                           v = v * getMultiplierForCmPerSecondsFromSpeedUnits(vUnits);
-                          double speedCmS = Math.sqrt(u * u + v * v);
+                          double speedCmS = Math.sqrt(u * u + v * v) * 100;
                           double heading = Math.atan2(v, u);
 
                           HFRadarDataPoint dp = new HFRadarDataPoint(lat, lon);
@@ -345,12 +366,15 @@ public class LoaderHelper {
             return null;
         } 
         finally {
-          if (dataFile != null)
-            try {
-              dataFile.close();
-            } catch (IOException ioe) {
-              ioe.printStackTrace();
+            if (dataFile != null) {
+                try {
+                    dataFile.close();
+                }
+                catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
             }
+            NeptusLog.pub().info("Ending processing Currents netCDF file '" + fileName + "'. Reading from date '" + fromDate + "' till '" + toDate + "'.");
         }
         
         return hfdp;
@@ -361,10 +385,15 @@ public class LoaderHelper {
         if (dateLimit == null)
             ignoreDateLimitToLoad = true;
         
+        NeptusLog.pub().info("Starting processing Meteo (wind and SST) netCDF file '" + fileName + "'." + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
+
         HashMap<String, SSTDataPoint> sstdp = new HashMap<>();
         HashMap<String, WindDataPoint> winddp = new HashMap<>();
 
         NetcdfFile dataFile = null;
+        
+        Date fromDate = null;
+        Date toDate = null;
         
         try {
 
@@ -373,40 +402,40 @@ public class LoaderHelper {
           // Get the latitude and longitude Variables.
           Variable latVar = dataFile.findVariable("lat");
           if (latVar == null) {
-            System.out.println("Cant find Variable lat");
-            return new HashMap[] { sstdp, winddp };
+              NeptusLog.pub().error("Aborting. Can't find variable 'lat' for netCDF file '" + fileName + "'.");
+              return new HashMap[] { sstdp, winddp };
           }
 
           Variable lonVar = dataFile.findVariable("lon");
           if (lonVar == null) {
-            System.out.println("Cant find Variable lon");
-            return new HashMap[] { sstdp, winddp };
+              NeptusLog.pub().error("Aborting. Can't find variable 'lon' for netCDF file '" + fileName + "'.");
+              return new HashMap[] { sstdp, winddp };
           }
 
           Variable timeVar = dataFile.findVariable("time");
           if (timeVar == null) {
-            System.out.println("Cant find Variable time");
-            return new HashMap[] { sstdp, winddp };
+              NeptusLog.pub().error("Aborting. Can't find variable 'time' for netCDF file '" + fileName + "'.");
+              return new HashMap[] { sstdp, winddp };
           }
 
-          // Get the latitude and longitude Variables.
+          // Get the u (north) wind velocity Variables.
           Variable uVar = dataFile.findVariable("u");
           if (uVar == null) {
-            System.out.println("Cant find Variable u");
-            return new HashMap[] { sstdp, winddp };
+              NeptusLog.pub().error("Aborting. Can't find variable 'u' for netCDF file '" + fileName + "'.");
+              return new HashMap[] { sstdp, winddp };
           }
 
-          // Get the latitude and longitude Variables.
+          // Get the v (east) wind velocity Variables.
           Variable vVar = dataFile.findVariable("v");
           if (vVar == null) {
-            System.out.println("Cant find Variable v");
-            return new HashMap[] { sstdp, winddp };
+              NeptusLog.pub().error("Aborting. Can't find variable 'v' for netCDF file '" + fileName + "'.");
+              return new HashMap[] { sstdp, winddp };
           }
 
           Variable sstVar = dataFile.findVariable("sst");
           if (sstVar == null) {
-            System.out.println("Cant find Variable SST");
-            return new HashMap[] { sstdp, winddp };
+              NeptusLog.pub().error("Aborting. Can't find variable 'sst' for netCDF file '" + fileName + "'.");
+              return new HashMap[] { sstdp, winddp };
           }
 
 
@@ -449,7 +478,7 @@ public class LoaderHelper {
               timeUnits = (String) timeUnitsAtt.getValue(0);
           double[] multAndOffset = getMultiplierAndMillisOffsetFromTimeUnits(timeUnits);
           if (multAndOffset == null) {
-              System.out.println("Cant parse units for Variable time");
+              NeptusLog.pub().error("Aborting. Can't parse units for variable 'time' (was '" + timeUnits + "') for netCDF file '" + fileName + "'.");
               return new HashMap[] { sstdp, winddp };
           }
               
@@ -522,6 +551,21 @@ public class LoaderHelper {
                   continue;
               }
               
+              if (fromDate == null) {
+                  fromDate = dateValue;
+              }
+              else {
+                  if (dateValue.before(fromDate))
+                      fromDate = dateValue;
+              }
+              if (toDate == null) {
+                  toDate = dateValue;
+              }
+              else {
+                  if (dateValue.after(toDate))
+                      toDate = dateValue;
+              }
+
               for (int latOrLonFirstIdx = 0; latOrLonFirstIdx < shape[1]; latOrLonFirstIdx++) {
                   for (int latOrLonSecondIdx = 0; latOrLonSecondIdx < shape[2]; latOrLonSecondIdx++) {
                       double lat = latArray.getDouble(latLonIndexOrder.first() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
@@ -597,14 +641,16 @@ public class LoaderHelper {
             return null;
         } 
         finally {
-          if (dataFile != null)
-            try {
-              dataFile.close();
-            } catch (IOException ioe) {
-              ioe.printStackTrace();
+            if (dataFile != null) {
+                try {
+                    dataFile.close();
+                }
+                catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
             }
+            NeptusLog.pub().info("Ending processing Meteo (wind and SST) netCDF file '" + fileName + "'. Reading from date '" + fromDate + "' till '" + toDate + "'.");
         }
-        System.out.println("*** SUCCESS reading file "+fileName);
 
         return new HashMap[] { sstdp, winddp };
     }
@@ -614,10 +660,15 @@ public class LoaderHelper {
         if (dateLimit == null)
             ignoreDateLimitToLoad = true;
         
+        NeptusLog.pub().info("Starting processing Waves netCDF file '" + fileName + "'." + (ignoreDateLimitToLoad ? " ignoring dateTime limit" : " Accepting data after " + dateLimit + "."));
+
         HashMap<String, WavesDataPoint> wavesdp = new HashMap<>();
 
         NetcdfFile dataFile = null;
         
+        Date fromDate = null;
+        Date toDate = null;
+
         try {
 
           dataFile = NetcdfFile.open(fileName, null);
@@ -625,40 +676,41 @@ public class LoaderHelper {
           // Get the latitude and longitude Variables.
           Variable latVar = dataFile.findVariable("lat");
           if (latVar == null) {
-            System.out.println("Cant find Variable lat");
-            return wavesdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'lat' for netCDF file '" + fileName + "'.");
+              return wavesdp;
           }
 
           Variable lonVar = dataFile.findVariable("lon");
           if (lonVar == null) {
-            System.out.println("Cant find Variable lon");
-            return wavesdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'lon' for netCDF file '" + fileName + "'.");
+              return wavesdp;
           }
 
           Variable timeVar = dataFile.findVariable("time");
           if (timeVar == null) {
-            System.out.println("Cant find Variable time");
-            return wavesdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'time' for netCDF file '" + fileName + "'.");
+              return wavesdp;
           }
 
-          // Get the latitude and longitude Variables.
+          // Get the significant height Variable.
           Variable hsVar = dataFile.findVariable("hs");
           if (hsVar == null) {
-            System.out.println("Cant find Variable hs");
-            return wavesdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'hs' for netCDF file '" + fileName + "'.");
+              return wavesdp;
           }
 
-          // Get the latitude and longitude Variables.
+          // Get the peak period Variable.
           Variable tpVar = dataFile.findVariable("tp");
           if (tpVar == null) {
-            System.out.println("Cant find Variable tp");
-            return wavesdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'tp' for netCDF file '" + fileName + "'.");
+              return wavesdp;
           }
 
+          // Get the peak direction Variable.
           Variable pdirVar = dataFile.findVariable("pdir");
           if (pdirVar == null) {
-            System.out.println("Cant find Variable pdir");
-            return wavesdp;
+              NeptusLog.pub().error("Aborting. Can't find variable 'pdir' for netCDF file '" + fileName + "'.");
+              return wavesdp;
           }
 
 
@@ -685,7 +737,7 @@ public class LoaderHelper {
               timeUnits = (String) timeUnitsAtt.getValue(0);
           double[] multAndOffset = getMultiplierAndMillisOffsetFromTimeUnits(timeUnits);
           if (multAndOffset == null) {
-              System.out.println("Cant parse units for Variable time");
+              NeptusLog.pub().error("Aborting. Can't parse units for variable 'time' (was '" + timeUnits + "') for netCDF file '" + fileName + "'.");
               return wavesdp;
           }
               
@@ -754,6 +806,21 @@ public class LoaderHelper {
                   continue;
               }
               
+              if (fromDate == null) {
+                  fromDate = dateValue;
+              }
+              else {
+                  if (dateValue.before(fromDate))
+                      fromDate = dateValue;
+              }
+              if (toDate == null) {
+                  toDate = dateValue;
+              }
+              else {
+                  if (dateValue.after(toDate))
+                      toDate = dateValue;
+              }
+              
               for (int latOrLonFirstIdx = 0; latOrLonFirstIdx < shape[1]; latOrLonFirstIdx++) {
                   for (int latOrLonSecondIdx = 0; latOrLonSecondIdx < shape[2]; latOrLonSecondIdx++) {
                       double lat = latArray.getDouble(latLonIndexOrder.first() == 1 ? latOrLonFirstIdx : latOrLonSecondIdx);
@@ -804,21 +871,23 @@ public class LoaderHelper {
             return null;
         } 
         finally {
-          if (dataFile != null)
-            try {
-              dataFile.close();
-            } catch (IOException ioe) {
-              ioe.printStackTrace();
+            if (dataFile != null) {
+                try {
+                    dataFile.close();
+                }
+                catch (IOException ioe) {
+                    ioe.printStackTrace();
+                }
             }
+            NeptusLog.pub().info("Ending processing Waves netCDF file '" + fileName + "'. Reading from date '" + fromDate + "' till '" + toDate + "'.");
         }
-        System.out.println("*** SUCCESS reading file "+fileName);
 
         return wavesdp;
     }
 
     /**
      * @param uDimentions
-     * @return
+     * @returns
      */
     private static Pair<Integer, Integer> getLatLonIndexOrder(String uDimentions) {
         Pair<Integer, Integer> ret = null;
@@ -840,41 +909,104 @@ public class LoaderHelper {
     }
 
     public static double[] getMultiplierAndMillisOffsetFromTimeUnits(String timeStr) {
-        if ("days since 00-01-00 00:00:00".equalsIgnoreCase(timeStr)) {
+        if ("days since 00-01-00 00:00:00".equalsIgnoreCase(timeStr) || "days since 00-01-00".equalsIgnoreCase(timeStr)) {
+            // Reference time in year zero has special meaning
             return new double[] { DateTimeUtil.DAY, - DateTimeUtil.DAYS_SINCE_YEAR_0_TILL_1970 * DateTimeUtil.DAY};
         }
         else {
-            String[] tk = timeStr.trim().split("[ ]", 3);
+            String[] tk = timeStr.trim().split("[ ]");
             if (tk.length < 3) {
                 return null;
             }
             else {
                 double mult = 1;
                 double off = 1;
-                switch (tk[0].toLowerCase()) {
+                switch (tk[0].trim().toLowerCase().replace(".", "")) {
                     case "days":
                     case "day":
+                    case "d":
                         mult = DateTimeUtil.DAY;
                         break;
                     case "hours":
                     case "hour":
+                    case "hr":
+                    case "h":
                         mult = DateTimeUtil.HOUR;
                         break;
                     case "minutes":
                     case "minute":
+                    case "min":
                         mult = DateTimeUtil.MINUTE;
                         break;
                     case "seconds":
                     case "second":
+                    case "sec":
+                    case "s":
                         mult = DateTimeUtil.SECOND;
                         break;
                 }
                 
+                String dateTkStr = tk[2];
+                String timeTkStr = tk.length > 3 ? tk[3] : "0:0:0";
+                String timeZoneTkStr = tk.length > 4 ? tk[4] : "";
+                
                 try {
-                    Date date = HFRadarVisualization.dateTimeFormaterUTC.parse(tk[2]);
+                    Date date = HFRadarVisualization.dateTimeFormaterUTC.parse(dateTkStr + " " + timeTkStr);
                     off = date.getTime();
+                    
+                    // Let us see if milliseconds are present
+                    String[] mSplitArray = timeTkStr.split("\\.");
+                    if (mSplitArray.length > 1) {
+                        String millisStr = mSplitArray[1];
+                        int millisSize = millisStr.length();
+                        switch (millisSize) {
+                            case 1:
+                                off += Integer.parseInt(millisStr) * 100;
+                                break;
+                            case 2:
+                                off += Integer.parseInt(millisStr) * 10;
+                                break;
+                            case 3:
+                                off += Integer.parseInt(millisStr);
+                                break;
+                            default:
+                                off += Integer.parseInt(millisStr.substring(0, 3));
+                                break;
+                        }
+                    }
                 }
                 catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                
+                try {
+                    if (!timeZoneTkStr.isEmpty()) { // So we have a time zone and so it's not UTC
+                        // The time zone specification
+                        // can also be written without a colon using one or two-digits
+                        // (indicating hours) or three or four digits (indicating hours
+                        // and minutes)
+                        String[] tzStrs = timeZoneTkStr.split(":");
+                        if (tzStrs.length > 1) { // Has colon
+                            int hrTzNb = Integer.parseInt(tzStrs[0]); 
+                            off -= hrTzNb * DateTimeUtil.HOUR;
+                            off -= Integer.parseInt(tzStrs[1]) * Math.signum(hrTzNb) * DateTimeUtil.MINUTE;
+                        }
+                        else {
+                            String tzSt = timeZoneTkStr.replace(":", "");
+                            int tzNb = Integer.parseInt(tzSt);
+                            if (Math.abs(tzNb) < 100) { // It's hours
+                                off -= tzNb * DateTimeUtil.HOUR;
+                            }
+                            else { // It's hours plus minutes
+                                int hrTzNb = tzNb / 100;
+                                off -= hrTzNb * DateTimeUtil.HOUR;
+                                int minTzNb = tzNb - hrTzNb * 100;
+                                off -= minTzNb * DateTimeUtil.MINUTE;
+                            }
+                        }
+                    }
+                }
+                catch (Exception e) {
                     e.printStackTrace();
                 }
                 
@@ -931,23 +1063,127 @@ public class LoaderHelper {
 
     /**
      * @param args
+     * @throws Exception 
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         String str = "    -7.3280918  36.4298738  -24.540   15.514          0      15.440       2.180     -25.700     10.5000    -48.0000   49.1357   167.7     29.033     302.3      1   1";
         String[] tokens = str.trim().split("[\\t ,]+");
         System.out.println(tokens.length);
         
 
-        double[] val = getMultiplierAndMillisOffsetFromTimeUnits("days since 00-01-00 00:00:00");
-        System.out.println(val[0] + "    " + val[1]);
-        val = getMultiplierAndMillisOffsetFromTimeUnits("seconds since 2013-07-04 00:00:00");
-        System.out.println(val[0] + "    " + val[1]);
+        try {
+            double[] val = getMultiplierAndMillisOffsetFromTimeUnits("days since 00-01-00 00:00:00");
+            System.out.println(val[0] + "    " + val[1]);
+            val = getMultiplierAndMillisOffsetFromTimeUnits("seconds since 2013-07-04 00:00:00");
+            System.out.println(val[0] + "    " + val[1]);
+        }
+        catch (Exception e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
         
-        Pattern timeStringPattern = Pattern.compile("^(\\w+?)\\ssince\\s(\\w+?)");
-        String timeUnits = "days since 00-01-00 00:00:00";
-        Matcher matcher = timeStringPattern.matcher(timeUnits);
+        try {
+            Pattern timeStringPattern = Pattern.compile("^(\\w+?)\\ssince\\s(\\w+?)");
+            String timeUnits = "days since 00-01-00 00:00:00";
+            Matcher matcher = timeStringPattern.matcher(timeUnits);
 
-        System.out.println(matcher.group(1));
+            System.out.println(matcher.group(1));
+        }
+        catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        
+        try {
+            Date date = HFRadarVisualization.dateTimeFormaterUTC.parse("0001-01-01 00:00:00");
+            System.out.println(date.getTime());
+            
+            Date ndate = new Date(date.getTime() + DateTimeUtil.DAYS_SINCE_YEAR_0_TILL_1970 * DateTimeUtil.DAY);
+            System.out.println(ndate + "           " + ndate.getTime());
+        }
+        catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        System.out.println("------ Test time load -----");
+        String dateT1Str = "2013-07-04 00:00:00";
+        Date dateT1 = HFRadarVisualization.dateTimeFormaterUTC.parse(dateT1Str);
+        System.out.printf("%22s  ==  %s \t%s\n", dateT1Str, dateT1, dateT1.getTime());
+
+        dateT1Str = "2013-7-4 0:0:0";
+        dateT1 = HFRadarVisualization.dateTimeFormaterUTC.parse(dateT1Str);
+        System.out.printf("%22s  ==  %s \t%s\n", dateT1Str, dateT1, dateT1.getTime());
+
+        dateT1Str = "2013-7-4 13:3:4.32";
+        dateT1 = HFRadarVisualization.dateTimeFormaterUTC.parse(dateT1Str);
+        System.out.printf("%22s  ==  %s \t%s\n", dateT1Str, dateT1, dateT1.getTime());
+        
+        dateT1Str = "2013-7-4 13:3:4";
+        dateT1 = HFRadarVisualization.dateTimeFormaterUTC.parse(dateT1Str);
+        System.out.printf("%22s  ==  %s \t%s\n", dateT1Str, dateT1, dateT1.getTime());
+        
+        String dateT2Str = "2013-7-4 13:3:4.32";
+        System.out.println(Arrays.toString(dateT2Str.split("\\.")));
+        dateT2Str = "2013-7-4 13:3:4";
+        System.out.println(Arrays.toString(dateT2Str.split("\\.")));
+        dateT2Str = "2013-7-4 13:3:4.";
+        System.out.println(Arrays.toString(dateT2Str.split("\\.")));
+        dateT2Str = "2013-7-4 13:3:4.262626";
+        System.out.println(Arrays.toString(dateT2Str.split("\\.")));
+
+        
+        String dateT3Str = "seconds since 2013-7-4 13:3:4.32";
+        double[] multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        Date dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        System.out.println("\nEvery resulting date should result in the same values!");
+        dateT3Str = "seconds since 2013-7-4 13:3:4";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 14:3:4 +1:0";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 14:3:4 1";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 14:3:4 100";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 12:3:4 -100";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 11:33:4 -130";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 11:33:4 -1:30";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 14:33:4 +130";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
+        dateT3Str = "seconds since 2013-7-4 14:33:04 +1:30";
+        multPlusOffset = getMultiplierAndMillisOffsetFromTimeUnits(dateT3Str);
+        dateT3 = new Date((long) (0 * multPlusOffset[0] + multPlusOffset[1]));
+        System.out.printf("%37s == %22s \t mult=%f off=%f\n", dateT3Str, dateT3, multPlusOffset[0], multPlusOffset[1]);
+
     }
-
 }

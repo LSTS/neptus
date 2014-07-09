@@ -167,7 +167,7 @@ public class AssetPosition implements Comparable<AssetPosition> {
 
     @Override
     public int compareTo(AssetPosition o) {
-        return (int)(getTimestamp()/1000) - (int)(o.getTimestamp()/1000);
+        return new Long(getTimestamp()).compareTo(o.getTimestamp());
     }
     
     @Override

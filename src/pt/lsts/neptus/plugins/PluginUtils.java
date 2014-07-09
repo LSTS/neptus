@@ -257,7 +257,7 @@ public class PluginUtils {
 
             PluginProperty pp = new PluginProperty(name, f.getType(), o);
             pp.setShortDescription((forEdit ? I18n.text(desc) : desc) + defaultStr);
-            pp.setEditable(!a.editable());
+            pp.setEditable(a.editable());
             pp.setDisplayName(forEdit ? I18n.text(name) : name);
             if (category != null && category.length() > 0) {
                 pp.setCategory(category);
@@ -475,17 +475,18 @@ public class PluginUtils {
                     continue;
                 }
                 try {
-                    f.set(obj, propertyValue);
+                    if (a.editable())
+                        f.set(obj, propertyValue);
                 }
                 catch (IllegalArgumentException e) {
                     try {
                         if ("int".equalsIgnoreCase(f.getGenericType().toString())
                                 || "Integer".equalsIgnoreCase(f.getGenericType().toString())) {
-                            String className = propertyValue.getClass().toString();
-                            if(className.equals("java.lang.String")){
+                            String className = propertyValue.getClass().getName();
+                            if (className.equals("java.lang.String")) {
                                 f.set(obj, Integer.parseInt((String) propertyValue));
                             }
-                            else if (className.equals("java.lang.Long")) {
+                            else { // if (className.equals("java.lang.Long")) {
                                 f.set(obj, Integer.valueOf(((Long) propertyValue).intValue()));
                             }
                         }

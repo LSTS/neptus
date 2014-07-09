@@ -70,7 +70,7 @@ import com.l2fprod.common.propertysheet.Property;
 /**
  * @author zp
  */
-@PluginDescription(name = "Plan Simulation", author = "zp", icon="images/planning/robot.png")
+@PluginDescription(name = "Plan Simulation Preview", author = "zp", icon="images/planning/robot.png")
 @LayerPriority(priority = 60)
 public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPainter, ConfigurationListener {
 
@@ -176,7 +176,10 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
     public synchronized void consume(PlanControlState msg) {
         String src = msg.getSourceName();
         boolean main = src == getConsole().getMainSystem();
-
+        
+        if (msg.getPlanId().isEmpty())
+            return;
+        
         if (msg.getState() != PlanControlState.STATE.EXECUTING) {
 
             if (forceSimVisualization && main)

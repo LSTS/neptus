@@ -103,6 +103,8 @@ public class MRAFilesHandler implements FileHandler {
         mra.getBgp().block(true);
         File fileToOpen = null;
 
+        String errorMessage = "";
+        
         if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED)) {
             fileToOpen = extractGzip(fx);
         }
@@ -114,6 +116,13 @@ public class MRAFilesHandler implements FileHandler {
         }
 
         mra.getBgp().block(false);
+        if (fileToOpen == null) {
+            errorMessage = mra.getBgp().getText();
+            GuiUtils.errorMessage(mra, I18n.text("Invalid LSF file"), I18n.text("LSF file does not exist!") + "\n"
+                    + errorMessage);
+            return false;
+        }
+        
         return openLSF(fileToOpen);
     }
 
@@ -180,6 +189,13 @@ public class MRAFilesHandler implements FileHandler {
     private boolean openLSF(File f) {
         mra.getBgp().block(true);
         mra.getBgp().setText(I18n.text("Loading LSF Data"));
+        
+        if (!f.exists()) {
+            mra.getBgp().block(false);
+            GuiUtils.errorMessage(mra, I18n.text("Invalid LSF file"), I18n.text("LSF file does not exist!"));
+            return false; 
+        }
+        
         final File lsfDir = f.getParentFile();
 
         //IMCDefinition.pathToDefaults = ConfigFetch.getDefaultIMCDefinitionsLocation();
@@ -271,7 +287,7 @@ public class MRAFilesHandler implements FileHandler {
 
             return res;
         }
-        catch (IOException ioe) {
+        catch (Exception ioe) {
             System.err.println("Exception has been thrown: " + ioe);
             mra.getBgp().setText(I18n.text("Decompressing LSF Data...") + "   "
                     + ioe.getMessage());
@@ -314,6 +330,9 @@ public class MRAFilesHandler implements FileHandler {
             return outFile;
         }
         catch (Exception e) {
+            System.err.println("Exception has been thrown: " + e);
+            mra.getBgp().setText(I18n.text("Decompressing LSF Data...") + "   "
+                    + e.getMessage());
             e.printStackTrace();
             return null;
         }

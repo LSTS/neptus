@@ -583,6 +583,16 @@ public class PropertiesEditor {
                     return I18n.text(value.toString());
                 }
             });
+            prr.registerRenderer(String[].class, new DefaultCellRenderer() {
+                {
+                    setOpaque(false);
+                }
+
+                @Override
+                protected String convertToString(Object value) {
+                    return I18n.text(Arrays.toString((String[]) value).toString());
+                }
+            });
         }
 	    return prr;
 	}

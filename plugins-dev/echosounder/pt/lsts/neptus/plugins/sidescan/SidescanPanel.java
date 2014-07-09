@@ -187,13 +187,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     // private SidescanPoint mouseSidescanPoint; // Mouse position geographical location
     private SidescanLine mouseSidescanLine;
 
-    private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(110, 60, Transparency.BITMASK);
+    private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(120, 60, Transparency.BITMASK);
 
     private List<SidescanLine> lineList = Collections.synchronizedList(new ArrayList<SidescanLine>());
     private ArrayList<SidescanLine> drawList = new ArrayList<SidescanLine>();
     private ArrayList<SidescanLine> removeList = new ArrayList<SidescanLine>();
 
-    private NumberFormat altFormat = GuiUtils.getNeptusDecimalFormat(2);
+    private NumberFormat altFormat = GuiUtils.getNeptusDecimalFormat(1);
 
     private SidescanParser ssParser;
 
@@ -370,6 +370,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             Graphics2D location2d = (Graphics2D) mouseLocationImage.getGraphics();
             location2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             location2d.clearRect(0, 0, mouseLocationImage.getWidth(), mouseLocationImage.getHeight());
+<<<<<<< HEAD
             location2d.drawString(
                     CoordinateUtil.dmToLatString(CoordinateUtil.decimalDegreesToDM(loc.getLatitudeDegs())), 5, 15);
             location2d.drawString(
@@ -377,8 +378,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             location2d.drawString(altStr + ": " + altFormat.format(mouseSidescanLine.state.getAltitude()), 5, 37);
             location2d.drawString(rollStr + ": " + altFormat.format(Math.toDegrees(mouseSidescanLine.state.getRoll())),
                     5, 48);
+=======
+            location2d.drawString(CoordinateUtil.dmToLatString(CoordinateUtil.decimalDegreesToDM(loc.getLatitudeDegs())), 5, 15);
+            location2d.drawString(CoordinateUtil.dmToLonString(CoordinateUtil.decimalDegreesToDM(loc.getLongitudeDegs())), 5, 26);
+            location2d.drawString(altStr+": " + altFormat.format(mouseSidescanLine.state.getAltitude()) + " m", 5, 37);
+            location2d.drawString(rollStr+": " + altFormat.format(Math.toDegrees(mouseSidescanLine.state.getRoll())) + "\u00B0", 5, 48);
+>>>>>>> de000fe9d849757c5dfdd4f4415d71f6aed0b78f
 
-            g.drawImage(mouseLocationImage, 10, 10, null);
+            g.drawImage(mouseLocationImage, 10, 20, null);
         }
     }
 

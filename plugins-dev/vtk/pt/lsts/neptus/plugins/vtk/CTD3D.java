@@ -48,8 +48,9 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.vtk.ctd3d.CTD3DToolbar;
 import pt.lsts.neptus.plugins.vtk.ctd3d.InteractorStyleCTD3D;
 import pt.lsts.neptus.plugins.vtk.ctd3d.LoadData;
-import pt.lsts.neptus.plugins.vtk.ctd3d.PointCloudCTD;
 import pt.lsts.neptus.plugins.vtk.ctd3d.Window;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudCTD;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudHandlerCTD;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
 import pt.lsts.neptus.plugins.vtk.visualization.AxesWidget;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
@@ -76,7 +77,6 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
 
     private CTD3DToolbar toolbar;
 
-    // private PointCloud<?> pointcloud;
     public PointCloudCTD pointcloud;
 
     // private vtkScalarBarActor lutActor = new vtkScalarBarActor();
@@ -88,7 +88,10 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
      * 
      */
     public CTD3D(MRAPanel mraPanel) {
-        Utils.loadVTKLibraries();
+        if (!Utils.hasTryedToLoadVtkLib) {
+            Utils.loadVTKLibraries();
+            // VTKMemoryManager.GC.SetAutoGarbageCollection(true);
+        }
     }
 
     @Override
@@ -112,14 +115,14 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
 
         loadData();
 
-        pointcloud.createPointCloudActor();
-        pointcloud.handlePointCloudColors();
-        pointcloud.getPolyData().GetPointData().SetScalars(pointcloud.getColorHandler().getColorsTemperature());
+        pointcloud.createActorFromPoints();
+        pointcloud.generateHandler();
+        pointcloud.getPolyData().GetPointData().SetScalars(((PointCloudHandlerCTD) pointcloud.getColorHandler()).getColorsTemperature());
         canvas.GetRenderer().AddActor(pointcloud.getCloudLODActor());
 
         setScalarBar(new ScalarBar(I18n.text("Temperature Color Map")));
         scalarBar.setScalarBarHorizontalProperties();
-        scalarBar.setUpScalarBarLookupTable(pointcloud.getColorHandler().getLutTemperature());
+        scalarBar.setUpScalarBarLookupTable(((PointCloudHandlerCTD) pointcloud.getColorHandler()).getLutTemperature());
         scalarBar.getScalarBarActor().Modified();
         canvas.GetRenderer().AddActor(scalarBar.getScalarBarActor());
 
@@ -197,7 +200,7 @@ public class CTD3D extends JPanel implements MRAVisualization, PropertiesProvide
 
     @Override
     public void onCleanup() {
-
+        // VTKMemoryManager.deleteAll();
     }
 
     @Override

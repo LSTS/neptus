@@ -66,6 +66,10 @@ import pt.lsts.neptus.util.ImageUtils;
 public class AccuTools extends ConsolePanel {
 
     private static final long serialVersionUID = -5015167316733219875L;
+
+    @NeptusProperty(editable = false)
+    private String destination = "accu-10688";
+
     /**
      * @param console
      */
@@ -137,9 +141,6 @@ public class AccuTools extends ConsolePanel {
         };
         
     };
-
-    @NeptusProperty(editable=true)
-    String destination = "accu-10688";
 
     @Override
     public void cleanSubPanel() {

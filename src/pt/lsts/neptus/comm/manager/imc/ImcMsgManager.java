@@ -910,7 +910,10 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
      */
     private SystemImcMsgCommInfo processAnnounceMessage(MessageInfo info, Announce ann, SystemImcMsgCommInfo vci,
             ImcId16 id) throws IOException {
+        
         String sia = info.getPublisherInetAddress();
+        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: publisher host address " + sia);
+        
         InetSocketAddress[] retId = announceWorker.getImcIpsPortsFromMessageImcUdp(ann);
         int portUdp = 0;
         String hostUdp = "";
@@ -921,19 +924,21 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
         for (InetSocketAddress add : retId) {
             if (sia.equalsIgnoreCase(add.getAddress().getHostAddress())) {
-                portUdp = add.getPort();
-                hostUdp = add.getAddress().getHostAddress();
                 if (add.getAddress().isReachable(10)) {
                     udpIpPortFound = true;
+                    portUdp = add.getPort();
+                    hostUdp = add.getAddress().getHostAddress();
+                    NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "UDP reachable @ " + hostUdp + ":" + portUdp);
                     break;
                 }
             }
         }
         if (!udpIpPortFound) {
             // Lets try to see if we received a message from any of the IPs
-            String ipReceived = info.getPublisherInetAddress();
+            String ipReceived = hostUdp.isEmpty() ? info.getPublisherInetAddress() : hostUdp;
             hostUdp = ipReceived;
             udpIpPortFound = true;
+            NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "no UDP reachable using " + hostUdp + ":" + portUdp);
         }
 
         InetSocketAddress[] retIdT = announceWorker.getImcIpsPortsFromMessageImcTcp(ann);
@@ -946,20 +951,25 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         }
         for (InetSocketAddress add : retIdT) {
             if (sia.equalsIgnoreCase(add.getAddress().getHostAddress())) {
-                portTcp = add.getPort();
                 if ("".equalsIgnoreCase(hostUdp)) {
-                    hostUdp = add.getAddress().getHostAddress();
                     if (add.getAddress().isReachable(10)) {
                         tcpIpPortFound = true;
+                        hostUdp = add.getAddress().getHostAddress();
+                        portTcp = add.getPort();
+                        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "TCP reachable @ " + hostUdp + ":" + portTcp);
                         break;
                     }
                     else
                         continue;
                 }
+                portTcp = add.getPort();
                 tcpIpPortFound = true;
+                NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "no TCP reachable using " + hostUdp + ":" + portTcp);
                 break;
             }
         }
+
+        NeptusLog.pub().debug("processAnnounceMessage for " + ann.getSysName() + "@" + id + " :: " + "using UDP@" + hostUdp + ":" + portUdp + " and using TCP@" + hostUdp + ":" + portTcp);
 
         boolean requestEntityList = false;
         if (vci == null) {
@@ -1043,6 +1053,13 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 e.printStackTrace();
             }
 
+            // Adding temp getting heading from services
+            double headingDegreesFromServices = AnnounceWorker.processHeadingDegreesFromServices(resSys);
+            if (!Double.isNaN(headingDegreesFromServices) && !Double.isInfinite(headingDegreesFromServices)) {
+                long attTime = (long) (info.getTimeSentSec() * 1000);
+                resSys.setAttitudeDegrees(headingDegreesFromServices, attTime);
+            }
+            
             Map<Integer, String> er = EntitiesResolver.getEntities(resSys.getName());
             if (er == null || er.size() == 0)
                 requestEntityList = true;
@@ -1094,7 +1111,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     public boolean sendMessageToSystem(IMCMessage message, String systemName, String sendProperties, MessageDeliveryListener listener) {
         ImcSystem system = ImcSystemsHolder.lookupSystemByName(systemName);
-
+        
         if (system != null)
             return sendMessage(message, system.id, sendProperties, listener);
         if (listener != null)

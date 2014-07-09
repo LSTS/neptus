@@ -47,7 +47,7 @@ import vtk.vtkObjectBase;
  * @author hfq
  * 
  */
-@SuppressWarnings({ "static-access", "unchecked", "rawtypes" })
+@SuppressWarnings("unchecked")
 public final class VTKMemoryManager {
     private final static Logger LOGGER = Logger.getLogger(VTKMemoryManager.class.getName());
 
@@ -65,11 +65,11 @@ public final class VTKMemoryManager {
 
         try {
             try {
-                Class<?> javaHash = vtkObject.class.forName("vtk.vtkGlobalJavaHash");
+                Class<?> javaHash = Class.forName("vtk.vtkGlobalJavaHash");
                 Field f = javaHash.getDeclaredField("GarbageCollector");
                 lGC = (vtkJavaGarbageCollector) f.get(null);
                 lDeleteAll = javaHash.getDeclaredMethod("GC");
-                lObjectMap = (ConcurrentHashMap) javaHash.getDeclaredField("PointerToReference").get(null);
+                lObjectMap = (ConcurrentHashMap<Long, WeakReference<?>>) javaHash.getDeclaredField("PointerToReference").get(null);
 
             }
             catch (ClassNotFoundException ex) {
@@ -125,7 +125,7 @@ public final class VTKMemoryManager {
      */
     public static void delete(vtkObjectBase o) {
         if (OBJECT_MAP != null) {
-            WeakReference<?> ref = (WeakReference) OBJECT_MAP.get(o.GetVTKId());
+            WeakReference<?> ref = OBJECT_MAP.get(o.GetVTKId());
             ref.clear();
         }
         else { // OBJECT_MANAGER != null
@@ -146,5 +146,4 @@ public final class VTKMemoryManager {
             }
         }
     }
-
 }

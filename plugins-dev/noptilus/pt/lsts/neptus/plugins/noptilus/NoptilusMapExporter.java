@@ -55,7 +55,6 @@ import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
-import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -68,11 +67,11 @@ import convcao.com.caoAgent.NoptilusCoords;
  * @author zp
  *
  */
-@PluginDescription
+// @PluginDescription
 public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
 
     NoptilusCoords coords = new NoptilusCoords();
-    
+
     protected IMraLogGroup source = null;
 
     public NoptilusMapExporter(IMraLogGroup source) {
@@ -82,7 +81,8 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return source.getLsfIndex().containsMessagesOfType("EstimatedState");
+        // return source.getLsfIndex().containsMessagesOfType("EstimatedState");
+        return false;
     }
 
     @Override
@@ -106,43 +106,43 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
         BufferedImage imgLow = new BufferedImage(numRows/10, numCols/10, BufferedImage.TYPE_INT_ARGB);
         BufferedImage pathImg = new BufferedImage(numRows, numCols, BufferedImage.TYPE_INT_ARGB);
         //if (source.getFile("data.83P") == null) {
-            NeptusLog.pub().info(I18n.text("no multibeam data has been found... using DVL"));
-            LsfIterator<EstimatedState> it = source.getLsfIndex().getIterator(EstimatedState.class);
+        NeptusLog.pub().info(I18n.text("no multibeam data has been found... using DVL"));
+        LsfIterator<EstimatedState> it = source.getLsfIndex().getIterator(EstimatedState.class);
 
-            while(it.hasNext()) {
-                EstimatedState state = it.next();
-                LocationType loc = IMCUtils.parseLocation(state);
-                double[] offsets = loc.getOffsetFrom(sw);
-                if (offsets[0] < 0 || offsets[0] > mapHeight)
-                    continue;
-                if (offsets[1] < 0 || offsets[1] > mapWidth)
-                    continue;
+        while(it.hasNext()) {
+            EstimatedState state = it.next();
+            LocationType loc = IMCUtils.parseLocation(state);
+            double[] offsets = loc.getOffsetFrom(sw);
+            if (offsets[0] < 0 || offsets[0] > mapHeight)
+                continue;
+            if (offsets[1] < 0 || offsets[1] > mapWidth)
+                continue;
 
-                int col = (int)(offsets[1] / cellSize);
-                int row = (int)(offsets[0] / cellSize);
-                pathHigh[col][row] = true;            
-                pathLow[col/10][row/10] = true;
-                highRes.addPoint(offsets[1], offsets[0], state.getAlt()+state.getDepth());
-                lowRes.addPoint(offsets[1], offsets[0], state.getAlt()+state.getDepth());      
-                pathImg.setRGB(col, row, Color.blue.darker().getRGB());
-            }
+            int col = (int)(offsets[1] / cellSize);
+            int row = (int)(offsets[0] / cellSize);
+            pathHigh[col][row] = true;
+            pathLow[col/10][row/10] = true;
+            highRes.addPoint(offsets[1], offsets[0], state.getAlt()+state.getDepth());
+            lowRes.addPoint(offsets[1], offsets[0], state.getAlt()+state.getDepth());
+            pathImg.setRGB(col, row, Color.blue.darker().getRGB());
+        }
         //}
         if (source.getFile("data.83P") != null) {
             highRes = new DataDiscretizer(cellSize);
             DeltaTParser parser = new DeltaTParser(source);
             parser.rewind();
-            
+
             LocationType topLeft = new LocationType(coords.squareCenter);
             topLeft.translatePosition(mapHeight/2, -mapWidth/2, 0);
             LocationType bottomRight = new LocationType(coords.squareCenter);
             bottomRight.translatePosition(-mapHeight/2, mapWidth/2, 0);
-            
+
             BathymetrySwath swath;
             while ((swath = parser.nextSwath(0.3)) != null) {
 
                 LocationType loc = swath.getPose().getPosition();
-                
-                for (BathymetryPoint bp : swath.getData()) {                    
+
+                for (BathymetryPoint bp : swath.getData()) {
                     if (Math.random() < 0.2)
                         continue;
                     LocationType loc2 = new LocationType(loc);
@@ -157,26 +157,26 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
 
                     // int col = (int)(offsets[1] / cellSize);
                     // int row = (int)(offsets[0] / cellSize);
-                    //pathHigh[col][row] = true;            
+                    //pathHigh[col][row] = true;
                     //pathLow[col/10][row/10] = true;
                     highRes.addPoint(offsets[1], offsets[0], bp.depth);
-                    //lowRes.addPoint(offsets[1], offsets[0], bp.depth); 
+                    //lowRes.addPoint(offsets[1], offsets[0], bp.depth);
                     //pathImg.setRGB(col, row, Color.red.darker().getRGB());
                 }
             }
         }
-        
+
         String dirOut = source.getFile("mra").getAbsolutePath()+"/noptilus";
-        
+
         ColorMapUtils.generateColorMap(highRes.getDataPoints(), imgHigh.createGraphics(), numRows, numCols, 0, ColorMapFactory.createGrayScaleColorMap());
         ColorMapUtils.generateColorMap(lowRes.getDataPoints(), imgLow.createGraphics(), numRows/10, numCols/10, 0, ColorMapFactory.createGrayScaleColorMap());
-        
-        try {            
+
+        try {
             String desc = "Map centered in "+coords.squareCenter.getLatitudeAsPrettyString()+" / "+coords.squareCenter.getLongitudeAsPrettyString();
             pathToFile(pathHigh, (float)cellSize, new File(dirOut+"/path_highres.txt"), desc);
             pathToFile(pathLow, (float)cellSize*10, new File(dirOut+"/path_lowres.txt"), desc);
             ImageToFile(imgHigh, (float)cellSize, new File(dirOut+"/highres.txt"), desc);
-            ImageToFile(imgLow, (float)cellSize*10, new File(dirOut+"/lowres.txt"), desc);            
+            ImageToFile(imgLow, (float)cellSize*10, new File(dirOut+"/lowres.txt"), desc);
             ImageIO.write(pathImg, "PNG", new File(dirOut+"/path.png"));
             ImageIO.write(imgHigh, "PNG", new File(dirOut+"/highres.png"));
             ImageIO.write(imgLow, "PNG", new File(dirOut+"/lowres.png"));
@@ -187,7 +187,7 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
         }
         return "Map files saved in "+dirOut;
     }
-    
+
     public void pathToFile(boolean[][] path, float resolution, File out, String desc) throws Exception {
         out.getParentFile().mkdirs();
         int numRows = path.length;
@@ -203,16 +203,16 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
                     bw.write('1');
                 else
                     bw.write('0');
-                
+
                 if (col == numCols-1)
                     bw.write('\n');
                 else
                     bw.write(' ');
             }
-        }      
+        }
         bw.close();
     }
-    
+
     public void ImageToFile(BufferedImage img, float resolution, File out, String desc) throws Exception {
         out.getParentFile().mkdirs();
         BufferedWriter bw = new BufferedWriter(new FileWriter(out));
@@ -220,16 +220,16 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
         bw.write("# "+desc+"\n");
         bw.write("# <num cols> <num rows> <cell size> <?> <?>\n");
         bw.write(img.getWidth()+ " " + img.getHeight()+" "+resolution+" 0 0\n\n");
-        
+
         for (int y = 0; y < img.getHeight(); y++) {
             for (int x = 0; x < img.getWidth(); x++) {
                 int val = (img.getRGB(x, y) & 0x0000FF00) >> 8;
-                double value = (val * 20) / 255.0;
-                bw.write((float)value+" ");                                
-            }   
-            bw.write("\n");            
+            double value = (val * 20) / 255.0;
+            bw.write((float)value+" ");
+            }
+            bw.write("\n");
         }
-        
+
         bw.close();
     }
 

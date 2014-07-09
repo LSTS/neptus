@@ -62,7 +62,7 @@ public class SplitContainer extends ContainerSubPanel implements ConfigurationLi
 	@NeptusProperty(name="Split orientation", description="The split bar's orientation", distribution = DistributionEnum.DEVELOPER)
 	public SplitTypeEnum splitType = SplitTypeEnum.Horizontal;
 
-	@NeptusProperty(editable=true)
+	@NeptusProperty(editable = false)
 	public int splitLocation = 100;
 	
 	private JSplitPane splitPane = new JSplitPane();

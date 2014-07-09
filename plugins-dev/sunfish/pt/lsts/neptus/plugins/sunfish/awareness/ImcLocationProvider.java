@@ -31,11 +31,12 @@
  */
 package pt.lsts.neptus.plugins.sunfish.awareness;
 
-import com.google.common.eventbus.Subscribe;
-
 import pt.lsts.imc.Announce;
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -79,7 +80,7 @@ public class ImcLocationProvider implements ILocationProvider {
                 pos.setType(announce.getSysType().toString());
                 break;
         }
-        
+        pos.setSource("IMC (Announce)");
         instance.addAssetPosition(pos);
     }
     
@@ -93,14 +94,26 @@ public class ImcLocationProvider implements ILocationProvider {
     
     @Subscribe
     public void on(RemoteSensorInfo sensor) {
-        if (!enabled)
-            return;
-        AssetPosition pos = new AssetPosition(sensor.getId(), Math.toDegrees(sensor.getLat()),
-                Math.toDegrees(sensor.getLon()));
-        pos.setTimestamp(sensor.getTimestampMillis());
-        pos.setSource(getName());
-        pos.setType(sensor.getSensorClass());
-        instance.addAssetPosition(pos);
+        try {
+            if (!enabled)
+                return;
+            AssetPosition pos = new AssetPosition(sensor.getId(), Math.toDegrees(sensor.getLat()),
+                    Math.toDegrees(sensor.getLon()));
+            pos.setTimestamp(sensor.getTimestampMillis());
+            pos.setType(sensor.getSensorClass());
+            if ("ais-1".equals(IMCDefinition.getInstance().getResolver().resolve(sensor.getSrc()))) {
+                pos.setType("Ship");
+                pos.setSource("AIS Receiver");
+                if (!sensor.getSensorClass().isEmpty()) {
+                    pos.putExtra("Ship Type", sensor.getSensorClass());
+                }
+            }
+            instance.addAssetPosition(pos);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            
+        }
     }
     
     

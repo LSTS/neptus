@@ -219,6 +219,8 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
                 long lastSystemTime = System.currentTimeMillis();
                 int i = index.advanceToTime(0, lastMissionTime / 1000.0);
 
+                int k = 0;
+                
                 while (true && !timeline.getValueIsAdjusting()) {
                     try {
                         long newTime = System.currentTimeMillis();
@@ -228,14 +230,20 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
                         if (newMissionTime / 1000 != timeline.getValue())
                             timeline.setValue((int) (newMissionTime / 1000));
 
-                        while (!isInterrupted() && i < index.getNumberOfMessages() && index.timeOf(i)*1000 < newMissionTime) {
+                        int oldI = i;
+                        
+                        while (!isInterrupted() && i < index.getNumberOfMessages() && (index.timeOf(i)*1000 < newMissionTime || k > 4)) {
                             IMCMessage m = index.getMessage(i);
                             bus.post(m);
                             i++;
+                            k = 0;
                         }
                         if (i >= index.getNumberOfMessages())
                             return;
 
+                        if (oldI == i)
+                            k++;
+                        
                         lastMissionTime = newMissionTime;
                         Thread.sleep(100);
                     }

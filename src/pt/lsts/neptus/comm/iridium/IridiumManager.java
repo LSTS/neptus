@@ -42,10 +42,12 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JOptionPane;
 
-import pt.lsts.imc.Abort;
+import org.apache.commons.codec.binary.Hex;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
+import pt.lsts.imc.IridiumMsgTx;
 import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.neptus.NeptusLog;
@@ -114,7 +116,8 @@ public class IridiumManager {
             }
             catch (Exception e) {
                 e.printStackTrace();
-                NeptusLog.pub().error(e);                
+                NeptusLog.pub().error(e);
+                
             }
         }
     };
@@ -128,6 +131,21 @@ public class IridiumManager {
     }
     
     public void processMessage(IridiumMessage msg) {
+        
+        //if (msg.getSource() != ImcMsgManager.getManager().getLocalId().intValue()) {
+            try {
+                IridiumMsgTx transmission = new IridiumMsgTx();
+                transmission.setData(msg.serialize());
+                transmission.setSrc(msg.getSource());
+                transmission.setDst(msg.getDestination());
+                transmission.setTimestamp(msg.timestampMillis/1000.0);
+                ImcMsgManager.getManager().postInternalMessage("IridiumManager", transmission);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+        //}
+        
         Collection<IMCMessage> msgs = msg.asImc();
         
         for (IMCMessage m : msgs) {
@@ -233,13 +251,12 @@ public class IridiumManager {
     }
     
     public static void main(String[] args) throws Exception {
-       Abort msg = new Abort();
-       msg.setSrc(22);
-       msg.setDst(IMCDefinition.getInstance().getResolver().resolve("manta-1"));
-       Collection<ImcIridiumMessage> msgs = iridiumEncode(msg);
-
-       for (ImcIridiumMessage m : msgs) {
-           System.out.println(ByteUtil.encodeToHex(m.serialize()));
+       String hexText = "ffff0000db07002247545653000000000000000041002147545653000000000000000042000147545653000000000000000031000047545653000000000000000032000047545653000000000000000030";
+       byte[] data = Hex.decodeHex(hexText.toCharArray());
+       
+       ExtendedDeviceUpdate devupd = (ExtendedDeviceUpdate) IridiumMessage.deserialize(data);
+       for (Position p : devupd.positions.values()) {
+           System.out.println(p.posType);
        }
     }
 }

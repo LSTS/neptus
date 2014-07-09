@@ -57,6 +57,8 @@ public class Utils {
 
     private final static Logger LOGGER = Logger.getLogger(Utils.class.getName());
 
+    public static boolean hasTryedToLoadVtkLib = false;
+
     public static void loadVTKLibraries() {
         try {
             System.loadLibrary("jawt");
@@ -160,16 +162,20 @@ public class Utils {
             NeptusLog.pub().info("VTK Library Dir (searches for vtk.jar): " + vtkSettings.GetVTKLibraryDir());
             // NeptusLog.pub().info("Kits: " + vtkSettings.GetKits());
             // NeptusLog.pub().info("Java Class path" + p.getProperty("java.class.path"));
-            // vtkJavaTesting.Initialize(null , true); // <- crashs app
+            VTKMemoryManager.GC.SetAutoGarbageCollection(false);
         }
+
+        hasTryedToLoadVtkLib = true;
     }
 
+    /**
+     * try to render on a different thread than the thread
+     * that creates the renderView. Making an invokeLater to render on the
+     * thread that creates the renderView
+     * @param runnable
+     */
     public static void goToAWTThread(Runnable runnable) {
         if (!SwingUtilities.isEventDispatchThread()) {
-            // Thread.dumpStack();
-            // NeptusLog.pub().info("you try to render on a different thread than the thread" +
-            // "that creates the renderView. Making an invokeLater to render on the " +
-            // "thread that creates the renderView");
             try {
                 SwingUtilities.invokeAndWait(runnable);
             }
@@ -187,10 +193,17 @@ public class Utils {
         }
     }
 
+    /**
+     * @param o
+     */
     public static void delete(vtkObjectBase o) {
         VTKMemoryManager.delete(o);
     }
 
+    /**
+     * @param e
+     * @return
+     */
     public static vtkCanvas retrieveCanvas(ComponentEvent e) {
         Component c = e.getComponent();
         if (c instanceof vtkCanvas)
@@ -199,6 +212,11 @@ public class Utils {
             throw new NoSuchElementException("Found " + c.getClass() + " when " + vtkCanvas.class + " expected.");
     }
 
+    /**
+     * @param points
+     * @param indices
+     * @return
+     */
     public static boolean isMeshCoherent(float[] points, int[] indices) {
         boolean[] flags = new boolean[points.length / 3];
 

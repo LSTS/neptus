@@ -118,7 +118,7 @@ public abstract class AInteractorStyleTrackballCamera extends vtkInteractorStyle
     /**
      * @return the renderer
      */
-    protected vtkRenderer getRenderer() {
+    public vtkRenderer getRenderer() {
         return renderer;
     }
 
@@ -132,7 +132,7 @@ public abstract class AInteractorStyleTrackballCamera extends vtkInteractorStyle
     /**
      * @return the interactor
      */
-    protected vtkRenderWindowInteractor getInteractor() {
+    public vtkRenderWindowInteractor getInteractor() {
         return interactor;
     }
 

@@ -53,11 +53,39 @@ echo ""
 
 MACHINE_TYPE=`uname -m`
 if [ ${MACHINE_TYPE} = 'x86_64' ]; then
-    rm -Rf @INSTALL_DIR@/jre
-    mv @INSTALL_DIR@/jre64 @INSTALL_DIR@/jre
+    rm -Rf "@INSTALL_DIR@/jre"
+    mv "@INSTALL_DIR@/jre64" "@INSTALL_DIR@/jre"
 else
-    rm -Rf @INSTALL_DIR@/jre64
+    rm -Rf "@INSTALL_DIR@/jre64"
 fi
+
+# Creating Launchers
+createLauncher()
+{
+  # To be called in the installed folder 
+  # 1 - Launcher name
+  # 2 - Arguments for launcher
+
+  fullPath=$(pwd);
+  
+  echo "[Desktop Entry]" > "$1.desktop"
+  echo "Version=1.0" >> "$1.desktop"
+  echo "Type=Application" >> "$1.desktop"
+  echo "Terminal=false" >> "$1.desktop"
+  echo "Icon[en]=\"$fullPath/neptus.png\"" >> "$1.desktop"
+  echo "Name[en]=$1" >> "$1.desktop"
+  echo "Exec=\"$fullPath/neptus.sh\" $2" >> "$1.desktop"
+  echo "Name=$1" >> "$1.desktop"
+  echo "Icon=\"$fullPath/neptus.png\"" >> "$1.desktop"
+
+  chmod a+x "$1.desktop"
+}
+cd "@INSTALL_DIR@"
+# Neptus launcher
+createLauncher Neptus
+# Neptus MRA launcher
+createLauncher "Neptus MRA" mra
+cd -
 
 echo "Done. Type './neptus.sh' in the @INSTALL_DIR@ directory to launch Neptus"
 echo ""

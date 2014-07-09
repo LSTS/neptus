@@ -31,9 +31,7 @@
  */
 package pt.lsts.neptus.plugins.vtk.surface;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
 import vtk.vtkActor;
 import vtk.vtkContourFilter;
 import vtk.vtkGaussianSplatter;
@@ -43,40 +41,38 @@ import vtk.vtkPolyDataMapper;
  * @author hfq
  * splat point into a volume with an elliptical, gaussian distribution
  * 
- * vtkGaussianSplatter is a filter that injects input points into a structured points (volume) datase. As each point is injected, it "splats or distributes values to neaby voxels. Data is distributed using an elliptica, Gassian distribution function. The distribution function is modified usainf scalar values (expands distribution) or normals (creates ellipsiodal distribution rather than spherical).
+ * vtkGaussianSplatter is a filter that injects input points into a structured points (volume) datase. As each point is injected,
+ * it "splats or distributes values to neaby voxels. Data is distributed using an elliptica, Gassian distribution function.
+ * The distribution function is modified usainf scalar values (expands distribution) or normals (creates ellipsiodal distribution rather than spherical).
  * 
  */
 public class GaussianSplat {
-    
-    private PointCloud<PointXYZ> pointCloud;
+
+    private final APointCloud<?> pointCloud;
     private vtkActor actorGaussianSplat;
-    
-    public GaussianSplat(PointCloud<PointXYZ> pointCloud) {
+
+    public GaussianSplat(APointCloud<?> pointCloud) {
         this.pointCloud = pointCloud;
         setActorGaussianSplat(new vtkActor());
     }
-    
+
     public void performGaussianSplat(int dim0, int dim1, int dim2, double radius) {
-        NeptusLog.pub().info("Gaussian Splatter init!");
-        
+
         vtkGaussianSplatter splatter  = new vtkGaussianSplatter();
-            // FIXME - should be either SetInputData or SetInputConnection
-        splatter.SetInput(pointCloud.getPoly());
-            // Set / get the dimensions of the sampling structured point set. Higher values produce better results but are much slower.
+        splatter.SetInput(pointCloud.getPolyData());
+        // Set / get the dimensions of the sampling structured point set. Higher values produce better results but are much slower.
         splatter.SetSampleDimensions(dim0, dim1, dim2);
         splatter.SetRadius(radius);
         splatter.ScalarWarpingOff();
-        
+
         vtkContourFilter surface = new vtkContourFilter();
         surface.SetInputConnection(splatter.GetOutputPort());
         surface.SetValue(0, 0.2);
-        
+
         vtkPolyDataMapper mapper = new vtkPolyDataMapper();
         mapper.SetInputConnection(surface.GetOutputPort());
-        
+
         actorGaussianSplat.SetMapper(mapper);
-        
-        NeptusLog.pub().info("Gaussian Splatter done!"); //  + splatter.GetInformation().toString()
     }
 
     /**

@@ -563,10 +563,14 @@ public class FunctionalitiesSettings extends JPanel {
 
         NeptusProperty neptusProperty = null;
         LEVEL userLevel;
-        for (Field f : funcClass.getClass().getFields()) {
+//        for (Field f : funcClass.getClass().getFields()) {
+        for (Field f : funcClass.getClass().getDeclaredFields()) {
             neptusProperty = f.getAnnotation(NeptusProperty.class);
             if (neptusProperty == null)
                 continue;
+            
+            f.setAccessible(true); // To be able to access private and protected NeptusProperties
+            
             // CLIENT / DEVELOPER
             if (clientConsole && neptusProperty.distribution() == DistributionEnum.DEVELOPER)
                 continue;
@@ -618,7 +622,7 @@ public class FunctionalitiesSettings extends JPanel {
         pp.setValue(fieldValue);
 
         // Editable
-        if (neptusProperty.editable() == true) {
+        if (neptusProperty.editable() == false) {
             pp.setEditable(false);
         }
         else {

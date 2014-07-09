@@ -31,8 +31,7 @@
  */
 package pt.lsts.neptus.plugins.vtk.utils;
 
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
 import vtk.vtkDataArray;
 import vtk.vtkPoints;
 
@@ -43,25 +42,6 @@ import vtk.vtkPoints;
 public class PointCloudUtils {
 
     protected static double[] center;
-
-    /**
-     * class vtkCenterOfMass doesn't exist for Java on vtk 5.8
-     * 
-     * @param pointCloud
-     * @return
-     */
-    public static double[] computeCenterOfMass(PointCloud<PointXYZ> pointCloud) {
-        double[] center = computeCenter(pointCloud);
-
-        // vtkCenterOfMass centerOfMassFilter = new vtkCenterOfMass();
-        // centerOfMassFilter.SetInputData(poly);
-        // centerOfMassFilter.SetUseScalarAsWeights(false);
-        // centerOfMassFilter.Update();
-        //
-        // centerOfMassFilter.GetCenter(center);
-
-        return center;
-    }
 
     /**
      * @param points
@@ -89,17 +69,17 @@ public class PointCloudUtils {
         return bounds;
     }
 
-    public static double[] computeBounds(PointCloud<PointXYZ> pointCloud) {
+    public static double[] computeBounds(APointCloud<?> pointCloud) {
 
         double[] bounds = new double[6];
 
-        double p[] = pointCloud.getPoints().GetPoint(0);
+        double p[] = pointCloud.getXYZPoints().GetPoint(0);
         bounds[0] = bounds[1] = p[0];
         bounds[2] = bounds[3] = p[1];
         bounds[4] = bounds[5] = p[2];
 
         for (int i = 1; i < pointCloud.getNumberOfPoints(); ++i) {
-            p = pointCloud.getPoints().GetPoint(i);
+            p = pointCloud.getXYZPoints().GetPoint(i);
             for (int j = 0; j < 3; ++j) {
                 if (p[j] < bounds[2 * j]) // min values
                     bounds[2 * j] = p[j];
@@ -111,7 +91,7 @@ public class PointCloudUtils {
         return bounds;
     }
 
-    public static double[] computeScalarRange(PointCloud<PointXYZ> pointCloud) {
+    public static double[] computeScalarRange(APointCloud<?> pointCloud) {
         double[] scalarRange = new double[2];
 
         return scalarRange;
@@ -123,7 +103,7 @@ public class PointCloudUtils {
         return scalarRange;
     }
 
-    public static double[] computeCenter(PointCloud<PointXYZ> pointCloud) {
+    public static double[] computeCenter(APointCloud<?> pointCloud) {
         double[] center = new double[3];
 
         double[] bounds = computeBounds(pointCloud);

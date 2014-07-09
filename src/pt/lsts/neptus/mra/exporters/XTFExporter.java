@@ -47,14 +47,13 @@ import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryParserFactory;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.PluginDescription;
 
 /**
  * Exporter from log data do XTF format
  * @author jqcorreia
  *
  */
-@PluginDescription
+//@PluginDescription
 public class XTFExporter implements MRAExporter {
     IMraLogGroup source;
     BathymetryParser parser = null;

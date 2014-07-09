@@ -41,6 +41,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
@@ -69,9 +70,9 @@ public class DeviceUpdate extends IridiumMessage {
             read+=2;
             out.writeUnsignedInt(Math.round(p.timestamp));
             read+=4;
-            out.writeInt((int)Math.round(Math.toDegrees(p.latitude) * 1000000.0));
+            out.writeInt((int)Math.round(Math.toDegrees(p.latRads) * 1000000.0));
             read+=4;
-            out.writeInt((int)Math.round(Math.toDegrees(p.longitude) * 1000000.0));
+            out.writeInt((int)Math.round(Math.toDegrees(p.lonRads) * 1000000.0));
             read+=4;            
         }
         return read;
@@ -81,17 +82,22 @@ public class DeviceUpdate extends IridiumMessage {
     public int deserializeFields(IMCInputStream in) throws Exception {
         positions.clear();
         int read = 0;
-        while (in.available() > 14) {
-            Position pos = new Position();
-            pos.id = in.readUnsignedShort();
-            read+=2;
-            pos.timestamp = in.readUnsignedInt();
-            read+=4;
-            pos.latitude = Math.toRadians(in.readInt() / 1000000.0);
-            read+=4;
-            pos.longitude = Math.toRadians(in.readInt() / 1000000.0);
-            read+=4;
-            positions.put(pos.id, pos);
+        while (true) {
+            try {
+                Position pos = new Position();
+                pos.id = in.readUnsignedShort();
+                read+=2;
+                pos.timestamp = in.readUnsignedInt();
+                read+=4;
+                pos.latRads = Math.toRadians(in.readInt() / 1000000.0);
+                read+=4;
+                pos.lonRads = Math.toRadians(in.readInt() / 1000000.0);
+                read+=4;
+                positions.put(pos.id, pos);
+            }
+            catch (Exception e) {
+                break;
+            }
         }
         return read;
     }
@@ -102,8 +108,8 @@ public class DeviceUpdate extends IridiumMessage {
 
         for (Position pos : positions.values()) {
             RemoteSensorInfo sensorInfo = new RemoteSensorInfo();
-            sensorInfo.setLat(pos.latitude);
-            sensorInfo.setLon(pos.longitude);
+            sensorInfo.setLat(pos.latRads);
+            sensorInfo.setLon(pos.lonRads);
             sensorInfo.setTimestamp(pos.timestamp);
             sensorInfo.setAlt(0);
             sensorInfo.setId(IMCDefinition.getInstance().getResolver().resolve(pos.id));
@@ -114,4 +120,15 @@ public class DeviceUpdate extends IridiumMessage {
         }
         return msgs;
     }
+    
+    @Override
+    public String toString() {
+        String s = super.toString();
+        s +=  "\t["+positions.size()+" positions]\n";
+        for (Position p : positions.values()) {
+            s += "\t * ("+IMCDefinition.getInstance().getResolver().resolve(p.id)+") --> "+new LocationType(Math.toDegrees(p.latRads), Math.toDegrees(p.lonRads))+"\n";
+        }
+        return s;
+    }
+
 }

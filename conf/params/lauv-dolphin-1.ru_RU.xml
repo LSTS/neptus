@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.4.0-rc1 (master,9a669c8)" system="lauv-dolphin-1" i18n="ru_RU">
+<config format="1" version="2.6.x (master,d314614)" system="lauv-dolphin-1" i18n="ru_RU">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -514,7 +514,7 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>0.03</default>
-      <units>m</units>
+      <units>°</units>
       <desc>Integral limit for Depth controller</desc>
     </param>
     <param name="Heading PID Gains">
@@ -1136,6 +1136,15 @@
       <units>r/min</units>
       <desc>Minimum value admissible for desired RPMs</desc>
     </param>
+    <param name="Maximum RPM Limit">
+      <name-i18n>Maximum RPM Limit</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1800</default>
+      <units>r/min</units>
+      <desc>Maximum value admissible for desired RPMs for the MPS controller</desc>
+    </param>
     <param name="Maximum RPM Acceleration">
       <name-i18n>Maximum RPM Acceleration</name-i18n>
       <type>integer</type>
@@ -1587,7 +1596,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5.0</default>
+      <default>50</default>
       <units/>
       <desc>Number of 360 degree turns until calibration</desc>
     </param>
@@ -2618,6 +2627,33 @@
       <units>Hz</units>
       <desc>Частота, на которой выполняется задача</desc>
     </param>
+    <param name="Active - Scope">
+      <name-i18n>Активная - Сфера</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>idle</default>
+      <units/>
+      <desc>Сфера применения 'Активные' параметра</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Активная - Видимость</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Видимость 'Активные' параметра</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Активный</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>idle</scope>
+      <default>false</default>
+      <units/>
+      <desc>Правда, чтобы активировать задачу, иначе ложь</desc>
+    </param>
     <param name="SMS Recipient Number">
       <name-i18n>SMS номер получателя</name-i18n>
       <type>string</type>
@@ -3184,10 +3220,11 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5.0</default>
+      <default>1.0</default>
       <units/>
       <desc>No valid wet sensor data threshold value</desc>
-      <min>3.0</min>
+      <min>0.0</min>
+      <max>5.0</max>
     </param>
     <param name="GPS Timeout">
       <name-i18n>GPS Timeout</name-i18n>
@@ -3210,8 +3247,8 @@
       <min>0.2</min>
       <max>0.8</max>
     </param>
-    <param name="Ais Speed Threshold">
-      <name-i18n>Ais Speed Threshold</name-i18n>
+    <param name="Air Speed Threshold">
+      <name-i18n>Air Speed Threshold</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -3229,6 +3266,15 @@
       <desc>Type of vehicle</desc>
       <values>UUV, ASV, UAV</values>
       <values-i18n>UUV, ASV, UAV</values-i18n>
+    </param>
+    <param name="Entity Label - Medium Sensor">
+      <name-i18n>Entity Label - Medium Sensor</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Medium Sensor</default>
+      <units/>
+      <desc>Entity label of 'EntityState' Medium Sensor messages</desc>
     </param>
   </section>
   <section name="Operational Limits" name-i18n="Пределы">
@@ -4023,6 +4069,15 @@
       <units/>
       <desc>Use 'EulerAnglesDelta' or 'AngularVelocity' to update heading</desc>
     </param>
+    <param name="Abort if Uncertainty Exceeded">
+      <name-i18n>Abort if Uncertainty Exceeded</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Abort if position uncertainty is exceeded</desc>
+    </param>
     <param name="Heading Bias Alignment Index">
       <name-i18n>Heading Bias Alignment Index</name-i18n>
       <type>real</type>
@@ -4754,7 +4809,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>SVS</default>
+      <default>Sound Velocity Sensor</default>
       <units/>
       <desc/>
     </param>
@@ -5046,12 +5101,30 @@
       <units/>
       <desc/>
     </param>
+    <param name="Leak 0 - Medium Sensor">
+      <name-i18n>Leak 0 - Medium Sensor</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc/>
+    </param>
     <param name="Leak 1 - Entity Label">
       <name-i18n>Leak 1 - Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Leak Sensor - Antenna</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Leak 1 - Medium Sensor">
+      <name-i18n>Leak 1 - Medium Sensor</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
       <units/>
       <desc/>
     </param>
@@ -6131,7 +6204,7 @@
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Правда, чтобы активировать задачу, иначе ложь</desc>
     </param>
@@ -6213,23 +6286,16 @@
       <desc/>
       <min>2</min>
     </param>
-    <param name="Enable Reports">
-      <name-i18n>Enable Reports</name-i18n>
-      <type>boolean</type>
+    <param name="Acoustic Feedback">
+      <name-i18n>Acoustic Feedback</name-i18n>
+      <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>Full</default>
       <units/>
-      <desc>Report data acoustically</desc>
-    </param>
-    <param name="Make Reports Verbose">
-      <name-i18n>Make Reports Verbose</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>true</default>
-      <units/>
-      <desc>Report more verbose data acoustically</desc>
+      <desc>Data to be reported acoustically</desc>
+      <values>None, Ranges, Full</values>
+      <values-i18n>None, Ranges, Full</values-i18n>
     </param>
     <param name="Reports Periodicity">
       <name-i18n>Reports Periodicity</name-i18n>
@@ -6301,6 +6367,15 @@
       <units>ms</units>
       <desc/>
       <min>0</min>
+    </param>
+    <param name="Transmit Only Underwater">
+      <name-i18n>Transmit Only Underwater</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Do not transmit when at water surface</desc>
     </param>
   </section>
   <section name="AHRS" name-i18n="AHRS">
@@ -6467,33 +6542,6 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
-    <param name="Active - Scope">
-      <name-i18n>Активная - Сфера</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>idle</default>
-      <units/>
-      <desc>Сфера применения 'Активные' параметра</desc>
-    </param>
-    <param name="Active - Visibility">
-      <name-i18n>Активная - Видимость</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Видимость 'Активные' параметра</desc>
-    </param>
-    <param name="Active">
-      <name-i18n>Активный</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>idle</scope>
-      <default>0</default>
-      <units/>
-      <desc>Правда, чтобы активировать задачу, иначе ложь</desc>
-    </param>
     <param name="Serial Port - Device">
       <name-i18n>Serial Port - Device</name-i18n>
       <type>string</type>
@@ -6621,14 +6669,16 @@
       <units/>
       <desc>Enable to activate device when at surface</desc>
     </param>
-    <param name="Operator Control">
-      <name-i18n>Operator Control</name-i18n>
-      <type>boolean</type>
+    <param name="Control Override">
+      <name-i18n>Control Override</name-i18n>
+      <type>string</type>
       <visibility>user</visibility>
       <scope>idle</scope>
-      <default>false</default>
+      <default>None</default>
       <units/>
       <desc>Operator is able to control device</desc>
+      <values>None, Deactivate, Activate</values>
+      <values-i18n>None, Deactivate, Activate</values-i18n>
     </param>
     <param name="Power Channel">
       <name-i18n>Power Channel</name-i18n>
@@ -6961,6 +7011,15 @@
       <default>false</default>
       <units/>
       <desc>Allow for the vehicle to be externally controlled</desc>
+    </param>
+    <param name="Maneuver Handling Timeout">
+      <name-i18n>Maneuver Handling Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units/>
+      <desc>Timeout for starting or stopping a maneuver</desc>
     </param>
   </section>
   <section name="Service Announcer" name-i18n="Служба Диктор">
@@ -7310,6 +7369,64 @@
       <default>120</default>
       <units>s</units>
       <desc>Timeout period of a session</desc>
+    </param>
+  </section>
+  <section name="Message Fragments" name-i18n="Message Fragments">
+    <param name="Entity Label">
+      <name-i18n>Entity Этикетка</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Message Fragments</default>
+      <units/>
+      <desc>Главным образом ярлык лица</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Приоритет выполнения</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Приоритет выполнения</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Время активации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Время деактивации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Уровень отладки</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Reception timeout">
+      <name-i18n>Reception timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1800</default>
+      <units/>
+      <desc>Maximum amount of seconds to wait for missing fragments in incoming messages</desc>
     </param>
   </section>
   <section name="GSM" name-i18n="GSM">
@@ -7853,9 +7970,18 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Distance:0.2, Current:0.1, EntityState:1, EntityActivationState:1, EstimatedState:2, FuelLevel:0.1, Rpm:1, SimulatedState:2, StorageUsage:0.1, Temperature:0.1, Voltage:0.1</default>
+      <default>AlignmentState:0.5, CpuUsage:0.2, Distance:0.2, EntityState:1, EstimatedState:2, FuelLevel:0.1, Rpm:1, SimulatedState:0.5, StorageUsage:0.05, Temperature:0.1, Voltage:0.1</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
+    </param>
+    <param name="Filtered Entities">
+      <name-i18n>Filtered Entities</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>CpuUsage:Daemon, Distance:Altimeter+DVL Filtered+Echo Sounder, Temperature:CTD+Depth Sensor, Voltage:Batteries,</default>
+      <units/>
+      <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>
     <param name="Announce Service">
       <name-i18n>Announce Service</name-i18n>
@@ -7889,7 +8015,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AlignmentState, CpuUsage, Current, DevCalibrationControl, DevCalibrationState, Distance, EmergencyControlState, EntityActivationState, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, GpsFix, GpsFixRejection, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRange, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, Parameter, ParameterControl, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, QueryEntityParameters, RemoteActions, RemoteActionsRequest, Rpm, SaveEntityParameters, SetEntityParameters, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexToken, TrexPlan, VehicleState, Voltage</default>
+      <default>AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, Parameter, ParameterControl, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, QueryEntityParameters, RemoteActions, RemoteActionsRequest, Rpm, SaveEntityParameters, SetEntityParameters, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexToken, TrexPlan, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

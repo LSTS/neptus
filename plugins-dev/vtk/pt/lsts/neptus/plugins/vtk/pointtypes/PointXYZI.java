@@ -35,30 +35,38 @@ package pt.lsts.neptus.plugins.vtk.pointtypes;
  * @author hfq
  *
  */
-public class PointXYZI extends PointXYZ {
-    private float intensity;
-    
+public class PointXYZI extends APoint {
+    private int intensity;
+
     public PointXYZI() {
-        // PointXYZ p = new PointXYZ();
-        setIntensity(0.0f);
+        super();
+        setIntensity(0);
     }
-    
-    public PointXYZI (float _x, float _y, float _z, float _intensity) {
-        // PointXYZ p = new PointXYZ(_x, _y, _z);
-        setIntensity(_intensity);
+
+    public PointXYZI (double x, double y, double z, int intensity) {
+        super(x, y, z);
+        setIntensity(intensity);
     }
 
     /**
      * @return the intensity
      */
-    public float getIntensity() {
+    public int getIntensity() {
         return intensity;
     }
 
     /**
      * @param intensity the intensity to set
      */
-    private void setIntensity(float intensity) {
+    private void setIntensity(int intensity) {
         this.intensity = intensity;
-    }    
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.pointtypes.APoint#toString()
+     */
+    @Override
+    public String toString() {
+        return getX() + " " + getY() + " " + getZ() + " " + getIntensity();
+    }
 }

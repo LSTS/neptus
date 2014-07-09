@@ -34,6 +34,8 @@ package pt.lsts.neptus.mra.exporters;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import javax.swing.JFileChooser;
 import javax.swing.ProgressMonitor;
@@ -46,6 +48,7 @@ import pt.lsts.imc.lsf.IndexScanner;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -90,24 +93,30 @@ public class CTDExporter implements MRAExporter {
         IndexScanner scanner = new IndexScanner(index);
         pmonitor.setMaximum(index.getNumberOfMessages());
         pmonitor.setMinimum(index.getNumberOfMessages());
-
         pmonitor.setNote("Creating output folder...");
+        
         File dir = new File(source.getFile("mra"), "csv");
         dir.mkdirs();
-
+        pmonitor.setNote("Generating corrected positions...");
+        pmonitor.setProgress(10);
+        CorrectedPosition cp = new CorrectedPosition(index);
+        
         pmonitor.setNote("Exporting...");
         int count = 0;
         File out = new File(dir, "CTD.csv");
         BufferedWriter writer;
         try {
             writer = new BufferedWriter(new FileWriter(out));
-            writer.write("timestamp, latitude, longitude, conductivity, temperature, depth, medium\n");
+            writer.write("timestamp, gmt_time, latitude, longitude, corrected_lat, corrected_lon, conductivity, temperature, depth, medium\n");
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
             return "Error creating output file: "+e.getMessage();            
         }
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        
         while (true) {
 
             Conductivity c = scanner.next(Conductivity.class, "CTD");
@@ -133,20 +142,26 @@ public class CTDExporter implements MRAExporter {
             count ++;
 
             LocationType loc = IMCUtils.parseLocation(d).convertToAbsoluteLatLonDepth();
+            CorrectedPosition.Position p = cp.getPosition(d.getTimestamp());
+            
             try {
                 String medium = "UNKNOWN";
                 if (m != null)
                     medium = m.getMedium().toString();
 
                 writer.write(t.getTimestamp()+", "+
+                        dateFormat.format(t.getDate())+", "+
                         loc.getLatitudeDegs()+", "+
                         loc.getLongitudeDegs()+", "+
+                        ((p != null)? p.lat : loc.getLatitudeDegs())+", "+
+                        ((p != null)? p.lon : loc.getLongitudeDegs())+", "+
                         c.getValue()+", "+
                         t.getValue()+", "+
                         d.getDepth()+", "+
                         medium+"\n");          
             }
             catch (Exception e) {
+                e.printStackTrace();
                 NeptusLog.pub().error(e);
                 return "Error writing to file: "+e.getMessage();       
             }

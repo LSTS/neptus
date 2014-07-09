@@ -33,9 +33,7 @@ package pt.lsts.neptus.params;
 
 import java.awt.BorderLayout;
 
-import com.google.common.eventbus.Subscribe;
-
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -46,7 +44,8 @@ import pt.lsts.neptus.plugins.NeptusMessageListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.imc.IMCMessage;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -54,7 +53,7 @@ import pt.lsts.imc.IMCMessage;
  * @author pdias
  */
 @SuppressWarnings("serial")
-@PluginDescription(name="System Configuration")
+@PluginDescription(name = "System Configuration", icon = "images/settings2.png")
 @Popup(accelerator='Z', pos=POSITION.CENTER, width=600, height=600)
 public class SystemConfiguration extends ConsolePanel implements NeptusMessageListener, MainVehicleChangeListener {
 
@@ -73,7 +72,7 @@ public class SystemConfiguration extends ConsolePanel implements NeptusMessageLi
         removeAll();
         
         systemConfEditor = new SystemConfigurationEditorPanel(getMainVehicleId(), Scope.GLOBAL, Visibility.USER, true,
-                false, true, ImcMsgManager.getManager());
+                false, true, getConsole().getImcMsgManager());
         
         setLayout(new BorderLayout());
         add(systemConfEditor);

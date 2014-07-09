@@ -43,8 +43,7 @@ import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.DVLBathymetryParser;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
@@ -63,7 +62,7 @@ public class LoadToPointCloud {
     public BathymetryInfo batInfo;
 
     public BathymetryParser parser;
-    public PointCloud<PointXYZ> pointCloud;    
+    public APointCloud<?> pointCloud;
     private TidePredictionFinder finder;
 
     private vtkPoints points;
@@ -73,19 +72,18 @@ public class LoadToPointCloud {
     // private int countIntens = 0;
     // private int countIntensZero = 0;
 
-
     /**
      * @param log
      * @param pointCloud
      */
-    public LoadToPointCloud(IMraLogGroup log, PointCloud<PointXYZ> pointCloud) {
+    public LoadToPointCloud(IMraLogGroup log, APointCloud<?> pointCloud) {
         this.source = log;
         this.pointCloud = pointCloud;
     }
 
     private double getTideOffset(long timestampMillis) {
         try {
-            return finder.getTidePrediction(new Date(timestampMillis), false);
+            return finder == null ? 0 : finder.getTidePrediction(new Date(timestampMillis), false);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -94,10 +92,9 @@ public class LoadToPointCloud {
     }
 
     public void parseMultibeamPointCloud () {
-        //parser = BathymetryParserFactory.build(this.source);
         parser = BathymetryParserFactory.build(this.source, "multibeam");
 
-        finder = TidePredictionFactory.create(this.source.getLsfIndex());
+        getOrCreateTideDataProvider();
 
         parser.rewind();
 
@@ -109,14 +106,12 @@ public class LoadToPointCloud {
         int countPoints = 0;
         LocationType initLoc = null;
 
-        while ((bs = parser.nextSwath()) != null) {                   
+        while ((bs = parser.nextSwath()) != null) {
             LocationType loc = bs.getPose().getPosition();
 
             if(initLoc == null)
                 initLoc = new LocationType(loc);
 
-            //double tideOffset = getTideOffset(bs.getTimestamp());
-            //finder.getTidePrediction(state.getDate(), false)
             double tideOffset = getTideOffset(bs.getTimestamp());
 
             if (!MRAProperties.approachToIgnorePts) {
@@ -125,21 +120,21 @@ public class LoadToPointCloud {
                     if (p == null)
                         continue;
 
-                    // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
+                    // gets offset north and east and adds with bathymetry point p.north and p.east respectively
                     LocationType tempLoc = new LocationType(loc);
 
                     tempLoc.translatePosition(p.north, p.east, 0);
 
                     // add data to pointcloud
                     double offset[] = tempLoc.getOffsetFrom(initLoc);
-                    //System.out.println(offset[0] + " " + offset[1]);
-                    getPoints().InsertNextPoint(offset[0], 
-                            offset[1], 
+
+                    getPoints().InsertNextPoint(offset[0],
+                            offset[1],
                             p.depth - tideOffset);
 
                     if (parser.getHasIntensity()) {
                         getIntensities().InsertValue(c, p.intensity);
-                        pointCloud.setHasIntensities(true);
+                        // pointCloud.setHasIntensities(true);
                     }
 
                     ++countPoints;
@@ -153,16 +148,16 @@ public class LoadToPointCloud {
                     BathymetryPoint p = bs.getData()[c];
                     if (p == null)
                         continue;
-                    // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
-                    LocationType tempLoc = new LocationType(loc);                         
+                    // gets offset north and east and adds with bathymetry point p.north and p.east respectively
+                    LocationType tempLoc = new LocationType(loc);
 
                     tempLoc.translatePosition(p.north, p.east, 0);
 
                     // add data to pointcloud
                     double offset[] = tempLoc.getOffsetFrom(initLoc);
                     //System.out.println(offset[0] + " " + offset[1]);
-                    getPoints().InsertNextPoint(offset[0], 
-                            offset[1], 
+                    getPoints().InsertNextPoint(offset[0],
+                            offset[1],
                             p.depth - tideOffset);
 
                     //                    if (multibeamDeltaTParser.getHasIntensity()) {
@@ -195,11 +190,10 @@ public class LoadToPointCloud {
     }
 
     public void parseDVLPointCloud() {
-        //parser = BathymetryParserFactory.build(this.source);
         parser = BathymetryParserFactory.build(this.source, "dvl");
 
         if (parser instanceof DVLBathymetryParser) {
-            finder = TidePredictionFactory.create(this.source.getLsfIndex());
+            getOrCreateTideDataProvider();
 
             NeptusLog.pub().info("Parsing dvl points to vtk points");
 
@@ -232,9 +226,8 @@ public class LoadToPointCloud {
 
                     // add data to pointcloud
                     double offset[] = tempLoc.getOffsetFrom(initLoc);
-                    //System.out.println(offset[0] + " " + offset[1]);
-                    getPoints().InsertNextPoint(offset[0], 
-                            offset[1], 
+                    getPoints().InsertNextPoint(offset[0],
+                            offset[1],
                             p.depth - tideOffset);
 
                     ++countPoints;
@@ -247,6 +240,13 @@ public class LoadToPointCloud {
 
             pointCloud.setNumberOfPoints(parser.getBathymetryInfo().totalNumberOfPoints);
         }
+    }
+
+    private void getOrCreateTideDataProvider() {
+        if (finder == null)
+            finder = TidePredictionFactory.create(this.source.getLsfIndex());
+        if (finder == null)
+            NeptusLog.pub().warn("No tides data found!!");
     }
 
     /**
@@ -286,34 +286,34 @@ public class LoadToPointCloud {
     }
 
     //    /**
-    //     * 
+    //     *
     //     */
     //    private void getMyDeltaTHeader() {
-    //        file = source.getFile("multibeam.83P");  
+    //        file = source.getFile("multibeam.83P");
     //        //System.out.println("print parent: " + file.toString());
     //        try {
     //            fileInputStream = new FileInputStream(file);
     //        }
     //        catch (FileNotFoundException e) {
-    //            NeptusLog.pub().info("File not found: " + e);        
+    //            NeptusLog.pub().info("File not found: " + e);
     //            e.printStackTrace();
     //        }
     //        catch (IOException ioe) {
     //            NeptusLog.pub().info("Exception while reading the file: " + ioe);
     //            ioe.printStackTrace();
     //        }
-    //    
-    //        channel = fileInputStream.getChannel();      
+    //
+    //        channel = fileInputStream.getChannel();
     //        long posOnFile = 0;
-    //        long sizeOfRegionToMap = 256;   // 256 bytes currespondent to the header of each ping         
+    //        long sizeOfRegionToMap = 256;   // 256 bytes currespondent to the header of each ping
     //        try {
     //            buf = channel.map(MapMode.READ_ONLY, posOnFile, sizeOfRegionToMap);
     //        }
     //        catch (IOException e) {
     //            e.printStackTrace();
-    //        } 
-    //        
+    //        }
+    //
     //        MultibeamDeltaTHeader deltaTHeader = new MultibeamDeltaTHeader(buf);
-    //        deltaTHeader.parseHeader();     
+    //        deltaTHeader.parseHeader();
     //    }
 }

@@ -68,6 +68,7 @@ import pt.lsts.neptus.console.IConsoleLayer;
 import pt.lsts.neptus.console.plugins.SubPanelChangeEvent.SubPanelChangeAction;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.plugins.Popup;
@@ -133,8 +134,8 @@ public class PluginManager extends ConsolePanel {
         JPanel activePluginsPanel = new JPanel(new MigLayout("ins 0"));
         JPanel availablePluginsPanel = new JPanel(new MigLayout("ins 0"));
         info = new JPanel(new MigLayout("gap 5px 0, ins 1px"));
-        info.setBorder(BorderFactory.createTitledBorder("Info"));
-        info.add(new JLabel("Type:"));
+        info.setBorder(BorderFactory.createTitledBorder(I18n.text("Info")));
+        info.add(new JLabel(I18n.text("Type") + ":"));
         info.add(type, "span, wrap");
         info.add(description, "span");
         
@@ -144,10 +145,10 @@ public class PluginManager extends ConsolePanel {
 
         // availablePluginsPanel components
         // label
-        JLabel availablePluginsLabel = new JLabel("Available");
+        JLabel availablePluginsLabel = new JLabel(I18n.text("Available"));
         availablePluginsPanel.add(availablePluginsLabel, "h 7%");
         // buttons
-        btnAdd = new JButton("Add");
+        btnAdd = new JButton(I18n.text("Add"));
         btnAdd.setUI(new WindowsButtonUI());
         availablePluginsPanel.add(btnAdd, "h 7%, wrap");
 
@@ -161,14 +162,14 @@ public class PluginManager extends ConsolePanel {
 
         // activePluginsPanel components
         // label
-        JLabel activePluginsLabel = new JLabel("Active");
+        JLabel activePluginsLabel = new JLabel(I18n.text("Active"));
         activePluginsPanel.add(activePluginsLabel, "h 7%");
         // buttons
-        btnRemove = new JButton("Remove");
+        btnRemove = new JButton(I18n.text("Remove"));
         btnRemove.setUI(new WindowsButtonUI());
         activePluginsPanel.add(btnRemove, "h 7%");
 
-        btnSettings = new JButton("Settings");
+        btnSettings = new JButton(I18n.text("Settings"));
         btnSettings.setUI(new WindowsButtonUI());
         activePluginsPanel.add(btnSettings, "h 7%, wrap");
 
@@ -181,7 +182,7 @@ public class PluginManager extends ConsolePanel {
 
     private void createActions() {
         // Add button action
-        btnAdd.setAction(new AbstractAction("Add") {
+        btnAdd.setAction(new AbstractAction(I18n.text("Add")) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -220,7 +221,7 @@ public class PluginManager extends ConsolePanel {
         });
 
         // Remove button action
-        btnRemove.setAction(new AbstractAction("Remove") {
+        btnRemove.setAction(new AbstractAction(I18n.text("Remove")) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -258,9 +259,9 @@ public class PluginManager extends ConsolePanel {
 
             }
         });
-        btnRemove.getAction().putValue(Action.SHORT_DESCRIPTION, "Remove selected plugin");
+        btnRemove.getAction().putValue(Action.SHORT_DESCRIPTION, I18n.text("Remove selected plugin"));
 
-        btnSettings.setAction(new AbstractAction("Settings") {
+        btnSettings.setAction(new AbstractAction(I18n.text("Settings")) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -272,7 +273,7 @@ public class PluginManager extends ConsolePanel {
                 }
             }
         });
-        btnSettings.getAction().putValue(Action.SHORT_DESCRIPTION, "Open settings dialog for the selected plugin");
+        btnSettings.getAction().putValue(Action.SHORT_DESCRIPTION, I18n.text("Open settings dialog for the selected plugin"));
     }
 
     private void createListeners() {
@@ -385,13 +386,9 @@ public class PluginManager extends ConsolePanel {
     @Override
     public void initSubPanel() {
         this.refreshActivePlugins();
-
     }
 
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
     }
-
 }

@@ -53,7 +53,7 @@ public class PointPickingEvent extends vtkCommand {
 
     private boolean pickFirst = false;
 
-    Canvas canvas;
+    private final Canvas canvas;
 
     /**
      * @param canvas
@@ -63,6 +63,10 @@ public class PointPickingEvent extends vtkCommand {
 
     }
 
+    /**
+     * 
+     * @param interactor
+     */
     public void performSinglePick(vtkRenderWindowInteractor interactor) {
         int mouseX, mouseY;
         vtkPointPicker picker = new vtkPointPicker();
@@ -100,6 +104,11 @@ public class PointPickingEvent extends vtkCommand {
         }
     }
 
+    /**
+     * 
+     * @param e
+     * @param eventId
+     */
     public void execute(MouseEvent e, int eventId) {
         // NeptusLog.pub().info("expectacular");
         performSinglePick(canvas.getRenderWindowInteractor());
@@ -116,6 +125,10 @@ public class PointPickingEvent extends vtkCommand {
 
     }
 
+    /**
+     * 
+     * @return
+     */
     public PointXYZ getPoint() {
         PointXYZ p = new PointXYZ();
         p.setX(x);
@@ -125,6 +138,10 @@ public class PointPickingEvent extends vtkCommand {
         return (p);
     }
 
+    /**
+     * 
+     * @return
+     */
     public PointXYZ getPoint2() {
         PointXYZ p = new PointXYZ();
         p.setX(x2);
@@ -134,6 +151,10 @@ public class PointPickingEvent extends vtkCommand {
         return (p);
     }
 
+    /**
+     * 
+     * @return
+     */
     public int getPointIndex() {
         return (idx);
     }

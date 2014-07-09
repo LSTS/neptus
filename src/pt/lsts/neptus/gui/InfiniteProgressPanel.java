@@ -85,7 +85,7 @@ public class InfiniteProgressPanel extends JPanel {
 		//cPanel.add(Box.createRigidArea(new Dimension(10,10)));
 		this.add(Box.createVerticalGlue());
 		this.add(getBusyLabel());
-		this.add(getText());
+		this.add(getTextJLabel());
 		this.add(Box.createVerticalGlue());
 //		this.setBackground(ColorUtils.setTransparencyToColor(Color.WHITE, 200));
 //		getBusyLabel().setBackground(this.getBackground());
@@ -119,7 +119,7 @@ public class InfiniteProgressPanel extends JPanel {
 	/**
 	 * @return the text
 	 */
-	private JLabel getText() {
+	private JLabel getTextJLabel() {
 		if (text == null) {
 			text = new JLabel("<html><b>" + I18n.text("Wait please") + "...", JLabel.CENTER);
 			text.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -128,14 +128,18 @@ public class InfiniteProgressPanel extends JPanel {
 		return text;
 	}
 	
+    public String getText() {
+        return text.getText();
+    }
+	
     /**
 	 * @param message
 	 */
 	public void setText(String message) {
 	    if (message != null && !"".equalsIgnoreCase(message))
-		    getText().setText("<html><b>" + message + "...");
+		    getTextJLabel().setText("<html><b>" + message + "...");
 	    else
-	        getText().setText("");
+	        getTextJLabel().setText("");
 	}
 	
 	public void start() {

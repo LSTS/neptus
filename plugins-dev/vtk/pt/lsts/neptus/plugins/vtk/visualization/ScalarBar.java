@@ -46,10 +46,17 @@ public class ScalarBar {
 
     private String scalarBarTitle;
 
+    /**
+     * 
+     */
     public ScalarBar() {
         this(I18n.text("Color Map"));
     }
 
+    /**
+     * 
+     * @param title
+     */
     public ScalarBar(String title) {
         setScalarBarActor(new vtkScalarBarActor());
         setScalarBarTitle(title);
@@ -75,6 +82,7 @@ public class ScalarBar {
         textProp.ItalicOn();
         textProp.SetOpacity(0.9);
         textProp.SetFontSize(8);
+        textProp.ShadowOn();
 
         getScalarBarActor().SetLabelTextProperty(textProp);
         getScalarBarActor().SetTitleTextProperty(textProp);

@@ -55,7 +55,10 @@ public class OrientationIcon implements Icon {
 
 	private double diam, margin;
 	private double angleRadians = Double.NaN;
-	
+
+    private Color backgroundColor = Color.white;
+    private Color foregroundColor = Color.black;
+
 	private GeneralPath arrow = new GeneralPath();
 	
 	{
@@ -87,9 +90,9 @@ public class OrientationIcon implements Icon {
 		g.translate(x, y);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.translate(margin+diam/2,margin+diam/2);
-		g.setColor(Color.white);
+        g.setColor(backgroundColor);
 		g.fill(circle);
-		g.setColor(Color.black);
+        g.setColor(foregroundColor);
 		g.draw(circle);
 		if (angleRadians != Double.NaN) {
 			g.rotate(angleRadians);
@@ -98,6 +101,34 @@ public class OrientationIcon implements Icon {
 		}
 		g.setTransform(t);
 	}
+	
+	/**
+     * @return the backgroundColor
+     */
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+    
+    /**
+     * @param backgroundColor the backgroundColor to set
+     */
+    public void setBackgroundColor(Color backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+    
+    /**
+     * @return the foregroundColor
+     */
+    public Color getForegroundColor() {
+        return foregroundColor;
+    }
+    
+    /**
+     * @param foregroundColor the foregroundColor to set
+     */
+    public void setForegroundColor(Color foregroundColor) {
+        this.foregroundColor = foregroundColor;
+    }
 	
 	public void setAngleRadians(double angleRadians) {
 		this.angleRadians = angleRadians;		

@@ -1,0 +1,47 @@
+<Solver name="Default">
+  <!-- FlawFilter component="HorizonFilter" policy="PossiblyContained"/ -->
+
+
+
+
+  <ThreatManager defaultPriority="0">
+    <FlawHandler component="StandardThreatHandler"/>
+    <FlawFilter class-match="Reservoir"/>
+  </ThreatManager>
+
+  <OpenConditionManager defaultPriority="0">
+    <FlawHandler component="StandardOpenConditionHandler"/>
+    <FlawFilter class-match="Auv"/>
+    <FlawFilter class-match="AuvAction"/>
+    <FlawFilter class-match="Position"/>
+  </OpenConditionManager>
+
+  <OpenConditionManager defaultPriority="1">
+    <FlawHandler component="StandardOpenConditionHandler"/>
+    <FlawFilter class-match="Auv"/>
+    <FlawFilter class-match="AuvAction"/>
+    <FlawFilter class-match="Battery"/>
+    <FlawFilter class-match="SpeedControl"/>
+  </OpenConditionManager>
+
+  <OpenConditionManager defaultPriority="2">
+    <FlawHandler component="StandardOpenConditionHandler"/>
+    <FlawFilter class-match="Battery"/>
+    <FlawFilter class-match="SpeedControl"/>
+    <FlawFilter class-match="Position"/>
+  </OpenConditionManager>
+
+ 
+  <!-- UnboundVariableManager defaultPriority="2">
+    <FlawFilter var-match="start"/>
+    <FlawFilter var-match="end"/>
+    <FlawFilter var-match="duration"/>
+    <FlawFilter class-match="Resource" var-match="time"/>
+    <FlawFilter class-match="Resource" var-match="quantity"/>
+    <FlawFilter class-match="Reservoir" var-match="time"/>
+    <FlawFilter class-match="Reservoir" var-match="quantity"/>
+    <FlawFilter class-match="Reusable" var-match="quantity"/>
+    <FlawFilter component="InfiniteDynamicFilter"/>
+    <FlawHandler component="StandardVariableHandler"/>
+  </UnboundVariableManager -->
+</Solver>

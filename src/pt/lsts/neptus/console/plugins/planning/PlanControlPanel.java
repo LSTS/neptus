@@ -166,7 +166,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
     @NeptusProperty(name = "Enable teleoperation button", userLevel = LEVEL.ADVANCED, description = "Configures if send beacons button is shown or not in Full Mode.")
     public boolean enableTeleopButton = true;
 
-    @NeptusProperty(name = "Enable console actions", editable = true)
+    @NeptusProperty(name = "Enable console actions", editable = false)
     public boolean enableConsoleActions = true;
 
     // @NeptusProperty(name = "Use PlanDB to send plan", description = "For current vehicles set to true.")

@@ -79,7 +79,7 @@ import com.google.common.eventbus.Subscribe;
 public class LedsControlPanel extends ConsolePanel implements IPeriodicUpdates, ActionListener, ItemListener {
     private static final long serialVersionUID = 1L;
 
-    @NeptusProperty(name = "Periodicity millis", description = "Set update periodicity in miliseconds", editable = true)
+    @NeptusProperty(name = "Periodicity (milliseconds)", description = "Set update periodicity in miliseconds", editable = true) 
     public int periodicity = 1000;
 
     private ConsoleLayout console;

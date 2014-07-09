@@ -41,23 +41,25 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudCTD;
+import pt.lsts.neptus.types.coord.LocationType;
 import vtk.vtkDoubleArray;
 import vtk.vtkPoints;
 
 /**
  * @author hfq
- *
+ * 
  */
 public class LoadData {
 
-    private IMraLogGroup source;
+    private final IMraLogGroup source;
 
-    private PointCloudCTD pointcloud;
-    private vtkPoints points;
+    private final PointCloudCTD pointcloud;
+    private final vtkPoints points;
 
-    private vtkDoubleArray tempArray;
-    private vtkDoubleArray salinityArray;
-    private vtkDoubleArray pressureArray;
+    private final vtkDoubleArray tempArray;
+    private final vtkDoubleArray salinityArray;
+    private final vtkDoubleArray pressureArray;
 
     /**
      * @param source
@@ -65,18 +67,23 @@ public class LoadData {
     public LoadData(IMraLogGroup source) {
         this.source = source;
         this.pointcloud = new PointCloudCTD();
-        this.points = pointcloud.getPoints();
+        this.points = pointcloud.getXYZPoints();
         this.tempArray = new vtkDoubleArray();
         this.salinityArray = new vtkDoubleArray();
         this.pressureArray = new vtkDoubleArray();
     }
 
+    /**
+     * 
+     */
     public void loadCTDData() {
         LsfIndex lsfIndex = source.getLsfIndex();
         IndexScanner indexScanner = new IndexScanner(lsfIndex);
 
+        LocationType initLoc = null;
+
         int count = 0;
-        while(true) {
+        while (true) {
             Temperature temp = indexScanner.next(Temperature.class, "CTD");
             Salinity salinity = indexScanner.next(Salinity.class, "CTD");
             Pressure pressure = indexScanner.next(Pressure.class, "CTD");
@@ -85,18 +92,22 @@ public class LoadData {
                 break;
             }
 
+            EstimatedState state = indexScanner.next(EstimatedState.class);
+            if (state == null)
+                break;
+            SystemPositionAndAttitude pose = IMCUtils.parseState(state);
+            LocationType currentLoc = pose.getPosition();
+            if (initLoc == null)
+                initLoc = new LocationType(currentLoc);
+            double pointPose[] = currentLoc.getOffsetFrom(initLoc);
+
             if (temp != null)
                 tempArray.InsertValue(count, temp.getValue());
 
             if (salinity != null)
                 salinityArray.InsertValue(count, salinity.getValue());
 
-            EstimatedState state = indexScanner.next(EstimatedState.class);
-
-            SystemPositionAndAttitude pose = IMCUtils.parseState(state);
-            points.InsertNextPoint(pose.getPosition().getOffsetNorth(),
-                    pose.getPosition().getOffsetEast(),
-                    pose.getPosition().getDepth());
+            points.InsertNextPoint(pointPose[0], pointPose[1], pose.getPosition().getDepth());
 
             if (pressure != null) {
                 pressureArray.InsertValue(count, pressure.getValue());
@@ -105,16 +116,15 @@ public class LoadData {
                 Depth depth = indexScanner.next(Depth.class);
                 if (depth != null)
                     pressureArray.InsertValue(count, depth.getValue());
-                //pressureArray.InsertValue(count, convertDepthToPressure(depth.getValue(), pose.getPosition().getOffsetEast()));
             }
             ++count;
         }
 
         pointcloud.setNumberOfPoints(points.GetNumberOfPoints());
-        pointcloud.setPoints(points);
-        pointcloud.setTemperatureArray(tempArray);
-        pointcloud.setSalinityArray(salinityArray);
-        pointcloud.setPressureArray(pressureArray);
+        pointcloud.setXYZPoints(points);
+        pointcloud.setTemperatures(tempArray);
+        pointcloud.setSalinities(salinityArray);
+        pointcloud.setPressures(pressureArray);
     }
 
     /**

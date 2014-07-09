@@ -164,11 +164,11 @@ mv -v $NEPTUS_HOME/log/* $to_upload/$NEPTUSDIR/$todayDirName
 
 echo 40
 echo "# Finding used mission file..."
-find $NEPTUS_HOME/missions/ -type f -name '*.nmisz' -newer _start -exec cp -v "{}" $to_upload/$NEPTUSDIR/$todayDirName \;
+find $NEPTUS_HOME/missions/ -type f -name '*.nmisz' -newer _start -exec cp -vp "{}" $to_upload/$NEPTUSDIR/$todayDirName \;
 echo 43
 echo "# Finding modified conf files..."
 mkdir $to_upload/$NEPTUSDIR/$todayDirName/conf-files-modified
-find $NEPTUS_HOME/conf/ -type f -name '*.*' -newer _start -exec cp -vn "{}" $to_upload/$NEPTUSDIR/$todayDirName/conf-files-modified \;
+find $NEPTUS_HOME/conf/ -type f -name '*.*' -newer _start -exec cp -vnp "{}" $to_upload/$NEPTUSDIR/$todayDirName/conf-files-modified \;
 
 echo 50
 cd $to_upload/$NEPTUSDIR/$todayDirName/

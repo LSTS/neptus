@@ -82,6 +82,7 @@ public class ChronometerPlugin extends ConsolePanel {
 
     @Override
     public void cleanSubPanel() {
+        if (chronoPanel != null) // Let's make sure no thread is left running
+            chronoPanel.stop();
     }
-
 }

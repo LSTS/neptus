@@ -35,26 +35,85 @@ package pt.lsts.neptus.plugins.vtk.pointtypes;
  * @author hfq
  *
  */
-public class PointXYZRGB extends PointXYZ{
-    // byte only 8 bits variable in Java - IT IS SIGNED - 255 valores bastam para rgb
-    // from -127 -> 128
-    protected byte r;
-    protected byte g;
-    protected byte b;
+public class PointXYZRGB extends APoint{
+
+    private int r;
+    private int g;
+    private int b;
+
     /**
      * 
      */
     public PointXYZRGB() {
-        // PointXYZ p = new PointXYZ();
-        r = -127;
-        g = -127;
-        b = -127;
+        super();
+        setR(0);
+        setG(0);
+        setB(0);
     }
-    
-    public PointXYZRGB(float _x, float _y, float _z, byte _r, byte _g, byte _b) {
-        // PointXYZ p = new PointXYZ(_x, _y, _z);
-        r = _r;
-        g = _g;
-        b = _b;
+
+    /**
+     * 
+     * @param x
+     * @param y
+     * @param z
+     * @param r
+     * @param g
+     * @param b
+     */
+    public PointXYZRGB(double x, double y, double z, int r, int g, int b) {
+        super(x, y, z);
+        setR(r);
+        setG(g);
+        setB(b);
+    }
+
+    /**
+     * @return the r
+     */
+    public int getR() {
+        return r;
+    }
+
+    /**
+     * @param r the r to set
+     */
+    public void setR(int r) {
+        this.r = r;
+    }
+
+    /**
+     * @return the g
+     */
+    public int getG() {
+        return g;
+    }
+
+    /**
+     * @param g the g to set
+     */
+    public void setG(int g) {
+        this.g = g;
+    }
+
+    /**
+     * @return the b
+     */
+    public int getB() {
+        return b;
+    }
+
+    /**
+     * @param b the b to set
+     */
+    public void setB(int b) {
+        this.b = b;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.pointtypes.APoint#toString()
+     */
+    @Override
+    public String toString() {
+        return getX() + " " + getY() + " " + getZ() + " " + getR() + " " + getG() + " " + getB();
     }
 }

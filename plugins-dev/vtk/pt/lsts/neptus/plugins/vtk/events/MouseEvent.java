@@ -46,9 +46,9 @@ import vtk.vtkCamera;
  */
 public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotionListener {
 
-    private Canvas canvas;
-    private vtkCamera camera;
-    private PointPickingEvent pointPickingEvent;
+    private final Canvas canvas;
+    private final vtkCamera camera;
+    private final PointPickingEvent pointPickingEvent;
 
     /**
      * 
@@ -85,8 +85,6 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
      * Zoom In Camera
      */
     private void zoomIn() {
-        // style.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
-        // Zoom In
         canvas.lock();
         double zoomFactor = 1.02;
         if (camera.GetParallelProjection() == 1) {
@@ -104,8 +102,6 @@ public class MouseEvent implements MouseWheelListener, MouseListener, MouseMotio
      * Zoom out camera
      */
     private void zoomOut() {
-        // style.FindPokedRenderer(interactor.GetEventPosition()[0], interactor.GetEventPosition()[1]);
-        // Zoom Out
         canvas.lock();
         double zoomFactor = -1.02;
         if (camera.GetParallelProjection() == 1) {

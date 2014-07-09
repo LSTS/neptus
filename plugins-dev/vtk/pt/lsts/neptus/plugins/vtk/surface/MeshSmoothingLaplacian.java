@@ -31,7 +31,6 @@
  */
 package pt.lsts.neptus.plugins.vtk.surface;
 
-import pt.lsts.neptus.NeptusLog;
 import vtk.vtkPolyData;
 import vtk.vtkSmoothPolyDataFilter;
 
@@ -39,29 +38,53 @@ import vtk.vtkSmoothPolyDataFilter;
  * @author hfq
  *  Mesh smoothing based on the vtkSmoothPolyDataFilter algorithm from the VTK library
  *  It's a filter that adjusts point coordinates using Laplacian smoothing. The effect is to "relax" the mesh, making the
- *  cells better shaped and the vertices more evenly distribuited. 
+ *  cells better shaped and the vertices more evenly distribuited.
  */
 public class MeshSmoothingLaplacian {
     private vtkPolyData polyData;
-    
-        // number of of iteretaion over each vertex
-    private int numIterations = 40; // 30
-        
+
+    // number of of iteretaion over each vertex
+    private int numIterations = 40;
+
     private float convergence = 0.0f;
-    private float relaxationFactor = 0.08f; // 0.01f ou 0.06
-    private boolean featureEdgeSmoothing = false;  // false
-    private float featureAngle = 90.f;  // 45.f ou 110
-    private float edgeAngle = 5.f; // 15
+    private float relaxationFactor = 0.08f;
+    private boolean featureEdgeSmoothing = false;
+    private float featureAngle = 90.f;
+    private float edgeAngle = 5.f;
     private boolean boundarySmoothing = false;
-    
+
+    /**
+     * 
+     */
     public MeshSmoothingLaplacian() {
-        
+
     }
-    
+
+    /**
+     * 
+     * @param numIterations
+     * @param convergence
+     * @param featureEdgeSmoothing
+     * @param featureAngle
+     * @param edgeAngle
+     * @param boundarySmoothing
+     */
+    public MeshSmoothingLaplacian(int numIterations, float convergence, boolean featureEdgeSmoothing,
+            float featureAngle, float edgeAngle, boolean boundarySmoothing) {
+        setNumIterations(numIterations);
+        setConvergence(convergence);
+        setFeatureEdgeSmoothing(featureEdgeSmoothing);
+        setFeatureAngle(featureAngle);
+        setEdgeAngle(edgeAngle);
+        setBoundarySmoothing(boundarySmoothing);
+    }
+
+    /**
+     * 
+     * @param mesh
+     */
     public void performProcessing(PointCloudMesh mesh) {
         try {
-            NeptusLog.pub().info("Laplacian Smoothing time start: " + System.currentTimeMillis());
-            
             vtkSmoothPolyDataFilter smoother = new vtkSmoothPolyDataFilter();
             smoother.SetInput(mesh.getPolyData());
             smoother.SetNumberOfIterations(numIterations);
@@ -79,22 +102,9 @@ public class MeshSmoothingLaplacian {
                 smoother.BoundarySmoothingOn();
             else
                 smoother.BoundarySmoothingOff();
-            
+
             setPolyData(smoother.GetOutput());
             getPolyData().Update();
-            
-//            mesh.setPolyData(smoother.GetOutput());
-//            mesh.getPolyData().Update();
-//            
-//            vtkPolyDataMapper mapper = new vtkPolyDataMapper();
-//            mapper.SetInputConnection(mesh.getPolyData().GetProducerPort());
-//            mapper.Update();
-//            
-//            mesh.setMeshCloudLODActor(new vtkLODActor());
-//            mesh.getMeshCloudLODActor().SetMapper(mapper);
-//            mesh.getMeshCloudLODActor().Modified();
-            
-            NeptusLog.pub().info("Laplacian Smoothing time end: " + System.currentTimeMillis());
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -104,98 +114,98 @@ public class MeshSmoothingLaplacian {
     /**
      * @return the numIterations
      */
-    int getNumIterations() {
+    public int getNumIterations() {
         return numIterations;
     }
 
     /**
      * @param numIterations the numIterations to set
      */
-    void setNumIterations(int numIterations) {
+    public void setNumIterations(int numIterations) {
         this.numIterations = numIterations;
     }
 
     /**
      * @return the convergence
      */
-    float getConvergence() {
+    public float getConvergence() {
         return convergence;
     }
 
     /**
      * @param convergence the convergence to set
      */
-    void setConvergence(float convergence) {
+    public void setConvergence(float convergence) {
         this.convergence = convergence;
     }
 
     /**
      * @return the relaxationFactor
      */
-    float getRelaxationFactor() {
+    public float getRelaxationFactor() {
         return relaxationFactor;
     }
 
     /**
      * @param relaxationFactor the relaxationFactor to set
      */
-    void setRelaxationFactor(float relaxationFactor) {
+    public void setRelaxationFactor(float relaxationFactor) {
         this.relaxationFactor = relaxationFactor;
     }
 
     /**
      * @return the featureEdgeSmooting
      */
-    boolean isFeatureEdgeSmooting() {
+    public boolean isFeatureEdgeSmoothing() {
         return featureEdgeSmoothing;
     }
 
     /**
      * @param featureEdgeSmooting the featureEdgeSmooting to set
      */
-    void setFeatureEdgeSmooting(boolean featureEdgeSmooting) {
-        this.featureEdgeSmoothing = featureEdgeSmooting;
+    public void setFeatureEdgeSmoothing(boolean featureEdgeSmoothing) {
+        this.featureEdgeSmoothing = featureEdgeSmoothing;
     }
 
     /**
      * @return the featureAngle
      */
-    float getFeatureAngle() {
+    public float getFeatureAngle() {
         return featureAngle;
     }
 
     /**
      * @param featureAngle the featureAngle to set
      */
-    void setFeatureAngle(float featureAngle) {
+    public void setFeatureAngle(float featureAngle) {
         this.featureAngle = featureAngle;
     }
 
     /**
      * @return the edgeAngle
      */
-    float getEdgeAngle() {
+    public float getEdgeAngle() {
         return edgeAngle;
     }
 
     /**
      * @param edgeAngle the edgeAngle to set
      */
-    void setEdgeAngle(float edgeAngle) {
+    public void setEdgeAngle(float edgeAngle) {
         this.edgeAngle = edgeAngle;
     }
 
     /**
      * @return the boundarySmoothing
      */
-    boolean isBoundarySmoothing() {
+    public boolean isBoundarySmoothing() {
         return boundarySmoothing;
     }
 
     /**
      * @param boundarySmoothing the boundarySmoothing to set
      */
-    void setBoundarySmoothing(boolean boundarySmoothing) {
+    public void setBoundarySmoothing(boolean boundarySmoothing) {
         this.boundarySmoothing = boundarySmoothing;
     }
 

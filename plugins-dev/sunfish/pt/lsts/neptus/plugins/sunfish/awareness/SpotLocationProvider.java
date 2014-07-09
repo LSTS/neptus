@@ -43,6 +43,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.plugins.update.Periodic;
 
 
@@ -54,25 +56,26 @@ public class SpotLocationProvider implements ILocationProvider {
 
     SituationAwareness parent;
     private String url = "https://api.findmespot.com/spot-main-web/consumer/rest-api/2.0/public/feed/0qQz420UTPODTjoHylgIOPa3RqqvOhkMK/message.xml";
-    
+
     @Override
     public void onInit(SituationAwareness instance) {
         this.parent = instance;
     }
-    
+
     @Periodic(millisBetweenUpdates=1000*60)
     public void updateSpots() throws Exception {
         if (!enabled)
             return;
-        URL urlSpot = new URL(url);
-        File tmp = File.createTempFile("neptus", "spots");
-        FileUtils.copyURLToFile(urlSpot, tmp);
         try {
+            URL urlSpot = new URL(url);
+            File tmp = File.createTempFile("neptus", "spots");
+            FileUtils.copyURLToFile(urlSpot, tmp);
+
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
-            
+
             Document doc = db.parse(tmp);
-            
+
             NodeList messages = doc.getElementsByTagName("message");
             for (int i = 0; i < messages.getLength(); i++) {
                 NodeList elems = messages.item(i).getChildNodes();
@@ -83,26 +86,26 @@ public class SpotLocationProvider implements ILocationProvider {
                 for (int j = 0; j < elems.getLength(); j++) {
                     Node nd = elems.item(j); 
                     switch (nd.getNodeName()) {
-                    case "unixTime":
-                        timestamp = Long.parseLong(nd.getTextContent()) * 1000;
-                        break;
-                    case "latitude":
-                        lat = Double.parseDouble(nd.getTextContent());
-                        break;
-                    case "longitude":
-                        lon = Double.parseDouble(nd.getTextContent());
-                        break;
-                    case "messengerName":
-                        name = nd.getTextContent().toLowerCase();
-                        break;
-                    case "batteryState":
-                        battState = nd.getTextContent();
-                        break;
-                    case "messageType":
-                        msgType = nd.getTextContent();
-                        break;
-                    default:
-                        break;
+                        case "unixTime":
+                            timestamp = Long.parseLong(nd.getTextContent()) * 1000;
+                            break;
+                        case "latitude":
+                            lat = Double.parseDouble(nd.getTextContent());
+                            break;
+                        case "longitude":
+                            lon = Double.parseDouble(nd.getTextContent());
+                            break;
+                        case "messengerName":
+                            name = nd.getTextContent().toLowerCase();
+                            break;
+                        case "batteryState":
+                            battState = nd.getTextContent();
+                            break;
+                        case "messageType":
+                            msgType = nd.getTextContent();
+                            break;
+                        default:
+                            break;
                     }
                 }
                 if (name != null) {
@@ -119,10 +122,11 @@ public class SpotLocationProvider implements ILocationProvider {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().error(e);
+            parent.postNotification(Notification.error("Situation Awareness", e.getClass().getSimpleName()+" while polling SPOT positions from Web.").requireHumanAction(false));    
         }
     }
-    
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.plugins.sunfish.awareness.ILocationProvider#getName()
      */
@@ -130,7 +134,7 @@ public class SpotLocationProvider implements ILocationProvider {
     public String getName() {
         return "SPOT (Web API)";
     }
-    
+
     private boolean enabled = false;
     @Override
     public void setEnabled(boolean enabled) {
@@ -139,6 +143,6 @@ public class SpotLocationProvider implements ILocationProvider {
 
     @Override
     public void onCleanup() {        
-       
+
     }
 }

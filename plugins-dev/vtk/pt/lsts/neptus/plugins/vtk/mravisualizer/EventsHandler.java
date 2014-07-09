@@ -37,13 +37,14 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.vtk.events.AEventsHandler;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.filters.Contours;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
 import pt.lsts.neptus.plugins.vtk.surface.Delauny2D;
 import pt.lsts.neptus.plugins.vtk.surface.MeshSmoothingLaplacian;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import vtk.vtkActorCollection;
 import vtk.vtkPolyData;
+import vtk.vtkRenderer;
 
 
 /**
@@ -52,8 +53,10 @@ import vtk.vtkPolyData;
  */
 public class EventsHandler extends AEventsHandler {
 
-    protected LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
-    private final LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
+    protected vtkRenderer renderer;
+
+    protected LinkedHashMap<String, APointCloud<?>> linkedHashMapCloud;
+    protected LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
 
     private enum ColorMappingRelation {
         XMAP, YMAP, ZMAP, IMAP;
@@ -70,9 +73,11 @@ public class EventsHandler extends AEventsHandler {
     }
     private RepresentationType representationType;
 
-    public EventsHandler(InteractorStyleVis3D interactorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
+    public EventsHandler(InteractorStyleVis3D interactorStyle, LinkedHashMap<String, APointCloud<?>> linkedHashMapCloud,
             LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh, IMraLogGroup source) {
         super(interactorStyle, source);
+
+        this.renderer = interactorStyle.getRenderer();
 
         this.linkedHashMapCloud = linkedHashMapCloud;
         this.linkedHashMapMesh = linkedHashMapMesh;
@@ -106,11 +111,11 @@ public class EventsHandler extends AEventsHandler {
     //        }
     //    }
 
-    protected PointCloud<?> searchForPointCloudOnRenderer() {
+    protected APointCloud<?> searchForPointCloudOnRenderer() {
         vtkActorCollection actorCollection = new vtkActorCollection();
         actorCollection = getRenderer().GetActors();
         actorCollection.InitTraversal();
-        PointCloud<?> pointCloud = null;
+        APointCloud<?> pointCloud = null;
 
         for(int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
             if (actorCollection.GetNextActor().IsA("vtkActor2D") > 0)
@@ -163,16 +168,16 @@ public class EventsHandler extends AEventsHandler {
                 +
                 // rotate the camera around its focal point. The rotation is in the direction defined from the center of
                 // the renderer's viewport towards the mouse position
-                "<tr><td>" + I18n.text("Left mouse button</td><td>") + I18n.text("Rotate camera around its focal point") + "</td>"
+                "<tr><td>" + I18n.text("Left mouse button") + "</td><td>" + I18n.text("Rotate camera around its focal point") + "</td>"
                 + "<tr><td>" + I18n.text("Middle mouse button") + "</td><td>" + I18n.text("Pan camera") + "</td>"
                 + "<tr><td>" + I18n.text("Right mouse button") + "</td><td>" + I18n.text("Zoom (In/Out) the camera") + "</td>"
                 + "<tr><td>" + I18n.text("Mouse wheel") + "</td><td>" + I18n.text("Zoom (In/Out) the camera - Static focal point") + "</td>";
     }
 
     /**
-     * @param pointCloud 
+     * @param pointCloud
      */
-    public void performMeshingOnCloud(PointCloud<PointXYZ> pointCloud) {
+    public void performMeshingOnCloud(APointCloud<?> pointCloud) {
         NeptusLog.pub().info("Create Mesh from pointcloud: " + pointCloud.getCloudName());
 
         Delauny2D delauny = new Delauny2D();
@@ -192,6 +197,59 @@ public class EventsHandler extends AEventsHandler {
 
         mesh.setPolyData(new vtkPolyData());
         mesh.generateLODActorFromPolyData(smoothing.getPolyData());
+    }
+
+    public void performContouring(String cloudName) {
+        if(linkedHashMapMesh.containsKey(cloudName)) {
+            Contours contours = linkedHashMapMesh.get(cloudName).getContours();
+            contours.generateTerrainContours();
+            renderer.AddActor(linkedHashMapMesh.get(cloudName).getContours().getIsolinesActor());
+        }
+    }
+
+    /**
+     * 
+     * @param cloudName
+     */
+    public void addActorToRenderer(String cloudName) {
+        switch (getRepresentationType()) {
+            case REP_POINTS:
+                if (linkedHashMapCloud.containsKey(cloudName))
+                    renderer.AddActor(linkedHashMapCloud.get(cloudName).getCloudLODActor());
+                break;
+            case REP_WIREFRAME:
+                if (linkedHashMapMesh.containsKey(cloudName)) {
+                    linkedHashMapMesh.get(cloudName).getMeshCloudLODActor().GetProperty().SetRepresentationToWireframe();
+                    renderer.AddActor(linkedHashMapMesh.get(cloudName).getMeshCloudLODActor());
+                }
+                break;
+            case REP_SOLID:
+                if (linkedHashMapMesh.containsKey(cloudName)) {
+                    linkedHashMapMesh.get(cloudName).getMeshCloudLODActor().GetProperty().SetRepresentationToSurface();
+                    renderer.AddActor(linkedHashMapMesh.get(cloudName).getMeshCloudLODActor());
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * 
+     * @param cloudName
+     */
+    public void removeCloudFromRenderer(String cloudName) {
+        if (linkedHashMapCloud.containsKey(cloudName))
+            renderer.RemoveActor(linkedHashMapCloud.get(cloudName).getCloudLODActor());
+    }
+
+    /**
+     * 
+     * @param cloudName
+     */
+    public void removeMeshFromRenderer(String cloudName) {
+        if (linkedHashMapMesh.containsKey(cloudName))
+            renderer.RemoveActor(linkedHashMapMesh.get(cloudName).getMeshCloudLODActor());
     }
 
     /**

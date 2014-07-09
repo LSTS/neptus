@@ -48,6 +48,8 @@ import javax.swing.JToolBar;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.CTD3D;
 import pt.lsts.neptus.plugins.vtk.pointcloud.DepthExaggeration;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudCTD;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudHandlerCTD;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.ScalarBar;
 import pt.lsts.neptus.util.GuiUtils;
@@ -81,10 +83,10 @@ public class CTD3DToolbar extends JToolBar {
 
     private JButton resetViewportButton;
 
-    private PointCloudCTD pointcloud;
-    private ScalarBar scalarBar;
+    private final PointCloudCTD pointcloud;
+    private final ScalarBar scalarBar;
 
-    private Canvas canvas;
+    private final Canvas canvas;
 
     /**
      * 
@@ -149,11 +151,11 @@ public class CTD3DToolbar extends JToolBar {
         @Override
         public void actionPerformed(ActionEvent e) {
             if(tempToggle.isSelected()) {
-                pointcloud.getPolyData().GetPointData().SetScalars(pointcloud.getColorHandler().getColorsTemperature());
+                pointcloud.getPolyData().GetPointData().SetScalars(((PointCloudHandlerCTD) pointcloud.getColorHandler()).getColorsTemperature());
 
                 scalarBar.setScalarBarTitle(I18n.text("Temperature Color Map"));
                 scalarBar.setScalarBarHorizontalProperties();
-                scalarBar.setUpScalarBarLookupTable(pointcloud.getColorHandler().getLutTemperature());
+                scalarBar.setUpScalarBarLookupTable(((PointCloudHandlerCTD) pointcloud.getColorHandler()).getLutTemperature());
 
                 canvas.lock();
                 canvas.Render();
@@ -167,11 +169,11 @@ public class CTD3DToolbar extends JToolBar {
         @Override
         public void actionPerformed(ActionEvent e) {
             if(salinityToggle.isSelected()) {
-                pointcloud.getPolyData().GetPointData().SetScalars(pointcloud.getColorHandler().getColorsSalinity());
+                pointcloud.getPolyData().GetPointData().SetScalars(((PointCloudHandlerCTD) pointcloud.getColorHandler()).getColorsSalinity());
 
                 scalarBar.setScalarBarTitle(I18n.text("Salinity Color Map"));
                 scalarBar.setScalarBarHorizontalProperties();
-                scalarBar.setUpScalarBarLookupTable(pointcloud.getColorHandler().getLutSalinity());
+                scalarBar.setUpScalarBarLookupTable(((PointCloudHandlerCTD) pointcloud.getColorHandler()).getLutSalinity());
 
                 canvas.lock();
                 canvas.Render();
@@ -185,11 +187,11 @@ public class CTD3DToolbar extends JToolBar {
         @Override
         public void actionPerformed(ActionEvent e) {
             if(pressureToggle.isSelected()) {
-                pointcloud.getPolyData().GetPointData().SetScalars(pointcloud.getColorHandler().getColorsPressure());
+                pointcloud.getPolyData().GetPointData().SetScalars(((PointCloudHandlerCTD) pointcloud.getColorHandler()).getColorsPressure());
 
                 scalarBar.setScalarBarTitle(I18n.text("Pressure Color Map"));
                 scalarBar.setScalarBarHorizontalProperties();
-                scalarBar.setUpScalarBarLookupTable(pointcloud.getColorHandler().getLutPressure());
+                scalarBar.setUpScalarBarLookupTable(((PointCloudHandlerCTD) pointcloud.getColorHandler()).getLutPressure());
 
                 canvas.lock();
                 canvas.Render();

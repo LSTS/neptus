@@ -69,7 +69,7 @@ public class CollapsibleContainer extends ContainerSubPanel {
 
     private static final long serialVersionUID = 1L;
 
-    @NeptusProperty(editable = true)
+    @NeptusProperty(editable = false)
     public String state = "";
 
     protected LinkedHashMap<ConsolePanel, JXCollapsiblePane> colPanes = new LinkedHashMap<ConsolePanel, JXCollapsiblePane>();

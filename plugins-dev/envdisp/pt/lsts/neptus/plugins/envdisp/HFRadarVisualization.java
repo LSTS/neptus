@@ -69,7 +69,7 @@ import org.apache.http.client.methods.HttpGet;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
-import pt.lsts.neptus.colormap.InterpolationColorMap;
+import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.ConfigurationListener;
@@ -93,7 +93,7 @@ import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
  *
  */
 @SuppressWarnings("serial")
-@PluginDescription(name="HF Radar Visualization", author="Paulo Dias", version="0.5")
+@PluginDescription(name="HF Radar Visualization", author="Paulo Dias", version="1.0", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
 @LayerPriority(priority = -50)
 public class HFRadarVisualization extends ConsolePanel implements Renderer2DPainter, IPeriodicUpdates, ConfigurationListener {
 
@@ -101,8 +101,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      * Currents, wind, waves, SST 
      */
 
-    @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR, category="Visibility")
-    public boolean visible = true;
+//    @NeptusProperty(name = "Visible", userLevel = LEVEL.REGULAR, category="Visibility")
+//    public boolean visible = true;
 
     @NeptusProperty(name = "Show currents", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean showCurrents = true;
@@ -134,8 +134,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     @NeptusProperty(name = "Show waves legend from zoom level bigger than", userLevel = LEVEL.REGULAR, category="Visibility")
     public int showWavesLegendFromZoomLevel = 13;
 
-    @NeptusProperty(name = "Seconds between updates", category="Data Update")
-    public long updateSeconds = 60;
+    @NeptusProperty(name = "Minutes between file updates", category="Data Update")
+    public long updateFileDataMinutes = 5;
 
     @NeptusProperty(name = "Data limit validity (hours)", userLevel = LEVEL.REGULAR, category="Data Update")
     public int dateLimitHours = 12;
@@ -146,10 +146,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     @NeptusProperty(name = "Ignore data limit validity to load data", userLevel=LEVEL.ADVANCED, category="Data Update")
     public boolean ignoreDateLimitToLoad = false;
     
-    @NeptusProperty(name = "Request data from Web", editable=true)
+    @NeptusProperty(name = "Request data from Web", editable = false, userLevel = LEVEL.ADVANCED, category="Test", description = "Don't use this (testing purposes).")
     public boolean requestFromWeb = false;
 
-    @NeptusProperty(name = "Load data from file (hfradar.txt)", editable=true)
+    @NeptusProperty(name = "Load data from file (hfradar.txt)", editable = false, userLevel = LEVEL.ADVANCED, category="Test", description = "Don't use this (testing purposes).")
     public boolean loadFromFile = false;
     
     @NeptusProperty(name = "Show currents as most recent (true) or mean (false) value", userLevel = LEVEL.REGULAR, category="Data Update")
@@ -158,41 +158,48 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     @NeptusProperty(name = "Use color map for wind", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean useColorMapForWind = true;
 
-    @NeptusProperty(name = "Base Folder For Currents TUV Files", userLevel = LEVEL.REGULAR, category="Data Update")
+    @NeptusProperty(name = "Base Folder For Currents TUV or netCDF Files", userLevel = LEVEL.REGULAR, category = "Data Update", 
+            description = "The folder to look for currents data. Admissible files '*.tuv' and '*.nc'. NetCDF variables used: lat, lon, time, u, v.")
     public File baseFolderForCurrentsTUVFiles = new File("IHData/CODAR");
 
-    @NeptusProperty(name = "Base Folder For Meteo NetCDF Files", userLevel = LEVEL.REGULAR, category="Data Update")
+    @NeptusProperty(name = "Base Folder For Meteo netCDF Files", userLevel = LEVEL.REGULAR, category = "Data Update", 
+            description = "The folder to look for meteo data (wind and SST). Admissible files '*.nc'. NetCDF variables used: lat, lon, time, u, v, sst.")
     public File baseFolderForMeteoNetCDFFiles = new File("IHData/METEO");
 
-    @NeptusProperty(name = "Base Folder For Waves NetCDF Files", userLevel = LEVEL.REGULAR, category="Data Update")
+    @NeptusProperty(name = "Base Folder For Waves netCDF Files", userLevel = LEVEL.REGULAR, category = "Data Update", 
+            description = "The folder to look for waves (significant height, peak period and direction) data. Admissible files '*.nc'. NetCDF variables used: lat, lon, time, hs, tp, pdir.")
     public File baseFolderForWavesNetCDFFiles = new File("IHData/WAVES");
     
-    private final String currentsFilePatternTUV = "TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv";
-    private final String currentsFilePatternNetCDF = "CODAR_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.nc";
-    private final String meteoFilePattern = "meteo_\\d{8}\\.nc";
-    private final String wavesFilePattern = "waves_[a-zA-Z]{1,2}_\\d{8}\\.nc";
+    @NeptusProperty(name = "Show currents visible data date-time interval", userLevel = LEVEL.ADVANCED, category = "Test", 
+            description = "Draws the string with visible curents data date-time interval.")
+    public boolean showDataDebugLegend = false;
+    
+    private static final String tuvFilePattern = ".\\.tuv$";
+    private static final String netCDFFilePattern = ".\\.nc$";
+    private static final String currentsFilePatternTUV = tuvFilePattern; // "^TOTL_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.tuv$";
+    private static final String currentsFilePatternNetCDF = netCDFFilePattern; // "^CODAR_TRAD_\\d{4}_\\d{2}_\\d{2}_\\d{4}\\.nc$";
+    private static final String meteoFilePattern = netCDFFilePattern; // "^meteo_\\d{8}\\.nc$";
+    private static final String wavesFilePattern = netCDFFilePattern; // "^waves_[a-zA-Z]{1,2}_\\d{8}\\.nc$";
 
     private boolean clearImgCachRqst = false;
 
     private final Font font8Pt = new Font("Helvetica", Font.PLAIN, 8);
 
-    public static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'SS");
-    public static final SimpleDateFormat dateTimeFormaterSpacesUTC = new SimpleDateFormat("yyyy MM dd  HH mm SS");
-    public static final SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd");
-    public static final SimpleDateFormat timeFormaterUTC = new SimpleDateFormat("HH':'mm");
-    {
-        dateTimeFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-        dateTimeFormaterSpacesUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-        dateFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-        timeFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
-    
+    static final SimpleDateFormat dateTimeFormaterUTC = new SimpleDateFormat("yyyy-MM-dd HH':'mm':'ss") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+    static final SimpleDateFormat dateTimeFormaterSpacesUTC = new SimpleDateFormat("yyyy MM dd  HH mm ss") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+    private static final SimpleDateFormat dateFormaterUTC = new SimpleDateFormat("yyyy-MM-dd") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+    private static final SimpleDateFormat timeFormaterUTC = new SimpleDateFormat("HH':'mm") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+
+    private long updateSeconds = 60;
+    private long lastMillisFileDataUpdated = -1;
+
     private final static Path2D.Double arrow = new Path2D.Double();
     static {
         arrow.moveTo(-5, 6);
         arrow.lineTo(0, -6);
         arrow.lineTo(5, 6);
-        arrow.lineTo(0, 6 * 1 / 20);
+        arrow.lineTo(0, 3);
+        arrow.lineTo(-5, 6);
         arrow.closePath();
     }
 
@@ -275,8 +282,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     
     protected final double m_sToKnotConv = 1.94384449244;
     
-    private final ColorMap colorMapCurrents = new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
-            new Color(0, 0, 255), new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0), new Color(255, 0, 0) });
+    private final ColorMap colorMapCurrents = ColorMapFactory.createJetColorMap(); //new InterpolationColorMap("RGB", new double[] { 0.0, 0.1, 0.3, 0.5, 1.0 }, new Color[] {
+            //new Color(0, 0, 255), new Color(0, 0, 255), new Color(0, 255, 0), new Color(255, 0, 0), new Color(255, 0, 0) });
     // private final double minCurrentCmS = 0;
     private final double maxCurrentCmS = 200;
 
@@ -307,7 +314,40 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     private final HashMap<String, SSTDataPoint> dataPointsSST = new HashMap<>();
     private final HashMap<String, WindDataPoint> dataPointsWind = new HashMap<>();
     private final HashMap<String, WavesDataPoint> dataPointsWaves = new HashMap<>();
+
+    @PluginDescription(name="HF Radar Visualization Layer", icon="pt/lsts/neptus/plugins/envdisp/hf-radar.png")
+    private class HFRadarConsoleLayer extends ConsoleLayer {
+        @Override
+        public void setVisible(boolean visible) {
+            super.setVisible(visible);
+        }
+        
+        @Override
+        public boolean userControlsOpacity() {
+            return false;
+        }
+
+        @Override
+        public void initLayer() {
+        }
+
+        @Override
+        public void cleanLayer() {
+        }
+        
+        /* (non-Javadoc)
+         * @see pt.lsts.neptus.console.ConsoleLayer#paint(java.awt.Graphics2D, pt.lsts.neptus.renderer2d.StateRenderer2D)
+         */
+        @Override
+        public void paint(Graphics2D g, StateRenderer2D renderer) {
+            super.paint(g, renderer);
+            
+            paintWorker(g, renderer);
+        }
+    }
     
+    private final HFRadarConsoleLayer consoleLayer = new HFRadarConsoleLayer();
+
     public HFRadarVisualization(ConsoleLayout console) {
         super(console);
         httpComm.initializeComm();
@@ -315,6 +355,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     
     @Override
     public void initSubPanel() {
+        getConsole().addMapLayer(consoleLayer, false);
         
 //        HashMap<String, HFRadarDataPoint> tdp = processNoaaHFRadarTest();
 //        mergeCurrentsDataToInternalDataList(tdp);
@@ -343,6 +384,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      */
     @Override
     public void cleanSubPanel() {
+        getConsole().removeMapLayer(consoleLayer);
+
         httpComm.cleanUp();
     }
     
@@ -374,14 +417,14 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
 //                
 //            }
 //        }
-        
-        loadCurrentsFromFiles();
-        loadMeteoFromFiles();
-        loadWavesFromFiles();
-        
-//        updateValues();
-//        cleanDataPointsBeforeDate();
-//        clearImgCachRqst = true;
+        if (lastMillisFileDataUpdated <= 0
+                || System.currentTimeMillis() - lastMillisFileDataUpdated >= updateFileDataMinutes * 60 * 1000) {
+            lastMillisFileDataUpdated = System.currentTimeMillis();
+            loadCurrentsFromFiles();
+            loadMeteoFromFiles();
+            loadWavesFromFiles();
+        }
+
         propertiesChanged();
         
         return true;
@@ -392,6 +435,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      */
     @Override
     public void propertiesChanged() {
+        lastMillisFileDataUpdated = -1;
+        
         cleanDataPointsBeforeDate();
         updateValues();
         clearImgCachRqst = true;
@@ -409,7 +454,6 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     
     private void updateValues() {
         Date nowDate = createDateToMostRecent();
-        
 
         for (String dpID : dataPointsCurrents.keySet().toArray(new String[0])) {
             HFRadarDataPoint dp = dataPointsCurrents.get(dpID);
@@ -639,7 +683,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             histOrigData.addAll(toAddDP);
     }
 
-    private File[] getFilesToLoadFromDisk(File folderToLoad, final String filePattern) {
+    private static File[] getFilesToLoadFromDisk(File folderToLoad, final String filePattern) {
         if (folderToLoad != null && folderToLoad.exists()) {
             File folder = folderToLoad.isDirectory() ? folderToLoad : 
                 folderToLoad.getParentFile();
@@ -805,9 +849,12 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      */
     @Override
     public void paint(Graphics2D go, StateRenderer2D renderer) {
-        if (!visible)
-            return;
-        
+//        if (!visible)
+//            return;
+//        paintWorker(go, renderer);
+    }
+    
+    public void paintWorker(Graphics2D go, StateRenderer2D renderer) {
         if (!clearImgCachRqst) {
             if (isToRegenerateCache(renderer))
                 cacheImg = null;
@@ -904,6 +951,10 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
      */
     private void paintHFRadarInGraphics(StateRenderer2D renderer, Graphics2D g2, Date dateColorLimit, Date dateLimit) {
         LocationType loc = new LocationType();
+        
+        Date fromDate = null;
+        Date toDate = null;
+        
         for (HFRadarDataPoint dp : dataPointsCurrents.values().toArray(new HFRadarDataPoint[0])) {
             if (dp.getDateUTC().before(dateLimit) && !ignoreDateLimitToLoad)
                 continue;
@@ -923,18 +974,32 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             if (!isVisibleInRender(pt, renderer))
                 continue;
             
+            if (fromDate == null) {
+                fromDate = dp.getDateUTC();
+            }
+            else {
+                if (dp.getDateUTC().before(fromDate))
+                    fromDate = dp.getDateUTC();
+            }
+            if (toDate == null) {
+                toDate = dp.getDateUTC();
+            }
+            else {
+                if (dp.getDateUTC().after(toDate))
+                    toDate = dp.getDateUTC();
+            }
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             Graphics2D gt = (Graphics2D) g2.create();
-            
             gt.translate(pt.getX(), pt.getY());
             Color color = Color.WHITE;
             color = colorMapCurrents.getColor(dp.getSpeedCmS() / maxCurrentCmS);
             if (dp.getDateUTC().before(dateColorLimit))
                 color = ColorUtils.setTransparencyToColor(color, 128);
             gt.setColor(color);
-            double rot = -Math.toRadians(headingV) - renderer.getRotation();
+            double rot = Math.toRadians(-headingV + 90) - renderer.getRotation();
             gt.rotate(rot);
             gt.fill(arrow);
-
             gt.rotate(-rot);
             
             if (showCurrentsLegend && renderer.getLevelOfDetail() >= showCurrentsLegendFromZoomLevel) {
@@ -943,6 +1008,16 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
                 gt.drawString(MathMiscUtils.round(dp.getSpeedCmS(), 1) + "cm/s", 10, 2);
             }
             
+            gt.dispose();
+        }
+        
+        
+        if (showDataDebugLegend) {
+            String txtMsg = "Currents data from '" + fromDate + "' till '" + toDate + "'";
+            Graphics2D gt = (Graphics2D) g2.create();
+            gt.setFont(font8Pt);
+            gt.setColor(Color.WHITE);
+            gt.drawString(txtMsg, 10, 52);
             gt.dispose();
         }
     }
@@ -1037,8 +1112,8 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             if (dp.getDateUTC().before(dateColorLimit))
                 color = ColorUtils.setTransparencyToColor(color, 128);
             gt.setColor(color);
-            gt.rotate(-Math.toRadians(headingV) - renderer.getRotation());
-            // gt.fill(arrow);
+            
+            gt.rotate(Math.toRadians(headingV) - renderer.getRotation());
             
             double speedKnots = speedV * m_sToKnotConv;
             if (speedKnots >= 2) {
@@ -1134,10 +1209,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             if (dp.getDateUTC().before(dateColorLimit))
                 color = ColorUtils.setTransparencyToColor(color, 128);
             gt.setColor(color);
-            double rot = -Math.toRadians(headingV) - renderer.getRotation();
+            double rot = Math.toRadians(headingV) - renderer.getRotation();
             gt.rotate(rot);
             gt.fill(arrow);
-
             gt.rotate(-rot);
             
             if (showWavesLegend && renderer.getLevelOfDetail() >= showWavesLegendFromZoomLevel) {
@@ -1203,7 +1277,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             return hfdp;
         
         HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processTUGHFRadar(freader, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
-        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
+//        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
         return ret;
     }
 
@@ -1220,7 +1294,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         if (!new File(fxName).exists())
             return new HashMap<>();
         HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processNetCDFHFRadar(fxName, ignoreDateLimitToLoad ? null : createDateLimitToRemove());
-        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
+//        NeptusLog.pub().info("*** SUCCESS reading file " + fileName);
         return ret;
     }
 
@@ -1407,6 +1481,24 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         Pattern pat = Pattern.compile(currentsFilePattern);
         Matcher m = pat.matcher("TOTL_TRAD_2013_07_11_0800.tuv");
         System.out.println(m.find());
-
+        
+        File[] fileList = getFilesToLoadFromDisk(new File("IHData/CODAR"), currentsFilePatternNetCDF);
+        System.out.println(Arrays.toString(fileList));
+        
+        HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processNetCDFHFRadar("IHData/CODAR/mola_his_z-20140512.nc", null);
+        System.out.println("First :: " + ret.values().iterator().next());
+        HFRadarDataPoint lastdp = null;
+        for (HFRadarDataPoint dp : ret.values().iterator().next().getHistoricalData()) {
+            lastdp = dp;
+        }
+        System.out.println("Last  :: " + lastdp);
+        
+        // Test update to the most recent
+        HFRadarDataPoint dp = ret.values().iterator().next();
+        System.out.println("" + dp);
+        Date newDate = new Date(dp.dateUTC.getTime() + DateTimeUtil.HOUR * 3 + DateTimeUtil.MINUTE * 30);
+        System.out.println(newDate);
+        dp.useMostRecent(newDate);
+        System.out.println("" + dp);
     }
 }

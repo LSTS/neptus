@@ -36,17 +36,17 @@ import java.util.Vector;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.imc.lsf.LsfIterator;
-import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.plots.MRA2DPlot;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
  * 
  */
-
+@PluginDescription(name = "Corrected position")
 public class ActualPosition extends MRA2DPlot {
 
     public ActualPosition(MRAPanel panel) {
@@ -72,18 +72,13 @@ public class ActualPosition extends MRA2DPlot {
     }
 
     @Override
-    public String getName() {
-        return I18n.text("Calculated position");
-    }
-
-    @Override
     public boolean canBeApplied(LsfIndex index) {
         return index.containsMessagesOfType("EstimatedState");
     }
 
     @Override
     public void process(LsfIndex source) {
-        LsfIterator<EstimatedState> it = source.getIterator(EstimatedState.class , (long)(timestep*1000) );
+        LsfIterator<EstimatedState> it = source.getIterator(EstimatedState.class, (long) (timestep * 1000));
 
         Vector<EstimatedState> nonAdjusted = new Vector<>();
         Vector<LocationType> nonAdjustedLocs = new Vector<>();
@@ -104,53 +99,46 @@ public class ActualPosition extends MRA2DPlot {
 
             thisLoc.convertToAbsoluteLatLonDepth();
 
-
             if (lastLoc != null) {
                 double expectedDiff = speed * (es.getTimestamp() - lastTime);
-                double readjustmentFactor = Math
-                        .abs((lastLoc.getHorizontalDistanceInMeters(thisLoc) / expectedDiff) - 1.0);
-                if (readjustmentFactor < 0.5) {
+
+                lastTime = es.getTimestamp();
+
+                double diff = lastLoc.getHorizontalDistanceInMeters(thisLoc);
+                addValue(es.getTimestampMillis(), thisLoc.getLatitudeDegs(), thisLoc.getLongitudeDegs(),
+                        es.getSourceName(), "Estimated Position");
+                if (diff < expectedDiff * 3) {
                     nonAdjusted.add(es);
                     nonAdjustedLocs.add(thisLoc);
-                    addValue(es.getTimestampMillis(), thisLoc.getLatitudeDegs(),
-                            thisLoc.getLongitudeDegs(), es.getSourceName(), "Estimated Position");
+
                 }
-                else if (!nonAdjusted.isEmpty()) {
+                else {
+                    if (!nonAdjusted.isEmpty()) {
+                        double[] adjustment = thisLoc.getOffsetFrom(lastLoc);
+                        EstimatedState firstNonAdjusted = nonAdjusted.firstElement();
+                        double timeOfAdjustment = es.getTimestamp() - firstNonAdjusted.getTimestamp();
+                        double xIncPerSec = adjustment[0] / timeOfAdjustment;
+                        double yIncPerSec = adjustment[1] / timeOfAdjustment;
 
+                        for (int i = 0; i < nonAdjusted.size(); i++) {
+                            EstimatedState adj = nonAdjusted.get(i);
+                            LocationType loc = nonAdjustedLocs.get(i);
+                            loc.translatePosition(xIncPerSec * (adj.getTimestamp() - firstNonAdjusted.getTimestamp()),
+                                    yIncPerSec * (adj.getTimestamp() - firstNonAdjusted.getTimestamp()), 0);
 
-                    double[] adjustment = thisLoc.getOffsetFrom(lastLoc);
-                    EstimatedState firstNonAdjusted = nonAdjusted.firstElement();
-                    double timeOfAdjustment = es.getTimestamp() - firstNonAdjusted.getTimestamp();
-                    double xIncPerSec = adjustment[0] / timeOfAdjustment;
-                    double yIncPerSec = adjustment[1] / timeOfAdjustment;
-
-                    for (int i = 0; i < nonAdjusted.size(); i++) {
-                        EstimatedState adj = nonAdjusted.get(i);
-                        LocationType loc = nonAdjustedLocs.get(i);
-                        loc.translatePosition(xIncPerSec * (adj.getTimestamp() - firstNonAdjusted.getTimestamp()),
-                                yIncPerSec * (adj.getTimestamp() - firstNonAdjusted.getTimestamp()), 0);
-
-                        loc.convertToAbsoluteLatLonDepth();
-                        addValue(adj.getTimestampMillis(), loc.getLatitudeDegs(),
-                                loc.getLongitudeDegs(), adj.getSourceName(), "Actual Position");
+                            loc.convertToAbsoluteLatLonDepth();
+                            addValue(adj.getTimestampMillis(), loc.getLatitudeDegs(), loc.getLongitudeDegs(),
+                                    adj.getSourceName(), "Actual Position");
+                        }
+                        nonAdjusted.clear();
+                        nonAdjustedLocs.clear();
+                        nonAdjusted.add(es);
+                        nonAdjustedLocs.add(thisLoc);
                     }
-                    addValue(es.getTimestampMillis(), thisLoc.getLatitudeDegs(),
-                            thisLoc.getLongitudeDegs(), es.getSourceName(), "GPS Readjustments");
-
-                    nonAdjusted.clear();
-                    nonAdjustedLocs.clear();
-                    nonAdjusted.add(es);
-                    nonAdjustedLocs.add(thisLoc);
                 }
-
             }
             lastLoc = thisLoc;
             lastTime = es.getTimestamp();
         }
-
-        //LsfIterator<LblRange> rangeIt = source.getIterator(LblRange.class);
-
-
     }
-
 }

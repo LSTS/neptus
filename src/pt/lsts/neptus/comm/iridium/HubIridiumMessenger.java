@@ -77,7 +77,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     static { dateFormat.setTimeZone(tz); }
     
-    protected Thread t = null;
+   // protected Thread t = null;
 
     // public HubIridiumMessenger() {
     //  startPolling();
@@ -92,8 +92,8 @@ public class HubIridiumMessenger implements IridiumMessenger {
         for (HubSystemMsg s : sys) {
             Position pos = new Position();
             pos.id = s.imcid;
-            pos.latitude = s.coordinates[0];
-            pos.longitude = s.coordinates[1];
+            pos.latRads = s.coordinates[0];
+            pos.lonRads = s.coordinates[1];
             pos.timestamp = stringToDate(s.updated_at).getTime() / 1000.0;
             pos.posType = PosType.Unknown;
             up.getPositions().put(pos.id, pos);
@@ -277,9 +277,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
         String updated_at;
         
         public IridiumMessage message() throws Exception {
-            char[] chars = new char[msg.length()];
-            msg.getChars(0, msg.length(), chars, 0);
-            byte[] data = Hex.decodeHex(chars);
+            byte[] data = Hex.decodeHex(msg.toCharArray());
             return IridiumMessage.deserialize(data);
         }
         
@@ -293,11 +291,16 @@ public class HubIridiumMessenger implements IridiumMessenger {
         public int imcid;
         public String name;
         public String updated_at;
+        public String created_at;
         public Double[] coordinates;
-        public char errorClass;
+        public String pos_error_class;
         
         public Date updatedAt() {
             return stringToDate(updated_at);
+        }
+        
+        public Date createdAt() {
+            return stringToDate(created_at);
         }
     }
     
@@ -310,8 +313,12 @@ public class HubIridiumMessenger implements IridiumMessenger {
     public static void main(String[] args) throws Exception {
         HubIridiumMessenger messenger = new HubIridiumMessenger();
         Date d = new Date(System.currentTimeMillis() - (1000 * 3600 * 60));
+        
         System.out.println(dateToString(d));
         System.out.println(messenger.pollMessages(d).size());
+        
+        
+        
     }
     
     @Override

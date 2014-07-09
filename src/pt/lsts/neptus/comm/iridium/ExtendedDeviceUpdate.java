@@ -42,6 +42,7 @@ import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
@@ -70,11 +71,12 @@ public class ExtendedDeviceUpdate extends IridiumMessage {
             read+=2;
             out.writeUnsignedInt(Math.round(p.timestamp));
             read+=4;
-            out.writeInt((int)Math.round(Math.toDegrees(p.latitude) * 1000000.0));
+            out.writeInt((int)Math.round(Math.toDegrees(p.latRads) * 1000000.0));
             read+=4;
-            out.writeInt((int)Math.round(Math.toDegrees(p.longitude) * 1000000.0));
+            out.writeInt((int)Math.round(Math.toDegrees(p.lonRads) * 1000000.0));
             read+=4;
             out.writeByte((int)p.posType.value());
+            read++;
         }
         return read;
     }
@@ -89,11 +91,13 @@ public class ExtendedDeviceUpdate extends IridiumMessage {
             read+=2;
             pos.timestamp = in.readUnsignedInt();
             read+=4;
-            pos.latitude = Math.toRadians(in.readInt() / 1000000.0);
+            pos.latRads = Math.toRadians(in.readInt() / 1000000.0);
             read+=4;
-            pos.longitude = Math.toRadians(in.readInt() / 1000000.0);
+            pos.lonRads = Math.toRadians(in.readInt() / 1000000.0);
             read+=4;
             int type = in.readUnsignedByte();
+            read++;
+            
             pos.posType = Position.fromInt(type);
             positions.put(pos.id, pos);
         }
@@ -106,8 +110,8 @@ public class ExtendedDeviceUpdate extends IridiumMessage {
 
         for (Position pos : positions.values()) {
             RemoteSensorInfo sensorInfo = new RemoteSensorInfo();
-            sensorInfo.setLat(pos.latitude);
-            sensorInfo.setLon(pos.longitude);
+            sensorInfo.setLat(pos.latRads);
+            sensorInfo.setLon(pos.lonRads);
             sensorInfo.setTimestamp(pos.timestamp);
             sensorInfo.setAlt(0);
             sensorInfo.setId(IMCDefinition.getInstance().getResolver().resolve(pos.id));
@@ -139,4 +143,15 @@ public class ExtendedDeviceUpdate extends IridiumMessage {
 
         return msgs;
     }
+    
+    
+    @Override
+    public String toString() {
+        String s = super.toString();
+        for (Position p : positions.values()) {
+            s += "\t("+IMCDefinition.getInstance().getResolver().resolve(p.id)+", "+p.posType+") --> "+new LocationType(Math.toDegrees(p.latRads), Math.toDegrees(p.lonRads));
+        }
+        return s;         
+    }
+
 }

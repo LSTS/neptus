@@ -91,7 +91,7 @@ import com.google.common.eventbus.Subscribe;
  */
 @PluginDescription(name = "Map Panel", icon = "images/planning/planning.png", author = "ZP, Paulo Dias", documentation = "planning/planning_panel.html", category = CATEGORY.INTERFACE)
 public class MapPanel extends ConsolePanel implements MainVehicleChangeListener, MissionChangeListener,
-PlanChangeListener, IPeriodicUpdates, ILayerPainter, ConfigurationListener, IMapPopup, 
+PlanChangeListener, IPeriodicUpdates, ILayerPainter, ConfigurationListener, IMapPopup,
 CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
     private static final long serialVersionUID = 1L;
@@ -135,7 +135,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     protected boolean editing = false;
     protected ToolbarSwitch tailSwitch, dummySwitch;
     protected AbstractAction tailMode, addPlan;
-    
+
     protected JLabel status = new JLabel();
     protected PlanElement mainPlanPainter = null;
     protected ButtonGroup bg = new ButtonGroup();
@@ -162,13 +162,13 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         add(renderer, BorderLayout.CENTER);
         bottom.setFloatable(false);
         bottom.setAlignmentX(JToolBar.CENTER_ALIGNMENT);
-        renderer.addMenuExtension(new FeatureFocuser());
+        renderer.addMenuExtension(new FeatureFocuser(console));
         AbstractAction tmp = new AbstractAction(I18n.text("Translate"), null) {
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
-               
+
             }
 
         };
@@ -193,7 +193,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         };
         tailSwitch = new ToolbarSwitch(tailMode);
         tailSwitch.setSelected(false);
-        
+
         bottom.add(new JSeparator(JSeparator.HORIZONTAL));
         bottom.add(tailSwitch);
 
@@ -211,8 +211,8 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         setMission(getConsole().getMission());
 
         getConsole().addConsoleVehicleListener(this);
-        
-        for (ConsoleSystem v : getConsole().getSystems().values()) {   
+
+        for (ConsoleSystem v : getConsole().getSystems().values()) {
             v.addRenderFeed(this);
         }
     }
@@ -253,7 +253,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         if(getConsole().getMainSystem() != null)
             if (!message.getSourceName().equals(getConsole().getMainSystem()))
                 return;
-        
+
         String planId = message.getPlanId();
         String manId = message.getManId();
 
@@ -375,11 +375,11 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         };
         ToolbarSwitch tswitch = new ToolbarSwitch(I18n.text(name), custom);
         tswitch.setSelected(false);
-        bottom.add(tswitch, bottom.getComponentCount());        
+        bottom.add(tswitch, bottom.getComponentCount());
         invalidate();
         revalidate();
     }
-    
+
     public void removeLayer(final IConsoleLayer layer) {
         final String name = layer.getName();
         renderer.removePostRenderPainter(layer);
@@ -396,10 +396,10 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
         invalidate();
         revalidate();
     }
-    
+
     @Override
     public void addInteraction(StateRendererInteraction interaction) {
-        
+
         try {
             final String name = interaction.getName();
             if (!interactionModes.containsKey(name))
@@ -420,7 +420,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
                             if (renderer.getActiveInteraction() != null) {
                                 renderer.getActiveInteraction().setActive(false, renderer);
                                 if (renderer.getActiveInteraction() == ri) {
-                                    renderer.setActiveInteraction(null);     
+                                    renderer.setActiveInteraction(null);
                                     dummySwitch.setSelected(true);
                                     return;
                                 }
@@ -521,7 +521,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     public StateRenderer2D getRenderer() {
         return renderer;
     }
-    
+
     @Override
     public boolean addMenuExtension(IEditorMenuExtension extension) {
         return renderer.addMenuExtension(extension);

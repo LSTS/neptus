@@ -47,7 +47,7 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
+import pt.lsts.neptus.console.ContainerSubPanel;
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
@@ -81,14 +81,20 @@ public class SettingsWindow extends ConsolePanel {
         super(console);
 
         this.removeAll();
-        List<ConsolePanel> consolePlugins = console.getSubPanels();
-        for (ConsolePanel plugin : consolePlugins) {
-            if (plugin != null && plugin instanceof MigLayoutContainer) {
-                List<ConsolePanel> containerPlugins = ((MigLayoutContainer) plugin).getSubPanels();
+
+        List<PropertiesProvider> consolePlugins = console.getAllPropertiesProviders();
+        for (PropertiesProvider propertiesProvider : consolePlugins) {
+            if (propertiesProvider == null)
+                continue;
+            if (propertiesProvider instanceof ContainerSubPanel) {
+                List<ConsolePanel> containerPlugins = ((ContainerSubPanel) propertiesProvider).getSubPanels();
                 for (ConsolePanel containerPlugin : containerPlugins) {
-                    subPanels.add(containerPlugin);
+                    if (containerPlugin instanceof PropertiesProvider)
+                        subPanels.add((PropertiesProvider) containerPlugin);
                 }
-                
+            }
+            else {
+                subPanels.add(propertiesProvider);
             }
         }
     }
