@@ -71,7 +71,18 @@ elif [ ${JAVA_MACHINE_TYPE} == 'osx-x64' ]; then
   LIBS=".:libJNI/osx:libJNI:/usr/lib/jni"
 fi
 
+if test -f /usr/lib/jni/libvtkCommonJava.so; then
+  VTKPROP="-Dvtk.lib.dir=/usr/lib/jni"
+elif test -f /usr/lib/vtk-5.10/libvtkCommonJava.so; then
+  VTKPROP="-Dvtk.lib.dir=/usr/lib/vtk-5.10"
+elif test -f /usr/lib/vtk-5.8/libvtkCommonJava.so; then
+  VTKPROP="-Dvtk.lib.dir=/usr/lib/vtk-5.8"
+else
+  VTKPROP=
+  echo "No VTK Java wrappers found"
+fi
+
 export VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
 
 export LD_LIBRARY_PATH=$LIBS:$LD_LIBRARY_PATH
-$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m $VMFLAGS -Djava.library.path=$LIBS -cp $CLASSPATH $DEFAULT "$@"
+$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m $VMFLAGS -Djava.library.path=$LIBS $VTKPROP -cp $CLASSPATH $DEFAULT "$@"
