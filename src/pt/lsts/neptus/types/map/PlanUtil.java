@@ -37,6 +37,7 @@ import java.util.Vector;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
@@ -389,6 +390,13 @@ public class PlanUtil {
             title = I18n.text("Plan Statistics");
         Vector<LocatedManeuver> mans = PlanUtil.getLocationsAsSequence(plan);
         String ret = "";
+        String estDelay = PlanUtil.estimatedTime(mans, speedRpmRatioSpeed, speedRpmRatioRpms);
+        try {
+            estDelay = PlanUtil.getDelayStr(null, plan);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
         ret += (simpleTextOrHTML?"":(asHTMLFragment?"":"<html>")+"<h1>") + title + (simpleTextOrHTML?"\n":"</h1><ul>");
         ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("ID") + ":" + (simpleTextOrHTML ? " " : "</b> ")
                 + plan.getId() + (simpleTextOrHTML ? "\n" : "</li>");
@@ -396,7 +404,8 @@ public class PlanUtil {
                 + MathMiscUtils.parseToEngineeringNotation(PlanUtil.getPlanLength(mans), 2)
                 + "m" + (simpleTextOrHTML ? "\n" : "</li>");
         ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("Est. Time") + ":" + (simpleTextOrHTML ? " " : "</b> ")
-                + PlanUtil.estimatedTime(mans, speedRpmRatioSpeed, speedRpmRatioRpms) + ""
+                //+ PlanUtil.estimatedTime(mans, speedRpmRatioSpeed, speedRpmRatioRpms) + ""
+                + estDelay + ""
                 + (simpleTextOrHTML ? "\n" : "</li>");
         ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("Max. Depth") + ":"
                 + (simpleTextOrHTML ? " " : "</b> ")
@@ -410,10 +419,7 @@ public class PlanUtil {
                 + (simpleTextOrHTML ? " " : "</b> ")
                 + PlanUtil.numManeuvers(plan) + ""
                 + (simpleTextOrHTML ? "\n" : "</li>");
-        ret += (simpleTextOrHTML) ? "\n" : "";
-        ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("Using Speed/RPM ratio") + ":"
-                + (simpleTextOrHTML ? " " : "</b> ") + speedRpmRatioSpeed + "m/s (" + speedRpmRatioRpms + I18n.text("RPM") + ")"
-                + (simpleTextOrHTML ? "\n" : "</li>");
+        ret += (simpleTextOrHTML) ? "\n" : "";        
 
         Vector<VehicleType> vehs = plan.getVehicles();
         String vehiclesListStr = "";
