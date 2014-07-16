@@ -93,7 +93,7 @@ public class SidescanImageExporter implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         PluginUtils.editPluginProperties(this, true);
-        MraVehiclePosHud hud = new MraVehiclePosHud(source.getLsfIndex(), hudSize, hudSize);
+        MraVehiclePosHud hud = new MraVehiclePosHud(source, hudSize, hudSize);
         hud.setPathColor(Color.white);
         //double ratio = 9.0 / 16.0;
         SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);

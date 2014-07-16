@@ -288,7 +288,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     public Component getComponent(IMraLogGroup source, double timestep) {
         this.photosDir = source.getFile("Photos");
         this.index = source.getLsfIndex();
-        this.hud = new MraVehiclePosHud(index, 150, 150);
+        this.hud = new MraVehiclePosHud(source, 150, 150);
         allFiles = listPhotos(getPhotosDir());
 
         this.startTime = (long) (timestampOf(allFiles[0]) * 1000.0);
