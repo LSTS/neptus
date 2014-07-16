@@ -642,49 +642,19 @@ public class LsfReport {
             int subSysN) throws DocumentException {
         BufferedImage result = null;
 
-        int h = mark.h;
-        int w = mark.w;
-        double wMeters = mark.wMeters;
-        boolean point = false;
+        SidescanLogMarker adjustedMark = adjustMark(mark);
+
+        int h = adjustedMark.h;
+        int w = adjustedMark.w;
+        double wMeters = adjustedMark.wMeters;
+        boolean point = adjustedMark.point;
+
         int indexX = -1;
         int indexY = -1;
 
-        if (w == 0 && h == 0) {
-            point = true;
-            w = 100;
-            h = 100;
-            wMeters = -1;
-        }
-
-        // adjustments:
-        if (w < 100 || h < 100 || wMeters < 0.05) {
-            if (w < 100) {
-                w = 100;
-                wMeters = -1;// wMeters defined with range
-            }
-            if (h < 100)
-                h = 100;
-        }
-        else if (w < 150 || h < 150) {
-            if (w < 150) {
-                w *= 1.2;
-                wMeters *= 1.2;
-            }
-            if (h < 150)
-                h *= 1.2;
-        }
-        else if (w < 200 || h < 200) {
-            if (w < 200) {
-                w *= 1.1;
-                wMeters *= 1.1;
-            }
-            if (h < 200)
-                h *= 1.1;
-        }
-
         // times
         long t, t1, t2;
-        t = (long) mark.timestamp;
+        t = (long) adjustedMark.timestamp;
         long firstTimestamp = ssParser.firstPingTimestamp();
         long lastTimestamp = ssParser.lastPingTimestamp();
 
@@ -788,7 +758,7 @@ public class LsfReport {
             wMeters = (list.get(list.size() / 2).range / 5);
 
         double x, x1, x2;
-        x = mark.x;
+        x = adjustedMark.x;
         x += range;
         x1 = (x - (wMeters / 2));
         x2 = (x + (wMeters / 2));
@@ -824,7 +794,7 @@ public class LsfReport {
 
         Color color = null;
         if (globalColorMap == false) {
-            config.colorMap = ColorMapFactory.getColorMapByName(mark.colorMap);
+            config.colorMap = ColorMapFactory.getColorMapByName(adjustedMark.colorMap);
         }
         ArrayList<BufferedImage> imgLineList = new ArrayList<BufferedImage>();
         for (int i = 0; i < list.size(); i++) {
@@ -841,17 +811,17 @@ public class LsfReport {
             }
         }
         if (point == true) {
-            if (mark.subSys != subSys) {
+            if (adjustedMark.subSys != subSys) {
                 indexY = 50;
             }
             int d = 1;
-            ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - d, t + d, mark.subSys, sidescanParams);
+            ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - d, t + d, adjustedMark.subSys, sidescanParams);
             while (list2.isEmpty()) {
                 d += 10;
-                list2 = ssParser.getLinesBetween(t - d, t + d, mark.subSys, sidescanParams);
+                list2 = ssParser.getLinesBetween(t - d, t + d, adjustedMark.subSys, sidescanParams);
             }
             SidescanLine l = list2.get(list2.size() / 2);
-            int index = convertMtoIndex(mark.x + l.range, l.range, l.data.length);
+            int index = convertMtoIndex(adjustedMark.x + l.range, l.range, l.data.length);
             color = config.colorMap.getColor(l.data[index]);
             if (border == true) {
                 if (index > (i2 - i1)) {
@@ -893,6 +863,53 @@ public class LsfReport {
         }
 
         return result;
+    }
+
+    public static SidescanLogMarker adjustMark(SidescanLogMarker mark){
+        SidescanLogMarker newMark=new SidescanLogMarker(mark.label,mark.timestamp,mark.lat,mark.lon,
+                mark.x,mark.y,mark.w,mark.h,mark.wMeters,mark.subSys,ColorMapFactory.getColorMapByName(mark.colorMap));
+        newMark.point=mark.point;
+        int h = newMark.h;
+        int w = newMark.w;
+        double wMeters = newMark.wMeters;
+
+        if (w == 0 && h == 0) {
+            w = 100;
+            h = 100;
+            wMeters = -1;
+        }
+
+        // adjustments:
+        if (w < 100 || h < 100 || wMeters < 0.05) {
+            if (w < 100) {
+                w = 100;
+                wMeters = -1;// wMeters defined with range
+            }
+            if (h < 100)
+                h = 100;
+        }
+        else if (w < 150 || h < 150) {
+            if (w < 150) {
+                w *= 1.2;
+                wMeters *= 1.2;
+            }
+            if (h < 150)
+                h *= 1.2;
+        }
+        else if (w < 200 || h < 200) {
+            if (w < 200) {
+                w *= 1.1;
+                wMeters *= 1.1;
+            }
+            if (h < 200)
+                h *= 1.1;
+        }
+
+        newMark.h=h;
+        newMark.w=w;
+        newMark.wMeters=wMeters;
+
+        return newMark;
     }
 
     public static BufferedImage paintPointHighlight(BufferedImage original, int x, int y, Color color, ColorMap colorMap) {
