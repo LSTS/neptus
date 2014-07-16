@@ -48,6 +48,7 @@ public class SidescanLogMarker extends LogMarker {
     public double wMeters;// width in meters
     public int subSys;// created on subSys
     public String colorMap;
+    public boolean point;
 
     /**
      * @param label
@@ -103,7 +104,9 @@ public class SidescanLogMarker extends LogMarker {
         }
         if (colorMap==null){
             colorMap = ColorMapFactory.createBronzeColormap().toString();
-
+        }
+        if (this.w==0 && this.h==0){
+            this.point=true;
         }
     }
 
