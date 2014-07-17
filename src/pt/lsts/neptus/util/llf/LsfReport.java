@@ -713,15 +713,7 @@ public class LsfReport {
         if (point == true) {
             indexY = getIndexY(list, adjustedMark, subSys);
             indexX = getIndexX(adjustedMark,ssParser, sidescanParams, border, i1, i2);
-            int d = 1;
-            ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - d, t + d, adjustedMark.subSys, sidescanParams);
-            while (list2.isEmpty()) {
-                d += 10;
-                list2 = ssParser.getLinesBetween(t - d, t + d, adjustedMark.subSys, sidescanParams);
-            }
-            SidescanLine l = list2.get(list2.size() / 2);
-            int index = convertMtoIndex(adjustedMark.x + l.range, l.range, l.data.length);
-            color = config.colorMap.getColor(l.data[index]);
+            color = getColor(adjustedMark,ssParser,sidescanParams,config);
 
             result = paintPointHighlight(img, indexX, indexY, color, config.colorMap);
         }else{
@@ -729,6 +721,25 @@ public class LsfReport {
         }
 
         return result;
+    }
+
+    public static Color getColor(SidescanLogMarker mark, SidescanParser ssParser, SidescanParameters sidescanParams,
+                                 SidescanConfig config){
+
+        Color color = null;
+        int d = 1;
+        long t = (long) mark.timestamp;
+
+        ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - d, t + d, mark.subSys, sidescanParams);
+        while (list2.isEmpty()) {
+            d += 10;
+            list2 = ssParser.getLinesBetween(t - d, t + d, mark.subSys, sidescanParams);
+        }
+        SidescanLine l = list2.get(list2.size() / 2);
+        int index = convertMtoIndex(mark.x + l.range, l.range, l.data.length);
+
+        color = config.colorMap.getColor(l.data[index]);
+        return color;
     }
 
     public static int getIndexX(SidescanLogMarker mark, SidescanParser ssParser, SidescanParameters sidescanParams,
