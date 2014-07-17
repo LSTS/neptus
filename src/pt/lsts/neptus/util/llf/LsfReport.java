@@ -711,9 +711,7 @@ public class LsfReport {
         BufferedImage img = drawImage(imgLineList, adjustedMark);
 
         if (point == true) {
-            if (adjustedMark.subSys != subSys) {
-                indexY = 50;
-            }
+            indexY = getIndexY(list, adjustedMark, subSys);
             int d = 1;
             ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - d, t + d, adjustedMark.subSys, sidescanParams);
             while (list2.isEmpty()) {
@@ -742,6 +740,18 @@ public class LsfReport {
         }
 
         return result;
+    }
+
+    public static int getIndexY(ArrayList<SidescanLine> list, SidescanLogMarker mark, int subSys){
+        if (mark.subSys!=subSys)
+            return 50;
+        double t = mark.timestamp;
+        for (int i = 0; i < list.size(); i++) {
+            SidescanLine l = list.get(i);
+            if (l.timestampMillis == t)
+                return i;
+        }
+        return -1;
     }
 
     public static BufferedImage drawImage(ArrayList<BufferedImage> imgLineList, SidescanLogMarker mark){
