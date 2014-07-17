@@ -643,6 +643,8 @@ public class LsfReport {
         BufferedImage result = null;
 
         SidescanLogMarker adjustedMark = adjustMark(mark);
+        int subSys = ssParser.getSubsystemList().get(subSysN);
+        long t = (long) adjustedMark.timestamp;
 
         int h = adjustedMark.h;
         int w = adjustedMark.w;
@@ -652,76 +654,9 @@ public class LsfReport {
         int indexX = -1;
         int indexY = -1;
 
-        // times
-        long t, t1, t2;
-        t = (long) adjustedMark.timestamp;
-        long firstTimestamp = ssParser.firstPingTimestamp();
-        long lastTimestamp = ssParser.lastPingTimestamp();
-
-        t1 = t - 250 * (h / 2);
-        t2 = t + 250 * (h / 2);
-
-        if (t1 < firstTimestamp) {
-            t1 = firstTimestamp;
-        }
-        if (t2 > lastTimestamp) {
-            t2 = lastTimestamp;
-        }
-
-        int subSys = ssParser.getSubsystemList().get(subSysN);
         // get the lines
         ArrayList<SidescanLine> list = null;
-        boolean getLinesBool = true;
-        while (getLinesBool) {// ArrayIndexOutOfBoundsException on getLinesBetween
-            try {
-                list = ssParser.getLinesBetween(t1, t2, subSys, sidescanParams);
-                if (!list.isEmpty()) {
-                    while (list.get(0).timestampMillis > t) {
-                        t1 -= 250;
-                        list = ssParser
-                                .getLinesBetween(t1, t2, subSys, sidescanParams);
-                    }
-                }
-                getLinesBool = false;
-            }
-            catch (java.lang.ArrayIndexOutOfBoundsException e) {
-                getLinesBool = true;
-                t2 -= 1000;
-                if (t2 < t)
-                    t2 = t + 1;
-                continue;
-            }
-        }
-        if (list.size() < h) {// not enough lines
-            getLinesBool = true;
-            t1 = t - 1500 * (h / 2);
-            t2 = t + 1500 * (h / 2);
-            if (t1 < firstTimestamp) {
-                t1 = firstTimestamp;
-            }
-            if (t2 > lastTimestamp) {
-                t2 = lastTimestamp;
-            }
-            while (getLinesBool) {// ArrayIndexOutOfBoundsException on getLinesBetween
-                try {
-                    list = ssParser.getLinesBetween(t1, t2, subSys, sidescanParams);
-                    if (!list.isEmpty()) {
-                        while (list.get(0).timestampMillis > t) {
-                            t1 -= 250;
-                            list = ssParser.getLinesBetween(t1, t2, subSys, sidescanParams);
-                        }
-                    }
-                    getLinesBool = false;
-                }
-                catch (java.lang.ArrayIndexOutOfBoundsException e) {
-                    getLinesBool = true;
-                    t2 -= 250;
-                    if (t2 < t)
-                        t2 = t + 1;
-                    continue;
-                }
-            }
-        }
+        list = getLines(ssParser, subSys, sidescanParams, adjustedMark);
 
         if (list.isEmpty())
             throw new DocumentException("list of lines empty");
@@ -863,6 +798,81 @@ public class LsfReport {
         }
 
         return result;
+    }
+
+    public static ArrayList<SidescanLine> getLines(SidescanParser ssParser, int subSys, SidescanParameters sidescanParams, SidescanLogMarker mark){
+
+        long t = (long) mark.timestamp;
+        int h = mark.h;
+        ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
+        // times
+        long t1, t2;
+        long firstTimestamp = ssParser.firstPingTimestamp();
+        long lastTimestamp = ssParser.lastPingTimestamp();
+
+        t1 = t - 250 * (h / 2);
+        t2 = t + 250 * (h / 2);
+
+        if (t1 < firstTimestamp) {
+            t1 = firstTimestamp;
+        }
+        if (t2 > lastTimestamp) {
+            t2 = lastTimestamp;
+        }
+
+        boolean getLinesBool = true;
+        while (getLinesBool) {// ArrayIndexOutOfBoundsException on getLinesBetween
+            try {
+                list = ssParser.getLinesBetween(t1, t2, subSys, sidescanParams);
+                if (!list.isEmpty()) {
+                    while (list.get(0).timestampMillis > t) {
+                        t1 -= 250;
+                        list = ssParser
+                                .getLinesBetween(t1, t2, subSys, sidescanParams);
+                    }
+                }
+                getLinesBool = false;
+            }
+            catch (java.lang.ArrayIndexOutOfBoundsException e) {
+                getLinesBool = true;
+                t2 -= 1000;
+                if (t2 < t)
+                    t2 = t + 1;
+                continue;
+            }
+        }
+        if (list.size() < h) {// not enough lines
+            getLinesBool = true;
+            t1 = t - 1500 * (h / 2);
+            t2 = t + 1500 * (h / 2);
+            if (t1 < firstTimestamp) {
+                t1 = firstTimestamp;
+            }
+            if (t2 > lastTimestamp) {
+                t2 = lastTimestamp;
+            }
+            while (getLinesBool) {// ArrayIndexOutOfBoundsException on getLinesBetween
+                try {
+                    list = ssParser.getLinesBetween(t1, t2, subSys, sidescanParams);
+                    if (!list.isEmpty()) {
+                        while (list.get(0).timestampMillis > t) {
+                            t1 -= 250;
+                            list = ssParser.getLinesBetween(t1, t2, subSys, sidescanParams);
+                        }
+                    }
+                    getLinesBool = false;
+                }
+                catch (java.lang.ArrayIndexOutOfBoundsException e) {
+                    getLinesBool = true;
+                    t2 -= 250;
+                    if (t2 < t)
+                        t2 = t + 1;
+                    continue;
+                }
+            }
+        }
+
+        return list;
     }
 
     public static SidescanLogMarker adjustMark(SidescanLogMarker mark){
