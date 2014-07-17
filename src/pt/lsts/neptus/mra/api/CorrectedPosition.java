@@ -37,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Vector;
 
@@ -55,6 +56,13 @@ public class CorrectedPosition {
 
     private ArrayList<SystemPositionAndAttitude> positions = new ArrayList<>();
     
+    /**
+     * @return the positions
+     */
+    public Collection<SystemPositionAndAttitude> getPositions() {
+        return Collections.unmodifiableCollection(positions);
+    }
+
     public SystemPositionAndAttitude getPosition(double timestamp) {
         SystemPositionAndAttitude p = new SystemPositionAndAttitude();
         p.setTime((long)timestamp * 1000);
@@ -130,7 +138,7 @@ public class CorrectedPosition {
 
                             loc.convertToAbsoluteLatLonDepth();
                             loc.setDepth(adj.getDepth());
-                            SystemPositionAndAttitude p = new SystemPositionAndAttitude();
+                            SystemPositionAndAttitude p = new SystemPositionAndAttitude(adj);
                             p.setPosition(loc);
                             p.setAltitude(adj.getAlt());
                             p.setTime((long)(adj.getTimestamp() * 1000));
