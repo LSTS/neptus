@@ -706,20 +706,8 @@ public class LsfReport {
         if (globalColorMap == false) {
             config.colorMap = ColorMapFactory.getColorMapByName(adjustedMark.colorMap);
         }
-        ArrayList<BufferedImage> imgLineList = new ArrayList<BufferedImage>();
-        for (int i = 0; i < list.size(); i++) {
-            // draw line with detail:
-            SidescanLine l = list.get(i);
-            BufferedImage imgLine = new BufferedImage(i2 - i1, 1, BufferedImage.TYPE_INT_RGB);
-            for (int c = 0; c < i2 - i1; c++) {
-                int rgb = config.colorMap.getColor(l.data[c + i1]).getRGB();
-                imgLine.setRGB(c, 0, rgb);
-            }
-            imgLineList.add(imgLine);
-            if (point == true && l.timestampMillis == t) {
-                indexY = i;
-            }
-        }
+        ArrayList<BufferedImage> imgLineList = createImgLineList(list,i1,i2,config);
+        
         if (point == true) {
             if (adjustedMark.subSys != subSys) {
                 indexY = 50;
@@ -773,6 +761,22 @@ public class LsfReport {
         }
 
         return result;
+    }
+
+
+    public static ArrayList<BufferedImage> createImgLineList(ArrayList<SidescanLine> list, int i1, int i2, SidescanConfig config){
+        ArrayList<BufferedImage> imgLineList = new ArrayList<BufferedImage>();
+        for (int i = 0; i < list.size(); i++) {
+            // draw line with detail:
+            SidescanLine l = list.get(i);
+            BufferedImage imgLine = new BufferedImage(i2 - i1, 1, BufferedImage.TYPE_INT_RGB);
+            for (int c = 0; c < i2 - i1; c++) {
+                int rgb = config.colorMap.getColor(l.data[c + i1]).getRGB();
+                imgLine.setRGB(c, 0, rgb);
+            }
+            imgLineList.add(imgLine);
+        }
+        return imgLineList;
     }
 
     public static ArrayList<SidescanLine> adjustLines(ArrayList<SidescanLine> list, SidescanLogMarker mark){
