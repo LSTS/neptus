@@ -661,32 +661,7 @@ public class LsfReport {
         if (list.isEmpty())
             throw new DocumentException("list of lines empty");
 
-        int yref = list.size();
-        while (yref > h) {
-            long tFirst = list.get(0).timestampMillis;
-            long tLast = list.get(list.size() - 1).timestampMillis;
-            if (tFirst == t) {
-                list.remove(list.size() - 1);
-                yref--;
-                continue;
-            }
-            if (tLast == t) {
-                list.remove(0);
-                yref--;
-                continue;
-            }
-            if (Math.abs(t - tFirst) < Math.abs(t - tLast)) {
-                list.remove(list.size() - 1);
-                yref--;
-                continue;
-            }
-            if (Math.abs(t - tFirst) >= Math.abs(t - tLast)) {
-                list.remove(0);
-                yref--;
-                continue;
-            }
-
-        }
+        list = adjustLines(list,adjustedMark);
 
         float range = list.get(list.size() / 2).range;
         if (wMeters == -1)
@@ -774,7 +749,7 @@ public class LsfReport {
 
         BufferedImage imgScalled = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = imgScalled.createGraphics();
-        int y = yref;
+        int y = adjustedMark.h;
         for (BufferedImage imgLine : imgLineList) {
             if (y < 0)
                 throw new DocumentException("y<0");
@@ -798,6 +773,41 @@ public class LsfReport {
         }
 
         return result;
+    }
+
+    public static ArrayList<SidescanLine> adjustLines(ArrayList<SidescanLine> list, SidescanLogMarker mark){
+
+        int h = mark.h;
+        long t = (long) mark.timestamp;
+
+        int yref = list.size();
+        while (yref > h) {
+            long tFirst = list.get(0).timestampMillis;
+            long tLast = list.get(list.size() - 1).timestampMillis;
+            if (tFirst == t) {
+                list.remove(list.size() - 1);
+                yref--;
+                continue;
+            }
+            if (tLast == t) {
+                list.remove(0);
+                yref--;
+                continue;
+            }
+            if (Math.abs(t - tFirst) < Math.abs(t - tLast)) {
+                list.remove(list.size() - 1);
+                yref--;
+                continue;
+            }
+            if (Math.abs(t - tFirst) >= Math.abs(t - tLast)) {
+                list.remove(0);
+                yref--;
+                continue;
+            }
+
+        }
+        return list;
+
     }
 
     public static ArrayList<SidescanLine> getLines(SidescanParser ssParser, int subSys, SidescanParameters sidescanParams, SidescanLogMarker mark){
