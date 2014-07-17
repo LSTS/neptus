@@ -712,6 +712,7 @@ public class LsfReport {
 
         if (point == true) {
             indexY = getIndexY(list, adjustedMark, subSys);
+            indexX = getIndexX(adjustedMark,ssParser, sidescanParams, border, i1, i2);
             int d = 1;
             ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - d, t + d, adjustedMark.subSys, sidescanParams);
             while (list2.isEmpty()) {
@@ -721,25 +722,37 @@ public class LsfReport {
             SidescanLine l = list2.get(list2.size() / 2);
             int index = convertMtoIndex(adjustedMark.x + l.range, l.range, l.data.length);
             color = config.colorMap.getColor(l.data[index]);
-            if (border == true) {
-                if (index > (i2 - i1)) {
-                    index = index - i1;
-                }
-                indexX = (int) (((double) ((double) index / (double) (i2 - i1))) * 100);
-            }
-            else {
-                indexX = 50;
-            }
-        }
 
-
-        if (point == true) {
             result = paintPointHighlight(img, indexX, indexY, color, config.colorMap);
         }else{
             result=img;
         }
 
         return result;
+    }
+
+    public static int getIndexX(SidescanLogMarker mark, SidescanParser ssParser, SidescanParameters sidescanParams,
+                                boolean border, int i1, int i2){
+        int indexX=-1;
+        int d = 1;
+        long t = (long) mark.timestamp;
+        ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - d, t + d, mark.subSys, sidescanParams);
+        while (list2.isEmpty()) {
+            d += 10;
+            list2 = ssParser.getLinesBetween(t - d, t + d, mark.subSys, sidescanParams);
+        }
+        SidescanLine l = list2.get(list2.size() / 2);
+        int index = convertMtoIndex(mark.x + l.range, l.range, l.data.length);
+        if (border == true) {
+            if (index > (i2 - i1)) {
+                index = index - i1;
+            }
+            indexX = (int) (((double) ((double) index / (double) (i2 - i1))) * 100);
+        }
+        else {
+            indexX = 50;
+        }
+        return indexX;
     }
 
     public static int getIndexY(ArrayList<SidescanLine> list, SidescanLogMarker mark, int subSys){
