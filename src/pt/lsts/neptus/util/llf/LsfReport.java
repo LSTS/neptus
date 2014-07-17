@@ -707,7 +707,9 @@ public class LsfReport {
             config.colorMap = ColorMapFactory.getColorMapByName(adjustedMark.colorMap);
         }
         ArrayList<BufferedImage> imgLineList = createImgLineList(list,i1,i2,config);
-        
+
+        BufferedImage img = drawImage(imgLineList, adjustedMark);
+
         if (point == true) {
             if (adjustedMark.subSys != subSys) {
                 indexY = 50;
@@ -731,16 +733,29 @@ public class LsfReport {
                 indexX = 50;
             }
         }
-        if (point == true && color == null) {
-            throw new DocumentException("color==null");
+
+
+        if (point == true) {
+            result = paintPointHighlight(img, indexX, indexY, color, config.colorMap);
+        }else{
+            result=img;
         }
 
+        return result;
+    }
+
+    public static BufferedImage drawImage(ArrayList<BufferedImage> imgLineList, SidescanLogMarker mark){
+
+        int w = mark.w;
+        int h = mark.h;
+
+        BufferedImage result;
         BufferedImage imgScalled = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = imgScalled.createGraphics();
-        int y = adjustedMark.h;
+        int y = imgLineList.size();
         for (BufferedImage imgLine : imgLineList) {
             if (y < 0)
-                throw new DocumentException("y<0");
+                return null;
             g2d.drawImage(ImageUtils.getScaledImage(imgLine, imgScalled.getWidth(), imgLine.getHeight(), true), 0, y,
                     null);
             y--;
@@ -756,13 +771,8 @@ public class LsfReport {
             result = imgScalled;
         }
 
-        if (point == true) {
-            result = paintPointHighlight(result, indexX, indexY, color, config.colorMap);
-        }
-
         return result;
     }
-
 
     public static ArrayList<BufferedImage> createImgLineList(ArrayList<SidescanLine> list, int i1, int i2, SidescanConfig config){
         ArrayList<BufferedImage> imgLineList = new ArrayList<BufferedImage>();
