@@ -481,7 +481,7 @@ public class LsfReport {
                 }
             }
 
-            actualWriteToPdf(cb, table, doc);
+            actualWriteToPdf(source, cb, table, doc);
 
 
         }
@@ -491,10 +491,12 @@ public class LsfReport {
         }
     }
 
-    public static void actualWriteToPdf(PdfContentByte cb, PdfPTable table, Document doc){
+    public static void actualWriteToPdf(IMraLogGroup source, PdfContentByte cb, PdfPTable table, Document doc){
         Rectangle pageSize = PageSize.A4.rotate();
         cb.beginText();
         writePageNumber(cb, page++);
+        writeHeader(cb, source);
+        writeFooter(cb, source);
         try{
             BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
             cb.setFontAndSize(bf, 24);
@@ -518,6 +520,8 @@ public class LsfReport {
                     doc.newPage();
                     cb.beginText();
                     writePageNumber(cb, page++);
+                    writeHeader(cb, source);
+                    writeFooter(cb, source);
                     cb.setFontAndSize(bf, 24);
                     cb.setColorFill(new Color(50, 100, 200));
                     cb.showTextAligned(PdfContentByte.ALIGN_CENTER, I18n.text("Marks' Table"), pageSize.getWidth() / 2,
@@ -929,6 +933,7 @@ public class LsfReport {
                 }
             }
         }
+
 
         return list;
     }
