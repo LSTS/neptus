@@ -867,73 +867,25 @@ public class LsfReport {
         long t = (long) mark.timestamp;
         int h = mark.h;
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
-        // times
-        long t1, t2;
         long firstTimestamp = ssParser.firstPingTimestamp();
         long lastTimestamp = ssParser.lastPingTimestamp();
+        long t1, t2;
+        int deviation = 0;
 
-        t1 = t - 250 * (h / 2);
-        t2 = t + 250 * (h / 2);
-
-        if (t1 < firstTimestamp) {
-            t1 = firstTimestamp;
-        }
-        if (t2 > lastTimestamp) {
-            t2 = lastTimestamp;
-        }
-
-        boolean getLinesBool = true;
-        while (getLinesBool) {// ArrayIndexOutOfBoundsException on getLinesBetween
-            try {
-                list = ssParser.getLinesBetween(t1, t2, subSys, sidescanParams);
-                if (!list.isEmpty()) {
-                    while (list.get(0).timestampMillis > t) {
-                        t1 -= 250;
-                        list = ssParser
-                                .getLinesBetween(t1, t2, subSys, sidescanParams);
-                    }
-                }
-                getLinesBool = false;
-            }
-            catch (java.lang.ArrayIndexOutOfBoundsException e) {
-                getLinesBool = true;
-                t2 -= 1000;
-                if (t2 < t)
-                    t2 = t + 1;
-                continue;
-            }
-        }
-        if (list.size() < h) {// not enough lines
-            getLinesBool = true;
-            t1 = t - 1500 * (h / 2);
-            t2 = t + 1500 * (h / 2);
+        int counter=0;
+        while (list.size() < h && counter<10) {// get enough lines
+            counter++;//infinte cicle protection
+            deviation += 250;
+            t1 = t - deviation * (h / 2);
+            t2 = t + deviation * (h / 2);
             if (t1 < firstTimestamp) {
                 t1 = firstTimestamp;
             }
             if (t2 > lastTimestamp) {
                 t2 = lastTimestamp;
             }
-            while (getLinesBool) {// ArrayIndexOutOfBoundsException on getLinesBetween
-                try {
-                    list = ssParser.getLinesBetween(t1, t2, subSys, sidescanParams);
-                    if (!list.isEmpty()) {
-                        while (list.get(0).timestampMillis > t) {
-                            t1 -= 250;
-                            list = ssParser.getLinesBetween(t1, t2, subSys, sidescanParams);
-                        }
-                    }
-                    getLinesBool = false;
-                }
-                catch (java.lang.ArrayIndexOutOfBoundsException e) {
-                    getLinesBool = true;
-                    t2 -= 250;
-                    if (t2 < t)
-                        t2 = t + 1;
-                    continue;
-                }
-            }
+            list = ssParser.getLinesBetween(t1, t2, subSys, sidescanParams);
         }
-
 
         return list;
     }
