@@ -984,8 +984,12 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         }
         pc.setOp(cmd);
 
+        boolean dontSendByAcoustics = DONT_USE_ACOUSTICS;
+        if (cmd == PlanControl.OP.START)
+            dontSendByAcoustics = USE_ACOUSTICS;
+
         boolean ret = IMCSendMessageUtils.sendMessage(pc, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP : null),
-                createDefaultMessageDeliveryListener(), this, cmdStrMsg, USE_ACOUSTICS,
+                createDefaultMessageDeliveryListener(), this, cmdStrMsg, dontSendByAcoustics,
                 acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
 
         if (!ret) {
