@@ -255,13 +255,12 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                 Set<String> plans = getConsole().getMission().getIndividualPlansList().keySet();
                 Vector<String> filtered = new Vector<String>();
                 for (String planId : plans)
-                    if (planId.length() == 1)
-                        filtered.add(planId);
+                    filtered.add(planId);
 
                 if (filtered.isEmpty()) {
                     post(Notification.error(I18n.text("Send Plan acoustically"),
-                            I18n.text("Plans started acoustically cannot have an ID bigger than 1 character"))
-                            .src(I18n.text("Console")));
+                                            I18n.text("No plans to send"))
+                         .src(I18n.text("Console")));
                     return;
                 }
 
