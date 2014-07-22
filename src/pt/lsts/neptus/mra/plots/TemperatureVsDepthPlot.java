@@ -58,7 +58,12 @@ public class TemperatureVsDepthPlot extends XYPlot {
 
     @Override
     public void process(LsfIndex source) {
-        int ctdId = source.getEntityId("CTD");
+        int ctdId;
+	if (source.getEntityId("CTD") != 255)
+            ctdId = source.getEntityId("CTD");
+	else
+	    ctdId = source.getEntityId("Depth Sensor");
+
         LsfIterator<Temperature> tempIt = source.getIterator(Temperature.class);
         for (Temperature temp : tempIt) {
             if (temp.getSrcEnt() != ctdId)
