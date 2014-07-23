@@ -142,10 +142,8 @@ public class SystemInfoPainter extends ConsoleLayer {
             return;
 
         boolean commsDead = false;
-        if (System.currentTimeMillis() - lastMessageMillis > 10000) {
-            batteryVoltage = fuelLevel = lastHbCount = storageUsage = cpuUsage = 0;
+        if (System.currentTimeMillis() - lastMessageMillis > 10000)
             commsDead = true;
-        }
 
         // System Info
         if (paintInfo) {
