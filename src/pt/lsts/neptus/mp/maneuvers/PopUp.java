@@ -36,6 +36,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -566,4 +568,10 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
         System.out.println(xml2);
         System.out.println(popup.asXML());        
     }
+	
+    @Override
+    public Collection<ManeuverLocation> getWaypoints() {
+        return Collections.singleton(getStartLocation());
+    }
+
 }

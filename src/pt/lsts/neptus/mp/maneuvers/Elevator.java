@@ -36,6 +36,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Vector;
 
 import org.dom4j.Document;
@@ -493,6 +494,12 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
         return meters;
     }
 
+    @Override
+    public Collection<ManeuverLocation> getWaypoints() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
     @Override
     public double getMaxDepth() {
         return getManeuverLocation().getAllZ();
