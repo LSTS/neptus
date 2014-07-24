@@ -364,6 +364,29 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
         });
         b2d.setToolTipText(I18n.text("Add Box2D"));
         toolbar.add(b2d);
+        
+        final ToolbarSwitch line = new ToolbarSwitch(
+                ImageUtils.getIcon("pt/lsts/neptus/plugins/map/interactions/b2d.png"), I18n.text("Add Line Segment"),
+                "line");
+
+        line.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (((ToolbarSwitch) e.getSource()).isSelected()) {
+                    disableAllInteractionsBut(line);
+                    currentInteraction = new Box2DInteraction(getPivot(), manager, getConsole());
+                    currentInteraction.setAssociatedSwitch(b2d);
+                    currentInteraction.setActive(true, renderer);
+                }
+                else {
+                    currentInteraction.setActive(false, renderer);
+                    currentInteraction = null;
+                }
+            }
+        });
+        b2d.setToolTipText(I18n.text("Add Box2D"));
+        toolbar.add(b2d);
+        
 
         undo = new ToolbarButton(ImageUtils.getIcon("pt/lsts/neptus/plugins/map/undo.png"), I18n.text("Undo"),
                 "undo");
@@ -950,8 +973,10 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                 @Override
                 protected Void doInBackground() throws Exception {
+                    LocationType oldCenter = renderer.getCenter();
                     getConsole().getMission().save(true);
                     getConsole().warnMissionListeners();
+                    renderer.setCenter(oldCenter);
                     return null;
                 }
             };
