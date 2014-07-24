@@ -120,7 +120,8 @@ public class EllipsoidElement extends GeometryElement
         else
             g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 100));
         
-        g.fill(tmp);
+        if (isFilled())
+            g.fill(tmp);
         
         g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue()));
         g.draw(tmp);   

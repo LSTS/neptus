@@ -53,6 +53,9 @@ public class MineDangerAreaElement extends SimpleMapElement {
     @NeptusProperty
     public Color color = Color.red;
     
+    @NeptusProperty
+    public boolean filled = true;
+       
     public MineDangerAreaElement(MapGroup mg, MapType map) {
         super(mg, map);
     }
@@ -78,8 +81,8 @@ public class MineDangerAreaElement extends SimpleMapElement {
         Ellipse2D.Double tmp = new Ellipse2D.Double(-widthScaled/2, -lengthScaled/2, widthScaled, lengthScaled);
         
         g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 100));
-        
-        g.fill(tmp);
+        if (filled)
+            g.fill(tmp);
         g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue()));
         g.setStroke(new BasicStroke(2));
         g.draw(tmp);

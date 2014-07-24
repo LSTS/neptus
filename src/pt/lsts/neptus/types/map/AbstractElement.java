@@ -94,6 +94,8 @@ public abstract class AbstractElement
     private double theta = 0;
     private double psi   = 0;
     
+    private boolean filled = true;
+    
     protected int transparency = 0;
 
     @NeptusProperty
@@ -139,6 +141,18 @@ public abstract class AbstractElement
     public abstract int getLayerPriority();
 
 	/**
+     * @return the filled
+     */
+    public boolean isFilled() {
+        return filled;
+    }
+    /**
+     * @param filled the filled to set
+     */
+    public void setFilled(boolean filled) {
+        this.filled = filled;
+    }
+    /**
      * Creates a map element
      */
     public AbstractElement() {
@@ -250,6 +264,20 @@ public abstract class AbstractElement
                     setPsi(val);
                 }
             }
+            nd = doc.selectSingleNode("//filled");
+            if (nd != null) {
+                String text = nd.getText().toLowerCase().trim();
+                try {
+                    if (text.equals("false") || text.equals("no") || text.equals("0"))
+                        filled = false;
+                    else
+                        filled = true;
+                }
+                catch (NumberFormatException e) {
+                    NeptusLog.pub().error(e.getMessage());
+                    filled = true;
+                }
+            }
             nd = doc.selectSingleNode("//transparency");
             if (nd != null) {
                 String text = nd.getText();
@@ -329,6 +357,8 @@ public abstract class AbstractElement
         }
         if (transparency != 0)
             root.addElement("transparency").addText(Double.toString(transparency));
+        
+        root.addElement("filled").addText(""+filled);
         
         root.addAttribute("obstacle", ""+isObstacle());
         document.add(root);

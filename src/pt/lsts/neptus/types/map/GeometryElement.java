@@ -331,6 +331,7 @@ public abstract class GeometryElement extends AbstractElement implements Rotatab
         }
 
         paramsPanel.setLocationType(getCenterLocation());
+        paramsPanel.setFilled(isFilled());
         paramsPanel.setColor(color);
         paramsPanel.getTexturesCombo().setSelectedTexture(getTextureType());
         paramsPanel.setEditable(editable);
@@ -360,6 +361,7 @@ public abstract class GeometryElement extends AbstractElement implements Rotatab
 
             this.color = paramsPanel.getChosenColor();
             setTextureType(paramsPanel.getSelectedTexture());
+            setFilled(paramsPanel.isFilled());
         }
     }
 
