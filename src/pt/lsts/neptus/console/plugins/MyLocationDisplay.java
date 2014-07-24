@@ -152,6 +152,11 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
     @NeptusProperty(name = "Width", category = "Dimension", userLevel = LEVEL.REGULAR)
     public double width = 0;
     
+    @NeptusProperty(name = "Show Data Source", editable = true,
+            userLevel = LEVEL.ADVANCED,
+            description ="Show position and heading sources on the screen.")
+    private boolean enableShowDataSource = false;
+
     private long lastCalcPosTimeMillis = -1;
 
     private static GeneralPath arrowShape;
@@ -441,22 +446,17 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             g.rotate(rotationAngle);
         }
 
-        // g.drawString("Me"
-        // + (followingPositionOf != null && followingPositionOf.length() != 0 ? " [using " + followingPositionOf + "]"
-        // : "")
-        // + (useSystemToDeriveHeadingOf != null && useSystemToDeriveHeadingOf.length() != 0 ? " [heading from "
-        // + useSystemToDeriveHeadingOf + " (@" +
-        // + useHeadingAngleToDerivedHeading + CoordinateUtil.CHAR_DEGREE + "#"
-        // + useHeadingOffsetFromDerivedHeading + CoordinateUtil.CHAR_DEGREE
-        // + ")]" : ""), 18, 14);
-        g.drawString(
-                I18n.text("Me")
+        if (enableShowDataSource) {
+            g.drawString(
+                    I18n.text("Me")
                         + (followPositionOf != null && followPositionOf.length() != 0 ? " "
                                 + I18n.text("Pos. external") : "")
                         + (isSystemToDeriveHeadingFilled()
                                 || isFollowingHeadingOfFilled() ? " "
                                 + I18n.textc("Heading external",
                                         "indication that the heading comes from external source") : ""), 18, 14);
+        }
+
         g.translate(-centerPos.getX(), -centerPos.getY());
         
         g.dispose();
