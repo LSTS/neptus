@@ -36,10 +36,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.zip.GZIPInputStream;
 
 import javax.swing.JFileChooser;
 
+import pt.lsts.imc.gz.MultiMemberGZIPInputStream;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.FileUtil;
@@ -72,13 +72,30 @@ public class ConcatenateLsfLog {
         destination.mkdirs();
         Arrays.sort(folders);
         
-        NeptusLog.pub().info("<###> "+I18n.textf("Copying %filename", new File(folders[0], "IMC.xml").getAbsolutePath()));
-        FileUtil.copyFile(new File(folders[0], "IMC.xml").getAbsolutePath(),
-                new File(destination, "IMC.xml").getAbsolutePath());
+        File fxIMCGZ = new File(folders[0], "IMC.xml.gz");
+        if (fxIMCGZ.exists()) {
+            NeptusLog.pub().info("Copying " + fxIMCGZ.getAbsolutePath());
+            FileUtil.copyFile(fxIMCGZ.getAbsolutePath(), new File(destination, "IMC.xml.gz").getAbsolutePath());
+        }
+        else {
+            File fxIMC = new File(folders[0], "IMC.xml");
+            if (fxIMC.exists()) {
+                NeptusLog.pub().info("Copying %filename" + fxIMC.getAbsolutePath());
+                FileUtil.copyFile(fxIMC.getAbsolutePath(), new File(destination, "IMC.xml").getAbsolutePath());
+            }
+            else {
+                NeptusLog.pub().info("Missing IMC.xml");
+            }
+        }
         
-        NeptusLog.pub().info("<###> "+I18n.textf("Copying %filename", new File(folders[0], "Config.ini").getAbsolutePath()));
-        FileUtil.copyFile(new File(folders[0], "Config.ini").getAbsolutePath(),
-                new File(destination, "Config.ini").getAbsolutePath());
+        File fxConfig = new File(folders[0], "Config.ini");
+        if (fxIMCGZ.exists()) {
+            NeptusLog.pub().info("Copying " + fxConfig.getAbsolutePath());
+            FileUtil.copyFile(fxConfig.getAbsolutePath(), new File(destination, "Config.ini").getAbsolutePath());
+        }
+        else {
+            NeptusLog.pub().info("Missing " + fxConfig.getAbsolutePath());
+        }
 
         for (File folder : folders) {
             File src = new File(folder, "Data.lsf");
@@ -89,10 +106,13 @@ public class ConcatenateLsfLog {
             else {
                 src = new File(folder, "Data.lsf.gz");
                 if (src.canRead()) {
-                    FileUtil.appendToFile(new File(destination, "Data.lsf"), new GZIPInputStream(new FileInputStream(
+                    FileUtil.appendToFile(new File(destination, "Data.lsf"), new MultiMemberGZIPInputStream(new FileInputStream(
                             new File(folder, "Data.lsf.gz"))));
                     
                     NeptusLog.pub().info("<###> "+I18n.textf("Concatenating %filename", new File(folder, "Data.lsf.gz").getAbsolutePath()));
+                }
+                else {
+                    NeptusLog.pub().info("Missing Data.lsf");
                 }
             }
         }
