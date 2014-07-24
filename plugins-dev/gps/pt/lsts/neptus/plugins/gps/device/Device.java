@@ -189,7 +189,7 @@ public class Device implements SerialPortEventListener {
      * @throws IllegalArgumentException
      *             if the argument type is not valid.
      */
-    private int[] translateFrameType(String type) throws IllegalArgumentException {
+    public static int[] translateFrameType(String type) throws IllegalArgumentException {
         int[] args = new int[3];
 
         if (type.charAt(0) == '8')
