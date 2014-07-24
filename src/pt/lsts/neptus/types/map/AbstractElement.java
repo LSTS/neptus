@@ -64,6 +64,7 @@ import org.dom4j.Node;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.XmlInputMethods;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -85,7 +86,6 @@ public abstract class AbstractElement
         XmlInputMethods {
 	public enum ELEMENT_TYPE { MODEL_3D, TYPE_HOMEREFERENCE, TYPE_MARK, TYPE_PARALLELEPIPED, TYPE_ELLIPSOID, TYPE_TRANSPONDER, TYPE_PATH, TYPE_CYLINDER, TYPE_IMAGE, TYPE_OTHER };
 
-//	private static Random rnd = new Random(System.currentTimeMillis());
     protected static final LocationType guinea = LocationType.ABSOLUTE_ZERO;
     protected boolean isLoadOk = true;
     protected static final String DEFAULT_ROOT_ELEMENT = "mark";
@@ -96,11 +96,15 @@ public abstract class AbstractElement
     
     protected int transparency = 0;
 
-    protected LocationType centerLocation = new LocationType(); 
-   
+    @NeptusProperty
+    public LocationType centerLocation = new LocationType(); 
+    
+    @NeptusProperty
+    public boolean obstacle;
+    
     protected Document doc = null;
     
-    protected String id = NameNormalizer.getRandomID("me"); // "obj_"+System.currentTimeMillis()+rnd.nextInt(100);
+    protected String id = NameNormalizer.getRandomID(getTypeAbbrev()); // "obj_"+System.currentTimeMillis()+rnd.nextInt(100);
     // protected String name = id;
 
     // ===== Old MapObject
@@ -116,7 +120,7 @@ public abstract class AbstractElement
     public String[] takenNames = new String[0];
     protected JDialog dialog;
     protected JCheckBox obstacleCheck, hiddenCheck;
-    private boolean obstacle;
+    
     protected JTextField objName, transp;
     // ===== END Param panels
 
@@ -333,6 +337,10 @@ public abstract class AbstractElement
     }
     // ===== END XMLOutput Interface
 
+    public String getTypeAbbrev() {
+        return getType();
+    }
+    
     /**
      * @return
      */

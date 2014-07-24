@@ -96,6 +96,11 @@ public class EllipsoidElement extends GeometryElement
     public ELEMENT_TYPE getElementType() {
         return ELEMENT_TYPE.TYPE_ELLIPSOID;
     }
+    
+    @Override
+    public String getTypeAbbrev() {
+        return "ellip";
+    }
 
 
     @Override

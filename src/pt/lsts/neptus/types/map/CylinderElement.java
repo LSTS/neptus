@@ -89,6 +89,11 @@ public class CylinderElement extends GeometryElement
     }
     
     @Override
+    public String getTypeAbbrev() {
+        return "cyl";
+    }
+    
+    @Override
     public boolean containsPoint(LocationType lt, StateRenderer2D renderer) {
         double[] offsets = lt.getOffsetFrom(getCenterLocation());
         Point2D pt = new Point2D.Double(offsets[1], -offsets[0]);

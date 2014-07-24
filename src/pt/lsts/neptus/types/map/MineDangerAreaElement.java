@@ -62,6 +62,11 @@ public class MineDangerAreaElement extends SimpleMapElement {
     }
     
     @Override
+    public String getTypeAbbrev() {
+        return "mda";
+    }
+    
+    @Override
     public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {
         Point2D pt = renderer.getScreenPosition(getCenterLocation());
         g.translate(pt.getX(), pt.getY());
