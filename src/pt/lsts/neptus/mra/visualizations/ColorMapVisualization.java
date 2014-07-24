@@ -310,7 +310,7 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
         Point2D lastPt = null;
         stateEntry = stateParser.nextLogEntry();
 
-	LocationType ref = new LocationType(Math.toDegrees(stateEntry.getDouble("lat")), Math.toDegrees(stateEntry.getDouble("lon")));
+        LocationType ref = new LocationType(Math.toDegrees(stateEntry.getDouble("lat")), Math.toDegrees(stateEntry.getDouble("lon")));
 
         while (stateEntry != null) {
             LocationType loc = new LocationType();
