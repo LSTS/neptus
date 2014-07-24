@@ -35,6 +35,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -86,6 +87,9 @@ public class MineDangerAreaElement extends SimpleMapElement {
         g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue()));
         g.setStroke(new BasicStroke(2));
         g.draw(tmp);
+        
+        g.draw(new Line2D.Double(-6, 0, 6, 0));
+        g.draw(new Line2D.Double(0, -6, 0, 6));
     }
     
     @Override
