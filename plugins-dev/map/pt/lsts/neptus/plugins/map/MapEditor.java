@@ -80,6 +80,7 @@ import pt.lsts.neptus.plugins.map.edit.ObjectPropertiesEdit;
 import pt.lsts.neptus.plugins.map.edit.RemoveObjectEdit;
 import pt.lsts.neptus.plugins.map.interactions.Box2DInteraction;
 import pt.lsts.neptus.plugins.map.interactions.DrawPathInteraction;
+import pt.lsts.neptus.plugins.map.interactions.LineInteraction;
 import pt.lsts.neptus.plugins.map.interactions.MineDangerAreaInteraction;
 import pt.lsts.neptus.plugins.map.interactions.PolygonInteraction;
 import pt.lsts.neptus.plugins.map.interactions.QRouteInteraction;
@@ -374,8 +375,8 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             public void actionPerformed(ActionEvent e) {
                 if (((ToolbarSwitch) e.getSource()).isSelected()) {
                     disableAllInteractionsBut(line);
-                    currentInteraction = new Box2DInteraction(getPivot(), manager, getConsole());
-                    currentInteraction.setAssociatedSwitch(b2d);
+                    currentInteraction = new LineInteraction(getPivot(), manager, getConsole());
+                    currentInteraction.setAssociatedSwitch(line);
                     currentInteraction.setActive(true, renderer);
                 }
                 else {
@@ -384,8 +385,8 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                 }
             }
         });
-        b2d.setToolTipText(I18n.text("Add Box2D"));
-        toolbar.add(b2d);
+        line.setToolTipText(I18n.text("Add Line segment"));
+        toolbar.add(line);
         
 
         undo = new ToolbarButton(ImageUtils.getIcon("pt/lsts/neptus/plugins/map/undo.png"), I18n.text("Undo"),
