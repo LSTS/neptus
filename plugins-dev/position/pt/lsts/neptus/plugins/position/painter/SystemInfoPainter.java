@@ -126,7 +126,7 @@ public class SystemInfoPainter extends ConsoleLayer {
     private String getColor(double percent, boolean inverted, boolean commsDead) {
         Color c;
         if (commsDead)
-            return "#777777";
+            return "#000000";
         if (!inverted)
             c = rygColorMap.getColor(percent / 100.0);
         else
