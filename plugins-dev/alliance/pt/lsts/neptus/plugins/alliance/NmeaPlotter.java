@@ -44,10 +44,16 @@ import java.util.HashSet;
 
 import javax.swing.JMenuItem;
 
+import com.google.common.eventbus.Subscribe;
+
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
+import pt.lsts.imc.DevDataText;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -56,6 +62,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NMEAUtils;
 import de.baderjene.aistoolkit.aisparser.AISParser;
@@ -98,7 +105,10 @@ public class NmeaPlotter extends ConsoleLayer {
 
     @NeptusProperty(name = "Use Neptus external systems API", userLevel=LEVEL.ADVANCED)
     public boolean useExternalSystemsApi = true;
-
+    
+    @NeptusProperty(name = "Retransmit to other Neptus consoles", userLevel=LEVEL.ADVANCED)
+    public boolean retransmitToNeptus = true;
+        
     private JMenuItem connectItem = null;
     private boolean connected = false;
 
@@ -137,9 +147,11 @@ public class NmeaPlotter extends ConsoleLayer {
                         if (!currentString.trim().isEmpty()) {
                             for (NmeaListener l :listeners)
                                 l.nmeaSentence(currentString.trim());
-                            parser.process(currentString.trim());
+                            parseSentence(currentString);     
+                            if (retransmitToNeptus)
+                                retransmit(currentString);
                         }
-                        currentString = s.substring(s.indexOf('\n')+1);
+                        currentString = s.substring(s.indexOf('\n')+1);                        
                     }
                     else {
                         currentString += s;
@@ -153,8 +165,31 @@ public class NmeaPlotter extends ConsoleLayer {
         serialPort.setParams(uartBaudRate, dataBits, stopBits, parity);
     }
     
+    private void retransmit(String sentence) {
+        DevDataText ddt = new DevDataText(sentence);
+        System.out.println("retransmitting");
+        for (ImcSystem s : ImcSystemsHolder.lookupSystemByType(SystemTypeEnum.CCU)) {
+            System.out.println("sending to "+s.getName());
+            ImcMsgManager.getManager().sendMessageReliably(ddt, s.getName());
+        }
+    }
     
-
+    @Subscribe
+    public void on(DevDataText ddt) {
+        System.out.println("received dev data text from "+ddt.getSourceName());  
+        parseSentence(ddt.getValue());
+    }
+    
+    private void parseSentence(String s) {
+        s = s.trim();
+        String nmeaType = NMEAUtils.nmeaType(s);
+        if (nmeaType.equals("$B-TLL") || nmeaType.equals("$A-TLL"))
+            contactDb.processBtll(s);
+        else
+            parser.process(s);
+        System.out.println(s);
+    }
+    
     private void connect() throws Exception {
         if (serialListen)
             connectToSerial();
@@ -169,13 +204,9 @@ public class NmeaPlotter extends ConsoleLayer {
                         try {
                             DatagramPacket dp = new DatagramPacket(new byte[65507], 65507);
                             socket.receive(dp);
-                            String s = new String(dp.getData());
-                            String nmeaType = NMEAUtils.nmeaType(s);
-                            if (nmeaType.equals("$B-TLL") || nmeaType.equals("$A-TLL"))
-                                contactDb.processBtll(s);
-                            else
-                                parser.process(s);
-                            System.out.println(s.trim());
+                            parseSentence(new String(dp.getData()));    
+                            if (retransmitToNeptus)
+                                retransmit(new String(dp.getData()));
                         }
                         catch (Exception e) {
                             e.printStackTrace();   
