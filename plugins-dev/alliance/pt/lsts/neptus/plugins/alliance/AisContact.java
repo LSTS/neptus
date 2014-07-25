@@ -125,6 +125,27 @@ public class AisContact {
     }
 
     /**
+     * @param sog the sog to set
+     */
+    public void setSog(double sog) {
+        this.sog = sog;
+    }
+
+    /**
+     * @param cog the cog to set
+     */
+    public void setCog(double cog) {
+        this.cog = cog;
+    }
+
+    /**
+     * @param loc the loc to set
+     */
+    public void setLocation(LocationType loc) {
+        this.loc = loc;
+    }
+
+    /**
      * @return the additionalProperties
      */
     public Message05 getAdditionalProperties() {

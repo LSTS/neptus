@@ -41,6 +41,13 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
 
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.systems.external.ExternalSystem;
+import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
+import pt.lsts.neptus.util.NMEAUtils;
 import de.baderjene.aistoolkit.aisparser.AISObserver;
 import de.baderjene.aistoolkit.aisparser.message.Message;
 import de.baderjene.aistoolkit.aisparser.message.Message01;
@@ -96,7 +103,69 @@ public class AisContactDb implements AISObserver {
             e.printStackTrace();
         }        
     }
+    
+    public void processBtll(String sentence) {
+        String[] parts = sentence.trim().split(",");
+        int mmsi = Integer.parseInt(parts[1]);
+        double lat = 0, lon = 0;
+        try {
+            lat = NMEAUtils.nmeaLatOrLongToWGS84(parts[2]);
+            lon = NMEAUtils.nmeaLatOrLongToWGS84(parts[4]);
+        
+            if (parts[3].equals("S"))
+                lat = -lat;
+        
+            if (parts[5].equals("W"))
+                lon = -lon;
+        }
+        catch (Exception e) {
+            NeptusLog.pub().debug("Unable to parse coordinates in "+sentence);
+            return;      
+        }
+        String id = parts[6];
+        
+        // no need to use AIS for systems using IMC
+        if (ImcSystemsHolder.getSystemWithName(id) != null && ImcSystemsHolder.getSystemWithName(id).isActive()) {
+            return;
+        }
+            
+        double heading = 0;
+        try {
+            heading = Double.parseDouble(parts[9]);
+        }
+        catch (Exception e) {
+            
+        }
+        
+        LocationType loc = new LocationType(lat, lon);
+        
+        if (!contacts.containsKey(mmsi)) {
+            AisContact contact = new AisContact(mmsi);
+            contacts.put(mmsi, contact);
+        }
+        AisContact contact = contacts.get(mmsi);
+        contact.setLocation(loc);
+        contact.setCog(heading);
+        contact.setLabel(id);
+        if (ImcSystemsHolder.getSystemWithName(id) == null)
+            updateSystem(mmsi, loc, heading);
+    }
 
+    public void updateSystem(int mmsi, LocationType loc, double heading) {
+        String name = contacts.get(mmsi).getLabel();
+        if (name.equals(""+mmsi))
+            return;
+        
+        ExternalSystem sys = ExternalSystemsHolder.lookupSystem(name);
+        if (sys == null) {
+            sys = new ExternalSystem(name);
+            ExternalSystemsHolder.registerSystem(sys);
+        }
+        sys.setLocation(contacts.get(mmsi).getLocation());
+        sys.setAttitudeDegrees(contacts.get(mmsi).getCog());
+        sys.setType(SystemTypeEnum.UNKNOWN);
+    }
+    
     @Override
     public synchronized void update(Message arg0) {
         int mmsi = arg0.getSourceMmsi();
@@ -107,6 +176,7 @@ public class AisContactDb implements AISObserver {
                 contacts.get(mmsi).update((Message01)arg0);
                 if (labelCache.containsKey(mmsi))
                     contacts.get(mmsi).setLabel(labelCache.get(mmsi));
+                updateSystem(mmsi, contacts.get(mmsi).getLocation(), contacts.get(mmsi).getCog());
                 break;
             case 3:
                 if (!contacts.containsKey(mmsi))
@@ -114,12 +184,15 @@ public class AisContactDb implements AISObserver {
                 contacts.get(mmsi).update((Message03)arg0);
                 if (labelCache.containsKey(mmsi))
                     contacts.get(mmsi).setLabel(labelCache.get(mmsi));
+                updateSystem(mmsi, contacts.get(mmsi).getLocation(), contacts.get(mmsi).getCog());
                 break;
             case 5:
                 if (!contacts.containsKey(mmsi))
                     contacts.put(mmsi, new AisContact(mmsi));
                 contacts.get(mmsi).update((Message05)arg0);
-                labelCache.put(mmsi, ((Message05)arg0).getVesselName());
+                String name = ((Message05)arg0).getVesselName();
+                labelCache.put(mmsi, name);
+                updateSystem(mmsi, contacts.get(mmsi).getLocation(), contacts.get(mmsi).getCog());
                 break;
             default:
                 System.err.println("Ignoring AIS message of type "+arg0.getType());

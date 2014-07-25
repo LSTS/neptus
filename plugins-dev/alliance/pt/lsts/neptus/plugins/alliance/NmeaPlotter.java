@@ -38,7 +38,11 @@ import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.util.HashSet;
+
+import javax.swing.JMenuItem;
 
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
@@ -46,12 +50,14 @@ import jssc.SerialPortEventListener;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.NMEAUtils;
 import de.baderjene.aistoolkit.aisparser.AISParser;
 import de.baderjene.aistoolkit.aisparser.message.Message05;
 
@@ -86,6 +92,12 @@ public class NmeaPlotter extends ConsoleLayer {
 
     @NeptusProperty(name = "Maximum age in for AIS contacts (seconds)")
     public int maximumAisAge = 600;
+
+    @NeptusProperty(name = "Use Neptus external systems API", userLevel=LEVEL.ADVANCED)
+    public boolean useExternalSystemsApi = true;
+
+    private JMenuItem connectItem = null;
+    private boolean connected = false;
 
     GeneralPath ship = new GeneralPath();
     {
@@ -137,6 +149,42 @@ public class NmeaPlotter extends ConsoleLayer {
         });
         serialPort.setParams(uartBaudRate, dataBits, stopBits, parity);
     }
+    
+    
+
+    private void connect() throws Exception {
+        connectToSerial();
+        if (udpListen) {
+            final DatagramSocket socket = new DatagramSocket(udpPort);
+            Thread listener = new Thread("NmeaListener") {
+                
+                public void run() {
+                    connected = true;
+                    NeptusLog.pub().info("Listening to NMEA messages over UDP.");
+                    while(connected) {
+                        try {
+                            DatagramPacket dp = new DatagramPacket(new byte[65507], 65507);
+                            socket.receive(dp);
+                            String s = new String(dp.getData());
+                            String nmeaType = NMEAUtils.nmeaType(s);
+                            if (nmeaType.equals("$B-TLL"))
+                                contactDb.processBtll(s);
+                            else
+                                parser.process(s);
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();   
+                            break;
+                        }
+                    }
+                    NeptusLog.pub().info("UDP Socket closed.");
+                    socket.close();
+                };
+            };
+            listener.setDaemon(true);
+            listener.start();
+        }
+    }
 
     public void disconnect() throws Exception {
         serialPort.closePort();
@@ -170,17 +218,17 @@ public class NmeaPlotter extends ConsoleLayer {
     public void purgeOldContacts() {
         contactDb.purge(maximumAisAge * 1000);
     }
-    
+
     @Periodic(millisBetweenUpdates=120000)
     public void saveCache() {
         contactDb.saveCache();
     }
-    
+
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
-        
+
         for (AisContact c : contactDb.getContacts()) {
             LocationType l = c.getLocation();
             if (l.getLatitudeDegs() == 0 &&  l.getLongitudeDegs() == 0)
@@ -188,8 +236,8 @@ public class NmeaPlotter extends ConsoleLayer {
 
             Point2D pt = renderer.getScreenPosition(l);
             g.setColor(new Color(64,124,192));
-            g.drawString(c.getLabel(), (int)pt.getX()+10, (int)pt.getY()+5);
-            
+            g.drawString(c.getLabel(), (int)pt.getX()+17, (int)pt.getY()+2);
+
             if (c.getAdditionalProperties() != null) {
                 g.setColor(new Color(64,124,192,128));
                 Message05 m = c.getAdditionalProperties();
@@ -198,7 +246,7 @@ public class NmeaPlotter extends ConsoleLayer {
                 double length = m.getDimensionToStern() + m.getDimensionToBow();
                 double centerX = pt.getX();//-m.getDimensionToPort() + width/2.0;
                 double centerY = pt.getY();//-m.getDimensionToStern() + length/2.0;
-                
+
                 copy.translate(centerX, centerY);
                 copy.rotate(Math.PI+Math.toRadians(c.getCog()));
                 copy.scale(renderer.getZoom(), renderer.getZoom());
@@ -213,11 +261,20 @@ public class NmeaPlotter extends ConsoleLayer {
 
     @Override
     public void initLayer() {
-        getConsole().addMenuItem("Tools>NMEA Plotter>Connect", null, new ActionListener() {
+        connectItem = getConsole().addMenuItem("Tools>NMEA Plotter>Connect", null, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    connectToSerial();
+                    if (!connected) {
+                        connect();
+                        connected = true;
+                        connectItem.setText("Disconnect");
+                    }
+                    else {
+                        disconnect();
+                        connected = false;
+                        connectItem.setText("Connect");
+                    }
                 }
                 catch (Exception ex) {
                     GuiUtils.errorMessage(getConsole(), ex);
