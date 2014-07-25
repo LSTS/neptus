@@ -61,7 +61,7 @@ public class KmlPlanExporter implements IPlanFileExporter {
         sb.append("    <name>"+id+"</name>\n");
         sb.append("    <description>going-to.string=FIXED_CONSTANT_DEPTH_UPDATES=depth="+Math.abs(loc.getZ())+"</description>\n");
         sb.append("    <Point>\n");
-        sb.append(String.format("      <coordinates>%.5f,%.5f,0.</coordinates>\n", loc.getLatitudeDegs(), loc.getLongitudeDegs()));
+        sb.append(String.format("      <coordinates>%.5f,%.5f,0.</coordinates>\n", loc.getLongitudeDegs(), loc.getLatitudeDegs()));
         sb.append("    </Point>\n");
         sb.append("  </Placemark>\n");
         return sb.toString();
