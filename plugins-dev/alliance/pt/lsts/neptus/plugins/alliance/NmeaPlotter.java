@@ -68,6 +68,9 @@ import de.baderjene.aistoolkit.aisparser.message.Message05;
  */
 @PluginDescription(name="NMEA Plotter")
 public class NmeaPlotter extends ConsoleLayer {
+    
+    @NeptusProperty(name = "Connect to the serial port")
+    public boolean serialListen = false;
 
     @NeptusProperty(name = "Serial Port Device")
     public String uartDevice = "/dev/ttyUSB0";
@@ -153,7 +156,8 @@ public class NmeaPlotter extends ConsoleLayer {
     
 
     private void connect() throws Exception {
-        connectToSerial();
+        if (serialListen)
+            connectToSerial();
         if (udpListen) {
             final DatagramSocket socket = new DatagramSocket(udpPort);
             Thread listener = new Thread("NmeaListener") {
@@ -167,10 +171,11 @@ public class NmeaPlotter extends ConsoleLayer {
                             socket.receive(dp);
                             String s = new String(dp.getData());
                             String nmeaType = NMEAUtils.nmeaType(s);
-                            if (nmeaType.equals("$B-TLL"))
+                            if (nmeaType.equals("$B-TLL") || nmeaType.equals("$A-TLL"))
                                 contactDb.processBtll(s);
                             else
                                 parser.process(s);
+                            System.out.println(s.trim());
                         }
                         catch (Exception e) {
                             e.printStackTrace();   
@@ -187,7 +192,9 @@ public class NmeaPlotter extends ConsoleLayer {
     }
 
     public void disconnect() throws Exception {
-        serialPort.closePort();
+        if (serialListen)
+            serialPort.closePort();
+        connected = false;
     }
 
     public void addListener(NmeaListener listener) {
