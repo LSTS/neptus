@@ -206,6 +206,7 @@
 	<classpathentry kind="lib" path="lib/Jama-1.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/aisparser-2.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/jssc.jar"/>
+	<classpathentry kind="lib" path="lib/gpxparser.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>
