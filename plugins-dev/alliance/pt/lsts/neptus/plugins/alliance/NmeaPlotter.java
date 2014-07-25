@@ -65,6 +65,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NMEAUtils;
+import pt.lsts.neptus.util.llf.NeptusMessageLogger;
 import de.baderjene.aistoolkit.aisparser.AISParser;
 import de.baderjene.aistoolkit.aisparser.message.Message05;
 
@@ -108,6 +109,9 @@ public class NmeaPlotter extends ConsoleLayer {
     
     @NeptusProperty(name = "Retransmit to other Neptus consoles", userLevel=LEVEL.ADVANCED)
     public boolean retransmitToNeptus = true;
+    
+    @NeptusProperty(name = "Log received data", userLevel=LEVEL.ADVANCED)
+    public boolean logReceivedData = true;
         
     private JMenuItem connectItem = null;
     private boolean connected = false;
@@ -147,9 +151,11 @@ public class NmeaPlotter extends ConsoleLayer {
                         if (!currentString.trim().isEmpty()) {
                             for (NmeaListener l :listeners)
                                 l.nmeaSentence(currentString.trim());
-                            parseSentence(currentString);     
+                            parseSentence(currentString);
                             if (retransmitToNeptus)
                                 retransmit(currentString);
+                            if (logReceivedData)
+                                NeptusMessageLogger.logMessage(new DevDataText(currentString));
                         }
                         currentString = s.substring(s.indexOf('\n')+1);                        
                     }
@@ -167,16 +173,14 @@ public class NmeaPlotter extends ConsoleLayer {
     
     private void retransmit(String sentence) {
         DevDataText ddt = new DevDataText(sentence);
-        System.out.println("retransmitting");
         for (ImcSystem s : ImcSystemsHolder.lookupSystemByType(SystemTypeEnum.CCU)) {
-            System.out.println("sending to "+s.getName());
-            ImcMsgManager.getManager().sendMessageReliably(ddt, s.getName());
+            ImcMsgManager.getManager().sendMessageToSystem(ddt, s.getName());
         }
     }
     
     @Subscribe
     public void on(DevDataText ddt) {
-        System.out.println("received dev data text from "+ddt.getSourceName());  
+        //System.out.println("received dev data text from "+ddt.getSourceName());  
         parseSentence(ddt.getValue());
     }
     
@@ -187,7 +191,6 @@ public class NmeaPlotter extends ConsoleLayer {
             contactDb.processBtll(s);
         else
             parser.process(s);
-        System.out.println(s);
     }
     
     private void connect() throws Exception {
@@ -204,9 +207,12 @@ public class NmeaPlotter extends ConsoleLayer {
                         try {
                             DatagramPacket dp = new DatagramPacket(new byte[65507], 65507);
                             socket.receive(dp);
-                            parseSentence(new String(dp.getData()));    
+                            String sentence = new String(dp.getData()); 
+                            parseSentence(sentence);    
                             if (retransmitToNeptus)
-                                retransmit(new String(dp.getData()));
+                                retransmit(sentence);
+                            if (logReceivedData)
+                                NeptusMessageLogger.logMessage(new DevDataText(sentence));
                         }
                         catch (Exception e) {
                             e.printStackTrace();   
@@ -286,7 +292,7 @@ public class NmeaPlotter extends ConsoleLayer {
                 double centerY = pt.getY();//-m.getDimensionToStern() + length/2.0;
 
                 copy.translate(centerX, centerY);
-                copy.rotate(Math.PI+Math.toRadians(c.getCog()));
+                copy.rotate(Math.PI+Math.toRadians(c.getCog()) - renderer.getRotation());
                 copy.scale(renderer.getZoom(), renderer.getZoom());
                 copy.scale(width/2, length/2);
                 copy.fill(ship);
