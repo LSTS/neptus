@@ -189,8 +189,12 @@ public class NmeaPlotter extends ConsoleLayer {
         String nmeaType = NMEAUtils.nmeaType(s);
         if (nmeaType.equals("$B-TLL") || nmeaType.equals("$A-TLL"))
             contactDb.processBtll(s);
-        else
-            parser.process(s);
+        else {
+            synchronized (parser) {
+                parser.process(s);    
+            }
+        }
+            
     }
     
     private void connect() throws Exception {
@@ -207,7 +211,8 @@ public class NmeaPlotter extends ConsoleLayer {
                         try {
                             DatagramPacket dp = new DatagramPacket(new byte[65507], 65507);
                             socket.receive(dp);
-                            String sentence = new String(dp.getData()); 
+                            String sentence = new String(dp.getData());
+                            sentence = sentence.substring(0, sentence.indexOf(0));
                             parseSentence(sentence);    
                             if (retransmitToNeptus)
                                 retransmit(sentence);
