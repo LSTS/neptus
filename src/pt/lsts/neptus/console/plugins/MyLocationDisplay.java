@@ -235,7 +235,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(followPositionOf);
             LocationType loc = null;
             long locTime = -1;
-            double headingDegrees = 0;
+            headingDegrees = 0;
             long headingDegreesTime = -1;
             if (sys != null) {
                 loc = sys.getLocation();
@@ -263,7 +263,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 newHeadingDegrees = headingDegrees;
             }
         }
-
+        
         // update just heading if following system
         if (isFollowingHeadingOfFilled()) {
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(followHeadingOf);
@@ -285,6 +285,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 newHeadingDegrees = headingDegrees + followHeadingOfAngleOffset;
             }
         }
+        
+        
 
         if (isSystemToDeriveHeadingFilled()) {
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(useSystemToDeriveHeading);
@@ -614,6 +616,12 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     if (!options.contains(sys.getName()))
                         sysList.add(sys.getName());
                 }
+                
+                for (ExternalSystem sys : ExternalSystemsHolder.lookupAllSystems()) {
+                    if (!options.contains(sys.getName()))
+                        sysList.add(sys.getName());
+                }
+                
                 Collections.sort(sysList);
                 options.addAll(sysList);
                 Vector<String> extList = new Vector<String>();
@@ -661,6 +669,11 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                     if (!options.contains(sys.getName()))
                         sysList.add(sys.getName());
                 }
+                for (ExternalSystem sys : ExternalSystemsHolder.lookupAllSystems()) {
+                    if (!options.contains(sys.getName()))
+                        sysList.add(sys.getName());
+                }
+                
                 Collections.sort(sysList);
                 options.addAll(sysList);
                 Vector<String> extList = new Vector<String>();

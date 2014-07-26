@@ -191,6 +191,8 @@ public class NmeaPlotter extends ConsoleLayer {
             contactDb.processBtll(s);
         else {
             synchronized (parser) {
+                if (nmeaType.startsWith("$AIVD"))
+                    System.out.println(s);
                 parser.process(s);    
             }
         }
