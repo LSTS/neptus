@@ -263,8 +263,8 @@ public class GPSFixPanel extends ConsolePanel implements MainVehicleChangeListen
                 if (scatter.getPoints().size() > 0)
                     scatter.getPoints().remove(0);
             }
-            double[] distFromRef = lt.getOffsetFrom(scatter.getCenterLocation());
-            scatter.addPoint(distFromRef[0], distFromRef[1], distFromRef[2]);
+            //double[] distFromRef = lt.getOffsetFrom(scatter.getCenterLocation());
+            scatter.addPoint(lt);
         }
         else {
             if (scatter != null) {

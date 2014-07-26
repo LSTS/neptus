@@ -203,8 +203,20 @@ public class ScatterPointsElement extends AbstractElement {
 		getParentMap().warnChangeListeners(mce);
 		//lock.unlock();
 	}
+	
+	public void addPoint(LocationType loc) {
+	    if (loc.getDistanceInMeters(getCenterLocation()) > 3000) {
+	        setCenterLocation(loc);
+	        addPoint(0,0,0);
+	        clearPoints();
+	    }
+	    else {
+	        double[] offsets = loc.getOffsetFrom(getCenterLocation());
+	        addPoint(offsets[0], offsets[1], offsets[2]);
+	    }
+	}
 
-	public void addPoint(double offsetNorth, double offsetEast, double offsetDown) {		
+	private void addPoint(double offsetNorth, double offsetEast, double offsetDown) {		
 		//lock.lock();
 		synchronized (points) {
 			if (numberOfPoints != INFINITE_NUMBER_OF_POINTS && points.size() >= numberOfPoints) {

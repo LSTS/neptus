@@ -629,8 +629,8 @@ CustomInteractionSupport, IMapPopup, FocusListener {
                 vehicles = vehicleStates.keySet().toArray(new String[0]);
             vehicleStates.put(systemId, state);
 
-            double[] distFromRef = state.getPosition().getOffsetFrom(vehicleTails.get(systemId).getCenterLocation());
-            vehicleTails.get(systemId).addPoint(distFromRef[0], distFromRef[1], distFromRef[2]);
+            //double[] distFromRef = state.getPosition().getOffsetFrom(vehicleTails.get(systemId).getCenterLocation());
+            vehicleTails.get(systemId).addPoint(state.getPosition());
 
             if (!repaint || System.currentTimeMillis() - lastPaintTime < minDelay) {
                 return;
