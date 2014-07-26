@@ -189,10 +189,12 @@ public class NmeaPlotter extends ConsoleLayer {
         String nmeaType = NMEAUtils.nmeaType(s);
         if (nmeaType.equals("$B-TLL") || nmeaType.equals("$A-TLL"))
             contactDb.processBtll(s);
+        else if (nmeaType.equals("$GPGGA"))
+            contactDb.processGGA(s);
+        else if (nmeaType.equals("$RATTM"))
+            contactDb.processRattm(s);
         else {
             synchronized (parser) {
-                if (nmeaType.startsWith("$AIVD"))
-                    System.out.println(s);
                 parser.process(s);    
             }
         }

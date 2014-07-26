@@ -103,6 +103,47 @@ public class AisContactDb implements AISObserver {
             e.printStackTrace();
         }        
     }
+
+    
+    private String lastGGA = null;
+    public void processGGA(String sentence) {
+        lastGGA = sentence;
+        //System.err.println(lastGGA);
+    }
+    
+    public void processRattm(String sentence) {
+        if (lastGGA == null)
+            return;
+        //$GPGGA,132446.00,3811.805048,N,00856.490411,W,2,06,1.2,30.5,M,49.7,M,3.8,0000*6F
+        LocationType myLoc = NMEAUtils.processGGASentence(lastGGA);
+        //$RATTM,17,1.25,60.9,T,7.9,358.0,T,1.11,-4.3,N,wb,T,,133714,M*27
+        String[] parts = sentence.trim().split(",");
+        double heading = Double.parseDouble(parts[3]);
+        double dist = Double.parseDouble(parts[2]) * 1852;
+        
+        LocationType newLoc = new LocationType(myLoc);
+        newLoc.setAzimuth(heading);
+        newLoc.setOffsetDistance(dist);
+        newLoc.convertToAbsoluteLatLonDepth();
+        String id = parts[11];
+        Integer rid = Integer.parseInt(parts[1]);
+        
+        if (id.isEmpty())
+            id = "radar-"+parts[1];
+        
+        if (ImcSystemsHolder.getSystemWithName(id) != null && ImcSystemsHolder.getSystemWithName(id).isActive()) {
+            return;
+        }
+            
+        if (!contacts.containsKey(parts[1])) {
+            AisContact contact = new AisContact(rid);
+            contacts.put(rid, contact);
+        }
+        
+        AisContact contact = contacts.get(rid);
+        contact.setLocation(newLoc);
+        contact.setLabel(id);
+    }
     
     public void processBtll(String sentence) {
         String[] parts = sentence.trim().split(",");
@@ -134,7 +175,7 @@ public class AisContactDb implements AISObserver {
             heading = Double.parseDouble(parts[9]);
         }
         catch (Exception e) {
-            
+            //e.printStackTrace();
         }
         
         LocationType loc = new LocationType(lat, lon);
@@ -143,6 +184,7 @@ public class AisContactDb implements AISObserver {
             AisContact contact = new AisContact(mmsi);
             contacts.put(mmsi, contact);
         }
+        //System.out.println(mmsi);
         AisContact contact = contacts.get(mmsi);
         contact.setLocation(loc);
         contact.setCog(heading);
