@@ -135,7 +135,7 @@ public class AisContactDb implements AISObserver {
             return;
         }
             
-        if (!contacts.containsKey(parts[1])) {
+        if (!contacts.containsKey(rid)) {
             AisContact contact = new AisContact(rid);
             contacts.put(rid, contact);
         }

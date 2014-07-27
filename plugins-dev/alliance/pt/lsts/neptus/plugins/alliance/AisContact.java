@@ -55,6 +55,7 @@ public class AisContact {
     }
     
     public AisContact(int mmsi) {
+        System.out.println("Created AIS contact for mmsi "+mmsi);
         this.mmsi = mmsi;
         lastUpdate = System.currentTimeMillis();
     }
@@ -114,7 +115,7 @@ public class AisContact {
      * @return the label
      */
     public String getLabel() {
-        return label.trim();
+        return label == null ? null : label.trim();
     }
 
     /**

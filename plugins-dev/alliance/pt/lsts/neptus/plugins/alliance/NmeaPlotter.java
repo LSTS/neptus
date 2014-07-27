@@ -40,7 +40,9 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 import javax.swing.JMenuItem;
 
@@ -62,6 +64,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.ScatterPointsElement;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NMEAUtils;
@@ -112,7 +115,10 @@ public class NmeaPlotter extends ConsoleLayer {
     
     @NeptusProperty(name = "Log received data", userLevel=LEVEL.ADVANCED)
     public boolean logReceivedData = true;
-        
+    
+    @NeptusProperty(name = "Number of track points", userLevel=LEVEL.ADVANCED)
+    public int trackPoints = 100;
+            
     private JMenuItem connectItem = null;
     private boolean connected = false;
 
@@ -131,6 +137,29 @@ public class NmeaPlotter extends ConsoleLayer {
     private AisContactDb contactDb = new AisContactDb();
     private AISParser parser = new AISParser();
 
+    private LinkedHashMap<String, LocationType> lastLocs = new LinkedHashMap<>();
+    private LinkedHashMap<String, ScatterPointsElement> tracks = new LinkedHashMap<>();
+    
+    @Periodic(millisBetweenUpdates=5000)
+    public void updateTracks() {
+        for (AisContact c : contactDb.getContacts()) {
+            LocationType l = c.getLocation();
+            String name = c.getLabel();
+            
+            if (lastLocs.get(name) == null || !lastLocs.get(name).equals(l)) {
+                if (!tracks.containsKey(name)) {
+                    ScatterPointsElement sc = new ScatterPointsElement();
+                    sc.setCenterLocation(l);
+                    sc.setColor(Color.black, Color.gray.brighter());
+                    sc.setNumberOfPoints(trackPoints);
+                    tracks.put(name, sc);
+                }
+                tracks.get(name).addPoint(l);                
+            }
+        }
+    }
+    
+    
     private void connectToSerial() throws Exception {
         serialPort = new SerialPort(uartDevice);
 
@@ -180,7 +209,6 @@ public class NmeaPlotter extends ConsoleLayer {
     
     @Subscribe
     public void on(DevDataText ddt) {
-        //System.out.println("received dev data text from "+ddt.getSourceName());  
         parseSentence(ddt.getValue());
     }
     
@@ -197,8 +225,7 @@ public class NmeaPlotter extends ConsoleLayer {
             synchronized (parser) {
                 parser.process(s);    
             }
-        }
-            
+        }            
     }
     
     private void connect() throws Exception {
@@ -282,6 +309,11 @@ public class NmeaPlotter extends ConsoleLayer {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
 
+        ArrayList<ScatterPointsElement> els = new ArrayList<>();
+        els.addAll(tracks.values());
+        for (ScatterPointsElement el : els)
+            el.paint((Graphics2D)g.create(), renderer, renderer.getRotation());
+        
         for (AisContact c : contactDb.getContacts()) {
             LocationType l = c.getLocation();
             if (l.getLatitudeDegs() == 0 &&  l.getLongitudeDegs() == 0)
