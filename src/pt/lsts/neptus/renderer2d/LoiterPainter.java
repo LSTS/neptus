@@ -56,7 +56,7 @@ public class LoiterPainter implements Renderer2DPainter {
         setLoiterManeuver(new Loiter());
     }
 
-    Public LoiterPainter(Loiter loiterManeuver) {
+    public LoiterPainter(Loiter loiterManeuver) {
         setLoiterManeuver(loiterManeuver);
     }
 
