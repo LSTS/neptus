@@ -742,10 +742,11 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
             TransponderElement[] selTransponders = getSelectedTransponderElementsFromExternalComponents();
             if (selTransponders.length > 0 && selTransponders.length < transpondersList.size()) {
                 String beaconsToSend = "";
-                boolean b = true;
+                boolean hideComma = true;
                 for (TransponderElement tElnt : selTransponders) {
-                    beaconsToSend += b ? "" : ", ";
+                    beaconsToSend += hideComma ? "" : ", ";
                     beaconsToSend += tElnt.getDisplayName();
+                    hideComma = false;
                 }
                 int resp = GuiUtils.confirmDialog(SwingUtilities.windowForComponent(this), I18n.text("LBL Beacons"),
                         I18n.textf("Are you sure you want to send only %beaconsToSend?", beaconsToSend));
