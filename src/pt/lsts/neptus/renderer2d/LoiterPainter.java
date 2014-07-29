@@ -73,7 +73,9 @@ public class LoiterPainter implements Renderer2DPainter {
 		g.rotate(bearing);
 		//g.draw(new Line2D.Double(0, 0, 0, -radius));		
 		
-		boolean isClockwise = loiterManeuver.getDirection().equalsIgnoreCase("Counter-Clockwise")? true : false;
+
+		boolean isClockwise = (loiterManeuver.getDirection().equalsIgnoreCase("Counter Clockwise") ||
+		        loiterManeuver.getDirection().equalsIgnoreCase("Counter-Clockwise"))? true : false;
 		
 		if (loiterManeuver.getLoiterType().equalsIgnoreCase("circular")) {	
 			double rt = loiterManeuver.getRadiusTolerance() * zoom;
