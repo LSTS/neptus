@@ -153,7 +153,7 @@ public abstract class CommBaseManager<M extends IMessage, Mi extends MessageInfo
                 try {
                     long prevTime = System.currentTimeMillis();
                     while (true) {
-                        if ((System.currentTimeMillis() - prevTime) < 2000) {
+                        if ((System.currentTimeMillis() - prevTime) > 2000) {
                             if (timeControl - getArrivalTimeMillisLastMsg() > 10000)
                                 setActive(false, null, null);
                             for (C cinf : commInfo.values()) {
