@@ -448,19 +448,16 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             g.rotate(rotationAngle);
         }
 
+        String meTextToDraw = I18n.text("Me");
         if (enableShowDataSource) {
-            g.drawString(
-                    I18n.text("Me")
-                        + (followPositionOf != null && followPositionOf.length() != 0 ? " "
-                                + I18n.text("Pos. external") : "")
-                        + (isSystemToDeriveHeadingFilled()
-                                || isFollowingHeadingOfFilled() ? " "
-                                + I18n.textc("Heading external",
-                                        "indication that the heading comes from external source") : ""), 18, 14);
+            meTextToDraw += (followPositionOf != null && followPositionOf.length() != 0 ? " "
+                    + I18n.text("Pos. external") : "")
+                    + (isSystemToDeriveHeadingFilled() || isFollowingHeadingOfFilled() ? " "
+                            + I18n.textc("Heading external", "indication that the heading comes from external source")
+                            : "");
         }
+        g.drawString(meTextToDraw, 18, 14);
 
-        g.translate(-centerPos.getX(), -centerPos.getY());
-        
         g.dispose();
     }
 
