@@ -31,50 +31,22 @@
  */
 package pt.lsts.neptus.plugins.urready4os;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.Collection;
 
-import javax.swing.JMenuItem;
-
-import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.map.PlanUtil;
+import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
  *
  */
 @PluginDescription
-public class IverPlanExporter extends ConsolePanel {
+public class IverPlanExporter implements IPlanFileExporter  {
 
-    private static final long serialVersionUID = 479977283181976067L;
-    private JMenuItem menuItem = null;
-    
-    
-    @Subscribe
-    public void on(ConsoleEventPlanChange evt) {
-        menuItem.setEnabled(evt.getCurrent() != null);
-    }    
-    /**
-     * @param console
-     */
-    public IverPlanExporter(ConsoleLayout console) {
-        super(console);
-    }
-
-    @Override
-    public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
-    }
-    
     private String iverWaypoint(int wptNum, double speedMps, double prevLength, double yoyoAmplitude, ManeuverLocation prev, ManeuverLocation dst) {
         //2; 37.554823; -1.063032; 5774.552; 270.02;  U32.8,-32.8,25.0 P0 PT25.0 VC1,0,0,1000,0,VC2,0,0,1000,0 S2; 0;-1
         
@@ -116,28 +88,27 @@ public class IverPlanExporter extends ConsolePanel {
     }
 
     @Override
-    public void initSubPanel() {
-        menuItem = addMenuItem("Tools>Export Plan>Iver format", null, new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                PlanType plan = getConsole().getPlan();
-                
-                Collection<ManeuverLocation> wpts = PlanUtil.getPlanWaypoints(plan);
-                ManeuverLocation prev = null;
-                int count = 1;
-                
-                for (ManeuverLocation l : wpts) {
-                    System.out.println(iverWaypoint(count++, 1.0, 0, 0, prev, l));
-                    prev = l;
-                }
-                
-            }
-        });
-        menuItem.setEnabled(getConsole().getPlan() != null);
+    public String getExporterName() {
+        return ".mis Mission File";
     }
-    
-    private static String transform(PlanType plan) {
-        return "";
+
+    @Override
+    public void exportToFile(PlanType plan, File out) throws Exception {
+        Collection<ManeuverLocation> wpts = PlanUtil.getPlanWaypoints(plan);
+        ManeuverLocation prev = null;
+        int count = 1;
+        
+        for (ManeuverLocation l : wpts) {
+            System.out.println(iverWaypoint(count++, 1.0, 0, 0, prev, l));
+            prev = l;
+        }
+        
+        //TODO
+    }
+
+
+    @Override
+    public String[] validExtensions() {
+        return new String[] {"mis"};
     }
 }

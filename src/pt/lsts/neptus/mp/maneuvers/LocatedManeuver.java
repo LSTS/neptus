@@ -34,7 +34,6 @@ package pt.lsts.neptus.mp.maneuvers;
 import java.util.Collection;
 
 import pt.lsts.neptus.mp.ManeuverLocation;
-import pt.lsts.neptus.types.coord.LocationType;
 
 public interface LocatedManeuver {
 
