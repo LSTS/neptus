@@ -188,7 +188,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             }
         }
         if (!source.getLsfIndex().containsMessagesOfType("Distance") && !mbFound) {
-            String msgErrorNoData = I18n.text("No data Available") + "!";
+            String msgErrorNoData = I18n.text("No data Available!");
             GuiUtils.errorMessage(this, I18n.text("Info"), msgErrorNoData);
 
             Text3D noDataText = new Text3D();
@@ -259,7 +259,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
         }
         else { // if no beams were parsed
             String msgErrorMultibeam;
-            msgErrorMultibeam = I18n.text("No beams on Log file") + "!";
+            msgErrorMultibeam = I18n.text("No beams on Log file!");
             GuiUtils.errorMessage(this, I18n.text("Info"), msgErrorMultibeam);
 
             noBeamsText = new Text3D();
@@ -374,7 +374,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     @Override
     public String getPropertiesDialogTitle() {
-        return I18n.text("3D Bathymetry properties");
+        return I18n.text("3D Bathymetry Properties");
     }
 
     /*
