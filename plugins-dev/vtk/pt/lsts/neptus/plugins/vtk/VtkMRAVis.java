@@ -37,7 +37,6 @@ import java.io.File;
 import java.util.LinkedHashMap;
 
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import pt.lsts.neptus.NeptusLog;
@@ -66,6 +65,7 @@ import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.Text3D;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import vtk.vtkLODActor;
 
@@ -189,7 +189,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
         }
         if (!source.getLsfIndex().containsMessagesOfType("Distance") && !mbFound) {
             String msgErrorNoData = I18n.text("No data Available") + "!";
-            JOptionPane.showMessageDialog(null, msgErrorNoData);
+            GuiUtils.errorMessage(this, I18n.text("Info"), msgErrorNoData);
 
             Text3D noDataText = new Text3D();
             noDataText.buildText3D(msgErrorNoData, 2.0, 2.0, 2.0, 10.0);
@@ -260,7 +260,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
         else { // if no beams were parsed
             String msgErrorMultibeam;
             msgErrorMultibeam = I18n.text("No beams on Log file") + "!";
-            JOptionPane.showMessageDialog(null, msgErrorMultibeam);
+            GuiUtils.errorMessage(this, I18n.text("Info"), msgErrorMultibeam);
 
             noBeamsText = new Text3D();
             noBeamsText.buildText3D(msgErrorMultibeam, 2.0, 2.0, 2.0, 10.0);
