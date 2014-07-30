@@ -77,6 +77,7 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.types.coord.LocationType;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.PageSize;
@@ -309,11 +310,16 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
         Point2D lastPt = null;
         stateEntry = stateParser.nextLogEntry();
 
-        while (stateEntry != null) {
+        LocationType ref = new LocationType(Math.toDegrees(stateEntry.getDouble("lat")), Math.toDegrees(stateEntry.getDouble("lon")));
 
-            double north = stateEntry.getDouble("x");
-            double east =  stateEntry.getDouble("y");
-            Point2D pt = new Point2D.Double((east - minY) * scaleY, (-minX-north) * scaleX);
+        while (stateEntry != null) {
+            LocationType loc = new LocationType();
+            loc.setLatitudeRads(stateEntry.getDouble("lat"));
+            loc.setLongitudeRads(stateEntry.getDouble("lon"));
+            loc.translatePosition(stateEntry.getDouble("x"), stateEntry.getDouble("y"), stateEntry.getDouble("z"));
+            double[] offsets = loc.getOffsetFrom(ref);
+
+            Point2D pt = new Point2D.Double((offsets[1] - minY) * scaleY, (-minX-offsets[0]) * scaleX);
 
             if (timeStep == 0)
                 g.setColor(new Color(0,0,0,20));
@@ -388,7 +394,8 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
         }
 
         IMCMessage entry = parser.nextLogEntry();
-        IMCMessage stateEntry;
+        IMCMessage stateEntry = stateParser.nextLogEntry();
+        LocationType ref = new LocationType(Math.toDegrees(stateEntry.getDouble("lat")), Math.toDegrees(stateEntry.getDouble("lon")));
 
         entityList.clear();
         entityList.add("ALL");
@@ -406,13 +413,19 @@ public class ColorMapVisualization extends JPanel implements MRAVisualization, A
             
                 stateEntry = stateParser.getEntryAtOrAfter(parser.currentTimeMillis());
 
+                LocationType loc = new LocationType();
+                loc.setLatitudeRads(stateEntry.getDouble("lat"));
+                loc.setLongitudeRads(stateEntry.getDouble("lon"));
+                loc.translatePosition(stateEntry.getDouble("x"), stateEntry.getDouble("y"), stateEntry.getDouble("z"));
+                double[] offsets = loc.getOffsetFrom(ref);
+
                 double[] vals = new double[4];
 
                 vals[0] = Double.NaN;
 
                 if (stateEntry != null) {
                     vals[0] = entry.getDouble(varName);
-                    dd.addPoint(stateEntry.getDouble("y"), -stateEntry.getDouble("x"), vals);
+                    dd.addPoint(offsets[1], -offsets[0], vals);
                 }
             }
         }

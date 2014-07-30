@@ -122,6 +122,12 @@ public class PluginsLoader {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+//            
+//            Reflections r = new Reflections("pt.lsts.neptus.plugins");
+//            
+//            for (Class<?> c : r.getTypesAnnotatedWith(PluginDescription.class)) {
+//                PluginsRepository.addPlugin(c.getName());
+//            }
         }
 
     }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,7ea345f)" system="lauv-dolphin-1" i18n="ru_RU">
+<config format="1" version="2.6.x (master,db3ad98,dirty)" system="lauv-dolphin-1" i18n="ru_RU">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -2757,7 +2757,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Attitude, CPU, GPS, LBL, Navigation, Operational Limits, Path Control</default>
+      <default>Attitude, CPU, GPS, Navigation, Operational Limits, Path Control</default>
       <units/>
       <desc>Default entities to monitor</desc>
     </param>
@@ -3090,7 +3090,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>22.05, 22.64, 97.43, 124.43, 118.73, 145.73</default>
+      <default>22.05, 22.64, 97.43, 124.43, 112.43, 139.43</default>
       <units>W</units>
       <desc>Corresponding value of power consumption</desc>
     </param>
@@ -3758,7 +3758,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>3.0</default>
+      <default>5.0</default>
       <units>s</units>
       <desc>No Depth readings timeout</desc>
       <min>2.0</min>

@@ -98,6 +98,7 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
         return (getName() + " plot");
     }
 
+
     public final Collection<String> getSeriesNames() {
         LinkedHashSet<String> series = new LinkedHashSet<>();
         series.addAll(this.series.keySet());
@@ -186,11 +187,15 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
     }
 
     public JFreeChart createChart() {
-        return ChartFactory.createGanttChart(I18n.text(getTitle()), I18n.text("Time of day"), I18n.text(getVerticalAxisName()),
+        return ChartFactory.createGanttChart(I18n.text(getTitle()), I18n.text(getVerticalAxisName()), I18n.text(getHorizontalAxisName()),
                 tsc, true, true, false);
     }
 
     public String getVerticalAxisName() {
+        return "Time of the day";
+    }
+
+    public String getHorizontalAxisName() {
         return "";
     }
 

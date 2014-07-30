@@ -543,6 +543,11 @@ public class TransponderElement extends AbstractElement implements NameId{
         duneId = id;
 
     }
+    
+    @Override
+    public String getTypeAbbrev() {
+        return "trans";
+    }
 
     @Override
     public TransponderElement clone() {

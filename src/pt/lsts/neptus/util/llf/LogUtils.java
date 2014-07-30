@@ -32,7 +32,6 @@
 package pt.lsts.neptus.util.llf;
 
 import java.awt.Color;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,6 +63,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverFactory;
 import pt.lsts.neptus.mp.OperationLimits;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.Elevator;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
@@ -76,6 +76,7 @@ import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.mp.maneuvers.Unconstrained;
 import pt.lsts.neptus.mp.maneuvers.YoYo;
 import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -118,10 +119,9 @@ public class LogUtils {
         }
 
         IMraLog parser = source.getLog("EstimatedState");
-        IMCMessage lastEntry = parser.getLastEntry();
-        IMCMessage entry = parser.firstLogEntry(); //parser.nextLogEntry();
+        IMCMessage entry = parser.firstLogEntry();
 
-        long startMillis = parser.getCurrentEntry().getTimestampMillis(); //source.getLog("EstimatedState").currentTimeMillis();
+        long startMillis = parser.getCurrentEntry().getTimestampMillis();
         long startMillis2 = parser.firstLogEntry().getTimestampMillis();
         
         NeptusLog.pub().info("<###> "+startMillis + "" + startMillis2);
@@ -141,27 +141,21 @@ public class LogUtils {
         double avgRoll = entry.getDouble("phi");
         double avgPitch = entry.getDouble("theta");
 
-        double secs = 0;
-
-        double xPos = entry.getDouble("x");
-        double yPos = entry.getDouble("y");
-        
         double distance = 0;
-
         IMCMessage prevEntry = null;
+        
+        CorrectedPosition corPosition = new CorrectedPosition(source);
+        
+        LocationType lastLoc = null;
+        
+        for (SystemPositionAndAttitude loc : corPosition.getPositions()) {
+            if (lastLoc != null)
+                distance += loc.getPosition().getDistanceInMeters(lastLoc);
+            lastLoc = loc.getPosition();
+        }
+        
         while ((entry = parser.nextLogEntry()) != null) {
-
-            // secs += (Math.floor(lastTime) != Math.floor(lastEntry.getTimestamp())) ? 1 : 0;
-            secs += (Math.floor(lastTime) != Math.floor(lastEntry.getTimestamp())) ? 1 : 0;
-
-            if (secs == 3) {
-                double newX = entry.getDouble("x"), newY = entry.getDouble("y");
-                distance += Point2D.distance(xPos, yPos, newX, newY);
-                xPos = newX;
-                yPos = newY;
-                secs = 0;
-            }
-
+            
             double depth = entry.getDouble("depth"); // z
             maxDepth = Math.max(maxDepth, entry.getDouble("depth")); // z
             double phi = entry.getDouble("phi");
@@ -210,7 +204,7 @@ public class LogUtils {
                 + GuiUtils.getNeptusDecimalFormat(2).format(Math.toDegrees(avgPitch)) + "\u00B0");
 
         stats.put(I18n.text("Distance travelled"), GuiUtils.getNeptusDecimalFormat(2).format(distance) + " " + I18n.textc("m", "meters"));
-        stats.put(I18n.text("Mean velocity"),
+        stats.put(I18n.text("Mean speed"),
                 GuiUtils.getNeptusDecimalFormat(2).format(distance / ((endMillis - startMillis) / 1000.0)) + " " + I18n.text("m/s"));
 
         LocationType loc = LogUtils.getHomeRef(source);
@@ -666,8 +660,8 @@ public class LogUtils {
                 }
                 
                 if (refMode == 1 || refMode == 2) {
-                    loc.setLatitudeDegs(Math.toDegrees(estimatedStateMessage.getDouble("lat")));
-                    loc.setLongitudeDegs(Math.toDegrees(estimatedStateMessage.getDouble("lon")));
+                    loc.setLatitudeRads(estimatedStateMessage.getDouble("lat"));
+                    loc.setLongitudeRads(estimatedStateMessage.getDouble("lon"));
                     loc.setDepth(estimatedStateMessage.getDouble("depth"));
                 }
                 if (refMode == 0 || refMode == 2) {

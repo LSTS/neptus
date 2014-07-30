@@ -684,6 +684,11 @@ public class Model3DElement extends AbstractElement implements ScalableElement, 
     }
     
     @Override
+    public String getTypeAbbrev() {
+        return "m3d";
+    }
+    
+    @Override
     public ELEMENT_TYPE getElementType() {
         return ELEMENT_TYPE.MODEL_3D;
     }

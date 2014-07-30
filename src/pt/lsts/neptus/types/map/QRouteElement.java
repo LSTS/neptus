@@ -145,6 +145,11 @@ public class QRouteElement extends SimpleMapElement implements ConfigurationList
         g.draw(gp);        
     }
     
+    @Override
+    public String getTypeAbbrev() {
+        return "qr";
+    }
+    
     
     @Override
     public void setCenterLocation(LocationType centralLocation) {

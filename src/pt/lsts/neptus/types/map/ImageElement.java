@@ -538,6 +538,11 @@ public class ImageElement extends AbstractElement implements ScalableElement, Ro
     public void setBathymetricImageFileName(String bathymetricImageFileName) {
         this.bathymetricImageFileName = bathymetricImageFileName;
     }
+    
+    @Override
+    public String getTypeAbbrev() {
+        return "img";
+    }
 
     @Override
     public ELEMENT_TYPE getElementType() {

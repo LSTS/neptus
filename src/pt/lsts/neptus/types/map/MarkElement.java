@@ -119,6 +119,11 @@ public class MarkElement extends AbstractElement {
     public ELEMENT_TYPE getElementType() {
         return ELEMENT_TYPE.TYPE_MARK;
     }
+    
+    @Override
+    public String getTypeAbbrev() {
+        return "mark";
+    }
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer, double rotation) {

@@ -526,6 +526,11 @@ public class PathElement extends AbstractElement {
         return fill;
     }
 
+    @Override
+    public String getTypeAbbrev() {
+        return "path";
+    }
+
     /**
      * @param fill the fill to set
      */

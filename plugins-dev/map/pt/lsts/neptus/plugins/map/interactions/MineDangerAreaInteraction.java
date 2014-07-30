@@ -83,7 +83,9 @@ public class MineDangerAreaInteraction extends InteractionAdapter implements Ren
         element = new MineDangerAreaElement(pivot.getMapGroup(), pivot);
         element.setCenterLocation(lt);
         element.radius = 0;
-
+        if (event.isControlDown())
+            element.filled = false;
+        
         pivot.addObject(element);
         MapChangeEvent changeEvent = new MapChangeEvent(MapChangeEvent.OBJECT_ADDED);
         changeEvent.setChangedObject(element);
@@ -155,18 +157,11 @@ public class MineDangerAreaInteraction extends InteractionAdapter implements Ren
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.renderer2d.Renderer2DPainter#paint(java.awt.Graphics2D,
-     * pt.lsts.neptus.renderer2d.StateRenderer2D)
-     */
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         Graphics2D g2 = (Graphics2D) g.create();
-        // super.paint(g2);
-
-        double r = Math.abs(element.radius);
+        
+        double r = element != null ? Math.abs(element.radius) : 0;
         g2.setColor(Color.red.darker());
         g2.setFont(new Font("Helvetica", Font.BOLD, 14));
         g2.drawString(I18n.textf("Radius: %radius m",GuiUtils.getNeptusDecimalFormat(1).format(r)), 55, 20);

@@ -61,6 +61,11 @@ public class VehicleGanttPlot extends MRAGanttPlot {
     }
 
     @Override
+    public String getVerticalAxisName() {
+        return I18n.text("");
+    }
+
+    @Override
     public void process(LsfIndex source) {
         LsfGenericIterator it = source.getIterator("VehicleState");
 

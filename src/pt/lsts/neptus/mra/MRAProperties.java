@@ -76,7 +76,15 @@ public class MRAProperties implements PropertiesProvider{
 
     @NeptusProperty(name = "Print page number in generated reports")
     public static boolean printPageNumbers = true;
+    
+    @NeptusProperty(name = "Entity to use for depth measurements")
+    public static depthEntities depthEntity = depthEntities.CTD;
+    
 
+    public enum depthEntities {
+        CTD,
+        Depth_Sensor
+    }
 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.gui.PropertiesProvider#getProperties()

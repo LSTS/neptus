@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2014 Univer
+sidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,6 +45,7 @@ import pt.lsts.neptus.mra.replay.LogReplayPanel;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
 import pt.lsts.neptus.renderer2d.tiles.Tile;
+import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.util.ReflectionUtil;
 
 public class PluginsRepository {
@@ -57,7 +59,8 @@ public class PluginsRepository {
             MRAVisualization.class,
             MRAExporter.class,
             LogReplayLayer.class,
-            LogReplayPanel.class
+            LogReplayPanel.class,
+            IPlanFileExporter.class
             );
       
     private static LinkedHashMap<String, Class<? extends MapTileProvider>> tileProviders = new LinkedHashMap<String, Class<? extends MapTileProvider>>();

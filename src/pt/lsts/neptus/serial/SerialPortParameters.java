@@ -73,8 +73,8 @@ public class SerialPortParameters extends JPanel {
 	 * 
 	 */
 	private void initialize() {
-        this.setSize(new Dimension(340,75));
-        this.setPreferredSize(new Dimension(340,75));
+        this.setSize(new Dimension(360,75));
+        this.setPreferredSize(new Dimension(360,100));
         this.add(getJPanel(), null);
         this.add(getJPanel2(), null);
         this.add(getJPanel1(), null);
@@ -95,7 +95,7 @@ public class SerialPortParameters extends JPanel {
 			jLabel.setText("Baud Rate");
 			jPanel = new JPanel();
 			jPanel.setLayout(flowLayout);
-			jPanel.setPreferredSize(new java.awt.Dimension(160,30));
+			jPanel.setPreferredSize(new java.awt.Dimension(180,30));
 			jPanel.add(jLabel, null);
 			jPanel.add(getBaudRateCombo(), null);
 		}

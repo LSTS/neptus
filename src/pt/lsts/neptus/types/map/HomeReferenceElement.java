@@ -152,6 +152,11 @@ public class HomeReferenceElement extends AbstractElement {
 	}
 	
 	@Override
+	public String getTypeAbbrev() {
+	    return "href";
+	}
+	
+	@Override
 	public ELEMENT_TYPE getElementType() {
 	    return ELEMENT_TYPE.TYPE_HOMEREFERENCE;
 	}

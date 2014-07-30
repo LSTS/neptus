@@ -141,7 +141,11 @@ public class JsfSidescanParser implements SidescanParser {
             
             list.add(new SidescanLine(ping.get(0).getTimestamp(), ping.get(0).getRange(), pose, ping.get(0).getFrequency(), fData));
 
-            ping = parser.nextPing(subsystem);
+            try {
+                ping = parser.nextPing(subsystem);
+            }catch(java.lang.ArrayIndexOutOfBoundsException e){
+                break;//no next ping
+            }
             if(ping.size() == 0) return list;
             
         }
