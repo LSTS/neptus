@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.mra.importers.deltat;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -39,10 +40,14 @@ import java.util.regex.Pattern;
 
 /**
  * @author jqcorreia
- *
+ * @author pdias
  */
 public class DeltaTHeader {
-    public short numBytes;
+    
+    public String fileType; // bytes 0-2 - ASCII '8' '3' 'P'
+    public byte fileVersion; // byte 3 - 10 = v1.10
+    
+    public short numBytes; // 'N' - number of bytes that are written to the disk for this ping, N = 256 + (2*number_of_beams)
     public short numBeams;
     public short samplesPerBeam;
     public short sectorSize;
@@ -68,9 +73,12 @@ public class DeltaTHeader {
         cal.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
     
-    Matcher m;
+    private Matcher m;
     
     public void parse(ByteBuffer b) {
+        fileType = parseFileType(b);
+        fileVersion = b.get(3);
+        
         short month = 0;
         byte timestampBuf[] = new byte[25]; // 12 + 9 + 4 
         byte millisBuf[] = new byte[5];
@@ -85,19 +93,11 @@ public class DeltaTHeader {
         angleIncrement = b.get(78) / 100f;
         range = b.getShort(79);
         
-        byte vel83 = b.get(83);
-            
-        if (!isBitSet(vel83, 7))
-            soundVelocity = 1500f;
-
-        else {
-            byte vel84 = b.get(84);
-            soundVelocity = (float) ((((vel83 & 0x7F) << 8) | vel84)/10.0);
-        }
+        soundVelocity = parseSoundVelocity(b);
         
         rangeResolution = b.getShort(85);
         
-        speed = (b.get(61) / 10.0) * 0.51444;
+        speed = convertKnotsToMetersPerSecond((b.get(61) / 10.0));
         
         byte hasInt = b.get(117);
         hasIntensity = (hasInt == 1) ? true : false;
@@ -146,7 +146,47 @@ public class DeltaTHeader {
         timestamp = cal.getTimeInMillis();
     }
     
+    /**
+     * @param b
+     * @return
+     */
+    private float parseSoundVelocity(ByteBuffer b) {
+        byte vel83 = b.get(83);
+        if (!isBitSet(vel83, 7)){
+            return 1500f;
+        }
+        else {
+            byte vel84 = b.get(84);
+            float sv = (float) ((((vel83 & 0x7F) << 8) | vel84) / 10.0);
+            return sv;
+        }    
+    }
+
+    /**
+     * @param speedKnots
+     * @return
+     */
+    private double convertKnotsToMetersPerSecond(double speedKnots) {
+        return speedKnots * 0.51444;
+    }
+
     private static Boolean isBitSet (byte b, int bit) {
         return (b & (1 << bit)) != 0;
     }
+    
+    private String parseFileType(ByteBuffer b) {
+        byte[] byteBuf = new byte[3];
+        byteBuf[0] = b.get(0);
+        byteBuf[1] = b.get(1);
+        byteBuf[2] = b.get(2);
+        String fileTypeStr = null;
+        try {
+            fileTypeStr = new String(byteBuf, 0, byteBuf.length, "ASCII");
+        }
+        catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return fileTypeStr;
+    }
+
 }
