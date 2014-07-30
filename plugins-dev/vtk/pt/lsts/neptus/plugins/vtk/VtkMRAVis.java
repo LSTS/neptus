@@ -193,6 +193,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
             Text3D noDataText = new Text3D();
             noDataText.buildText3D(msgErrorNoData, 2.0, 2.0, 2.0, 10.0);
+            noDataText.getText3dActor().RotateY(180);
             getCanvas().GetRenderer().AddActor(noDataText.getText3dActor());
         }
     }
@@ -264,6 +265,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
             noBeamsText = new Text3D();
             noBeamsText.buildText3D(msgErrorMultibeam, 2.0, 2.0, 2.0, 10.0);
+            noBeamsText.getText3dActor().RotateY(180);
             getCanvas().GetRenderer().AddActor(noBeamsText.getText3dActor());
         }
     }
