@@ -172,8 +172,6 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
             checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Error, e.getMessage()));
         }
 
-        System.out.println(simOverlay.simulationFinished);
-        //checks.addAll(validateVehicle());
         checks.addAll(validatePlanCompatibility());
         checks.addAll(validateDistances());
         checks.addAll(validateCollisions());
