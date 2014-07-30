@@ -367,7 +367,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
         toolbar.add(b2d);
         
         final ToolbarSwitch line = new ToolbarSwitch(
-                ImageUtils.getIcon("pt/lsts/neptus/plugins/map/interactions/b2d.png"), I18n.text("Add Line Segment"),
+                ImageUtils.getIcon("pt/lsts/neptus/plugins/map/interactions/draw-line.png"), I18n.text("Add Line Segment"),
                 "line");
 
         line.addActionListener(new ActionListener() {

@@ -101,6 +101,14 @@ public abstract class GeometryElement extends AbstractElement implements Rotatab
             this.setDimensionY(Double.parseDouble(doc.selectSingleNode("//y-dim").getText()));
             this.setDimensionZ(Double.parseDouble(doc.selectSingleNode("//z-dim").getText()));
 
+            try {
+                Node n = doc.selectSingleNode("//filled");
+                setFilled(n.getText().equals("true"));
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+            
             Node nd = doc.selectSingleNode("//color");
             if (nd != null) {
                 String rS = nd.selectSingleNode("r").getText();
@@ -274,6 +282,7 @@ public abstract class GeometryElement extends AbstractElement implements Rotatab
         document.add(root);
 
         root.addElement("type").addText(getType());
+        root.addElement("filled").addText(""+isFilled());
         Element dim = root.addElement("dimensions");
         dim.addElement("x-dim").addText(Double.toString(getDimensionX()));
         dim.addElement("y-dim").addText(Double.toString(getDimensionY()));
@@ -290,6 +299,8 @@ public abstract class GeometryElement extends AbstractElement implements Rotatab
             Element textureE = root.addElement("texture");
             textureE.setText(getTextureType().getName());
         }
+        
+        
 
         return document;
     }
