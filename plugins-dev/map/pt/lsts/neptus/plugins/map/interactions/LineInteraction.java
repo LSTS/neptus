@@ -148,7 +148,7 @@ public class LineInteraction extends InteractionAdapter implements Renderer2DPai
         }
 
         if (mode)
-            source.addPostRenderPainter(this, I18n.text("Mine Danger Area"));
+            source.addPostRenderPainter(this, I18n.text("Line Segment"));
         else
             source.removePostRenderPainter(this);
     }
