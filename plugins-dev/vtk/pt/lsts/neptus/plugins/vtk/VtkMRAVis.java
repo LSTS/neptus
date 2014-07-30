@@ -105,10 +105,13 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     private boolean mbFound = false;
     private static final String FILE_83P_EXT = ".83P";
 
+    private MRAPanel mraPanel = null;
+    
     /**
      * @param panel
      */
     public VtkMRAVis(MRAPanel panel) {
+        this.mraPanel = panel;
         if (!Utils.hasTryedToLoadVtkLib) {
             Utils.loadVTKLibraries();
             // VTKMemoryManager.GC.SetAutoGarbageCollection(true);
@@ -189,7 +192,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
         }
         if (!source.getLsfIndex().containsMessagesOfType("Distance") && !mbFound) {
             String msgErrorNoData = I18n.text("No data Available!");
-            GuiUtils.errorMessage(this, I18n.text("Info"), msgErrorNoData);
+            GuiUtils.errorMessage(mraPanel, I18n.text("Info"), msgErrorNoData);
 
             Text3D noDataText = new Text3D();
             noDataText.buildText3D(msgErrorNoData, 2.0, 2.0, 2.0, 10.0);
@@ -261,7 +264,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
         else { // if no beams were parsed
             String msgErrorMultibeam;
             msgErrorMultibeam = I18n.text("No beams on Log file!");
-            GuiUtils.errorMessage(this, I18n.text("Info"), msgErrorMultibeam);
+            GuiUtils.errorMessage(mraPanel, I18n.text("Info"), msgErrorMultibeam);
 
             noBeamsText = new Text3D();
             noBeamsText.buildText3D(msgErrorMultibeam, 2.0, 2.0, 2.0, 10.0);
