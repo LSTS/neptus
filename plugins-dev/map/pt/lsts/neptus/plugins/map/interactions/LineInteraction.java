@@ -167,7 +167,7 @@ public class LineInteraction extends InteractionAdapter implements Renderer2DPai
         g2.setColor(Color.red.darker());
         g2.setFont(new Font("Helvetica", Font.BOLD, 14));
         g2.drawString(I18n.textf("Length: %radius m", GuiUtils.getNeptusDecimalFormat(1).format(l)), 55, 20);
-        g2.drawString(I18n.textf("Bearing: %bearing º", GuiUtils.getNeptusDecimalFormat(1).format(bearing)), 55, 40);
+        g2.drawString(I18n.textf("Bearing: %bearing \u00B0", GuiUtils.getNeptusDecimalFormat(1).format(bearing)), 55, 40);
         g2.dispose();
     }
 }
