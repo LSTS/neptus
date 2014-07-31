@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,db3ad98,dirty)" system="doam" i18n="ru_RU">
+<config format="1" version="2.6.x (master,4f41e09)" system="doam" i18n="ru_RU">
   <section name="Thermal Zone" name-i18n="Термальная зона">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -310,7 +310,7 @@
       <scope>global</scope>
       <default>maneuver</default>
       <units/>
-      <desc>Сфера применения 'Активные' параметра</desc>
+      <desc>Сфера применения &apos;Активные&apos; параметра</desc>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Активная - Видимость</name-i18n>
@@ -319,7 +319,7 @@
       <scope>global</scope>
       <default>user</default>
       <units/>
-      <desc>Видимость 'Активные' параметра</desc>
+      <desc>Видимость &apos;Активные&apos; параметра</desc>
     </param>
     <param name="Active">
       <name-i18n>Активный</name-i18n>
