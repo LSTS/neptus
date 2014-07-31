@@ -38,6 +38,7 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.Dialog.ModalityType;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
@@ -58,9 +59,11 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JColorChooser;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import org.dom4j.Document;
@@ -71,12 +74,17 @@ import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.gui.system.ConnectionSymbol.ConnectionStrengthEnum;
 import pt.lsts.neptus.gui.system.EmergencyTaskSymbol.EmergencyStatus;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.params.ConfigurationManager;
+import pt.lsts.neptus.params.SystemConfigurationEditorPanel;
+import pt.lsts.neptus.params.SystemProperty.Scope;
+import pt.lsts.neptus.params.SystemProperty.Visibility;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -145,6 +153,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
 	private IdProblemSymbol symIdAttention = null;
     private EmergencyTaskSymbol sysEmergencyTask = null;
     private DisplayColorSymbol symDisplayColor = null;
+    private SystemParamsSymbol symSystemParamsSymbol = null;
     private FuelLevelSymbol symFuelLevel = null;
     // U+02EF Modifier Letter Low Down Arrowhead
     private JButton expandButton = new JButton(ICON_DOWN); // "\u25BC"
@@ -182,7 +191,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
         return !isShowExtraInfoVisible() ? super.getPreferredSize() : new Dimension((int)super
                 .getPreferredSize().getWidth(), (int)super.getPreferredSize().getHeight() + label.getHeight() + infoLabel.getHeight()); // 40
 	}
-		
+	
 	private void initialize() {
 	    initializeSymbols();
 	    
@@ -301,6 +310,8 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
                     layout.createSequentialGroup()
                         .addComponent(label)//, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE)
                         .addComponent(glue1)
+                        .addComponent(symSystemParamsSymbol, symConnected.getHeight(), symConnected.getHeight(), symConnected.getHeight())
+                        .addGap(5)
                         .addComponent(symDisplayColor, symConnected.getHeight(), symConnected.getHeight(), symConnected.getHeight())
                 )
     			.addGroup(
@@ -327,6 +338,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
                     layout.createParallelGroup(GroupLayout.Alignment.CENTER)
                         .addComponent(label)
                         .addComponent(glue1)
+                        .addComponent(symSystemParamsSymbol)
                         .addComponent(symDisplayColor)
                 )
     			.addGroup(
@@ -347,15 +359,12 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
                 .addComponent(infoLabel)
 		);
         
-        //layout.linkSize(SwingConstants.VERTICAL, label, symConnected, symAuth);
 		layout.linkSize(SwingConstants.VERTICAL, symConnected, symMain, symLoc,
 				symAuth, symTask, symAttention, symType, symIdAttention, sysEmergencyTask,
-				symDisplayColor, symFuelLevel);
+				symDisplayColor, symSystemParamsSymbol, symFuelLevel);
 		layout.linkSize(SwingConstants.HORIZONTAL, symConnected, symMain, symLoc,
 				symAuth, symTask, symAttention, symType, symIdAttention,sysEmergencyTask,
-                symDisplayColor, symFuelLevel);
-
-        //updateBackColor(COLOR_ACCEPT);
+                symDisplayColor, symSystemParamsSymbol, symFuelLevel);
 	}
 
    /**
@@ -492,6 +501,28 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
             };
         };
         
+        symSystemParamsSymbol = new SystemParamsSymbol() {
+            @Override
+            public boolean isRightClickable() {
+                return this.isActive();
+            };
+            @Override
+            void mouseClicked(MouseEvent e) {
+                SystemConfigurationEditorPanel systemConfEditor = new SystemConfigurationEditorPanel(id, Scope.GLOBAL,
+                        Visibility.USER, true, false, true, ImcMsgManager.getManager());
+                JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(SystemDisplay.this));
+                dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
+                dialog.add(systemConfEditor);
+                dialog.setSize(600, 600);
+                GuiUtils.centerParent(dialog, dialog.getOwner());
+                dialog.setVisible(true);
+            };
+        };
+        if (ConfigurationManager.getInstance().hasProperties(id, Visibility.USER, Scope.GLOBAL))
+            symSystemParamsSymbol.setActive(true);
+        else
+            symSystemParamsSymbol.setActive(false);
+        
         symFuelLevel = new FuelLevelSymbol();
     }
 
@@ -510,6 +541,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
         symIdAttention.dispose();
         sysEmergencyTask.dispose();
         symDisplayColor.dispose();
+        symSystemParamsSymbol.dispose();
     }
 
 	/**
@@ -628,15 +660,14 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
 		return id;
 	}
 
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
+//	/**
+//	 * @param id the id to set
+//	 */
+//	private void setId(String id) {
+//		this.id = id;
+//	}
 	
-	
-	/**
+    /**
 	 * @return the systemImage
 	 */
 	public Image getSystemImage() {

@@ -38,14 +38,25 @@ package pt.lsts.neptus.loader.helper;
  *
  */
 public class CheckJavaOSArch {
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
+    
+    public static String getOs() {
+        String osName = System.getProperty("os.name").toLowerCase().replaceAll(" ", "");
+        
+        if (osName.contains("mac"))
+            osName = "osx";
+        if (osName.contains("win"))
+            osName = "windows";
         String osArch = System.getProperty("os.arch");
         String arch = "x86";
         if (osArch.contains("64"))
             arch = "x64";
-        System.out.println(arch); 
+        
+        return osName+"-"+arch;
+    }
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        System.out.println(getOs()); 
     }
 }

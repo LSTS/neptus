@@ -38,8 +38,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.vtk.events.AEventsHandler;
 import pt.lsts.neptus.plugins.vtk.filters.Contours;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
 import pt.lsts.neptus.plugins.vtk.surface.Delauny2D;
 import pt.lsts.neptus.plugins.vtk.surface.MeshSmoothingLaplacian;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
@@ -56,7 +55,7 @@ public class EventsHandler extends AEventsHandler {
 
     protected vtkRenderer renderer;
 
-    protected LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
+    protected LinkedHashMap<String, APointCloud<?>> linkedHashMapCloud;
     protected LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
 
     private enum ColorMappingRelation {
@@ -74,7 +73,7 @@ public class EventsHandler extends AEventsHandler {
     }
     private RepresentationType representationType;
 
-    public EventsHandler(InteractorStyleVis3D interactorStyle, LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud,
+    public EventsHandler(InteractorStyleVis3D interactorStyle, LinkedHashMap<String, APointCloud<?>> linkedHashMapCloud,
             LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh, IMraLogGroup source) {
         super(interactorStyle, source);
 
@@ -112,11 +111,11 @@ public class EventsHandler extends AEventsHandler {
     //        }
     //    }
 
-    protected PointCloud<?> searchForPointCloudOnRenderer() {
+    protected APointCloud<?> searchForPointCloudOnRenderer() {
         vtkActorCollection actorCollection = new vtkActorCollection();
         actorCollection = getRenderer().GetActors();
         actorCollection.InitTraversal();
-        PointCloud<?> pointCloud = null;
+        APointCloud<?> pointCloud = null;
 
         for(int i = 0; i < actorCollection.GetNumberOfItems(); ++i) {
             if (actorCollection.GetNextActor().IsA("vtkActor2D") > 0)
@@ -178,7 +177,7 @@ public class EventsHandler extends AEventsHandler {
     /**
      * @param pointCloud
      */
-    public void performMeshingOnCloud(PointCloud<PointXYZ> pointCloud) {
+    public void performMeshingOnCloud(APointCloud<?> pointCloud) {
         NeptusLog.pub().info("Create Mesh from pointcloud: " + pointCloud.getCloudName());
 
         Delauny2D delauny = new Delauny2D();

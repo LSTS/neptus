@@ -322,8 +322,9 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                     synchronized (OperationLimitsSubPanel.this) {
                         if (lastMD5 != null) {
                             if (!Arrays.equals(msg.payloadMD5(), lastMD5)) {
-                                int option = JOptionPane.showConfirmDialog(getConsole(),
-                                        I18n.text("Replace current operational limits with received ones?"));
+				int option = JOptionPane.showConfirmDialog(getConsole(),
+									   I18n.text("Replace current operational limits with received ones?"),
+									   I18n.text("Operation Limits"), JOptionPane.YES_NO_OPTION);
                                 if (option != JOptionPane.YES_OPTION)
                                     return;
                             }

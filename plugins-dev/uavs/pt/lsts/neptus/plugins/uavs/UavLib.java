@@ -36,78 +36,17 @@ import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.geom.Point2D;
 
-import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.console.ContainerSubPanel;
-
 /**
  * @author canasta
  *
  */
 public class UavLib {
-    
-    private final static String SUPERCLASS_NAME = "ContainerSubPanel";
-        
+            
     //Being private prevents java's Initialize command     
     private UavLib(){        
     }
     
-    //------Specific Methods------//
-    
-    /**
-     * Given the vehicle's current pitch a draw inclination is return to the caller 
-     * @param num
-     * @return double
-     */
-    public static double calculateDrawPitch(double num, double pitchTheshold, double drawAngle){
-        
-        if(num > -pitchTheshold && num < pitchTheshold)
-            return 0;
-        else if(num < -pitchTheshold)
-            return Math.toRadians(drawAngle);
-        else
-            return Math.toRadians(-drawAngle);                
-    }    
-    
-    /**
-     * Given a Panel class this method returns all instances of that panel, present in the given console. This method basis its search
-     * on the premise that Container Panels have a common superclass: ContainerSubPanel 
-     * @param panelType
-     * @param console
-     * @return 
-     * @return Vector<Object>
-     */
-    public static ConsolePanel findPanelInConsole(String name, ConsoleLayout console){  
-                      
-        for(int i = 0; i < console.getComponentCount(); i++){
-            if(console.getMainPanel().getComponent(i).getClass().getSimpleName().equals(name)){               
-                return (ConsolePanel) console.getMainPanel().getComponent(i);
-            }
-            else if(console.getMainPanel().getComponent(i).getClass().getSuperclass().getSimpleName().equals(SUPERCLASS_NAME)){            
-                return findPanelInConsoleAux(name,(ContainerSubPanel)console.getMainPanel().getComponent(i));                
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @param name
-     * @param component
-     * @return 
-     */
-    private static ConsolePanel findPanelInConsoleAux(String name, ContainerSubPanel container) {
-       
-        for(int i = 0; i < container.getSubPanels().size(); i++){
-            if(container.getSubPanels().get(i).getClass().getSimpleName().equals(name)){
-                return (ConsolePanel) container.getSubPanels().get(i);
-            }
-            else if(container.getSubPanels().get(i).getClass().getSuperclass().getSimpleName().equals(SUPERCLASS_NAME)){
-                return findPanelInConsoleAux(name,(ContainerSubPanel)container.getComponent(i));
-            }
-        }
-        return null;        
-    }
-    
+    //------Specific Methods------//    
     public static GradientPaint gradientColorer(int width, int height, Color color1, Color color2) {
         return new GradientPaint(new Point2D.Double(width/2,height), color1, new Point2D.Double(width/2,0), color2);
     }

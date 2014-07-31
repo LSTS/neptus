@@ -31,8 +31,7 @@
  */
 package pt.lsts.neptus.plugins.vtk.surface;
 
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
 import vtk.vtkActor;
 import vtk.vtkContourFilter;
 import vtk.vtkGaussianSplatter;
@@ -49,10 +48,10 @@ import vtk.vtkPolyDataMapper;
  */
 public class GaussianSplat {
 
-    private final PointCloud<PointXYZ> pointCloud;
+    private final APointCloud<?> pointCloud;
     private vtkActor actorGaussianSplat;
 
-    public GaussianSplat(PointCloud<PointXYZ> pointCloud) {
+    public GaussianSplat(APointCloud<?> pointCloud) {
         this.pointCloud = pointCloud;
         setActorGaussianSplat(new vtkActor());
     }
@@ -60,7 +59,7 @@ public class GaussianSplat {
     public void performGaussianSplat(int dim0, int dim1, int dim2, double radius) {
 
         vtkGaussianSplatter splatter  = new vtkGaussianSplatter();
-        splatter.SetInput(pointCloud.getPoly());
+        splatter.SetInput(pointCloud.getPolyData());
         // Set / get the dimensions of the sampling structured point set. Higher values produce better results but are much slower.
         splatter.SetSampleDimensions(dim0, dim1, dim2);
         splatter.SetRadius(radius);

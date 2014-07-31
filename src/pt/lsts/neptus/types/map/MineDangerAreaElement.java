@@ -35,6 +35,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -53,12 +54,19 @@ public class MineDangerAreaElement extends SimpleMapElement {
     @NeptusProperty
     public Color color = Color.red;
     
+    public boolean filled = true;
+       
     public MineDangerAreaElement(MapGroup mg, MapType map) {
         super(mg, map);
     }
     
     public MineDangerAreaElement() {
         super();
+    }
+    
+    @Override
+    public String getTypeAbbrev() {
+        return "mda";
     }
     
     @Override
@@ -73,11 +81,14 @@ public class MineDangerAreaElement extends SimpleMapElement {
         Ellipse2D.Double tmp = new Ellipse2D.Double(-widthScaled/2, -lengthScaled/2, widthScaled, lengthScaled);
         
         g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 100));
-        
-        g.fill(tmp);
+        if (filled)
+            g.fill(tmp);
         g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue()));
         g.setStroke(new BasicStroke(2));
         g.draw(tmp);
+        
+        g.draw(new Line2D.Double(-6, 0, 6, 0));
+        g.draw(new Line2D.Double(0, -6, 0, 6));
     }
     
     @Override

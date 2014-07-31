@@ -129,7 +129,8 @@ public class AudibleVehicleState extends ConsolePanel implements IPeriodicUpdate
     private String cleanUp(String text) {
         return text
                 .replaceAll("xtreme", "extreme")
-                .replaceAll("xplore", "explore");
+                .replaceAll("xplore", "explore")
+                .replaceAll("lauv-seacon-1", "eereena");
     }
     public void say(String text) {
         if (useAudioAlerts) 

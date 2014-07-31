@@ -57,7 +57,7 @@ public class SimpleMapElement extends AbstractElement {
 
     public SimpleMapElement(MapGroup mg, MapType map) {
         super(mg, map);
-        id = id.replaceFirst("obj", getType());
+        //id = id.replaceFirst("me", getType());
     }
 
     public SimpleMapElement() {

@@ -655,7 +655,7 @@ public class BathymetryPlotter extends SimpleMRAVisualization {
             AffineTransform transfS = g2S.getTransform();
             g2S.dispose();
 
-            ArrayList<Point> points = dd.getChull();
+            ArrayList<Point> points = dd.computeConvexHull();
             ArrayList<Point> pointsGrow = MathMiscUtils.dilatePolygonPoint(points, 10);
             GeneralPath cHullShapeS = new GeneralPath();
             cHullShapeS.setWindingRule(Path2D.WIND_EVEN_ODD);

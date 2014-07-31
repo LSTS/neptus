@@ -217,8 +217,8 @@ MissionChangeListener {
         }
 
         try {
-            if (plan != null) {
-                planStatistics = PlanUtil.getPlanStatisticsAsText(plan, null, true, true);
+            if (planElem != null && planElem.getPlan() != null) {
+                planStatistics = PlanUtil.getPlanStatisticsAsText(planElem.getPlan(), null, true, true);
                 statsLabel.setText(planStatistics);
             }
         }

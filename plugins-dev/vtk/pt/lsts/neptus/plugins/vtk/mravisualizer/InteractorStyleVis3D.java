@@ -34,8 +34,7 @@ package pt.lsts.neptus.plugins.vtk.mravisualizer;
 import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
 import pt.lsts.neptus.plugins.vtk.visualization.AxesWidget;
@@ -67,7 +66,7 @@ import vtk.vtkScalarBarActor;
  */
 public class InteractorStyleVis3D extends AInteractorStyleTrackballCamera {
 
-    public LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud;
+    public LinkedHashMap<String, APointCloud<?>> linkedHashMapCloud;
     public LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh;
 
     private EventsHandler events;
@@ -117,7 +116,7 @@ public class InteractorStyleVis3D extends AInteractorStyleTrackballCamera {
      * @param linkedHashMapCloud
      */
     public InteractorStyleVis3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
-            LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud, LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh,
+            LinkedHashMap<String, APointCloud<?>> linkedHashMapCloud, LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh,
             IMraLogGroup source) {
         super(canvas, renderer, renWinInteractor);
 

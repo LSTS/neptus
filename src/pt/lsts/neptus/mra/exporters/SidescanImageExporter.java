@@ -93,7 +93,7 @@ public class SidescanImageExporter implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         PluginUtils.editPluginProperties(this, true);
-        MraVehiclePosHud hud = new MraVehiclePosHud(source.getLsfIndex(), hudSize, hudSize);
+        MraVehiclePosHud hud = new MraVehiclePosHud(source, hudSize, hudSize);
         hud.setPathColor(Color.white);
         //double ratio = 9.0 / 16.0;
         SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
@@ -117,14 +117,22 @@ public class SidescanImageExporter implements MRAExporter {
         }
         int ypos = 0;
         int image_num = 1;
-        ArrayList<SidescanLine> lines;
+        ArrayList<SidescanLine> lines = new ArrayList<SidescanLine>();
         BufferedImage img = null;
         int width = imageWidth, height = 1000;
         double startTime = start / 1000.0, endTime;
         for (long time = start; time < end - 1000; time += 1000) {
             if (pmonitor.isCanceled())
                 return "Cancelled by the user";
-            lines = parser.getLinesBetween(time, time + 1000, sys, params);
+
+            int d = 0;
+            while (lines.isEmpty() && d<10000){
+                d += 1000;
+                lines = parser.getLinesBetween(time, time + d, sys, params);
+            }
+            if (lines.isEmpty())
+                break;
+
             if (img == null) {
                 width = Math.min(imageWidth, lines.get(0).xsize);
                 height = imageHeight;

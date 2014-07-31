@@ -109,7 +109,7 @@ public class ZPlot extends MRATimeSeriesPlot {
     }
 
     @Override
-    public String getVerticalAxisName() {
+    public String getHorizontalAxisName() {
         return I18n.text("meters");
     }
 

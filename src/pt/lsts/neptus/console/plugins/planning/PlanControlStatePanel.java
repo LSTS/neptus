@@ -40,12 +40,16 @@ import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.PlanControlState;
-import pt.lsts.imc.PlanControlState.STATE;
+import pt.lsts.imc.PlanDB;
+import pt.lsts.imc.PlanDB.OP;
+import pt.lsts.imc.PlanDB.TYPE;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.DateTimeUtil;
@@ -60,6 +64,8 @@ import com.google.common.eventbus.Subscribe;
 @PluginDescription(name = "Plan Control State", author = "Paulo Dias", version = "0.7", documentation = "plan-control/plan-control.html#PlanControlState")
 public class PlanControlStatePanel extends ConsolePanel {
     private static final long serialVersionUID = 1L;
+
+    private static int count = 0;
 
     // GUI
     private JLabel stateValueLabel;
@@ -80,12 +86,15 @@ public class PlanControlStatePanel extends ConsolePanel {
     private long nodeEtaSec = -1;
     private long lastUpdated = -1;
 
+    @NeptusProperty(name = "Request plans automatically", userLevel=LEVEL.ADVANCED, category="Planning", description = "Select if Neptus should ask the vehicle for plans it is executing but Neptus doesn't know about")
+    public boolean requestPlans = false;
+
     public PlanControlStatePanel(ConsoleLayout console) {
         super(console);
         removeAll();
         initialize();
     }
-    
+
     private void initialize() {
         setSize(200, 200);
         this.setLayout(new MigLayout("ins 0"));
@@ -123,24 +132,39 @@ public class PlanControlStatePanel extends ConsolePanel {
     }
 
     @Subscribe
+    public void on(PlanControlState msg) {
+        if (!requestPlans || msg.getPlanId().isEmpty())
+            return;
+
+        if (!getConsole().getMission().getIndividualPlansList().containsKey(msg.getPlanId())) {
+            PlanDB pdb = new PlanDB();
+            pdb.setOp(OP.GET);
+            pdb.setPlanId(msg.getPlanId());
+            pdb.setType(TYPE.REQUEST);
+            pdb.setRequestId(count++);
+            send(msg.getSourceName(), pdb);
+        }
+    }
+
+    @Subscribe
     public void consume(PlanControlState message) {
-        
         if (!message.getSourceName().equals(getConsole().getMainSystem()))
             return;
+
+        if (message.getPlanId().isEmpty()) {
+            if (message.getPlanProgress() != -1) {
+                outcomeTitleLabel.setText("<html><b>" + I18n.text("Progress") + ": ");
+                outcomeLabel.setText(GuiUtils.getNeptusDecimalFormat(0).format(message.getPlanProgress()) + " %");
+            }
+            return;
+        }
         
         try {
-            state = message.getState();
-            if (message.getState() == STATE.EXECUTING && message.getPlanId() == "") {
-                planId = nodeId = "underwater";
-            }
-            else {
-                planId = message.getPlanId();                
-                nodeId = message.getManId();
-            }
-            
+            planId = message.getPlanId();
+            nodeId = message.getManId();
             nodeTypeImcId = message.getManType();
             nodeEtaSec = message.getManEta();
-                
+
             double progress = -1;
             switch (message.getState()) {
                 case READY:
@@ -157,25 +181,26 @@ public class PlanControlStatePanel extends ConsolePanel {
                             lastOutcome = "<html><font color='#666666'>" + I18n.text("N/A") + "</font>";
                             break;
                     }
-                    break;                    
+                    break;
                 case EXECUTING:
                     progress = message.getPlanProgress();
-                    
-                case INITIALIZING:                        
+
+                case INITIALIZING:
                     outcomeTitleLabel.setText("<html><b>" + I18n.text("Progress") + ": ");
                     if (progress != -1)
-                        lastOutcome = GuiUtils.getNeptusDecimalFormat(0).format(message.getPlanProgress())+" %";    
+                        lastOutcome = GuiUtils.getNeptusDecimalFormat(0).format(message.getPlanProgress()) + " %";
                     else
-                        lastOutcome = "<html><font color='#666666'>" + I18n.text("N/A") + "</font>";                            
+                        lastOutcome = "<html><font color='#666666'>" + I18n.text("N/A") + "</font>";
                     break;
                 default:
                     outcomeTitleLabel.setText("<html><b>" + I18n.text("Progress") + ": ");
                     lastOutcome = "Initializing";
                     break;
             }
-            
+
             outcomeLabel.setText(lastOutcome);
             lastUpdated = System.currentTimeMillis();
+            state = message.getState();
             update();
         }
         catch (Exception e) {

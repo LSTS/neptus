@@ -134,7 +134,7 @@ public class VideoOverlayExporter implements MRAExporter {
             this.timeOffset = timeOffset;
             scanner = new IndexScanner(log.getLsfIndex());
             tempScanner = new IndexScanner(log.getLsfIndex());
-            hud = new MraVehiclePosHud(log.getLsfIndex(), 200, 200);
+            hud = new MraVehiclePosHud(log, 200, 200);
             lbl.setBounds(0, 0, 200, 190);
             lbl.setOpaque(false);
         }

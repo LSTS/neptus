@@ -51,6 +51,7 @@ import javax.swing.event.ListSelectionListener;
 import org.jdesktop.swingx.JXList;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
@@ -97,14 +98,12 @@ public class LogFileInfoList extends JXList {
 					
 					String infoSize = "";
 					if (folder.getSize() >= 0) {
-						infoSize = " (" 
-							+ MathMiscUtils.parseToEngineeringRadix2Notation(folder.getSize(), 1)
-							+ "B)";
-//						if (folder.state == State.INCOMPLETE) {
-//							infoSize += " [" +
-//									
-//									+ "]";
-//						}
+                        infoSize = " ("
+                                + MathMiscUtils.parseToEngineeringRadix2Notation(folder.getSize(), 1)
+                                + "B"
+                                + (!folder.isDirectory() ? "" : (folder.getDirectoryContents() == null
+                                        || folder.getDirectoryContents().isEmpty() ? "" : " | "
+                                        + I18n.textf("%files files", folder.getDirectoryContents().size()))) + ")";
 					}
 					JLabel lbl = new JLabel(folder.getName() + infoSize, ICON_NEW, JLabel.LEFT) {
                         @Override

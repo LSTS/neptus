@@ -37,10 +37,16 @@ import java.util.Vector;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.StatisticsProvider;
+import pt.lsts.neptus.mp.preview.PlanSimulator;
+import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
@@ -49,9 +55,12 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.StringUtils;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 /**
  * Initially moved from {@link pt.lsts.neptus.console.plugins.planning.PlanStatistics}
- * @author pdias
+ * @author pdias, zp
  *
  */
 public class PlanUtil {
@@ -65,6 +74,11 @@ public class PlanUtil {
     private PlanUtil() {
     }
     
+    /**
+     * This method will sequence all maneuvers and return those whose positions are known
+     * @param plan A given plan
+     * @return A sequence of maneuvers whose locations are known
+     */
     public static Vector<LocatedManeuver> getLocationsAsSequence(PlanType plan) {
         Vector<LocatedManeuver> mans = new Vector<LocatedManeuver>();
         for (Maneuver m : plan.getGraph().getManeuversSequence()) {
@@ -74,6 +88,135 @@ public class PlanUtil {
         return mans;
     }
 
+    /**
+     * This method will change the speed of all maneuvers in a plan
+     * @param plan A given plan
+     * @param speedMps The speed to be set to all maneuvers (that accept a speed parameter) in meters per second
+     */
+    public static void setPlanSpeed(PlanType plan, double speedMps) {
+        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, "m/s", true);
+        units.setDisplayName(I18n.text("Speed units"));
+        units.setShortDescription(I18n.text("The speed units"));
+        
+        DefaultProperty propertySpeed = PropertiesEditor.getPropertyInstance("Speed", Double.class, speedMps, true);
+        propertySpeed.setDisplayName(I18n.text("Speed"));
+        Property[] props = new Property[] {units, propertySpeed};
+        
+        for (Maneuver man : plan.getGraph().getAllManeuvers())
+            man.setProperties(props);
+    }
+    
+    /**
+     * This method will change the depth of all maneuvers in a plan
+     * @param plan A given plan
+     * @param depth The depth to be set to all maneuvers (that accept a depth parameter) in meters
+     * @see #setPlanZ(PlanType, double, pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS)
+     */
+    public static void setPlanDepth(PlanType plan, double depth) {
+       setPlanZ(plan, depth, ManeuverLocation.Z_UNITS.DEPTH);
+    }
+    
+    /**
+     * This method will change the altitude of all maneuvers in a plan
+     * @param plan A given plan
+     * @param depth The altitude to be set to all maneuvers (that accept a depth parameter) in meters
+     * @see #setPlanZ(PlanType, double, pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS)
+     */
+    public static void setPlanAltitude(PlanType plan, double altitude) {
+        setPlanZ(plan, altitude, ManeuverLocation.Z_UNITS.ALTITUDE);
+    }
+
+    /**
+     * This method will change the depth/altitude of all maneuvers in a plan
+     * @param plan A given plan
+     * @param z The z value to be set in the plan
+     * @param units The z units to be used
+     * @see ManeuverLocation.Z_UNITS
+     */
+    public static void setPlanZ(PlanType plan, double z, ManeuverLocation.Z_UNITS units) {
+        for (LocatedManeuver man : getLocationsAsSequence(plan)) {
+            ManeuverLocation lt = ((LocatedManeuver) man).getManeuverLocation();
+            lt.setZ(z);
+            lt.setZUnits(units);
+            ((LocatedManeuver) man).setManeuverLocation(lt);
+        }
+    }
+    
+    /**
+     * This method will compute the initial location of the given plan
+     * @param plan A plan
+     * @return The first known location of the plan
+     * @throws Exception In case no maneuvers of the plan have a known location
+     */
+    public static LocationType getFirstLocation(PlanType plan) throws Exception {
+        for (Maneuver m : plan.getGraph().getManeuversSequence()) {
+            if (m instanceof LocatedManeuver)
+                return ((LocatedManeuver) m).getStartLocation();
+        }
+        throw new Exception("The plan doesn't have any located maneuvers");
+    }
+    
+    /**
+     * This method will compute the final location of the given plan
+     * @param plan A plan
+     * @return The last known location of the plan
+     * @throws Exception In case no maneuvers of the plan have a known location
+     */
+    public static LocationType getEndLocation(PlanType plan) throws Exception {
+        Maneuver[] mans = plan.getGraph().getManeuversSequence();
+        for (int i = mans.length - 1; i >= 0; i--) {
+            if (mans[i] instanceof LocatedManeuver)
+                return ((LocatedManeuver) mans[i]).getEndLocation();
+        }
+        throw new Exception("The plan doesn't have any located maneuvers");
+    }
+    
+    /**
+     * This method will simulate a given plan and return a series of system states
+     * @param plan The plan to be simulated
+     * @return A sequence of vehicle poses that are expected to happen when executing this plan
+     * @throws Exception In case the initial position of the plan cannot be computed
+     */
+    public Vector<SystemPositionAndAttitude> simulatePlan(PlanType plan) throws Exception {
+        PlanSimulator ps = new PlanSimulator(plan, new SystemPositionAndAttitude(getFirstLocation(plan), 0,0,0));
+        
+        while(!ps.getSimulationOverlay().simulationFinished)
+            Thread.sleep(100);
+        
+        return ps.getSimulationOverlay().getStates();        
+    }
+    
+    /**
+     * This method will simulate a given plan and return a series of system states
+     * @param plan The plan to be simulated
+     * @param loc The initial location to be used for the simulation
+     * @return A sequence of vehicle poses that are expected to happen when executing this plan
+     * @throws Exception In case the initial position of the plan cannot be computed
+     */
+    public Vector<SystemPositionAndAttitude> simulatePlan(LocationType loc, PlanType plan) throws Exception {
+        PlanSimulator ps = new PlanSimulator(plan, new SystemPositionAndAttitude(loc, 0,0,0));
+        
+        while(!ps.getSimulationOverlay().simulationFinished)
+            Thread.sleep(100);
+        
+        return ps.getSimulationOverlay().getStates();        
+    }
+    
+    /**
+     * This method computes the total length of a plan, in meters
+     * @param plan A given plan
+     * @return The total length of the plan, in meters
+     * @see #getPlanLength(Vector)
+     */
+    public static double getPlanLength(PlanType plan) {
+        return getPlanLength(getLocationsAsSequence(plan));
+    }
+    
+    /**
+     * This method computes the total length of maneuver sequence, in meters
+     * @param mans A sequence of located maneuvers
+     * @return The total length of the maneuver sequence
+     */
     public static double getPlanLength(Vector<LocatedManeuver> mans) {
         double length = 0;
         if (mans.size() == 0)
@@ -87,6 +230,59 @@ public class PlanUtil {
                   length += mans.get(i).getManeuverLocation().getDistanceInMeters(mans.get(i-1).getManeuverLocation());
         }
         return length;
+    }
+    
+    /**
+     * This method estimates the total time 
+     * @param previousPos
+     * @param plan
+     * @return
+     * @throws Exception
+     */
+    public static double getEstimatedDelay(LocationType previousPos, PlanType plan) throws Exception {
+        double time = 0;
+        if (previousPos == null)
+            previousPos = getFirstLocation(plan);
+        
+        for (Maneuver m : plan.getGraph().getManeuversSequence()) {
+            if (m instanceof StatisticsProvider) {
+                time += ((StatisticsProvider)m).getCompletionTime(previousPos);                
+            }
+            else {
+                try {
+                    double speed = (Double) m.getClass().getMethod("getSpeed").invoke(m);
+                    String units = (String) m.getClass().getMethod("getUnits").invoke(m);
+                    switch (units.toLowerCase()) {
+                        case "%":
+                            speed = SpeedConversion.convertPercentageToMps(speed);
+                            break;
+                        case "rpm":
+                            speed = SpeedConversion.convertRpmtoMps(speed);
+                        default:
+                            break;
+                    }
+                    if (m instanceof LocatedManeuver) {
+                        LocationType start = ((LocatedManeuver) m).getStartLocation();
+                        LocationType end = ((LocatedManeuver) m).getEndLocation();
+                        time += start.getDistanceInMeters(previousPos) / speed;
+                        time += end.getDistanceInMeters(start) / speed;                        
+                    }
+                }
+                catch (Exception e) {
+                    //e.printStackTrace();
+                }
+            }
+            
+            if (m instanceof LocatedManeuver) {
+                previousPos = ((LocatedManeuver) m).getEndLocation();
+            }            
+        }
+        
+        return time;
+    }
+    
+    public static String getDelayStr(LocationType previousPos, PlanType plan) throws Exception {
+        return DateTimeUtil.milliSecondsToFormatedString((long)(getEstimatedDelay(previousPos, plan) * 1000));
     }
     
     public static String estimatedTime(Vector<LocatedManeuver> mans, double speedRpmRatioSpeed, double speedRpmRatioRpms) {
@@ -194,6 +390,13 @@ public class PlanUtil {
             title = I18n.text("Plan Statistics");
         Vector<LocatedManeuver> mans = PlanUtil.getLocationsAsSequence(plan);
         String ret = "";
+        String estDelay = PlanUtil.estimatedTime(mans, speedRpmRatioSpeed, speedRpmRatioRpms);
+        try {
+            estDelay = PlanUtil.getDelayStr(null, plan);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
         ret += (simpleTextOrHTML?"":(asHTMLFragment?"":"<html>")+"<h1>") + title + (simpleTextOrHTML?"\n":"</h1><ul>");
         ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("ID") + ":" + (simpleTextOrHTML ? " " : "</b> ")
                 + plan.getId() + (simpleTextOrHTML ? "\n" : "</li>");
@@ -201,7 +404,8 @@ public class PlanUtil {
                 + MathMiscUtils.parseToEngineeringNotation(PlanUtil.getPlanLength(mans), 2)
                 + "m" + (simpleTextOrHTML ? "\n" : "</li>");
         ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("Est. Time") + ":" + (simpleTextOrHTML ? " " : "</b> ")
-                + PlanUtil.estimatedTime(mans, speedRpmRatioSpeed, speedRpmRatioRpms) + ""
+                //+ PlanUtil.estimatedTime(mans, speedRpmRatioSpeed, speedRpmRatioRpms) + ""
+                + estDelay + ""
                 + (simpleTextOrHTML ? "\n" : "</li>");
         ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("Max. Depth") + ":"
                 + (simpleTextOrHTML ? " " : "</b> ")
@@ -215,10 +419,7 @@ public class PlanUtil {
                 + (simpleTextOrHTML ? " " : "</b> ")
                 + PlanUtil.numManeuvers(plan) + ""
                 + (simpleTextOrHTML ? "\n" : "</li>");
-        ret += (simpleTextOrHTML) ? "\n" : "";
-        ret += (simpleTextOrHTML ? "" : "<li><b>") + I18n.text("Using Speed/RPM ratio") + ":"
-                + (simpleTextOrHTML ? " " : "</b> ") + speedRpmRatioSpeed + "m/s (" + speedRpmRatioRpms + I18n.text("RPM") + ")"
-                + (simpleTextOrHTML ? "\n" : "</li>");
+        ret += (simpleTextOrHTML) ? "\n" : "";        
 
         Vector<VehicleType> vehs = plan.getVehicles();
         String vehiclesListStr = "";

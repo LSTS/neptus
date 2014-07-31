@@ -254,8 +254,7 @@ public class GPSFixPanel extends ConsolePanel implements MainVehicleChangeListen
         if (showTailPoints) {
             if (scatter == null) {
                 scatter = new ScatterPointsElement();
-                Color c = Color.green.darker(); // new Color(139, 69, 19);
-                scatter.setColor(c);
+                scatter.setColor(Color.green.darker(), Color.black);
                 scatter.setCenterLocation(lt);
                 scatter.setNumberOfPoints(tailPoints);
             }
@@ -263,8 +262,8 @@ public class GPSFixPanel extends ConsolePanel implements MainVehicleChangeListen
                 if (scatter.getPoints().size() > 0)
                     scatter.getPoints().remove(0);
             }
-            double[] distFromRef = lt.getOffsetFrom(scatter.getCenterLocation());
-            scatter.addPoint(distFromRef[0], distFromRef[1], distFromRef[2]);
+            //double[] distFromRef = lt.getOffsetFrom(scatter.getCenterLocation());
+            scatter.addPoint(lt);
         }
         else {
             if (scatter != null) {

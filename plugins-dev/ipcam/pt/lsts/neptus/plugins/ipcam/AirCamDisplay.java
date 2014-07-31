@@ -64,6 +64,7 @@ import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.util.conf.StringPatternValidator;
@@ -96,13 +97,13 @@ public class AirCamDisplay extends ConsolePanel implements ConfigurationListener
 
     private static final long serialVersionUID = 1L;
 
-    @NeptusProperty(name="Camera IP", description="The IP address of the camera you want to display")
+    @NeptusProperty(name="Camera IP", description="The IP address of the camera you want to display",  userLevel = LEVEL.REGULAR)
     public String ip = "10.0.20.209";
     
-    @NeptusProperty(name="Camera Brand", description="Brand for the installed camera (not case sensitive)")
+    @NeptusProperty(name="Camera Brand", description="Brand for the installed camera (not case sensitive)",  userLevel = LEVEL.REGULAR)
     public String brand = "ubiquiti";
     
-    @NeptusProperty(name="Camera Alias", description="Camera's network alias camera (not case sensitive)")
+    @NeptusProperty(name="Camera Alias", description="Camera's network alias camera (not case sensitive)",  userLevel = LEVEL.REGULAR)
     public String alias = "camera-03";
     
     //small test with private camera element to emulate vehicle-def file loading data

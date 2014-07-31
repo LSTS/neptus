@@ -176,7 +176,10 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
     public synchronized void consume(PlanControlState msg) {
         String src = msg.getSourceName();
         boolean main = src == getConsole().getMainSystem();
-
+        
+        if (msg.getPlanId().isEmpty())
+            return;
+        
         if (msg.getState() != PlanControlState.STATE.EXECUTING) {
 
             if (forceSimVisualization && main)

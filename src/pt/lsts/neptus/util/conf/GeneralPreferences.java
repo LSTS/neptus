@@ -128,7 +128,15 @@ public class GeneralPreferences implements PropertiesProvider {
 
     @NeptusProperty(name = "Logs Downloader - Enable Parcial Download", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED, 
             description = "Enable the partial logs downloads (resume partial downloads). NOTE: THE DOWNLOAD BOXES ONLY READ THIS OPTION UPON CREATION.")
-    public static boolean logsDownloaderEnablePartialDownload = false;
+    public static boolean logsDownloaderEnablePartialDownload = true;
+
+    @NeptusProperty(name = "Logs Downloader - Use number of simultaneous downloads control", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED, 
+            description = "")
+    public static boolean logsNumberSimultaneousDownloadsControl = true;
+
+    @NeptusProperty(name = "Logs Downloader - Wait for all To Stop", category = "IMC Logs Downloader", userLevel = LEVEL.ADVANCED, 
+            description = "")
+    public static boolean logsDownloaderWaitForAllToStop = true;
 
     // -------------------------------------------------------------------------
 

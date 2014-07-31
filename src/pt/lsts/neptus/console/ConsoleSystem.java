@@ -251,8 +251,7 @@ public class ConsoleSystem implements MissionChangeListener, PreferencesListener
                         mapCS.addObject(scatter);
                     }
 
-                    double[] distFromRef = loc.getOffsetFrom(scatter.getCenterLocation());
-                    scatter.addPoint(distFromRef[0], distFromRef[1], distFromRef[2]);
+                    scatter.addPoint(loc);
 
                 }
                 else {

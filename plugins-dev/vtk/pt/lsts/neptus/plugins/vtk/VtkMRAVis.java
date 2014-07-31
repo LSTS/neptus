@@ -37,7 +37,6 @@ import java.io.File;
 import java.util.LinkedHashMap;
 
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import pt.lsts.neptus.NeptusLog;
@@ -59,12 +58,14 @@ import pt.lsts.neptus.plugins.vtk.mravisualizer.LoadToPointCloud;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DMenuBar;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Vis3DToolBar;
 import pt.lsts.neptus.plugins.vtk.mravisualizer.Window;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudHandlerXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudXYZ;
 import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.Text3D;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import vtk.vtkLODActor;
 
@@ -92,10 +93,9 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     private Vis3DMenuBar menuBar;
     private Vis3DToolBar toolbar;
 
-    private LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud = new LinkedHashMap<String, PointCloud<PointXYZ>>();
+    private LinkedHashMap<String, APointCloud<?>> linkedHashMapCloud = new LinkedHashMap<String, APointCloud<?>>();
     private LinkedHashMap<String, PointCloudMesh> linkedHashMapMesh = new LinkedHashMap<String, PointCloudMesh>();
 
-    // private Vector<Marker3d> markers = new Vector<>();
     public IMraLogGroup source;
     public File file;
 
@@ -105,10 +105,13 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     private boolean mbFound = false;
     private static final String FILE_83P_EXT = ".83P";
 
+    private MRAPanel mraPanel = null;
+    
     /**
      * @param panel
      */
     public VtkMRAVis(MRAPanel panel) {
+        this.mraPanel = panel;
         if (!Utils.hasTryedToLoadVtkLib) {
             Utils.loadVTKLibraries();
             // VTKMemoryManager.GC.SetAutoGarbageCollection(true);
@@ -160,43 +163,46 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     private void loadCloud() {
         if (mbFound) {
-            PointCloud<PointXYZ> pointCloudMultibeam = new PointCloud<>();
+            PointCloudXYZ pointCloudMultibeam = new PointCloudXYZ();
             LoadToPointCloud load = new LoadToPointCloud(source, pointCloudMultibeam);
             NeptusLog.pub().info("Parsing Multibeam data.");
             pointCloudMultibeam.setCloudName("multibeam");
-            toolbar.multibeamToggle.setSelected(true);
             load.parseMultibeamPointCloud();
-            events.setSensorTypeInteraction(SensorTypeInteraction.MULTIBEAM);
             getLinkedHashMapCloud().put(pointCloudMultibeam.getCloudName(), pointCloudMultibeam);
             processPointCloud(pointCloudMultibeam, load);
+            pointCloudMultibeam.getPolyData().GetPointData().SetScalars(((PointCloudHandlerXYZ) (pointCloudMultibeam.getColorHandler())).getColorsZ());
+            events.setSensorTypeInteraction(SensorTypeInteraction.MULTIBEAM);
+            toolbar.multibeamToggle.setSelected(true);
             setUpRenderer(pointCloudMultibeam);
         }
         if (source.getLsfIndex().containsMessagesOfType("Distance")) {
-            PointCloud<PointXYZ> pointCloudDVL = new PointCloud<>();
+            PointCloudXYZ pointCloudDVL = new PointCloudXYZ();
             LoadToPointCloud load2 = new LoadToPointCloud(source, pointCloudDVL);
             NeptusLog.pub().info("Parsing DVL data.");
             pointCloudDVL.setCloudName("dvl");
             load2.parseDVLPointCloud();
-            events.setSensorTypeInteraction(SensorTypeInteraction.DVL);
             getLinkedHashMapCloud().put(pointCloudDVL.getCloudName(), pointCloudDVL);
             processPointCloud(pointCloudDVL, load2);
+            pointCloudDVL.getPolyData().GetPointData().SetScalars(((PointCloudHandlerXYZ) (pointCloudDVL.getColorHandler())).getColorsZ());
             if (!mbFound) {
+                events.setSensorTypeInteraction(SensorTypeInteraction.DVL);
                 toolbar.dvlToggle.setSelected(true);
                 setUpRenderer(pointCloudDVL);
             }
         }
         if (!source.getLsfIndex().containsMessagesOfType("Distance") && !mbFound) {
-            String msgErrorNoData = I18n.text("No data Available") + "!";
-            JOptionPane.showMessageDialog(null, msgErrorNoData);
+            String msgErrorNoData = I18n.text("No data Available!");
+            GuiUtils.errorMessage(mraPanel, I18n.text("Info"), msgErrorNoData);
 
             Text3D noDataText = new Text3D();
             noDataText.buildText3D(msgErrorNoData, 2.0, 2.0, 2.0, 10.0);
+            noDataText.getText3dActor().RotateY(180);
             getCanvas().GetRenderer().AddActor(noDataText.getText3dActor());
         }
     }
 
     public void loadCloudBySensorType(String sensorType) {
-        PointCloud<PointXYZ> pointCloud = new PointCloud<>();
+        PointCloudXYZ pointCloud =  new PointCloudXYZ();
         LoadToPointCloud load = new LoadToPointCloud(source, pointCloud);
         if (sensorType.equals("dvl") && source.getLsfIndex().containsMessagesOfType("Distance")) {
             pointCloud.setCloudName(sensorType);
@@ -212,7 +218,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
         setUpRenderer(pointCloud);
     }
 
-    private void processPointCloud(PointCloud<PointXYZ> pointCloud, LoadToPointCloud load) {
+    private void processPointCloud(APointCloud<?> pointCloud, LoadToPointCloud load) {
         if (pointCloud.getCloudName().equals("multibeam")) {
             if (pointCloud.getNumberOfPoints() != 0) { // checks wether there are any points to render!
                 if (MRAProperties.outliersRemoval) {
@@ -226,54 +232,43 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
                     statOutRem.setMeanK(20);
                     statOutRem.setStdMul(0.2);
                     statOutRem.applyFilter(load.getPoints());
-                    pointCloud.setPoints(statOutRem.getOutputPoints());
+                    pointCloud.setXYZPoints(statOutRem.getOutputPoints());
                 }
                 else
-                    pointCloud.setPoints(load.getPoints());
-
-                // pointCloud.setNumberOfPoints(pointCloud.getPoints().GetNumberOfPoints());
+                    pointCloud.setXYZPoints(load.getPoints());
                 // create an actor from parsed beams
-                // if (pointCloud.isHasIntensities()) {
-                // multibeamToPointCloud.showIntensities();
-                // pointCloud.setIntensities(multibeamToPointCloud.getIntensities());
-                //
-                // pointCloud.createLODActorFromPoints(multibeamToPointCloud.getIntensities());
-                // NeptusLog.pub().info("create LOD actor with intensities");
-                // }
-                //
-                // else {
-                pointCloud.createLODActorFromPoints();
-                NeptusLog.pub().info("create LOD actor without intensities");
-                // }
-
-                // Utils.delete(loadToPointCloud.getPoints());
+                pointCloud.createActorFromPoints();
+                pointCloud.generateHandler();
+                NeptusLog.pub().info("Created Actor for multibeam data");
             }
         }
         else {
-            pointCloud.setPoints(load.getPoints());
-            pointCloud.createLODActorFromPoints();
-            NeptusLog.pub().info("created LOD actor for dvl");
+            pointCloud.setXYZPoints(load.getPoints());
+            pointCloud.createActorFromPoints();
+            pointCloud.generateHandler();
+            NeptusLog.pub().info("Created Actor for dvl data");
         }
     }
 
     /**
      * @param pointCloud
      */
-    private void setUpRenderer(PointCloud<PointXYZ> pointCloud) {
+    private void setUpRenderer(APointCloud<?> pointCloud) {
         if (pointCloud.getNumberOfPoints() != 0) {
             // add parsed beams stored on pointcloud to canvas
             getCanvas().GetRenderer().AddActor(pointCloud.getCloudLODActor());
             // set Up scalar Bar look up table
-            interactorStyle.getScalarBar().setUpScalarBarLookupTable(pointCloud.getColorHandler().getLutZ());
+            interactorStyle.getScalarBar().setUpScalarBarLookupTable(((PointCloudHandlerXYZ) pointCloud.getColorHandler()).getLutZ());
             getCanvas().GetRenderer().AddActor(winCanvas.getInteracStyle().getScalarBar().getScalarBarActor());
         }
         else { // if no beams were parsed
             String msgErrorMultibeam;
-            msgErrorMultibeam = I18n.text("No beams on Log file") + "!";
-            JOptionPane.showMessageDialog(null, msgErrorMultibeam);
+            msgErrorMultibeam = I18n.text("No beams on Log file!");
+            GuiUtils.errorMessage(mraPanel, I18n.text("Info"), msgErrorMultibeam);
 
             noBeamsText = new Text3D();
             noBeamsText.buildText3D(msgErrorMultibeam, 2.0, 2.0, 2.0, 10.0);
+            noBeamsText.getText3dActor().RotateY(180);
             getCanvas().GetRenderer().AddActor(noBeamsText.getText3dActor());
         }
     }
@@ -384,7 +379,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     @Override
     public String getPropertiesDialogTitle() {
-        return I18n.text("3D Bathymetry properties");
+        return I18n.text("3D Bathymetry Properties");
     }
 
     /*
@@ -414,14 +409,14 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     /**
      * @return the linkedHashMapCloud
      */
-    public LinkedHashMap<String, PointCloud<PointXYZ>> getLinkedHashMapCloud() {
+    public LinkedHashMap<String, APointCloud<?>> getLinkedHashMapCloud() {
         return linkedHashMapCloud;
     }
 
     /**
      * @param linkedHashMapCloud the linkedHashMapCloud to set
      */
-    public void setLinkedHashMapCloud(LinkedHashMap<String, PointCloud<PointXYZ>> linkedHashMapCloud) {
+    public void setLinkedHashMapCloud(LinkedHashMap<String, APointCloud<?>> linkedHashMapCloud) {
         this.linkedHashMapCloud = linkedHashMapCloud;
     }
 

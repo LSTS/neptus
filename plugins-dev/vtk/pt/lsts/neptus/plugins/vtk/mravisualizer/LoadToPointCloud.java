@@ -43,8 +43,7 @@ import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.DVLBathymetryParser;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
@@ -63,9 +62,11 @@ public class LoadToPointCloud {
     public BathymetryInfo batInfo;
 
     public BathymetryParser parser;
-    public PointCloud<PointXYZ> pointCloud;
+    public APointCloud<?> pointCloud;
+    
     private TidePredictionFinder finder;
-
+    private boolean alreadyTriedToLoadTideFinder = false;
+    
     private vtkPoints points;
     private vtkShortArray intensities;
 
@@ -73,31 +74,32 @@ public class LoadToPointCloud {
     // private int countIntens = 0;
     // private int countIntensZero = 0;
 
-
     /**
      * @param log
      * @param pointCloud
      */
-    public LoadToPointCloud(IMraLogGroup log, PointCloud<PointXYZ> pointCloud) {
+    public LoadToPointCloud(IMraLogGroup log, APointCloud<?> pointCloud) {
         this.source = log;
         this.pointCloud = pointCloud;
     }
 
     private double getTideOffset(long timestampMillis) {
         try {
-            return finder.getTidePrediction(new Date(timestampMillis), false);
+            if (finder == null)
+                return 0;
+            Float ret = finder.getTidePrediction(new Date(timestampMillis), false);
+            return ret == null || ret.isNaN() || ret.isInfinite() ? 0 : ret;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().warn(e.getMessage(), e);
             return 0;
         }
     }
 
     public void parseMultibeamPointCloud () {
-        //parser = BathymetryParserFactory.build(this.source);
         parser = BathymetryParserFactory.build(this.source, "multibeam");
 
-        finder = TidePredictionFactory.create(this.source.getLsfIndex());
+        getOrCreateTideDataProvider();
 
         parser.rewind();
 
@@ -115,8 +117,6 @@ public class LoadToPointCloud {
             if(initLoc == null)
                 initLoc = new LocationType(loc);
 
-            //double tideOffset = getTideOffset(bs.getTimestamp());
-            //finder.getTidePrediction(state.getDate(), false)
             double tideOffset = getTideOffset(bs.getTimestamp());
 
             if (!MRAProperties.approachToIgnorePts) {
@@ -125,21 +125,21 @@ public class LoadToPointCloud {
                     if (p == null)
                         continue;
 
-                    // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
+                    // gets offset north and east and adds with bathymetry point p.north and p.east respectively
                     LocationType tempLoc = new LocationType(loc);
 
                     tempLoc.translatePosition(p.north, p.east, 0);
 
                     // add data to pointcloud
                     double offset[] = tempLoc.getOffsetFrom(initLoc);
-                    //System.out.println(offset[0] + " " + offset[1]);
+
                     getPoints().InsertNextPoint(offset[0],
                             offset[1],
                             p.depth - tideOffset);
 
                     if (parser.getHasIntensity()) {
                         getIntensities().InsertValue(c, p.intensity);
-                        pointCloud.setHasIntensities(true);
+                        // pointCloud.setHasIntensities(true);
                     }
 
                     ++countPoints;
@@ -153,7 +153,7 @@ public class LoadToPointCloud {
                     BathymetryPoint p = bs.getData()[c];
                     if (p == null)
                         continue;
-                    // gets offset north and east and adds with bathymetry point tempPoint.north and tempoPoint.east respectively
+                    // gets offset north and east and adds with bathymetry point p.north and p.east respectively
                     LocationType tempLoc = new LocationType(loc);
 
                     tempLoc.translatePosition(p.north, p.east, 0);
@@ -198,7 +198,7 @@ public class LoadToPointCloud {
         parser = BathymetryParserFactory.build(this.source, "dvl");
 
         if (parser instanceof DVLBathymetryParser) {
-            finder = TidePredictionFactory.create(this.source.getLsfIndex());
+            getOrCreateTideDataProvider();
 
             NeptusLog.pub().info("Parsing dvl points to vtk points");
 
@@ -245,6 +245,14 @@ public class LoadToPointCloud {
 
             pointCloud.setNumberOfPoints(parser.getBathymetryInfo().totalNumberOfPoints);
         }
+    }
+
+    private void getOrCreateTideDataProvider() {
+        if (!alreadyTriedToLoadTideFinder && finder == null)
+            finder = TidePredictionFactory.create(this.source.getLsfIndex());
+        if (finder == null)
+            NeptusLog.pub().warn("No tides data found!!");
+        alreadyTriedToLoadTideFinder = true;
     }
 
     /**

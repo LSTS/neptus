@@ -518,7 +518,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         private void addActionSendPlan(final ConsoleLayout console2, final PlanDBControl pdbControl,
                 final ArrayList<NameId> selectedItems, JPopupMenu popupMenu) {
             popupMenu.add(
-                    I18n.textf("Send %planName to %system", getItemsInString(selectedItems), console2.getMainSystem()))
+                    I18n.textf("Send %planName to %system", getPlanNamesString(selectedItems), console2.getMainSystem()))
                     .addActionListener(
 
                     new ActionListener() {
@@ -534,8 +534,15 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     });
         }
 
-        private <T extends NameId> StringBuilder getItemsInString(final ArrayList<T> selectedItems) {
+        private <T extends NameId> StringBuilder getPlanNamesString(final ArrayList<T> selectedItems) {
             StringBuilder planNames = new StringBuilder();
+            
+            if (selectedItems.size() > 3) {
+                planNames.append(selectedItems.size()+" plans");
+                return planNames;
+            }
+                
+            
             Iterator<T> it = selectedItems.iterator();
             if (!it.hasNext())
                 return planNames;
@@ -579,7 +586,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
          */
         private void addActionRemovePlanLocally(final ConsoleLayout console2, final ArrayList<NameId> selectedItems,
                 JPopupMenu popupMenu) {
-            final StringBuilder itemsInString = getItemsInString(selectedItems);
+            final StringBuilder itemsInString = getPlanNamesString(selectedItems);
             popupMenu.add(I18n.textf("Delete %planName locally", itemsInString)).addActionListener(
                     new ActionListener() {
                         @Override
@@ -603,7 +610,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
 
         private void addActionGetRemotePlan(final ConsoleLayout console2, final PlanDBControl pdbControl,
                 final ArrayList<NameId> remotePlans, JPopupMenu popupMenu) {
-            StringBuilder itemsInString = getItemsInString(remotePlans);
+            StringBuilder itemsInString = getPlanNamesString(remotePlans);
             popupMenu.add(I18n.textf("Get %planName from %system", itemsInString, console2.getMainSystem()))
                     .addActionListener(new ActionListener() {
                         @Override
@@ -617,7 +624,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
 
         private void addActionGetRemoteTrans(final ConsoleLayout console2, JPopupMenu popupMenu,
                 final ArrayList<NameId> remoteTrans) {
-            StringBuilder itemsInString = getItemsInString(remoteTrans);
+            StringBuilder itemsInString = getPlanNamesString(remoteTrans);
             popupMenu.add(I18n.textf("Get %planName from %system", itemsInString, console2.getMainSystem()))
                     .addActionListener(new ActionListener() {
                         @Override
@@ -640,7 +647,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         private void addActionRemovePlanRemotely(final ConsoleLayout console2, final PlanDBControl pdbControl,
                 final ArrayList<NameId> synAndUnsyncPlans, JPopupMenu popupMenu) {
             popupMenu.add(
-                    I18n.textf("Remove '%planName' from %system", getItemsInString(synAndUnsyncPlans),
+                    I18n.textf("Remove '%planName' from %system", getPlanNamesString(synAndUnsyncPlans),
                             console2.getMainSystem())).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -834,9 +841,6 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
                     msgLBLConfiguration = new LblConfig();
                     msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
                     sendMsg(msgLBLConfiguration);
-                    msgLBLConfiguration = new LblConfig();
-                    msgLBLConfiguration.setOp(LblConfig.OP.GET_CFG);
-                    sendMsg(msgLBLConfiguration);
                     // TODO On hold until removing all beacons is stable
                     // browser.removeAllTransponders(console.getMission());
                 }
@@ -1017,7 +1021,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         }
 
         private void addActionRemoveTrans(final ArrayList<TransponderElement> selectedTrans, JPopupMenu popupMenu) {
-            StringBuilder itemsInString = getItemsInString(selectedTrans);
+            StringBuilder itemsInString = getPlanNamesString(selectedTrans);
             popupMenu.add(I18n.textf("Remove %transponderName", itemsInString)).addActionListener(
                     new ActionListener() {
                 @Override
@@ -1061,7 +1065,7 @@ public class MissionTreePanel extends ConsolePanel implements MissionChangeListe
         // }
 
         private void addActionShare(final ArrayList<NameId> selectedItems, JPopupMenu popupMenu2) {
-            StringBuilder itemsInString = getItemsInString(selectedItems);
+            StringBuilder itemsInString = getPlanNamesString(selectedItems);
             popupMenu2.add(I18n.textf("Share %planName", itemsInString)).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {

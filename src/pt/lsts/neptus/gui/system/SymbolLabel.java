@@ -69,6 +69,7 @@ public class SymbolLabel extends JXPanel implements Painter<JXPanel>, IPeriodicU
 	private int symbolWidth = 48 ;
 	private int symbolHeight = 48;
 	private Color color = Color.WHITE;
+	private Color colorHover = Color.WHITE;
 	
 	protected boolean active = false;
 	protected boolean blinkOnChange = true;
@@ -95,7 +96,7 @@ public class SymbolLabel extends JXPanel implements Painter<JXPanel>, IPeriodicU
 			@Override
 			public void mouseEntered(MouseEvent e) {
 	            if (SymbolLabel.this.isRightClickable()) {
-                    SymbolLabel.this.setBorder(BorderFactory.createLineBorder(Color.WHITE,
+                    SymbolLabel.this.setBorder(BorderFactory.createLineBorder(colorHover,
                             (int) (SymbolLabel.this.getWidth() * 0.05)));
                 }
 			}
@@ -241,6 +242,20 @@ public class SymbolLabel extends JXPanel implements Painter<JXPanel>, IPeriodicU
 		this.color = color;
 	}
 	
+	/**
+     * @return the colorHover
+     */
+    public Color getColorHover() {
+        return colorHover;
+    }
+    
+    /**
+     * @param colorHover the colorHover to set
+     */
+    public void setColorHover(Color colorHover) {
+        this.colorHover = colorHover;
+    }
+    
 	private void scheduleUpdateTask() {
 	    synchronized (blinkingState) {
 	        if (updaterTask == null) {

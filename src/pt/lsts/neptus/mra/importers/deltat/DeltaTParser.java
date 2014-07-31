@@ -230,9 +230,6 @@ public class DeltaTParser implements BathymetryParser {
             // coupling
             state = stateParser.getEntryAtOrAfter(header.timestamp + MRAProperties.timestampMultibeamIncrement);
 
-            if (state == null)
-                return null;
-
             if (state == null) {
                 NeptusLog.pub().info("State message = null");
                 return null;

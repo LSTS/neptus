@@ -40,6 +40,8 @@ import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
@@ -64,8 +66,10 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -1566,6 +1570,46 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                 CheckListExe.showCheckListExeDialog(getMainSystem(), ct, this, file.getParent());
             }
         }
+    }
+    
+    /**
+     * Creates and retrieves a console menu item
+     * 
+     * @param itemPath The path to the menu item separated by ">". Examples: <li>
+     *            <b>"Tools > Local Network > Test Network"</b> <li><b>"Tools>Test Network"</b>
+     * @param icon The icon to be used in the menu item. <br>
+     *            Size is automatically adjusted to 16x16 pixels.
+     * @param actionListener The {@link ActionListener} that will be warned on menu activation
+     * @return The created {@link JMenuItem} or <b>null</b> if an error as occurred.
+     */
+    public JMenuItem addMenuItem(String itemPath, ImageIcon icon, ActionListener actionListener) {
+        String[] ptmp = itemPath.split(">");
+        if (ptmp.length < 2) {
+            NeptusLog.pub().error("Menu path has to have at least two components");
+            return null;
+        }
+
+        String[] path = new String[ptmp.length - 1];
+        System.arraycopy(ptmp, 0, path, 0, path.length);
+
+        String menuName = ptmp[ptmp.length - 1];
+
+        JMenu menu = getConsole().getOrCreateJMenu(path);
+
+        final ActionListener l = actionListener;
+        AbstractAction action = new AbstractAction(menuName) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                l.actionPerformed(e);
+            }
+        };
+        if (icon != null)
+            action.putValue(AbstractAction.SMALL_ICON, ImageUtils.getScaledIcon(icon.getImage(), 16, 16));
+
+        JMenuItem item = menu.add(action);
+        return item;
     }
 
     public JMenu removeMenuItem(String[] menuPath) {

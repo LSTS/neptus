@@ -47,8 +47,6 @@ import vtk.vtkPoints;
  *         the distances are computed in order to determine a distance threshold. The distance threshold will be = mean
  *         + stdMul * stddev. During the next iteration the point will be classified as inlier or outlier if their
  *         average distance is below or above this threshold respectively
- * 
- *         meank = 10; stdMul = 0.5 for cadiz meank = 20; stdMul = 0.2 for aplds meank = 20; stdMul = 0.1
  */
 public class StatisticalOutlierRemoval {
 
@@ -80,14 +78,10 @@ public class StatisticalOutlierRemoval {
 
             vtkKdTree kdTree = new vtkKdTree();
             kdTree.BuildLocatorFromPoints(points);
-            // kdTree.PrintVerboseTree();
 
             double[] meanDistances = new double[points.GetNumberOfPoints()];
             double meanDistancesSum = 0.0;
-
             double sqSumDistances = 0.0;
-
-            // double mean = 0.0;
 
             meanK++; // because the indice 0 from N closests points is the query point
 
@@ -110,9 +104,6 @@ public class StatisticalOutlierRemoval {
             double stddev = CalcUtils.stddev(meanDistancesSum, sqSumDistances, points.GetNumberOfPoints());
 
             double distanceThreshold = mean + stdMul * stddev;
-            // NeptusLog.pub().info("Mean: " + mean);
-            // NeptusLog.pub().info("StdDev: " + stddev);
-            // NeptusLog.pub().info("Distance Threshold: " + distanceThreshold);
 
             // check wether it is inlier or outlier
             for (int c = 0; c < points.GetNumberOfPoints(); ++c) {

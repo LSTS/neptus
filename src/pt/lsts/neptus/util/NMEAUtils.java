@@ -159,6 +159,9 @@ public class NMEAUtils {
 		reader.close();
 	}
 	
+	public static String nmeaType(String sentence) {
+	    return sentence.trim().split(",")[0];
+	}
 	
 	public static double nmeaLatOrLongToWGS84(String nmea_pos) throws NumberFormatException {
 		int comma_pos = nmea_pos.indexOf('.');

@@ -55,19 +55,39 @@ if exist jre\bin (
 )
 
 for /f "delims=" %%a in ('%JAVA_BIN_FOLDER%java -cp bin/neptus.jar pt.lsts.neptus.loader.helper.CheckJavaOSArch') do (@set JAVA_MACHINE_TYPE=%%a)
-if %JAVA_MACHINE_TYPE%==x86 (
-	if %PROCESSOR_ARCHITECTURE%==x86 (
-		set LIBRARYPATH=.;libJNI/x86;libJNI;C:\Program^ Files\VTK\bin
-	)
-	else (
-		set LIBRARYPATH=.;libJNI/x86;libJNI;C:\Program^ Files^ ^(x86^)\VTK\bin
-	)
-    set LIBRARYPATH=.;libJNI/x86;libJNI;C:\Program^ Files\VTK\bin
+
+if %JAVA_MACHINE_TYPE%==windows-x86 (
+  if %PROCESSOR_ARCHITECTURE%==x86 (
+    if defined vtk.lib.dir (
+      set VTKLIB=%vtk.lib.dir%
+    ) else (
+       set VTKLIB=%PROGRAMFILES%\VTK\bin
+    )
+  )
+  else (
+    if defined "vtk.lib.dir(x86)" (
+      set VTKLIB=%vtk.lib.dir(x86)%
+    ) else (
+      if defined vtk.lib.dir (
+        set VTKLIB=%vtk.lib.dir%
+      ) else (
+        set "VTKLIB=%PROGRAMFILES(x86)%\VTK\bin"
+      )
+    )
+  )
 ) else (
-	set LIBRARYPATH=.;libJNI/x64;libJNI;C:\Program^ Files\VTK\bin
+  if defined vtk.lib.dir (
+      set VTKLIB=%vtk.lib.dir%
+  ) else (
+    set VTKLIB=%PROGRAMFILES%\VTK\bin
+  )
 )
 
-
+if %JAVA_MACHINE_TYPE%==windows-x86 (
+  set LIBRARYPATH=.;libJNI\x86;libJNI;%VTKLIB%
+) else (
+  set LIBRARYPATH=.;libJNI\x64;libJNI;%VTKLIB%
+)
 
 if not "%1"=="ws" goto end2
 	set DEFAULT=%WORKSPACE%

@@ -418,9 +418,6 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             SetEntityParameters setParams = new SetEntityParameters();
             setParams.setName(cat);
             setParams.setParams(propList);
-            
-            setParams.dump(System.out);
-            
             msgs.add(setParams);
         }
 
@@ -503,6 +500,9 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             sid = ImcSystemsHolder.getSystemWithName(getSystemId());
         if (sid != null) {
             imcMsgManager.sendReliablyNonBlocking(msg, sid.getId(), mdl);
+        }
+        else {
+            imcMsgManager.sendMessageToSystem(msg, getSystemId());
         }
     }
     

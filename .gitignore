@@ -50,6 +50,7 @@
 /conf/general-properties.xml
 /conf/mystate.xml
 /conf/oplimits
+/conf/ais.cache
 
 # /conf/i18n/
 /conf/i18n/en
@@ -167,3 +168,7 @@ dev-scripts/grow_pot.sh
 /*_dist
 /positions
 
+
+conf/nddl/Europa.log
+
+plan.sh

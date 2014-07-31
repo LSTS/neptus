@@ -71,16 +71,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
-import com.google.common.eventbus.Subscribe;
-
+import pt.lsts.imc.FuelLevel;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.MonitorIMCComms;
 import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem.IMCAuthorityState;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.ConsoleSystem;
@@ -143,7 +142,8 @@ import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.lsts.imc.FuelLevel;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * @author pdias
@@ -1813,7 +1813,7 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
             // Choose main color
             Color color = new Color(255, 0, 255); // PLUM_RED
 
-            if (SystemPainterHelper.getLocationAge(sys.getLocation(), sys.getLocationTimeMillis()) < DateTimeUtil.MINUTE
+            if (System.currentTimeMillis() - sys.getLocationTimeMillis() < DateTimeUtil.MINUTE
                     * minutesToHideSystemsWithoutKnownLocation)
                 drawExternalSystem(renderer, g2, sys, color);
 

@@ -31,7 +31,11 @@
  */
 package pt.lsts.neptus.mp.maneuvers;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.util.Arrays;
 import java.util.Vector;
 
@@ -338,12 +342,26 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
     @Override
     public void paintOnMap(Graphics2D g2d, PlanElement planElement, StateRenderer2D renderer) {
         super.paintOnMap(g2d, planElement, renderer);
-        
-        LocationType man_loc = this.getStartLocation();
-        Graphics2D g = (Graphics2D)g2d.create();
-        g.translate(-renderer.getScreenPosition(man_loc).getX(), -renderer.getScreenPosition(man_loc).getY());
 
-        g.dispose();
+        float radiusCorrected = radius * renderer.getZoom();
+
+        Graphics2D g2 = (Graphics2D) g2d.create();
+        
+        // X Marks the Spot.
+        g2.drawLine(-4, -4, 4, 4);
+        g2.drawLine(-4, 4, 4, -4);
+
+        g2.setColor(new Color(255, 255, 255, 100));
+        g2.fill(new Ellipse2D.Double(-radiusCorrected, -radiusCorrected, radiusCorrected * 2, radiusCorrected * 2));
+        g2.setColor(Color.blue.darker());
+        g2.draw(new Ellipse2D.Double(-radiusCorrected, -radiusCorrected, radiusCorrected * 2, radiusCorrected * 2));
+
+        // Clockwise Arrow.
+        g2.translate(0, -radiusCorrected);
+        g2.drawLine(-5, 5, 0, 0);
+        g2.drawLine(-5, -5, 0, 0);
+
+        g2.dispose();
     }
 
     

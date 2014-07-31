@@ -379,6 +379,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
      * @see #getZUnits()
      */
     public double getDepth() {
+        if (depth == 0)
+            return 0;
         return depth;
     }
 

@@ -211,7 +211,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         initialize();
         this.subsystem = subsystem;
 
-        posHud = new MraVehiclePosHud(analyzer.mraPanel.getSource().getLsfIndex(), config.hudSize, config.hudSize);
+        posHud = new MraVehiclePosHud(analyzer.mraPanel.getSource(), config.hudSize, config.hudSize);
     }
 
     private void initialize() {

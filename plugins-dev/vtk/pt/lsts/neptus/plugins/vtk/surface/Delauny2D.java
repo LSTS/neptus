@@ -31,8 +31,7 @@
  */
 package pt.lsts.neptus.plugins.vtk.surface;
 
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloud;
-import pt.lsts.neptus.plugins.vtk.pointtypes.PointXYZ;
+import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
 import vtk.vtkCleanPolyData;
 import vtk.vtkDelaunay2D;
 import vtk.vtkPolyData;
@@ -48,11 +47,11 @@ public class Delauny2D {
 
     }
 
-    public void performDelauny(PointCloud<PointXYZ> inputCloud) {
+    public void performDelauny(APointCloud<?> inputCloud) {
 
         // Clean point cloud
         vtkCleanPolyData cleanPolyData = new vtkCleanPolyData();
-        cleanPolyData.SetInputConnection(inputCloud.getPoly().GetProducerPort());
+        cleanPolyData.SetInputConnection(inputCloud.getPolyData().GetProducerPort());
         cleanPolyData.Update();
 
         // Generate mesh
