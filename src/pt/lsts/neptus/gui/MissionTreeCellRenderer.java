@@ -310,6 +310,9 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
     private void setPlanIcon(String planId, State state, boolean hasMultpVehicles) {
         StringBuilder fileNameBuilder = new StringBuilder(Icons.PLAN.getName());
         fileNameBuilder.append(state.getFileName());
+        if (planId.length() == 1) {
+            fileNameBuilder.append(Icons.ACOUSTIC.getName());
+        }
 
         if (hasMultpVehicles) {
             fileNameBuilder.append(Icons.MULTIPLE_VEHICLES.getName());
