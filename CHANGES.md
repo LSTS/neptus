@@ -1,9 +1,9 @@
 Changes
 =======
 
-Neptus 4.1.0 dev (31-07-2014)
+Neptus 4.1.0 (31-07-2014)
 ------------
- * IMC: Updated IMC and IMCJava to 4667e8e.
+ * IMC: Updated IMC and IMCJava to 4667e8e. (no major changes from v5.4.0 except some experimental messages for UAV added).
  * Config: Updated systems parameters to DUNE 2.6.0 (master,0724529 for lauvseacon-1 and master, 4f41e09 for all others).
  * I18n: Updated POT and PO files.
  * Console/PlanEditor/PlanElement: Using LocationType to calculate distances.
