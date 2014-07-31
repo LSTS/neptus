@@ -32,11 +32,16 @@
 package pt.lsts.neptus.plugins.urready4os;
 
 import java.io.File;
-import java.util.Collection;
 
+import org.apache.commons.io.FileUtils;
+
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
+import pt.lsts.neptus.mp.maneuvers.ManeuversUtil;
+import pt.lsts.neptus.mp.maneuvers.YoYo;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.types.map.PlanUtil;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
@@ -45,45 +50,46 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  *
  */
 @PluginDescription
-public class IverPlanExporter implements IPlanFileExporter  {
+public class IverPlanExporter implements IPlanFileExporter {
 
-    private String iverWaypoint(int wptNum, double speedMps, double prevLength, double yoyoAmplitude, ManeuverLocation prev, ManeuverLocation dst) {
-        //2; 37.554823; -1.063032; 5774.552; 270.02;  U32.8,-32.8,25.0 P0 PT25.0 VC1,0,0,1000,0,VC2,0,0,1000,0 S2; 0;-1
-        
+    private String iverWaypoint(int wptNum, double speedMps, double prevLength, double yoyoAmplitude, double pitchDegs,
+            ManeuverLocation prev, ManeuverLocation dst) {
+        // 2; 37.554823; -1.063032; 5774.552; 270.02; U32.8,-32.8,25.0 P0 PT25.0 VC1,0,0,1000,0,VC2,0,0,1000,0 S2; 0;-1
+
         StringBuilder sb = new StringBuilder();
-        sb.append(wptNum+"; ");
+        sb.append(wptNum + "; ");
         dst.convertToAbsoluteLatLonDepth();
-        sb.append(dst.getLatitudeDegs()+"; ");
-        sb.append(dst.getLongitudeDegs()+"; ");
+        sb.append(String.format("%.6f; ", dst.getLatitudeDegs()));
+        sb.append(String.format("%.6f; ", dst.getLongitudeDegs()));
         if (prev == null) {
             sb.append("0.0; ");
             sb.append("0.0; ");
         }
         else {
-            sb.append(prev.getDistanceInMeters(dst)+"; ");
-            sb.append(Math.toDegrees(prev.getXYAngle(dst))+"; ");
+            sb.append(String.format("%.3f; ", prevLength + prev.getDistanceInMeters(dst)));
+            sb.append(String.format("%.2f; ", Math.toDegrees(prev.getXYAngle(dst))));
         }
-        
+
         if (yoyoAmplitude == 0) {
-        
+
             switch (dst.getZUnits()) {
                 case DEPTH:
-                    sb.append("D"+dst.getZ()+" ");
+                    sb.append(String.format("D%.1f ", metersToFeet(dst.getZ())));
                     break;
                 case ALTITUDE:
-                    sb.append("H"+dst.getZ()+" ");
+                    sb.append(String.format("H%.1f ", dst.getZ()));
                     break;
                 default:
-                    sb.append("D0 ");
+                    sb.append("D0.00 ");
                     break;
-            }       
+            }
         }
         else {
-            sb.append("U"+(dst.getZ() - yoyoAmplitude)+","+(dst.getZ() + yoyoAmplitude)+",25.0 ");            
+            sb.append(String.format("U%.1f,%.1f,%.1f ", metersToFeet((dst.getZ() - yoyoAmplitude)), metersToFeet((dst.getZ() + yoyoAmplitude)), pitchDegs));
         }
-        
-        sb.append("P0 PT25 VC1,0,0,1000,0,VC2,0,0,1000,0 S2; 0;-1");
-        
+
+        sb.append(String.format("P0 PT25 VC1,0,0,1000,0,VC2,0,0,1000,0 S%.1f; 0;-1\n", mpsToKnots(speedMps)));
+
         return sb.toString();
     }
 
@@ -92,23 +98,110 @@ public class IverPlanExporter implements IPlanFileExporter  {
         return ".mis Mission File";
     }
 
-    @Override
-    public void exportToFile(PlanType plan, File out) throws Exception {
-        Collection<ManeuverLocation> wpts = PlanUtil.getPlanWaypoints(plan);
-        ManeuverLocation prev = null;
-        int count = 1;
-        
-        for (ManeuverLocation l : wpts) {
-            System.out.println(iverWaypoint(count++, 1.0, 0, 0, prev, l));
-            prev = l;
-        }
-        
-        //TODO
+    public double metersToFeet(double meters) {
+        return meters * 3.2808399;
+    }
+    
+    public double mpsToKnots(double mps) {
+        return mps * 1.943844492;
     }
 
+    /*
+     * WP1;Time=0;Dist=0 WP2;Time=5612.41548918965;Dist=5774.55193665513 Total Time = 01:33:32;Total Distance = 5774.55
+     */
+    @Override
+    public void exportToFile(PlanType plan, File out) throws Exception {
+        double distanceSum = 0;
+        double timeSum = 0;
+        double minDepth = Double.MAX_VALUE, minLat = Double.MAX_VALUE, minLon = Double.MAX_VALUE;
+        double maxDepth = -Double.MAX_VALUE, maxLat = -Double.MAX_VALUE, maxLon = -Double.MAX_VALUE;
+
+        int count = 1;
+        ManeuverLocation previousLoc = null;
+
+        StringBuilder wpts = new StringBuilder();
+        StringBuilder wpt_times = new StringBuilder();
+        for (Maneuver m : plan.getGraph().getManeuversSequence()) {
+            double speed = ManeuversUtil.getSpeedMps(m);
+            if (Double.isNaN(speed))
+                continue;
+            if (m instanceof YoYo) {
+                ManeuverLocation loc = ((YoYo) m).getManeuverLocation();
+                loc.convertToAbsoluteLatLonDepth();
+
+                double amp = ((YoYo) m).getAmplitude();
+                double depth = loc.getDepth();
+                double distance = 0;
+                if (previousLoc != null)
+                    distance = previousLoc.getDistanceInMeters(loc);
+                double time = distance / speed;// * Math.cos(((YoYo)m).getPitchAngle()));
+                maxDepth = Math.max(depth + amp, maxDepth);
+                minDepth = Math.min(depth - amp, minDepth);
+                minLat = Math.min(minLat, loc.getLatitudeDegs());
+                maxLat = Math.max(maxLat, loc.getLatitudeDegs());
+                minLon = Math.min(minLon, loc.getLongitudeDegs());
+                maxLon = Math.max(maxLon, loc.getLongitudeDegs());
+
+                wpts.append(iverWaypoint(count, speed, distanceSum, ((YoYo) m).getAmplitude(),
+                        Math.toDegrees(((YoYo) m).getPitchAngle()), previousLoc, ((YoYo) m).getManeuverLocation()));
+                timeSum += time;
+                distanceSum += distance;
+                if (distanceSum == 0)
+                    wpt_times.append(String.format("WP%d;Time=0;Dist=0\n", count++));
+                else
+                    wpt_times.append(String.format("WP%d;Time=%.11f;Dist=%.11f\n", count++, timeSum, distanceSum));
+                previousLoc = loc;
+            }
+            else if (m instanceof LocatedManeuver) {
+                for (ManeuverLocation wpt : ((LocatedManeuver) m).getWaypoints()) {
+                    wpt.convertToAbsoluteLatLonDepth();
+                    double depth = wpt.getDepth();
+                    double distance = 0;
+                    if (previousLoc != null)
+                        distance = previousLoc.getDistanceInMeters(wpt);
+                    double time = distance / speed;
+                    maxDepth = Math.max(depth, maxDepth);
+                    minDepth = Math.min(depth, minDepth);
+                    minLat = Math.min(minLat, wpt.getLatitudeDegs());
+                    maxLat = Math.max(maxLat, wpt.getLatitudeDegs());
+                    minLon = Math.min(minLon, wpt.getLongitudeDegs());
+                    maxLon = Math.max(maxLon, wpt.getLongitudeDegs());
+
+                    wpts.append(iverWaypoint(count, speed, distanceSum, 0, 0, previousLoc, wpt));
+                    timeSum += time;
+                    distanceSum += distance;
+                    if (distanceSum == 0)
+                        wpt_times.append(String.format("WP%d;Time=0;Dist=0\n", count++));
+                    else
+                        wpt_times.append(String.format("WP%d;Time=%.11f;Dist=%.11f\n", count++, timeSum, distanceSum));
+                    previousLoc = wpt;
+                }
+            }
+        }
+        int secs = (int)timeSum;
+        int hours = secs/3600;
+        int mins = (secs - (hours * 3600))/60;
+        secs = secs % 60;
+        
+        wpt_times.append(String.format("Total Time = %02d:%02d:%02d;Total Distance = %.2f\n", hours, mins, secs, distanceSum));
+
+        String template = PluginUtils.getResourceAsString("pt/lsts/neptus/plugins/urready4os/template.mis");
+        
+        template = template.replaceAll("\\$\\{wpts\\}", wpts.toString().trim());
+        template = template.replaceAll("\\$\\{wpt_times\\}", wpt_times.toString().trim());
+        template = template.replaceAll("\\$\\{mission_name\\}", out.getName());
+        template = template.replaceAll("\\$\\{minLat\\}", String.format("%.6f", minLat));
+        template = template.replaceAll("\\$\\{maxLat\\}", String.format("%.6f", maxLat));
+        template = template.replaceAll("\\$\\{minLon\\}", String.format("%.6f", minLon));
+        template = template.replaceAll("\\$\\{maxLon\\}", String.format("%.6f", maxLon));
+        template = template.replaceAll("\\$\\{centerLat\\}", String.format("%.6f", (minLat+maxLat)/2));
+        template = template.replaceAll("\\$\\{centerLon\\}", String.format("%.6f", (minLon+maxLon)/2));
+        
+        FileUtils.write(out, template);
+    }
 
     @Override
     public String[] validExtensions() {
-        return new String[] {"mis"};
+        return new String[] { "mis" };
     }
 }

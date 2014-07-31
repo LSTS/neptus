@@ -40,7 +40,12 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.util.Vector;
 
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.preview.SpeedConversion;
 import pt.lsts.neptus.util.AngleCalc;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
 
 /**
  * @author pdias
@@ -381,5 +386,32 @@ public class ManeuversUtil {
 //        }
         g2d.setStroke(sO);
         g2d.rotate(-bearingRad + (!invertY ? 1 : -1) * -crossAngleRadians);
+    }
+    
+    public static double getSpeedMps(Maneuver man) {
+        
+        DefaultProperty speedProp = null, unitsProp = null;
+        
+        for (DefaultProperty dp : man.getProperties()) {
+            if (dp.getName().equalsIgnoreCase("Speed"))
+                speedProp = dp;
+            else if (dp.getName().equalsIgnoreCase("Speed units"))
+                unitsProp = dp;
+        }
+        
+        if (speedProp == null || unitsProp == null)
+            return Double.NaN;
+        
+        switch (""+unitsProp.getValue()) {
+            case "m/s":
+                return Double.parseDouble(""+speedProp.getValue());
+            case "RPM":
+                return SpeedConversion.convertRpmtoMps(Double.parseDouble(""+speedProp.getValue()));
+            case "%":
+                return SpeedConversion.convertPercentageToMps(Double.parseDouble(""+speedProp.getValue()));
+            default:
+                NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
+                return Double.NaN;
+        }
     }
 }
