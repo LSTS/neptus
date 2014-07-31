@@ -385,7 +385,7 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
                 }
             }
         });
-        line.setToolTipText(I18n.text("Add Line segment"));
+        line.setToolTipText(I18n.text("Add Line Segment"));
         toolbar.add(line);
         
 
