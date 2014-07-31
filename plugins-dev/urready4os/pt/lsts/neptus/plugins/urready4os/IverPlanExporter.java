@@ -35,6 +35,7 @@ import java.io.File;
 
 import org.apache.commons.io.FileUtils;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -54,7 +55,6 @@ public class IverPlanExporter implements IPlanFileExporter {
 
     private String iverWaypoint(int wptNum, double speedMps, double prevLength, double yoyoAmplitude, double pitchDegs,
             ManeuverLocation prev, ManeuverLocation dst) {
-        // 2; 37.554823; -1.063032; 5774.552; 270.02; U32.8,-32.8,25.0 P0 PT25.0 VC1,0,0,1000,0,VC2,0,0,1000,0 S2; 0;-1
 
         StringBuilder sb = new StringBuilder();
         sb.append(wptNum + "; ");
@@ -85,7 +85,8 @@ public class IverPlanExporter implements IPlanFileExporter {
             }
         }
         else {
-            sb.append(String.format("U%.1f,%.1f,%.1f ", metersToFeet((dst.getZ() - yoyoAmplitude)), metersToFeet((dst.getZ() + yoyoAmplitude)), pitchDegs));
+            sb.append(String.format("U%.1f,%.1f,%.1f ", metersToFeet((dst.getZ() - yoyoAmplitude)),
+                    metersToFeet((dst.getZ() + yoyoAmplitude)), pitchDegs));
         }
 
         sb.append(String.format("P0 PT25 VC1,0,0,1000,0,VC2,0,0,1000,0 S%.1f; 0;-1\n", mpsToKnots(speedMps)));
@@ -101,14 +102,11 @@ public class IverPlanExporter implements IPlanFileExporter {
     public double metersToFeet(double meters) {
         return meters * 3.2808399;
     }
-    
+
     public double mpsToKnots(double mps) {
         return mps * 1.943844492;
     }
 
-    /*
-     * WP1;Time=0;Dist=0 WP2;Time=5612.41548918965;Dist=5774.55193665513 Total Time = 01:33:32;Total Distance = 5774.55
-     */
     @Override
     public void exportToFile(PlanType plan, File out) throws Exception {
         double distanceSum = 0;
@@ -177,16 +175,16 @@ public class IverPlanExporter implements IPlanFileExporter {
                     previousLoc = wpt;
                 }
             }
+            else {
+                NeptusLog.pub().warn("Maneuvers of type "+m.getType()+" are not supported and thus will be skipped.");
+            }
         }
-        int secs = (int)timeSum;
-        int hours = secs/3600;
-        int mins = (secs - (hours * 3600))/60;
-        secs = secs % 60;
-        
-        wpt_times.append(String.format("Total Time = %02d:%02d:%02d;Total Distance = %.2f\n", hours, mins, secs, distanceSum));
+        int secs = (int) timeSum;
+        wpt_times.append(String.format("Total Time = %02d:%02d:%02d;Total Distance = %.2f\n", secs / 3600,
+                (secs % 3600) / 60, secs % 60, distanceSum));
 
         String template = PluginUtils.getResourceAsString("pt/lsts/neptus/plugins/urready4os/template.mis");
-        
+
         template = template.replaceAll("\\$\\{wpts\\}", wpts.toString().trim());
         template = template.replaceAll("\\$\\{wpt_times\\}", wpt_times.toString().trim());
         template = template.replaceAll("\\$\\{mission_name\\}", out.getName());
@@ -194,9 +192,9 @@ public class IverPlanExporter implements IPlanFileExporter {
         template = template.replaceAll("\\$\\{maxLat\\}", String.format("%.6f", maxLat));
         template = template.replaceAll("\\$\\{minLon\\}", String.format("%.6f", minLon));
         template = template.replaceAll("\\$\\{maxLon\\}", String.format("%.6f", maxLon));
-        template = template.replaceAll("\\$\\{centerLat\\}", String.format("%.6f", (minLat+maxLat)/2));
-        template = template.replaceAll("\\$\\{centerLon\\}", String.format("%.6f", (minLon+maxLon)/2));
-        
+        template = template.replaceAll("\\$\\{centerLat\\}", String.format("%.6f", (minLat + maxLat) / 2));
+        template = template.replaceAll("\\$\\{centerLon\\}", String.format("%.6f", (minLon + maxLon) / 2));
+
         FileUtils.write(out, template);
     }
 
