@@ -77,7 +77,7 @@ public class IverPlanExporter implements IPlanFileExporter {
                     sb.append(String.format("D%.1f ", metersToFeet(dst.getZ())));
                     break;
                 case ALTITUDE:
-                    sb.append(String.format("H%.1f ", dst.getZ()));
+                    sb.append(String.format("H%.1f ", metersToFeet(dst.getZ())));
                     break;
                 default:
                     sb.append("D0.00 ");
