@@ -1,0 +1,76 @@
+MISSION FILE VERSION V1.1
+2X  ;WP Number; Latitude; Longitude; Distance(m); Heading; Depth(ft) (D:depth from surface, H: Height from bottom, U:undulate); P:Parking(mins) VC:Video Camera S:Speed(kn) SS:Sidescan MB:Multibeam
+FILES
+TERRASERVER:-180:-85.0511287798064:180:85.0511287798064
+MISSION NAME
+${mission_name}
+START
+${wpts}
+END
+// Buoy Data: Lat; Long; CycleTime; RingRadious; ShowRing; PingData1; PingData2; ...; PingData99;
+START BUOY DATA
+END BUOY DATA
+START WORKSPACE
+MINX=${minLon}
+MAXX=${maxLon}
+MINY=${minLat}
+MAXY=${maxLat}
+CENTERX=${centerLon}
+CENTERY=${centerLat}
+REFWP=0; 0; 0;  0.0; 0.0;  D0 P0 PT25 VC1,0,0,1000,0,VC2,0,0,1000,0 S2; 0;-1
+REFBUOY=0; 0; 10; 50; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 
+END WORKSPACE
+WP TIMING
+${wpt_times}
+END WP TIMING
+START SONAR LAYERS
+END SONAR LAYERS
+START LAWNMOWERS
+END LAWNMOWERS
+START NOTES
+END NOTES
+START VEHICLE
+UVC=WPRadius=5
+UVC=ParkPercentRadius=100
+UVC=DelayMissionStart=0
+UVC=MaxPitchAngle=25
+UVC=EnableSalinityCorrection=False
+UVC=SalinityValue=0
+DVL=EnableControlADCPUp=False
+DVL=TurnOnADCPUp=False
+DVL=Setup.adpsetup[1].cellSize(m)=1
+DVL=Setup.adpsetup[1].cellCount=5
+DVL=EnableControlADCPDown=False
+DVL=TurnOnADCPDown=False
+DVL=Setup.adpsetup[0].cellSize(m)=1
+DVL=Setup.adpsetup[0].cellCount=5
+DVL=DwnCellNumToDisplay=2
+DVL=EnableIceTrack=False
+DVL=setup.dvlsetup.outputSon42=False
+MB=TiltAnglePort20=False
+MB=TiltAngleStarboard20=False
+MB=TiltAngleCentered=False
+UVC=TowFltRules=True
+UVC=TowFltDelTme=10
+UVC=TowFltMisTme=0.52
+UVC=TowFltUndTme=0
+UVC=TowFltWrkDep=4
+UVC=TowFltMaxDep=0
+UVC=TowFltPowLosTme=30
+UVC=EnableAllSafetyRules=True
+UVC=MINDTB=True;10;
+UVC=AbrtDive=True;40;
+UVC=AbrtDiveNoLock=False;100;
+UVC=OverPitch=True;35;40;
+UVC=RunsLnger=True;2;
+UVC=LeakDet=True;20;
+UVC=ForwProg=True;60;
+UVC=MaxDepth=True;5;
+UVC=UpwdProg=True;40;
+UVC=MinPower=True;15;
+UVC=IrdPower=False;10;
+UVC=RevMot=True;4;5;
+UVC=DeplTwFlt=True;
+UVC=StrtSRP=True;
+UVC=LnchTwFltSRP=True;
+END VEHICLE

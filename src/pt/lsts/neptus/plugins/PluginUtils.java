@@ -39,6 +39,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -56,6 +57,8 @@ import java.util.Vector;
 
 import javax.imageio.spi.ServiceRegistry;
 
+import org.apache.commons.io.IOUtils;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
@@ -63,6 +66,7 @@ import pt.lsts.neptus.gui.editor.EnumEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -887,6 +891,16 @@ public class PluginUtils {
             return new String[] {};
         }
     }
+    
+    public static InputStream getResourceAsStream(String filename) {
+        return Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("pt/lsts/neptus/plugins/urready4os/template.mis");
+    }
+    
+    public static String getResourceAsString(String filename) throws IOException{
+        return IOUtils.toString(getResourceAsStream(filename));
+    }
+    
     /**
      * Given an URL to a resource (.jar, .class, .png, ...), adds that resource to the system class path
      * 

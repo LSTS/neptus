@@ -41,6 +41,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 import java.text.NumberFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
@@ -480,6 +481,8 @@ IMCSerialization, StatisticsProvider, PathProvider {
         }
         return locs;
     }
+    
+    
 
     /**
      * @return the bearingRad
@@ -944,6 +947,20 @@ IMCSerialization, StatisticsProvider, PathProvider {
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
         // TODO Auto-generated method stub
         
+    }
+    
+    @Override
+    public Collection<ManeuverLocation> getWaypoints() {
+        Vector<ManeuverLocation> locs = new Vector<>();
+        List<double[]> lst = Collections.unmodifiableList(points);
+        ManeuverLocation start = new ManeuverLocation(getManeuverLocation());
+        for (double[] ds : lst) {
+            ManeuverLocation loc = new ManeuverLocation(start);
+            loc.translatePosition(ds);
+            loc.convertToAbsoluteLatLonDepth();
+            locs.add(loc);
+        }
+        return locs;
     }
 
     public static void main(String[] args) {

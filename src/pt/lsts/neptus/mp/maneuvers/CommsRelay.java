@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.mp.maneuvers;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Vector;
 
 import org.dom4j.Document;
@@ -372,6 +374,11 @@ public class CommsRelay extends DefaultManeuver implements IMCSerialization, Loc
     @Override
     public ManeuverLocation getEndLocation() {
         return getManeuverLocation();
+    }
+    
+    @Override
+    public Collection<ManeuverLocation> getWaypoints() {
+        return Collections.singleton(getStartLocation());
     }
     
 

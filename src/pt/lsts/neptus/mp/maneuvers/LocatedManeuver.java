@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.mp.maneuvers;
 
+import java.util.Collection;
+
 import pt.lsts.neptus.mp.ManeuverLocation;
 
 public interface LocatedManeuver {
@@ -59,6 +61,8 @@ public interface LocatedManeuver {
      */
 	public void setManeuverLocation(ManeuverLocation location);
 	
+	
+	public Collection<ManeuverLocation> getWaypoints();
 	/**
 	 * Translate the position of this maneuver
 	 * @param offsetNorth north offset amount, in meters
