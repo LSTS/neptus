@@ -36,9 +36,6 @@ UVC=DelayMissionStart=0
 UVC=MaxPitchAngle=25
 UVC=EnableSalinityCorrection=False
 UVC=SalinityValue=0
-UVC=EnableMinSpeed=False
-UVC=MinSpeed=2
-DVL=Type=
 DVL=EnableControlADCPUp=False
 DVL=TurnOnADCPUp=False
 DVL=Setup.adpsetup[1].cellSize(m)=1
@@ -55,36 +52,25 @@ MB=TiltAngleStarboard20=False
 MB=TiltAngleCentered=False
 UVC=TowFltRules=True
 UVC=TowFltDelTme=10
-UVC=TowFltMisTme=2.06
-UVC=TowFltUndTme=103.54
-UVC=TowFltWrkDep=3
+UVC=TowFltMisTme=0.52
+UVC=TowFltUndTme=0
+UVC=TowFltWrkDep=4
 UVC=TowFltMaxDep=0
 UVC=TowFltPowLosTme=30
 UVC=EnableAllSafetyRules=True
-UVC=MINDTB=True;6.06168;
+UVC=MINDTB=True;10;
 UVC=AbrtDive=True;40;
 UVC=AbrtDiveNoLock=False;100;
-UVC=OverPitch=True;35;35;
+UVC=OverPitch=True;35;40;
 UVC=RunsLnger=True;2;
 UVC=LeakDet=True;20;
 UVC=ForwProg=True;60;
-UVC=MaxDepth=True;200;
+UVC=MaxDepth=True;5;
 UVC=UpwdProg=True;40;
 UVC=MinPower=True;15;
 UVC=IrdPower=False;10;
-UVC=RevMot=True;4;4;
+UVC=RevMot=True;4;5;
 UVC=DeplTwFlt=True;
 UVC=StrtSRP=True;
 UVC=LnchTwFltSRP=True;
-UVC=SfSensorCheck=True;
-ObjAvd=AvdEnable=False
-ObjAvd=AvdDistDect=12
-ObjAvd=AvdDiveUp=True
-ObjAvd=AvdDepthChange=6
 END VEHICLE
-START LAWNDEPTH
-END LAWNDEPTH
-START OBJECTAVD
-0;False;12;True;6;
-1;False;12;True;6;
-END OBJECTAVD
