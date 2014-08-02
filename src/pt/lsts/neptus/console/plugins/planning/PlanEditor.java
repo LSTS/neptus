@@ -1435,6 +1435,7 @@ MissionChangeListener {
 
         if (event.getButton() == MouseEvent.BUTTON1) {
             selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());
+            lastDragPoint = event.getPoint();
             if (selectedManeuver != null && selectedManeuver instanceof LocatedManeuver) {
                 maneuverLocationBeforeMoving = ((LocatedManeuver) selectedManeuver).getManeuverLocation();
             }
