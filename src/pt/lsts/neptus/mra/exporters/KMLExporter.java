@@ -236,11 +236,11 @@ public class KMLExporter implements MRAExporter {
             loc.translatePosition(state.getX(), state.getY(), 0);
 
             if (finder == null)
-                overlay.addSample(loc, state.getAlt() + state.getDepth());
+                overlay.addSample(loc, Math.max(0, state.getAlt()) + state.getDepth());
             else {
                 try {
                     overlay.addSample(loc,
-                            state.getAlt() + state.getDepth() - finder.getTidePrediction(state.getDate(), false));
+                            Math.max(0, state.getAlt()) + state.getDepth() - finder.getTidePrediction(state.getDate(), false));
                 }
                 catch (Exception e) {
                     e.printStackTrace();
