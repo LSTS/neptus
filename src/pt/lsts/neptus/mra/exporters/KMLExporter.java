@@ -217,10 +217,10 @@ public class KMLExporter implements MRAExporter {
             ret += "\t\t\t\t<altitudeMode>relative</altitudeMode>\n";
             ret += "\t\t\t\t<coordinates> ";
             
-            for (LocationType l : coords) {
-                l.convertToAbsoluteLatLonDepth();
-                ret += l.getLongitudeDegs() + "," + l.getLatitudeDegs() + ",0\n";// -" + l.getDepth()+"\n";
-            }
+//            for (LocationType l : coords) {
+//                l.convertToAbsoluteLatLonDepth();
+//                ret += l.getLongitudeDegs() + "," + l.getLatitudeDegs() + ",0\n";// -" + l.getDepth()+"\n";
+//            }
             LocationType l;
             for (l = coords.get(idx); idx < coords.size(); l = coords.get(idx), idx++) {
                 if (l == null)
