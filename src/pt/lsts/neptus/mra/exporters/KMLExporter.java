@@ -475,7 +475,8 @@ public class KMLExporter implements MRAExporter {
             String ret = "\t\t<ScreenOverlay>\n";
             ret += "\t\t\t<name>Multibeam layer legend</name>\n";
             ret += "\t\t\t<Icon>\n";
-            ret += "\t\t\t\t<href>" + new File(dir, "mb_legend.png").toURI().toURL() + "</href>\n";
+            // ret += "\t\t\t\t<href>" + new File(dir, "mb_legend.png").toURI().toURL() + "</href>\n";
+            ret += "\t\t\t\t<href>" + new File(dir, "mb_legend.png").getName() + "</href>\n";
             ret += "\t\t\t</Icon>\n";
             ret += "\t\t\t<overlayXY x=\"0\" y=\"1\" xunits=\"fraction\" yunits=\"fraction\"/>\n";
             ret += "\t\t\t<screenXY x=\"0\" y=\"1\" xunits=\"fraction\" yunits=\"fraction\"/>\n";
