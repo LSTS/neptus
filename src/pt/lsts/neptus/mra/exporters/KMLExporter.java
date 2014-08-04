@@ -91,20 +91,20 @@ import pt.lsts.util.WGS84Utilities;
  */
 @PluginDescription
 public class KMLExporter implements MRAExporter {
-    public double minLat = 180;
-    public double maxLat = -180;
-    public double minLon = 360;
-    public double maxLon = -360;
+//    private double minLat = 180;
+//    private double maxLat = -180;
+//    private double minLon = 360;
+//    private double maxLon = -360;
 
     public double minHeight = 1000;
     public double maxHeight = -1;
 
-    LocationType topLeftLT;
-    LocationType bottomRightLT;
+//    private LocationType topLeftLT;
+//    private LocationType bottomRightLT;
 
-    File f, output;
-    IMraLogGroup source;
-    ProgressMonitor pmonitor;
+//    private File f, output;
+    private IMraLogGroup source;
+    private ProgressMonitor pmonitor;
 
     @NeptusProperty
     public double timeVariableGain = 300;
