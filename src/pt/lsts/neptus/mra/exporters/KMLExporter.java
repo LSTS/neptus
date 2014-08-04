@@ -42,6 +42,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -91,20 +92,20 @@ import pt.lsts.util.WGS84Utilities;
  */
 @PluginDescription
 public class KMLExporter implements MRAExporter {
-    public double minLat = 180;
-    public double maxLat = -180;
-    public double minLon = 360;
-    public double maxLon = -360;
+//    private double minLat = 180;
+//    private double maxLat = -180;
+//    private double minLon = 360;
+//    private double maxLon = -360;
 
     public double minHeight = 1000;
     public double maxHeight = -1;
 
-    LocationType topLeftLT;
-    LocationType bottomRightLT;
+//    private LocationType topLeftLT;
+//    private LocationType bottomRightLT;
 
-    File f, output;
-    IMraLogGroup source;
-    ProgressMonitor pmonitor;
+//    private File f, output;
+    private IMraLogGroup source;
+    private ProgressMonitor pmonitor;
 
     @NeptusProperty
     public double timeVariableGain = 300;
@@ -132,6 +133,9 @@ public class KMLExporter implements MRAExporter {
 
     @NeptusProperty
     public double maximumSidescanRange = 50;
+
+    @NeptusProperty (name = "Seconds Gap in EstimatedState for Path Break")
+    public int secondsGapInEstimatedStateForPathBreak = 30;
 
     public KMLExporter(IMraLogGroup source) {
         this.source = source;
@@ -202,21 +206,34 @@ public class KMLExporter implements MRAExporter {
     }
 
     public String path(Vector<LocationType> coords, String name, String style) {
-        String ret = "\t\t<Placemark>\n";
-        ret += "\t\t\t<name>" + name + "</name>\n";
-        ret += "\t\t\t<styleUrl>#" + style + "</styleUrl>\n";
-        ret += "\t\t\t<LineString>\n";
-        ret += "\t\t\t\t<altitudeMode>relative</altitudeMode>\n";
-        ret += "\t\t\t\t<coordinates> ";
-
-        for (LocationType l : coords) {
-            l.convertToAbsoluteLatLonDepth();
-            ret += l.getLongitudeDegs() + "," + l.getLatitudeDegs() + ",0\n";// -" + l.getDepth()+"\n";
+        String retAll = "";
+        int idx = 0;
+        int pathNumber = 0;
+        while (idx < coords.size()) {
+            String ret = "\t\t<Placemark>\n";
+            ret += "\t\t\t<name>" + name + " " + pathNumber++ + "</name>\n";
+            ret += "\t\t\t<styleUrl>#" + style + "</styleUrl>\n";
+            ret += "\t\t\t<LineString>\n";
+            ret += "\t\t\t\t<altitudeMode>relative</altitudeMode>\n";
+            ret += "\t\t\t\t<coordinates> ";
+            
+//            for (LocationType l : coords) {
+//                l.convertToAbsoluteLatLonDepth();
+//                ret += l.getLongitudeDegs() + "," + l.getLatitudeDegs() + ",0\n";// -" + l.getDepth()+"\n";
+//            }
+            LocationType l;
+            for (l = coords.get(idx); idx < coords.size(); l = coords.get(idx), idx++) {
+                if (l == null)
+                    break;
+                l.convertToAbsoluteLatLonDepth();
+                ret += l.getLongitudeDegs() + "," + l.getLatitudeDegs() + ",0\n";// -" + l.getDepth()+"\n";
+            }
+            ret += "\t\t\t\t</coordinates>\n";
+            ret += "\t\t\t</LineString>\n";
+            ret += "\t\t</Placemark>\n";
+            retAll += ret;
         }
-        ret += "\t\t\t\t</coordinates>\n";
-        ret += "\t\t\t</LineString>\n";
-        ret += "\t\t</Placemark>\n";
-        return ret;
+        return retAll;
     }
 
     public String kmlFooter() {
@@ -236,11 +253,11 @@ public class KMLExporter implements MRAExporter {
             loc.translatePosition(state.getX(), state.getY(), 0);
 
             if (finder == null)
-                overlay.addSample(loc, state.getAlt() + state.getDepth());
+                overlay.addSample(loc, Math.max(0, state.getAlt()) + state.getDepth());
             else {
                 try {
                     overlay.addSample(loc,
-                            state.getAlt() + state.getDepth() - finder.getTidePrediction(state.getDate(), false));
+                            Math.max(0, state.getAlt()) + state.getDepth() - finder.getTidePrediction(state.getDate(), false));
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -475,7 +492,8 @@ public class KMLExporter implements MRAExporter {
             String ret = "\t\t<ScreenOverlay>\n";
             ret += "\t\t\t<name>Multibeam layer legend</name>\n";
             ret += "\t\t\t<Icon>\n";
-            ret += "\t\t\t\t<href>" + new File(dir, "mb_legend.png").toURI().toURL() + "</href>\n";
+            // ret += "\t\t\t\t<href>" + new File(dir, "mb_legend.png").toURI().toURL() + "</href>\n";
+            ret += "\t\t\t\t<href>" + new File(dir, "mb_legend.png").getName() + "</href>\n";
             ret += "\t\t\t</Icon>\n";
             ret += "\t\t\t<overlayXY x=\"0\" y=\"1\" xunits=\"fraction\" yunits=\"fraction\"/>\n";
             ret += "\t\t\t<screenXY x=\"0\" y=\"1\" xunits=\"fraction\" yunits=\"fraction\"/>\n";
@@ -674,7 +692,10 @@ public class KMLExporter implements MRAExporter {
             String name = f.getCanonicalFile().getName();
             bw.write(kmlHeader(name));
 
-            Vector<LocationType> states = new Vector<>();
+            // To account for multiple systems paths
+            Hashtable<String, Vector<LocationType>> pathsForSystems = new Hashtable<>();
+            Hashtable<String, IMCMessage> lastEstimatedStateForSystems = new Hashtable<>();
+            // Vector<LocationType> states = new Vector<>();
 
             LocationType bottomRight = null, topLeft = null;
 
@@ -689,11 +710,28 @@ public class KMLExporter implements MRAExporter {
                 pmonitor.setProgress((int)progress);
                 LocationType loc = IMCUtils.parseLocation(s);
                 loc.convertToAbsoluteLatLonDepth();
+
+                int srcSys = s.getSrc();
+                String systemName = source.getSystemName(srcSys);
+                if (systemName == null || systemName.isEmpty()) {
+                    continue;
+                }
+                Vector<LocationType> statesSys = pathsForSystems.get(systemName);
+                if (statesSys == null) {
+                    statesSys = new Vector<>();
+                    pathsForSystems.put(systemName, statesSys);
+                }
+                IMCMessage lastEsSys = lastEstimatedStateForSystems.get(systemName);
+                if (lastEsSys != null &&s.getTimestampMillis() -lastEsSys.getTimestampMillis() > secondsGapInEstimatedStateForPathBreak * 1E3) {
+                    statesSys.add(null);
+                }
+                lastEstimatedStateForSystems.put(systemName, s);
+                statesSys.add(loc);
+                
                 if (bottomRight == null) {
                     bottomRight = new LocationType(loc);
                     topLeft = new LocationType(loc);
                 }
-
 
                 if (loc.getLatitudeDegs() < bottomRight.getLatitudeDegs())
                     bottomRight.setLatitudeDegs(loc.getLatitudeDegs());
@@ -704,7 +742,7 @@ public class KMLExporter implements MRAExporter {
                 else if (loc.getLongitudeDegs() > bottomRight.getLongitudeDegs())
                     bottomRight.setLongitudeDegs(loc.getLongitudeDegs());
 
-                states.add(loc);
+                // states.add(loc);
             }
 
             if (topLeft == null) {
@@ -712,7 +750,11 @@ public class KMLExporter implements MRAExporter {
                 throw new Exception("This log doesn't have required data (EstimatedState)");
             }
             pmonitor.setNote("Writing path to file");
-            bw.write(path(states, "Estimated State", "estate"));
+            // bw.write(path(states, "Estimated State", "estate"));
+            for (String sys : pathsForSystems.keySet()) {
+                Vector<LocationType> st = pathsForSystems.get(sys);
+                bw.write(path(st, "Estimated State " + sys, "estate"));
+            }
             pmonitor.setProgress(70);
             PlanType plan = null;
             try {
