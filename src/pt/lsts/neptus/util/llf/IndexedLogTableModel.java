@@ -60,17 +60,18 @@ public class IndexedLogTableModel extends AbstractTableModel {
     private final IMCMessageType imcMsgType;
     private Vector<String> names = null;
     private Vector<String> msgNames = null;
-
+    
     // This method returns the message that should go into the given table row
-    private synchronized IMCMessage getMessage(int row) {
+    public synchronized IMCMessage getMessage(int row) {
         if (!rowToIndex.containsKey(row))
             return null;
 
         int idx = rowToIndex.get(row);
+        
         if (cache.containsKey(idx)) {
             return (IMCMessage) cache.get(idx);
         }
-        else {
+        else {            
             try {
                 IMCMessage m = index.getMessage(idx);
                 cache.put(idx, m);
@@ -165,6 +166,7 @@ public class IndexedLogTableModel extends AbstractTableModel {
         if (index == null) {
             return "Unable to load data";
         }
+        
         // retrieve the message that should go into this column from the cache
         IMCMessage m = getMessage(rowIndex);
         // given the column name show the resulting value

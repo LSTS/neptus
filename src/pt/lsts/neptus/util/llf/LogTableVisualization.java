@@ -152,16 +152,9 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-
                 if (table.getSelectedRow() != -1 && e.getClickCount() == 2) {
-                    LsfIndex index = source.getLsfIndex();
-                    final int msgIndex = table.convertRowIndexToModel(table.getSelectedRow());
-
-                    int curIndex = 0;
-                    for (int i = 0; i <= msgIndex; i++) {
-                        curIndex = index.getNextMessageOfType(log.name(), curIndex);
-                    }
-                    mraPanel.loadVisualization(new MessageHtmlVisualization(index.getMessage(curIndex)), true);
+                    int msgIndex = table.convertRowIndexToModel(table.getSelectedRow());
+                    mraPanel.loadVisualization(new MessageHtmlVisualization(model.getMessage(msgIndex)), true);
                 }
             };
         });

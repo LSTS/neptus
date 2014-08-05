@@ -40,7 +40,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
@@ -48,12 +47,12 @@ import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCUtil;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCUtil;
 
 /**
  * @author zp
@@ -62,7 +61,7 @@ import pt.lsts.imc.IMCUtil;
 public class MessageHtmlVisualization implements MRAVisualization {
 
     protected IMCMessage message;
-    protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss");
+    private static final SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
     {
         fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
@@ -112,7 +111,7 @@ public class MessageHtmlVisualization implements MRAVisualization {
     
     @Override
     public String getName() {
-        return message.getAbbrev() + "[" + fmt.format(new Date(message.getTimestampMillis()))+ (message.getTimestamp() - (int)message.getTimestamp()) + "]";
+        return message.getAbbrev() + " [" + fmt.format(message.getDate()) + ","+message.getSrcEnt()+"]";
     }
     
     @Override
@@ -140,6 +139,11 @@ public class MessageHtmlVisualization implements MRAVisualization {
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         return true;
+    }
+    
+    @Override
+    public int hashCode() {
+        return new String(message.getSrc()+"."+message.getSrcEnt()+"."+message.getTimestampMillis()).hashCode();
     }
 
 }
