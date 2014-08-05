@@ -42,6 +42,7 @@ import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.ImcStringDefs;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.FileUtil;
@@ -76,14 +77,16 @@ public class UpdatedImcExporter implements MRAExporter {
             IMCOutputStream ios = new IMCOutputStream(new FileOutputStream(new File(out, "Data.lsf")));
             for (int i = 0; i < index.getNumberOfMessages(); i++) {
                 if (pmonitor.isCanceled()) {
-                    break;
+                    return I18n.text("Cancelled by the user");
                 }
                 pmonitor.setProgress(i);
-                pmonitor.setNote("exporting ("+i+"/"+max+")");
+                pmonitor.setNote(I18n.textf("Message %num of %total",i,max));
                 if (updated.getMessageName(index.typeOf(i)) != null) {
                     IMCMessage msg = updated.create(updated.getMessageName(index.typeOf(i)));
                     msg.setValues(index.getMessage(i).getValues());
                     msg.setTimestamp(index.timeOf(i));
+                    msg.setSrc(index.sourceOf(i));
+                    msg.setSrcEnt(index.entityOf(i));
                     ios.writeMessage(msg);
                 }
                 else {
