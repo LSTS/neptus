@@ -77,6 +77,7 @@ public class SidescanToolbar extends JToolBar {
         public void actionPerformed(ActionEvent e) {
             PropertiesEditor.editProperties(panel.config,
                     SwingUtilities.getWindowAncestor(panel), true);
+                panel.config.saveProps();
         }
     });
 

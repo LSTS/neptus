@@ -54,6 +54,8 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.imgscalr.Scalr;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
@@ -324,6 +326,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             for (int c = 0; c < sidescanLine.data.length; c++) {
                 sidescanLine.image.setRGB(c, 0, config.colorMap.getColor(sidescanLine.data[c]).getRGB());
             }
+            
+            if (config.slantRangeCorrection)
+                sidescanLine.image = Scalr.apply(sidescanLine.image, new SlantRangeImageFilter(sidescanLine.state.getAltitude(), sidescanLine.range, sidescanLine.image.getWidth()));
 
             g2d.drawImage(ImageUtils.getScaledImage(sidescanLine.image, image.getWidth(), sidescanLine.ysize, true), 0, sidescanLine.ypos, null);
             //            g2d.drawImage(sidescanLine.image, 0, sidescanLine.ypos, null);
