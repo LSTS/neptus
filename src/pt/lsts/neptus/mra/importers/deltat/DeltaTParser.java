@@ -42,7 +42,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.MRAProperties;
@@ -50,7 +49,7 @@ import pt.lsts.neptus.mra.api.BathymetryInfo;
 import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
-import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.llf.LsfLogSource;
@@ -62,9 +61,8 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
  */
 public class DeltaTParser implements BathymetryParser {
     private final IMraLogGroup source;
-    private final IMraLog stateParser;
-    private IMCMessage state;
-
+    private CorrectedPosition position = null;
+    
     private File file;
     private FileInputStream fis;
     private final FileChannel channel;
@@ -95,8 +93,8 @@ public class DeltaTParser implements BathymetryParser {
         }
 
         channel = fis.getChannel();
-        stateParser = source.getLog("EstimatedState");
-
+        //stateParser = source.getLog("EstimatedState");
+        
         initialize();
     }
 
@@ -201,6 +199,9 @@ public class DeltaTParser implements BathymetryParser {
     @Override
     public BathymetrySwath nextSwath(double prob) {
 
+        if (position == null)
+            position = new CorrectedPosition(source);
+        
         try {
             if (curPos >= channel.size())
                 return null;
@@ -226,24 +227,10 @@ public class DeltaTParser implements BathymetryParser {
 
             data = new BathymetryPoint[header.numBeams];
 
-            // FIXME this must be known by reading only the 83P file. This way we are depending on a a 83P <-> IMC
-            // coupling
-            state = stateParser.getEntryAtOrAfter(header.timestamp + MRAProperties.timestampMultibeamIncrement);
+            long timestamp = header.timestamp + MRAProperties.timestampMultibeamIncrement;
 
-            if (state == null) {
-                NeptusLog.pub().info("State message = null");
-                return null;
-            }
-
-            // Use the navigation data from EstimatedState
-            SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
-            pose.getPosition().setLatitudeRads(state.getDouble("lat"));
-            pose.getPosition().setLongitudeRads(state.getDouble("lon"));
-            pose.getPosition().setOffsetNorth(state.getDouble("x"));
-            pose.getPosition().setOffsetEast(state.getDouble("y"));
-            pose.getPosition().setDepth(state.getDouble("depth"));
-            double ang = state.getDouble("psi") + (MRAProperties.yawMultibeamIncrement ? Math.PI : 0);
-            pose.setYaw(ang);
+            SystemPositionAndAttitude pose = position.getPosition(timestamp/1000.0);
+            
             for (int c = 0; c < header.numBeams; c++) {
                 double range = buf.getShort(c * 2) * (header.rangeResolution / 1000.0);
 
@@ -296,6 +283,9 @@ public class DeltaTParser implements BathymetryParser {
     }
 
     public BathymetrySwath nextSwathNoData() {
+        if (position == null)
+            position = new CorrectedPosition(source);
+        
         try {
             if (curPos >= channel.size())
                 return null;
@@ -305,17 +295,7 @@ public class DeltaTParser implements BathymetryParser {
             buf = channel.map(MapMode.READ_ONLY, curPos, 256);
             DeltaTHeader header = new DeltaTHeader();
             header.parse(buf);
-
-            state = stateParser.getEntryAtOrAfter(header.timestamp);
-
-            // Use the navigation data from EstimatedState
-            SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
-            pose.getPosition().setLatitudeRads(state.getDouble("lat"));
-            pose.getPosition().setLongitudeRads(state.getDouble("lon"));
-            pose.getPosition().setOffsetNorth(state.getDouble("x"));
-            pose.getPosition().setOffsetEast(state.getDouble("y"));
-            pose.getPosition().setDepth(state.getDouble("depth"));
-            pose.setYaw(state.getDouble("psi"));
+            SystemPositionAndAttitude pose = position.getPosition(header.timestamp/1000.0);
             curPos += header.numBytes; // Advance current position
 
             BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, null);
@@ -332,7 +312,7 @@ public class DeltaTParser implements BathymetryParser {
     @Override
     public void rewind() {
         curPos = 0;
-        stateParser.firstLogEntry();
+        //stateParser.firstLogEntry();
     }
 
     @Override
