@@ -47,6 +47,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.types.coord.LocationType;
+import sun.util.EmptyListResourceBundle;
 
 /**
  * @author zp
@@ -64,9 +65,11 @@ public class CorrectedPosition {
     }
 
     public SystemPositionAndAttitude getPosition(double timestamp) {
+        if (positions.isEmpty())
+            return null;
         SystemPositionAndAttitude p = new SystemPositionAndAttitude();
         p.setTime((long)timestamp * 1000);
-        int pos = Collections.binarySearch(positions, p);        
+        int pos = Collections.binarySearch(positions, p);
         if (pos < 0)
             pos = -pos;
         if (pos >= positions.size())
