@@ -47,7 +47,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.types.coord.LocationType;
-import sun.util.EmptyListResourceBundle;
 
 /**
  * @author zp
