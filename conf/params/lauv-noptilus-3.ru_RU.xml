@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,4f41e09)" system="lauv-noptilus-3" i18n="ru_RU">
+<config format="1" version="2.6.x (master,d37c910)" system="lauv-noptilus-3" i18n="ru_RU">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -2217,6 +2217,15 @@
       <units>m</units>
       <desc>Radius for the elevator behavior</desc>
     </param>
+    <param name="Maximum Distance From Station">
+      <name-i18n>Maximum Distance From Station</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15.0</default>
+      <units>m</units>
+      <desc>Maximum distance from station keeping radial circle</desc>
+    </param>
   </section>
   <section name="Rows Maneuver" name-i18n="Строки Маневр">
     <param name="Entity Label">
@@ -3278,7 +3287,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Survival, Idle, Motion, SideScan, Camera, Full</default>
+      <default>Survival, Idle, Motion, SideScan, Camera, Multibeam, Full</default>
       <units/>
       <desc>Label of the operation mode</desc>
     </param>
@@ -3287,7 +3296,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>22.385, 23.225, 94.43, 98.03, 109.43, 113.03</default>
+      <default>22.385, 23.225, 94.43, 98.03, 109.43, 99.43, 118.03</default>
       <units>W</units>
       <desc>Corresponding value of power consumption</desc>
     </param>
@@ -3812,6 +3821,92 @@
       <default>Servo Controller 3</default>
       <units/>
       <desc/>
+    </param>
+  </section>
+  <section name="Ranger" name-i18n="Ranger">
+    <param name="Entity Label">
+      <name-i18n>Entity Этикетка</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Ranger</default>
+      <units/>
+      <desc>Главным образом ярлык лица</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Приоритет выполнения</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Приоритет выполнения</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Время активации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Время деактивации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Уровень отладки</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Spew</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Активная - Сфера</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Сфера применения 'Активные' параметра</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Активная - Видимость</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Видимость 'Активные' параметра</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Активный</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0</default>
+      <units/>
+      <desc>Правда, чтобы активировать задачу, иначе ложь</desc>
+    </param>
+    <param name="Ping Periodicity">
+      <name-i18n>Ping Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>s</units>
+      <desc/>
+      <min>2</min>
     </param>
   </section>
   <section name="Navigation" name-i18n="Навигация">
@@ -4464,6 +4559,33 @@
       <default>true</default>
       <units/>
       <desc>Abort when a payload fails to activate</desc>
+    </param>
+    <param name="StationKeeping While Calibrating">
+      <name-i18n>StationKeeping While Calibrating</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Perform station keeping while calibrating</desc>
+    </param>
+    <param name="StationKeeping Speed in RPM">
+      <name-i18n>StationKeeping Speed in RPM</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1600</default>
+      <units>r/min</units>
+      <desc>Speed in RPM for the station keeping</desc>
+    </param>
+    <param name="StationKeeping Radius">
+      <name-i18n>StationKeeping Radius</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20</default>
+      <units>m</units>
+      <desc>Radius for the station keeping</desc>
     </param>
   </section>
   <section name="Plan Generator" name-i18n="План Генератор">
@@ -5653,6 +5775,302 @@
       <default/>
       <units/>
       <desc/>
+    </param>
+  </section>
+  <section name="Multibeam" name-i18n="Многолучевой">
+    <param name="Entity Label">
+      <name-i18n>Entity Этикетка</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Multibeam</default>
+      <units/>
+      <desc>Главным образом ярлык лица</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Приоритет выполнения</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Приоритет выполнения</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Время активации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Время деактивации</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Уровень отладки</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Execution Frequency">
+      <name-i18n>Частоты выполнения</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>Hz</units>
+      <desc>Частота, на которой выполняется задача</desc>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Активная - Сфера</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Сфера применения 'Активные' параметра</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Активная - Видимость</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Видимость 'Активные' параметра</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Активный</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>Правда, чтобы активировать задачу, иначе ложь</desc>
+    </param>
+    <param name="IPv4 Address">
+      <name-i18n>IPv4 Address</name-i18n>
+      <type>ipv4-address</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>192.168.0.30</default>
+      <units/>
+      <desc>IP address of the sonar</desc>
+    </param>
+    <param name="TCP Port">
+      <name-i18n>TCP Port</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4040</default>
+      <units/>
+      <desc>TCP port</desc>
+      <min>0</min>
+      <max>65535</max>
+    </param>
+    <param name="Start Gain">
+      <name-i18n>Start Gain</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3</default>
+      <units>dB</units>
+      <desc>Start gain</desc>
+      <min>0</min>
+      <max>20</max>
+    </param>
+    <param name="Absorption">
+      <name-i18n>Absorption</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.1</default>
+      <units>dB/m</units>
+      <desc>Absorption</desc>
+      <min>0</min>
+      <max>2.55</max>
+    </param>
+    <param name="Data Points">
+      <name-i18n>Data Points</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>8000</default>
+      <units/>
+      <desc>Number of sonar return data points</desc>
+      <values>8000, 16000</values>
+      <values-i18n>8000, 16000</values-i18n>
+    </param>
+    <param name="Switch Delay">
+      <name-i18n>Switch Delay</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>ms</units>
+      <desc>The head can be commanded to pause before sendingits return data to allow the commanding programenough time to setup for the return of the data.</desc>
+      <min>0</min>
+      <max>500</max>
+    </param>
+    <param name="Range">
+      <name-i18n>Диапазон</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>20</default>
+      <units>m</units>
+      <desc>Рабочий диапазон</desc>
+      <values>5, 10, 20, 30, 40, 50, 60, 80, 100</values>
+      <values-i18n>5, 10, 20, 30, 40, 50, 60, 80, 100</values-i18n>
+    </param>
+    <param name="Nadir Offset Angle">
+      <name-i18n>Nadir Offset Angle</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units>°</units>
+      <desc>When using Automatic Gain Control (Byte 22, Bit 4)the sonar head must know if there is a physicalmounting offset and/or a roll angle present.</desc>
+      <min>-360</min>
+      <max>360</max>
+    </param>
+    <param name="Auto Gain Mode">
+      <name-i18n>Auto Gain Mode</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Auto Gain, set to 1 to enable Automatic Gain Control.If the sonar head transducer is pointing at an angle other than straight down, the mounting angle and/or the roll angle must be loaded into Nadir Offset Angle(see description for Bytes 5-6). An AGC Thresholdvalue must also be loaded into Byte 11.</desc>
+    </param>
+    <param name="Automatic Gain Control">
+      <name-i18n>Automatic Gain Control</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>120</default>
+      <units/>
+      <desc>Set point for adjusting the internal hardware gain.For strong bottom returns, use a low threshold value.For weak bottom returns, use a high threshold value.A value of 120 is a typical threshold value for a sandy bottom.</desc>
+      <min>10</min>
+      <max>250</max>
+    </param>
+    <param name="Profile Tilt Angle">
+      <name-i18n>Profile Tilt Angle</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units>°</units>
+      <desc>Mounting offset</desc>
+      <min>-30.0</min>
+      <max>30.0</max>
+    </param>
+    <param name="Connector Pointing Aft">
+      <name-i18n>Connector Pointing Aft</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Mounting position of the multibeam</desc>
+    </param>
+    <param name="Save Data in 837 Format">
+      <name-i18n>Save Data in 837 Format</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Save multibeam in Imagenex proprietary 837 format</desc>
+    </param>
+    <param name="Fill State in 837 Format">
+      <name-i18n>Fill State in 837 Format</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Fill state data in Imagenex proprietary 837 format</desc>
+    </param>
+    <param name="837 File Name">
+      <name-i18n>837 File Name</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Data.837</default>
+      <units/>
+      <desc>837 file name</desc>
+    </param>
+    <param name="Power Channel">
+      <name-i18n>Power Channel</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Multibeam</default>
+      <units/>
+      <desc>Power channel that controls the power of the device</desc>
+    </param>
+    <param name="Adaptive Range Modifier">
+      <name-i18n>Adaptive Range Modifier</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Adaptive Multibeam range modifier</desc>
+    </param>
+    <param name="Adaptive Range Modifier Additive Constant">
+      <name-i18n>Adaptive Range Modifier Additive Constant</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc>Adaptive Multibeam range modifier additive constant</desc>
+      <min>0</min>
+    </param>
+    <param name="Adaptive Range Modifier Multiplicative Constant">
+      <name-i18n>Adaptive Range Modifier Multiplicative Constant</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2</default>
+      <units/>
+      <desc>Adaptive Multibeam range modifier multiplicative constant</desc>
+      <min>1</min>
+      <max>3</max>
+    </param>
+    <param name="Adaptive Range Modifier Timer">
+      <name-i18n>Adaptive Range Modifier Timer</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Adaptive Multibeam range modifier timer</desc>
+      <min>0</min>
+    </param>
+    <param name="X-Axis Distance to GPS">
+      <name-i18n>X-Axis Distance to GPS</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.93</default>
+      <units>m</units>
+      <desc>Position of the Multibeam relative to the GPS antenna in the x-axis of the body frame</desc>
     </param>
   </section>
   <section name="Echo Sounder" name-i18n="Эхолот">
