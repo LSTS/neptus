@@ -1319,7 +1319,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         // Lets set header values
         message.getHeader().setValue("src", localId.longValue());
-        message.getHeader().setValue("dst", systemCommId.longValue());
+        if (message.getHeader().getInteger("dst") == 0xFFFF)
+            message.getHeader().setValue("dst", systemCommId.longValue());
         // if (message.getTimestamp() == 0) // For now all messages are timestamped here
         message.setTimestamp(System.currentTimeMillis() / 1000.0);
 

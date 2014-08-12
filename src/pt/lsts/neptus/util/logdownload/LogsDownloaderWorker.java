@@ -89,6 +89,8 @@ import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PowerOperation;
+import pt.lsts.imc.PowerOperation.OP;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
@@ -1411,12 +1413,20 @@ public class LogsDownloaderWorker {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String powerChannel = getLogLabel().equals("lauv-xtreme-2") ? "Camera Module" : "Camera - CPU";
-                    IMCMessage msg = new IMCMessage("PowerChannelControl");
-                    msg.setValue("name", powerChannel);
-                    msg.setValue("op", cameraButton.getBackground() != Color.GREEN ? 1 : 0);
+                    if (getLogLabel().equals("lauv-noptilus-3")) {
+                        PowerOperation powerOp = new PowerOperation();
+                        powerOp.setDst(0x6003);
+                        powerOp.setOp(cameraButton.getBackground() != Color.GREEN ? OP.PWR_UP : OP.PWR_DOWN);
+                        ImcMsgManager.getManager().sendMessageToSystem(powerOp, getLogLabel());
+                    }
+                    else {
+                        String powerChannel = getLogLabel().equals("lauv-xtreme-2") ? "Camera Module" : "Camera - CPU";
+                        IMCMessage msg = new IMCMessage("PowerChannelControl");
+                        msg.setValue("name", powerChannel);
+                        msg.setValue("op", cameraButton.getBackground() != Color.GREEN ? 1 : 0);
 
-                    ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
+                        ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
+                    }
                 }
                 catch (Exception e1) {
                     e1.printStackTrace();
