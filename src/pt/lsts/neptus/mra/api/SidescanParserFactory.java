@@ -48,7 +48,7 @@ public class SidescanParserFactory {
     
     public static SidescanParser build(IMraLogGroup log) {
         file = null;
-        dir = log.getFile("Data.lsf").getParentFile();
+        dir = log.getDir();
         source = log;
         
         return getParser();

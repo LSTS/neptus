@@ -87,7 +87,6 @@ public class GenericPlot extends MRATimeSeriesPlot {
 
     @Override
     public void process(LsfIndex source) {
-        NeptusLog.pub().info("<###>Generic Plot process");
         long t = System.currentTimeMillis();
         for (String field : fieldsToPlot) {
             String messageName = field.split("\\.")[0];

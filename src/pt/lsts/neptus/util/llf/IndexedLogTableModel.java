@@ -87,8 +87,8 @@ public class IndexedLogTableModel extends AbstractTableModel {
     private void loadIndexes(double initTime, double finalTime) {
         int rowIndex = 0;
         int mgid = imcMsgType.getId();
-
-        int curIndex = index.getNextMessageOfType(mgid, 0);
+        System.out.println("loading indexes!");
+        int curIndex = index.getFirstMessageOfType(mgid);
 
         while (curIndex != -1) {
             double time = index.timeOf(curIndex);
@@ -117,6 +117,7 @@ public class IndexedLogTableModel extends AbstractTableModel {
         this.index = source.getLsfIndex();
         this.imcMsgType = index.getDefinitions().getType(msgName);
 
+        System.out.println("msgName: "+msgName);
         // column names
         names = new Vector<String>();
         names.add("time");

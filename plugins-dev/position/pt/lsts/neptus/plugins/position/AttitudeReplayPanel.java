@@ -73,7 +73,7 @@ public class AttitudeReplayPanel extends JPanel implements LogReplayPanel {
 
     @Override
     public void parse(IMraLogGroup source) {
-        EstimatedState pivot = source.getLsfIndex().nextMessageOfType(EstimatedState.class, 0);
+        EstimatedState pivot = source.getLsfIndex().getFirst(EstimatedState.class);
         onMessage(pivot);
     }
 
