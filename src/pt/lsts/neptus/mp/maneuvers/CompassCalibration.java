@@ -358,8 +358,15 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
 
         // Clockwise Arrow.
         g2.translate(0, -radiusCorrected);
-        g2.drawLine(-5, 5, 0, 0);
-        g2.drawLine(-5, -5, 0, 0);
+
+        if (direction == DIRECTION.CCLOCKW) {
+            g2.drawLine(5, 5, 0, 0);
+            g2.drawLine(5, -5, 0, 0);
+        }
+        else {
+            g2.drawLine(-5, 5, 0, 0);
+            g2.drawLine(-5, -5, 0, 0);
+        }
 
         g2.dispose();
     }
