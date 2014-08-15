@@ -120,8 +120,11 @@ public class MRAPanel extends JPanel {
         // ------- Setup interface --------
         setLayout(new BorderLayout(3, 3));
 
+        mra.getBgp().setText(I18n.text("Starting up left panel..."));
         setUpLeftPanel();
+        mra.getBgp().setText(I18n.text("Starting up status bar..."));
         setUpStatusBar();
+        mra.getBgp().setText(I18n.text("Starting up main panel..."));
         setUpMainPanel();
 
         // add split pane left panel and main visualizations to right side
@@ -135,6 +138,7 @@ public class MRAPanel extends JPanel {
         add(splitPane, BorderLayout.CENTER);
         add(statusBar, BorderLayout.SOUTH);
 
+        mra.getBgp().setText(I18n.text("Loading markers..."));
         // Load markers
         loadMarkers();
 

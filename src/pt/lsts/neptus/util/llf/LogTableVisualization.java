@@ -165,6 +165,10 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
         finalTime = (long) (idx.getEndTime() * 1000.0);
         initTime = (long) (idx.getStartTime() * 1000.0);
 
+        if (finalTime < initTime) {
+            return new JLabel(I18n.text("Cannot show visualization because messages are unordered"));
+        }
+        
         rangeSlider = new RangeSlider(0, (int) (finalTime - initTime));
         rangeSlider.setUpperValue((int) (finalTime - initTime));
         rangeSlider.addChangeListener(new ChangeListener() {
