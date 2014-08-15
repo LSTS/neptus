@@ -50,6 +50,8 @@ import javax.swing.JTextField;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
+import pt.lsts.imc.LogBookEntry;
+import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -57,8 +59,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.lsts.neptus.util.llf.NeptusMessageLogger;
-import pt.lsts.imc.LogBookEntry;
 
 /**
  * @author ZP
@@ -144,7 +144,7 @@ public class LogBookPanel extends ConsolePanel implements ActionListener {
 		try {
 //		    LsfMessageLogger.log(logMsg);
 //			NeptusMessageLogger.logMessage(ImcMsgManager.getManager().getLocalId().toString(), "", logMsg);
-			NeptusMessageLogger.logMessage(logMsg);
+			LsfMessageLogger.log(logMsg);
 			
 			if (msgHistory.isEmpty() || !msgHistory.lastElement().equals(textField.getText())) {					
 				msgHistory.add(textField.getText());			

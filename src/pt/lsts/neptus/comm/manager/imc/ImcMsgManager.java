@@ -60,6 +60,7 @@ import pt.lsts.imc.EntityList;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MessagePart;
+import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.imc.state.ImcSysState;
 import pt.lsts.neptus.NeptusLog;
@@ -90,7 +91,6 @@ import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
-import pt.lsts.neptus.util.llf.NeptusMessageLogger;
 
 import com.google.common.eventbus.AsyncEventBus;
 
@@ -1493,7 +1493,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
                     // Lets log the EntityInfo message
                     // LsfMessageLogger.log(info);
-                    NeptusMessageLogger.logMessage(info);
+                    LsfMessageLogger.log(info);
                 }
 
                 if (neptusEntities.get(caller) != null)
@@ -1596,7 +1596,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 // String sub = message.getHeaderValue("dst").toString();
                 // LLFMessageLogger.logMessage(info, msg);
                 // NeptusMessageLogger.logMessage(pub, sub, message.getTimestampMillis(), message);
-                NeptusMessageLogger.logMessage(message);
+                LsfMessageLogger.log(message);
             }
             catch (Exception e) {
                 NeptusLog.pub().error("Error logging message " + message.getMessageType().getShortName() + "!", e);
