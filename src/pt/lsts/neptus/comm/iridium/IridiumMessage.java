@@ -84,7 +84,7 @@ public abstract class IridiumMessage implements Comparable<IridiumMessage> {
     
     public static IridiumMessage deserialize(byte[] data) throws Exception {
 
-        IMCInputStream iis = new IMCInputStream(new ByteArrayInputStream(data));
+        IMCInputStream iis = new IMCInputStream(new ByteArrayInputStream(data), IMCDefinition.getInstance());
         iis.setBigEndian(false);
         int source = iis.readUnsignedShort();
         int dest = iis.readUnsignedShort();
