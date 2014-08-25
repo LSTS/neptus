@@ -71,6 +71,10 @@ public class MRAProperties implements PropertiesProvider{
     @NeptusProperty(name = "Remove Outliers", description="Remove Outliers from Pointcloud redered on multibeam 3D")
     public static boolean outliersRemoval = false; 
 
+    @NeptusProperty(name = "Apply Sound Speed Correction", description="Apply sound speed correction.",
+            category = "Multibeam")
+    public static boolean soundSpeedCorrection = false; 
+
     @NeptusProperty(name = "Maximum depth for bathymetry plots", description="Maximum depth to be used in bathymetry plots.")
     public static double maxBathymDepth = 15;
 
