@@ -53,22 +53,28 @@ public class MRAProperties implements PropertiesProvider{
     @NeptusProperty(name = "Minimum depth for bathymetry", description="Filter all bathymetry data if vehicle's depth is less than this value (meters).")
     public static double minDepthForBathymetry = 1.0;
 
-    @NeptusProperty(name = "Points to ignore on Multibeam 3D", description="Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.")
+    @NeptusProperty(name = "Points to ignore on Multibeam 3D", description="Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.",
+            category = "Multibeam")
     public static int ptsToIgnore = 50;
 
-    @NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description="Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).")
+    @NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description="Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).",
+            category = "Multibeam")
     public static boolean approachToIgnorePts = true; 
 
-    @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration.")
+    @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration.",
+            category = "Multibeam")
     public static int zExaggeration = 10;
 
-    @NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser (in miliseconds).")
+    @NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser (in miliseconds).",
+            category = "Multibeam")
     public static long timestampMultibeamIncrement = 0;
 
-    @NeptusProperty(name = "Yaw Increment", description="180 Yaw (psi) increment for the 83P parser, set true to increment +180\u00B0.")
+    @NeptusProperty(name = "Yaw Increment", description="180 Yaw (psi) increment for the 83P parser, set true to increment +180\u00B0.",
+            category = "Multibeam")
     public static boolean yawMultibeamIncrement = false;
 
-    @NeptusProperty(name = "Remove Outliers", description="Remove Outliers from Pointcloud redered on multibeam 3D")
+    @NeptusProperty(name = "Remove Outliers", description="Remove Outliers from Pointcloud redered on multibeam 3D",
+            category = "Multibeam")
     public static boolean outliersRemoval = false; 
 
     @NeptusProperty(name = "Apply Sound Speed Correction", description="Apply sound speed correction.",
