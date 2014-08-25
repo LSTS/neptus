@@ -63,7 +63,9 @@ public class DeltaTParser implements BathymetryParser {
     private final IMraLogGroup source;
     private CorrectedPosition position = null;
     
-    private File file;
+    private boolean isLoaded = false;
+    
+    private File file = null;
     private FileInputStream fis;
     private final FileChannel channel;
     private ByteBuffer buf;
@@ -78,12 +80,7 @@ public class DeltaTParser implements BathymetryParser {
 
     public DeltaTParser(IMraLogGroup source) {
         this.source = source;
-        if (source.getFile("data.83P") != null)
-            file = source.getFile("data.83P");
-        else if (source.getFile("Data.83P") != null)
-            file = source.getFile("Data.83P");
-        else if (source.getFile("multibeam.83P") != null)
-            file = source.getFile("multibeam.83P");
+        file = findDataSource(source);
 
         try {
             fis = new FileInputStream(file);
@@ -169,8 +166,41 @@ public class DeltaTParser implements BathymetryParser {
             }
         }
         // NeptusLog.pub().info("<###> "+info.maxDepth);
+        isLoaded = true;
     }
 
+    public static boolean canBeApplied(IMraLogGroup source) {
+        File file = findDataSource(source);
+        if (file != null && file.exists())
+            return true;
+        return false;
+    }
+    
+    /**
+     * @param source
+     */
+    public static File findDataSource(IMraLogGroup source) {
+        if (source.getFile("data.83P") != null)
+            return source.getFile("data.83P");
+        else if (source.getFile("Data.83P") != null)
+            return source.getFile("Data.83P");
+        else if (source.getFile("multibeam.83P") != null)
+            return source.getFile("multibeam.83P");
+        else
+            return null;
+    }
+
+    public boolean isLoaded() {
+        return isLoaded;
+    }
+    
+    /**
+     * @return the position
+     */
+    public CorrectedPosition getCorrectedPosition() {
+        return position;
+    }
+    
     @Override
     public long getFirstTimestamp() {
         return 0;
