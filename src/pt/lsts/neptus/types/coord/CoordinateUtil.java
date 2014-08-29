@@ -413,7 +413,7 @@ public class CoordinateUtil {
         }
 
         NumberFormat nformat = DecimalFormat.getInstance(Locale.US);
-        nformat.setMaximumFractionDigits(3);
+        nformat.setMaximumFractionDigits(maxDecimalHouses);
         nformat.setMinimumFractionDigits(3);
         nformat.setGroupingUsed(false);
 

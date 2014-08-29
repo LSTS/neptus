@@ -38,13 +38,19 @@ import java.nio.channels.FileChannel;
 
 import javax.swing.ProgressMonitor;
 
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTHeader;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.MathMiscUtils;
+import ucar.jpeg.jj2000.j2k.util.StringFormatException;
 
 /**
  * Apply corrected position to 83P and re-exported.  
@@ -59,7 +65,7 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
     private DeltaTParser deltaParser = null;
 
     private FileInputStream fis;
-    private final FileChannel channel;
+    private FileChannel channel;
     private ByteBuffer buf;
     private long curPos = 0;
 
@@ -91,17 +97,30 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
         deltaParser = new DeltaTParser(source);
         correctedPosition = deltaParser.getCorrectedPosition();
         
-        BathymetrySwath nextSwath = deltaParser.nextSwath(); 
-        DeltaTHeader nextHeader = getNextHeader();
-        ByteBuffer nextHeaderBuf = getNextHeaderBuffer();
+        BathymetrySwath nextSwath = null; 
+        DeltaTHeader nextHeader = null;
+        ByteBuffer nextHeaderBuf = null;
         
-        // 33-46    -   GNSS Ships Positon Latitude (14 bytes) "_dd.mm.xxxxx_N" dd = degrees, mm = minutes, xxxxx = decimal Minutes, _ = Space, N = North or S = South
-        // 47-60    -   GNSS Ships Postion Longitude (14 byes) "ddd.mm.xxxxx_E" ddd= degrees, mm = minutes, xxxxx = decimal minutes, E = East or W = West
+        do {
+            // 33-46    -   GNSS Ships Positon Latitude (14 bytes) "_dd.mm.xxxxx_N" dd = degrees, mm = minutes, xxxxx = decimal Minutes, _ = Space, N = North or S = South
+            // 47-60    -   GNSS Ships Postion Longitude (14 byes) "ddd.mm.xxxxx_E" ddd= degrees, mm = minutes, xxxxx = decimal minutes, E = East or W = West
+            
+            nextSwath = deltaParser.nextSwath(); 
+            nextHeader = getNextHeader();
+            nextHeaderBuf = getNextHeaderBuffer();
 
-        
-        long nextSwathTimeStamp = nextSwath.getTimestamp();
-        
-        
+            long nextSwathTimeStamp = nextSwath.getTimestamp();
+            SystemPositionAndAttitude pos = correctedPosition.getPosition(nextSwathTimeStamp);
+            LocationType posLoc = pos.getPosition();
+            posLoc = posLoc.getNewAbsoluteLatLonDepth();
+            
+            double[] latDM = CoordinateUtil.decimalDegreesToDM(AngleCalc.nomalizeAngleDegrees180(posLoc.getLatitudeDegs()));
+            double[] lonDM = CoordinateUtil.decimalDegreesToDM(AngleCalc.nomalizeAngleDegrees180(posLoc.getLongitudeDegs()));
+            
+            latDM[1] = MathMiscUtils.round(latDM[1], 4);
+            lonDM[1] = MathMiscUtils.round(lonDM[1], 4);
+            
+        } while (nextSwath != null);
         
         return "Export to 83P completed successfully";
     }
@@ -120,5 +139,22 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
     private DeltaTHeader getNextHeader() {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    public static void main(String[] args) {
+        double[] latDM = CoordinateUtil.decimalDegreesToDM(AngleCalc.nomalizeAngleDegrees180(38.276276276766));
+        double[] lonDM = CoordinateUtil.decimalDegreesToDM(AngleCalc.nomalizeAngleDegrees180(13.453));
+        
+//        latDM[1] = MathMiscUtils.round(latDM[1], 4);
+//        lonDM[1] = MathMiscUtils.round(lonDM[1], 4);
+        
+        String latStr = CoordinateUtil.dmToLatString(latDM[0], latDM[1], 4);
+        String lonStr = CoordinateUtil.dmToLonString(lonDM[0], lonDM[1], 4);
+        
+        latStr = latStr.replaceAll("[NSEW]", ".");
+        lonStr = lonStr.replaceAll("[NSEW]", ".");
+        
+        System.out.println(latStr);
+        System.out.println(lonStr);
     }
 }
