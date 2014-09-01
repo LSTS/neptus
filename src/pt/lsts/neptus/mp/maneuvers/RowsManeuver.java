@@ -771,11 +771,11 @@ IMCSerialization, StatisticsProvider, PathProvider {
                 continue;
             }
 
-            if (p.getName().equalsIgnoreCase("Paint SideScan Range Shadow")) {
+            if (p.getName().equalsIgnoreCase("Payload Shadow")) {
                 paintSSRangeShadow = (Boolean)p.getValue();
                 continue;
             }
-            if (p.getName().equalsIgnoreCase("SideScan Range Shadow")) {
+            if (p.getName().equalsIgnoreCase("Shadow Size")) {
                 ssRangeShadow = (Short)p.getValue();
                 continue;
             }
@@ -833,10 +833,10 @@ IMCSerialization, StatisticsProvider, PathProvider {
         firstCurveRightP.setShortDescription("If the first curve should be to the right or left");       
         props.add(firstCurveRightP);
 
-        DefaultProperty paintSSRangeShadowP = PropertiesEditor.getPropertyInstance("Paint SideScan Range Shadow", Boolean.class, paintSSRangeShadow, unblockNewRows);
+        DefaultProperty paintSSRangeShadowP = PropertiesEditor.getPropertyInstance("Payload Shadow", Boolean.class, paintSSRangeShadow, unblockNewRows);
         paintSSRangeShadowP.setShortDescription("If the sidescan range shadow is painted");       
         props.add(paintSSRangeShadowP);
-        DefaultProperty ssRangeShadowtP = PropertiesEditor.getPropertyInstance("SideScan Range Shadow", Short.class, Double.valueOf(ssRangeShadow).shortValue(), unblockNewRows);
+        DefaultProperty ssRangeShadowtP = PropertiesEditor.getPropertyInstance("Shadow Size", Short.class, Double.valueOf(ssRangeShadow).shortValue(), unblockNewRows);
         ssRangeShadowtP.setShortDescription("The sidescan range");       
         props.add(ssRangeShadowtP);
 
