@@ -395,7 +395,7 @@ public class CoordinateUtil {
      */
     private static String dmsToLatLonString(double[] dms, boolean isLat, boolean dmonly, int maxDecimalHouses) {
         if (maxDecimalHouses < 0)
-            maxDecimalHouses = Integer.MAX_VALUE;
+            maxDecimalHouses = 3;
         String l = "N";
         if (!isLat)
             l = "E";
@@ -414,7 +414,7 @@ public class CoordinateUtil {
 
         NumberFormat nformat = DecimalFormat.getInstance(Locale.US);
         nformat.setMaximumFractionDigits(maxDecimalHouses);
-        nformat.setMinimumFractionDigits(3);
+        nformat.setMinimumFractionDigits(Math.min(3, maxDecimalHouses));
         nformat.setGroupingUsed(false);
 
         if (hasFracPart(d)) {
