@@ -248,10 +248,10 @@ public class DeltaTParser implements BathymetryParser {
             header.parse(buf);
 
             hasIntensity = header.hasIntensity;
-            if (hasIntensity)
-                NeptusLog.pub().info("LOG has intensity");
-            else
-                NeptusLog.pub().info("Log doesn't have intensity");
+//            if (hasIntensity)
+//                NeptusLog.pub().info("LOG has intensity");
+//            else
+//                NeptusLog.pub().info("Log doesn't have intensity");
 
             // Parse and process data ( no need to create another structure for this )
             if (header.hasIntensity)
@@ -333,7 +333,10 @@ public class DeltaTParser implements BathymetryParser {
             buf = channel.map(MapMode.READ_ONLY, curPos, 256);
             DeltaTHeader header = new DeltaTHeader();
             header.parse(buf);
-            SystemPositionAndAttitude pose = position.getPosition(header.timestamp/1000.0);
+
+            long timestamp = header.timestamp + MRAProperties.timestampMultibeamIncrement;
+
+            SystemPositionAndAttitude pose = position.getPosition(timestamp/1000.0);
             curPos += header.numBytes; // Advance current position
 
             BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, null);
