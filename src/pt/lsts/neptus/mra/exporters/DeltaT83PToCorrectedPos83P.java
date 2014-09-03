@@ -32,9 +32,14 @@
 package pt.lsts.neptus.mra.exporters;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
+import java.nio.charset.Charset;
+import java.util.Arrays;
 
 import javax.swing.ProgressMonitor;
 
@@ -47,9 +52,7 @@ import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.FileUtil;
-import pt.lsts.neptus.util.MathMiscUtils;
 
 /**
  * Apply corrected position to 83P and re-exported.  
@@ -58,12 +61,14 @@ import pt.lsts.neptus.util.MathMiscUtils;
  */
 @PluginDescription
 public class DeltaT83PToCorrectedPos83P implements MRAExporter {
+    @SuppressWarnings("unused")
     private IMraLogGroup log = null;
     private CorrectedPosition correctedPosition = null;
 
     private DeltaTParser deltaParser = null;
 
-    private FileInputStream fis;
+//    private FileInputStream fis;
+    private RandomAccessFile raFile;
     private FileChannel channel;
     private ByteBuffer buf;
     private long curPos = 0;
@@ -85,61 +90,72 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
         if (!canBeApplied(source))
             return "No data to process!";
         
+        log = source;
+        
         File fileOrig = DeltaTParser.findDataSource(source);
-        String destName = FileUtil.getFileNameWithoutExtension(fileOrig) + "Corrected" + FileUtil.getFileExtension(fileOrig);
+        String destName = FileUtil.getFileNameWithoutExtension(fileOrig) + "Corrected" + "." + FileUtil.getFileExtension(fileOrig);
         File fileDest =  new File(fileOrig.getParent(), destName);
         boolean ret = FileUtil.copyFile(fileOrig.getPath(), fileDest.getPath());
         if (!ret) {
             return "Unable to copy data!";
         }
         
+        try {
+            raFile = new RandomAccessFile(fileDest, "rw");
+        }
+        catch (FileNotFoundException e1) {
+            return "Error getting channel for 83P file!";
+        }
+
+        channel = raFile.getChannel();
         deltaParser = new DeltaTParser(source);
         correctedPosition = deltaParser.getCorrectedPosition();
         
         BathymetrySwath nextSwath = null; 
-        DeltaTHeader nextHeader = null;
-        ByteBuffer nextHeaderBuf = null;
         
-        do {
-            // 33-46    -   GNSS Ships Positon Latitude (14 bytes) "_dd.mm.xxxxx_N" dd = degrees, mm = minutes, xxxxx = decimal Minutes, _ = Space, N = North or S = South
-            // 47-60    -   GNSS Ships Postion Longitude (14 byes) "ddd.mm.xxxxx_E" ddd= degrees, mm = minutes, xxxxx = decimal minutes, E = East or W = West
-            
-            nextSwath = deltaParser.nextSwath(); 
-            nextHeader = getNextHeader();
-            nextHeaderBuf = getNextHeaderBuffer();
+        try {
+            nextSwath = deltaParser.nextSwath();
+            while (nextSwath != null) {
+                // 33-46    -   GNSS Ships Positon Latitude (14 bytes) "_dd.mm.xxxxx_N" dd = degrees, mm = minutes, xxxxx = decimal Minutes, _ = Space, N = North or S = South
+                // 47-60    -   GNSS Ships Postion Longitude (14 byes) "ddd.mm.xxxxx_E" ddd= degrees, mm = minutes, xxxxx = decimal minutes, E = East or W = West
+                
+                buf = channel.map(MapMode.READ_WRITE, curPos, 256);
+                DeltaTHeader header = deltaParser.getCurrentHeader();;
+                curPos = deltaParser.getCurrentPosition() - header.numBytes;
+                
+                long nextSwathTimeStamp = nextSwath.getTimestamp();
+                SystemPositionAndAttitude pos = correctedPosition.getPosition(nextSwathTimeStamp);
+                LocationType posLoc = pos.getPosition();
+                posLoc = posLoc.getNewAbsoluteLatLonDepth();
+                
+                String lat83P = CoordinateUtil.latTo83PFormatWorker(posLoc.getLatitudeDegs());
+                String lon83P = CoordinateUtil.lonTo83PFormatWorker(posLoc.getLongitudeDegs());
+                
+                buf.position(33);
+                byte[] latBytes = new byte[14];
+                buf.get(latBytes);
+                // try { System.out.println(new String(latBytes, "ASCII")); } catch (UnsupportedEncodingException e) { }
+                latBytes = lat83P.getBytes(Charset.forName("ASCII"));
+                buf.put(latBytes);
 
-            long nextSwathTimeStamp = nextSwath.getTimestamp();
-            SystemPositionAndAttitude pos = correctedPosition.getPosition(nextSwathTimeStamp);
-            LocationType posLoc = pos.getPosition();
-            posLoc = posLoc.getNewAbsoluteLatLonDepth();
+                buf.position(47);
+                byte[] lonBytes = new byte[14];
+                buf.get(lonBytes);
+                // try { System.out.println(new String(lonBytes, "ASCII")); } catch (UnsupportedEncodingException e) { }
+                lonBytes = lon83P.getBytes(Charset.forName("ASCII"));
+                buf.put(lonBytes);
+
+                nextSwath = deltaParser.nextSwath();
+            }
             
-            double[] latDM = CoordinateUtil.decimalDegreesToDM(AngleCalc.nomalizeAngleDegrees180(posLoc.getLatitudeDegs()));
-            double[] lonDM = CoordinateUtil.decimalDegreesToDM(AngleCalc.nomalizeAngleDegrees180(posLoc.getLongitudeDegs()));
-            
-            latDM[1] = MathMiscUtils.round(latDM[1], 4);
-            lonDM[1] = MathMiscUtils.round(lonDM[1], 4);
-            
-        } while (nextSwath != null);
-        
-        return "Export to 83P completed successfully";
+            return "Export to 83P completed successfully";
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return "Export to 83P completed with errors! (" + e.getMessage() + ")";
+        }
     }
 
-    /**
-     * @return
-     */
-    private ByteBuffer getNextHeaderBuffer() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /**
-     * @return
-     */
-    private DeltaTHeader getNextHeader() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-    
     public static void main(String[] args) {
         
         double[] valsLat = { 38.276276276766, -9.276276276766, 41 };
@@ -165,5 +181,19 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
             System.out.print("\t::\t");
             System.out.println(CoordinateUtil.lonFrom83PFormatWorker(fmt));
         }
+        
+        byte[] by = " 38.22.35324 N".getBytes(Charset.forName("ASCII"));
+        System.out.println(by.length);
+        System.out.println(by);
+        
+        System.out.println(Arrays.toString(by));
+        try {
+            System.out.println(new String(by, "ASCII"));
+        }
+        catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
     }
 }
