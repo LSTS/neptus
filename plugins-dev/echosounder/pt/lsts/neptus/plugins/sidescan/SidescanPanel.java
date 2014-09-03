@@ -110,7 +110,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     lg2d.setBackground(new Color(255, 255, 255, 0));
                     lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight()); // Clear layer image
 
-                    if (zoom)
+                    if (zoom && imode == InteractionMode.ZOOM)
                         drawZoom(layer.getGraphics());                      // Update layer with zoom information
                     if (info)
                         drawInfo(layer.getGraphics());                      // update layer with location information
@@ -357,6 +357,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         BufferedImage zoomImage = image.getSubimage(mouseX - 50, mouseY - 50, 100, 100);
         g.drawImage(ImageUtils.getFasterScaledInstance(zoomImage, 300, 300), image.getWidth() - 301,
                 image.getHeight() - 301, null);
+
+        // Understand what we are zooming in.
+        g.drawRect(mouseX, mouseY, 100, 100);
     }
 
 
@@ -645,11 +648,16 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
             ((JPanel) e.getSource()).repaint();
         }
+
+        if (e.getButton() == MouseEvent.BUTTON2) {
+	    if (imode == InteractionMode.ZOOM) {
+                zoom = false;
+            }
+	}
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        zoom = false;
         info = false;
 
         if (marking) {
