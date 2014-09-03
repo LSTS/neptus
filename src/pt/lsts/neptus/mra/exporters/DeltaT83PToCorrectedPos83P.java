@@ -50,7 +50,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.MathMiscUtils;
-import ucar.jpeg.jj2000.j2k.util.StringFormatException;
 
 /**
  * Apply corrected position to 83P and re-exported.  
@@ -141,81 +140,30 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
         return null;
     }
     
-    private static String latLonTo83PFormatWorker(double latLonDegrees, boolean isLatOrLon) {
-        // 33-46    -   GNSS Ships Positon Latitude (14 bytes) "_dd.mm.xxxxx_N" dd = degrees, mm = minutes, xxxxx = decimal Minutes, _ = Space, N = North or S = South
-        // 47-60    -   GNSS Ships Postion Longitude (14 byes) "ddd.mm.xxxxx_E" ddd= degrees, mm = minutes, xxxxx = decimal minutes, E = East or W = West
-
-        String letter;
-        if (latLonDegrees >= 0)
-            letter = isLatOrLon ? "N" : "E";
-        else
-            letter = isLatOrLon ? "S" : "W";
-
-        double[] latLonDM = CoordinateUtil.decimalDegreesToDM(AngleCalc.nomalizeAngleDegrees180(latLonDegrees));
-        String latLonStr = CoordinateUtil.dmToLatString(latLonDM[0], latLonDM[1], 5);
-        latLonStr = latLonStr.replaceAll("[NSEW]", ".");
-        String[] latLonParts = latLonStr.split("\\.");
-        
-        // fix dd size
-        int sizeD = latLonParts[0].length();
-        int insertPad = 3 - sizeD;
-        String pad = isLatOrLon ? "0 " : "00";
-        while (insertPad > 0) {
-            latLonParts[0] = pad.charAt(2 - insertPad--) + latLonParts[0];
-        }
-
-        // fix mm size
-        if (latLonParts[1].length() < 2)
-            latLonParts[1] = "0" + latLonParts[1];
-
-        // fix ss size
-        sizeD = latLonParts[2].length();
-        insertPad = 5 - sizeD;
-        pad = "0000";
-        while (insertPad > 0) {
-            latLonParts[2] = pad.charAt(2 - insertPad--) + latLonParts[2];
-        }
-
-        String ret = latLonParts[0] + "." + latLonParts[1] + "." + latLonParts[2] + " " + letter; 
-        return ret;
-    }
-
-    private static String latTo83PFormatWorker(double latDegrees) {
-        return latLonTo83PFormatWorker(latDegrees, true);
-    }
-
-    private static String lonTo83PFormatWorker(double lonDegrees) {
-        return latLonTo83PFormatWorker(lonDegrees, false);
-    }
-
     public static void main(String[] args) {
+        
+        double[] valsLat = { 38.276276276766, -9.276276276766, 41 };
+        for (double val : valsLat) {
+            System.out.print(val);
+            System.out.print("\t::\t");
+            System.out.print(CoordinateUtil.latitudeAsPrettyString(val, false));
+            System.out.print("\t::\t");
+            String fmt = CoordinateUtil.latTo83PFormatWorker(val);
+            System.out.print(fmt);
+            System.out.print("\t::\t");
+            System.out.println(CoordinateUtil.latFrom83PFormatWorker(fmt));
+        }
 
-        double[] latDM = CoordinateUtil.decimalDegreesToDM(AngleCalc.nomalizeAngleDegrees180(38.276276276766));
-        double[] lonDM = CoordinateUtil.decimalDegreesToDM(AngleCalc.nomalizeAngleDegrees180(13.453));
-        
-//        latDM[1] = MathMiscUtils.round(latDM[1], 4);
-//        lonDM[1] = MathMiscUtils.round(lonDM[1], 4);
-        
-        String latStr = CoordinateUtil.dmToLatString(latDM[0], latDM[1], 5);
-        String lonStr = CoordinateUtil.dmToLonString(lonDM[0], lonDM[1], 5);
-        
-        latStr = latStr.replaceAll("[NSEW]", ".");
-        lonStr = lonStr.replaceAll("[NSEW]", ".");
-        
-        String[] latParts = latStr.split("\\.");
-        String[] lonParts = lonStr.split("\\.");
-        
-        
-        
-        System.out.println(latTo83PFormatWorker(38.276276276766));
-        System.out.println(latTo83PFormatWorker(9.276276276766));
-        System.out.println(latTo83PFormatWorker(41));
-
-        System.out.println(lonTo83PFormatWorker(13.453));
-        System.out.println(lonTo83PFormatWorker(122.45334343434));
-        System.out.println(lonTo83PFormatWorker(12.45334343434));
-        System.out.println(lonTo83PFormatWorker(2.45334343434));
-        System.out.println(lonTo83PFormatWorker(2));
-        
+        double[] valsLon = { 13.453, 122.45334343434, 12.45334343434, -2.45334343434, 2 };
+        for (double val : valsLon) {
+            System.out.print(val);
+            System.out.print("\t::\t");
+            System.out.print(CoordinateUtil.longitudeAsPrettyString(val, false));
+            System.out.print("\t::\t");
+            String fmt = CoordinateUtil.lonTo83PFormatWorker(val);
+            System.out.print(fmt);
+            System.out.print("\t::\t");
+            System.out.println(CoordinateUtil.lonFrom83PFormatWorker(fmt));
+        }
     }
 }
