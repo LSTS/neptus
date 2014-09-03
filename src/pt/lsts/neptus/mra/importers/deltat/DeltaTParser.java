@@ -70,6 +70,7 @@ public class DeltaTParser implements BathymetryParser {
     private final FileChannel channel;
     private ByteBuffer buf;
     private long curPos = 0;
+    private DeltaTHeader header;
 
     public BathymetryInfo info;
 
@@ -198,6 +199,9 @@ public class DeltaTParser implements BathymetryParser {
      * @return the position
      */
     public CorrectedPosition getCorrectedPosition() {
+        if (position == null)
+            position = new CorrectedPosition(source);
+
         return position;
     }
     
@@ -240,7 +244,7 @@ public class DeltaTParser implements BathymetryParser {
             realNumberOfBeams = 0;
 
             buf = channel.map(MapMode.READ_ONLY, curPos, 256);
-            DeltaTHeader header = new DeltaTHeader();
+            header = new DeltaTHeader();
             header.parse(buf);
 
             hasIntensity = header.hasIntensity;
@@ -343,6 +347,21 @@ public class DeltaTParser implements BathymetryParser {
         }
     }
 
+    /**
+     * Gets the current position
+     * @return 
+     */
+    public long getCurrentPosition() {
+        return curPos;
+    }
+    
+    /**
+     * @return the header
+     */
+    public DeltaTHeader getCurrentHeader() {
+        return header;
+    }
+    
     @Override
     public void rewind() {
         curPos = 0;
