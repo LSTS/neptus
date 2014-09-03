@@ -214,10 +214,10 @@ public class DeltaTParser implements BathymetryParser {
             header.parse(buf);
 
             hasIntensity = header.hasIntensity;
-            // if (hasIntensity)
-            // NeptusLog.pub().info("LOG has intensity");
-            // else
-            // NeptusLog.pub().info("Log doesn't have intensity");
+            if (hasIntensity)
+                NeptusLog.pub().info("LOG has intensity");
+            else
+                NeptusLog.pub().info("Log doesn't have intensity");
 
             // Parse and process data ( no need to create another structure for this )
             if (header.hasIntensity)
@@ -238,10 +238,14 @@ public class DeltaTParser implements BathymetryParser {
                     continue;
                 }
 
-                // range corrected with soundVelocity 1516 !?
-                // FIXME está a dar galhada - nos de cadiz dão direito
-                // NeptusLog.pub().info("header soundVelocity: " + header.soundVelocity);
-                // range = range * header.soundVelocity / 1500;
+                if (MRAProperties.soundSpeedCorrection) {
+                    // NeptusLog.pub().info("Sound speed correction applied to data");
+                    // FIXME Look into this further
+                    // NeptusLog.pub().info("header soundVelocity: " + header.soundVelocity);
+                    //if (header.soundVelocity == 1500)
+                    //    NeptusLog.pub().info("No sound speed data to apply to data");
+                    range = range * header.soundVelocity / 1500;
+                }
 
                 double angle = header.startAngle + header.angleIncrement * c;
                 float height = (float) (range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth());

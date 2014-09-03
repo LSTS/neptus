@@ -65,6 +65,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
+import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.gui.MenuScroller;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.gui.ToolbarSwitch;
@@ -967,7 +968,14 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
         else {
             Container parent = toolbar.getParent();
             
-            parent.remove(toolbar);
+            try {
+                parent.remove(toolbar);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(
+                        "Error removing toolbar of " + MapEditor.class.getSimpleName() + " from "
+                                + MapPanel.class.getSimpleName(), e);
+            }
             parent.invalidate();
             parent.validate();
             
