@@ -89,14 +89,13 @@ public class SidescanToolbar extends JToolBar {
 
             if(btnInfo.isSelected())
                 imode = InteractionMode.INFO;
-            if(btnZoom.isSelected())
-                imode = InteractionMode.ZOOM;
             if(btnMark.isSelected())
                 imode = InteractionMode.MARK;
             if(btnMeasure.isSelected())
                 imode = InteractionMode.MEASURE;
 
             panel.setInteractionMode(imode);
+            panel.setZoom(btnZoom.isSelected());
         };
     };
 
@@ -120,13 +119,12 @@ public class SidescanToolbar extends JToolBar {
     private void buildToolbar() {
         btnInfo.setSelected(true);
         bgroup.add(btnInfo);
-        bgroup.add(btnZoom);
         bgroup.add(btnMeasure);
         bgroup.add(btnMark);
         add(btnInfo);
-        add(btnZoom);
         add(btnMeasure);
         add(btnMark);
+        add(btnZoom);
 
         addSeparator();
         add(lblNormalization);
