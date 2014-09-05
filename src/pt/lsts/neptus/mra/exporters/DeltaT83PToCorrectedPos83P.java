@@ -33,6 +33,7 @@ package pt.lsts.neptus.mra.exporters;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -43,6 +44,7 @@ import java.util.Arrays;
 
 import javax.swing.ProgressMonitor;
 
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
@@ -92,6 +94,9 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
         
         log = source;
         
+        if (pmonitor != null)
+            pmonitor.setNote(I18n.text("Copying file"));
+        
         File fileOrig = DeltaTParser.findDataSource(source);
         String destName = FileUtil.getFileNameWithoutExtension(fileOrig) + "Corrected" + "." + FileUtil.getFileExtension(fileOrig);
         File fileDest =  new File(fileOrig.getParent(), destName);
@@ -106,6 +111,9 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
         catch (FileNotFoundException e1) {
             return "Error getting channel for 83P file!";
         }
+
+        if (pmonitor != null)
+            pmonitor.setNote(I18n.text("Working"));
 
         channel = raFile.getChannel();
         deltaParser = new DeltaTParser(source);
@@ -146,6 +154,9 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
                 buf.put(lonBytes);
 
                 nextSwath = deltaParser.nextSwath();
+                
+                if (pmonitor != null && pmonitor.isCanceled())
+                    return "Export to 83P interrupted!";
             }
             
             return "Export to 83P completed successfully";
@@ -153,6 +164,22 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
         catch (Exception e) {
             e.printStackTrace();
             return "Export to 83P completed with errors! (" + e.getMessage() + ")";
+        }
+        finally {
+            if (channel != null) {
+                try {
+                    channel.force(true);
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    channel.close();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
