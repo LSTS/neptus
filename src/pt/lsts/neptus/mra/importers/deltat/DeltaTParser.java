@@ -63,11 +63,14 @@ public class DeltaTParser implements BathymetryParser {
     private final IMraLogGroup source;
     private CorrectedPosition position = null;
     
-    private File file;
+    private boolean isLoaded = false;
+    
+    private File file = null;
     private FileInputStream fis;
     private final FileChannel channel;
     private ByteBuffer buf;
     private long curPos = 0;
+    private DeltaTHeader header;
 
     public BathymetryInfo info;
 
@@ -78,12 +81,7 @@ public class DeltaTParser implements BathymetryParser {
 
     public DeltaTParser(IMraLogGroup source) {
         this.source = source;
-        if (source.getFile("data.83P") != null)
-            file = source.getFile("data.83P");
-        else if (source.getFile("Data.83P") != null)
-            file = source.getFile("Data.83P");
-        else if (source.getFile("multibeam.83P") != null)
-            file = source.getFile("multibeam.83P");
+        file = findDataSource(source);
 
         try {
             fis = new FileInputStream(file);
@@ -169,8 +167,44 @@ public class DeltaTParser implements BathymetryParser {
             }
         }
         // NeptusLog.pub().info("<###> "+info.maxDepth);
+        isLoaded = true;
     }
 
+    public static boolean canBeApplied(IMraLogGroup source) {
+        File file = findDataSource(source);
+        if (file != null && file.exists())
+            return true;
+        return false;
+    }
+    
+    /**
+     * @param source
+     */
+    public static File findDataSource(IMraLogGroup source) {
+        if (source.getFile("data.83P") != null)
+            return source.getFile("data.83P");
+        else if (source.getFile("Data.83P") != null)
+            return source.getFile("Data.83P");
+        else if (source.getFile("multibeam.83P") != null)
+            return source.getFile("multibeam.83P");
+        else
+            return null;
+    }
+
+    public boolean isLoaded() {
+        return isLoaded;
+    }
+    
+    /**
+     * @return the position
+     */
+    public CorrectedPosition getCorrectedPosition() {
+        if (position == null)
+            position = new CorrectedPosition(source);
+
+        return position;
+    }
+    
     @Override
     public long getFirstTimestamp() {
         return 0;
@@ -210,14 +244,14 @@ public class DeltaTParser implements BathymetryParser {
             realNumberOfBeams = 0;
 
             buf = channel.map(MapMode.READ_ONLY, curPos, 256);
-            DeltaTHeader header = new DeltaTHeader();
+            header = new DeltaTHeader();
             header.parse(buf);
 
             hasIntensity = header.hasIntensity;
-            if (hasIntensity)
-                NeptusLog.pub().info("LOG has intensity");
-            else
-                NeptusLog.pub().info("Log doesn't have intensity");
+//            if (hasIntensity)
+//                NeptusLog.pub().info("LOG has intensity");
+//            else
+//                NeptusLog.pub().info("Log doesn't have intensity");
 
             // Parse and process data ( no need to create another structure for this )
             if (header.hasIntensity)
@@ -299,7 +333,10 @@ public class DeltaTParser implements BathymetryParser {
             buf = channel.map(MapMode.READ_ONLY, curPos, 256);
             DeltaTHeader header = new DeltaTHeader();
             header.parse(buf);
-            SystemPositionAndAttitude pose = position.getPosition(header.timestamp/1000.0);
+
+            long timestamp = header.timestamp + MRAProperties.timestampMultibeamIncrement;
+
+            SystemPositionAndAttitude pose = position.getPosition(timestamp/1000.0);
             curPos += header.numBytes; // Advance current position
 
             BathymetrySwath swath = new BathymetrySwath(header.timestamp, pose, null);
@@ -313,6 +350,21 @@ public class DeltaTParser implements BathymetryParser {
         }
     }
 
+    /**
+     * Gets the current position
+     * @return 
+     */
+    public long getCurrentPosition() {
+        return curPos;
+    }
+    
+    /**
+     * @return the header
+     */
+    public DeltaTHeader getCurrentHeader() {
+        return header;
+    }
+    
     @Override
     public void rewind() {
         curPos = 0;
