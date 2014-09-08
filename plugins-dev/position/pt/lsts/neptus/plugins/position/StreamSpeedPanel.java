@@ -41,6 +41,9 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.util.Vector;
 
+import com.google.common.eventbus.Subscribe;
+
+import pt.lsts.imc.EstimatedStreamVelocity;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -68,15 +71,14 @@ import pt.lsts.neptus.util.ReflectionUtil;
 @LayerPriority(priority=100)
 public class StreamSpeedPanel 
 extends ConsolePanel  
-implements MainVehicleChangeListener, Renderer2DPainter, SubPanelChangeListener, NeptusMessageListener {
+implements MainVehicleChangeListener, Renderer2DPainter, SubPanelChangeListener {
 
     private Vector<ILayerPainter> renderers = new Vector<ILayerPainter>();
 	
 	
 	private boolean initCalled=false;
 	
-    @SuppressWarnings("unused")
-    private double strX, strY, strZ; // stream vector
+    private double strX, strY;// stream vector
 
 	/**
 	 * 
@@ -98,12 +100,6 @@ implements MainVehicleChangeListener, Renderer2DPainter, SubPanelChangeListener,
 		if (initCalled)
 			return;
 		initCalled  = true;
-
-		addMenuItem("Tools>"+PluginUtils.getPluginName(this.getClass())+">Settings", null, new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				PropertiesEditor.editProperties(StreamSpeedPanel.this, getConsole(), true);
-			}
-		});
 	}
 		
 	@Override
@@ -143,7 +139,7 @@ implements MainVehicleChangeListener, Renderer2DPainter, SubPanelChangeListener,
 			int rWidth = renderer.getWidth();
 			double rangle = renderer.getRotation();
 			
-            double windAngle = Math.atan2(strY, strX) + Math.PI;
+            double windAngle = Math.atan2(strY, strX);
             rangle -= windAngle;			
 			
 			// box coordinates
@@ -172,18 +168,39 @@ implements MainVehicleChangeListener, Renderer2DPainter, SubPanelChangeListener,
 	        g2.translate(cornerX + width / 2, cornerY + (height)/ 2 + 13);
 	        //AffineTransform identity = g2.getTransform();    
 	        g2.rotate(-rangle);
-	        GeneralPath gp = new GeneralPath();
-	        gp.moveTo(0, -15);
-	        gp.lineTo(-8, 10);
-	        gp.lineTo(0, 7);
-	        gp.lineTo(8, 10);
-	        gp.closePath();
-	            
-	        g2.setColor(new Color(0,255,0,200));
-	        g2.fill(gp);
+	        GeneralPath red = new GeneralPath();
+	        red.moveTo(4, -15);
+	        red.lineTo(-4, -15);
+	        red.lineTo(-5, -5);
+	        red.lineTo(5, -5);
+	        red.closePath();
+
+	        red.moveTo(6, 5);
+	        red.lineTo(-6, 5);
+	        red.lineTo(-7, 15);
+	        red.lineTo(7, 15);
+	        red.closePath();
+	        g2.setColor(new Color(255,0,0,150));
+	        g2.fill(red);
+	        
+            GeneralPath white = new GeneralPath();
+            white.moveTo(6, 5);
+            white.lineTo(-6, 5);
+            white.lineTo(-5, -5);
+            white.lineTo(5, -5);
+            white.closePath();
+            g2.setColor(new Color(255,255,255,150));
+            g2.fill(white);
+            
+            GeneralPath outline = new GeneralPath();
+            outline.moveTo(-7, 15);
+            outline.lineTo(7, 15);
+            outline.lineTo(4, -15);
+            outline.lineTo(-4, -15);
+            outline.closePath();
 	       
 	        g2.setColor(Color.BLACK);
-            g2.draw(gp);
+            g2.draw(outline);
             g2.translate(-(cornerX + width / 2), -(cornerY + (height)/ 2 + 13));
 		}
 	}
@@ -197,16 +214,11 @@ implements MainVehicleChangeListener, Renderer2DPainter, SubPanelChangeListener,
 		}
 	}
 
-    @Override
-    public String[] getObservedMessages() {
-        return new String[] { "EstimatedStreamVelocity" };
-    }
-
-    @Override
-    public void messageArrived(IMCMessage message) {
-        strX = message.getDouble("x");
-        strY = message.getDouble("y");
-        strZ = message.getDouble("z");
-
+    @Subscribe
+    public void on(EstimatedStreamVelocity msg) {
+        if(!msg.getSourceName().equals(getConsole().getMainSystem()))
+            return;
+        strX = msg.getX();
+        strY = msg.getY();
     }
 }
