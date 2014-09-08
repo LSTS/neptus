@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,d37c910)" system="lauv-noptilus-3-aux" i18n="pt_PT">
+<config format="1" version="2.6.x (master,f9a5e50,dirty)" system="lauv-noptilus-3-aux" i18n="pt_PT">
   <section name="Power Supervisor" name-i18n="Supervisor de Energia">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -205,7 +205,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Heartbeat, LoggingControl, PowerChannelControl</default>
+      <default>Heartbeat, LoggingControl, PowerChannelControl, EntityActivationState, EntityInfo</default>
       <units/>
       <desc>Messages to transport</desc>
     </param>
@@ -255,13 +255,13 @@
       <desc>Remote server port</desc>
     </param>
   </section>
-  <section name="Camera" name-i18n="Câmara">
+  <section name="Camera Backend" name-i18n="Câmara Backend">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Camera</default>
+      <default>Camera Backend</default>
       <units/>
       <desc>Nome principal da entidade</desc>
     </param>
@@ -297,7 +297,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Trace</default>
+      <default>None</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
@@ -353,7 +353,7 @@
       <type>integer</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>7</default>
+      <default>15</default>
       <units/>
       <desc>Frames per second</desc>
     </param>
@@ -443,7 +443,7 @@
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>False</default>
+      <default>false</default>
       <units/>
       <desc>Enable Median Filter</desc>
     </param>
@@ -509,6 +509,33 @@
       <default>1000</default>
       <units/>
       <desc>Number of photos per volume</desc>
+    </param>
+    <param name="Enable Camera Configuration">
+      <name-i18n>Enable Camera Configuration</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Attempt to configure the camera</desc>
+    </param>
+    <param name="Enable Camera Streaming">
+      <name-i18n>Enable Camera Streaming</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Attempt to capture frames from the camera</desc>
+    </param>
+    <param name="Slave Entities">
+      <name-i18n>Slave Entities</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Slave entities to activate/deactivate</desc>
     </param>
   </section>
 </config>
