@@ -47,6 +47,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
@@ -87,9 +88,11 @@ public class PlanExporter extends ConsolePanel {
                             GuiUtils.infoMessage(getConsole(), exp.getExporterName(), I18n.text("Nothing to export"));
                             return;
                         }
+                        PlanType plan = getConsole().getPlan();
                         
                         JFileChooser chooser = new JFileChooser(lastExportFolder);
                         chooser.setFileView(new NeptusFileView());
+                        chooser.setSelectedFile(new File(plan.getDisplayName()));
                         chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.textf("%exporterName files", exp.getExporterName()), exp.validExtensions()));
                         chooser.setDialogTitle(I18n.text("Select destination file"));
                         int op = chooser.showSaveDialog(getConsole());
@@ -112,7 +115,7 @@ public class PlanExporter extends ConsolePanel {
 
                             ProgressMonitor pmonitor = new ProgressMonitor(getConsole(), exp.getExporterName(),
                                     I18n.text("Exporting"), 0, 100);
-                            exp.exportToFile(getConsole().getPlan(), dst, pmonitor);
+                            exp.exportToFile(plan, dst, pmonitor);
                             lastExportFolder = dst.getAbsolutePath();
                             GuiUtils.infoMessage(
                                     getConsole(),
