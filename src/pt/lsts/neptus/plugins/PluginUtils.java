@@ -893,8 +893,9 @@ public class PluginUtils {
     }
     
     public static InputStream getResourceAsStream(String filename) {
+        // Merge this with FileUtils
         return Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("pt/lsts/neptus/plugins/urready4os/template.mis");
+                .getResourceAsStream(filename);
     }
     
     public static String getResourceAsString(String filename) throws IOException{
