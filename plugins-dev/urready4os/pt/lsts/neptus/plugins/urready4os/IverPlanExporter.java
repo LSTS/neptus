@@ -96,7 +96,7 @@ public class IverPlanExporter implements IPlanFileExporter {
 
     @Override
     public String getExporterName() {
-        return ".mis Mission File";
+        return "Iver .mis Mission File";
     }
 
     public double metersToFeet(double meters) {
