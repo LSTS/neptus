@@ -31,15 +31,11 @@
  */
 package pt.lsts.neptus.util;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -87,14 +83,6 @@ public class FileUtil {
      * Empty constructor
      */
     private FileUtil() {
-    }
-
-    /**
-     * @param fx
-     * @return
-     */
-    public static String getFileAsString(File fx) {
-        return getFileAsString(fx.getAbsolutePath());
     }
 
     public static String getFileExtension(File fx) {
@@ -186,12 +174,18 @@ public class FileUtil {
     }
     
     /**
+     * @param fx
+     * @return
+     */
+    public static String getFileAsString(File fx) {
+        return getFileAsString(fx.getAbsolutePath());
+    }
+
+    /**
      * @param url
      * @return
      */
     public static String getFileAsString(String url) {
-
-        // DataInputStream dis = null;
         FileInputStream fis = null;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         int len;
@@ -200,19 +194,13 @@ public class FileUtil {
         String actualEncoding = "UTF-8";
         try {
             fis = new FileInputStream(url);
-            // dis = new DataInputStream (fis);
-
-            // dFIXME Pode haver problemas com ficheiros grandes
-            // ba = new byte[dis.available()];
             ba = new byte[1024];
-            // dis.readFully (ba);
-            // dis.close ();
             while ((len = fis.read(ba)) > 0) {
                 bos.write(ba, 0, len);
             }
             ba = bos.toByteArray();
 
-            // FIXME Descobrir qual o encoding do fx
+            // Find the file encoding, just a try
             String enc = findOutFileEncoding(ba);
             if (enc == null)
                 actualEncoding = "UTF-8";
@@ -227,19 +215,26 @@ public class FileUtil {
                 result = new String(ba, "UTF-8");
             }
 
-            fis.close();
+            // fis.close();
 
             // NeptusLog.pub().debug(FileUtil.class + " Input file as (" +
             // actualEncoding + ") \n" + result);
 
         }
         catch (FileNotFoundException e) {
-            // e.printStackTrace();
             NeptusLog.pub().error(FileUtil.class, e);
         }
         catch (IOException e) {
-            // e.printStackTrace();
             NeptusLog.pub().error(FileUtil.class, e);
+        }
+        finally {
+            if (fis != null)
+                try {
+                    fis.close();
+                }
+                catch (IOException e) {
+                    NeptusLog.pub().error(FileUtil.class, e);
+                }
         }
 
         return result;
@@ -275,6 +270,7 @@ public class FileUtil {
     }
 
     /**
+     * Find the encoding of a file.
      * @param ba
      * @return
      */
@@ -447,6 +443,10 @@ public class FileUtil {
         fos.close();
     }
 
+    public static void concatFiles(File destination, File fileToBeAppended) throws Exception {
+        appendToFile(destination, fileToBeAppended);
+    }
+
     public static void appendToFile(File destination, File fileToBeAppended) throws Exception {
         FileInputStream fis = new FileInputStream(fileToBeAppended);
         appendToFile(destination, fis);
@@ -611,47 +611,6 @@ public class FileUtil {
             return false;
         }
         return ret;
-    }
-
-    /**
-     * @deprecated - doesn't work for binary files!
-     * @see FileUtil.copyFile(String source, String dest)
-     * @param source
-     * @param out
-     * @return
-     */
-    public static boolean copyFile2(String source, String out) {
-        try {
-            FileReader fr = new FileReader(new File(source));
-            BufferedReader bfr = new BufferedReader(fr);
-
-            FileWriter frout = new FileWriter(new File(out));
-            BufferedWriter bfrout = new BufferedWriter(frout);
-
-            char[] ss = new char[1024];
-            int nbr = 0;
-            while (bfr.ready() && ((nbr = bfr.read(ss, 0, ss.length)) != -1)) {
-                bfrout.write(ss, 0, nbr);
-                bfrout.flush();
-            }
-
-            bfrout.flush();
-            fr.close();
-            bfr.close();
-            frout.close();
-            bfrout.close();
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-            System.err.println(e.getMessage() + source);
-            return false;
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            System.err.println(e.getMessage() + source);
-            return false;
-        }
-        return true;
     }
 
     public static boolean copyFileToDir(String source, String destDir) {
