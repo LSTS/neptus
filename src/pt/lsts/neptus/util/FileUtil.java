@@ -152,6 +152,39 @@ public class FileUtil {
         return st + "." + newExtension;
     }
 
+
+    /**
+     * See {@link #checkFileForExtensions(String, String...)}.
+     * @param file
+     * @param extensions
+     * @return
+     */
+    public static String checkFileForExtensions(File file, String... extensions) {
+        return checkFileForExtensions(file.getName(), extensions);
+    }
+
+    /**
+     * Checks a file name for matching a file extension (case insensitive).
+     * @param filePath
+     * @param extensions
+     * @return The extension that matched or null if not.
+     */
+    public static String checkFileForExtensions(String filePath, String... extensions) {
+        if (filePath == null || extensions == null || extensions.length == 0)
+            return null;
+        
+        String fileExt = getFileExtension(filePath);
+        if (fileExt == null || fileExt.isEmpty())
+            return null;
+        
+        for (String ext : extensions) {
+            if (fileExt.equalsIgnoreCase(ext))
+                return ext;
+        }
+        
+        return null;
+    }
+    
     /**
      * @param url
      * @return
