@@ -37,6 +37,7 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.ProgressMonitor;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -109,9 +110,15 @@ public class PlanExporter extends ConsolePanel {
                                 }
                             }
 
-                            exp.exportToFile(getConsole().getPlan(), dst);
+                            ProgressMonitor pmonitor = new ProgressMonitor(getConsole(), exp.getExporterName(),
+                                    I18n.text("Exporting"), 0, 100);
+                            exp.exportToFile(getConsole().getPlan(), dst, pmonitor);
                             lastExportFolder = dst.getAbsolutePath();
-                            GuiUtils.infoMessage(getConsole(), exp.getExporterName(), I18n.text("Export done"));
+                            GuiUtils.infoMessage(
+                                    getConsole(),
+                                    exp.getExporterName(),
+                                    pmonitor.isCanceled() ? I18n.text("Export cancelled") : I18n
+                                            .text("Export done"));
                         }
                         catch (Exception ex) {
                             GuiUtils.errorMessage(getConsole(), ex);

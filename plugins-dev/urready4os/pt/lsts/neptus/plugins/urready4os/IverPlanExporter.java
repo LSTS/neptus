@@ -33,6 +33,8 @@ package pt.lsts.neptus.plugins.urready4os;
 
 import java.io.File;
 
+import javax.swing.ProgressMonitor;
+
 import org.apache.commons.io.FileUtils;
 
 import pt.lsts.neptus.NeptusLog;
@@ -108,7 +110,7 @@ public class IverPlanExporter implements IPlanFileExporter {
     }
 
     @Override
-    public void exportToFile(PlanType plan, File out) throws Exception {
+    public void exportToFile(PlanType plan, File out, ProgressMonitor monitor) throws Exception {
         double distanceSum = 0;
         double timeSum = 0;
         double minDepth = Double.MAX_VALUE, minLat = Double.MAX_VALUE, minLon = Double.MAX_VALUE;

@@ -35,6 +35,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 
+import javax.swing.ProgressMonitor;
+
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.Goto;
@@ -68,7 +70,7 @@ public class KmlPlanExporter implements IPlanFileExporter {
     }
 
     @Override
-    public void exportToFile(PlanType plan, File out) throws Exception {
+    public void exportToFile(PlanType plan, File out, ProgressMonitor monitor) throws Exception {
         BufferedWriter writer = new BufferedWriter(new FileWriter(out));
         writer.write(header(plan));
         for (Maneuver m : plan.getGraph().getManeuversSequence()) {
@@ -108,6 +110,6 @@ public class KmlPlanExporter implements IPlanFileExporter {
         MissionType mt = new MissionType("/home/zp/workspace/neptus/missions/APDL/missao-apdl.nmisz");
         PlanType pt = mt.getIndividualPlansList().get("folaga_plan");
         
-        exporter.exportToFile(pt, new File("/home/zp/Desktop/out.kml"));
+        exporter.exportToFile(pt, new File("/home/zp/Desktop/out.kml"), null);
     }
 }
