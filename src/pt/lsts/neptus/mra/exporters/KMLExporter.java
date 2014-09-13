@@ -279,7 +279,7 @@ public class KMLExporter implements MRAExporter {
             ne.setLatitudeStr(il.getTopLeft().getLatitudeStr());
             ne.setLongitudeStr(il.getBottomRight().getLongitudeStr());
 
-            return overlay(new File(dir, "dvn.png"), "DVL Bathymetry mosaic", sw, ne);
+            return overlay(new File(dir, "dvl.png"), "DVL Bathymetry mosaic", sw, ne);
         }
         catch (Exception e) {
             e.printStackTrace();
