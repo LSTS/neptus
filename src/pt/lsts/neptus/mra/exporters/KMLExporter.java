@@ -137,9 +137,17 @@ public class KMLExporter implements MRAExporter {
     @NeptusProperty (name = "Seconds Gap in EstimatedState for Path Break")
     public int secondsGapInEstimatedStateForPathBreak = 30;
 
+    @NeptusProperty
+    public boolean visibilityForBathymetry = true;
+
+    @NeptusProperty
+    public boolean visibilityForSideScan = true;
+    
+    @NeptusProperty
+    public boolean visibilityForLegends = true;
+
     public KMLExporter(IMraLogGroup source) {
         this.source = source;
-
     }
 
     @Override
@@ -177,12 +185,13 @@ public class KMLExporter implements MRAExporter {
         return ret;
     }
 
-    public String overlay(File imageFile, String title, LocationType sw, LocationType ne) {
+    public String overlay(File imageFile, String title, LocationType sw, LocationType ne, boolean visibility) {
         sw.convertToAbsoluteLatLonDepth();
         ne.convertToAbsoluteLatLonDepth();
         String ret = "\t\t<GroundOverlay>\n";
         try {
             ret += "\t\t\t<name>" + title + "</name>\n";
+            ret += "\t\t\t<visibility>" + (visibility ? 1 : 0) + "</visibility>\n";
             ret += "\t\t\t<description></description>\n";
             ret += "\t\t\t<Icon>\n";
 
@@ -279,7 +288,7 @@ public class KMLExporter implements MRAExporter {
             ne.setLatitudeStr(il.getTopLeft().getLatitudeStr());
             ne.setLongitudeStr(il.getBottomRight().getLongitudeStr());
 
-            return overlay(new File(dir, "dvl.png"), "DVL Bathymetry mosaic", sw, ne);
+            return overlay(new File(dir, "dvl.png"), "DVL Bathymetry mosaic", sw, ne, false);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -452,7 +461,7 @@ public class KMLExporter implements MRAExporter {
             il.saveToFile(new File(dir.getParentFile(), "sidescan.layer"));
             return overlay(new File(dir, "sidescan.png"), "Sidescan mosaic", 
                     new LocationType(bottomRight.getLatitudeDegs(), topLeft.getLongitudeDegs()),
-                    new LocationType(topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs()));
+                    new LocationType(topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs()), visibilityForSideScan) ;
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -491,6 +500,7 @@ public class KMLExporter implements MRAExporter {
             ImageIO.write(img, "PNG", new File(dir, "mb_legend.png"));
             String ret = "\t\t<ScreenOverlay>\n";
             ret += "\t\t\t<name>Multibeam layer legend</name>\n";
+            ret += "\t\t\t<visibility>" + visibilityForLegends + "</visibility>\n";
             ret += "\t\t\t<Icon>\n";
             // ret += "\t\t\t\t<href>" + new File(dir, "mb_legend.png").toURI().toURL() + "</href>\n";
             ret += "\t\t\t\t<href>" + new File(dir, "mb_legend.png").getName() + "</href>\n";
@@ -616,7 +626,7 @@ public class KMLExporter implements MRAExporter {
 
             return legend+overlay(new File(dir, "mb_bath2.png"), "Multibeam Bathymetry", 
                     new LocationType(bottomRight.getLatitudeDegs(), topLeft.getLongitudeDegs()),
-                    new LocationType(topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs()));
+                    new LocationType(topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs()), visibilityForBathymetry);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -663,7 +673,7 @@ public class KMLExporter implements MRAExporter {
         try {
             ImageIO.write(imgMb.processData(), "PNG", new File(dir, "mb_bath.png"));
             return overlay(new File(dir, "mb_bath.png"), "Multibeam Bathymetry", imgMb.getSouthWest(),
-                    imgMb.getNorthEast());
+                    imgMb.getNorthEast(), visibilityForBathymetry);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -802,7 +812,7 @@ public class KMLExporter implements MRAExporter {
                 }
                 ImageIO.write(imgDvl.processData(), "PNG", new File(out.getParent(), "dvl_bath.png"));
                 bw.write(overlay(new File(out.getParent(), "dvl_bath.png"), "DVL Bathymetry", imgDvl.getSouthWest(),
-                        imgDvl.getNorthEast()));
+                        imgDvl.getNorthEast(), visibilityForBathymetry));
             }
 
             bw.write(kmlFooter());
