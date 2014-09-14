@@ -383,7 +383,7 @@ public class KMLExporter implements MRAExporter {
                     swath.getGraphics().drawImage(previous, 0, 0, swath.getWidth(), 1, 1, 0, 2, previous.getWidth(),
                             null);
 
-                int samplesPerPixel = sl.data.length / widthPixels;
+                int samplesPerPixel = (int) Math.round(1.0 * sl.data.length / widthPixels);
                 if (samplesPerPixel == 0)
                     continue;
                 double sum = 0;
