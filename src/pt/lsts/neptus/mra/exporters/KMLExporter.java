@@ -409,13 +409,18 @@ public class KMLExporter implements MRAExporter {
                         break;
                 }
 
+                int pixelOffset = (int) Math.round((widthPixels - 1.0 * sl.data.length / samplesPerPixel) / 2.0);
                 for (int i = startPixel; i < endPixel; i++) {
                     if (i != 0 && i % samplesPerPixel == 0) {
                         int alpha = (int) (swathTransparency * 255);
                         double val = sum / count;
 
-                        if (filterOutNadir && (double) i / samplesPerPixel >= nadirStartPixel
-                                && (double) i / samplesPerPixel <= nadirFinalPixel) {
+                        int pixelInImgToWrite = (i / samplesPerPixel - 1) + pixelOffset;
+
+//                        if (filterOutNadir && (double) i / samplesPerPixel >= nadirStartPixel
+//                                && (double) i / samplesPerPixel <= nadirFinalPixel) {
+                        if (filterOutNadir && pixelInImgToWrite >= nadirStartPixel
+                                && pixelInImgToWrite <= nadirFinalPixel) {
                             if (Double.isNaN(val) || Double.isInfinite(val))
                                 alpha = 255;
                             else
@@ -424,9 +429,15 @@ public class KMLExporter implements MRAExporter {
 
                         if (Double.isNaN(val) || Double.isInfinite(val))
                             alpha = 255;
-                        if ((i / samplesPerPixel - 1) < widthPixels)
-                            swath.setRGB(i / samplesPerPixel - 1, 0, cmap.getColor(val).getRGB()
+//                        if ((i / samplesPerPixel - 1) < widthPixels)
+//                            swath.setRGB(i / samplesPerPixel - 1, 0, cmap.getColor(val).getRGB()
+//                                    ^ ((alpha & 0xFF) << 24));
+                        if (pixelInImgToWrite >= 0 && pixelInImgToWrite < widthPixels)
+                            swath.setRGB(pixelInImgToWrite, 0, cmap.getColor(val).getRGB()
                                     ^ ((alpha & 0xFF) << 24));
+//                        else
+//                            System.out.println(pixelInImgToWrite);
+                        
                         sum = 0;
                         count = 0;
                     }
