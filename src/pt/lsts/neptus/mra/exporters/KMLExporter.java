@@ -107,43 +107,43 @@ public class KMLExporter implements MRAExporter {
     private IMraLogGroup source;
     private ProgressMonitor pmonitor;
 
-    @NeptusProperty
+    @NeptusProperty(category = "SideScan")
     public double timeVariableGain = 300;
 
-    @NeptusProperty
+    @NeptusProperty(category = "SideScan")
     public double normalization = 0.1;
 
-    @NeptusProperty
+    @NeptusProperty(category = "SideScan")
     public double swathLength = 1.0;
 
-    @NeptusProperty
+    @NeptusProperty(category = "SideScan")
     public double swathTransparency = 0.25;
 
     @NeptusProperty
     public double layerTransparency = 0.5;
 
-    @NeptusProperty
-    public boolean separate_transducers = false;
+    @NeptusProperty(category = "SideScan")
+    public boolean separateTransducers = false;
 
-    @NeptusProperty
+    @NeptusProperty(category = "SideScan")
     public boolean filterOutNadir = true;
 
-    @NeptusProperty
-    public boolean removeInfiniteShadows = true;
+//    @NeptusProperty
+//    public boolean removeInfiniteShadows = true;
 
-    @NeptusProperty
+    @NeptusProperty(category = "SideScan")
     public double maximumSidescanRange = 50;
 
     @NeptusProperty (name = "Seconds Gap in EstimatedState for Path Break")
     public int secondsGapInEstimatedStateForPathBreak = 30;
 
-    @NeptusProperty
+    @NeptusProperty(category = "Visibility")
     public boolean visibilityForBathymetry = true;
 
-    @NeptusProperty
+    @NeptusProperty(category = "Visibility")
     public boolean visibilityForSideScan = true;
     
-    @NeptusProperty
+    @NeptusProperty(category = "Visibility")
     public boolean visibilityForLegends = true;
 
     public KMLExporter(IMraLogGroup source) {
@@ -480,7 +480,7 @@ public class KMLExporter implements MRAExporter {
             il.saveToFile(new File(dir.getParentFile(), "sidescan.layer"));
             return overlay(new File(dir, "sidescan.png"), "Sidescan mosaic", 
                     new LocationType(bottomRight.getLatitudeDegs(), topLeft.getLongitudeDegs()),
-                    new LocationType(topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs()), visibilityForSideScan) ;
+                    new LocationType(topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs()), ducer == Ducer.both ? visibilityForSideScan : false) ;
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -641,6 +641,7 @@ public class KMLExporter implements MRAExporter {
         try {
             ImageIO.write(img, "PNG", new File(dir, "mb_bath2.png"));
             ImageLayer il = new ImageLayer("Bathymetry from " + source.name(), img, topLeft, bottomRight);
+            il.setTransparency(layerTransparency);
             il.saveToFile(new File(dir.getParentFile(), "multibeam.layer"));
 
             return legend+overlay(new File(dir, "mb_bath2.png"), "Multibeam Bathymetry", 
@@ -807,7 +808,7 @@ public class KMLExporter implements MRAExporter {
 
             pmonitor.setNote("Generating sidescan overlay");
             bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.both));
-            if (separate_transducers) {
+            if (separateTransducers) {
                 bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.board));
                 bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.starboard));
             }
