@@ -279,7 +279,7 @@ public class KMLExporter implements MRAExporter {
             ImageIO.write(il.getImage(), "PNG", new File(dir, "dvl.png"));
 
             il.setTransparency(layerTransparency);
-            il.saveToFile(new File(dir.getParentFile(), "sidescan.layer"));
+            il.saveToFile(new File(dir.getParentFile(), "dvl.layer"));
             LocationType sw = new LocationType();
             LocationType ne = new LocationType();
             sw.setLatitudeStr(il.getBottomRight().getLatitudeStr());
