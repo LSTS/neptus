@@ -427,14 +427,15 @@ public class KMLExporter implements MRAExporter {
                         if ((i / samplesPerPixel - 1) < widthPixels)
                             swath.setRGB(i / samplesPerPixel - 1, 0, cmap.getColor(val).getRGB()
                                     ^ ((alpha & 0xFF) << 24));
-                        sum = count = 0;
+                        sum = 0;
+                        count = 0;
                     }
-                    else {
+//                    else {
                         if (!Double.isNaN(sl.data[i]) && !Double.isInfinite(sl.data[i])) { 
                             count++;
                             sum += sl.data[i];
                         }
-                    }
+//                    }
                 }
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
