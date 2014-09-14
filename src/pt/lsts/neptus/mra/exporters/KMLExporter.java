@@ -477,8 +477,19 @@ public class KMLExporter implements MRAExporter {
             ImageIO.write(img, "PNG", new File(dir, filename + ".png"));
             ImageLayer il = new ImageLayer("Sidescan mosaic from " + source.name(), img, topLeft, bottomRight);
             il.setTransparency(layerTransparency);
-            il.saveToFile(new File(dir.getParentFile(), "sidescan.layer"));
-            return overlay(new File(dir, "sidescan.png"), "Sidescan mosaic", 
+            String sufix = "";
+            switch (ducer) {
+                case board:
+                    sufix = " port";
+                    break;
+                case starboard:
+                    sufix = " starboard";
+                    break;
+                default:
+                    break;
+            }
+            il.saveToFile(new File(dir.getParentFile(), filename + ".layer"));
+            return overlay(new File(dir, filename + ".png"), "Sidescan mosaic" + sufix, 
                     new LocationType(bottomRight.getLatitudeDegs(), topLeft.getLongitudeDegs()),
                     new LocationType(topLeft.getLatitudeDegs(), bottomRight.getLongitudeDegs()), ducer == Ducer.both ? visibilityForSideScan : false) ;
         }
