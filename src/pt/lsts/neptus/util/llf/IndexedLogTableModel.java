@@ -184,7 +184,14 @@ public class IndexedLogTableModel extends AbstractTableModel {
                 case "dst_ent":
                     return index.getEntityName(m.getDst(), m.getDstEnt());
                 default: {
-                    return ""+m.getString(msgNames.get(columnIndex), false);
+                    String unit = m.getUnitsOf(msgNames.get(columnIndex));
+                    Number nb = null;
+                    nb = m.getAsNumber(msgNames.get(columnIndex));
+                    if (nb != null && !"enumerated".equalsIgnoreCase(unit.toLowerCase())
+                            && !"bitmask".equalsIgnoreCase(unit.toLowerCase()))
+                        return nb;
+                    else
+                        return ""+m.getString(msgNames.get(columnIndex), false);
                 }
             }
         }
