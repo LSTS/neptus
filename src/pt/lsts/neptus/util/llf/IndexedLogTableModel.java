@@ -191,8 +191,7 @@ public class IndexedLogTableModel extends AbstractTableModel {
                                 && !"bitmask".equalsIgnoreCase(unit.toLowerCase())))
                             return nb;
                     }
-                    else
-                        return ""+m.getString(msgNames.get(columnIndex), false);
+                    return ""+m.getString(msgNames.get(columnIndex), false);
                 }
             }
         }
