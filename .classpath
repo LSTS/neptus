@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry combineaccessrules="false" kind="src" path="/imcjava"/>
 	<classpathentry kind="src" path="src">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Neptus/libJNI"/>
@@ -183,7 +184,6 @@
 	<classpathentry kind="lib" path="lib/htmlUnit/cssparser-0.9.8.jar"/>
 	<classpathentry kind="lib" path="lib/htmlUnit/nekohtml-1.9.17.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jmatio.jar"/>
-	<classpathentry kind="lib" path="lib/libimc.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-oro-core-2.1-dev-1.jar"/>
 	<classpathentry kind="lib" path="lib/jakarta-oro-perl5-2.1-dev-1.jar"/>
 	<classpathentry kind="lib" path="lib/javassist.jar"/>

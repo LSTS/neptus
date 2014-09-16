@@ -52,8 +52,6 @@ import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.lsts.neptus.util.llf.LogUtils;
-import pt.lsts.neptus.util.llf.LogUtils.LogValidity;
 
 /**
  * Neptus MRA main class
