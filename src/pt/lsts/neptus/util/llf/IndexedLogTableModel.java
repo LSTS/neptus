@@ -187,8 +187,8 @@ public class IndexedLogTableModel extends AbstractTableModel {
                     String unit = m.getUnitsOf(msgNames.get(columnIndex));
                     Number nb = null;
                     nb = m.getAsNumber(msgNames.get(columnIndex));
-                    if (nb != null && !"enumerated".equalsIgnoreCase(unit.toLowerCase())
-                            && !"bitmask".equalsIgnoreCase(unit.toLowerCase()))
+                    if (nb != null && (unit == null || !"enumerated".equalsIgnoreCase(unit.toLowerCase())
+                            && !"bitmask".equalsIgnoreCase(unit.toLowerCase())))
                         return nb;
                     else
                         return ""+m.getString(msgNames.get(columnIndex), false);
