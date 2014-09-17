@@ -1295,7 +1295,6 @@ For simple use the main targets are:
 		<delete dir="tmpjars" failonerror="true" />
 		<mkdir dir="tmpjars" />
 		<script language="javascript">     
-            importPackage(java.io);
 			jarList = project.getProperty("plugin.private.jars.cp");
 			if (!"".equals(jarList)) {
 				if (project.getProperty("os.name").toLowerCase().contains("windows"))
@@ -1304,8 +1303,8 @@ For simple use the main targets are:
 					libs = jarList.split(":");
 	            for (index in libs) {
 	              unzip = project.createTask("unzip");
-	              unzip.setDest(new File("tmpjars"));
-	              unzip.setSrc(new File(libs[index]));    
+	              unzip.setDest(new java.io.File("tmpjars"));
+	              unzip.setSrc(new java.io.File(libs[index]));    
 	        	  unzip.perform();
 	            }
 			}
