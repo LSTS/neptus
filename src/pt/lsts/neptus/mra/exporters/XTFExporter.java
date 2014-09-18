@@ -95,9 +95,9 @@ public class XTFExporter implements MRAExporter {
             writeString("KleinXlt");
             writeString("4.0");
             
-            buf.putShort(34, (short)0); // Sonar Type 0 = NONE
+            buf.putShort(34, (short) 0); // Sonar Type 0 = NONE
             buf.position(164);
-            buf.putShort((short)3); // Nav Units 3 = LatLon
+            buf.putShort((short) 3); // Nav Units 3 = LatLon
             buf.putShort((short) 0); // Number of sidescan channels
             buf.putShort((short) 1); // Number of bathy channels
             
@@ -111,9 +111,9 @@ public class XTFExporter implements MRAExporter {
             BathymetrySwath swath;
             parser.rewind();
             int swathsRead = 0;
+            int swathSize = 64;
             
             while((swath = parser.nextSwath()) != null) {
-                int swathSize = 64;
                 buf = chan.map(MapMode.READ_WRITE, 1024 + (swathsRead * swathSize), swathSize);
                 buf.putShort((short) 0xFACE);
                 buf.put((byte) 42);
@@ -121,6 +121,7 @@ public class XTFExporter implements MRAExporter {
                 buf.putDouble(33, swath.getPose().getPosition().getLatitudeDegs());
                 buf.putDouble(41, swath.getPose().getPosition().getLongitudeDegs());
                 buf.putDouble(49, swath.getPose().getAltitude());
+                swathsRead++;
             }
             
             raf.close();
