@@ -104,6 +104,7 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -988,7 +989,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         boolean dontSendByAcoustics = DONT_USE_ACOUSTICS;
         if (cmd == PlanControl.OP.START) {
             String planId = pc.getPlanId();
-            if (planId.length() == 1) {
+            if (planId.length() <= GeneralPreferences.maximumSizePlanNameForAcoustics) {
                 dontSendByAcoustics = USE_ACOUSTICS;
             }
         }

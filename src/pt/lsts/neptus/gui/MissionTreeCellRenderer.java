@@ -64,6 +64,7 @@ import pt.lsts.neptus.types.mission.VehicleMission;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -310,7 +311,7 @@ public class MissionTreeCellRenderer extends DefaultTreeCellRenderer {
     private void setPlanIcon(String planId, State state, boolean hasMultpVehicles) {
         StringBuilder fileNameBuilder = new StringBuilder(Icons.PLAN.getName());
         fileNameBuilder.append(state.getFileName());
-        if (planId.length() == 1) {
+        if (planId.length() <= GeneralPreferences.maximumSizePlanNameForAcoustics) {
             fileNameBuilder.append(Icons.ACOUSTIC.getName());
         }
 
