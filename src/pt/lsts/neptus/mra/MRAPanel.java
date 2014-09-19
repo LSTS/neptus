@@ -54,7 +54,6 @@ import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXStatusBar;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
@@ -339,10 +338,9 @@ public class MRAPanel extends JPanel {
      * @param distance
      */
     public void getTimestampsForMarker(LogMarker marker, double distance) {
-        LsfGenericIterator i = source.getLsfIndex().getIterator("EstimatedState");
         LocationType l = marker.getLocation();
 
-        for (IMCMessage state = i.next(); i.hasNext(); state = i.next()) {
+        for (IMCMessage state : source.getLsfIndex().getIterator("EstimatedState")) {
             LocationType loc = new LocationType(Math.toDegrees(state.getDouble("lat")), Math.toDegrees(state
                     .getDouble("lon")));
             loc.translatePosition(state.getDouble("x"), state.getDouble("y"), 0);

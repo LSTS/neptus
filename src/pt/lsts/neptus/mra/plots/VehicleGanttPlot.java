@@ -33,7 +33,6 @@ package pt.lsts.neptus.mra.plots;
 
 import pt.lsts.imc.IMCFieldType;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -67,19 +66,16 @@ public class VehicleGanttPlot extends MRAGanttPlot {
 
     @Override
     public void process(LsfIndex source) {
-        LsfGenericIterator it = source.getIterator("VehicleState");
-
-        for (IMCMessage s : it)
+        for (IMCMessage s : source.getIterator("VehicleState"))
             startActivity(s.getTimestamp(), I18n.text("Vehicle State"), s.getString("op_mode"));
 
         endActivity(source.getEndTime(), I18n.text("Vehicle State"));
 
-        it = source.getIterator("PlanControlState");
         IMCFieldType type = source.getDefinitions().getType("PlanControlState").getFieldType("man_id");
 
         String field = type != null ? "man_id" : "node_id";
 
-        for (IMCMessage s : it) {
+        for (IMCMessage s : source.getIterator("PlanControlState")) {
             if(s.getString(field) == null || s.getString(field).isEmpty())
                 continue;
             startActivity(s.getTimestamp(), I18n.text("Maneuver"), s.getString(field));
@@ -87,9 +83,7 @@ public class VehicleGanttPlot extends MRAGanttPlot {
 
         endActivity(source.getEndTime(), I18n.text("Maneuver"));
 
-        it = source.getIterator(I18n.text("VehicleMedium"));
-
-        for (IMCMessage medium : it)
+        for (IMCMessage medium : source.getIterator("VehicleMedium"))
             startActivity(medium.getTimestamp(), I18n.text("Vehicle Medium"), medium.getString("medium"));
 
         endActivity(source.getEndTime(), I18n.text("Vehicle Medium"));

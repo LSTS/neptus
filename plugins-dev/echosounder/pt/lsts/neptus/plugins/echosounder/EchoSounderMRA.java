@@ -40,7 +40,6 @@ import java.awt.Transparency;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
-import java.util.Iterator;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -123,8 +122,7 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
      */
     private void getSonarDataValues() {
         int c = 0;
-        Iterator<IMCMessage> i = source.getLsfIndex().getIterator("SonarData");
-        for(IMCMessage msg = i.next(); i.hasNext(); msg = i.next()) {
+        for(IMCMessage msg : source.getLsfIndex().getIterator("SonarData")) {
             if(msg.getInteger("type") == SonarData.TYPE.ECHOSOUNDER.value()) {
                 c++;
                 imageHeight = msg.getRawData("data").length;
@@ -147,10 +145,9 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
         Graphics2D g2d = (Graphics2D) image.getGraphics();
 
         // for old messages
-        Iterator<IMCMessage> i = source.getLsfIndex().getIterator("SonarData");
         int x = 0;
 
-        for(IMCMessage msg = i.next(); i.hasNext(); msg = i.next()) {
+        for(IMCMessage msg : source.getLsfIndex().getIterator("SonarData")) {
             if(msg.getInteger("type") == SonarData.TYPE.ECHOSOUNDER.value()) {
                 int y = 0;
                 for(byte b : msg.getRawData("data")) {
@@ -163,7 +160,6 @@ public class EchoSounderMRA extends JPanel implements MRAVisualization {
         }
 
         // Sonar Data is now stored on Distance msgs
-        i = source.getLsfIndex().getIterator("Distance");
         x = 0;
 
         int prevX = 0, prevY = 0;

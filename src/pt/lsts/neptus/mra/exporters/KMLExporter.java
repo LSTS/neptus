@@ -52,7 +52,6 @@ import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.colormap.ColorMap;
@@ -741,7 +740,7 @@ public class KMLExporter implements MRAExporter {
             LocationType bottomRight = null, topLeft = null;
 
             // Path
-            LsfGenericIterator it = source.getLsfIndex().getIterator("EstimatedState", 0, 3000);
+            Iterable<IMCMessage> it = source.getLsfIndex().getIterator("EstimatedState", 0, 3000);
             pmonitor.setProgress(1);
             pmonitor.setNote("Generating path");
             double start = source.getLsfIndex().getStartTime();
