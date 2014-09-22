@@ -33,12 +33,15 @@ package pt.lsts.neptus.plugins.actualstate;
 
 import java.util.Vector;
 
+import org.jfree.data.xy.XYSeries;
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.imc.lsf.LsfIterator;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.plots.MRA2DPlot;
+import pt.lsts.neptus.mra.plots.TimedXYDataItem;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -49,13 +52,25 @@ import pt.lsts.neptus.types.coord.LocationType;
 @PluginDescription(name = "Corrected position")
 public class ActualPosition extends MRA2DPlot {
 
+    private MRAPanel mraPanel;
+
     public ActualPosition(MRAPanel panel) {
         super(panel);
+        this.mraPanel = panel;
     }
 
     @Override
     public void addLogMarker(LogMarker marker) {
-        // TODO
+        XYSeries markerSeries = getMarkerSeries();
+        IMCMessage state = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
+        LocationType loc = new LocationType();
+        loc.setLatitudeRads(state.getDouble("lat"));
+        loc.setLongitudeRads(state.getDouble("lon"));
+        loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"));
+        loc.convertToAbsoluteLatLonDepth();
+
+        if(markerSeries != null)
+            markerSeries.add(new TimedXYDataItem(loc.getLatitudeDegs(), loc.getLongitudeDegs(), new Double(marker.timestamp).longValue(), marker.label));
 
     }
 
