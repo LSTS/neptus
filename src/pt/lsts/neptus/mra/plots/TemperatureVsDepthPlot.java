@@ -104,7 +104,7 @@ public class TemperatureVsDepthPlot extends XYPlot {
     }
 
     public void addLogMarker(LogMarker marker) {
-
+/*
         XYSeries markerSeries = getMarkerSeries();
 
         String depthEntity = MRAProperties.depthEntity.toString().replaceAll("_", " ");
@@ -113,14 +113,13 @@ public class TemperatureVsDepthPlot extends XYPlot {
         IMCMessage es = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
         IMCMessage temp = mraPanel.getSource().getLog("Temperature").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
 
-        while (temp.getSrcEnt() != ctdId){
-            temp = mraPanel.getSource().getLog("Temperature").getEntryAtOrAfter(temp.getTimestampMillis());
-        }
-
-        if(markerSeries != null)
+        if(markerSeries != null) {
+            while (temp.getSrcEnt() != ctdId) {
+                temp = mraPanel.getSource().getLog("Temperature").getEntryAtOrAfter(temp.getTimestampMillis());
+            }
             markerSeries.add(new TimedXYDataItem(-es.getDouble("depth"), ((Temperature) temp).getValue(), temp.getTimestampMillis(), marker.label));
-
-
+        }
+*/
     };
 
     public boolean canBeApplied(pt.lsts.imc.lsf.LsfIndex index) {
