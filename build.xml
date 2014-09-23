@@ -58,9 +58,9 @@ For simple use the main targets are:
 	<property name="version.MAJOR" value="4" />
 	<property name="version.MINOR" value="2" />
 	<property name="version.PATCH" value="0" />
-	<!-- Set this to '.dev' if a developer release; blank "" if maintenance release -->
-	<property name="version.DEVELOPER" value="rc1" />
-	<!-- Set the release number. Use the form 'R1' for release 1. Or leave it blank for a non release -->
+	<!-- Set this to '-dev' if a developer release; blank "" if maintenance release; or '-rcX' for release candidate X (X number) -->
+	<property name="version.DEVELOPER" value="-rc1" />
+	<!-- Set the release number. Use the form 'R14.01' for release 1 of year 2014. Or leave it blank for a non release -->
 	<property name="release.NAME" value="R14.03" />
 	<property name="release.INFO" value="${release.NAME}"/>
 
