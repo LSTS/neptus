@@ -224,10 +224,10 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         checkAdvance = new JCheckBox(I18n.text("Access Developer Parameters"));
         checkAdvance.setToolTipText("<html>" + I18n.textc("Be careful changing these values.<br>They may make the vehicle inoperable.",
                 "This will be a tooltip, and use <br> to change line."));
-        if (ConfigFetch.getDistributionType() == DistributionEnum.DEVELOPER)
+//        if (ConfigFetch.getDistributionType() == DistributionEnum.DEVELOPER)
             add(checkAdvance);
-        else
-            visibility = Visibility.USER;
+//        else
+//            visibility = Visibility.USER;
         if (visibility == Visibility.DEVELOPER)
             checkAdvance.setSelected(true);
         else
