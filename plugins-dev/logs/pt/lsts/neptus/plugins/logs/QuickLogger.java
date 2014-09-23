@@ -39,6 +39,7 @@ import javax.swing.JButton;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -50,7 +51,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.conf.StringProperty;
-import pt.lsts.neptus.util.llf.NeptusMessageLogger;
 
 /**
  * @author zp
@@ -110,7 +110,7 @@ public class QuickLogger extends ConsolePanel implements ConfigurationListener {
                     logMsg.setValue("htime", DateTimeUtil.timeStampSeconds());
                     logMsg.setValue("text", txt);
                     try {
-                        NeptusMessageLogger.logMessage(logMsg);
+                        LsfMessageLogger.log(logMsg);
                     }
                     catch (Exception ex) {
                         NeptusLog.pub().error(ex);

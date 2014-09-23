@@ -50,6 +50,7 @@ import pt.lsts.imc.Rpm;
 import pt.lsts.imc.SimulatedState;
 import pt.lsts.imc.TrueSpeed;
 import pt.lsts.imc.VehicleState;
+import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.imc.state.ImcSysState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
@@ -67,7 +68,6 @@ import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
-import pt.lsts.neptus.util.llf.NeptusMessageLogger;
 
 import com.google.common.eventbus.AsyncEventBus;
 
@@ -531,7 +531,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     if (strUDP.equals(pub))
                         pub = getSystemIdName().toUpperCase();
 //                    NeptusMessageLogger.getLogger().logMessage(pub, sub, info.getTimeReceivedNanos() / 1000000, msg);
-                    NeptusMessageLogger.logMessage(msg);
+                    LsfMessageLogger.log(msg);
                 }
             }
             catch (Exception e) {

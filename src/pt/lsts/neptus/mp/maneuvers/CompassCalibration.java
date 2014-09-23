@@ -32,11 +32,11 @@
 package pt.lsts.neptus.mp.maneuvers;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Vector;
 
 import org.dom4j.Document;
@@ -358,8 +358,15 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
 
         // Clockwise Arrow.
         g2.translate(0, -radiusCorrected);
-        g2.drawLine(-5, 5, 0, 0);
-        g2.drawLine(-5, -5, 0, 0);
+
+        if (direction == DIRECTION.CCLOCKW) {
+            g2.drawLine(5, 5, 0, 0);
+            g2.drawLine(5, -5, 0, 0);
+        }
+        else {
+            g2.drawLine(-5, 5, 0, 0);
+            g2.drawLine(-5, -5, 0, 0);
+        }
 
         g2.dispose();
     }
@@ -394,7 +401,12 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
     @Override
     public double getMinDepth() {
         return getManeuverLocation().getAllZ();
-    }   
+    }
+    
+    @Override
+    public Collection<ManeuverLocation> getWaypoints() {
+        return Collections.singleton(getStartLocation());
+    }
 
     public static void main(String[] args) {
         CompassCalibration compc = new CompassCalibration();

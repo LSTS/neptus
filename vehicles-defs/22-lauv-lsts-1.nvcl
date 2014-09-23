@@ -233,7 +233,8 @@
                     </point>
                     <radiusTolerance>0</radiusTolerance>
                 </finalPoint>
-                <startZ>0</startZ>
+                <startZ>2</startZ>
+                <startZUnits>DEPTH</startZUnits>
                 <pitch>30</pitch>
                 <radius>10</radius>
                 <duration>0</duration>

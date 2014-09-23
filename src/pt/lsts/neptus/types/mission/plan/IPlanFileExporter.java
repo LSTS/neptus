@@ -33,6 +33,8 @@ package pt.lsts.neptus.types.mission.plan;
 
 import java.io.File;
 
+import javax.swing.ProgressMonitor;
+
 /**
  * @author zp
  *
@@ -40,6 +42,12 @@ import java.io.File;
 public interface IPlanFileExporter {
 
     public String getExporterName();
-    public void exportToFile(PlanType plan, File out) throws Exception;
+    /**
+     * @param plan
+     * @param out
+     * @param monitor Don't assume that it exists.
+     * @throws Exception
+     */
+    public void exportToFile(PlanType plan, File out, ProgressMonitor monitor) throws Exception;
     public String[] validExtensions();
 }

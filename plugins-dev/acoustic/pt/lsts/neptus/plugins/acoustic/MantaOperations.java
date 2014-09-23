@@ -106,6 +106,7 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -255,7 +256,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                 Set<String> plans = getConsole().getMission().getIndividualPlansList().keySet();
                 Vector<String> filtered = new Vector<String>();
                 for (String planId : plans)
-                    if (planId.length() == 1)
+                    if (planId.length() <= GeneralPreferences.maximumSizePlanNameForAcoustics)
                         filtered.add(planId);
 
                 if (filtered.isEmpty()) {

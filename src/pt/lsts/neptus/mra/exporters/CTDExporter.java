@@ -144,6 +144,8 @@ public class CTDExporter implements MRAExporter {
 
             LocationType loc = IMCUtils.parseLocation(d).convertToAbsoluteLatLonDepth();
             SystemPositionAndAttitude p = cp.getPosition(d.getTimestamp());
+            if (p==null)
+                return "error positions is Empty";
             
             try {
                 String medium = "UNKNOWN";

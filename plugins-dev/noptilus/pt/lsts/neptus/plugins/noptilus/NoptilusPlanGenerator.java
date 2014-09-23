@@ -39,11 +39,13 @@ import java.io.File;
 import java.util.Vector;
 
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 
 import pt.lsts.imc.Goto;
 import pt.lsts.imc.Goto.SPEED_UNITS;
-import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -61,7 +63,7 @@ import pt.lsts.neptus.util.GuiUtils;
 /**
  * @author noptilus
  */
-@PluginDescription(name = "Noptilus Plan Generation", author="Noptilus")
+@PluginDescription(name = "Noptilus Plan Generation", author = "Noptilus")
 public class NoptilusPlanGenerator extends ConsolePanel implements Renderer2DPainter {
 
     private static final long serialVersionUID = 1L;
@@ -76,27 +78,27 @@ public class NoptilusPlanGenerator extends ConsolePanel implements Renderer2DPai
     public boolean useFollowPath = false;
 
     @NeptusProperty(name = "Minimum distance between waypoints")
-    public double minDistance = 0.0;   
-    
+    public double minDistance = 0.0;
+
     @NeptusProperty(name = "Plan Speed")
     public double speed = 1000.0;
-    
+
     @NeptusProperty(name = "Speed Units")
     public Goto.SPEED_UNITS units = SPEED_UNITS.RPM;
 
-    @NeptusProperty(name = "Waypoints folder", editable = true) 
+    @NeptusProperty(name = "Waypoints folder", editable = true)
     public String defaultFolder = ".";
 
     @NeptusProperty(name = "Show generated message")
     public boolean showMessage = false;
-    
+
     @NeptusProperty(name = "Replay interval in milliseconds")
     public long replayTimestep = 500;
-    
+
     protected Vector<LocationType> landmarkPositions = new Vector<LocationType>();
     protected Vector<Color> landmarkColors = new Vector<Color>();
     protected LandmarkReplay replay = null;
-    
+
     public NoptilusPlanGenerator(ConsoleLayout console) {
         super(console);
         setVisibility(false);
@@ -105,10 +107,10 @@ public class NoptilusPlanGenerator extends ConsolePanel implements Renderer2DPai
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if (replay != null) {
-            replay.paint(g, renderer);            
+            replay.paint(g, renderer);
         }
     }
-    
+
     @Override
     public void initSubPanel() {
         addMenuItem("Noptilus>Plan Generation>Generate plan", null, new ActionListener() {
@@ -124,12 +126,12 @@ public class NoptilusPlanGenerator extends ConsolePanel implements Renderer2DPai
                     defaultFolder = selection.getParent();
                     try {
                         Vector<double[]> waypoints = PlanUtils.loadWaypoints(selection);
-                        
+
                         PlanUtils.normalizeZ(waypoints, multFactor, addFactor);
-                        
+
                         if (minDistance > 0)
                             PlanUtils.filterShortDistances(waypoints, minDistance);
-                        
+
                         String plan_id = JOptionPane.showInputDialog(getConsole(), "Enter desired plan id",
                                 "generated_plan");
                         PlanSpecification spec;
@@ -139,8 +141,10 @@ public class NoptilusPlanGenerator extends ConsolePanel implements Renderer2DPai
                                     pt.lsts.imc.FollowPath.SPEED_UNITS.valueOf(units.toString()));
                         else
                             spec = PlanUtils.planFromWaypoints(plan_id, waypoints, speed, units);
-                        if (showMessage)
-                            IMCUtil.debug(spec);
+                        if (showMessage) {
+                            JFrame frm = GuiUtils.testFrame(new JScrollPane(new JLabel(IMCUtils.getAsHtml(spec))));
+                            frm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        }
 
                         PlanType plan = IMCUtils.parsePlanSpecification(getConsole().getMission(), spec);
                         plan.setVehicle(getConsole().getMainSystem());
@@ -165,7 +169,7 @@ public class NoptilusPlanGenerator extends ConsolePanel implements Renderer2DPai
                 getConsole().saveFile();
             }
         });
-        
+
         addMenuItem("Noptilus>Plan Generation>Load Landmarks", null, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -175,34 +179,37 @@ public class NoptilusPlanGenerator extends ConsolePanel implements Renderer2DPai
 
                 if (option == JFileChooser.APPROVE_OPTION) {
                     File landmarksFile = chooser.getSelectedFile();
-                    File replayFile = new File(chooser.getSelectedFile().getAbsolutePath().replace("_Positions", "_State"));
-                    
+                    File replayFile = new File(chooser.getSelectedFile().getAbsolutePath()
+                            .replace("_Positions", "_State"));
+
                     if (!replayFile.canRead())
                         replayFile = null;
-                    
+
                     if (replay != null)
                         replay.cleanup();
-                    
+
                     try {
                         replay = new LandmarkReplay(landmarksFile, replayFile, replayTimestep);
-                        
+
                     }
-                    
+
                     catch (Exception ex) {
                         GuiUtils.errorMessage(getConsole(), ex);
-                    }   
-                    NeptusLog.pub().info("<###> "+replay);
+                    }
+                    NeptusLog.pub().info("<###> " + replay);
                 }
             }
         });
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.plugins.SimpleSubPanel#cleanSubPanel()
      */
     @Override
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
-        
+
     }
 }

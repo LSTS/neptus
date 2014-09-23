@@ -117,27 +117,27 @@ public class DeltaTHeader {
 
         if (m.group(2).equalsIgnoreCase("JAN"))
             month = 0;
-        if (m.group(2).equalsIgnoreCase("FEB"))
+        else if (m.group(2).equalsIgnoreCase("FEB"))
             month = 1;
-        if (m.group(2).equalsIgnoreCase("MAR"))
+        else if (m.group(2).equalsIgnoreCase("MAR"))
             month = 2;
-        if (m.group(2).equalsIgnoreCase("APR"))
+        else if (m.group(2).equalsIgnoreCase("APR"))
             month = 3;
-        if (m.group(2).equalsIgnoreCase("MAY"))
+        else if (m.group(2).equalsIgnoreCase("MAY"))
             month = 4;
-        if (m.group(2).equalsIgnoreCase("JUN"))
+        else if (m.group(2).equalsIgnoreCase("JUN"))
             month = 5;
-        if (m.group(2).equalsIgnoreCase("JUL"))
+        else if (m.group(2).equalsIgnoreCase("JUL"))
             month = 6;
-        if (m.group(2).equalsIgnoreCase("AUG"))
+        else if (m.group(2).equalsIgnoreCase("AUG"))
             month = 7;
-        if (m.group(2).equalsIgnoreCase("SEP"))
+        else if (m.group(2).equalsIgnoreCase("SEP"))
             month = 8;
-        if (m.group(2).equalsIgnoreCase("OCT"))
+        else if (m.group(2).equalsIgnoreCase("OCT"))
             month = 9;
-        if (m.group(2).equalsIgnoreCase("NOV"))
+        else if (m.group(2).equalsIgnoreCase("NOV"))
             month = 10;
-        if (m.group(2).equalsIgnoreCase("DEC"))
+        else if (m.group(2).equalsIgnoreCase("DEC"))
             month = 11;
         
         cal.set(Integer.valueOf(m.group(3)), month, Integer.valueOf(m.group(1)), Integer.valueOf(m.group(4)),

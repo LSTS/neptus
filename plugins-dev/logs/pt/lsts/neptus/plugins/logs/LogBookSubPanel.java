@@ -210,6 +210,9 @@ public class LogBookSubPanel extends ConsolePanel implements IPeriodicUpdates {
             case CRITICAL:
                 type = msg_type.critical;
                 break;
+            case DEBUG:
+                type = msg_type.debug;
+                break;
             default:
                 break;
         }

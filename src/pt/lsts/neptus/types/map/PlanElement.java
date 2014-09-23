@@ -560,10 +560,10 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
                             g.translate(0, -dist / 2);
                             g.rotate(Math.PI / 2);
 
-                            LocationType cPos = renderer.getRealWorldLocation(loc);
+                            LocationType sPos = renderer.getRealWorldLocation(sLoc);
                             LocationType pPos = renderer.getRealWorldLocation(previousPoint);
 
-                            txt += GuiUtils.getNeptusDecimalFormat(0).format(cPos.getDistanceInMeters(pPos)) + " m";
+                            txt += GuiUtils.getNeptusDecimalFormat(0).format(sPos.getDistanceInMeters(pPos)) + " m";
 
                             if (Math.abs(angle) > Math.PI / 2) {
                                 g.rotate(Math.PI);

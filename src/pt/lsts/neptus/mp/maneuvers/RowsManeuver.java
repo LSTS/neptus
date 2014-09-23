@@ -41,6 +41,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 import java.text.NumberFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
@@ -480,6 +481,8 @@ IMCSerialization, StatisticsProvider, PathProvider {
         }
         return locs;
     }
+    
+    
 
     /**
      * @return the bearingRad
@@ -768,11 +771,11 @@ IMCSerialization, StatisticsProvider, PathProvider {
                 continue;
             }
 
-            if (p.getName().equalsIgnoreCase("Paint SideScan Range Shadow")) {
+            if (p.getName().equalsIgnoreCase("Payload Shadow")) {
                 paintSSRangeShadow = (Boolean)p.getValue();
                 continue;
             }
-            if (p.getName().equalsIgnoreCase("SideScan Range Shadow")) {
+            if (p.getName().equalsIgnoreCase("Shadow Size")) {
                 ssRangeShadow = (Short)p.getValue();
                 continue;
             }
@@ -830,10 +833,10 @@ IMCSerialization, StatisticsProvider, PathProvider {
         firstCurveRightP.setShortDescription("If the first curve should be to the right or left");       
         props.add(firstCurveRightP);
 
-        DefaultProperty paintSSRangeShadowP = PropertiesEditor.getPropertyInstance("Paint SideScan Range Shadow", Boolean.class, paintSSRangeShadow, unblockNewRows);
+        DefaultProperty paintSSRangeShadowP = PropertiesEditor.getPropertyInstance("Payload Shadow", Boolean.class, paintSSRangeShadow, unblockNewRows);
         paintSSRangeShadowP.setShortDescription("If the sidescan range shadow is painted");       
         props.add(paintSSRangeShadowP);
-        DefaultProperty ssRangeShadowtP = PropertiesEditor.getPropertyInstance("SideScan Range Shadow", Short.class, Double.valueOf(ssRangeShadow).shortValue(), unblockNewRows);
+        DefaultProperty ssRangeShadowtP = PropertiesEditor.getPropertyInstance("Shadow Size", Short.class, Double.valueOf(ssRangeShadow).shortValue(), unblockNewRows);
         ssRangeShadowtP.setShortDescription("The sidescan range");       
         props.add(ssRangeShadowtP);
 
@@ -944,6 +947,20 @@ IMCSerialization, StatisticsProvider, PathProvider {
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
         // TODO Auto-generated method stub
         
+    }
+    
+    @Override
+    public Collection<ManeuverLocation> getWaypoints() {
+        Vector<ManeuverLocation> locs = new Vector<>();
+        List<double[]> lst = Collections.unmodifiableList(points);
+        ManeuverLocation start = new ManeuverLocation(getManeuverLocation());
+        for (double[] ds : lst) {
+            ManeuverLocation loc = new ManeuverLocation(start);
+            loc.translatePosition(ds);
+            loc.convertToAbsoluteLatLonDepth();
+            locs.add(loc);
+        }
+        return locs;
     }
 
     public static void main(String[] args) {

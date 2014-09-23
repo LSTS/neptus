@@ -1,6 +1,11 @@
 Changes
 =======
 
+Neptus 4.2.0-rc1 (23-09-2014)
+----------------
+
+TODO
+
 Neptus 4.1.0 (31-07-2014)
 ------------
  * IMC: Updated IMC and IMCJava to 4667e8e. (no major changes from v5.4.0 except some experimental messages for UAV added).

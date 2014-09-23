@@ -224,6 +224,12 @@ public class GeneralPreferences implements PropertiesProvider {
     public static IridiumMessengerEnum iridiumMessenger = IridiumMessengerEnum.HubIridiumMessenger;
     
     // -------------------------------------------------------------------------
+    
+    @NeptusProperty(name = "Maximum Size of Plan Name For Acoustics", category="Plan", userLevel = LEVEL.ADVANCED,
+        description = "Maximum size for a plan name to be started by acoustics. (Reboot required after change.) Minimum 1, maximum 255")
+    public static int maximumSizePlanNameForAcoustics = 31;
+    
+    // -------------------------------------------------------------------------
     // Constructor and initialize
 
     public GeneralPreferences() {
@@ -311,6 +317,9 @@ public class GeneralPreferences implements PropertiesProvider {
         return new IntegerMinMaxValidator(-1, 1000).validate(value);
     }
 
+    public static String validateMaximumSizePlanNameForAcoustics(int value) {
+        return new IntegerMinMaxValidator(1, 255).validate(value);
+    }
     
     // -------------------------------------------------------------------------
 

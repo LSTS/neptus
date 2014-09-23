@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,4f41e09)" system="doam" i18n="pt_PT">
+<config format="1" version="2.6.x (master,f298003)" system="doam" i18n="pt_PT">
   <section name="Thermal Zone" name-i18n="Zona Térmica">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -310,7 +310,7 @@
       <scope>global</scope>
       <default>maneuver</default>
       <units/>
-      <desc>Escopo do parâmetro &apos;Ativa&apos;</desc>
+      <desc>Escopo do parâmetro 'Ativa'</desc>
     </param>
     <param name="Active - Visibility">
       <name-i18n>Ativa - Visibilidade</name-i18n>
@@ -319,7 +319,7 @@
       <scope>global</scope>
       <default>user</default>
       <units/>
-      <desc>Visibilidade do parâmetro &apos;Ativa&apos;</desc>
+      <desc>Visibilidade do parâmetro 'Ativa'</desc>
     </param>
     <param name="Active">
       <name-i18n>Ativa</name-i18n>

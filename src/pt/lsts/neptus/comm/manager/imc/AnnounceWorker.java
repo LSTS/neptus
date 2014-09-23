@@ -190,7 +190,7 @@ public class AnnounceWorker {
 		return getNeptusInstanceUniqueID() + ";"
 				+ "neptus://0.0.0.0/version/" + (ConfigFetch.getNeptusVersion() + "_" 
 				+ ConfigFetch.getCompilationDate()) + "_r" + ConfigFetch.getScmRev() + "/;"
-				+ "imc+info//0.0.0.0/version/" + imcDefinition.getVersion() + "/;"
+				+ "imc+info://0.0.0.0/version/" + imcDefinition.getVersion() + "/;"
 				+ imcManager.getAnnounceServicesList();
 	}
 	

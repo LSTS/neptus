@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,4f41e09)" system="adamastor" i18n="ru_RU">
+<config format="1" version="2.6.x (master,f298003)" system="adamastor" i18n="ru_RU">
   <section name="LED Driver" name-i18n="LED Driver">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -887,6 +887,33 @@
       <units>Hz</units>
       <desc>Частота, на которой выполняется задача</desc>
     </param>
+    <param name="Active - Scope">
+      <name-i18n>Активная - Сфера</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Сфера применения 'Активные' параметра</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Активная - Видимость</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>developer</default>
+      <units/>
+      <desc>Видимость 'Активные' параметра</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Активный</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>maneuver</scope>
+      <default>0</default>
+      <units/>
+      <desc>Правда, чтобы активировать задачу, иначе ложь</desc>
+    </param>
     <param name="Connection Timeout">
       <name-i18n>Connection Timeout</name-i18n>
       <type>real</type>
@@ -959,55 +986,6 @@
       <default>30.0</default>
       <units>°/s</units>
       <desc>Rate of increase or decrease of heading with control enabled.</desc>
-    </param>
-  </section>
-  <section name="Idle Maneuver" name-i18n="Маневр Idle">
-    <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Idle Maneuver</default>
-      <units/>
-      <desc>Главным образом ярлык лица</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Приоритет выполнения</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
   </section>
   <section name="Teleoperation Maneuver" name-i18n="Маневр Teleoperation">
@@ -2020,6 +1998,15 @@
       <units/>
       <desc>True if plan progress should be computed</desc>
     </param>
+    <param name="Fuel Prediction">
+      <name-i18n>Fuel Prediction</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>True if plan's fuel prediction should be computed</desc>
+    </param>
     <param name="State Report Frequency">
       <name-i18n>State Report Frequency</name-i18n>
       <type>real</type>
@@ -2028,24 +2015,6 @@
       <default>3.0</default>
       <units>Hz</units>
       <desc>Frequency of plan control state</desc>
-    </param>
-    <param name="RPM Conversion Factor">
-      <name-i18n>RPM Conversion Factor</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.001</default>
-      <units/>
-      <desc>Factor to convert from RPMs to meters per second</desc>
-    </param>
-    <param name="Actuation Conversion Factor">
-      <name-i18n>Actuation Conversion Factor</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.02</default>
-      <units/>
-      <desc>Factor to convert from actuation to meters per second</desc>
     </param>
     <param name="Minimum Calibration Time">
       <name-i18n>Minimum Calibration Time</name-i18n>
@@ -2056,6 +2025,15 @@
       <units>s</units>
       <desc>Duration of vehicle calibration commands</desc>
     </param>
+    <param name="Perform Calibration">
+      <name-i18n>Perform Calibration</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>True if calibration should be performed at all</desc>
+    </param>
     <param name="Abort On Failed Activation">
       <name-i18n>Abort On Failed Activation</name-i18n>
       <type>boolean</type>
@@ -2064,6 +2042,42 @@
       <default>true</default>
       <units/>
       <desc>Abort when a payload fails to activate</desc>
+    </param>
+    <param name="StationKeeping While Calibrating">
+      <name-i18n>StationKeeping While Calibrating</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Perform station keeping while calibrating</desc>
+    </param>
+    <param name="StationKeeping Speed in RPM">
+      <name-i18n>StationKeeping Speed in RPM</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1600</default>
+      <units>r/min</units>
+      <desc>Speed in RPM for the station keeping</desc>
+    </param>
+    <param name="StationKeeping Radius">
+      <name-i18n>StationKeeping Radius</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20</default>
+      <units>m</units>
+      <desc>Radius for the station keeping</desc>
+    </param>
+    <param name="IMU Entity Label">
+      <name-i18n>IMU Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>IMU</default>
+      <units/>
+      <desc>Entity label of the IMU for fuel prediction</desc>
     </param>
   </section>
   <section name="Plan Generator" name-i18n="План Генератор">
@@ -3950,6 +3964,15 @@
       <units/>
       <desc>Do not transmit when at water surface</desc>
     </param>
+    <param name="Address Section">
+      <name-i18n>Address Section</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Micromodem Addresses</default>
+      <units/>
+      <desc>Name of the configuration section with modem addresses</desc>
+    </param>
   </section>
   <section name="DVL" name-i18n="DVL">
     <param name="Entity Label">
@@ -4754,7 +4777,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, EntityList, AngularVelocity, Announce, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, EmergencyControl, EmergencyControlState, EntityActivationState, EntityControl, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowRefState, FuelLevel, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, ManeuverControlState, MagneticField, PathControlState, PlanSpecification, PlanControl, PlanControlState, PlanDB, PathControlState, PopEntityParameters, PowerChannelControl, PowerChannelState, PushEntityParameters, Pressure, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, Rpm, RSSI, Salinity, SaveEntityParameters, Sms, SetEntityParameters, SetThrusterActuation, SonarData, SimulatedState, StopManeuver, SoundSpeed, TeleoperationDone, Temperature, VehicleCommand, VehicleMedium, VehicleState, VehicleState, Voltage, WaterDensity, WaterVelocity</default>
+      <default>Abort, Acceleration, EntityList, AngularVelocity, Announce, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredVelocity, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, EmergencyControl, EmergencyControlState, EntityActivationState, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowRefState, FuelLevel, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, ManeuverControlState, MagneticField, PathControlState, PlanSpecification, PlanControl, PlanControlState, PlanDB, PathControlState, PopEntityParameters, PowerChannelControl, PowerChannelState, PushEntityParameters, Pressure, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, Rpm, RSSI, Salinity, SaveEntityParameters, Sms, SetEntityParameters, SetThrusterActuation, SonarData, SimulatedState, StopManeuver, SoundSpeed, TeleoperationDone, Temperature, VehicleCommand, VehicleMedium, VehicleState, VehicleState, Voltage, WaterDensity, WaterVelocity</default>
       <units/>
       <desc/>
     </param>
@@ -4911,7 +4934,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CpuUsage, Current, DesiredHeading, DesiredZ, DevCalibrationControl, DevCalibrationState, Distance, EmergencyControlState, EntityActivationState, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, GpsFix, GpsFixRejection, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRange, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, Parameter, ParameterControl, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, QueryEntityParameters, RemoteActions, RemoteActionsRequest, Rpm, SaveEntityParameters, SetEntityParameters, SimulatedState, StorageUsage, Temperature, VehicleState, Voltage</default>
+      <default>CpuUsage, Current, DesiredHeading, DesiredZ, DevCalibrationControl, DevCalibrationState, Distance, EmergencyControlState, EntityActivationState, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, GpsFix, GpsFixRejection, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRange, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, QueryEntityParameters, RemoteActions, RemoteActionsRequest, Rpm, SaveEntityParameters, SetEntityParameters, SimulatedState, StorageUsage, Temperature, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

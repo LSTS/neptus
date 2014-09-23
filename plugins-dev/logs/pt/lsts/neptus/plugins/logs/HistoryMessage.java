@@ -40,7 +40,8 @@ public class HistoryMessage implements Comparable<HistoryMessage> {
         info,
         warning,
         error,
-        critical
+        critical,
+        debug
     };
 
     protected static final DateFormat format = new SimpleDateFormat("HH:mm:ss");

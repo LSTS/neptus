@@ -37,6 +37,9 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.mp.MapChangeListener;
@@ -44,9 +47,6 @@ import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.types.mission.MissionType;
-import pt.lsts.neptus.util.llf.NeptusMessageLogger;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
 
 
 /**
@@ -592,7 +592,7 @@ public class MapGroup implements MapChangeListener {
 		
 		try {
 //			NeptusMessageLogger.getLogger().logMessage("neptus", "pda", msg);
-			NeptusMessageLogger.logMessage(msg);
+			LsfMessageLogger.log(msg);
 		}
 		catch (Exception e) {
 			e.printStackTrace();

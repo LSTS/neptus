@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (HEAD,0724529)" system="lauv-seacon-1-aux" i18n="en_US">
+<config format="1" version="2.6.x (master,f298003)" system="lauv-seacon-1-aux" i18n="en_US">
   <section name="Power Supervisor" name-i18n="Power Supervisor">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -205,7 +205,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Heartbeat, LoggingControl, PowerChannelControl</default>
+      <default>Heartbeat, LoggingControl, PowerChannelControl, EntityActivationState, EntityInfo</default>
       <units/>
       <desc>Messages to transport</desc>
     </param>
@@ -255,13 +255,13 @@
       <desc>Remote server port</desc>
     </param>
   </section>
-  <section name="Camera" name-i18n="Camera">
+  <section name="Camera Backend" name-i18n="Camera Backend">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Camera</default>
+      <default>Camera Backend</default>
       <units/>
       <desc>Main entity label</desc>
     </param>
@@ -297,7 +297,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Trace</default>
+      <default>None</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
@@ -351,16 +351,16 @@
     <param name="Frames Per Second">
       <name-i18n>Frames Per Second</name-i18n>
       <type>integer</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
-      <default>7</default>
+      <default>15</default>
       <units/>
       <desc>Frames per second</desc>
     </param>
     <param name="Auto Exposure">
       <name-i18n>Auto Exposure</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
@@ -369,7 +369,7 @@
     <param name="Exposure Value">
       <name-i18n>Exposure Value</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>0.008</default>
       <units/>
@@ -378,7 +378,7 @@
     <param name="Autoexposure Knee">
       <name-i18n>Autoexposure Knee</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>5</default>
       <units/>
@@ -387,7 +387,7 @@
     <param name="Maximum Exposure">
       <name-i18n>Maximum Exposure</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
@@ -396,7 +396,7 @@
     <param name="Auto Gain">
       <name-i18n>Auto Gain</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
@@ -405,7 +405,7 @@
     <param name="Gain Value">
       <name-i18n>Gain Value</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>1.0</default>
       <units/>
@@ -414,7 +414,7 @@
     <param name="Autogain Knee">
       <name-i18n>Autogain Knee</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>2.0</default>
       <units/>
@@ -423,7 +423,7 @@
     <param name="Maximum Gain">
       <name-i18n>Maximum Gain</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>4.0</default>
       <units/>
@@ -432,7 +432,7 @@
     <param name="Gamma">
       <name-i18n>Gamma</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>1.4</default>
       <units/>
@@ -441,16 +441,16 @@
     <param name="Median Filter">
       <name-i18n>Median Filter</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
-      <default>False</default>
+      <default>false</default>
       <units/>
       <desc>Enable Median Filter</desc>
     </param>
     <param name="Auto White Balance">
       <name-i18n>Auto White Balance</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
@@ -459,7 +459,7 @@
     <param name="White Balance Gain Red">
       <name-i18n>White Balance Gain Red</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>2.0</default>
       <units/>
@@ -468,7 +468,7 @@
     <param name="White Balance Gain Green">
       <name-i18n>White Balance Gain Green</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>1.0</default>
       <units/>
@@ -477,7 +477,7 @@
     <param name="White Balance Gain Blue">
       <name-i18n>White Balance Gain Blue</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>2.0</default>
       <units/>
@@ -486,7 +486,7 @@
     <param name="Strobe">
       <name-i18n>Strobe</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
@@ -509,6 +509,33 @@
       <default>1000</default>
       <units/>
       <desc>Number of photos per volume</desc>
+    </param>
+    <param name="Enable Camera Configuration">
+      <name-i18n>Enable Camera Configuration</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Attempt to configure the camera</desc>
+    </param>
+    <param name="Enable Camera Streaming">
+      <name-i18n>Enable Camera Streaming</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Attempt to capture frames from the camera</desc>
+    </param>
+    <param name="Slave Entities">
+      <name-i18n>Slave Entities</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Slave entities to activate/deactivate</desc>
     </param>
   </section>
 </config>

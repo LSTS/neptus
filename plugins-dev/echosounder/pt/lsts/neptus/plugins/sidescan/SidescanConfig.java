@@ -49,35 +49,55 @@ import com.l2fprod.common.propertysheet.Property;
  */
 public class SidescanConfig implements PropertiesProvider {
     
-//    @NeptusProperty
-//    public boolean verticalBlending = false;
-//    
-//    @NeptusProperty
-//    public boolean slantRangeCorrection = false;
+    @NeptusProperty (name="Apply slant range correction (cross path)", category="Visualization parameters")
+    public boolean slantRangeCorrection = false;
 
-    @NeptusProperty
+    @NeptusProperty (name="Apply speed correction (along path)", category="Visualization parameters")
     public boolean speedCorrection = false;
     
-    @NeptusProperty
+    @NeptusProperty (name="Apply time variable gain", category="Visualization parameters")
     public boolean timeVariableGain = false;
     
-    @NeptusProperty
+    @NeptusProperty (name="Color map to use", category="Visualization parameters")
     public ColorMap colorMap = ColorMapFactory.createBronzeColormap();
     
-    @NeptusProperty
+    @NeptusProperty (name="Normalization factor", category="Visualization parameters")
     public double normalization = 0.2;
     
-    @NeptusProperty
+    @NeptusProperty (name="Time Variable Gain factor", category="Visualization parameters")
     public double tvgGain = 75;
     
-    @NeptusProperty
+    @NeptusProperty (name="Display Vehicle Path", category="Vehicle Path")
     public boolean showPositionHud = true;
     
-    @NeptusProperty
+    @NeptusProperty (name="Size of Vehicle Path Display", category="Vehicle Path")
     public int hudSize = 200;
     
-    @NeptusProperty
+    @NeptusProperty (name="Path display color", category="Vehicle Path")
     public Color pathColor = Color.WHITE;
+    
+    
+    {
+        loadProps();
+    }
+    
+    protected void loadProps() {
+        try {
+            PluginUtils.loadProperties("conf/sidescan.properties", this);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    protected void saveProps() {
+        try {
+            PluginUtils.saveProperties("conf/sidescan.properties", this);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     
     // Properties
     @Override
