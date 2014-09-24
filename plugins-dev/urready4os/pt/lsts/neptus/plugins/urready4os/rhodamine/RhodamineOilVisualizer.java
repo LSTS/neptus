@@ -33,7 +33,6 @@ package pt.lsts.neptus.plugins.urready4os.rhodamine;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -43,8 +42,10 @@ import java.awt.Transparency;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 import pt.lsts.imc.CrudeOil;
@@ -63,9 +64,7 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleCalc;
-import pt.lsts.neptus.util.ColorUtils;
-import pt.lsts.neptus.util.DateTimeUtil;
-import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.FileUtil;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -303,23 +302,27 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     }
 
     @Subscribe
-    public void on(EstimatedState es) {
+    public void on(EstimatedState msg) {
         // From any system
+        System.out.println(msg.asJSON());
     }
 
     @Subscribe
     public void on(RhodamineDye msg) {
         // From any system
+        System.out.println(msg.asJSON());
     }
 
     @Subscribe
     public void on(CrudeOil msg) {
         // From any system
+        System.out.println(msg.asJSON());
     }
 
     @Subscribe
     public void on(FineOil msg) {
         // From any system
+        System.out.println(msg.asJSON());
     }
 
     /**
@@ -337,5 +340,20 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         return true;
     }
 
-    
+    private FileReader getFileReaderForFile(String fileName) {
+        // InputStreamReader
+        String fxName = FileUtil.getResourceAsFileKeepName(fileName);
+        if (fxName == null)
+            fxName = fileName;
+        File fx = new File(fxName);
+        try {
+            FileReader freader = new FileReader(fx);
+            return freader;
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

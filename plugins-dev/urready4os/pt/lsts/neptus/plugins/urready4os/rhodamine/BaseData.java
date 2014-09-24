@@ -43,9 +43,10 @@ public class BaseData  implements Comparable<BaseData> {
     
     protected double depth;
 
-    protected float rhodamineDyePPB = Float.NaN;
-    protected float crudeOilPPB = Float.NaN;
-    protected float refineOilPPB = Float.NaN;
+    protected double rhodamineDyePPB = Double.NaN;
+    protected double crudeOilPPB = Double.NaN;
+    protected double refineOilPPB = Double.NaN;
+    protected double temperature = Double.NaN;
     
     public BaseData(double lat, double lon, double depth, long dateUTC) {
         this.lat = lat;
@@ -78,22 +79,22 @@ public class BaseData  implements Comparable<BaseData> {
     /**
      * @return the rhodamineDyePPB
      */
-    public float getRhodamineDyePPB() {
+    public double getRhodamineDyePPB() {
         return rhodamineDyePPB;
     }
     
     /**
-     * @param rhodamineDyePPB the rhodamineDyePPB to set
+     * @param rhodamine the rhodamineDyePPB to set
      */
-    public BaseData setRhodamineDyePPB(float rhodamineDyePPB) {
-        this.rhodamineDyePPB = rhodamineDyePPB;
+    public BaseData setRhodamineDyePPB(double rhodamine) {
+        this.rhodamineDyePPB = rhodamine;
         return this;
     }
     
     /**
      * @return the crudeOilPPB
      */
-    public float getCrudeOilPPB() {
+    public double getCrudeOilPPB() {
         return crudeOilPPB;
     }
     
@@ -101,7 +102,7 @@ public class BaseData  implements Comparable<BaseData> {
      * @param crudeOilPPB the crudeOilPPB to set
      * @return 
      */
-    public BaseData setCrudeOilPPB(float crudeOilPPB) {
+    public BaseData setCrudeOilPPB(double crudeOilPPB) {
         this.crudeOilPPB = crudeOilPPB;
         return this;
     }
@@ -110,7 +111,7 @@ public class BaseData  implements Comparable<BaseData> {
     /**
      * @return the refineOilPPB
      */
-    public float getRefineOilPPB() {
+    public double getRefineOilPPB() {
         return refineOilPPB;
     }
     
@@ -118,11 +119,27 @@ public class BaseData  implements Comparable<BaseData> {
      * @param refineOilPPB the refineOilPPB to set
      * @return 
      */
-    public BaseData setRefineOilPPB(float refineOilPPB) {
+    public BaseData setRefineOilPPB(double refineOilPPB) {
         this.refineOilPPB = refineOilPPB;
         return this;
     }
 
+    /**
+     * @return the temperature
+     */
+    public double getTemperature() {
+        return temperature;
+    }
+    
+    /**
+     * @param temperature the temperature to set
+     * @return 
+     */
+    public BaseData setTemperature(double temperature) {
+        this.temperature = temperature;
+        return this;
+    }
+    
     /* (non-Javadoc)
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
@@ -148,5 +165,17 @@ public class BaseData  implements Comparable<BaseData> {
         return hfrdp.lat + ":" + hfrdp.lon;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return dateUTC + ", "
+                + lat + ", "
+                + lon + ", "
+                + depth + ", "
+                + rhodamineDyePPB + ", "
+                + temperature + ", ";
+    }
 }
 
