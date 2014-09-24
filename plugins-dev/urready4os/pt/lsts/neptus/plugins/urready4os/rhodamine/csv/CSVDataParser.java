@@ -66,12 +66,14 @@ public class CSVDataParser {
     int depthIdx = -1;
     int rhodamineIdx = -1;
     int rhodamineRawIdx = -1;
+    int crudeOilIdx = -1;
+    int refineOilIdx = -1;
     int temperatureIdx = -1;
     
     public CSVDataParser(File file) throws FileNotFoundException {
         this.file = file;
         
-        FileReader fileReader = new FileReader(file);
+        FileReader fileReader = new FileReader(this.file);
         reader = new BufferedReader(fileReader);
     }
 
@@ -138,7 +140,7 @@ public class CSVDataParser {
         if (systemName.isEmpty())
             throwUnexpectedException();
         
-        system = systemName;
+        system = systemName.toLowerCase();
     }
 
     /**
@@ -201,6 +203,14 @@ public class CSVDataParser {
                     }
                 }
             }
+            else if(varTokens[0].trim().toLowerCase().startsWith("crude")) {
+                crudeOilIdx = tkCount;
+                numberOfElements++;
+            }
+            else if(varTokens[0].trim().toLowerCase().startsWith("refine")) {
+                refineOilIdx = tkCount;
+                numberOfElements++;
+            }
             else if("temperature".equalsIgnoreCase(varTokens[0].trim())) {
                 temperatureIdx = tkCount;
                 numberOfElements++;
@@ -227,7 +237,7 @@ public class CSVDataParser {
      * @param line
      */
     private void processData(String line) {
-        if (line.startsWith("%"))
+        if (line.startsWith("%") || numberOfElements < 1)
             return;
         
         String[] tokens = line.trim().split(",");
@@ -240,6 +250,8 @@ public class CSVDataParser {
         double depth = Double.NaN;
         double rhodamine = Double.NaN;
         double rhodamineRaw = Double.NaN;
+        double crudeOil = Double.NaN;
+        double refineOil = Double.NaN;
         double temperature = Double.NaN;
 
         int ct = -1;
@@ -258,18 +270,40 @@ public class CSVDataParser {
                 depth = Double.parseDouble(tk); 
             }
             else if (ct == rhodamineIdx) {
-                rhodamine = Double.parseDouble(tk); 
+                rhodamine = Double.parseDouble(tk);
+                if (invalidValue == rhodamine)
+                    rhodamine = Double.NaN;
             } 
             else if (ct == rhodamineRawIdx) {
                 rhodamineRaw = Double.parseDouble(tk); 
+                if (invalidValue == rhodamineRaw)
+                    rhodamineRaw = Double.NaN;
+            } 
+            else if (ct == crudeOilIdx) {
+                crudeOil = Double.parseDouble(tk); 
+                if (invalidValue == crudeOil)
+                    crudeOil = Double.NaN;
+            } 
+            else if (ct == refineOilIdx) {
+                refineOil = Double.parseDouble(tk); 
+                if (invalidValue == refineOil)
+                    refineOil = Double.NaN;
             } 
             else if (ct == temperatureIdx) {
                 temperature = Double.parseDouble(tk); 
+                if (invalidValue == temperature)
+                    temperature = Double.NaN;
             } 
         }
 
+        if (Double.isNaN(timeSecs) || Double.isNaN(lat) || Double.isNaN(lon))
+            return;
+        
         BaseData point = new BaseData(lat, lon, depth, (long) (timeSecs * 1000));
-        point.setRhodamineDyePPB(rhodamine).setTemperature(temperature);
+        point.setRhodamineDyePPB(rhodamine);
+        point.setTemperature(temperature);
+        point.setCrudeOilPPB(crudeOil);
+        point.setRefineOilPPB(refineOil);
         
         points.add(point);
     }
@@ -299,6 +333,7 @@ public class CSVDataParser {
      */
     public static void main(String[] args) throws FileNotFoundException {
         CSVDataParser csv = new CSVDataParser(new File("test.csv"));
+//        CSVDataParser csv = new CSVDataParser(new File("log_2014-09-24_22-15.csv"));
         
         csv.parse();
 

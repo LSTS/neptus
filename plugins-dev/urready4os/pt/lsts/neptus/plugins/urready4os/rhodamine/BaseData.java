@@ -175,7 +175,9 @@ public class BaseData  implements Comparable<BaseData> {
                 + lon + ", "
                 + depth + ", "
                 + rhodamineDyePPB + ", "
-                + temperature + ", ";
+                + crudeOilPPB + ", "
+                + refineOilPPB + ", "
+                + temperature;
     }
 }
 
