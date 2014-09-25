@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.urready4os.rhodamine;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -52,6 +53,8 @@ import pt.lsts.imc.CrudeOil;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FineOil;
 import pt.lsts.imc.RhodamineDye;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayer;
@@ -68,6 +71,7 @@ import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
 
 import com.google.common.eventbus.Subscribe;
@@ -114,6 +118,13 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private RhodamineDye lastRhodamineDye = null;
     private CrudeOil lastCrudeOil = null;
     private FineOil lastFineOil = null;
+    
+    @NeptusProperty(userLevel = LEVEL.REGULAR, category = "Data Cleanup")
+    private boolean autoCleanData = false;
+    
+    @NeptusProperty(userLevel = LEVEL.REGULAR, category = "Data Cleanup")
+    private int dataAgeToCleanInMinutes = 120;
+    
     
     private static final String csvFilePattern = ".\\.csv$";
 
@@ -195,6 +206,10 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public String validatePeriodSecondsToUpdate(int value) {
         return new IntegerMinMaxValidator(5, false).validate(value);
     }
+    
+    public String validateDataAgeToCleanInMinutes(int value) {
+        return new IntegerMinMaxValidator(1, false).validate(value);
+    }
 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsoleLayer#userControlsOpacity()
@@ -258,6 +273,19 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
      */
     private boolean updateValues(ArrayList<BaseData> list, ArrayList<BaseData> points) {
         boolean dataUpdated = false;
+        
+        if (autoCleanData) {
+            long curTimeMillis = System.currentTimeMillis();
+            for (BaseData bd : points.toArray(new BaseData[points.size()])) {
+                if (curTimeMillis - bd.getTimeMillis() > dataAgeToCleanInMinutes * DateTimeUtil.MINUTE)
+                    points.remove(bd);
+            }
+            for (BaseData bd : list.toArray(new BaseData[list.size()])) {
+                if (curTimeMillis - bd.getTimeMillis() > dataAgeToCleanInMinutes * DateTimeUtil.MINUTE)
+                    list.remove(bd);
+            }
+        }
+        
         for (BaseData testPoint : points) {
             int counter = 0;
             boolean found = false;
