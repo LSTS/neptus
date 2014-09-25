@@ -65,6 +65,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -97,7 +98,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @NeptusProperty(name = "Clear data", userLevel = LEVEL.REGULAR, category="Reset")
     public boolean clearData = false;
 
-    
+    @NeptusProperty(name = "Pixel size data", userLevel = LEVEL.REGULAR, category="Scale")
+    public int pixelSizeData = 8;
 
     private EstimatedState lastEstimatedState = null;
     private RhodamineDye lastRhodamineDye = null;
@@ -113,7 +115,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private double lastRotation = Double.NaN;
 
     private boolean clearImgCachRqst = false;
-    private final static Ellipse2D circle = new Ellipse2D.Double(-4, -4, 8, 8);
+    private Ellipse2D circle = new Ellipse2D.Double(-4, -4, 8, 8);
 
     private ArrayList<BaseData> dataList = new ArrayList<>();
     private HashMap<Integer, EstimatedState> lastEstimatedStateFromSystems = new HashMap<>();
@@ -150,9 +152,17 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         if (clearData) {
             dataList.clear();
             lastEstimatedStateFromSystems.clear();
+            clearData = false;
         }
+        
+        circle = new Ellipse2D.Double(-pixelSizeData / 2d, -pixelSizeData / 2d, pixelSizeData, pixelSizeData);
     }
 
+//    // FIXME
+//    public String validatePixelSizeData(int value) {
+//        return new IntegerMinMaxValidator(2, 8).validate(value);
+//    }
+    
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsoleLayer#userControlsOpacity()
      */
