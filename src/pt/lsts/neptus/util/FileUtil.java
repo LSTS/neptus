@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -43,7 +44,10 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -238,6 +242,34 @@ public class FileUtil {
         }
 
         return result;
+    }
+
+    /**
+     * Get the list of sorted files in folder or null if parent folder doesn't exist.
+     * @param folderToLoad
+     * @param filePattern
+     * @return
+     */
+    public static File[] getFilesToLoadFromDisk(File folderToLoad, final String filePattern) {
+        if (folderToLoad != null && folderToLoad.exists()) {
+            File folder = folderToLoad.isDirectory() ? folderToLoad : 
+                folderToLoad.getParentFile();
+            
+            FilenameFilter fileFilter = new FilenameFilter() {
+                Pattern pat = Pattern.compile(filePattern);
+
+                @Override
+                public boolean accept(File dir, String name) {
+                    Matcher m = pat.matcher(name);
+                    return m.find();
+                }
+            };
+            
+            File[] lst = folder.listFiles(fileFilter);
+            Arrays.sort(lst);
+            return lst;
+        }
+        return null;
     }
 
     /**
