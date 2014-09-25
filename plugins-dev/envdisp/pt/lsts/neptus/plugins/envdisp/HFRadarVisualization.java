@@ -684,7 +684,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
 
     private void loadCurrentsFromFiles() {
         // TUV files
-        File[] fileList = FileUtil.getFilesToLoadFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePatternTUV);
+        File[] fileList = FileUtil.getFilesFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePatternTUV);
         if (fileList == null)
             return;
 
@@ -695,7 +695,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         }
 
         // NetCDF files
-        fileList = FileUtil.getFilesToLoadFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePatternNetCDF);
+        fileList = FileUtil.getFilesFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePatternNetCDF);
         if (fileList == null)
             return;
 
@@ -708,7 +708,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     }
 
     private void loadMeteoFromFiles() {
-        File[] fileList = FileUtil.getFilesToLoadFromDisk(baseFolderForMeteoNetCDFFiles, meteoFilePattern);
+        File[] fileList = FileUtil.getFilesFromDisk(baseFolderForMeteoNetCDFFiles, meteoFilePattern);
         if (fileList == null)
             return;
 
@@ -726,7 +726,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     }
 
     private void loadWavesFromFiles() {
-        File[] fileList = FileUtil.getFilesToLoadFromDisk(baseFolderForWavesNetCDFFiles, wavesFilePattern);
+        File[] fileList = FileUtil.getFilesFromDisk(baseFolderForWavesNetCDFFiles, wavesFilePattern);
         if (fileList == null)
             return;
 
@@ -1459,7 +1459,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         Matcher m = pat.matcher("TOTL_TRAD_2013_07_11_0800.tuv");
         System.out.println(m.find());
         
-        File[] fileList = FileUtil.getFilesToLoadFromDisk(new File("IHData/CODAR"), currentsFilePatternNetCDF);
+        File[] fileList = FileUtil.getFilesFromDisk(new File("IHData/CODAR"), currentsFilePatternNetCDF);
         System.out.println(Arrays.toString(fileList));
         
         HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processNetCDFHFRadar("IHData/CODAR/mola_his_z-20140512.nc", null);

@@ -284,7 +284,7 @@ public class FileUtil {
      * @param filePattern
      * @return
      */
-    public static File[] getFilesToLoadFromDisk(File folderToLoad, final String searchPattern) {
+    public static File[] getFilesFromDisk(File folderToLoad, final String searchPattern) {
         return getFilesFromDiskWorker(folderToLoad, searchPattern, false);
     }
 
