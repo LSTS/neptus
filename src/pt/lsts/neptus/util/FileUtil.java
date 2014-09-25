@@ -281,11 +281,21 @@ public class FileUtil {
     /**
      * Get the list of sorted files in folder or null if parent folder doesn't exist or pattern is not valid.
      * @param folderToLoad
-     * @param filePattern
+     * @param searchPattern null for all
      * @return
      */
     public static File[] getFilesFromDisk(File folderToLoad, final String searchPattern) {
         return getFilesFromDiskWorker(folderToLoad, searchPattern, false);
+    }
+
+    /**
+     * Get the list of sorted folders in folder or null if parent folder doesn't exist or pattern is not valid.
+     * @param folderToLoad
+     * @param searchPattern null for all
+     * @return
+     */
+    public static File[] getFoldersFromDisk(File folderToLoad, final String searchPattern) {
+        return getFilesFromDiskWorker(folderToLoad, searchPattern, true);
     }
 
     /**
