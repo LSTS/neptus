@@ -135,8 +135,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private int lastLod = -1;
     private LocationType lastCenter = null;
     private double lastRotation = Double.NaN;
+    private BufferedImage cacheColorBarImg = null;
 
     private boolean clearImgCachRqst = false;
+    private boolean clearColorBarImgCachRqst = false;
+    
     private Ellipse2D circle = new Ellipse2D.Double(-4, -4, 8, 8);
 
     private ArrayList<BaseData> dataList = new ArrayList<>();
@@ -179,6 +182,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @Override
     public void propertiesChanged() {
         clearImgCachRqst = true;
+        clearColorBarImgCachRqst = true;
         
         if (clearData) {
             dataList.clear();
@@ -365,6 +369,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             g3.dispose();
         }
         
+        paintColorBar(renderer, g);
+        
         // Legend
         Graphics2D gl = (Graphics2D) g.create();
         gl.translate(10, 50);
@@ -373,6 +379,54 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         gl.dispose();
     }
 
+    private void paintColorBar(StateRenderer2D renderer, Graphics2D g2) {
+        if (clearColorBarImgCachRqst) {
+            cacheColorBarImg = null;
+            clearColorBarImgCachRqst = false;
+        }
+        
+        if (cacheColorBarImg == null) {
+//            BufferedImage img = new BufferedImage(100, 170, BufferedImage.TYPE_INT_ARGB);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            GraphicsDevice gs = ge.getDefaultScreenDevice();
+            GraphicsConfiguration gc = gs.getDefaultConfiguration();
+            cacheColorBarImg = gc.createCompatibleImage(100, 170, Transparency.BITMASK); 
+
+            Graphics2D g = (Graphics2D) cacheColorBarImg.getGraphics();
+            g.setColor(new Color(255, 255, 255, 100));
+            g.fillRect(5, 30, 70, 110);
+
+            ColorMap cmap = colorMap;
+            ColorBar cb = new ColorBar(ColorBar.VERTICAL_ORIENTATION, cmap);
+            cb.setSize(15, 80);
+            g.setColor(Color.WHITE);
+            Font prev = g.getFont();
+            g.setFont(new Font("Helvetica", Font.BOLD, 18));
+            g.setFont(prev);
+            g.translate(15, 45);
+            cb.paint(g);
+            g.translate(-10, -15);
+
+            try {
+                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 28, 20);
+                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue / 2), 28, 60);
+                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 28, 100);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+                e.printStackTrace();
+            }
+        }
+        
+        if (cacheColorBarImg != null) {
+            Graphics2D g3 = (Graphics2D) g2.create();
+//            double[] offset = renderer.getCenter().getDistanceInPixelTo(lastCenter, renderer.getLevelOfDetail());
+//            offset = AngleCalc.rotate(renderer.getRotation(), offset[0], offset[1], true);
+            g3.drawImage(cacheColorBarImg, null, 10, 20);
+            g3.dispose();
+        }
+    }
+    
     private void paintData(StateRenderer2D renderer, Graphics2D g2) {
         LocationType loc = new LocationType();
 
