@@ -68,6 +68,7 @@ import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -175,13 +176,26 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
         
         circle = new Ellipse2D.Double(-pixelSizeData / 2d, -pixelSizeData / 2d, pixelSizeData, pixelSizeData);
+        
+        if (minValue > maxValue)
+            minValue = maxValue;
+        
+        if (maxValue < minValue)
+            maxValue = minValue;
     }
 
-//    // FIXME
-//    public String validatePixelSizeData(int value) {
-//        return new IntegerMinMaxValidator(2, 8).validate(value);
-//    }
+    public String validatePixelSizeData(int value) {
+        return new IntegerMinMaxValidator(2, 8).validate(value);
+    }
+
+    public String validateMinValue(int value) {
+        return new IntegerMinMaxValidator(0, true).validate(value);
+    }
     
+    public String validatePeriodSecondsToUpdate(int value) {
+        return new IntegerMinMaxValidator(5, false).validate(value);
+    }
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsoleLayer#userControlsOpacity()
      */
