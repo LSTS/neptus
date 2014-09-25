@@ -244,32 +244,48 @@ public class FileUtil {
         return result;
     }
 
+    private static File[] getFilesFromDiskWorker(File folderToLoad, final String searchPattern, final boolean justFolders) {
+        try {
+            if (folderToLoad != null && folderToLoad.exists()) {
+                File folder = folderToLoad.isDirectory() ? folderToLoad : 
+                    folderToLoad.getParentFile();
+                
+                FilenameFilter fileFilter = new FilenameFilter() {
+                    Pattern pat = searchPattern == null || searchPattern.isEmpty() ? null : Pattern
+                            .compile(searchPattern);
+
+                    @Override
+                    public boolean accept(File file, String name) {
+                        if (pat == null) {
+                            return justFolders ? file.isDirectory() : file.isFile();
+                        }
+                        else {
+                            Matcher m = pat.matcher(name);
+                            boolean ret = m.find();
+                            return ret ? (justFolders ? file.isDirectory() : file.isFile()) : false;
+                        }
+                    }
+                };
+                
+                File[] lst = folder.listFiles(fileFilter);
+                Arrays.sort(lst);
+                return lst;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     /**
-     * Get the list of sorted files in folder or null if parent folder doesn't exist.
+     * Get the list of sorted files in folder or null if parent folder doesn't exist or pattern is not valid.
      * @param folderToLoad
      * @param filePattern
      * @return
      */
-    public static File[] getFilesToLoadFromDisk(File folderToLoad, final String filePattern) {
-        if (folderToLoad != null && folderToLoad.exists()) {
-            File folder = folderToLoad.isDirectory() ? folderToLoad : 
-                folderToLoad.getParentFile();
-            
-            FilenameFilter fileFilter = new FilenameFilter() {
-                Pattern pat = Pattern.compile(filePattern);
-
-                @Override
-                public boolean accept(File dir, String name) {
-                    Matcher m = pat.matcher(name);
-                    return m.find();
-                }
-            };
-            
-            File[] lst = folder.listFiles(fileFilter);
-            Arrays.sort(lst);
-            return lst;
-        }
-        return null;
+    public static File[] getFilesToLoadFromDisk(File folderToLoad, final String searchPattern) {
+        return getFilesFromDiskWorker(folderToLoad, searchPattern, false);
     }
 
     /**
