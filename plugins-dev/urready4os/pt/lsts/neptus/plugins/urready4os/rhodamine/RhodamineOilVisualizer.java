@@ -207,8 +207,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     }
 
     public boolean updateValues() {
-        System.out.println("+++++++++++++++");
-        
         File[] fileList = FileUtil.getFilesFromDisk(baseFolderForCSVFiles, csvFilePattern);
         if (fileList != null && fileList.length > 0) {
             File csvFx = fileList[fileList.length -1];
@@ -295,7 +293,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             lastCenter = renderer.getCenter();
             lastRotation = renderer.getRotation();
 
-//            System.out.println("#########################");
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             GraphicsDevice gs = ge.getDefaultScreenDevice();
             GraphicsConfiguration gc = gs.getDefaultConfiguration();
@@ -317,15 +314,10 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         if (cacheImg != null) {
             //          System.out.println(".........................");
             Graphics2D g3 = (Graphics2D) g.create();
-//            if (renderer.getRotation() != 0) {
-//                g3.rotate(-renderer.getRotation(), renderer.getWidth() / 2, renderer.getHeight() / 2);
-//            }
-            // g3.drawImage(cacheImg, 0, 0, null);
 
             double[] offset = renderer.getCenter().getDistanceInPixelTo(lastCenter, renderer.getLevelOfDetail());
             offset = AngleCalc.rotate(renderer.getRotation(), offset[0], offset[1], true);
 
-            // g3.drawImage(cacheImg, 0, 0, cacheImg.getWidth(), cacheImg.getHeight(), 0, 0, cacheImg.getWidth(), cacheImg.getHeight(), null);
             g3.drawImage(cacheImg, null, (int) offset[0] - offScreenBufferPixel, (int) offset[1] - offScreenBufferPixel);
 
             g3.dispose();
