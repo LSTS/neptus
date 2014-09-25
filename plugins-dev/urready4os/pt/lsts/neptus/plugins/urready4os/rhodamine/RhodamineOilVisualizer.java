@@ -60,12 +60,14 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.plugins.urready4os.rhodamine.csv.CSVDataParser;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleCalc;
+import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
-import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -129,8 +131,15 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
      */
     @Override
     public void initLayer() {
-        // TODO Auto-generated method stub
-
+        try {
+//            CSVDataParser csv = new CSVDataParser(new File("test.csv"));
+            CSVDataParser csv = new CSVDataParser(new File("log_2014-09-24_22-15.csv"));
+            csv.parse();
+            dataList.addAll(csv.getPoints());
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     /* (non-Javadoc)
@@ -243,8 +252,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     }
 
     private void paintData(StateRenderer2D renderer, Graphics2D g2) {
-        // TODO Auto-generated method stub
-        
         LocationType loc = new LocationType();
 
         long curtime = System.currentTimeMillis();
@@ -264,26 +271,24 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             if (!isVisibleInRender(pt, renderer))
                 continue;
             
-//            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-//            Graphics2D gt = (Graphics2D) g2.create();
-//            gt.translate(pt.getX(), pt.getY());
-//            Color color = Color.WHITE;
-//            color = colorMap.getColor(point.getRhodamineDyePPB() / maxCurrentCmS);
-//            if (curtime - point.getDateUTC() > DateTimeUtil.MINUTE * 5))
-//                color = ColorUtils.setTransparencyToColor(color, 128);
-//            gt.setColor(color);
-//            
-//            // double rot =  -renderer.getRotation();
-//            // gt.rotate(rot);
-//            gt.fill(circle);
-//            //gt.rotate(-rot);
-//                        
-//            gt.dispose();
-
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            Graphics2D gt = (Graphics2D) g2.create();
+            gt.translate(pt.getX(), pt.getY());
+            Color color = Color.WHITE;
+            color = colorMap.getColor((point.getRhodamineDyePPB() - minValue) / maxValue);
+            if (curtime - point.getTimeMillis() > DateTimeUtil.MINUTE * 5)
+                color = ColorUtils.setTransparencyToColor(color, 128);
+            gt.setColor(color);
+            
+            // double rot =  -renderer.getRotation();
+            // gt.rotate(rot);
+            gt.fill(circle);
+            //gt.rotate(-rot);
+                        
+            gt.dispose();
         }
     }
-
 
     /**
      * @return 
@@ -365,5 +370,4 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
         return null;
     }
-
 }
