@@ -257,12 +257,14 @@ public class FileUtil {
                     @Override
                     public boolean accept(File file, String name) {
                         if (pat == null) {
-                            return justFolders ? file.isDirectory() : file.isFile();
+                            File fx = new File(file, name);
+                            return justFolders ? fx.isDirectory() : fx.isFile();
                         }
                         else {
                             Matcher m = pat.matcher(name);
                             boolean ret = m.find();
-                            return ret ? (justFolders ? file.isDirectory() : file.isFile()) : false;
+                            File fx = new File(file, name);
+                            return ret ? (justFolders ? fx.isDirectory() : fx.isFile()) : false;
                         }
                     }
                 };
