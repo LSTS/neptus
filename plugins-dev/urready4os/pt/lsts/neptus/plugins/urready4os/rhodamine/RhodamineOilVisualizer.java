@@ -82,17 +82,17 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @NeptusProperty(name = "Show rhodamine dye", userLevel = LEVEL.REGULAR, category="Visibility")
     public boolean showRhodamine = true;
 
-    @NeptusProperty(name = "Show crude oil", userLevel = LEVEL.REGULAR, category="Visibility")
+    @NeptusProperty(name = "Show crude oil", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
     public boolean showCrudeOil = false;
 
-    @NeptusProperty(name = "Show refine oil", userLevel = LEVEL.REGULAR, category="Visibility")
+    @NeptusProperty(name = "Show refine oil", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
     public boolean showRefineOil = false;
     
     @NeptusProperty(name = "Minimum value", userLevel = LEVEL.REGULAR, category="Scale")
     public int minValue = 0;
 
     @NeptusProperty(name = "Maximum value", userLevel = LEVEL.REGULAR, category="Scale")
-    public int maxValue = 100;
+    public int maxValue = 10;
 
     @NeptusProperty(name = "Colormap", userLevel = LEVEL.REGULAR, category="Scale")
     private final ColorMap colorMap = ColorMapFactory.createJetColorMap();
@@ -101,7 +101,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public boolean clearData = false;
 
     @NeptusProperty(name = "Pixel size data", userLevel = LEVEL.REGULAR, category="Scale")
-    public int pixelSizeData = 8;
+    public int pixelSizeData = 4;
 
     private EstimatedState lastEstimatedState = null;
     private RhodamineDye lastRhodamineDye = null;
