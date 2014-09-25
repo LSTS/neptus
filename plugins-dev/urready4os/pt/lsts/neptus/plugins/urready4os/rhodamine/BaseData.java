@@ -39,7 +39,7 @@ package pt.lsts.neptus.plugins.urready4os.rhodamine;
 public class BaseData  implements Comparable<BaseData> {
     protected double lat;
     protected double lon;
-    protected long dateUTC;
+    protected long timeMillis;
     
     protected double depth;
 
@@ -48,11 +48,11 @@ public class BaseData  implements Comparable<BaseData> {
     protected double refineOilPPB = Double.NaN;
     protected double temperature = Double.NaN;
     
-    public BaseData(double lat, double lon, double depth, long dateUTC) {
+    public BaseData(double lat, double lon, double depth, long timeMillis) {
         this.lat = lat;
         this.lon = lon;
         this.depth = depth;
-        this.dateUTC = dateUTC;
+        this.timeMillis = timeMillis;
     }
     
     /**
@@ -70,10 +70,10 @@ public class BaseData  implements Comparable<BaseData> {
     }
     
     /**
-     * @return the dateUTC
+     * @return the timeMillis
      */
-    public long getDateUTC() {
-        return dateUTC;
+    public long getTimeMillis() {
+        return timeMillis;
     }
     
     /**
@@ -106,7 +106,6 @@ public class BaseData  implements Comparable<BaseData> {
         this.crudeOilPPB = crudeOilPPB;
         return this;
     }
-    
 
     /**
      * @return the refineOilPPB
@@ -170,7 +169,7 @@ public class BaseData  implements Comparable<BaseData> {
      */
     @Override
     public String toString() {
-        return dateUTC + ", "
+        return timeMillis + ", "
                 + lat + ", "
                 + lon + ", "
                 + depth + ", "
@@ -180,4 +179,3 @@ public class BaseData  implements Comparable<BaseData> {
                 + temperature;
     }
 }
-

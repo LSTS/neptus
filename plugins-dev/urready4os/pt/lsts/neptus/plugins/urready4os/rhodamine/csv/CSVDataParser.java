@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Date;
 
 import pt.lsts.neptus.plugins.urready4os.rhodamine.BaseData;
 
@@ -91,12 +92,12 @@ public class CSVDataParser {
         return points;
     }
     
-    private boolean parse() {
+    public boolean parse() {
             int counter = 0;
             try {
                 String line = reader.readLine(); 
                 while (line != null) {
-                    System.out.println(line);
+//                    System.out.println(line);
                     int systemLineNumber = 0;;
                     int invalidValueLineNumber = 2;
                     int colsLineNumber = 3;
@@ -340,6 +341,7 @@ public class CSVDataParser {
         System.out.println(csv.getSystem());
         for (BaseData pt : csv.getPoints()) {
             System.out.println(">\t" + pt);
+            System.out.println(new Date(pt.getTimeMillis()));
         }
     }
 
