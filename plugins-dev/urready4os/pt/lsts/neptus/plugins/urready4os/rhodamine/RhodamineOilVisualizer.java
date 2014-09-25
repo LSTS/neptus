@@ -102,12 +102,20 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     @NeptusProperty(name = "Pixel size data", userLevel = LEVEL.REGULAR, category="Scale")
     public int pixelSizeData = 4;
+    
+    @NeptusProperty(name = "baseFolderForCSVFiles", userLevel = LEVEL.REGULAR, category = "Data Update")
+    public File baseFolderForCSVFiles = new File("rhodamine/csv");
+    
+    @NeptusProperty(name = "Period seconds to update", userLevel = LEVEL.REGULAR, category = "Data Update")
+    private int periodSecondsToUpdate = 30; 
 
     private EstimatedState lastEstimatedState = null;
     private RhodamineDye lastRhodamineDye = null;
     private CrudeOil lastCrudeOil = null;
     private FineOil lastFineOil = null;
     
+    private static final String csvFilePattern = ".\\.csv$";
+
     // Cache image
     private BufferedImage cacheImg = null;
     private static int offScreenBufferPixel = 400;
@@ -121,7 +129,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     private ArrayList<BaseData> dataList = new ArrayList<>();
     private HashMap<Integer, EstimatedState> lastEstimatedStateFromSystems = new HashMap<>();
-    
+
+    private long lastUpdatedValues = -1;
+
     public RhodamineOilVisualizer() {
     }
 
@@ -131,15 +141,15 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
      */
     @Override
     public void initLayer() {
-        try {
+//        try {
 //            CSVDataParser csv = new CSVDataParser(new File("test.csv"));
-            CSVDataParser csv = new CSVDataParser(new File("log_2014-09-24_22-15.csv"));
-            csv.parse();
-            dataList.addAll(csv.getPoints());
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+//            CSVDataParser csv = new CSVDataParser(new File("log_2014-09-24_22-15.csv"));
+//            csv.parse();
+//            dataList.addAll(csv.getPoints());
+//        }
+//        catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
     }
 
     /* (non-Javadoc)
@@ -180,11 +190,89 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         return false;
     }
     
-    @Periodic(millisBetweenUpdates=5000)
-    public void updateValues() {
-        
+    @Periodic(millisBetweenUpdates=1000)
+    public void update() {
+        long curTime = System.currentTimeMillis();
+        if (curTime - lastUpdatedValues > periodSecondsToUpdate * 1000) {
+            lastUpdatedValues = curTime;
+            boolean ret = updateValues();
+            if (ret) {
+                invalidateCache();
+            }
+        }
     }
-    
+
+    private void invalidateCache() {
+        clearImgCachRqst = true;
+    }
+
+    public boolean updateValues() {
+        System.out.println("+++++++++++++++");
+        
+        File[] fileList = FileUtil.getFilesFromDisk(baseFolderForCSVFiles, csvFilePattern);
+        if (fileList != null && fileList.length > 0) {
+            File csvFx = fileList[fileList.length -1];
+            try {
+                CSVDataParser csv = new CSVDataParser(csvFx);
+                csv.parse();
+                updateValues(dataList, csv.getPoints());
+            }
+            catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        File[] folders = FileUtil.getFoldersFromDisk(baseFolderForCSVFiles, null);
+        for (File folder : folders) {
+            fileList = FileUtil.getFilesFromDisk(folder, csvFilePattern);
+            if (fileList != null && fileList.length > 0) {
+                File csvFx = fileList[fileList.length -1];
+                try {
+                    CSVDataParser csv = new CSVDataParser(csvFx);
+                    csv.parse();
+                    updateValues(dataList, csv.getPoints());
+                }
+                catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @param list
+     * @param points
+     */
+    private boolean updateValues(ArrayList<BaseData> list, ArrayList<BaseData> points) {
+        boolean dataUpdated = false;
+        for (BaseData testPoint : points) {
+            int counter = 0;
+            boolean found = false;
+            for (BaseData toTestPoint : list) {
+                if (toTestPoint.equals(testPoint)) {
+                    if (toTestPoint.getTimeMillis() < testPoint.getTimeMillis()) {
+                        list.remove(counter);
+                        list.add(counter, testPoint);
+                        dataUpdated = true;
+                    }
+//                    System.out.println("######### " + counter);
+                    found = true;
+                    break;
+                    
+                }
+                counter++;
+            }
+            if (!found) {
+                list.add(testPoint);
+                dataUpdated = true;
+            }
+        }
+        System.out.println("List size: " + list.size());
+        return dataUpdated;
+    }
+
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsoleLayer#paint(java.awt.Graphics2D, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
