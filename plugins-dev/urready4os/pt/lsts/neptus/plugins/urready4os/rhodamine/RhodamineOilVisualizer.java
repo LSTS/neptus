@@ -104,7 +104,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public int pixelSizeData = 4;
     
     @NeptusProperty(name = "baseFolderForCSVFiles", userLevel = LEVEL.REGULAR, category = "Data Update")
-    public File baseFolderForCSVFiles = new File("rhodamine/csv");
+    public File baseFolderForCSVFiles = new File("log/rhodamine");
     
     @NeptusProperty(name = "Period seconds to update", userLevel = LEVEL.REGULAR, category = "Data Update")
     private int periodSecondsToUpdate = 30; 
