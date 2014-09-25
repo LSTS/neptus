@@ -351,6 +351,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             if (!isVisibleInRender(pt, renderer))
                 continue;
             
+            if (point.getRhodamineDyePPB() < minValue)
+                continue;
+            
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             Graphics2D gt = (Graphics2D) g2.create();
