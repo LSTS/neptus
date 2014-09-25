@@ -45,7 +45,6 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -108,16 +107,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @NeptusProperty(name = "Pixel size data", userLevel = LEVEL.REGULAR, category="Scale")
     public int pixelSizeData = 4;
     
-    @NeptusProperty(name = "baseFolderForCSVFiles", userLevel = LEVEL.REGULAR, category = "Data Update")
+    @NeptusProperty(name = "Base folder for CSV files", userLevel = LEVEL.REGULAR, category = "Data Update")
     public File baseFolderForCSVFiles = new File("log/rhodamine");
     
     @NeptusProperty(name = "Period seconds to update", userLevel = LEVEL.REGULAR, category = "Data Update")
-    private int periodSecondsToUpdate = 30; 
-
-    private EstimatedState lastEstimatedState = null;
-    private RhodamineDye lastRhodamineDye = null;
-    private CrudeOil lastCrudeOil = null;
-    private FineOil lastFineOil = null;
+    private int periodSecondsToUpdate = 30;
     
     @NeptusProperty(userLevel = LEVEL.REGULAR, category = "Data Cleanup")
     private boolean autoCleanData = false;
@@ -125,6 +119,10 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @NeptusProperty(userLevel = LEVEL.REGULAR, category = "Data Cleanup")
     private int dataAgeToCleanInMinutes = 120;
     
+//    private EstimatedState lastEstimatedState = null;
+//    private RhodamineDye lastRhodamineDye = null;
+//    private CrudeOil lastCrudeOil = null;
+//    private FineOil lastFineOil = null;
     
     private static final String csvFilePattern = ".\\.csv$";
 
@@ -534,19 +532,19 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         return true;
     }
 
-    private FileReader getFileReaderForFile(String fileName) {
-        // InputStreamReader
-        String fxName = FileUtil.getResourceAsFileKeepName(fileName);
-        if (fxName == null)
-            fxName = fileName;
-        File fx = new File(fxName);
-        try {
-            FileReader freader = new FileReader(fx);
-            return freader;
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    private FileReader getFileReaderForFile(String fileName) {
+//        // InputStreamReader
+//        String fxName = FileUtil.getResourceAsFileKeepName(fileName);
+//        if (fxName == null)
+//            fxName = fileName;
+//        File fx = new File(fxName);
+//        try {
+//            FileReader freader = new FileReader(fx);
+//            return freader;
+//        }
+//        catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 }
