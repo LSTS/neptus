@@ -169,7 +169,7 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
 
     public String updateState() {
 
-        AlignmentState alignState = getState().lastAlignmentState();
+        AlignmentState alignState = getState().last(AlignmentState.class);
         EntityState imuState = (EntityState) getState().get(EntityState.ID_STATIC, EntitiesResolver.resolveId(getMainVehicleId(), imuEntity));
         EntityActivationState imuActivationState = (EntityActivationState) getState().get(EntityActivationState.ID_STATIC, EntitiesResolver.resolveId(getMainVehicleId(), imuEntity));
         
@@ -223,7 +223,7 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
 
 
         if (opt == JOptionPane.YES_OPTION) {
-            EstimatedState lastState = getState().lastEstimatedState();
+            EstimatedState lastState = getState().last(EstimatedState.class);
 
             PlanCreator pc = new PlanCreator(getConsole().getMission());
             if (lastState != null && lastState.getLat() != 0) {

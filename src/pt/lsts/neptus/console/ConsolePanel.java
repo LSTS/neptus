@@ -58,7 +58,7 @@ import org.dom4j.Element;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
@@ -441,7 +441,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         return PluginUtils.validatePluginProperties(this, properties);
     }
 
-    protected final ImcSysState getState() {
+    protected final ImcSystemState getState() {
         return ImcMsgManager.getManager().getState(getConsole().getMainSystem());
     }
 

@@ -85,7 +85,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
-import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.CommManagerStatusChangeListener;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -1751,11 +1751,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         this.resizableConsole = resizebleConsole;
     }
 
-    public ImcSysState getImcState() {
+    public ImcSystemState getImcState() {
         return getImcState(getMainSystem());
     }
 
-    public ImcSysState getImcState(String system) {
+    public ImcSystemState getImcState(String system) {
         return ImcMsgManager.getManager().getState(ImcSystemsHolder.getSystemWithName(system).getId());
     }
 

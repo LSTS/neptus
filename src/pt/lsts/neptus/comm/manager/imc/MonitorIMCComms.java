@@ -64,7 +64,7 @@ import javax.swing.SwingWorker;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.gui.ImcStatePanel;
-import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.BaseAbstractCommsMonitorPanel;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
@@ -122,13 +122,13 @@ public class MonitorIMCComms extends
     private JLabel configLabelMiddle = null;
     private JPanel configSystemControlPanel = null;
 
-    private ImcSysState commonSystemState = null;
+    private ImcSystemState commonSystemState = null;
     private ImcStatePanel commonSystemStatePanel = null;
     private JPanel addCommonImcMsgPanel = null;
     private JLabel commonImcMsgInfoLabel = null;
     private JScrollPane commonImcMsgScrollPane = null;
 
-    private ImcSysState selSystemState = null;
+    private ImcSystemState selSystemState = null;
     private ImcStatePanel selSystemStatePanel = null;
     private JPanel addSystemImcMsgPanel = null;
     private JLabel systemImcMsgInfoLabel = null;
@@ -175,7 +175,7 @@ public class MonitorIMCComms extends
     }
 
     private void updateCommonImcMsg() {
-        ImcSysState st = getCommManager().getImcState();
+        ImcSystemState st = getCommManager().getImcState();
         if (st != commonSystemState) {
             if (commonSystemState != null)
                 commonSystemState = null;
@@ -226,7 +226,7 @@ public class MonitorIMCComms extends
  
         SystemImcMsgCommInfo ci = getCommManager().getCommInfoById(idImc);
         if (ci != null) {
-            ImcSysState st = ((SystemImcMsgCommInfo)ci).getImcState();
+            ImcSystemState st = ((SystemImcMsgCommInfo)ci).getImcState();
             if (st != selSystemState) {
                 if (selSystemState != null)
                     selSystemState = null;

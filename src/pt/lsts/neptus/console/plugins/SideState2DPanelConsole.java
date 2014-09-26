@@ -112,7 +112,7 @@ public class SideState2DPanelConsole extends ConsolePanel implements Configurati
     @Override
     public boolean update() {
     
-        EstimatedState lastState = getState().lastEstimatedState();
+        EstimatedState lastState = getState().last(EstimatedState.class);
         if (lastState == null)
             return true;
         

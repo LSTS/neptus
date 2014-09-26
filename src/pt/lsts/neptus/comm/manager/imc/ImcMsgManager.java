@@ -62,7 +62,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.imc.net.IMCFragmentHandler;
-import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
@@ -116,7 +116,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     protected IMCFragmentHandler fragmentHandler = new IMCFragmentHandler(IMCDefinition.getInstance());
     
-    protected ImcSysState imcState = new ImcSysState();
+    protected ImcSystemState imcState = new ImcSystemState(IMCDefinition.getInstance());
     {
         imcState.setIgnoreEntities(true);
     }
@@ -1679,20 +1679,20 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         return super.removeListener(listener, imcId);
     }
 
-    public ImcSysState getState(ImcId16 id) {
+    public ImcSystemState getState(ImcId16 id) {
         if (super.getCommInfoById(id) != null)
             return super.getCommInfoById(id).getImcState();
-        return new ImcSysState();
+        return new ImcSystemState(IMCDefinition.getInstance());
     }
 
-    public ImcSysState getState(VehicleType vehicle) {
+    public ImcSystemState getState(VehicleType vehicle) {
         if (vehicle != null)
             return getState(vehicle.getImcId());
         else
-            return new ImcSysState();
+            return new ImcSystemState(IMCDefinition.getInstance());
     }
 
-    public ImcSysState getState(String vehicle) {
+    public ImcSystemState getState(String vehicle) {
         VehicleType vt = VehiclesHolder.getVehicleById(vehicle);
         if (vt != null)
             return getState(vt);
@@ -1768,7 +1768,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         return bus;
     }
 
-    public final ImcSysState getImcState() {
+    public final ImcSystemState getImcState() {
         return imcState;
     }
 
