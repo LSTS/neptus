@@ -43,7 +43,7 @@ import pt.lsts.neptus.plugins.urready4os.rhodamine.BaseData;
  * @author pdias
  *
  */
-public class TOTDataParser {
+public class MedslikDataParser {
 
 //gals of pollutant at level 5 between depths
 //    0.0  2000.0   metres below surface
@@ -62,7 +62,7 @@ public class TOTDataParser {
     
     private long numberOfDataLines = 0;
 
-    public TOTDataParser(File file) throws FileNotFoundException {
+    public MedslikDataParser(File file) throws FileNotFoundException {
         this.file = file;
         
         FileReader fileReader = new FileReader(this.file);
@@ -160,7 +160,7 @@ public class TOTDataParser {
     }
     
     public static void main(String[] args) throws FileNotFoundException {
-        TOTDataParser csv = new TOTDataParser(new File("out0003.tot"));
+        MedslikDataParser csv = new MedslikDataParser(new File("out0003.tot"));
         
         csv.parse();
 
