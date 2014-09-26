@@ -496,25 +496,25 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @Subscribe
     public void on(EstimatedState msg) {
         // From any system
-        System.out.println(msg.asJSON());
+//        System.out.println(msg.asJSON());
     }
 
     @Subscribe
     public void on(RhodamineDye msg) {
         // From any system
-        System.out.println(msg.asJSON());
+//        System.out.println(msg.asJSON());
     }
 
     @Subscribe
     public void on(CrudeOil msg) {
         // From any system
-        System.out.println(msg.asJSON());
+//        System.out.println(msg.asJSON());
     }
 
     @Subscribe
     public void on(FineOil msg) {
         // From any system
-        System.out.println(msg.asJSON());
+//        System.out.println(msg.asJSON());
     }
 
     /**
