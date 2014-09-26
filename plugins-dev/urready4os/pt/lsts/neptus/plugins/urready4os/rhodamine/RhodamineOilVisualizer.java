@@ -62,7 +62,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
-import pt.lsts.neptus.plugins.urready4os.rhodamine.csv.CSVDataParser;
+import pt.lsts.neptus.plugins.urready4os.rhodamine.importers.CSVDataParser;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;

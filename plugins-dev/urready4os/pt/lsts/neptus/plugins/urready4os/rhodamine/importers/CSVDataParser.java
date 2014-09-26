@@ -29,7 +29,7 @@
  * Author: pdias
  * Sep 24, 2014
  */
-package pt.lsts.neptus.plugins.urready4os.rhodamine.csv;
+package pt.lsts.neptus.plugins.urready4os.rhodamine.importers;
 
 import java.io.BufferedReader;
 import java.io.File;
