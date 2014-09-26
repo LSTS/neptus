@@ -150,7 +150,14 @@ public class CSVDataParser {
      */
     private void processNaNValue(String line) throws Exception {
         String ln = checkIfCommentLineRemoveMarkerOrThrowException(line);
-        invalidValue = Double.parseDouble(ln);
+        try {
+            invalidValue = Double.parseDouble(ln);
+        }
+        catch (Exception e) {
+            //% Not valid value (-1)
+            ln = ln.replaceAll("[a-zA-Z \\(\\)]", "").trim();
+            invalidValue = Double.parseDouble(ln);
+        }
     }
 
     /**
@@ -343,6 +350,8 @@ public class CSVDataParser {
             System.out.println(">\t" + pt);
             System.out.println(new Date(pt.getTimeMillis()));
         }
+        
+        System.out.println("Not valid value (-1)".replaceAll("[a-zA-Z \\(\\)]", ""));
     }
 
 }
