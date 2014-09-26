@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.urready4os;
 
 import java.io.File;
+import java.util.Locale;
 
 import javax.swing.ProgressMonitor;
 
@@ -61,25 +62,25 @@ public class IverPlanExporter implements IPlanFileExporter {
         StringBuilder sb = new StringBuilder();
         sb.append(wptNum + "; ");
         dst.convertToAbsoluteLatLonDepth();
-        sb.append(String.format("%.6f; ", dst.getLatitudeDegs()));
-        sb.append(String.format("%.6f; ", dst.getLongitudeDegs()));
+        sb.append(String.format(Locale.US, "%.6f; ", dst.getLatitudeDegs()));
+        sb.append(String.format(Locale.US, "%.6f; ", dst.getLongitudeDegs()));
         if (prev == null) {
             sb.append("0.0; ");
             sb.append("0.0; ");
         }
         else {
-            sb.append(String.format("%.3f; ", prevLength + prev.getDistanceInMeters(dst)));
-            sb.append(String.format("%.2f; ", Math.toDegrees(prev.getXYAngle(dst))));
+            sb.append(String.format(Locale.US, "%.3f; ", prevLength + prev.getDistanceInMeters(dst)));
+            sb.append(String.format(Locale.US, "%.2f; ", Math.toDegrees(prev.getXYAngle(dst))));
         }
 
         if (yoyoAmplitude == 0) {
 
             switch (dst.getZUnits()) {
                 case DEPTH:
-                    sb.append(String.format("D%.1f ", metersToFeet(dst.getZ())));
+                    sb.append(String.format(Locale.US, "D%.1f ", metersToFeet(dst.getZ())));
                     break;
                 case ALTITUDE:
-                    sb.append(String.format("H%.1f ", metersToFeet(dst.getZ())));
+                    sb.append(String.format(Locale.US, "H%.1f ", metersToFeet(dst.getZ())));
                     break;
                 default:
                     sb.append("D0.00 ");
@@ -87,11 +88,11 @@ public class IverPlanExporter implements IPlanFileExporter {
             }
         }
         else {
-            sb.append(String.format("U%.1f,%.1f,%.1f ", metersToFeet((dst.getZ() - yoyoAmplitude)),
+            sb.append(String.format(Locale.US, "U%.1f,%.1f,%.1f ", metersToFeet((dst.getZ() - yoyoAmplitude)),
                     metersToFeet((dst.getZ() + yoyoAmplitude)), pitchDegs));
         }
 
-        sb.append(String.format("P0 PT25 VC1,0,0,1000,0,VC2,0,0,1000,0 S%.1f; 0;-1\n", mpsToKnots(speedMps)));
+        sb.append(String.format(Locale.US, "P0 PT25 VC1,0,0,1000,0,VC2,0,0,1000,0 S%.1f; 0;-1\n", mpsToKnots(speedMps)));
 
         return sb.toString();
     }
@@ -147,9 +148,9 @@ public class IverPlanExporter implements IPlanFileExporter {
                 timeSum += time;
                 distanceSum += distance;
                 if (distanceSum == 0)
-                    wpt_times.append(String.format("WP%d;Time=0;Dist=0\n", count++));
+                    wpt_times.append(String.format(Locale.US, "WP%d;Time=0;Dist=0\n", count++));
                 else
-                    wpt_times.append(String.format("WP%d;Time=%.11f;Dist=%.11f\n", count++, timeSum, distanceSum));
+                    wpt_times.append(String.format(Locale.US, "WP%d;Time=%.11f;Dist=%.11f\n", count++, timeSum, distanceSum));
                 previousLoc = loc;
             }
             else if (m instanceof LocatedManeuver) {
@@ -171,9 +172,9 @@ public class IverPlanExporter implements IPlanFileExporter {
                     timeSum += time;
                     distanceSum += distance;
                     if (distanceSum == 0)
-                        wpt_times.append(String.format("WP%d;Time=0;Dist=0\n", count++));
+                        wpt_times.append(String.format(Locale.US, "WP%d;Time=0;Dist=0\n", count++));
                     else
-                        wpt_times.append(String.format("WP%d;Time=%.11f;Dist=%.11f\n", count++, timeSum, distanceSum));
+                        wpt_times.append(String.format(Locale.US, "WP%d;Time=%.11f;Dist=%.11f\n", count++, timeSum, distanceSum));
                     previousLoc = wpt;
                 }
             }
@@ -182,7 +183,7 @@ public class IverPlanExporter implements IPlanFileExporter {
             }
         }
         int secs = (int) timeSum;
-        wpt_times.append(String.format("Total Time = %02d:%02d:%02d;Total Distance = %.2f\n", secs / 3600,
+        wpt_times.append(String.format(Locale.US, "Total Time = %02d:%02d:%02d;Total Distance = %.2f\n", secs / 3600,
                 (secs % 3600) / 60, secs % 60, distanceSum));
 
         String template = PluginUtils.getResourceAsString("pt/lsts/neptus/plugins/urready4os/template.mis");
@@ -190,12 +191,12 @@ public class IverPlanExporter implements IPlanFileExporter {
         template = template.replaceAll("\\$\\{wpts\\}", wpts.toString().trim());
         template = template.replaceAll("\\$\\{wpt_times\\}", wpt_times.toString().trim());
         template = template.replaceAll("\\$\\{mission_name\\}", out.getName());
-        template = template.replaceAll("\\$\\{minLat\\}", String.format("%.6f", minLat));
-        template = template.replaceAll("\\$\\{maxLat\\}", String.format("%.6f", maxLat));
-        template = template.replaceAll("\\$\\{minLon\\}", String.format("%.6f", minLon));
-        template = template.replaceAll("\\$\\{maxLon\\}", String.format("%.6f", maxLon));
-        template = template.replaceAll("\\$\\{centerLat\\}", String.format("%.6f", (minLat + maxLat) / 2));
-        template = template.replaceAll("\\$\\{centerLon\\}", String.format("%.6f", (minLon + maxLon) / 2));
+        template = template.replaceAll("\\$\\{minLat\\}", String.format(Locale.US, "%.6f", minLat));
+        template = template.replaceAll("\\$\\{maxLat\\}", String.format(Locale.US, "%.6f", maxLat));
+        template = template.replaceAll("\\$\\{minLon\\}", String.format(Locale.US, "%.6f", minLon));
+        template = template.replaceAll("\\$\\{maxLon\\}", String.format(Locale.US, "%.6f", maxLon));
+        template = template.replaceAll("\\$\\{centerLat\\}", String.format(Locale.US, "%.6f", (minLat + maxLat) / 2));
+        template = template.replaceAll("\\$\\{centerLon\\}", String.format(Locale.US, "%.6f", (minLon + maxLon) / 2));
 
         FileUtils.write(out, template);
     }
