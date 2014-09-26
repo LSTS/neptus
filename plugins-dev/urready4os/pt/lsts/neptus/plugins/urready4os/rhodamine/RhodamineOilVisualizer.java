@@ -63,6 +63,7 @@ import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.urready4os.rhodamine.importers.CSVDataParser;
+import pt.lsts.neptus.plugins.urready4os.rhodamine.importers.MedslikDataParser;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -119,15 +120,30 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @NeptusProperty(userLevel = LEVEL.REGULAR, category = "Data Cleanup")
     private int dataAgeToCleanInMinutes = 120;
     
+    @NeptusProperty(name = "Prediction file", userLevel = LEVEL.REGULAR, category = "Prediction")
+    public File predictionFile = new File("log/rhodamine-prediction/current.tot");
+
+//    @NeptusProperty(name = "Show Prediction", userLevel = LEVEL.REGULAR, category = "Prediction")
+    public boolean showPrediction = false;
+
+  @NeptusProperty(name = "Prediction scale factor", userLevel = LEVEL.REGULAR, category = "Prediction")
+  public double predictionScaleFactor = 1;
+
+
+    private final PrevisionRhodamineConsoleLayer previsionLayer = new PrevisionRhodamineConsoleLayer();
+
+    
 //    private EstimatedState lastEstimatedState = null;
 //    private RhodamineDye lastRhodamineDye = null;
 //    private CrudeOil lastCrudeOil = null;
 //    private FineOil lastFineOil = null;
     
     private static final String csvFilePattern = ".\\.csv$";
+    private static final String[] totFileExt = { "tot", "lv1" };
 
     // Cache image
     private BufferedImage cacheImg = null;
+    private BufferedImage cachePredictionImg = null;
     private static int offScreenBufferPixel = 400;
     private Dimension dim = null;
     private int lastLod = -1;
@@ -141,6 +157,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private Ellipse2D circle = new Ellipse2D.Double(-4, -4, 8, 8);
 
     private ArrayList<BaseData> dataList = new ArrayList<>();
+    private ArrayList<BaseData> dataPredictionList = new ArrayList<>();
+    
     private HashMap<Integer, EstimatedState> lastEstimatedStateFromSystems = new HashMap<>();
 
     private long lastUpdatedValues = -1;
@@ -163,6 +181,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 //        catch (FileNotFoundException e) {
 //            e.printStackTrace();
 //        }
+        
+        getConsole().addMapLayer(previsionLayer, false);
     }
 
     /* (non-Javadoc)
@@ -172,6 +192,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public void cleanLayer() {
         dataList.clear();
         lastEstimatedStateFromSystems.clear();
+
+        getConsole().removeMapLayer(previsionLayer);
     }
 
     /* (non-Javadoc)
@@ -266,6 +288,35 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 }
             }
         }
+        
+        
+        // Load prediction
+        if (predictionFile.exists() && predictionFile.isFile()) {
+            String fxExt = FileUtil.getFileExtension(predictionFile);
+            if ("csv".equalsIgnoreCase(fxExt)) {
+                try {
+                    CSVDataParser csv = new CSVDataParser(predictionFile);
+                    csv.parse();
+                    dataPredictionList.clear();
+                    updateValues(dataPredictionList, csv.getPoints());
+                }
+                catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                try {
+                    MedslikDataParser totFile = new MedslikDataParser(predictionFile);
+                    totFile.parse();
+                    dataPredictionList.clear();
+                    updateValues(dataPredictionList, totFile.getPoints());
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
         return true;
     }
 
@@ -323,11 +374,14 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         super.paint(g, renderer);
         
         if (!clearImgCachRqst) {
-            if (isToRegenerateCache(renderer))
+            if (isToRegenerateCache(renderer)) {
                 cacheImg = null;
+                cachePredictionImg = null;
+            }
         }
         else {
             cacheImg = null;
+            cachePredictionImg = null;
             clearImgCachRqst = false;
         }
         
@@ -354,7 +408,38 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             
             g2.dispose();
         }
-        
+
+        if (cachePredictionImg == null) {
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            GraphicsDevice gs = ge.getDefaultScreenDevice();
+            GraphicsConfiguration gc = gs.getDefaultConfiguration();
+            cachePredictionImg = gc.createCompatibleImage((int) dim.getWidth() + offScreenBufferPixel * 2, (int) dim.getHeight() + offScreenBufferPixel * 2, Transparency.BITMASK); 
+            Graphics2D g2 = cachePredictionImg.createGraphics();
+            
+            g2.translate(offScreenBufferPixel, offScreenBufferPixel);
+            
+//            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+            
+            paintPredictionData(renderer, g2);
+            
+            g2.dispose();
+        }
+
+//        if (cachePredictionImg != null && showPrediction) {
+//            //          System.out.println(".........................");
+//            Graphics2D g3 = (Graphics2D) g.create();
+//
+//            double[] offset = renderer.getCenter().getDistanceInPixelTo(lastCenter, renderer.getLevelOfDetail());
+//            offset = AngleCalc.rotate(renderer.getRotation(), offset[0], offset[1], true);
+//
+//            g3.drawImage(cachePredictionImg, null, (int) offset[0] - offScreenBufferPixel, (int) offset[1] - offScreenBufferPixel);
+//
+//            g3.dispose();
+//        }
+
         if (cacheImg != null) {
             //          System.out.println(".........................");
             Graphics2D g3 = (Graphics2D) g.create();
@@ -367,6 +452,29 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             g3.dispose();
         }
         
+        paintColorBar(renderer, g);
+        
+        // Legend
+        Graphics2D gl = (Graphics2D) g.create();
+        gl.translate(10, 50);
+        gl.setColor(Color.WHITE);
+        gl.drawString(getName(), 0, 0); // (int)pt.getX()+17, (int)pt.getY()+2
+        gl.dispose();
+    }
+
+    public void paintPrediction(Graphics2D g, StateRenderer2D renderer) {
+        if (cachePredictionImg != null) {
+            //          System.out.println(".........................");
+            Graphics2D g3 = (Graphics2D) g.create();
+
+            double[] offset = renderer.getCenter().getDistanceInPixelTo(lastCenter, renderer.getLevelOfDetail());
+            offset = AngleCalc.rotate(renderer.getRotation(), offset[0], offset[1], true);
+
+            g3.drawImage(cachePredictionImg, null, (int) offset[0] - offScreenBufferPixel, (int) offset[1] - offScreenBufferPixel);
+
+            g3.dispose();
+        }
+
         paintColorBar(renderer, g);
         
         // Legend
@@ -426,11 +534,19 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     }
     
     private void paintData(StateRenderer2D renderer, Graphics2D g2) {
+        paintDataWorker(renderer, g2, false, dataList);
+    }
+
+    private void paintPredictionData(StateRenderer2D renderer, Graphics2D g2) {
+        paintDataWorker(renderer, g2, true, dataPredictionList);
+    }
+
+    private void paintDataWorker(StateRenderer2D renderer, Graphics2D g2, boolean prediction, ArrayList<BaseData> dList) {
         LocationType loc = new LocationType();
 
         long curtime = System.currentTimeMillis();
         
-        for (BaseData point : dataList) {
+        for (BaseData point : dList.toArray(new BaseData[dList.size()])) {
             double latV = point.getLat();
             double lonV = point.getLon();
             
@@ -452,10 +568,14 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             Graphics2D gt = (Graphics2D) g2.create();
             gt.translate(pt.getX(), pt.getY());
-            Color color = Color.WHITE;
-            color = colorMap.getColor((point.getRhodamineDyePPB() - minValue) / maxValue);
-            if (curtime - point.getTimeMillis() > DateTimeUtil.MINUTE * 5)
+            Color color = colorMap.getColor((point.getRhodamineDyePPB() * (prediction ? predictionScaleFactor : 1) - minValue) / maxValue);
+            if (!prediction) {
+                if (curtime - point.getTimeMillis() > DateTimeUtil.MINUTE * 5)
+                    color = ColorUtils.setTransparencyToColor(color, 150); // 128
+            }
+            else {
                 color = ColorUtils.setTransparencyToColor(color, 128);
+            }
             gt.setColor(color);
             
             // double rot =  -renderer.getRotation();
@@ -547,4 +667,36 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 //        }
 //        return null;
 //    }
+    
+    @PluginDescription(name="Rhodamine Oil Prevision Visualizer", icon = "pt/lsts/neptus/plugins/urready4os/urready4os.png")
+    @LayerPriority(priority = -51)
+    private class PrevisionRhodamineConsoleLayer extends ConsoleLayer {
+        @Override
+        public void setVisible(boolean visible) {
+            super.setVisible(visible);
+        }
+        
+        @Override
+        public boolean userControlsOpacity() {
+            return false;
+        }
+
+        @Override
+        public void initLayer() {
+        }
+
+        @Override
+        public void cleanLayer() {
+        }
+        
+        /* (non-Javadoc)
+         * @see pt.lsts.neptus.console.ConsoleLayer#paint(java.awt.Graphics2D, pt.lsts.neptus.renderer2d.StateRenderer2D)
+         */
+        @Override
+        public void paint(Graphics2D g, StateRenderer2D renderer) {
+            super.paint(g, renderer);
+            
+            paintPrediction(g, renderer);
+        }
+    }
 }
