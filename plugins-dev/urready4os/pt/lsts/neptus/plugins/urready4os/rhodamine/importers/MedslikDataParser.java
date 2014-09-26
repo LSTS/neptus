@@ -82,14 +82,13 @@ public class MedslikDataParser {
         try {
             String line = reader.readLine(); 
             while (line != null) {
-                //                    System.out.println(line);
                 if (counter == 7) {
                     processNumberOfDataLines(line);
                 }
                 else if (counter > 8) {
                     if (dataLines < numberOfDataLines) {
                         processData(line);
-                        dataLines--;
+                        dataLines++;
                     }
                     else {
                         return true;
@@ -129,7 +128,7 @@ public class MedslikDataParser {
             ct++;
             if (ct == 0) {
                 lat = Double.parseDouble(tk); 
-            } 
+            }   
             else if (ct == 1) {
                 lon = Double.parseDouble(tk); 
             } 
