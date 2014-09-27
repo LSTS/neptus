@@ -224,7 +224,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     }
 
     public String validateMinValue(int value) {
-        return new IntegerMinMaxValidator(0, true).validate(value);
+        return new IntegerMinMaxValidator(0, false).validate(value);
     }
     
     public String validatePeriodSecondsToUpdate(int value) {
