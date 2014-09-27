@@ -561,6 +561,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             if (!isVisibleInRender(pt, renderer))
                 continue;
             
+            if (Double.isNaN(point.getRhodamineDyePPB()) || Double.isInfinite(point.getRhodamineDyePPB()))
+                continue;
+            
             if (point.getRhodamineDyePPB() < minValue)
                 continue;
             
