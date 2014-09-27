@@ -1,6 +1,16 @@
 language: java
 
 jdk:
-  - openjdk7
-  - oraclejdk7
-  - oraclejdk8
+ - openjdk7
+ - oraclejdk7
+ - oraclejdk8
+
+install:
+ - sudo apt-get install sshpass -qq
+
+env:
+  global:
+    secure: DtUWKzELlEvNm9MojN8I+wFGY8QSwnbAFBGNXQeFWsxZBOUO7Y7p5d5rEKEYqaPEi0r5pOpfq75ErSmgRz922GD4IjRYuGqhprOzNwRhFMbkBrSkAwZT15dJq+v3RJmBvHi8NNCTaLCNQXvoHgq+mUSIeUMYomMxTSezcTfKWYA=
+
+after_success:
+  sshpass -p "$pass" scp -v *gz lsts@zpserver.info:~/public_html/
