@@ -56,7 +56,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 @PluginDescription
 public class IverPlanExporter implements IPlanFileExporter {
 
-    private String iverWaypoint(int wptNum, double speedMps, double prevLength, double yoyoAmplitude, double pitchDegs,
+    private String iverWaypoint(int wptNum, double speedMps, /*double prevLength,*/ double yoyoAmplitude, double pitchDegs,
             ManeuverLocation prev, ManeuverLocation dst) {
 
         StringBuilder sb = new StringBuilder();
@@ -69,7 +69,7 @@ public class IverPlanExporter implements IPlanFileExporter {
             sb.append("0.0; ");
         }
         else {
-            sb.append(String.format(Locale.US, "%.3f; ", prevLength + prev.getDistanceInMeters(dst)));
+            sb.append(String.format(Locale.US, "%.3f; ", /*prevLength +*/ prev.getDistanceInMeters(dst)));
             sb.append(String.format(Locale.US, "%.2f; ", Math.toDegrees(prev.getXYAngle(dst))));
         }
 
@@ -143,7 +143,7 @@ public class IverPlanExporter implements IPlanFileExporter {
                 minLon = Math.min(minLon, loc.getLongitudeDegs());
                 maxLon = Math.max(maxLon, loc.getLongitudeDegs());
 
-                wpts.append(iverWaypoint(count, speed, distanceSum, ((YoYo) m).getAmplitude(),
+                wpts.append(iverWaypoint(count, speed, /*distance,*/ ((YoYo) m).getAmplitude(),
                         Math.toDegrees(((YoYo) m).getPitchAngle()), previousLoc, ((YoYo) m).getManeuverLocation()));
                 timeSum += time;
                 distanceSum += distance;
@@ -168,7 +168,7 @@ public class IverPlanExporter implements IPlanFileExporter {
                     minLon = Math.min(minLon, wpt.getLongitudeDegs());
                     maxLon = Math.max(maxLon, wpt.getLongitudeDegs());
 
-                    wpts.append(iverWaypoint(count, speed, distanceSum, 0, 0, previousLoc, wpt));
+                    wpts.append(iverWaypoint(count, speed, /*distance,*/ 0, 0, previousLoc, wpt));
                     timeSum += time;
                     distanceSum += distance;
                     if (distanceSum == 0)
