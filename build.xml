@@ -1466,6 +1466,8 @@ For simple use the main targets are:
     	</copy -->
 	</target>
 
+	<target name="test" depends="clean, jar, junit"></target>
+	
 	<!-- =================================================================== -->
 	<!-- Runs the JUnit tests and creats a report                                                                       -->
 	<!-- =================================================================== -->
