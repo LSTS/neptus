@@ -1467,7 +1467,8 @@ For simple use the main targets are:
 	</target>
 
 	<!-- Travis-CI test target -->
-	<target name="test" depends="clean, jar, junit, distribution-full-all-os"></target>
+	<target name="test" depends="clean, generate-all-necessary-missing-files, junit, distribution-full-all-os">
+	</target>
 	
 	<!-- =================================================================== -->
 	<!-- Runs the JUnit tests and creats a report                                                                       -->
