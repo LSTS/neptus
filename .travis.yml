@@ -10,6 +10,5 @@ env:
   global:
     secure: DtUWKzELlEvNm9MojN8I+wFGY8QSwnbAFBGNXQeFWsxZBOUO7Y7p5d5rEKEYqaPEi0r5pOpfq75ErSmgRz922GD4IjRYuGqhprOzNwRhFMbkBrSkAwZT15dJq+v3RJmBvHi8NNCTaLCNQXvoHgq+mUSIeUMYomMxTSezcTfKWYA=
 
-deploy:
-  skip_cleanup: true
+after_script:
   - sshpass -p "$pass" scp -v *gz lsts@zpserver.info:~/public_html/
