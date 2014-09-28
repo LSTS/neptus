@@ -207,7 +207,6 @@ public class AisContactDb implements AISObserver {
         sys.setLocation(contacts.get(mmsi).getLocation());
         sys.setAttitudeDegrees(contacts.get(mmsi).getCog());
         sys.setType(SystemTypeEnum.UNKNOWN);
-        System.out.println(sys + "  " + sys.getYawDegrees());
     }
     
     @Override
