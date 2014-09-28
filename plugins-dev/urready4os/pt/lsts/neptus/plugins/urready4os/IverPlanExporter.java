@@ -92,7 +92,7 @@ public class IverPlanExporter implements IPlanFileExporter {
                     metersToFeet((dst.getZ() + yoyoAmplitude)), pitchDegs));
         }
 
-        sb.append(String.format(Locale.US, "P0 PT25 VC1,0,0,1000,0,VC2,0,0,1000,0 S%.1f; 0;-1\n", mpsToKnots(speedMps)));
+        sb.append(String.format(Locale.US, "P0 VC1,0,0,1000,0,VC2,0,0,1000,0 S%.1f; 0;-1\n", mpsToKnots(speedMps)));
 
         return sb.toString();
     }
