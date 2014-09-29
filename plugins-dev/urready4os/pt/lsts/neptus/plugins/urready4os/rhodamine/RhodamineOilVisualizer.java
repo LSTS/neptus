@@ -80,11 +80,11 @@ import com.google.common.eventbus.Subscribe;
  * @author pdias
  *
  */
-@PluginDescription(name="Rhodamine Oil Visualizer", author="Paulo Dias", version="0.2", icon = "pt/lsts/neptus/plugins/urready4os/urready4os.png")
+@PluginDescription(name="Rhodamine Oil Visualizer", author="Paulo Dias", version="0.3", icon = "pt/lsts/neptus/plugins/urready4os/urready4os.png")
 @LayerPriority(priority = -50)
 public class RhodamineOilVisualizer extends ConsoleLayer implements ConfigurationListener {
 
-    @NeptusProperty(name = "Show rhodamine dye", userLevel = LEVEL.REGULAR, category="Visibility")
+    @NeptusProperty(name = "Show rhodamine dye", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
     public boolean showRhodamine = true;
 
     @NeptusProperty(name = "Show crude oil", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
@@ -97,7 +97,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public int minValue = 0;
 
     @NeptusProperty(name = "Maximum value", userLevel = LEVEL.REGULAR, category="Scale")
-    public int maxValue = 10;
+    public int maxValue = 70;
 
     @NeptusProperty(name = "Colormap", userLevel = LEVEL.REGULAR, category="Scale")
     private final ColorMap colorMap = ColorMapFactory.createJetColorMap();
@@ -126,9 +126,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 //    @NeptusProperty(name = "Show Prediction", userLevel = LEVEL.REGULAR, category = "Prediction")
     public boolean showPrediction = false;
 
-  @NeptusProperty(name = "Prediction scale factor", userLevel = LEVEL.REGULAR, category = "Prediction")
-  public double predictionScaleFactor = 1;
-
+    @NeptusProperty(name = "Prediction scale factor", userLevel = LEVEL.REGULAR, category = "Prediction")
+    public double predictionScaleFactor = 100;
 
     private final PrevisionRhodamineConsoleLayer previsionLayer = new PrevisionRhodamineConsoleLayer();
 
