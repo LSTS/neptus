@@ -71,6 +71,7 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -158,15 +159,18 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     public boolean useColorMapForWind = true;
 
     @NeptusProperty(name = "Base Folder For Currents TUV or netCDF Files", userLevel = LEVEL.REGULAR, category = "Data Update", 
-            description = "The folder to look for currents data. Admissible files '*.tuv' and '*.nc'. NetCDF variables used: lat, lon, time, u, v.")
+            description = "The folder to look for currents data. Admissible files '*.tuv' and '*.nc'. NetCDF variables used: lat, lon, time, u, v.",
+            editorClass = FolderPropertyEditor.class)
     public File baseFolderForCurrentsTUVFiles = new File("IHData/CODAR");
 
     @NeptusProperty(name = "Base Folder For Meteo netCDF Files", userLevel = LEVEL.REGULAR, category = "Data Update", 
-            description = "The folder to look for meteo data (wind and SST). Admissible files '*.nc'. NetCDF variables used: lat, lon, time, u, v, sst.")
+            description = "The folder to look for meteo data (wind and SST). Admissible files '*.nc'. NetCDF variables used: lat, lon, time, u, v, sst.",
+            editorClass = FolderPropertyEditor.class)
     public File baseFolderForMeteoNetCDFFiles = new File("IHData/METEO");
 
     @NeptusProperty(name = "Base Folder For Waves netCDF Files", userLevel = LEVEL.REGULAR, category = "Data Update", 
-            description = "The folder to look for waves (significant height, peak period and direction) data. Admissible files '*.nc'. NetCDF variables used: lat, lon, time, hs, tp, pdir.")
+            description = "The folder to look for waves (significant height, peak period and direction) data. Admissible files '*.nc'. NetCDF variables used: lat, lon, time, hs, tp, pdir.",
+            editorClass = FolderPropertyEditor.class)
     public File baseFolderForWavesNetCDFFiles = new File("IHData/WAVES");
     
     @NeptusProperty(name = "Show currents visible data date-time interval", userLevel = LEVEL.ADVANCED, category = "Test", 
