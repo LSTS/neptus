@@ -57,6 +57,7 @@ import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -109,7 +110,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public int pixelSizeData = 4;
     
     @NeptusProperty(name = "Base folder for CSV files", userLevel = LEVEL.REGULAR, category = "Data Update",
-            description = "Defines the base folder fo CSV lookup. The children folders will also be considered. (Be aware of the \"Read all or last of ordered files\" flag.)")
+            description = "Defines the base folder fo CSV lookup. The children folders will also be considered. (Be aware of the \"Read all or last of ordered files\" flag.)",
+            editorClass = FolderPropertyEditor.class)
     public File baseFolderForCSVFiles = new File("log/rhodamine");
     
     @NeptusProperty(name = "Period seconds to update", userLevel = LEVEL.REGULAR, category = "Data Update")
