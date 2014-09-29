@@ -129,6 +129,10 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @NeptusProperty(name = "Prediction scale factor", userLevel = LEVEL.REGULAR, category = "Prediction")
     public double predictionScaleFactor = 100;
 
+    @NeptusProperty(name = "Read all or last of ordered files", userLevel = LEVEL.REGULAR, category = "Data Update",
+            description = "True to read all CSV files of just the last of ordered files in folder.")
+    public boolean readAllOrLastOfOrderedFiles = true;
+    
     private final PrevisionRhodamineConsoleLayer previsionLayer = new PrevisionRhodamineConsoleLayer();
 
     
@@ -263,14 +267,16 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public synchronized boolean updateValues() {
         File[] fileList = FileUtil.getFilesFromDisk(baseFolderForCSVFiles, csvFilePattern);
         if (fileList != null && fileList.length > 0) {
-            File csvFx = fileList[fileList.length -1];
-            try {
-                CSVDataParser csv = new CSVDataParser(csvFx);
-                csv.parse();
-                updateValues(dataList, csv.getPoints());
-            }
-            catch (FileNotFoundException e) {
-                e.printStackTrace();
+            for (int i = (readAllOrLastOfOrderedFiles ? 0 : fileList.length -1); i < fileList.length; i++) {
+                File csvFx = fileList[i];
+                try {
+                    CSVDataParser csv = new CSVDataParser(csvFx);
+                    csv.parse();
+                    updateValues(dataList, csv.getPoints());
+                }
+                catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         }
         
@@ -279,14 +285,16 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             for (File folder : folders) {
                 fileList = FileUtil.getFilesFromDisk(folder, csvFilePattern);
                 if (fileList != null && fileList.length > 0) {
-                    File csvFx = fileList[fileList.length -1];
-                    try {
-                        CSVDataParser csv = new CSVDataParser(csvFx);
-                        csv.parse();
-                        updateValues(dataList, csv.getPoints());
-                    }
-                    catch (FileNotFoundException e) {
-                        e.printStackTrace();
+                    for (int i = (readAllOrLastOfOrderedFiles ? 0 : fileList.length -1); i < fileList.length; i++) {
+                        File csvFx = fileList[i];
+                        try {
+                            CSVDataParser csv = new CSVDataParser(csvFx);
+                            csv.parse();
+                            updateValues(dataList, csv.getPoints());
+                        }
+                        catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
