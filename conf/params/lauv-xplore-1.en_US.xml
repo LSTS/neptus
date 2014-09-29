@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,f298003)" system="lauv-xplore-1" i18n="en_US">
+<config format="1" version="2.6.x (mission/split,67f1c62)" system="lauv-xplore-1" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1559,7 +1559,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Enable or disable obstacle avoidance during depth control</desc>
     </param>
@@ -1568,7 +1568,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>3.0</default>
+      <default>2.5</default>
       <units>m</units>
       <desc>Admissible altitude when doing depth control</desc>
     </param>
@@ -1903,6 +1903,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Entity Label -- IdleManeuver">
+      <name-i18n>Entity Label -- IdleManeuver</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Idle Maneuver</default>
+      <units/>
+      <desc>IdleManeuver maneuver's entity label</desc>
+    </param>
     <param name="Entity Label -- Goto">
       <name-i18n>Entity Label -- Goto</name-i18n>
       <type>string</type>
@@ -1984,14 +1993,14 @@
       <units/>
       <desc>Dislodge maneuver's entity label</desc>
     </param>
-    <param name="Entity Label -- Idle">
-      <name-i18n>Entity Label -- Idle</name-i18n>
-      <type>string</type>
+    <param name="Unsupported">
+      <name-i18n>Unsupported</name-i18n>
+      <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Idle Maneuver</default>
+      <default/>
       <units/>
-      <desc>Idle maneuver's entity label</desc>
+      <desc>List of unsupported maneuvers</desc>
     </param>
     <param name="Loiter -- Minimum Radius">
       <name-i18n>Loiter -- Minimum Radius</name-i18n>
@@ -4275,15 +4284,6 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
-    <param name="Trace">
-      <name-i18n>Trace</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable verbose output</desc>
-    </param>
     <param name="DB Path">
       <name-i18n>DB Path</name-i18n>
       <type>string</type>
@@ -6349,7 +6349,7 @@
       <default>60</default>
       <units>s</units>
       <desc>Reports periodicity</desc>
-      <min>30</min>
+      <min>10</min>
       <max>600</max>
     </param>
     <param name="Good Range Age">
