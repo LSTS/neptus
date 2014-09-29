@@ -201,9 +201,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
      */
     @Override
     public void propertiesChanged() {
-        clearImgCachRqst = true;
-        clearColorBarImgCachRqst = true;
-        
         if (clearData) {
             dataList.clear();
             lastEstimatedStateFromSystems.clear();
@@ -217,6 +214,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         
         if (maxValue < minValue)
             maxValue = minValue;
+
+        updateValues();
+        
+        clearImgCachRqst = true;
+        clearColorBarImgCachRqst = true;
     }
 
     public String validatePixelSizeData(int value) {
@@ -259,7 +261,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         clearImgCachRqst = true;
     }
 
-    public boolean updateValues() {
+    public synchronized boolean updateValues() {
         File[] fileList = FileUtil.getFilesFromDisk(baseFolderForCSVFiles, csvFilePattern);
         if (fileList != null && fileList.length > 0) {
             File csvFx = fileList[fileList.length -1];
@@ -274,21 +276,22 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
         
         File[] folders = FileUtil.getFoldersFromDisk(baseFolderForCSVFiles, null);
-        for (File folder : folders) {
-            fileList = FileUtil.getFilesFromDisk(folder, csvFilePattern);
-            if (fileList != null && fileList.length > 0) {
-                File csvFx = fileList[fileList.length -1];
-                try {
-                    CSVDataParser csv = new CSVDataParser(csvFx);
-                    csv.parse();
-                    updateValues(dataList, csv.getPoints());
-                }
-                catch (FileNotFoundException e) {
-                    e.printStackTrace();
+        if (folders != null && folders.length > 0) {
+            for (File folder : folders) {
+                fileList = FileUtil.getFilesFromDisk(folder, csvFilePattern);
+                if (fileList != null && fileList.length > 0) {
+                    File csvFx = fileList[fileList.length -1];
+                    try {
+                        CSVDataParser csv = new CSVDataParser(csvFx);
+                        csv.parse();
+                        updateValues(dataList, csv.getPoints());
+                    }
+                    catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
-        
         
         // Load prediction
         if (predictionFile.exists() && predictionFile.isFile()) {
