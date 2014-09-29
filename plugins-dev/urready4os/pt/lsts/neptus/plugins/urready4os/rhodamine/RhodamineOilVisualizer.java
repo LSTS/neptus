@@ -108,7 +108,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @NeptusProperty(name = "Pixel size data", userLevel = LEVEL.REGULAR, category="Scale")
     public int pixelSizeData = 4;
     
-    @NeptusProperty(name = "Base folder for CSV files", userLevel = LEVEL.REGULAR, category = "Data Update")
+    @NeptusProperty(name = "Base folder for CSV files", userLevel = LEVEL.REGULAR, category = "Data Update",
+            description = "Defines the base folder fo CSV lookup. The children folders will also be considered. (Be aware of the \"Read all or last of ordered files\" flag.)")
     public File baseFolderForCSVFiles = new File("log/rhodamine");
     
     @NeptusProperty(name = "Period seconds to update", userLevel = LEVEL.REGULAR, category = "Data Update")
@@ -142,7 +143,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 //    private FineOil lastFineOil = null;
     
     private static final String csvFilePattern = ".\\.csv$";
-    private static final String[] totFileExt = { "tot", "lv1" };
+//    private static final String[] totFileExt = { "tot", "lv1" };
 
     // Cache image
     private BufferedImage cacheImg = null;
