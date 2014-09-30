@@ -34,9 +34,12 @@ package pt.lsts.neptus.plugins.blueeye;
 import java.util.Collection;
 import java.util.Vector;
 
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCUtil;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -46,6 +49,7 @@ import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp
@@ -82,21 +86,20 @@ public class PlanBlueprint {
         plan.setId(planId);
         ImcSystem sys = ImcSystemsHolder.lookupSystemByName(systemId);
         plan.setVehicle(sys.getName());
-        
+
         Vector<Maneuver> maneuvers = new Vector<>();
         FollowPath current = null;
         ManeuverLocation lastLoc = null;
-        
+
         int count = 1;
         for (Waypoint wpt : trajectory) {
             lastLoc = wpt.coordinates;
             if (current == null || wpt.coordinates.getZUnits() != current.getStartLocation().getZUnits()) {
-                current = (FollowPath) plan.getVehicleType().getManeuverFactory()
-                        .getManeuver("FollowPath");
-                current.setId(""+count);
+                current = (FollowPath) plan.getVehicleType().getManeuverFactory().getManeuver("FollowPath");
+                current.setId("" + count);
                 count++;
                 Vector<double[]> points = new Vector<>();
-                points.add(new double[] {0,0,0,0});
+                points.add(new double[] { 0, 0, 0, 0 });
                 current.setOffsets(points);
                 maneuvers.add(current);
                 current.setManeuverLocation(wpt.coordinates);
@@ -109,20 +112,19 @@ public class PlanBlueprint {
                 point[0] = offsets[0];
                 point[1] = offsets[1];
                 point[2] = wpt.coordinates.getZ() - current.getManeuverLocation().getZ();
-                
+
                 points.add(point);
                 current.setOffsets(points);
             }
         }
-        StationKeeping sk = (StationKeeping) plan.getVehicleType().getManeuverFactory()
-                .getManeuver("StationKeeping");
-        sk.setId(""+count);
+        StationKeeping sk = (StationKeeping) plan.getVehicleType().getManeuverFactory().getManeuver("StationKeeping");
+        sk.setId("" + count);
         ManeuverLocation loc = lastLoc.clone();
         loc.setZ(0);
         loc.setZUnits(Z_UNITS.DEPTH);
         sk.setManeuverLocation(loc);
         maneuvers.add(sk);
-        
+
         String lastMan = null;
         for (Maneuver m : maneuvers) {
             plan.getGraph().addManeuver(m);
@@ -130,7 +132,7 @@ public class PlanBlueprint {
                 plan.getGraph().addTransition(lastMan, m.getId(), "true");
             lastMan = m.getId();
         }
-        return plan;        
+        return plan;
     }
 
     public void addPoint(Waypoint wpt) {
@@ -165,10 +167,10 @@ public class PlanBlueprint {
 
     public static void main(String[] args) {
         NeptusLog.init();
-        int imcid = ImcSystemsHolder.getSystemWithName("lauv-xtreme-2").getId().intValue();        
+        int imcid = ImcSystemsHolder.getSystemWithName("lauv-xtreme-2").getId().intValue();
         PlanBlueprint plan = new PlanBlueprint(imcid, "test1");
         plan.addPoint(41.18547713427995, -8.70566725730896, 3);
-        plan.addPoint(41.18456472894702, -8.704508543014526, 3);                
+        plan.addPoint(41.18456472894702, -8.704508543014526, 3);
         plan.addPoint(41.18441131441246, -8.704723119735718, 3);
         plan.addPoint(41.18518645785469, -8.705699443817139, 3);
         plan.addPoint(41.185081491050695, -8.705892562866211, -2);
@@ -176,8 +178,8 @@ public class PlanBlueprint {
         plan.addPoint(41.18417715469308, -8.705259561538696, -4);
         plan.addPoint(41.1850330447767, -8.706353902816772, 3);
         plan.addPoint(41.18548117144345, -8.705696761608124, 3);
-        
+
         IMCMessage msg = plan.generate().asIMCPlan();
-        IMCUtil.debug(msg);
+        GuiUtils.testFrame(new JScrollPane(new JLabel(IMCUtils.getAsHtml(msg))));
     }
 }

@@ -118,7 +118,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
 
         try {
             if (state != null)            
-                return ImcMsgManager.getManager().getState(getConsole().getMainSystem()).lastEstimatedState().getDepth();
+                return ImcMsgManager.getManager().getState(getConsole().getMainSystem()).last(EstimatedState.class).getDepth();
             return 0;
         }
         catch (Exception e) {
@@ -208,7 +208,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                     PlanType plan = getConsole().getMission().getIndividualPlansList().get(planid);
                     if (plan != null) {
 
-                        EstimatedState last = ImcMsgManager.getManager().getState(msg.getSourceName()).lastEstimatedState();
+                        EstimatedState last = ImcMsgManager.getManager().getState(msg.getSourceName()).last(EstimatedState.class);
                         if (last != null)
                             simulator = new PlanSimulator(plan, new SystemPositionAndAttitude(last));
                         else

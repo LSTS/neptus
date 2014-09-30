@@ -114,7 +114,7 @@ public class ControllerManager {
      * @throws Exception
      */
     public void associateControl(final IController controller, final VehicleType vehicle, int controlLatencySeconds, int timeoutSeconds) throws Exception {
-        EstimatedState lastState = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
+        EstimatedState lastState = ImcMsgManager.getManager().getState(vehicle).last(EstimatedState.class);
         if (!controller.supportsVehicle(vehicle, lastState)) {
             throw new Exception("The vehicle "+vehicle.getName()+" is not supported by "+controller.getControllerName()+" controller");
         }
@@ -159,8 +159,8 @@ public class ControllerManager {
         TimerTask task = new TimerTask() {            
             @Override
             public void run() {
-                EstimatedState state = ImcMsgManager.getManager().getState(vehicle.getId()).lastEstimatedState();
-                FollowRefState frefState = ImcMsgManager.getManager().getState(vehicle.getId()).lastFollowRefState();
+                EstimatedState state = ImcMsgManager.getManager().getState(vehicle.getId()).last(EstimatedState.class);
+                FollowRefState frefState = ImcMsgManager.getManager().getState(vehicle.getId()).last(FollowRefState.class);
                 Reference ref = controller.guide(vehicle, state, frefState);
                 try {
                     System.out.println("size in bytes of the reference message: "+ ref.serialize(new IMCOutputStream(new ByteArrayOutputStream(256))));

@@ -87,7 +87,6 @@ public class IndexedLogTableModel extends AbstractTableModel {
     private void loadIndexes(double initTime, double finalTime) {
         int rowIndex = 0;
         int mgid = imcMsgType.getId();
-        System.out.println("loading indexes!");
         int curIndex = index.getFirstMessageOfType(mgid);
 
         while (curIndex != -1) {
@@ -117,7 +116,6 @@ public class IndexedLogTableModel extends AbstractTableModel {
         this.index = source.getLsfIndex();
         this.imcMsgType = index.getDefinitions().getType(msgName);
 
-        System.out.println("msgName: "+msgName);
         // column names
         names = new Vector<String>();
         names.add("time");
@@ -184,6 +182,17 @@ public class IndexedLogTableModel extends AbstractTableModel {
                 case "dst_ent":
                     return index.getEntityName(m.getDst(), m.getDstEnt());
                 default: {
+                    String type = m.getTypeOf(msgNames.get(columnIndex));
+                    if (type.startsWith("uint") || type.startsWith("int") || type.startsWith("fp")) {
+                        String unit = m.getUnitsOf(msgNames.get(columnIndex));
+                        Number nb = null;
+                        nb = m.getAsNumber(msgNames.get(columnIndex));
+                        if (nb != null
+                                && (unit == null || !"enumerated".equalsIgnoreCase(unit.toLowerCase())
+                                        && !"bitmask".equalsIgnoreCase(unit.toLowerCase())
+                                        && !"bitfield".equalsIgnoreCase(unit.toLowerCase())))
+                            return nb;
+                    }
                     return ""+m.getString(msgNames.get(columnIndex), false);
                 }
             }

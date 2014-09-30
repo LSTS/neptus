@@ -43,8 +43,8 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.plugins.PropertyType;
-import pt.lsts.imc.state.ImcSysState;
 
 import com.l2fprod.common.beans.editor.StringPropertyEditor;
 
@@ -137,7 +137,7 @@ public class ConsoleScript implements PropertyType {
 		compiledScript = ((Compilable)engine).compile(jsScript);
 	}
 	
-	public Object evaluate(ImcSysState state) {
+	public Object evaluate(ImcSystemState state) {
 		if (compiledScript == null)
 			return null;
 		if (state != null) {

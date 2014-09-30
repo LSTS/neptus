@@ -39,7 +39,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsoleSystem;
@@ -81,7 +81,7 @@ public class StateServlet extends HttpServlet implements IConsoleServlet {
             String vehicle = parts[1];
             
 
-            ImcSysState state = console.getImcState(vehicle);
+            ImcSystemState state = console.getImcState(vehicle);
 
             if (state != null && parts.length < 3) {
                 resp.setContentType("text/html");

@@ -469,7 +469,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
 
     private void updateLocalStructures() {
         for (String auvName : nameTable.values()) {            
-            EstimatedState state = ImcMsgManager.getManager().getState(auvName).lastEstimatedState();
+            EstimatedState state = ImcMsgManager.getManager().getState(auvName).last(EstimatedState.class);
             LocationType auvPosition = IMCUtils.getLocation(state);
             positions.put(auvName, auvPosition);
             bathymetry.put(auvName, state.getDepth() + state.getAlt()); // FIXME tide offsets
@@ -490,7 +490,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         arrived.clear();
         
         for (String auvName : vehicles) {            
-            EstimatedState state = ImcMsgManager.getManager().getState(auvName).lastEstimatedState();
+            EstimatedState state = ImcMsgManager.getManager().getState(auvName).last(EstimatedState.class);
             if (state == null)
                 throw new Exception("Not able to get initial position for vehicle "+auvName);
             LocationType auvPosition = IMCUtils.getLocation(state);
@@ -498,7 +498,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             destinations.put(auvName, auvPosition);
             bathymetry.put(auvName, state.getDepth() + state.getAlt()); // FIXME tide offsets
             arrived.put(auvName, true);
-            startControlling(VehiclesHolder.getVehicleById(auvName), ImcMsgManager.getManager().getState(auvName).lastEstimatedState());
+            startControlling(VehiclesHolder.getVehicleById(auvName), ImcMsgManager.getManager().getState(auvName).last(EstimatedState.class));
         }
         int i = 0;
         double depth = firstVehicleDepth;

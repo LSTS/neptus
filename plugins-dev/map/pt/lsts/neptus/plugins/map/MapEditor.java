@@ -90,6 +90,7 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.ImageElement;
@@ -687,6 +688,16 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
             });
 
             popup.add(add);
+
+            JMenuItem item = new JMenuItem(I18n.text("Copy Location"));
+            item.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent arg0) {
+                    CoordinateUtil.copyToClipboard(loc);
+                }
+            });
+            item.setIcon(ImageUtils.getIcon("images/menus/editcopy.png"));
+            popup.add(item);
 
             JMenu editElem = new JMenu(I18n.text("Properties..."));
             editElem.setEnabled(false);

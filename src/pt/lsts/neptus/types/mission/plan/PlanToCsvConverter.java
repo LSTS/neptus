@@ -39,6 +39,7 @@ import java.util.Vector;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.ProgressMonitor;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.MissionFileChooser;
@@ -76,7 +77,7 @@ public class PlanToCsvConverter implements IPlanFileExporter {
 	}
 	
 	@Override
-	public void exportToFile(PlanType plan, File out) throws Exception {
+	public void exportToFile(PlanType plan, File out, ProgressMonitor monitor) throws Exception {
 	    saveAsCsv(plan, out);
 	}
 	

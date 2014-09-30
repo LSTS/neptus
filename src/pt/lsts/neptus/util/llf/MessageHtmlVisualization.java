@@ -65,29 +65,28 @@ public class MessageHtmlVisualization implements MRAVisualization {
     {
         fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
+
     protected JScrollPane scroll;
-    
+    protected JLabel lbl;
+
     public MessageHtmlVisualization(final IMCMessage message) {
         this.message = message;
-        
-        JLabel lbl = new JLabel(IMCUtil.getAsHtml(message));
+
+        lbl = new JLabel(IMCUtil.getAsHtml(message));
         lbl.setBackground(Color.white);
         lbl.setOpaque(true);
         lbl.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     JPopupMenu popup = new JPopupMenu();
-                    popup.add(I18n.text("Copy HTML to clipboard")).addActionListener(
-                            new ActionListener() {
+                    popup.add(I18n.text("Copy HTML to clipboard")).addActionListener(new ActionListener() {
 
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    StringSelection selection = new StringSelection(IMCUtil
-                                            .getAsHtml(message));
-                                    Toolkit.getDefaultToolkit().getSystemClipboard()
-                                            .setContents(selection, null);
-                                }
-                            });
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            StringSelection selection = new StringSelection(IMCUtil.getAsHtml(message));
+                            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+                        }
+                    });
 
                     popup.show(e.getComponent(), e.getX(), e.getY());
                 }
@@ -96,54 +95,55 @@ public class MessageHtmlVisualization implements MRAVisualization {
 
         scroll = new JScrollPane(lbl);
     }
-    
+
     public void onHide() {
-        
+
     };
-    
+
     public void onShow() {
     }
-    
+
     @Override
     public boolean supportsVariableTimeSteps() {
         return false;
     }
-    
+
     @Override
     public String getName() {
-        return message.getAbbrev() + " [" + fmt.format(message.getDate()) + ","+message.getSrcEnt()+"]";
+        return String.format("%s [%s, %02x]", message.getAbbrev(), fmt.format(message.getDate()), lbl.getText().hashCode());
     }
-    
+
     @Override
     public ImageIcon getIcon() {
         return ImageUtils.getIcon("images/menus/view.png");
     }
-    
+
     @Override
     public Double getDefaultTimeStep() {
         return null;
     }
-    
+
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
         return scroll;
     }
-    
+
     public Type getType() {
         return Type.TABLE;
     }
-    
+
     public void onCleanup() {
-        
+
     }
+
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         return true;
     }
-    
+
     @Override
     public int hashCode() {
-        return new String(message.getSrc()+"."+message.getSrcEnt()+"."+message.getTimestampMillis()).hashCode();
+        return new String(message.getSrc() + "." + message.getSrcEnt() + "." + message.getTimestampMillis()).hashCode();
     }
 
 }

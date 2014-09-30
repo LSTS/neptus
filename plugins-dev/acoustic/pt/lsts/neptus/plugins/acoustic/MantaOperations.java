@@ -76,7 +76,7 @@ import pt.lsts.imc.RSSI;
 import pt.lsts.imc.StorageUsage;
 import pt.lsts.imc.TextMessage;
 import pt.lsts.imc.Voltage;
-import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -106,6 +106,7 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -203,30 +204,30 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     private String buildState() {
         if (gateway == null || gateway.equals("any"))
             return I18n.text("<html><h1>Please select a gateway</h1></html>");
-        ImcSysState state = ImcMsgManager.getManager().getState(gateway);
+        ImcSystemState state = ImcMsgManager.getManager().getState(gateway);
         StringBuilder html = new StringBuilder("<html>");
         html.append(I18n.textf("<h1>%gateway state</h1>", gateway));
         html.append("<blockquote><ul>\n");
         try {
-            RSSI iridiumRSSI = state.lastRSSI("Iridium Modem");    
+            RSSI iridiumRSSI = state.last(RSSI.class, "Iridium Modem");    
             html.append(I18n.textf("<li>Iridium RSSI: %d  &#37;</li>\n", iridiumRSSI.getValue()));
         }
         catch (Exception e) {}
         
         try {
-            GpsFix gpsFix = state.lastGpsFix();    
+            GpsFix gpsFix = state.last(GpsFix.class);    
             html.append(I18n.textf("<li>GPS satellites: %d</li>\n", gpsFix.getSatellites()));
         }
         catch (Exception e) {}
         
         try {
-            StorageUsage storageUsage = state.lastStorageUsage();
+            StorageUsage storageUsage = state.last(StorageUsage.class);
             html.append(I18n.textf("<li>Storage Usage: %d  &#37;</li>\n", storageUsage.getValue()));
         }
         catch (Exception e) {}
         
         try {
-            Voltage voltage = state.lastVoltage("Main Board"); 
+            Voltage voltage = state.last(Voltage.class, "Main Board"); 
             html.append(I18n.textf("<li>Voltage: %d V</li>\n", voltage.getValue()));
         }
         catch (Exception e) {}
@@ -255,7 +256,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                 Set<String> plans = getConsole().getMission().getIndividualPlansList().keySet();
                 Vector<String> filtered = new Vector<String>();
                 for (String planId : plans)
-                    if (planId.length() == 1)
+                    if (planId.length() <= GeneralPreferences.maximumSizePlanNameForAcoustics)
                         filtered.add(planId);
 
                 if (filtered.isEmpty()) {
