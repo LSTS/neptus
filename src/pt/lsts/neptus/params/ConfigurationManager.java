@@ -775,7 +775,7 @@ public class ConfigurationManager {
         HashMap<String, SystemProperty> sy = map.get(system);
         if (sy != null) {
             for(SystemProperty p : sy.values()) {
-                if ((entity == null || p.getCategory().equals(entity)) && p.getVisibility() == vis
+                if ((entity == null || p.getCategory().equals(entity)) && p.getVisibility().ordinal() >= vis.ordinal()
                         && (p.getScope() == scope || scope == Scope.GLOBAL)) {
                     list.add(p);
                     if (giveUpSearchOnFirstFound)

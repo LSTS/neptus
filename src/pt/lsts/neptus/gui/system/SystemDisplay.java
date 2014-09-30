@@ -518,7 +518,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
                 dialog.setVisible(true);
             };
         };
-        if (ConfigurationManager.getInstance().hasProperties(id, Visibility.USER, Scope.GLOBAL))
+        if (ConfigurationManager.getInstance().hasProperties(id, Visibility.DEVELOPER, Scope.GLOBAL))
             symSystemParamsSymbol.setActive(true);
         else
             symSystemParamsSymbol.setActive(false);
