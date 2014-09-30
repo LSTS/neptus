@@ -161,7 +161,7 @@ public class TransponderParameters extends ParametersPanel {
 			jPanel.setLayout(flowLayout1);
 			jLabel.setText(I18n.text("Configuration File: "));
 			flowLayout1.setHgap(5);
-			jLabel1.setText("           ");
+			jLabel1.setText("      ");
 			jPanel.add(getJButton(), null);
 			jPanel.add(jLabel1, null);
 			
@@ -180,7 +180,7 @@ public class TransponderParameters extends ParametersPanel {
 		if (configurationFile == null) {
             String[] confs = TransponderUtils.getTranspondersConfsNamesList();
 			configurationFile = new JComboBox<Object>(confs);
-			configurationFile.setPreferredSize(new java.awt.Dimension(90,20));
+			configurationFile.setPreferredSize(new Dimension(150,20));
 			configurationFile.setEditable(false);
 			configurationFile.setEnabled(true);
 			configurationFile.setSelectedIndex(0);
