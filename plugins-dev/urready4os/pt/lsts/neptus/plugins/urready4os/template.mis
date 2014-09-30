@@ -1,7 +1,7 @@
 MISSION FILE VERSION V1.1
 2X  ;WP Number; Latitude; Longitude; Distance(m); Heading; Depth(ft) (D:depth from surface, H: Height from bottom, U:undulate); P:Parking(mins) VC:Video Camera S:Speed(kn) SS:Sidescan MB:Multibeam
 FILES
-TERRASERVER:-180:-85.0511287798064:180:85.0511287798064
+C:\trabajo UPCT\URready4OS_Preliminary_Experiment\maps\Split.osm
 MISSION NAME
 ${mission_name}
 START
@@ -63,9 +63,9 @@ UVC=AbrtDive=True;40;
 UVC=AbrtDiveNoLock=False;100;
 UVC=OverPitch=True;35;40;
 UVC=RunsLnger=True;2;
-UVC=LeakDet=True;20;
+UVC=LeakDet=True;1;
 UVC=ForwProg=True;60;
-UVC=MaxDepth=True;5;
+UVC=MaxDepth=True;50;
 UVC=UpwdProg=True;40;
 UVC=MinPower=True;15;
 UVC=IrdPower=False;10;
