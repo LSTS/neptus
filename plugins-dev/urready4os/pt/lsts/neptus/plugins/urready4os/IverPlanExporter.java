@@ -92,7 +92,7 @@ public class IverPlanExporter implements IPlanFileExporter {
                     metersToFeet((dst.getZ() + yoyoAmplitude)), pitchDegs));
         }
 
-        sb.append(String.format(Locale.US, "P0 VC1,0,0,1000,0,VC2,0,0,1000,0 S%.1f; 0;-1\n", mpsToKnots(speedMps)));
+        sb.append(String.format(Locale.US, "P0 VC1,0,0,1000,0,VC2,0,0,1000,0 S%.1f; 0;-1\r\n", mpsToKnots(speedMps)));
 
         return sb.toString();
     }
@@ -148,9 +148,9 @@ public class IverPlanExporter implements IPlanFileExporter {
                 timeSum += time;
                 distanceSum += distance;
                 if (distanceSum == 0)
-                    wpt_times.append(String.format(Locale.US, "WP%d;Time=0;Dist=0\n", count++));
+                    wpt_times.append(String.format(Locale.US, "WP%d;Time=0;Dist=0\r\n", count++));
                 else
-                    wpt_times.append(String.format(Locale.US, "WP%d;Time=%.11f;Dist=%.11f\n", count++, timeSum, distanceSum));
+                    wpt_times.append(String.format(Locale.US, "WP%d;Time=%.11f;Dist=%.11f\r\n", count++, timeSum, distanceSum));
                 previousLoc = loc;
             }
             else if (m instanceof LocatedManeuver) {
@@ -172,9 +172,9 @@ public class IverPlanExporter implements IPlanFileExporter {
                     timeSum += time;
                     distanceSum += distance;
                     if (distanceSum == 0)
-                        wpt_times.append(String.format(Locale.US, "WP%d;Time=0;Dist=0\n", count++));
+                        wpt_times.append(String.format(Locale.US, "WP%d;Time=0;Dist=0\r\n", count++));
                     else
-                        wpt_times.append(String.format(Locale.US, "WP%d;Time=%.11f;Dist=%.11f\n", count++, timeSum, distanceSum));
+                        wpt_times.append(String.format(Locale.US, "WP%d;Time=%.11f;Dist=%.11f\r\n", count++, timeSum, distanceSum));
                     previousLoc = wpt;
                 }
             }
@@ -183,7 +183,7 @@ public class IverPlanExporter implements IPlanFileExporter {
             }
         }
         int secs = (int) timeSum;
-        wpt_times.append(String.format(Locale.US, "Total Time = %02d:%02d:%02d;Total Distance = %.2f\n", secs / 3600,
+        wpt_times.append(String.format(Locale.US, "Total Time = %02d:%02d:%02d;Total Distance = %.2f\r\n", secs / 3600,
                 (secs % 3600) / 60, secs % 60, distanceSum));
 
         String template = PluginUtils.getResourceAsString("pt/lsts/neptus/plugins/urready4os/template.mis");
