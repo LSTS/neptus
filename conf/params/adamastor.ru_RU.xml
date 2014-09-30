@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,f298003)" system="adamastor" i18n="ru_RU">
+<config format="1" version="2.6.0-rc3 (HEAD,ecf0e21)" system="adamastor" i18n="ru_RU">
   <section name="LED Driver" name-i18n="LED Driver">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -1921,15 +1921,6 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Trace">
-      <name-i18n>Trace</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable verbose output</desc>
     </param>
     <param name="DB Path">
       <name-i18n>DB Path</name-i18n>

@@ -48,7 +48,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -72,6 +71,7 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -159,15 +159,18 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     public boolean useColorMapForWind = true;
 
     @NeptusProperty(name = "Base Folder For Currents TUV or netCDF Files", userLevel = LEVEL.REGULAR, category = "Data Update", 
-            description = "The folder to look for currents data. Admissible files '*.tuv' and '*.nc'. NetCDF variables used: lat, lon, time, u, v.")
+            description = "The folder to look for currents data. Admissible files '*.tuv' and '*.nc'. NetCDF variables used: lat, lon, time, u, v.",
+            editorClass = FolderPropertyEditor.class)
     public File baseFolderForCurrentsTUVFiles = new File("IHData/CODAR");
 
     @NeptusProperty(name = "Base Folder For Meteo netCDF Files", userLevel = LEVEL.REGULAR, category = "Data Update", 
-            description = "The folder to look for meteo data (wind and SST). Admissible files '*.nc'. NetCDF variables used: lat, lon, time, u, v, sst.")
+            description = "The folder to look for meteo data (wind and SST). Admissible files '*.nc'. NetCDF variables used: lat, lon, time, u, v, sst.",
+            editorClass = FolderPropertyEditor.class)
     public File baseFolderForMeteoNetCDFFiles = new File("IHData/METEO");
 
     @NeptusProperty(name = "Base Folder For Waves netCDF Files", userLevel = LEVEL.REGULAR, category = "Data Update", 
-            description = "The folder to look for waves (significant height, peak period and direction) data. Admissible files '*.nc'. NetCDF variables used: lat, lon, time, hs, tp, pdir.")
+            description = "The folder to look for waves (significant height, peak period and direction) data. Admissible files '*.nc'. NetCDF variables used: lat, lon, time, hs, tp, pdir.",
+            editorClass = FolderPropertyEditor.class)
     public File baseFolderForWavesNetCDFFiles = new File("IHData/WAVES");
     
     @NeptusProperty(name = "Show currents visible data date-time interval", userLevel = LEVEL.ADVANCED, category = "Test", 
@@ -683,31 +686,9 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
             histOrigData.addAll(toAddDP);
     }
 
-    private static File[] getFilesToLoadFromDisk(File folderToLoad, final String filePattern) {
-        if (folderToLoad != null && folderToLoad.exists()) {
-            File folder = folderToLoad.isDirectory() ? folderToLoad : 
-                folderToLoad.getParentFile();
-            
-            FilenameFilter fileFilter = new FilenameFilter() {
-                Pattern pat = Pattern.compile(filePattern);
-
-                @Override
-                public boolean accept(File dir, String name) {
-                    Matcher m = pat.matcher(name);
-                    return m.find();
-                }
-            };
-            
-            File[] lst = folder.listFiles(fileFilter);
-            Arrays.sort(lst);
-            return lst;
-        }
-        return null;
-    }
-    
     private void loadCurrentsFromFiles() {
         // TUV files
-        File[] fileList = getFilesToLoadFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePatternTUV);
+        File[] fileList = FileUtil.getFilesFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePatternTUV);
         if (fileList == null)
             return;
 
@@ -718,7 +699,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         }
 
         // NetCDF files
-        fileList = getFilesToLoadFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePatternNetCDF);
+        fileList = FileUtil.getFilesFromDisk(baseFolderForCurrentsTUVFiles, currentsFilePatternNetCDF);
         if (fileList == null)
             return;
 
@@ -731,7 +712,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     }
 
     private void loadMeteoFromFiles() {
-        File[] fileList = getFilesToLoadFromDisk(baseFolderForMeteoNetCDFFiles, meteoFilePattern);
+        File[] fileList = FileUtil.getFilesFromDisk(baseFolderForMeteoNetCDFFiles, meteoFilePattern);
         if (fileList == null)
             return;
 
@@ -749,7 +730,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
     }
 
     private void loadWavesFromFiles() {
-        File[] fileList = getFilesToLoadFromDisk(baseFolderForWavesNetCDFFiles, wavesFilePattern);
+        File[] fileList = FileUtil.getFilesFromDisk(baseFolderForWavesNetCDFFiles, wavesFilePattern);
         if (fileList == null)
             return;
 
@@ -1482,7 +1463,7 @@ public class HFRadarVisualization extends ConsolePanel implements Renderer2DPain
         Matcher m = pat.matcher("TOTL_TRAD_2013_07_11_0800.tuv");
         System.out.println(m.find());
         
-        File[] fileList = getFilesToLoadFromDisk(new File("IHData/CODAR"), currentsFilePatternNetCDF);
+        File[] fileList = FileUtil.getFilesFromDisk(new File("IHData/CODAR"), currentsFilePatternNetCDF);
         System.out.println(Arrays.toString(fileList));
         
         HashMap<String, HFRadarDataPoint> ret = LoaderHelper.processNetCDFHFRadar("IHData/CODAR/mola_his_z-20140512.nc", null);

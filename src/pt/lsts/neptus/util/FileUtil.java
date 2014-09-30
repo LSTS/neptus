@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -43,7 +44,10 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -238,6 +242,62 @@ public class FileUtil {
         }
 
         return result;
+    }
+
+    private static File[] getFilesFromDiskWorker(File folderToLoad, final String searchPattern, final boolean justFolders) {
+        try {
+            if (folderToLoad != null && folderToLoad.exists()) {
+                File folder = folderToLoad.isDirectory() ? folderToLoad : 
+                    folderToLoad.getParentFile();
+                
+                FilenameFilter fileFilter = new FilenameFilter() {
+                    Pattern pat = searchPattern == null || searchPattern.isEmpty() ? null : Pattern
+                            .compile(searchPattern);
+
+                    @Override
+                    public boolean accept(File file, String name) {
+                        if (pat == null) {
+                            File fx = new File(file, name);
+                            return justFolders ? fx.isDirectory() : fx.isFile();
+                        }
+                        else {
+                            Matcher m = pat.matcher(name);
+                            boolean ret = m.find();
+                            File fx = new File(file, name);
+                            return ret ? (justFolders ? fx.isDirectory() : fx.isFile()) : false;
+                        }
+                    }
+                };
+                
+                File[] lst = folder.listFiles(fileFilter);
+                Arrays.sort(lst);
+                return lst;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Get the list of sorted files in folder or null if parent folder doesn't exist or pattern is not valid.
+     * @param folderToLoad
+     * @param searchPattern null for all
+     * @return
+     */
+    public static File[] getFilesFromDisk(File folderToLoad, final String searchPattern) {
+        return getFilesFromDiskWorker(folderToLoad, searchPattern, false);
+    }
+
+    /**
+     * Get the list of sorted folders in folder or null if parent folder doesn't exist or pattern is not valid.
+     * @param folderToLoad
+     * @param searchPattern null for all
+     * @return
+     */
+    public static File[] getFoldersFromDisk(File folderToLoad, final String searchPattern) {
+        return getFilesFromDiskWorker(folderToLoad, searchPattern, true);
     }
 
     /**
