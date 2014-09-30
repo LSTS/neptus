@@ -32,6 +32,7 @@
 package pt.lsts.neptus.types.map;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.Point2D;
@@ -192,6 +193,14 @@ public class TransponderElement extends AbstractElement implements NameId{
         this.duneId = duneId;
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.types.map.AbstractElement#showParametersDialog(java.awt.Component, java.lang.String[], pt.lsts.neptus.types.map.MapType, boolean)
+     */
+    @Override
+    public void showParametersDialog(Component parentComp, String[] takenNames, MapType map, boolean editable) {
+        super.showParametersDialog(parentComp, takenNames, map, editable, false);
+    }
+    
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

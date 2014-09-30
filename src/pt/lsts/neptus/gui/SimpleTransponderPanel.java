@@ -86,7 +86,7 @@ public class SimpleTransponderPanel extends SimpleLocationPanel {
         getConfigurationFile().setSelectedItem(transponder.getConfiguration());
         setLocation(transponder.getCenterLocation());
         idField.setText(transponder.getId());
-        idField.setEditable(idEditable);        
+        idField.setEditable(false); // idEditable        
         idField.addFocusListener(new SelectAllFocusListener());
     }
     

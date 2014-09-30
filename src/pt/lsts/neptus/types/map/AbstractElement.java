@@ -764,13 +764,22 @@ public abstract class AbstractElement
             return;
         }
     }
-    
+
     /**
      * Creates a shows a parameters dialog for the current object
      * The user can chage the parameters of the current object here.
      * @param takenNames
      */
     public void showParametersDialog(Component parentComp, String[] takenNames, MapType map, boolean editable) {
+        showParametersDialog(parentComp, takenNames, map, editable, editable);
+    }
+
+    /**
+     * Creates a shows a parameters dialog for the current object
+     * The user can chage the parameters of the current object here.
+     * @param takenNames
+     */
+    protected void showParametersDialog(Component parentComp, String[] takenNames, MapType map, boolean editable, boolean idEditable) {
         
         this.takenNames = takenNames;
         this.parentMap = map;
@@ -790,7 +799,7 @@ public abstract class AbstractElement
  
         
         objName = new JTextField(8);
-        objName.setEditable(editable);
+        objName.setEditable(editable ? idEditable : editable);
         objName.setText(id);
         obstacleCheck = new JCheckBox(I18n.text("Obstacle"));
         obstacleCheck.setSelected(isObstacle());
