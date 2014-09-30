@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,e221806)" system="x8-02" i18n="en_US">
+<config format="1" version="2.6.0-rc3 (HEAD,ecf0e21)" system="x8-02" i18n="en_US">
   <section name="Path Control" name-i18n="Path Control">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1507,6 +1507,33 @@
       <units>Hz</units>
       <desc>Frequency at which task is executed</desc>
     </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>idle</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>developer</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>idle</scope>
+      <default>1</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
     <param name="Initialization Time">
       <name-i18n>Initialization Time</name-i18n>
       <type>real</type>
@@ -2926,129 +2953,6 @@
       <default/>
       <units/>
       <desc>List of messages that will always be transmitted disregarding communication limitations</desc>
-    </param>
-  </section>
-  <section name="Photo Trigger" name-i18n="Photo Trigger">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Photo Trigger</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Active - Scope">
-      <name-i18n>Active - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>maneuver</default>
-      <units/>
-      <desc>Scoped of the 'Active' parameter</desc>
-    </param>
-    <param name="Active - Visibility">
-      <name-i18n>Active - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Active' parameter</desc>
-    </param>
-    <param name="Active">
-      <name-i18n>Active</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0</default>
-      <units/>
-      <desc>True to activate task, false otherwise</desc>
-    </param>
-    <param name="Trigger with distance">
-      <name-i18n>Trigger with distance</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Trigger by using overlap value and distance to previous shot</desc>
-    </param>
-    <param name="Trigger Frequency">
-      <name-i18n>Trigger Frequency</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units>Hz</units>
-      <desc>Frequency of photo shots</desc>
-      <max>1.0</max>
-    </param>
-    <param name="Photo Overlap">
-      <name-i18n>Photo Overlap</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.5</default>
-      <units/>
-      <desc>Overlap between consecutive shots</desc>
-      <max>1.0</max>
-    </param>
-    <param name="Focal Length">
-      <name-i18n>Focal Length</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>24</default>
-      <units/>
-      <desc>Focal length in mm, equivalent to 35mm sensor</desc>
-    </param>
-    <param name="Altitude">
-      <name-i18n>Altitude</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>100</default>
-      <units/>
-      <desc>Distance to surface (sea or ground)</desc>
     </param>
   </section>
 </config>
