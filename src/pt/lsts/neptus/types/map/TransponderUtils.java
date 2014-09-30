@@ -31,9 +31,14 @@
  */
 package pt.lsts.neptus.types.map;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Hashtable;
+import java.util.LinkedHashMap;
 
 import pt.lsts.imc.LblBeacon;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -45,6 +50,90 @@ import pt.lsts.neptus.util.PropertiesLoader;
  */
 public class TransponderUtils {
 
+    private static LinkedHashMap<String, PropertiesLoader> transpondersConfList = new LinkedHashMap<>(); 
+
+    static {
+        final ArrayList<String> aTranspondersFiles = new ArrayList<>();
+        final ArrayList<PropertiesLoader> aConfsInFile = new ArrayList<>();
+        
+        File dir = new File("maps/");
+        File[] files = dir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                String name = pathname.getName();
+                // NeptusLog.pub().info("<###> "+name + ": " +
+                // name.matches("^(lsts[0-9]+\\.conf)|([A-Za-z][A-Za-z\\-_0-9]+\\.conf)$"));
+                if (name.matches("^(lsts[0-9]+\\.conf)|([A-Za-z][A-Za-z0-9\\-\\_]*\\.conf)$")) {
+                    return true;
+                }
+                return false;
+            }
+        });
+        Arrays.sort(files, new Comparator<File>() {
+            @Override
+            public int compare(File o1, File o2) {
+                if (o1.getName().startsWith("lsts") && !o2.getName().startsWith("lsts"))
+                    return -1;
+                else if (!o1.getName().startsWith("lsts") && o2.getName().startsWith("lsts"))
+                    return 1;
+                return o1.compareTo(o2);
+            }
+        });
+        
+        for (File file : files) {
+            // NeptusLog.pub().info("<###> "+file.getName());
+            PropertiesLoader propConf = new PropertiesLoader(file.getAbsolutePath(), PropertiesLoader.PROPERTIES);
+            Hashtable<String, String> fixedValues = new Hashtable<String, String>();
+            for (Object keyO : propConf.keySet()) {
+                String key = (String) keyO;
+                String value = propConf.getProperty(key);
+                String[] vs = value.split("=");
+                if (vs.length > 1) {
+                    key = key + " " + vs[0];
+                    value = vs[1];
+                }
+                fixedValues.put(key, value);
+            }
+            propConf.clear();
+            propConf.putAll(fixedValues);
+            
+            aTranspondersFiles.add(file.getName());
+            aConfsInFile.add(propConf);
+        }
+        
+        for (int i = 0; i < aTranspondersFiles.size(); i++) {
+            transpondersConfList.put(aTranspondersFiles.get(i), aConfsInFile.get(i));
+        }
+    }
+
+    /**
+     * @return the transpondersConfsListArray
+     */
+    public static String[] getTranspondersConfsNamesList() {
+        return transpondersConfList.keySet().toArray(new String[transpondersConfList.size()]);
+    }
+    
+    static public PropertiesLoader getMatchingConf(LblBeacon beacon) {
+        int countMatching;
+        for (PropertiesLoader propConf : transpondersConfList.values().toArray(new PropertiesLoader[transpondersConfList.size()])) {
+            countMatching = 0;
+            short prop = Short.parseShort(propConf.getProperty("interrogation channel"));
+            if (prop == beacon.getQueryChannel())
+                countMatching++;
+            prop = Short.parseShort(propConf.getProperty("reply channel"));
+            if (prop == beacon.getReplyChannel())
+                countMatching++;
+            prop = Short.parseShort(propConf.getProperty("transponder delay (msecs.)"));
+            if (prop == beacon.getTransponderDelay())
+                countMatching++;
+            if (countMatching == 3) {
+                return propConf;
+            }
+        }
+        return null;
+    }
+
+    
     /**
      * @param transp
      * @return

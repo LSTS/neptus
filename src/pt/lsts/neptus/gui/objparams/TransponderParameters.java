@@ -56,7 +56,7 @@ import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
-import pt.lsts.neptus.types.map.TransponderElement;
+import pt.lsts.neptus.types.map.TransponderUtils;
 import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.conf.ConfigFetch;
@@ -178,7 +178,7 @@ public class TransponderParameters extends ParametersPanel {
 	 */    
 	private JComboBox<?> getConfigurationFile() {
 		if (configurationFile == null) {
-            String[] confs = TransponderElement.getTranspondersListArray();
+            String[] confs = TransponderUtils.getTranspondersConfsNamesList();
 			configurationFile = new JComboBox<Object>(confs);
 			configurationFile.setPreferredSize(new java.awt.Dimension(90,20));
 			configurationFile.setEditable(false);
