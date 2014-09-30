@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.0-rc2 (release/dune-2.6.x,c9fa1d2)" system="manta-3" i18n="ru_RU">
+<config format="1" version="2.6.0-rc3 (HEAD,ecf0e21)" system="manta-3" i18n="ru_RU">
   <section name="PTUD48" name-i18n="PTUD48">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
