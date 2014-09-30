@@ -64,6 +64,7 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.NameNormalizer;
 
 @SuppressWarnings("serial")
+@Deprecated
 public class SimpleTransponderPanel extends SimpleLocationPanel {
 	
 	protected JTextField idField = new JTextField(7);
