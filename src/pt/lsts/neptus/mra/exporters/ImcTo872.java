@@ -36,10 +36,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
+import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.util.llf.LsfLogSource;
-import pt.lsts.imc.IMCMessage;
 
 /**
  * Class to extract data from a LogSource and generate Imagenex .872 file from data acquired from YellowFin Sidescan Sonar

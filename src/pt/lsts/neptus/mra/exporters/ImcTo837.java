@@ -40,14 +40,14 @@ import java.util.TimeZone;
 
 import javax.swing.ProgressMonitor;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.SonarData;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.SonarData;
 
 /**
  * Class to extract data from a LogSource and generate Imagenex .837 file from data acquired from Delta T Multibeam 
