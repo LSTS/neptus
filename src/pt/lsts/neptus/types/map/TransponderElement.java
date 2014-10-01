@@ -455,12 +455,14 @@ public class TransponderElement extends AbstractElement implements NameId{
     public ParametersPanel getParametersPanel(boolean editable, MapType map) {
 
         if (params == null)
-            params = new TransponderParameters(new CoordinateSystem());
+            params = new TransponderParameters(new CoordinateSystem(), objName);
+        params.setIdEditor(objName);
         params.setMap(map != null ? map : getParentMap());
         params.setLocation(getCenterLocation());
         params.setConfiguration(getConfiguration());
         params.setHomeRef(getMapGroup().getCoordinateSystem());
         params.setEditable(editable);
+        
         return params;
     }
 

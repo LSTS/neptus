@@ -784,6 +784,11 @@ public abstract class AbstractElement
         this.takenNames = takenNames;
         this.parentMap = map;
         
+        // This needs to be before the getParametersPanel for the transponders
+        objName = new JTextField(8);
+        objName.setEditable(editable ? idEditable : editable);
+        objName.setText(id);
+
         paramsPanel = getParametersPanel(editable,map);
         
         if (parentComp == null || SwingUtilities.getWindowAncestor(parentComp) == null) {
@@ -798,9 +803,6 @@ public abstract class AbstractElement
         idPanel.setLayout(flow);
  
         
-        objName = new JTextField(8);
-        objName.setEditable(editable ? idEditable : editable);
-        objName.setText(id);
         obstacleCheck = new JCheckBox(I18n.text("Obstacle"));
         obstacleCheck.setSelected(isObstacle());
         
