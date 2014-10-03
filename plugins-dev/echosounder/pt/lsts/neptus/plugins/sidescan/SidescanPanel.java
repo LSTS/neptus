@@ -54,9 +54,10 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import net.miginfocom.swing.MigLayout;
+
 import org.imgscalr.Scalr;
 
-import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
@@ -358,6 +359,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     }
 
     private void drawZoom(Graphics g) {
+        
+        if (mouseX == -1 && mouseY == -1)
+            return;
+        
         int X = (int) MathMiscUtils.clamp(mouseX, zoomAreaWidth / 2, image.getWidth() - zoomAreaHeight / 2);
         int Y = (int) MathMiscUtils.clamp(mouseY, zoomAreaWidth / 2, image.getHeight() - zoomAreaHeight / 2);
         BufferedImage zoomImage = image.getSubimage(X - zoomAreaWidth / 2, Y - zoomAreaHeight / 2, 100, 100);
@@ -365,16 +370,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         // Draw zoomed image.
         g.drawImage(ImageUtils.getFasterScaledInstance(zoomImage, zoomLayerWidth, zoomLayerHeight),
                 image.getWidth() - (zoomLayerWidth + 1), image.getHeight() - (zoomLayerHeight + 1), null);
-
-        BufferedImage zoomLayer = layer.getSubimage(X - zoomAreaWidth / 2, Y - zoomAreaHeight / 2, 100, 100);
-
-        // Draw zoomed image.
-        g.drawImage(ImageUtils.getFasterScaledInstance(zoomLayer, zoomLayerWidth, zoomLayerHeight),
-                layer.getWidth() - (zoomLayerWidth + 1), layer.getHeight() - (zoomLayerHeight + 1), null);
-
-        // Draw mouse pointer.
-        g.drawRect(image.getWidth() - (zoomLayerWidth / 2 + 1) + (mouseX - X) * (zoomLayerWidth / zoomAreaWidth),
-                   image.getHeight() - (zoomLayerHeight / 2 + 1) + (mouseY - Y) * (zoomLayerHeight / zoomAreaHeight), 5, 5);
 
         // Understand what we are zooming in.
         g.drawRect(X - zoomAreaWidth / 2, Y - zoomAreaHeight / 2, 100, 100);
@@ -762,5 +757,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     @Override
     public void mouseExited(MouseEvent e) {  
+        mouseX = mouseY = -1;
+        repaint();
     }
 }
