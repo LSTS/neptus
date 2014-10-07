@@ -2794,8 +2794,11 @@ public class LogsDownloaderWorker {
                     resetRes &= false;
                 }
                 
-                if (!justStopDownloads)
+                if (!justStopDownloads) {
+                    queueWorkTickets.cancelAll();
+
                     resetting = false;
+                }
 
                 return resetRes;
             }

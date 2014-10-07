@@ -172,6 +172,7 @@ public class QueueWorkTickets <C extends Object> {
 
     public void cancelAll() {
         synchronized (workingClients) {
+            NeptusLog.pub().warn(QueueWorkTickets.class.getSimpleName() + " |..cancel all....... size of workers=" + workingClients.size() + "  waiting=" + waitingClients.size());
             workingClients.clear();
             waitingClients.clear();
             for (QueueFuture ft : futures.values()) {
