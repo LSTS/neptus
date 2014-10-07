@@ -375,7 +375,12 @@ public class MRAPanel extends JPanel {
 
         for (MRAVisualization vis : visualizationList.values()) {
             if (vis instanceof LogMarkerListener) {
-                ((LogMarkerListener) vis).addLogMarker(marker);
+                try {
+                    ((LogMarkerListener) vis).addLogMarker(marker);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error("Error adding marker on " + vis.getName(), e);
+                }
             }
         }
         saveMarkers();
