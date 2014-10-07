@@ -428,7 +428,11 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         int k_correctedstate = 0;   
         for(IMCMessage m : source.getLsfIndex().getIterator("CorrectedState", 0, 1000)) 
         {
-            corrected_state.orientation[k_correctedstate] = m.getDouble("psi");
+            
+            if(k_correctedstate<k_particle)
+            {
+                corrected_state.orientation[k_correctedstate] = m.getDouble("psi");
+            }
             k_correctedstate++;
         }   
         
@@ -566,7 +570,10 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         for(IMCMessage m : source.getLsfIndex().getIterator("CorrectedState", 0, 1000))
         {
             // Get the timestamp for each point
-            corrected_state.timestamp[k] = (long) m.getTimestampMillis();
+            if(k<corrected_state.kt)
+            {
+                corrected_state.timestamp[k] = (long) m.getTimestampMillis();
+            }
             k++;
             
             // Point defining the corrected trajectory
@@ -574,6 +581,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             double y = (float) m.getValue("y");
             double depth = (float) m.getValue("depth");  
             pts_trajectory.InsertNextPoint(x, y, depth);
+            
         }
         
         for(int i=1;i<corrected_state.kt ;i++)
@@ -997,10 +1005,10 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             {
                 
                 // The camera tracking is operational only for the normal reading
-                if((kT_actual-kT_preview)==1)
+                /*if((kT_actual-kT_preview)==1)
                 {
                     ComputeCameraView(kT_actual, 20.0, 10.0);
-                }
+                }*/
                 
                 
                 // Visible only until time position

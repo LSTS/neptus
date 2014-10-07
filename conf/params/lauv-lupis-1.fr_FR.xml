@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<config format="1" version="2.6.x (master,46cada5,dirty)" system="lauv-lupis-1" i18n="fr_FR">
+<config format="1" version="2.6.x (FilterParticle,011af35,dirty)" system="lauv-lupis-1" i18n="fr_FR">
 <section name="ParticleFilter" name-i18n="ParticleFilter">
 <param name="Entity Label">
 <name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>ParticleFilter</default><units></units><desc>Main entity label</desc></param>
