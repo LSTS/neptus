@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.util.logdownload;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -181,6 +182,28 @@ public class QueueWorkTickets <C extends Object> {
         }
     }
 
+    /**
+     * @return A copy of the current ticket older workers. 
+     */
+    @SuppressWarnings("unchecked")
+    public ArrayList<C> getAllWorkingClients() {
+        ArrayList<C> ret = new ArrayList<>();
+        Object[] retArray;
+        try {
+            synchronized (workingClients) {
+                retArray = workingClients.toArray(new Object[workingClients.size()]);
+            }
+            for (Object o : retArray) {
+                ret.add((C) o);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
+    
     private class QueueFuture implements Future<Boolean> {
 
         private Callable<Boolean> callable = null;
