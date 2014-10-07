@@ -125,7 +125,6 @@ import foxtrot.AsyncWorker;
  * @author pdias
  * 
  */
-@NeptusDoc(ArticleFilename = "logs-downloader/logs-downloader.html#worker", ArticleTitle = "Logs Downloader Worker", Section = "Logs")
 public class LogsDownloaderWorker {
 
     private static final int QUERYPOWERCHANNEL_PERIOD_MILLIS = 5000;
