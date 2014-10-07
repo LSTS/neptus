@@ -136,7 +136,10 @@ public class JsfParser {
                 else { // Ignore other messages;
                     curPosition += header.getMessageSize();
                     pos = curPosition;
-                    continue;
+                    if (curPosition >= channel.size())
+                        break;
+                    else
+                        continue;
                 }
 
                 // Common processing to both subsystems
