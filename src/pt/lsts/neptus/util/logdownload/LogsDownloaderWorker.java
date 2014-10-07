@@ -1490,6 +1490,23 @@ public class LogsDownloaderWorker {
                     diskFreeLabel.setText("<html><b>?");
                     diskFreeLabel.setToolTipText(I18n.text("Unknown local disk free space"));
                     updateDiskFreeLabelBackColor(Color.LIGHT_GRAY);
+                    
+                    
+                    // Queue block test
+                    ArrayList<DownloaderPanel> workingDonsloaders = queueWorkTickets.getAllWorkingClients();
+                    Component[] components = downloadWorkersHolder.getComponents();
+                    for (Component cp : components) {
+                        if (!(cp instanceof DownloaderPanel))
+                            continue;
+                        
+                        DownloaderPanel workerD = (DownloaderPanel) cp;
+                        if (workingDonsloaders.contains(workerD))
+                            workingDonsloaders.remove(workerD);
+                    }
+                    for (DownloaderPanel cp : workingDonsloaders) {
+                        queueWorkTickets.release(cp);
+                        NeptusLog.pub().error(cp.getUri() + " should not be holding the lock (forcing release)! State: " + cp.getState());
+                    }
                 }
             };
         }
