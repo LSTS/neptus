@@ -88,8 +88,11 @@ import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
+import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.EntityState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PowerOperation;
+import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.imc.PowerOperation.OP;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
@@ -156,6 +159,8 @@ public class LogsDownloaderWorker {
 
     protected static final long DELTA_TIME_TO_CLEAR_DONE = 5000;
     protected static final long DELTA_TIME_TO_CLEAR_NOT_WORKING = 45000;
+    
+    protected static final String CAMERA_CPU_LABEL = "Slave CPU";
 
     private FtpDownloader clientFtp = null;
     private FtpDownloader cameraFtp = null;
@@ -1413,6 +1418,7 @@ public class LogsDownloaderWorker {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    /* Old way
                     if (getLogLabel().equals("lauv-noptilus-3")) {
                         PowerOperation powerOp = new PowerOperation();
                         powerOp.setDst(0x6003);
@@ -1427,6 +1433,16 @@ public class LogsDownloaderWorker {
 
                         ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
                     }
+                    */
+                    
+                    ArrayList<EntityParameter> propList = new ArrayList<>();
+                    EntityParameter entParsm = new EntityParameter().setName("Active").setValue(cameraButton.getBackground() != Color.GREEN ? "true" : "false");
+                    propList.add(entParsm);
+                    SetEntityParameters setParams = new SetEntityParameters();
+                    setParams.setName("CAMERA_CPU_LABEL");
+                    setParams.setParams(propList);
+
+                    ImcMsgManager.getManager().sendMessageToSystem(setParams, getLogLabel());
                 }
                 catch (Exception e1) {
                     e1.printStackTrace();
