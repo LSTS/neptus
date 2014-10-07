@@ -1373,7 +1373,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      */
     public void cleanup() {
         long start = System.currentTimeMillis();
-        NeptusLog.pub().info("console layout cleanup start");
+        NeptusLog.pub().info(ConsoleLayout.this.getClass().getSimpleName() + " cleanup start");
         try {
             removeComponentListener(this);
 
@@ -1392,15 +1392,25 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                     .get(AutoSnapshotConsoleAction.class);
             autosnapshot.cleanClose();
 
-            for (IConsoleLayer layer : layers.keySet()) {
-                layer.clean();
-                System.out.println("cleaned " + layer.getName());
+            for (IConsoleLayer layer : layers.keySet().toArray(new IConsoleLayer[layers.size()])) {
+                try {
+                    layer.clean();
+                    NeptusLog.pub().info("Cleaned " + layer.getName());
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error("Error cleaning " + layer.getName() + " :: " + e.getMessage(), e);
+                }
             }
             layers.clear();
 
-            for (IConsoleInteraction interaction : interactions.keySet()) {
-                interaction.clean();
-                System.out.println("cleaned " + interaction.getName());
+            for (IConsoleInteraction interaction : interactions.keySet().toArray(new IConsoleInteraction[interactions.size()])) {
+                try {
+                    interaction.clean();
+                    NeptusLog.pub().info("Cleaned " + interaction.getName());
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error("Error cleaning " + interaction.getName() + " :: " + e.getMessage(), e);
+                }
             }
             interactions.clear();
 
@@ -1417,10 +1427,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             NeptusEvents.delete(this);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().error("Error cleaning " + ConsoleLayout.this.getClass().getSimpleName() + " :: " + e.getMessage(), e);
         }
 
-        NeptusLog.pub().info("console layout cleanup end in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
+        NeptusLog.pub().info(ConsoleLayout.this.getClass().getSimpleName() + " cleanup end in " + ((System.currentTimeMillis() - start) / 1E3) + "s");
     }
 
     public void minimizePanel(ConsolePanel p) {
