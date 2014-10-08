@@ -1437,7 +1437,7 @@ public class LogsDownloaderWorker {
                     EntityParameter entParsm = new EntityParameter().setName("Active").setValue(cameraButton.getBackground() != Color.GREEN ? "true" : "false");
                     propList.add(entParsm);
                     SetEntityParameters setParams = new SetEntityParameters();
-                    setParams.setName("CAMERA_CPU_LABEL");
+                    setParams.setName(CAMERA_CPU_LABEL);
                     setParams.setParams(propList);
 
                     ImcMsgManager.getManager().sendMessageToSystem(setParams, getLogLabel());
