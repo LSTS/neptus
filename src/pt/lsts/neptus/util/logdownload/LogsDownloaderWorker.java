@@ -91,16 +91,13 @@ import org.jdesktop.swingx.painter.RectanglePainter;
 import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.EntityState;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.PowerOperation;
 import pt.lsts.imc.SetEntityParameters;
-import pt.lsts.imc.PowerOperation.OP;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.ftp.FtpDownloader;
 import pt.lsts.neptus.gui.MiniButton;
 import pt.lsts.neptus.gui.NudgeGlassPane;
@@ -298,6 +295,7 @@ public class LogsDownloaderWorker {
 
             @Override
             public void onMessage(MessageInfo info, IMCMessage msg) {
+                /* Old way
                 if (msg.getAbbrev().equals("PowerChannelState")) {
                     String systemName = getLogLabel();
                     ImcSystem imcSystem = ImcSystemsHolder.getSystemWithName(systemName);
@@ -308,6 +306,24 @@ public class LogsDownloaderWorker {
                         //System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: PowerChannelState "
                         //+ msg.getInteger("state"));
                         cameraButton.setBackground(msg.getInteger("state") == 1 ? Color.GREEN : null);
+                    }
+                }
+                */
+                
+                if (msg.getAbbrev().equals("EntityState")) {
+                    EntityState est = (EntityState) msg;
+                    String entityName = EntitiesResolver.resolveName(getLogLabel(), (int) msg.getSrcEnt());
+                    if (entityName != null && CAMERA_CPU_LABEL.equalsIgnoreCase(entityName)) {
+                        String descStateCode = est.getDescription();
+                        // Testing for active state code (also for the translated string)
+                        if (descStateCode != null
+                                && ("active".equalsIgnoreCase(descStateCode.trim()) || I18n.text("active")
+                                        .equalsIgnoreCase(descStateCode.trim()))) {
+                            cameraButton.setBackground(Color.GREEN);
+                        }
+                        else {
+                            cameraButton.setBackground(null);
+                        }
                     }
                 }
             }
