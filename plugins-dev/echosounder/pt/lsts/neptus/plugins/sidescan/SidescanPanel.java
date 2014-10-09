@@ -82,10 +82,9 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
  */
 public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener {
     private static final long serialVersionUID = 1L;
-    private static final int zoomAreaWidth = 100;
-    private static final int zoomAreaHeight = 100;
-    private static final int zoomLayerWidth = 300;
-    private static final int zoomLayerHeight = 300;
+    
+    private static final int ZOOM_BOX_SIZE = 100;
+    private static final int ZOOM_LAYER_BOX_SIZE = 300;
 
     private SidescanAnalyzer parent;
     SidescanConfig config = new SidescanConfig();
@@ -95,7 +94,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     enum InteractionMode {
         NONE,
-        ZOOM,
         INFO,
         MARK,
         MEASURE;
@@ -120,10 +118,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     lg2d.setBackground(new Color(255, 255, 255, 0));
                     lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight()); // Clear layer image
 
-                    if (zoom)
-                        drawZoom(layer.getGraphics()); // Update layer with zoom information
-                    if (info)
-                        drawInfo(layer.getGraphics()); // update layer with location information
+//                    if (zoom)
+//                        drawZoom(layer.getGraphics()); // Update layer with zoom information
+//                    if (info)
+//                        drawInfo(layer.getGraphics()); // update layer with location information
                     if (measure && !parent.getTimeline().isRunning()) {
                         drawMeasure(layer.getGraphics());
                     }
@@ -131,11 +129,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         pointList.clear();
                     }
 
-                    if (zoom)
-                        drawZoom(layer.getGraphics());                      // Update layer with zoom information
-
+                    if (zoom) {
+                        Graphics2D gz = (Graphics2D) g.create();
+                        gz.setColor(Color.WHITE);
+                        drawZoom(gz); // Update layer with zoom information
+                    }
+                    
                     if (info)
-                        drawInfo(layer.getGraphics());                      // update layer with location information
+                        drawInfo(layer.getGraphics()); // update layer with location information
 
                     drawMarks(layer.getGraphics());
                     drawRuler(layer.getGraphics());
@@ -377,16 +378,19 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         if (mouseX == -1 && mouseY == -1)
             return;
         
-        int X = (int) MathMiscUtils.clamp(mouseX, zoomAreaWidth / 2, image.getWidth() - zoomAreaHeight / 2);
-        int Y = (int) MathMiscUtils.clamp(mouseY, zoomAreaWidth / 2, image.getHeight() - zoomAreaHeight / 2);
-        BufferedImage zoomImage = image.getSubimage(X - zoomAreaWidth / 2, Y - zoomAreaHeight / 2, 100, 100);
+        int X = (int) MathMiscUtils.clamp(mouseX, ZOOM_BOX_SIZE / 2, image.getWidth() - ZOOM_BOX_SIZE / 2);
+        int Y = (int) MathMiscUtils.clamp(mouseY, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
+        BufferedImage zoomImage = image.getSubimage(X - ZOOM_BOX_SIZE / 2, Y - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
+        BufferedImage zoomLayerImage = layer.getSubimage(X - ZOOM_BOX_SIZE / 2, Y - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
 
         // Draw zoomed image.
-        g.drawImage(ImageUtils.getFasterScaledInstance(zoomImage, zoomLayerWidth, zoomLayerHeight),
-                image.getWidth() - (zoomLayerWidth + 1), image.getHeight() - (zoomLayerHeight + 1), null);
+        g.drawImage(ImageUtils.getFasterScaledInstance(zoomImage, ZOOM_LAYER_BOX_SIZE, ZOOM_LAYER_BOX_SIZE),
+                image.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), image.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
+        g.drawImage(ImageUtils.getFasterScaledInstance(zoomLayerImage, ZOOM_LAYER_BOX_SIZE, ZOOM_LAYER_BOX_SIZE),
+                layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
 
         // Understand what we are zooming in.
-        g.drawRect(X - zoomAreaWidth / 2, Y - zoomAreaHeight / 2, 100, 100);
+        g.drawRect(X - ZOOM_BOX_SIZE / 2, Y - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
     }
 
     private void drawInfo(Graphics g) {
@@ -420,6 +424,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         SidescanPoint prevPoint = null;
         g.setColor(Color.GREEN);
 
+        g.drawRect(3, 3, 6, 6);
+        
         for (SidescanPoint point : pointList) {
             // int pointX = (int) (point.x / (mouseSidescanLine.xsize / (float)image.getWidth()));
             int pointX = convertSidescanLinePointXToImagePointX(point.x, mouseSidescanLine.xsize);
