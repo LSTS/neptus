@@ -359,9 +359,9 @@ For simple use the main targets are:
 		</tstamp>
 		<!-- echo message="${time.date} |  ${time.year}" / -->
 
-		<property name="dist.installer.name.full" value="${dist.installer.basename.full}-${time.date}"/>
-		<property name="dist.installer.name.le" value="${dist.installer.basename.le}-${time.date}"/>
-		<property name="dist.installer.name.seacon" value="${dist.installer.basename.seacon}-${time.date}"/>
+		<property name="dist.installer.name.full" value="${dist.installer.basename.full}-${scm.last.changed.date.short}"/> <!--${time.date}-->
+		<property name="dist.installer.name.le" value="${dist.installer.basename.le}-${scm.last.changed.date.short}"/><!--${time.date}-->
+		<property name="dist.installer.name.seacon" value="${dist.installer.basename.seacon}-${scm.last.changed.date.short}"/><!--${time.date}-->
 
 		<echo message="-------------------------------------------------------------------" />
 		<!--echo level="info" message="SVN r${svn.revision.range} @ ${svn.repository.path}" /-->
@@ -536,6 +536,13 @@ For simple use the main targets are:
 			<arg value="-1"/>
 			<arg value="--pretty=format:%ai"/>
 		</exec>
+		<local name="git.date.short" />
+		<exec executable="git" outputproperty="git.date.short" failonerror="false">
+			<arg value="log"/>
+			<arg value="-1"/>
+			<arg value="--pretty=format:%ad"/>
+			<arg value="--date=short"/>
+		</exec>
 		<local name="git.author" />
 		<exec executable="git" outputproperty="git.author" failonerror="false">
 			<arg value="log"/>
@@ -577,6 +584,8 @@ For simple use the main targets are:
 		<echo file="${scm.info.file}" append="true">scm.last.changed.author=${git.author}
 </echo>
 		<echo file="${scm.info.file}" append="true">scm.last.changed.date=${git.date}
+</echo>
+		<echo file="${scm.info.file}" append="true">scm.last.changed.date.short=${git.date.short}
 </echo>
 		<echo file="${scm.info.file}" append="true">scm.wc.dirty.string=${git.wc.dirty.string}
 </echo>
