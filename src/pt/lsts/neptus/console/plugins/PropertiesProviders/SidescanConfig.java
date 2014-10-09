@@ -90,7 +90,7 @@ public class SidescanConfig implements PropertiesProvider {
         }
     }
     
-    protected void saveProps() {
+    public void saveProps() {
         try {
             PluginUtils.saveProperties("conf/sidescan.properties", this);
         }
