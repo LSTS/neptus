@@ -32,6 +32,7 @@
 package pt.lsts.neptus.mra.plots;
 
 import org.jfree.data.xy.XYSeries;
+
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -73,16 +74,20 @@ public class SalinityVsDepthPlot extends XYPlot {
     }
 
     public void addLogMarker(LogMarker marker) {
-
-        XYSeries markerSeries = getMarkerSeries();
-        IMCMessage es = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
-        IMCMessage sal = mraPanel.getSource().getLog("Salinity").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
-        if(markerSeries != null)
-            markerSeries.add(new TimedXYDataItem(-es.getDouble("depth"), ((Salinity) sal).getValue(), sal.getTimestampMillis(), marker.label));
-
+        try {
+            XYSeries markerSeries = getMarkerSeries();
+            IMCMessage es = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
+            IMCMessage sal = mraPanel.getSource().getLog("Salinity").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
+            if(markerSeries != null)
+                markerSeries.add(new TimedXYDataItem(-es.getDouble("depth"), ((Salinity) sal).getValue(), sal.getTimestampMillis(), marker.label));
+        }
+        catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     public boolean canBeApplied(pt.lsts.imc.lsf.LsfIndex index) {        
         return true;
-    };
+    }
 }
