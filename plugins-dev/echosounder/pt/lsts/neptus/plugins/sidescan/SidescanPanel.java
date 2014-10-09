@@ -193,8 +193,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(120, 60, Transparency.BITMASK);
 
     private List<SidescanLine> lineList = Collections.synchronizedList(new ArrayList<SidescanLine>());
-    private ArrayList<SidescanLine> drawList = new ArrayList<SidescanLine>();
-    private ArrayList<SidescanLine> removeList = new ArrayList<SidescanLine>();
+//    private ArrayList<SidescanLine> drawList = new ArrayList<SidescanLine>();
+//    private ArrayList<SidescanLine> removeList = new ArrayList<SidescanLine>();
 
     private NumberFormat altFormat = GuiUtils.getNeptusDecimalFormat(1);
 
@@ -275,6 +275,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     void updateImage(long currentTime, long lastUpdateTime) {
         int yref = 0;
         this.currentTime = currentTime;
+
+        ArrayList<SidescanLine> drawList = new ArrayList<SidescanLine>();
+        ArrayList<SidescanLine> removeList = new ArrayList<SidescanLine>();
 
         sidescanParams.setNormalization(config.normalization);
         sidescanParams.setTvgGain(config.tvgGain);
