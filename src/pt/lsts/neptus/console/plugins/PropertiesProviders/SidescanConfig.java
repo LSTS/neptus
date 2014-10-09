@@ -29,7 +29,7 @@
  * Author: jqcorreia
  * Mar 19, 2013
  */
-package pt.lsts.neptus.plugins.sidescan;
+package pt.lsts.neptus.console.plugins.PropertiesProviders;
 
 import java.awt.Color;
 
