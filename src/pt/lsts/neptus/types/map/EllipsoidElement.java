@@ -96,6 +96,11 @@ public class EllipsoidElement extends GeometryElement
     public ELEMENT_TYPE getElementType() {
         return ELEMENT_TYPE.TYPE_ELLIPSOID;
     }
+    
+    @Override
+    public String getTypeAbbrev() {
+        return "ellip";
+    }
 
 
     @Override
@@ -115,7 +120,8 @@ public class EllipsoidElement extends GeometryElement
         else
             g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 100));
         
-        g.fill(tmp);
+        if (isFilled())
+            g.fill(tmp);
         
         g.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue()));
         g.draw(tmp);   

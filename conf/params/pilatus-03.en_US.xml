@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,d314614)" system="pilatus-03" i18n="en_US">
+<config format="1" version="2.6.x (master,c73faa4)" system="pilatus-03" i18n="en_US">
   <section name="Gimbal" name-i18n="Gimbal">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -125,55 +125,6 @@
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
   </section>
-  <section name="Follow Path Maneuver" name-i18n="Follow Path Maneuver">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Follow Path Maneuver</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-  </section>
   <section name="Follow Reference" name-i18n="Follow Reference">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -259,13 +210,13 @@
       <desc>Default z when no vertical reference is given.</desc>
     </param>
   </section>
-  <section name="Goto Maneuver" name-i18n="Goto Maneuver">
+  <section name="Multiplexer Maneuver" name-i18n="Multiplexer Maneuver">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Goto Maneuver</default>
+      <default>Multiplexer Maneuver</default>
       <units/>
       <desc>Main entity label</desc>
     </param>
@@ -307,161 +258,284 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
-  </section>
-  <section name="Idle Maneuver" name-i18n="Idle Maneuver">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
+    <param name="Entity Label -- IdleManeuver">
+      <name-i18n>Entity Label -- IdleManeuver</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Idle Maneuver</default>
       <units/>
-      <desc>Main entity label</desc>
+      <desc>IdleManeuver maneuver's entity label</desc>
     </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
+    <param name="Entity Label -- Goto">
+      <name-i18n>Entity Label -- Goto</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>None</default>
+      <default>Goto Maneuver</default>
       <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+      <desc>Goto maneuver's entity label</desc>
     </param>
-  </section>
-  <section name="Loiter Maneuver" name-i18n="Loiter Maneuver">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
+    <param name="Entity Label -- Loiter">
+      <name-i18n>Entity Label -- Loiter</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Loiter Maneuver</default>
       <units/>
-      <desc>Main entity label</desc>
+      <desc>Loiter maneuver's entity label</desc>
     </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
+    <param name="Entity Label -- StationKeeping">
+      <name-i18n>Entity Label -- StationKeeping</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>None</default>
+      <default>Station Keeping Maneuver</default>
       <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+      <desc>StationKeeping maneuver's entity label</desc>
     </param>
-    <param name="Minimum Radius">
-      <name-i18n>Minimum Radius</name-i18n>
-      <type>real</type>
+    <param name="Entity Label -- YoYo">
+      <name-i18n>Entity Label -- YoYo</name-i18n>
+      <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>10.0</default>
+      <default>YoYo Maneuver</default>
       <units/>
-      <desc>Minimum radius to prevent incompatibility with path controller</desc>
+      <desc>YoYo maneuver's entity label</desc>
     </param>
-  </section>
-  <section name="Rows Maneuver" name-i18n="Rows Maneuver">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
+    <param name="Entity Label -- Rows">
+      <name-i18n>Entity Label -- Rows</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Rows Maneuver</default>
       <units/>
-      <desc>Main entity label</desc>
+      <desc>Rows maneuver's entity label</desc>
     </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
+    <param name="Entity Label -- FollowPath">
+      <name-i18n>Entity Label -- FollowPath</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>None</default>
+      <default>Follow Path Maneuver</default>
       <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+      <desc>FollowPath maneuver's entity label</desc>
+    </param>
+    <param name="Entity Label -- Elevator">
+      <name-i18n>Entity Label -- Elevator</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Elevator Maneuver</default>
+      <units/>
+      <desc>Elevator maneuver's entity label</desc>
+    </param>
+    <param name="Entity Label -- PopUp">
+      <name-i18n>Entity Label -- PopUp</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Pop Up Maneuver</default>
+      <units/>
+      <desc>PopUp maneuver's entity label</desc>
+    </param>
+    <param name="Entity Label -- Dislodge">
+      <name-i18n>Entity Label -- Dislodge</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Dislodge Maneuver</default>
+      <units/>
+      <desc>Dislodge maneuver's entity label</desc>
+    </param>
+    <param name="Unsupported">
+      <name-i18n>Unsupported</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>List of unsupported maneuvers</desc>
+    </param>
+    <param name="Loiter -- Minimum Radius">
+      <name-i18n>Loiter -- Minimum Radius</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10.0</default>
+      <units/>
+      <desc>Minimum radius for Loiter to prevent incompatibility with path controller</desc>
+    </param>
+    <param name="StationKeeping -- Minimum Radius">
+      <name-i18n>StationKeeping -- Minimum Radius</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10.0</default>
+      <units/>
+      <desc>Minimum radius for StationKeeping to prevent incompatibility with path controller</desc>
+    </param>
+    <param name="YoYo -- Maximum Pitch Variation">
+      <name-i18n>YoYo -- Maximum Pitch Variation</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2</default>
+      <units>°</units>
+      <desc>Maximum pitch variation step when changing z direction</desc>
+    </param>
+    <param name="YoYo -- Check Path Errors">
+      <name-i18n>YoYo -- Check Path Errors</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>True if we should check path errors and stabilize pitch</desc>
+    </param>
+    <param name="YoYo -- Maximum Cross Track Error">
+      <name-i18n>YoYo -- Maximum Cross Track Error</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>6</default>
+      <units>m</units>
+      <desc>Maximum cross track error admissible</desc>
+    </param>
+    <param name="YoYo -- Maximum Course Error">
+      <name-i18n>YoYo -- Maximum Course Error</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15</default>
+      <units>°</units>
+      <desc>Maximum course error admissible</desc>
+    </param>
+    <param name="Elevator -- Radius Tolerance">
+      <name-i18n>Elevator -- Radius Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units>m</units>
+      <desc>Distance tolerance to start loitering near elevator's location</desc>
+    </param>
+    <param name="Elevator -- VMonitor -- Minimum Speed">
+      <name-i18n>Elevator -- VMonitor -- Minimum Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-1.0</default>
+      <units>m/s</units>
+      <desc>Negative values will disable vertical progress monitor</desc>
+    </param>
+    <param name="Elevator -- VMonitor -- Timeout">
+      <name-i18n>Elevator -- VMonitor -- Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15.0</default>
+      <units>s</units>
+      <desc>Timeout when progress is below the specified value</desc>
+    </param>
+    <param name="Elevator -- Minimum Radius">
+      <name-i18n>Elevator -- Minimum Radius</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10.0</default>
+      <units>m</units>
+      <desc>Minimum radius to prevent incompatibility with path controller</desc>
+    </param>
+    <param name="PopUp -- Minimum Satellites">
+      <name-i18n>PopUp -- Minimum Satellites</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>7</default>
+      <units/>
+      <desc>Least number of satellites to accept fixes</desc>
+    </param>
+    <param name="PopUp -- Minimum Distance">
+      <name-i18n>PopUp -- Minimum Distance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units>m</units>
+      <desc>Minimum distance between gps_fix position and the estimated state</desc>
+    </param>
+    <param name="PopUp -- Elevator Radius">
+      <name-i18n>PopUp -- Elevator Radius</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15.0</default>
+      <units>m</units>
+      <desc>Radius for the elevator behavior</desc>
+    </param>
+    <param name="PopUp -- Maximum Distance From Station">
+      <name-i18n>PopUp -- Maximum Distance From Station</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15.0</default>
+      <units>m</units>
+      <desc>Maximum distance from station keeping radial circle</desc>
+    </param>
+    <param name="Dislodge -- Bursts">
+      <name-i18n>Dislodge -- Bursts</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Number of bursts with the motor</desc>
+    </param>
+    <param name="Dislodge -- Attempts">
+      <name-i18n>Dislodge -- Attempts</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Number of total attempts</desc>
+    </param>
+    <param name="Dislodge -- Burst Time">
+      <name-i18n>Dislodge -- Burst Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10.0</default>
+      <units>s</units>
+      <desc>Burst duration</desc>
+    </param>
+    <param name="Dislodge -- Interval Time">
+      <name-i18n>Dislodge -- Interval Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5.0</default>
+      <units>s</units>
+      <desc>Time interval between bursts</desc>
+    </param>
+    <param name="Dislodge -- Minimum Distance">
+      <name-i18n>Dislodge -- Minimum Distance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units>m</units>
+      <desc>Minimum distance to ground or object to stop burst</desc>
+    </param>
+    <param name="Dislodge -- Safe Depth Gap">
+      <name-i18n>Dislodge -- Safe Depth Gap</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units>m</units>
+      <desc>Safe depth change to consider the maneuver was successful</desc>
     </param>
   </section>
   <section name="CPU" name-i18n="CPU">
@@ -784,6 +858,33 @@
       <units>Hz</units>
       <desc>Frequency at which task is executed</desc>
     </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>idle</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>developer</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>idle</scope>
+      <default>1</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
     <param name="Initialization Time">
       <name-i18n>Initialization Time</name-i18n>
       <type>real</type>
@@ -826,17 +927,6 @@
       <desc>No valid GPS fixes timeout</desc>
       <min>2.0</min>
     </param>
-    <param name="Underwater Depth Threshold">
-      <name-i18n>Underwater Depth Threshold</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.3</default>
-      <units>m</units>
-      <desc>Minimum depth necessary to consider a vehicle underwater</desc>
-      <min>0.2</min>
-      <max>0.8</max>
-    </param>
     <param name="Air Speed Threshold">
       <name-i18n>Air Speed Threshold</name-i18n>
       <type>real</type>
@@ -845,6 +935,15 @@
       <default>12.5</default>
       <units>m</units>
       <desc>Minimum air speed necessary to consider a vehicle in air</desc>
+    </param>
+    <param name="Altitude Threshold">
+      <name-i18n>Altitude Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>m</units>
+      <desc>Minimum altitude necessary to consider a vehicle (Copter) in air</desc>
     </param>
     <param name="Vehicle Type">
       <name-i18n>Vehicle Type</name-i18n>
@@ -856,6 +955,17 @@
       <desc>Type of vehicle</desc>
       <values>UUV, ASV, UAV</values>
       <values-i18n>UUV, ASV, UAV</values-i18n>
+    </param>
+    <param name="Vehicle Sub-Type">
+      <name-i18n>Vehicle Sub-Type</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>FixedWing</default>
+      <units/>
+      <desc>Sub-Type of vehicle</desc>
+      <values>FixedWing, Copter</values>
+      <values-i18n>FixedWing, Copter</values-i18n>
     </param>
     <param name="Entity Label - Medium Sensor">
       <name-i18n>Entity Label - Medium Sensor</name-i18n>
@@ -914,15 +1024,6 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Trace">
-      <name-i18n>Trace</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable verbose output</desc>
     </param>
     <param name="DB Path">
       <name-i18n>DB Path</name-i18n>
@@ -991,6 +1092,15 @@
       <units/>
       <desc>True if plan progress should be computed</desc>
     </param>
+    <param name="Fuel Prediction">
+      <name-i18n>Fuel Prediction</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>True if plan's fuel prediction should be computed</desc>
+    </param>
     <param name="State Report Frequency">
       <name-i18n>State Report Frequency</name-i18n>
       <type>real</type>
@@ -999,24 +1109,6 @@
       <default>3.0</default>
       <units>Hz</units>
       <desc>Frequency of plan control state</desc>
-    </param>
-    <param name="RPM Conversion Factor">
-      <name-i18n>RPM Conversion Factor</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.001</default>
-      <units/>
-      <desc>Factor to convert from RPMs to meters per second</desc>
-    </param>
-    <param name="Actuation Conversion Factor">
-      <name-i18n>Actuation Conversion Factor</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.02</default>
-      <units/>
-      <desc>Factor to convert from actuation to meters per second</desc>
     </param>
     <param name="Minimum Calibration Time">
       <name-i18n>Minimum Calibration Time</name-i18n>
@@ -1027,6 +1119,15 @@
       <units>s</units>
       <desc>Duration of vehicle calibration commands</desc>
     </param>
+    <param name="Perform Calibration">
+      <name-i18n>Perform Calibration</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>True if calibration should be performed at all</desc>
+    </param>
     <param name="Abort On Failed Activation">
       <name-i18n>Abort On Failed Activation</name-i18n>
       <type>boolean</type>
@@ -1035,6 +1136,42 @@
       <default>true</default>
       <units/>
       <desc>Abort when a payload fails to activate</desc>
+    </param>
+    <param name="StationKeeping While Calibrating">
+      <name-i18n>StationKeeping While Calibrating</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Perform station keeping while calibrating</desc>
+    </param>
+    <param name="StationKeeping Speed in RPM">
+      <name-i18n>StationKeeping Speed in RPM</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1600</default>
+      <units>r/min</units>
+      <desc>Speed in RPM for the station keeping</desc>
+    </param>
+    <param name="StationKeeping Radius">
+      <name-i18n>StationKeeping Radius</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20</default>
+      <units>m</units>
+      <desc>Radius for the station keeping</desc>
+    </param>
+    <param name="IMU Entity Label">
+      <name-i18n>IMU Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>IMU</default>
+      <units/>
+      <desc>Entity label of the IMU for fuel prediction</desc>
     </param>
   </section>
   <section name="Plan Generator" name-i18n="Plan Generator">
@@ -2034,7 +2171,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>CpuUsage:0.2, EntityState:1, EstimatedState:5, FuelLevel:0.1, SimulatedState:0.5, StorageUsage:0.05, Temperature:0.1</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
     </param>
@@ -2043,7 +2180,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CpuUsage:Daemon, DesiredRoll:Autopilot</default>
+      <default>CpuUsage:Daemon</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>

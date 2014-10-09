@@ -48,6 +48,7 @@ import pt.lsts.imc.lsf.IndexScanner;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -99,7 +100,7 @@ public class CTDExporter implements MRAExporter {
         dir.mkdirs();
         pmonitor.setNote("Generating corrected positions...");
         pmonitor.setProgress(10);
-        CorrectedPosition cp = new CorrectedPosition(index);
+        CorrectedPosition cp = new CorrectedPosition(source);
         
         pmonitor.setNote("Exporting...");
         int count = 0;
@@ -142,7 +143,9 @@ public class CTDExporter implements MRAExporter {
             count ++;
 
             LocationType loc = IMCUtils.parseLocation(d).convertToAbsoluteLatLonDepth();
-            CorrectedPosition.Position p = cp.getPosition(d.getTimestamp());
+            SystemPositionAndAttitude p = cp.getPosition(d.getTimestamp());
+            if (p==null)
+                return "error positions is Empty";
             
             try {
                 String medium = "UNKNOWN";
@@ -153,8 +156,8 @@ public class CTDExporter implements MRAExporter {
                         dateFormat.format(t.getDate())+", "+
                         loc.getLatitudeDegs()+", "+
                         loc.getLongitudeDegs()+", "+
-                        ((p != null)? p.lat : loc.getLatitudeDegs())+", "+
-                        ((p != null)? p.lon : loc.getLongitudeDegs())+", "+
+                        ((p != null)? p.getPosition().getLatitudeDegs() : loc.getLatitudeDegs())+", "+
+                        ((p != null)? p.getPosition().getLongitudeDegs() : loc.getLongitudeDegs())+", "+
                         c.getValue()+", "+
                         t.getValue()+", "+
                         d.getDepth()+", "+

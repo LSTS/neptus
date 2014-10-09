@@ -214,7 +214,8 @@
                     </point>
                     <radiusTolerance>0</radiusTolerance>
                 </finalPoint>
-                <startZ>0</startZ>
+                <startZ>2</startZ>
+                <startZUnits>DEPTH</startZUnits>
                 <pitch>30</pitch>
                 <radius>10</radius>
                 <duration>0</duration>
@@ -330,13 +331,13 @@
                             <longitude>8W42'20.24864039631753''</longitude>
                             <height>0.0</height>
                         </coordinate>
-                        <z>2.0</z>
+                        <z>0.0</z>
                         <zunits>DEPTH</zunits>
                     </point>
                 </finalPoint>
-                <pitch>15.0</pitch>
-                <amplitude>1.0</amplitude>
-                <duration>300</duration>
+                <pitch>10.0</pitch>
+                <amplitude>0.1</amplitude>
+                <duration>1200</duration>
                 <speed type="float" unit="m/s">1.3</speed>
                 <radius>15.0</radius>
                 <direction>CLOCKW</direction>

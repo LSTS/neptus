@@ -48,6 +48,8 @@ import pt.lsts.neptus.types.coord.LocationType;
 @PluginDescription
 public class XYPlot extends MRA2DPlot {
 
+    private LocationType ref;
+
     /**
      * @param panel
      */
@@ -63,7 +65,7 @@ public class XYPlot extends MRA2DPlot {
     @Override
     public void process(LsfIndex source) {
         IMCMessage estate = source.getMessage(source.getFirstMessageOfType("EstimatedState"));
-        LocationType ref = new LocationType(Math.toDegrees(estate.getDouble("lat")), Math.toDegrees(estate.getDouble("lon")));
+        ref = new LocationType(Math.toDegrees(estate.getDouble("lat")), Math.toDegrees(estate.getDouble("lon")));
 
         for (IMCMessage state : source.getIterator("EstimatedState", 0, (long)(timestep*1000))) {
             LocationType loc = new LocationType();
@@ -107,9 +109,18 @@ public class XYPlot extends MRA2DPlot {
     public void addLogMarker(LogMarker marker) {
         XYSeries markerSeries = getMarkerSeries();
         IMCMessage state = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
+        LocationType loc = marker.getLocation();
+        ref = new LocationType(Math.toDegrees(state.getDouble("lat")), Math.toDegrees(state.getDouble("lon")));
+
+        loc.setLatitudeRads(state.getDouble("lat"));
+        loc.setLongitudeRads(state.getDouble("lon"));
+        loc.translatePosition(state.getDouble("x"), state.getDouble("y"), state.getDouble("z"));
+
+        double[] offsets = loc.getOffsetFrom(ref);
 
         if(markerSeries != null)
-            markerSeries.add(new TimedXYDataItem(state.getDouble("x"), state.getDouble("y"), new Double(marker.timestamp).longValue(), marker.label));
+            markerSeries.add(new TimedXYDataItem(offsets[0],offsets[1],state.getTimestampMillis(),marker.label));
+
     }
 
     @Override

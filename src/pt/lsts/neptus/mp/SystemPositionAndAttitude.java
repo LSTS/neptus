@@ -31,14 +31,17 @@
  */
 package pt.lsts.neptus.mp;
 
-import pt.lsts.neptus.types.coord.LocationType;
+import java.io.Serializable;
+
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author Ze Carlos This class represents a vehicle state in a single moment
  */
-public class SystemPositionAndAttitude implements Cloneable {
+public class SystemPositionAndAttitude implements Cloneable, Comparable<SystemPositionAndAttitude>, Serializable {
 
+    private static final long serialVersionUID = -5241496476923632391L;
     private double roll = 0;
     private double pitch = 0; 
     private double yaw = 0;
@@ -51,15 +54,15 @@ public class SystemPositionAndAttitude implements Cloneable {
     private long time = 0;
 
     private LocationType position = new LocationType(), guine = new LocationType();
-    
-    
+
+
     /**
      * Empty constructor
      */
     public SystemPositionAndAttitude() {
-        
+
     }
-    
+
     /**
      * Creates a new VehicleState from the given position and axis attitudes
      * 
@@ -74,7 +77,7 @@ public class SystemPositionAndAttitude implements Cloneable {
         setPitch(pitch);
         setYaw(yaw);
     }
-    
+
     public EstimatedState toEstimatedState() {
         EstimatedState estate = new EstimatedState();
         LocationType loc = new LocationType(getPosition());
@@ -83,24 +86,24 @@ public class SystemPositionAndAttitude implements Cloneable {
         estate.setLon(loc.getLongitudeRads());
         estate.setDepth(loc.getDepth());
         estate.setAlt(getAltitude());
-        
+
         estate.setPhi(getRoll());
         estate.setTheta(getPitch());
         estate.setPsi(getYaw());
-        
+
         estate.setP(getP());
         estate.setQ(getQ());
         estate.setR(getR());
-        
+
         estate.setU(getU());
         estate.setV(getV());
         estate.setW(getW());
         estate.setVx(getVx());
         estate.setVy(getVy());
         estate.setVz(getVz());
-        
+
         return estate;
-        
+
     }
 
     public SystemPositionAndAttitude(SystemPositionAndAttitude vs) {
@@ -112,7 +115,7 @@ public class SystemPositionAndAttitude implements Cloneable {
         setUVW(vs.getU(), vs.getV(), vs.getW());
         setVxyz(vs.getVx(), vs.getVy(), vs.getVz());
     }
-    
+
     public SystemPositionAndAttitude(EstimatedState state) {
         LocationType loc = new LocationType();
         loc.setLatitudeRads(state.getLat());
@@ -218,15 +221,15 @@ public class SystemPositionAndAttitude implements Cloneable {
     public void setPosition(LocationType position) {
         this.position.setLocation(position);
     }
-    
+
     public double getAltitude() {
         return altitude;
     }
-    
+
     public void setAltitude(double altitude) {
         this.altitude = altitude;
     }
-    
+
     public double getRoll() {
         return roll;
     }
@@ -364,13 +367,16 @@ public class SystemPositionAndAttitude implements Cloneable {
     public void setTime(long time) {
         this.time = time;
     }
-    
-    private static class Vector3Dimension {
+
+    private static class Vector3Dimension implements Serializable { 
+        private static final long serialVersionUID = 3751192816949152977L;
         public double x = 0;
         public double y = 0;
         public double z = 0;
-        
-        public Vector3Dimension() {
-        }
     }
+
+    @Override
+    public int compareTo(SystemPositionAndAttitude o) {
+        return ((Long)time).compareTo(o.time);
+    }    
 }

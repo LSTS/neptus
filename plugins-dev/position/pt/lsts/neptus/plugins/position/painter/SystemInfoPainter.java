@@ -39,6 +39,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
 import pt.lsts.imc.CpuUsage;
+import pt.lsts.imc.Current;
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.Heartbeat;
 import pt.lsts.imc.StorageUsage;
@@ -81,6 +82,12 @@ public class SystemInfoPainter extends ConsoleLayer {
     @NeptusProperty(name = "Enable Info", description = "Paint Vehicle Information on panel")
     public boolean paintInfo = true;
 
+    @NeptusProperty(name = "Display Confidence Level", description = "Display Fuel Level estimation Confidence on panel")
+    public boolean showConfidence = true;
+
+    @NeptusProperty(name = "Display Current", description = "Display drawn Current on panel")
+    public boolean showCurrent = false;
+
     @NeptusProperty(name = "Entity Name", description = "Vehicle Battery entity name")
     public String batteryEntityName = "Batteries";
 
@@ -90,7 +97,7 @@ public class SystemInfoPainter extends ConsoleLayer {
     long lastMessageMillis = 0;
 
     private int cpuUsage = 0;
-    private double batteryVoltage;
+    private double batteryVoltage, current;
     private float fuelLevel, confidenceLevel;
     private int storageUsage;
 
@@ -119,7 +126,7 @@ public class SystemInfoPainter extends ConsoleLayer {
     private String getColor(double percent, boolean inverted, boolean commsDead) {
         Color c;
         if (commsDead)
-            return "#777777";
+            return "#000000";
         if (!inverted)
             c = rygColorMap.getColor(percent / 100.0);
         else
@@ -135,10 +142,8 @@ public class SystemInfoPainter extends ConsoleLayer {
             return;
 
         boolean commsDead = false;
-        if (System.currentTimeMillis() - lastMessageMillis > 10000) {
-            batteryVoltage = fuelLevel = lastHbCount = storageUsage = cpuUsage = 0;
+        if (System.currentTimeMillis() - lastMessageMillis > 10000)
             commsDead = true;
-        }
 
         // System Info
         if (paintInfo) {
@@ -148,8 +153,12 @@ public class SystemInfoPainter extends ConsoleLayer {
             String txt = "<html>";
             txt += "<b>" + strCpu + ":</b> <font color=" + getColor(cpuUsage, true, commsDead) + ">" + cpuUsage + "%</font><br/>";
             txt += "<b>" + strFuel + ":</b> <font color=" + getColor(fuelLevel, false, commsDead) + ">" + (int) fuelLevel
-                    + "%</font> <font color=#cccccc>(" + (int) (batteryVoltage * 100) / 100f + "V, ~"
-                    + MathMiscUtils.round(confidenceLevel, 2) + "%</font>)<br/>";
+                    + "%</font> <font color=#cccccc>(" + (int) (batteryVoltage * 100) / 100f + "V";
+            if (showCurrent)
+                txt += "@" + (int) (current * 100) / 100f + "A";
+            if (showConfidence)
+                txt += ", ~" + MathMiscUtils.round(confidenceLevel, 2) + "%";
+            txt += "</font>)<br/>";
             txt += "<b>" + strDisk + ":</b> <font color=" + getColor(storageUsage, false, commsDead) + ">" + storageUsage
                     + "%</font><br/>";
             txt += "<b>" + strComms + ":</b> <font color=" + getColor(lastHbCount * 20, false, commsDead) + ">" + (lastHbCount * 20)
@@ -206,6 +215,17 @@ public class SystemInfoPainter extends ConsoleLayer {
     }
 
     @Subscribe
+    public void consume(Current msg) {        
+        if (!msg.getSourceName().equals(mainSysName))
+            return;
+        int id = EntitiesResolver.resolveId(mainSysName,
+                batteryEntityName);
+        if (msg.getSrcEnt() != id)
+            return;
+        current = msg.getValue();
+    }
+
+    @Subscribe
     public void consume(FuelLevel msg) {
         if (!msg.getSourceName().equals(mainSysName))
             return;
@@ -226,6 +246,7 @@ public class SystemInfoPainter extends ConsoleLayer {
     public void consume(ConsoleEventMainSystemChange ev) {
         // Resolve Batteries entity ID to check battery values
         batteryVoltage = 0.0;
+        current = 0.0;
         fuelLevel = 0.0f;
         cpuUsage = 0;
         storageUsage = 0;

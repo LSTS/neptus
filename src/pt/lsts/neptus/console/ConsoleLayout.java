@@ -40,6 +40,8 @@ import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
@@ -64,8 +66,10 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -1369,7 +1373,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      */
     public void cleanup() {
         long start = System.currentTimeMillis();
-        NeptusLog.pub().info("console layout cleanup start");
+        NeptusLog.pub().info(ConsoleLayout.this.getClass().getSimpleName() + " cleanup start");
         try {
             removeComponentListener(this);
 
@@ -1388,15 +1392,25 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                     .get(AutoSnapshotConsoleAction.class);
             autosnapshot.cleanClose();
 
-            for (IConsoleLayer layer : layers.keySet()) {
-                layer.clean();
-                System.out.println("cleaned " + layer.getName());
+            for (IConsoleLayer layer : layers.keySet().toArray(new IConsoleLayer[layers.size()])) {
+                try {
+                    layer.clean();
+                    NeptusLog.pub().info("Cleaned " + layer.getName());
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error("Error cleaning " + layer.getName() + " :: " + e.getMessage(), e);
+                }
             }
             layers.clear();
 
-            for (IConsoleInteraction interaction : interactions.keySet()) {
-                interaction.clean();
-                System.out.println("cleaned " + interaction.getName());
+            for (IConsoleInteraction interaction : interactions.keySet().toArray(new IConsoleInteraction[interactions.size()])) {
+                try {
+                    interaction.clean();
+                    NeptusLog.pub().info("Cleaned " + interaction.getName());
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error("Error cleaning " + interaction.getName() + " :: " + e.getMessage(), e);
+                }
             }
             interactions.clear();
 
@@ -1413,10 +1427,10 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
             NeptusEvents.delete(this);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().error("Error cleaning " + ConsoleLayout.this.getClass().getSimpleName() + " :: " + e.getMessage(), e);
         }
 
-        NeptusLog.pub().info("console layout cleanup end in " + ((System.currentTimeMillis() - start) / 1E3) + "s ");
+        NeptusLog.pub().info(ConsoleLayout.this.getClass().getSimpleName() + " cleanup end in " + ((System.currentTimeMillis() - start) / 1E3) + "s");
     }
 
     public void minimizePanel(ConsolePanel p) {
@@ -1566,6 +1580,46 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
                 CheckListExe.showCheckListExeDialog(getMainSystem(), ct, this, file.getParent());
             }
         }
+    }
+    
+    /**
+     * Creates and retrieves a console menu item
+     * 
+     * @param itemPath The path to the menu item separated by ">". Examples: <li>
+     *            <b>"Tools > Local Network > Test Network"</b> <li><b>"Tools>Test Network"</b>
+     * @param icon The icon to be used in the menu item. <br>
+     *            Size is automatically adjusted to 16x16 pixels.
+     * @param actionListener The {@link ActionListener} that will be warned on menu activation
+     * @return The created {@link JMenuItem} or <b>null</b> if an error as occurred.
+     */
+    public JMenuItem addMenuItem(String itemPath, ImageIcon icon, ActionListener actionListener) {
+        String[] ptmp = itemPath.split(">");
+        if (ptmp.length < 2) {
+            NeptusLog.pub().error("Menu path has to have at least two components");
+            return null;
+        }
+
+        String[] path = new String[ptmp.length - 1];
+        System.arraycopy(ptmp, 0, path, 0, path.length);
+
+        String menuName = ptmp[ptmp.length - 1];
+
+        JMenu menu = getConsole().getOrCreateJMenu(path);
+
+        final ActionListener l = actionListener;
+        AbstractAction action = new AbstractAction(menuName) {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                l.actionPerformed(e);
+            }
+        };
+        if (icon != null)
+            action.putValue(AbstractAction.SMALL_ICON, ImageUtils.getScaledIcon(icon.getImage(), 16, 16));
+
+        JMenuItem item = menu.add(action);
+        return item;
     }
 
     public JMenu removeMenuItem(String[] menuPath) {

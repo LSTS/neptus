@@ -47,8 +47,11 @@ import javax.swing.JLabel;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
  * @author zp
@@ -67,12 +70,23 @@ public class MraVehiclePosHud {
     protected int currentPosition = -1, width, height;
 
     protected Color pathColor = Color.black;
+    protected IMraLogGroup source;
     
-    public MraVehiclePosHud(LsfIndex index, int width, int height) {
-        this.index = index;
+    public MraVehiclePosHud(IMraLogGroup source, int width, int height) {
+        this.source = source;
+        this.index = source.getLsfIndex();
         this.width = width;
         this.height = height;
         loadIndex();
+    }
+    
+    public void correctPositions() {
+        CorrectedPosition cp = new CorrectedPosition(source);
+        for (SystemPositionAndAttitude state : states) {
+            double timestamp = state.getTime() / 1000.0;
+            SystemPositionAndAttitude corPos = cp.getPosition(timestamp);
+            state.setPosition(new LocationType(corPos.getPosition()));
+        }
     }
 
     protected void loadIndex() {
@@ -99,6 +113,7 @@ public class MraVehiclePosHud {
                 SystemPositionAndAttitude state = new SystemPositionAndAttitude(loc,
                         estimatedState.getDouble("phi"), estimatedState.getDouble("theta"),
                         estimatedState.getDouble("psi"));
+                state.setTime(estimatedState.getTimestampMillis());
                 states.add(state);
                 lastIndex = i;
             }
@@ -267,10 +282,10 @@ public class MraVehiclePosHud {
     public static void main(String[] args) throws Exception {
 
         //LsfIndex index = new LsfIndex(new File("/home/zp/Desktop/logs/shore_line/Data.lsf"));
-        LsfIndex index = new LsfIndex(new File("/home/zp/Desktop/logs/073552_change_ref/Data.lsf"));
-        MraVehiclePosHud hud = new MraVehiclePosHud(index, 250, 200);
-
-        BufferedImage img = hud.getImage(hud.getStartTime()+20);
+        IMraLogGroup source = new LsfLogSource(new File("/home/zp/Desktop/REP14/REP_20140708/lauv-noptilus-2/20140708/100908_long_pier/Data.lsf"), null);
+        MraVehiclePosHud hud = new MraVehiclePosHud(source, 250, 200);
+        hud.correctPositions();
+        BufferedImage img = hud.getImage(hud.getStartTime()+300);
 
         GuiUtils.testFrame(new JLabel(new ImageIcon(img)));
     }

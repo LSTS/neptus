@@ -171,12 +171,16 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
     }
 
     public JFreeChart createChart() {
-        return ChartFactory.createTimeSeriesChart(I18n.text(getTitle()), I18n.text("Time of day"), I18n.text(getVerticalAxisName()),
+        return ChartFactory.createTimeSeriesChart(I18n.text(getTitle()), I18n.text(getVerticalAxisName()), I18n.text(getHorizontalAxisName()),
                 tsc, true, true, false);
     }
 
-    public String getVerticalAxisName() {
+    public String getHorizontalAxisName() {
         return "";
+    }
+
+    public String getVerticalAxisName() {
+        return "Time of day";
     }
 
     @Override

@@ -65,14 +65,27 @@ import com.sun.java.swing.plaf.windows.WindowsComboBoxUI;
 @SuppressWarnings("serial")
 public class MainSystemSelectionCombo extends JComboBox<String> implements ItemListener {
 
-    private static final Color DEFAULT_COLOR = new Color(0xC8BF5F);
-    private static final Color DEFAULT_SEL_COLOR = new Color(0xB9AF3F);
-    private static final Color CALIBRATION_COLOR = new Color(0x3A87AD);
-    private static final Color CALIBRATION_SEL_COLOR = new Color(0x307191);
-    private static final Color ERROR_COLOR = new Color(0xB94A48);
-    private static final Color ERROR_SEL_COLOR = new Color(0xA23F3E);
+    // DEFAULT in greyed yellow.
+    private static final Color DEFAULT_COLOR = new Color(0xB9AF3F);
+    private static final Color DEFAULT_SEL_COLOR = new Color(0xC8BF5F);
+    // CALIBRATION in greyed blue.
+    private static final Color CALIBRATION_COLOR = new Color(0x307191);
+    private static final Color CALIBRATION_SEL_COLOR = new Color(0x3A87AD);
+    // ERROR in red.
+    private static final Color ERROR_COLOR = new Color(0xA23F3E);
+    private static final Color ERROR_SEL_COLOR = new Color(0xB94A48);
+    // SERVICE in green.
     private static final Color SERVICE_COLOR = new Color(0x57B768);
-    private static final Color SERVICE_SEL_COLOR = new Color(0x4AAE5C);
+    private static final Color SERVICE_SEL_COLOR = new Color(0x7BBD87);
+    // MANEUVER in yellow.
+    private static final Color MANEUVER_COLOR = new Color(0xD2DA4A);
+    private static final Color MANEUVER_SEL_COLOR = new Color(0xE7EE6D);
+    // BOOT in blue.
+    private static final Color BOOT_COLOR = new Color(0x132AD2);
+    private static final Color BOOT_SEL_COLOR = new Color(0x0000FF);
+    // DISCONNECTED in grey.
+    private static final Color DISCONNECTED_COLOR = new Color(0x757575);
+    private static final Color DISCONNECTED_SEL_COLOR = new Color(0x94959C);
 
     private ConsoleLayout console;
     private Map<String, STATE> systemState = new ConcurrentHashMap<>();
@@ -116,6 +129,18 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
                     case CALIBRATION:
                         setBackground(CALIBRATION_COLOR);
                         break;
+                    case MANEUVER:
+                        setBackground(MANEUVER_COLOR);
+                        break;
+                    case TELEOPERATION:
+                        setBackground(MANEUVER_COLOR);
+                        break;
+                    case BOOT:
+                        setBackground(BOOT_COLOR);
+                        break;
+                    case DISCONNECTED:
+                        setBackground(DISCONNECTED_COLOR);
+                        break;
                     default:
                         setBackground(DEFAULT_COLOR);
                         break;
@@ -143,6 +168,18 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
                     break;
                 case CALIBRATION:
                     setBackground(CALIBRATION_COLOR);
+                    break;
+                case MANEUVER:
+                    setBackground(MANEUVER_COLOR);
+                    break;
+                case TELEOPERATION:
+                    setBackground(MANEUVER_COLOR);
+                    break;
+                case BOOT:
+                    setBackground(BOOT_COLOR);
+                    break;
+                case DISCONNECTED:
+                    setBackground(DISCONNECTED_COLOR);
                     break;
                 default:
                     setBackground(DEFAULT_COLOR);
@@ -180,6 +217,18 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
                         case CALIBRATION:
                             setBackground(CALIBRATION_SEL_COLOR);
                             break;
+                        case MANEUVER:
+                            setBackground(MANEUVER_SEL_COLOR);
+                            break;
+                        case TELEOPERATION:
+                            setBackground(MANEUVER_SEL_COLOR);
+                            break;
+                        case BOOT:
+                            setBackground(BOOT_SEL_COLOR);
+                            break;
+                        case DISCONNECTED:
+                            setBackground(DISCONNECTED_SEL_COLOR);
+                            break;
                         default:
                             setBackground(DEFAULT_SEL_COLOR);
                             break;
@@ -200,6 +249,18 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
                         case CALIBRATION:
                             setBackground(CALIBRATION_COLOR);
                             break;
+                        case MANEUVER:
+                            setBackground(MANEUVER_COLOR);
+                            break;
+                        case TELEOPERATION:
+                            setBackground(MANEUVER_COLOR);
+                            break;
+                        case BOOT:
+                            setBackground(BOOT_COLOR);
+                            break;
+                        case DISCONNECTED:
+                            setBackground(DISCONNECTED_COLOR);
+                            break;
                         default:
                             setBackground(DEFAULT_COLOR);
                             break;
@@ -211,7 +272,7 @@ public class MainSystemSelectionCombo extends JComboBox<String> implements ItemL
             if (value != null)
                 this.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
             
-            setText(" "+ value.toUpperCase() + "  " + I18n.text("Status") + ": " + I18n.text(systemState.get(value).toString()));
+            setText(" "+ value.toUpperCase() + ": " + I18n.text(systemState.get(value).toString()));
             
             return this;
         }

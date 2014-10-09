@@ -31,13 +31,21 @@
  */
 package pt.lsts.neptus.mra.api;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Vector;
 
 import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.imc.lsf.LsfIterator;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
@@ -46,13 +54,21 @@ import pt.lsts.neptus.types.coord.LocationType;
  */
 public class CorrectedPosition {
 
-    private ArrayList<Position> positions = new ArrayList<>();
+    private ArrayList<SystemPositionAndAttitude> positions = new ArrayList<>();
     
-    public Position getPosition(double timestamp) {
-        Position p = new Position();
-        p.timestamp = timestamp;
+    /**
+     * @return the positions
+     */
+    public Collection<SystemPositionAndAttitude> getPositions() {
+        return Collections.unmodifiableCollection(positions);
+    }
+
+    public SystemPositionAndAttitude getPosition(double timestamp) {
+        if (positions.isEmpty())
+            return null;
+        SystemPositionAndAttitude p = new SystemPositionAndAttitude();
+        p.setTime((long)timestamp * 1000);
         int pos = Collections.binarySearch(positions, p);
-        System.out.println(pos);
         if (pos < 0)
             pos = -pos;
         if (pos >= positions.size())
@@ -60,9 +76,22 @@ public class CorrectedPosition {
         return positions.get(pos);
     }
     
-    public CorrectedPosition(LsfIndex index) {
-        LsfIterator<EstimatedState> it = index.getIterator(EstimatedState.class, 100l);
-
+    @SuppressWarnings("unchecked")
+    public CorrectedPosition(IMraLogGroup source) {
+        File cache = new File(source.getDir(), "mra/positions.cache");
+        try {
+            if (source.getFile("mra/positions.cache").canRead()) {
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(cache));
+                positions = (ArrayList<SystemPositionAndAttitude>) ois.readObject();
+                ois.close();
+                return;
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("Error loading positions cache from "+source.getFile("mra/positions.cache"));
+        }
+        
+        LsfIterator<EstimatedState> it = source.getLsfIndex().getIterator(EstimatedState.class, 100l);
         Vector<EstimatedState> nonAdjusted = new Vector<>();
         Vector<LocationType> nonAdjustedLocs = new Vector<>();
 
@@ -70,6 +99,7 @@ public class CorrectedPosition {
         double lastTime = 0;
 
         for (EstimatedState es = it.next(); es != null; es = it.next()) {
+            
             LocationType thisLoc = new LocationType();
             thisLoc.setLatitudeRads(es.getLat());
             thisLoc.setLongitudeRads(es.getLon());
@@ -109,12 +139,11 @@ public class CorrectedPosition {
                                     yIncPerSec * (adj.getTimestamp() - firstNonAdjusted.getTimestamp()), 0);
 
                             loc.convertToAbsoluteLatLonDepth();
-                            Position p = new Position();
-                            p.alt = adj.getAlt();
-                            p.depth = adj.getDepth();
-                            p.lat = loc.getLatitudeDegs();
-                            p.lon = loc.getLongitudeDegs();
-                            p.timestamp = adj.getTimestamp();
+                            loc.setDepth(adj.getDepth());
+                            SystemPositionAndAttitude p = new SystemPositionAndAttitude(adj);
+                            p.setPosition(loc);
+                            p.setAltitude(adj.getAlt());
+                            p.setTime((long)(adj.getTimestamp() * 1000));
                             positions.add(p);
                         }
                         nonAdjusted.clear();
@@ -126,6 +155,16 @@ public class CorrectedPosition {
             }
             lastLoc = thisLoc;
             lastTime = es.getTimestamp();
+        }
+        
+        try {
+            ObjectOutputStream ous = new ObjectOutputStream(new FileOutputStream(cache));
+            ous.writeObject(positions);
+            ous.close();
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error("Error saving positions cache to "+cache); 
+            e.printStackTrace();
         }
     }
     

@@ -128,7 +128,6 @@ public class LsfTreeMouseAdapter extends MouseAdapter {
             popup.add(I18n.text("Plot data")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    NeptusLog.pub().info("<###> "+fieldsToPlot);
                     panel.loadVisualization(new GenericPlot(fieldsToPlot.toArray(new String[0]), panel), true);
                 }
             });

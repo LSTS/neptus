@@ -41,6 +41,7 @@ import java.awt.event.ActionListener;
 import java.text.NumberFormat;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
@@ -90,6 +91,8 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 	private JLabel jLabel4 = null;
 	private JLabel jLabel11 = null;
 	private JLabel jLabel12 = new JLabel(I18n.text("Texture:"));
+	private JLabel lblFilled = new JLabel(I18n.text("Filled:"));
+	private JCheckBox chkFilled = new JCheckBox();
 	private TextureComboChooser textureCombo;
 	private JPanel jPanel3 = null;
 	/**
@@ -105,6 +108,10 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 		getXDim().setText(String.valueOf(dimx));
 		getYDim().setText(String.valueOf(dimy));
 		getZDim().setText(String.valueOf(dimz));
+	}
+	
+	public void setFilled(boolean filled) {
+	    chkFilled.setSelected(filled);
 	}
 	
 	public void setRotation(double roll, double pitch, double yaw) {
@@ -131,6 +138,10 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 		ret[2] = Double.parseDouble(getYawField().getText());
 		
 		return ret;
+	}
+	
+	public boolean isFilled() {
+	    return chkFilled.isSelected();
 	}
 	
 	public void setCenterLocation(LocationType centerLoc) {
@@ -419,6 +430,9 @@ public class ParallelepipedParameters extends ParametersPanel implements ActionL
 			flowLayout2.setAlignment(java.awt.FlowLayout.LEFT);
 			jPanel3.add(jLabel, null);
 			jPanel3.add(getChangeCenterLoc(), null);
+			jPanel3.add(lblFilled, null);
+			jPanel3.add(chkFilled, null);
+			
 		}
 		return jPanel3;
 	}

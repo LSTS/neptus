@@ -41,13 +41,27 @@ LIBS=".:libJNI"
 if test -d jre/bin; then JAVA_BIN_FOLDER="jre/bin/"; else JAVA_BIN_FOLDER=""; fi
 
 JAVA_MACHINE_TYPE=$($JAVA_BIN_FOLDER"java" -cp bin/neptus.jar pt.lsts.neptus.loader.helper.CheckJavaOSArch)
-if [ ${JAVA_MACHINE_TYPE} == 'x64' ]; then
- LIBS=".:libJNI/x64:libJNI:/usr/lib/jni:/usr/lib/vtk-5.10:libJNI/gdal/linux/x64"
+echo "Found machine type: $JAVA_MACHINE_TYPE"
+if [ ${JAVA_MACHINE_TYPE} == 'linux-x64' ]; then
+ LIBS=".:libJNI/x64:libJNI:/usr/lib/jni:libJNI/gdal/linux/x64:libJNI/europa/x64"
+elif [ ${JAVA_MACHINE_TYPE} == 'linux-x86' ]; then
+  LIBS=".:libJNI/x86:libJNI:/usr/lib/jni:libJNI/gdal/linux/x86"
+elif [ ${JAVA_MACHINE_TYPE} == 'osx-x64' ]; then
+  LIBS=".:libJNI/osx:libJNI:/usr/lib/jni"
+fi
+
+if test -f /usr/lib/jni/libvtkCommonJava.so; then
+  VTKPROP="-Dvtk.lib.dir=/usr/lib/jni"
+elif test -f /usr/lib/vtk-5.10/libvtkCommonJava.so; then
+  VTKPROP="-Dvtk.lib.dir=/usr/lib/vtk-5.10"
+elif test -f /usr/lib/vtk-5.8/libvtkCommonJava.so; then
+  VTKPROP="-Dvtk.lib.dir=/usr/lib/vtk-5.8"
 else
-  LIBS=".:libJNI/x86:libJNI:/usr/lib/jni:/usr/lib/vtk-5.10:libJNI/gdal/linux/x86"
+  VTKPROP=
+  echo "No VTK Java wrappers found"
 fi
 
 export VMFLAGS="-XX:+HeapDumpOnOutOfMemoryError"
 
-export LD_LIBRARY_PATH=$LIBS
-$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m $VMFLAGS -Djava.library.path=$LIBS -cp $CLASSPATH pt.lsts.neptus.loader.NeptusMain "$@"
+export LD_LIBRARY_PATH=$LIBS:$LD_LIBRARY_PATH
+$JAVA_BIN_FOLDER"java" -Xms10m -Xmx1024m $VMFLAGS -Djava.library.path=$LIBS $VTKPROP -cp $CLASSPATH pt.lsts.neptus.loader.NeptusMain "$@"

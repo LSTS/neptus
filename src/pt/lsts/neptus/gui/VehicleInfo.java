@@ -1355,15 +1355,17 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                             SwingUtilities.getWindowAncestor(VehicleInfo.this), true)) {
                         String filePath = vehicle.getOriginalFilePath();
                         Document doc = vehicle.asDocument();
-                        if (VehicleType.validate(doc)) {
-                            String dataToSave = FileUtil.getAsPrettyPrintFormatedXMLString(doc);
-                            FileUtil.saveToFile(filePath, dataToSave);
-                        }
-
-                        else {
-                            JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(VehicleInfo.this),
-                                    "<html>The properties were not" + " <b>stored</b>. The data is not valid!");
-                        }
+//                        if (VehicleType.validate(doc)) {
+//                            String dataToSave = FileUtil.getAsPrettyPrintFormatedXMLString(doc);
+//                            FileUtil.saveToFile(filePath, dataToSave);
+//                        }
+//                        else {
+//                            JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(VehicleInfo.this),
+//                                    "<html>The properties were not" + " <b>stored</b>. The data is not valid!");
+//                        }
+                        // Let us relax the validation
+                        String dataToSave = FileUtil.getAsPrettyPrintFormatedXMLString(doc);
+                        FileUtil.saveToFile(filePath, dataToSave);
                     }
                     try {
                         ImcMsgManager.getManager().stop();

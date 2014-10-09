@@ -38,7 +38,6 @@ import javax.swing.ImageIcon;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -74,7 +73,7 @@ public class GenericPlot extends MRATimeSeriesPlot {
     public boolean canBeApplied(LsfIndex index) {        
         for (String field : fieldsToPlot) {
             String messageName = field.split("\\.")[0];
-            if (index.getFirstMessageOfType(messageName) == -1)
+            if (!index.containsMessagesOfType(messageName))
                 return false;
         }
         return true;
@@ -87,21 +86,21 @@ public class GenericPlot extends MRATimeSeriesPlot {
 
     @Override
     public void process(LsfIndex source) {
-        NeptusLog.pub().info("<###>Generic Plot process");
-        long t = System.currentTimeMillis();
         for (String field : fieldsToPlot) {
             String messageName = field.split("\\.")[0];
             String variable = field.split("\\.")[1];
 
             for (IMCMessage m : source.getIterator(messageName, 0, (long)(timestep * 1000))) {
+                
                 String seriesName = "";
 
-                if(m.getValue("id") != null) {
-                    seriesName = m.getSourceName()+"."+source.getEntityName(m.getSrc(), m.getSrcEnt())+"."+field+"."+m.getValue("id");
-                } 
-                else { 
-                    //                    NeptusLog.pub().info("<###> "+m.getAbbrev() + " " + source.getEntityName(m.getSrc(), m.getSrcEnt()));
-                    seriesName = m.getSourceName()+"."+source.getEntityName(m.getSrc(), m.getSrcEnt())+"."+field;
+                if (m.getValue("id") != null) {
+                    seriesName = m.getSourceName() + "." + source.getEntityName(m.getSrc(), m.getSrcEnt()) + "."
+                            + field + "." + m.getValue("id");
+                }
+                else {
+                    seriesName = m.getSourceName() + "." + source.getEntityName(m.getSrc(), m.getSrcEnt()) + "."
+                            + field;
                 }
 
                 if (m.getMessageType().getFieldUnits(variable) != null && m.getMessageType().getFieldUnits(variable).startsWith("rad")) {
@@ -112,6 +111,5 @@ public class GenericPlot extends MRATimeSeriesPlot {
                     addValue(m.getTimestampMillis(), seriesName, m.getDouble(variable));
             }
         }
-        NeptusLog.pub().info("<###>Processed in " + (System.currentTimeMillis() - t));
     }
 }

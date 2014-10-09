@@ -63,8 +63,10 @@ public class LoadToPointCloud {
 
     public BathymetryParser parser;
     public APointCloud<?> pointCloud;
+    
     private TidePredictionFinder finder;
-
+    private boolean alreadyTriedToLoadTideFinder = false;
+    
     private vtkPoints points;
     private vtkShortArray intensities;
 
@@ -83,10 +85,13 @@ public class LoadToPointCloud {
 
     private double getTideOffset(long timestampMillis) {
         try {
-            return finder == null ? 0 : finder.getTidePrediction(new Date(timestampMillis), false);
+            if (finder == null)
+                return 0;
+            Float ret = finder.getTidePrediction(new Date(timestampMillis), false);
+            return ret == null || ret.isNaN() || ret.isInfinite() ? 0 : ret;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            NeptusLog.pub().warn(e.getMessage(), e);
             return 0;
         }
     }
@@ -243,10 +248,11 @@ public class LoadToPointCloud {
     }
 
     private void getOrCreateTideDataProvider() {
-        if (finder == null)
+        if (!alreadyTriedToLoadTideFinder && finder == null)
             finder = TidePredictionFactory.create(this.source.getLsfIndex());
         if (finder == null)
             NeptusLog.pub().warn("No tides data found!!");
+        alreadyTriedToLoadTideFinder = true;
     }
 
     /**

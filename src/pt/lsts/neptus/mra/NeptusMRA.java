@@ -36,6 +36,7 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -154,6 +155,12 @@ public class NeptusMRA extends JFrame {
         return new NeptusMRA();
     }
 
+    public void openLog(String logPath) {
+        File logFile = new File(logPath);
+        if (logFile.exists())
+            getMraFilesHandler().openLog(logFile);
+    }
+    
     /**
      * @return the JMenu bar from mraMenuBar
      */

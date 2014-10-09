@@ -39,6 +39,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -56,6 +57,8 @@ import java.util.Vector;
 
 import javax.imageio.spi.ServiceRegistry;
 
+import org.apache.commons.io.IOUtils;
+
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
@@ -63,6 +66,7 @@ import pt.lsts.neptus.gui.editor.EnumEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ReflectionUtil;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -384,12 +388,34 @@ public class PluginUtils {
                                     + " has no method to validate user input!");
                     continue;
                 }
+                
+                Class<? extends Object> propClass = propValue.getClass();
+                if (f.getType().isPrimitive()) {
+                    //propClass.isArray() // FIXME
+                    if (propClass == Double.class)
+                        propClass = double.class;
+                    else if (propClass == Float.class)
+                        propClass = float.class;
+                    else if (propClass == Byte.class)
+                        propClass = byte.class;
+                    else if (propClass == Character.class)
+                        propClass = char.class;
+                    else if (propClass == Short.class)
+                        propClass = short.class;
+                    else if (propClass == Integer.class)
+                        propClass = int.class;
+                    else if (propClass == Long.class)
+                        propClass = long.class;
+                    else if (propClass == Boolean.class)
+                        propClass = boolean.class;
+                }
+                
                 try {
-                    m = providerClass.getMethod(validateMethodUpper, propValue.getClass());
+                    m = providerClass.getMethod(validateMethodUpper, propClass);
                 }
                 catch (NoSuchMethodException e1) {
                     try {
-                        m = providerClass.getMethod(validateMethodLower, propValue.getClass());
+                        m = providerClass.getMethod(validateMethodLower, propClass);
                     }
                     catch (NoSuchMethodException e) {
                         NeptusLog.pub().debug("Property "+providerClass.getSimpleName()+"."+name+" has no method to validate user input!" );
@@ -887,6 +913,17 @@ public class PluginUtils {
             return new String[] {};
         }
     }
+    
+    public static InputStream getResourceAsStream(String filename) {
+        // Merge this with FileUtils
+        return Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream(filename);
+    }
+    
+    public static String getResourceAsString(String filename) throws IOException{
+        return IOUtils.toString(getResourceAsStream(filename));
+    }
+    
     /**
      * Given an URL to a resource (.jar, .class, .png, ...), adds that resource to the system class path
      * 

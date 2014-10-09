@@ -34,7 +34,6 @@ package pt.lsts.neptus.plugins.trex;
 import java.util.LinkedHashSet;
 
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.lsf.LsfGenericIterator;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.plots.MRAGanttPlot;
@@ -57,10 +56,9 @@ public class TrexTimeline extends MRAGanttPlot {
 
     @Override
     public void process(LsfIndex source) {
-        LsfGenericIterator it = source.getIterator("TrexToken");
         LinkedHashSet<String> timelines = new LinkedHashSet<>();
 
-        for (IMCMessage s : it) {
+        for (IMCMessage s : source.getIterator("TrexToken")) {
             startActivity(s.getTimestamp(), s.getString("timeline"), s.getString("timeline")+"."+s.getString("predicate"));
             timelines.add(s.getString("timeline"));
         }

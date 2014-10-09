@@ -65,6 +65,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
+import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.gui.MenuScroller;
 import pt.lsts.neptus.gui.ToolbarButton;
 import pt.lsts.neptus.gui.ToolbarSwitch;
@@ -80,6 +81,7 @@ import pt.lsts.neptus.plugins.map.edit.ObjectPropertiesEdit;
 import pt.lsts.neptus.plugins.map.edit.RemoveObjectEdit;
 import pt.lsts.neptus.plugins.map.interactions.Box2DInteraction;
 import pt.lsts.neptus.plugins.map.interactions.DrawPathInteraction;
+import pt.lsts.neptus.plugins.map.interactions.LineInteraction;
 import pt.lsts.neptus.plugins.map.interactions.MineDangerAreaInteraction;
 import pt.lsts.neptus.plugins.map.interactions.PolygonInteraction;
 import pt.lsts.neptus.plugins.map.interactions.QRouteInteraction;
@@ -88,6 +90,7 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.ImageElement;
@@ -364,6 +367,29 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
         });
         b2d.setToolTipText(I18n.text("Add Box2D"));
         toolbar.add(b2d);
+        
+        final ToolbarSwitch line = new ToolbarSwitch(
+                ImageUtils.getIcon("pt/lsts/neptus/plugins/map/interactions/draw-line.png"), I18n.text("Add Line Segment"),
+                "line");
+
+        line.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (((ToolbarSwitch) e.getSource()).isSelected()) {
+                    disableAllInteractionsBut(line);
+                    currentInteraction = new LineInteraction(getPivot(), manager, getConsole());
+                    currentInteraction.setAssociatedSwitch(line);
+                    currentInteraction.setActive(true, renderer);
+                }
+                else {
+                    currentInteraction.setActive(false, renderer);
+                    currentInteraction = null;
+                }
+            }
+        });
+        line.setToolTipText(I18n.text("Add Line Segment"));
+        toolbar.add(line);
+        
 
         undo = new ToolbarButton(ImageUtils.getIcon("pt/lsts/neptus/plugins/map/undo.png"), I18n.text("Undo"),
                 "undo");
@@ -663,6 +689,16 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
 
             popup.add(add);
 
+            JMenuItem item = new JMenuItem(I18n.text("Copy Location"));
+            item.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent arg0) {
+                    CoordinateUtil.copyToClipboard(loc);
+                }
+            });
+            item.setIcon(ImageUtils.getIcon("images/menus/editcopy.png"));
+            popup.add(item);
+
             JMenu editElem = new JMenu(I18n.text("Properties..."));
             editElem.setEnabled(false);
             JMenu removeElem = new JMenu(I18n.text("Remove..."));
@@ -943,15 +979,24 @@ public class MapEditor extends ConsolePanel implements StateRendererInteraction,
         else {
             Container parent = toolbar.getParent();
             
-            parent.remove(toolbar);
+            try {
+                parent.remove(toolbar);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(
+                        "Error removing toolbar of " + MapEditor.class.getSimpleName() + " from "
+                                + MapPanel.class.getSimpleName(), e);
+            }
             parent.invalidate();
             parent.validate();
             
             SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                 @Override
                 protected Void doInBackground() throws Exception {
+                    LocationType oldCenter = renderer.getCenter();
                     getConsole().getMission().save(true);
                     getConsole().warnMissionListeners();
+                    renderer.setCenter(oldCenter);
                     return null;
                 }
             };

@@ -39,6 +39,7 @@ import java.util.Vector;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.ProgressMonitor;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.MissionFileChooser;
@@ -48,7 +49,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.GuiUtils;
 
-public class PlanToCsvConverter {
+public class PlanToCsvConverter implements IPlanFileExporter {
 
 	public static void main(String[] args) {
 		File mfile = MissionFileChooser.showOpenMissionDialog(new String[] {"nmis", "nmisz"});
@@ -73,6 +74,21 @@ public class PlanToCsvConverter {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public void exportToFile(PlanType plan, File out, ProgressMonitor monitor) throws Exception {
+	    saveAsCsv(plan, out);
+	}
+	
+	@Override
+	public String getExporterName() {
+	    return "CSV";
+	}
+	
+	@Override
+	public String[] validExtensions() {
+	    return new String[] {"csv"};
 	}
 
 	public static void saveAsCsv(PlanType plan, File out) throws IOException {

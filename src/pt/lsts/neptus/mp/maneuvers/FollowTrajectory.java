@@ -49,6 +49,7 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Point2D;
 import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
@@ -541,9 +542,6 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         return Collections.unmodifiableList(points);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mp.maneuvers.PathProvider#getPathLocations()
-     */
     @Override
     public List<LocationType> getPathLocations() {
         Vector<LocationType> locs = new Vector<>();
@@ -551,6 +549,20 @@ StateRendererInteraction, IMCSerialization, PathProvider {
         LocationType start = new LocationType(getManeuverLocation());
         for (double[] ds : lst) {
             LocationType loc = new LocationType(start);
+            loc.translatePosition(ds);
+            loc.convertToAbsoluteLatLonDepth();
+            locs.add(loc);
+        }
+        return locs;
+    }
+    
+    @Override
+    public Collection<ManeuverLocation> getWaypoints() {
+        Vector<ManeuverLocation> locs = new Vector<>();
+        List<double[]> lst = Collections.unmodifiableList(points);
+        ManeuverLocation start = new ManeuverLocation(getManeuverLocation());
+        for (double[] ds : lst) {
+            ManeuverLocation loc = new ManeuverLocation(start);
             loc.translatePosition(ds);
             loc.convertToAbsoluteLatLonDepth();
             locs.add(loc);

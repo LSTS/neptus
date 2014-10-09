@@ -104,6 +104,7 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -742,10 +743,11 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
             TransponderElement[] selTransponders = getSelectedTransponderElementsFromExternalComponents();
             if (selTransponders.length > 0 && selTransponders.length < transpondersList.size()) {
                 String beaconsToSend = "";
-                boolean b = true;
+                boolean hideComma = true;
                 for (TransponderElement tElnt : selTransponders) {
-                    beaconsToSend += b ? "" : ", ";
+                    beaconsToSend += hideComma ? "" : ", ";
                     beaconsToSend += tElnt.getDisplayName();
+                    hideComma = false;
                 }
                 int resp = GuiUtils.confirmDialog(SwingUtilities.windowForComponent(this), I18n.text("LBL Beacons"),
                         I18n.textf("Are you sure you want to send only %beaconsToSend?", beaconsToSend));
@@ -987,7 +989,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         boolean dontSendByAcoustics = DONT_USE_ACOUSTICS;
         if (cmd == PlanControl.OP.START) {
             String planId = pc.getPlanId();
-            if (planId.length() == 1) {
+            if (planId.length() <= GeneralPreferences.maximumSizePlanNameForAcoustics) {
                 dontSendByAcoustics = USE_ACOUSTICS;
             }
         }

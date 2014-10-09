@@ -88,15 +88,16 @@ import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
+import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.EntityState;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.doc.NeptusDoc;
 import pt.lsts.neptus.ftp.FtpDownloader;
 import pt.lsts.neptus.gui.MiniButton;
 import pt.lsts.neptus.gui.NudgeGlassPane;
@@ -120,7 +121,6 @@ import foxtrot.AsyncWorker;
  * @author pdias
  * 
  */
-@NeptusDoc(ArticleFilename = "logs-downloader/logs-downloader.html#worker", ArticleTitle = "Logs Downloader Worker", Section = "Logs")
 public class LogsDownloaderWorker {
 
     private static final int QUERYPOWERCHANNEL_PERIOD_MILLIS = 5000;
@@ -154,6 +154,8 @@ public class LogsDownloaderWorker {
 
     protected static final long DELTA_TIME_TO_CLEAR_DONE = 5000;
     protected static final long DELTA_TIME_TO_CLEAR_NOT_WORKING = 45000;
+    
+    protected static final String CAMERA_CPU_LABEL = "Slave CPU";
 
     private FtpDownloader clientFtp = null;
     private FtpDownloader cameraFtp = null;
@@ -293,6 +295,7 @@ public class LogsDownloaderWorker {
 
             @Override
             public void onMessage(MessageInfo info, IMCMessage msg) {
+                /* Old way
                 if (msg.getAbbrev().equals("PowerChannelState")) {
                     String systemName = getLogLabel();
                     ImcSystem imcSystem = ImcSystemsHolder.getSystemWithName(systemName);
@@ -303,6 +306,24 @@ public class LogsDownloaderWorker {
                         //System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: PowerChannelState "
                         //+ msg.getInteger("state"));
                         cameraButton.setBackground(msg.getInteger("state") == 1 ? Color.GREEN : null);
+                    }
+                }
+                */
+                
+                if (msg.getAbbrev().equals("EntityState")) {
+                    EntityState est = (EntityState) msg;
+                    String entityName = EntitiesResolver.resolveName(getLogLabel(), (int) msg.getSrcEnt());
+                    if (entityName != null && CAMERA_CPU_LABEL.equalsIgnoreCase(entityName)) {
+                        String descStateCode = est.getDescription();
+                        // Testing for active state code (also for the translated string)
+                        if (descStateCode != null
+                                && ("active".equalsIgnoreCase(descStateCode.trim()) || I18n.text("active")
+                                        .equalsIgnoreCase(descStateCode.trim()))) {
+                            cameraButton.setBackground(Color.GREEN);
+                        }
+                        else {
+                            cameraButton.setBackground(null);
+                        }
                     }
                 }
             }
@@ -1411,12 +1432,31 @@ public class LogsDownloaderWorker {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String powerChannel = getLogLabel().equals("lauv-xtreme-2") ? "Camera Module" : "Camera - CPU";
-                    IMCMessage msg = new IMCMessage("PowerChannelControl");
-                    msg.setValue("name", powerChannel);
-                    msg.setValue("op", cameraButton.getBackground() != Color.GREEN ? 1 : 0);
+                    /* Old way
+                    if (getLogLabel().equals("lauv-noptilus-3")) {
+                        PowerOperation powerOp = new PowerOperation();
+                        powerOp.setDst(0x6003);
+                        powerOp.setOp(cameraButton.getBackground() != Color.GREEN ? OP.PWR_UP : OP.PWR_DOWN);
+                        ImcMsgManager.getManager().sendMessageToSystem(powerOp, getLogLabel());
+                    }
+                    else {
+                        String powerChannel = getLogLabel().equals("lauv-xtreme-2") ? "Camera Module" : "Camera - CPU";
+                        IMCMessage msg = new IMCMessage("PowerChannelControl");
+                        msg.setValue("name", powerChannel);
+                        msg.setValue("op", cameraButton.getBackground() != Color.GREEN ? 1 : 0);
 
-                    ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
+                        ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
+                    }
+                    */
+                    
+                    ArrayList<EntityParameter> propList = new ArrayList<>();
+                    EntityParameter entParsm = new EntityParameter().setName("Active").setValue(cameraButton.getBackground() != Color.GREEN ? "true" : "false");
+                    propList.add(entParsm);
+                    SetEntityParameters setParams = new SetEntityParameters();
+                    setParams.setName(CAMERA_CPU_LABEL);
+                    setParams.setParams(propList);
+
+                    ImcMsgManager.getManager().sendMessageToSystem(setParams, getLogLabel());
                 }
                 catch (Exception e1) {
                     e1.printStackTrace();
@@ -1466,6 +1506,23 @@ public class LogsDownloaderWorker {
                     diskFreeLabel.setText("<html><b>?");
                     diskFreeLabel.setToolTipText(I18n.text("Unknown local disk free space"));
                     updateDiskFreeLabelBackColor(Color.LIGHT_GRAY);
+                    
+                    
+                    // Queue block test
+                    ArrayList<DownloaderPanel> workingDonsloaders = queueWorkTickets.getAllWorkingClients();
+                    Component[] components = downloadWorkersHolder.getComponents();
+                    for (Component cp : components) {
+                        if (!(cp instanceof DownloaderPanel))
+                            continue;
+                        
+                        DownloaderPanel workerD = (DownloaderPanel) cp;
+                        if (workingDonsloaders.contains(workerD))
+                            workingDonsloaders.remove(workerD);
+                    }
+                    for (DownloaderPanel cp : workingDonsloaders) {
+                        queueWorkTickets.release(cp);
+                        NeptusLog.pub().error(cp.getUri() + " should not be holding the lock (forcing release)! State: " + cp.getState());
+                    }
                 }
             };
         }
@@ -2784,8 +2841,11 @@ public class LogsDownloaderWorker {
                     resetRes &= false;
                 }
                 
-                if (!justStopDownloads)
+                if (!justStopDownloads) {
+                    queueWorkTickets.cancelAll();
+
                     resetting = false;
+                }
 
                 return resetRes;
             }

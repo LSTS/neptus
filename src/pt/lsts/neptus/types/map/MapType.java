@@ -117,6 +117,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
             elems.add(new ImageElement());
             elems.add(new MineDangerAreaElement(null, null));
             elems.add(new QRouteElement(null, null));
+            elems.add(new LineSegmentElement(null, null));
         }
 
         return elems;
@@ -482,7 +483,7 @@ public class MapType implements XmlOutputMethods, XmlInputMethods, XmlInputMetho
 
             elementClasses.put("MineDangerAreaElement", MineDangerAreaElement.class);
             elementClasses.put("QRouteElement", QRouteElement.class);
-
+            elementClasses.put("LineSegmentElement", LineSegmentElement.class);
             for (String name : elementClasses.keySet()) {
                 lst = doc.selectNodes("/map/features/" + name);
                 lstIt = lst.listIterator();

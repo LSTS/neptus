@@ -190,6 +190,8 @@ public class RemoteHistory extends ConsolePanel implements NeptusMessageListener
             msg.type = msg_type.error;
         else if (type.equals("CRITICAL"))
             msg.type = msg_type.critical;
+        else if (type.equals("DEBUG"))
+            msg.type = msg_type.debug;
 
         return msg;
     }

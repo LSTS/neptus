@@ -54,6 +54,12 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.EntityParameters;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.QueryEntityParameters;
+import pt.lsts.imc.SaveEntityParameters;
+import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -62,16 +68,8 @@ import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
-import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-import pt.lsts.imc.EntityParameter;
-import pt.lsts.imc.EntityParameters;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.QueryEntityParameters;
-import pt.lsts.imc.SaveEntityParameters;
-import pt.lsts.imc.SetEntityParameters;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.l2fprod.common.propertysheet.PropertyEditorRegistry;
@@ -224,10 +222,10 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
         checkAdvance = new JCheckBox(I18n.text("Access Developer Parameters"));
         checkAdvance.setToolTipText("<html>" + I18n.textc("Be careful changing these values.<br>They may make the vehicle inoperable.",
                 "This will be a tooltip, and use <br> to change line."));
-        if (ConfigFetch.getDistributionType() == DistributionEnum.DEVELOPER)
+//        if (ConfigFetch.getDistributionType() == DistributionEnum.DEVELOPER)
             add(checkAdvance);
-        else
-            visibility = Visibility.USER;
+//        else
+//            visibility = Visibility.USER;
         if (visibility == Visibility.DEVELOPER)
             checkAdvance.setSelected(true);
         else
@@ -418,9 +416,6 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             SetEntityParameters setParams = new SetEntityParameters();
             setParams.setName(cat);
             setParams.setParams(propList);
-            
-            setParams.dump(System.out);
-            
             msgs.add(setParams);
         }
 
@@ -503,6 +498,9 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
             sid = ImcSystemsHolder.getSystemWithName(getSystemId());
         if (sid != null) {
             imcMsgManager.sendReliablyNonBlocking(msg, sid.getId(), mdl);
+        }
+        else {
+            imcMsgManager.sendMessageToSystem(msg, getSystemId());
         }
     }
     

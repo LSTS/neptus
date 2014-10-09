@@ -217,8 +217,8 @@ MissionChangeListener {
         }
 
         try {
-            if (plan != null) {
-                planStatistics = PlanUtil.getPlanStatisticsAsText(plan, null, true, true);
+            if (planElem != null && planElem.getPlan() != null) {
+                planStatistics = PlanUtil.getPlanStatisticsAsText(planElem.getPlan(), null, true, true);
                 statsLabel.setText(planStatistics);
             }
         }
@@ -1435,6 +1435,7 @@ MissionChangeListener {
 
         if (event.getButton() == MouseEvent.BUTTON1) {
             selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());
+            lastDragPoint = event.getPoint();
             if (selectedManeuver != null && selectedManeuver instanceof LocatedManeuver) {
                 maneuverLocationBeforeMoving = ((LocatedManeuver) selectedManeuver).getManeuverLocation();
             }

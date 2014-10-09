@@ -31,15 +31,12 @@
  */
 package pt.lsts.neptus.util;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -47,7 +44,10 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -87,14 +87,6 @@ public class FileUtil {
      * Empty constructor
      */
     private FileUtil() {
-    }
-
-    /**
-     * @param fx
-     * @return
-     */
-    public static String getFileAsString(File fx) {
-        return getFileAsString(fx.getAbsolutePath());
     }
 
     public static String getFileExtension(File fx) {
@@ -152,13 +144,52 @@ public class FileUtil {
         return st + "." + newExtension;
     }
 
+
+    /**
+     * See {@link #checkFileForExtensions(String, String...)}.
+     * @param file
+     * @param extensions
+     * @return
+     */
+    public static String checkFileForExtensions(File file, String... extensions) {
+        return checkFileForExtensions(file.getName(), extensions);
+    }
+
+    /**
+     * Checks a file name for matching a file extension (case insensitive).
+     * @param filePath
+     * @param extensions
+     * @return The extension that matched or null if not.
+     */
+    public static String checkFileForExtensions(String filePath, String... extensions) {
+        if (filePath == null || extensions == null || extensions.length == 0)
+            return null;
+        
+        String fileExt = getFileExtension(filePath);
+        if (fileExt == null || fileExt.isEmpty())
+            return null;
+        
+        for (String ext : extensions) {
+            if (fileExt.equalsIgnoreCase(ext))
+                return ext;
+        }
+        
+        return null;
+    }
+    
+    /**
+     * @param fx
+     * @return
+     */
+    public static String getFileAsString(File fx) {
+        return getFileAsString(fx.getAbsolutePath());
+    }
+
     /**
      * @param url
      * @return
      */
     public static String getFileAsString(String url) {
-
-        // DataInputStream dis = null;
         FileInputStream fis = null;
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         int len;
@@ -167,19 +198,13 @@ public class FileUtil {
         String actualEncoding = "UTF-8";
         try {
             fis = new FileInputStream(url);
-            // dis = new DataInputStream (fis);
-
-            // dFIXME Pode haver problemas com ficheiros grandes
-            // ba = new byte[dis.available()];
             ba = new byte[1024];
-            // dis.readFully (ba);
-            // dis.close ();
             while ((len = fis.read(ba)) > 0) {
                 bos.write(ba, 0, len);
             }
             ba = bos.toByteArray();
 
-            // FIXME Descobrir qual o encoding do fx
+            // Find the file encoding, just a try
             String enc = findOutFileEncoding(ba);
             if (enc == null)
                 actualEncoding = "UTF-8";
@@ -194,22 +219,85 @@ public class FileUtil {
                 result = new String(ba, "UTF-8");
             }
 
-            fis.close();
+            // fis.close();
 
             // NeptusLog.pub().debug(FileUtil.class + " Input file as (" +
             // actualEncoding + ") \n" + result);
 
         }
         catch (FileNotFoundException e) {
-            // e.printStackTrace();
             NeptusLog.pub().error(FileUtil.class, e);
         }
         catch (IOException e) {
-            // e.printStackTrace();
             NeptusLog.pub().error(FileUtil.class, e);
+        }
+        finally {
+            if (fis != null)
+                try {
+                    fis.close();
+                }
+                catch (IOException e) {
+                    NeptusLog.pub().error(FileUtil.class, e);
+                }
         }
 
         return result;
+    }
+
+    private static File[] getFilesFromDiskWorker(File folderToLoad, final String searchPattern, final boolean justFolders) {
+        try {
+            if (folderToLoad != null && folderToLoad.exists()) {
+                File folder = folderToLoad.isDirectory() ? folderToLoad : 
+                    folderToLoad.getParentFile();
+                
+                FilenameFilter fileFilter = new FilenameFilter() {
+                    Pattern pat = searchPattern == null || searchPattern.isEmpty() ? null : Pattern
+                            .compile(searchPattern);
+
+                    @Override
+                    public boolean accept(File file, String name) {
+                        if (pat == null) {
+                            File fx = new File(file, name);
+                            return justFolders ? fx.isDirectory() : fx.isFile();
+                        }
+                        else {
+                            Matcher m = pat.matcher(name);
+                            boolean ret = m.find();
+                            File fx = new File(file, name);
+                            return ret ? (justFolders ? fx.isDirectory() : fx.isFile()) : false;
+                        }
+                    }
+                };
+                
+                File[] lst = folder.listFiles(fileFilter);
+                Arrays.sort(lst);
+                return lst;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Get the list of sorted files in folder or null if parent folder doesn't exist or pattern is not valid.
+     * @param folderToLoad
+     * @param searchPattern null for all
+     * @return
+     */
+    public static File[] getFilesFromDisk(File folderToLoad, final String searchPattern) {
+        return getFilesFromDiskWorker(folderToLoad, searchPattern, false);
+    }
+
+    /**
+     * Get the list of sorted folders in folder or null if parent folder doesn't exist or pattern is not valid.
+     * @param folderToLoad
+     * @param searchPattern null for all
+     * @return
+     */
+    public static File[] getFoldersFromDisk(File folderToLoad, final String searchPattern) {
+        return getFilesFromDiskWorker(folderToLoad, searchPattern, true);
     }
 
     /**
@@ -242,6 +330,7 @@ public class FileUtil {
     }
 
     /**
+     * Find the encoding of a file.
      * @param ba
      * @return
      */
@@ -414,6 +503,10 @@ public class FileUtil {
         fos.close();
     }
 
+    public static void concatFiles(File destination, File fileToBeAppended) throws Exception {
+        appendToFile(destination, fileToBeAppended);
+    }
+
     public static void appendToFile(File destination, File fileToBeAppended) throws Exception {
         FileInputStream fis = new FileInputStream(fileToBeAppended);
         appendToFile(destination, fis);
@@ -578,47 +671,6 @@ public class FileUtil {
             return false;
         }
         return ret;
-    }
-
-    /**
-     * @deprecated - doesn't work for binary files!
-     * @see FileUtil.copyFile(String source, String dest)
-     * @param source
-     * @param out
-     * @return
-     */
-    public static boolean copyFile2(String source, String out) {
-        try {
-            FileReader fr = new FileReader(new File(source));
-            BufferedReader bfr = new BufferedReader(fr);
-
-            FileWriter frout = new FileWriter(new File(out));
-            BufferedWriter bfrout = new BufferedWriter(frout);
-
-            char[] ss = new char[1024];
-            int nbr = 0;
-            while (bfr.ready() && ((nbr = bfr.read(ss, 0, ss.length)) != -1)) {
-                bfrout.write(ss, 0, nbr);
-                bfrout.flush();
-            }
-
-            bfrout.flush();
-            fr.close();
-            bfr.close();
-            frout.close();
-            bfrout.close();
-        }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-            System.err.println(e.getMessage() + source);
-            return false;
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            System.err.println(e.getMessage() + source);
-            return false;
-        }
-        return true;
     }
 
     public static boolean copyFileToDir(String source, String destDir) {

@@ -64,6 +64,7 @@ import org.dom4j.Node;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.XmlInputMethods;
 import pt.lsts.neptus.types.XmlOutputMethods;
@@ -85,7 +86,6 @@ public abstract class AbstractElement
         XmlInputMethods {
 	public enum ELEMENT_TYPE { MODEL_3D, TYPE_HOMEREFERENCE, TYPE_MARK, TYPE_PARALLELEPIPED, TYPE_ELLIPSOID, TYPE_TRANSPONDER, TYPE_PATH, TYPE_CYLINDER, TYPE_IMAGE, TYPE_OTHER };
 
-//	private static Random rnd = new Random(System.currentTimeMillis());
     protected static final LocationType guinea = LocationType.ABSOLUTE_ZERO;
     protected boolean isLoadOk = true;
     protected static final String DEFAULT_ROOT_ELEMENT = "mark";
@@ -94,13 +94,19 @@ public abstract class AbstractElement
     private double theta = 0;
     private double psi   = 0;
     
+    private boolean filled = true;
+    
     protected int transparency = 0;
 
-    protected LocationType centerLocation = new LocationType(); 
-   
+    @NeptusProperty
+    public LocationType centerLocation = new LocationType(); 
+    
+    @NeptusProperty
+    public boolean obstacle;
+    
     protected Document doc = null;
     
-    protected String id = NameNormalizer.getRandomID("me"); // "obj_"+System.currentTimeMillis()+rnd.nextInt(100);
+    protected String id = NameNormalizer.getRandomID(getTypeAbbrev()); // "obj_"+System.currentTimeMillis()+rnd.nextInt(100);
     // protected String name = id;
 
     // ===== Old MapObject
@@ -116,7 +122,7 @@ public abstract class AbstractElement
     public String[] takenNames = new String[0];
     protected JDialog dialog;
     protected JCheckBox obstacleCheck, hiddenCheck;
-    private boolean obstacle;
+    
     protected JTextField objName, transp;
     // ===== END Param panels
 
@@ -135,6 +141,18 @@ public abstract class AbstractElement
     public abstract int getLayerPriority();
 
 	/**
+     * @return the filled
+     */
+    public boolean isFilled() {
+        return filled;
+    }
+    /**
+     * @param filled the filled to set
+     */
+    public void setFilled(boolean filled) {
+        this.filled = filled;
+    }
+    /**
      * Creates a map element
      */
     public AbstractElement() {
@@ -246,6 +264,20 @@ public abstract class AbstractElement
                     setPsi(val);
                 }
             }
+            nd = doc.selectSingleNode("//filled");
+            if (nd != null) {
+                String text = nd.getText().toLowerCase().trim();
+                try {
+                    if (text.equals("false") || text.equals("no") || text.equals("0"))
+                        filled = false;
+                    else
+                        filled = true;
+                }
+                catch (NumberFormatException e) {
+                    NeptusLog.pub().error(e.getMessage());
+                    filled = true;
+                }
+            }
             nd = doc.selectSingleNode("//transparency");
             if (nd != null) {
                 String text = nd.getText();
@@ -326,6 +358,8 @@ public abstract class AbstractElement
         if (transparency != 0)
             root.addElement("transparency").addText(Double.toString(transparency));
         
+        root.addElement("filled").addText(""+filled);
+        
         root.addAttribute("obstacle", ""+isObstacle());
         document.add(root);
 
@@ -333,6 +367,10 @@ public abstract class AbstractElement
     }
     // ===== END XMLOutput Interface
 
+    public String getTypeAbbrev() {
+        return getType();
+    }
+    
     /**
      * @return
      */
@@ -726,17 +764,31 @@ public abstract class AbstractElement
             return;
         }
     }
-    
+
     /**
      * Creates a shows a parameters dialog for the current object
      * The user can chage the parameters of the current object here.
      * @param takenNames
      */
     public void showParametersDialog(Component parentComp, String[] takenNames, MapType map, boolean editable) {
+        showParametersDialog(parentComp, takenNames, map, editable, editable);
+    }
+
+    /**
+     * Creates a shows a parameters dialog for the current object
+     * The user can chage the parameters of the current object here.
+     * @param takenNames
+     */
+    protected void showParametersDialog(Component parentComp, String[] takenNames, MapType map, boolean editable, boolean idEditable) {
         
         this.takenNames = takenNames;
         this.parentMap = map;
         
+        // This needs to be before the getParametersPanel for the transponders
+        objName = new JTextField(8);
+        objName.setEditable(editable ? idEditable : editable);
+        objName.setText(id);
+
         paramsPanel = getParametersPanel(editable,map);
         
         if (parentComp == null || SwingUtilities.getWindowAncestor(parentComp) == null) {
@@ -751,9 +803,6 @@ public abstract class AbstractElement
         idPanel.setLayout(flow);
  
         
-        objName = new JTextField(8);
-        objName.setEditable(editable);
-        objName.setText(id);
         obstacleCheck = new JCheckBox(I18n.text("Obstacle"));
         obstacleCheck.setSelected(isObstacle());
         

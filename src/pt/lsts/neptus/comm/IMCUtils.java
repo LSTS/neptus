@@ -63,7 +63,6 @@ import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCFieldType;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
-import pt.lsts.imc.IMCUtil;
 import pt.lsts.imc.types.PlanSpecificationAdapter;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -1313,102 +1312,5 @@ public class IMCUtils {
             String name = IMCDefinition.getInstance().getResolver().resolve(id);
             System.out.println(addrElem.getText() + ","+name+" --> "+getSystemType(id));
         }
-    }
-
-    
-    // ------------------------------------------------------------------------
-
-    public static void main(String[] args) throws Exception {
-
-        testSysTypeResolution();
-        
-        String services = "dune://1294925553839635/;" + "imc+udp://192.168.106.189:6002/;"
-                + "imc+udp://172.16.13.1:6002/;" + "imc+udp://172.16.216.1:6002/;"
-                + "http://192.168.106.189:8080/dune/re;" + "http://172.16.13.1:8080/dune;"
-                + "http://172.16.216.1:8080/dune;" + "neptus:///uid/1294925553839635/;"
-                + "dune:///uid/81294925553839635/;";
-
-        NeptusLog.pub().info("<###> "+getServiceProvided(services, "imc+udp", "*"));
-        NeptusLog.pub().info("<###> "+getServiceProvided(services, "http", "dune"));
-        NeptusLog.pub().info("<###> "+getServiceProvided(services, "*", "*"));
-        NeptusLog.pub().info("<###> "+getServiceProvided(services, "dune", "*"));
-        NeptusLog.pub().info("<###> "+getServiceProvided(services, "*", "uid"));
-
-        // ConfigFetch.initialize();
-        //
-        //		String xml = IMCUtils.getAsImcXml(new IMCMessage[] {
-        //			IMCDefinition.getInstance().create("EstimatedState", "x", 1234, "ref", 1)				
-        // }).asXML();
-        //
-        // try {
-        //			IMCMessage msg = IMCUtils.parseImcXml(xml)[0];
-        // msg.dump(System.out);
-        // }
-        // catch (Exception e) {
-        // e.printStackTrace();
-        // }
-
-        /*
-         * GuiUtils.setLookAndFeel(); JPanel mainPanel = new JPanel(); mainPanel.setLayout(new BoxLayout(mainPanel,
-         * BoxLayout.Y_AXIS));
-         * 
-         * JPanel tmp = new JPanel(new FlowLayout(FlowLayout.CENTER, 2, 2)); tmp.add(new JLabel("Hostname: ")); final
-         * JTextField addr = new JTextField("192.168.106.193"); addr.setColumns(20); tmp.add(addr);
-         * 
-         * mainPanel.add(tmp);
-         * 
-         * tmp = new JPanel(new FlowLayout(FlowLayout.CENTER, 2, 2)); tmp.add(new JLabel("Port: ")); final JTextField
-         * port = new JTextField("6002"); tmp.add(port); mainPanel.add(tmp);
-         * 
-         * tmp = new JPanel(new FlowLayout(FlowLayout.CENTER, 2, 2));
-         * 
-         * final JComboBox plans = new JComboBox(plansList); plans.setEnabled(false); plans.setPreferredSize(new
-         * Dimension(100, 25));
-         * 
-         * JButton sendButton = new JButton("Send!"); sendButton.addActionListener(new ActionListener() {
-         * 
-         * @Override public void actionPerformed(ActionEvent e) { System.out.print("creating inetsocket...");
-         * 
-         * InetSocketAddress addrs = new InetSocketAddress(addr.getText(), Integer.parseInt(port.getText()));
-         * NeptusLog.pub().info("<###>DONE."); System.out.print("sending...");
-         * 
-         * boolean ret = sendMissionConfiguration(mt, plans .getSelectedItem().toString(), addrs);
-         * NeptusLog.pub().info("<###>DONE."); NeptusLog.pub().info("<###> "+ret); } });
-         * 
-         * JButton missButton = new JButton("Mission..."); missButton.addActionListener(new ActionListener() {
-         * 
-         * @Override public void actionPerformed(ActionEvent e) { File mfile = MissionFileChooser
-         * .showOpenMissionDialog(new String[] { "nmis", "nmisz" }); try { mt = new
-         * MissionType(mfile.getAbsolutePath()); plansList.clear(); for (String planId :
-         * mt.getIndividualPlansList().keySet()) { plansList.add(planId); } if (plansList.size() > 0)
-         * plans.setSelectedIndex(0); plans.setEnabled(true); } catch (Exception ex) { GuiUtils.errorMessage(null, ex);
-         * } } });
-         * 
-         * tmp.add(missButton); tmp.add(new JLabel("     ")); tmp.add(plans); mainPanel.add(tmp);
-         * 
-         * tmp.add(new JLabel("     ")); tmp.add(sendButton);
-         * 
-         * GuiUtils.testFrame(mainPanel, "Send Mission Configuration", 300, 150);
-         */
-
-        Vector<IMCMessage> messages = new Vector<IMCMessage>();
-        messages.add(IMCDefinition.getInstance().create("Heartbeat"));
-        messages.add(IMCDefinition.getInstance().create("EstimatedState"));
-        messages.add(IMCDefinition.getInstance().create("Rpm"));
-        IMCMessage mlst = packAsMessageList(messages);
-        IMCUtil.debug(mlst);
-        Vector<IMCMessage> emlst = extractMessagesFromMessageListMsg(mlst);
-        GuiUtils.printList(emlst);
-
-        NeptusLog.pub().info("<###>\n\n\n\n");
-        NeptusLog.pub().info("<###> "+reduceSystemName("lauv-seacon-1"));
-        NeptusLog.pub().info("<###> "+reduceSystemName("lauv-xtreme-2"));
-        NeptusLog.pub().info("<###> "+reduceSystemName("lauv-noptilus-0"));
-        NeptusLog.pub().info("<###> "+reduceSystemName("ccu-pdias-88-191"));
-        NeptusLog.pub().info("<###> "+reduceSystemName("ccu-pdias-388-191"));
-        NeptusLog.pub().info("<###> "+reduceSystemName("cularis-05"));
-        NeptusLog.pub().info("<###> "+reduceSystemName("pilatus-07"));
-        NeptusLog.pub().info("<###> "+reduceSystemName("adamastor"));
-        NeptusLog.pub().info("<###> "+reduceSystemName("swordfish"));
     }
 }

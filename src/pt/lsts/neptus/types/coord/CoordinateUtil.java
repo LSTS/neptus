@@ -42,6 +42,7 @@ import java.util.StringTokenizer;
 import javax.vecmath.Matrix3d;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
@@ -395,7 +396,7 @@ public class CoordinateUtil {
      */
     private static String dmsToLatLonString(double[] dms, boolean isLat, boolean dmonly, int maxDecimalHouses) {
         if (maxDecimalHouses < 0)
-            maxDecimalHouses = Integer.MAX_VALUE;
+            maxDecimalHouses = 3;
         String l = "N";
         if (!isLat)
             l = "E";
@@ -413,8 +414,8 @@ public class CoordinateUtil {
         }
 
         NumberFormat nformat = DecimalFormat.getInstance(Locale.US);
-        nformat.setMaximumFractionDigits(3);
-        nformat.setMinimumFractionDigits(3);
+        nformat.setMaximumFractionDigits(maxDecimalHouses);
+        nformat.setMinimumFractionDigits(Math.min(3, maxDecimalHouses));
         nformat.setGroupingUsed(false);
 
         if (hasFracPart(d)) {
@@ -597,6 +598,81 @@ public class CoordinateUtil {
         return dmToLatLonString(dm, false, maxDecimalHouses);
     }
 
+    
+    private static String latLonTo83PFormatWorker(double latLonDegrees, boolean isLatOrLon) {
+        // 33-46    -   GNSS Ships Positon Latitude (14 bytes) "_dd.mm.xxxxx_N" dd = degrees, mm = minutes, xxxxx = decimal Minutes, _ = Space, N = North or S = South
+        // 47-60    -   GNSS Ships Postion Longitude (14 byes) "ddd.mm.xxxxx_E" ddd= degrees, mm = minutes, xxxxx = decimal minutes, E = East or W = West
+
+        String letter;
+        if (latLonDegrees >= 0)
+            letter = isLatOrLon ? "N" : "E";
+        else
+            letter = isLatOrLon ? "S" : "W";
+
+        double[] latLonDM = CoordinateUtil.decimalDegreesToDM(AngleCalc.nomalizeAngleDegrees180(latLonDegrees));
+        String latLonStr = CoordinateUtil.dmToLatString(latLonDM[0], latLonDM[1], 5);
+        latLonStr = latLonStr.replaceAll("[NSEW]", ".");
+        String[] latLonParts = latLonStr.split("\\.");
+        
+        // fix dd size
+        int sizeD = latLonParts[0].length();
+        int insertPad = 3 - sizeD;
+        String pad = isLatOrLon ? "0 " : "00";
+        while (insertPad > 0) {
+            latLonParts[0] = pad.charAt(2 - insertPad--) + latLonParts[0];
+        }
+
+        // fix mm size
+        if (latLonParts[1].length() < 2)
+            latLonParts[1] = "0" + latLonParts[1];
+
+        // fix ss size
+        sizeD = latLonParts[2].length();
+        insertPad = 5 - sizeD;
+        pad = "0000";
+        while (insertPad > 0) {
+            latLonParts[2] = latLonParts[2] + pad.charAt(2 - insertPad--);
+        }
+
+        String ret = latLonParts[0] + "." + latLonParts[1] + "." + latLonParts[2] + " " + letter; 
+        return ret;
+    }
+
+    /**
+     * Convert latitude degrees to the format "_dd.mm.xxxxx_N" dd = degrees, mm = minutes, xxxxx = decimal Minutes, _ = Space, N = North or S = South
+     * @param latDegrees
+     * @return
+     */
+    public static String latTo83PFormatWorker(double latDegrees) {
+        return latLonTo83PFormatWorker(latDegrees, true);
+    }
+
+    /**
+     * Convert longitude degrees to the format "ddd.mm.xxxxx_E" dd = degrees, mm = minutes, xxxxx = decimal Minutes, _ = Space, E = East or W = West
+     * @param lonDegrees
+     * @return
+     */
+    public static String lonTo83PFormatWorker(double lonDegrees) {
+        return latLonTo83PFormatWorker(lonDegrees, false);
+    }
+
+    private static double latLonFrom83PFormatWorker(String latLonStr) {
+        String[] parts = latLonStr.trim().split("[\\. ]");
+        double sign = -1.0;
+        if ("N".equalsIgnoreCase(parts[3].trim()) || "E".equalsIgnoreCase(parts[3].trim()))
+            sign = 1.0;
+        return sign * (Double.parseDouble(parts[0].trim()) + Double.parseDouble(parts[1].trim() + "." + parts[2].trim()) / 60d); 
+    }
+
+    public static double latFrom83PFormatWorker(String latStr) {
+        return latLonFrom83PFormatWorker(latStr);
+    }
+
+    public static double lonFrom83PFormatWorker(String lonStr) {
+        return latLonFrom83PFormatWorker(lonStr);
+    }
+
+    
 //    /**
 //     * Converts a latitude string to double usage (string format to pass to the method): gg[N/S]mm.mmmm
 //     * 

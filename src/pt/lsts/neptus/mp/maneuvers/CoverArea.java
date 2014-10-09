@@ -44,6 +44,8 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
@@ -53,6 +55,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PolygonVertex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -261,6 +264,11 @@ public class CoverArea extends AbstractImcManeuver<pt.lsts.imc.CoverArea> implem
     @Override
     public void focusLost(FocusEvent event, StateRenderer2D source) {
         adapter.focusLost(event, source);
+    }
+    
+    @Override
+    public Collection<ManeuverLocation> getWaypoints() {
+        return Collections.singleton(getStartLocation());
     }
 
     public static void main(String[] args) {
