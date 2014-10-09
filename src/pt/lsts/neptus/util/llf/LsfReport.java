@@ -487,7 +487,7 @@ public class LsfReport {
         }
         catch (Exception e) {
             e.printStackTrace();
-            GuiUtils.errorMessage(I18n.text("Error createTable()"), e.getMessage());
+            GuiUtils.errorMessage(I18n.text("Error creating PDF table"), e.getMessage());
         }
     }
 
