@@ -85,7 +85,6 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LogUtils.LogValidity;
 import pt.lsts.neptus.util.llf.LsfReport;
-import pt.lsts.neptus.util.llf.LsfReportProperties;
 import pt.lsts.neptus.util.logdownload.LogsDownloaderWorker;
 import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;

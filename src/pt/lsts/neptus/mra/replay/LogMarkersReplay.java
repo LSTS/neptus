@@ -50,7 +50,6 @@ import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
 
 /**

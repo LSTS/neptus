@@ -39,13 +39,10 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.gui.ColorMapListRenderer;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
-import pt.lsts.neptus.mra.MRAProperties;
 
 import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
-
-
 
 public class ColorMapPropertyEditor extends AbstractPropertyEditor {
 
