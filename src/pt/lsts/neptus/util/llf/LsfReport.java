@@ -462,7 +462,7 @@ public class LsfReport {
 
             PdfPTable table = new PdfPTable(3 + nSubsys);
 
-            Rectangle pageSize = PageSize.A4.rotate();
+//            Rectangle pageSize = PageSize.A4.rotate();
 
             setRowsWidth(table,nSubsys);
 
@@ -514,8 +514,7 @@ public class LsfReport {
             ypos = table.writeSelectedRows(0, 1, xpos, ypos, cb);
 
             // data:
-            ArrayList rows = table.getRows();
-            for (int i = 1; i < rows.size(); i++) {
+            for (int i = 1; i < table.getRows().size(); i++) {
                 if (ypos - (table.getRow(i).getMaxHeights()) < 75) {// check ypos within page range
                     doc.newPage();
                     cb.beginText();
@@ -648,10 +647,10 @@ public class LsfReport {
 
         SidescanLogMarker adjustedMark = adjustMark(mark);
         int subSys = ssParser.getSubsystemList().get(subSysN);
-        long t = (long) adjustedMark.timestamp;
-
-        int h = adjustedMark.h;
-        int w = adjustedMark.w;
+//        long t = (long) adjustedMark.timestamp;
+//
+//        int h = adjustedMark.h;
+//        int w = adjustedMark.w;
         double wMeters = adjustedMark.wMeters;
         boolean point = adjustedMark.point;
 
