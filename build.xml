@@ -412,10 +412,14 @@ For simple use the main targets are:
 		</filterset>
 		<filterset id="empty.filters">
 		</filterset>
+
 		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="*.sh" excludes="Ne*.sh"/>
-		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="${src.shell.dir}/*.sh" />
+		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="${src.shell.dir}/**/*.sh" />
+		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="helper-scripts/**/*.sh"  />
+
 		<fixcrlf preservelastmodified="true" srcdir="." eol="crlf" includes="*.bat" />
-		<fixcrlf preservelastmodified="true" srcdir="." eol="crlf" includes="${src.shell.dir}/*.bat" />
+		<fixcrlf preservelastmodified="true" srcdir="." eol="crlf" includes="${src.shell.dir}/**/*.bat" />
+		<fixcrlf preservelastmodified="true" srcdir="." eol="crlf" includes="helper-scripts/**/*.bat" />
 	</target>
 
 	<!-- Prepares the build directories                                      -->
