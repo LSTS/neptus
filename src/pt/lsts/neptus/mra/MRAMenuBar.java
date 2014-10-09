@@ -85,6 +85,7 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LogUtils.LogValidity;
 import pt.lsts.neptus.util.llf.LsfReport;
+import pt.lsts.neptus.util.llf.LsfReportProperties;
 import pt.lsts.neptus.util.logdownload.LogsDownloaderWorker;
 import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
@@ -110,6 +111,8 @@ public class MRAMenuBar {
 
     private AbstractAction openLsf, exit;
     protected AbstractAction genReport;
+    protected AbstractAction genReportCustomOptions;
+    protected AbstractAction reportOptions;
     private AbstractAction batchReport;
     private AbstractAction preferences;
     private AbstractAction httpDuneDownload, httpVehicleDownload, concatenateLSFLogs, fuseLSFLogs;
@@ -266,8 +269,21 @@ public class MRAMenuBar {
      */
     private void setUpReportMenu() {
         reportMenu = new JMenu(I18n.text("Report"));
-        genReport = new AbstractAction(I18n.text("Save as PDF"), ImageUtils.getIcon("images/menus/document-pdf.png")) {
+        reportOptions = new AbstractAction(I18n.text("PDF Report Options"), ImageUtils.getIcon("images/menus/settings.png")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
+                PropertiesEditor.editProperties(mra.getReportProperties(), mra, true);
+                try {
+                    PluginUtils.saveProperties("conf/report.properties", mra.getReportProperties());
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        };
+        genReport = new AbstractAction(I18n.text("Save as PDF"), ImageUtils.getIcon("images/menus/document-pdf.png")) {
+        
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -278,10 +294,10 @@ public class MRAMenuBar {
                     if (resp != JOptionPane.YES_OPTION)
                         return;
                 }
-                mra.getBgp().block(true);
-                mra.getBgp().setText(I18n.text("Generating PDF Report"));
+                //mra.getBgp().block(true);
+                //mra.getBgp().setText(I18n.text("Generating PDF Report"));
                 mra.getMraFilesHandler().generatePDFReport(f);
-                mra.getBgp().setText(I18n.text("Done"));
+                //mra.getBgp().setText(I18n.text("Done"));
             }
         };
         genReport.putValue(Action.SHORT_DESCRIPTION, I18n.text("Generate a pdf file report from Log") + ".");
@@ -325,6 +341,40 @@ public class MRAMenuBar {
         };
         batchReport.putValue(Action.SHORT_DESCRIPTION, I18n.text("Generate report from selected log files") + ".");
         reportMenu.add(batchReport);
+
+        reportMenu.addSeparator();
+        reportMenu.add(reportOptions);
+
+        genReportCustomOptions = new AbstractAction(I18n.text("Save as PDF with custom settings"), ImageUtils.getIcon("images/menus/document-pdf.png")) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                PropertiesEditor.editProperties(mra.getReportProperties(), mra, true);
+                try {
+                    PluginUtils.saveProperties("conf/report.properties", mra.getReportProperties());
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+                File f = new File(mra.getMraPanel().getSource().getDir().toString() + "/" + mra.getMraPanel().getSource().name() + " - " + System.currentTimeMillis() + ".pdf");
+                if (f.exists()) {
+                    int resp = JOptionPane.showConfirmDialog(mra,
+                            I18n.text("Do you want to overwrite the existing file?"));
+                    if (resp != JOptionPane.YES_OPTION)
+                        return;
+                }
+                //mra.getBgp().block(true);
+                //mra.getBgp().setText(I18n.text("Generating PDF Report"));
+                mra.getMraFilesHandler().generatePDFReport(f);
+                //mra.getBgp().setText(I18n.text("Done"));
+            }
+        };
+        genReportCustomOptions.putValue(Action.SHORT_DESCRIPTION, I18n.text("Generate a pdf file report from Log with custom options") + ".");
+        reportMenu.add(genReportCustomOptions);
+        genReportCustomOptions.setEnabled(false);
+
     }
 
     /**
@@ -640,6 +690,30 @@ public class MRAMenuBar {
      */
     public AbstractAction getGenReportMenuItem() {
         return this.genReport;
+    }
+
+    /**
+     * Gets report MenuItem
+     * @return genReport
+     */
+    public JMenu getReportMenuItem() {
+        return this.reportMenu;
+    }
+
+    /**
+     * Gets genReportCustomOptions MenuItem
+     * @return genReport
+     */
+    public AbstractAction getGenReportCustomOptionsMenuItem() {
+        return this.genReportCustomOptions;
+    }
+
+    /**
+     * Gets genReportCustomOptions MenuItem
+     * @return genReport
+     */
+    public AbstractAction getReportOptionsMenuItem() {
+        return this.reportOptions;
     }
 
     /**

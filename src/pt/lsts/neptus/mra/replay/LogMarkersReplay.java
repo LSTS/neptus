@@ -50,6 +50,8 @@ import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.llf.LsfReportProperties;
 
 /**
  * @author zp
@@ -108,6 +110,12 @@ public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
 
 
     public void removeMarker(LogMarker m) {
+
+        if (LsfReportProperties.generatingReport==true){
+            //GuiUtils.infoMessage(getRootPane(), I18n.text("Can not remove Marks"), I18n.text("Can not remove Marks - Generating Report."));
+            return;
+        }
+
         synchronized (markers) {
             int ind = markers.indexOf(m);
             if (ind != -1) {

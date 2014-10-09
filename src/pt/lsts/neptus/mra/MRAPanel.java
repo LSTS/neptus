@@ -67,9 +67,11 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LogTree;
 import pt.lsts.neptus.util.llf.LogUtils;
+import pt.lsts.neptus.util.llf.LsfReportProperties;
 import pt.lsts.neptus.util.llf.LsfTree;
 import pt.lsts.neptus.util.llf.LsfTreeMouseAdapter;
 import pt.lsts.neptus.util.llf.chart.MRAChartFactory;
@@ -174,6 +176,20 @@ public class MRAPanel extends JPanel {
 
         statusBar.add(new JLabel("<html><b>" + I18n.text("Log") + ":</b> " + source.name() + date
                 + ((veh != null) ? " | <b>" + I18n.text("System") + ":</b> " + veh.getName() : "")));
+    }
+
+    public void addStatusBarMsg(String msg){
+        JLabel jlabel = new JLabel(msg);
+        statusBar.add(jlabel);
+        updateUI();
+    }
+
+    public void reDrawStatusBar(){
+        statusBar.removeAll();
+        remove(statusBar);
+        setUpStatusBar();
+        add(statusBar, BorderLayout.SOUTH);
+        updateUI();
     }
 
     /**
@@ -357,6 +373,11 @@ public class MRAPanel extends JPanel {
      */
     public void addMarker(LogMarker marker) {
 
+        if (LsfReportProperties.generatingReport==true){
+            //GuiUtils.infoMessage(getRootPane(), I18n.text("Can not add Marks"), I18n.text("Can not add Marks - Generating Report."));
+            return;
+        }
+
         if (existsMark(marker))
             return;
 
@@ -391,6 +412,12 @@ public class MRAPanel extends JPanel {
      * @param marker
      */
     public void removeMarker(LogMarker marker) {
+
+        if (LsfReportProperties.generatingReport==true){
+            GuiUtils.infoMessage(getRootPane(), I18n.text("Can not remove Marks"), I18n.text("Can not remove Marks - Generating Report."));
+            return;
+        }
+
         logTree.removeMarker(marker);
         logMarkers.remove(marker);
         for (MRAVisualization vis : visualizationList.values()) {

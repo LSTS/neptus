@@ -52,6 +52,7 @@ import pt.lsts.neptus.loader.NeptusMain;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.llf.LsfReportProperties;
 
 /**
  * Neptus MRA main class
@@ -67,6 +68,7 @@ public class NeptusMRA extends JFrame {
     private static final String MRA_TITLE = I18n.text("Neptus Mission Review And Analysis");
 
     private MRAProperties mraProperties = new MRAProperties();
+    private LsfReportProperties reportProperties = new LsfReportProperties();
     private MRAPanel mraPanel = null;
     private BlockingGlassPane bgp = new BlockingGlassPane(400, true);
     private MRAMenuBar mraMenuBar;
@@ -209,6 +211,10 @@ public class NeptusMRA extends JFrame {
     protected void setMraProperties(MRAProperties mraProperties) {
         this.mraProperties = mraProperties;
     }
+
+    protected LsfReportProperties getReportProperties() { return reportProperties; }
+
+    protected void setReportProperties(LsfReportProperties reportProperties) { this.reportProperties = reportProperties; }
 
     /**
      * @return the mraFilesHandler

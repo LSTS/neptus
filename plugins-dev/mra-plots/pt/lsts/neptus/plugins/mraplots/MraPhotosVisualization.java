@@ -94,6 +94,7 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.VideoCreator;
+import pt.lsts.neptus.util.llf.LsfReportProperties;
 
 /**
  * @author zp
@@ -409,6 +410,12 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
 
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                if (LsfReportProperties.generatingReport==true){
+                    GuiUtils.infoMessage(panel.getRootPane(), I18n.text("Can not add Marks"), I18n.text("Can not add Marks - Generating Report."));
+                    return;
+                }
+
                 String resp = JOptionPane.showInputDialog(panel, "Enter marker name", "Add marker", JOptionPane.QUESTION_MESSAGE);
                 if (resp == null)
                     return;
