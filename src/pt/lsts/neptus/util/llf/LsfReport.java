@@ -510,7 +510,7 @@ public class LsfReport {
             float ypos = pageSize.getHeight() - 175;
 
             // headers:
-            cb.setColorFill(Color.red.brighter());
+            cb.setColorFill(new Color(50, 100, 200));
             ypos = table.writeSelectedRows(0, 1, xpos, ypos, cb);
 
             // data:
@@ -529,7 +529,7 @@ public class LsfReport {
 
                     cb.endText();
                     ypos = pageSize.getHeight() - 160;
-                    cb.setColorFill(Color.red.brighter());
+                    cb.setColorFill(new Color(50, 100, 200));
 
                     ypos = table.writeSelectedRows(0, 1, xpos, ypos, cb);
                 }
@@ -629,12 +629,12 @@ public class LsfReport {
 
     public static void writeHeader(PdfPTable table, ArrayList<Integer> subSysList){
         // header
-        table.addCell("Timestamp");
-        table.addCell("Label");
-        table.addCell("Location");
+        table.addCell(I18n.text("Timestamp"));
+        table.addCell(I18n.text("Label"));
+        table.addCell(I18n.text("Location"));
         int nSubsys = subSysList.size();
         for (int i = 0; i < nSubsys; i++)
-            table.addCell("Image" + subSysList.get(i));
+            table.addCell(I18n.textf("Image %number", subSysList.get(i)));
     }
 
     /**
