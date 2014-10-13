@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,c73faa4)" system="lauv-dolphin-1" i18n="pt_PT">
+<config format="1" version="2.6.x (master,ed341a2)" system="lauv-dolphin-1" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -1390,7 +1390,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.8</default>
+      <default>1.2</default>
       <units>m</units>
       <desc>Minimum admissible altitude for bottom tracking</desc>
     </param>
@@ -2867,7 +2867,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Camera Module</default>
+      <default>Camera</default>
       <units/>
       <desc>List of entity labels that must be estimated</desc>
     </param>
@@ -4179,6 +4179,15 @@
       <default>1000</default>
       <units/>
       <desc>Speed in RPMs to be used in the generated maneuvers</desc>
+    </param>
+    <param name="Generate At Boot">
+      <name-i18n>Generate At Boot</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>dislodge</default>
+      <units/>
+      <desc>Set of commands for plans to generate at boot</desc>
     </param>
   </section>
   <section name="Camera Module" name-i18n="Modulo da Câmara">
