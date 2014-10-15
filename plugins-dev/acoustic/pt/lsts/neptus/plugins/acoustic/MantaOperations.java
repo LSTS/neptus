@@ -654,7 +654,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
     @Subscribe
     public void on(AcousticSystems systems) {
-        String acSystems = systems.getList();
+        String acSystems = systems.getString("list", false);
         boolean newSystem = false;
         
         for (String s : acSystems.split(","))
