@@ -68,6 +68,7 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticSystems;
 import pt.lsts.imc.AcousticSystemsQuery;
+import pt.lsts.imc.Announce;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
@@ -124,7 +125,6 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     protected static JDialog visibleDialog = null;
     protected LinkedHashMap<String, JRadioButton> radioButtons = new LinkedHashMap<String, JRadioButton>();
     protected LinkedHashMap<String, JButton> cmdButtons = new LinkedHashMap<String, JButton>();
-
     protected ButtonGroup group = new ButtonGroup();
     protected JPanel listPanel = new JPanel();
     protected JTextArea bottomPane = new JTextArea();
@@ -132,8 +132,11 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     protected String selectedSystem = null;
     protected String gateway = "any";
     protected JLabel lblState = new JLabel("<html><h1>Please select a gateway</h1>");
-    
+    protected LinkedHashMap<String, LocationType> knowLocations = new LinkedHashMap<String, LocationType>();
     protected LinkedHashMap<Integer, PlanControl> pendingRequests = new LinkedHashMap<>();
+    protected Vector<LocationType> rangeSources = new Vector<LocationType>();
+    protected Vector<Double> rangeDistances = new Vector<Double>();
+
 
     @NeptusProperty(name = "Systems listing", description = "Use commas to separate system identifiers")
     public String sysListing = "benthos-1,benthos-2,benthos-3,benthos-4,lauv-xtreme-2,lauv-noptilus-1,lauv-noptilus-2,lauv-noptilus-3";
@@ -593,17 +596,22 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     }
 
     @Subscribe
+    public void on(Announce msg) {
+        double lat = Math.toDegrees(msg.getLat());
+        double lon = Math.toDegrees(msg.getLon());
+        knowLocations.put(msg.getSysName(), new LocationType(lat, lon));
+    }
+        
+    @Subscribe
     public void on(AcousticOperation msg) {
-
-
 
         switch (msg.getOp()) {
             case RANGE_RECVED:
                 if (showRanges) {
                     LocationType loc = new LocationType(MyState.getLocation());
-                    if (ImcSystemsHolder.getSystemWithName(msg.getSourceName()) != null)
-                        loc = ImcSystemsHolder.getSystemWithName(msg.getSourceName()).getLocation();
-
+                    if (knowLocations.containsKey(msg.getSourceName()))
+                        loc = knowLocations.get(msg.getSourceName());                    
+                    
                     rangeDistances.add(msg.getRange());
                     rangeSources.add(loc);
                     addText(I18n.textf("Distance to %systemName is %distance", msg.getSystem().toString(),
@@ -688,9 +696,6 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                 send(s.getName(), asq);            
         }
     }
-
-    protected Vector<LocationType> rangeSources = new Vector<LocationType>();
-    protected Vector<Double> rangeDistances = new Vector<Double>();
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
