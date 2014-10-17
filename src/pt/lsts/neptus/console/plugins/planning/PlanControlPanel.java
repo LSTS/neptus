@@ -55,11 +55,13 @@ import javax.swing.SwingWorker;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.ImcStringDefs;
 import pt.lsts.imc.LblBeacon;
 import pt.lsts.imc.LblConfig;
 import pt.lsts.imc.PlanControl;
 import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.imc.PlanDB;
+import pt.lsts.imc.PlanDB.DT;
 import pt.lsts.imc.PlanDB.OP;
 import pt.lsts.imc.Teleoperation;
 import pt.lsts.imc.TeleoperationDone;
@@ -871,9 +873,10 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
             int reqId = IMCSendMessageUtils.getNextRequestId();
             PlanDB pdb = new PlanDB();
             pdb.setType(PlanDB.TYPE.REQUEST);
+            pdb.setDt(DT.PLAN);
             pdb.setOp(OP.SET);
             pdb.setRequestId(reqId);
-            pdb.setPlanId(plan.getId());
+            pdb.setObjectId(plan.getId());
             pdb.setArg(planSpecificationMessage);
             
             pdb.setInfo("Plan sent by Neptus version " + ConfigFetch.getNeptusVersion());
@@ -1264,5 +1267,9 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
 
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(ImcStringDefs.getDefinitions());
     }
 }

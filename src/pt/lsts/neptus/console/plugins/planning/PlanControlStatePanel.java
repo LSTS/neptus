@@ -139,7 +139,7 @@ public class PlanControlStatePanel extends ConsolePanel {
         if (!getConsole().getMission().getIndividualPlansList().containsKey(msg.getPlanId())) {
             PlanDB pdb = new PlanDB();
             pdb.setOp(OP.GET);
-            pdb.setPlanId(msg.getPlanId());
+            pdb.setObjectId(msg.getPlanId());
             pdb.setType(TYPE.REQUEST);
             pdb.setRequestId(count++);
             send(msg.getSourceName(), pdb);

@@ -35,6 +35,8 @@ import java.util.Vector;
 
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PlanDB;
+import pt.lsts.imc.PlanDB.TYPE;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -126,6 +128,7 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage> {
     }
 
     public boolean deletePlan(String plan_id) {
+        
         IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB", "type", "REQUEST", "op", "DEL",
                 "request_id", IMCSendMessageUtils.getNextRequestId(), "plan_id", plan_id);
         NeptusLog.pub().debug("Sending to " + remoteSystemId);
