@@ -58,9 +58,10 @@ import org.mozilla.javascript.tools.shell.Global;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.plots.ScriptEnvironment;
 import pt.lsts.neptus.plugins.ConfigurationListener;
@@ -69,8 +70,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -86,31 +85,33 @@ public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, Conf
     private JButton btnEdit, btnClear;
     private LinkedHashMap<String, Script> scripts = new LinkedHashMap<>();
     private Context context;
-    private Global global;
+
+    private LinkedHashMap<String, Global> vehicleContexts = new LinkedHashMap<String, Global>();
+    //private Global global;
     private ScriptEnvironment env = new ScriptEnvironment();
     private JPanel bottom;
-    
+
     @NeptusProperty(name="Periodicity (milliseconds)")
     public int periodicity = 1000;
-    
+
     @NeptusProperty(name="Maximum Number of points")
     public int numPoints = 100;
-    
+
     @NeptusProperty(name="Traces Script")
     public String traceScripts = "roll: ${EstimatedState.phi} * 180 / Math.PI;\npitch: ${EstimatedState.theta} * 180 / Math.PI;\nyaw: ${EstimatedState.psi} * 180 / Math.PI";
-    
+
     private String traceScriptsBefore = "";
-    
+
     public RealTimePlot(ConsoleLayout c) {
         super(c);
-        
+
         setLayout(new BorderLayout());
         bottom = new JPanel(new GridLayout(1,0));
-        
+
         btnEdit = new JButton(I18n.text("Settings"));
         bottom.add(btnEdit);
         btnEdit.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 RealTimePlotSettings.editSettings(RealTimePlot.this);
@@ -119,64 +120,76 @@ public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, Conf
         btnClear = new JButton(I18n.text("Clear"));
         bottom.add(btnClear);
         btnClear.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 tsc.removeAllSeries();
             }
         });
-        
+
         add(bottom, BorderLayout.SOUTH);
-        
+
         timeSeriesChart = ChartFactory.createTimeSeriesChart(null, null, null, tsc, true, true, true);
         add (new ChartPanel(timeSeriesChart), BorderLayout.CENTER);
-        
+
         context = Context.enter();
         context.initStandardObjects();
-        global = new Global(context);
+        //global = new Global(context);
     }
-    
+
     @Override
     public long millisBetweenUpdates() {
         return periodicity;
     }
-    
+
     @Override
     public boolean update() {
         if (!isShowing()) 
             return true;
-        Context.enter();
         Collection<String> traces = scripts.keySet();
-        
-        for (String s : traces) {
-            try {
-                Object o = scripts.get(s).exec(context, global);
-                if (o instanceof NativeJavaObject) {
-                    o = ((NativeJavaObject)o).unwrap();
-                }
-                TimeSeries ts = tsc.getSeries(s);
-                if (ts == null) {
-                    ts = new TimeSeries(s);
-                    ts.setMaximumItemCount(numPoints);
-                    tsc.addSeries(ts);
-                }
-                ts.addOrUpdate(new Millisecond(new Date(System.currentTimeMillis())), Double.parseDouble(o.toString()));
+
+        for (ImcSystem sys : ImcSystemsHolder.lookupActiveSystemVehicles()) {
+            context = Context.enter();
+            context.initStandardObjects();
+            if (!vehicleContexts.containsKey(sys.getName())) {
+                Global global = new Global(context);
+                Object o = Context.javaToJS(ImcMsgManager.getManager().getState(sys.getName()), global);
+                ScriptableObject.putProperty(global, "state", o);
+                ScriptableObject.putProperty(global, "env", env);
+                vehicleContexts.put(sys.getName(), global);
             }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
+
+            Global global = vehicleContexts.get(sys.getName());
+            for (String s : traces) {
+                                try {
+                    Object o = scripts.get(s).exec(context, global);
+                    if (o instanceof NativeJavaObject) {
+                        o = ((NativeJavaObject)o).unwrap();
+                    }
+                    String seriesName = sys.getName()+"."+s;
+                    TimeSeries ts = tsc.getSeries(seriesName);
+                    if (ts == null) {
+                        ts = new TimeSeries(seriesName);
+                        ts.setMaximumItemCount(numPoints);
+                        tsc.addSeries(ts);
+                    }
+                    ts.addOrUpdate(new Millisecond(new Date(System.currentTimeMillis())), Double.parseDouble(o.toString()));
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                }                
             }
+            Context.exit();
         }
-        Context.exit();
-        
         return true;
     }
-    
+
     @Override
     public void propertiesChanged() {
         if (!traceScripts.equals(traceScriptsBefore)) {
             tsc.removeAllSeries();
             scripts.clear();
-            
+
             try {
                 parseScript();
             }
@@ -184,13 +197,13 @@ public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, Conf
                 e.printStackTrace();
             }
         }
-               
+
         traceScriptsBefore = traceScripts;
     }
-    
+
     protected void parseScript() throws Exception {
         Pattern p = Pattern.compile("([\\w ]+):(.*)");
-        
+
         for (String line : traceScripts.split("\n")) {
             Matcher m = p.matcher(line);
             if (m.matches()) {
@@ -205,24 +218,10 @@ public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, Conf
         }
         tsc.removeAllSeries();
     }
-    
-    @Subscribe
-    public void on(ConsoleEventMainSystemChange sysChange) {
-        tsc.removeAllSeries();
-        Context.enter();
-        Object o = Context.javaToJS(ImcMsgManager.getManager().getState(getMainVehicleId()), global);
-        ScriptableObject.putProperty(global, "state", o);
-        Context.exit();
-        repaint();        
-    }
 
     @Override
     public void initSubPanel() {
         traceScriptsBefore = traceScripts;
-        Object o = Context.javaToJS(ImcMsgManager.getManager().getState(getMainVehicleId()), global);
-        ScriptableObject.putProperty(global, "state", o);
-        ScriptableObject.putProperty(global, "env", env);
-        
         propertiesChanged();    
     }
 
