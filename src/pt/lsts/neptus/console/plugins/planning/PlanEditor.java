@@ -1434,27 +1434,29 @@ MissionChangeListener {
         }
 
         if (event.getButton() == MouseEvent.BUTTON1) {
-            selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());
-            lastDragPoint = event.getPoint();
-            if (selectedManeuver != null && selectedManeuver instanceof LocatedManeuver) {
-                maneuverLocationBeforeMoving = ((LocatedManeuver) selectedManeuver).getManeuverLocation();
-            }
-            if (selectedManeuver != getPropertiesPanel().getManeuver()) {
-                if (getPropertiesPanel().getManeuver() != null && getPropertiesPanel().isChanged()) {
-                    ManeuverChanged edit = new ManeuverChanged(getPropertiesPanel().getManeuver(), plan,
-                            getPropertiesPanel().getBeforeXml());
-                    manager.addEdit(edit);
+            if (planElem != null && event.getPoint() != null) {
+                selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());
+                lastDragPoint = event.getPoint();
+                if (selectedManeuver != null && selectedManeuver instanceof LocatedManeuver) {
+                    maneuverLocationBeforeMoving = ((LocatedManeuver) selectedManeuver).getManeuverLocation();
                 }
-
-                getPropertiesPanel().setPlan(plan); // This call has to be before setManeuver (pdias 20130822)
-                getPropertiesPanel().setManeuver(selectedManeuver);
-                getPropertiesPanel().setManager(manager);
-
-                getPropertiesPanel().getEditBtn().setEnabled(selectedManeuver instanceof StateRendererInteraction);
-                getPropertiesPanel().getEditBtn().setSelected(false);
+                if (selectedManeuver != getPropertiesPanel().getManeuver()) {
+                    if (getPropertiesPanel().getManeuver() != null && getPropertiesPanel().isChanged()) {
+                        ManeuverChanged edit = new ManeuverChanged(getPropertiesPanel().getManeuver(), plan,
+                                getPropertiesPanel().getBeforeXml());
+                        manager.addEdit(edit);
+                    }
+                    
+                    getPropertiesPanel().setPlan(plan); // This call has to be before setManeuver (pdias 20130822)
+                    getPropertiesPanel().setManeuver(selectedManeuver);
+                    getPropertiesPanel().setManager(manager);
+                    
+                    getPropertiesPanel().getEditBtn().setEnabled(selectedManeuver instanceof StateRendererInteraction);
+                    getPropertiesPanel().getEditBtn().setSelected(false);
+                }
+                if (selectedManeuver == null)
+                    super.mousePressed(event, renderer);
             }
-            if (selectedManeuver == null)
-                super.mousePressed(event, renderer);
         }
         else {
             super.mousePressed(event, renderer);
