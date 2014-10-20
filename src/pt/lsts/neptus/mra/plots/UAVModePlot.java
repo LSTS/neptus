@@ -26,8 +26,8 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp
- * Jan 31, 2014
+ * Author: Braga
+ * Oct 20, 2014
  */
 package pt.lsts.neptus.mra.plots;
 
@@ -43,7 +43,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
- * @author zp
+ * @author Braga
  * 
  */
 @PluginDescription(name="UAV Mode")
@@ -69,24 +69,24 @@ public class UAVModePlot extends PiePlot {
 
         while(it.hasNext()) {
             AutopilotMode u = it.next();
-	    AUTONOMY autonomyLevel = u.getAutonomy();
+            AUTONOMY autonomyLevel = u.getAutonomy();
 
-	    addValue(translate(autonomyLevel), 1);
+            addValue(translate(autonomyLevel), 1);
         };
 
         cleanupSeries(0.01);
     }
 
     private String translate(AUTONOMY type) {
-	switch (type) {
-	    case MANUAL:
-		return I18n.text("MANUAL");
-	    case ASSISTED:
-		return I18n.text("ASSISTED");
-	    case AUTO:
-		return I18n.text("AUTO");
-	}
+        switch (type) {
+            case MANUAL:
+                return I18n.text("MANUAL");
+            case ASSISTED:
+                return I18n.text("ASSISTED");
+            case AUTO:
+                return I18n.text("AUTO");
+        }
 
-	return "";
+        return "";
     }
 }
