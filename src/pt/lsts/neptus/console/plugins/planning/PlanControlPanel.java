@@ -59,6 +59,7 @@ import pt.lsts.imc.ImcStringDefs;
 import pt.lsts.imc.LblBeacon;
 import pt.lsts.imc.LblConfig;
 import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.PlanControl.TYPE;
 import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.PlanDB.DT;
@@ -876,7 +877,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
             pdb.setDt(DT.PLAN);
             pdb.setOp(OP.SET);
             pdb.setRequestId(reqId);
-            pdb.setObjectId(plan.getId());
+            pdb.setObjectId(plan.getId());       
             pdb.setArg(planSpecificationMessage);
             
             pdb.setInfo("Plan sent by Neptus version " + ConfigFetch.getNeptusVersion());

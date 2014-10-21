@@ -55,7 +55,7 @@ public abstract class PlanDBAdapter implements IPlanDBListener {
     }
 
     @Override
-    public void dbPlanRemoved(String planId) {
+    public void dbPlanRemoved(String plantId) {
 
     }
 

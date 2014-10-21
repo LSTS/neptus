@@ -47,6 +47,7 @@ import pt.lsts.neptus.comm.transports.udp.UDPTransport;
 import pt.lsts.neptus.messages.listener.MessageInfo;
 import pt.lsts.neptus.messages.listener.MessageInfoImpl;
 import pt.lsts.neptus.messages.listener.MessageListener;
+import pt.lsts.neptus.util.ByteUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
@@ -269,10 +270,10 @@ public class ImcUdpTransport {
             }
             boolean ret = getUdpTransport().sendMessage(destination, port, baos.toByteArray(), listener);
 //            message.dump(System.err);
-//            if (message.getAbbrev().equalsIgnoreCase("LblConfig")) {
+//           if (message.getAbbrev().equalsIgnoreCase("PlanDB")) {
 //                NeptusLog.pub().info("<###> sissssssssssss" + baos.toByteArray().length);
-//                ByteUtil.dumpAsHex(message.getAbbrev(), baos.toByteArray(), System.out);
-//            }
+//               ByteUtil.dumpAsHex(message.getAbbrev(), baos.toByteArray(), System.out);
+//          }
             if (!ret) {
                 if (deliveryListener != null) {
                     deliveryListener.deliveryError(message, new Exception("Delivery "

@@ -97,23 +97,23 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage> {
     }
 
     public boolean clearDatabase() {
-        IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB", "type", "REQUEST", "op", "CLEAR",
+        IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB", "type", "REQUEST", "dt", "PLAN", "op", "CLEAR",
                 "request_id", IMCSendMessageUtils.getNextRequestId());
 
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
 
-    public boolean sendPlan(PlanType plan) {
-        IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB", "type", "REQUEST", "op", "SET",
-                "request_id", IMCSendMessageUtils.getNextRequestId(), "plan_id", plan.getId(), "arg", plan.asIMCPlan(),
+    public boolean sendPlan(PlanType object) {
+        IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB", "type", "REQUEST", "dt", "PLAN", "op", "SET",
+                "request_id", IMCSendMessageUtils.getNextRequestId(), "object_id", object.getId(), "arg", object.asIMCPlan(),
                 "info", "");
 
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
 
-    public boolean requestPlan(String plan_id) {
-        IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB", "type", "REQUEST", "op", "GET",
-                "request_id", IMCSendMessageUtils.getNextRequestId(), "plan_id", plan_id);
+    public boolean requestPlan(String object_id) {
+        IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB", "type", "REQUEST", "dt", "PLAN", "op", "GET",
+                "request_id", IMCSendMessageUtils.getNextRequestId(), "object_id", object_id);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
 
@@ -121,16 +121,16 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage> {
         return requestPlan(null);
     }
 
-    public boolean requestPlanInfo(String plan_id) {
-        IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB", "type", "REQUEST", "op", "GET_INFO",
-                "request_id", IMCSendMessageUtils.getNextRequestId(), "plan_id", plan_id);
+    public boolean requestPlanInfo(String object_id) {
+        IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB", "type", "REQUEST", "dt", "PLAN", "op", "GET_INFO",
+                "request_id", IMCSendMessageUtils.getNextRequestId(), "object_id", object_id);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
 
-    public boolean deletePlan(String plan_id) {
+    public boolean deletePlan(String object_id) {
         
-        IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB", "type", "REQUEST", "op", "DEL",
-                "request_id", IMCSendMessageUtils.getNextRequestId(), "plan_id", plan_id);
+        IMCMessage imc_PlanDB = IMCDefinition.getInstance().create("PlanDB", "type", "REQUEST",  "dt", "PLAN", "op", "DEL",
+                "request_id", IMCSendMessageUtils.getNextRequestId(), "object_id", object_id);
         NeptusLog.pub().debug("Sending to " + remoteSystemId);
         return ImcMsgManager.getManager().sendMessageToSystem(imc_PlanDB, remoteSystemId);
     }
@@ -180,21 +180,21 @@ public class PlanDBControl implements MessageListener<MessageInfo, IMCMessage> {
             else if (msg.getString("op").equals("GET_INFO")) {
                 PlanDBInfo pinfo = new PlanDBInfo();
                 pinfo.parseIMCMessage(msg.getMessage("arg"));
-                remoteState.storedPlans.put(msg.getAsString("plan_id"), pinfo);
+                remoteState.storedPlans.put(msg.getAsString("object_id"), pinfo);
             }
             else if (msg.getString("op").equals("DEL")) {
-                remoteState.storedPlans.remove(msg.getAsString("plan_id"));
+                remoteState.storedPlans.remove(msg.getAsString("object_id"));
 
                 for (IPlanDBListener l : listeners)
-                    l.dbPlanRemoved(msg.getAsString("plan_id"));
+                    l.dbPlanRemoved(msg.getAsString("object_id"));
             }
             else if (msg.getString("op").equals("CLEAR")) {
                 remoteState.storedPlans.clear();
             }
             else if (msg.getString("op").equals("SET")) {
-                requestPlanInfo(msg.getAsString("plan_id"));
+                requestPlanInfo(msg.getAsString("object_id"));
                 for (IPlanDBListener l : listeners)
-                    l.dbPlanSent(msg.getAsString("plan_id"));
+                    l.dbPlanSent(msg.getAsString("object_id"));
             }
         }
     }

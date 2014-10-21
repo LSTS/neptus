@@ -41,6 +41,7 @@ import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanDB;
+import pt.lsts.imc.PlanDB.DT;
 import pt.lsts.imc.PlanDB.OP;
 import pt.lsts.imc.PlanDB.TYPE;
 import pt.lsts.neptus.NeptusLog;
@@ -138,6 +139,7 @@ public class PlanControlStatePanel extends ConsolePanel {
 
         if (!getConsole().getMission().getIndividualPlansList().containsKey(msg.getPlanId())) {
             PlanDB pdb = new PlanDB();
+            pdb.setDt(DT.PLAN);
             pdb.setOp(OP.GET);
             pdb.setObjectId(msg.getPlanId());
             pdb.setType(TYPE.REQUEST);
