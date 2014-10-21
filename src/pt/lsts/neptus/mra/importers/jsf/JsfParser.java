@@ -116,15 +116,22 @@ public class JsfParser {
 
         try {
             while (true) {
+                int headerSize = 16;
+                if (curPosition + headerSize >= channel.size())
+                    break;
                 // Read ONLY the header
-                ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, 16);
+                ByteBuffer buf = channel.map(MapMode.READ_ONLY, curPosition, headerSize);
                 buf.order(ByteOrder.LITTLE_ENDIAN);
                 header.parse(buf);
-                curPosition += 16;
+                curPosition += headerSize;
                 if (header.getType() == 80) {
+                    int mapSize = 240;
+                    if (curPosition + mapSize >= channel.size())
+                        break;
+                    
                     ping.setHeader(header);
 
-                    buf = channel.map(MapMode.READ_ONLY, curPosition, 240);
+                    buf = channel.map(MapMode.READ_ONLY, curPosition, mapSize);
                     buf.order(ByteOrder.LITTLE_ENDIAN);
                     ping.parseHeader(buf);
                     curPosition += header.getMessageSize();
