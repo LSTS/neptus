@@ -74,10 +74,8 @@ import pt.lsts.neptus.util.ImageUtils;
 /**
  * @author Paulo Dias
  */
-public class CheckItemPanel 
-extends JPanel
-implements PropertyChangeListener
-{
+public class CheckItemPanel extends JPanel implements PropertyChangeListener {
+
     private static final long serialVersionUID = 1L;
 
     public static Icon OK_IMAGE_ICON = new ImageIcon(ImageUtils.getScaledImage(
@@ -121,7 +119,6 @@ implements PropertyChangeListener
      */
     public static final SimpleDateFormat dateXMLFormater = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.0Z'");
 
-
     /**
      * This is the default constructor
      */
@@ -149,8 +146,6 @@ implements PropertyChangeListener
         }
         fixStateLabel();
     }
-
-
 
     /**
      * @return Returns the isChecked.
@@ -279,8 +274,6 @@ implements PropertyChangeListener
         getStatesLabel().setText(lb);
     }
 
-
-
     /* (non-Javadoc)
      * @see java.awt.Component#setName(java.lang.String)
      */
@@ -294,8 +287,7 @@ implements PropertyChangeListener
      * @see java.awt.Component#getName()
      */
     @Override
-    public String getName()
-    {
+    public String getName() {
         if (nameCheckItem == null)
             return "";
         return nameCheckItem.getText();
@@ -353,6 +345,7 @@ implements PropertyChangeListener
         }
         return checkBox;
     }
+    
     /**
      * This method initializes jPanel1	
      * 	
@@ -369,7 +362,6 @@ implements PropertyChangeListener
         }
         return notesPanel;
     }
-
 
     private JPanel getActionsPanel() {
         if (actionsPanel == null) {
@@ -455,6 +447,7 @@ implements PropertyChangeListener
         }
         return noteScrollPane;
     }
+    
     /**
      * This method initializes jTextArea	
      * 	
@@ -479,10 +472,11 @@ implements PropertyChangeListener
         }
         return noteTextArea;
     }
+
     /**
-     * This method initializes jToggleButton	
-     * 	
-     * @return javax.swing.JToggleButton	
+     * This method initializes jToggleButton
+     * 
+     * @return javax.swing.JToggleButton
      */    
     private JToggleButton getNoteToggleButton() {
         if (noteToggleButton == null) {
@@ -511,13 +505,10 @@ implements PropertyChangeListener
         return noteToggleButton;
     }
 
-
-
-
     /**
-     * This method initializes dateChangedLabel	
-     * 	
-     * @return javax.swing.JLabel	
+     * This method initializes dateChangedLabel
+     * 
+     * @return javax.swing.JLabel
      */    
     private JLabel getDateChangedLabel() {
         if (dateChangedLabel == null) {
@@ -553,14 +544,9 @@ implements PropertyChangeListener
         return datePanel;
     }
 
-
-
     public Container getParentGroup() {
         return this.getParent().getParent().getParent().getParent();
     }
-
-
-
 
     /* (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
