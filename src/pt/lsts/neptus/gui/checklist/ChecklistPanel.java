@@ -138,7 +138,8 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     public static Icon ICON_CANCEL = new ImageIcon(ImageUtils.getImage("images/checklists/cancel.png"));
     public static Icon ICON_RUN = new ImageIcon(ImageUtils.getImage("images/checklists/run.png"));
 
-    public static String FLAT_TITLE = "Flat checklist";
+    public static String FLAT_TITLE = I18n.text("Flat Checklist");
+    public static String NOT_FLAT_TITLE = I18n.text("Not Flat Checklist");
 
     private static final int MAX_NUMBER_OF_SHOWN_CHARS = 20;
 
@@ -376,7 +377,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             MyJTaskPaneGroup mtpg = (MyJTaskPaneGroup) compJTaskPaneGroup[0];
             setSelectedGroup(mtpg);
             if (mtpg.getGroupName().equalsIgnoreCase(FLAT_TITLE)) {
-                mtpg.setGroupName("NOT " + FLAT_TITLE);
+                mtpg.setGroupName(NOT_FLAT_TITLE);
             }
             return true;
         }
@@ -443,9 +444,12 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                 }
             }
 
-            int response = JOptionPane.showConfirmDialog(ChecklistPanel.this, "<html>The checklist <strong>"
-                    + ChecklistPanel.this.getName() + "</strong> was not saved yet. <br>"
-                    + "Do you want to save it now?</html>", "Save checklist?", JOptionPane.YES_NO_OPTION);
+            int response = JOptionPane.showConfirmDialog(ChecklistPanel.this, 
+                    "<html>"
+                    + I18n.textf("The checklist %checklist was not saved yet.", "<strong>" + ChecklistPanel.this.getName() + "</strong>")
+                    + "<br>"
+                    + I18n.text("Do you want to save it now?")
+                    + "</html>", I18n.text("Save checklist?"), JOptionPane.YES_NO_OPTION);
             if (response == JOptionPane.YES_OPTION) {
                 ChecklistPanel.this.save();
                 userCancel = false;
@@ -464,10 +468,8 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
      * @return javax.swing.JFrame
      */
     private JFrame getJFrame(String title) {
-        if (title == null)
-            jFrame = new JFrame("Checklist " + nameText.getText());
-        else if (title.equalsIgnoreCase(""))
-            jFrame = new JFrame("Checklist " + nameText.getText());
+        if (title == null || title.isEmpty())
+            jFrame = new JFrame(I18n.textf("Checklist %checklist", nameText.getText()));
         else
             jFrame = new JFrame(title);
         jFrame.getContentPane().add(this);
@@ -571,7 +573,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
 
             if (isFlat) {
                 MyJTaskPaneGroup tpg = createTemplateTaskPaneGroup();
-                tpg.setGroupName("Flat checklist");
+                tpg.setGroupName(FLAT_TITLE);
                 tpg.setCollapsed(false);
                 LinkedHashMap<String, LinkedList<CheckItem>> cits = checklist.getGroupList();
                 Iterator<LinkedList<CheckItem>> it = cits.values().iterator();
@@ -667,7 +669,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             flowLayout1.setAlignment(FlowLayout.LEFT);
             hNamePanel = new JPanel();
             nameLabel = new JLabel();
-            nameLabel.setText("<html><b>Name:");
+            nameLabel.setText("<html><b>" + I18n.text("Name:"));
             nameText = new JLabel();
             nameText.setText(checklist.getName());
             hNamePanel.setLayout(flowLayout1);
@@ -678,21 +680,21 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     }
 
     public void makeNameEditable() {
-        nameText.setToolTipText("Right click to change (if edit mode).");
+        nameText.setToolTipText(I18n.text("Right click to change (if edit mode)."));
         nameText.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 // NeptusLog.pub().info("<###>mouseClicked()");
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     String inputValue = JOptionPane.showInputDialog(ChecklistPanel.this,
-                            "Please input a new name for \"" + nameText.getText() + "\"", nameText.getText());
+                            I18n.textf("Please input a new name for \"%name\"", nameText.getText()), nameText.getText());
                     // NeptusLog.pub().info("<###>(new name)" + inputValue);
                     if (inputValue != null && !inputValue.equalsIgnoreCase("")) {
                         // TODO verificar se nome já existe pq isto é um ID
                         nameText.setText(inputValue);
                         fireChangeEvent(nameText);
                         if (jFrame != null) {
-                            jFrame.setTitle("Checklist " + getName());
+                            jFrame.setTitle(I18n.textf("Checklist %name", getName()));
                         }
                     }
                 }
@@ -706,7 +708,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             flowLayout1.setAlignment(FlowLayout.LEFT);
             hVersionPanel = new JPanel();
             versionLabel = new JLabel();
-            versionLabel.setText("<html><b>Version:");
+            versionLabel.setText("<html><b>" + I18n.text("Version:"));
             versionText = new JTextField(20);
             versionText.setText(checklist.getVersion());
             versionText.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -737,7 +739,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             borderLayout1.setVgap(5);
             hDescriptionPanel = new JPanel();
             descLabel = new JLabel();
-            descLabel.setText("<html><b>Description:");
+            descLabel.setText("<html><b>" + I18n.text("Description:"));
             hDescriptionPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
             hDescriptionPanel.setLayout(borderLayout1);
             hDescriptionPanel.add(descLabel, BorderLayout.NORTH);
@@ -797,7 +799,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JButton getSaveButton() {
         if (saveButton == null) {
             saveButton = new JButton();
-            saveButton.setText("Save");
+            saveButton.setText(I18n.text("Save"));
             saveButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -816,8 +818,12 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
 
     public boolean save() {
         if ((originalFilePath == null) || originalFilePath.equalsIgnoreCase("")) {
-            int response = JOptionPane.showConfirmDialog(this, "<html>The checklist <strong>" + getName()
-                    + "</strong> was not saved yet. <br>Do you want to save it now?</html>", "Save checklist?",
+            int response = JOptionPane.showConfirmDialog(this, 
+                    "<html>"
+                    + I18n.textf("The checklist %name was not saved yet.", "<strong>" + getName() + "</strong>")
+                    + "<br>"
+                    + I18n.text("Do you want to save it now?")
+                    + "</html>", I18n.text("Save checklist?"),
                     JOptionPane.YES_NO_CANCEL_OPTION);
             if (response != JOptionPane.YES_OPTION)
                 return false;
@@ -862,16 +868,20 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
      */
     public boolean saveFile() {
         if ((originalFilePath == null) || originalFilePath.equalsIgnoreCase("")) {
-            JOptionPane.showMessageDialog(this, "<html>Checklist <b>was not</b> saved!!"
-                    + "<br>File name was not valid [\"" + originalFilePath + "\"].</html>");
+            JOptionPane.showMessageDialog(this, "<html>"
+                    + I18n.text("Checklist <b>was not</b> saved!")
+                    + "<br>"
+                    + I18n.textf("File name was not valid [\"%file\"].", originalFilePath)
+                    + "</html>");
             return false;
         }
         boolean ret = FileUtil.saveToFile(originalFilePath,
                 FileUtil.getAsPrettyPrintFormatedXMLString(getChecklistType().asDocument())); // getChecklistType().asXML()
         if (ret) {
             checklist = getChecklistType();
-            JOptionPane.showMessageDialog(this, "<html>Checklist saved!!" + "<br>To file \"" + originalFilePath
-                    + "\".</html>");
+            JOptionPane.showMessageDialog(this, "<html>" + I18n.text("Checklist saved!") 
+                    + "<br>" + I18n.textf("To file \"%file\".", originalFilePath)
+                    + "</html>");
             getSaveButton().setEnabled(false);
             setChanged(false);
         }
@@ -885,7 +895,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         if (newButton == null) {
             newButton = new JButton();
             newButton.setVisible(false);
-            newButton.setText("New");
+            newButton.setText(I18n.text("New"));
             newButton.setPreferredSize(new Dimension(73, 26));
             newButton.addActionListener(new ActionListener() {
                 @Override
@@ -904,7 +914,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                     bgp.block(true);
 
                     ChecklistType clist = new ChecklistType();
-                    clist.setName("New Checklist");
+                    clist.setName(I18n.text("New Checklist"));
                     ChecklistPanel.this.changeChecklist(clist);
 
                     bgp.block(false);
@@ -920,7 +930,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     public JButton getOpenButton() {
         if (openButton == null) {
             openButton = new JButton();
-            openButton.setText("Open");
+            openButton.setText(I18n.text("Open"));
             openButton.setVisible(false);
             openButton.setPreferredSize(new Dimension(73, 26));
             openButton.addActionListener(new ActionListener() {
@@ -1003,7 +1013,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JButton getCancelButton() {
         if (cancelButton == null) {
             cancelButton = new JButton();
-            cancelButton.setText("Cancel");
+            cancelButton.setText(I18n.text("Cancel"));
             cancelButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -1020,7 +1030,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     public JButton getRunButton() {
         if (runButton == null) {
             runButton = new JButton();
-            runButton.setText("Run");
+            runButton.setText(I18n.text("Run"));
             runButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -1033,11 +1043,11 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                     LinkedHashMap<ImcId16, SystemImcMsgCommInfo> list = ImcMsgManager.getManager().getCommInfo();
 
                     if (list.size() == 0) {
-                        GuiUtils.errorMessage(ChecklistPanel.this, "Comunications", "No System online");
+                        GuiUtils.errorMessage(ChecklistPanel.this, I18n.text("Comunications"), I18n.text("No System online"));
                         return;
                     }
                     SystemImcMsgCommInfo mv = (SystemImcMsgCommInfo) JOptionPane.showInputDialog(ChecklistPanel.this,
-                            "Choose one of the available Systems", "Select System", JOptionPane.QUESTION_MESSAGE,
+                            I18n.text("Choose one of the available systems"), I18n.text("Select System"), JOptionPane.QUESTION_MESSAGE,
                             new ImageIcon(), list.values().toArray(new SystemImcMsgCommInfo[0]), list.values()
                             .toArray(new SystemImcMsgCommInfo[0]));
                     system = mv.toString();
@@ -1046,9 +1056,9 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                             SwingUtilities.getWindowAncestor(ChecklistPanel.this), new File(ChecklistPanel.this
                                     .getChecklistType().getOriginalFilePath()).getParent());
 
-                    NeptusLog.pub().info("<###>RunChecklist: "
+                    NeptusLog.pub().info("RunChecklist: "
                             + new File(ChecklistPanel.this.getChecklistType().getOriginalFilePath()).getParent());
-                    NeptusLog.pub().info("<###>RunChecklist: " + ChecklistPanel.this.getChecklistType().getOriginalFilePath());
+                    NeptusLog.pub().info("RunChecklist: " + ChecklistPanel.this.getChecklistType().getOriginalFilePath());
                 }
             });
             runButton.setPreferredSize(new Dimension(73, 26));
@@ -1303,7 +1313,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JButton getGeneratePDFButton() {
         if (generatePDFButton == null) {
             generatePDFButton = new JButton();
-            generatePDFButton.setText("To PDF");
+            generatePDFButton.setText(I18n.text("To PDF"));
             generatePDFButton.setPreferredSize(new java.awt.Dimension(73, 26));
             generatePDFButton.setEnabled(true);
             generatePDFButton.addActionListener(new ActionListener() {
@@ -1321,7 +1331,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
 
                     if (!ret) {
                         JOptionPane.showMessageDialog(ChecklistPanel.this,
-                                "<html>PDF <b>was not</b> created to file.</html>");
+                                "<html>" + I18n.text("PDF <b>was not</b> created to file.") + "</html>");
                         return;
                     }
 
@@ -1333,15 +1343,15 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                     final File pdfFx = new File(xmlFx.getParent(), pdfFileName);
                     final String pdf = pdfFx.getAbsolutePath();
 
-                    Object[] optionsNew = { "1 column", "2 column", "3 column" /* "Using XSL-FO" */};
-                    final int choNew = JOptionPane.showOptionDialog(ChecklistPanel.this, "Choose one to continue",
-                            "Choose", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, optionsNew,
+                    Object[] optionsNew = { I18n.text("1 column"), I18n.text("2 column"), I18n.text("3 column") /* "Using XSL-FO" */};
+                    final int choNew = JOptionPane.showOptionDialog(ChecklistPanel.this, I18n.text("Choose one to continue"),
+                            I18n.text("Choose"), JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, optionsNew,
                             optionsNew[2]);
 
                     final int cho;
                     if (choNew == 3) {
-                        Object[] options = { "1 column", "2 column" };
-                        cho = JOptionPane.showOptionDialog(ChecklistPanel.this, "Choose one to continue", "Choose",
+                        Object[] options = { I18n.text("1 column"), I18n.text("2 column") };
+                        cho = JOptionPane.showOptionDialog(ChecklistPanel.this, I18n.text("Choose one to continue"), I18n.text("Choose"),
                                 JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
                     }
                     else {
@@ -1387,7 +1397,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                                 switch (get()) {
                                     case 1:
                                         JOptionPane.showMessageDialog(ChecklistPanel.this,
-                                                "PDF created with success to file \"" + pdf + "\".", "PDF Creation",
+                                                I18n.textf("PDF created with success to file \"%file\".", pdf), I18n.text("PDF Creation"),
                                                 JOptionPane.INFORMATION_MESSAGE);
 
                                         final String pdfF = pdf;
@@ -1400,7 +1410,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                                         break;
                                     case 0:
                                         JOptionPane.showMessageDialog(ChecklistPanel.this,
-                                                "<html>PDF <b>was not</b> created to file.</html>", "PDF Creation",
+                                                "<html>" + I18n.text("PDF <b>was not</b> created to file.") + "</html>", I18n.text("PDF Creation"),
                                                 JOptionPane.ERROR_MESSAGE);
                                         break;
                                     default:
@@ -1409,8 +1419,8 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                             }
                             catch (Exception e) {
                                 JOptionPane.showMessageDialog(ChecklistPanel.this,
-                                        "<html>PDF <b>was not</b> created to file." + "<br>Error: " + e.getMessage()
-                                        + "</html>", "PDF Creation", JOptionPane.ERROR_MESSAGE);
+                                        "<html>" + I18n.text("PDF <b>was not</b> created to file.") + "<br>" + I18n.textf("Error: %error", e.getMessage())
+                                        + "</html>", I18n.text("PDF Creation"), JOptionPane.ERROR_MESSAGE);
                                 e.printStackTrace();
                             }
                             bgp.block(false);
@@ -1597,7 +1607,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JMenuItem getAddChecklistMenuItem() {
         if (addChecklistMenuItem == null) {
             addChecklistMenuItem = new JMenuItem();
-            addChecklistMenuItem.setText("Append New Group");
+            addChecklistMenuItem.setText(I18n.text("Append New Group"));
             addChecklistMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -1616,12 +1626,12 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private MyJTaskPaneGroup addNewChecklistGroupActionWorker(boolean insert, JXTaskPane insertTpg) {
         // dFIXME Verificar se a CL é flat ou não e se o user aceitar
         // setar a flag para false
-        String inputValue = JOptionPane.showInputDialog(this, "Please input a name for the new group");
+        String inputValue = JOptionPane.showInputDialog(this, I18n.text("Please input a name for the new group"));
         if (inputValue != null && !inputValue.trim().equalsIgnoreCase("")) {
             inputValue = inputValue.trim();
             boolean notUnique = checkForCheckGroupExistence(inputValue);
             if (notUnique) {
-                JOptionPane.showMessageDialog(this, "Group already exists!!");
+                JOptionPane.showMessageDialog(this, I18n.text("Group already exists!"));
                 return null;
             }
             MyJTaskPaneGroup tpg = createTemplateTaskPaneGroup(); // new
@@ -1643,7 +1653,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             return tpg;
         }
         else {
-            JOptionPane.showMessageDialog(this, "Not a valid name!!");
+            JOptionPane.showMessageDialog(this, I18n.text("Not a valid name!"));
             return null;
         }
 
@@ -1677,7 +1687,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JMenuItem getEditNameCheckGroupMenuItem() {
         if (editNameCheckGroupMenuItem == null) {
             editNameCheckGroupMenuItem = new JMenuItem();
-            editNameCheckGroupMenuItem.setText("Edit Name (Ctrl + Right click)");
+            editNameCheckGroupMenuItem.setText(I18n.text("Edit Name (Ctrl + Right click)"));
             editNameCheckGroupMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -1706,15 +1716,15 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         // String inputValue = JOptionPane.showInputDialog(mtpg,
         // "Please input a new name for \"" + mtpg.getTitle() + "\"",
         // mtpg.getTitle());
-        String inputValue = JOptionPane.showInputDialog(this, "Please input a new name for \"" + mtpg.getGroupName()
-                + "\"", mtpg.getGroupName());
+        String inputValue = JOptionPane.showInputDialog(this,
+                I18n.textf("Please input a new name for \"%group\"", mtpg.getGroupName()), mtpg.getGroupName());
 
         // NeptusLog.pub().info("<###>(new name)" + inputValue);
         if (inputValue != null && !inputValue.trim().equalsIgnoreCase("")) {
             // dTODO verificar se nome já existe pq isto é um ID
             boolean notUnique = checkForCheckGroupExistence(inputValue);
             if (notUnique) {
-                JOptionPane.showMessageDialog(this, "Group already exists!!");
+                JOptionPane.showMessageDialog(this, I18n.text("Group already exists!"));
                 return false;
             }
 
@@ -1737,7 +1747,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JMenuItem getAddCheckItemMenuItem() {
         if (addCheckItemMenuItem == null) {
             addCheckItemMenuItem = new JMenuItem();
-            addCheckItemMenuItem.setText("Append New Item (Double Click on the Bottom of the Group)");
+            addCheckItemMenuItem.setText(I18n.text("Append New Item (Double Click on the Bottom of the Group)"));
             addCheckItemMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -1758,13 +1768,13 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
      * @param insertCip if insert==true tels the insert position.
      */
     private void addNewCheckItemWorker(MyJTaskPaneGroup mtpg, boolean insert, CheckItemPanel insertCip) {
-        String inputValue = JOptionPane.showInputDialog(this, "Please input the item name");
+        String inputValue = JOptionPane.showInputDialog(this, I18n.text("Please input the item name"));
         if (inputValue != null && !inputValue.equalsIgnoreCase("")) {
             // FIXME verificar se já existe já q é um ID
             inputValue = inputValue.trim();
             boolean notUnique = checkForCheckItemExistence(inputValue, mtpg);
             if (notUnique) {
-                JOptionPane.showMessageDialog(this, "Item already exists!!");
+                JOptionPane.showMessageDialog(this, I18n.text("Item already exists!"));
                 return;
             }
             CheckItem cit = new CheckItem();
@@ -1783,7 +1793,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             mtpg.repaint();
         }
         else {
-            JOptionPane.showMessageDialog(this, "Item name not valid!!");
+            JOptionPane.showMessageDialog(this, I18n.text("Item name not valid!"));
             return;
         }
     }
@@ -1816,7 +1826,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JMenuItem getRemoveCheckGroupMenuItem() {
         if (removeCheckGroupMenuItem == null) {
             removeCheckGroupMenuItem = new JMenuItem();
-            removeCheckGroupMenuItem.setText("Remove Group");
+            removeCheckGroupMenuItem.setText(I18n.text("Remove Group"));
             removeCheckGroupMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -1831,9 +1841,9 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                     // +
                     // "<i>" + mtpg.getTitle() +
                     // "</i> group and all it's content?<html>");
-                    int option = JOptionPane.showConfirmDialog(checkTaskPane,
-                            "<html>Are you sure you want to <b>delete</b><br>" + "<i>" + mtpg.getGroupName()
-                            + "</i> group and all it's content?<html>");
+                    int option = JOptionPane.showConfirmDialog(checkTaskPane, "<html>" 
+                            + I18n.textf("Are you sure you want to <b>delete</b><br><i>%group</i> group and all it's content?", mtpg.getGroupName()) 
+                            + "<html>");
                     if (option == JOptionPane.YES_OPTION) {
                         JXTaskPaneContainer jtp = (JXTaskPaneContainer) mtpg.getParent();
                         jtp.remove(mtpg);
@@ -1856,7 +1866,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JCheckBoxMenuItem getMakeFlatChecklistCheckBoxMenuItem() {
         if (makeFlatChecklistCheckBoxMenuItem == null) {
             makeFlatChecklistCheckBoxMenuItem = new JCheckBoxMenuItem();
-            makeFlatChecklistCheckBoxMenuItem.setText("Flat Checklist");
+            makeFlatChecklistCheckBoxMenuItem.setText(FLAT_TITLE);
             makeFlatChecklistCheckBoxMenuItem.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
@@ -1873,9 +1883,10 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                             }
                         }
                         else {
-                            JOptionPane.showMessageDialog(checkTaskPane,
-                                    "<html><b>Was not</b> possible to flatten this checklist!!</html>",
-                                    "Flatten Checklist", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(checkTaskPane, "<html>"
+                                    + I18n.text("<b>Was not</b> possible to flatten this checklist!")
+                                    + "</html>",
+                                    I18n.text("Flatten Checklist"), JOptionPane.ERROR_MESSAGE);
                         }
                         // System.err.println("Flat" + makeItFlat());
                     }
@@ -1887,9 +1898,9 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                             }
                         }
                         else {
-                            JOptionPane.showMessageDialog(checkTaskPane,
-                                    "<html><b>Was not</b> possible to deflatten this checklist!!</html>",
-                                    "Deflatten Checklist", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(checkTaskPane, "<html>"
+                                    + I18n.text("<b>Was not</b> possible to deflatten this checklist!") + "</html>",
+                                    I18n.text("Deflatten Checklist"), JOptionPane.ERROR_MESSAGE);
                         }
                         // System.err.println("NotFlat" +
                         // makeItNotFlat());
@@ -1964,7 +1975,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JMenuItem getRemoveCheckItemMenuItem() {
         if (removeCheckItemMenuItem == null) {
             removeCheckItemMenuItem = new JMenuItem();
-            removeCheckItemMenuItem.setText("Remove Item");
+            removeCheckItemMenuItem.setText(I18n.text("Remove Item"));
             removeCheckItemMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -2017,7 +2028,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JMenuItem getMoveUpCheckItemMenuItem() {
         if (moveUpCheckItemMenuItem == null) {
             moveUpCheckItemMenuItem = new JMenuItem();
-            moveUpCheckItemMenuItem.setText("Move Item Up");
+            moveUpCheckItemMenuItem.setText(I18n.text("Move Item Up"));
             moveUpCheckItemMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -2049,7 +2060,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JMenuItem getMoveDownCheckItemMenuItem() {
         if (moveDownCheckItemMenuItem == null) {
             moveDownCheckItemMenuItem = new JMenuItem();
-            moveDownCheckItemMenuItem.setText("Move Item Down");
+            moveDownCheckItemMenuItem.setText(I18n.text("Move Item Down"));
             moveDownCheckItemMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -2081,7 +2092,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JMenuItem getMoveUpCheckGroupMenuItem() {
         if (moveUpCheckGroupMenuItem == null) {
             moveUpCheckGroupMenuItem = new JMenuItem();
-            moveUpCheckGroupMenuItem.setText("Move Group Up");
+            moveUpCheckGroupMenuItem.setText(I18n.text("Move Group Up"));
             moveUpCheckGroupMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -2111,7 +2122,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JMenuItem getMoveDownCheckGroupMenuItem() {
         if (moveDownCheckGroupMenuItem == null) {
             moveDownCheckGroupMenuItem = new JMenuItem();
-            moveDownCheckGroupMenuItem.setText("Move Group Down");
+            moveDownCheckGroupMenuItem.setText(I18n.text("Move Group Down"));
             moveDownCheckGroupMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -2141,7 +2152,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JMenuItem getInsertCheckItemMenuItem() {
         if (insertCheckItemMenuItem == null) {
             insertCheckItemMenuItem = new JMenuItem();
-            insertCheckItemMenuItem.setText("Insert New Item Before");
+            insertCheckItemMenuItem.setText(I18n.text("Insert New Item Before"));
             insertCheckItemMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -2166,7 +2177,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JMenuItem getInsertCheckGroupMenuItem() {
         if (insertCheckGroupMenuItem == null) {
             insertCheckGroupMenuItem = new JMenuItem();
-            insertCheckGroupMenuItem.setText("Insert New Group Before");
+            insertCheckGroupMenuItem.setText(I18n.text("Insert New Group Before"));
             insertCheckGroupMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -2189,7 +2200,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JMenuItem getEditNameCheckItemMenuItem() {
         if (editNameCheckItemMenuItem == null) {
             editNameCheckItemMenuItem = new JMenuItem();
-            editNameCheckItemMenuItem.setText("Edit Item Name");
+            editNameCheckItemMenuItem.setText(I18n.text("Edit Item Name"));
             editNameCheckItemMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -2210,14 +2221,14 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
      * @param mtpg
      */
     private boolean editNameCheckItemActionWorker(CheckItemPanel cip, MyJTaskPaneGroup mtpg) {
-        String inputValue = JOptionPane.showInputDialog(this, "Please input a new name for \"" + cip.getName() + "\"",
+        String inputValue = JOptionPane.showInputDialog(this, I18n.textf("Please input a new name for \"%name\"", cip.getName()),
                 cip.getName());
         // NeptusLog.pub().info("<###>(new name)" + inputValue);
         if (inputValue != null && !inputValue.trim().equalsIgnoreCase("")) {
             // dTODO verificar se nome já existe pq isto é um ID
             boolean notUnique = checkForCheckItemExistence(inputValue, mtpg);
             if (notUnique) {
-                JOptionPane.showMessageDialog(this, "Item already exists!!");
+                JOptionPane.showMessageDialog(this, I18n.text("Item already exists!"));
                 return false;
             }
 
@@ -2239,7 +2250,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         if (editDateCheckItemMenuItem == null) {
             editDateCheckItemMenuItem = new JMenuItem();
             editDateCheckItemMenuItem.setEnabled(false);
-            editDateCheckItemMenuItem.setText("Edit Item Check Date");
+            editDateCheckItemMenuItem.setText(I18n.text("Edit Item Check Date"));
         }
         return editDateCheckItemMenuItem;
     }
@@ -2250,7 +2261,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JMenuItem getUnCheckAllChecklistGroupsMenuItem() {
         if (unCheckAllChecklistGroupsMenuItem == null) {
             unCheckAllChecklistGroupsMenuItem = new JMenuItem();
-            unCheckAllChecklistGroupsMenuItem.setText("Uncheck All Checklist");
+            unCheckAllChecklistGroupsMenuItem.setText(I18n.text("Uncheck All Checklist"));
             unCheckAllChecklistGroupsMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -2286,7 +2297,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JMenuItem getUnCheckAllGroupItemsMenuItem() {
         if (unCheckAllGroupItemsMenuItem == null) {
             unCheckAllGroupItemsMenuItem = new JMenuItem();
-            unCheckAllGroupItemsMenuItem.setText("Uncheck All Group");
+            unCheckAllGroupItemsMenuItem.setText(I18n.text("Uncheck All Group"));
             unCheckAllGroupItemsMenuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -2339,8 +2350,8 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JButton getAppendGroupButton() {
         if (appendGroupButton == null) {
             appendGroupButton = new JButton();
-            appendGroupButton.setText("append group");
-            appendGroupButton.setToolTipText("Append group");
+            appendGroupButton.setText(I18n.text("append group"));
+            appendGroupButton.setToolTipText(I18n.text("Append group"));
             appendGroupButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -2360,8 +2371,8 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private JButton getAppendItemButton() {
         if (appendItemButton == null) {
             appendItemButton = new JButton();
-            appendItemButton.setText("append item");
-            appendItemButton.setToolTipText("Append item");
+            appendItemButton.setText(I18n.text("append item"));
+            appendItemButton.setToolTipText(I18n.text("Append item"));
             appendItemButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -2418,15 +2429,15 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     public static JDialog getIPDialog(Window w) {
         final JDialog jd = new JDialog(w);
         jd.setModalityType(ModalityType.DOCUMENT_MODAL);
-        jd.setTitle("IP Port selection");
+        jd.setTitle(I18n.text("IP Port selection"));
 
         jd.setSize(200, 95);
         jd.setResizable(false);
 
-        JLabel labelIP = new JLabel("IP");
+        JLabel labelIP = new JLabel(I18n.text("IP"));
         labelIP.setHorizontalTextPosition(JLabel.RIGHT);
 
-        JLabel labelPort = new JLabel("Port");
+        JLabel labelPort = new JLabel(I18n.text("Port"));
         labelPort.setHorizontalTextPosition(JLabel.RIGHT);
 
         final JTextField textIP = new JTextField();
@@ -2435,7 +2446,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         textPort.setValue(port);
 
         JButton buttonOK = new JButton();
-        buttonOK.setText("OK");
+        buttonOK.setText(I18n.text("OK"));
 
         buttonOK.addActionListener(new ActionListener() {
             @Override
@@ -2465,22 +2476,22 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     private static Options getCommandLineOptions() {
         // create the Options
         Options options = new Options();
-        options.addOption("h", "help", false, "this help.");
+        options.addOption("h", I18n.text("help"), false, I18n.text("this help"));
 
         // options.addOption(OptionBuilder.withLongOpt("verbose")
         // .withDescription("Verbosity level [off,fatal,warn,\"info\",debug]").withValueSeparator('=')
         // .hasOptionalArg().create("v"));
 
-        options.addOption(OptionBuilder.withLongOpt("checklist").withDescription("checklist file").withArgName("file")
+        options.addOption(OptionBuilder.withLongOpt("checklist").withDescription(I18n.text("checklist file")).withArgName("file")
                 .withValueSeparator('=').hasArg().create("f"));
 
-        options.addOption("g", "generate-pdf", false, "generate pdf and don't open the " + "interface");
+        options.addOption("g", "generate-pdf", false, I18n.text("generate pdf and don't open the interface"));
 
-        options.addOption(OptionBuilder.withLongOpt("output-pdf").withDescription("output pdf file")
+        options.addOption(OptionBuilder.withLongOpt("output-pdf").withDescription(I18n.text("output pdf file"))
                 .withArgName("file").withValueSeparator('=').hasArg().create("o"));
 
         options.addOption(OptionBuilder.withLongOpt("pdf-columns")
-                .withDescription("generate pdf with n column (1, 2, or 3) defaults to 1").withArgName("n")
+                .withDescription(I18n.text("generate pdf with n column (1, 2, or 3) defaults to 1")).withArgName("n")
                 .withValueSeparator('=').hasArg().create("c"));
 
         return options;
@@ -2494,8 +2505,9 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
         HelpFormatter formatter = new HelpFormatter();
         // formatter.printHelp(NeptusLeaves.class.getCanonicalName(), options);
         formatter.printHelp("java -jar neptus-check.jar", "Neptus Checklist v" + ConfigFetch.getVersionSimpleString()
-                + "\nCopyright (c) 2004-2014 - Universidade do Porto - LSTS. All rights reserved.\n\nOptions:\n",
-                options, "Report bugs to Paulo Dias <pdias@fe.up.pt>", true);
+                + "\nCopyright (c) 2004-2014 - Universidade do Porto - LSTS. All rights reserved.\n\n"
+                + I18n.text("Options:") + "\n",
+                options, I18n.textf("Report bugs to %email", "Paulo Dias <pdias@fe.up.pt>"), true);
     }
 
     public static void main(String... args) {
@@ -2536,8 +2548,8 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             ChecklistPanel clp = null;
             if (args.length < 1) {
                 ChecklistType ck = new ChecklistType();
-                ck.setName("New Checklist");
-                clp = showChecklistPanel("New Checklist", ck);
+                ck.setName(I18n.text("New Checklist"));
+                clp = showChecklistPanel(I18n.text("New Checklist"), ck);
             }
             else {
                 // String path = args[0];
@@ -2589,8 +2601,8 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                 if (!genPDF) {
                     if (!fx.getAbsoluteFile().exists()) {
                         ChecklistType ck = new ChecklistType();
-                        ck.setName("New Checklist");
-                        clp = showChecklistPanel("New Checklist", ck);
+                        ck.setName(I18n.text("New Checklist"));
+                        clp = showChecklistPanel(I18n.text("New Checklist"), ck);
                     }
                     else {
                         clp = showChecklistPanel(fx.getAbsolutePath());
@@ -2599,7 +2611,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                 else {
                     // Gen PDF
                     if (!fx.getAbsoluteFile().exists()) {
-                        NeptusLog.pub().info("<###>Checklist file not found!");
+                        NeptusLog.pub().info("Checklist file not found!");
                         System.exit(1);
                     }
                     try {
