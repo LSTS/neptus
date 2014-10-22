@@ -84,9 +84,6 @@ public class CheckItemPanel extends JPanel implements PropertyChangeListener {
             "images/checklists/boxIcon.png", 18, 18));
     private static final Icon EDIT_IMAGE_ICON = new ImageIcon(ImageUtils.getScaledImage(
             "images/checklists/edit.png", 16, 16)); 
-    //private static final Icon SUB_ITEMS_IMAGE_ICON = new ImageIcon(CheckItemPanel.class.getResource("/images/menus/wizard.png"));
-
-    //private static final String CHANGED_PROPERTY = ChecklistPanel.CHANGED_PROPERTY;
 
     public static final Color CHECK_COLOR = new Color(190, 220, 240); // blue
 
@@ -181,15 +178,7 @@ public class CheckItemPanel extends JPanel implements PropertyChangeListener {
         this.add(getActionsPanel(), null);
 
         this.addPropertyChangeListener(ChecklistPanel.DIRTY_PROPERTY, this);
-        /*
-        this.addMouseListener(new java.awt.event.MouseAdapter() { 
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                NeptusLog.pub().info("<###>mouseClickedItemCI()" + e.isControlDown());
-                NeptusLog.pub().info("<###>Source" + ((Component)e.getSource()).getParent().getParent().getParent().getParent().getClass());
-                MyJTaskPaneGroup mjtpg = getMyJTaskPaneGroupFromItem((Component) e
-                            .getSource()); 
-                }});
-         */
+
         fixStateLabel();
     }
 
@@ -204,7 +193,6 @@ public class CheckItemPanel extends JPanel implements PropertyChangeListener {
             return mjtpg;
         }
         catch (RuntimeException e) {            
-            //e.printStackTrace();
             return null;
         }
     }
@@ -252,7 +240,6 @@ public class CheckItemPanel extends JPanel implements PropertyChangeListener {
             buttonsPanel.setBorder(null);
             buttonsPanel.add(getStatesLabel(), BorderLayout.WEST);
             buttonsPanel.add(getNoteToggleButton(), BorderLayout.EAST);
-            //buttonsPanel.add(getActionsToggleButton(), BorderLayout.EAST);
         }
         return buttonsPanel;
     }
@@ -308,11 +295,9 @@ public class CheckItemPanel extends JPanel implements PropertyChangeListener {
             checkBox.addItemListener(new ItemListener() { 
                 @Override
                 public void itemStateChanged(ItemEvent e) {    
-                    //NeptusLog.pub().info("<###>itemStateChanged()");
                     MyJTaskPaneGroup mtpg = getMyJTaskPaneGroupFromItem(CheckItemPanel.this);
                     if (getCheckBox().isSelected()) {
                         setBackground(CHECK_COLOR);
-                        //setBackground(new Color(181, 198, 216));
                         checkBox.setIcon(OK_IMAGE_ICON);
                         getDatePanel().setVisible(true);
                         trialTime = new Date();
@@ -334,7 +319,6 @@ public class CheckItemPanel extends JPanel implements PropertyChangeListener {
                                     true, false);
                         }
                     }
-                    //CheckItemPanel.this.fireChangeEvent((Component) e.getSource());
                     if (mtpg != null) {
                         mtpg.firePropertyChange(
                                 ChecklistPanel.DIRTY_PROPERTY,
@@ -370,62 +354,14 @@ public class CheckItemPanel extends JPanel implements PropertyChangeListener {
             actionsPanel.setBorder(new TitledBorder(I18n.text("Actions")));
             actionsPanel.setOpaque(false);
             actionsPanel.setVisible(false);
-            //actionsPanel.setBorder(BorderFactory.createEmptyBorder(3,5,3,5));
-            //actionsPanel.add(new JLabel("wefwerfgew"));
-            //actionsPanel.add(getUserActionPanel());
             actionsPanel.add(getActionsListPanelHolder(), BorderLayout.CENTER);
         }
         return actionsPanel;
     }
 
-    //	private JPanel getUserActionPanel()
-    //	{
-    //		if(userActionsPanel==null)
-    //		{
-    //			userActionsPanel=new JPanel();
-    //			userActionsPanel.setLayout(new BorderLayout());
-    //            userActionsPanel.setOpaque(false);
-    //			
-    //			JPanel panelAux2=new JPanel();
-    //			userActionCheckBox=new JCheckBox("Wait for user action");
-    //			userConfirmationCheckBox=new JCheckBox("User confirmation");
-    //			
-    //			panelAux2.add(userActionCheckBox);
-    //			panelAux2.add(userConfirmationCheckBox);
-    //			userActionsPanel.add(panelAux2,java.awt.BorderLayout.NORTH);
-    //			userMSGActionText = new JTextField();
-    //			
-    //			JPanel panelAux=new JPanel();
-    //			userMSGActionText.setColumns(20);
-    //			userMSGActionText.setEnabled(false);
-    //			panelAux.add(new JLabel("Message:"));
-    //			
-    //			userActionCheckBox.addItemListener(new java.awt.event.ItemListener() { 
-    //				public void itemStateChanged(java.awt.event.ItemEvent e) {    
-    //                    if (userActionCheckBox.isSelected())
-    //                    {
-    //            			userMSGActionText.setEnabled(true);            
-    //                    }
-    //                    else
-    //                    {
-    //                    	userMSGActionText.setEnabled(false);
-    //                    }
-    //                }
-    //			});
-    //			//userMSGActionText.setSize(100, 15);
-    //			//userMSGActionText.setMinimumSize(new Dimension(100, 15));
-    //			//userMSGActionText.setMaximumSize(new Dimension(100, 15));
-    //			panelAux.add(userMSGActionText);
-    //			userActionsPanel.add(panelAux,java.awt.BorderLayout.CENTER);
-    //		}
-    //		return userActionsPanel;
-    //	}
-
     private AutoItemsList getActionsListPanelHolder() {
         if (actionsListPanelHolder == null) {
             actionsListPanelHolder = new AutoItemsList(this);
-            // arCheckPanel.add(new
-            // JLabel("teste no centro"),java.awt.BorderLayout.CENTER);
         }
         return actionsListPanelHolder;
     }
@@ -481,7 +417,6 @@ public class CheckItemPanel extends JPanel implements PropertyChangeListener {
     private JToggleButton getNoteToggleButton() {
         if (noteToggleButton == null) {
             noteToggleButton = new JToggleButton();
-            //jToggleButton.setText("set note");
             noteToggleButton.setMargin(new Insets(0,0,0,0));
             noteToggleButton.setIcon(EDIT_IMAGE_ICON);
             noteToggleButton.setToolTipText(I18n.text("See Note & Actions"));
@@ -489,7 +424,6 @@ public class CheckItemPanel extends JPanel implements PropertyChangeListener {
             noteToggleButton.addItemListener(new ItemListener() { 
                 @Override
                 public void itemStateChanged(ItemEvent e) {    
-                    //NeptusLog.pub().info("<###>itemStateChanged()");
                     if (getNoteToggleButton().isSelected()) {
                         getNotesPanel().setVisible(true);
                         getActionsPanel().setVisible(true);
@@ -498,7 +432,6 @@ public class CheckItemPanel extends JPanel implements PropertyChangeListener {
                         getNotesPanel().setVisible(false);
                         getActionsPanel().setVisible(false);
                     }
-                    //NeptusLog.pub().info("<###>Text press");
                 }
             });
         }
@@ -519,7 +452,6 @@ public class CheckItemPanel extends JPanel implements PropertyChangeListener {
                 @Override
                 public void propertyChange(PropertyChangeEvent e) {
                     //NeptusLog.pub().info("<###>propertyChange(text)");
-                    // TODO Auto-generated property Event stub "text" 
                 }
             });
         }
@@ -568,8 +500,7 @@ public class CheckItemPanel extends JPanel implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent e) {
         String prop = e.getPropertyName();
         if (prop.equals(ChecklistPanel.DIRTY_PROPERTY)) {
-            NeptusLog.pub().info(this
-                    + ": user change"); // + arg0.getSource());
+            NeptusLog.pub().info(this + ": user change");
             boolean newValue = ((Boolean) e.getNewValue())
                     .booleanValue();
             ((MyJTaskPaneGroup) this.getParentGroup()).firePropertyChange(
@@ -578,15 +509,10 @@ public class CheckItemPanel extends JPanel implements PropertyChangeListener {
     }
 
     void fireChangeEvent(Component source) {
-        //NeptusLog.pub().warn("[" +
-        //        source + "]fireChangeEvent Panel: " + true);
         Container parent = this.getParent();
         if (parent != null) {
-            //System.err.println("dd " + parent.getParent().getParent().getParent().getClass());
             parent = parent.getParent().getParent().getParent();
-            //System.err.println("...");
             ((MyJTaskPaneGroup)parent).firePropertyChange(ChecklistPanel.DIRTY_PROPERTY, false, true);
-            //System.err.println("......");
         }
         fixStateLabel();
     }
@@ -600,13 +526,9 @@ public class CheckItemPanel extends JPanel implements PropertyChangeListener {
         ci.setNote(noteTextArea.getText());
 
         Component[] list = getActionsListPanelHolder().getComponents();
-        //NeptusLog.pub().info("<###>num de elem: "+list.length);
         for(Component c : list) {
-            //NeptusLog.pub().info("<###>antes de tentar");
             try {			
-                //NeptusLog.pub().info("<###> "+c);
                 ci.addAutoSubItem( ((CheckSubItem) c).getCheckAutoSubItem());
-                //NeptusLog.pub().info("<###>adicionou");
             }
             catch (Exception e2) {
                 //e2.printStackTrace();
