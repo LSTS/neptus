@@ -1023,19 +1023,15 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                                 }
                             }
                             
-                            LinkedHashMap<String, DefaultProperty> prevSpeed = new LinkedHashMap<String, DefaultProperty>();
-                            for (Maneuver m : plan.getGraph().getAllManeuvers()) {
-                                for (DefaultProperty p : m.getProperties()) {
-                                    if (p.getName().equalsIgnoreCase("Speed"))
-                                        prevSpeed.put(m.getId(), p);
-                                }
-                            }
+                            LinkedHashMap<String, Vector<DefaultProperty>> previousSettings = new LinkedHashMap<String, Vector<DefaultProperty>>();
                             
-                            LinkedHashMap<String, DefaultProperty> prevSpeedUnits = new LinkedHashMap<String, DefaultProperty>();
                             for (Maneuver m : plan.getGraph().getAllManeuvers()) {
                                 for (DefaultProperty p : m.getProperties()) {
-                                    if (p.getName().equalsIgnoreCase("Speed units"))
-                                        prevSpeedUnits.put(m.getId(), p);
+                                    if (p.getName().equalsIgnoreCase("Speed") || p.getName().equalsIgnoreCase("Speed units")) {
+                                        if (!previousSettings.containsKey(m.getId()))
+                                            previousSettings.put(m.getId(), new Vector<DefaultProperty>());
+                                        previousSettings.get(m.getId()).add(p);
+                                    }
                                 }
                             }
                             
@@ -1046,7 +1042,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             propVel.setDisplayName(I18n.text("Speed"));
                             planElem.setPlanProperty(propVel);
 
-                            manager.addEdit(new PlanSettingsChanged(plan, propVel, prevSpeed));
 
                             DefaultProperty propVelUnits = new DefaultProperty();
                             propVelUnits.setName("Speed units");
@@ -1055,7 +1050,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             propVelUnits.setDisplayName(I18n.text("Speed units"));
                             planElem.setPlanProperty(propVelUnits);
                             
-                            manager.addEdit(new PlanSettingsChanged(plan, propVelUnits, prevSpeedUnits));
+                            manager.addEdit(new PlanSettingsChanged(plan, Arrays.asList(propVel, propVelUnits), previousSettings));
                             refreshPropertiesManeuver();
                         }
                     };
