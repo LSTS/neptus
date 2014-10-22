@@ -45,6 +45,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
 import pt.lsts.neptus.types.checklist.CheckAutoUserActionItem;
 
@@ -82,7 +83,7 @@ public class UserActionItem extends JPanel implements CheckSubItem{
             }
         });
 
-        this.add(new JLabel("User Action:"));
+        this.add(new JLabel(I18n.text("User Action:")));
         this.add(userMsgActionText);
 
         remove = new JButton(ICON_CLOSE);
@@ -94,7 +95,7 @@ public class UserActionItem extends JPanel implements CheckSubItem{
             }
         });
 
-        this.add(new JLabel(" Checked:"));
+        this.add(new JLabel(" " + I18n.text("Checked:")));
         this.add(getCheck());
 
         this.add(remove);
