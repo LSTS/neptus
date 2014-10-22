@@ -48,7 +48,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author rjpg
  *
  */
-public class AutoItemsList extends JPanel{
+public class AutoItemsList extends JPanel {
 
     private static final long serialVersionUID = -7753351429507075143L;
 
