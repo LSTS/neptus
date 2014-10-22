@@ -45,6 +45,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
 import pt.lsts.neptus.types.checklist.CheckAutoUserLogItem;
 
@@ -87,7 +88,7 @@ public class UserCommentItem extends JPanel implements CheckSubItem {
             }
         });
 
-        this.add(new JLabel("User Comment: "));
+        this.add(new JLabel(I18n.text("User Comment:") + " "));
         this.add(logRequest);
 
         logMessage = new JTextField();
@@ -100,7 +101,7 @@ public class UserCommentItem extends JPanel implements CheckSubItem {
         });
 
 
-        this.add(new JLabel(" Comment: "));
+        this.add(new JLabel(I18n.text(" Comment:") + " "));
         this.add(logMessage);
 
         remove = new JButton(ICON_CLOSE);
@@ -112,7 +113,7 @@ public class UserCommentItem extends JPanel implements CheckSubItem {
             }
         });
 
-        this.add(new JLabel(" Checked:"));
+        this.add(new JLabel(" " + I18n.text("Checked:")));
         this.add(getCheck());
 
         this.add(remove);
@@ -149,5 +150,4 @@ public class UserCommentItem extends JPanel implements CheckSubItem {
         ret.setLogRequest(logRequest.getText());
         return ret;
     }
-
 }

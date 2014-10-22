@@ -35,6 +35,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -45,6 +46,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
 import pt.lsts.neptus.types.checklist.CheckAutoUserActionItem;
 
@@ -82,7 +84,7 @@ public class UserActionItem extends JPanel implements CheckSubItem{
             }
         });
 
-        this.add(new JLabel("User Action:"));
+        this.add(new JLabel(I18n.text("User Action:")));
         this.add(userMsgActionText);
 
         remove = new JButton(ICON_CLOSE);
@@ -94,7 +96,7 @@ public class UserActionItem extends JPanel implements CheckSubItem{
             }
         });
 
-        this.add(new JLabel(" Checked:"));
+        this.add(new JLabel(" " + I18n.text("Checked:")));
         this.add(getCheck());
 
         this.add(remove);
@@ -105,7 +107,7 @@ public class UserActionItem extends JPanel implements CheckSubItem{
             check = new JCheckBox("check");
             check.setOpaque(false);
             check.setText(" ");
-            check.addItemListener(new java.awt.event.ItemListener() {
+            check.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
                     parent.fireChangeEvent(UserActionItem.this);

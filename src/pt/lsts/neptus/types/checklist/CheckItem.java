@@ -47,9 +47,7 @@ import pt.lsts.neptus.types.XmlOutputMethods;
 /**
  * @author Paulo Dias
  */
-public class CheckItem
-implements XmlOutputMethods
-{
+public class CheckItem implements XmlOutputMethods {
     protected static final String DEFAULT_ROOT_ELEMENT = "item";
 
     protected String name = "";
@@ -65,30 +63,21 @@ implements XmlOutputMethods
     
     private Document doc;
 
-    /**
-     * 
-     */
-    public CheckItem(String xml)
-    {
-        //super();
+    public CheckItem(String xml) {
         load (xml);
     }
-
     
-    public CheckItem()
-    {
+    public CheckItem() {
         super();
     }
     
     /**
      * @param url
      */
-    public boolean load (String xml)
-    {
+    public boolean load (String xml) {
         String fileAsString = xml;
 
-        try
-        {
+        try {
             doc = DocumentHelper.parseText(fileAsString);
             this.setName(doc.selectSingleNode("/item/@name").getText());
             Node nd = doc.selectSingleNode("/item/note");
@@ -114,234 +103,218 @@ implements XmlOutputMethods
                 setDateChecked("");
             
             nd = doc.selectSingleNode("/item/@run-duration-seconds");
-            if (nd != null)
-            	try {
-            		setRunDurationSeconds(Double.parseDouble(nd.getText()));
-				} catch (Exception e) {
-					e.printStackTrace();
-					setRunDurationSeconds(Double.NaN);
-				}
+            if (nd != null) {
+                try {
+                    setRunDurationSeconds(Double.parseDouble(nd.getText()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    setRunDurationSeconds(Double.NaN);
+                }
+            }
             else
                 setRunDurationSeconds(Double.NaN);
             
             List<?> lt = doc.selectNodes("/item/subItems/*");
             
-            //NeptusLog.pub().info("<###>tamanho:"+lt.size());
-            if (!lt.isEmpty())
-            {
+            if (!lt.isEmpty()) {
                 Iterator<?> it = lt.iterator();
-                while (it.hasNext())
-                {
+                while (it.hasNext()) {
                 	Node aux=((Node)it.next());
                 	CheckAutoSubItem casi = null;
-                	//NeptusLog.pub().info("<###>Nome:"+aux.getName());
-                	if(aux.getName().equals("variableTestRange"))
-                	{               	//.asXML()
+                	if(aux.getName().equals("variableTestRange")) {
                 		casi = new CheckAutoVarIntervalItem(aux.asXML());
-                	}else if(aux.getName().equals("userLog"))
-                	{               	//.asXML()
+                	}
+                	else if(aux.getName().equals("userLog")) {
                 		casi = new CheckAutoUserLogItem(aux.asXML());
-                	}else if(aux.getName().equals("userAction"))
-                	{               	//.asXML()
+                	}
+                	else if(aux.getName().equals("userAction")) {
                 		casi = new CheckAutoUserActionItem(aux.asXML());
                 	}
                 	
                 	if(casi != null)
                 		autoSubItems.add(casi);
-                    
                 }
             }
 
-        } catch (DocumentException e)
-        {
+        }
+        catch (DocumentException e) {
             NeptusLog.pub().error(this, e);
             return false;
         }
         return true;
     }
 
-    public void addAutoSubItem(CheckAutoSubItem asi)
-    {
-    	autoSubItems.add(asi);
+    public void addAutoSubItem(CheckAutoSubItem asi) {
+        autoSubItems.add(asi);
     }
-    
-    public void removeAutoSubItem(CheckAutoSubItem asi)
-    {
-    	autoSubItems.remove(asi);
+
+    public void removeAutoSubItem(CheckAutoSubItem asi) {
+        autoSubItems.remove(asi);
     }
-    
-    public Vector<CheckAutoSubItem> getAutoSubItems()
-    {
-    	return autoSubItems; 
+
+    public Vector<CheckAutoSubItem> getAutoSubItems() {
+        return autoSubItems;
     }
-    
+
     /**
      * @return Returns the name.
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
+
     /**
      * @param name The name to set.
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     /**
      * @return Returns the dateChecked.
      */
-    public String getDateChecked()
-    {
+    public String getDateChecked() {
         return dateChecked;
     }
+
     /**
      * @param dateChecked The dateChecked to set.
      */
-    public void setDateChecked(String dateChecked)
-    {
+    public void setDateChecked(String dateChecked) {
         this.dateChecked = dateChecked;
     }
-    
-	public double getRunDurationSeconds() {
-		return runDurationSeconds;
-	}
 
+    public double getRunDurationSeconds() {
+        return runDurationSeconds;
+    }
 
-	public void setRunDurationSeconds(double runDurationSeconds) {
-		this.runDurationSeconds = runDurationSeconds;
-	}
-    
-        
+    public void setRunDurationSeconds(double runDurationSeconds) {
+        this.runDurationSeconds = runDurationSeconds;
+    }
+
     /**
      * @return Returns the isChecked.
      */
-    public boolean isChecked()
-    {
+    public boolean isChecked() {
         return isChecked;
     }
+
     /**
      * @param isChecked The isChecked to set.
      */
-    public void setChecked(boolean isChecked)
-    {
+    public void setChecked(boolean isChecked) {
         this.isChecked = isChecked;
     }
-    
+
     /**
      * @return Returns the note.
      */
-    public String getNote()
-    {
+    public String getNote() {
         return note;
     }
+
     /**
      * @param note The note to set.
      */
-    public void setNote(String note)
-    {
+    public void setNote(String note) {
         if (note == null)
             this.note = "";
         this.note = note;
     }
-    
+
     public boolean isSkiped() {
-		return skiped;
-	}
+        return skiped;
+    }
 
+    public void setSkiped(boolean skiped) {
+        this.skiped = skiped;
+    }
 
-	public void setSkiped(boolean skiped) {
-		this.skiped = skiped;
-	}
-    
-    
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.types.XmlOutputMethods#asXML()
      */
-    public String asXML()
-    {
+    public String asXML() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asXML(rootElementName);
     }
 
-    
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.types.XmlOutputMethods#asXML(java.lang.String)
      */
-    public String asXML(String rootElementName)
-    {
-        String result = "";        
+    public String asXML(String rootElementName) {
+        String result = "";
         Document document = asDocument(rootElementName);
         result = document.asXML();
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.types.XmlOutputMethods#asElement()
      */
-    public Element asElement()
-    {
+    public Element asElement() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asElement(rootElementName);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.types.XmlOutputMethods#asElement(java.lang.String)
      */
-    public Element asElement(String rootElementName)
-    {
+    public Element asElement(String rootElementName) {
         return (Element) asDocument(rootElementName).getRootElement().detach();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument()
      */
-    public Document asDocument()
-    {
+    public Document asDocument() {
         String rootElementName = DEFAULT_ROOT_ELEMENT;
         return asDocument(rootElementName);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.types.XmlOutputMethods#asDocument(java.lang.String)
      */
-    public Document asDocument(String rootElementName)
-    {
+    public Document asDocument(String rootElementName) {
         Document document = DocumentHelper.createDocument();
-        Element root = document.addElement( rootElementName );
-        
+        Element root = document.addElement(rootElementName);
+
         root.addAttribute("name", getName());
         root.addAttribute("checked", Boolean.toString(isChecked()));
         if (!isSkiped())
-        	root.addAttribute("skiped", Boolean.toString(isSkiped()));
-        if (isChecked())
-        {
+            root.addAttribute("skiped", Boolean.toString(isSkiped()));
+        if (isChecked()) {
             if (!getDateChecked().equalsIgnoreCase(""))
                 root.addAttribute("date-checked", getDateChecked());
-            
-            if(!Double.isNaN(getRunDurationSeconds()))
-            	root.addAttribute("run-duration-seconds",getRunDurationSeconds()+"");
-            
+
+            if (!Double.isNaN(getRunDurationSeconds()))
+                root.addAttribute("run-duration-seconds", getRunDurationSeconds() + "");
         }
         
         if (!getNote().equalsIgnoreCase(""))
             root.addElement("note").setText(getNote());
         
-        if(!autoSubItems.isEmpty())
-        {
-        	Element subItem = DocumentHelper.createElement("subItems");
+        if (!autoSubItems.isEmpty()) {
+            Element subItem = DocumentHelper.createElement("subItems");
 
-        	for(CheckAutoSubItem casi : autoSubItems)
-        	{
-        		subItem.add(casi.asElement());
-        	}
-        	if(!subItem.content().isEmpty())
-        		root.add(subItem);
+            for (CheckAutoSubItem casi : autoSubItems) {
+                subItem.add(casi.asElement());
+            }
+            if (!subItem.content().isEmpty())
+                root.add(subItem);
         }
-        
+
         return document;
     }
-
 }
