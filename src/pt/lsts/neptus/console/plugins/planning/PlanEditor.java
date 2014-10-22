@@ -95,7 +95,9 @@ import pt.lsts.neptus.console.plugins.planning.edit.ManeuverPropertiesPanel;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverRemoved;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanRotated;
+import pt.lsts.neptus.console.plugins.planning.edit.PlanSettingsChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTranslated;
+import pt.lsts.neptus.console.plugins.planning.edit.PlanZChanged;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.VehicleChooser;
 import pt.lsts.neptus.gui.VehicleSelectionDialog;
@@ -104,6 +106,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverFactory;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
@@ -537,6 +540,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 public void actionPerformed(ActionEvent e) {
                     manager.undo();
                     planElem.recalculateManeuverPositions(renderer);
+                    refreshPropertiesManeuver();
                 }
             };
         return undoAction;
@@ -553,6 +557,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 public void actionPerformed(ActionEvent e) {
                     manager.redo();
                     planElem.recalculateManeuverPositions(renderer);
+                    refreshPropertiesManeuver();
                 }
             };
         return redoAction;
@@ -946,7 +951,18 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             boolean newZ = ZValueSelector.showHeightDepthDialog(getConsole().getMainPanel(), loc,
                                     I18n.text("Plan depth / altitude"));
                             if (newZ) {
+                                
+                                LinkedHashMap<String, Z_UNITS> prevUnits = new LinkedHashMap<String, ManeuverLocation.Z_UNITS>();
+                                LinkedHashMap<String, Double> prevValues = new LinkedHashMap<String, Double>();
+                                for (Maneuver m : plan.getGraph().getAllManeuvers()) {
+                                    if (m instanceof LocatedManeuver) {
+                                        ManeuverLocation l = ((LocatedManeuver)m).getManeuverLocation();
+                                        prevUnits.put(m.getId(), l.getZUnits());
+                                        prevValues.put(m.getId(), l.getZ());
+                                    }
+                                }
                                 planElem.setPlanZ(loc.getZ(), loc.getZUnits());
+                                manager.addEdit(new PlanZChanged(plan, loc.getZ(), loc.getZUnits(), prevUnits, prevValues));
                                 refreshPropertiesManeuver();
                             }
                         }
@@ -1006,7 +1022,23 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                                             I18n.text("Speed must be a numeric value"));
                                 }
                             }
-
+                            
+                            LinkedHashMap<String, DefaultProperty> prevSpeed = new LinkedHashMap<String, DefaultProperty>();
+                            for (Maneuver m : plan.getGraph().getAllManeuvers()) {
+                                for (DefaultProperty p : m.getProperties()) {
+                                    if (p.getName().equalsIgnoreCase("Speed"))
+                                        prevSpeed.put(m.getId(), p);
+                                }
+                            }
+                            
+                            LinkedHashMap<String, DefaultProperty> prevSpeedUnits = new LinkedHashMap<String, DefaultProperty>();
+                            for (Maneuver m : plan.getGraph().getAllManeuvers()) {
+                                for (DefaultProperty p : m.getProperties()) {
+                                    if (p.getName().equalsIgnoreCase("Speed units"))
+                                        prevSpeedUnits.put(m.getId(), p);
+                                }
+                            }
+                            
                             DefaultProperty propVel = new DefaultProperty();
                             propVel.setName("Speed");
                             propVel.setValue(velocity);
@@ -1014,13 +1046,16 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                             propVel.setDisplayName(I18n.text("Speed"));
                             planElem.setPlanProperty(propVel);
 
+                            manager.addEdit(new PlanSettingsChanged(plan, propVel, prevSpeed));
+
                             DefaultProperty propVelUnits = new DefaultProperty();
                             propVelUnits.setName("Speed units");
                             propVelUnits.setValue(velUnitNotI18n); // velUnitI18n
                             propVelUnits.setType(String.class);
                             propVelUnits.setDisplayName(I18n.text("Speed units"));
                             planElem.setPlanProperty(propVelUnits);
-
+                            
+                            manager.addEdit(new PlanSettingsChanged(plan, propVelUnits, prevSpeedUnits));
                             refreshPropertiesManeuver();
                         }
                     };

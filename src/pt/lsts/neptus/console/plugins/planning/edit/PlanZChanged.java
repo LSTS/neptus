@@ -39,25 +39,31 @@ import javax.swing.undo.CannotUndoException;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
 
 /**
  * @author zp
  *
  */
-public class PlanSettingsChanged extends AbstractUndoableEdit {
+public class PlanZChanged extends AbstractUndoableEdit {
 
     private static final long serialVersionUID = 1L;
-    protected LinkedHashMap<String, DefaultProperty> previousSettings;
-    protected DefaultProperty newSetting;
+    protected LinkedHashMap<String, Z_UNITS> previousUnits;
+    protected LinkedHashMap<String, Double> previousValues;
+    protected double newZ;
+    protected Z_UNITS newUnits;
     protected PlanType plan;
-    
-    public PlanSettingsChanged(PlanType plan, DefaultProperty newSetting, LinkedHashMap<String, DefaultProperty> previousSettings) {
+
+    public PlanZChanged(PlanType plan, double newZ, Z_UNITS newUnits, LinkedHashMap<String, Z_UNITS> previousUnits,
+            LinkedHashMap<String, Double> previousValues) {
         this.plan = plan;
-        this.newSetting = newSetting;
-        this.previousSettings = previousSettings;
+        this.newZ = newZ;
+        this.newUnits = newUnits;
+        this.previousUnits = previousUnits;
+        this.previousValues = previousValues;
     }
 
     @Override
@@ -72,21 +78,31 @@ public class PlanSettingsChanged extends AbstractUndoableEdit {
 
     @Override
     public String getPresentationName() {
-        return I18n.textf("Set %planSetting to %newValue in the entire plan.", newSetting.getDisplayName(), newSetting.getValue());
+        return I18n.textf("Set %zunits of %newValue in the entire plan.", newUnits.name(),
+                newZ);
     }
 
     @Override
     public void undo() throws CannotUndoException {
-        for (String key : previousSettings.keySet()) {
-            plan.getGraph().getManeuver(key).setProperties(
-                    new DefaultProperty[] {previousSettings.get(key)});
+        for (String key : previousUnits.keySet()) {
+            LocatedManeuver man = (LocatedManeuver)plan.getGraph().getManeuver(key); 
+            ManeuverLocation loc = man.getManeuverLocation();
+            loc.setZ(previousValues.get(key));
+            loc.setZUnits(previousUnits.get(key));
+            man.setManeuverLocation(loc);
         }
     }
 
     @Override
-    public void redo() throws CannotRedoException {      
+    public void redo() throws CannotRedoException {
         for (Maneuver m : plan.getGraph().getAllManeuvers()) {
-            m.setProperties(new DefaultProperty[] {newSetting});
+            if (m instanceof LocatedManeuver) {
+                LocatedManeuver man = (LocatedManeuver)m; 
+                ManeuverLocation loc = man.getManeuverLocation();
+                loc.setZ(newZ);
+                loc.setZUnits(newUnits);
+                man.setManeuverLocation(loc);
+            }                
         }
     }
 
@@ -95,6 +111,6 @@ public class PlanSettingsChanged extends AbstractUndoableEdit {
      */
     public PlanType getPlan() {
         return plan;
-    }       
-    
+    }
+
 }
