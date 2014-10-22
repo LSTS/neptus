@@ -922,6 +922,7 @@ For simple use the main targets are:
 			<include name="images/files-icons/*.png"/>
 			<include name="schemas/neptus-checklist.xsd"/>
 			<include name="pt/lsts/neptus/NeptusLog*.class" />
+			<include name="pt/lsts/neptus/colormap/ColorMap*.class" />
 			<include name="pt/lsts/neptus/comm/iridium/IridiumManager*.class" />
 			<include name="pt/lsts/neptus/comm/manager/imc/ImcId16*.class"/>
 			<include name="pt/lsts/neptus/comm/transports/ImcUdpTransport*.class"/>
@@ -933,17 +934,25 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/gui/InfiniteProgressPanel*.class"/>
 			<include name="pt/lsts/neptus/gui/ModalFrame.class"/>
 			<include name="pt/lsts/neptus/gui/PropertiesProvider.class"/>
+			<include name="pt/lsts/neptus/gui/PropertiesEditor*.class"/>
 			<include name="pt/lsts/neptus/gui/checklist/**/*.class"/>
 			<include name="pt/lsts/neptus/gui/editor/*.class"/>
 			<include name="pt/lsts/neptus/gui/swing/NeptusFileView.class"/>
 			<include name="pt/lsts/neptus/messages/listener/**/*.class"/>
 			<include name="pt/lsts/neptus/messages/*.class"/>
+			<include name="pt/lsts/neptus/mp/actions/PlanActions*.class"/>
+			<include name="pt/lsts/neptus/mp/ManeuverLocation*.class"/>
+			<include name="pt/lsts/neptus/plugins/ConfigurationListener*.class"/>
 			<include name="pt/lsts/neptus/plugins/NeptusProperty*.class"/>
 			<include name="pt/lsts/neptus/plugins/PluginProperty.class"/>
+			<include name="pt/lsts/neptus/plugins/PluginUtils*.class"/>
+			<include name="pt/lsts/neptus/plugins/PropertyType.class"/>
 			<include name="pt/lsts/neptus/types/Identifiable*.class"/>
 			<include name="pt/lsts/neptus/types/Xml*.class"/>
 			<include name="pt/lsts/neptus/types/checklist/**/*.class"/>
+			<include name="pt/lsts/neptus/types/coord/LocationType*.class"/>
 			<include name="pt/lsts/neptus/types/nativetypes/*.class"/>
+			<include name="pt/lsts/neptus/types/**/*.class"/>
 			<include name="pt/lsts/neptus/util/BarCodesUtil*.class"/>
 			<include name="pt/lsts/neptus/util/DateTimeUtil*.class"/>
 			<include name="pt/lsts/neptus/util/ImageLoader.class"/>
@@ -990,6 +999,7 @@ For simple use the main targets are:
 		<unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/zxing-bin.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/libimc.jar"/>
 		<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-2.4.jar"/-->
 
 		<unzip dest="${tmp.bundle.dir}" src="${bundle.jar.checklist.path}" overwrite="yes"/>
