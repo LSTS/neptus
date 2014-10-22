@@ -57,8 +57,8 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * Refactored in 06/11/2006.
  * @author Paulo Dias
  */
-public class ChecklistType 
- implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
+public class ChecklistType implements XmlOutputMethods, XmlInputMethods, XmlInputMethodsFromFile {
+    
     protected static final String DEFAULT_ROOT_ELEMENT = "checklist";
 
     public static final String FLAT_ID = "flat";
@@ -129,7 +129,6 @@ public class ChecklistType
     private boolean load() {
         long initTime = System.currentTimeMillis();
         try {
-            //doc = DocumentHelper.parseText(xml);
             this.setName(doc.selectSingleNode("/checklist/@name").getText());
             Node nd = doc.selectSingleNode("/checklist/description");
             if (nd != null)
@@ -198,7 +197,6 @@ public class ChecklistType
         return true;
     }
 
-
     @Override
     public boolean loadFile(File file) {
         return loadFile(file.getAbsolutePath());
@@ -210,18 +208,8 @@ public class ChecklistType
     @Override
     public boolean loadFile(String url) {
         originalFilePath = new File(url).getAbsolutePath();
-
         String fileAsString = FileUtil.getFileAsString(url);
-
-        /*
-         * try { String sLoc = new File
-         * (ConfigFetch.getChecklistSchemaLocation())
-         * .getAbsoluteFile().toURI().toASCIIString(); XMLValidator xmlVal = new
-         * XMLValidator(fileAsString, sLoc); xmlVal.validate(); } catch
-         * (Exception e1) { NeptusLog.pub().error(this, e1); }
-         */
         isLoadOk = validate(fileAsString);
-
         return load(fileAsString);
     }
 
@@ -383,7 +371,6 @@ public class ChecklistType
         }
         
         if (getDescription() != null) {
-            //root.addAttribute("description", getDescription());
             root.addElement("description").setText(getDescription());
         }
         
@@ -423,7 +410,6 @@ public class ChecklistType
 
     public static boolean validate(String xml) {
         try {
-
             String sLoc = new File(ConfigFetch.getChecklistSchemaLocation()).getAbsoluteFile()
                     .toURI().toString();
             XMLValidator xmlVal = new XMLValidator(xml, sLoc);
@@ -443,7 +429,6 @@ public class ChecklistType
 
     public static boolean validate(File file) {
         try {
-            // System.err.println(file.getAbsoluteFile().toURI());
             String xml = FileUtil.getFileAsString(file);
             return validate(xml);
         }
