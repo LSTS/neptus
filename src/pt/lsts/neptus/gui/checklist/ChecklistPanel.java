@@ -113,6 +113,7 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.output.OutputMonitor;
 import pt.lsts.neptus.util.xsl.TransformFOP;
 
@@ -138,8 +139,8 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     public static Icon ICON_CANCEL = new ImageIcon(ImageUtils.getImage("images/checklists/cancel.png"));
     public static Icon ICON_RUN = new ImageIcon(ImageUtils.getImage("images/checklists/run.png"));
 
-    public static String FLAT_TITLE = I18n.text("Flat Checklist");
-    public static String NOT_FLAT_TITLE = I18n.text("Not Flat Checklist");
+    public static String FLAT_TITLE;;
+    public static String NOT_FLAT_TITLE;
 
     private static final int MAX_NUMBER_OF_SHOWN_CHARS = 20;
 
@@ -232,6 +233,10 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
      */
     public ChecklistPanel(ChecklistType cl) {
         super();
+        
+        FLAT_TITLE = I18n.text("Flat Checklist");
+        NOT_FLAT_TITLE = I18n.text("Not Flat Checklist");
+
         checklist = cl;
         isFlat = checklist.isFlat();
         originalFilePath = checklist.getOriginalFilePath();
@@ -2511,6 +2516,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     }
 
     public static void main(String... args) {
+        GeneralPreferences.initialize();
         try {
             // create the command line parser
             CommandLineParser parser = new PosixParser();
