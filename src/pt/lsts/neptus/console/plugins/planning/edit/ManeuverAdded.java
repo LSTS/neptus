@@ -83,20 +83,32 @@ public class ManeuverAdded extends AbstractUndoableEdit {
     public void undo() throws CannotUndoException {
         //plan.getGraph().removeManeuver(maneuver);
         
-        for (TransitionType tt : addedTransitions)
-            plan.getGraph().removeTransition(tt);
+        for (TransitionType tt : addedTransitions) {
+            if (tt != null)
+                plan.getGraph().removeTransition(tt);
+        }
+            
         plan.getGraph().removeManeuver(maneuver);        
-        for (TransitionType tt : removedTransitions)
-            plan.getGraph().addTransition(tt);
+        for (TransitionType tt : removedTransitions) {
+            if (tt != null)
+                plan.getGraph().addTransition(tt);
+        }
     }
     
     @Override
     public void redo() throws CannotRedoException {
-        for (TransitionType tt : removedTransitions)
-            plan.getGraph().removeTransition(tt);
+        for (TransitionType tt : removedTransitions) {
+            if (tt != null)
+                plan.getGraph().removeTransition(tt);
+        }
         plan.getGraph().addManeuver(maneuver);        
-        for (TransitionType tt : addedTransitions)
-            plan.getGraph().addTransition(tt);        
+        for (TransitionType tt : addedTransitions) {
+            if (tt != null)        
+            plan.getGraph().addTransition(tt);
+        }
+        
+        if(initial)
+            plan.getGraph().setInitialManeuver(maneuver.getId());
     }
     
     /**

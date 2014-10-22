@@ -255,8 +255,16 @@ public class PlanUtil {
      */
     public static double getEstimatedDelay(LocationType previousPos, PlanType plan) throws Exception {
         double time = 0;
-        if (previousPos == null)
-            previousPos = getFirstLocation(plan);
+        try {
+            if (previousPos == null)
+                previousPos = getFirstLocation(plan);
+        }
+        catch (Exception e) {
+            // Impossible to get any location for this plan...
+            NeptusLog.pub().debug(e);
+            if (previousPos == null)
+                return 0;
+        }
         
         for (Maneuver m : plan.getGraph().getManeuversSequence()) {
             if (m instanceof StatisticsProvider) {

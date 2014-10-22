@@ -57,6 +57,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -147,7 +148,7 @@ import com.l2fprod.common.propertysheet.PropertySheetPanel;
 @PluginDescription(name = "Plan Edition", icon = "images/planning/plan_editor.png", author = "José Pinto, Paulo Dias", version = "1.5", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 100)
 public class PlanEditor extends InteractionAdapter implements Renderer2DPainter, IPeriodicUpdates,
-MissionChangeListener {
+        MissionChangeListener {
 
     private static final long serialVersionUID = 1L;
     private final String defaultCondition = "ManeuverIsDone";
@@ -167,6 +168,7 @@ MissionChangeListener {
     protected JLabel statsLabel = null;
     protected static final String maneuverPreamble = "[Neptus:Maneuver]\n";
     protected PlanSimulationOverlay overlay = null;
+
     public enum ToolbarLocation {
         Right,
         Left
@@ -291,7 +293,7 @@ MissionChangeListener {
 
                 VehicleType choice = null;
                 if (getConsole().getMainSystem() != null)
-                    choice = VehicleChooser.showVehicleDialog(null, 
+                    choice = VehicleChooser.showVehicleDialog(null,
                             VehiclesHolder.getVehicleById(getConsole().getMainSystem()), getConsole());
                 else
                     choice = VehicleChooser.showVehicleDialog(null, null, getConsole());
@@ -443,7 +445,7 @@ MissionChangeListener {
     public void editDifferentPlan(PlanType newPlan) {
 
         if (plan != null && manager.canUndo()) {
-            int option = JOptionPane.showConfirmDialog(getConsole(), 
+            int option = JOptionPane.showConfirmDialog(getConsole(),
                     I18n.textf("Continuing will discard all changes made to %planName. Continue?", plan.getId()),
                     I18n.text("Edit plan"), JOptionPane.YES_NO_OPTION);
             if (option == JOptionPane.NO_OPTION)
@@ -460,7 +462,7 @@ MissionChangeListener {
     public void newPlan() {
         getPropertiesPanel().setManeuver(null);
         if (plan != null) {
-            int option = JOptionPane.showConfirmDialog(getConsole(), 
+            int option = JOptionPane.showConfirmDialog(getConsole(),
                     I18n.textf("Continuing will discard all changes made to %planName. Continue?", plan.getId()),
                     I18n.text("Create new plan"), JOptionPane.YES_NO_OPTION);
             if (option == JOptionPane.NO_OPTION)
@@ -471,8 +473,8 @@ MissionChangeListener {
         updateUndoRedo();
         VehicleType choice = null;
         if (getConsole().getMainSystem() != null)
-            choice = VehicleChooser.showVehicleDialog(null, VehiclesHolder.getVehicleById(getConsole().getMainSystem()),
-                    getConsole());
+            choice = VehicleChooser.showVehicleDialog(null,
+                    VehiclesHolder.getVehicleById(getConsole().getMainSystem()), getConsole());
         else
             choice = VehicleChooser.showVehicleDialog(null, null, getConsole());
 
@@ -489,8 +491,8 @@ MissionChangeListener {
     }
 
     protected AbstractAction getNewAction() {
-        return new AbstractAction(I18n.textc("New", "Plan"), ImageUtils.getScaledIcon(
-                "images/planning/edit_new.png", 16, 16)) {
+        return new AbstractAction(I18n.textc("New", "Plan"), ImageUtils.getScaledIcon("images/planning/edit_new.png",
+                16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -526,38 +528,37 @@ MissionChangeListener {
 
     protected AbstractAction getUndoAction() {
         if (undoAction == null)
-            undoAction = new AbstractAction(I18n.text("Undo"), ImageUtils.getScaledIcon(
-                    "images/planning/undo.png", 16, 16)) {
-            private static final long serialVersionUID = 1L;
+            undoAction = new AbstractAction(I18n.text("Undo"), ImageUtils.getScaledIcon("images/planning/undo.png", 16,
+                    16)) {
+                private static final long serialVersionUID = 1L;
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                manager.undo();
-                planElem.recalculateManeuverPositions(renderer);
-            }
-        };
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    manager.undo();
+                    planElem.recalculateManeuverPositions(renderer);
+                }
+            };
         return undoAction;
     }
 
     protected AbstractAction getRedoAction() {
 
         if (redoAction == null)
-            redoAction = new AbstractAction(I18n.text("Redo"), ImageUtils.getScaledIcon(
-                    "images/planning/redo.png", 16, 16)) {
-            private static final long serialVersionUID = 1L;
+            redoAction = new AbstractAction(I18n.text("Redo"), ImageUtils.getScaledIcon("images/planning/redo.png", 16,
+                    16)) {
+                private static final long serialVersionUID = 1L;
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                manager.redo();
-                planElem.recalculateManeuverPositions(renderer);
-            }
-        };
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    manager.redo();
+                    planElem.recalculateManeuverPositions(renderer);
+                }
+            };
         return redoAction;
     }
 
     protected AbstractAction getSaveAction() {
-        return new AbstractAction(I18n.text("Save"), ImageUtils.getScaledIcon(
-                "images/planning/edit_save.png", 16, 16)) {
+        return new AbstractAction(I18n.text("Save"), ImageUtils.getScaledIcon("images/planning/edit_save.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -613,17 +614,17 @@ MissionChangeListener {
     }
 
     protected AbstractAction getCloseAction() {
-        return new AbstractAction(I18n.text("Close"), ImageUtils.getScaledIcon(
-                "images/planning/edit_close.png", 16, 16)) {
+        return new AbstractAction(I18n.text("Close"),
+                ImageUtils.getScaledIcon("images/planning/edit_close.png", 16, 16)) {
             private static final long serialVersionUID = 1L;
 
             @Override
             public void actionPerformed(ActionEvent e) {
 
                 if (plan != null && planChanged) {
-                    int option = JOptionPane.showConfirmDialog(getConsole(),
-                            I18n.textf("Continuing will discard all changes made to %planName. Continue?", plan.getId()),
-                            I18n.text("Close discarding changes"), JOptionPane.YES_NO_OPTION);
+                    int option = JOptionPane.showConfirmDialog(getConsole(), I18n.textf(
+                            "Continuing will discard all changes made to %planName. Continue?", plan.getId()), I18n
+                            .text("Close discarding changes"), JOptionPane.YES_NO_OPTION);
                     if (option == JOptionPane.NO_OPTION)
                         return;
                 }
@@ -708,11 +709,12 @@ MissionChangeListener {
             String mvid = getMainVehicleId();
             vt = VehiclesHolder.getVehicleById(mvid);
             if (vt == null)
-                NeptusLog.pub().warn("No vehicle type for main vehicle " + getMainVehicleId() + " for plan " + plan.getId());
+                NeptusLog.pub().warn(
+                        "No vehicle type for main vehicle " + getMainVehicleId() + " for plan " + plan.getId());
             else
                 plan.setVehicle(getMainVehicleId());
         }
-        
+
         if (vt != null) {
             this.mf = vt.getManeuverFactory();
         }
@@ -795,12 +797,12 @@ MissionChangeListener {
                     }
                 };
                 Toolkit.getDefaultToolkit().getSystemClipboard()
-                .setContents(new StringSelection(maneuverPreamble + man.getManeuverXml()), owner);
+                        .setContents(new StringSelection(maneuverPreamble + man.getManeuverXml()), owner);
             }
         };
         copy.putValue(AbstractAction.SMALL_ICON, new ImageIcon(ImageUtils.getImage("images/menus/editcopy.png")));
         actions.add(copy);
-        
+
         actions.add(getPasteAction((Point) mousePoint));
 
         List<String> names = Arrays.asList(mf.getAvailableManeuversIDs());
@@ -814,8 +816,8 @@ MissionChangeListener {
         ImageIcon icon = ImageUtils.getIcon("images/led_none.png");
         for (String manName : names) {
             final String manType = manName;
-            AbstractAction act = new AbstractAction(I18n.textf("Add %maneuverName1 before %maneuverName2", manName, man.getId()),
-                    icon) {
+            AbstractAction act = new AbstractAction(I18n.textf("Add %maneuverName1 before %maneuverName2", manName,
+                    man.getId()), icon) {
                 private static final long serialVersionUID = 1L;
 
                 @Override
@@ -1046,11 +1048,12 @@ MissionChangeListener {
                                     psp);
                             DefaultProperty[] properties = payloadConfig.getProperties();
 
-                            ManeuverPayloadConfig payloadDefaultsConfig = new ManeuverPayloadConfig(plan.getVehicle(), pivot,
-                                    psp);
+                            ManeuverPayloadConfig payloadDefaultsConfig = new ManeuverPayloadConfig(plan.getVehicle(),
+                                    pivot, psp);
                             DefaultProperty[] propertiesDefaults = payloadDefaultsConfig.getProperties();
 
-                            int ret = fillPropertiesWithAllChangesFromDefaults(plan, properties, propertiesDefaults, psp);
+                            int ret = fillPropertiesWithAllChangesFromDefaults(plan, properties, propertiesDefaults,
+                                    psp);
                             String extraTxt = "";
                             switch (ret) {
                                 case 0:
@@ -1058,7 +1061,8 @@ MissionChangeListener {
                                     extraTxt = "<br><small>(" + I18n.text("All maneuvers have the same values.") + ")";
                                     break;
                                 default:
-                                    extraTxt = "<br><small>(" + I18n.text("Not all maneuvers have the same values.") + ")";
+                                    extraTxt = "<br><small>(" + I18n.text("Not all maneuvers have the same values.")
+                                            + ")";
                                     break;
                             }
 
@@ -1079,7 +1083,7 @@ MissionChangeListener {
                                     m.getStartActions().parseMessages(startActions);
                                     NeptusLog.pub().info("<###> " + m.getId());
                                 }
-                                
+
                                 refreshPropertiesManeuver();
                             }
                         }
@@ -1120,8 +1124,8 @@ MissionChangeListener {
                         Window parent = SwingUtilities.getWindowAncestor(getConsole());
                         if (parent == null)
                             parent = SwingUtilities.getWindowAncestor(ConfigFetch.getSuperParentAsFrame());
-                        JDialog transitions = new JDialog(parent, 
-                                I18n.textf("Edit '%planName' plan transitions", plan.getId()));
+                        JDialog transitions = new JDialog(parent, I18n.textf("Edit '%planName' plan transitions",
+                                plan.getId()));
                         transitions.setModalityType(ModalityType.DOCUMENT_MODAL);
                         transitions.getContentPane().add(new PlanTransitionsSimpleEditor(plan));
                         transitions.setSize(800, 500);
@@ -1149,10 +1153,10 @@ MissionChangeListener {
 
                 List<String> names = Arrays.asList(mf.getAvailableManeuversIDs());
                 Collections.sort(names);
-                
+
                 ImageIcon icon = ImageUtils.getIcon("images/led_none.png");
                 for (final String manName : names) {
-                    String manNameStr = I18n.text(manName); 
+                    String manNameStr = I18n.text(manName);
                     AbstractAction act = new AbstractAction(I18n.textf("Add %maneuverName", manNameStr), icon) {
                         private static final long serialVersionUID = 1L;
 
@@ -1169,41 +1173,41 @@ MissionChangeListener {
                     popup.add(act);
                 }
 
-//                AbstractAction act = new AbstractAction(I18n.text("Simulate plan"), null) {
-//                    private static final long serialVersionUID = 1L;
-//
-//                    @Override
-//                    public void actionPerformed(ActionEvent evt) {
-//
-//                        String vehicle = getConsole().getMainSystem();
-//                        LocationType startLoc = plan.getMissionType().getStartLocation();
-//                        SystemPositionAndAttitude start = new SystemPositionAndAttitude(startLoc, 0, 0, 0);
-//                        EstimatedState lastState = null;
-//                        FuelLevel lastFuel = null;
-//                        double motionRemaingHours = 4;
-//
-//                        try {
-//                            lastState = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
-//                            lastFuel = ImcMsgManager.getManager().getState(vehicle).lastFuelLevel();
-//
-//                            if (lastState != null)
-//                                start = new SystemPositionAndAttitude(lastState);
-//
-//                            if (lastFuel != null) {
-//                                LinkedHashMap<String, String> opmodes = lastFuel.getOpmodes();
-//                                motionRemaingHours = Double.parseDouble(opmodes.get("Full"));
-//                            }
-//                        }
-//                        catch (Exception e) {
-//                            NeptusLog.pub().error("Error getting info from main vehicle", e);
-//                        }
-//
-//                        overlay = new PlanSimulationOverlay(plan, 0, motionRemaingHours, start);
-//                        PlanSimulation3D.showSimulation(getConsole(), overlay, plan);
-//
-//                    }
-//                };
-//                popup.add(act);
+                // AbstractAction act = new AbstractAction(I18n.text("Simulate plan"), null) {
+                // private static final long serialVersionUID = 1L;
+                //
+                // @Override
+                // public void actionPerformed(ActionEvent evt) {
+                //
+                // String vehicle = getConsole().getMainSystem();
+                // LocationType startLoc = plan.getMissionType().getStartLocation();
+                // SystemPositionAndAttitude start = new SystemPositionAndAttitude(startLoc, 0, 0, 0);
+                // EstimatedState lastState = null;
+                // FuelLevel lastFuel = null;
+                // double motionRemaingHours = 4;
+                //
+                // try {
+                // lastState = ImcMsgManager.getManager().getState(vehicle).lastEstimatedState();
+                // lastFuel = ImcMsgManager.getManager().getState(vehicle).lastFuelLevel();
+                //
+                // if (lastState != null)
+                // start = new SystemPositionAndAttitude(lastState);
+                //
+                // if (lastFuel != null) {
+                // LinkedHashMap<String, String> opmodes = lastFuel.getOpmodes();
+                // motionRemaingHours = Double.parseDouble(opmodes.get("Full"));
+                // }
+                // }
+                // catch (Exception e) {
+                // NeptusLog.pub().error("Error getting info from main vehicle", e);
+                // }
+                //
+                // overlay = new PlanSimulationOverlay(plan, 0, motionRemaingHours, start);
+                // PlanSimulation3D.showSimulation(getConsole(), overlay, plan);
+                //
+                // }
+                // };
+                // popup.add(act);
             }
 
             popup.show(source, (int) mousePoint.getX(), (int) mousePoint.getY());
@@ -1215,7 +1219,7 @@ MissionChangeListener {
      * @param properties
      * @param propertiesDefaults
      * @param psp
-     * @return changes counter, 0 for all default values, 1 for changes but all equals, >1 not all with same values 
+     * @return changes counter, 0 for all default values, 1 for changes but all equals, >1 not all with same values
      */
     protected int fillPropertiesWithAllChangesFromDefaults(PlanType plan, DefaultProperty[] properties,
             DefaultProperty[] propertiesDefaults, PropertySheetPanel psp) {
@@ -1223,15 +1227,14 @@ MissionChangeListener {
         int[] countChangesArray = new int[properties.length];
         Arrays.fill(countChangesArray, 0);
         for (Maneuver man : allManeuvers) {
-            ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(plan.getVehicle(), man,
-                    psp);
+            ManeuverPayloadConfig payloadConfig = new ManeuverPayloadConfig(plan.getVehicle(), man, psp);
             DefaultProperty[] manProperties = payloadConfig.getProperties();
             // Assuming the order is the same
             for (int i = 0; i < manProperties.length; i++) {
-//                if (properties[i].getValue().equals(propertiesDefaults[i].getValue()) &&
-//                        !properties[i].getValue().equals(manProperties[i].getValue())) {
-//                    properties[i].setValue(manProperties[i].getValue());
-//                }
+                // if (properties[i].getValue().equals(propertiesDefaults[i].getValue()) &&
+                // !properties[i].getValue().equals(manProperties[i].getValue())) {
+                // properties[i].setValue(manProperties[i].getValue());
+                // }
                 if (!manProperties[i].getValue().equals(propertiesDefaults[i].getValue())) {
                     if (!manProperties[i].getValue().equals(properties[i].getValue())) {
                         properties[i].setValue(manProperties[i].getValue());
@@ -1304,11 +1307,11 @@ MissionChangeListener {
 
                         Vector<TransitionType> addedTransitions = new Vector<TransitionType>();
                         Vector<TransitionType> removedTransitions = new Vector<TransitionType>();
-                        
+
                         plan.getGraph().addManeuver(m);
                         parsePlan();
-                        addedTransitions.add(plan.getGraph().addTransition(plan.getGraph().getLastManeuver().getId(), m.getId(),
-                                defaultCondition));
+                        addedTransitions.add(plan.getGraph().addTransition(plan.getGraph().getLastManeuver().getId(),
+                                m.getId(), defaultCondition));
                         planElem.recalculateManeuverPositions(renderer);
 
                         manager.addEdit(new ManeuverAdded(m, plan, addedTransitions, removedTransitions));
@@ -1446,11 +1449,11 @@ MissionChangeListener {
                                 getPropertiesPanel().getBeforeXml());
                         manager.addEdit(edit);
                     }
-                    
+
                     getPropertiesPanel().setPlan(plan); // This call has to be before setManeuver (pdias 20130822)
                     getPropertiesPanel().setManeuver(selectedManeuver);
                     getPropertiesPanel().setManager(manager);
-                    
+
                     getPropertiesPanel().getEditBtn().setEnabled(selectedManeuver instanceof StateRendererInteraction);
                     getPropertiesPanel().getEditBtn().setSelected(false);
                 }
@@ -1542,7 +1545,8 @@ MissionChangeListener {
     private void removeManeuver(String manID) {
         Maneuver man = plan.getGraph().getManeuver(manID);
         Maneuver next = plan.getGraph().getFollowingManeuver(manID);
-
+        boolean wasInitial = man.isInitialManeuver();
+        
         Vector<TransitionType> addedTransitions = new Vector<TransitionType>();
         Vector<TransitionType> removedTransitions = new Vector<TransitionType>();
 
@@ -1565,7 +1569,7 @@ MissionChangeListener {
         }
 
         ManeuverRemoved edit = new ManeuverRemoved(man, plan, addedTransitions, removedTransitions,
-                man.isInitialManeuver());
+                wasInitial);
         manager.addEdit(edit);
 
     }
@@ -1573,19 +1577,13 @@ MissionChangeListener {
     private Maneuver addManeuverAfter(String manType, String manID) {
         Maneuver nextMan = plan.getGraph().getFollowingManeuver(manID);
         Maneuver previousMan = plan.getGraph().getManeuver(manID);
-        Maneuver newMan = mf.getManeuver(manType);
+        ManeuverLocation worldLoc = new ManeuverLocation(renderer.getCenter());
 
-        if (newMan == null) {
-            GuiUtils.errorMessage(this, I18n.text("Error adding maneuver"), I18n.textf("The maneuver %maneuverType can't be added", manType));
-            return null;
-        }
+        HashSet<TransitionType> addedTransitions = new HashSet<TransitionType>();
+        HashSet<TransitionType> removedTransitions = new HashSet<TransitionType>();
 
-        newMan.setId(getNewManeuverName(manType));
-
-        if (newMan instanceof LocatedManeuver)
-            ((LocatedManeuver) newMan).getManeuverLocation().setLocation(renderer.getCenter());
-
-        if (newMan instanceof LocatedManeuver && previousMan instanceof LocatedManeuver
+        
+        if (previousMan instanceof LocatedManeuver
                 && nextMan instanceof LocatedManeuver) {
             ManeuverLocation loc1 = ((LocatedManeuver) previousMan).getManeuverLocation().clone();
             ManeuverLocation loc2 = ((LocatedManeuver) nextMan).getManeuverLocation().clone();
@@ -1594,69 +1592,120 @@ MissionChangeListener {
 
             loc1.translatePosition(offsets[0] / 2, offsets[1] / 2, 0);
             loc1.setDepth(loc1.getDepth());
-
-            ((LocatedManeuver) newMan).setManeuverLocation(loc1);
+            worldLoc.setLocation(loc1);
         }
         else {
-            if (newMan instanceof LocatedManeuver && previousMan instanceof LocatedManeuver) {
+            if (previousMan instanceof LocatedManeuver) {
                 LocationType loc1 = new LocationType(((LocatedManeuver) previousMan).getManeuverLocation());
                 loc1.translatePosition(0, 30, 0);
-                ((LocatedManeuver) newMan).getManeuverLocation().setLocation(loc1);
+                worldLoc.setLocation(loc1);
             }
-            if (newMan instanceof LocatedManeuver && nextMan instanceof LocatedManeuver) {
+            if (nextMan instanceof LocatedManeuver) {
                 LocationType loc1 = new LocationType(((LocatedManeuver) nextMan).getManeuverLocation());
                 loc1.translatePosition(0, -30, 0);
-                ((LocatedManeuver) newMan).getManeuverLocation().setLocation(loc1);
+                worldLoc.setLocation(loc1);
             }
         }
+        
+        Maneuver newMan = create(manType, worldLoc, previousMan);
+        
+        
+        if (newMan == null) {
+            GuiUtils.errorMessage(this, I18n.text("Error adding maneuver"),
+                    I18n.textf("The maneuver %maneuverType can't be added", manType));
+            return null;
+        }
+        
+        plan.getGraph().addManeuver(newMan);
 
         if (plan.getGraph().getExitingTransitions(previousMan).size() != 0) {
             for (TransitionType exitingTrans : plan.getGraph().getExitingTransitions(previousMan)) {
-                plan.getGraph().removeTransition(exitingTrans.getSourceManeuver(), exitingTrans.getTargetManeuver());
+                removedTransitions.add(plan.getGraph().removeTransition(exitingTrans.getSourceManeuver(), exitingTrans.getTargetManeuver()));
             }
         }
 
-        plan.getGraph().addManeuver(newMan);
-        plan.getGraph().addTransition(previousMan.getId(), newMan.getId(), defaultCondition);
+        addedTransitions.add(plan.getGraph().addTransition(previousMan.getId(), newMan.getId(), defaultCondition));
+        
         if (nextMan != null) {
-            plan.getGraph().removeTransition(previousMan.getId(), nextMan.getId());
-            plan.getGraph().addTransition(newMan.getId(), nextMan.getId(), defaultCondition);
+            removedTransitions.add(plan.getGraph().removeTransition(previousMan.getId(), nextMan.getId()));
+            addedTransitions.add(plan.getGraph().addTransition(newMan.getId(), nextMan.getId(), defaultCondition));
         }
+        
 
+        parsePlan();
+        
+        manager.addEdit(new ManeuverAdded(newMan, plan, addedTransitions, removedTransitions));
+        getPropertiesPanel().setManeuver(newMan);
+        
         return newMan;
     }
 
-    private Maneuver addManeuverAtBeginning(String manType, Point loc) {
-        Maneuver man = addManeuverAtEnd(loc, manType);
+    private Maneuver create(String manType, LocationType worldLoc, Maneuver copyFrom) {
+        Maneuver man = mf.getManeuver(manType);
+        if (man == null)
+            return null;
 
-        for (TransitionType t : plan.getGraph().getIncomingTransitions(man)) {
-            plan.getGraph().removeTransition(t.getSourceManeuver(), t.getTargetManeuver());
+        
+        if (copyFrom != null) {
+            man.setProperties(copyFrom.getProperties());
+            man.cloneActions(copyFrom);
         }
 
-        String initial = plan.getGraph().getInitialManeuverId();
-        plan.getGraph().addTransition(man.getId(), initial, defaultCondition);
-        plan.getGraph().setInitialManeuver(man.getId());
+        if (man instanceof LocatedManeuver) {
+            ManeuverLocation lt = ((LocatedManeuver) man).getManeuverLocation();
+            lt.setLocation(worldLoc);
+            if (copyFrom != null && copyFrom instanceof LocatedManeuver) {
+                ManeuverLocation l = ((LocatedManeuver) copyFrom).getManeuverLocation();
+                lt.setZ(l.getZ());
+                lt.setZUnits(l.getZUnits());
+            }
+            ((LocatedManeuver) man).setManeuverLocation(lt);
+        }
 
+        man.setId(getNewManeuverName(manType));
+
+        return man;
+    }
+
+    private Maneuver addManeuverAtBeginning(String manType, Point loc) {
+        String initial = plan.getGraph().getInitialManeuverId();
+        Maneuver man, copyFrom = null;
+        if (initial != null)
+            copyFrom = plan.getGraph().getManeuver(plan.getGraph().getInitialManeuverId());
+
+        man = create(manType, renderer.getRealWorldLocation(loc), copyFrom);
+
+        Vector<TransitionType> addedTransitions = new Vector<TransitionType>();
+
+        if (initial != null)
+            addedTransitions.add(plan.getGraph().addTransition(man.getId(), initial, defaultCondition));
+
+        plan.getGraph().addManeuver(man);
+        plan.getGraph().setInitialManeuver(man.getId());
+        parsePlan();
+        manager.addEdit(new ManeuverAdded(man, plan, addedTransitions, new Vector<TransitionType>()));
+
+        selectedManeuver = man;
+        getPropertiesPanel().setManeuver(man);
+        
         return man;
 
     }
 
     private Maneuver addManeuverAtEnd(Point loc, String manType) {
 
-        Maneuver man = mf.getManeuver(manType);
-        
+        Maneuver lastMan = plan.getGraph().getLastManeuver();
+        LocationType worldLoc = renderer.getRealWorldLocation(loc);
+        Maneuver man = create(manType, worldLoc, lastMan);
+
         Vector<TransitionType> addedTransitions = new Vector<TransitionType>();
         Vector<TransitionType> removedTransitions = new Vector<TransitionType>();
 
-        LocationType worldLoc = renderer.getRealWorldLocation(loc);
         if (man == null) {
-            GuiUtils.errorMessage(this, I18n.text("Error adding maneuver"), I18n.textf("The maneuver %maneuverType can't be added", manType));
+            GuiUtils.errorMessage(this, I18n.text("Error adding maneuver"),
+                    I18n.textf("The maneuver %maneuverType can't be added", manType));
             return null;
         }
-
-        man.setId(getNewManeuverName(manType));
-
-        Maneuver lastMan = plan.getGraph().getLastManeuver();
 
         if (lastMan != null && lastMan != man) {
 
@@ -1666,27 +1715,6 @@ MissionChangeListener {
                             exitingTrans.getTargetManeuver()));
                 }
             }
-
-            if (man.getType().equals(lastMan.getType())) {
-                String id = man.getId();
-                man = (Maneuver) lastMan.clone();
-                //man.getStartActions().getPayloadConfigs().clear();
-                //man.getStartActions().getActionMsgs().clear();
-                //man.getEndActions().getPayloadConfigs().clear();
-                //man.getEndActions().getActionMsgs().clear();
-                man.setId(id);
-            }
-
-            if (man instanceof LocatedManeuver) {
-                ManeuverLocation lt = new ManeuverLocation();
-                if (lastMan instanceof LocatedManeuver)
-                    lt = ((LocatedManeuver) lastMan).getManeuverLocation().clone();
-
-                lt.setLocation(worldLoc);
-                ((LocatedManeuver) man).setManeuverLocation(lt);
-            }
-            
-            man.cloneActions(lastMan);
 
             addedTransitions.add(plan.getGraph().addTransition(lastMan.getId(), man.getId(), defaultCondition));
 
@@ -1752,9 +1780,9 @@ MissionChangeListener {
     @Override
     public void initSubPanel() {
         this.mission = getConsole().getMission();
-        
+
         addMenuItem("Tools>Generate plan...", ImageUtils.getIcon("images/planning/template.png"), new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 new PlanTemplatesDialog(getConsole()).showDialog();
