@@ -93,6 +93,7 @@ import pt.lsts.neptus.console.plugins.planning.edit.ManeuverAdded;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverChanged;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverPropertiesPanel;
 import pt.lsts.neptus.console.plugins.planning.edit.ManeuverRemoved;
+import pt.lsts.neptus.console.plugins.planning.edit.ManeuverTranslated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanRotated;
 import pt.lsts.neptus.console.plugins.planning.edit.PlanTranslated;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -175,7 +176,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     };
 
     private ManeuverPropertiesPanel propertiesPanel = null;
-    private LocationType maneuverLocationBeforeMoving = null;
+    private ManeuverLocation maneuverLocationBeforeMoving = null;
     private boolean maneuverWasMoved = false;
     private boolean planChanged = false;
     private boolean planTranslated = false;
@@ -1488,13 +1489,9 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
             }
             else if (maneuverWasMoved) {
                 LocatedManeuver locProvider = (LocatedManeuver) selectedManeuver;
-                LocationType curLocation = locProvider.getManeuverLocation();
-                locProvider.getManeuverLocation().setLocation(maneuverLocationBeforeMoving);
-                String xml = selectedManeuver.getManeuverXml();
-                locProvider.getManeuverLocation().setLocation(curLocation);
-                ManeuverChanged edit = new ManeuverChanged(selectedManeuver, plan, xml);
-                manager.addEdit(edit);
-
+                ManeuverLocation after = locProvider.getManeuverLocation().clone();
+                ManeuverLocation before = maneuverLocationBeforeMoving.clone();
+                manager.addEdit(new ManeuverTranslated(locProvider, plan, before, after));
             }
             else if (planRotatedRads != 0) {
                 PlanRotated edit = new PlanRotated(plan, (LocatedManeuver) selectedManeuver, planRotatedRads);
