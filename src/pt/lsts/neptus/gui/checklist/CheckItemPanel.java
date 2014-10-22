@@ -63,6 +63,7 @@ import javax.swing.JToggleButton;
 import javax.swing.border.TitledBorder;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
 import pt.lsts.neptus.types.checklist.CheckAutoUserActionItem;
 import pt.lsts.neptus.types.checklist.CheckAutoUserLogItem;
@@ -374,7 +375,7 @@ implements PropertyChangeListener
         if (actionsPanel == null) {
             actionsPanel = new JPanel();
             actionsPanel.setLayout(new BorderLayout());
-            actionsPanel.setBorder(new TitledBorder("Actions"));
+            actionsPanel.setBorder(new TitledBorder(I18n.text("Actions")));
             actionsPanel.setOpaque(false);
             actionsPanel.setVisible(false);
             //actionsPanel.setBorder(BorderFactory.createEmptyBorder(3,5,3,5));
@@ -489,7 +490,7 @@ implements PropertyChangeListener
             //jToggleButton.setText("set note");
             noteToggleButton.setMargin(new Insets(0,0,0,0));
             noteToggleButton.setIcon(EDIT_IMAGE_ICON);
-            noteToggleButton.setToolTipText("See Note & Actions");
+            noteToggleButton.setToolTipText(I18n.text("See Note & Actions"));
             noteToggleButton.setFont(new Font("Dialog", Font.BOLD, 10));
             noteToggleButton.addItemListener(new ItemListener() { 
                 @Override
@@ -521,7 +522,7 @@ implements PropertyChangeListener
     private JLabel getDateChangedLabel() {
         if (dateChangedLabel == null) {
             dateChangedLabel = new JLabel();
-            dateChangedLabel.setText("DateTime");
+            dateChangedLabel.setText(I18n.text("DateTime"));
             dateChangedLabel.addPropertyChangeListener("text",
                     new PropertyChangeListener() {
                 @Override
@@ -542,7 +543,7 @@ implements PropertyChangeListener
     private JPanel getDatePanel() {
         if (datePanel == null) {
             dateLabLabel = new JLabel();
-            dateLabLabel.setText("Date checked:");
+            dateLabLabel.setText(I18n.text("Date checked:"));
             datePanel = new JPanel();
             datePanel.setOpaque(false);
             datePanel.setVisible(false);
