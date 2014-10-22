@@ -37,6 +37,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -71,7 +72,7 @@ public class PlanDepthChanged extends AbstractUndoableEdit {
 
     @Override
     public String getPresentationName() {
-        return "Set plan depth to "+newDepth;
+        return I18n.textf("Set plan depth to %newDepth",newDepth);
     }
 
     @Override

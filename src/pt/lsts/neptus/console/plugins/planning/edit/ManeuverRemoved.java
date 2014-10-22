@@ -76,7 +76,7 @@ public class ManeuverRemoved extends AbstractUndoableEdit {
 
     @Override
     public String getPresentationName() {
-        return I18n.text("Remove the maneuver ") + maneuver.getId();
+        return I18n.textf("Remove the maneuver %maneuverId", maneuver.getId());
     }
 
     @Override

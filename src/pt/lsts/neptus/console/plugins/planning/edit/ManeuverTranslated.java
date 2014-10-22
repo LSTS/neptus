@@ -35,6 +35,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -69,7 +70,7 @@ public class ManeuverTranslated extends AbstractUndoableEdit {
 
     @Override
     public String getPresentationName() {
-        return "Translate maneuver";
+        return I18n.text("Move maneuver");
     }
 
     @Override

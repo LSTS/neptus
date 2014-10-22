@@ -35,6 +35,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -55,9 +56,9 @@ public class PlanRotated extends AbstractUndoableEdit {
     protected double angleRads;
 
     public PlanRotated(PlanType plan, LocatedManeuver pivot, double angleRads) {
-        this.plan = plan;     
+        this.plan = plan;
         this.pivot = pivot;
-        this.angleRads = angleRads;                
+        this.angleRads = angleRads;
     }
 
     @Override
@@ -72,7 +73,7 @@ public class PlanRotated extends AbstractUndoableEdit {
 
     @Override
     public String getPresentationName() {
-        return "Rotate the plan";
+        return I18n.text("Rotate the plan");
     }
 
     @Override
@@ -80,27 +81,9 @@ public class PlanRotated extends AbstractUndoableEdit {
         for (Maneuver m : plan.getGraph().getAllManeuvers()) {
             if (m != pivot && m instanceof LocatedManeuver) {
                 LocatedManeuver satellite = (LocatedManeuver) m;
-                double[] top = pivot.getManeuverLocation().getDistanceInPixelTo(satellite.getManeuverLocation(), MapTileUtil.LEVEL_OFFSET);
-                double[] topR = AngleCalc.rotate(2 * -angleRads, top[0], top[1], false); 
-                double deltaX = topR[0];
-                double deltaY = topR[1];
-                LocationType lt = new LocationType(pivot.getManeuverLocation());
-                lt.translateInPixel(deltaX, deltaY, MapTileUtil.LEVEL_OFFSET);
-                lt.setAbsoluteDepth(satellite.getManeuverLocation().getAllZ());
-                ManeuverLocation l = satellite.getManeuverLocation();
-                l.setLocation(lt);
-                satellite.setManeuverLocation(l);                
-            }
-        }
-    }
-
-    @Override
-    public void redo() throws CannotRedoException {      
-        for (Maneuver m : plan.getGraph().getAllManeuvers()) {
-            if (m != pivot && m instanceof LocatedManeuver) {
-                LocatedManeuver satellite = (LocatedManeuver) m;
-                double[] top = pivot.getManeuverLocation().getDistanceInPixelTo(satellite.getManeuverLocation(), MapTileUtil.LEVEL_OFFSET);
-                double[] topR = AngleCalc.rotate(2 * angleRads, top[0], top[1], false); 
+                double[] top = pivot.getManeuverLocation().getDistanceInPixelTo(satellite.getManeuverLocation(),
+                        MapTileUtil.LEVEL_OFFSET);
+                double[] topR = AngleCalc.rotate(2 * -angleRads, top[0], top[1], false);
                 double deltaX = topR[0];
                 double deltaY = topR[1];
                 LocationType lt = new LocationType(pivot.getManeuverLocation());
@@ -110,7 +93,27 @@ public class PlanRotated extends AbstractUndoableEdit {
                 l.setLocation(lt);
                 satellite.setManeuverLocation(l);
             }
-        }   
+        }
+    }
+
+    @Override
+    public void redo() throws CannotRedoException {
+        for (Maneuver m : plan.getGraph().getAllManeuvers()) {
+            if (m != pivot && m instanceof LocatedManeuver) {
+                LocatedManeuver satellite = (LocatedManeuver) m;
+                double[] top = pivot.getManeuverLocation().getDistanceInPixelTo(satellite.getManeuverLocation(),
+                        MapTileUtil.LEVEL_OFFSET);
+                double[] topR = AngleCalc.rotate(2 * angleRads, top[0], top[1], false);
+                double deltaX = topR[0];
+                double deltaY = topR[1];
+                LocationType lt = new LocationType(pivot.getManeuverLocation());
+                lt.translateInPixel(deltaX, deltaY, MapTileUtil.LEVEL_OFFSET);
+                lt.setAbsoluteDepth(satellite.getManeuverLocation().getAllZ());
+                ManeuverLocation l = satellite.getManeuverLocation();
+                l.setLocation(lt);
+                satellite.setManeuverLocation(l);
+            }
+        }
     }
 
     /**
@@ -118,15 +121,15 @@ public class PlanRotated extends AbstractUndoableEdit {
      */
     public PlanType getPlan() {
         return plan;
-    }     
-    
+    }
+
     /**
      * @return the pivot
      */
     public LocatedManeuver getPivot() {
         return pivot;
     }
-    
+
     /**
      * @return the angle
      */
