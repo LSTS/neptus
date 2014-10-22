@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2014-10-09 19:56+0100\n"
-"PO-Revision-Date: 2014-10-09 20:17+0100\n"
+"POT-Creation-Date: 2014-10-22 19:22+0100\n"
+"PO-Revision-Date: 2014-10-22 19:24+0100\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: ru\n"
@@ -22,7 +22,7 @@ msgstr ""
 msgid " Brightness Controller"
 msgstr "Refresh Controllers"
 
-#: src/pt/lsts/neptus/types/map/PlanUtil.java:432
+#: src/pt/lsts/neptus/types/map/PlanUtil.java:440
 #, fuzzy
 msgid "# Maneuvers"
 msgstr "# Маневры"
@@ -59,7 +59,7 @@ msgstr "%commName монитор"
 msgid "%deltaTime with no messages"
 msgstr "%deltaTime без сообщений"
 
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:999
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:1000
 #, fuzzy
 msgid "%downloadedSize of %fullSize %dataRate - %remainingSize remaining"
 msgstr "Из %downloadedSize %fullSize %dataRate - %remainingSize оставшихся"
@@ -73,22 +73,22 @@ msgstr ""
 msgid "%files files"
 msgstr "Редактировать файл"
 
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:693
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:694
 #, fuzzy
 msgid "%fullSize done (in %time) @%dataRate"
 msgstr "%fullSize сделано (в %time) @ %dataRate"
 
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:700
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:701
 #, fuzzy
 msgid "%fullSize partially [%partialSize] done (in %time) @%dataRate"
 msgstr "%fullSize частично [%partialSize] сделано (в %time) @ %dataRate"
 
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:775
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:776
 #, fuzzy
 msgid "%listSize files done (in %time) @%dataRate"
 msgstr "%listSize файлы сделано (в %time) @ %dataRate"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:733
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:741
 #, fuzzy
 msgid "%manName properties"
 msgstr "%manName свойствами"
@@ -126,7 +126,7 @@ msgstr "%number сообщения"
 msgid "%n Notifications"
 msgstr "%n Уведомления"
 
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:719
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:720
 #, fuzzy
 msgid "%number files"
 msgstr "%number файлы"
@@ -149,12 +149,12 @@ msgstr "%numberOfShips видимых судов"
 msgid "%panel properties"
 msgstr "%panel свойствами"
 
-#: src/pt/lsts/neptus/mp/preview/PlanSimulationOverlay.java:213
+#: src/pt/lsts/neptus/mp/preview/PlanSimulationOverlay.java:214
 #, fuzzy
 msgid "%percent % complete"
 msgstr "%percent% полной"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:432
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:438
 #, fuzzy
 msgid "%planName statistics"
 msgstr "%planName статистика"
@@ -208,6 +208,16 @@ msgstr "%systemName Параметры"
 #, fuzzy
 msgid "%systemName has acknowledged abort command"
 msgstr "%systemName признал прервать команду"
+
+#: src/pt/lsts/neptus/console/plugins/planning/PlanSimulationLayer.java:205
+#: src/pt/lsts/neptus/console/plugins/planning/PlanSimulationLayer.java:215
+msgid "%vehicle will be %maxDistToBase meters away from here"
+msgstr ""
+
+#: src/pt/lsts/neptus/console/plugins/planning/PlanSimulationLayer.java:209
+#: src/pt/lsts/neptus/console/plugins/planning/PlanSimulationLayer.java:219
+msgid "%vehicle will finish %distance  meters away from base"
+msgstr ""
 
 #: src/pt/lsts/neptus/mc/Workspace.java:394
 #, fuzzy
@@ -666,12 +676,12 @@ msgstr "Активность:"
 msgid "Add"
 msgstr "Добавлять"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1156
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1191
 #, fuzzy
 msgid "Add %maneuverName"
 msgstr "Добавить %maneuverName"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:817
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:825
 #, fuzzy
 msgid "Add %maneuverName1 before %maneuverName2"
 msgstr "Добавить до %maneuverName1 %maneuverName2"
@@ -783,6 +793,11 @@ msgstr "Добавить полигон (незаполненных)"
 msgid "Add the %mapelement '%elem'"
 msgstr "Добавить %mapelement '%elem'"
 
+#: src/pt/lsts/neptus/console/plugins/planning/edit/ManeuverAdded.java:80
+#, fuzzy
+msgid "Add the maneuver %maneuverId"
+msgstr "Добавить до %maneuverName1 %maneuverName2"
+
 #: src/pt/lsts/neptus/gui/MissionBrowser.java:200
 #: src/pt/lsts/neptus/gui/MissionBrowser.java:206
 #, fuzzy
@@ -868,7 +883,7 @@ msgstr "Все файлы"
 msgid "All Messages"
 msgstr "Все сообщения"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1058
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1092
 msgid "All maneuvers have the same values."
 msgstr ""
 
@@ -1051,13 +1066,13 @@ msgstr "Time Variable Gain"
 msgid "Approach to ignore points on Multibeam 3D"
 msgstr "Подход к игнорировать точек на многолучевой 3D"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1325
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1332
 #, fuzzy
 msgid "Are you sure you want to delete selected log files from remote system?"
 msgstr ""
 "Вы уверены, что хотите удалить выбранные файлы журналов из удаленной системы?"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1238
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1245
 #, fuzzy
 msgid ""
 "Are you sure you want to delete selected log folders from remote system?"
@@ -1233,7 +1248,7 @@ msgstr "База Ориентация"
 msgid "Base folder for CSV files"
 msgstr "База папку для файлов Метео NetCDF"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:483
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:490
 #, fuzzy
 msgid "Basic log folder not synchronized. Can't open MRA"
 msgstr "Основные папки журнала не синхронизированы. Не удается открыть MRA"
@@ -1659,12 +1674,16 @@ msgstr "Центр карте дюйма .."
 msgid "Center:"
 msgstr "Центр:"
 
+#: src/pt/lsts/neptus/console/plugins/planning/edit/PlanSettingsChanged.java:83
+msgid "Change %planSettings in the entire plan."
+msgstr ""
+
 #: plugins-dev/map/pt/lsts/neptus/plugins/map/edit/ObjectPropertiesEdit.java:80
 #, fuzzy
 msgid "Change '%element'"
 msgstr "Изменение '%element'"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:927
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:935
 #, fuzzy
 msgid "Change Existing Maneuvers"
 msgstr "Выберите существующий Оценка:"
@@ -1677,6 +1696,11 @@ msgstr "Измените Имя журнала Включено"
 #: src/pt/lsts/neptus/mp/ManeuverLocationEditor.java:74
 #, fuzzy
 msgid "Change maneuver location"
+msgstr "Изменение расположения маневра"
+
+#: src/pt/lsts/neptus/console/plugins/planning/edit/ManeuverChanged.java:72
+#, fuzzy
+msgid "Change the maneuver %maneuverId"
 msgstr "Изменение расположения маневра"
 
 #: src/pt/lsts/neptus/gui/CoordinateSystemPanel.java:164
@@ -1884,12 +1908,12 @@ msgid "Clockwise"
 msgstr "По часовой стрелке"
 
 #: src/pt/lsts/neptus/gui/PropertiesEditor.java:321
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:616
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:623
 #, fuzzy
 msgid "Close"
 msgstr "Близко"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:626
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:633
 #, fuzzy
 msgid "Close discarding changes"
 msgstr "Закрыть без сохранения изменений"
@@ -2030,7 +2054,7 @@ msgstr "Связи"
 msgid "Complete"
 msgstr "Полный"
 
-#: src/pt/lsts/neptus/mp/preview/PlanSimulationOverlay.java:213
+#: src/pt/lsts/neptus/mp/preview/PlanSimulationOverlay.java:214
 #, fuzzy
 msgid "Completion status"
 msgstr "Завершение статус"
@@ -2074,7 +2098,7 @@ msgctxt "Configuration"
 msgid "Config"
 msgstr "Конфиг"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:536
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:543
 #, fuzzy
 msgid "Configuration"
 msgstr "Конфигурация"
@@ -2204,7 +2228,7 @@ msgstr "Подключение к удаленному хосту"
 msgid "Connecting"
 msgstr "Соединительный"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:718
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:725
 #, fuzzy
 msgid "Connecting to remote system for log list update..."
 msgstr "Подключение к удаленной системе обновление журнала список ..."
@@ -2326,7 +2350,7 @@ msgstr "Связаться Маркер"
 msgid "Contact info:"
 msgstr "Контактная информация:"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:903
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:910
 #, fuzzy
 msgid "Contacting remote system for complete log file list..."
 msgstr "Обращение в удаленной системе для полного списка файлов журнала ..."
@@ -2377,9 +2401,9 @@ msgstr "Контекстная справка"
 msgid "Context help"
 msgstr "Контекстная справка"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:447
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:464
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:625
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:453
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:470
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:632
 #, fuzzy
 msgid "Continuing will discard all changes made to %planName. Continue?"
 msgstr "Постоянно уберет все изменения, внесенные в %planName. Продолжать?"
@@ -2435,7 +2459,7 @@ msgstr "Медь"
 msgid "Copy"
 msgstr "Скопируйте"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:785
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:793
 #, fuzzy
 msgid "Copy %maneuverName to clipboard"
 msgstr "Копировать %maneuverName в буфер"
@@ -2462,7 +2486,7 @@ msgid "Copy history to clipboard"
 msgstr "Переписать историю в буфер"
 
 #: src/pt/lsts/neptus/gui/system/SystemDisplay.java:385
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:890
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:898
 #, fuzzy
 msgid "Copy location"
 msgstr "Положения копии"
@@ -2548,7 +2572,7 @@ msgstr "Настройки Покрытие Planner"
 msgid "Create Mission"
 msgstr "Создание миссии"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:465
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:471
 #, fuzzy
 msgid "Create new plan"
 msgstr "Создать новый план"
@@ -2758,12 +2782,12 @@ msgstr ""
 msgid "Delete '%transponderName'?"
 msgstr "Удалить '%transponderName?"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:528
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:535
 #, fuzzy
 msgid "Delete Selected Log Files"
 msgstr "Удаление выбранных файлов Войти"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:523
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:530
 #, fuzzy
 msgid "Delete Selected Log Folders"
 msgstr "Удалить выбранные папки Войти"
@@ -3079,7 +3103,7 @@ msgid "Do you want to save changes?"
 msgstr "Вы хотите сохранить изменения?"
 
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/RevisionOverlays.java:177
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:576
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:583
 #, fuzzy
 msgid "Do you wish to replace the existing plan with same name?"
 msgstr "Вы хотите заменить существующий план с таким же названием?"
@@ -3117,8 +3141,8 @@ msgstr "Не используйте это верхний элемент (это
 
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/BathymetryPlotter.java:413
 #: src/pt/lsts/neptus/mra/MRAFilesHandler.java:241
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:795
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1088
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:802
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1095
 #, fuzzy
 msgid "Done"
 msgstr "Сделанный"
@@ -3150,7 +3174,7 @@ msgid "Download Helper"
 msgstr "Download Helper"
 
 #: plugins-dev/logs/pt/lsts/neptus/plugins/logs/LoggingDownloader.java:221
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:133
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:135
 #, fuzzy
 msgid "Download Log Files"
 msgstr "Скачать файлы журналов"
@@ -3278,12 +3302,12 @@ msgstr "Эхолот анализ"
 msgid "Edit"
 msgstr "Редактировать"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:761
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:769
 #, fuzzy
 msgid "Edit %maneuverName in the map"
 msgstr "Редактировать %maneuverName на карте"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1124
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1158
 #, fuzzy
 msgid "Edit '%planName' plan transitions"
 msgstr "Edit '%planName' переходы плана"
@@ -3303,7 +3327,7 @@ msgstr "Редактировать файл"
 msgid "Edit general preferences"
 msgstr "Изменить общие параметры"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:448
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:454
 #, fuzzy
 msgid "Edit plan"
 msgstr "Редактировать план"
@@ -3314,22 +3338,22 @@ msgstr "Редактировать план"
 msgid "Edit properties"
 msgstr "Изменить свойства"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1142
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1177
 #, fuzzy
 msgid "Edited Plan Statistics"
 msgstr "Отредактировано Статистика плана"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:430
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:436
 #, fuzzy
 msgid "Edited plan statistics"
 msgstr "Отредактировано Статистика плана"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:652
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:659
 #, fuzzy
 msgid "Editing %manName - Double click to end"
 msgstr "Редактирование %manName - Дважды щелкните в конец"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:701
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:708
 #, fuzzy
 msgid "Editing %planName"
 msgstr "Редактирование %planName"
@@ -3450,7 +3474,7 @@ msgstr "Введите команду для отправки в %vehicle"
 msgid "Enter command to send to %vehicle"
 msgstr "Введите команду для отправки в %vehicle"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:993
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1012
 #, fuzzy
 msgid "Enter new speed (%speedUnit)"
 msgstr "Введите новое значение скорости (%speedUnit)"
@@ -3466,7 +3490,7 @@ msgid "Enter the max. time"
 msgstr "Введите макс. время"
 
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/RevisionOverlays.java:171
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:570
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:577
 #, fuzzy
 msgid "Enter the plan ID"
 msgstr "Введите идентификатор плана"
@@ -3575,15 +3599,15 @@ msgstr "Контрольный список Ошибка при открытии
 msgid "Error Sending Abort by Modem by '%sendermodemid'"
 msgstr "Ошибка при отправке Прервать по модему '%sendermodemid'"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1577
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1651
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1640
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1731
 #, fuzzy
 msgid "Error adding maneuver"
 msgstr "Ошибка добавления маневра"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:2806
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:2823
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:2840
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:2813
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:2830
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:2847
 #, fuzzy
 msgid "Error couth on resetting: %errormessage"
 msgstr "Ошибка воспитанный по сбросу: %errormessage"
@@ -3628,7 +3652,7 @@ msgstr "Ошибка при загрузке системы!"
 msgid "Error monitor"
 msgstr "Монитор ошибок"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1649
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1656
 #, fuzzy
 msgid "Error on configuration"
 msgstr "Ошибка от конфигурации"
@@ -3751,8 +3775,8 @@ msgstr "Ошибка при извлечении схемы подать!"
 msgid "Error while loading the XML:"
 msgstr "Ошибка при загрузке XML:"
 
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:795
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:800
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:796
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:801
 #, fuzzy
 msgid "Error:"
 msgstr "Ошибка:"
@@ -3768,7 +3792,7 @@ msgstr "Ошибки"
 msgid "Errors in the parameters"
 msgstr "Ошибки в параметрах"
 
-#: src/pt/lsts/neptus/types/map/PlanUtil.java:420
+#: src/pt/lsts/neptus/types/map/PlanUtil.java:428
 #, fuzzy
 msgid "Est. Time"
 msgstr "Предполагаемое. Время"
@@ -4093,7 +4117,7 @@ msgid "Filter to Show Only Main Vehicle's Piccolo Waypoints"
 msgstr ""
 "Фильтр для отображения только Piccolo основным средством Маршрутные точки"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:843
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:850
 #, fuzzy
 msgid "Filtering list..."
 msgstr "Фильтрация список ..."
@@ -4689,7 +4713,7 @@ msgstr "Горизонтальные Шаг"
 msgid "Host"
 msgstr "Хозяин"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:375
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:382
 #, fuzzy
 msgid "Host: "
 msgstr "Ведущий:"
@@ -4720,9 +4744,9 @@ msgstr "Оттенок"
 
 #: Field from SystemDisplayComparator.OrderOptionEnum enumeration
 #: src/pt/lsts/neptus/planeditor/ManeuverTransition.java:71
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:355
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:361
 #: src/pt/lsts/neptus/types/mission/plan/PlanType.java:681
-#: src/pt/lsts/neptus/types/map/PlanUtil.java:415
+#: src/pt/lsts/neptus/types/map/PlanUtil.java:423
 #: src/pt/lsts/neptus/graph/DefaultNode.java:141
 #: src/pt/lsts/neptus/mp/Maneuver.java:770
 #: src/pt/lsts/neptus/mp/Maneuver.java:772
@@ -5563,7 +5587,7 @@ msgstr "Включите кнопку маяки"
 
 #: Property from pt.lsts.neptus.console.plugins.MyLocationDisplay
 #: pt.lsts.neptus.mp.templates.RowsTemplate
-#: src/pt/lsts/neptus/types/map/PlanUtil.java:417
+#: src/pt/lsts/neptus/types/map/PlanUtil.java:425
 #: src/pt/lsts/neptus/mp/maneuvers/RowsManeuver.java:790
 #: src/pt/lsts/neptus/mp/maneuvers/Loiter.java:262
 #: src/pt/lsts/neptus/mp/maneuvers/RowsPattern.java:552
@@ -5737,7 +5761,7 @@ msgstr "Загрузка транспортных средств ..."
 msgid "Local Info"
 msgstr "Local Info"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1496
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1503
 #, fuzzy
 msgid "Local free disk space %usedspace of %totalspace"
 msgstr "Местное свободного дискового пространства из %usedspace %totalspace"
@@ -5803,18 +5827,18 @@ msgstr "Log Book панели"
 msgid "Log Download"
 msgstr "Вход Скачать"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:391
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:398
 #, fuzzy
 msgid "Log Files"
 msgstr "Файлы журналов"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:390
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:397
 #, fuzzy
 msgid "Log Folders"
 msgstr "Папки журналов"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:799
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:826
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:806
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:833
 #, fuzzy
 msgid "Log Folders: %numberoffolders"
 msgstr "Войти Папки: %numberoffolders"
@@ -6268,7 +6292,7 @@ msgstr "Максимальная глубина"
 msgid "Max height"
 msgstr "Максимальная высота"
 
-#: src/pt/lsts/neptus/types/map/PlanUtil.java:424
+#: src/pt/lsts/neptus/types/map/PlanUtil.java:432
 #, fuzzy
 msgid "Max. Depth"
 msgstr "Максимум Глубина"
@@ -6530,7 +6554,7 @@ msgstr "Минимальная высота"
 msgid "Min Speed"
 msgstr "Минимальная скорость"
 
-#: src/pt/lsts/neptus/types/map/PlanUtil.java:428
+#: src/pt/lsts/neptus/types/map/PlanUtil.java:436
 #, fuzzy
 msgid "Min. Depth"
 msgstr "Минута Глубина"
@@ -6761,6 +6785,16 @@ msgstr ""
 #, fuzzy
 msgid "Move '%element'"
 msgstr "Move '%element'"
+
+#: src/pt/lsts/neptus/console/plugins/planning/edit/ManeuverTranslated.java:73
+#, fuzzy
+msgid "Move maneuver"
+msgstr "maneuver"
+
+#: src/pt/lsts/neptus/console/plugins/planning/edit/PlanTranslated.java:71
+#, fuzzy
+msgid "Move the entire plan"
+msgstr "Set the center location"
 
 #: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:76
 #: src/pt/lsts/neptus/renderer2d/StateRenderer2D.java:1237
@@ -7018,7 +7052,7 @@ msgstr "Сеть"
 msgid "New"
 msgstr "Новое"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:492
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:498
 #, fuzzy
 msgctxt "Plan"
 msgid "New"
@@ -7127,7 +7161,7 @@ msgstr "по умолчанию не найдено для поля %fieldName"
 msgid "No extra info"
 msgstr "Никакая дополнительная информация"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:820
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:827
 #, fuzzy
 msgid "No logs..."
 msgstr "Нет журналов ..."
@@ -7177,7 +7211,7 @@ msgstr "Ни одна система выбрана"
 msgid "No system was able to send the message"
 msgstr "Ни одна система не смогла отправить сообщение"
 
-#: src/pt/lsts/neptus/comm/manager/imc/ImcMsgManager.java:1418
+#: src/pt/lsts/neptus/comm/manager/imc/ImcMsgManager.java:1420
 #, fuzzy
 msgid "No transport available to send message %message to %system."
 msgstr "Нет транспорта доступны для отправки сообщений в %message %system."
@@ -7235,7 +7269,7 @@ msgstr "Not a valid checklist."
 msgid "Not a valid mission"
 msgstr "Not a valid mission"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1061
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1095
 msgid "Not all maneuvers have the same values."
 msgstr ""
 
@@ -7767,7 +7801,7 @@ msgstr "Paste from clipboard"
 msgid "Paste location"
 msgstr "Paste location"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1279
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1313
 #, fuzzy
 msgid "Paste maneuver from clipboard"
 msgstr "Paste maneuver from clipboard"
@@ -7792,8 +7826,8 @@ msgstr "TREX replay"
 msgid "Pause/Resume"
 msgstr "Pause/Resume"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1068
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1069
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1103
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1104
 msgid "Payload Settings to apply to entire plan"
 msgstr ""
 
@@ -7802,7 +7836,7 @@ msgstr ""
 msgid "Payload Shadow"
 msgstr "payload actions"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1028
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1061
 #, fuzzy
 msgid "Payload settings..."
 msgstr "Payload settings..."
@@ -7904,7 +7938,7 @@ msgstr ""
 
 #: src/pt/lsts/neptus/console/StatusBar.java:103
 #: src/pt/lsts/neptus/console/plugins/SystemsList.java:1213
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:377
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:383
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlStatePanel.java:112
 #, fuzzy
 msgid "Plan"
@@ -7957,24 +7991,24 @@ msgid "Plan Speed"
 msgstr "Plan Speed"
 
 #: Name of plugin pt.lsts.neptus.console.plugins.planning.PlanStatistics
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:355
-#: src/pt/lsts/neptus/types/map/PlanUtil.java:377
-#: src/pt/lsts/neptus/types/map/PlanUtil.java:404
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:361
+#: src/pt/lsts/neptus/types/map/PlanUtil.java:385
+#: src/pt/lsts/neptus/types/map/PlanUtil.java:412
 #, fuzzy
 msgid "Plan Statistics"
 msgstr "Plan Statistics"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1115
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1150
 #, fuzzy
 msgid "Plan Transitions"
 msgstr "Plan Transitions"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:944
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:952
 #, fuzzy
 msgid "Plan depth / altitude"
 msgstr "Plan depth / altitude"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:928
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:936
 #, fuzzy
 msgid "Plan depth / altitude..."
 msgstr "Plan depth / altitude..."
@@ -7989,10 +8023,14 @@ msgstr "Plan execution preview"
 msgid "Plan not synchronized"
 msgstr "Plan not synchronized"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:956
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:975
 #, fuzzy
 msgid "Plan speed..."
 msgstr "Plan speed..."
+
+#: src/pt/lsts/neptus/console/plugins/planning/PlanSimulationLayer.java:182
+msgid "Plan takes approximately %timeAmount"
+msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanTemplatesDialog.java:167
 #, fuzzy
@@ -8041,7 +8079,7 @@ msgstr "Play Sound"
 msgid "Play Sound On Surface Ranges"
 msgstr "Play Sound On Surface Ranges"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:970
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:989
 #, fuzzy
 msgid "Please choose the speed units"
 msgstr "Please choose the speed units"
@@ -8135,7 +8173,7 @@ msgstr ""
 "Port of the machine where T-Rex is running whith shore configuration to "
 "follow a tag."
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:378
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:385
 #, fuzzy
 msgid "Port: "
 msgstr "Port: "
@@ -8230,7 +8268,7 @@ msgstr "Process complete"
 msgid "Processing Data"
 msgstr "Processing data..."
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:907
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:914
 #, fuzzy
 msgid "Processing log list..."
 msgstr "Processing log list..."
@@ -8405,7 +8443,7 @@ msgstr "Нет данных"
 #: src/pt/lsts/neptus/gui/GotoParameters.java:213
 #: src/pt/lsts/neptus/console/plugins/SystemsList.java:1273
 #: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:98
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:962
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:981
 #, fuzzy
 msgid "RPM"
 msgstr "RPM"
@@ -8616,7 +8654,7 @@ msgid "Redirect Unknown Comms. To First Vehicle In Comm. List"
 msgstr "Redirect Unknown Comms. To First Vehicle In Comm. Список"
 
 #: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:406
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:545
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:552
 #: src/pt/lsts/neptus/i18n/I18n.java:253
 #, fuzzy
 msgid "Redo"
@@ -8684,8 +8722,8 @@ msgstr "Перезагружать"
 msgid "Reload Panel"
 msgstr "Reload Panel"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1241
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1327
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1248
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1334
 #, fuzzy
 msgid "Remote Delete Confirmation"
 msgstr "Remote Delete Confirmation"
@@ -8750,7 +8788,7 @@ msgstr "Удаление"
 msgid "Remove "
 msgstr "Удаление"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:773
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:781
 #, fuzzy
 msgid "Remove %maneuverName"
 msgstr "Remove %maneuverName"
@@ -8803,7 +8841,7 @@ msgstr "Remove selected plans"
 
 #: src/pt/lsts/neptus/console/plugins/planning/edit/ManeuverRemoved.java:79
 #, fuzzy
-msgid "Remove the maneuver "
+msgid "Remove the maneuver %maneuverId"
 msgstr "Remove the maneuver "
 
 #: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:704
@@ -8916,12 +8954,12 @@ msgstr "Reset the current rotation (up facing north)"
 msgid "Reset the current view to defaults"
 msgstr "Reset the current view to defaults"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:397
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:404
 #, fuzzy
 msgid "Reset the interface"
 msgstr "Reset the interface"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:2794
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:2801
 #, fuzzy
 msgid "Resetting... Wait please..."
 msgstr "Resetting... Wait please..."
@@ -8943,7 +8981,7 @@ msgstr "Result"
 msgid "Resume replay"
 msgstr "TREX replay"
 
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:648
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:649
 #, fuzzy
 msgid "Resuming..."
 msgstr "Resuming..."
@@ -9008,6 +9046,11 @@ msgstr ""
 #: src/pt/lsts/neptus/console/plugins/planning/MapShortcutsLayer.java:82
 msgid "Rotate map by click and dragging the mouse"
 msgstr ""
+
+#: src/pt/lsts/neptus/console/plugins/planning/edit/PlanRotated.java:76
+#, fuzzy
+msgid "Rotate the plan"
+msgstr "Введите идентификатор плана"
 
 #: Property from pt.lsts.neptus.mp.templates.YoYoTemplate
 #: pt.lsts.neptus.plugins.trex.TrexMapLayer
@@ -9136,7 +9179,7 @@ msgstr "Saturation"
 #: src/pt/lsts/neptus/params/SystemConfigurationEditorPanel.java:197
 #: src/pt/lsts/neptus/console/actions/CreateMissionConsoleAction.java:89
 #: src/pt/lsts/neptus/console/actions/SaveMissionAsConsoleAction.java:70
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:559
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:567
 #: src/pt/lsts/neptus/console/plugins/SettingsWindow.java:114
 #: src/pt/lsts/neptus/i18n/I18n.java:181 src/pt/lsts/neptus/i18n/I18n.java:182
 #, fuzzy
@@ -9290,8 +9333,8 @@ msgstr "Save Console As"
 msgid "Save the mission states whenever the mission is changed"
 msgstr "Save the mission states whenever the mission is changed"
 
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:711
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:780
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:712
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:781
 #, fuzzy
 msgid "Saved in '%filePath'"
 msgstr "Saved in '%filePath'"
@@ -9735,6 +9778,10 @@ msgstr "Servo Control"
 msgid "Servo id"
 msgstr "Servo id"
 
+#: src/pt/lsts/neptus/console/plugins/planning/edit/PlanZChanged.java:81
+msgid "Set %zunits of %newValue in the entire plan."
+msgstr ""
+
 #: src/pt/lsts/neptus/gui/objparams/ImageLocatorPanel.java:197
 #, fuzzy
 msgid "Set 2 locations"
@@ -9762,7 +9809,7 @@ msgstr "Set Main Vehicle..."
 msgid "Set Operation Limits"
 msgstr "Set Operation Limits"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:747
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:755
 #, fuzzy
 msgid "Set Properties"
 msgstr "Set Properties"
@@ -9787,13 +9834,18 @@ msgstr "Set mission home"
 msgid "Set plan depth / altitude"
 msgstr "Set plan depth / altitude"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:970
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1002
+#: src/pt/lsts/neptus/console/plugins/planning/edit/PlanDepthChanged.java:75
+#, fuzzy
+msgid "Set plan depth to %newDepth"
+msgstr "Set plan depth / altitude"
+
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:989
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1021
 #, fuzzy
 msgid "Set plan speed"
 msgstr "Set plan speed"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1091
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1126
 #, fuzzy
 msgid "Set plan vehicles..."
 msgstr "Set plan vehicles..."
@@ -9997,7 +10049,7 @@ msgstr "Show External Systems Icons"
 msgid "Show GPS Fix Icon"
 msgstr "Show GPS Fix Icon"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:574
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:581
 #, fuzzy
 msgid "Show Help"
 msgstr "Show Help"
@@ -10246,12 +10298,12 @@ msgstr "Show wind"
 msgid "Show world map"
 msgstr "Show world map"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:564
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:571
 #, fuzzy
 msgid "Show/Hide Configuration Panel"
 msgstr "Show/Hide Configuration Panel"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:569
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:576
 #, fuzzy
 msgid "Show/Hide Download Panel"
 msgstr "Show/Hide Download Panel"
@@ -10368,7 +10420,7 @@ msgstr "База Ориентация"
 msgid "Solve"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1647
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1654
 #, fuzzy
 msgid "Some of the configuration parameters are not correct!"
 msgstr "Some of the configuration parameters are not correct!"
@@ -10409,7 +10461,7 @@ msgstr "Speech On"
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/MraPhotosVisualization.java:643
 #: plugins-dev/trex/pt/lsts/neptus/plugins/trex/goals/VisitLocationGoal.java:126
 #: src/pt/lsts/neptus/mra/exporters/VideoLegendExporter.java:143
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1011
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1042
 #: src/pt/lsts/neptus/types/map/PlanUtil.java:102
 #: src/pt/lsts/neptus/types/map/PlanUtil.java:103
 #: src/pt/lsts/neptus/mp/maneuvers/FollowTrajectory.java:785
@@ -10457,7 +10509,7 @@ msgstr ""
 msgid "Speed below which the vehicle enters VStall (m/s)"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1003
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1022
 #, fuzzy
 msgid "Speed must be a numeric value"
 msgstr "Speed must be a numeric value"
@@ -10470,7 +10522,7 @@ msgstr "Speed tolerance"
 
 #: Property from pt.lsts.neptus.mp.maneuvers.CompassCalibration
 #: pt.lsts.neptus.mp.maneuvers.Elevator
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1018
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1050
 #: src/pt/lsts/neptus/types/map/PlanUtil.java:98
 #: src/pt/lsts/neptus/types/map/PlanUtil.java:99
 #: src/pt/lsts/neptus/mp/maneuvers/FollowTrajectory.java:780
@@ -10658,13 +10710,13 @@ msgstr "Starting %appname..."
 msgid "Starting up status bar..."
 msgstr "Starting %appname..."
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:702
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:648
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:709
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:649
 #, fuzzy
 msgid "Starting..."
 msgstr "Starting..."
 
-#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:718
+#: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:719
 #, fuzzy
 msgid "Starting... "
 msgstr "Starting... "
@@ -10693,7 +10745,7 @@ msgstr "Stationary vessel color"
 
 #: Name of plugin pt.lsts.neptus.mra.plots.StatisticsPlot
 #: src/pt/lsts/neptus/mra/plots/StatisticsPlot.java:69
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:424
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:430
 #, fuzzy
 msgid "Statistics"
 msgstr "Статистика"
@@ -10758,7 +10810,7 @@ msgstr "Stop Plan"
 msgid "Stop Tele-Operation"
 msgstr "Stop Tele-Operation"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:402
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:409
 #, fuzzy
 msgid "Stop all log downloads"
 msgstr "Stop all log downloads"
@@ -10884,17 +10936,17 @@ msgstr "Sync Logs"
 msgid "Sync day Mission Logs"
 msgstr "Sync day Mission Logs"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:508
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:515
 #, fuzzy
 msgid "Synchronize List of Log Folders"
 msgstr "Synchronize List of Log Folders"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:518
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:525
 #, fuzzy
 msgid "Synchronize Selected Log Files"
 msgstr "Synchronize Selected Log Files"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:513
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:520
 #, fuzzy
 msgid "Synchronize Selected Log Folders"
 msgstr "Synchronize Selected Log Folders"
@@ -10953,7 +11005,7 @@ msgstr "System Information On Map"
 msgid "System Information display on map"
 msgstr "System Information display on map"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:382
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:389
 #, fuzzy
 msgid "System Label: "
 msgstr "System Label: "
@@ -11393,8 +11445,8 @@ msgstr "The given ID already exists in the map. Please choose a different one"
 msgid "The identifier for this object"
 msgstr "The identifier for this object"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1577
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1651
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1641
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1732
 #, fuzzy
 msgid "The maneuver %maneuverType can't be added"
 msgstr "The maneuver %maneuverType can't be added"
@@ -11759,7 +11811,7 @@ msgstr ""
 msgid "This vehicle does not support IMU alignment."
 msgstr "This vehicle does not support IMU alignment."
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:385
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:392
 #, fuzzy
 msgid "This will dictate the directory where the logs will go."
 msgstr "This will dictate the directory where the logs will go."
@@ -11828,7 +11880,7 @@ msgstr "Time step (s)"
 msgid "Time to stay at this location. -1 for infinity."
 msgstr "Number of rows in the panel. 0 for infinite."
 
-#: src/pt/lsts/neptus/mp/preview/PlanSimulationOverlay.java:214
+#: src/pt/lsts/neptus/mp/preview/PlanSimulationOverlay.java:215
 #, fuzzy
 msgid "Time until completion"
 msgstr "Time until completion"
@@ -11915,7 +11967,7 @@ msgstr "To automatic create gaps arround the components"
 msgid "To automatic create gaps arround the container"
 msgstr "To automatic create gaps arround the container"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:748
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:756
 #, fuzzy
 msgid ""
 "To change the initial maneuver, please set another maneuver as the initial"
@@ -12120,7 +12172,7 @@ msgstr "True to hide the range and false to fade when display time elapses."
 msgid "True to read all CSV files of just the last of ordered files in folder."
 msgstr ""
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:407
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:414
 msgid "Turn on/off camera CPU"
 msgstr ""
 
@@ -12286,7 +12338,7 @@ msgid "Unable to start MIDI sound device"
 msgstr "Unable to start MIDI sound device"
 
 #: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:394
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:529
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:535
 #: src/pt/lsts/neptus/i18n/I18n.java:254
 #, fuzzy
 msgid "Undo"
@@ -12302,7 +12354,7 @@ msgstr "Unit"
 msgid "Unknown Mode"
 msgstr "Unknown Mode"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1507
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1514
 #, fuzzy
 msgid "Unknown local disk free space"
 msgstr "Unknown local disk free space"
@@ -12379,12 +12431,12 @@ msgstr "Update ships"
 msgid "Updating AIS layer..."
 msgstr "Updating AIS layer..."
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1070
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1077
 #, fuzzy
 msgid "Updating GUI..."
 msgstr "Updating GUI..."
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:920
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:927
 #, fuzzy
 msgid "Updating logs info..."
 msgstr "Updating logs info..."
@@ -12705,8 +12757,8 @@ msgstr "Values bigger than 10 are not valid!"
 msgid "Values lower than zero are not valid!"
 msgstr "Values lower than zero are not valid!"
 
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:356
-#: src/pt/lsts/neptus/types/map/PlanUtil.java:444
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:362
+#: src/pt/lsts/neptus/types/map/PlanUtil.java:452
 #: src/pt/lsts/neptus/util/llf/LogUtils.java:189
 #, fuzzy
 msgid "Vehicle"
@@ -12765,6 +12817,10 @@ msgstr "Vehicle can now be used to execute dead reckoning missions."
 #, fuzzy
 msgid "Vehicle icon size (0 for real size)"
 msgstr "Vehicle icon size (0 for real size)"
+
+#: src/pt/lsts/neptus/console/plugins/planning/PlanSimulationLayer.java:245
+msgid "Vehicle may collide with %obstacle"
+msgstr ""
 
 #: src/pt/lsts/neptus/mra/plots/Plot3D.java:276
 #, fuzzy
@@ -13282,7 +13338,7 @@ msgstr "[%manta]: %status"
 
 #: Property from
 #: pt.lsts.neptus.plugins.webupdate.RemotePositionPublisherUpdater
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:320
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:326
 #, fuzzy
 msgid "active"
 msgstr "активный"
@@ -13833,7 +13889,7 @@ msgstr "м"
 #: src/pt/lsts/neptus/gui/editor/SpeedUnitsEditor.java:48
 #: src/pt/lsts/neptus/gui/GotoParameters.java:213
 #: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:113
-#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:962
+#: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:981
 #: src/pt/lsts/neptus/util/llf/LogUtils.java:208
 #, fuzzy
 msgid "m/s"
@@ -13886,7 +13942,7 @@ msgstr "мин"
 msgid "minus (-)"
 msgstr "minus (-)"
 
-#: src/pt/lsts/neptus/mp/preview/PlanSimulationOverlay.java:209
+#: src/pt/lsts/neptus/mp/preview/PlanSimulationOverlay.java:210
 #, fuzzy
 msgid "minutes"
 msgstr "минут"
@@ -14127,7 +14183,7 @@ msgctxt "seconds"
 msgid "s"
 msgstr "с"
 
-#: src/pt/lsts/neptus/mp/preview/PlanSimulationOverlay.java:207
+#: src/pt/lsts/neptus/mp/preview/PlanSimulationOverlay.java:208
 #, fuzzy
 msgid "seconds"
 msgstr "секунды"
@@ -14308,8 +14364,8 @@ msgstr "true for True and false for Indicated Speed"
 msgid "true for m/s and false for knot"
 msgstr "true for m/s and false for knot"
 
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:171
-#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1705
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:173
+#: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1712
 #, fuzzy
 msgid "unknown"
 msgstr "неизвестный"
