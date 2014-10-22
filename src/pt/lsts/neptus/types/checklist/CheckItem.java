@@ -116,13 +116,11 @@ public class CheckItem implements XmlOutputMethods {
             
             List<?> lt = doc.selectNodes("/item/subItems/*");
             
-            //NeptusLog.pub().info("<###>tamanho:"+lt.size());
             if (!lt.isEmpty()) {
                 Iterator<?> it = lt.iterator();
                 while (it.hasNext()) {
                 	Node aux=((Node)it.next());
                 	CheckAutoSubItem casi = null;
-                	//NeptusLog.pub().info("<###>Nome:"+aux.getName());
                 	if(aux.getName().equals("variableTestRange")) {
                 		casi = new CheckAutoVarIntervalItem(aux.asXML());
                 	}
