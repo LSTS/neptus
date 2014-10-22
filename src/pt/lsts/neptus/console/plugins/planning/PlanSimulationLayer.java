@@ -177,7 +177,8 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
         checks.addAll(validateCollisions());
 
         if (checks.isEmpty()) {
-            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Fine, "Plan takes approximately "+DateTimeUtil.milliSecondsToFormatedString(simOverlay.getSimStates().size()*1000)));
+            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Fine, "Plan takes approximately "
+                    + DateTimeUtil.milliSecondsToFormatedString((long) (simOverlay.getTotalTime() * 1000))));
         }
     }
 
