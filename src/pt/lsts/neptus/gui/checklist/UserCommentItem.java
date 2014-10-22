@@ -150,5 +150,4 @@ public class UserCommentItem extends JPanel implements CheckSubItem {
         ret.setLogRequest(logRequest.getText());
         return ret;
     }
-
 }

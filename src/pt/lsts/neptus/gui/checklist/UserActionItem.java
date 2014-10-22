@@ -35,6 +35,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -106,7 +107,7 @@ public class UserActionItem extends JPanel implements CheckSubItem{
             check = new JCheckBox("check");
             check.setOpaque(false);
             check.setText(" ");
-            check.addItemListener(new java.awt.event.ItemListener() {
+            check.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent e) {
                     parent.fireChangeEvent(UserActionItem.this);
