@@ -69,7 +69,6 @@ public class AutoItemsList extends JPanel {
     }
 
     private void initialize() {
-
         this.setOpaque(false);
 
         addAutoCheckItem = new JButton("Add", ICON_ADD);
@@ -165,5 +164,4 @@ public class AutoItemsList extends JPanel {
     void fireChangeEvent(Component source) {
         parentCheckItemPanel.fireChangeEvent(source);    
     }
-
 }
