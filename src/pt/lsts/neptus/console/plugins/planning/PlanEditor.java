@@ -1374,7 +1374,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         planElem.rotatePlan((LocatedManeuver) selectedManeuver, ammount);
                         lastDragPoint = e.getPoint();
                         planRotatedRads += ammount;
-
                     }
                     else {
                         Point2D newManPos = planElem.translateManeuverPosition(selectedManeuver.getId(), diffX, diffY);
@@ -1477,7 +1476,6 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         }
 
         if (selectedManeuver != null) {
-
             if (planTranslated) {
                 LocatedManeuver locProvider = (LocatedManeuver) selectedManeuver;
                 LocationType curLocation = locProvider.getManeuverLocation();
@@ -1487,16 +1485,17 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 manager.addEdit(edit);
 
             }
+            else if (planRotatedRads != 0) {
+                PlanRotated edit = new PlanRotated(plan, (LocatedManeuver) selectedManeuver, planRotatedRads);
+                manager.addEdit(edit);
+            }
             else if (maneuverWasMoved) {
                 LocatedManeuver locProvider = (LocatedManeuver) selectedManeuver;
                 ManeuverLocation after = locProvider.getManeuverLocation().clone();
                 ManeuverLocation before = maneuverLocationBeforeMoving.clone();
                 manager.addEdit(new ManeuverTranslated(locProvider, plan, before, after));
             }
-            else if (planRotatedRads != 0) {
-                PlanRotated edit = new PlanRotated(plan, (LocatedManeuver) selectedManeuver, planRotatedRads);
-                manager.addEdit(edit);
-            }
+           
             maneuverWasMoved = false;
             maneuverLocationBeforeMoving = null;
 
