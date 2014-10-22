@@ -42,6 +42,7 @@ import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.data.Pair;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.preview.PlanSimulationListener;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
@@ -113,9 +114,9 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
     @Override
     public void simulationFinished(PlanSimulationOverlay source) {
         source.removeListener(this);
-        validatePlan();                
+        validatePlan();
     }
-    
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
@@ -177,8 +178,9 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
         checks.addAll(validateCollisions());
 
         if (checks.isEmpty()) {
-            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Fine, "Plan takes approximately "
-                    + DateTimeUtil.milliSecondsToFormatedString((long) (simOverlay.getTotalTime() * 1000))));
+            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Fine, I18n.textf(
+                    "Plan takes approximately %timeAmount",
+                    DateTimeUtil.milliSecondsToFormatedString((long) (simOverlay.getTotalTime() * 1000)))));
         }
     }
 
@@ -194,63 +196,63 @@ public class PlanSimulationLayer extends ConsoleLayer implements PlanSimulationL
             for (SystemPositionAndAttitude s : simOverlay.getStates()) {
                 distAtEnd = s.getPosition().getDistanceInMeters(base);
                 maxDistToBase = Math.max(distAtEnd, maxDistToBase);
-            }            
+            }
         }
 
         if ("auv".equalsIgnoreCase(v.getType()) || "uuv".equalsIgnoreCase(v.getType())) {
             if (maxDistToBase > maxAUVDistance) {
-                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, v.getId() + " will be "
-                        + (int) maxDistToBase + " meters away from here"));
+                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
+                        "%vehicle will be %maxDistToBase meters away from here", v.getId(), (int) maxDistToBase)));
             }
             if (distAtEnd > maxAUVDistAtEnd) {
-                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, v.getId() + " will finish "
-                        + (int) distAtEnd + " meters away from here"));
+                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
+                        "%vehicle will finish %distance  meters away from base", v.getId(), (int) distAtEnd)));
             }
         }
         else if ("uav".equalsIgnoreCase(v.getType())) {
             if (maxDistToBase > maxUAVDistance) {
-                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, v.getId() + " will be "
-                        + (int) maxDistToBase + " meters away from here"));
+                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
+                        "%vehicle will be %maxDistToBase meters away from here", v.getId(), (int) maxDistToBase)));
             }
             if (distAtEnd > maxUAVDistAtEnd) {
-                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, v.getId() + " will finish "
-                        + (int) distAtEnd + " meters away from here"));
+                checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning, I18n.textf(
+                        "%vehicle will finish %distance  meters away from base", v.getId(), (int) distAtEnd)));
             }
         }
 
         return checks;
     }
 
-//    private List<Pair<PlanCheck, String>> validateVehicle() {
-//        ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
-//        if (!mainPlan.getVehicle().equals(getConsole().getMainSystem())) {
-//            checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning,
-//                    "Console and plan vehicles differ"));
-//        }
-//
-//        return checks;
-//    }
-//    
+    // private List<Pair<PlanCheck, String>> validateVehicle() {
+    // ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
+    // if (!mainPlan.getVehicle().equals(getConsole().getMainSystem())) {
+    // checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning,
+    // "Console and plan vehicles differ"));
+    // }
+    //
+    // return checks;
+    // }
+    //
     private List<Pair<PlanCheck, String>> validateCollisions() {
         ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
         Vector<AbstractElement> obstacles = MapGroup.getMapGroupInstance(getConsole().getMission()).getObstacles();
-        
+
         synchronized (PlanSimulationLayer.this) {
             for (SystemPositionAndAttitude s : simOverlay.getStates()) {
                 for (AbstractElement a : obstacles) {
                     if (a.containsPoint(s.getPosition(), null)) {
                         checks.add(new Pair<PlanSimulationLayer.PlanCheck, String>(PlanCheck.Warning,
-                    "Vehicle may collide with "+a.getId()));
+                                I18n.textf("Vehicle may collide with %obstacle", a.getId())));
                         return checks;
                     }
                 }
-            }            
+            }
         }
 
         return checks;
-    } 
+    }
 
-    private  List<Pair<PlanCheck, String>> validatePlanCompatibility() {
+    private List<Pair<PlanCheck, String>> validatePlanCompatibility() {
         ArrayList<Pair<PlanCheck, String>> checks = new ArrayList<>();
         try {
             PlanCompability.testCompatibility(VehiclesHolder.getVehicleById(getConsole().getMainSystem()), mainPlan);
