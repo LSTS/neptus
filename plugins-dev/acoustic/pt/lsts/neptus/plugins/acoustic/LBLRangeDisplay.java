@@ -738,7 +738,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
     private void initTracker() {
         LinkedHashMap<String, MapMission> mapList = missionType.getMapsList();
 
-        for (MapMission mpm : mapList.values()) {
+        //for (MapMission mpm : mapList.values()) {
             LblConfig lbl = (LblConfig) ImcSystemsHolder.getSystemWithName(getMainVehicleId()).retrieveData(ImcSystem.LBL_CONFIG_KEY);
             Vector<LblBeacon> beaconList;
 
@@ -779,7 +779,7 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
                 rgp.setDrawRangeUpOrDownThePoint(drawRangeUpOrDownThePoint);
                 rangeFixPainter.add(rgp);
             }
-        }
+        //}
 
         // HomeRef
         hRef = new HomeReference(missionType.getHomeRef().asXML());
