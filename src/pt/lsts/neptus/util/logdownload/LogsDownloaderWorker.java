@@ -37,6 +37,7 @@ import java.awt.Component;
 import java.awt.Dialog.ModalityType;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -67,6 +68,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -156,12 +158,12 @@ public class LogsDownloaderWorker {
 
     protected static final long DELTA_TIME_TO_CLEAR_DONE = 5000;
     protected static final long DELTA_TIME_TO_CLEAR_NOT_WORKING = 45000;
-    
+
     protected static final String CAMERA_CPU_LABEL = "Slave CPU";
 
     private FtpDownloader clientFtp = null;
     private FtpDownloader cameraFtp = null;
-    
+
     private boolean stopLogListProcessing = false;
     private boolean resetting = false;
 
@@ -235,18 +237,18 @@ public class LogsDownloaderWorker {
     private RectanglePainter rectPainter;
     private CompoundPainter<JXPanel> compoundBackPainter;
 
-//    private Timer timer = null;
-//    private TimerTask ttaskLocalDiskSpace = null;
+    //    private Timer timer = null;
+    //    private TimerTask ttaskLocalDiskSpace = null;
     private ScheduledThreadPoolExecutor threadScheduledPool = null;
     private Runnable ttaskLocalDiskSpace = null;
 
     private MessageListener<MessageInfo, IMCMessage> messageListener;
-    
+
     // Variable used in updateFilesListGUIForFolderSelected method
     private boolean isUpdatingFileList = false;
     private boolean exitRequest = false;
     private final Object lock = new Object();
-    
+
     private QueueWorkTickets<DownloaderPanel> queueWorkTickets = new QueueWorkTickets<>(ACTIVE_DOWNLOADS_QUEUE_SIZE);
 
     /**
@@ -273,14 +275,14 @@ public class LogsDownloaderWorker {
 
     private void initializeComm() {
         // Init timer
-//        timer = new Timer("LogsDownloadWorker");
+        //        timer = new Timer("LogsDownloadWorker");
         threadScheduledPool = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(4, new ThreadFactory() {
             private ThreadGroup group;
             private long count = 0;
             {
                 SecurityManager s = System.getSecurityManager();
                 group = (s != null) ? s.getThreadGroup() :
-                                      Thread.currentThread().getThreadGroup();
+                    Thread.currentThread().getThreadGroup();
             }
             @Override
             public Thread newThread(Runnable r) {
@@ -303,14 +305,14 @@ public class LogsDownloaderWorker {
                     ImcSystem imcSystem = ImcSystemsHolder.getSystemWithName(systemName);
                     if (imcSystem == null || imcSystem.getId().intValue() != msg.getSrc())
                         return;
-                    
+
                     if (msg.getString("name").equals("Camera Module") || msg.getString("name").equals("Camera - CPU")) { 
                         //System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: PowerChannelState "
                         //+ msg.getInteger("state"));
                         cameraButton.setBackground(msg.getInteger("state") == 1 ? Color.GREEN : null);
                     }
                 }
-                */
+                 */
 
                 if (msg.getAbbrev().equals("EntityState")) {
                     // we need to check for the source match
@@ -337,24 +339,24 @@ public class LogsDownloaderWorker {
         };
         ImcMsgManager.getManager().addListener(messageListener); // all systems listener
 
-//        timer.scheduleAtFixedRate(new TimerTask() {
-//            protected  IMCMessage msg = new IMCMessage("QueryPowerChannelState");
-//            @Override
-//            public void run() {
-//                if (getLogLabel() == null || getLogLabel().length() == 0)
-//                    return;
-//                
-//                msg.setTimestampMillis(System.currentTimeMillis());
-//                ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
-//            }
-//        }, 500, 5000);
+        //        timer.scheduleAtFixedRate(new TimerTask() {
+        //            protected  IMCMessage msg = new IMCMessage("QueryPowerChannelState");
+        //            @Override
+        //            public void run() {
+        //                if (getLogLabel() == null || getLogLabel().length() == 0)
+        //                    return;
+        //                
+        //                msg.setTimestampMillis(System.currentTimeMillis());
+        //                ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
+        //            }
+        //        }, 500, 5000);
         threadScheduledPool.scheduleAtFixedRate(new Runnable() {
             protected  IMCMessage msg = new IMCMessage("QueryPowerChannelState");
             @Override
             public void run() {
                 if (getLogLabel() == null || getLogLabel().length() == 0)
                     return;
-                
+
                 msg.setTimestampMillis(System.currentTimeMillis());
                 ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
             }
@@ -378,7 +380,7 @@ public class LogsDownloaderWorker {
                 }
             });
         }
-        
+
         hostLabel = new JLabel(I18n.text("Host: "));
         hostField = new JTextField(20);
         hostField.setText(host);
@@ -399,7 +401,7 @@ public class LogsDownloaderWorker {
 
         diskFreeLabel = new JXLabel("<html><b>?", JLabel.CENTER);
         diskFreeLabel.setBackgroundPainter(getCompoundBackPainter());
-        
+
         resetButton = new MiniButton();
         resetButton.setToolTipText(I18n.text("Reset the interface"));
         resetButton.setIcon(ICON_RESET);
@@ -470,21 +472,33 @@ public class LogsDownloaderWorker {
                     final File logGz = new File(baseFxPath + "Data.lsf.gz");
 
                     if ((imc.exists() || imcGz.exists()) && (logGz.exists() || log.exists())) {
-                        new Thread(new Runnable() {
+
+                        JPopupMenu popup = new JPopupMenu();
+                        popup.add(I18n.text("Open this log in MRA")).addActionListener(new ActionListener() {
+
                             @Override
-                            public void run() {
-                                JFrame mra = new NeptusMRA();
-                                mra.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                            public void actionPerformed(ActionEvent e) {
+                                Thread t = new Thread(LogsDownloaderWorker.class.getSimpleName() + " :: MRA Openner") {
+                                    public void run() {
+                                        JFrame mra = new NeptusMRA();
+                                        mra.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-                                File fx = null;
-                                if (logGz.exists())
-                                    fx = logGz;
-                                if (log.exists())
-                                    fx = log;
+                                        File fx = null;
+                                        if (logGz.exists())
+                                            fx = logGz;
+                                        if (log.exists())
+                                            fx = log;
 
-                                ((NeptusMRA) mra).getMraFilesHandler().openLog(fx);
+                                        ((NeptusMRA) mra).getMraFilesHandler().openLog(fx);
+                                    };
+                                };
+
+                                t.setDaemon(true);
+                                t.start();
                             }
-                        }, LogsDownloaderWorker.class.getSimpleName() + " :: MRA Openner").run();
+                        });
+                        
+                        popup.show((Component)e.getSource(), e.getX(), e.getY());
                     }
                     else {
                         warnMsg(I18n.text("Basic log folder not synchronized. Can't open MRA"));
@@ -557,9 +571,9 @@ public class LogsDownloaderWorker {
                 .addGroup(
                         layoutCfg.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(hostLabel)
                         .addComponent(hostField).addComponent(portLabel).addComponent(portField))
-                                .addGroup(
-                                        layoutCfg.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(logLabelLabel)
-                                        .addComponent(logLabelField)));
+                        .addGroup(
+                                layoutCfg.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(logLabelLabel)
+                                .addComponent(logLabelField)));
         layoutCfg.linkSize(SwingConstants.VERTICAL, hostLabel, hostField, portLabel, portField, logLabelLabel, logLabelField);
         layoutCfg.linkSize(SwingConstants.HORIZONTAL,  logLabelLabel, hostLabel);
 
@@ -622,11 +636,11 @@ public class LogsDownloaderWorker {
                                                 .addComponent(helpButton, 34, 34, 34)
                                                 .addComponent(cameraButton, 34, 34, 34)
                                                 .addComponent(diskFreeLabel, 60, 80,120))))
-                                        .addGroup(
-                                                layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                                                .addComponent(logFilesListLabel).addComponent(logFilesScroll)))
-                                                // .addComponent(msgPanel)
-                                                .addComponent(listHandlingProgressBar).addComponent(downloadWorkersScroll));
+                                                .addGroup(
+                                                        layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                                                        .addComponent(logFilesListLabel).addComponent(logFilesScroll)))
+                                                        // .addComponent(msgPanel)
+                                                        .addComponent(listHandlingProgressBar).addComponent(downloadWorkersScroll));
         layout.setVerticalGroup(layout
                 .createSequentialGroup()
                 .addGroup(
@@ -650,12 +664,12 @@ public class LogsDownloaderWorker {
                                                 .addComponent(helpButton, 34, 34, 34)
                                                 .addComponent(cameraButton, 34, 34, 34)
                                                 .addComponent(diskFreeLabel, 34, 34, 34))))
-                        .addGroup(
-                                layout.createSequentialGroup()
-                                .addComponent(logFilesListLabel)
-                                .addComponent(logFilesScroll, 200, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                                .addComponent(listHandlingProgressBar)
-                                .addComponent(downloadWorkersScroll, 80, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
+                                                .addGroup(
+                                                        layout.createSequentialGroup()
+                                                        .addComponent(logFilesListLabel)
+                                                        .addComponent(logFilesScroll, 200, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                                        .addComponent(listHandlingProgressBar)
+                                                        .addComponent(downloadWorkersScroll, 80, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
 
         // Setup of the Frame Content
         frameCompHolder = new JXPanel();
@@ -678,7 +692,7 @@ public class LogsDownloaderWorker {
             GuiUtils.centerOnScreen(frame);
 
         ttaskLocalDiskSpace = getTimerTaskLocalDiskSpace();
-//        timer.scheduleAtFixedRate(ttaskLocalDiskSpace, 500, 5000);
+        //        timer.scheduleAtFixedRate(ttaskLocalDiskSpace, 500, 5000);
         threadScheduledPool.scheduleAtFixedRate(ttaskLocalDiskSpace, 500, 5000, TimeUnit.MILLISECONDS);
     }
 
@@ -732,17 +746,17 @@ public class LogsDownloaderWorker {
 
                         // Getting the file list from main CPU
                         try {
-//                            if (clientFtp == null)
-//                                clientFtp = new FtpDownloader(host, port);
-//                            else
-//                                clientFtp.setHostAndPort(host, port);
-//                            
-//                            if (!clientFtp.isConnected())
-//                                clientFtp.renewClient();
+                            //                            if (clientFtp == null)
+                            //                                clientFtp = new FtpDownloader(host, port);
+                            //                            else
+                            //                                clientFtp.setHostAndPort(host, port);
+                            //                            
+                            //                            if (!clientFtp.isConnected())
+                            //                                clientFtp.renewClient();
                             clientFtp = getOrRenewFtpDownloader(clientFtp, host, port);
-                            
+
                             retList = clientFtp.listLogs();
-                            
+
                             for (String partialUri : retList.values()) {
                                 serversLogPresenceList.put(partialUri, SERVER_MAIN);
                             }
@@ -753,19 +767,19 @@ public class LogsDownloaderWorker {
 
                         //Getting the log list from Camera CPU
                         String cameraHost = getCameraHost(getHost());
-                        
+
                         if (cameraHost.length() > 0) {
                             LinkedHashMap<FTPFile, String> retCamList = null;
                             try {
-//                                if (cameraFtp == null)
-//                                    cameraFtp = new FtpDownloader(cameraHost, port);
-//                                else
-//                                    cameraFtp.setHostAndPort(cameraHost, port);
-//                                
-//                                if (!cameraFtp.isConnected())
-//                                    cameraFtp.renewClient();
+                                //                                if (cameraFtp == null)
+                                //                                    cameraFtp = new FtpDownloader(cameraHost, port);
+                                //                                else
+                                //                                    cameraFtp.setHostAndPort(cameraHost, port);
+                                //                                
+                                //                                if (!cameraFtp.isConnected())
+                                //                                    cameraFtp.renewClient();
                                 cameraFtp = getOrRenewFtpDownloader(cameraFtp, cameraHost, port);
-                                
+
                                 retCamList = cameraFtp.listLogs();
                             }
                             catch (Exception e) {
@@ -778,7 +792,7 @@ public class LogsDownloaderWorker {
                                     for (String partialUri : retList.values()) {
                                         serversLogPresenceList.put(partialUri, SERVER_CAM);
                                     }
-                                    
+
                                 }
                                 else {
                                     for (FTPFile camFTPFile : retCamList.keySet()) {
@@ -802,7 +816,7 @@ public class LogsDownloaderWorker {
                             msgPanel.writeMessageTextln(I18n.text("Done"));
                             return null;
                         }
-                        
+
                         msgPanel.writeMessageTextln(I18n.textf("Log Folders: %numberoffolders", retList.size()));
 
                         // Added in order not to show the active log (the last one
@@ -834,8 +848,8 @@ public class LogsDownloaderWorker {
                             SwingUtilities.invokeAndWait(new Runnable() {
                                 @Override
                                 public void run() {
-//                                    listHandlingProgressBar.setValue(10);
-//                                    listHandlingProgressBar.setIndeterminate(true);
+                                    //                                    listHandlingProgressBar.setValue(10);
+                                    //                                    listHandlingProgressBar.setIndeterminate(true);
                                     listHandlingProgressBar.setString(msg1);
                                 }
                             });
@@ -856,7 +870,7 @@ public class LogsDownloaderWorker {
                         for (Object comp : objArray) {
                             if (stopLogListProcessing)
                                 return null;
-                                
+
                             try {
                                 // NeptusLog.pub().info("<###>... upda
                                 LogFolderInfo log = (LogFolderInfo) comp;
@@ -969,7 +983,7 @@ public class LogsDownloaderWorker {
                                                         lfx.setState(LogFolderInfo.State.SYNC);
                                                 }
                                                 lfx.setHost(logFx.getHost());
-                                                
+
                                                 if (logFx.isDirectory()) {
                                                     ArrayList<LogFileInfo> notMatchElements = new ArrayList<>();
                                                     notMatchElements.addAll(lfx.getDirectoryContents());
@@ -993,7 +1007,7 @@ public class LogsDownloaderWorker {
                                                         lfx.getDirectoryContents().remove(lfi);
                                                     }
                                                 }
-                                                
+
                                                 if (lfx.isDirectory()) {
                                                     if (!getFileTarget(lfx.getName()).exists()) {
                                                         for (LogFileInfo lfi : lfx.getDirectoryContents()) {
@@ -1014,7 +1028,7 @@ public class LogsDownloaderWorker {
                                                     if (!getFileTarget(lfx.getName()).exists()) {
                                                         if (lfx.getState() != LogFolderInfo.State.NEW && lfx.getState() != LogFolderInfo.State.DOWNLOADING) {
                                                             lfx.setState(LogFolderInfo.State.INCOMPLETE);
-//                                                        System.out.println("//////////// " + lfx.getName() + "  " + getFileTarget(lfx.getName()).exists());
+                                                            //                                                        System.out.println("//////////// " + lfx.getName() + "  " + getFileTarget(lfx.getName()).exists());
                                                         }
                                                     }
                                                     else {
@@ -1054,7 +1068,7 @@ public class LogsDownloaderWorker {
                             updateLogFolderState(logFolder);
                         }
                         updateLogStateIconForAllLogFolders();
-                        
+
                         // NeptusLog.pub().info("<###>.......Updating LogFolders State " +
                         // (System.currentTimeMillis()-timeF2));
 
@@ -1101,7 +1115,7 @@ public class LogsDownloaderWorker {
                     @Override
                     public void finish() {
                         stopLogListProcessing = false;
-                        
+
                         logFolderList.setValueIsAdjusting(false);
                         logFolderList.invalidate();
                         logFolderList.revalidate();
@@ -1144,11 +1158,11 @@ public class LogsDownloaderWorker {
                                 // NeptusLog.pub().info("<###>... updateFilesForFolderSelected");
                                 LogFolderInfo logFd = (LogFolderInfo) comp;
                                 for (LogFileInfo lfx : logFd.getLogFiles()) {
-//                                    if (downloadSelectedLogDirsButton.isEnabled())
-//                                        break; // If button enabled a reset was called, so let's interrupt all 
+                                    //                                    if (downloadSelectedLogDirsButton.isEnabled())
+                                    //                                        break; // If button enabled a reset was called, so let's interrupt all 
                                     if (resetting)
                                         break;
-                                    
+
                                     singleLogFileDownloadWorker(lfx, logFd);
                                 }
                             }
@@ -1363,7 +1377,7 @@ public class LogsDownloaderWorker {
                         }
                         if (!resetting) {
                             updateLogFilesStateDeleted(logFiles);
-                            
+
                             updateFilesListGUIForFolderSelected();
                         }
                         return true;
@@ -1421,7 +1435,7 @@ public class LogsDownloaderWorker {
             public void actionPerformed(ActionEvent e) {
                 resetButton.setEnabled(false);
                 doReset(false);
-//                resetButton.setEnabled(true);
+                //                resetButton.setEnabled(true);
             }
         };
 
@@ -1430,8 +1444,8 @@ public class LogsDownloaderWorker {
             public void actionPerformed(ActionEvent e) {
                 stopAllButton.setEnabled(false);
                 doReset(true);
-//                stopAllButton.setEnabled(true);
-//                updateLogStateIconForAllLogFolders();
+                //                stopAllButton.setEnabled(true);
+                //                updateLogStateIconForAllLogFolders();
             }
         };
 
@@ -1454,8 +1468,8 @@ public class LogsDownloaderWorker {
 
                         ImcMsgManager.getManager().sendMessageToSystem(msg, getLogLabel());
                     }
-                    */
-                    
+                     */
+
                     ArrayList<EntityParameter> propList = new ArrayList<>();
                     EntityParameter entParsm = new EntityParameter().setName("Active").setValue(cameraButton.getBackground() != Color.GREEN ? "true" : "false");
                     propList.add(entParsm);
@@ -1513,15 +1527,15 @@ public class LogsDownloaderWorker {
                     diskFreeLabel.setText("<html><b>?");
                     diskFreeLabel.setToolTipText(I18n.text("Unknown local disk free space"));
                     updateDiskFreeLabelBackColor(Color.LIGHT_GRAY);
-                    
-                    
+
+
                     // Queue block test
                     ArrayList<DownloaderPanel> workingDonsloaders = queueWorkTickets.getAllWorkingClients();
                     Component[] components = downloadWorkersHolder.getComponents();
                     for (Component cp : components) {
                         if (!(cp instanceof DownloaderPanel))
                             continue;
-                        
+
                         DownloaderPanel workerD = (DownloaderPanel) cp;
                         if (workingDonsloaders.contains(workerD))
                             workingDonsloaders.remove(workerD);
@@ -1541,27 +1555,27 @@ public class LogsDownloaderWorker {
             clientFtp = new FtpDownloader(host, port);
         else
             clientFtp.setHostAndPort(host, port);
-        
+
         if (!clientFtp.isConnected())
             clientFtp.renewClient();
 
         return clientFtp;
     }
-    
+
     /**
      * This is used to clean and dispose safely of this component
      */
     public void cleanup() {
         disconnectFTPClientsForListing();
 
-//        if (ttaskLocalDiskSpace != null) {
-//            ttaskLocalDiskSpace.cancel();
-//            ttaskLocalDiskSpace = null;
-//        }
-//        if (timer != null) {
-//            timer.cancel();
-//            timer = null;
-//        }
+        //        if (ttaskLocalDiskSpace != null) {
+        //            ttaskLocalDiskSpace.cancel();
+        //            ttaskLocalDiskSpace = null;
+        //        }
+        //        if (timer != null) {
+        //            timer.cancel();
+        //            timer = null;
+        //        }
         if (threadScheduledPool != null) {
             threadScheduledPool.shutdownNow();
         }
@@ -1579,7 +1593,7 @@ public class LogsDownloaderWorker {
             downHelpDialog.dispose();
 
         ImcMsgManager.getManager().removeListener(messageListener);
-        
+
         queueWorkTickets.cancelAll();
     }
 
@@ -1901,7 +1915,7 @@ public class LogsDownloaderWorker {
                 lf.setState(LogFolderInfo.State.NEW);
             }
         }
-        
+
         updateLogStateIconForAllLogFolders();
     }
 
@@ -1944,7 +1958,7 @@ public class LogsDownloaderWorker {
                 || lfx.getState() == LogFolderInfo.State.LOCAL) {
             return;
         }
-        
+
         // Let us see if already exists in download list
         Component[] components = downloadWorkersHolder.getComponents();
         for (Component cp : components) {
@@ -1967,16 +1981,16 @@ public class LogsDownloaderWorker {
         }
 
         DownloaderPanel workerD = null;
-        
+
         try {
             FtpDownloader ftpDownloader = null;
-//            if (clientFtp != null && clientFtp.getHost().equals(lfx.getHost()))
-//                ftpDownloader = clientFtp;
-//            else if (cameraFtp != null && cameraFtp.getHost().equals(lfx.getHost()))
-//                ftpDownloader = cameraFtp;
-//            else
-                ftpDownloader = new FtpDownloader(lfx.getHost(), port);
-                
+            //            if (clientFtp != null && clientFtp.getHost().equals(lfx.getHost()))
+            //                ftpDownloader = clientFtp;
+            //            else if (cameraFtp != null && cameraFtp.getHost().equals(lfx.getHost()))
+            //                ftpDownloader = cameraFtp;
+            //            else
+            ftpDownloader = new FtpDownloader(lfx.getHost(), port);
+
             if (lfx.isDirectory()) {
                 HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
                 for (LogFileInfo lfi : lfx.getDirectoryContents()) {
@@ -1994,36 +2008,36 @@ public class LogsDownloaderWorker {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
-//        Component[] components = downloadWorkersHolder.getComponents();
-//        for (Component cp : components) {
-//            try {
-//                DownloaderPanel dpp = (DownloaderPanel) cp;
-//                if (workerD.equals(dpp)) {
-//                    workerD = dpp;
-//                    if (workerD.getState() == DownloaderPanel.State.ERROR
-//                            || workerD.getState() == DownloaderPanel.State.IDLE
-//                            || workerD.getState() == DownloaderPanel.State.TIMEOUT
-//                            || workerD.getState() == DownloaderPanel.State.QUEUED
-//                            || workerD.getState() == DownloaderPanel.State.NOT_DONE) {
-//                        workerD.actionDownload();
-//                    }
-//                    break;
-//                }
-//            }
-//            catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
+        //        Component[] components = downloadWorkersHolder.getComponents();
+        //        for (Component cp : components) {
+        //            try {
+        //                DownloaderPanel dpp = (DownloaderPanel) cp;
+        //                if (workerD.equals(dpp)) {
+        //                    workerD = dpp;
+        //                    if (workerD.getState() == DownloaderPanel.State.ERROR
+        //                            || workerD.getState() == DownloaderPanel.State.IDLE
+        //                            || workerD.getState() == DownloaderPanel.State.TIMEOUT
+        //                            || workerD.getState() == DownloaderPanel.State.QUEUED
+        //                            || workerD.getState() == DownloaderPanel.State.NOT_DONE) {
+        //                        workerD.actionDownload();
+        //                    }
+        //                    break;
+        //                }
+        //            }
+        //            catch (Exception e) {
+        //                e.printStackTrace();
+        //            }
+        //        }
         final LogFolderInfo lfdfinal = logFd;
         final LogFileInfo lfxfinal = lfx;
         final DownloaderPanel workerDFinal = workerD;
         workerD.addStateChangeListener(new DownloadStateListener() {
             private LogFileInfo fxLog = lfxfinal;
             private Runnable task = null;
-            
+
             @Override
             public void downloaderStateChange(DownloaderPanel.State newState, DownloaderPanel.State oldState) {
-//                System.out.println("State state update for " + fxLog.getUriPartial() + " " + fxLog.getState() + "::" + oldState + "::" + newState);
+                //                System.out.println("State state update for " + fxLog.getUriPartial() + " " + fxLog.getState() + "::" + oldState + "::" + newState);
 
                 if (fxLog.getState() != LogFolderInfo.State.LOCAL) {
                     if (newState == DownloaderPanel.State.DONE)
@@ -2042,11 +2056,11 @@ public class LogsDownloaderWorker {
                         logFilesList.revalidate();
                         logFilesList.repaint();
                     }
-                    
+
                     updateLogFolderState(lfdfinal);
                     updateLogStateIconForAllLogFolders();
                 }
-                
+
                 if (newState == DownloaderPanel.State.WORKING || newState == DownloaderPanel.State.TIMEOUT
                         || newState == DownloaderPanel.State.QUEUED) {
                     cancelTasksIfSchedule();
@@ -2069,7 +2083,7 @@ public class LogsDownloaderWorker {
                             }
                         }
                     };
-//                    timer.schedule(task, DELTA_TIME_TO_CLEAR_DONE);
+                    //                    timer.schedule(task, DELTA_TIME_TO_CLEAR_DONE);
                     threadScheduledPool.schedule(task, DELTA_TIME_TO_CLEAR_DONE, TimeUnit.MILLISECONDS);
                 }
                 else { //if (newState != DownloaderPanel.State.WORKING && newState != DownloaderPanel.State.TIMEOUT && newState != DownloaderPanel.State.QUEUED) { // FIXME VERIFICAR SE OK OU TIRAR
@@ -2082,7 +2096,7 @@ public class LogsDownloaderWorker {
                                         && workerDFinal.getState() != DownloaderPanel.State.TIMEOUT
                                         && workerDFinal.getState() != DownloaderPanel.State.QUEUED) {
                                     workerDFinal.doStopAndInvalidate();
-//                                    waitForStopOnAllLogFoldersDownloads(workerDFinal.getName());
+                                    //                                    waitForStopOnAllLogFoldersDownloads(workerDFinal.getName());
                                     downloadWorkersHolder.remove(workerDFinal);
                                     downloadWorkersHolder.revalidate();
                                     downloadWorkersHolder.repaint();
@@ -2093,7 +2107,7 @@ public class LogsDownloaderWorker {
                             }
                         }
                     };
-//                    timer.schedule(task, DELTA_TIME_TO_CLEAR_NOT_WORKING);
+                    //                    timer.schedule(task, DELTA_TIME_TO_CLEAR_NOT_WORKING);
                     threadScheduledPool.schedule(task, DELTA_TIME_TO_CLEAR_NOT_WORKING, TimeUnit.MILLISECONDS);
                 }
             }
@@ -2142,7 +2156,7 @@ public class LogsDownloaderWorker {
                     break;
             }
         }
-        
+
         if (objArray.length == 0) {
             logFoldersListLabel.setIcon(null);
         }
@@ -2171,7 +2185,7 @@ public class LogsDownloaderWorker {
             logFoldersListLabel.setIcon(LogFolderInfoList.ICON_UNKNOWN);
         }
     }
-    
+
     /**
      * @param logFolder
      */
@@ -2274,8 +2288,8 @@ public class LogsDownloaderWorker {
     private boolean deleteLogFolderFromServer(String path) {
         try {
             System.out.println("Deleting folder");
-//            if (!clientFtp.isConnected())
-//                clientFtp.renewClient();
+            //            if (!clientFtp.isConnected())
+            //                clientFtp.renewClient();
             try {
                 clientFtp = getOrRenewFtpDownloader(clientFtp, host, port);
             }
@@ -2293,8 +2307,8 @@ public class LogsDownloaderWorker {
     private boolean deleteLogFolderFromCameraServer(String path) {
         try {
             if (cameraFtp != null) {
-//                if (!cameraFtp.isConnected())
-//                    cameraFtp.renewClient();
+                //                if (!cameraFtp.isConnected())
+                //                    cameraFtp.renewClient();
                 try {
                     cameraFtp = getOrRenewFtpDownloader(cameraFtp, getCameraHost(host), port);
                 }
@@ -2332,11 +2346,11 @@ public class LogsDownloaderWorker {
             for (String logDir : serversLogPresenceList.keySet()) {
                 if (!serversLogPresenceList.get(logDir).contains(SERVER_MAIN))
                     continue;
-                
+
                 String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
-//                boolean ret = clientFtp.getClient().changeWorkingDirectory("/" + isoStr + "/");
-//                if (!ret)
-//                    continue;
+                //                boolean ret = clientFtp.getClient().changeWorkingDirectory("/" + isoStr + "/");
+                //                if (!ret)
+                //                    continue;
                 LogFolderInfo lFolder = new LogFolderInfo(logDir);
 
                 // Updating the LogFiles for each LogFolder
@@ -2353,7 +2367,7 @@ public class LogsDownloaderWorker {
                     if (file.isDirectory()) {
                         logFileTmp.setSize(-1); // Set size to -1 if directory
                         long allSize = 0;
-                        
+
                         LinkedHashMap<String, FTPFile> dirListing = clientFtp.listDirectory(logFileTmp.getName()); // Here there are no directories
                         ArrayList<LogFileInfo> directoryContents = new ArrayList<>();
                         for (String fName : dirListing.keySet()) {
@@ -2364,7 +2378,7 @@ public class LogsDownloaderWorker {
                             fLogFileTmp.setSize(fFile.getSize());
                             fLogFileTmp.setFile(fFile);
                             fLogFileTmp.setHost(getHost());
-                            
+
                             allSize += fLogFileTmp.getSize();
                             directoryContents.add(fLogFileTmp);
                         }
@@ -2384,9 +2398,9 @@ public class LogsDownloaderWorker {
                         continue;
 
                     String isoStr = new String(logDir.getBytes(), "ISO-8859-1");
-//                    if (ftpd.getClient().changeWorkingDirectory("/" + isoStr + "/") == false) // Log doesnt exist in
-//                        // DOAM
-//                        continue;
+                    //                    if (ftpd.getClient().changeWorkingDirectory("/" + isoStr + "/") == false) // Log doesnt exist in
+                    //                        // DOAM
+                    //                        continue;
 
                     LogFolderInfo lFolder = null;
 
@@ -2400,7 +2414,7 @@ public class LogsDownloaderWorker {
 
                     if (!ftpd.isConnected())
                         ftpd.renewClient();
-                    
+
                     try {
                         for (FTPFile file : ftpd.getClient().listFiles("/" + isoStr + "/")) {
                             String name = logDir + "/" + file.getName();
@@ -2414,7 +2428,7 @@ public class LogsDownloaderWorker {
                             if (file.isDirectory()) {
                                 logFileTmp.setSize(-1); // Set size to -1 if directory
                                 long allSize = 0;
-                                
+
                                 LinkedHashMap<String, FTPFile> dirListing = ftpd.listDirectory(logFileTmp.getName()); // Here there are no directories
                                 ArrayList<LogFileInfo> directoryContents = new ArrayList<>();
                                 for (String fName : dirListing.keySet()) {
@@ -2425,7 +2439,7 @@ public class LogsDownloaderWorker {
                                     fLogFileTmp.setSize(fFile.getSize());
                                     fLogFileTmp.setFile(fFile);
                                     fLogFileTmp.setHost(cameraHost);
-                                    
+
                                     allSize += fLogFileTmp.getSize();
                                     directoryContents.add(fLogFileTmp);
                                 }
@@ -2482,14 +2496,14 @@ public class LogsDownloaderWorker {
         logFilesList.myModel.clear();
         logFolderList.myModel.clear();
         downloadWorkersHolder.removeAll();
-        
+
         // Protected against disable problems
         downloadListButton.setEnabled(true);
         downloadSelectedLogDirsButton.setEnabled(true);
         downloadSelectedLogFilesButton.setEnabled(true);
         deleteSelectedLogFoldersButton.setEnabled(true);
         deleteSelectedLogFilesButton.setEnabled(true);
-        
+
         logFoldersListLabel.setIcon(null);
     }
 
@@ -2724,21 +2738,21 @@ public class LogsDownloaderWorker {
         for (Component cp : components) {
             try {
                 DownloaderPanel workerD = (DownloaderPanel) cp;
-//                if (workerD.getState() == DownloaderPanel.State.WORKING) {
-                    if (!stopAll) {
-                        for (String prefix : logList) {
-                            if (workerD.getName().startsWith(prefix)) {
-                                if (!invalidateComponents)
-                                    workerD.actionStop();
-                                else
-                                    workerD.actionStopAndInvalidate();
-                                break;
-                            }
+                //                if (workerD.getState() == DownloaderPanel.State.WORKING) {
+                if (!stopAll) {
+                    for (String prefix : logList) {
+                        if (workerD.getName().startsWith(prefix)) {
+                            if (!invalidateComponents)
+                                workerD.actionStop();
+                            else
+                                workerD.actionStopAndInvalidate();
+                            break;
                         }
-                        continue;
                     }
-                    workerD.actionStop();
-//                }
+                    continue;
+                }
+                workerD.actionStop();
+                //                }
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -2749,7 +2763,7 @@ public class LogsDownloaderWorker {
     private void waitForStopOnAllLogFoldersDownloads(String... logList) {
         if (!GeneralPreferences.logsDownloaderWaitForAllToStop)
             return;
-        
+
         boolean waitStopAll = true;
         if (logList != null)
             if (logList.length > 0)
@@ -2770,7 +2784,7 @@ public class LogsDownloaderWorker {
                         if (!wait)
                             continue;
                     }
-                    
+
                     while (workerD.getState() == DownloaderPanel.State.WORKING || workerD.getState() == DownloaderPanel.State.QUEUED) {
                         try { Thread.sleep(100); } catch (Exception e) { }
                         NeptusLog.pub().warn("Waiting for '" + workerD.getUri() + "' to stop!");
@@ -2782,17 +2796,17 @@ public class LogsDownloaderWorker {
             }
         }
     }
-    
+
     public synchronized boolean doReset(final boolean justStopDownloads) {
         boolean isEventDispatchThread = SwingUtilities.isEventDispatchThread();
-        
+
         SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
 
             @Override
             protected Boolean doInBackground() throws Exception {
                 if (!justStopDownloads)
                     resetting = true;
-                
+
                 boolean resetRes = true;
                 if (!justStopDownloads) {
                     SwingUtilities.invokeAndWait(new Runnable() {
@@ -2847,7 +2861,7 @@ public class LogsDownloaderWorker {
                     warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
                     resetRes &= false;
                 }
-                
+
                 queueWorkTickets.cancelAll();
 
                 if (!justStopDownloads) {
@@ -2856,7 +2870,7 @@ public class LogsDownloaderWorker {
 
                 return resetRes;
             }
-            
+
             @Override
             protected void done() {
                 if (!justStopDownloads) {
@@ -2869,7 +2883,7 @@ public class LogsDownloaderWorker {
             }
         };
         worker.execute();
-        
+
         if (!isEventDispatchThread) {
             try {
                 return worker.get();
@@ -2879,48 +2893,48 @@ public class LogsDownloaderWorker {
                 return false;
             }
         }
-        
+
         return true;
-//        if (!justStopDownloads)
-//            resetting = true;
-//        
-//        boolean resetRes = true;
-//        if (!justStopDownloads)
-//            warnLongMsg(I18n.text("Resetting... Wait please..."));
-//        try {
-//            disconnectFTPClientsForListing();
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-//            resetRes &= false;
-//        }
-//        try {
-//            if (!justStopDownloads)
-//                doStopLogFoldersDownloads(true);
-//            else
-//                doStopLogFoldersDownloads(false);
-//            waitForStopOnAllLogFoldersDownloads();
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-//            resetRes &= false;
-//        }
-//        try {
-//            if (!justStopDownloads)
-//                cleanInterface();
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
-//            resetRes &= false;
-//        }
-//        
-//        if (!justStopDownloads)
-//            resetting = false;
-//        
-//        return resetRes;
+        //        if (!justStopDownloads)
+        //            resetting = true;
+        //        
+        //        boolean resetRes = true;
+        //        if (!justStopDownloads)
+        //            warnLongMsg(I18n.text("Resetting... Wait please..."));
+        //        try {
+        //            disconnectFTPClientsForListing();
+        //        }
+        //        catch (Exception e) {
+        //            e.printStackTrace();
+        //            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+        //            resetRes &= false;
+        //        }
+        //        try {
+        //            if (!justStopDownloads)
+        //                doStopLogFoldersDownloads(true);
+        //            else
+        //                doStopLogFoldersDownloads(false);
+        //            waitForStopOnAllLogFoldersDownloads();
+        //        }
+        //        catch (Exception e) {
+        //            e.printStackTrace();
+        //            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+        //            resetRes &= false;
+        //        }
+        //        try {
+        //            if (!justStopDownloads)
+        //                cleanInterface();
+        //        }
+        //        catch (Exception e) {
+        //            e.printStackTrace();
+        //            warnLongMsg(I18n.textf("Error couth on resetting: %errormessage", e.getMessage()));
+        //            resetRes &= false;
+        //        }
+        //        
+        //        if (!justStopDownloads)
+        //            resetting = false;
+        //        
+        //        return resetRes;
     }
 
     /**
@@ -2934,19 +2948,19 @@ public class LogsDownloaderWorker {
         LinkedHashSet<LogFileInfo> toDelFL = new LinkedHashSet<LogFileInfo>();
         for (LogFileInfo lfx : logFiles) {
             lfx.setState(LogFolderInfo.State.LOCAL);
-//            DownloaderPanel workerD;
-//            if (lfx.isDirectory()) {
-//                HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
-//                for (LogFileInfo lfi : lfx.getDirectoryContents()) {
-//                    directoryContentsList.put(lfi.getUriPartial(), lfx.getFile());
-//                }
-//                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-//                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool, queueWorkTickets);
-//            }
-//            else {
-//                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
-//                        getFileTarget(lfx.getName()), threadScheduledPool, queueWorkTickets);
-//            }
+            //            DownloaderPanel workerD;
+            //            if (lfx.isDirectory()) {
+            //                HashMap<String, FTPFile> directoryContentsList = new LinkedHashMap<>();
+            //                for (LogFileInfo lfi : lfx.getDirectoryContents()) {
+            //                    directoryContentsList.put(lfi.getUriPartial(), lfx.getFile());
+            //                }
+            //                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
+            //                        getFileTarget(lfx.getName()), directoryContentsList, threadScheduledPool, queueWorkTickets);
+            //            }
+            //            else {
+            //                workerD = new DownloaderPanel(clientFtp, lfx.getFile(), lfx.getName(),
+            //                        getFileTarget(lfx.getName()), threadScheduledPool, queueWorkTickets);
+            //            }
 
             Component[] components = downloadWorkersHolder.getComponents();
             for (Component cp : components) {
@@ -2988,7 +3002,7 @@ public class LogsDownloaderWorker {
         }
         return toDelFL;
     }
-    
+
     public String getCameraHost(String mainHost) {
         String cameraHost = null;
         try {
@@ -3004,9 +3018,9 @@ public class LogsDownloaderWorker {
             NeptusLog.pub().error("Could not get camera host string: "+oops.getClass().getSimpleName(), oops);
             cameraHost = "";
         }
-        
+
         return cameraHost;
-                
+
     }
 
     /**
@@ -3173,46 +3187,46 @@ public class LogsDownloaderWorker {
         // frame.add(tabbledPane);
         // frame.setVisible(true);
         //
-        
-        
-//        // Register for EntityActivationStateActivationState
-//        {
-//            ImcMsgManager.getManager().addListener(new MessageListener<MessageInfo, IMCMessage>() {
-//                
-//                @Override
-//                public void onMessage(MessageInfo info, IMCMessage msg) {
-//                    if (msg.getAbbrev().equals("PowerChannelState")) {
-//                        System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + msg);
-//                    }
-//                }
-//            });
-//            
-//            ImcMsgManager.getManager().start();
-//            new Thread(new Runnable() {
-//                
-//                @Override
-//                public void run() {
-//                    
-//                    while (true) {
-//                        int ent = EntitiesResolver.resolveId("lauv-xtreme-2", "Camera Module");
-//                        System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + "Entity ID: " + ent);
-//                        
-//                        IMCMessage msg = new IMCMessage("QueryPowerChannelState");
-//                        msg.setDstEnt(255);
-//                        
-//                        ImcMsgManager.getManager().sendMessageToSystem(msg, "lauv-xtreme-2");
-//                        
-//                        try {
-//                            Thread.sleep(1000);
-//                        }
-//                        catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                }
-//            }, "Query DOAM Activation").start();
-//        }
-        
+
+
+        //        // Register for EntityActivationStateActivationState
+        //        {
+        //            ImcMsgManager.getManager().addListener(new MessageListener<MessageInfo, IMCMessage>() {
+        //                
+        //                @Override
+        //                public void onMessage(MessageInfo info, IMCMessage msg) {
+        //                    if (msg.getAbbrev().equals("PowerChannelState")) {
+        //                        System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + msg);
+        //                    }
+        //                }
+        //            });
+        //            
+        //            ImcMsgManager.getManager().start();
+        //            new Thread(new Runnable() {
+        //                
+        //                @Override
+        //                public void run() {
+        //                    
+        //                    while (true) {
+        //                        int ent = EntitiesResolver.resolveId("lauv-xtreme-2", "Camera Module");
+        //                        System.out.println(LogsDownloaderWorker.class.getSimpleName() + " :: " + "Entity ID: " + ent);
+        //                        
+        //                        IMCMessage msg = new IMCMessage("QueryPowerChannelState");
+        //                        msg.setDstEnt(255);
+        //                        
+        //                        ImcMsgManager.getManager().sendMessageToSystem(msg, "lauv-xtreme-2");
+        //                        
+        //                        try {
+        //                            Thread.sleep(1000);
+        //                        }
+        //                        catch (InterruptedException e) {
+        //                            e.printStackTrace();
+        //                        }
+        //                    }
+        //                }
+        //            }, "Query DOAM Activation").start();
+        //        }
+
         {
             GuiUtils.setLookAndFeel();
 
