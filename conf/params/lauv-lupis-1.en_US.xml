@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<config format="1" version="2.6.x (master,46cada5,dirty)" system="lauv-lupis-1" i18n="en_US">
+<config format="1" version="2.6.x (FilterParticle,51b855b,dirty)" system="lauv-lupis-1" i18n="en_US">
 <section name="ParticleFilter" name-i18n="ParticleFilter">
 <param name="Entity Label">
 <name-i18n>Entity Label</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>ParticleFilter</default><units></units><desc>Main entity label</desc></param>
@@ -19,17 +19,17 @@
 <param name="Active">
 <name-i18n>Active</name-i18n><type>boolean</type><visibility>user</visibility><scope>maneuver</scope><default>true</default><units></units><desc>True to activate task, false otherwise</desc></param>
 <param name="Particles Number">
-<name-i18n>Particles Number</name-i18n><type>integer</type><visibility>user</visibility><scope>maneuver</scope><default>5</default><units></units><desc>Number of particles used in the particles filter</desc></param>
+<name-i18n>Particles Number</name-i18n><type>integer</type><visibility>user</visibility><scope>maneuver</scope><default>10</default><units></units><desc>Number of particles used in the particles filter</desc></param>
 <param name="Iteration Time">
-<name-i18n>Iteration Time</name-i18n><type>real</type><visibility>user</visibility><scope>maneuver</scope><default>3.0</default><units>s</units><desc>Filter iteration time restriction</desc></param>
+<name-i18n>Iteration Time</name-i18n><type>real</type><visibility>user</visibility><scope>maneuver</scope><default>2.0</default><units>s</units><desc>Filter iteration time restriction</desc></param>
 <param name="Sensor Range">
-<name-i18n>Sensor Range</name-i18n><type>real</type><visibility>user</visibility><scope>maneuver</scope><default>8</default><units>m</units><desc>Maximal sensor range</desc></param>
+<name-i18n>Sensor Range</name-i18n><type>real</type><visibility>user</visibility><scope>maneuver</scope><default>30</default><units>m</units><desc>Maximal sensor range</desc></param>
 <param name="Sigma Initial">
-<name-i18n>Sigma Initial</name-i18n><type>real</type><visibility>user</visibility><scope>maneuver</scope><default>50</default><units>m</units><desc>Initial sigma used by the first particle distribution</desc></param>
+<name-i18n>Sigma Initial</name-i18n><type>list:real</type><visibility>user</visibility><scope>maneuver</scope><default>50, 50, 0.5</default><units>m</units><desc>Initial sigma vector used by the first particle distribution</desc><size>3</size></param>
 <param name="Sigma Propagation">
-<name-i18n>Sigma Propagation</name-i18n><type>real</type><visibility>user</visibility><scope>maneuver</scope><default>0.5</default><units>m</units><desc>Propagation sigma used each iteration of the particle filter</desc></param>
+<name-i18n>Sigma Propagation</name-i18n><type>list:real</type><visibility>user</visibility><scope>maneuver</scope><default>0.5, 0.5, 0.1</default><units>m</units><desc>Propagation sigma vector used each iteration of the particle filter</desc><size>3</size></param>
 <param name="Sigma Observation">
-<name-i18n>Sigma Observation</name-i18n><type>real</type><visibility>user</visibility><scope>maneuver</scope><default>0.5</default><units>m</units><desc>Observation sigma used to determine the weights</desc></param>
+<name-i18n>Sigma Observation</name-i18n><type>list:real</type><visibility>user</visibility><scope>maneuver</scope><default>0.5, 0.5, 0.5</default><units>m</units><desc>Observation sigma vector used to determine the weights</desc><size>3</size></param>
 <param name="Bathymetry Map Path">
 <name-i18n>Bathymetry Map Path</name-i18n><type>string</type><visibility>user</visibility><scope>maneuver</scope><default>../dune/src/Localization/ParticleFilter/NEDPointList_Mb.txt</default><units></units><desc>Path of the bathymetry map</desc></param>
 <param name="Time Offset">
