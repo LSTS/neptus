@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2014-10-22 19:22+0100\n"
+"POT-Creation-Date: 2014-10-23 12:10+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -198,6 +198,11 @@ msgstr ""
 msgid "(no log loaded)"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1351
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1358
+msgid "1 column"
+msgstr ""
+
 #: Description of property 'Renderer 3D Priority' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 msgid "1- Minimum Priority <br>10- Maximum Priority<br>5- Normal Priority"
@@ -207,6 +212,11 @@ msgstr ""
 #: pt.lsts.neptus.mra.MRAProperties
 msgid ""
 "180 Yaw (psi) increment for the 83P parser, set true to increment +180°."
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1351
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1358
+msgid "2 column"
 msgstr ""
 
 #: src/pt/lsts/neptus/gui/objparams/ImageObjectParameters.java:354
@@ -229,6 +239,10 @@ msgstr ""
 
 #: Name of plugin pt.lsts.neptus.console.plugins.SideState2DPanelConsole
 msgid "2D Side View"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1351
+msgid "3 column"
 msgstr ""
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/VtkMRAVis.java:123
@@ -279,6 +293,14 @@ msgstr ""
 
 #: src/pt/lsts/neptus/mra/exporters/PCDExporter.java:475
 msgid "83P to PCD"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1907
+msgid "<b>Was not</b> possible to deflatten this checklist!"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1892
+msgid "<b>Was not</b> possible to flatten this checklist!"
 msgstr ""
 
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:209
@@ -519,6 +541,14 @@ msgstr ""
 msgid "Action"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/GeneratorChecklistPDF.java:268
+msgid "Action:"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/CheckItemPanel.java:354
+msgid "Actions"
+msgstr ""
+
 #: plugins-dev/sunfish/pt/lsts/neptus/plugins/sunfish/IridiumComms.java:323
 msgid "Activate Polling"
 msgstr ""
@@ -546,6 +576,7 @@ msgstr ""
 
 #: plugins-dev/logs/pt/lsts/neptus/plugins/logs/LogMerger.java:103
 #: src/pt/lsts/neptus/planeditor/PlanTransitionsSimpleEditor.java:215
+#: src/pt/lsts/neptus/gui/checklist/AutoItemsList.java:75
 #: src/pt/lsts/neptus/console/plugins/PluginManager.java:151
 #: src/pt/lsts/neptus/console/plugins/PluginManager.java:185
 msgid "Add"
@@ -713,7 +744,7 @@ msgctxt "Colormap name"
 msgid "All Colors"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:175
+#: src/pt/lsts/neptus/i18n/I18n.java:186
 msgid "All Files"
 msgstr ""
 
@@ -755,7 +786,7 @@ msgstr ""
 msgid "Allows to add various tabs to the console"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:243 src/pt/lsts/neptus/i18n/I18n.java:251
+#: src/pt/lsts/neptus/i18n/I18n.java:254 src/pt/lsts/neptus/i18n/I18n.java:262
 msgid "Alpha"
 msgstr ""
 
@@ -839,6 +870,22 @@ msgid ""
 "comm. list."
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1615
+msgid "Append New Group"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1755
+msgid "Append New Item (Double Click on the Bottom of the Group)"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2359
+msgid "Append group"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2380
+msgid "Append item"
+msgstr ""
+
 #: src/pt/lsts/neptus/loader/NeptusMain.java:222
 msgid "Application started"
 msgstr ""
@@ -871,6 +918,12 @@ msgstr ""
 msgid "Approach to ignore points on Multibeam 3D"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1850
+msgid ""
+"Are you sure you want to <b>delete</b><br><i>%group</i> group and all it's "
+"content?"
+msgstr ""
+
 #: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1332
 msgid "Are you sure you want to delete selected log files from remote system?"
 msgstr ""
@@ -897,7 +950,7 @@ msgstr ""
 msgid "Area Limits"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:206
+#: src/pt/lsts/neptus/i18n/I18n.java:217
 msgid "Attributes"
 msgstr ""
 
@@ -1087,11 +1140,11 @@ msgstr ""
 msgid "Beep on error"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:250
+#: src/pt/lsts/neptus/i18n/I18n.java:261
 msgid "Black"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:242
+#: src/pt/lsts/neptus/i18n/I18n.java:253
 msgid "Blue"
 msgstr ""
 
@@ -1142,6 +1195,10 @@ msgid ""
 "only teleoperation button is shown."
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/GeneratorChecklistPDF.java:164
+msgid "By: %info"
+msgstr ""
+
 #: Field from ConsoleEventVehicleStateChanged.STATE enumeration
 msgid "CALIBRATION"
 msgstr ""
@@ -1166,7 +1223,7 @@ msgstr ""
 msgid "CIRCULAR"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:226
+#: src/pt/lsts/neptus/i18n/I18n.java:237
 msgctxt "Color scheme"
 msgid "CMYK"
 msgstr ""
@@ -1287,14 +1344,15 @@ msgstr ""
 #: src/pt/lsts/neptus/gui/SimpleLocationPanel.java:65
 #: src/pt/lsts/neptus/gui/HeightDepthSelector.java:180
 #: src/pt/lsts/neptus/gui/LocationPanel.java:182
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1021
 #: src/pt/lsts/neptus/gui/CoordinateSystemPanel.java:401
 #: src/pt/lsts/neptus/gui/VehicleSelectionDialog.java:169
 #: src/pt/lsts/neptus/console/plugins/containers/propeditor/MiGLayoutXmlPropertyEditor.java:140
 #: src/pt/lsts/neptus/console/plugins/SettingsWindow.java:125
 #: src/pt/lsts/neptus/types/map/AbstractElement.java:833
-#: src/pt/lsts/neptus/i18n/I18n.java:170 src/pt/lsts/neptus/i18n/I18n.java:177
-#: src/pt/lsts/neptus/i18n/I18n.java:178 src/pt/lsts/neptus/i18n/I18n.java:211
-#: src/pt/lsts/neptus/i18n/I18n.java:215
+#: src/pt/lsts/neptus/i18n/I18n.java:181 src/pt/lsts/neptus/i18n/I18n.java:188
+#: src/pt/lsts/neptus/i18n/I18n.java:189 src/pt/lsts/neptus/i18n/I18n.java:222
+#: src/pt/lsts/neptus/i18n/I18n.java:226
 #: src/pt/lsts/neptus/comm/ssh/SSHConnectionDialog.java:398
 msgid "Cancel"
 msgstr ""
@@ -1431,17 +1489,44 @@ msgstr ""
 msgid "Charts"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/UserActionItem.java:99
+#: src/pt/lsts/neptus/gui/checklist/UserCommentItem.java:116
+msgid "Checked:"
+msgstr ""
+
 #: src/pt/lsts/neptus/mc/Workspace.java:2058
 msgid "Checklist"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:477
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:702
+msgid "Checklist %name"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/GeneratorChecklistPDF.java:124
+msgid "Checklist - %name"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:877
+msgid "Checklist <b>was not</b> saved!"
 msgstr ""
 
 #: src/pt/lsts/neptus/gui/checklist/ChecklistFileChooser.java:140
 msgid "Checklist files"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:887
+msgid "Checklist saved!"
+msgstr ""
+
 #: src/pt/lsts/neptus/gui/MissionTreeModel.java:72
 #: src/pt/lsts/neptus/mc/Workspace.java:588
 msgid "Checklists"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1353
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1359
+msgid "Choose"
 msgstr ""
 
 #: src/pt/lsts/neptus/loader/NeptusMain.java:142
@@ -1494,6 +1579,15 @@ msgstr ""
 
 #: src/pt/lsts/neptus/loader/NeptusMain.java:149
 msgid "Choose one of the available applications"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1055
+msgid "Choose one of the available systems"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1352
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1359
+msgid "Choose one to continue"
 msgstr ""
 
 #: src/pt/lsts/neptus/gui/objparams/ParallelepipedParameters.java:283
@@ -1585,7 +1679,7 @@ msgstr ""
 msgid "Collapsible subpanels"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:245
+#: src/pt/lsts/neptus/i18n/I18n.java:256
 msgid "Color Code"
 msgstr ""
 
@@ -1649,6 +1743,10 @@ msgstr ""
 msgid "Command to execute"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/UserCommentItem.java:104
+msgid "Comment:"
+msgstr ""
+
 #: src/pt/lsts/neptus/comm/manager/BaseAbstractCommsMonitorPanel.java:620
 msgid "Common queue:"
 msgstr ""
@@ -1701,6 +1799,10 @@ msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.logs.LoggingDownloader
 msgid "Component Update Period in Seconds"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1051
+msgid "Comunications"
 msgstr ""
 
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:527
@@ -2123,7 +2225,7 @@ msgstr ""
 msgid "Curve Offset"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:247
+#: src/pt/lsts/neptus/i18n/I18n.java:258
 msgid "Cyan"
 msgstr ""
 
@@ -2162,6 +2264,14 @@ msgstr ""
 
 #: src/pt/lsts/neptus/mra/MRAPanel.java:175
 msgid "Date"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/CheckItemPanel.java:469
+msgid "Date checked:"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/CheckItemPanel.java:449
+msgid "DateTime"
 msgstr ""
 
 #: src/pt/lsts/neptus/util/bathymetry/CachedData.java:256
@@ -2242,6 +2352,10 @@ msgstr ""
 msgid ""
 "Defines the base folder fo CSV lookup. The children folders will also be "
 "considered. (Be aware of the 'Read all or last of ordered files' flag.)"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1908
+msgid "Deflatten Checklist"
 msgstr ""
 
 #: src/pt/lsts/neptus/gui/LatLonConv.java:544
@@ -2350,7 +2464,12 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:200 src/pt/lsts/neptus/i18n/I18n.java:201
+#: src/pt/lsts/neptus/gui/checklist/GeneratorChecklistPDF.java:182
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:747
+msgid "Description:"
+msgstr ""
+
+#: src/pt/lsts/neptus/i18n/I18n.java:211 src/pt/lsts/neptus/i18n/I18n.java:212
 msgid "Desktop"
 msgstr ""
 
@@ -2358,7 +2477,7 @@ msgstr ""
 msgid "Destination"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:194 src/pt/lsts/neptus/i18n/I18n.java:195
+#: src/pt/lsts/neptus/i18n/I18n.java:205 src/pt/lsts/neptus/i18n/I18n.java:206
 msgid "Details"
 msgstr ""
 
@@ -2544,6 +2663,11 @@ msgstr ""
 msgid "Do you want to save changes?"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:456
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:830
+msgid "Do you want to save it now?"
+msgstr ""
+
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/RevisionOverlays.java:177
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:583
 msgid "Do you wish to replace the existing plan with same name?"
@@ -2551,6 +2675,10 @@ msgstr ""
 
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/rtplot/RealTimePlotSettings.java:88
 msgid "Do you wish to save changes?"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/GeneratorChecklistPDF.java:401
+msgid "Document generated by"
 msgstr ""
 
 #: src/pt/lsts/neptus/util/llf/LsfReport.java:283
@@ -2718,6 +2846,18 @@ msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1158
 msgid "Edit '%planName' plan transitions"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2258
+msgid "Edit Item Check Date"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2208
+msgid "Edit Item Name"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1695
+msgid "Edit Name (Ctrl + Right click)"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/SystemsList.java:490
@@ -2971,6 +3111,7 @@ msgstr ""
 msgid "Error exporting to PDF"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/GeneratorChecklistPDF.java:349
 #: src/pt/lsts/neptus/util/llf/LsfReport.java:437
 msgid "Error generating report"
 msgstr ""
@@ -3098,6 +3239,10 @@ msgstr ""
 #: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:796
 #: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:801
 msgid "Error:"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1427
+msgid "Error: %error"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/SystemsList.java:1218
@@ -3321,12 +3466,16 @@ msgstr ""
 msgid "File '%filename' of type '.%extension' is not supported."
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:190
+#: src/pt/lsts/neptus/i18n/I18n.java:201
 msgid "File Name:"
 msgstr ""
 
 #: src/pt/lsts/neptus/mc/Workspace.java:918
 msgid "File editor"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:879
+msgid "File name was not valid [\"%file\"]."
 msgstr ""
 
 #: src/pt/lsts/neptus/mra/MRAChartPanel.java:316
@@ -3338,7 +3487,7 @@ msgstr ""
 msgid "File saved to"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:189
+#: src/pt/lsts/neptus/i18n/I18n.java:200
 msgid "Files of Type:"
 msgstr ""
 
@@ -3417,12 +3566,20 @@ msgid ""
 "render purposes."
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:237
+msgid "Flat Checklist"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1894
+msgid "Flatten Checklist"
+msgstr ""
+
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:161
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:76
 msgid "Fly Mode - point with mouse cursor the direction and press 'f' to fly"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:191
+#: src/pt/lsts/neptus/i18n/I18n.java:202
 msgid "Folder Name:"
 msgstr ""
 
@@ -3557,9 +3714,9 @@ msgstr ""
 msgid "Gauge Panel"
 msgstr ""
 
-#: src/pt/lsts/neptus/util/conf/GeneralPreferences.java:364
-#: src/pt/lsts/neptus/util/conf/GeneralPreferences.java:545
-#: src/pt/lsts/neptus/util/conf/GeneralPreferences.java:567
+#: src/pt/lsts/neptus/util/conf/GeneralPreferences.java:366
+#: src/pt/lsts/neptus/util/conf/GeneralPreferences.java:547
+#: src/pt/lsts/neptus/util/conf/GeneralPreferences.java:569
 msgid "General Preferences"
 msgstr ""
 
@@ -3630,7 +3787,7 @@ msgctxt "Colormap name"
 msgid "Gray scale"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:241
+#: src/pt/lsts/neptus/i18n/I18n.java:252
 msgid "Green"
 msgstr ""
 
@@ -3651,6 +3808,11 @@ msgstr ""
 #: plugins-dev/gps/pt/lsts/neptus/plugins/gps/GPSDevicePanel.java:190
 #: src/pt/lsts/neptus/console/plugins/SystemsList.java:1256
 msgid "Ground Speed"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1639
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1732
+msgid "Group already exists!"
 msgstr ""
 
 #. / GPS HDOP
@@ -3683,12 +3845,12 @@ msgstr ""
 msgid "HOVER"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:224
+#: src/pt/lsts/neptus/i18n/I18n.java:235
 msgctxt "Color scheme"
 msgid "HSL"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:223
+#: src/pt/lsts/neptus/i18n/I18n.java:234
 msgctxt "Color scheme"
 msgid "HSV"
 msgstr ""
@@ -3774,7 +3936,7 @@ msgstr ""
 #: src/pt/lsts/neptus/console/ConsoleLayout.java:601
 #: src/pt/lsts/neptus/console/ConsoleLayout.java:1717
 #: src/pt/lsts/neptus/mc/Workspace.java:869
-#: src/pt/lsts/neptus/i18n/I18n.java:185 src/pt/lsts/neptus/i18n/I18n.java:186
+#: src/pt/lsts/neptus/i18n/I18n.java:196 src/pt/lsts/neptus/i18n/I18n.java:197
 msgid "Help"
 msgstr ""
 
@@ -3809,7 +3971,7 @@ msgstr ""
 msgid "Hide or fade the old ranges"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:198 src/pt/lsts/neptus/i18n/I18n.java:199
+#: src/pt/lsts/neptus/i18n/I18n.java:209 src/pt/lsts/neptus/i18n/I18n.java:210
 msgctxt "File system Home folder"
 msgid "Home"
 msgstr ""
@@ -3882,7 +4044,7 @@ msgstr ""
 msgid "How to show the displays"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:230 src/pt/lsts/neptus/i18n/I18n.java:235
+#: src/pt/lsts/neptus/i18n/I18n.java:241 src/pt/lsts/neptus/i18n/I18n.java:246
 msgid "Hue"
 msgstr ""
 
@@ -4021,6 +4183,7 @@ msgstr ""
 msgid "INITIALIZING"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2442
 #: src/pt/lsts/neptus/console/plugins/SystemsList.java:1284
 msgid "IP"
 msgstr ""
@@ -4031,6 +4194,10 @@ msgstr ""
 
 #: Name of plugin pt.lsts.neptus.plugins.ipcam.IPCameraDisplay
 msgid "IP Camera Display"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2437
+msgid "IP Port selection"
 msgstr ""
 
 #: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:413
@@ -4241,7 +4408,7 @@ msgstr ""
 msgid "Initial Maneuver"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:172
+#: src/pt/lsts/neptus/i18n/I18n.java:183
 msgid "Input"
 msgstr ""
 
@@ -4255,6 +4422,14 @@ msgstr ""
 
 #: src/pt/lsts/neptus/gui/objparams/TranspondersPositionHelper.java:297
 msgid "Inputs"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2185
+msgid "Insert New Group Before"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2160
+msgid "Insert New Item Before"
 msgstr ""
 
 #: Description of property 'Use system discovery' from
@@ -4407,6 +4582,15 @@ msgstr ""
 
 #: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:610
 msgid "It will show a blue dot that is referent to a new waypoint"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1782
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2236
+msgid "Item already exists!"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1801
+msgid "Item name not valid!"
 msgstr ""
 
 #: src/pt/lsts/neptus/colormap/ColorMapFactory.java:232
@@ -4606,7 +4790,7 @@ msgstr ""
 msgid "Length: %radius m"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:237
+#: src/pt/lsts/neptus/i18n/I18n.java:248
 msgid "Lightness"
 msgstr ""
 
@@ -4636,7 +4820,7 @@ msgstr ""
 msgid "Link size for vertical axis:"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:192 src/pt/lsts/neptus/i18n/I18n.java:193
+#: src/pt/lsts/neptus/i18n/I18n.java:203 src/pt/lsts/neptus/i18n/I18n.java:204
 msgid "List"
 msgstr ""
 
@@ -4953,7 +5137,7 @@ msgstr ""
 msgid "Longitude:"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:176
+#: src/pt/lsts/neptus/i18n/I18n.java:187
 msgid "Look In:"
 msgstr ""
 
@@ -4996,7 +5180,7 @@ msgstr ""
 msgid "MRA Visualization not loading properly"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:248
+#: src/pt/lsts/neptus/i18n/I18n.java:259
 msgid "Magenta"
 msgstr ""
 
@@ -5544,7 +5728,7 @@ msgstr ""
 msgid "Model3D"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:205
+#: src/pt/lsts/neptus/i18n/I18n.java:216
 msgid "Modified"
 msgstr ""
 
@@ -5559,6 +5743,22 @@ msgstr ""
 
 #: plugins-dev/map/pt/lsts/neptus/plugins/map/edit/MoveObjectEdit.java:104
 msgid "Move '%element'"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2130
+msgid "Move Group Down"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2100
+msgid "Move Group Up"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2068
+msgid "Move Item Down"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2036
+msgid "Move Item Up"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/planning/edit/ManeuverTranslated.java:73
@@ -5715,7 +5915,7 @@ msgstr ""
 
 #: src/pt/lsts/neptus/gui/checklist/ChecklistFileChooser.java:221
 #: src/pt/lsts/neptus/mra/MRAChartPanel.java:133
-#: src/pt/lsts/neptus/i18n/I18n.java:202
+#: src/pt/lsts/neptus/i18n/I18n.java:213
 msgid "Name"
 msgstr ""
 
@@ -5728,6 +5928,7 @@ msgstr ""
 msgid "Name of the current active profile"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:677
 #: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:312
 #: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:406
 msgid "Name:"
@@ -5774,6 +5975,7 @@ msgstr ""
 msgid "Network replay"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:903
 #: src/pt/lsts/neptus/mc/Workspace.java:667
 #: src/pt/lsts/neptus/mc/Workspace.java:1993
 msgid "New"
@@ -5784,11 +5986,19 @@ msgctxt "Plan"
 msgid "New"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:188
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:922
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2557
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2558
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2610
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2611
+msgid "New Checklist"
+msgstr ""
+
+#: src/pt/lsts/neptus/i18n/I18n.java:199
 msgid "New File"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:187
+#: src/pt/lsts/neptus/i18n/I18n.java:198
 msgid "New Folder"
 msgstr ""
 
@@ -5816,12 +6026,16 @@ msgstr ""
 msgid "Next photo"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:168
+#: src/pt/lsts/neptus/i18n/I18n.java:179
 msgid "No"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/RemoteOperationControlMode.java:96
 msgid "No Information"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1051
+msgid "No System online"
 msgstr ""
 
 #: plugins-dev/gps/pt/lsts/neptus/plugins/gps/GPSDevicePanel.java:82
@@ -5942,6 +6156,10 @@ msgstr ""
 msgid "Not Connected"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:238
+msgid "Not Flat Checklist"
+msgstr ""
+
 #: src/pt/lsts/neptus/gui/checklist/ChecklistFileChooser.java:218
 #: src/pt/lsts/neptus/gui/checklist/ChecklistFileChooser.java:239
 msgid "Not a valid checklist"
@@ -5954,6 +6172,10 @@ msgstr ""
 #: src/pt/lsts/neptus/gui/MissionFileChooser.java:208
 #: src/pt/lsts/neptus/gui/MissionFileChooser.java:216
 msgid "Not a valid mission"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1661
+msgid "Not a valid name!"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:1095
@@ -5970,6 +6192,10 @@ msgstr ""
 
 #: src/pt/lsts/neptus/comm/manager/BaseAbstractCommsMonitorPanel.java:229
 msgid "Not running."
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/GeneratorChecklistPDF.java:254
+msgid "Note:"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/plugins/PlanExporter.java:88
@@ -6086,12 +6312,13 @@ msgstr ""
 #: src/pt/lsts/neptus/gui/HeightDepthSelector.java:177
 #: src/pt/lsts/neptus/gui/LocationPanel.java:249
 #: src/pt/lsts/neptus/gui/ErrorMessageBox.java:171
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2454
 #: src/pt/lsts/neptus/gui/CoordinateSystemPanel.java:415
 #: src/pt/lsts/neptus/gui/VehicleSelectionDialog.java:161
 #: src/pt/lsts/neptus/mra/MRAChartPanel.java:264
 #: src/pt/lsts/neptus/types/map/AbstractElement.java:827
-#: src/pt/lsts/neptus/i18n/I18n.java:169 src/pt/lsts/neptus/i18n/I18n.java:210
-#: src/pt/lsts/neptus/i18n/I18n.java:214
+#: src/pt/lsts/neptus/i18n/I18n.java:180 src/pt/lsts/neptus/i18n/I18n.java:221
+#: src/pt/lsts/neptus/i18n/I18n.java:225
 #: src/pt/lsts/neptus/comm/ssh/SSHConnectionDialog.java:369
 msgid "OK"
 msgstr ""
@@ -6155,10 +6382,11 @@ msgstr ""
 msgid "On"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:938
 #: src/pt/lsts/neptus/mc/Workspace.java:605
 #: src/pt/lsts/neptus/mc/Workspace.java:1935
-#: src/pt/lsts/neptus/i18n/I18n.java:179 src/pt/lsts/neptus/i18n/I18n.java:180
-#: src/pt/lsts/neptus/i18n/I18n.java:207
+#: src/pt/lsts/neptus/i18n/I18n.java:190 src/pt/lsts/neptus/i18n/I18n.java:191
+#: src/pt/lsts/neptus/i18n/I18n.java:218
 msgid "Open"
 msgstr ""
 
@@ -6265,6 +6493,10 @@ msgstr ""
 msgid "Operational Limits"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2514
+msgid "Options:"
+msgstr ""
+
 #: Property from pt.lsts.neptus.plugins.position.AbsLatLonDepth
 #: pt.lsts.neptus.plugins.position.EulerAnglesPanel
 msgid "Orientation"
@@ -6295,8 +6527,20 @@ msgstr ""
 msgid "PAYLOAD_MONITOR"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1339
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1418
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1427
+msgid "PDF <b>was not</b> created to file."
+msgstr ""
+
 #: src/pt/lsts/neptus/mra/MRAFilesHandler.java:418
 msgid "PDF <b>was not</b> saved to file."
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1405
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1418
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1428
+msgid "PDF Creation"
 msgstr ""
 
 #: src/pt/lsts/neptus/mra/MRAFilesHandler.java:418
@@ -6309,6 +6553,10 @@ msgstr ""
 
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:271
 msgid "PDF Report Options"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1405
+msgid "PDF created with success to file \"%file\"."
 msgstr ""
 
 #: src/pt/lsts/neptus/mra/MRAChartPanel.java:311
@@ -6475,7 +6723,7 @@ msgstr ""
 msgid "Piccolo Plan Thickness"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:213
+#: src/pt/lsts/neptus/i18n/I18n.java:224
 msgid "Pick a Color"
 msgstr ""
 
@@ -6648,6 +6896,27 @@ msgstr ""
 msgid "Please enter the desired log name (empty for default)"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1634
+msgid "Please input a name for the new group"
+msgstr ""
+
+#: src/pt/lsts/neptus/mc/Workspace.java:673
+msgid "Please input a name for this checklist"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1725
+msgid "Please input a new name for \"%group\""
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:695
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2229
+msgid "Please input a new name for \"%name\""
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1776
+msgid "Please input the item name"
+msgstr ""
+
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:387
 msgid "Please select a system."
 msgstr ""
@@ -6700,6 +6969,7 @@ msgstr ""
 msgid "Popup duration"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2445
 #: src/pt/lsts/neptus/comm/ssh/SSHConnectionDialog.java:142
 msgid "Port"
 msgstr ""
@@ -6760,7 +7030,7 @@ msgid "Pressure Color Map"
 msgstr ""
 
 #: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:150
-#: src/pt/lsts/neptus/i18n/I18n.java:218
+#: src/pt/lsts/neptus/i18n/I18n.java:229
 msgid "Preview"
 msgstr ""
 
@@ -6816,7 +7086,7 @@ msgstr ""
 msgid "Progress"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:173
+#: src/pt/lsts/neptus/i18n/I18n.java:184
 msgid "Progress..."
 msgstr ""
 
@@ -6915,7 +7185,7 @@ msgstr ""
 msgid "RETRYING"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:225
+#: src/pt/lsts/neptus/i18n/I18n.java:236
 msgctxt "Color scheme"
 msgid "RGB"
 msgstr ""
@@ -7038,7 +7308,7 @@ msgstr ""
 msgid "Receiver name"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:228
+#: src/pt/lsts/neptus/i18n/I18n.java:239
 msgid "Recent:"
 msgstr ""
 
@@ -7094,7 +7364,7 @@ msgstr ""
 msgid "Recreate"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:240
+#: src/pt/lsts/neptus/i18n/I18n.java:251
 msgid "Red"
 msgstr ""
 
@@ -7109,7 +7379,7 @@ msgstr ""
 
 #: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:406
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:552
-#: src/pt/lsts/neptus/i18n/I18n.java:253
+#: src/pt/lsts/neptus/i18n/I18n.java:264
 msgid "Redo"
 msgstr ""
 
@@ -7235,6 +7505,14 @@ msgstr ""
 msgid "Remove '%planName' from %system"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1834
+msgid "Remove Group"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1983
+msgid "Remove Item"
+msgstr ""
+
 #: Property from pt.lsts.neptus.mra.MRAProperties
 msgid "Remove Outliers"
 msgstr ""
@@ -7296,6 +7574,10 @@ msgstr ""
 msgid "Report"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2515
+msgid "Report bugs to %email"
+msgstr ""
+
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:573
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlPanel.java:1149
 msgid "Request %d completed successfully."
@@ -7321,7 +7603,7 @@ msgstr ""
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/LBLRangeDisplay.java:403
 #: src/pt/lsts/neptus/params/SystemConfigurationEditorPanel.java:208
 #: src/pt/lsts/neptus/gui/ChronometerPanel.java:255
-#: src/pt/lsts/neptus/i18n/I18n.java:216
+#: src/pt/lsts/neptus/i18n/I18n.java:227
 msgid "Reset"
 msgstr ""
 
@@ -7402,6 +7684,10 @@ msgstr ""
 msgid "Right"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:688
+msgid "Right click to change (if edit mode)."
+msgstr ""
+
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:173
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:92
 msgid "Right mouse button"
@@ -7456,6 +7742,10 @@ msgstr ""
 
 #: Name of plugin pt.lsts.neptus.mp.templates.RowsTemplate Custom String
 msgid "Rows Plan"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1038
+msgid "Run"
 msgstr ""
 
 #: src/pt/lsts/neptus/console/actions/RunChecklistConsoleAction.java:57
@@ -7527,7 +7817,7 @@ msgstr ""
 msgid "Salinity Vs Depth plot"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:217
+#: src/pt/lsts/neptus/i18n/I18n.java:228
 msgid "Sample Text"
 msgstr ""
 
@@ -7535,18 +7825,19 @@ msgstr ""
 msgid "Satellites"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:231 src/pt/lsts/neptus/i18n/I18n.java:236
+#: src/pt/lsts/neptus/i18n/I18n.java:242 src/pt/lsts/neptus/i18n/I18n.java:247
 msgid "Saturation"
 msgstr ""
 
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/BathymetryPlotter.java:207
 #: src/pt/lsts/neptus/planeditor/PlanTransitionsSimpleEditor.java:191
 #: src/pt/lsts/neptus/params/SystemConfigurationEditorPanel.java:197
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:807
 #: src/pt/lsts/neptus/console/actions/CreateMissionConsoleAction.java:89
 #: src/pt/lsts/neptus/console/actions/SaveMissionAsConsoleAction.java:70
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:567
 #: src/pt/lsts/neptus/console/plugins/SettingsWindow.java:114
-#: src/pt/lsts/neptus/i18n/I18n.java:181 src/pt/lsts/neptus/i18n/I18n.java:182
+#: src/pt/lsts/neptus/i18n/I18n.java:192 src/pt/lsts/neptus/i18n/I18n.java:193
 msgid "Save"
 msgstr ""
 
@@ -7598,7 +7889,7 @@ msgstr ""
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:177
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:226
-#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1481
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1496
 msgid "Save as"
 msgstr ""
 
@@ -7623,6 +7914,11 @@ msgstr ""
 
 #: src/pt/lsts/neptus/console/ConsoleLayout.java:303
 msgid "Save changes?"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:457
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:831
+msgid "Save checklist?"
 msgstr ""
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:151
@@ -7753,6 +8049,10 @@ msgstr ""
 msgid "See Multibeam data"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/CheckItemPanel.java:422
+msgid "See Note & Actions"
+msgstr ""
+
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/CTD3DToolbar.java:117
 msgid "See Pressure data color map"
 msgstr ""
@@ -7777,6 +8077,10 @@ msgstr ""
 msgid "Select Iridium gateway"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1055
+msgid "Select System"
+msgstr ""
+
 #: src/pt/lsts/neptus/mra/MRAMenuBar.java:463
 #: src/pt/lsts/neptus/console/actions/SetMainVehicleConsoleAction.java:72
 msgid "Select Vehicle"
@@ -7787,7 +8091,7 @@ msgid "Select a location on map..."
 msgstr ""
 
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/rtplot/RealTimePlotSettings.java:88
-#: src/pt/lsts/neptus/i18n/I18n.java:171
+#: src/pt/lsts/neptus/i18n/I18n.java:182
 msgid "Select an Option"
 msgstr ""
 
@@ -8540,7 +8844,7 @@ msgid "Situation Awareness"
 msgstr ""
 
 #: Property from pt.lsts.neptus.mp.templates.YoYoTemplate
-#: src/pt/lsts/neptus/i18n/I18n.java:203
+#: src/pt/lsts/neptus/i18n/I18n.java:214
 msgid "Size"
 msgstr ""
 
@@ -8960,7 +9264,7 @@ msgstr ""
 msgid "Survey the water column around a moving point"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:222
+#: src/pt/lsts/neptus/i18n/I18n.java:233
 msgid "Swatches"
 msgstr ""
 
@@ -9314,6 +9618,14 @@ msgstr ""
 
 #: src/pt/lsts/neptus/gui/objparams/TransponderParameters.java:277
 msgid "The changes will apply to all existing missions!"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:454
+msgid "The checklist %checklist was not saved yet."
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:828
+msgid "The checklist %name was not saved yet."
 msgstr ""
 
 #: plugins-dev/textCommands/pt/lsts/neptus/plugins/txtcmd/TextCommands.java:199
@@ -9817,6 +10129,10 @@ msgstr ""
 msgid "Title to use"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:1321
+msgid "To PDF"
+msgstr ""
+
 #: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:329
 #: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:426
 msgid "To Send messages frequency:"
@@ -9845,6 +10161,10 @@ msgstr ""
 #: Description of plugin
 #: pt.lsts.neptus.console.plugins.RemoteOperationControlMode
 msgid "To enter and leave remote operation."
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:888
+msgid "To file \"%file\"."
 msgstr ""
 
 #: Description of property 'IMC Unicast Annonce Enable' from
@@ -9934,7 +10254,7 @@ msgstr ""
 msgid "Translate all mission accordingly to changes"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:233 src/pt/lsts/neptus/i18n/I18n.java:238
+#: src/pt/lsts/neptus/i18n/I18n.java:244 src/pt/lsts/neptus/i18n/I18n.java:249
 msgid "Transparency"
 msgstr ""
 
@@ -10005,7 +10325,7 @@ msgstr ""
 #: Property from pt.lsts.neptus.plugins.trex.TrexMapLayer
 #: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:605
 #: src/pt/lsts/neptus/console/plugins/PluginManager.java:138
-#: src/pt/lsts/neptus/i18n/I18n.java:204
+#: src/pt/lsts/neptus/i18n/I18n.java:215
 msgid "Type"
 msgstr ""
 
@@ -10131,9 +10451,17 @@ msgstr ""
 msgid "Unable to start MIDI sound device"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2269
+msgid "Uncheck All Checklist"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2305
+msgid "Uncheck All Group"
+msgstr ""
+
 #: plugins-dev/map/pt/lsts/neptus/plugins/map/MapEditor.java:394
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:535
-#: src/pt/lsts/neptus/i18n/I18n.java:254
+#: src/pt/lsts/neptus/i18n/I18n.java:265
 msgid "Undo"
 msgstr ""
 
@@ -10170,7 +10498,7 @@ msgstr ""
 msgid "Up"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:196 src/pt/lsts/neptus/i18n/I18n.java:197
+#: src/pt/lsts/neptus/i18n/I18n.java:207 src/pt/lsts/neptus/i18n/I18n.java:208
 msgid "Up One Level"
 msgstr ""
 
@@ -10178,7 +10506,7 @@ msgstr ""
 msgid "Up distance variable"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:183 src/pt/lsts/neptus/i18n/I18n.java:184
+#: src/pt/lsts/neptus/i18n/I18n.java:194 src/pt/lsts/neptus/i18n/I18n.java:195
 msgid "Update"
 msgstr ""
 
@@ -10418,6 +10746,22 @@ msgstr ""
 msgid "Used vehicles"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/AutoItemsList.java:112
+msgid "User Action"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/UserActionItem.java:87
+msgid "User Action:"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/AutoItemsList.java:113
+msgid "User Comment"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/UserCommentItem.java:91
+msgid "User Comment:"
+msgstr ""
+
 #: Property from pt.lsts.neptus.plugins.odss.OdssStatePublisher
 #: src/pt/lsts/neptus/comm/ssh/SSHConnectionDialog.java:148
 msgid "Username"
@@ -10452,7 +10796,7 @@ msgstr ""
 
 #: src/pt/lsts/neptus/mra/MRAChartPanel.java:133
 #: src/pt/lsts/neptus/controllers/ControllerPanel.java:534
-#: src/pt/lsts/neptus/i18n/I18n.java:232
+#: src/pt/lsts/neptus/i18n/I18n.java:243
 msgid "Value"
 msgstr ""
 
@@ -10558,6 +10902,15 @@ msgstr ""
 
 #: src/pt/lsts/neptus/gui/AboutPanel.java:155
 msgid "Version"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:716
+msgid "Version:"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/GeneratorChecklistPDF.java:158
+#: src/pt/lsts/neptus/gui/checklist/GeneratorChecklistPDF.java:163
+msgid "Version: %version"
 msgstr ""
 
 #: plugins-dev/gps/pt/lsts/neptus/plugins/gps/GPSDevicePanel.java:187
@@ -10857,11 +11210,11 @@ msgstr ""
 msgid "Yaw:"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:249
+#: src/pt/lsts/neptus/i18n/I18n.java:260
 msgid "Yellow"
 msgstr ""
 
-#: src/pt/lsts/neptus/i18n/I18n.java:167
+#: src/pt/lsts/neptus/i18n/I18n.java:178
 msgid "Yes"
 msgstr ""
 
@@ -10994,6 +11347,14 @@ msgstr ""
 msgid "amplitude"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2358
+msgid "append group"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2379
+msgid "append item"
+msgstr ""
+
 #: src/pt/lsts/neptus/console/plugins/SystemsList.java:1028
 msgid "authority"
 msgstr ""
@@ -11029,6 +11390,10 @@ msgstr ""
 #: pt.lsts.neptus.types.map.GeometryElement
 #: pt.lsts.neptus.types.map.MarkElement pt.lsts.neptus.types.map.QRouteElement
 msgid "centerLocation"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2490
+msgid "checklist file"
 msgstr ""
 
 #: Property from pt.lsts.neptus.types.map.MineDangerAreaElement
@@ -11199,6 +11564,14 @@ msgstr ""
 msgid "ftp"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2493
+msgid "generate pdf and don't open the interface"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2499
+msgid "generate pdf with n column (1, 2, or 3) defaults to 1"
+msgstr ""
+
 #: src/pt/lsts/neptus/params/SystemProperty.java:53
 msgid "global"
 msgstr ""
@@ -11219,6 +11592,10 @@ msgstr ""
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/BathymetryPlotter.java:301
 #: src/pt/lsts/neptus/mp/Maneuver.java:305
 msgid "height"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2484
+msgid "help"
 msgstr ""
 
 #: src/pt/lsts/neptus/gui/VehicleInfo.java:1128
@@ -11529,6 +11906,10 @@ msgstr ""
 msgid "obstacle"
 msgstr ""
 
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2495
+msgid "output pdf file"
+msgstr ""
+
 #: Property from pt.lsts.neptus.types.map.QRouteElement
 msgid "path"
 msgstr ""
@@ -11782,6 +12163,10 @@ msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.gauges.GaugeSubPanel
 msgid "textToDisplay"
+msgstr ""
+
+#: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2484
+msgid "this help"
 msgstr ""
 
 #: src/pt/lsts/neptus/gui/VehicleInfo.java:1095
