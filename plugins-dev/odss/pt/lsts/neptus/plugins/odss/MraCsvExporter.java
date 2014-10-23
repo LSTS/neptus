@@ -56,7 +56,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author zp
  * 
  */
-@PluginDescription(name="CSV Data", author="ZP", icon="pt/lsts/neptus/plugins/odss/fileshare.png")
+@PluginDescription(name="CSV Data", author="ZP", icon="pt/lsts/neptus/plugins/odss/fileshare.png", active=false)
 public class MraCsvExporter extends SimpleMRAVisualization {
 
     /**

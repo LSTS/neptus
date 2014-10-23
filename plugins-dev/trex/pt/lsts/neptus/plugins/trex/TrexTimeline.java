@@ -43,7 +43,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
  * @author zp
  *
  */
-@PluginDescription(name="TREX Timeline")
+@PluginDescription(name="TREX Timeline", active=false)
 public class TrexTimeline extends MRAGanttPlot {
 
     public TrexTimeline(MRAPanel panel) {

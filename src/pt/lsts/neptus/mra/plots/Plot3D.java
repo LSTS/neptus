@@ -73,7 +73,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 /**
  * @author zp
  */
-@PluginDescription(name = "3D Plot", icon = "pt/lsts/neptus/mra/plots/3d.png")
+@PluginDescription(name = "3D Plot", icon = "pt/lsts/neptus/mra/plots/3d.png", active=false)
 public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener {
 
     /**

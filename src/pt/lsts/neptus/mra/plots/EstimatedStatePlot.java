@@ -45,7 +45,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author zp
  * 
  */
-@PluginDescription
+@PluginDescription(active=false)
 public class EstimatedStatePlot extends MRA2DPlot implements LogMarkerListener {
 
     /**
