@@ -474,7 +474,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
      */
     private JFrame getJFrame(String title) {
         if (title == null || title.isEmpty())
-            jFrame = new JFrame(I18n.textf("Checklist %checklist", nameText.getText()));
+            jFrame = new JFrame(I18n.textf("Checklist %name", nameText.getText()));
         else
             jFrame = new JFrame(title);
         jFrame.getContentPane().add(this);

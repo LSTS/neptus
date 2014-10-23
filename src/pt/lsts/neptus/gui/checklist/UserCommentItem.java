@@ -101,7 +101,7 @@ public class UserCommentItem extends JPanel implements CheckSubItem {
         });
 
 
-        this.add(new JLabel(I18n.text(" Comment:") + " "));
+        this.add(new JLabel(" " + I18n.text("Comment:") + " "));
         this.add(logMessage);
 
         remove = new JButton(ICON_CLOSE);
