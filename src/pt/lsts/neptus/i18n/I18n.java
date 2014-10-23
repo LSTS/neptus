@@ -92,12 +92,10 @@ public class I18n {
         boolean found = false;
         if (new File(localizationDir, "neptus.po").canRead()) {
             found = true;
-            System.out.println("1");
         }
         else if (new File("../" + I18N_BASE_LOCALIZATION + language, "neptus.po").canRead()) {
             found = true;
             localizationDir = new File("../" + I18N_BASE_LOCALIZATION + language);
-            System.out.println("2");
         }
         else if (m.find() && (new File(I18N_BASE_LOCALIZATION + m.group(1), "neptus.po").canRead() ||
                 new File("../" + I18N_BASE_LOCALIZATION + m.group(1), "neptus.po").canRead())) {
@@ -107,13 +105,11 @@ public class I18n {
             if (!localizationDir.exists())
                 localizationDir = new File("../" + I18N_BASE_LOCALIZATION + language);
             GeneralPreferences.language = language;
-            System.out.println("3");
         }
         else {
             language = defaultLanguage;
             localizationDir = new File(I18N_BASE_LOCALIZATION + language);
             GeneralPreferences.language = language;
-            System.out.println("4");
         }
 
         NeptusLog.pub().info("I18n (" + (found ? "found" : "using") + "):  " + language);
