@@ -46,7 +46,7 @@ import pt.lsts.imc.lsf.LsfIterator;
  * @author zp
  *
  */
-@PluginDescription(name="Salinity Vs Depth plot")
+@PluginDescription(name="Salinity Vs Depth plot", active=false)
 public class SalinityVsDepthPlot extends XYPlot {
 
     public SalinityVsDepthPlot(MRAPanel panel) {

@@ -102,6 +102,7 @@ public class MRAPanel extends JPanel {
     private final ArrayList<LogMarker> logMarkers = new ArrayList<LogMarker>();
     private MRAVisualization shownViz = null;
     private Vector<MissionChangeListener> mcl = new Vector<>();
+    private NeptusMRA mra;
     
     InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
 
@@ -113,7 +114,7 @@ public class MRAPanel extends JPanel {
      */
     public MRAPanel(final IMraLogGroup source, NeptusMRA mra) {
         this.source = source;
-
+        this.mra = mra;
         if (new File("conf/tides.txt").canRead() && source.getFile("tides.txt") == null) {
             FileUtil.copyFile("conf/tides.txt", new File(source.getFile("."), "tides.txt").getAbsolutePath());
         }
@@ -200,6 +201,9 @@ public class MRAPanel extends JPanel {
         for (String visName : PluginsRepository.getMraVisualizations().keySet()) {
             try {
                 Class<?> vis = PluginsRepository.getMraVisualizations().get(visName);
+                
+                if (!mra.getMraProperties().isVisualizationActive(vis))
+                    continue;
 
                 MRAVisualization visualization = (MRAVisualization) vis.getDeclaredConstructor(MRAPanel.class)
                         .newInstance(this);

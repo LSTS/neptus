@@ -200,7 +200,7 @@ public class NeptusMRA extends JFrame {
     /**
      * @return the mraProperties
      */
-    protected MRAProperties getMraProperties() {
+    public MRAProperties getMraProperties() {
         return mraProperties;
     }
 

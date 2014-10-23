@@ -401,12 +401,14 @@ public class MRAMenuBar {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                PropertiesEditor.editProperties(mra.getMraProperties(), mra, true);
-                try {
-                    PluginUtils.saveProperties("conf/mra.properties", mra.getMraProperties());
-                }
-                catch (Exception ex) {
-                    ex.printStackTrace();
+                if (!PropertiesEditor.editProperties(mra.getMraProperties(), mra, true)) {
+                    try {
+                        NeptusLog.pub().info("Saving MRA configuration to disk");
+                        mra.getMraProperties().save();
+                    }
+                    catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
         };

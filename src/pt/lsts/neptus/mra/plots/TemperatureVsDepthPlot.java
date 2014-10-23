@@ -46,7 +46,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
  * @author zp
  * 
  */
-@PluginDescription
+@PluginDescription(active=false)
 public class TemperatureVsDepthPlot extends XYPlot {
 
     public TemperatureVsDepthPlot(MRAPanel panel) {

@@ -43,7 +43,7 @@ import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
  * @author zp
  *
  */
-@PluginDescription
+@PluginDescription(active=false)
 public class TidePlot extends MRATimeSeriesPlot {
 
     public TidePlot(MRAPanel mp) {

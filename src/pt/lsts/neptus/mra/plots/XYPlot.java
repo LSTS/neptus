@@ -45,7 +45,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author zp
  * 
  */
-@PluginDescription
+@PluginDescription(active=false)
 public class XYPlot extends MRA2DPlot {
 
     private LocationType ref;

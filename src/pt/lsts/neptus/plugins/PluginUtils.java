@@ -140,6 +140,11 @@ public class PluginUtils {
 
         return I18n.textAdvanced("PLUGINDESC_" + clazz.getSimpleName(), description, clazz);
     }
+    
+    public static boolean isPluginActive(Class<?> clazz) {
+        PluginDescription pd = clazz.getAnnotation(PluginDescription.class);
+        return pd != null && pd.active();
+    }
 
     /**
      * Retrieves the filename of the icon to be used for this plugin as stated in the {@link PluginDescription}

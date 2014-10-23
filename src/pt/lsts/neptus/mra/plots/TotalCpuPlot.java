@@ -44,7 +44,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author zp
  * 
  */
-@PluginDescription(name="CPU Usage (total)")
+@PluginDescription(name="CPU Usage (total)", active=false)
 public class TotalCpuPlot extends MRATimeSeriesPlot {
 
     public TotalCpuPlot(MRAPanel panel) {
