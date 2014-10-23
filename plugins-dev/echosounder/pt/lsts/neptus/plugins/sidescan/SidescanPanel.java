@@ -466,7 +466,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         SidescanLine old = null;
         Graphics2D g = (Graphics2D) g2.create();
         for (LogMarker m : parent.getMarkerList()) {
-            long timestamp = new Double(m.timestamp).longValue();
+            long timestamp = new Double(m.getTimestamp()).longValue();
 
             Color color = Color.WHITE;
             Color colorConstrast = Color.BLACK;
@@ -488,18 +488,18 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                                 g.setColor(color);
                                 g.drawRect(x - (slm.w / 2), line.ypos - (slm.h / 2), slm.w, slm.h);
                                 g.setColor(colorConstrast);
-                                g.drawString(m.label, x - (slm.w / 2) - 1, line.ypos - (slm.h / 2) - 10 - 1);
+                                g.drawString(m.getLabel(), x - (slm.w / 2) - 1, line.ypos - (slm.h / 2) - 10 - 1);
                                 g.setColor(color);
-                                g.drawString(m.label, x - (slm.w / 2), line.ypos - (slm.h / 2) - 10);
+                                g.drawString(m.getLabel(), x - (slm.w / 2), line.ypos - (slm.h / 2) - 10);
                             }
                             else {
                                 g.setColor(color);
                                 g.fillRect(0, line.ypos - 1, 10, 2);
                                 g.fillRect(line.image.getWidth(null) - 10, line.ypos - 1, 10, 2);
                                 g.setColor(colorConstrast);
-                                g.drawString(m.label, 0 - 1, line.ypos - 10 - 1);
+                                g.drawString(m.getLabel(), 0 - 1, line.ypos - 10 - 1);
                                 g.setColor(color);
-                                g.drawString(m.label, 0, line.ypos - 10);
+                                g.drawString(m.getLabel(), 0, line.ypos - 10);
                             }
                             break; // ??
                         }

@@ -76,18 +76,17 @@ public class SalinityVsDepthPlot extends XYPlot {
     public void addLogMarker(LogMarker marker) {
         try {
             XYSeries markerSeries = getMarkerSeries();
-            IMCMessage es = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
-            IMCMessage sal = mraPanel.getSource().getLog("Salinity").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
+            IMCMessage es = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
+            IMCMessage sal = mraPanel.getSource().getLog("Salinity").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
             if(markerSeries != null)
-                markerSeries.add(new TimedXYDataItem(-es.getDouble("depth"), ((Salinity) sal).getValue(), sal.getTimestampMillis(), marker.label));
+                markerSeries.add(new TimedXYDataItem(-es.getDouble("depth"), ((Salinity) sal).getValue(), sal.getTimestampMillis(), marker.getLabel()));
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
     public boolean canBeApplied(pt.lsts.imc.lsf.LsfIndex index) {        
-        return true;
+        return index.containsMessagesOfType("EstimatedState", "Salinity");
     }
 }

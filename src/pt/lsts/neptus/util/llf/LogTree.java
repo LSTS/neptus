@@ -105,7 +105,7 @@ public class LogTree extends JTree {
             }
             if(node.getUserObject() instanceof LogMarker) {
                 LogMarker mark = (LogMarker) node.getUserObject();
-                setText(mark.label);
+                setText(mark.getLabel());
                 if (!iconCache.containsKey("markers"))
                     iconCache.put("markers", ImageUtils.getIcon("images/menus/marker.png"));
                 setIcon(iconCache.get("markers"));                

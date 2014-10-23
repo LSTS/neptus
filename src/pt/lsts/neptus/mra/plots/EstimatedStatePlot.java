@@ -110,7 +110,7 @@ public class EstimatedStatePlot extends MRA2DPlot implements LogMarkerListener {
     @Override
     public void addLogMarker(LogMarker marker) {
         XYSeries markerSeries = getMarkerSeries();
-        IMCMessage state = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
+        IMCMessage state = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
         LocationType loc = new LocationType();
         loc.setLatitudeRads(state.getDouble("lat"));
         loc.setLongitudeRads(state.getDouble("lon"));
@@ -118,7 +118,7 @@ public class EstimatedStatePlot extends MRA2DPlot implements LogMarkerListener {
         loc.convertToAbsoluteLatLonDepth();
 
         if(markerSeries != null)
-            markerSeries.add(new TimedXYDataItem(loc.getLatitudeDegs(), loc.getLongitudeDegs(), new Double(marker.timestamp).longValue(), marker.label));
+            markerSeries.add(new TimedXYDataItem(loc.getLatitudeDegs(), loc.getLongitudeDegs(), new Double(marker.getTimestamp()).longValue(), marker.getLabel()));
     }
 
     @Override

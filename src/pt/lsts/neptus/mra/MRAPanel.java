@@ -342,7 +342,7 @@ public class MRAPanel extends JPanel {
      */
     public boolean existsMark(LogMarker marker) {
         for (LogMarker m : logMarkers) {
-            if (m.label.equals(marker.label))
+            if (m.getLabel().equals(marker.getLabel()))
                 return true;
         }
         return false;
@@ -362,7 +362,7 @@ public class MRAPanel extends JPanel {
             loc.translatePosition(state.getDouble("x"), state.getDouble("y"), 0);
 
             if (loc.getDistanceInMeters(l) <= distance) {
-                NeptusLog.pub().info("<###> " + marker.label + " --- " + state.getTimestampMillis());
+                NeptusLog.pub().info("<###> " + marker.getLabel() + " --- " + state.getTimestampMillis());
             }
         }
     }
@@ -382,12 +382,12 @@ public class MRAPanel extends JPanel {
             return;
 
         // Calculate marker location
-        if (marker.lat == 0 && marker.lon == 0) {
-            IMCMessage m = source.getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
+        if (marker.getLat() == 0 && marker.getLon() == 0) {
+            IMCMessage m = source.getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
             LocationType loc = LogUtils.getLocation(m);
 
-            marker.lat = loc.getLatitudeRads();
-            marker.lon = loc.getLongitudeRads();
+            marker.setLat(loc.getLatitudeRads());
+            marker.setLon(loc.getLongitudeRads());
         }
         logTree.addMarker(marker);
         logMarkers.add(marker);

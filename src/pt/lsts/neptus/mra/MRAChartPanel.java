@@ -41,6 +41,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Calendar;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -298,9 +299,9 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
                     return;
                 }
 
-
                 String res = JOptionPane.showInputDialog(I18n.text("Marker name"));
-                mraPanel.addMarker(new LogMarker(res, mouseValue, 0, 0));
+                if (res != null && !res.isEmpty())
+                    mraPanel.addMarker(new LogMarker(res, mouseValue, 0, 0));
             }
         });
 
@@ -321,6 +322,10 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         });
 
         cpanel.addChartMouseListener(new ChartMouseListener() {
+            
+            protected final long localTimeOffset = Calendar.getInstance().get(Calendar.DST_OFFSET)
+                    + Calendar.getInstance().get(Calendar.ZONE_OFFSET);
+            
             @Override
             public void chartMouseMoved(ChartMouseEvent e) {
                 MouseEvent me = e.getTrigger();
@@ -335,12 +340,20 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
                             int sindex = ent.getSeriesIndex();
                             int iindex = ent.getItem();
 
-                            mouseValue = ((TimedXYDataItem)((XYSeriesCollection)e.getChart().getXYPlot().getDataset()).getSeries(sindex).getDataItem(iindex)).timestamp;
+                            mouseValue = ((TimedXYDataItem) ((XYSeriesCollection) e.getChart().getXYPlot().getDataset())
+                                    .getSeries(sindex).getDataItem(iindex)).timestamp;
                         }
                     }
                     else {
-                        if (e.getChart().getPlot() instanceof XYPlot)
-                            mouseValue = e.getChart().getXYPlot().getDomainAxis().java2DToValue(x, cpanel.getScreenDataArea(), e.getChart().getXYPlot().getDomainAxisEdge());
+                        if (e.getChart().getPlot() instanceof XYPlot) {
+                            mouseValue = e
+                                    .getChart()
+                                    .getXYPlot()
+                                    .getDomainAxis()
+                                    .java2DToValue(x, cpanel.getScreenDataArea(),
+                                            e.getChart().getXYPlot().getDomainAxisEdge())
+                                    + localTimeOffset;
+                        }
                     }
                 }
             }

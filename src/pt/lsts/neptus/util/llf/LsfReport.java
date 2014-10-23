@@ -591,10 +591,10 @@ public class LsfReport {
     }
 
     public static void createPdfMarksRows(PdfPTable table, LogMarker m){
-        String dateAsText = new SimpleDateFormat("HH:mm:ss.ms").format(m.timestamp);
+        String dateAsText = new SimpleDateFormat("HH:mm:ss.ms").format(m.getTimestamp());
         table.addCell(dateAsText);
-        table.addCell(m.label);
-        LocationType loc = new LocationType(Math.toDegrees(m.lat), Math.toDegrees(m.lon));
+        table.addCell(m.getLabel());
+        LocationType loc = new LocationType(Math.toDegrees(m.getLat()), Math.toDegrees(m.getLon()));
         String locString = loc.toString();
         table.addCell(locString);
     }
@@ -731,7 +731,7 @@ public class LsfReport {
 
         Color color = null;
         int d = 1;
-        long t = (long) mark.timestamp;
+        long t = (long) mark.getTimestamp();
 
         ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - d, t + d, mark.subSys, sidescanParams);
         while (list2.isEmpty()) {
@@ -749,7 +749,7 @@ public class LsfReport {
                                 boolean border, int i1, int i2){
         int indexX=-1;
         int d = 1;
-        long t = (long) mark.timestamp;
+        long t = (long) mark.getTimestamp();
         ArrayList<SidescanLine> list2 = ssParser.getLinesBetween(t - d, t + d, mark.subSys, sidescanParams);
         while (list2.isEmpty()) {
             d += 10;
@@ -772,7 +772,7 @@ public class LsfReport {
     public static int getIndexY(ArrayList<SidescanLine> list, SidescanLogMarker mark, int subSys){
         if (mark.subSys!=subSys)
             return 50;
-        double t = mark.timestamp;
+        double t = mark.getTimestamp();
         for (int i = 0; i < list.size(); i++) {
             SidescanLine l = list.get(i);
             if (l.timestampMillis == t)
@@ -829,7 +829,7 @@ public class LsfReport {
     public static ArrayList<SidescanLine> adjustLines(ArrayList<SidescanLine> list, SidescanLogMarker mark){
 
         int h = mark.h;
-        long t = (long) mark.timestamp;
+        long t = (long) mark.getTimestamp();
 
         int yref = list.size();
         while (yref > h) {
@@ -863,7 +863,7 @@ public class LsfReport {
 
     public static ArrayList<SidescanLine> getLines(SidescanParser ssParser, int subSys, SidescanParameters sidescanParams, SidescanLogMarker mark){
 
-        long t = (long) mark.timestamp;
+        long t = (long) mark.getTimestamp();
         int h = mark.h;
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
         long firstTimestamp = ssParser.firstPingTimestamp();
@@ -890,7 +890,7 @@ public class LsfReport {
     }
 
     public static SidescanLogMarker adjustMark(SidescanLogMarker mark){
-        SidescanLogMarker newMark=new SidescanLogMarker(mark.label,mark.timestamp,mark.lat,mark.lon,
+        SidescanLogMarker newMark=new SidescanLogMarker(mark.getLabel(),mark.getTimestamp(),mark.getLat(),mark.getLon(),
                 mark.x,mark.y,mark.w,mark.h,mark.wMeters,mark.subSys,ColorMapFactory.getColorMapByName(mark.colorMap));
         newMark.point=mark.point;
         int h = newMark.h;

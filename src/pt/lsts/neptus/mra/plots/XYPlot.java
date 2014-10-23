@@ -108,7 +108,7 @@ public class XYPlot extends MRA2DPlot {
     @Override
     public void addLogMarker(LogMarker marker) {
         XYSeries markerSeries = getMarkerSeries();
-        IMCMessage state = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
+        IMCMessage state = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
         LocationType loc = marker.getLocation();
         ref = new LocationType(Math.toDegrees(state.getDouble("lat")), Math.toDegrees(state.getDouble("lon")));
 
@@ -119,7 +119,7 @@ public class XYPlot extends MRA2DPlot {
         double[] offsets = loc.getOffsetFrom(ref);
 
         if(markerSeries != null)
-            markerSeries.add(new TimedXYDataItem(offsets[0],offsets[1],state.getTimestampMillis(),marker.label));
+            markerSeries.add(new TimedXYDataItem(offsets[0],offsets[1],state.getTimestampMillis(),marker.getLabel()));
 
     }
 

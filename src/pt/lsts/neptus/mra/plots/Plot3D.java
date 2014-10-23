@@ -347,7 +347,7 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
     public void addLogMarker(LogMarker marker) {
         if (chart == null)
             return;
-        IMCMessage state = source.getLsfIndex().getMessageAtOrAfter("EstimatedState", 0, 0xFF, marker.timestamp/1000);
+        IMCMessage state = source.getLsfIndex().getMessageAtOrAfter("EstimatedState", 0, 0xFF, marker.getTimestamp()/1000);
         if (state == null)
             return;
         double depth = state.getDouble("depth");
@@ -359,7 +359,7 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
         // + location.getLatitude() + ", "
         // + location.getLongitude() + ")");
         double[] xyz = location.getOffsetFrom(ref);
-        Marker3d m = new Marker3d(marker.label, new Coord3d(-xyz[0], xyz[1], -depth), java.awt.Color.black);
+        Marker3d m = new Marker3d(marker.getLabel(), new Coord3d(-xyz[0], xyz[1], -depth), java.awt.Color.black);
         markers.add(m);
         chart.getScene().add(m);
     }
@@ -372,7 +372,7 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
     @Override
     public void removeLogMarker(LogMarker marker) {
         for (int i = 0; i < markers.size(); i++) {
-            if (markers.get(i).label.equals(marker.label)) {
+            if (markers.get(i).label.equals(marker.getLabel())) {
                 chart.getScene().remove(markers.get(i));
                 markers.remove(i);
                 i--;

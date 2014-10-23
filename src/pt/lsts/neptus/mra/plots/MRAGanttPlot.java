@@ -247,8 +247,8 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
 
     @Override 
     public void addLogMarker(LogMarker e) {
-        ValueMarker marker = new ValueMarker(e.timestamp);
-        marker.setLabel(e.label);
+        ValueMarker marker = new ValueMarker(e.getTimestamp());
+        marker.setLabel(e.getLabel());
     }
 
     @Override

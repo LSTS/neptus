@@ -67,7 +67,7 @@ public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
         for (int i = 0 ; i < markers.size(); i++) {
             Point2D pt = renderer.getScreenPosition(locations.get(i));
 
-            Rectangle2D bounds = g.getFontMetrics().getStringBounds(markers.get(i).label, g);
+            Rectangle2D bounds = g.getFontMetrics().getStringBounds(markers.get(i).getLabel(), g);
 
             g.setColor(new Color(255,255,255,128));
 
@@ -84,7 +84,7 @@ public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
             g.fill(a);
             g.setColor(Color.black);
 
-            g.drawString(markers.get(i).label, (int)(pt.getX()+1), (int)(pt.getY()-8));
+            g.drawString(markers.get(i).getLabel(), (int)(pt.getX()+1), (int)(pt.getY()-8));
         }
     }
 
