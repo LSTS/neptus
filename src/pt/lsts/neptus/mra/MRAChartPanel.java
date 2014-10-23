@@ -66,6 +66,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -322,10 +323,10 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
         });
 
         cpanel.addChartMouseListener(new ChartMouseListener() {
-            
+
             protected final long localTimeOffset = Calendar.getInstance().get(Calendar.DST_OFFSET)
                     + Calendar.getInstance().get(Calendar.ZONE_OFFSET);
-            
+
             @Override
             public void chartMouseMoved(ChartMouseEvent e) {
                 MouseEvent me = e.getTrigger();
@@ -344,18 +345,25 @@ public class MRAChartPanel extends JPanel implements ChartMouseListener {
                                     .getSeries(sindex).getDataItem(iindex)).timestamp;
                         }
                     }
-                    else {
-                        if (e.getChart().getPlot() instanceof XYPlot) {
-                            mouseValue = e
-                                    .getChart()
-                                    .getXYPlot()
-                                    .getDomainAxis()
-                                    .java2DToValue(x, cpanel.getScreenDataArea(),
-                                            e.getChart().getXYPlot().getDomainAxisEdge())
-                                    + localTimeOffset;
-                        }
+                    else if (e.getChart().getPlot() instanceof XYPlot) {
+                        mouseValue = e
+                                .getChart()
+                                .getXYPlot()
+                                .getDomainAxis()
+                                .java2DToValue(x, cpanel.getScreenDataArea(),
+                                        e.getChart().getXYPlot().getDomainAxisEdge())
+                                        + localTimeOffset;
                     }
-                }
+                    else if (e.getChart().getPlot() instanceof CategoryPlot){
+                        mouseValue = e
+                                .getChart()
+                                .getCategoryPlot()
+                                .getRangeAxis()
+                                .java2DToValue(x, cpanel.getScreenDataArea(),
+                                        e.getChart().getCategoryPlot().getRangeAxisEdge())
+                                + localTimeOffset;
+                    }
+                }                
             }
 
             @Override

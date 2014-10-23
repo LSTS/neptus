@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.mra.plots;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -76,6 +77,9 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
 
     protected JFreeChart chart = null;
     protected MRAPanel mraPanel;
+
+    protected static final long localTimeOffset = Calendar.getInstance().get(Calendar.DST_OFFSET)
+            + Calendar.getInstance().get(Calendar.ZONE_OFFSET);
 
     /**
      * 
@@ -134,16 +138,16 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
         if (t == null){
             long start = (long)(mraPanel.getSource().getLsfIndex().getStartTime() * 1000);
             long end = (long)(mraPanel.getSource().getLsfIndex().getEndTime() * 1000);
-            t = new Task(state, new Date(start), new Date(end));
+            t = new Task(state, new Date(start - localTimeOffset), new Date(end - localTimeOffset));
             series.get(trace).add(t);
         }
-        t.addSubtask(new Task(state+time, new Date((long)(time*1000)), new Date((long)(time*1000))));
+        t.addSubtask(new Task(state+time, new Date((long)(time*1000 - localTimeOffset)), new Date((long)(time*1000 - localTimeOffset))));
 
     }
 
     private Task setEndTime(Task t, double time) {
         TimePeriod tp = t.getDuration();
-        t.setDuration(new SimpleTimePeriod(tp.getStart(), new Date((long)(time*1000))));
+        t.setDuration(new SimpleTimePeriod(tp.getStart(), new Date((long)(time*1000 - localTimeOffset))));
         return t;
     }
 
@@ -247,14 +251,15 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
 
     @Override 
     public void addLogMarker(LogMarker e) {
-        ValueMarker marker = new ValueMarker(e.getTimestamp());
+        ValueMarker marker = new ValueMarker(e.getTimestamp() - localTimeOffset);
         marker.setLabel(e.getLabel());
+        chart.getCategoryPlot().addRangeMarker(marker);
     }
 
     @Override
     public void removeLogMarker(LogMarker e) {
         if(chart != null) {
-            chart.getXYPlot().clearDomainMarkers();
+            chart.getCategoryPlot().clearRangeMarkers();
 
             for (LogMarker m : mraPanel.getMarkers())
                 addLogMarker(m);
