@@ -92,6 +92,33 @@ public class MRAFilesHandler implements FileHandler {
         this.mra = mra;
     }
 
+    
+    public boolean openLogs(File[] fx) {
+        mra.getBgp().block(true);
+        mra.getBgp().setText(I18n.text("Loading LSF Data"));
+
+        try {
+            LsfLogSource source = new LsfLogSource(fx, new LsfIndexListener() {
+
+                @Override
+                public void updateStatus(String messageToDisplay) {
+                    mra.getBgp().setText(messageToDisplay);
+                }
+            });
+            mra.getBgp().setText(I18n.text("Starting interface"));
+            openLogSource(source);            
+            mra.getBgp().setText(I18n.text("Done"));
+
+            mra.getBgp().block(false);
+            return true;
+        }
+        catch (Exception e) {
+            GuiUtils.errorMessage(mra, e);
+            mra.getBgp().setText(e.getClass().getSimpleName()+": "+e.getMessage());
+            mra.getBgp().block(false);
+            return false;
+        }
+    }
     /**
      * Does the necessary pre-processing of a log file based on it's extension
      * Currently supports gzip, bzip2 and no-compression formats.

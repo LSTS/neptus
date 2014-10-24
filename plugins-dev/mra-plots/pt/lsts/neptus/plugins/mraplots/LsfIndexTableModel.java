@@ -115,7 +115,7 @@ public class LsfIndexTableModel extends AbstractTableModel {
 
     
     public static void main(String[] args) throws Exception {
-        LsfIndex index = new LsfIndex(new File("/home/zp/Desktop/143245_rows_minus1.5m_1000rpm/Data.lsf"), new IMCDefinition(new FileInputStream(new File("/home/zp/Desktop/143245_rows_minus1.5m_1000rpm/IMC.xml"))));
+        LsfIndex index = new LsfIndex(new File("/home/zp/Desktop/143245_rows_minus1.5m_1000rpm/Data.lsf"), null, new IMCDefinition(new FileInputStream(new File("/home/zp/Desktop/143245_rows_minus1.5m_1000rpm/IMC.xml"))));
         LsfIndexTableModel tableModel = new LsfIndexTableModel(index);
         JTable table = new JTable(tableModel);
         GuiUtils.testFrame(new JScrollPane(table));

@@ -82,7 +82,7 @@ public class LsfTable extends SimpleMRAVisualization {
     public JComponent getVisualization(IMraLogGroup source, double timestep) {
         try {
             if (index == null)
-                index = new LsfIndex(source.getFile("Data.lsf"), new IMCDefinition(new FileInputStream(
+                index = new LsfIndex(source.getFile("Data.lsf"), null, new IMCDefinition(new FileInputStream(
                         source.getFile("IMC.xml"))));
             
             if (table == null) {

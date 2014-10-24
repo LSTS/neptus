@@ -227,7 +227,7 @@ public class LsfMraLog implements IMraLog {
     }
 
     public static void main(String[] args) throws Exception {
-        LsfIndex index = new LsfIndex(new File("/home/jqcorreia/Desktop/merge2/Data.lsf"), new IMCDefinition(
+        LsfIndex index = new LsfIndex(new File("/home/jqcorreia/Desktop/merge2/Data.lsf"), null, new IMCDefinition(
                 new FileInputStream(new File("/home/jqcorreia/Desktop/merge2/IMC.xml"))));
         LsfMraLog log = new LsfMraLog(index, "EstimatedState");
 

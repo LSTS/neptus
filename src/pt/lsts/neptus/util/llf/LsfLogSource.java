@@ -32,23 +32,19 @@
 package pt.lsts.neptus.util.llf;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.imc.lsf.LsfIndexListener;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.LsfMraLog;
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.gz.MultiMemberGZIPInputStream;
-import pt.lsts.imc.lsf.LsfIndex;
-import pt.lsts.imc.lsf.LsfIndexListener;
 
 /**
  * @author jqcorreia
@@ -69,62 +65,23 @@ public class LsfLogSource implements IMraLogGroup {
     }
 
     public LsfLogSource(File file, LsfIndexListener listener) throws Exception {
-        this.listener = listener;
-        loadLog(file);
+        this.listener = listener;        
+        index = new LsfIndex(file, listener, null);
+        lsfFile = index.getLsfFile();
+        defs = index.getDefinitions();        
     }
+    
+    public LsfLogSource(File[] files, LsfIndexListener listener) throws Exception {
+        index = new LsfIndex(files, listener);
+        lsfFile = index.getLsfFile();
+        defs = index.getDefinitions();
+    }
+    
     
     public void cleanup() {
         if (index != null)
             index.cleanup();
     }
-
-    private void loadLog(File f) throws Exception {
-        if(!f.canRead())
-            throw(new IOException());
-        
-        if (f.getName().endsWith(".lsf.gz")) {
-            
-            MultiMemberGZIPInputStream mmgis = new MultiMemberGZIPInputStream(new FileInputStream(f));
-            File outFile = new File(f.getAbsolutePath().replaceAll("\\.gz$", ""));
-            outFile.createNewFile();
-            FileOutputStream outStream = new FileOutputStream(outFile);
-            try {
-                byte[] extra = new byte[50000];
-                int ret = 0;
-                for (;;) {
-                    ret = mmgis.read(extra);
-                    if (ret != -1) {
-                        byte[] extra1 = new byte[ret];
-                        System.arraycopy(extra, 0, extra1, 0, ret);
-                        outStream.write(extra1);
-                        outStream.flush();
-                    }
-                    else {
-                        break;
-                    }
-                }
-                f = outFile;
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        lsfFile = f;
-        File defsFile1 = new File(f.getParent()+"/IMC.xml");
-        File defsFile2 = new File(f.getParent()+"/IMC.xml.gz");
-        if(defsFile1.canRead()) {
-            defs = new IMCDefinition(new FileInputStream(defsFile1));
-        }
-        else if (defsFile2.canRead()) {
-            defs = new IMCDefinition(new MultiMemberGZIPInputStream(new FileInputStream(defsFile2)));
-        }
-        else {
-            defs = IMCDefinition.getInstance(); // If IMC.xml isn't present use the default ones
-        }
-        index = new LsfIndex(lsfFile, defs, listener);
-    }
-
 
     @Override
     public String name() {

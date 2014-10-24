@@ -191,33 +191,51 @@ public class MRAMenuBar {
                     fileChooser = new JFileChooser(new File("./log/downloaded/"));
 
                 fileChooser.setFileView(new NeptusFileView());
+                fileChooser.setMultiSelectionEnabled(true);
+                fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
                 fileChooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("LSF log files"),
                         new String[] { "lsf", FileUtil.FILE_TYPE_LSF_COMPRESSED, 
                     FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2 }));
-
+                final Vector<File> logs = new Vector<File>();
                 if (fileChooser.showOpenDialog(mra) == JFileChooser.APPROVE_OPTION) {
-                    final File log = fileChooser.getSelectedFile();
-                    LogValidity validity = LogUtils.isValidLSFSource(log.getParentFile());
-                    if (validity != LogUtils.LogValidity.VALID) {
-                        String message = null;
-                        if(validity == LogValidity.NO_DIRECTORY)
-                            message = "No such directory / No read permissions";
-                        if(validity == LogValidity.NO_VALID_LOG_FILE)
-                            message = "No valid LSF log file present";
-                        if(validity == LogValidity.NO_XML_DEFS)
-                            message = "No valid XML definition present";
+                    for (File log : fileChooser.getSelectedFiles()) {
+                        LogValidity validity = LogUtils.isValidLSFSource(log.isDirectory()? log : log.getParentFile());
+                        if (validity != LogUtils.LogValidity.VALID) {
+                            String message = null;
+                            if(validity == LogValidity.NO_DIRECTORY)
+                                message = "No such directory / No read permissions";
+                            if(validity == LogValidity.NO_VALID_LOG_FILE)
+                                message = "No valid LSF log file present";
+                            if(validity == LogValidity.NO_XML_DEFS)
+                                message = "No valid XML definition present";
 
+                            NeptusLog.pub().error("Error opening "+log.getAbsolutePath()+": "+message);
+                            continue;
+                        }
+                        logs.add(log);
+                    }
+                    if (logs.isEmpty()) { 
                         GuiUtils.errorMessage(mra, I18n.text("Open LSF log"),
-                                I18n.text(message));
+                                I18n.text("No valid log files"));
                         return;
                     }
-
-                    new Thread("Open Log") {
-                        @Override
-                        public void run() {
-                            mra.getMraFilesHandler().openLog(log);
-                        };
-                    }.start();
+                    
+                    if (logs.size() == 1) {
+                        new Thread("Open Log") {
+                            @Override
+                            public void run() {
+                                mra.getMraFilesHandler().openLog(logs.firstElement());
+                            };
+                        }.start();
+                    }
+                    else {
+                    	new Thread("Open Log") {
+                            @Override
+                            public void run() {
+                                mra.getMraFilesHandler().openLogs(logs.toArray(new File[0]));
+                            };
+                        }.start();
+                    }
                 }
                 return;
             }

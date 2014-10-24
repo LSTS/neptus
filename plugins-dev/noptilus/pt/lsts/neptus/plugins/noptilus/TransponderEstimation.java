@@ -148,7 +148,7 @@ public class TransponderEstimation extends ConsolePanel implements Renderer2DPai
     public static final int TIME = 0, X = 1, Y = 2, Z = 3, RANGE = 4;
 
     public void getRanges(File lsfFile) throws Exception {
-        LsfIndex index = new LsfIndex(lsfFile, new IMCDefinition(new FileInputStream(new File(lsfFile.getParent(),
+        LsfIndex index = new LsfIndex(lsfFile, null, new IMCDefinition(new FileInputStream(new File(lsfFile.getParent(),
                 "IMC.xml"))));
 
         LinkedHashMap<Short, Vector<double[]>> ranges = new LinkedHashMap<Short, Vector<double[]>>();
