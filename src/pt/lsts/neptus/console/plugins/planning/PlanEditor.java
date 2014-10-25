@@ -1807,7 +1807,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     public void initSubPanel() {
         this.mission = getConsole().getMission();
 
-        addMenuItem("Tools>Generate plan...", ImageUtils.getIcon("images/planning/template.png"), new ActionListener() {
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Generate plan..."), ImageUtils.getIcon("images/planning/template.png"), new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
