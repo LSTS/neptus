@@ -63,7 +63,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
  * @author zp
  *
  */
-@PluginDescription(name="CTD color map", icon="pt/lsts/neptus/plugins/ctd/thermometer.png")
+@PluginDescription(name="CTD color map", icon="pt/lsts/neptus/plugins/ctd/thermometer.png", active=false)
 public class CTDSidePlot extends SimpleMRAVisualization {
 
     private static final long serialVersionUID = -2237994701546034699L;

@@ -33,6 +33,7 @@ package pt.lsts.neptus.mra.plots;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -73,27 +74,16 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
     protected double timestep = 0;
     protected TimeSeriesCollection tsc = new TimeSeriesCollection();
     protected LinkedHashMap<String, TimeSeries> series = new LinkedHashMap<>();
-
     protected JFreeChart chart;
     protected MRAPanel mraPanel;
 
-    protected static Color[] seriesColors = new Color[] {
-        Color.red.darker(),
-        Color.blue.darker(),
-        Color.green.darker(),
-        Color.orange,
-        Color.cyan.darker(),
-        Color.gray.darker(),
-        Color.magenta.darker(),
-        Color.blue.brighter().brighter(),
-        Color.red.brighter().brighter(),
-        Color.green.brighter().brighter(),
-        Color.black,
-        Color.pink,
-        Color.yellow.darker(),
-        Color.cyan,
-        Color.magenta
-    };
+    protected static final long localTimeOffset = Calendar.getInstance().get(Calendar.DST_OFFSET)
+            + Calendar.getInstance().get(Calendar.ZONE_OFFSET);
+
+    protected static Color[] seriesColors = new Color[] { Color.red.darker(), Color.blue.darker(),
+            Color.green.darker(), Color.orange, Color.cyan.darker(), Color.gray.darker(), Color.magenta.darker(),
+            Color.blue.brighter().brighter(), Color.red.brighter().brighter(), Color.green.brighter().brighter(),
+            Color.black, Color.pink, Color.yellow.darker(), Color.cyan, Color.magenta };
 
     /**
      * 
@@ -138,8 +128,8 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
         if (!series.containsKey(trace)) {
             addTrace(trace);
         }
-
         series.get(trace).addOrUpdate(new Millisecond(new Date(timeMillis), TimeZone.getTimeZone("UTC")), value);
+
     }
 
     @Override
@@ -149,7 +139,7 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
     }
 
     @Override
-    public final boolean canBeApplied(IMraLogGroup source) {     
+    public final boolean canBeApplied(IMraLogGroup source) {
         return canBeApplied(source.getLsfIndex());
     }
 
@@ -171,8 +161,8 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
     }
 
     public JFreeChart createChart() {
-        return ChartFactory.createTimeSeriesChart(I18n.text(getTitle()), I18n.text(getVerticalAxisName()), I18n.text(getHorizontalAxisName()),
-                tsc, true, true, false);
+        return ChartFactory.createTimeSeriesChart(I18n.text(getTitle()), I18n.text(getVerticalAxisName()),
+                I18n.text(getHorizontalAxisName()), tsc, true, true, false);
     }
 
     public String getHorizontalAxisName() {
@@ -180,7 +170,7 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
     }
 
     public String getVerticalAxisName() {
-        return "Time of day";
+        return I18n.text("Time of day");
     }
 
     @Override
@@ -194,10 +184,10 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
         XYItemRenderer r = chart.getXYPlot().getRenderer();
         if (r != null) {
             for (int i = 0; i < tsc.getSeriesCount(); i++) {
-                r.setSeriesPaint(i, seriesColors[i%seriesColors.length]);
+                r.setSeriesPaint(i, seriesColors[i % seriesColors.length]);
             }
         }
-        for(LogMarker marker : mraPanel.getMarkers()) {
+        for (LogMarker marker : mraPanel.getMarkers()) {
             addLogMarker(marker);
         }
         return chart;
@@ -222,26 +212,25 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
 
     @Override
     public void onHide() {
-        //nothing
+        // nothing
     }
 
     @Override
     public void onShow() {
-        //nothing
+        // nothing
     }
 
-
-    @Override 
+    @Override
     public void addLogMarker(LogMarker e) {
-        ValueMarker marker = new ValueMarker(e.timestamp);
-        marker.setLabel(e.label);
-        if(chart != null)
+        ValueMarker marker = new ValueMarker(e.getTimestamp() - localTimeOffset);
+        marker.setLabel(e.getLabel());
+        if (chart != null)
             chart.getXYPlot().addDomainMarker(marker);
     }
 
     @Override
     public void removeLogMarker(LogMarker e) {
-        if(chart != null) {
+        if (chart != null) {
             chart.getXYPlot().clearDomainMarkers();
 
             for (LogMarker m : mraPanel.getMarkers())
@@ -253,5 +242,4 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
     public void GotoMarker(LogMarker marker) {
 
     }
-
 }

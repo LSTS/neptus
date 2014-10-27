@@ -110,6 +110,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.ErrorMessageBox;
 import pt.lsts.neptus.gui.tablelayout.TableLayout;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.jgoodies.looks.LookUtils;
@@ -682,6 +683,7 @@ public class GuiUtils {
 
         ((JButton) myDialog.getButtonPane().getComponent(0)).setMinimumSize(new Dimension(90, 25));
         ((JButton) myDialog.getButtonPane().getComponent(0)).setPreferredSize(new Dimension(90, 25));
+        ((JButton) myDialog.getButtonPane().getComponent(0)).setText(I18n.text("OK"));
         myDialog.getButtonPane().remove(1);
         myDialog.setSize(500, 400);
         myDialog.setTitle(title);

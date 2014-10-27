@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,d12a6b9)" system="lauv-noptilus-3" i18n="ru_RU">
+<config format="1" version="2.6.x (master,ed341a2)" system="lauv-noptilus-3" i18n="ru_RU">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Этикетка</name-i18n>
@@ -1390,7 +1390,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.8</default>
+      <default>1.2</default>
       <units>m</units>
       <desc>Minimum admissible altitude for bottom tracking</desc>
     </param>
@@ -2988,7 +2988,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Camera Module</default>
+      <default>Camera</default>
       <units/>
       <desc>List of entity labels that must be estimated</desc>
     </param>
@@ -4387,6 +4387,15 @@
       <units/>
       <desc>Speed in RPMs to be used in the generated maneuvers</desc>
     </param>
+    <param name="Generate At Boot">
+      <name-i18n>Generate At Boot</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>dislodge</default>
+      <units/>
+      <desc>Set of commands for plans to generate at boot</desc>
+    </param>
   </section>
   <section name="Power Supply" name-i18n="Питание">
     <param name="Entity Label">
@@ -4677,7 +4686,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>ATX</default>
+      <default>Private (ATX)</default>
       <units/>
       <desc/>
     </param>
@@ -4767,7 +4776,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Sidescan</default>
+      <default>Private (Sidescan)</default>
       <units/>
       <desc/>
     </param>
@@ -4785,7 +4794,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Camera - CPU</default>
+      <default>Private (Camera - CPU)</default>
       <units/>
       <desc/>
     </param>
@@ -4821,7 +4830,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CPU</default>
+      <default>Private (CPU)</default>
       <units/>
       <desc/>
     </param>
@@ -4947,7 +4956,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Ethernet Switch</default>
+      <default>Private (Ethernet Switch)</default>
       <units/>
       <desc/>
     </param>
@@ -4983,7 +4992,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>DVL</default>
+      <default>Private (DVL)</default>
       <units/>
       <desc/>
     </param>
@@ -6476,7 +6485,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>DVL</default>
+      <default>Private (DVL)</default>
       <units/>
       <desc>Power channel that controls the power of the device</desc>
     </param>
@@ -6781,7 +6790,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>global</default>
+      <default>maneuver</default>
       <units/>
       <desc>Сфера применения 'Активные' параметра</desc>
     </param>
@@ -6798,8 +6807,8 @@
       <name-i18n>Активный</name-i18n>
       <type>boolean</type>
       <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
+      <scope>maneuver</scope>
+      <default>false</default>
       <units/>
       <desc>Правда, чтобы активировать задачу, иначе ложь</desc>
     </param>
@@ -6808,7 +6817,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Camera - CPU</default>
+      <default>Private (Camera - CPU)</default>
       <units/>
       <desc>Power channel</desc>
     </param>
@@ -8617,7 +8626,7 @@
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>0</default>
+      <default>false</default>
       <units/>
       <desc>Правда, чтобы активировать задачу, иначе ложь</desc>
     </param>
@@ -8629,6 +8638,15 @@
       <default>-1</default>
       <units/>
       <desc>GPIO that controls power to the camera</desc>
+    </param>
+    <param name="LED GPIO">
+      <name-i18n>LED GPIO</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-1</default>
+      <units/>
+      <desc>GPIO that controls power to the LEDs</desc>
     </param>
     <param name="Camera IPv4 Address">
       <name-i18n>Camera IPv4 Address</name-i18n>

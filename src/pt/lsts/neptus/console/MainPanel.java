@@ -39,10 +39,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.text.Collator;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Locale;
-import java.util.Vector;
 
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -110,43 +108,48 @@ public class MainPanel extends JPanel implements MouseListener, MouseMotionListe
         console.informSubPanelListener(panel, SubPanelChangeAction.ADDED);
     }
 
-    public static void cleanPanels(Collection<ConsolePanel> panels) {
-        
-        Vector<Thread> launched = new Vector<>();
-        for (final ConsolePanel panel : panels) {
-            Thread t = new Thread(new Runnable() {
-
-                @Override
-                public void run() {
-                    panel.clean();
-                }
-            }, panel.getName());
-            t.setDaemon(true);
-            t.start();
-            launched.add(t);
-        }
-
-        while (!launched.isEmpty()) {
-            try {
-                Thread t = launched.firstElement();
-                if (t.isAlive())
-                    NeptusLog.pub().info("Waiting for " + t.getName() + " to cleanup...");
-                launched.firstElement().join();
-                NeptusLog.pub().debug("Cleaned " + t.getName());
-                launched.remove(0);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        NeptusLog.pub().info("All panels have been cleaned up.");
-    }
+//    private static void cleanPanels(Collection<ConsolePanel> panels) {
+//        
+//        Vector<Thread> launched = new Vector<>();
+//        for (final ConsolePanel panel : panels) {
+//            Thread t = new Thread(new Runnable() {
+//
+//                @Override
+//                public void run() {
+//                    panel.clean();
+//                }
+//            }, panel.getName());
+//            t.setDaemon(true);
+//            t.start();
+//            launched.add(t);
+//        }
+//
+//        while (!launched.isEmpty()) {
+//            try {
+//                Thread t = launched.firstElement();
+//                if (t.isAlive())
+//                    NeptusLog.pub().info("Waiting for " + t.getName() + " to cleanup...");
+//                launched.firstElement().join();
+//                NeptusLog.pub().info("Cleaned " + t.getName());
+//                launched.remove(0);
+//            }
+//            catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        NeptusLog.pub().info("All panels have been cleaned up.");
+//    }
 
     public void clean() {
         removeAll();
         for (ConsolePanel panel : console.getSubPanels()) {
-            panel.clean();
-            System.out.println("cleaned " + panel.getName());
+            try {
+                panel.clean();
+                NeptusLog.pub().info("Cleaned " + panel.getName() + " in " + MainPanel.this.getName());
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error("Error cleaning " + panel.getName() + " in " + MainPanel.this.getName() + " :: " + e.getMessage(), e);
+            }
         }
         console.getSubPanels().clear();
     }

@@ -35,9 +35,11 @@ import java.awt.Color;
 import java.io.File;
 import java.lang.reflect.Method;
 
-import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.util.ReflectionUtil;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
@@ -108,6 +110,15 @@ public class PluginProperty extends DefaultProperty {
             color = color.replaceAll("[\\]rgb=]", "");
             String[] rgb = color.split(",");
             setValue(new Color(Integer.parseInt(rgb[0]),Integer.parseInt(rgb[1]),Integer.parseInt(rgb[2])));
+            return;
+        }
+        
+        if (getType().equals(ColorMap.class)) {
+            String color = value;
+            if (ColorMapFactory.colorMapNamesList.contains(color)) {
+                ColorMap colorMap = ColorMapFactory.getColorMapByName(color);
+                setValue(colorMap);
+            }
             return;
         }
 

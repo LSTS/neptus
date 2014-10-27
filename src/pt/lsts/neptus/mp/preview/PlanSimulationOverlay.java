@@ -66,7 +66,7 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
     public boolean simulationFinished = false;
     public static double bottomDepth = 10;
     private HashSet<PlanSimulationListener> listeners = new HashSet<>();
-    
+    private double totalTime = 0;
     protected LinkedHashMap<String, Collection<PayloadFingerprint>> payloads;
 
     protected PlanType plan;
@@ -109,6 +109,7 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
                     Thread.yield();
                 }
                 simulationFinished = true;
+                totalTime = ellapsedTime;
                 for (PlanSimulationListener l : listeners)
                     l.simulationFinished(PlanSimulationOverlay.this);
             };
@@ -217,6 +218,20 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
 
         return stats;
 
+    }
+
+    /**
+     * @return the totalTime
+     */
+    public double getTotalTime() {
+        return totalTime;
+    }
+
+    /**
+     * @param totalTime the totalTime to set
+     */
+    public void setTotalTime(double totalTime) {
+        this.totalTime = totalTime;
     }
 
     @Override

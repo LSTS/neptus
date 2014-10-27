@@ -12,6 +12,7 @@ plugins/s57*.jar
 plugins/spot.jar
 plugins/sunfish.jar
 plugins/trex*.jar
+plugins/urready4os.jar
 plugins/vrp.jar
 plugins/vtk.jar
 plugins/waveglider.jar

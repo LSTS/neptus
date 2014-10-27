@@ -31,12 +31,18 @@
  */
 package pt.lsts.neptus.console.plugins.planning.edit;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Vector;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import org.apache.commons.lang.StringUtils;
+
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -48,13 +54,13 @@ import com.l2fprod.common.propertysheet.DefaultProperty;
 public class PlanSettingsChanged extends AbstractUndoableEdit {
 
     private static final long serialVersionUID = 1L;
-    protected LinkedHashMap<String, DefaultProperty> previousSettings;
-    protected DefaultProperty newSetting;
+    protected LinkedHashMap<String, Vector<DefaultProperty>> previousSettings;
+    protected Collection<DefaultProperty> newSettings;
     protected PlanType plan;
     
-    public PlanSettingsChanged(PlanType plan, DefaultProperty newSetting, LinkedHashMap<String, DefaultProperty> previousSettings) {
+    public PlanSettingsChanged(PlanType plan, Collection<DefaultProperty> newSettings, LinkedHashMap<String, Vector<DefaultProperty>> previousSettings) {
         this.plan = plan;
-        this.newSetting = newSetting;
+        this.newSettings = newSettings;
         this.previousSettings = previousSettings;
     }
 
@@ -70,22 +76,24 @@ public class PlanSettingsChanged extends AbstractUndoableEdit {
 
     @Override
     public String getPresentationName() {
-        return "Set plan "+newSetting.getName()+" to "+newSetting.getValue();
+        Vector<String> settings = new Vector<String>();
+        for (DefaultProperty p : newSettings)
+            settings.add(p.getDisplayName());
+        
+        return I18n.textf("Change %planSettings in the entire plan.", StringUtils.join(settings, ", "));
     }
 
     @Override
     public void undo() throws CannotUndoException {
         for (String key : previousSettings.keySet()) {
-            plan.getGraph().getManeuver(key).setProperties(
-                    new DefaultProperty[] {previousSettings.get(key)});
+            plan.getGraph().getManeuver(key).setProperties(previousSettings.get(key).toArray(new DefaultProperty[0]));
         }
     }
 
     @Override
     public void redo() throws CannotRedoException {      
-        for (String key : previousSettings.keySet()) {
-            plan.getGraph().getManeuver(key).setProperties(
-                    new DefaultProperty[] {newSetting});
+        for (Maneuver m : plan.getGraph().getAllManeuvers()) {
+            m.setProperties(newSettings.toArray(new DefaultProperty[0]));
         }
     }
 

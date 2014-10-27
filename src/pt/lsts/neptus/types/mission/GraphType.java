@@ -276,8 +276,8 @@ public class GraphType implements XmlOutputMethods {
     }
     
     public void removeTransition(TransitionType transition) {
-        String sourceManeuver = transition.getId();
-        String targetManeuver = transition.getId();
+        String sourceManeuver = transition.getSourceManeuver();
+        String targetManeuver = transition.getTargetManeuver();
         
         TransitionType tt = transitions.remove(transition.id);
         if (tt == null)

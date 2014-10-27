@@ -93,10 +93,17 @@ public class I18n {
         if (new File(localizationDir, "neptus.po").canRead()) {
             found = true;
         }
-        else if (m.find() && new File(I18N_BASE_LOCALIZATION + m.group(1), "neptus.po").canRead()) {
+        else if (new File("../" + I18N_BASE_LOCALIZATION + language, "neptus.po").canRead()) {
+            found = true;
+            localizationDir = new File("../" + I18N_BASE_LOCALIZATION + language);
+        }
+        else if (m.find() && (new File(I18N_BASE_LOCALIZATION + m.group(1), "neptus.po").canRead() ||
+                new File("../" + I18N_BASE_LOCALIZATION + m.group(1), "neptus.po").canRead())) {
             found = true;
             language = m.group(1);
             localizationDir = new File(I18N_BASE_LOCALIZATION + language);
+            if (!localizationDir.exists())
+                localizationDir = new File("../" + I18N_BASE_LOCALIZATION + language);
             GeneralPreferences.language = language;
         }
         else {

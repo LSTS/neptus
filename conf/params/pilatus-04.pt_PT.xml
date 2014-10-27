@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,d12a6b9)" system="pilatus-04" i18n="pt_PT">
+<config format="1" version="2.6.x (master,ed341a2)" system="pilatus-04" i18n="pt_PT">
   <section name="Text Message Parser" name-i18n="Processador de Mensagens de Texto">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -1190,6 +1190,15 @@
       <default>1000</default>
       <units/>
       <desc>Speed in RPMs to be used in the generated maneuvers</desc>
+    </param>
+    <param name="Generate At Boot">
+      <name-i18n>Generate At Boot</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Set of commands for plans to generate at boot</desc>
     </param>
   </section>
   <section name="Lost Comms Monitor" name-i18n="Monitor de Perda de Comunicação">

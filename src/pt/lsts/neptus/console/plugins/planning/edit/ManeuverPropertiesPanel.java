@@ -151,7 +151,12 @@ public class ManeuverPropertiesPanel extends JPanel {
         changed = false;
         if (man == null) {
             setBorder(new TitledBorder(I18n.text("No maneuver selected")));
-            propsPanel.setProperties(new Property[0]);
+            try {
+                propsPanel.setProperties(new Property[0]);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
             editBtn.setEnabled(false);
             deleteBtn.setEnabled(false);
             return;

@@ -139,7 +139,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
                 GuiUtils.errorMessage(mraPanel, "Init script Error", e.getMessage());
                 e.printStackTrace();
             }
-            NeptusLog.pub().info("<###>init");
+            NeptusLog.pub().debug("init");
         }
 
         if (end != null) {
@@ -150,7 +150,7 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
                 GuiUtils.errorMessage(mraPanel, "End script Error", e.getMessage());
                 e.printStackTrace();
             }
-            NeptusLog.pub().info("<###>end");
+            NeptusLog.pub().debug("ended.");
         }
 
         for (Entry<String, String> t : traces.entrySet()) {

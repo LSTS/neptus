@@ -29,7 +29,7 @@
  * Author: jqcorreia
  * Mar 19, 2013
  */
-package pt.lsts.neptus.plugins.sidescan;
+package pt.lsts.neptus.console.plugins.PropertiesProviders;
 
 import java.awt.Color;
 
@@ -90,7 +90,7 @@ public class SidescanConfig implements PropertiesProvider {
         }
     }
     
-    protected void saveProps() {
+    public void saveProps() {
         try {
             PluginUtils.saveProperties("conf/sidescan.properties", this);
         }

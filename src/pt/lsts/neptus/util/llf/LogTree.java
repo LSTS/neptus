@@ -53,6 +53,7 @@ import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.plots.GenericPlot;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
 
@@ -104,7 +105,7 @@ public class LogTree extends JTree {
             }
             if(node.getUserObject() instanceof LogMarker) {
                 LogMarker mark = (LogMarker) node.getUserObject();
-                setText(mark.label);
+                setText(mark.getLabel());
                 if (!iconCache.containsKey("markers"))
                     iconCache.put("markers", ImageUtils.getIcon("images/menus/marker.png"));
                 setIcon(iconCache.get("markers"));                
@@ -168,6 +169,10 @@ public class LogTree extends JTree {
 
                             @Override
                             public void actionPerformed(ActionEvent e) {
+                                if (LsfReportProperties.generatingReport==true){
+                                    GuiUtils.infoMessage(panel.getRootPane(), I18n.text("Can not remove Marks"), I18n.text("Can not remove Marks - Generating Report."));
+                                    return;
+                                }
                                 panel.removeMarker((LogMarker)n.getUserObject());
                             }
                         });

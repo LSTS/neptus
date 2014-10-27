@@ -38,6 +38,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -50,25 +51,27 @@ import pt.lsts.neptus.types.coord.LocationType;
 public class LogMarker implements Serializable, Comparable<LogMarker> {
     private static final long serialVersionUID = 1L;
 
-    public String label;
-    public double timestamp;
+    private String label;
+    
+    /**
+     * Time stamp in milliseconds
+     */
+    private double timestamp;
 
     /**
      * Latitude in radians
      */
-    public double lat;
+    private double lat;
     /**
      * Longitude in radians
      */
-    public double lon;
+    private double lon;
     
     /**
-     * @param label
-     * @param timestamp
-     * @param x
-     * @param y
-     * @param w
-     * @param h
+     * @param label Text to associate with the marker
+     * @param timestamp in milliseconds
+     * @param lat Latitude, in radians of the marker. Use 0 if not available.
+     * @param lon Longitude, in radians of the marker. Use 0 if not available.
      */
     public LogMarker(String label, double timestamp, double lat, double lon) {
         super();
@@ -117,8 +120,57 @@ public class LogMarker implements Serializable, Comparable<LogMarker> {
             e.printStackTrace();
         }
     }
+   
     
     public LocationType getLocation() {
         return new LocationType(Math.toDegrees(lat), Math.toDegrees(lon));
     }
+
+    /**
+     * @return the label
+     */
+    public String getLabel() {
+        return label;
+    }
+
+    /**
+     * @return the timestamp
+     */
+    public double getTimestamp() {
+        return timestamp;
+    }
+
+    /**
+     * @return the lat
+     */
+    public double getLat() {
+        return lat;
+    }
+
+    /**
+     * @param lat the lat to set
+     */
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    /**
+     * @return the lon
+     */
+    public double getLon() {
+        return lon;
+    }
+
+    /**
+     * @param lon the lon to set
+     */
+    public void setLon(double lon) {
+        this.lon = lon;
+    }
+    
+    public Date getDate() {
+        return new Date((long)timestamp);
+    }
+
+
 }

@@ -31,17 +31,24 @@
  */
 package pt.lsts.neptus.mra;
 
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+
 /**
  * @author jqcorreia
- *
+ * 
  */
 public class SidescanLogMarker extends LogMarker {
     private static final long serialVersionUID = 1L;
-    
+
     public double x;
     public double y;
     public int w;
     public int h;
+    public double wMeters;// width in meters
+    public int subSys;// created on subSys
+    public String colorMap;
+    public boolean point;
 
     /**
      * @param label
@@ -52,12 +59,55 @@ public class SidescanLogMarker extends LogMarker {
      * @param y
      * @param w
      * @param h
+     * @param subSys
+     * @param colorMap
      */
-    public SidescanLogMarker(String label, double timestamp, double lat, double lon, double x, double y, int w, int h) {
+    public SidescanLogMarker(String label, double timestamp, double lat, double lon, double x, double y, int w, int h,
+            int subSys, ColorMap colorMap) {
         super(label, timestamp, lat, lon);
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
+        this.subSys = subSys;
+        this.colorMap = colorMap.toString();
     }
+
+    /**
+     * @param label
+     * @param timestamp
+     * @param lat
+     * @param lon
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @param wMeters
+     * @param subSys
+     * @param colorMap
+     */
+    public SidescanLogMarker(String label, double timestamp, double lat, double lon, double x, double y, int w, int h,
+            double wMeters, int subSys, ColorMap colorMap) {
+        super(label, timestamp, lat, lon);
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.wMeters = wMeters;
+        this.subSys = subSys;
+        this.colorMap = colorMap.toString();
+    }
+
+    public void setDefaults(int subSys){//reset Defaults for N/A values
+        if (this.subSys==0){
+            this.subSys=subSys;
+        }
+        if (colorMap==null){
+            colorMap = ColorMapFactory.createBronzeColormap().toString();
+        }
+        if (this.w==0 && this.h==0){
+            this.point=true;
+        }
+    }
+
 }

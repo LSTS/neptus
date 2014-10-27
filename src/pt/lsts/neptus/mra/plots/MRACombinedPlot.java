@@ -88,8 +88,8 @@ public abstract class MRACombinedPlot extends MRATimeSeriesPlot {
     public void addLogMarker(LogMarker e) {
         if(combinedPlot != null) {
             for(Object plot : combinedPlot.getSubplots()) {
-                ValueMarker vm = new ValueMarker(e.timestamp);
-                vm.setLabel(e.label);
+                ValueMarker vm = new ValueMarker(e.getTimestamp()- localTimeOffset);
+                vm.setLabel(e.getLabel());
                 ((org.jfree.chart.plot.XYPlot)plot).addDomainMarker(vm);
             }
         }
