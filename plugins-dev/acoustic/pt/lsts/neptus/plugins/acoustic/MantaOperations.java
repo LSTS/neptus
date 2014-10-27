@@ -146,6 +146,11 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     @NeptusProperty(name = "Use system discovery", description = "Instead of a static list, receive supported systems from gateway")
     public boolean sysDiscovery = true;
 
+    protected LinkedHashMap<String, LocationType> systemLocations = new LinkedHashMap<>();
+    
+    protected Vector<LocationType> rangeSources = new Vector<LocationType>();
+    protected Vector<Double> rangeDistances = new Vector<Double>();
+
     /**
      * @param console
      */
@@ -330,7 +335,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         btn.addActionListener(new ActionListener() {
             @Override
             @SuppressWarnings("unchecked")
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(ActionEvent event) {
                 Vector<Object> systems = new Vector<>();
                 systems.add(I18n.text("any"));
                 systems.addAll(Arrays.asList(ImcSystemsHolder.lookupSystemByService("acoustic/operation",
@@ -351,7 +356,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                 if (gw != null)
                     gateway = ""+gw;
                 
-                ((JButton)arg0.getSource()).setText(I18n.textf("GW: %gateway", gateway));
+                ((JButton) event.getSource()).setText(I18n.textf("GW: %gateway", gateway));
                 lblState.setText(buildState());
             }
         });
@@ -363,7 +368,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         cmdButtons.put("range", btn);
         btn.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(ActionEvent event) {
                 ImcSystem[] sysLst;
 
                 if (gateway.equals(I18n.text("any")))
@@ -372,9 +377,9 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                 else {
                     ImcSystem sys = ImcSystemsHolder.lookupSystemByName(gateway);
                     if (sys != null)
-                        sysLst = new ImcSystem[]{sys};
-                    else 
-                        sysLst = new ImcSystem[]{};
+                        sysLst = new ImcSystem[] { sys };
+                    else
+                        sysLst = new ImcSystem[] {};
                 }
 
                 if (sysLst.length == 0) {
@@ -412,8 +417,8 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         toggle = new JToggleButton(I18n.text("Show Ranges"));
         toggle.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
-                showRanges = ((JToggleButton) arg0.getSource()).isSelected();
+            public void actionPerformed(ActionEvent event) {
+                showRanges = ((JToggleButton) event.getSource()).isSelected();
                 if (!showRanges) {
                     rangeDistances.clear();
                     rangeSources.clear();
@@ -428,7 +433,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         cmdButtons.put("text", btn);
         btn.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(ActionEvent event) {
                 if (selectedSystem == null)
                     return;
                 String cmd = JOptionPane.showInputDialog(getConsole(), I18n.textf("Enter command to send to %vehicle", selectedSystem));
@@ -451,7 +456,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         cmdButtons.put("abort", btn);
         btn.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent arg0) {
+            public void actionPerformed(ActionEvent event) {
                 ImcSystem[] sysLst;
 
                 if (gateway.equals(I18n.text("any")))
@@ -460,9 +465,9 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                 else {
                     ImcSystem sys = ImcSystemsHolder.lookupSystemByName(gateway);
                     if (sys != null)
-                        sysLst = new ImcSystem[]{sys};
-                    else 
-                        sysLst = new ImcSystem[]{};
+                        sysLst = new ImcSystem[] { sys };
+                    else
+                        sysLst = new ImcSystem[] {};
                 }
 
                 if (sysLst.length == 0) {
@@ -494,8 +499,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
         listPanel.setBackground(Color.white);
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.PAGE_AXIS));
-        JSplitPane split1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(listPanel),
-                ctrlPanel);
+        JSplitPane split1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(listPanel), ctrlPanel);
         split1.setDividerLocation(180);
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab(I18n.text("Acoustic Operations"), split1);
@@ -558,11 +562,9 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     }
 
     public void addText(String text) {
-        bottomPane.setText(bottomPane.getText() +" \n"+text);        
-        bottomPane.scrollRectToVisible(new Rectangle(0, bottomPane.getHeight()+22, 1, 1) );
+        bottomPane.setText(bottomPane.getText() + " \n" + text);
+        bottomPane.scrollRectToVisible(new Rectangle(0, bottomPane.getHeight() + 22, 1, 1));
     }
-
-    protected LinkedHashMap<String, LocationType> systemLocations = new LinkedHashMap<>();
 
     @Subscribe
     public void on(PlanControl msg) {
@@ -592,9 +594,6 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
     @Subscribe
     public void on(AcousticOperation msg) {
-
-
-
         switch (msg.getOp()) {
             case RANGE_RECVED:
                 if (showRanges) {
@@ -670,15 +669,14 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         else {
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(gateway);
             if (sys != null)
-                sysLst = new ImcSystem[]{sys};
-            else 
-                sysLst = new ImcSystem[]{};
+                sysLst = new ImcSystem[] { sys };
+            else
+                sysLst = new ImcSystem[] {};
         }
         return sysLst;
-
     }
     
-    @Periodic(millisBetweenUpdates=120000)
+    @Periodic(millisBetweenUpdates = 120000)
     public void requestSysListing() {
         if (sysDiscovery) {
             AcousticSystemsQuery asq = new AcousticSystemsQuery();
@@ -686,9 +684,6 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                 send(s.getName(), asq);            
         }
     }
-
-    protected Vector<LocationType> rangeSources = new Vector<LocationType>();
-    protected Vector<Double> rangeDistances = new Vector<Double>();
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
