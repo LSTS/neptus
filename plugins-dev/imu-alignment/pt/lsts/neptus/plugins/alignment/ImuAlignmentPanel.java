@@ -194,7 +194,7 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
                 enableImu.setIcon(greenLed);
                 enableImu.setToolTipText(I18n.text("IMU aligned. Vehicle can be used in dead-reckoning mode."));
                 enableImu.setEnabled(true);
-                return "<html><h1><font color='red'>"+I18n.text("IMU aligned")+"</font></h1>"
+                return "<html><h1><font color='green'>"+I18n.text("IMU aligned")+"</font></h1>"
                 +"<p>"+I18n.text("Vehicle can now be used to execute dead reckoning missions.")+"</p>"
                 +"</html>";
             case NOT_ALIGNED:
