@@ -126,20 +126,16 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
         top.add(enableImu);
 
         enableImu.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 toggleImu(enableImu.isSelected());                
             }
         });
         
-        
-        
         doAlignment = new JButton(I18n.text("Do Alignment"));
         top.add(doAlignment);
         status = new JEditorPane("text/html", updateState());
         doAlignment.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 doAlignment();
@@ -251,8 +247,7 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
                 loc.translatePosition(lastState.getX(), lastState.getY(), 0);
                 pc.setLocation(loc);
             }
-            else
-            {
+            else {
                 pc.setLocation(new LocationType(getConsole().getMission().getHomeRef()));
             }
             pc.setSpeed(alignSpeed, alignSpeedUnits);
@@ -282,7 +277,7 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
 
     public void toggleImu(boolean newState) {
         Vector<EntityParameter> params = new Vector<>();
-        params.add(new EntityParameter("Active", ""+newState));
+        params.add(new EntityParameter("Active", "" + newState));
         SetEntityParameters m = new SetEntityParameters(imuEntity, params);
         send(m);
     }
@@ -295,7 +290,6 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
     @Subscribe
     public void on(ConsoleEventMainSystemChange evt) {
         update();
-        
     }
     
     @Subscribe
@@ -334,8 +328,5 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
     
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
     }
-
 }
