@@ -168,22 +168,40 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
     }
 
     public String updateState() {
-
         AlignmentState alignState = getState().lastAlignmentState();
         EntityState imuState = (EntityState) getState().get(EntityState.ID_STATIC, EntitiesResolver.resolveId(getMainVehicleId(), imuEntity));
         EntityActivationState imuActivationState = (EntityActivationState) getState().get(EntityActivationState.ID_STATIC, EntitiesResolver.resolveId(getMainVehicleId(), imuEntity));
         
         if (imuState == null) 
             enableImu.setEnabled(false);
-        else if (imuActivationState != null){
-            switch (imuActivationState.getState()) {
-                case ACTIVE:
-                    enableImu.setSelected(true);
-                    break;
-
-                default:
-                    enableImu.setSelected(false);
-                    break;
+        else {
+            boolean active = false;
+            if (imuActivationState != null) {
+                switch (imuActivationState.getState()) {
+                    case ACTIVE:
+                        active = true;
+                        break;
+                    default:
+                        active = false;
+                        break;
+                }
+            }
+            else {
+                String activeStr = imuState.getDescription();
+                if ("active".equalsIgnoreCase(activeStr) || I18n.text("active").equalsIgnoreCase(activeStr)) {
+                    active = true;
+                }
+            }
+            if (active) {
+                enableImu.setSelected(true);
+                enableImu.setText(I18n.text("IMU Enabled"));
+                enableImu.setToolTipText(null);
+            }
+            else {
+                enableImu.setSelected(false);
+                enableImu.setText(I18n.text("Enable IMU"));
+                enableImu.setToolTipText(null);
+                enableImu.setIcon(grayLed);
             }
         }
 
