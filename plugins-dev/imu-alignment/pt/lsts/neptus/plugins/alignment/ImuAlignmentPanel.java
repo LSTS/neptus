@@ -286,30 +286,31 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
         if (!entityState.getSourceName().equals(getMainVehicleId()))
             return;
         int eid = EntitiesResolver.resolveId(getMainVehicleId(), "Navigation");
+        if (eid == -1)
+            eid = EntitiesResolver.resolveId(getMainVehicleId(), I18n.text("Navigation"));
         if (entityState.getSrcEnt() != eid)
             return;
         
         boolean wasAligned = aligned;
         
-        if (entityState.getDescription().equals("not aligned"))
+        if (entityState.getDescription().equals("not aligned") || entityState.getDescription().equals(I18n.text("not aligned")))
             aligned = false;
         else
             aligned = true;
         
         if (!aligned && wasAligned) {
             if (useErrorNotification)
-                post(Notification.error("Navigation", "IMU is not aligned"));
+                post(Notification.error(I18n.text("Navigation"), I18n.text("IMU is not aligned")));
             else
-                post(Notification.warning("Navigation", "IMU is not aligned"));
+                post(Notification.warning(I18n.text("Navigation"), I18n.text("IMU is not aligned")));
             if (useAudioAlerts)
                 SpeechUtil.readSimpleText("I M U is not aligned");
         }
         
         if (aligned && !wasAligned) {
-            post(Notification.info("Navigation", "IMU is ready"));
-            if (useAudioAlerts && entityState.getDescription().equals("aligned"))
+            post(Notification.info(I18n.text("Navigation"), I18n.text("IMU is ready")));
+            if (useAudioAlerts && (entityState.getDescription().equals("aligned") || entityState.getDescription().equals(I18n.text("aligned"))))
                 SpeechUtil.readSimpleText("I M U is ready");
-
         }
     }
     
