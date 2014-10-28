@@ -209,30 +209,30 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     private String buildState() {
         if (gateway == null || gateway.equals(I18n.text("any")))
             return "<html><h1>" + I18n.text("Please select a gateway") + "</h1></html>";
-        ImcSysState state = ImcMsgManager.getManager().getState(gateway);
+        ImcSystemState state = ImcMsgManager.getManager().getState(gateway);
         StringBuilder html = new StringBuilder("<html>");
         html.append("<h1>" + I18n.textf("%gateway state", gateway) + "</h1>");
         html.append("<blockquote><ul>\n");
         try {
-            RSSI iridiumRSSI = state.lastRSSI("Iridium Modem"); // Check if works in I18n    
+            RSSI iridiumRSSI = state.last(RSSI.class, "Iridium Modem"); // Check if works in I18n    
             html.append("<li>" + I18n.textf("Iridium RSSI: %d  &#37;", iridiumRSSI.getValue()) + "</li>\n");
         }
         catch (Exception e) {}
         
         try {
-            GpsFix gpsFix = state.lastGpsFix();    
+            GpsFix gpsFix = state.last(GpsFix.class);    
             html.append("<li>" + I18n.textf("GPS satellites: %d", gpsFix.getSatellites()) + "</li>\n");
         }
         catch (Exception e) {}
         
         try {
-            StorageUsage storageUsage = state.lastStorageUsage();
+            StorageUsage storageUsage = state.last(StorageUsage.class);
             html.append("<li>" + I18n.textf("Storage Usage: %d  &#37;", storageUsage.getValue()) + "</li>\n");
         }
         catch (Exception e) {}
         
         try {
-            Voltage voltage = state.lastVoltage("Main Board"); // Check if works in I18n 
+            Voltage voltage = state.last(Voltage.class, "Main Board"); // Check if works in I18n 
             html.append("<li>" + I18n.textf("Voltage: %d V", voltage.getValue()) + "</li>\n");
         }
         catch (Exception e) {}
