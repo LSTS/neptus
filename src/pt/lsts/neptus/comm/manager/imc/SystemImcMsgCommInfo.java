@@ -37,6 +37,7 @@ import java.util.Vector;
 
 import pt.lsts.imc.AcousticSystems;
 import pt.lsts.imc.EmergencyControlState;
+import pt.lsts.imc.EntityParameters;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.IMCMessage;
@@ -499,6 +500,16 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     long timeMillis = msg.getTimestampMillis();
                     AcousticSystems acousticSystemsMsg = (AcousticSystems) msg;
                     resSys.storeData(ImcSystem.ACOUSTIC_SYSTEMS, acousticSystemsMsg, timeMillis, true);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            case EntityParameters.ID_STATIC:
+                try {
+                    long timeMillis = msg.getTimestampMillis();
+                    EntityParameters entityParametersMsg = (EntityParameters) msg;
+                    resSys.storeData(ImcSystem.ENTITY_PARAMETERS, entityParametersMsg, timeMillis, true);
                 }
                 catch (Exception e) {
                     e.printStackTrace();

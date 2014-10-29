@@ -505,7 +505,7 @@ public class SystemConfigurationEditorPanel extends JPanel implements PropertyCh
     }
     
     public static void updatePropertyWithMessageArrived(SystemConfigurationEditorPanel systemConfEditor, IMCMessage message) {
-        if (systemConfEditor == null || message == null)
+        if (systemConfEditor == null || message == null || !(message instanceof EntityParameters))
             return;
         
         try {
