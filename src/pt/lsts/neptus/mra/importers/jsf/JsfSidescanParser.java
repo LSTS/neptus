@@ -78,10 +78,10 @@ public class JsfSidescanParser implements SidescanParser {
             JsfSonarData sboard = null;
             JsfSonarData pboard = null;
 
-            if(ping.size() < 2) {
-                ping = parser.nextPing(subsystem);
-                continue;
-            }
+//            if(ping.size() < 2) {
+//                ping = parser.nextPing(subsystem);
+//                continue;
+//            }
             
             for (JsfSonarData temp : ping) {
                 if(temp != null) {
@@ -93,61 +93,83 @@ public class JsfSidescanParser implements SidescanParser {
                     }
                 }
             }
+            
+            int pboardNsamples = pboard != null ? pboard.getNumberOfSamples() : 0;
+            int sboardNsamples = sboard != null ? sboard.getNumberOfSamples() : 0;
+            
+            if (pboard == null && sboard != null)
+                pboardNsamples = sboardNsamples;
+            else if (pboard != null && sboard == null)
+                sboardNsamples = pboardNsamples;
+            
             // From here portboard channel (pboard var) will be the reference
-            double fData[] = new double[pboard.getNumberOfSamples() + sboard.getNumberOfSamples()];
+            double fData[] = new double[pboardNsamples + sboardNsamples];
             
             double avgSboard = 0, avgPboard = 0;
             
-            for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
-                double r = pboard.getData()[i];
-                avgPboard += r;
+            if (pboard != null) {
+                for (int i = 0; i < pboardNsamples; i++) {
+                    double r = pboard.getData()[i];
+                    avgPboard += r;
+                }
             }
             
-            for (int i = 0; i < sboard.getNumberOfSamples(); i++) {
-                double r = sboard.getData()[i];
-                avgSboard += r;
+            if (sboard != null) {
+                for (int i = 0; i < sboardNsamples; i++) {
+                    double r = sboard.getData()[i];
+                    avgSboard += r;
+                }
             }
             
-            avgPboard /= (double)pboard.getNumberOfSamples() * params.getNormalization();
-            avgSboard /= (double)sboard.getNumberOfSamples() * params.getNormalization();
+            avgPboard /= (double) pboardNsamples * params.getNormalization();
+            avgSboard /= (double) sboardNsamples * params.getNormalization();
             
-            // Calculate Portboard
-            for (int i = 0; i < pboard.getNumberOfSamples(); i++) {
-                double r =  i / (double)pboard.getNumberOfSamples();
-                double gain;
-                gain = Math.abs(30.0 * Math.log(r));
+            if (pboard != null) {
+                // Calculate Portboard
+                for (int i = 0; i < pboardNsamples; i++) {
+                    double r =  i / (double) pboardNsamples;
+                    double gain;
+                    gain = Math.abs(30.0 * Math.log(r));
+                    
+                    double pb = pboard.getData()[i] * Math.pow(10, gain / params.getTvgGain());
+                    fData[i] = pb / avgPboard;
+                }
+            }
+            
+            if (sboard != null) {
+                // Calculate Starboard
+                for (int i = 0; i < sboardNsamples; i++) {
+                    double r = 1 - (i / (double) sboardNsamples);
+                    double gain;
+                    
+                    gain = Math.abs(30.0 * Math.log(r));
+                    double sb = sboard.getData()[i] * Math.pow(10, gain / params.getTvgGain());
+                    fData[i + pboardNsamples] = sb / avgSboard;
+                }
+            }
+            
+            if (pboard != null || sboard != null) {
+                if (pboard == null)
+                    pboard = sboard;
+                SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
+                pose.getPosition().setLatitudeDegs((pboard.getLat() / 10000.0) / 60.0);
+                pose.getPosition().setLongitudeDegs((pboard.getLon() / 10000.0) / 60.0);
+                pose.setRoll(Math.toRadians(pboard.getRoll() * (180 / 32768.0)));
+                pose.setYaw(Math.toRadians(pboard.getHeading() / 100));
+                pose.setAltitude(pboard.getAltMillis() / 1000.0);
+                pose.setU(pboard.getSpeed() * 0.51444); // Convert knot-to-ms
                 
-                double pb = pboard.getData()[i] * Math.pow(10, gain / params.getTvgGain());
-                fData[i] = pb / avgPboard;
+                list.add(new SidescanLine(ping.get(0).getTimestamp(), ping.get(0).getRange(), pose, ping.get(0).getFrequency(), fData));
             }
-            
-            // Calculate Starboard
-            for (int i = 0; i < sboard.getNumberOfSamples(); i++) {
-                double r = 1 - (i / (double)sboard.getNumberOfSamples());
-                double gain;
-                
-                gain = Math.abs(30.0 * Math.log(r));
-                double sb = sboard.getData()[i] * Math.pow(10, gain / params.getTvgGain());
-                fData[i + pboard.getNumberOfSamples()] = sb / avgSboard;
-            }
-            
-            SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
-            pose.getPosition().setLatitudeDegs((pboard.getLat() / 10000.0) / 60.0);
-            pose.getPosition().setLongitudeDegs((pboard.getLon() / 10000.0) / 60.0);
-            pose.setRoll(Math.toRadians(pboard.getRoll() * (180 / 32768.0)));
-            pose.setYaw(Math.toRadians(pboard.getHeading() / 100));
-            pose.setAltitude(pboard.getAltMillis() / 1000.0);
-            pose.setU(pboard.getSpeed() * 0.51444); // Convert knot-to-ms
-            
-            list.add(new SidescanLine(ping.get(0).getTimestamp(), ping.get(0).getRange(), pose, ping.get(0).getFrequency(), fData));
 
             try {
                 ping = parser.nextPing(subsystem); //no next ping available
-            } catch (java.lang.ArrayIndexOutOfBoundsException e) {
+            } 
+            catch (ArrayIndexOutOfBoundsException e) {
                 break;
             }
-            if(ping.size() == 0) return list;
-            
+            if(ping.size() == 0)
+                return list;
         }
         return list;
     }
