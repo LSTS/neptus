@@ -63,10 +63,12 @@ import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.Dom4JUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.NameNormalizer;
+import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.XMLValidator;
 import pt.lsts.neptus.util.ZipUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
@@ -920,7 +922,10 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     }
 
     public synchronized boolean save(boolean savePreviousState) {
+        long startTimeMillis = System.currentTimeMillis();
 
+        String caller = ReflectionUtil.getCallerStamp();
+        
         if (getOriginalFilePath() == null || getOriginalFilePath().equals("")) {
             if (compressedFilePath != null) {
                 File fxTmp = new File(compressedFilePath);
@@ -958,30 +963,28 @@ public class MissionType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             // });
             // t.start();
             boolean sr = asZipFile(missionlog, true);
-            NeptusLog.pub().debug("The current mission state was" + (sr ? "" : " NOT") + " saved on " + missionlog);            
+            NeptusLog.pub().debug("The current mission state was" + (sr ? "" : " NOT") + " saved on " + missionlog
+                    + " in " + getFormatedDuration(startTimeMillis) + " from " + caller);
         }
 
         if (compressedFilePath != null) {
             boolean sr = asZipFile(compressedFilePath, false);
-            NeptusLog.pub().info("The mission was" + (sr ? "" : " NOT") + " saved to " + compressedFilePath);            
+            NeptusLog.pub().info("The mission was" + (sr ? "" : " NOT") + " saved to " + compressedFilePath
+                    + " in " + getFormatedDuration(startTimeMillis) + " from " + caller);            
             return sr;
         }
 
         boolean sr = FileUtil.saveToFile(getOriginalFilePath(),
                 FileUtil.getAsPrettyPrintFormatedXMLString(asDocument()));
-        NeptusLog.pub().info(
-                "The mission '" + getId() + "' was" + (sr ? "" : " NOT") + " saved to '" + getOriginalFilePath() + "'");
+        NeptusLog.pub().info("The mission '" + getId() + "' was" + (sr ? "" : " NOT") + " saved to '" + getOriginalFilePath() + "'"
+                        + " in " + getFormatedDuration(startTimeMillis) + " from " + caller);
         return sr;
-
-        /*
-         * if (FileUtil.saveToFile(getOriginalFilePath(), FileUtil .getAsPrettyPrintFormatedXMLString(asDocument()))) {
-         * NeptusLog.pub().info("The mission '"+getId()+"' was saved to '"+getOriginalFilePath()+"'");
-         * System.out.println
-         * ("MISSION ["+ts+"ms]:> "+"The mission '"+getId()+"' was saved to '"+getOriginalFilePath()+"'"); return true;
-         * } return false;
-         */
     }
 
+    private String getFormatedDuration(long startTimeMillis) {
+        return DateTimeUtil.milliSecondsToFormatedString(System.currentTimeMillis() - startTimeMillis);
+    }
+    
     public File getMissionFile() {
         if (compressedFilePath != null)
             return new File(compressedFilePath);
