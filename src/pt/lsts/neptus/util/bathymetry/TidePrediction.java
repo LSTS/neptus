@@ -32,6 +32,8 @@
 package pt.lsts.neptus.util.bathymetry;
 import java.util.Date;
 
+import pt.lsts.neptus.NeptusLog;
+
 /**
  * All the important info retrieved from the website and the way to retrieve it 
  *
@@ -58,7 +60,33 @@ public class TidePrediction {
             return pt;
         }
     }
-
+    
+    private static CachedData cached = new CachedData();
+    public static double currentTideLevel() {
+        return getTideLevel(new Date());
+    }
+    
+    public static double getTideLevel(Date date) {
+        try {
+            return cached.getTidePrediction(date, false);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+            return -1;
+        }
+    }
+    
+    public static double getTideLevel(long timestampMillis) {
+        try {
+            return cached.getTidePrediction(new Date(timestampMillis), false);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+            return -1;
+        }
+    }
+    
+    
     private float height;
     private Date timeAndDate;
     private TIDE_TYPE tideType;
