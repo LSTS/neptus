@@ -210,8 +210,6 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
       
         depths = newDepths;
     }
-    
-    
 
     protected NoptilusCoords coords = new NoptilusCoords();
 
@@ -323,7 +321,6 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
                 URLConnection conn = url.openConnection();
                 conn.setUseCaches(false);
                 conn.connect();
-                //BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
                 BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 String jsonClient = in.readLine();
                 receive = new Gson().fromJson(jsonClient,TransferData.class);    
@@ -372,6 +369,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
                             }
                             catch (Exception e) {
                                 GuiUtils.errorMessage(getConsole(), e);
+                                e.printStackTrace();
                                 return;
                             }
                         }
