@@ -32,6 +32,7 @@
 package pt.lsts.neptus.console.bathymLayer;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
@@ -47,7 +48,7 @@ import org.imgscalr.Scalr;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.colormap.ColorMap;
-import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.events.ConsoleEventMissionChanged;
@@ -57,6 +58,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.bathymetry.TidePrediction;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -74,13 +76,17 @@ public class BathymetryLayer extends ConsoleLayer {
     public int height = 1000;
     
     @NeptusProperty
-    public double maxDepth = 30;
+    public double maxDepth = 15;
     
     @NeptusProperty
     public double cellSize = 5;
     
     @NeptusProperty
-    public ColorMap colormap = ColorMapFactory.createBlueToRedColorMap();
+    public float opacity = 0.75f;
+    
+    //@NeptusProperty
+    public ColorMap colormap = new InterpolationColorMap(new double[] { 0, 0.2, 0.4, 0.6, 0.8, 1.0 }, new Color[] {
+            Color.RED.darker().darker(), Color.RED, Color.YELLOW, Color.GREEN, Color.BLUE, new Color(64, 0, 128) });
     
     private BufferedImage img;
     private LocationType center;
@@ -164,7 +170,7 @@ public class BathymetryLayer extends ConsoleLayer {
             public void actionPerformed(ActionEvent e) {
                 final JFileChooser chooser = new JFileChooser();
                 chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("PNG Images"), new String[] {"png"}));
-                chooser.setApproveButtonText(I18n.text("Save PNG"));
+                chooser.setApproveButtonText(I18n.text("Load PNG"));
                 chooser.showOpenDialog(getConsole());
                 if (chooser.getSelectedFile() == null)
                     return;
@@ -194,18 +200,22 @@ public class BathymetryLayer extends ConsoleLayer {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
         if (center == null)
-            initLayer();
+            reset();
         Point2D pt = renderer.getScreenPosition(center);
         g.translate(pt.getX(), pt.getY());
         g.rotate(-renderer.getRotation());
         double wr = cellSize * width * renderer.getZoom();
         double hr = cellSize * height * renderer.getZoom();
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f));
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g.drawImage(img, (int) (-wr / 2), (int) (hr / 2), (int) (wr), (int) (-hr), null, renderer);
     }
     
     public Point2D locToPoint(LocationType loc) {
+        
+        if (center == null)
+            reset();
+        
         double[] coords = loc.getOffsetFrom(center);
         coords[0] = (coords[0] + (width / 2.0) * cellSize) / cellSize;
         coords[1] = ((coords[1] + (height / 2.0) * cellSize) / cellSize);
@@ -224,17 +234,28 @@ public class BathymetryLayer extends ConsoleLayer {
     
     @Subscribe
     public void on(EstimatedState state) {
-        Point2D pt = locToPoint(IMCUtils.getLocation(state));
-        double alt = 0;
-        if (state.getAlt() != -1)
-            alt = state.getAlt();
-        
-        double ang = state.getPsi();
-        for (double i = -alt-1; i <= alt+1; i+=1) {
-            int x = (int) (pt.getX() + Math.cos(ang) * i/cellSize);
-            int y = (int) (pt.getY() - Math.sin(ang) * i/cellSize);
-            System.out.println(x+", "+y);
-            img.setRGB(x, y, 0x9200cc00);
+        try {
+            Point2D pt = locToPoint(IMCUtils.getLocation(state));
+            double width = 0;
+            double alt = 0;
+            if (state.getAlt() != -1) {
+                alt = state.getAlt() + state.getDepth() - TidePrediction.getTideLevel(state.getTimestampMillis());
+                width += state.getAlt();
+            }
+            alt = Math.max(0, alt);
+            
+            double ang = state.getPsi();
+            for (double i = -width-1; i <= width+1; i+=cellSize/3) {
+                int x = (int) (pt.getX() + Math.cos(ang) * i/cellSize);
+                int y = (int) (pt.getY() - Math.sin(ang) * i/cellSize);
+                
+                Color c = colormap.getColor(alt / maxDepth);
+                
+                img.setRGB(x, y, c.getRGB());
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
