@@ -229,7 +229,11 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         double width = renderer.getZoom() * coords.cellWidth * coords.numCols;
         double height = renderer.getZoom() * coords.cellWidth * coords.numRows;
         g.setColor(new Color(0,0,255,64));
-        g.fill(new Rectangle2D.Double(center.getX() - width/2, center.getY() - height / 2, width, height));
+        g.translate(center.getX(), center.getY());
+            g.rotate(-renderer.getRotation());
+                g.fill(new Rectangle2D.Double(-width/2, -height/2, width, height));        
+            g.rotate(renderer.getRotation());
+        g.translate(-center.getX(), -center.getY());
         
         for (String vehicle : nameTable.values()) {
             LocationType src = positions.get(vehicle);
