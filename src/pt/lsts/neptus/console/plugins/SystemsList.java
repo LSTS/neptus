@@ -71,6 +71,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+import pt.lsts.imc.EntityParameters;
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -1044,6 +1045,12 @@ public class SystemsList extends ConsolePanel implements MainVehicleChangeListen
                 sd.setLocationKnownToolTip(I18n.text("Unknown location for more than 10s"));
             }
 
+            
+            Object epObj = sys.retrieveData(ImcSystem.ENTITY_PARAMETERS);
+            if (epObj != null && (epObj instanceof EntityParameters)) {
+                sd.updateSystemParameters((EntityParameters) epObj); 
+            }
+            
             String txtInfo = getSection4Data(sys, true, true);
             if (txtInfo.length() != 0)
                 sd.setInfoLabel("<html>" + txtInfo);

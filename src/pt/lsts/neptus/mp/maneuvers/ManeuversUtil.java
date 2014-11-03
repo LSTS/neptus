@@ -38,14 +38,18 @@ import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
+import java.util.Arrays;
 import java.util.Vector;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.preview.SpeedConversion;
+import pt.lsts.neptus.plugins.PluginProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.AngleCalc;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author pdias
@@ -413,5 +417,24 @@ public class ManeuversUtil {
                 NeptusLog.pub().error("Unrecognized speed units: "+unitsProp.getValue());
                 return Double.NaN;
         }
+    }
+    
+    /**
+     * @param man
+     * @return
+     */
+    public static Vector<DefaultProperty> getPropertiesFromManeuver(Maneuver man) {
+        Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
+        PluginProperty[] prop = PluginUtils.getPluginProperties(man);
+        properties.addAll(Arrays.asList(prop));
+        return properties;
+    }
+
+    /**
+     * @param man
+     * @param properties
+     */
+    public static void setPropertiesToManeuver(Maneuver man, Property[] properties) {
+        PluginUtils.setPluginProperties(man, properties);
     }
 }

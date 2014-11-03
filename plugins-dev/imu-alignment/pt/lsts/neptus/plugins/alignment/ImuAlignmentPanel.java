@@ -168,8 +168,10 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
         EntityState imuState = (EntityState) getState().get(EntityState.ID_STATIC, EntitiesResolver.resolveId(getMainVehicleId(), imuEntity));
         EntityActivationState imuActivationState = (EntityActivationState) getState().get(EntityActivationState.ID_STATIC, EntitiesResolver.resolveId(getMainVehicleId(), imuEntity));
         
-        if (imuState == null) 
+        if (imuState == null) { 
             enableImu.setEnabled(false);
+            enableImu.setIcon(grayLed);
+        }
         else {
             boolean active = false;
             if (imuActivationState != null) {
@@ -190,11 +192,13 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
             }
             if (active) {
                 enableImu.setSelected(true);
+                enableImu.setIcon(greenLed);
                 enableImu.setText(I18n.text("IMU Enabled"));
                 enableImu.setToolTipText(null);
             }
             else {
                 enableImu.setSelected(false);
+                enableImu.setIcon(redLed);
                 enableImu.setText(I18n.text("Enable IMU"));
                 enableImu.setToolTipText(null);
                 enableImu.setIcon(grayLed);
@@ -205,21 +209,21 @@ public class ImuAlignmentPanel extends ConsolePanel implements IPeriodicUpdates 
             return "<html><h1>"+I18n.text("Waiting for IMU alignment state")+"</h1></html>";
         switch(alignState.getState()) {
             case ALIGNED:
-                enableImu.setIcon(greenLed);
+                // enableImu.setIcon(greenLed);
                 enableImu.setToolTipText(I18n.text("IMU aligned. Vehicle can be used in dead-reckoning mode."));
                 enableImu.setEnabled(true);
                 return "<html><h1><font color='green'>"+I18n.text("IMU aligned")+"</font></h1>"
                 +"<p>"+I18n.text("Vehicle can now be used to execute dead reckoning missions.")+"</p>"
                 +"</html>";
             case NOT_ALIGNED:
-                enableImu.setIcon(redLed);
+                // enableImu.setIcon(redLed);
                 enableImu.setEnabled(true);
                 enableImu.setToolTipText(I18n.text("IMU is not aligned"));
                 return "<html><h1><font color='red'>"+I18n.text("IMU not aligned")+"</font></h1>"
                 +"<p>"+I18n.text("In order to execute dead reckoning missions, IMU must first be aligned.")+"</p>"                
                 +"</html>";
             default:
-                enableImu.setIcon(grayLed);
+                // enableImu.setIcon(grayLed);
                 enableImu.setEnabled(false);
                 enableImu.setToolTipText(I18n.textf("IMU cannot be aligned on %vehicle", alignState.getSourceName()));
                 enableImu.setSelected(false);
