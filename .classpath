@@ -54,6 +54,7 @@
 	<classpathentry kind="src" path="plugins-dev/europa"/>
 	<classpathentry kind="src" path="plugins-dev/alliance"/>
 	<classpathentry kind="src" path="plugins-dev/urready4os"/>
+	<classpathentry kind="src" path="plugins-dev/bathymLayer"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
