@@ -237,7 +237,6 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             pos +=20;
         }
 
-        
         for (String vehicle : nameTable.values()) {
             LocationType src = positions.get(vehicle);
             LocationType dst = destinations.get(vehicle);
