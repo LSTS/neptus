@@ -72,4 +72,11 @@ public class TidePredictionFactory {
         }
         return finder;
     }
+    
+    public static void main(String[] args) {
+        for (int i = -10; i < 10; i++) {
+            Date d = new Date(System.currentTimeMillis() + 1000 * 3600 * i);
+            System.out.println(d+": "+TidePrediction.getTideLevel(d));
+        }
+    }
 }
