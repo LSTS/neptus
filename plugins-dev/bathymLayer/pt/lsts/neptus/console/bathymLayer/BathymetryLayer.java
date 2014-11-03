@@ -1,0 +1,240 @@
+/*
+ * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
+ * All rights reserved.
+ * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
+ *
+ * This file is part of Neptus, Command and Control Framework.
+ *
+ * Commercial Licence Usage
+ * Licencees holding valid commercial Neptus licences may use this file
+ * in accordance with the commercial licence agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in a
+ * written agreement between you and Universidade do Porto. For licensing
+ * terms, conditions, and further information contact lsts@fe.up.pt.
+ *
+ * European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the EUPL,
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
+ * included in the packaging of this file. You may not use this work
+ * except in compliance with the Licence. Unless required by applicable
+ * law or agreed to in writing, software distributed under the Licence is
+ * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ * ANY KIND, either express or implied. See the Licence for the specific
+ * language governing permissions and limitations at
+ * https://www.lsts.pt/neptus/licence.
+ *
+ * For more information please see <http://lsts.fe.up.pt/neptus>.
+ *
+ * Author: zp
+ * Nov 3, 2014
+ */
+package pt.lsts.neptus.console.bathymLayer;
+
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+
+import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
+
+import org.imgscalr.Scalr;
+
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.console.events.ConsoleEventMissionChanged;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
+
+import com.google.common.eventbus.Subscribe;
+
+/**
+ * @author zp
+ *
+ */
+@PluginDescription
+public class BathymetryLayer extends ConsoleLayer {
+
+    @NeptusProperty
+    public int width = 1000;
+    
+    @NeptusProperty
+    public int height = 1000;
+    
+    @NeptusProperty
+    public double maxDepth = 30;
+    
+    @NeptusProperty
+    public double cellSize = 5;
+    
+    @NeptusProperty
+    public ColorMap colormap = ColorMapFactory.createBlueToRedColorMap();
+    
+    private BufferedImage img;
+    private LocationType center;
+    
+    @Override
+    public boolean userControlsOpacity() {
+        return false;
+    }
+
+    private void reset() {
+        img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);   
+        center = new LocationType(getConsole().getMission().getHomeRef()).convertToAbsoluteLatLonDepth();        
+    }
+    
+    @Override
+    public void initLayer() {
+        
+        getConsole().addMenuItem("Tools>Bathymetry Layer>Reset", null, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                reset();                
+            }
+        });
+        
+        getConsole().addMenuItem("Tools>Bathymetry Layer>Import from LSF", null, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final JFileChooser chooser = new JFileChooser();
+                chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("LSF log files"), new String[] {"lsf", "lsf.gz"}));
+                chooser.setApproveButtonText(I18n.text("Open Log"));
+                chooser.showOpenDialog(getConsole());
+                if (chooser.getSelectedFile() == null)
+                    return;
+                Thread loader = new Thread() {
+                    public void run() {
+                        try {
+                            LsfIndex index = new LsfIndex(chooser.getSelectedFile());
+                            for (EstimatedState s : index.getIterator(EstimatedState.class, 500)) {
+                                on(s);
+                            }
+                            index.cleanup();
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    };
+                };
+                loader.setDaemon(true);
+                loader.start();
+                
+            }
+        });
+        
+        getConsole().addMenuItem("Tools>Bathymetry Layer>Export Image", null, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final JFileChooser chooser = new JFileChooser();
+                chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("PNG Images"), new String[] {"png"}));
+                chooser.setApproveButtonText(I18n.text("Save PNG"));
+                chooser.showSaveDialog(getConsole());
+                if (chooser.getSelectedFile() == null)
+                    return;
+                Thread loader = new Thread() {
+                    public void run() {
+                        try {
+                            ImageIO.write(img, "PNG", chooser.getSelectedFile());
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    };
+                };
+                loader.setDaemon(true);
+                loader.start();
+                
+            }
+        });
+        
+        getConsole().addMenuItem("Tools>Bathymetry Layer>Import Image", null, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final JFileChooser chooser = new JFileChooser();
+                chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("PNG Images"), new String[] {"png"}));
+                chooser.setApproveButtonText(I18n.text("Save PNG"));
+                chooser.showOpenDialog(getConsole());
+                if (chooser.getSelectedFile() == null)
+                    return;
+                Thread loader = new Thread() {
+                    public void run() {
+                        try {
+                            img = Scalr.resize(ImageIO.read(chooser.getSelectedFile()), width, height);
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    };
+                };
+                loader.setDaemon(true);
+                loader.setPriority(Thread.MIN_PRIORITY);
+                loader.start();                
+            }
+        });
+    }
+    
+    @Override
+    public void cleanLayer() {
+        img = null;
+    }
+    
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        super.paint(g, renderer);
+        if (center == null)
+            initLayer();
+        Point2D pt = renderer.getScreenPosition(center);
+        g.translate(pt.getX(), pt.getY());
+        g.rotate(-renderer.getRotation());
+        double wr = cellSize * width * renderer.getZoom();
+        double hr = cellSize * height * renderer.getZoom();
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f));
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(img, (int) (-wr / 2), (int) (hr / 2), (int) (wr), (int) (-hr), null, renderer);
+    }
+    
+    public Point2D locToPoint(LocationType loc) {
+        double[] coords = loc.getOffsetFrom(center);
+        coords[0] = (coords[0] + (width / 2.0) * cellSize) / cellSize;
+        coords[1] = ((coords[1] + (height / 2.0) * cellSize) / cellSize);
+        
+        if (coords[0] < 0 || coords[1] < 0)
+            return null;
+        if (coords[0] > width || coords[1] > height)
+            return null;
+        return new Point2D.Double(coords[1], coords[0]);
+    }
+    
+    @Subscribe
+    public void on(ConsoleEventMissionChanged evy) {
+        reset();
+    }
+    
+    @Subscribe
+    public void on(EstimatedState state) {
+        Point2D pt = locToPoint(IMCUtils.getLocation(state));
+        double alt = 0;
+        if (state.getAlt() != -1)
+            alt = state.getAlt();
+        
+        double ang = state.getPsi();
+        for (double i = -alt-1; i <= alt+1; i+=1) {
+            int x = (int) (pt.getX() + Math.cos(ang) * i/cellSize);
+            int y = (int) (pt.getY() - Math.sin(ang) * i/cellSize);
+            System.out.println(x+", "+y);
+            img.setRGB(x, y, 0x9200cc00);
+        }
+    }
+}
