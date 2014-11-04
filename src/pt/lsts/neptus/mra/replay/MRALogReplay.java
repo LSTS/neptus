@@ -285,7 +285,7 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
         
         timeline = new MRALogReplayTimeline(this);
         if (index.containsMessagesOfType("EstimatedState")) {
-            r2d.setCenter(IMCUtils.getLocation(index.nextMessageOfType(EstimatedState.class, 0)));
+            r2d.setCenter(IMCUtils.getLocation(index.getFirst(EstimatedState.class)));
         }
 
         Thread t = new Thread("Starting replay") {

@@ -60,8 +60,9 @@ import pt.lsts.imc.EntityList;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.MessagePart;
+import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.imc.net.IMCFragmentHandler;
-import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
@@ -90,7 +91,6 @@ import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
-import pt.lsts.neptus.util.llf.NeptusMessageLogger;
 
 import com.google.common.eventbus.AsyncEventBus;
 
@@ -116,7 +116,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
     protected IMCFragmentHandler fragmentHandler = new IMCFragmentHandler(IMCDefinition.getInstance());
     
-    protected ImcSysState imcState = new ImcSysState();
+    protected ImcSystemState imcState = new ImcSystemState(IMCDefinition.getInstance());
     {
         imcState.setIgnoreEntities(true);
     }
@@ -1319,7 +1319,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         // Lets set header values
         message.getHeader().setValue("src", localId.longValue());
-        message.getHeader().setValue("dst", systemCommId.longValue());
+        if (message.getHeader().getInteger("dst") == 0xFFFF)
+            message.getHeader().setValue("dst", systemCommId.longValue());
         // if (message.getTimestamp() == 0) // For now all messages are timestamped here
         message.setTimestamp(System.currentTimeMillis() / 1000.0);
 
@@ -1492,7 +1493,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
                     // Lets log the EntityInfo message
                     // LsfMessageLogger.log(info);
-                    NeptusMessageLogger.logMessage(info);
+                    LsfMessageLogger.log(info);
                 }
 
                 if (neptusEntities.get(caller) != null)
@@ -1595,7 +1596,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 // String sub = message.getHeaderValue("dst").toString();
                 // LLFMessageLogger.logMessage(info, msg);
                 // NeptusMessageLogger.logMessage(pub, sub, message.getTimestampMillis(), message);
-                NeptusMessageLogger.logMessage(message);
+                LsfMessageLogger.log(message);
             }
             catch (Exception e) {
                 NeptusLog.pub().error("Error logging message " + message.getMessageType().getShortName() + "!", e);
@@ -1678,20 +1679,20 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         return super.removeListener(listener, imcId);
     }
 
-    public ImcSysState getState(ImcId16 id) {
+    public ImcSystemState getState(ImcId16 id) {
         if (super.getCommInfoById(id) != null)
             return super.getCommInfoById(id).getImcState();
-        return new ImcSysState();
+        return new ImcSystemState(IMCDefinition.getInstance());
     }
 
-    public ImcSysState getState(VehicleType vehicle) {
+    public ImcSystemState getState(VehicleType vehicle) {
         if (vehicle != null)
             return getState(vehicle.getImcId());
         else
-            return new ImcSysState();
+            return new ImcSystemState(IMCDefinition.getInstance());
     }
 
-    public ImcSysState getState(String vehicle) {
+    public ImcSystemState getState(String vehicle) {
         VehicleType vt = VehiclesHolder.getVehicleById(vehicle);
         if (vt != null)
             return getState(vt);
@@ -1767,7 +1768,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         return bus;
     }
 
-    public final ImcSysState getImcState() {
+    public final ImcSystemState getImcState() {
         return imcState;
     }
 

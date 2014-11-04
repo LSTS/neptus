@@ -93,7 +93,10 @@ public class LogBookVisualization extends SimpleMRAVisualization {
                     break;
                 case CRITICAL:
                     msg.type = msg_type.critical;
-                    break;                    
+                    break;
+		case DEBUG:
+                    msg.type = msg_type.debug;
+                    break;
                 default:
                     break;
 

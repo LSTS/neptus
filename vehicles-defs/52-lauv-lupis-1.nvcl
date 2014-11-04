@@ -79,6 +79,28 @@
             </Loiter>
         </maneuver>
         <maneuver>
+            <YoYo kind="automatic">
+                <finalPoint type="pointType">
+                    <point>
+                        <id>sdadadasdasdasas</id>
+                        <coordinate>
+                            <latitude>0N</latitude>
+                            <longitude>0E</longitude>
+                            <depth>2</depth>
+                        </coordinate>
+                    </point>
+                    <radiusTolerance>5</radiusTolerance>
+                </finalPoint>
+                <amplitude>1</amplitude>
+                <pitch>0.17453292</pitch>
+                <speed type="float" unit="m/s">1.0</speed>
+                <annotation>
+                    <documentation>No documentation available</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.YoYo</implementation-class>
+                </annotation>
+            </YoYo>
+        </maneuver>
+        <maneuver>
             <StationKeeping kind="automatic">
                 <basePoint type="pointType">
                     <point>
@@ -211,7 +233,8 @@
                     </point>
                     <radiusTolerance>0</radiusTolerance>
                 </finalPoint>
-                <startZ>0</startZ>
+                <startZ>2</startZ>
+                <startZUnits>DEPTH</startZUnits>
                 <pitch>30</pitch>
                 <radius>10</radius>
                 <duration>0</duration>

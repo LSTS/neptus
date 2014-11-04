@@ -54,7 +54,6 @@ public class MineDangerAreaElement extends SimpleMapElement {
     @NeptusProperty
     public Color color = Color.red;
     
-    @NeptusProperty
     public boolean filled = true;
        
     public MineDangerAreaElement(MapGroup mg, MapType map) {

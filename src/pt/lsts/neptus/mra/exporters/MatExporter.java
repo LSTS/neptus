@@ -117,7 +117,7 @@ public class MatExporter implements MRAExporter {
         final double writeFullPrec = 100 - structFullPrec;
         for(String messageLog : logList) {
             try {
-                if (pmonitor.isCanceled())
+                if (pmonitor != null && pmonitor.isCanceled())
                     break;
                 
                 parser = source.getLog(messageLog);

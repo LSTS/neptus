@@ -52,11 +52,11 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleConstants.ColorConstants;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.lsts.neptus.util.llf.NeptusMessageLogger;
-import pt.lsts.imc.IMCMessage;
 
 /**
  * @author ZP
@@ -148,7 +148,7 @@ public class LogBook extends JPanel {
 					logMsg.setValue("htime", DateTimeUtil.timeStampSeconds());
 					logMsg.setValue("type", 0);
 					logMsg.setValue("text", messageField.getText());			
-					NeptusMessageLogger.logMessage(logMsg);							
+					LsfMessageLogger.log(logMsg);							
 				}
 				catch (Exception ex) {
 					ex.printStackTrace();

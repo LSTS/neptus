@@ -37,7 +37,6 @@ import java.io.File;
 import java.util.LinkedHashMap;
 
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import pt.lsts.neptus.NeptusLog;
@@ -66,6 +65,7 @@ import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
 import pt.lsts.neptus.plugins.vtk.utils.Utils;
 import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.Text3D;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import vtk.vtkLODActor;
 
@@ -105,10 +105,13 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     private boolean mbFound = false;
     private static final String FILE_83P_EXT = ".83P";
 
+    private MRAPanel mraPanel = null;
+    
     /**
      * @param panel
      */
     public VtkMRAVis(MRAPanel panel) {
+        this.mraPanel = panel;
         if (!Utils.hasTryedToLoadVtkLib) {
             Utils.loadVTKLibraries();
             // VTKMemoryManager.GC.SetAutoGarbageCollection(true);
@@ -188,11 +191,12 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
             }
         }
         if (!source.getLsfIndex().containsMessagesOfType("Distance") && !mbFound) {
-            String msgErrorNoData = I18n.text("No data Available") + "!";
-            JOptionPane.showMessageDialog(null, msgErrorNoData);
+            String msgErrorNoData = I18n.text("No data Available!");
+            GuiUtils.errorMessage(mraPanel, I18n.text("Info"), msgErrorNoData);
 
             Text3D noDataText = new Text3D();
             noDataText.buildText3D(msgErrorNoData, 2.0, 2.0, 2.0, 10.0);
+            noDataText.getText3dActor().RotateY(180);
             getCanvas().GetRenderer().AddActor(noDataText.getText3dActor());
         }
     }
@@ -259,11 +263,12 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
         }
         else { // if no beams were parsed
             String msgErrorMultibeam;
-            msgErrorMultibeam = I18n.text("No beams on Log file") + "!";
-            JOptionPane.showMessageDialog(null, msgErrorMultibeam);
+            msgErrorMultibeam = I18n.text("No beams on Log file!");
+            GuiUtils.errorMessage(mraPanel, I18n.text("Info"), msgErrorMultibeam);
 
             noBeamsText = new Text3D();
             noBeamsText.buildText3D(msgErrorMultibeam, 2.0, 2.0, 2.0, 10.0);
+            noBeamsText.getText3dActor().RotateY(180);
             getCanvas().GetRenderer().AddActor(noBeamsText.getText3dActor());
         }
     }
@@ -374,7 +379,7 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
 
     @Override
     public String getPropertiesDialogTitle() {
-        return I18n.text("3D Bathymetry properties");
+        return I18n.text("3D Bathymetry Properties");
     }
 
     /*

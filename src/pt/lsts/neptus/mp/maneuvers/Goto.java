@@ -32,6 +32,8 @@
 package pt.lsts.neptus.mp.maneuvers;
 
 import java.text.NumberFormat;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -415,6 +417,12 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 
 		return gotoManeuver;
 	}   
+	
+    @Override
+    public Collection<ManeuverLocation> getWaypoints() {
+        return Collections.singleton(getStartLocation());
+    }
+
 
     public static void main(String[] args) {
     	Goto g = new Goto();

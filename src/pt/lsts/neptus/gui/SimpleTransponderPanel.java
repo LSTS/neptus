@@ -58,6 +58,7 @@ import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.TransponderElement;
+import pt.lsts.neptus.types.map.TransponderUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.NameNormalizer;
@@ -154,7 +155,7 @@ public class SimpleTransponderPanel extends SimpleLocationPanel {
 	private JComboBox<String> getConfigurationFile() {
 		if (configurationFile == null) {
 //		    String[] confs = new String[] {"lsts1.conf", "lsts2.conf", "lsts3.conf"/*, "lsts1m.conf", "lsts2m.conf", "lsts3m.conf"*/};
-            String[] confs = TransponderElement.getTranspondersListArray();
+            String[] confs = TransponderUtils.getTranspondersConfsNamesList();
 			configurationFile = new JComboBox<String>(confs);
 			configurationFile.setPreferredSize(new Dimension(90,20));
 			configurationFile.setEditable(false);

@@ -90,8 +90,11 @@ public class SimulationActionsPlugin extends ConsolePanel {
     private void selectHeight() {
         String sel = JOptionPane.showInputDialog(getConsole(), "Select Simulated Height", ""+simulatedHeight);
         
+        if (sel == null)
+            return;
+        
         try {
-            simulatedHeight = Double.parseDouble(sel);    
+            simulatedHeight = Double.parseDouble(sel);
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), e);

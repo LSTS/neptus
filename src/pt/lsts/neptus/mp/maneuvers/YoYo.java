@@ -32,6 +32,8 @@
 package pt.lsts.neptus.mp.maneuvers;
 
 import java.text.NumberFormat;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Vector;
 
 import org.dom4j.Document;
@@ -429,4 +431,10 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 		PropertiesEditor.editProperties(g, true);
 		PropertiesEditor.editProperties(g, true);	
 	}
+    
+    @Override
+    public Collection<ManeuverLocation> getWaypoints() {
+        return Collections.singleton(getStartLocation());
+    }
+
 }

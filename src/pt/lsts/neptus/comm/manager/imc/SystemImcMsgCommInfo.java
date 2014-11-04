@@ -39,6 +39,7 @@ import pt.lsts.imc.AcousticSystems;
 import pt.lsts.imc.EmergencyControlState;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FuelLevel;
+import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IndicatedSpeed;
 import pt.lsts.imc.LblConfig;
@@ -50,7 +51,8 @@ import pt.lsts.imc.Rpm;
 import pt.lsts.imc.SimulatedState;
 import pt.lsts.imc.TrueSpeed;
 import pt.lsts.imc.VehicleState;
-import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.imc.lsf.LsfMessageLogger;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.MessageFrequencyCalculator;
 import pt.lsts.neptus.comm.manager.SystemCommBaseInfo;
@@ -67,7 +69,6 @@ import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.StringUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
-import pt.lsts.neptus.util.llf.NeptusMessageLogger;
 
 import com.google.common.eventbus.AsyncEventBus;
 
@@ -86,7 +87,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
     private boolean useActivityCounter = true;
     private Vector<Long> activityCounter = new Vector<Long>();
 
-    protected ImcSysState imcState = new ImcSysState();
+    protected ImcSystemState imcState = new ImcSystemState(IMCDefinition.getInstance());
 
     private PreferencesListener gplistener = new PreferencesListener() {
         public void preferencesUpdated() {
@@ -531,7 +532,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
                     if (strUDP.equals(pub))
                         pub = getSystemIdName().toUpperCase();
 //                    NeptusMessageLogger.getLogger().logMessage(pub, sub, info.getTimeReceivedNanos() / 1000000, msg);
-                    NeptusMessageLogger.logMessage(msg);
+                    LsfMessageLogger.log(msg);
                 }
             }
             catch (Exception e) {
@@ -559,7 +560,7 @@ public class SystemImcMsgCommInfo extends SystemCommBaseInfo<IMCMessage, Message
         return getSystemIdName();
     }
 
-    public final ImcSysState getImcState() {
+    public final ImcSystemState getImcState() {
         return imcState;
     }
 }

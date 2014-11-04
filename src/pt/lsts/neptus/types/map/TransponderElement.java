@@ -36,12 +36,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.io.File;
-import java.io.FileFilter;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Hashtable;
-import java.util.Vector;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -56,7 +51,6 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.NameId;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.misc.BeaconsConfig;
 import pt.lsts.neptus.types.misc.FileType;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.PropertiesLoader;
@@ -72,41 +66,41 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 public class TransponderElement extends AbstractElement implements NameId{
     protected static final String DEFAULT_ROOT_ELEMENT = "transponder";
     private static Image transponderImg = ImageUtils.getImage("images/transponder.png");
-    private static String[] transpondersListArray;
+//    private static String[] transpondersListArray;
     // id shared with Dune - order in LblConfig list
     public short duneId;
 
-    static {
-        final Vector<String> aTranspondersFiles = new Vector<String>();
-        File dir = new File("maps/");
-        File[] files = dir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                String name = pathname.getName();
-                // NeptusLog.pub().info("<###> "+name + ": " +
-                // name.matches("^(lsts[0-9]+\\.conf)|([A-Za-z][A-Za-z\\-_0-9]+\\.conf)$"));
-                if (name.matches("^(lsts[0-9]+\\.conf)|([A-Za-z][A-Za-z0-9\\-\\_]*\\.conf)$")) {
-                    return true;
-                }
-                return false;
-            }
-        });
-        Arrays.sort(files, new Comparator<File>() {
-            @Override
-            public int compare(File o1, File o2) {
-                if (o1.getName().startsWith("lsts") && !o2.getName().startsWith("lsts"))
-                    return -1;
-                else if (!o1.getName().startsWith("lsts") && o2.getName().startsWith("lsts"))
-                    return 1;
-                return o1.compareTo(o2);
-            }
-        });
-        for (File file : files) {
-            // NeptusLog.pub().info("<###> "+file.getName());
-            aTranspondersFiles.add(file.getName());
-        }
-        transpondersListArray = aTranspondersFiles.toArray(new String[aTranspondersFiles.size()]);
-    }
+//    static {
+//        final Vector<String> aTranspondersFiles = new Vector<String>();
+//        File dir = new File("maps/");
+//        File[] files = dir.listFiles(new FileFilter() {
+//            @Override
+//            public boolean accept(File pathname) {
+//                String name = pathname.getName();
+//                // NeptusLog.pub().info("<###> "+name + ": " +
+//                // name.matches("^(lsts[0-9]+\\.conf)|([A-Za-z][A-Za-z\\-_0-9]+\\.conf)$"));
+//                if (name.matches("^(lsts[0-9]+\\.conf)|([A-Za-z][A-Za-z0-9\\-\\_]*\\.conf)$")) {
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
+//        Arrays.sort(files, new Comparator<File>() {
+//            @Override
+//            public int compare(File o1, File o2) {
+//                if (o1.getName().startsWith("lsts") && !o2.getName().startsWith("lsts"))
+//                    return -1;
+//                else if (!o1.getName().startsWith("lsts") && o2.getName().startsWith("lsts"))
+//                    return 1;
+//                return o1.compareTo(o2);
+//            }
+//        });
+//        for (File file : files) {
+//            // NeptusLog.pub().info("<###> "+file.getName());
+//            aTranspondersFiles.add(file.getName());
+//        }
+//        transpondersListArray = aTranspondersFiles.toArray(new String[aTranspondersFiles.size()]);
+//    }
 
     protected FileType file = null;
     protected boolean buoyAttached = true;
@@ -177,7 +171,7 @@ public class TransponderElement extends AbstractElement implements NameId{
         lt.setDepth(depth);
         id = beacon;
         setCenterLocation(lt);
-        propConf = BeaconsConfig.getMatchingConf(lblBeacon);
+        propConf = TransponderUtils.getMatchingConf(lblBeacon);
         file = new FileType();
         String workingFile = propConf.getWorkingFile();
         String[] tokens = workingFile.split("/");
@@ -492,12 +486,9 @@ public class TransponderElement extends AbstractElement implements NameId{
         return ELEMENT_TYPE.TYPE_TRANSPONDER;
     }
 
-    /**
-     * 
-     */
-    public static final String[] getTranspondersListArray() {
-        return transpondersListArray;
-    }
+//    public static final String[] getTranspondersListArray() {
+//        return transpondersListArray;
+//    }
 
     @Override
     public String getDisplayName() {
@@ -516,9 +507,9 @@ public class TransponderElement extends AbstractElement implements NameId{
 
     @Override
     public String toString() {
-        String queryCh = propConf.getProperty("interrogation channel");
-        String replyCh = propConf.getProperty("reply channel");
-        String delay = propConf.getProperty("transponder delay (msecs.)");
+        String queryCh = propConf != null ? propConf.getProperty("interrogation channel") : "";
+        String replyCh = propConf != null ? propConf.getProperty("reply channel") : "";
+        String delay = propConf != null ? propConf.getProperty("transponder delay (msecs.)") : "";
         StringBuilder string = new StringBuilder();
         string.append(getDisplayName());
         string.append("[");

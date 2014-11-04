@@ -64,9 +64,11 @@ public class CorrectedPosition {
     }
 
     public SystemPositionAndAttitude getPosition(double timestamp) {
+        if (positions.isEmpty())
+            return null;
         SystemPositionAndAttitude p = new SystemPositionAndAttitude();
         p.setTime((long)timestamp * 1000);
-        int pos = Collections.binarySearch(positions, p);        
+        int pos = Collections.binarySearch(positions, p);
         if (pos < 0)
             pos = -pos;
         if (pos >= positions.size())

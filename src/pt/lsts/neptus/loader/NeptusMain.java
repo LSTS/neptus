@@ -180,6 +180,10 @@ public class NeptusMain {
         else if (app.equalsIgnoreCase("mra")) {
             NeptusMRA mra = NeptusMRA.showApplication();
             wrapMainApplicationWindowWithCloseActionWindowAdapter(mra);
+            
+            if (appargs.length > 1) {
+                mra.openLog(appargs[1]);
+            }
         }
         // Empty Console
         else if (app.equalsIgnoreCase("cl")) {

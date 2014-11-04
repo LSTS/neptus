@@ -116,6 +116,9 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
     @NeptusProperty(name = "My Heading", userLevel = LEVEL.REGULAR)
     public double headingDegrees = 0;
 
+    @NeptusProperty(name = "Use configured My Heading", userLevel = LEVEL.REGULAR)
+    public boolean useConfiguredMyHeading = false;
+
     @NeptusProperty(name = "Follow Position Of", editable = false, 
             category = "Follow System", userLevel = LEVEL.ADVANCED,
             description ="Uses position and heading of other system as mine.")
@@ -221,7 +224,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
     public boolean update() {
         location = MyState.getLocation();
         LocationType newLocation = location;
-        headingDegrees = MyState.getHeadingInDegrees();
+        if (!useConfiguredMyHeading)
+            headingDegrees = MyState.getHeadingInDegrees();
         double newHeadingDegrees = headingDegrees;
         lastCalcPosTimeMillis = MyState.getLastLocationUpdateTimeMillis();
         length = MyState.getLength();
@@ -235,21 +239,26 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(followPositionOf);
             LocationType loc = null;
             long locTime = -1;
-            headingDegrees = 0;
+            if (!useConfiguredMyHeading)
+                headingDegrees = 0;
             long headingDegreesTime = -1;
             if (sys != null) {
                 loc = sys.getLocation();
                 locTime = sys.getLocationTimeMillis();
-                headingDegrees = sys.getYawDegrees();
-                headingDegreesTime = sys.getAttitudeTimeMillis();
+                if (!useConfiguredMyHeading) {
+                    headingDegrees = sys.getYawDegrees();
+                    headingDegreesTime = sys.getAttitudeTimeMillis();
+                }
             }
             else {
                 ExternalSystem ext = ExternalSystemsHolder.lookupSystem(followPositionOf);
                 if (ext != null) {
                     loc = ext.getLocation();
                     locTime = ext.getLocationTimeMillis();
-                    headingDegrees = ext.getYawDegrees();
-                    headingDegreesTime = ext.getAttitudeTimeMillis();
+                    if (!useConfiguredMyHeading) {
+                        headingDegrees = ext.getYawDegrees();
+                        headingDegreesTime = ext.getAttitudeTimeMillis();
+                    }
                 }
             }
             if (loc != null && locTime - lastCalcPosTimeMillis > 0) {
@@ -265,7 +274,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
         }
         
         // update just heading if following system
-        if (isFollowingHeadingOfFilled()) {
+        if (!useConfiguredMyHeading && isFollowingHeadingOfFilled()) {
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(followHeadingOf);
             double headingDegrees = 0;
             long headingDegreesTime = -1;
@@ -285,10 +294,8 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 newHeadingDegrees = headingDegrees + followHeadingOfAngleOffset;
             }
         }
-        
-        
 
-        if (isSystemToDeriveHeadingFilled()) {
+        if (!useConfiguredMyHeading && isSystemToDeriveHeadingFilled()) {
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(useSystemToDeriveHeading);
             LocationType loc = null;
             // long locTime = -1;
@@ -313,6 +320,11 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             }
         }
 
+        if (useConfiguredMyHeading) {
+            updateHeading = true;
+            newHeadingDegrees = headingDegrees;
+        }
+        
         if (updateLocation && updateHeading)
             MyState.setLocationAndAxis(newLocation, AngleCalc.nomalizeAngleDegrees360(newHeadingDegrees));
         else if (updateLocation)
@@ -448,19 +460,16 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
             g.rotate(rotationAngle);
         }
 
+        String meTextToDraw = I18n.text("Me");
         if (enableShowDataSource) {
-            g.drawString(
-                    I18n.text("Me")
-                        + (followPositionOf != null && followPositionOf.length() != 0 ? " "
-                                + I18n.text("Pos. external") : "")
-                        + (isSystemToDeriveHeadingFilled()
-                                || isFollowingHeadingOfFilled() ? " "
-                                + I18n.textc("Heading external",
-                                        "indication that the heading comes from external source") : ""), 18, 14);
+            meTextToDraw += (followPositionOf != null && followPositionOf.length() != 0 ? " "
+                    + I18n.text("Pos. external") : "")
+                    + (isSystemToDeriveHeadingFilled() || isFollowingHeadingOfFilled() ? " "
+                            + I18n.textc("Heading external", "indication that the heading comes from external source")
+                            : "");
         }
+        g.drawString(meTextToDraw, 18, 14);
 
-        g.translate(-centerPos.getX(), -centerPos.getY());
-        
         g.dispose();
     }
 

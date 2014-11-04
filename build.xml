@@ -56,12 +56,12 @@ For simple use the main targets are:
 	<!-- Defines variables used by the other targets                         -->
 	<!-- =================================================================== -->
 	<property name="version.MAJOR" value="4" />
-	<property name="version.MINOR" value="1" />
+	<property name="version.MINOR" value="3" />
 	<property name="version.PATCH" value="0" />
-	<!-- Set this to '.dev' if a developer release; blank "" if maintenance release -->
-	<property name="version.DEVELOPER" value="dev" />
-	<!-- Set the release number. Use the form 'R1' for release 1. Or leave it blank for a non release -->
-	<property name="release.NAME" value="R14.02" />
+	<!-- Set this to '-dev' if a developer release; blank "" if maintenance release; or '-rcX' for release candidate X (X number) -->
+	<property name="version.DEVELOPER" value="-dev" />
+	<!-- Set the release number. Use the form 'R14.01' for release 1 of year 2014. Or leave it blank for a non release -->
+	<property name="release.NAME" value="R14.03" />
 	<property name="release.INFO" value="${release.NAME}"/>
 
 	<!-- EITHER the developer release number, or a maintenance release number -->
@@ -1295,7 +1295,6 @@ For simple use the main targets are:
 		<delete dir="tmpjars" failonerror="true" />
 		<mkdir dir="tmpjars" />
 		<script language="javascript">     
-            importPackage(java.io);
 			jarList = project.getProperty("plugin.private.jars.cp");
 			if (!"".equals(jarList)) {
 				if (project.getProperty("os.name").toLowerCase().contains("windows"))
@@ -1304,8 +1303,8 @@ For simple use the main targets are:
 					libs = jarList.split(":");
 	            for (index in libs) {
 	              unzip = project.createTask("unzip");
-	              unzip.setDest(new File("tmpjars"));
-	              unzip.setSrc(new File(libs[index]));    
+	              unzip.setDest(new java.io.File("tmpjars"));
+	              unzip.setSrc(new java.io.File(libs[index]));    
 	        	  unzip.perform();
 	            }
 			}
@@ -1467,6 +1466,10 @@ For simple use the main targets are:
     	</copy -->
 	</target>
 
+	<!-- Travis-CI test target -->
+	<target name="test" depends="clean, generate-all-necessary-missing-files, junit, distribution-full-all-os">
+	</target>
+	
 	<!-- =================================================================== -->
 	<!-- Runs the JUnit tests and creats a report                                                                       -->
 	<!-- =================================================================== -->

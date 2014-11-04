@@ -32,6 +32,7 @@
 package pt.lsts.neptus.types.map;
 
 import java.text.NumberFormat;
+import java.util.Collection;
 import java.util.Vector;
 
 import javax.swing.JLabel;
@@ -200,6 +201,19 @@ public class PlanUtil {
             Thread.sleep(100);
         
         return ps.getSimulationOverlay().getStates();        
+    }
+    
+    
+    public static Collection<ManeuverLocation> getPlanWaypoints(PlanType plan) {
+        Vector<ManeuverLocation> locs = new Vector<>();
+        for (Maneuver m : plan.getGraph().getManeuversSequence()) {
+            if (m instanceof LocatedManeuver)
+                locs.addAll(((LocatedManeuver) m).getWaypoints());
+        }
+        
+        for (ManeuverLocation l : locs)
+            l.convertToAbsoluteLatLonDepth();
+        return locs;
     }
     
     /**

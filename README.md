@@ -14,3 +14,5 @@ and another using "European Union Public Licence - EUPL v.1.1 Usage" (see https:
 For developers: please read javadoc/overview-and-developers-guide.html.
 
 For more information check Neptus web site (http://www.lsts.pt/neptus/).
+
+[![Build Status](https://travis-ci.org/LSTS/neptus.svg?branch=develop)](https://travis-ci.org/LSTS/neptus)

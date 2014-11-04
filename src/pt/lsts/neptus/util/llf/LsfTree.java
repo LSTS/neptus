@@ -42,6 +42,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -80,8 +81,10 @@ public class LsfTree extends JTree {
 	    
 	    try {
 			IMraLog parser = source.getLog(logName);
-			IMCMessage entry = source.getLsfIndex().getMessage(source.getLsfIndex().getNextMessageOfType(logName, 0));
-			
+			LsfIndex index = source.getLsfIndex();
+			int mgid = index.getDefinitions().getMessageId(logName);
+			int firstPos = index.getFirstMessageOfType(mgid);
+			IMCMessage entry = index.getMessage(firstPos);
 			LLFTreeLog file = new LLFTreeLog(parser, logName);
 			DefaultMutableTreeNode fileNode = new DefaultMutableTreeNode(file);			
 			treeModel.insertNodeInto(fileNode, (DefaultMutableTreeNode)treeModel.getRoot(), ((DefaultMutableTreeNode)treeModel.getRoot()).getChildCount());			

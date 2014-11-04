@@ -65,32 +65,13 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     private static final long serialVersionUID = 1L;
 
     protected MRAPanel mraPanel;
-
-    // bottom toolbar for playing / pausing etc..
     private Timeline timeline;
-    // Histogram histogram;
-
     private long firstPingTime;
     private long lastPingTime;
-
     private long currentTime;
     private long lastUpdateTime;
-
-    // List of different frequencies on this log
-    // private ArrayList<Double> freqList = new ArrayList<Double>();
-
-    // Processing flags - not used ?!?!
-    //    @NeptusProperty(name = "vertical Blending")
-    //    public boolean verticalBlending = false;
-    //    @NeptusProperty(name = "Slant Range Correction")
-    //    public boolean slantRangeCorrection = false;
-    //    @NeptusProperty(name = "Time Variable Gain")
-    //    public boolean timeVariableGain = false;
-
     private ArrayList<SidescanPanel> sidescanPanels = new ArrayList<SidescanPanel>();
-
     private ArrayList<LogMarker> markerList = new ArrayList<LogMarker>();
-
     private SidescanParser ssParser;
 
     public SidescanAnalyzer(MRAPanel panel) {
@@ -108,15 +89,10 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         lastUpdateTime = firstPingTime;
 
         for (Integer subsys : ssParser.getSubsystemList()) {
-            // NeptusLog.pub().info(subsys);
             sidescanPanels.add(new SidescanPanel(this, ssParser, subsys));
         }
 
         fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        // NeptusLog.pub().info(
-        // fmt.format("First Ping time: " + new Date(firstPingTime)) + "\nLast Ping time: "
-        // + fmt.format(new Date(lastPingTime)) + " " + "\nTotal time: " + (lastPingTime - firstPingTime));
 
         timeline = new Timeline(0, (int) (lastPingTime - firstPingTime), 30, 1000, false);
         timeline.getSlider().setValue(0);

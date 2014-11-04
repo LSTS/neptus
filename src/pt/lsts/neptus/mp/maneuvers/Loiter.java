@@ -33,6 +33,8 @@ package pt.lsts.neptus.mp.maneuvers;
 
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
@@ -600,4 +602,10 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
     public double getMinDepth() {
         return getManeuverLocation().getAllZ();
     }   
+    
+    @Override
+    public Collection<ManeuverLocation> getWaypoints() {
+        return Collections.singleton(getStartLocation());
+    }
+
 }

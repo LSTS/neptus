@@ -1,8 +1,54 @@
 Changes
 =======
 
-Neptus 4.1.0 dev (??-??-2014)
+Neptus 4.2.0-rc1 (23-09-2014)
+----------------
+
+TODO
+
+Neptus 4.1.0 (31-07-2014)
 ------------
+ * IMC: Updated IMC and IMCJava to 4667e8e. (no major changes from v5.4.0 except some experimental messages for UAV added).
+ * Config: Updated systems parameters to DUNE 2.6.0 (master,0724529 for lauvseacon-1 and master, 4f41e09 for all others).
+ * I18n: Updated POT and PO files.
+ * Console/PlanEditor/PlanElement: Using LocationType to calculate distances.
+ * Console/MapEditor: Fixed issues with Undo/Redo and filled property of map elements.
+ * MRA/Exporters: Fixing some exception on Sidescan images exporting.
+ * Maneuvers/CompassCalibration: Drawing circle according with radius plus clockwise arrow.
+ * Vehicles/Defs: Safer CompassCalibration defaults.
+ * Maneuvers/Loiter: Fix ClockWise or CounterClockWise drawing.
+ * Console/Map: ScatterPointsElement now allows setting 2 colors for creating a gradient.
+ * Comms: Fix a long time hidden bug that made disconnection of a system comm. was not properly processed.
+ * Console/MyLocation: Possibility to use external systems as the system to follow.
+ * Console/Map: Whenever a new point is added to a ScatterPointsElement too far from its center (> 3000), it creates a new center a cleans previous points. 
+ * MRA/Exporter: Fixed the order of the coordinates while exporting plans to KML.
+ * Console/Plugin Alliance: Added NMEA plotter (AIS ship positions). 
+ * MRA/ConcatenateLsfLog: Fix coping of log elements and also for the GZ Data.lsf IS MANDATORY TO USE MultiMemberGZIPInputStream and not GZIPInputStream due to the later does not handle well concatenated GZ files, as DUNE produces.
+ * Console/Map: Added LineSegment map element.
+ * Console/MainSystemSelectionCombo: different color schemes for most usual vehicle states.
+ * MRA/Plots: in Temperature vs Depth, use Depth Sensor if CTD is not available.
+ * MRA: Added VideoLegendExporter.
+ * MRA: Corrected positions are now cached in mra/ folder.
+ * Console/PlanEditor now correctly updates the edited plan statistics whenever the plan is changed by the user.
+ * Launchers Shell/MRA/VTK Plugin: Better support for VTK installed on Windows in Batch launchers. If variable "vtk.lib.dir" is set then it will be used ("vtk.lib.dir(x86)" can be set on a x64 Windows to run 32bit java and VTK). If not it is expected to be installed on "%PROGRAMFILES%\VTK\bin" or "%PROGRAMFILES(x86)%\VTK\bin" for 32bit on a x64 Windows.
+ * Console/MultiVehiclePlanOverlay: When verbose reports are received, the plan being visualized is not cleaned up.
+ * Console/PlanSimulationLayer: Fixing some bugs in PlanSimulationLayer (validation checks were being executed before simulation was finished).
+ * Console/PlanControlState: PlanControlStatePanel now requests for plans sent by other neptus consoles (defaults to false).
+ * MRA/VTK Plugin: This addition will trigger the point clouds to be meshed otherwise nothing will be shown when user pushes the solid or wired frame based representations.
+ * MRA: Fix bug that was not allowing message values to be shown on the table as their type, ordering was not working because of this.
+ * Console/PlanControlState/FollowReferenceInteraction: Only process incoming PlanControlState messages if plan_id is not empty. Closes #2925.
+ * Util/Colormap: ConvexHull is computed only when necessary by DataDiscretizer.
+ * Console/UAV: Some cleanups on UavVirtualHorizonPainter and AutopilotModePanel.
+ * LogsDownloaderWorker/FtpDownloader: Some work to remove some bugs. Also now only one download at a time.
+ * Console/MyLocationDisplay: Some cleanups and clarifications on its configuration.
+ * Console/Plugin Position: Added FindMainSystemLayer for renderer to show where the vehicle is.
+ * Console/Europa: Added an Europa planner and viewer (only for linux x64).
+ * Loaders: CheckJavaOSArch also generates the os.name property (lowercase in "osName-arch" format).
+ * Loaders: LD_LIBRARY_PATH is not overriden in neptus.sh.
+ * MRA/Exporters: CTDExporter now also exports GMT time and corrected positions.
+ * Console: Added small panel to supervise air | ground and commanded speeds.
+ * MRA/VTK: Several cleanups.
+ * Libs: Updated Guava from 16.0 to 17.0.
  * MRA/Exporters: MatLab exporter reworked.
  * Vehicles/SystemsList: Added possibility to edit system parameters in the SystemsList.
 

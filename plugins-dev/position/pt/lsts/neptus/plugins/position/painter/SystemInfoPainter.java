@@ -44,7 +44,7 @@ import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.Heartbeat;
 import pt.lsts.imc.StorageUsage;
 import pt.lsts.imc.Voltage;
-import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
@@ -253,19 +253,19 @@ public class SystemInfoPainter extends ConsoleLayer {
         hbCount = 0;
         mainSysName = ev.getCurrent();
 
-        ImcSysState state = getState();
+        ImcSystemState state = getState();
         if (state != null) {
-            if (state.lastHeartbeat() != null)
-                lastMessageMillis = state.lastHeartbeat().getTimestampMillis();
-            if (state.lastStorageUsage() != null)
-                storageUsage = 100 - state.lastStorageUsage().getValue();
-            if (state.lastCpuUsage() != null)
-                cpuUsage = state.lastCpuUsage().getValue();
-            if (state.lastFuelLevel() != null)
-                fuelLevel = (float)state.lastFuelLevel().getValue();
+            if (state.last(Heartbeat.class) != null)
+                lastMessageMillis = state.last(Heartbeat.class).getTimestampMillis();
+            if (state.last(StorageUsage.class) != null)
+                storageUsage = 100 - state.last(StorageUsage.class).getValue();
+            if (state.last(CpuUsage.class) != null)
+                cpuUsage = state.last(CpuUsage.class).getValue();
+            if (state.last(FuelLevel.class) != null)
+                fuelLevel = (float)state.last(FuelLevel.class).getValue();
             try {
-                if (state.lastVoltage(batteryEntityName) != null)
-                    batteryVoltage = state.lastVoltage(batteryEntityName).getValue();
+                if (state.last(Voltage.class, batteryEntityName) != null)
+                    batteryVoltage = state.last(Voltage.class, batteryEntityName).getValue();
             }
             catch (Exception e) {
                 batteryVoltage = 0.0;

@@ -77,7 +77,8 @@ public class HistoryPanel extends JPanel {
         bgColors.put(msg_type.critical, Color.black);
         bgColors.put(msg_type.error, new Color(255,128,128));
         bgColors.put(msg_type.warning, new Color(255,255,128));
-        bgColors.put(msg_type.info, new Color(200,255,200));        
+        bgColors.put(msg_type.info, new Color(200,255,200));
+        bgColors.put(msg_type.debug, new Color(217,217,217));
     }
 
     public HistoryPanel(ConsoleLayout console, boolean showReload) {
@@ -175,6 +176,8 @@ public class HistoryPanel extends JPanel {
             case error:
             case critical:
                 return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/error.png");
+	    case debug:
+                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/unknown.png");
             default:
                 return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/queue2.png");
         }

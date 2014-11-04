@@ -39,7 +39,7 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import pt.lsts.imc.state.ImcSysState;
+import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
@@ -165,7 +165,7 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
         ImcMsgManager.unregisterBusListener(this);        
     }
     
-    protected final ImcSysState getState() {
+    protected final ImcSystemState getState() {
         return ImcMsgManager.getManager().getState(getConsole().getMainSystem());
     }
     

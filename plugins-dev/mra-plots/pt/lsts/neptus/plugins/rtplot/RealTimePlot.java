@@ -56,6 +56,7 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.tools.shell.Global;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -148,17 +149,22 @@ public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, Conf
         Collection<String> traces = scripts.keySet();
         
         for (String s : traces) {
-            Object o = scripts.get(s).exec(context, global);
-            if (o instanceof NativeJavaObject) {
-                o = ((NativeJavaObject)o).unwrap();
+            try {
+                Object o = scripts.get(s).exec(context, global);
+                if (o instanceof NativeJavaObject) {
+                    o = ((NativeJavaObject)o).unwrap();
+                }
+                TimeSeries ts = tsc.getSeries(s);
+                if (ts == null) {
+                    ts = new TimeSeries(s);
+                    ts.setMaximumItemCount(numPoints);
+                    tsc.addSeries(ts);
+                }
+                ts.addOrUpdate(new Millisecond(new Date(System.currentTimeMillis())), Double.parseDouble(o.toString()));
             }
-            TimeSeries ts = tsc.getSeries(s);
-            if (ts == null) {
-                ts = new TimeSeries(s);
-                ts.setMaximumItemCount(numPoints);
-                tsc.addSeries(ts);
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
             }
-            ts.addOrUpdate(new Millisecond(new Date(System.currentTimeMillis())), Double.parseDouble(o.toString()));
         }
         Context.exit();
         
@@ -177,16 +183,6 @@ public class RealTimePlot extends ConsolePanel implements IPeriodicUpdates, Conf
             catch (Exception e) {
                 e.printStackTrace();
             }
-            
-//            removeAll();
-//            
-//            timeSeriesChart = ChartFactory.createTimeSeriesChart(null, null, null, tsc, true, true, true);
-//            add (new ChartPanel(timeSeriesChart), BorderLayout.CENTER);
-//            add (bottom, BorderLayout.SOUTH);
-//            doLayout();
-//            invalidate();
-//            revalidate();
-                       
         }
                
         traceScriptsBefore = traceScripts;
