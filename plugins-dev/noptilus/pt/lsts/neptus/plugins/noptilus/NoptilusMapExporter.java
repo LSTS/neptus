@@ -82,8 +82,7 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        // return source.getLsfIndex().containsMessagesOfType("EstimatedState");
-        return false;
+        return source.getLsfIndex().containsMessagesOfType("EstimatedState");        
     }
 
     @Override
