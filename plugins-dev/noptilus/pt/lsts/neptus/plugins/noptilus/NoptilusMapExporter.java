@@ -55,6 +55,7 @@ import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
+import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -67,7 +68,7 @@ import convcao.com.caoAgent.NoptilusCoords;
  * @author zp
  *
  */
-// @PluginDescription
+@PluginDescription
 public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
 
     NoptilusCoords coords = new NoptilusCoords();
