@@ -39,6 +39,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
@@ -47,6 +48,7 @@ import org.imgscalr.Scalr;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.comm.IMCUtils;
@@ -144,6 +146,7 @@ public class BathymetryLayer extends ConsoleLayer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final JFileChooser chooser = new JFileChooser();
+                chooser.setCurrentDirectory(new File(".", "log"));
                 chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("PNG Images"), new String[] {"png"}));
                 chooser.setApproveButtonText(I18n.text("Save PNG"));
                 chooser.showSaveDialog(getConsole());
@@ -189,10 +192,26 @@ public class BathymetryLayer extends ConsoleLayer {
                 loader.start();                
             }
         });
+        
+        try {
+            if (new File("log/bathym.png").exists()) {
+                img = Scalr.resize(ImageIO.read(new File("log/bathym.png")), width, height);
+                center = new LocationType(getConsole().getMission().getHomeRef());
+            }
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }    
     }
     
     @Override
     public void cleanLayer() {
+        try {
+            ImageIO.write(img, "PNG", new File("log/bathym.png"));
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }        
         img = null;
     }
     
@@ -226,7 +245,7 @@ public class BathymetryLayer extends ConsoleLayer {
             return null;
         return new Point2D.Double(coords[1], coords[0]);
     }
-    
+        
     @Subscribe
     public void on(ConsoleEventMissionChanged evy) {
         reset();
