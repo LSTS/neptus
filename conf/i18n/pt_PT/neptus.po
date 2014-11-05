@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
 "POT-Creation-Date: 2014-11-05 20:12+0000\n"
-"PO-Revision-Date: 2014-11-05 20:15-0000\n"
+"PO-Revision-Date: 2014-11-05 23:22-0000\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team:  <neptus.i18n@lsts-feup.org>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 1.5.5\n"
 
 #: plugins-dev/leds/pt/lsts/neptus/plugins/leds/LedsSlider.java:122
 msgid " Brightness Controller"
@@ -180,12 +180,12 @@ msgstr "%systemName retornou recebimento de uma operação de aborte"
 #: src/pt/lsts/neptus/console/plugins/planning/PlanSimulationLayer.java:205
 #: src/pt/lsts/neptus/console/plugins/planning/PlanSimulationLayer.java:215
 msgid "%vehicle will be %maxDistToBase meters away from here"
-msgstr ""
+msgstr "%vehicle ficará a %maxDistToBase metros daqui"
 
 #: src/pt/lsts/neptus/console/plugins/planning/PlanSimulationLayer.java:209
 #: src/pt/lsts/neptus/console/plugins/planning/PlanSimulationLayer.java:219
 msgid "%vehicle will finish %distance  meters away from base"
-msgstr ""
+msgstr "O %vehicle irá terminar a %distance metros da base"
 
 #: src/pt/lsts/neptus/mc/Workspace.java:394
 msgid "%vehiclename - Vehicle Info"
@@ -279,7 +279,7 @@ msgstr "Ficheiro de Modelo 3D"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/Vis3DMenuBar.java:341
 msgid "3D Multibeam keyboard and mouse interation"
-msgstr ""
+msgstr "Interacção de teclado e rato do Multifeixe 3D"
 
 #: Name of plugin pt.lsts.neptus.mra.plots.Plot3D
 msgid "3D Plot"
@@ -910,7 +910,7 @@ msgstr "Aplicar correcção de velocidade"
 #: Property from
 #: pt.lsts.neptus.console.plugins.PropertiesProviders.SidescanConfig
 msgid "Apply speed correction (along path)"
-msgstr ""
+msgstr "Aplicar correcção de velocidade (ao longo do caminho)"
 
 #: Property from
 #: pt.lsts.neptus.console.plugins.PropertiesProviders.SidescanConfig
@@ -996,7 +996,7 @@ msgstr "Actualização Automática de Lista Log dos Sistemas Remotos"
 
 #: Name of plugin pt.lsts.neptus.plugins.uavs.panels.AutopilotModePanel
 msgid "Autopilot Mode Indicator"
-msgstr ""
+msgstr "Indicador de Modo de Piloto Automático"
 
 #: src/pt/lsts/neptus/colormap/ColorMapFactory.java:207
 msgctxt "Colormap name"
@@ -1407,7 +1407,7 @@ msgstr "Tamanho da célula"
 #: Description of property 'Cell size' from
 #: convcao.com.caoAgent.NoptilusCoords
 msgid "Cell size in meters for each map square"
-msgstr ""
+msgstr "Tamanho da célula em metros para cada quadrado do mapa"
 
 #: Property from pt.lsts.neptus.mra.replay.ValueColorMap
 #: pt.lsts.neptus.mra.replay.BathymetryReplay
@@ -1450,7 +1450,7 @@ msgstr "Centro:"
 
 #: src/pt/lsts/neptus/console/plugins/planning/edit/PlanSettingsChanged.java:83
 msgid "Change %planSettings in the entire plan."
-msgstr ""
+msgstr "Alterar %planSettings em todo o plano."
 
 #: plugins-dev/map/pt/lsts/neptus/plugins/map/edit/ObjectPropertiesEdit.java:80
 msgid "Change '%element'"
@@ -2585,7 +2585,7 @@ msgstr "Valor do valor de disco"
 
 #: Property from pt.lsts.neptus.plugins.position.painter.SystemInfoPainter
 msgid "Display Confidence Level"
-msgstr ""
+msgstr "Mostrar Nível de Confiança"
 
 #: Property from pt.lsts.neptus.plugins.position.painter.SystemInfoPainter
 msgid "Display Current"
@@ -2594,7 +2594,7 @@ msgstr "Mostrar Currente"
 #: Description of property 'Display Confidence Level' from
 #: pt.lsts.neptus.plugins.position.painter.SystemInfoPainter
 msgid "Display Fuel Level estimation Confidence on panel"
-msgstr ""
+msgstr "Mostrar confiança da estimação do nível de combustível"
 
 #: Property from
 #: pt.lsts.neptus.console.plugins.PropertiesProviders.SidescanConfig
@@ -2604,7 +2604,7 @@ msgstr "Mostrar Percurso de Veículo"
 #: Description of property 'Display Current' from
 #: pt.lsts.neptus.plugins.position.painter.SystemInfoPainter
 msgid "Display drawn Current on panel"
-msgstr ""
+msgstr "Mostrar corrente usada no painel"
 
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:157
 msgid "Display lookup table (on/off)"
@@ -3336,7 +3336,7 @@ msgstr "Exec"
 
 #: plugins-dev/europa/pt/lsts/neptus/plugins/europa/gui/SolverPanel.java:227
 msgid "Execute %plan by %vehicle at %speed m/s"
-msgstr ""
+msgstr "Executar %plan por %vehicle a %speed m/s"
 
 #: plugins-dev/europa/pt/lsts/neptus/plugins/europa/gui/SolverPanel.java:273
 msgid ""
@@ -3768,7 +3768,7 @@ msgstr "Suporte GPX"
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:331
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:359
 msgid "GW: %gateway"
-msgstr ""
+msgstr "GW: %gateway"
 
 #: plugins-dev/acoustic/pt/lsts/neptus/plugins/acoustic/MantaOperations.java:506
 msgid "Gateway state"
@@ -6566,7 +6566,7 @@ msgstr "Abrir janela de configuração do Plugin seleccionado"
 
 #: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:477
 msgid "Open this log in MRA"
-msgstr ""
+msgstr "Abrir este Log no MRA"
 
 #: src/pt/lsts/neptus/types/vehicle/VehiclesHolder.java:451
 msgid "Opening Console"
