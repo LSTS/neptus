@@ -35,9 +35,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TimeZone;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.Conductivity;
@@ -48,12 +50,14 @@ import pt.lsts.imc.lsf.IndexScanner;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
@@ -90,6 +94,47 @@ public class CTDExporter implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
 
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy'-'MM'-'dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date start = new Date((long)(source.getLsfIndex().getStartTime()*1000));
+        Date end = new Date((long)(source.getLsfIndex().getEndTime()*1000));
+        String startSel = "";
+        while(startSel.isEmpty()) {
+        startSel = JOptionPane.showInputDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Select start time (UTC)"), sdf.format(start));        
+            if (startSel == null)
+                return "Cancelled by the user";
+            try {
+                start = sdf.parse(startSel);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn(e);
+                startSel = "";
+                continue;
+            }
+        }
+        
+        String endSel = "";
+        while (endSel.isEmpty()) {
+            endSel = JOptionPane.showInputDialog(ConfigFetch.getSuperParentFrame(), I18n.text("Select end time (UTC)"), sdf.format(end));
+            if (endSel == null)
+                return "Cancelled by the user";
+            try {
+                end = sdf.parse(endSel);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn(e);
+                endSel = "";
+                continue;
+            }
+        }
+        
+        if (start.after(end)) {
+            return "Start time must be before end time";
+        }
+        
+        //System.out.println(start +" --> "+end);
+        
         LsfIndex index = source.getLsfIndex();
         IndexScanner scanner = new IndexScanner(index);
         pmonitor.setMaximum(index.getNumberOfMessages());
@@ -108,7 +153,7 @@ public class CTDExporter implements MRAExporter {
         BufferedWriter writer;
         try {
             writer = new BufferedWriter(new FileWriter(out));
-            writer.write("timestamp, gmt_time, latitude, longitude, corrected_lat, corrected_lon, conductivity, temperature, depth, medium\n");
+            writer.write("timestamp (GMT), gmt_time, latitude, longitude, corrected_lat, corrected_lon, conductivity, temperature, depth, medium\n");
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -117,12 +162,20 @@ public class CTDExporter implements MRAExporter {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        
-        while (true) {
 
+        try {
+            scanner.setTime(start.getTime()/1000.0);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return e.getClass().getSimpleName()+": "+e.getMessage();
+        }
+        while (true) {
             Conductivity c = scanner.next(Conductivity.class, "CTD");
-            if (c == null)
+            
+            if (c == null || c.getTimestampMillis() > end.getTime())
                 return finish(writer, count);
+
             int idx = scanner.getIndex();
 
             VehicleMedium m = scanner.next(VehicleMedium.class);
