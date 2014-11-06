@@ -128,7 +128,7 @@ public class NoptilusMapExporter implements MRAExporter, PropertiesProvider {
             pathImg.setRGB(col, row, Color.blue.darker().getRGB());
         }
         //}
-        if (source.getFile("data.83P") != null) {
+        if (DeltaTParser.findDataSource(source) != null) {
             highRes = new DataDiscretizer(cellSize);
             DeltaTParser parser = new DeltaTParser(source);
             parser.rewind();
