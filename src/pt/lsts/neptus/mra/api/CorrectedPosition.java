@@ -103,6 +103,7 @@ public class CorrectedPosition {
             LocationType thisLoc = new LocationType();
             thisLoc.setLatitudeRads(es.getLat());
             thisLoc.setLongitudeRads(es.getLon());
+            
             if (es.getDepth() > 0)
                 thisLoc.setDepth(es.getDepth());
             if (es.getAlt() > 0)
@@ -155,6 +156,19 @@ public class CorrectedPosition {
             }
             lastLoc = thisLoc;
             lastTime = es.getTimestamp();
+        }
+        
+        
+        for (int i = 0; i < nonAdjusted.size(); i++) {
+            EstimatedState adj = nonAdjusted.get(i);
+            LocationType loc = nonAdjustedLocs.get(i);
+            loc.convertToAbsoluteLatLonDepth();
+            loc.setDepth(adj.getDepth());
+            SystemPositionAndAttitude p = new SystemPositionAndAttitude(adj);
+            p.setPosition(loc);
+            p.setAltitude(adj.getAlt());
+            p.setTime((long)(adj.getTimestamp() * 1000));
+            positions.add(p);
         }
         
         try {
