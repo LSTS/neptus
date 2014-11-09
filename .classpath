@@ -55,6 +55,7 @@
 	<classpathentry kind="src" path="plugins-dev/alliance"/>
 	<classpathentry kind="src" path="plugins-dev/urready4os"/>
 	<classpathentry kind="src" path="plugins-dev/bathymLayer"/>
+	<classpathentry kind="src" path="plugins-dev/cloud"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
@@ -208,6 +209,7 @@
 	<classpathentry kind="lib" path="lib/aisparser-2.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/jssc.jar"/>
 	<classpathentry kind="lib" path="lib/gpxparser.jar"/>
+	<classpathentry kind="lib" path="lib/firebase-client-jvm-2.0.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="conf"/>
