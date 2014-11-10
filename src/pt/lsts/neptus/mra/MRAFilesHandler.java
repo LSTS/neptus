@@ -48,6 +48,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.io.FileUtils;
 
 import pt.lsts.imc.lsf.LsfIndexListener;
 import pt.lsts.neptus.NeptusLog;
@@ -159,7 +160,7 @@ public class MRAFilesHandler implements FileHandler {
             mra.getMraPanel().cleanup();
             mra.setMraPanel(null);
             mra.getContentPane().removeAll();
-            NeptusLog.pub().info("<###>Log source was closed.");
+            NeptusLog.pub().info("Log source was closed.");
         }
     }
 
@@ -214,7 +215,12 @@ public class MRAFilesHandler implements FileHandler {
                     I18n.text("This log seems to have already been indexed. Index again?"));
 
             if (option == JOptionPane.YES_OPTION) {
-                new File(lsfDir, "mra/lsf.index").delete(); 
+                try {
+                    FileUtils.deleteDirectory(new File(lsfDir, "mra"));
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error("Error while trying to delete mra/ folder", e);
+                }
             }
 
             if (option == JOptionPane.CANCEL_OPTION) {

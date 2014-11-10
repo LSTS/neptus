@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,ed341a2)" system="lauv-dolphin-3" i18n="pt_PT">
+<config format="1" version="2.6.0 (HEAD,660f19f)" system="lauv-dolphin-3" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -1601,6 +1601,127 @@
       <desc>Perform compass calibration if true</desc>
     </param>
   </section>
+  <section name="Follow Reference Maneuver" name-i18n="Manobra Seguir Referência">
+    <param name="Entity Label">
+      <name-i18n>Nome da Entidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Follow Reference Maneuver</default>
+      <units/>
+      <desc>Nome principal da entidade</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Prioridade de Execução</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Prioridade de execução</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Tempo de Ativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Tempo de Desativação</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Nível de Depuração</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Loitering Radius">
+      <name-i18n>Loitering Radius</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>7.5</default>
+      <units>m</units>
+      <desc>Radius of loitering circle after arriving at destination</desc>
+    </param>
+    <param name="Vehicle Type">
+      <name-i18n>Vehicle Type</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>AUV</default>
+      <units/>
+      <desc>Vehicle type (AUV or UAV), default AUV</desc>
+    </param>
+    <param name="Horizontal Tolerance">
+      <name-i18n>Horizontal Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15.0</default>
+      <units>m</units>
+      <desc>Minimum distance required to consider that the vehicle has arrived at the reference (XY)</desc>
+    </param>
+    <param name="Vertical Tolerance">
+      <name-i18n>Vertical Tolerance</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m</units>
+      <desc>Minimum distance required to consider that the vehicle has arrived at the reference (Z)</desc>
+    </param>
+    <param name="Default Speed">
+      <name-i18n>Default Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.2</default>
+      <units/>
+      <desc>Speed to use in case no speed is given by reference source.</desc>
+    </param>
+    <param name="Default Speed Units">
+      <name-i18n>Default Speed Units</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>m/s</default>
+      <units/>
+      <desc>Units to use for default speed (one of 'm/s', 'rpm' or '%').</desc>
+    </param>
+    <param name="Default Z">
+      <name-i18n>Default Z</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units>m</units>
+      <desc>Default z when no vertical reference is given.</desc>
+    </param>
+    <param name="Default Z Units">
+      <name-i18n>Default Z Units</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>DEPTH</default>
+      <units>m</units>
+      <desc>Units to use for default z reference (one of 'DEPTH', 'ALTITUDE' or 'HEIGHT')</desc>
+    </param>
+  </section>
   <section name="Multiplexer Maneuver" name-i18n="Manobra Multiplexer">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -2654,7 +2775,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>17.474, 22.0699, 23.4355, 24.0591, 24.5753, 24.9946, 25.3495, 25.8226, 26.7151, 27.1452, 27.8505</default>
+      <default>17.94, 21.51, 23.75, 24.45, 24.94, 25.5, 25.92, 26.27, 26.62, 26.97, 27.11, 27.6, 28.37, 28.51, 29.07, 29.56</default>
       <units>V</units>
       <desc>Voltage values for Optimistic model</desc>
     </param>
@@ -2663,7 +2784,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>3.23</default>
+      <default>3.5</default>
       <units>A</units>
       <desc>Current values for Optimistic model</desc>
     </param>
@@ -2672,7 +2793,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0, 15.18, 42.33, 82.275, 202.08, 353.835, 535.935, 674.925, 860.22, 932.115, 1050</default>
+      <default>0, 1.22, 17.06, 28.02, 37.76, 60.92, 123.04, 277.76, 437.34, 593.28, 654.2, 756, 894.18, 910.02, 1002.6, 1050</default>
       <units>Wh</units>
       <desc>Energy values for Optimistic model</desc>
     </param>
@@ -2861,6 +2982,15 @@
       <default>95.0</default>
       <units>%</units>
       <desc>Minimum confidence for recomputing update</desc>
+    </param>
+    <param name="Update Estimate Anytime">
+      <name-i18n>Update Estimate Anytime</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Update estimate even if maneuvering</desc>
     </param>
     <param name="Estimated Entity Label List">
       <name-i18n>Estimated Entity Label List</name-i18n>
@@ -5016,6 +5146,51 @@
       <units/>
       <desc>Name of sidescan's power channel</desc>
     </param>
+    <param name="Number of Discarded Initial Samples">
+      <name-i18n>Number of Discarded Initial Samples</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15</default>
+      <units/>
+      <desc>Number of initial samples to ignore</desc>
+    </param>
+    <param name="Time Delta - Estimation Periodicity">
+      <name-i18n>Time Delta - Estimation Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>s</units>
+      <desc>Periodicity with which the time difference between the sidescan CPU and the local CPU is performed</desc>
+    </param>
+    <param name="Time Delta - Maximum Allowable Latency">
+      <name-i18n>Time Delta - Maximum Allowable Latency</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2</default>
+      <units>ms</units>
+      <desc>Maximum allowable latency for time synchronization</desc>
+    </param>
+    <param name="Time Delta - Initial Estimate Timeout">
+      <name-i18n>Time Delta - Initial Estimate Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>s</units>
+      <desc>Timeout for initial time delta estimation</desc>
+    </param>
+    <param name="Time Delta - Initial Estimate Samples">
+      <name-i18n>Time Delta - Initial Estimate Samples</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Number of valid samples for initial time delta estimation</desc>
+    </param>
   </section>
   <section name="GPS" name-i18n="GPS">
     <param name="Entity Label">
@@ -5974,7 +6149,7 @@
     </param>
     <param name="Transponder Ping Timeout">
       <name-i18n>Transponder Ping Timeout</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>2</default>
@@ -5982,9 +6157,19 @@
       <desc/>
       <min>0</min>
     </param>
+    <param name="Transponder Ping Wait Time">
+      <name-i18n>Transponder Ping Wait Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.5</default>
+      <units>s</units>
+      <desc/>
+      <min>0</min>
+    </param>
     <param name="Micromodem Ping Timeout">
       <name-i18n>Micromodem Ping Timeout</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>5</default>
@@ -5997,7 +6182,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2</default>
+      <default>3</default>
       <units>s</units>
       <desc/>
       <min>2</min>
@@ -6029,7 +6214,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5</default>
+      <default>10</default>
       <units>s</units>
       <desc/>
       <min>0</min>
@@ -6704,7 +6889,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Spew</default>
+      <default>None</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>

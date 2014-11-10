@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,ed341a2)" system="pilatus-04" i18n="pt_PT">
+<config format="1" version="2.6.0 (HEAD,660f19f)" system="pilatus-04" i18n="pt_PT">
   <section name="Text Message Parser" name-i18n="Processador de Mensagens de Texto">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -1266,6 +1266,8 @@
       <default>10</default>
       <units>s</units>
       <desc>Heartbeat Timeout</desc>
+      <min>0.0</min>
+      <max>60.0</max>
     </param>
     <param name="In Mission Timeout">
       <name-i18n>In Mission Timeout</name-i18n>
@@ -1275,6 +1277,8 @@
       <default>20</default>
       <units>s</units>
       <desc>Timeout if executing plan</desc>
+      <min>0.0</min>
+      <max>60.0</max>
     </param>
     <param name="Lost Comms Plan">
       <name-i18n>Lost Comms Plan</name-i18n>

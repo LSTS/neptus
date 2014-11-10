@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,ed341a2)" system="adamastor" i18n="en_US">
+<config format="1" version="2.6.0 (HEAD,660f19f)" system="adamastor" i18n="en_US">
   <section name="LED Driver" name-i18n="LED Driver">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -3855,7 +3855,7 @@
     </param>
     <param name="Transponder Ping Timeout">
       <name-i18n>Transponder Ping Timeout</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>2</default>
@@ -3863,9 +3863,19 @@
       <desc/>
       <min>0</min>
     </param>
+    <param name="Transponder Ping Wait Time">
+      <name-i18n>Transponder Ping Wait Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.5</default>
+      <units>s</units>
+      <desc/>
+      <min>0</min>
+    </param>
     <param name="Micromodem Ping Timeout">
       <name-i18n>Micromodem Ping Timeout</name-i18n>
-      <type>integer</type>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>5</default>
@@ -3878,7 +3888,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2</default>
+      <default>3</default>
       <units>s</units>
       <desc/>
       <min>2</min>
@@ -3910,7 +3920,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5</default>
+      <default>10</default>
       <units>s</units>
       <desc/>
       <min>0</min>
