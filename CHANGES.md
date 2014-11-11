@@ -6,6 +6,7 @@ Neptus 4.2.0 (??-11-2014)
  * IMC: No change in IMC and IMCJava (v5.4.3).
  * Vehicles: Updated systems parameters to DUNE 2.6.0 (HEAD,660f19f).
  * I18n: Updated POT and translations.
+ * MRA/UAVModePlot: Adding PiePlot of AutopilotMode.
  * Ant/Installers: Adding urready4os.jar and waveglider.jar to excludes for Seacon installer.
  * Ant/Installers: Fix the includes/excludes file names for consistency.
  * MRA: When a log is reindexed, the entire mra/ folder gets deleted.
