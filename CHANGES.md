@@ -1,7 +1,7 @@
 Changes
 =======
 
-Neptus 4.2.0 (??-11-2014)
+Neptus 4.2.0 (11-11-2014)
 ----------------
  * IMC: No change in IMC and IMCJava (v5.4.3).
  * Vehicles: Updated systems parameters to DUNE 2.6.0 (HEAD,660f19f).
