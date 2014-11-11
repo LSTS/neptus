@@ -2085,7 +2085,7 @@ For simple use the main targets are:
 			<param name="jre-os" value="All-OS"/>
 			<param name="dist.tmp.dir" value="${all.os.dist.dir}" />
 			<param name="sh-bash-basename" value="neptusse" />
-			<param name="copy-includes-excludes-file-sufix" value="NeptusSE" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusLE" />
 			<param name="dist.installer.name" value="${dist.installer.name.le}" />
 			<param name="dist.instalation.folder.name" value="NeptusLE" />
 			<reference refid="neptusLE.filters" torefid="dist.filters" />
@@ -2099,7 +2099,7 @@ For simple use the main targets are:
 			<param name="jre-os" value="Windows"/>
 			<param name="dist.tmp.dir" value="${windows.dist.dir}" />
 			<param name="sh-bash-basename" value="neptusse" />
-			<param name="copy-includes-excludes-file-sufix" value="NeptusSE" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusLE" />
 			<param name="dist.installer.name" value="${dist.installer.name.le}" />
 			<param name="dist.instalation.folder.name" value="NeptusLE" />
 			<reference refid="neptusLE.filters" torefid="dist.filters" />
@@ -2113,7 +2113,7 @@ For simple use the main targets are:
 			<param name="jre-os" value="Linux"/>
 			<param name="dist.tmp.dir" value="${linux.dist.dir}" />
 			<param name="sh-bash-basename" value="neptusse" />
-			<param name="copy-includes-excludes-file-sufix" value="NeptusSE" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusLE" />
 			<param name="dist.installer.name" value="${dist.installer.name.le}" />
 			<param name="dist.instalation.folder.name" value="NeptusLE" />
 			<reference refid="neptusLE.filters" torefid="dist.filters" />
