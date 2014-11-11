@@ -46,7 +46,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author Braga
  * 
  */
-@PluginDescription(name="UAV Mode")
+@PluginDescription(name="UAV Mode", author = "José Braga")
 public class UAVModePlot extends PiePlot {
 
     public UAVModePlot(MRAPanel panel) {
