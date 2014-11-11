@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2014-11-05 20:12+0000\n"
+"POT-Creation-Date: 2014-11-11 18:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -390,6 +390,10 @@ msgstr ""
 msgid "ASL"
 msgstr ""
 
+#: src/pt/lsts/neptus/mra/plots/UAVModePlot.java:85
+msgid "ASSISTED"
+msgstr ""
+
 #: Property from pt.lsts.neptus.console.plugins.planning.CommandPlanner
 msgid "ASV Station Keeping radius"
 msgstr ""
@@ -404,6 +408,10 @@ msgstr ""
 
 #: Property from pt.lsts.neptus.console.plugins.planning.CommandPlanner
 msgid "ASV speed units"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/plots/UAVModePlot.java:87
+msgid "AUTO"
 msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.odss.OdssStoqsTrackFetcher
@@ -2153,7 +2161,7 @@ msgstr ""
 msgid "Could not ask %vehicle for it's accoustic beacons."
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:452
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:458
 msgid "Could not find PDF reader"
 msgstr ""
 
@@ -2295,17 +2303,17 @@ msgid ""
 "data."
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:316
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:322
 msgid "Decompressed"
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:305
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:311
 msgid "Decompressing BZip2 LSF Data..."
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:263
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:292
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:334
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:269
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:298
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:340
 msgid "Decompressing LSF Data..."
 msgstr ""
 
@@ -2694,7 +2702,7 @@ msgstr ""
 
 #: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:816
 #: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1109
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:241
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:247
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/BathymetryPlotter.java:413
 msgid "Done"
 msgstr ""
@@ -3052,7 +3060,7 @@ msgid "Entity to use for depth measurements"
 msgstr ""
 
 #: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:206
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:419
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:425
 #: src/pt/lsts/neptus/mc/Workspace.java:1157
 #: src/pt/lsts/neptus/console/ConsoleLayout.java:916
 #: src/pt/lsts/neptus/console/plugins/FunctionalitiesSettings.java:286
@@ -3471,8 +3479,8 @@ msgstr ""
 msgid "File saved successfully to %fileLocation"
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:407
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:461
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:413
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:467
 msgid "File saved to"
 msgstr ""
 
@@ -3717,7 +3725,7 @@ msgstr ""
 msgid "General Preferences"
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:406
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:412
 msgid "Generate PDF Report"
 msgstr ""
 
@@ -3737,7 +3745,7 @@ msgstr ""
 msgid "Generate report from selected log files"
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:389
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:395
 msgid "Generating PDF Report..."
 msgstr ""
 
@@ -4503,12 +4511,12 @@ msgid ""
 "positive angle)"
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:121
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:195
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:122
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:196
 msgid "Invalid LSF file"
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:249
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:255
 msgid "Invalid LSF index"
 msgstr ""
 
@@ -4664,8 +4672,8 @@ msgstr ""
 msgid "LSF Listing"
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:121
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:195
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:122
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:196
 msgid "LSF file does not exist!"
 msgstr ""
 
@@ -4865,8 +4873,8 @@ msgstr ""
 msgid "Loading Checklists..."
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:191
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:226
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:192
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:232
 msgid "Loading LSF Data"
 msgstr ""
 
@@ -5162,6 +5170,10 @@ msgstr ""
 
 #: Field from ConsoleEventVehicleStateChanged.STATE enumeration
 msgid "MANEUVER"
+msgstr ""
+
+#: src/pt/lsts/neptus/mra/plots/UAVModePlot.java:83
+msgid "MANUAL"
 msgstr ""
 
 #: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:523
@@ -6572,7 +6584,7 @@ msgstr ""
 msgid "PDF <b>was not</b> created to file."
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:418
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:424
 msgid "PDF <b>was not</b> saved to file."
 msgstr ""
 
@@ -6582,11 +6594,11 @@ msgstr ""
 msgid "PDF Creation"
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:418
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:424
 msgid "PDF Creation Process"
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:460
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:466
 msgid "PDF Report Generated"
 msgstr ""
 
@@ -7378,7 +7390,7 @@ msgstr ""
 msgid "Recently opened misc files."
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:542
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:548
 msgid "Recently opened mission files"
 msgstr ""
 
@@ -9152,7 +9164,7 @@ msgstr ""
 msgid "Starting Maneuver"
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:239
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:245
 msgid "Starting interface"
 msgstr ""
 
@@ -10052,7 +10064,7 @@ msgid ""
 "50ms (20hz)."
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:214
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:215
 msgid "This log seems to have already been indexed. Index again?"
 msgstr ""
 
@@ -10423,6 +10435,10 @@ msgstr ""
 
 #: Field from Announce.SYS_TYPE enumeration VehicleType.VehicleTypeEnum
 msgid "UAV"
+msgstr ""
+
+#: Name of plugin pt.lsts.neptus.mra.plots.UAVModePlot
+msgid "UAV Mode"
 msgstr ""
 
 #: Name of plugin pt.lsts.neptus.console.plugins.planning.UavPiccoloControl
