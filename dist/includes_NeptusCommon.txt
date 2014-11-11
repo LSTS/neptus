@@ -18,6 +18,7 @@ conf/i18n/
 conf/neptus-coordinateSystems.xml
 conf/neptus-misc-systems.xml
 conf/gsm_aliases.tsv
+conf/params/manta*.xml
 maps/*.conf
 helper-scripts/
 neptus.exe
