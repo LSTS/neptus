@@ -65,6 +65,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
@@ -218,8 +219,15 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
         // Check if vehicle is being controlled by this console
         if (frefStates.get(controlState.getSourceName()).getControlSrc() != ImcMsgManager.getManager().getLocalId()
-                .intValue())
+                .intValue()) {
+            // we are not controlling anymore.
+            if (activeVehicles.remove(controlState.getSourceName())) {
+                post(Notification.warning("FollowReferenceInteraction", "The vehicle " + controlState.getSourceName()
+                        + " is not being controlled anymore."));                
+            }
+            frefStates.remove(controlState.getSourceName());
             return;
+        }
 
         boolean newActivation = false;
         if (controlState.getPlanId().equals("follow_neptus")

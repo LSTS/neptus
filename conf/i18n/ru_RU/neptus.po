@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Neptus\n"
 "Report-Msgid-Bugs-To: neptus.i18n@lsts-feup.org\n"
-"POT-Creation-Date: 2014-10-27 18:08+0000\n"
-"PO-Revision-Date: 2014-10-27 18:20-0000\n"
+"POT-Creation-Date: 2014-11-11 18:22+0000\n"
+"PO-Revision-Date: 2014-11-11 18:29-0000\n"
 "Last-Translator: Paulo Dias <pdias@fe.up.pt>\n"
 "Language-Team: RU LANGUAGE <LL@li.org>\n"
 "Language: ru\n"
@@ -54,7 +54,7 @@ msgstr "%className брошен"
 msgid "%commName Monitor"
 msgstr "%commName монитор"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:901
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:902
 #, fuzzy
 msgid "%deltaTime with no messages"
 msgstr "%deltaTime без сообщений"
@@ -250,7 +250,7 @@ msgstr "(Без регистрации не загружается)"
 msgid "1 column"
 msgstr ""
 
-#: Description of property '@@Renderer 3D Priority' from
+#: Description of property 'Renderer 3D Priority' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid "1- Minimum Priority <br>10- Maximum Priority<br>5- Normal Priority"
@@ -258,7 +258,7 @@ msgstr ""
 "1 - Минимальная инструменты Приоритет 10 - Максимальная инструменты "
 "Приоритет 5 - нормальный приоритет"
 
-#: Description of property '@@Yaw Increment' from
+#: Description of property 'Yaw Increment' from
 #: pt.lsts.neptus.mra.MRAProperties
 #, fuzzy
 msgid ""
@@ -481,6 +481,10 @@ msgstr "ВЫСОТА"
 msgid "ASL"
 msgstr "ASL"
 
+#: src/pt/lsts/neptus/mra/plots/UAVModePlot.java:85
+msgid "ASSISTED"
+msgstr ""
+
 #: Property from pt.lsts.neptus.console.plugins.planning.CommandPlanner
 #, fuzzy
 msgid "ASV Station Keeping radius"
@@ -500,6 +504,10 @@ msgstr "ASV скорости"
 #, fuzzy
 msgid "ASV speed units"
 msgstr "ASV единицы скорости"
+
+#: src/pt/lsts/neptus/mra/plots/UAVModePlot.java:87
+msgid "AUTO"
+msgstr ""
 
 #: Property from pt.lsts.neptus.plugins.odss.OdssStoqsTrackFetcher
 #, fuzzy
@@ -782,7 +790,7 @@ msgstr "Добавить метку"
 msgid "Add mine danger area"
 msgstr "Добавить шахте опасной зоны"
 
-#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:608
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:616
 msgid "Add multiple waypoints"
 msgstr ""
 
@@ -870,7 +878,7 @@ msgstr "Аварийное значение"
 msgid "Alarm condition"
 msgstr "Аварийное состояние"
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:234
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:238
 #, fuzzy
 msgid "Alignment Procedure"
 msgstr "Процедура юстировки"
@@ -946,7 +954,7 @@ msgstr "Позволяет добавлять различные вкладки 
 msgid "Alpha"
 msgstr "Альфа"
 
-#: Description of property '@@Show Seconds' from
+#: Description of property 'Show Seconds' from
 #: pt.lsts.neptus.plugins.position.AbsLatLonDepth
 #, fuzzy
 msgid "Also display seconds in coordinates"
@@ -966,7 +974,7 @@ msgstr "Альтернативные Компас"
 msgid "Altitude"
 msgstr "Высота"
 
-#: Description of property '@@Verify plans for island nodes' from
+#: Description of property 'Verify plans for island nodes' from
 #: pt.lsts.neptus.plugins.webupdate.RemotePlanControl
 #, fuzzy
 msgid ""
@@ -978,7 +986,7 @@ msgstr ""
 "Если вы решили выключить Здесь вы можете ВСЕГДА нажмите Alt Whanотправка "
 "план, который эта проверка будет работать."
 
-#: Description of property '@@Verify plans for island nodes' from
+#: Description of property 'Verify plans for island nodes' from
 #: pt.lsts.neptus.console.plugins.planning.PlanControlPanel
 #, fuzzy
 msgid ""
@@ -990,20 +998,20 @@ msgstr ""
 "Если вы решили выключить Здесь вы можете ВСЕГДА нажмите Alt, когдаотправка "
 "план, который эта проверка будет работать."
 
-#: Description of property '@@Control timeout' from
+#: Description of property 'Control timeout' from
 #: pt.lsts.neptus.plugins.followref.FollowReferenceInteraction
 msgid ""
 "Ammount of seconds after which the controlled vehicle will timeout if no new "
 "reference updates are received"
 msgstr ""
 
-#: Description of property '@@Control loop latency' from
+#: Description of property 'Control loop latency' from
 #: pt.lsts.neptus.plugins.followref.FollowReferenceInteraction
 msgid ""
 "Ammount of seconds between reference transmissions (per controller vehicle)"
 msgstr ""
 
-#: Description of property '@@Period between updates' from
+#: Description of property 'Period between updates' from
 #: pt.lsts.neptus.plugins.alarms.SimpleAlarm
 #: pt.lsts.neptus.plugins.alarms.ExceptionAlarm
 #, fuzzy
@@ -1036,8 +1044,8 @@ msgstr "Другой узел с этим ID обнаружен!"
 msgid "Antialiasing"
 msgstr "Сглаживание"
 
-#: Description of property '@@Redirect Unknown Comms. To First Vehicle In
-#: Comm. List' from pt.lsts.neptus.util.conf.GeneralPreferences
+#: Description of property 'Redirect Unknown Comms. To First Vehicle In Comm.
+#: List' from pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid ""
 "Any messages comming from unknown vehicle will be redirect to the first on "
@@ -1078,7 +1086,7 @@ msgstr "speedCorrection"
 msgid "Apply slant range correction (cross path)"
 msgstr "Slant Range Correction"
 
-#: Description of property '@@Apply Sound Speed Correction' from
+#: Description of property 'Apply Sound Speed Correction' from
 #: pt.lsts.neptus.mra.MRAProperties
 #, fuzzy
 msgid "Apply sound speed correction."
@@ -1414,7 +1422,7 @@ msgstr "Нижний"
 msgid "Box 2d painter"
 msgstr "2D художник Box"
 
-#: Description of property '@@Camera Brand' from
+#: Description of property 'Camera Brand' from
 #: pt.lsts.neptus.plugins.ipcam.AirCamDisplay
 msgid "Brand for the installed camera (not case sensitive)"
 msgstr ""
@@ -1430,7 +1438,7 @@ msgstr "Бронзовый"
 msgid "Button Shape"
 msgstr "Форма кнопки"
 
-#: Description of property '@@Use Full Mode or Teleoperation Mode' from
+#: Description of property 'Use Full Mode or Teleoperation Mode' from
 #: pt.lsts.neptus.console.plugins.planning.PlanControlPanel
 #, fuzzy
 msgid ""
@@ -1564,7 +1572,7 @@ msgstr "IP-камера"
 msgid "Camera IP"
 msgstr "IP-камера"
 
-#: Description of property '@@Camera Alias' from
+#: Description of property 'Camera Alias' from
 #: pt.lsts.neptus.plugins.ipcam.AirCamDisplay
 msgid "Camera's network alias camera (not case sensitive)"
 msgstr ""
@@ -1591,7 +1599,7 @@ msgstr ""
 msgid "Can not remove Marks - Generating Report."
 msgstr ""
 
-#: Description of property '@@Sender e-mail' from
+#: Description of property 'Sender e-mail' from
 #: pt.lsts.neptus.plugins.odss.OdssStatePublisher
 #, fuzzy
 msgid "Can only be auvtrack@mbari.org or lstsfeup+auvtrack@gmail.com"
@@ -1633,12 +1641,12 @@ msgstr ""
 msgid "Cannot edit a directory!"
 msgstr "Не удается отредактировать каталог!"
 
-#: src/pt/lsts/neptus/types/mission/MissionType.java:945
+#: src/pt/lsts/neptus/types/mission/MissionType.java:950
 #, fuzzy
 msgid "Cannot save mission: file name is empty"
 msgstr "Невозможно сохранить миссию: имя файла пуст"
 
-#: src/pt/lsts/neptus/types/mission/MissionType.java:937
+#: src/pt/lsts/neptus/types/mission/MissionType.java:942
 #, fuzzy
 msgid "Cannot save mission: file name is non existant"
 msgstr "Невозможно сохранить миссию: имя файла не существующий"
@@ -1666,7 +1674,7 @@ msgstr "Вызывать"
 msgid "Cell size"
 msgstr "Ширина ячейки"
 
-#: Description of property '@@Cell size' from
+#: Description of property 'Cell size' from
 #: convcao.com.caoAgent.NoptilusCoords
 msgid "Cell size in meters for each map square"
 msgstr ""
@@ -1872,7 +1880,7 @@ msgstr ""
 msgid "Choose entities"
 msgstr "Выберите лицам"
 
-#: Description of property '@@Comms channel' from
+#: Description of property 'Comms channel' from
 #: pt.lsts.neptus.plugins.trex.TrexMapLayer
 #, fuzzy
 msgid "Choose if Dune communicates with T-Rex through a REST API or IP."
@@ -1942,13 +1950,13 @@ msgstr "Класс"
 #: src/pt/lsts/neptus/console/notifications/NotificationsDialog.java:145
 #: plugins-dev/logs/pt/lsts/neptus/plugins/logs/MultiSystemHistory.java:116
 #: plugins-dev/oplimits/pt/lsts/neptus/plugins/oplimits/RectangleEditor.java:107
-#: plugins-dev/mra-plots/pt/lsts/neptus/plugins/rtplot/RealTimePlot.java:119
+#: plugins-dev/mra-plots/pt/lsts/neptus/plugins/rtplot/RealTimePlot.java:120
 #, fuzzy
 msgid "Clear"
 msgstr "Очистить"
 
 #: src/pt/lsts/neptus/planeditor/PlanTransitionsSimpleEditor.java:267
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:498
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:499
 #, fuzzy
 msgid "Clear Selection"
 msgstr "Очистить выбор"
@@ -2055,7 +2063,7 @@ msgstr "Цветовая карта"
 msgid "Comm. Mean"
 msgstr "Comms канал"
 
-#: Description of property '@@IMC transports to use' from
+#: Description of property 'IMC transports to use' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid ""
@@ -2142,7 +2150,7 @@ msgstr "Comms. Размер очереди"
 msgid "Communications"
 msgstr "Связи"
 
-#: src/pt/lsts/neptus/types/mission/MissionType.java:341
+#: src/pt/lsts/neptus/types/mission/MissionType.java:343
 #, fuzzy
 msgid "Complete"
 msgstr "Полный"
@@ -2184,7 +2192,7 @@ msgstr "Объединение %filename"
 msgid "Condition"
 msgstr "Состояние"
 
-#: Description of property '@@Alarm condition' from
+#: Description of property 'Alarm condition' from
 #: pt.lsts.neptus.plugins.position.ScriptedDisplay
 #, fuzzy
 msgid "Condition to generate an alarm (optional)"
@@ -2221,7 +2229,7 @@ msgstr "Настройка HTTP-прокси"
 msgid "Configure MRA preferences"
 msgstr "Главная ссылки"
 
-#: Description of property '@@Show System Symbol Or Text' from
+#: Description of property 'Show System Symbol Or Text' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid ""
@@ -2231,31 +2239,31 @@ msgstr ""
 "Настраивает, если для символа типа система будет использовать изображения "
 "или символатекстовая версия"
 
-#: Description of property '@@Enable beacons button' from
+#: Description of property 'Enable beacons button' from
 #: pt.lsts.neptus.console.plugins.planning.PlanControlPanel
 #, fuzzy
 msgid "Configures if send beacons button is active or not"
 msgstr "Настраивает будет ли кнопка отправки маяки активным или нет"
 
-#: Description of property '@@Enable teleoperation button' from
+#: Description of property 'Enable teleoperation button' from
 #: pt.lsts.neptus.console.plugins.planning.PlanControlPanel
 #, fuzzy
 msgid "Configures if send beacons button is shown or not in Full Mode."
 msgstr "Настраивает будет ли кнопка отправки маяки активным или нет"
 
-#: Description of property '@@Enable selection button' from
+#: Description of property 'Enable selection button' from
 #: pt.lsts.neptus.console.plugins.planning.PlanControlPanel
 #, fuzzy
 msgid "Configures if system selection button is active or not"
 msgstr "Настраивает будет ли система отбора кнопка активна или нет"
 
-#: Description of property '@@Enable Selection' from
+#: Description of property 'Enable Selection' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid "Configures if system selection is active or not"
 msgstr "Настраивает будет ли система отбора активной или нет"
 
-#: Description of property '@@Draw System Label' from
+#: Description of property 'Draw System Label' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid "Configures if this component will draw the system label on the renderer"
@@ -2263,7 +2271,7 @@ msgstr ""
 "Настраивает если этот компонент будет использовать системы этикетку на "
 "визуализации"
 
-#: Description of property '@@Main System Icon Size Increment' from
+#: Description of property 'Main System Icon Size Increment' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid ""
@@ -2273,7 +2281,7 @@ msgstr ""
 "Настраивает прирост размера для системы коробки для оперативногоутешить "
 "основной системы"
 
-#: Description of property '@@Minimum Speed To Be Stopped' from
+#: Description of property 'Minimum Speed To Be Stopped' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid ""
@@ -2283,7 +2291,7 @@ msgstr ""
 "Настраивает максимальную скорость (м / с) система считалась "
 "купируются(Влияет на рисунок курса / вектора скорости на визуализации)"
 
-#: Description of property '@@System Indicator Icons Size' from
+#: Description of property 'System Indicator Icons Size' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid ""
@@ -2292,13 +2300,13 @@ msgstr ""
 "Настраивает размер государственной символики для OSD (On Screen Display) "
 "воздушный шар"
 
-#: Description of property '@@Systems Icons Size' from
+#: Description of property 'Systems Icons Size' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid "Configures the state symbols size for the system box"
 msgstr "Настраивает размер государственной символики для системы коробке"
 
-#: Description of property '@@Renderer Icons Size' from
+#: Description of property 'Renderer Icons Size' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid "Configures the system symbols size for the renderer"
@@ -2585,7 +2593,7 @@ msgstr "Передать запись в буфер"
 msgid "Copy history to clipboard"
 msgstr "Переписать историю в буфер"
 
-#: src/pt/lsts/neptus/gui/system/SystemDisplay.java:385
+#: src/pt/lsts/neptus/gui/system/SystemDisplay.java:388
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:898
 #, fuzzy
 msgid "Copy location"
@@ -2627,7 +2635,7 @@ msgstr "Расчетное положение"
 msgid "Could not ask %vehicle for it's accoustic beacons."
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:452
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:458
 #, fuzzy
 msgid "Could not find PDF reader"
 msgstr "Не удалось найти PDF Reader"
@@ -2652,7 +2660,7 @@ msgstr "Граф Вверх / Вниз"
 msgid "Counter-Clockwise"
 msgstr "Против часовой стрелки"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1244
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1251
 #, fuzzy
 msgid "Course"
 msgstr "Курс"
@@ -2792,7 +2800,7 @@ msgstr "Десятичная Дома (если числовое значени�
 msgid "Decimal digits"
 msgstr "Десятичные цифры"
 
-#: Description of property '@@Decimal digits' from
+#: Description of property 'Decimal digits' from
 #: pt.lsts.neptus.plugins.position.ScriptedDisplay
 #, fuzzy
 msgid ""
@@ -2802,19 +2810,19 @@ msgstr ""
 "Десятичные цифры, применимы только для числовых данных. Используйте -1 за "
 "неисполнение или текстданных."
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:316
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:322
 #, fuzzy
 msgid "Decompressed"
 msgstr "Декомпрессированный"
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:305
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:311
 #, fuzzy
 msgid "Decompressing BZip2 LSF Data..."
 msgstr "Распаковка BZip2 LSF данных ..."
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:263
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:292
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:334
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:269
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:298
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:340
 #, fuzzy
 msgid "Decompressing LSF Data..."
 msgstr "LSF распаковки данных ..."
@@ -2849,7 +2857,7 @@ msgstr "Значение по умолчанию"
 msgid "Default value:"
 msgstr "Значение по умолчанию:"
 
-#: Description of property '@@Base folder for CSV files' from
+#: Description of property 'Base folder for CSV files' from
 #: pt.lsts.neptus.plugins.urready4os.rhodamine.RhodamineOilVisualizer
 msgid ""
 "Defines the base folder fo CSV lookup. The children folders will also be "
@@ -2940,7 +2948,7 @@ msgstr "depth (Home)"
 msgid "Depth exaggeration multiplier"
 msgstr "Множитель Глубина преувеличения"
 
-#: Description of property '@@First Depth' from
+#: Description of property 'First Depth' from
 #: convcao.com.caoAgent.convcaoNeptusInteraction
 msgid "Depth for vehicle closer to the surface"
 msgstr ""
@@ -2950,7 +2958,7 @@ msgstr ""
 msgid "Depth multiplied by: %currenZexag"
 msgstr "Глубина умножается на: %currentZexagge"
 
-#: Description of property '@@Depth' from
+#: Description of property 'Depth' from
 #: pt.lsts.neptus.plugins.vrp.WaypointPlanner
 #, fuzzy
 msgid "Depth of the first generated plan"
@@ -2961,7 +2969,7 @@ msgstr "Глубина первого сгенерированный план"
 msgid "Depth separation"
 msgstr "remote operation"
 
-#: Description of property '@@Depth separation' from
+#: Description of property 'Depth separation' from
 #: convcao.com.caoAgent.convcaoNeptusInteraction
 #, fuzzy
 msgid "Depth separation between vehicles"
@@ -2980,7 +2988,7 @@ msgstr "Глубины"
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/ctd3d/EventsHandlerCTD3D.java:79
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:151
 #: plugins-dev/vtk/pt/lsts/neptus/plugins/vtk/mravisualizer/EventsHandler.java:167
-#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:605
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:613
 #: plugins-dev/state/pt/lsts/neptus/plugins/state/EntitySubPanel.java:125
 #, fuzzy
 msgid "Description"
@@ -3023,7 +3031,7 @@ msgstr "Измерение"
 msgid "Direction"
 msgstr "Направление"
 
-#: Description of property '@@Direction' from
+#: Description of property 'Direction' from
 #: pt.lsts.neptus.mp.maneuvers.CompassCalibration
 #, fuzzy
 msgid "Direction of the maneuver."
@@ -3088,7 +3096,7 @@ msgstr ""
 msgid "Display Current"
 msgstr "Диапазоны отображения на карте"
 
-#: Description of property '@@Display Confidence Level' from
+#: Description of property 'Display Confidence Level' from
 #: pt.lsts.neptus.plugins.position.painter.SystemInfoPainter
 msgid "Display Fuel Level estimation Confidence on panel"
 msgstr ""
@@ -3099,7 +3107,7 @@ msgstr ""
 msgid "Display Vehicle Path"
 msgstr "Vehicle path"
 
-#: Description of property '@@Display Current' from
+#: Description of property 'Display Current' from
 #: pt.lsts.neptus.plugins.position.painter.SystemInfoPainter
 msgid "Display drawn Current on panel"
 msgstr ""
@@ -3172,7 +3180,7 @@ msgstr "Пройденное расстояние"
 msgid "Distance treshold"
 msgstr "Расстояние порог"
 
-#: Description of property '@@Near distance' from
+#: Description of property 'Near distance' from
 #: convcao.com.caoAgent.convcaoNeptusInteraction
 msgid ""
 "Distance, in meters, to consider that the vehicles have arrived at desired "
@@ -3199,7 +3207,7 @@ msgstr "Расстояния слоя"
 msgid "Do Alignment"
 msgstr "У Выравнивание"
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:236
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:240
 #, fuzzy
 msgid "Do you want me to create a plan at surface for you?"
 msgstr "Ты хочешь, чтобы создать план на поверхность для вас?"
@@ -3258,8 +3266,8 @@ msgstr "Документ, сгенерированный на %generator %date."
 msgid "Don't Play Sound"
 msgstr "Не играть звук"
 
-#: Description of property '@@Request data from Web'
-#: pt.lsts.neptus.plugins.envdisp.HFRadarVisualization '@@Load file
+#: Description of property 'Request data from Web'
+#: pt.lsts.neptus.plugins.envdisp.HFRadarVisualization 'Load file
 #: (hfradar.txt)'
 msgid "Don't use this (testing purposes)."
 msgstr ""
@@ -3274,7 +3282,7 @@ msgstr "Не используйте это верхний элемент (это
 
 #: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:816
 #: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:1109
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:241
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:247
 #: plugins-dev/mra-plots/pt/lsts/neptus/plugins/mraplots/BathymetryPlotter.java:413
 #, fuzzy
 msgid "Done"
@@ -3348,7 +3356,7 @@ msgstr "Ничья диапазона вверх или вниз Точка"
 msgid "Draw System Label"
 msgstr "Ничья по этикетке"
 
-#: Description of property '@@Show currents visible data date-time interval'
+#: Description of property 'Show currents visible data date-time interval'
 #: from pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
 msgid "Draws the string with visible curents data date-time interval."
 msgstr ""
@@ -3383,13 +3391,13 @@ msgstr "Продолжительность"
 msgid "Duration (s)"
 msgstr "Продолжительность (сек)"
 
-#: Description of property '@@Popup duration' from
+#: Description of property 'Popup duration' from
 #: pt.lsts.neptus.mp.templates.YoYoTemplate
 #, fuzzy
 msgid "Duration of the popups at corners"
 msgstr "Направление маневра."
 
-#: Description of property '@@Fixed Color Around Sidescan Points Mark' from
+#: Description of property 'Fixed Color Around Sidescan Points Mark' from
 #: pt.lsts.neptus.util.llf.LsfReportProperties
 msgid "Dynamic=0 | Fixed=1 "
 msgstr ""
@@ -3457,7 +3465,7 @@ msgstr "Наименование организации"
 msgid "Edit Name (Ctrl + Right click)"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:490
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:491
 #, fuzzy
 msgid "Edit Systems List Configurations"
 msgstr "Изменение конфигураций список Системы"
@@ -3532,7 +3540,7 @@ msgid "Enable"
 msgstr "Включить"
 
 #: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:123
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:198
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:202
 #, fuzzy
 msgid "Enable IMU"
 msgstr "Включить ИДУ"
@@ -3574,7 +3582,7 @@ msgstr "Включите кнопку маяки"
 msgid "Enable console actions"
 msgstr "Включить консоль действий"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:535
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:536
 #, fuzzy
 msgid "Enable filter"
 msgstr "Включить фильтрацию"
@@ -3590,7 +3598,7 @@ msgstr "Включите кнопку выбора"
 msgid "Enable teleoperation button"
 msgstr "Включите кнопку teleoperation"
 
-#: Description of property '@@Logs Downloader - Enable Parcial Download' from
+#: Description of property 'Logs Downloader - Enable Parcial Download' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid ""
@@ -3641,7 +3649,7 @@ msgstr "Введите макс. время"
 msgid "Enter the plan ID"
 msgstr "Введите идентификатор плана"
 
-#: Description of property '@@Log Shortcuts' from
+#: Description of property 'Log Shortcuts' from
 #: pt.lsts.neptus.plugins.logs.QuickLogger
 #, fuzzy
 msgid ""
@@ -3650,13 +3658,13 @@ msgstr ""
 "Введите в качестве ярлыков для <Text Display>, <Text к Log> (, <icon имя "
 "файла)?"
 
-#: Description of property '@@Depths' from
+#: Description of property 'Depths' from
 #: pt.lsts.neptus.mp.templates.RowsTemplate
 #, fuzzy
 msgid "Enter the various depths to scan, separated by commas."
 msgstr "Введите различных глубинах для сканирования, разделенных запятыми."
 
-#: Description of property '@@Depths' from
+#: Description of property 'Depths' from
 #: pt.lsts.neptus.mp.templates.InfiniteRectTemplate
 #, fuzzy
 msgid "Enter the various depths, separated by commas"
@@ -3669,7 +3677,7 @@ msgstr "Введите различных глубинах, разделенны
 msgid "Entities"
 msgstr "Юридические лица"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:959
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:960
 #, fuzzy
 msgid "Entities in error: %errorMessage"
 msgstr "Лиц в ошибке: %errorMessage"
@@ -3711,7 +3719,7 @@ msgid "Entity to use for depth measurements"
 msgstr ""
 
 #: src/pt/lsts/neptus/util/logdownload/DownloaderPanel.java:206
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:419
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:425
 #: src/pt/lsts/neptus/mc/Workspace.java:1157
 #: src/pt/lsts/neptus/console/ConsoleLayout.java:916
 #: src/pt/lsts/neptus/console/plugins/FunctionalitiesSettings.java:286
@@ -3933,7 +3941,7 @@ msgstr "Ошибка:"
 msgid "Error: %error"
 msgstr "Ошибка:"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1218
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1225
 #, fuzzy
 msgid "Errors"
 msgstr "Ошибки"
@@ -4011,7 +4019,7 @@ msgstr "Выход"
 msgid "Exit Window"
 msgstr "Выходное окно"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:350
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:351
 #, fuzzy
 msgid "Expand extra info."
 msgstr "Развернуть дополнительную информацию."
@@ -4076,7 +4084,7 @@ msgstr "Экспорт в CSV"
 msgid "Exporting %message data to %csvfile..."
 msgstr "Экспорт данных %message %csvfile... до"
 
-#: Description of property '@@CPU load value' from
+#: Description of property 'CPU load value' from
 #: pt.lsts.neptus.plugins.gauges.CpuBattDiskNetGauge
 #, fuzzy
 msgid "Expression for calculating CPU load. Should be a value between 0 and 1."
@@ -4084,7 +4092,7 @@ msgstr ""
 "Выражение для расчета нагрузки на процессор. Должно быть значение между 0 и "
 "1."
 
-#: Description of property '@@Battery value' from
+#: Description of property 'Battery value' from
 #: pt.lsts.neptus.plugins.gauges.CpuBattDiskNetGauge
 #, fuzzy
 msgid ""
@@ -4094,7 +4102,7 @@ msgstr ""
 "Выражение для расчета напряжения аккумуляторной батареи. Должно быть "
 "значение от 0 до1."
 
-#: Description of property '@@Disk usage value' from
+#: Description of property 'Disk usage value' from
 #: pt.lsts.neptus.plugins.gauges.CpuBattDiskNetGauge
 #, fuzzy
 msgid ""
@@ -4227,8 +4235,8 @@ msgstr ""
 msgid "File saved successfully to %fileLocation"
 msgstr "Файл успешно сохранены в %fileLocation"
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:407
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:461
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:413
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:467
 #, fuzzy
 msgid "File saved to"
 msgstr "Файл, сохраненный на"
@@ -4258,7 +4266,7 @@ msgstr "Заполненные формы"
 msgid "Filter UDP Redirect Also By Port"
 msgstr "Фильтр UDP также перенаправление портов"
 
-#: Description of property '@@Minimum depth for bathymetry' from
+#: Description of property 'Minimum depth for bathymetry' from
 #: pt.lsts.neptus.mra.MRAProperties
 #, fuzzy
 msgid ""
@@ -4324,7 +4332,7 @@ msgstr ""
 msgid "Fixed Vehicle Size"
 msgstr "Фиксированный размер автомобиля"
 
-#: Description of property '@@Points to ignore on Multibeam 3D' from
+#: Description of property 'Points to ignore on Multibeam 3D' from
 #: pt.lsts.neptus.mra.MRAProperties
 #, fuzzy
 msgid ""
@@ -4354,7 +4362,7 @@ msgstr ""
 msgid "Folder Name:"
 msgstr "Имя папки:"
 
-#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:576
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:584
 #, fuzzy
 msgid "Follow Reference Interaction Helper"
 msgstr "Взаимодействие FollowReference"
@@ -4394,7 +4402,7 @@ msgstr "Размер шрифта"
 msgid "Font Size Multiplier"
 msgstr "Multiplier Размер шрифта"
 
-#: Description of property '@@Font Size' from
+#: Description of property 'Font Size' from
 #: pt.lsts.neptus.plugins.position.ScriptedDisplay
 #, fuzzy
 msgid "Font size (0 for auto-adjust)"
@@ -4441,7 +4449,7 @@ msgctxt "Use a single small word"
 msgid "Fuel"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:968
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:969
 #, fuzzy
 msgid "Fuel Level: %fuelValue% with %confidanceValue% confidance"
 msgstr "Уровень топлива:% %fuelValue %confidanceValue с confidance%"
@@ -4529,7 +4537,7 @@ msgstr "Панели датчиков"
 msgid "General Preferences"
 msgstr "General Preferences"
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:406
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:412
 #, fuzzy
 msgid "Generate PDF Report"
 msgstr "Создать PDF отчет"
@@ -4552,7 +4560,7 @@ msgstr "Центр дюйма .."
 msgid "Generate report from selected log files"
 msgstr "Удаление выбранных файлов Войти"
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:389
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:395
 #, fuzzy
 msgid "Generating PDF Report..."
 msgstr "Создать PDF отчет"
@@ -4637,7 +4645,7 @@ msgstr "GreenRadar"
 msgid "Grid width"
 msgstr "Сетка шириной"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1256
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1263
 #: plugins-dev/gps/pt/lsts/neptus/plugins/gps/GPSDevicePanel.java:190
 #, fuzzy
 msgid "Ground Speed"
@@ -4659,7 +4667,7 @@ msgstr "HDOP"
 msgid "HDOP max"
 msgstr "HDOP макс"
 
-#: Description of property '@@HDOP max' from
+#: Description of property 'HDOP max' from
 #: pt.lsts.neptus.console.plugins.GPSPanel
 #, fuzzy
 msgid "HDOP max for use for My Location"
@@ -4713,7 +4721,7 @@ msgstr "HTTP-сервер порт"
 msgid "HUMANSENSOR"
 msgstr "HUMANSENSOR"
 
-#: Description of property '@@Use Single Mark Addition Mode' from
+#: Description of property 'Use Single Mark Addition Mode' from
 #: pt.lsts.neptus.plugins.position.ContactMarker
 #, fuzzy
 msgid ""
@@ -4730,7 +4738,7 @@ msgstr "Половина текущее значение зума"
 
 #: src/pt/lsts/neptus/types/map/DynamicElement.java:165
 #: src/pt/lsts/neptus/console/plugins/MyLocationDisplay.java:550
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1249
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1256
 #, fuzzy
 msgid "Heading"
 msgstr "Заголовок"
@@ -4759,20 +4767,20 @@ msgstr "Heartbeat Timeout (мс)"
 #: Property from pt.lsts.neptus.mp.templates.InfiniteRectTemplate
 #: src/pt/lsts/neptus/gui/HeightDepthSelector.java:90
 #: src/pt/lsts/neptus/gui/HeightDepthSelector.java:112
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1176
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1234
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1183
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1241
 #: plugins-dev/gps/pt/lsts/neptus/plugins/gps/GPSDevicePanel.java:178
 #, fuzzy
 msgid "Height"
 msgstr "Высота"
 
-#: Description of property '@@Height' from
+#: Description of property 'Height' from
 #: pt.lsts.neptus.mp.templates.InfiniteRectTemplate
 #, fuzzy
 msgid "Height of the rectangle, in meters"
 msgstr "Высота прямоугольника, в метрах"
 
-#: Description of property '@@Loiter height' from
+#: Description of property 'Loiter height' from
 #: pt.lsts.neptus.plugins.trex.TrexMapLayer
 #, fuzzy
 msgid "Height of waypoint for uav spotter plan."
@@ -4911,13 +4919,13 @@ msgctxt "Colormap name"
 msgid "Hot"
 msgstr "Горячий"
 
-#: Description of property '@@Z mode' from
+#: Description of property 'Z mode' from
 #: pt.lsts.neptus.plugins.position.AbsLatLonDepth
 #, fuzzy
 msgid "How to show the Z coordinate"
 msgstr "Как показать Z координат"
 
-#: Description of property '@@Orientation' from
+#: Description of property 'Orientation' from
 #: pt.lsts.neptus.plugins.position.AbsLatLonDepth
 #: pt.lsts.neptus.plugins.position.EulerAnglesPanel
 #, fuzzy
@@ -4984,7 +4992,7 @@ msgstr "IMC Изменение по источнику запроса IP"
 msgid "IMC Comm. Monitor"
 msgstr "IMC Комм. Контролировать"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1280
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1287
 #, fuzzy
 msgid "IMC ID"
 msgstr "IMC ID"
@@ -5054,7 +5062,7 @@ msgstr "IMC транспортирует использовать"
 msgid "IMU Alignment"
 msgstr "ИДУ Выравнивание"
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:193
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:196
 #, fuzzy
 msgid "IMU Enabled"
 msgstr "ИДУ выровненной"
@@ -5064,40 +5072,40 @@ msgstr "ИДУ выровненной"
 msgid "IMU Entity Label"
 msgstr "ИДУ Entity Этикетка"
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:211
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:215
 #, fuzzy
 msgid "IMU aligned"
 msgstr "ИДУ выровненной"
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:209
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:213
 #, fuzzy
 msgid "IMU aligned. Vehicle can be used in dead-reckoning mode."
 msgstr ""
 "ИДУ выровнены. Автомобиль может быть использован в счисления пути режиме."
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:226
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:230
 #, fuzzy
 msgid "IMU cannot be aligned"
 msgstr "ИДУ не могут быть выровнены"
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:224
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:228
 #, fuzzy
 msgid "IMU cannot be aligned on %vehicle"
 msgstr "ИДУ не может быть выровнен по %vehicle"
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:217
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:315
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:317
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:221
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:319
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:321
 #, fuzzy
 msgid "IMU is not aligned"
 msgstr "ИДУ не выровнен"
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:323
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:327
 #, fuzzy
 msgid "IMU is ready"
 msgstr "ИДУ выровненной"
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:218
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:222
 #, fuzzy
 msgid "IMU not aligned"
 msgstr "ИДУ не выровнены"
@@ -5108,7 +5116,7 @@ msgid "INITIALIZING"
 msgstr "ИНиЦиАЛиЗАЦиЯ"
 
 #: src/pt/lsts/neptus/gui/checklist/ChecklistPanel.java:2442
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1284
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1291
 #, fuzzy
 msgid "IP"
 msgstr "IP"
@@ -5138,7 +5146,7 @@ msgstr "IP:"
 msgid "Icons Description Help"
 msgstr "Иконки Описание Справка"
 
-#: Description of property '@@Used vehicles' from
+#: Description of property 'Used vehicles' from
 #: convcao.com.caoAgent.convcaoNeptusInteraction
 #, fuzzy
 msgid "Identifiers of the vehicles to be used, separated by commas"
@@ -5149,7 +5157,7 @@ msgstr "Введите различных глубинах, разделенны
 msgid "Idle Time"
 msgstr "Время простоя"
 
-#: Description of property '@@IMC Change by Source IP Request' from
+#: Description of property 'IMC Change by Source IP Request' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid ""
@@ -5159,7 +5167,7 @@ msgstr ""
 "Если включена опция позволяет объявить MSG запрос на использование IP "
 "отправителя быть использования вбудущее комм. отправителю системы."
 
-#: Description of property '@@Auto Sync. Only Non Idle Logs' from
+#: Description of property 'Auto Sync. Only Non Idle Logs' from
 #: pt.lsts.neptus.plugins.logs.LoggingDownloader
 #, fuzzy
 msgid "If enable only logs with names (excluding 'idle') are synchronized."
@@ -5167,7 +5175,7 @@ msgstr ""
 "Если включить только журналы с именами (за исключением «мертвого») "
 "синхронизированы."
 
-#: Description of property '@@Separate Operational Areas Per Vehicle' from
+#: Description of property 'Separate Operational Areas Per Vehicle' from
 #: pt.lsts.neptus.plugins.oplimits.OperationLimitsSubPanel
 #, fuzzy
 msgid "If selected, each vehicle will have its own operational limits file"
@@ -5175,33 +5183,32 @@ msgstr ""
 "Если выбрано, каждый автомобиль будет иметь свою собственную операционную "
 "файла пределы"
 
-#: Description of property '@@Z relative mode' from
+#: Description of property 'Z relative mode' from
 #: pt.lsts.neptus.plugins.position.AbsLatLonDepth
 #, fuzzy
 msgid "If the Z is relative to the HomeRef"
 msgstr "Если Z является относительно HomeRef"
 
-#: Description of property '@@ignoreSimulatedSystems' from
-#: pt.lsts.neptus.plugins.webupdate.RemotePositionPublisherUpdater
-#: '@@Publishing simulated states'
-#: pt.lsts.neptus.plugins.odss.OdssStatePublisher
+#: Description of property 'ignoreSimulatedSystems' from
+#: pt.lsts.neptus.plugins.webupdate.RemotePositionPublisherUpdater 'Publishing
+#: simulated states' pt.lsts.neptus.plugins.odss.OdssStatePublisher
 #, fuzzy
 msgid "If true any simulated system will not be published."
 msgstr "Если это правда любой моделируемой системы не будет опубликован."
 
-#: Description of property '@@showSystem' from
+#: Description of property 'showSystem' from
 #: pt.lsts.neptus.plugins.webupdate.RemotePositionFetcherUpdater
 #, fuzzy
 msgid "If true will paint the web fetch postion in the render."
 msgstr "Если это правда покрасят веб выборки постион в визуализации."
 
-#: Description of property '@@infoExtended' from
+#: Description of property 'infoExtended' from
 #: pt.lsts.neptus.plugins.webupdate.RemotePositionFetcherUpdater
 #, fuzzy
 msgid "If true will write age of data and depth on the render."
 msgstr "Если это правда напишу возрасту данных и глубины на визуализации."
 
-#: Description of property '@@Show Systems Icons On Renderer' from
+#: Description of property 'Show Systems Icons On Renderer' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid ""
@@ -5211,7 +5218,7 @@ msgstr ""
 "Если это правда, если этот компонент показывает иконки системы, она будет "
 "отключить их наПанель визуализации."
 
-#: Description of property '@@Show External Systems Icons' from
+#: Description of property 'Show External Systems Icons' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid ""
@@ -5221,7 +5228,7 @@ msgstr ""
 "Если это правда, если этот компонент будет показывать внешние иконки систем "
 "на визуализации.Возможность показать системные иконки должен быть включен"
 
-#: Description of property '@@Show Systems Icons That Are Filtered Out' from
+#: Description of property 'Show Systems Icons That Are Filtered Out' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid ""
@@ -5232,7 +5239,7 @@ msgstr ""
 "визуализации, которые былиотфильтрованы. Возможность показать системные "
 "иконки должен быть включен"
 
-#: Description of property '@@Extended Program Output Log' from
+#: Description of property 'Extended Program Output Log' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid ""
@@ -5302,30 +5309,30 @@ msgstr "Ширина изображения"
 msgid "Images acompanied by world file"
 msgstr "Изображения acompanied мировых файл"
 
-#: Description of property '@@Wave Glider' from
+#: Description of property 'Wave Glider' from
 #: pt.lsts.neptus.plugins.sunfish.IridiumComms
 msgid "Imc id of neptus console of wave glider operator"
 msgstr ""
 
-#: Description of property '@@Remote Neptus' from
+#: Description of property 'Remote Neptus' from
 #: pt.lsts.neptus.plugins.sunfish.IridiumComms
 msgid "Imc id of neptus console operating remotely"
 msgstr ""
 
-#: Description of property '@@System Vehicle Class Subtype Filter' from
+#: Description of property 'System Vehicle Class Subtype Filter' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid "In case the previous filter is VEHICLE, can filter by subtype"
 msgstr ""
 "В случае, если предыдущая фильтр АВТОМОБИЛЬ, можно отсортировать по подтипу"
 
-#: Description of property '@@Rotation' from
+#: Description of property 'Rotation' from
 #: pt.lsts.neptus.plugins.trex.TrexMapLayer
 #, fuzzy
 msgid "In degrees, an offset to north in clockwise."
 msgstr "В градусах, смещение на север по часовой стрелке."
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:219
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:223
 #, fuzzy
 msgid "In order to execute dead reckoning missions, IMU must first be aligned."
 msgstr ""
@@ -5420,7 +5427,7 @@ msgstr ""
 msgid "Insert New Item Before"
 msgstr ""
 
-#: Description of property '@@Use system discovery' from
+#: Description of property 'Use system discovery' from
 #: pt.lsts.neptus.plugins.acoustic.MantaOperations
 msgid "Instead of a static list, receive supported systems from gateway"
 msgstr ""
@@ -5440,7 +5447,7 @@ msgstr "Interpolate государства"
 msgid "Interpolate and predict positions"
 msgstr "Interpolate и прогнозировать позиции"
 
-#: Description of property '@@Update period (ms)' from
+#: Description of property 'Update period (ms)' from
 #: pt.lsts.neptus.plugins.position.MultiEntityDisplayPanel
 #, fuzzy
 msgid "Interval between display updates, in milliseconds"
@@ -5451,7 +5458,7 @@ msgstr "Интервал между обновления экрана в мил�
 msgid "Interval between simulated states, in seconds"
 msgstr "Интервал между моделируемой государств, в секундах"
 
-#: Description of property '@@Update interval' from
+#: Description of property 'Update interval' from
 #: pt.lsts.neptus.plugins.gauges.CpuBattDiskNetGauge
 #: pt.lsts.neptus.plugins.position.AbsLatLonDepth
 #: pt.lsts.neptus.plugins.position.SpeedPanel
@@ -5488,13 +5495,13 @@ msgid ""
 "positive angle)"
 msgstr ""
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:121
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:195
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:122
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:196
 #, fuzzy
 msgid "Invalid LSF file"
 msgstr "Неправильный индекс LSF"
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:249
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:255
 #, fuzzy
 msgid "Invalid LSF index"
 msgstr "Неправильный индекс LSF"
@@ -5532,7 +5539,7 @@ msgstr "Вызов сборщика мусора"
 msgid "Invoking Garbage Collector"
 msgstr "Вызов сборщика мусора"
 
-#: Description of property '@@T-Rex Shore IP' from
+#: Description of property 'T-Rex Shore IP' from
 #: pt.lsts.neptus.plugins.trex.TrexMapLayer
 #, fuzzy
 msgid ""
@@ -5580,7 +5587,7 @@ msgstr ""
 msgid "Iridium message was queued for later transmission"
 msgstr ""
 
-#: Description of property '@@Iridium Messenger' from
+#: Description of property 'Iridium Messenger' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 msgid "Iridium messaging implementation"
 msgstr ""
@@ -5595,7 +5602,7 @@ msgstr "Является батиметрическом"
 msgid "Is infinite"
 msgstr "Бесконечна"
 
-#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:610
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:618
 msgid "It will show a blue dot that is referent to a new waypoint"
 msgstr ""
 
@@ -5676,8 +5683,8 @@ msgstr "НАГРУЗКИ"
 msgid "LSF Listing"
 msgstr "LSF Листинг"
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:121
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:195
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:122
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:196
 #, fuzzy
 msgid "LSF file does not exist!"
 msgstr "The file doesn't exists!"
@@ -5721,7 +5728,7 @@ msgstr "Последний MSG обработаны:"
 
 #: src/pt/lsts/neptus/gui/objparams/TranspondersPositionHelper.java:240
 #: src/pt/lsts/neptus/gui/objparams/TranspondersPositionHelper.java:564
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1227
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1234
 #, fuzzy
 msgid "Lat"
 msgstr "Lat"
@@ -5803,7 +5810,7 @@ msgstr ""
 msgid "Left"
 msgstr "Слева"
 
-#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:607
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:615
 msgid "Left Mouse double click on Reference"
 msgstr ""
 
@@ -5823,13 +5830,13 @@ msgstr "Включите кнопку маяки"
 msgid "Length"
 msgstr "Длина"
 
-#: Description of property '@@Length' from
+#: Description of property 'Length' from
 #: pt.lsts.neptus.mp.templates.RowsTemplate
 #, fuzzy
 msgid "Length, in meters of the area to be surveyed"
 msgstr "Длина, метров площади, подлежащих обследованию"
 
-#: Description of property '@@Size' from
+#: Description of property 'Size' from
 #: pt.lsts.neptus.mp.templates.YoYoTemplate
 #, fuzzy
 msgid "Length, in meters of the side length of the survey"
@@ -5911,13 +5918,13 @@ msgstr "Загрузка данных из файла (hfradar.txt)"
 msgid "Loading %visName"
 msgstr "Загрузка %visName"
 
-#: src/pt/lsts/neptus/types/mission/MissionType.java:300
+#: src/pt/lsts/neptus/types/mission/MissionType.java:302
 #, fuzzy
 msgid "Loading Checklists..."
 msgstr "Загрузка ... Контрольные списки"
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:191
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:226
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:192
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:232
 #, fuzzy
 msgid "Loading LSF Data"
 msgstr "Загрузка данных LSF"
@@ -5948,12 +5955,12 @@ msgstr "Loading Systems Параметры файлы ..."
 msgid "Loading console..."
 msgstr "Загрузка консоли ..."
 
-#: src/pt/lsts/neptus/types/mission/MissionType.java:238
+#: src/pt/lsts/neptus/types/mission/MissionType.java:240
 #, fuzzy
 msgid "Loading home reference..."
 msgstr "Загрузка домой ссылкой ..."
 
-#: src/pt/lsts/neptus/types/mission/MissionType.java:282
+#: src/pt/lsts/neptus/types/mission/MissionType.java:284
 #, fuzzy
 msgid "Loading maps..."
 msgstr "Загрузка карты ..."
@@ -5963,23 +5970,23 @@ msgstr "Загрузка карты ..."
 msgid "Loading markers..."
 msgstr "Загрузка карты ..."
 
-#: src/pt/lsts/neptus/types/mission/MissionType.java:203
-#: src/pt/lsts/neptus/types/mission/MissionType.java:363
+#: src/pt/lsts/neptus/types/mission/MissionType.java:205
+#: src/pt/lsts/neptus/types/mission/MissionType.java:365
 #, fuzzy
 msgid "Loading mission"
 msgstr "Загрузка миссии"
 
-#: src/pt/lsts/neptus/types/mission/MissionType.java:211
+#: src/pt/lsts/neptus/types/mission/MissionType.java:213
 #, fuzzy
 msgid "Loading mission header..."
 msgstr "Загрузка Заголовок миссии ..."
 
-#: src/pt/lsts/neptus/types/mission/MissionType.java:319
+#: src/pt/lsts/neptus/types/mission/MissionType.java:321
 #, fuzzy
 msgid "Loading plans..."
 msgstr "Загрузка планы ..."
 
-#: src/pt/lsts/neptus/types/mission/MissionType.java:248
+#: src/pt/lsts/neptus/types/mission/MissionType.java:250
 #, fuzzy
 msgid "Loading vehicles..."
 msgstr "Загрузка транспортных средств ..."
@@ -6017,7 +6024,7 @@ msgstr "Местный сброс. Должен быть отправлены в
 msgid "Location"
 msgstr "Расположение"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1040
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1041
 #, fuzzy
 msgid "Location known"
 msgstr "Места"
@@ -6249,7 +6256,7 @@ msgstr "ASV слоняются радиусом"
 
 #: src/pt/lsts/neptus/gui/objparams/TranspondersPositionHelper.java:247
 #: src/pt/lsts/neptus/gui/objparams/TranspondersPositionHelper.java:565
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1231
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1238
 #, fuzzy
 msgid "Lon"
 msgstr "Долгота"
@@ -6282,6 +6289,10 @@ msgstr "Потеря связи"
 #, fuzzy
 msgid "MANEUVER"
 msgstr "МАНЕВР"
+
+#: src/pt/lsts/neptus/mra/plots/UAVModePlot.java:83
+msgid "MANUAL"
+msgstr ""
 
 #: src/pt/lsts/neptus/comm/manager/imc/MonitorIMCComms.java:523
 #, fuzzy
@@ -6341,7 +6352,7 @@ msgstr "Основные разработчики:"
 msgid "Main System Icon Size Increment"
 msgstr "Главная значок Система размер при увеличении"
 
-#: src/pt/lsts/neptus/gui/system/SystemDisplay.java:877
+#: src/pt/lsts/neptus/gui/system/SystemDisplay.java:882
 #, fuzzy
 msgid "Main vehicle"
 msgstr "Основным средством"
@@ -6351,7 +6362,7 @@ msgstr "Основным средством"
 msgid "Make the location absolute"
 msgstr "Делают расположение абсолютного"
 
-#: src/pt/lsts/neptus/comm/manager/imc/SystemImcMsgCommInfo.java:303
+#: src/pt/lsts/neptus/comm/manager/imc/SystemImcMsgCommInfo.java:304
 #, fuzzy
 msgctxt "Maneuver (short form)"
 msgid "Man"
@@ -6607,7 +6618,7 @@ msgstr "Максимальное значение (градусы)"
 msgid "Maximum Vertical Rate (m/s)"
 msgstr "Максимальная частота (м / с)"
 
-#: Description of property '@@Acceptable Elapsed Time' from
+#: Description of property 'Acceptable Elapsed Time' from
 #: pt.lsts.neptus.console.plugins.planning.MissionTreePanel
 #, fuzzy
 msgid "Maximum acceptable interval between beacon ranges, in seconds."
@@ -6627,19 +6638,19 @@ msgstr "Максимальная глубина"
 msgid "Maximum depth for bathymetry plots"
 msgstr "Максимальная глубина для батиметрию участков"
 
-#: Description of property '@@Maximum Depth' from
-#: pt.lsts.neptus.mp.templates.YoYoTemplate '@@Minimum
+#: Description of property 'Maximum Depth' from
+#: pt.lsts.neptus.mp.templates.YoYoTemplate 'Minimum
 #, fuzzy
 msgid "Maximum depth of the yoyo behavior"
 msgstr "Максимальная глубина для батиметрию участков"
 
-#: Description of property '@@Maximum depth for bathymetry plots' from
+#: Description of property 'Maximum depth for bathymetry plots' from
 #: pt.lsts.neptus.mra.MRAProperties
 #, fuzzy
 msgid "Maximum depth to be used in bathymetry plots."
 msgstr "Максимальная глубина для использования в батиметрию участков."
 
-#: Description of property '@@Maximum Size Plan Name For Acoustics' from
+#: Description of property 'Maximum Size Plan Name For Acoustics' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 msgid ""
 "Maximum size for a plan name to be started by acoustics. (Reboot required "
@@ -6854,7 +6865,7 @@ msgstr "Минимальная глубина для батиметрию"
 msgid "Minimum distance between waypoints"
 msgstr "Минимальное расстояние между точками"
 
-#: Description of property '@@Tag safety distance (meters)' from
+#: Description of property 'Tag safety distance (meters)' from
 #: pt.lsts.neptus.plugins.sunfish.awareness.SituationAwareness
 #, fuzzy
 msgid "Minimum distance the ship can be from the tag position"
@@ -6881,7 +6892,7 @@ msgstr "Минимальная высота"
 msgid "Minutes To Hide Systems Without Known Location"
 msgstr "Minutes To Hide системах без Неизвестно Местонахождение"
 
-#: Description of property '@@Minutes To Hide Systems Without Known Location'
+#: Description of property 'Minutes To Hide Systems Without Known Location'
 #: from pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid ""
@@ -6982,7 +6993,7 @@ msgstr "Миссия выполнена на %date"
 msgid "Mission files"
 msgstr "Миссия файлы"
 
-#: src/pt/lsts/neptus/types/mission/MissionType.java:766
+#: src/pt/lsts/neptus/types/mission/MissionType.java:768
 #, fuzzy
 msgid "Mission not saved"
 msgstr "Миссия не сохраняются"
@@ -7124,13 +7135,13 @@ msgstr "Многолучевой 3D"
 msgid "Multibeam Replay"
 msgstr "Многолучевой 3D"
 
-#: Description of property '@@IMC Multicast Enable' from
+#: Description of property 'IMC Multicast Enable' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid "Multicast enable or disable"
 msgstr "Multicast включить или отключить"
 
-#: Description of property '@@IMC Multicast/Broadcast Port Range' from
+#: Description of property 'IMC Multicast/Broadcast Port Range' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid ""
@@ -7150,7 +7161,7 @@ msgstr "Несколько треков на прямоугольную обла
 msgid "Multiplication factor"
 msgstr "Коэффициент усиления"
 
-#: Description of property '@@Depth exaggeration multiplier' from
+#: Description of property 'Depth exaggeration multiplier' from
 #: pt.lsts.neptus.mra.MRAProperties pt.lsts.neptus.plugins.vtk.VtkMRAVis
 #, fuzzy
 msgid "Multiplier value for depth exaggeration."
@@ -7239,7 +7250,7 @@ msgstr "Название"
 msgid "Name of Dune task"
 msgstr "Название Дюна задачи"
 
-#: Description of property '@@Current Profile' from
+#: Description of property 'Current Profile' from
 #: pt.lsts.neptus.console.plugins.containers.MigLayoutContainer
 #, fuzzy
 msgid "Name of the current active profile"
@@ -7252,10 +7263,10 @@ msgstr "Имя текущего активного профиля"
 msgid "Name:"
 msgstr "Имя:"
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:302
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:315
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:317
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:323
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:306
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:319
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:321
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:327
 #, fuzzy
 msgid "Navigation"
 msgstr "Утверждение"
@@ -7270,7 +7281,7 @@ msgstr "Навигация Entity Этикетка"
 msgid "Near distance"
 msgstr "distance"
 
-#: Description of property '@@Use Plan DB Sync. Features Extended' from
+#: Description of property 'Use Plan DB Sync. Features Extended' from
 #: pt.lsts.neptus.console.plugins.planning.MissionTreePanel
 #, fuzzy
 msgid "Needs 'Use Plan DB Sync. Features' on"
@@ -7438,8 +7449,8 @@ msgstr "по умолчанию не найдено для класса %classNa
 msgid "No default found for field %fieldName"
 msgstr "по умолчанию не найдено для поля %fieldName"
 
-#: src/pt/lsts/neptus/gui/system/SystemDisplay.java:160
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1051
+#: src/pt/lsts/neptus/gui/system/SystemDisplay.java:161
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1058
 #, fuzzy
 msgid "No extra info"
 msgstr "Никакая дополнительная информация"
@@ -7499,7 +7510,7 @@ msgstr "Ни одна система не смогла отправить соо
 msgid "No transport available to send message %message to %system."
 msgstr "Нет транспорта доступны для отправки сообщений в %message %system."
 
-#: Description of property '@@Sidescan ColorMap' from
+#: Description of property 'Sidescan ColorMap' from
 #: pt.lsts.neptus.util.llf.LsfReportProperties
 msgid "None selected: -1 | Default(Bronze)=0"
 msgstr ""
@@ -7633,19 +7644,19 @@ msgstr "Number of cols"
 msgid "Number of columns"
 msgstr "Number of columns"
 
-#: Description of property '@@Number Columns' from
+#: Description of property 'Number Columns' from
 #: convcao.com.caoAgent.NoptilusCoords
 #, fuzzy
 msgid "Number of columns in the area rectangle"
 msgstr "Number of columns in the panel. 0 for infinite."
 
-#: Description of property '@@Number Columns' from
+#: Description of property 'Number Columns' from
 #: pt.lsts.neptus.plugins.logs.QuickLogger
 #, fuzzy
 msgid "Number of columns in the panel. 0 for infinite."
 msgstr "Number of columns in the panel. 0 for infinite."
 
-#: Description of property '@@Maximum Depth' from
+#: Description of property 'Maximum Depth' from
 #: convcao.com.caoAgent.NoptilusCoords
 msgid "Number of depth units to use for the Noptilus map"
 msgstr ""
@@ -7660,7 +7671,7 @@ msgstr "Number of distinct frequencies"
 msgid "Number of iterations"
 msgstr "Number of iterations"
 
-#: Description of property '@@Tail number Points' from
+#: Description of property 'Tail number Points' from
 #: pt.lsts.neptus.plugins.position.GPSFixPanel
 #, fuzzy
 msgid "Number of points for GPS fix history."
@@ -7676,13 +7687,13 @@ msgstr "Number of points to display"
 msgid "Number of rows"
 msgstr "Number of rows"
 
-#: Description of property '@@Number Rows' from
+#: Description of property 'Number Rows' from
 #: convcao.com.caoAgent.NoptilusCoords
 #, fuzzy
 msgid "Number of rows in the area rectangle"
 msgstr "Number of rows in the panel. 0 for infinite."
 
-#: Description of property '@@Number Rows' from
+#: Description of property 'Number Rows' from
 #: pt.lsts.neptus.plugins.logs.QuickLogger
 #, fuzzy
 msgid "Number of rows in the panel. 0 for infinite."
@@ -7913,7 +7924,7 @@ msgstr "Opening file..."
 msgid "Opening mission: %missionfile..."
 msgstr "Opening mission: %missionfile..."
 
-#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:606
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:614
 #, fuzzy
 msgid "Opens reference waypoint properties"
 msgstr "Общие свойства"
@@ -7988,7 +7999,7 @@ msgstr "PAYLOAD_MONITOR"
 msgid "PDF <b>was not</b> created to file."
 msgstr "PDF <b>was not</b> saved to file."
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:418
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:424
 #, fuzzy
 msgid "PDF <b>was not</b> saved to file."
 msgstr "PDF <b>was not</b> saved to file."
@@ -8000,12 +8011,12 @@ msgstr "PDF <b>was not</b> saved to file."
 msgid "PDF Creation"
 msgstr "PDF Creation Process"
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:418
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:424
 #, fuzzy
 msgid "PDF Creation Process"
 msgstr "PDF Creation Process"
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:460
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:466
 msgid "PDF Report Generated"
 msgstr ""
 
@@ -8037,7 +8048,7 @@ msgctxt ""
 msgid "POI"
 msgstr "POI"
 
-#: Description of property '@@Enable Info' from
+#: Description of property 'Enable Info' from
 #: pt.lsts.neptus.plugins.position.painter.SystemInfoPainter
 #, fuzzy
 msgid "Paint Vehicle Information on panel"
@@ -8123,7 +8134,7 @@ msgstr "Paste URL"
 msgid "Paste from clipboard"
 msgstr "Paste from clipboard"
 
-#: src/pt/lsts/neptus/gui/system/SystemDisplay.java:400
+#: src/pt/lsts/neptus/gui/system/SystemDisplay.java:403
 #, fuzzy
 msgid "Paste location"
 msgstr "Paste location"
@@ -8243,7 +8254,7 @@ msgstr "Pitch angle"
 msgid "Pitch angle shoud be bounded between [0°, 45°]"
 msgstr "Pitch angle shoud be bounded between [0°, 45°]"
 
-#: Description of property '@@Pitch angle' from
+#: Description of property 'Pitch angle' from
 #: pt.lsts.neptus.mp.templates.YoYoTemplate
 msgid "Pitch angle to be used in yoyo maneuvers (degrees)"
 msgstr ""
@@ -8266,7 +8277,7 @@ msgstr ""
 #: src/pt/lsts/neptus/console/StatusBar.java:103
 #: src/pt/lsts/neptus/console/plugins/planning/PlanControlStatePanel.java:112
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:383
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1213
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1220
 #, fuzzy
 msgid "Plan"
 msgstr "Plan"
@@ -8521,7 +8532,7 @@ msgstr "duration"
 msgid "Port"
 msgstr "Port"
 
-#: Description of property '@@T-Rex Shore port' from
+#: Description of property 'T-Rex Shore port' from
 #: pt.lsts.neptus.plugins.trex.TrexMapLayer
 #, fuzzy
 msgid ""
@@ -8580,7 +8591,7 @@ msgstr "Preferred Height"
 msgid "Preferred Width"
 msgstr "Preferred Width"
 
-#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:609
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:617
 msgid "Press CTRL + Left Mouse Click + Drag Mouse"
 msgstr ""
 
@@ -8631,7 +8642,7 @@ msgstr "Processing data..."
 msgid "Processing log list..."
 msgstr "Processing log list..."
 
-#: Description of property '@@Beep on error' from
+#: Description of property 'Beep on error' from
 #: pt.lsts.neptus.plugins.alarms.SimpleAlarm
 #: pt.lsts.neptus.plugins.alarms.ExceptionAlarm
 #, fuzzy
@@ -8801,7 +8812,7 @@ msgstr "Нет данных"
 #: src/pt/lsts/neptus/gui/GotoParameters.java:213
 #: src/pt/lsts/neptus/console/plugins/planning/CommandPlanner.java:98
 #: src/pt/lsts/neptus/console/plugins/planning/PlanEditor.java:981
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1273
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1280
 #, fuzzy
 msgid "RPM"
 msgstr "RPM"
@@ -8811,6 +8822,10 @@ msgstr "RPM"
 msgctxt "Rotations per Minutes"
 msgid "RPM"
 msgstr "RPM"
+
+#: src/pt/lsts/neptus/mp/maneuvers/Dislodge.java:71
+msgid "RPM should be positive"
+msgstr ""
 
 #: src/pt/lsts/neptus/mp/maneuvers/Loiter.java:82
 #, fuzzy
@@ -8835,13 +8850,13 @@ msgstr "Radius"
 msgid "Radius (m)"
 msgstr "Radius (m)"
 
-#: Description of property '@@ASV Station Keeping radius' from
+#: Description of property 'ASV Station Keeping radius' from
 #: pt.lsts.neptus.console.plugins.planning.CommandPlanner
 #, fuzzy
 msgid "Radius of the circle where the ASV should keep its position"
 msgstr "Radius of the circle where the ASV should keep its position"
 
-#: Description of property '@@Radius (m)' from
+#: Description of property 'Radius (m)' from
 #: pt.lsts.neptus.mp.maneuvers.CompassCalibration
 #, fuzzy
 msgid "Radius of the maneuver."
@@ -8951,7 +8966,7 @@ msgstr "Recently opened consoles files."
 msgid "Recently opened misc files."
 msgstr "Recently opened misc files."
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:542
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:548
 #, fuzzy
 msgid "Recently opened mission files"
 msgstr "Recently opened mission files"
@@ -9014,7 +9029,7 @@ msgstr "Redirect Unknown Comms. To First Vehicle In Comm. Список"
 msgid "Redo"
 msgstr "Redo"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:505
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:506
 #, fuzzy
 msgid "Redo Selection"
 msgstr "Redo Selection"
@@ -9177,7 +9192,7 @@ msgstr "Удаление"
 msgid "Remove Outliers"
 msgstr "Remove Outliers"
 
-#: Description of property '@@Remove Outliers' from
+#: Description of property 'Remove Outliers' from
 #: pt.lsts.neptus.mra.MRAProperties
 #, fuzzy
 msgid "Remove Outliers from Pointcloud redered on multibeam 3D"
@@ -9355,7 +9370,7 @@ msgid "Resuming..."
 msgstr "Resuming..."
 
 #. // "▼"
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:359
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:360
 #, fuzzy
 msgid "Retract extra info."
 msgstr "Retract extra info."
@@ -9433,7 +9448,7 @@ msgstr "Введите идентификатор плана"
 msgid "Rotation"
 msgstr "Rotation"
 
-#: Description of property '@@Rotation' from
+#: Description of property 'Rotation' from
 #: pt.lsts.neptus.mp.templates.YoYoTemplate
 msgid "Rotation of the survey square, in degrees"
 msgstr ""
@@ -9478,7 +9493,7 @@ msgstr "SERVICE"
 msgid "SI Unit or knots"
 msgstr "SI Unit or knots"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1200
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1207
 #, fuzzy
 msgid "SIMULATION"
 msgstr "SIMULATION"
@@ -9692,8 +9707,8 @@ msgstr "Save image or as map"
 msgid "Save mesh to a file"
 msgstr "Save image or as map"
 
-#: src/pt/lsts/neptus/types/mission/MissionType.java:936
-#: src/pt/lsts/neptus/types/mission/MissionType.java:944
+#: src/pt/lsts/neptus/types/mission/MissionType.java:941
+#: src/pt/lsts/neptus/types/mission/MissionType.java:949
 #, fuzzy
 msgid "Save mission"
 msgstr "Save mission"
@@ -9713,7 +9728,7 @@ msgstr "Save options"
 msgid "Save pointcloud as"
 msgstr "Save Console As"
 
-#: Description of property '@@Save mission states' from
+#: Description of property 'Save mission states' from
 #: pt.lsts.neptus.console.plugins.planning.MapPanel
 #, fuzzy
 msgid "Save the mission states whenever the mission is changed"
@@ -9772,7 +9787,7 @@ msgstr "Schema extracted to file:"
 msgid "Script"
 msgstr "Сценарий"
 
-#: Description of property '@@Script' from
+#: Description of property 'Script' from
 #: pt.lsts.neptus.plugins.position.ScriptedDisplay
 #, fuzzy
 msgid ""
@@ -9791,7 +9806,7 @@ msgstr ""
 msgid "Seconds between history update requests"
 msgstr "Seconds between history update requests"
 
-#: Description of property '@@Update Interval' from
+#: Description of property 'Update Interval' from
 #: pt.lsts.neptus.plugins.odss.OdssStatePublisher
 #, fuzzy
 msgid "Seconds between updates."
@@ -9924,7 +9939,7 @@ msgstr "Select folder where to save concatenated log"
 msgid "Select folders  to concatenate"
 msgstr "Select folders  to concatenate"
 
-#: Description of property '@@Request plans automatically' from
+#: Description of property 'Request plans automatically' from
 #: pt.lsts.neptus.console.plugins.planning.PlanControlStatePanel
 msgid ""
 "Select if Neptus should ask the vehicle for plans it is executing but Neptus "
@@ -9936,13 +9951,13 @@ msgstr ""
 msgid "Select image..."
 msgstr "Select image..."
 
-#: Description of property '@@Comms. Queue Size' from
+#: Description of property 'Comms. Queue Size' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid "Select the comms. queues size."
 msgstr "Select the comms. queues size."
 
-#: Description of property '@@Comms. Messsage Separation Time (ms)' from
+#: Description of property 'Comms. Messsage Separation Time (ms)' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid ""
@@ -9952,7 +9967,7 @@ msgstr ""
 "Select the comms. separation time in miliseconds that a message (by type) "
 "should be warn. Use '-1' for always warn."
 
-#: Description of property '@@Language' from
+#: Description of property 'Language' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid ""
@@ -9962,7 +9977,7 @@ msgstr ""
 "Select the language to use for the interface (needs restart). (Format [a-z]"
 "{2}_[A-Z]{2}"
 
-#: Description of property '@@Speech On' from
+#: Description of property 'Speech On' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid "Select this if you want the speech on or off."
@@ -10281,7 +10296,7 @@ msgstr "Set the center location"
 msgid "Set the object center location"
 msgstr "Set the object center location"
 
-#: Description of property '@@Time window (hours)' from
+#: Description of property 'Time window (hours)' from
 #: pt.lsts.neptus.plugins.spot.SpotOverlay
 #, fuzzy
 msgid ""
@@ -10296,7 +10311,7 @@ msgstr ""
 msgid "Set this location as Mine"
 msgstr "Set this location as Mine"
 
-#: Description of property '@@Honors Visibility' from
+#: Description of property 'Honors Visibility' from
 #: pt.lsts.neptus.console.plugins.containers.GroupLayoutContainer
 #, fuzzy
 msgid ""
@@ -10306,7 +10321,7 @@ msgstr ""
 "Set this so if  component is hidden is if it's not there at all. Для "
 "большинстваuses leave it at true."
 
-#: Description of property '@@Is infinite' from
+#: Description of property 'Is infinite' from
 #: pt.lsts.neptus.mp.templates.InfiniteRectTemplate
 #, fuzzy
 msgid "Set to true links the last maneuver to the first creating a cicled plan"
@@ -10331,13 +10346,13 @@ msgstr "Set to use a system location as mine"
 msgid "Set to use a system to derive heading"
 msgstr "Set to use a system to derive heading"
 
-#: Description of property '@@Periodicity (milliseconds)' from
+#: Description of property 'Periodicity (milliseconds)' from
 #: pt.lsts.neptus.plugins.leds.LedsControlPanel
 #, fuzzy
 msgid "Set update periodicity in miliseconds"
 msgstr "Periodicity (milliseconds)"
 
-#: Description of property '@@Use acoustic communications' from
+#: Description of property 'Use acoustic communications' from
 #: pt.lsts.neptus.plugins.followref.FollowReferenceInteraction
 msgid "Setting to true will make all communications go through acoustic modem"
 msgstr ""
@@ -10366,7 +10381,7 @@ msgstr ""
 #: plugins-dev/odss/pt/lsts/neptus/plugins/odss/OdssRabbitMQTrackFetcher.java:473
 #: plugins-dev/odss/pt/lsts/neptus/plugins/odss/OdssStoqsTrackFetcher.java:238
 #: plugins-dev/odss/pt/lsts/neptus/plugins/odss/OdssStoqsTrackFetcher.java:252
-#: plugins-dev/mra-plots/pt/lsts/neptus/plugins/rtplot/RealTimePlot.java:110
+#: plugins-dev/mra-plots/pt/lsts/neptus/plugins/rtplot/RealTimePlot.java:111
 #, fuzzy
 msgid "Settings"
 msgstr "Настройки"
@@ -10654,12 +10669,12 @@ msgstr "Show speed in knots"
 msgid "Show stationary vessels"
 msgstr "Show stationary vessels"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:520
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:521
 #, fuzzy
 msgid "Show systems extended OSD in render"
 msgstr "Show systems extended OSD in render"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:512
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:513
 #, fuzzy
 msgid "Show systems info OSD in render"
 msgstr "Show systems info OSD in render"
@@ -10915,12 +10930,12 @@ msgstr "Speed tolerance"
 msgid "Speed Units"
 msgstr "Speed Units"
 
-#: Description of property '@@Maximum Speed' from
+#: Description of property 'Maximum Speed' from
 #: pt.lsts.neptus.plugins.uavs.panels.SpeedIndicatorPanel
 msgid "Speed above which it's undesirable to fly (m/s)"
 msgstr ""
 
-#: Description of property '@@Minimum Speed' from
+#: Description of property 'Minimum Speed' from
 #: pt.lsts.neptus.plugins.uavs.panels.SpeedIndicatorPanel
 msgid "Speed below which the vehicle enters VStall (m/s)"
 msgstr ""
@@ -10953,7 +10968,7 @@ msgstr "Speed tolerance"
 msgid "Speed units"
 msgstr "Speed units"
 
-#: Description of property '@@Water current Speed' from
+#: Description of property 'Water current Speed' from
 #: pt.lsts.neptus.plugins.trex.TrexMapLayer
 #, fuzzy
 msgid "Speed, in mps of the surface current."
@@ -10986,7 +11001,7 @@ msgstr "Square Curve"
 msgid "Square Side Length"
 msgstr "Square Side Length"
 
-#: Description of property '@@Shape around Sidescan Points Marks' from
+#: Description of property 'Shape around Sidescan Points Marks' from
 #: pt.lsts.neptus.util.llf.LsfReportProperties
 #, fuzzy
 msgid "Square=0 | Circle=1"
@@ -11048,7 +11063,7 @@ msgstr "Start and Stop local web server"
 msgid "Start from current position"
 msgstr "Start from current position"
 
-#: Description of property '@@Start from current position'
+#: Description of property 'Start from current position'
 #: pt.lsts.neptus.mp.maneuvers.Elevator
 #, fuzzy
 msgid "Start from current position or use the location field"
@@ -11095,7 +11110,7 @@ msgstr "Starting %appname..."
 msgid "Starting Maneuver"
 msgstr "Starting Maneuver"
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:239
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:245
 #, fuzzy
 msgid "Starting interface"
 msgstr "Starting interface"
@@ -11440,7 +11455,7 @@ msgstr "System Messages"
 msgid "System Vehicle Class Subtype Filter"
 msgstr "System Vehicle Class Subtype Filter"
 
-#: src/pt/lsts/neptus/gui/system/SystemDisplay.java:488
+#: src/pt/lsts/neptus/gui/system/SystemDisplay.java:491
 #, fuzzy
 msgid "System color"
 msgstr "System color"
@@ -11486,7 +11501,7 @@ msgstr "Systems Ordering"
 msgid "Systems Ordering Option"
 msgstr "Systems Ordering Option"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1948
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1955
 #, fuzzy
 msgid "Systems in renderer"
 msgstr "Systems in renderer"
@@ -11635,25 +11650,25 @@ msgstr ""
 msgid "Text Commands"
 msgstr ""
 
-#: Description of property '@@Trailing text' from
+#: Description of property 'Trailing text' from
 #: pt.lsts.neptus.plugins.position.ScriptedDisplay
 #, fuzzy
 msgid "Text appended to script (optional). Can be used to set display units."
 msgstr "Text appended to script (optional). Can be used to set display units."
 
-#: Description of property '@@CPU load text' from
+#: Description of property 'CPU load text' from
 #: pt.lsts.neptus.plugins.gauges.CpuBattDiskNetGauge
 #, fuzzy
 msgid "Text to display in the CPU gauge. Can use tree variables."
 msgstr "Text to display in the CPU gauge. Can use tree variables."
 
-#: Description of property '@@Disk usage text' from
+#: Description of property 'Disk usage text' from
 #: pt.lsts.neptus.plugins.gauges.CpuBattDiskNetGauge
 #, fuzzy
 msgid "Text to display in the disk usage gauge."
 msgstr "Text to display in the disk usage gauge."
 
-#: Description of property '@@Battery text' from
+#: Description of property 'Battery text' from
 #: pt.lsts.neptus.plugins.gauges.CpuBattDiskNetGauge
 #, fuzzy
 msgid "Text to display. Can use tree variables."
@@ -11664,7 +11679,7 @@ msgstr "Text to display. Can use tree variables."
 msgid "Texture:"
 msgstr "Texture:"
 
-#: Description of property '@@IMC CCU Name' from
+#: Description of property 'IMC CCU Name' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid "The CCU Name to be presented to other peers"
@@ -11690,7 +11705,7 @@ msgstr "The Decimal Degrees Latitude is invalid"
 msgid "The Decimal Degrees Longitude is invalid"
 msgstr "The Decimal Degrees Longitude is invalid"
 
-#: Description of property '@@Camera IP' from
+#: Description of property 'Camera IP' from
 #: pt.lsts.neptus.plugins.ipcam.AirCamDisplay
 #, fuzzy
 msgid "The IP address of the camera you want to display"
@@ -11701,13 +11716,13 @@ msgstr "The IP address of the camera you want to display"
 msgid "The Latitude/Longitude parameters are not valid"
 msgstr "The Latitude/Longitude parameters are not valid"
 
-#: Description of property '@@Pitch' from
+#: Description of property 'Pitch' from
 #: pt.lsts.neptus.mp.maneuvers.CompassCalibration
 #, fuzzy
 msgid "The Pitch angle used to perform the maneuver."
 msgstr "The Pitch angle used to perform the maneuver."
 
-#: Description of property '@@Map Server URL' from
+#: Description of property 'Map Server URL' from
 #: pt.lsts.neptus.renderer2d.tiles.TileS57
 #, fuzzy
 msgid ""
@@ -11715,7 +11730,7 @@ msgid ""
 msgstr ""
 "The URL to the S57 Map Server. [default='http://localhost:8082/map/s57/png?']"
 
-#: Description of property '@@MJPEG URL' from
+#: Description of property 'MJPEG URL' from
 #: pt.lsts.neptus.plugins.ipcam.IPCameraDisplay
 #, fuzzy
 msgid "The URL where to download the MJPEG stream"
@@ -11731,7 +11746,7 @@ msgstr "The Z parameters are not valid"
 msgid "The angle offset is invalid!"
 msgstr "The angle offset is invalid!"
 
-#: Description of property '@@Layout Axis' from
+#: Description of property 'Layout Axis' from
 #: pt.lsts.neptus.console.plugins.containers.BoxLayoutContainer
 #, fuzzy
 msgid "The axis to follow when laying out components"
@@ -11742,7 +11757,7 @@ msgstr "The axis to follow when laying out components"
 msgid "The calculation was not possible.<br> Some inputs are not valid!"
 msgstr "The calculation was not possible.<br> Some inputs are not valid!"
 
-#: Description of property '@@Center location' from
+#: Description of property 'Center location' from
 #: pt.lsts.neptus.mp.templates.YoYoTemplate
 msgid "The center of the survey (point of interest)"
 msgstr ""
@@ -11774,7 +11789,7 @@ msgstr "The command is not supported by %manta."
 msgid "The desired velocity over the trajectory"
 msgstr "The desired velocity over the trajectory"
 
-#: Description of property '@@Duration (s)' from
+#: Description of property 'Duration (s)' from
 #: pt.lsts.neptus.mp.maneuvers.CompassCalibration
 #, fuzzy
 msgid ""
@@ -11804,21 +11819,21 @@ msgstr "The entered text does not represent numeric values"
 msgid "The file doesn't exists!"
 msgstr "The file doesn't exists!"
 
-#: Description of property '@@Base Folder For Currents TUV or netCDF Files'
-#: from pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
+#: Description of property 'Base Folder For Currents TUV or netCDF Files' from
+#: pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
 msgid ""
 "The folder to look for currents data. Admissible files '*.tuv' and '*.nc'. "
 "NetCDF variables used: lat, lon, time, u, v."
 msgstr ""
 
-#: Description of property '@@Base Folder For Meteo netCDF Files' from
+#: Description of property 'Base Folder For Meteo netCDF Files' from
 #: pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
 msgid ""
 "The folder to look for meteo data (wind and SST). Admissible files '*.nc'. "
 "NetCDF variables used: lat, lon, time, u, v, sst."
 msgstr ""
 
-#: Description of property '@@Base Folder For Waves netCDF Files' from
+#: Description of property 'Base Folder For Waves netCDF Files' from
 #: pt.lsts.neptus.plugins.envdisp.HFRadarVisualization
 msgid ""
 "The folder to look for waves (significant height, peak period and direction) "
@@ -11846,7 +11861,7 @@ msgstr "The following errors were found"
 msgid "The following objectives were rejected by the solver: "
 msgstr ""
 
-#: Description of property '@@Font Size' from
+#: Description of property 'Font Size' from
 #: pt.lsts.neptus.plugins.position.StreamSpeed
 #: pt.lsts.neptus.plugins.position.AbsLatLonDepth
 #: pt.lsts.neptus.plugins.position.SpeedPanel
@@ -11857,7 +11872,7 @@ msgstr ""
 msgid "The font size. Use '0' for automatic."
 msgstr "The font size. Use '0' for automatic."
 
-#: Description of property '@@Font Size Multiplier' from
+#: Description of property 'Font Size Multiplier' from
 #: pt.lsts.neptus.console.plugins.planning.UavPiccoloControl
 #: pt.lsts.neptus.console.plugins.planning.EmergencyControlPanel
 #: pt.lsts.neptus.console.plugins.planning.PlanControlPanel
@@ -11916,36 +11931,36 @@ msgstr "The maximum time value must be greater than 0"
 msgid "The minimum time value must be greater or equal than 0"
 msgstr "The minimum time value must be greater or equal than 0"
 
-#: src/pt/lsts/neptus/types/mission/MissionType.java:766
+#: src/pt/lsts/neptus/types/mission/MissionType.java:768
 #, fuzzy
 msgid "The mission has to be saved first"
 msgstr "The mission has to be saved first"
 
-#: Description of property '@@Tab names' from
+#: Description of property 'Tab names' from
 #: pt.lsts.neptus.console.plugins.containers.TabContainer
 #, fuzzy
 msgid "The name to be displayed in the tabs, separated by commas"
 msgstr "The name to be displayed in the tabs, separated by commas"
 
-#: Description of property '@@Number cols' from
+#: Description of property 'Number cols' from
 #: pt.lsts.neptus.console.plugins.containers.GridContainer
 #, fuzzy
 msgid "The number of cols in the grid. Use 0 for infinite."
 msgstr "The number of cols in the grid. Use 0 for infinite."
 
-#: Description of property '@@Number columns' from
+#: Description of property 'Number columns' from
 #: pt.lsts.neptus.plugins.position.MultiEntityDisplayPanel
 #, fuzzy
 msgid "The number of columns to be displayed"
 msgstr "The number of columns to be displayed"
 
-#: Description of property '@@Number rows' from
+#: Description of property 'Number rows' from
 #: pt.lsts.neptus.console.plugins.containers.GridContainer
 #, fuzzy
 msgid "The number of rows in the grid. Use 0 for infinite."
 msgstr "The number of rows in the grid. Use 0 for infinite."
 
-#: Description of property '@@Number Rows' from
+#: Description of property 'Number Rows' from
 #: pt.lsts.neptus.mp.templates.RowsTemplate
 #, fuzzy
 msgid ""
@@ -11975,26 +11990,26 @@ msgstr "The object identifier is not valid"
 msgid "The parameters entered are not valid numbers."
 msgstr "The parameters entered are not valid numbers."
 
-#: Description of property '@@Password' from
+#: Description of property 'Password' from
 #: pt.lsts.neptus.plugins.odss.OdssStatePublisher
 #, fuzzy
 msgid "The password will be stored in plain text."
 msgstr "The password will be stored in plain text."
 
-#: Description of property '@@Publish period (ms)' from
+#: Description of property 'Publish period (ms)' from
 #: pt.lsts.neptus.plugins.webupdate.RemotePositionPublisherUpdater
 #, fuzzy
 msgid "The period to fetch the systems' positions."
 msgstr "The period to fetch the systems' positions."
 
-#: Description of property '@@Update period (ms)' from
+#: Description of property 'Update period (ms)' from
 #: pt.lsts.neptus.plugins.webupdate.RemotePositionFetcherUpdater
 #: pt.lsts.neptus.plugins.odss.OdssStoqsTrackFetcher
 #, fuzzy
 msgid "The period to fetch the systems' positions. Zero means disconnected."
 msgstr "The period to fetch the systems' positions. Zero means disconnected."
 
-#: Description of property '@@Start location' from
+#: Description of property 'Start location' from
 #: pt.lsts.neptus.mp.templates.RowsTemplate
 #: pt.lsts.neptus.mp.templates.InfiniteRectTemplate
 #, fuzzy
@@ -12026,14 +12041,14 @@ msgstr "The radius tolerance over the trajectory (in meters)"
 msgid "The solver could not find a solution: %explanation"
 msgstr ""
 
-#: Description of property '@@Speed' from
+#: Description of property 'Speed' from
 #: pt.lsts.neptus.mp.maneuvers.CompassCalibration
 #: pt.lsts.neptus.mp.maneuvers.Elevator
 #, fuzzy
 msgid "The speed to be used"
 msgstr "The speed to be used"
 
-#: Description of property '@@Speed units' from
+#: Description of property 'Speed units' from
 #: pt.lsts.neptus.mp.maneuvers.CompassCalibration
 #: pt.lsts.neptus.mp.maneuvers.Elevator
 #: src/pt/lsts/neptus/types/map/PlanUtil.java:100
@@ -12043,7 +12058,7 @@ msgstr "The speed to be used"
 msgid "The speed units"
 msgstr "The speed units"
 
-#: Description of property '@@Split orientation' from
+#: Description of property 'Split orientation' from
 #: pt.lsts.neptus.console.plugins.containers.SplitContainer
 #, fuzzy
 msgid "The split bar's orientation"
@@ -12060,13 +12075,13 @@ msgstr "The text entered does not represent valid numbers"
 msgid "The time difference between reception and handling time"
 msgstr "The time difference between reception and handling time"
 
-#: Description of property '@@Unit' from
+#: Description of property 'Unit' from
 #: pt.lsts.neptus.plugins.position.MultiEntityDisplayPanel
 #, fuzzy
 msgid "The unit of the value."
 msgstr "The unit of the value."
 
-#: Description of property '@@Distance between generated plans' from
+#: Description of property 'Distance between generated plans' from
 #: pt.lsts.neptus.plugins.vrp.WaypointPlanner
 #, fuzzy
 msgid "The z offeset between plans, in case more than one plans are generated"
@@ -12098,7 +12113,7 @@ msgstr ""
 "This Neptus plugin provides an interface for Vehicle Formation (cooperative) "
 "plans"
 
-#: Description of property '@@Draw Circle Arround System Icon In Render
+#: Description of property 'Draw Circle Arround System Icon In Render
 #: Dependent Of Type' from pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid ""
@@ -12108,7 +12123,7 @@ msgstr ""
 "This configures if the circle arround the symbol in render is to be drawn "
 "dependent of system type"
 
-#: Description of property '@@Use Mil Std 2525 Like Symbols' from
+#: Description of property 'Use Mil Std 2525 Like Symbols' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid ""
@@ -12118,19 +12133,19 @@ msgstr ""
 "This configures if the location symbols to draw on the renderer will use the "
 "MIL-STD-2525 standard"
 
-#: Description of property '@@Mil Std 2525 Symbols Filled Or Not' from
+#: Description of property 'Mil Std 2525 Symbols Filled Or Not' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid "This configures if the symbol is to be filled or not"
 msgstr "This configures if the symbol is to be filled or not"
 
-#: Description of property '@@Systems Ordering' from
+#: Description of property 'Systems Ordering' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid "This configures if the systems should be shown UNSORTED or SORTED"
 msgstr "This configures if the systems should be shown UNSORTED or SORTED"
 
-#: Description of property '@@Show System With Authority Equal Or Above' from
+#: Description of property 'Show System With Authority Equal Or Above' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid ""
@@ -12140,7 +12155,7 @@ msgstr ""
 "This configures if the systems should be shown dependent on the Authority "
 "Государство"
 
-#: Description of property '@@Systems Ordering Option' from
+#: Description of property 'Systems Ordering Option' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid "This configures the ordering type"
@@ -12162,7 +12177,7 @@ msgstr "This follows the Java Group Layout"
 msgid "This follows the MiGLayout"
 msgstr "This follows the MiGLayout"
 
-#: Description of property '@@Show Only Declared Profiles to User' from
+#: Description of property 'Show Only Declared Profiles to User' from
 #: pt.lsts.neptus.console.plugins.containers.GroupLayoutContainer
 #, fuzzy
 msgid ""
@@ -12177,7 +12192,7 @@ msgstr ""
 msgid "This is a chronometer that counts up and down"
 msgstr "This is a chronometer that counts up and down"
 
-#: Description of property '@@System Class Filter' from
+#: Description of property 'System Class Filter' from
 #: pt.lsts.neptus.console.plugins.SystemsList
 #, fuzzy
 msgid ""
@@ -12187,7 +12202,7 @@ msgstr ""
 "This is the filter. This filter will show in the list only the system that "
 "match the filter"
 
-#: Description of property '@@Renderer Update Periode For Vehicle State (ms)'
+#: Description of property 'Renderer Update Periode For Vehicle State (ms)'
 #: from pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid ""
@@ -12199,7 +12214,7 @@ msgstr ""
 "miliseconds). Use '-1' to disable it. One good good value is 100ms (10Hz) or "
 "50ms (20hz)."
 
-#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:214
+#: src/pt/lsts/neptus/mra/MRAFilesHandler.java:215
 #, fuzzy
 msgid "This log seems to have already been indexed. Index again?"
 msgstr "This log seems to have already been indexed. Index again?"
@@ -12237,7 +12252,7 @@ msgid ""
 msgstr ""
 "This sets the layer priority. The higher the value more on top will appear."
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:227
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:231
 #, fuzzy
 msgid "This vehicle does not support IMU alignment."
 msgstr "This vehicle does not support IMU alignment."
@@ -12310,7 +12325,7 @@ msgstr "Time of day"
 msgid "Time step (s)"
 msgstr "Time step (s)"
 
-#: Description of property '@@Time (seconds)' from
+#: Description of property 'Time (seconds)' from
 #: pt.lsts.neptus.plugins.followref.ReferenceWaypoint
 #, fuzzy
 msgid "Time to stay at this location. -1 for infinity."
@@ -12326,14 +12341,14 @@ msgstr "Time until completion"
 msgid "Time window (hours)"
 msgstr "Time window (hours)"
 
-#: Description of property '@@Control Timeout' from
+#: Description of property 'Control Timeout' from
 #: convcao.com.caoAgent.convcaoNeptusInteraction
 msgid ""
 "Time, in seconds, after which the vehicle will stop executing the plan if no "
 "references are received"
 msgstr ""
 
-#: Description of property '@@Control Latency' from
+#: Description of property 'Control Latency' from
 #: convcao.com.caoAgent.convcaoNeptusInteraction
 #, fuzzy
 msgid "Time, in seconds, between sending vehicle references"
@@ -12366,7 +12381,7 @@ msgstr "Timestamp increment"
 msgid "Timestamp increment"
 msgstr "Timestamp increment"
 
-#: Description of property '@@Timestamp increment' from
+#: Description of property 'Timestamp increment' from
 #: pt.lsts.neptus.mra.MRAProperties
 #, fuzzy
 msgid "Timestamp increment for the 83P parser (in miliseconds)."
@@ -12379,7 +12394,7 @@ msgstr "Timestamp increment for the 83P parser (in miliseconds)."
 msgid "Title"
 msgstr "Название"
 
-#: Description of property '@@Title' from
+#: Description of property 'Title' from
 #: pt.lsts.neptus.plugins.position.ScriptedDisplay
 #, fuzzy
 msgid "Title to use"
@@ -12395,13 +12410,13 @@ msgstr ""
 msgid "To Send messages frequency:"
 msgstr "To Send messages frequency:"
 
-#: Description of property '@@Auto Create Gaps' from
+#: Description of property 'Auto Create Gaps' from
 #: pt.lsts.neptus.console.plugins.containers.GroupLayoutContainer
 #, fuzzy
 msgid "To automatic create gaps arround the components"
 msgstr "To automatic create gaps arround the components"
 
-#: Description of property '@@Auto Create Container Gaps' from
+#: Description of property 'Auto Create Container Gaps' from
 #: pt.lsts.neptus.console.plugins.containers.GroupLayoutContainer
 #, fuzzy
 msgid "To automatic create gaps arround the container"
@@ -12414,7 +12429,7 @@ msgid ""
 msgstr ""
 "To change the initial maneuver, please set another maneuver as the initial"
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:235
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:239
 #, fuzzy
 msgid ""
 "To do IMU alignment, the vehicle must do straigth segments at the surface."
@@ -12432,13 +12447,13 @@ msgstr "To enter and leave remote operation."
 msgid "To file \"%file\"."
 msgstr "Редактировать файл"
 
-#: Description of property '@@IMC Unicast Annonce Enable' from
+#: Description of property 'IMC Unicast Annonce Enable' from
 #: pt.lsts.neptus.util.conf.GeneralPreferences
 #, fuzzy
 msgid "To send announce also by Unicast. Enable or disable"
 msgstr "To send announce also by Unicast. Enable or disable"
 
-#: Description of property '@@Profiles' from
+#: Description of property 'Profiles' from
 #: pt.lsts.neptus.console.plugins.containers.GroupLayoutContainer
 #, fuzzy
 msgid ""
@@ -12577,7 +12592,7 @@ msgstr "Transponders"
 msgid "Transponders Location Helper"
 msgstr "Transponders Location Helper"
 
-#: Description of property '@@Speed' from
+#: Description of property 'Speed' from
 #: pt.lsts.neptus.mp.templates.YoYoTemplate
 #, fuzzy
 msgid "Travelling speed (in m/s)"
@@ -12598,7 +12613,7 @@ msgstr "Triangulating transponder position"
 msgid "Triangulation"
 msgstr "Triangulation"
 
-#: Description of property '@@Lagrangian distortion' from
+#: Description of property 'Lagrangian distortion' from
 #: pt.lsts.neptus.plugins.trex.TrexMapLayer
 #, fuzzy
 msgid "True if you want to apply Lagrangian distortion."
@@ -12609,13 +12624,13 @@ msgstr "True if you want to apply Lagrangian distortion."
 msgid "True or Indicated Speed"
 msgstr "True or Indicated Speed"
 
-#: Description of property '@@Hide or fade the old ranges' from
+#: Description of property 'Hide or fade the old ranges' from
 #: pt.lsts.neptus.plugins.acoustic.LBLRangeDisplay
 #, fuzzy
 msgid "True to hide the range and false to fade when display time elapses."
 msgstr "True to hide the range and false to fade when display time elapses."
 
-#: Description of property '@@Read all or last ordered files' from
+#: Description of property 'Read all or last ordered files' from
 #: pt.lsts.neptus.plugins.urready4os.rhodamine.RhodamineOilVisualizer
 msgid "True to read all CSV files of just the last of ordered files in folder."
 msgstr ""
@@ -12627,12 +12642,12 @@ msgstr ""
 #: Property from pt.lsts.neptus.plugins.trex.TrexMapLayer
 #: src/pt/lsts/neptus/i18n/I18n.java:211
 #: src/pt/lsts/neptus/console/plugins/PluginManager.java:138
-#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:605
+#: plugins-dev/followRef/pt/lsts/neptus/plugins/followref/FollowReferenceInteraction.java:613
 #, fuzzy
 msgid "Type"
 msgstr "Type"
 
-#: Description of property '@@Approach to ignore points on Multibeam 3D' from
+#: Description of property 'Approach to ignore points on Multibeam 3D' from
 #: pt.lsts.neptus.mra.MRAProperties
 #, fuzzy
 msgid ""
@@ -12653,6 +12668,11 @@ msgstr "Type:"
 #, fuzzy
 msgid "UAV"
 msgstr "UAV"
+
+#: Name of plugin pt.lsts.neptus.mra.plots.UAVModePlot
+#, fuzzy
+msgid "UAV Mode"
+msgstr "Unknown Mode"
 
 #: Name of plugin pt.lsts.neptus.console.plugins.planning.UavPiccoloControl
 #, fuzzy
@@ -12824,7 +12844,7 @@ msgstr "Unknown local disk free space"
 msgid "Unknown location"
 msgstr "Unknown location"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1044
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1045
 #, fuzzy
 msgid "Unknown location for more than 10s"
 msgstr "Unknown location for more than 10s"
@@ -12900,13 +12920,13 @@ msgstr "Updating GUI..."
 msgid "Updating logs info..."
 msgstr "Updating logs info..."
 
-#: Description of property '@@Seconds to display ranges' from
+#: Description of property 'Seconds to display ranges' from
 #: pt.lsts.neptus.plugins.acoustic.LBLRangeDisplay
 #, fuzzy
 msgid "Use -1 to not clear the ranges from the renderer."
 msgstr "Use -1 to not clear the ranges from the renderer."
 
-#: Description of property '@@AUV travelling depth' from
+#: Description of property 'AUV travelling depth' from
 #: pt.lsts.neptus.console.plugins.planning.CommandPlanner
 #, fuzzy
 msgid "Use 0 for going at surface"
@@ -12978,7 +12998,7 @@ msgstr "Use Mil Std 2525 Like Symbols"
 msgid "Use My Heading"
 msgstr "Use My Heading"
 
-#: Description of property '@@Use My Heading' from
+#: Description of property 'Use My Heading' from
 #: pt.lsts.neptus.plugins.position.FindVehicle
 #, fuzzy
 msgid "Use My Heading for the base location. Don't forget to set it first."
@@ -12989,7 +13009,7 @@ msgstr "Use My Heading for the base location. Don't forget to set it first."
 msgid "Use My Location"
 msgstr "Use My Location"
 
-#: Description of property '@@Use My Location' from
+#: Description of property 'Use My Location' from
 #: pt.lsts.neptus.plugins.position.FindVehicle
 #, fuzzy
 msgid "Use My Location for the base location. Don't forget to set it first."
@@ -13055,7 +13075,7 @@ msgstr "Use TLS"
 msgid "Use acoustic communications"
 msgstr "Связи"
 
-#: Description of property '@@Use Acoustic Communications' from
+#: Description of property 'Use Acoustic Communications' from
 #: convcao.com.caoAgent.convcaoNeptusInteraction
 msgid "Use acoustic communications to transmit desired control references"
 msgstr ""
@@ -13065,7 +13085,7 @@ msgstr ""
 msgid "Use altitude (ASL)"
 msgstr "Use altitude (ASL)"
 
-#: Description of property '@@Use Error Notifications' from
+#: Description of property 'Use Error Notifications' from
 #: pt.lsts.neptus.plugins.alignment.ImuAlignmentPanel
 msgid "Use an error instead of warning when navigation becomes not aligned"
 msgstr ""
@@ -13075,7 +13095,7 @@ msgstr ""
 msgid "Use color map for wind"
 msgstr "Use color map for wind"
 
-#: Description of property '@@Systems listing' from
+#: Description of property 'Systems listing' from
 #: pt.lsts.neptus.plugins.acoustic.MantaOperations
 #, fuzzy
 msgid "Use commas to separate system identifiers"
@@ -13125,7 +13145,7 @@ msgstr "Use speed to filter heading"
 msgid "Use system discovery"
 msgstr ""
 
-#: Description of property '@@Maximize Panel' from
+#: Description of property 'Maximize Panel' from
 #: pt.lsts.neptus.console.ContainerSubPanel
 #: pt.lsts.neptus.console.plugins.containers.BoxLayoutContainer
 #: pt.lsts.neptus.console.plugins.containers.GridContainer
@@ -13242,7 +13262,7 @@ msgstr "Values lower than zero are not valid!"
 msgid "Vehicle"
 msgstr "Vehicle"
 
-#: Description of property '@@Entity Name' from
+#: Description of property 'Entity Name' from
 #: pt.lsts.neptus.plugins.position.painter.SystemInfoPainter
 #, fuzzy
 msgid "Vehicle Battery entity name"
@@ -13285,12 +13305,12 @@ msgstr "Vehicle State Monitor"
 msgid "Vehicle Timeline"
 msgstr "Vehicle Timeline"
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:212
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:216
 #, fuzzy
 msgid "Vehicle can now be used to execute dead reckoning missions."
 msgstr "Vehicle can now be used to execute dead reckoning missions."
 
-#: Description of property '@@Fixed Vehicle Size' from
+#: Description of property 'Fixed Vehicle Size' from
 #: pt.lsts.neptus.console.plugins.planning.MapPanel
 #, fuzzy
 msgid "Vehicle icon size (0 for real size)"
@@ -13315,7 +13335,7 @@ msgstr "Vehicles"
 msgid "Vehicles detected"
 msgstr "Vehicles detected"
 
-#: Description of property '@@Movement towards north' from
+#: Description of property 'Movement towards north' from
 #: pt.lsts.neptus.mp.templates.YoYoTemplate east'
 msgid "Velocity of the point of interest"
 msgstr ""
@@ -13326,8 +13346,8 @@ msgstr ""
 msgid "Verify plans for island nodes"
 msgstr "Verify plans for island nodes"
 
-#: src/pt/lsts/neptus/types/mission/MissionType.java:204
-#: src/pt/lsts/neptus/types/mission/MissionType.java:364
+#: src/pt/lsts/neptus/types/mission/MissionType.java:206
+#: src/pt/lsts/neptus/types/mission/MissionType.java:366
 #, fuzzy
 msgid "Verifying against schema..."
 msgstr "Verifying against schema..."
@@ -13368,7 +13388,7 @@ msgstr "Vertical Grid resolution"
 msgid "Vertical Group"
 msgstr "Vertical Group"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1262
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1269
 #, fuzzy
 msgid "Vertical Speed"
 msgstr "Vertical Speed"
@@ -13417,7 +13437,7 @@ msgstr "Video saved in %filename"
 msgid "View"
 msgstr "Смотреть"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:528
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:529
 #, fuzzy
 msgid "View systems icons in render"
 msgstr "View systems icons in render"
@@ -13468,7 +13488,7 @@ msgstr "Объем"
 msgid "WAIT_AT_SURFACE"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1206
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1213
 #, fuzzy
 msgid "WEB POS RECEIVED"
 msgstr "WEB POS RECEIVED"
@@ -13488,7 +13508,7 @@ msgstr "Wait please"
 msgid "Waiting for Data..."
 msgstr "Waiting for Data..."
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:205
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:209
 #, fuzzy
 msgid "Waiting for IMU alignment state"
 msgstr "Waiting for IMU alignment state"
@@ -13564,31 +13584,31 @@ msgstr "Web address"
 msgid "West"
 msgstr "Запад"
 
-#: Description of property '@@Base Location' from
+#: Description of property 'Base Location' from
 #: pt.lsts.neptus.plugins.position.FindVehicle
 #, fuzzy
 msgid "Where is the base located"
 msgstr "Where is the base located"
 
-#: Description of property '@@Base Orientation' from
+#: Description of property 'Base Orientation' from
 #: pt.lsts.neptus.plugins.position.FindVehicle
 #, fuzzy
 msgid "Where the operator in the basestation is looking at"
 msgstr "Where the operator in the basestation is looking at"
 
-#: Description of property '@@Tab placement' from
+#: Description of property 'Tab placement' from
 #: pt.lsts.neptus.console.plugins.containers.TabContainer
 #, fuzzy
 msgid "Where to place the tabs"
 msgstr "Where to place the tabs"
 
-#: Description of property '@@Toolbar placement' from
+#: Description of property 'Toolbar placement' from
 #: pt.lsts.neptus.console.plugins.planning.MapPanel
 #, fuzzy
 msgid "Where to place the toolbar"
 msgstr "Where to place the toolbar"
 
-#: Description of property '@@Operation Limits File' from
+#: Description of property 'Operation Limits File' from
 #: pt.lsts.neptus.plugins.oplimits.OperationLimitsSubPanel
 #, fuzzy
 msgid "Where to store and load operational limits"
@@ -13608,13 +13628,13 @@ msgstr "Whether this will be the first maneuver to be executed"
 msgid "Width"
 msgstr "Ширина"
 
-#: Description of property '@@Width' from
+#: Description of property 'Width' from
 #: pt.lsts.neptus.mp.templates.InfiniteRectTemplate
 #, fuzzy
 msgid "Width of the rectangle, in meters"
 msgstr "Width of the rectangle, in meters"
 
-#: Description of property '@@Width' from
+#: Description of property 'Width' from
 #: pt.lsts.neptus.mp.templates.RowsTemplate
 #, fuzzy
 msgid "Width, in meters of the area to be surveyed"
@@ -13674,7 +13694,7 @@ msgstr "Waiting for Data..."
 msgid "XML Definitions"
 msgstr "XML Definitions"
 
-#: Description of property '@@XML Definitions' from
+#: Description of property 'XML Definitions' from
 #: pt.lsts.neptus.console.plugins.containers.MigLayoutContainer
 #, fuzzy
 msgid "XML layout definition"
@@ -13726,9 +13746,9 @@ msgstr "Да"
 msgid "YoYo Survey"
 msgstr ""
 
-#: Description of property '@@Horizontal Group' from
-#: pt.lsts.neptus.console.plugins.containers.GroupLayoutContainer '@@Vertical
-#: '@@Link Size Horizontal' Vertical'
+#: Description of property 'Horizontal Group' from
+#: pt.lsts.neptus.console.plugins.containers.GroupLayoutContainer 'Vertical
+#: 'Link Size Horizontal' Vertical'
 #, fuzzy
 msgid "You can use the index number or the name as listed."
 msgstr "You can use the index number or the name as listed."
@@ -13743,7 +13763,7 @@ msgstr "You have to select an image fisrt."
 msgid "Your system doesn't have dot support"
 msgstr "Your system doesn't have dot support"
 
-#: Description of property '@@Amplitude' from
+#: Description of property 'Amplitude' from
 #: pt.lsts.neptus.mp.maneuvers.CompassCalibration
 #, fuzzy
 msgid "Yoyo motion amplitude."
@@ -13831,7 +13851,7 @@ msgstr "[%manta]: %status"
 #: Property from
 #: pt.lsts.neptus.plugins.webupdate.RemotePositionPublisherUpdater
 #: src/pt/lsts/neptus/util/logdownload/LogsDownloaderWorker.java:328
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:187
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:189
 #, fuzzy
 msgid "active"
 msgstr "активный"
@@ -13841,7 +13861,7 @@ msgstr "активный"
 msgid "add"
 msgstr "добавлять"
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:324
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:328
 #, fuzzy
 msgid "aligned"
 msgstr "ИДУ выровненной"
@@ -13899,7 +13919,7 @@ msgstr ""
 msgid "append item"
 msgstr ""
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1028
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:1029
 #, fuzzy
 msgid "authority"
 msgstr "власти"
@@ -14228,7 +14248,7 @@ msgstr "Скрывать"
 msgid "idle"
 msgstr "idle"
 
-#: Description of property '@@publishWebReceivedMessages' from
+#: Description of property 'publishWebReceivedMessages' from
 #: pt.lsts.neptus.plugins.webupdate.RemotePositionFetcherUpdater
 #, fuzzy
 msgid "if true will also retreive remote messages from server."
@@ -14306,8 +14326,8 @@ msgstr "is password saved"
 msgid "kmlFiles"
 msgstr "kmlFiles"
 
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:953
-#: src/pt/lsts/neptus/console/plugins/SystemsList.java:982
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:954
+#: src/pt/lsts/neptus/console/plugins/SystemsList.java:983
 #, fuzzy
 msgid "last update age: %deltaTime"
 msgstr "last update age: %deltaTime"
@@ -14444,8 +14464,8 @@ msgstr "Макс"
 msgid "maximumSidescanRange"
 msgstr ""
 
-#: Description of property '@@Send device updates' from
-#: pt.lsts.neptus.comm.iridium.IridiumCommand '@@Use Iridium hardware'
+#: Description of property 'Send device updates' from
+#: pt.lsts.neptus.comm.iridium.IridiumCommand 'Use Iridium hardware'
 #, fuzzy
 msgid "may increase communications costs!"
 msgstr "may increase communications costs!"
@@ -14501,7 +14521,7 @@ msgstr "no info yet"
 msgid "no multibeam data has been found."
 msgstr "no multibeam data has been found."
 
-#: plugins-dev/noptilus/pt/lsts/neptus/plugins/noptilus/NoptilusMapExporter.java:109
+#: plugins-dev/noptilus/pt/lsts/neptus/plugins/noptilus/NoptilusMapExporter.java:110
 #, fuzzy
 msgid "no multibeam data has been found... using DVL"
 msgstr "no multibeam data has been found."
@@ -14517,7 +14537,7 @@ msgstr "no tiles at this zoom, max is %zoomLevel"
 msgid "normalization"
 msgstr "normalization"
 
-#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:308
+#: plugins-dev/imu-alignment/pt/lsts/neptus/plugins/alignment/ImuAlignmentPanel.java:312
 #, fuzzy
 msgid "not aligned"
 msgstr "ИДУ не выровнены"
@@ -14897,13 +14917,13 @@ msgstr "time-shell.use-hwclock"
 msgid "timeVariableGain"
 msgstr "timeVariableGain"
 
-#: Description of property '@@True or Indicated Speed' from
+#: Description of property 'True or Indicated Speed' from
 #: pt.lsts.neptus.plugins.position.SpeedPanel
 #, fuzzy
 msgid "true for True and false for Indicated Speed"
 msgstr "true for True and false for Indicated Speed"
 
-#: Description of property '@@SI Unit or knots' from
+#: Description of property 'SI Unit or knots' from
 #: pt.lsts.neptus.plugins.position.SpeedPanel
 #, fuzzy
 msgid "true for m/s and false for knot"

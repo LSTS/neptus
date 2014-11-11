@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,ed341a2)" system="lauv-noptilus-2" i18n="en_US">
+<config format="1" version="2.6.0 (HEAD,660f19f)" system="lauv-noptilus-2" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -2983,6 +2983,15 @@
       <units>%</units>
       <desc>Minimum confidence for recomputing update</desc>
     </param>
+    <param name="Update Estimate Anytime">
+      <name-i18n>Update Estimate Anytime</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Update estimate even if maneuvering</desc>
+    </param>
     <param name="Estimated Entity Label List">
       <name-i18n>Estimated Entity Label List</name-i18n>
       <type>list:string</type>
@@ -5222,6 +5231,51 @@
       <default>Private (Sidescan)</default>
       <units/>
       <desc>Name of sidescan's power channel</desc>
+    </param>
+    <param name="Number of Discarded Initial Samples">
+      <name-i18n>Number of Discarded Initial Samples</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>15</default>
+      <units/>
+      <desc>Number of initial samples to ignore</desc>
+    </param>
+    <param name="Time Delta - Estimation Periodicity">
+      <name-i18n>Time Delta - Estimation Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>s</units>
+      <desc>Periodicity with which the time difference between the sidescan CPU and the local CPU is performed</desc>
+    </param>
+    <param name="Time Delta - Maximum Allowable Latency">
+      <name-i18n>Time Delta - Maximum Allowable Latency</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2</default>
+      <units>ms</units>
+      <desc>Maximum allowable latency for time synchronization</desc>
+    </param>
+    <param name="Time Delta - Initial Estimate Timeout">
+      <name-i18n>Time Delta - Initial Estimate Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units>s</units>
+      <desc>Timeout for initial time delta estimation</desc>
+    </param>
+    <param name="Time Delta - Initial Estimate Samples">
+      <name-i18n>Time Delta - Initial Estimate Samples</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Number of valid samples for initial time delta estimation</desc>
     </param>
   </section>
   <section name="GPS" name-i18n="GPS">
