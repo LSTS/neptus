@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.0-rc3 (HEAD,ecf0e21)" system="doam" i18n="ru_RU">
-  <section name="Thermal Zone" name-i18n="Термальная зона">
+<config format="1" version="2.6.0 (HEAD,660f19f)" system="doam" i18n="ru_RU">
+  <section name="Thermal Zone" name-i18n="Thermal Zone">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Thermal Zone</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -29,7 +29,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -38,7 +38,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -49,13 +49,13 @@
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
     <param name="Execution Frequency">
-      <name-i18n>Частоты выполнения</name-i18n>
+      <name-i18n>Execution Frequency</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>1.0</default>
       <units>Hz</units>
-      <desc>Частота, на которой выполняется задача</desc>
+      <desc>Frequency at which task is executed</desc>
     </param>
     <param name="Path">
       <name-i18n>Path</name-i18n>
@@ -76,27 +76,27 @@
       <desc>Entity label of temperature sensor</desc>
     </param>
   </section>
-  <section name="FTP Server" name-i18n="FTP-сервер">
+  <section name="FTP Server" name-i18n="FTP Server">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>FTP Server</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -105,7 +105,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -114,7 +114,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -152,27 +152,27 @@
       <desc>Timeout period of a session</desc>
     </param>
   </section>
-  <section name="TCP to Master" name-i18n="TCP мастеру">
+  <section name="TCP to Master" name-i18n="TCP to Master">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>TCP to Master</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -181,7 +181,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -190,7 +190,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -255,27 +255,27 @@
       <desc>Remote server port</desc>
     </param>
   </section>
-  <section name="Camera" name-i18n="Камера">
+  <section name="Camera" name-i18n="Camera">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Camera</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -284,7 +284,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -293,7 +293,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -304,31 +304,31 @@
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
     <param name="Active - Scope">
-      <name-i18n>Активная - Сфера</name-i18n>
+      <name-i18n>Active - Scope</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>maneuver</default>
       <units/>
-      <desc>Сфера применения 'Активные' параметра</desc>
+      <desc>Scoped of the 'Active' parameter</desc>
     </param>
     <param name="Active - Visibility">
-      <name-i18n>Активная - Видимость</name-i18n>
+      <name-i18n>Active - Visibility</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>user</default>
       <units/>
-      <desc>Видимость 'Активные' параметра</desc>
+      <desc>Visibility of the 'Active' parameter</desc>
     </param>
     <param name="Active">
-      <name-i18n>Активный</name-i18n>
+      <name-i18n>Active</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
       <default>0</default>
       <units/>
-      <desc>Правда, чтобы активировать задачу, иначе ложь</desc>
+      <desc>True to activate task, false otherwise</desc>
     </param>
     <param name="Camera IPv4 Address">
       <name-i18n>Camera IPv4 Address</name-i18n>

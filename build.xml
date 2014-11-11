@@ -59,7 +59,7 @@ For simple use the main targets are:
 	<property name="version.MINOR" value="2" />
 	<property name="version.PATCH" value="0" />
 	<!-- Set this to '-dev' if a developer release; blank "" if maintenance release; or '-rcX' for release candidate X (X number) -->
-	<property name="version.DEVELOPER" value="-rc2" />
+	<property name="version.DEVELOPER" value="" />
 	<!-- Set the release number. Use the form 'R14.01' for release 1 of year 2014. Or leave it blank for a non release -->
 	<property name="release.NAME" value="R14.03" />
 	<property name="release.INFO" value="${release.NAME}"/>
@@ -359,9 +359,9 @@ For simple use the main targets are:
 		</tstamp>
 		<!-- echo message="${time.date} |  ${time.year}" / -->
 
-		<property name="dist.installer.name.full" value="${dist.installer.basename.full}-${time.date}"/>
-		<property name="dist.installer.name.le" value="${dist.installer.basename.le}-${time.date}"/>
-		<property name="dist.installer.name.seacon" value="${dist.installer.basename.seacon}-${time.date}"/>
+		<property name="dist.installer.name.full" value="${dist.installer.basename.full}-${scm.last.changed.date.short}"/> <!--${time.date}-->
+		<property name="dist.installer.name.le" value="${dist.installer.basename.le}-${scm.last.changed.date.short}"/><!--${time.date}-->
+		<property name="dist.installer.name.seacon" value="${dist.installer.basename.seacon}-${scm.last.changed.date.short}"/><!--${time.date}-->
 
 		<echo message="-------------------------------------------------------------------" />
 		<!--echo level="info" message="SVN r${svn.revision.range} @ ${svn.repository.path}" /-->
@@ -412,10 +412,14 @@ For simple use the main targets are:
 		</filterset>
 		<filterset id="empty.filters">
 		</filterset>
+
 		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="*.sh" excludes="Ne*.sh"/>
-		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="${src.shell.dir}/*.sh" />
+		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="${src.shell.dir}/**/*.sh" />
+		<fixcrlf preservelastmodified="true" srcdir="." eol="lf" eof="remove" includes="helper-scripts/**/*.sh"  />
+
 		<fixcrlf preservelastmodified="true" srcdir="." eol="crlf" includes="*.bat" />
-		<fixcrlf preservelastmodified="true" srcdir="." eol="crlf" includes="${src.shell.dir}/*.bat" />
+		<fixcrlf preservelastmodified="true" srcdir="." eol="crlf" includes="${src.shell.dir}/**/*.bat" />
+		<fixcrlf preservelastmodified="true" srcdir="." eol="crlf" includes="helper-scripts/**/*.bat" />
 	</target>
 
 	<!-- Prepares the build directories                                      -->
@@ -536,6 +540,13 @@ For simple use the main targets are:
 			<arg value="-1"/>
 			<arg value="--pretty=format:%ai"/>
 		</exec>
+		<local name="git.date.short" />
+		<exec executable="git" outputproperty="git.date.short" failonerror="false">
+			<arg value="log"/>
+			<arg value="-1"/>
+			<arg value="--pretty=format:%ad"/>
+			<arg value="--date=short"/>
+		</exec>
 		<local name="git.author" />
 		<exec executable="git" outputproperty="git.author" failonerror="false">
 			<arg value="log"/>
@@ -577,6 +588,8 @@ For simple use the main targets are:
 		<echo file="${scm.info.file}" append="true">scm.last.changed.author=${git.author}
 </echo>
 		<echo file="${scm.info.file}" append="true">scm.last.changed.date=${git.date}
+</echo>
+		<echo file="${scm.info.file}" append="true">scm.last.changed.date.short=${git.date.short}
 </echo>
 		<echo file="${scm.info.file}" append="true">scm.wc.dirty.string=${git.wc.dirty.string}
 </echo>
@@ -909,6 +922,7 @@ For simple use the main targets are:
 			<include name="images/files-icons/*.png"/>
 			<include name="schemas/neptus-checklist.xsd"/>
 			<include name="pt/lsts/neptus/NeptusLog*.class" />
+			<include name="pt/lsts/neptus/colormap/ColorMap*.class" />
 			<include name="pt/lsts/neptus/comm/iridium/IridiumManager*.class" />
 			<include name="pt/lsts/neptus/comm/manager/imc/ImcId16*.class"/>
 			<include name="pt/lsts/neptus/comm/transports/ImcUdpTransport*.class"/>
@@ -920,17 +934,25 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/gui/InfiniteProgressPanel*.class"/>
 			<include name="pt/lsts/neptus/gui/ModalFrame.class"/>
 			<include name="pt/lsts/neptus/gui/PropertiesProvider.class"/>
+			<include name="pt/lsts/neptus/gui/PropertiesEditor*.class"/>
 			<include name="pt/lsts/neptus/gui/checklist/**/*.class"/>
 			<include name="pt/lsts/neptus/gui/editor/*.class"/>
 			<include name="pt/lsts/neptus/gui/swing/NeptusFileView.class"/>
 			<include name="pt/lsts/neptus/messages/listener/**/*.class"/>
 			<include name="pt/lsts/neptus/messages/*.class"/>
+			<include name="pt/lsts/neptus/mp/actions/PlanActions*.class"/>
+			<include name="pt/lsts/neptus/mp/ManeuverLocation*.class"/>
+			<include name="pt/lsts/neptus/plugins/ConfigurationListener*.class"/>
 			<include name="pt/lsts/neptus/plugins/NeptusProperty*.class"/>
 			<include name="pt/lsts/neptus/plugins/PluginProperty.class"/>
+			<include name="pt/lsts/neptus/plugins/PluginUtils*.class"/>
+			<include name="pt/lsts/neptus/plugins/PropertyType.class"/>
 			<include name="pt/lsts/neptus/types/Identifiable*.class"/>
 			<include name="pt/lsts/neptus/types/Xml*.class"/>
 			<include name="pt/lsts/neptus/types/checklist/**/*.class"/>
+			<include name="pt/lsts/neptus/types/coord/LocationType*.class"/>
 			<include name="pt/lsts/neptus/types/nativetypes/*.class"/>
+			<include name="pt/lsts/neptus/types/**/*.class"/>
 			<include name="pt/lsts/neptus/util/BarCodesUtil*.class"/>
 			<include name="pt/lsts/neptus/util/DateTimeUtil*.class"/>
 			<include name="pt/lsts/neptus/util/ImageLoader.class"/>
@@ -977,6 +999,7 @@ For simple use the main targets are:
 		<unzip dest="${tmp.bundle.dir}" src="lib/iText-2.1.5.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/zxing-bin.jar"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/commons-cli-1.2.jar"/>
+		<unzip dest="${tmp.bundle.dir}" src="lib/libimc.jar"/>
 		<!--unzip dest="${tmp.bundle.dir}" src="lib/commons-io-2.4.jar"/-->
 
 		<unzip dest="${tmp.bundle.dir}" src="${bundle.jar.checklist.path}" overwrite="yes"/>
@@ -1026,6 +1049,7 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/i18n/**/*.class" />
 			<include name="pt/lsts/neptus/NeptusLog*.class" />
 			<include name="pt/lsts/neptus/app/tiles/**/*.class" />
+			<include name="pt/lsts/neptus/colormap/**/*.class" />
 			<include name="pt/lsts/neptus/comm/iridium/*.class" />
 			<include name="pt/lsts/neptus/comm/manager/imc/ImcId16*.class" />
 			<include name="pt/lsts/neptus/comm/manager/imc/ImcSystem*.class" />
@@ -2061,7 +2085,7 @@ For simple use the main targets are:
 			<param name="jre-os" value="All-OS"/>
 			<param name="dist.tmp.dir" value="${all.os.dist.dir}" />
 			<param name="sh-bash-basename" value="neptusse" />
-			<param name="copy-includes-excludes-file-sufix" value="NeptusSE" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusLE" />
 			<param name="dist.installer.name" value="${dist.installer.name.le}" />
 			<param name="dist.instalation.folder.name" value="NeptusLE" />
 			<reference refid="neptusLE.filters" torefid="dist.filters" />
@@ -2075,7 +2099,7 @@ For simple use the main targets are:
 			<param name="jre-os" value="Windows"/>
 			<param name="dist.tmp.dir" value="${windows.dist.dir}" />
 			<param name="sh-bash-basename" value="neptusse" />
-			<param name="copy-includes-excludes-file-sufix" value="NeptusSE" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusLE" />
 			<param name="dist.installer.name" value="${dist.installer.name.le}" />
 			<param name="dist.instalation.folder.name" value="NeptusLE" />
 			<reference refid="neptusLE.filters" torefid="dist.filters" />
@@ -2089,7 +2113,7 @@ For simple use the main targets are:
 			<param name="jre-os" value="Linux"/>
 			<param name="dist.tmp.dir" value="${linux.dist.dir}" />
 			<param name="sh-bash-basename" value="neptusse" />
-			<param name="copy-includes-excludes-file-sufix" value="NeptusSE" />
+			<param name="copy-includes-excludes-file-sufix" value="NeptusLE" />
 			<param name="dist.installer.name" value="${dist.installer.name.le}" />
 			<param name="dist.instalation.folder.name" value="NeptusLE" />
 			<reference refid="neptusLE.filters" torefid="dist.filters" />

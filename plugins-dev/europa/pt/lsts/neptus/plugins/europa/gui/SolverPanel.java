@@ -224,7 +224,7 @@ public class SolverPanel extends JPanel {
                             String task = solver.resolvePlanName(goal.getParameter("task").getSingletonValue().asObject().getEntityName());
                             float speed = (float) goal.getParameter("speed").getLowerBound(); 
                             
-                            rejectionList += "\n\t"+I18n.textf(" - Execute %plan by %vehicle at %speed m/s", task, vehicle, speed); 
+                            rejectionList += "\n\t" + " - " + I18n.textf("Execute %plan by %vehicle at %speed m/s", task, vehicle, speed); 
                         }                
                     }
 

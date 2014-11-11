@@ -225,7 +225,6 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
     }
 
     public void recalculateManeuverPositions(StateRenderer2D renderer) {
-
         maneuverLocations.clear();
         startManeuverLocations.clear();
         endManeuverLocations.clear();
@@ -253,15 +252,22 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
 
         for (Maneuver m : unknownLocs) {
             Point2D vpoint = calculateManeuverPositionWorker(m, renderer);
-            maneuverLocations.put(m.getId(), vpoint);
-            startManeuverLocations.put(m.getId(), vpoint);
-            endManeuverLocations.put(m.getId(), vpoint);
+            Point2D ptM = new Point2D.Double();
+            ptM.setLocation(vpoint);
+            maneuverLocations.put(m.getId(), ptM);
+            Point2D ptS = new Point2D.Double();
+            ptS.setLocation(vpoint);
+            startManeuverLocations.put(m.getId(), ptS);
+            Point2D ptE = new Point2D.Double();
+            ptE.setLocation(vpoint);
+            endManeuverLocations.put(m.getId(), ptE);
         }
     }
 
     private Point2D calculateManeuverPositionWorker(Maneuver m, StateRenderer2D renderer) {
-        if (maneuverLocations.containsKey(m.getId()))
+        if (maneuverLocations.containsKey(m.getId())) {
             return maneuverLocations.get(m.getId());
+        }
         else {
             Maneuver[] previousMans = plan.getGraph().getPreviousManeuvers(m.getId());
             Maneuver previousMan = (previousMans.length > 0) ? previousMans[0] : null;
@@ -285,7 +291,6 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
                     Point2D otherPoint = maneuverLocations.get(tmp.getId());
                     angle = Math.atan2(otherPoint.getY() - pt.getY(), otherPoint.getX() - pt.getX());
                 }
-
                 pt.setLocation(pt.getX() + Math.cos(angle) * 50, pt.getY() + Math.sin(angle) * 50);
                 maneuverLocations.put(m.getId(), pt);
                 return pt;
@@ -479,7 +484,7 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
         Vector<String> drawnTransitions = new Vector<String>();
 
         for (Maneuver man : maneuvers) {
-
+            
             for (Maneuver previousMan : plan.getGraph().getPreviousManeuvers(man.getId())) {
                 g.setColor(c);
                 g.setTransform(identity);
@@ -606,6 +611,15 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
             if (loc == null)
                 continue;
 
+//            if (man.isInitialManeuver() && !(man instanceof LocatedManeuver)) {
+//                LocationType cp = renderer.getCenter();
+//                Point2D pt = renderer.getScreenPosition(cp);
+//                g.translate(pt.getX(), pt.getY());
+//                loc.setLocation(pt);
+//            }
+//            else {    
+//                g.translate(loc.getX(), loc.getY());
+//            }
             g.translate(loc.getX(), loc.getY());
             man.paintOnMap(g, this, renderer);
         }

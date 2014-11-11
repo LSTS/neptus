@@ -307,7 +307,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     			setRadiusTolerance((Double)p.getValue());
     		}
     		else {
-    			NeptusLog.pub().info("Property "+p.getName()+" not understood");
+    			NeptusLog.pub().debug("Property "+p.getName()+" ignored.");
     		}
     	}
     }

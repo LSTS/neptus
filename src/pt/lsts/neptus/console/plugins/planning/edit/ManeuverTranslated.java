@@ -27,69 +27,59 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: José Pinto
- * 12 de Ago de 2011
+ * Nov 29, 2011
  */
-package pt.lsts.neptus.planeditor;
+package pt.lsts.neptus.console.plugins.planning.edit;
 
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
-import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
- * @author ZP
+ * @author zp
  *
  */
-public class ManeuverMoveEdit extends AbstractUndoableEdit {
+public class ManeuverTranslated extends AbstractUndoableEdit {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
     protected PlanType plan;
-    protected String manId;
-    ManeuverLocation oldLoc, newLoc;
+    protected LocatedManeuver maneuver;
+    protected ManeuverLocation before, after;
     
-    public ManeuverMoveEdit(PlanType plan, Maneuver man, ManeuverLocation oldLoc, ManeuverLocation newLoc) {
+    public ManeuverTranslated(LocatedManeuver maneuver, PlanType plan, ManeuverLocation before, ManeuverLocation after) {
+        this.maneuver = maneuver;
         this.plan = plan;
-        this.manId = man.getId();
-        this.oldLoc = oldLoc;
-        this.newLoc = newLoc;
+        this.before = before;
+        this.after = after;
     }
-    
-    @Override
-    public boolean canRedo() {
-        return true;
-    }
-    
+
     @Override
     public boolean canUndo() {
         return true;
     }
-    
+
     @Override
-    public void redo() throws CannotRedoException {
-        Maneuver m = plan.getGraph().getManeuver(manId);
-        if (m != null && m instanceof LocatedManeuver) {
-            ((LocatedManeuver)m).setManeuverLocation(newLoc);
-        }
-        else {
-            throw new CannotRedoException();
-        }
+    public boolean canRedo() {
+        return true;
     }
-    
+
+    @Override
+    public String getPresentationName() {
+        return I18n.text("Move maneuver");
+    }
+
     @Override
     public void undo() throws CannotUndoException {
-        Maneuver m = plan.getGraph().getManeuver(manId);
-        if (m != null && m instanceof LocatedManeuver) {
-            ((LocatedManeuver)m).setManeuverLocation(oldLoc);
-        }
-        else {
-            throw new CannotRedoException();
-        }
+        maneuver.setManeuverLocation(before);
+    }
+
+    @Override
+    public void redo() throws CannotRedoException {
+        maneuver.setManeuverLocation(after);
     }
 }

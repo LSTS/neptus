@@ -170,6 +170,8 @@ public class ControllerManager {
                 }
                 
                 if (useAcousticComms) {
+                    // alwas try to send using wifi
+                    ImcMsgManager.getManager().sendMessageToSystem(ref, vehicle.getId());
                     AcousticOperation op = new AcousticOperation();
                     op.setOp(AcousticOperation.OP.MSG);
                     op.setSystem(vehicle.getId());

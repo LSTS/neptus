@@ -67,9 +67,11 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LogTree;
 import pt.lsts.neptus.util.llf.LogUtils;
+import pt.lsts.neptus.util.llf.LsfReportProperties;
 import pt.lsts.neptus.util.llf.LsfTree;
 import pt.lsts.neptus.util.llf.LsfTreeMouseAdapter;
 import pt.lsts.neptus.util.llf.chart.MRAChartFactory;
@@ -100,6 +102,7 @@ public class MRAPanel extends JPanel {
     private final ArrayList<LogMarker> logMarkers = new ArrayList<LogMarker>();
     private MRAVisualization shownViz = null;
     private Vector<MissionChangeListener> mcl = new Vector<>();
+    private NeptusMRA mra;
     
     InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
 
@@ -111,7 +114,7 @@ public class MRAPanel extends JPanel {
      */
     public MRAPanel(final IMraLogGroup source, NeptusMRA mra) {
         this.source = source;
-
+        this.mra = mra;
         if (new File("conf/tides.txt").canRead() && source.getFile("tides.txt") == null) {
             FileUtil.copyFile("conf/tides.txt", new File(source.getFile("."), "tides.txt").getAbsolutePath());
         }
@@ -176,6 +179,20 @@ public class MRAPanel extends JPanel {
                 + ((veh != null) ? " | <b>" + I18n.text("System") + ":</b> " + veh.getName() : "")));
     }
 
+    public void addStatusBarMsg(String msg){
+        JLabel jlabel = new JLabel(msg);
+        statusBar.add(jlabel);
+        updateUI();
+    }
+
+    public void reDrawStatusBar(){
+        statusBar.removeAll();
+        remove(statusBar);
+        setUpStatusBar();
+        add(statusBar, BorderLayout.SOUTH);
+        updateUI();
+    }
+
     /**
      * Load MRA visualizations from Plugins Repo
      */
@@ -184,6 +201,9 @@ public class MRAPanel extends JPanel {
         for (String visName : PluginsRepository.getMraVisualizations().keySet()) {
             try {
                 Class<?> vis = PluginsRepository.getMraVisualizations().get(visName);
+                
+                if (!mra.getMraProperties().isVisualizationActive(vis))
+                    continue;
 
                 MRAVisualization visualization = (MRAVisualization) vis.getDeclaredConstructor(MRAPanel.class)
                         .newInstance(this);
@@ -326,7 +346,7 @@ public class MRAPanel extends JPanel {
      */
     public boolean existsMark(LogMarker marker) {
         for (LogMarker m : logMarkers) {
-            if (m.label.equals(marker.label))
+            if (m.getLabel().equals(marker.getLabel()))
                 return true;
         }
         return false;
@@ -346,7 +366,7 @@ public class MRAPanel extends JPanel {
             loc.translatePosition(state.getDouble("x"), state.getDouble("y"), 0);
 
             if (loc.getDistanceInMeters(l) <= distance) {
-                NeptusLog.pub().info("<###> " + marker.label + " --- " + state.getTimestampMillis());
+                NeptusLog.pub().info("<###> " + marker.getLabel() + " --- " + state.getTimestampMillis());
             }
         }
     }
@@ -357,16 +377,21 @@ public class MRAPanel extends JPanel {
      */
     public void addMarker(LogMarker marker) {
 
+        if (LsfReportProperties.generatingReport==true){
+            //GuiUtils.infoMessage(getRootPane(), I18n.text("Can not add Marks"), I18n.text("Can not add Marks - Generating Report."));
+            return;
+        }
+
         if (existsMark(marker))
             return;
 
         // Calculate marker location
-        if (marker.lat == 0 && marker.lon == 0) {
-            IMCMessage m = source.getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
+        if (marker.getLat() == 0 && marker.getLon() == 0) {
+            IMCMessage m = source.getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
             LocationType loc = LogUtils.getLocation(m);
 
-            marker.lat = loc.getLatitudeRads();
-            marker.lon = loc.getLongitudeRads();
+            marker.setLat(loc.getLatitudeRads());
+            marker.setLon(loc.getLongitudeRads());
         }
         logTree.addMarker(marker);
         logMarkers.add(marker);
@@ -375,7 +400,12 @@ public class MRAPanel extends JPanel {
 
         for (MRAVisualization vis : visualizationList.values()) {
             if (vis instanceof LogMarkerListener) {
-                ((LogMarkerListener) vis).addLogMarker(marker);
+                try {
+                    ((LogMarkerListener) vis).addLogMarker(marker);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error("Error adding marker on " + vis.getName(), e);
+                }
             }
         }
         saveMarkers();
@@ -386,6 +416,12 @@ public class MRAPanel extends JPanel {
      * @param marker
      */
     public void removeMarker(LogMarker marker) {
+
+        if (LsfReportProperties.generatingReport==true){
+            GuiUtils.infoMessage(getRootPane(), I18n.text("Can not remove Marks"), I18n.text("Can not remove Marks - Generating Report."));
+            return;
+        }
+
         logTree.removeMarker(marker);
         logMarkers.remove(marker);
         for (MRAVisualization vis : visualizationList.values()) {

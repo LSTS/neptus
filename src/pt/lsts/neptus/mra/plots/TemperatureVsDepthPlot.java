@@ -46,7 +46,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
  * @author zp
  * 
  */
-@PluginDescription
+@PluginDescription(active=false)
 public class TemperatureVsDepthPlot extends XYPlot {
 
     public TemperatureVsDepthPlot(MRAPanel panel) {
@@ -119,6 +119,6 @@ public class TemperatureVsDepthPlot extends XYPlot {
     };
 
     public boolean canBeApplied(pt.lsts.imc.lsf.LsfIndex index) {
-        return true;
+        return index.containsMessagesOfType("EstimatedState", "Temperature");
     };
 }

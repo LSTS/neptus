@@ -36,6 +36,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.Arrays;
@@ -48,6 +50,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.LocationPanel;
@@ -72,22 +75,27 @@ public class TransponderParameters extends ParametersPanel {
 	private LocationPanel locationPanel = null;
 	private JPanel jPanel = null;
 	private JLabel jLabel = null;
-	private JComboBox<?> configurationFile = null;
+	private JComboBox<String> configurationFile = null;
 	private JButton editBtn = null;
 	private CoordinateSystem homeRef = null;
 	private JButton jButton = null;
 	private JLabel jLabel1 = null;
 	
+	private JTextField idEditor;
+	
 	/**
 	 * This method initializes 
+	 * @param idEditor 
 	 * 
 	 */
-	public TransponderParameters(CoordinateSystem homeRef) {
+	public TransponderParameters(CoordinateSystem homeRef, JTextField idEditor) {
 		super();
+		this.idEditor = idEditor;
 		this.homeRef = homeRef;
 		initialize();
 		setPreferredSize(new Dimension(470,530));
 	}
+	
 	/**
 	 * This method initializes this
 	 * 
@@ -110,6 +118,10 @@ public class TransponderParameters extends ParametersPanel {
             return getLocationPanel().getErrors();
         
         return null;
+    }
+    
+    public  void setIdEditor(JTextField idEditor) {
+        this.idEditor = idEditor;
     }
     
     public void setLocation(LocationType location) {
@@ -176,15 +188,25 @@ public class TransponderParameters extends ParametersPanel {
 	 * 	
 	 * @return javax.swing.JComboBox	
 	 */    
-	private JComboBox<?> getConfigurationFile() {
+	private JComboBox<String> getConfigurationFile() {
 		if (configurationFile == null) {
             String[] confs = TransponderUtils.getTranspondersConfsNamesList();
-			configurationFile = new JComboBox<Object>(confs);
+			configurationFile = new JComboBox<String>(confs);
 			configurationFile.setPreferredSize(new Dimension(150,20));
 			configurationFile.setEditable(false);
 			configurationFile.setEnabled(true);
 			configurationFile.setSelectedIndex(0);
 			
+			configurationFile.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    if (e.getStateChange() == ItemEvent.SELECTED) {
+                        String beaconIDItem = (String) e.getItem();
+                        if (beaconIDItem != null)
+                            updateIdFromConfiguration(beaconIDItem);
+                    }
+                }
+            });
 		}
 		return configurationFile;
 	}
@@ -194,13 +216,20 @@ public class TransponderParameters extends ParametersPanel {
 	}
 	
 	public void setConfiguration(String configuration) {
-		if (configuration == null)
-			return;
+		if (configuration == null) {
+		    updateIdFromConfiguration((String) getConfigurationFile().getSelectedItem());
+		    return;
+		}
 		
 		getConfigurationFile().setSelectedItem(configuration);
+        updateIdFromConfiguration((String) getConfigurationFile().getSelectedItem());
 	}
 	
-	/**
+    private void updateIdFromConfiguration(String beaconIDItem) {
+        idEditor.setText(beaconIDItem.replaceAll("\\.conf$", ""));
+    }
+
+    /**
 	 * This method initializes jButton	
 	 * 	
 	 * @return javax.swing.JButton	
@@ -266,7 +295,7 @@ public class TransponderParameters extends ParametersPanel {
     public static void main(String[] args) {
         
         JFrame testFrame = new JFrame("Teste Unitario");
-        TransponderParameters nmp = new TransponderParameters(new CoordinateSystem());
+        TransponderParameters nmp = new TransponderParameters(new CoordinateSystem(), new JTextField("id"));
         testFrame.add(nmp);
         testFrame.setSize(453, 450);
         testFrame.setVisible(true);

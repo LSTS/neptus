@@ -64,7 +64,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author zp
  *
  */
-@PluginDescription(author="zp", name="Echo Sounder Analysis", icon="pt/lsts/neptus/plugins/echosounder/echosounder.png")
+@PluginDescription(author="zp", active=false, name="Echo Sounder Analysis", icon="pt/lsts/neptus/plugins/echosounder/echosounder.png")
 public class EchoSounderMRA extends JPanel implements MRAVisualization {
 
     private static final long serialVersionUID = 1L;

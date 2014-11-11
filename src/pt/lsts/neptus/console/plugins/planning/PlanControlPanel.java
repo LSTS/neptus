@@ -53,6 +53,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LblBeacon;
@@ -209,7 +210,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
     private final LinkedHashMap<Integer, Long> registerRequestIdsTime = new LinkedHashMap<Integer, Long>();
     private final LinkedHashMap<Integer, PlanControl> requests = new LinkedHashMap<>();
     private final String[] messagesToObserve = new String[] { "PlanControl", "PlanControlState", "VehicleState",
-            "PlanDB", "LblConfig" };
+            "PlanDB", "LblConfig", "AcousticOperation" };
 
     public PlanControlPanel(ConsoleLayout console) {
         super(console);
@@ -1248,6 +1249,32 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                 }
                 catch (Exception e) {
                     NeptusLog.pub().error(e, e);
+                }
+                break;
+            case AcousticOperation.ID_STATIC:
+                if (message.getDst() != getConsole().getImcMsgManager().getLocalId().intValue())
+                    break;
+                AcousticOperation aoMsg = (AcousticOperation) message;
+                switch (aoMsg.getOp()) {
+                    case MSG_DONE:
+                        post(Notification.success("Acoustic Message Send", I18n.textf(
+                                "Message to %systemName has been sent successfully.", aoMsg.getSystem().toString())));
+                        break;
+                    case MSG_FAILURE:
+                        post(Notification.error("Acoustic Message Send",
+                                I18n.textf("Failed to send message to %systemName.", aoMsg.getSystem().toString())));
+                        break;
+                    case MSG_IP:
+                        post(Notification.info("Acoustic Message Send",
+                                I18n.textf("Sending message to %systemName...", aoMsg.getSystem().toString())));
+                        break;
+                    case MSG_QUEUED:
+                        post(Notification.warning("Acoustic Message Send", I18n.textf(
+                                "Message to %systemName has been queued in %manta.", aoMsg.getSystem().toString(),
+                                aoMsg.getSourceName())));
+                        break;
+                    default:
+                        break;
                 }
                 break;
             default:

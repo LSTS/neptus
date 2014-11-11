@@ -94,6 +94,7 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.VideoCreator;
+import pt.lsts.neptus.util.llf.LsfReportProperties;
 
 /**
  * @author zp
@@ -224,7 +225,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         Arrays.sort(allFiles);
 
         for (int i = 0; i < allFiles.length; i++) {
-            if (timestampOf(allFiles[i]) >= marker.timestamp/1000) {
+            if (timestampOf(allFiles[i]) >= marker.getTimestamp()/1000) {
                 setCurFile(allFiles[i]);
                 return;
             }
@@ -311,7 +312,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             public void paintTicks(Graphics g) {
                 super.paintTicks(g);
                 for(LogMarker m : markers) {
-                    long mtime = new Double(m.timestamp).longValue();
+                    long mtime = new Double(m.getTimestamp()).longValue();
                     g.drawLine(xPositionForValue((int)(mtime-startTime)), 0, xPositionForValue((int)(mtime-startTime)),timeline.getSlider().getHeight()/2);
                     //                    g.drawString(m.label, xPositionForValue((int)(mtime-firstPingTime))-10, 22);
                 }
@@ -409,6 +410,12 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
 
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                if (LsfReportProperties.generatingReport==true){
+                    GuiUtils.infoMessage(panel.getRootPane(), I18n.text("Can not add Marks"), I18n.text("Can not add Marks - Generating Report."));
+                    return;
+                }
+
                 String resp = JOptionPane.showInputDialog(panel, "Enter marker name", "Add marker", JOptionPane.QUESTION_MESSAGE);
                 if (resp == null)
                     return;
@@ -530,17 +537,17 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         int countMarkers = 0;
         for (int i = 0; i < markers.size(); i++) {
 
-            if (markers.get(i).timestamp/1000 > curTime+2)
+            if (markers.get(i).getTimestamp()/1000 > curTime+2)
                 break;
-            if (markers.get(i).timestamp/1000 < curTime - 2)
+            if (markers.get(i).getTimestamp()/1000 < curTime - 2)
                 continue;
 
             countMarkers++;
-            int alpha = (int)(127.5 * Math.abs(markers.get(i).timestamp/1000 - curTime));
+            int alpha = (int)(127.5 * Math.abs(markers.get(i).getTimestamp()/1000 - curTime));
 
             ((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.setColor(new Color(255,255,128,255-alpha));
-            g.drawString(markers.get(i).label, 10, 150 + countMarkers*15);            
+            g.drawString(markers.get(i).getLabel(), 10, 150 + countMarkers*15);            
         }
 
 

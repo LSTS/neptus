@@ -41,7 +41,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
  * @author zp
  *
  */
-@PluginDescription(name="CTD chart")
+@PluginDescription(name="CTD chart", active=false)
 public class CtdPlot extends MRACombinedPlot {
 
     public CtdPlot(MRAPanel panel) {

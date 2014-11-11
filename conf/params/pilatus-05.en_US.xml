@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.0-rc3 (HEAD,ecf0e21)" system="pilatus-05" i18n="en_US">
+<config format="1" version="2.6.0 (HEAD,660f19f)" system="pilatus-05" i18n="en_US">
   <section name="Text Message Parser" name-i18n="Text Message Parser">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1191,6 +1191,15 @@
       <units/>
       <desc>Speed in RPMs to be used in the generated maneuvers</desc>
     </param>
+    <param name="Generate At Boot">
+      <name-i18n>Generate At Boot</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Set of commands for plans to generate at boot</desc>
+    </param>
   </section>
   <section name="Lost Comms Monitor" name-i18n="Lost Comms Monitor">
     <param name="Entity Label">
@@ -1257,6 +1266,8 @@
       <default>10</default>
       <units>s</units>
       <desc>Heartbeat Timeout</desc>
+      <min>0.0</min>
+      <max>60.0</max>
     </param>
     <param name="In Mission Timeout">
       <name-i18n>In Mission Timeout</name-i18n>
@@ -1266,6 +1277,8 @@
       <default>20</default>
       <units>s</units>
       <desc>Timeout if executing plan</desc>
+      <min>0.0</min>
+      <max>60.0</max>
     </param>
     <param name="Lost Comms Plan">
       <name-i18n>Lost Comms Plan</name-i18n>
@@ -2095,7 +2108,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CpuUsage:0.2, EntityState:1, EstimatedState:5, FormationEval:1, FuelLevel:0.1, SimulatedState:0.5, StorageUsage:0.05, Temperature:0.1</default>
+      <default>CpuUsage:0.2, EntityState:1, EstimatedState:5, FuelLevel:0.1, SimulatedState:0.5, StorageUsage:0.05, Temperature:0.1</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
     </param>
@@ -2104,7 +2117,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CpuUsage:Daemon, PathControlState:Autopilot</default>
+      <default>CpuUsage:Daemon</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>
@@ -2140,7 +2153,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FormationMonitor, FormationEval, FormCtrlParam, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

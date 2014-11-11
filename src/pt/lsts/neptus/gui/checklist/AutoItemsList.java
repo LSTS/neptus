@@ -42,13 +42,14 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author rjpg
  *
  */
-public class AutoItemsList extends JPanel{
+public class AutoItemsList extends JPanel {
 
     private static final long serialVersionUID = -7753351429507075143L;
 
@@ -69,10 +70,9 @@ public class AutoItemsList extends JPanel{
     }
 
     private void initialize() {
-
         this.setOpaque(false);
 
-        addAutoCheckItem = new JButton("Add", ICON_ADD);
+        addAutoCheckItem = new JButton(I18n.text("Add"), ICON_ADD);
         addAutoCheckItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -109,9 +109,9 @@ public class AutoItemsList extends JPanel{
     private JComboBox<?> getOptionsList() {
         if(optionsList==null) {
             optionsListString = new String [2];
-            optionsListString[0] = "User Action";
-            optionsListString[1] = "User Comment";
-            // optionsListString[2] = "Variable Test";
+            optionsListString[0] = I18n.text("User Action");
+            optionsListString[1] = I18n.text("User Comment");
+            // optionsListString[2] = I18n.text("Variable Test");
 
             optionsList = new JComboBox<Object> (optionsListString);
         }
@@ -165,5 +165,4 @@ public class AutoItemsList extends JPanel{
     void fireChangeEvent(Component source) {
         parentCheckItemPanel.fireChangeEvent(source);    
     }
-
 }

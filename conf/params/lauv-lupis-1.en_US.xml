@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.0-rc3 (HEAD,ecf0e21)" system="lauv-lupis-1" i18n="en_US">
+<config format="1" version="2.6.0 (HEAD,660f19f)" system="lauv-lupis-1" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1390,7 +1390,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.8</default>
+      <default>1.2</default>
       <units>m</units>
       <desc>Minimum admissible altitude for bottom tracking</desc>
     </param>
@@ -1456,24 +1456,6 @@
       <default>2.5</default>
       <units>m</units>
       <desc>Admissible altitude when doing depth control</desc>
-    </param>
-    <param name="Filter EstimatedState">
-      <name-i18n>Filter EstimatedState</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable or disable EstimateState filtering by entity</desc>
-    </param>
-    <param name="Filter Entity">
-      <name-i18n>Filter Entity</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Autopilot</default>
-      <units/>
-      <desc>Only accepts EstimatedState from this entity</desc>
     </param>
     <param name="Corridor -- Width">
       <name-i18n>Corridor -- Width</name-i18n>
@@ -3001,12 +2983,21 @@
       <units>%</units>
       <desc>Minimum confidence for recomputing update</desc>
     </param>
+    <param name="Update Estimate Anytime">
+      <name-i18n>Update Estimate Anytime</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Update estimate even if maneuvering</desc>
+    </param>
     <param name="Estimated Entity Label List">
       <name-i18n>Estimated Entity Label List</name-i18n>
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Camera Module</default>
+      <default>Camera</default>
       <units/>
       <desc>List of entity labels that must be estimated</desc>
     </param>
@@ -3968,16 +3959,27 @@
       <min>5</min>
       <max>20</max>
     </param>
-    <param name="RPM to Speed multiplicative factor">
-      <name-i18n>RPM to Speed multiplicative factor</name-i18n>
+    <param name="Revolutions to speed factor">
+      <name-i18n>Revolutions to speed factor</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.2e-3</default>
+      <default>1.015e-3</default>
       <units/>
-      <desc>Kalman Filter initial RPM to Speed multiplicative factor state value</desc>
+      <desc>Kalman Filter initial revolutions to speed multiplicative factor state value</desc>
       <min>0.8e-3</min>
       <max>2.0e-3</max>
+    </param>
+    <param name="Revolutions to speed variation">
+      <name-i18n>Revolutions to speed variation</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>6e-4</default>
+      <units/>
+      <desc>Kalman Filter revolutions to speed maximum allowed variation</desc>
+      <min>4e-4</min>
+      <max>8e-4</max>
     </param>
     <param name="Update Heading with Euler Increments">
       <name-i18n>Update Heading with Euler Increments</name-i18n>
@@ -4308,6 +4310,15 @@
       <units/>
       <desc>Speed in RPMs to be used in the generated maneuvers</desc>
     </param>
+    <param name="Generate At Boot">
+      <name-i18n>Generate At Boot</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>dislodge</default>
+      <units/>
+      <desc>Set of commands for plans to generate at boot</desc>
+    </param>
   </section>
   <section name="Power Supply" name-i18n="Power Supply">
     <param name="Entity Label">
@@ -4598,7 +4609,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>ATX</default>
+      <default>Private (ATX)</default>
       <units/>
       <desc/>
     </param>
@@ -4742,7 +4753,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CPU</default>
+      <default>Private (CPU)</default>
       <units/>
       <desc/>
     </param>
@@ -4868,7 +4879,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Ethernet Switch</default>
+      <default>Private (Ethernet Switch)</default>
       <units/>
       <desc/>
     </param>
@@ -4904,7 +4915,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>DVL</default>
+      <default>Private (DVL)</default>
       <units/>
       <desc/>
     </param>
@@ -5713,7 +5724,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>DVL</default>
+      <default>Private (DVL)</default>
       <units/>
       <desc>Power channel that controls the power of the device</desc>
     </param>

@@ -1,2 +1,6 @@
 plugins/caoAgent.jar
 plugins/s57-client.jar
+plugins/urready4os.jar
+plugins/waveglider.jar
+
+

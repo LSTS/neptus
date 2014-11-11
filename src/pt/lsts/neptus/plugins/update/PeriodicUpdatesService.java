@@ -165,6 +165,7 @@ public class PeriodicUpdatesService {
                 }
                 started = false;
                 defunctClients.clear();
+                updateRequests.clear();
             }
             else
                 defunctClients.add(client);

@@ -50,13 +50,13 @@ public class NoptilusCoords implements PropertiesProvider {
     public LocationType squareCenter = new LocationType();
     
     @NeptusProperty(name="Cell size", description="Cell size in meters for each map square")
-    public double cellWidth = 5;
+    public double cellWidth = 1;
     
     @NeptusProperty(name="Number of Rows", description="Number of rows in the area rectangle") 
-    public double numRows = 40;
+    public double numRows = 240;
     
     @NeptusProperty(name="Number of Columns", description="Number of columns in the area rectangle") 
-    public double numCols = 40;
+    public double numCols = 240;
     
     @NeptusProperty(name="Maximum Depth", description="Number of depth units to use for the Noptilus map") 
     public double maxDepth = 50;    
@@ -84,11 +84,16 @@ public class NoptilusCoords implements PropertiesProvider {
     }
     
     public LocationType convert(double row, double col) {
-        if (col < 0 || col >= numCols)
+        if (col < 0 || col >= numCols) {
+            System.err.println("Invalid column: "+col);
             return null;
+        }
         
-        if (row < 0 || col >= numRows)
+        if (row < 0 || col >= numRows) {
+            System.err.println("Invalid Row: "+row);
             return null;
+        }
+        
         
         LocationType loc = new LocationType(squareCenter);
         double transN = ((-numRows/2) + row) * cellWidth;

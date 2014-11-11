@@ -229,7 +229,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
     protected WorldRenderPainter worldMapPainter = null;
 
     protected String lockedVehicle = null;
-    protected TransponderSecurityArea securityArea = new TransponderSecurityArea();
+//    protected TransponderSecurityArea securityArea = new TransponderSecurityArea();
     protected PaintersBag painters = new PaintersBag(this);
     protected boolean ignoreRightClicks = false;
     protected boolean showProperties = true;
@@ -298,7 +298,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
         addFocusListener(this);
         setBackground(new Color(2, 113, 171));
         setFocusable(true);
-        addPostRenderPainter(new TransponderSecurityArea(), "Transponder Security Area");
+        // addPostRenderPainter(new TransponderSecurityArea(), "Transponder Security Area");
         addKeyListener(this);
 
         preferencesUpdated();

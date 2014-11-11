@@ -1,15 +1,183 @@
 Changes
 =======
 
+Neptus 4.2.0 (11-11-2014)
+----------------
+ * IMC: No change in IMC and IMCJava (v5.4.3).
+ * Vehicles: Updated systems parameters to DUNE 2.6.0 (HEAD,660f19f).
+ * I18n: Updated POT and translations.
+ * MRA/UAVModePlot: Adding PiePlot of AutopilotMode.
+ * Ant/Installers: Adding urready4os.jar and waveglider.jar to excludes for Seacon installer.
+ * Ant/Installers: Fix the includes/excludes file names for consistency.
+ * MRA: When a log is reindexed, the entire mra/ folder gets deleted.
+ * MRA/CorrectedPosition: Added synchronized block for accessing CorrectedPosition data.
+ * MRA/CorrectedPosition: Add any non-corrected positions to the list of corrected" positions.
+ * MRA/NoptilusMapExporter: Little fix in finding if multibeam data exists.
+ * Vehicles: Updated NTNU vehicles IMC IDs.
+ * PeriodicUpdatesService: Fixed old clients still being called after calling unregister().
+ * MRA/NoptilusMapExporter: Re-enabled plug-in.
+ * ConvCao: ConvCao NeptusInteraction: Always send a positive loiter radius if references are underwater; and Stop displaying the references if convcao algorithm is stopped.
+ * ConvCao: Changed defaults for Noptilus coordinates.
+ * Convcao: Whan acoustic transmission is selected, try to send via wifi as well.
+ * ConvCao: Fixed rotation of the square when the map is rotated.
+ * MRA/Plots/RealTimePlot: Real-time plot now displays data from multiple vehicles.
+ * MissionType: Added time it took to save and caller name to the output.
+ * SystemsList/SystemsParameters: Now the systems parameters are updated.
+ * Map/StateRenderer2D/Transponders: Removed the TransponderSecurityArea layer (no more drawing the optimal LBL area).
+ * MRA/JsfSidescanParser: Fixing processing to handle just one side data, port or starboard.
+ * Maneuvers: Adding Dislodge maneuver support.
+ * Plan/PlanElement: Fixing a long lived bug that for non located maneuvers, their position on the map was always jumping.
+ * LBLRangeDisplay: Protecting against null pointer.
+ * GuiUtils: Added missing I18n strings.
+ * ImuAlignmentPanel: Changed the icon in the button meaning. If IMU is enabled the icon will be green, if not red, and gray otherwise. Alignment state will be shown in the text area.
+ * ImuAlignmentPanel: If IMU is enabled the button text will express that and the text will chenge from "Enable IMU" to "IMU Enabled". If IMU is aligned the text color will be green.
+ * PlanControlPanel: Adding some feedback for AcousticOperation sent messages.
+ * MantaOperations: Fixing I18n strings.
+ * MRA: Changed the visualizations that get opened by default.
+ * MRA: Added possibility to activate / deactivate automatic visualizations (from settings Menu).
+ * MRA Replay: When replay is hidden, it gets paused and all its popups are closed.
+ * MRA: Fixed markers and time of day in MRA Gantt plots.
+ * DownloaderPanel: Right-clicking a downloaded log shows the option "Open in MRA" instead of opening directly.
+ * MRA/Plots: Fixed timezone conversions (related with marks bug).
+ * Checklist: Adding missing classes and jar to account for the GeneralPreferences addition to ChecklistPanel.
+ * Workspace/Checklist/GeneralPreferences: I18n addition.
+ * Ant: Fix worldmap bundle jar creation dependency.
+ * PlanSimulationLayer: Added missing translations.
+ * PlanSimulationLayer: Fixed the calculation of total execution time.
+ * LblRangeDisplay: Removed unnecessary loop.
+ * PlanEditor: Improved Undo/Redo support in plan edition.
+ * GraphType: Fixing bug in transition removal.
+ * Installers: Removing urready4os.jar from light version.
+ * MRA/Importers/JsfParser: Adding end of file protection.
+ * PlanEditor: Adding null pointer protections that arose in editing a plan.
+ * ImcSystemsHolder: Names are to be updated from Announce (on first creation name is not known). To be revised the ImcSystem creation to be only on announce arrival.
+ * Installers: Fix a problem with icon on desktop launcher for Linux (no spaces allowed in the path).
+ * LogsDownloader/QueueWorkTickets: Some cleanups on releasing the lock. On stop all force releasing of all loks.
+ * MantaOperations: Fix a way to get the systems list from AcousticSystems without the unit postfixed (unit is "list"). Probably change the IMCJava side (to see).
+ * LogsDownloaderWorker: Fix a hidden bug because the source of messages for checking for camera activeness was not done.
+ * MRA/SidescanConfig: Moved to core src and to package pt.lsts.neptus.console.plugins.PropertiesProviders due to its use in core src LsfReport (making a non compilable for distribution possible).
+ * MRA/SidescanPanel: Restoring some measurement features in sidescan while zooming.
+ * MRA/MRA2DPlot/SalinityVsDepthPlot: Protecting from a null pointer exception (still to further investigation).
+ * Core/NeptusProperties: Added an unserializer for a ColorMap property.
+ * MRA/SidescanPanel: Added protection from sometimes concurrent modification exception.
+ * MRA/SalinityVsDepthPlot: Protecting from a null pointer exception (still to further investigation).
+ * Ant: Changing installers package date to the commit and not the creation date.
+ * Vehicles: Added lauv-oceaneco-1 and lauv-oceaneco-2 vehicle definition.
+ * Core/About: Update developers list and tweak SCM displaying.
+ * LBLRangeDisplay: Get current LblConfig index to plot ranges (using the LblConfig from vehicle and not from the mission tree).
+ * Vehicles: Added lauv-dolphin-2 and lauv-dolphin-3 vehicle definition.
+ * LogsDownloader: Camera CPU activation (Slave CPU) state display OK. (Using EntityState description code en_US and the current Neptus language.)
+ * MRA/Markers: Adding protection in adding marker propagation. (SideScanPanel was getting an error in SalinityVsDepthPlot.addLogMarker(..).)
+ * MRA/Importers: Allows opening JSF logs where the last message isn't SONAR_DATA (80).
+ * Console: Adding protections in console closing cleanups and changing system out messages to log.
+ * Transponders: Deleting SimpleTransponderPanel.
+ * Map/Transponders: Added way for the edition and set of transponders ids to be dependent on the configuration file names.
+ * MRA/Sidescan: SidescanAnalyzer: Fixed bug of applying zoom twice when zooming over bottom-right corner of the image.
+ * MRA/Sidescan/MarksReport: Added support for multiple subsystems in SidescanParser. Scaling and Adjustments in table.
+ * MRA/MarksReport: Better structure/doc on createTable() and getSidescanMarkImage() and convertMtoIndex
+ * MRA/MarksReport: Merged feature/MarksReport. This allows to view in the PDF report the marks (also the SSS selected image).
+
+
+Neptus 4.2.0-rc2 (30-09-2014)
+----------------
+ * IMC: No change in IMC and IMCJava (v5.4.3).
+ * Vehicles: Updated systems parameters to DUNE 2.6.0-rc3 (HEAD,ecf0e21).
+ * Map/Transponders: Better layout for editing a transponder.
+ * Map/Transponders: Merging BeaconsConfigurations into TranspondersUtils.
+ * Vehicles/Params: Fix Visibility issues. Now Visibility is layered, at any given level you are supposed to access the lower levels parameters.
+ * HFRadarVisualization: Added FolderPropertyEditor as editor for File properties that are folders.
+ * PropertiesEditor/RhodamineOilVisualizer: Fix Editing a File as folder in NeptusProperties.
+ * Map/TransponderElement: Fixing a null pointer exception that can happen if property file is no found (still need some more investigation).
+ * NMEAPlotter/AisContactDb: Fix problem decoding last field of NMEA $A-TLL sentence (heading).
+ * IverPlanExporter: Replacing the Iver mission template with an updated one.
+ * IverPlanExporter: Iver plans MUST be with Windows line endings (also forcing the template.mis checkout to be with this lie endings).
+ * IverPlanExporter: Removed the "PT25" of iverWaypoint(..).
+ * IverPlanExporter: Fix to account for different locale to all use dot as decimal separator.
+ * Vehicles: Added YoYo maneuver to lupis-1.
+ * Console: Added NMEAPlotter to lauv console.
+ * Util/PluinUtils: When calling the validate for primitive types properties did not look for validateXXX(..) method with the primitive type as argument (used the Object ones, and so did not found one). Even so only the non array are fixed.
+ * Console/RhodamineOilVisualizer: Visualizer first version.
+ * FileUtil: Added getFoldersFromDisk(..).
+ * FileUtil: Little adjust in name from getFilesToLoadFromDisk(..) to getFilesFromDisk(..).
+ * FileUtil: Little adjust to list folders.
+ * FileUtil: Moved getFilesToLoadFromDisk(..) from plugin HFRadarVisualization to FileUtil.
+
+
 Neptus 4.2.0-rc1 (23-09-2014)
 ----------------
+ * IMC: Updated IMC and IMCJava to v5.4.3.
+ * Vehicles: Updated systems parameters to DUNE 2.6.x (master,f298003).
+ * VehiclesParams: For now let all releases access develop parameters.
+ * MRA: Fixed Corrected Position Plot missposition of marks
+ * Plan: Is now able to send plans through acoustics with more than 1 character. For now is advanced configuration with value 31 (probably will not be configurable in the near future).
+ * IMC: Using the more generic Iterable<T> instead of implementation-specific message iterators.
+ * Ant: Fixed build.xml to be compatible with Java 8.
+ * IMC: Removing dependency on GUI classes from IMCJava.
+ * MRA: Fixed ordering problem when showing a message in a table (numeric values were outputted as strings). Closes issue #2566.
+ * MapEditor: Added 'Copy Location' option in the menu.
+ * MRA: Fixed SalinityVsDepthPlot missposition of marks
+ * MRA/KMLExporter: Fix sidescan image file in KML.
+ * MRA/KMLExporter: Fixed problem with matching pixels from data into pixels in image from sampling. The symptom was a sidescan image that was cropped on the right side and also the middle was not on the middle (was shifted right), and also the nadir was not properly calculated due to the center shift.
+ * MRA/KMLExporter: Fixed problem that when the samplesPerPixel were 1, the values used for the pixel to paint was NaN. The result was a black sidescan images. (Fixed along with previous commit 1a72c5d.)
+ * MRA/KMLExporter: Fix to deal with NaN values.
+ * MRA/KMLExporter: Added choices for visibility on layers.
+ * MRA/KMLExporter: Fix typo in DVL export.
+ * MRA: Allowing opening a log in MRA through the command line argument. Usage ">neptus.[sh|bat] mra <log_file>".
+ * Console/Exporter: PlanExporter addition of ProgressMonitor to exportFile(..) call.
+ * Utils: FileUtil addition of checkFileForExtensions(..).
+ * Console/Exporter: Tweak exposed name for IverPlanExporter.
+ * Plugins/Utils: Fixed a hardcoded value on getResourceAsStream(..) that made it read the same resource whatever the input.
+ * IMC: Adding hashcode to the name of the html message visualization. Closes github #3.
+ * MRA: Fixed XYPlot missposition of marks
+ * Vehicle: Added 90-ntnu-penguin-001
+ * Vehicle: Added 88-ntnu-x8-001, 88-ntnu-x8-002, 88-ntnu-x8-003, ntnu-x8-004
+ * Vehicle: Added 86-ntnu-hexa-001, 86-ntnu-hexa-002, 86-ntnu-hexa-003, ntnu-hexa-004
+ * Console: Removed unused class ConfigParameter.
+ * Console: Removed obsolete EchoSounderPanel class from plugin echosounder.
+ * Console: Removed obsolete class ModemRange from plugin acoustic.
+ * IMC: Added missing colon in the URI in announcing the IMC version.
+ * PlanElement: using next maneuver starting point instead of center position to compute travelled distance.
+ * MRA/Sidescan: Allow to zoom continuously; added mouse pointer location box and add some layered features (like measurements). Zoomed image can help with measuring.
+ * Consoles/uav-light: Added SimulationActionsPlugin.
+ * StreamSpeedPanel: Fixed wrong orientation and gave it a windsock look.
+ * MRA/Importer/DeltaTParser: Cleaning up and removing debug output for intensity presence.
+ * MRA/DeltaTHeader: Fixing if call for month processing.
+ * MRA/BathymetrySwath: Adding protection for DeltaTParser nextSwathNoData(..) call.
+ * CoordinateUtil/MRA/DeltaT83PToCorrectedPos83P: Lat/Lon format methods to and from "_dd.mm.xxxxx_N" and "ddd.mm.xxxxx_E" (_ = Space).
+ * CoordinateUtil: If maxDecimalHouses not set (< 0) will set the default 3.
+ * MRA/Exporters/DeltaT83PToCorrectedPos83P: Added exporter of 83P with corrected position. Outputs to "DataCorrected.83P".
+ * MRA/Exporters/MatExporter: Fix for possible null pointer exception.
+ * MRA/DeltaTParser: Added "Multibeam" category to MRAProperties that are for multibeam.
+ * MRA/DeltaTParser: Added option to apply sound speed correction (false by default).
+ * MapEditor: Adding protection to removing toolbar from MapPanel. In some situations a null pointer was thrown.
+ * Maneuvers/RowsManeuver: Modified shadow parameters names.
+ * MRA/LogBook: Added debug messages to LogBook visualization with different color and icon.
+ * IMC: Using recommended constructor for ImcInputStream
+ * IMC: Removed NeptusMessageLogger and LsfMessageLogger (now using class in IMCJava)
+ * MRA: Fixing some problems that occur when opening logs with a minimal set of messages.
+ * Maneuvers/CompassCalibration: fixed counter-clockwise arrow.
+ * MyLocation: Added to MyLocation an option to override heading with the hand configured.
+ * Maneuvers/PopUp: Making flags "StationKeep" and "WaitAtSurface" not editable and always true (they will become deprecated).
+ * Vehicles: Changed Elevator default startZUnits to DEPTH for all AUVs. Closes issue #3096.
+ * LogsDownloaderWorker/ImcMsgManager: Temporary fix for using PowerOperation instead of PowerChannelControl to turn on/off camera (for now only for LAUV-Noptilus-3). Also needed to change ImcMsgManager to not set dst on message if its value is different than 0xFFFF.
+ * Vehicles/Conf: Let us relax the validation to be able to store vehicle configurations after visual editing them.
+ * MRA/Multibeam: DeltaTParser now uses the navigation with applied corrections.
+ * MRA/SidescanAnalyzer: Added option for Slant-Range correction in SidescanAnalyzer and Sidescan parameters are now stored to disk.
+ * IMC/Console/MRA: MessageHtmlVisualization now also uses the name of its generating entity for distinguising from other messages with same timestamp. Closes #3065.
+ * MRA/Exporter/IMC: UpdatedImcExporter now copies the src and src_ent fields to the destination.
+ * MRA/KMLExporter: Rework path export to account for different src for the EstimatedState and also the track break for deltas > secondsGapInEstimatedStateForPathBreak (Neptus Property).
+ * MRA/KMLExporter: Fix a non relative path for MB legend.
+ * MRA/KMLExporter: Account for no altitude measurements (-1).
+ * PlanEditor: Dragging of maneuvers (and plan) should now be more responsive in Plan editor.
+ * Maneuvers: Fixed empty implementation of Elevator.getWaypoints();
+ * Console: Corrections in urready4os plugin to display rhodamine data.
+ * Console/RealTimePlot: Made real-time plot more robust to scripting errors.
 
-TODO
 
 Neptus 4.1.0 (31-07-2014)
 ------------
  * IMC: Updated IMC and IMCJava to 4667e8e. (no major changes from v5.4.0 except some experimental messages for UAV added).
- * Config: Updated systems parameters to DUNE 2.6.0 (master,0724529 for lauvseacon-1 and master, 4f41e09 for all others).
+ * Config: Updated systems parameters to DUNE 2.6.x (master,0724529 for lauvseacon-1 and master, 4f41e09 for all others).
  * I18n: Updated POT and PO files.
  * Console/PlanEditor/PlanElement: Using LocationType to calculate distances.
  * Console/MapEditor: Fixed issues with Undo/Redo and filled property of map elements.

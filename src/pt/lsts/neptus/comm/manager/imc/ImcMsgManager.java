@@ -1066,6 +1066,8 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
             if (requestEntityList)
                 announceWorker.sendEntityListRequestMsg(resSys);
+            
+            ImcSystemsHolder.registerSystem(resSys);
         }
 
         imcDefinition.getResolver().addEntry(ann.getSrc(), ann.getSysName());

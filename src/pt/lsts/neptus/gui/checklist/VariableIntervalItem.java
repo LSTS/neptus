@@ -55,7 +55,7 @@ import pt.lsts.neptus.types.checklist.CheckAutoVarIntervalItem;
 import pt.lsts.neptus.util.GuiUtils;
 
 @SuppressWarnings("serial")
-public class VariableIntervalItem extends JPanel implements CheckSubItem{
+public class VariableIntervalItem extends JPanel implements CheckSubItem {
 
     public static final String TYPE_ID = "variableTestRange";
 
@@ -72,8 +72,7 @@ public class VariableIntervalItem extends JPanel implements CheckSubItem{
 
     private AutoItemsList parent = null;
 
-    public VariableIntervalItem(AutoItemsList p,CheckAutoVarIntervalItem cavii)
-    {
+    public VariableIntervalItem(AutoItemsList p, CheckAutoVarIntervalItem cavii) {
         this(p);
         fillFromCheckAutoVarIntervalItem(cavii);
     }
@@ -106,8 +105,7 @@ public class VariableIntervalItem extends JPanel implements CheckSubItem{
             }
         });
 
-
-        lastValue = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat() /*NumberFormat.getInstance()*/);
+        lastValue = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat() /* NumberFormat.getInstance() */);
         lastValue.setColumns(3);
         lastValue.addKeyListener(new KeyAdapter() {
             @Override
@@ -116,7 +114,7 @@ public class VariableIntervalItem extends JPanel implements CheckSubItem{
             }
         });
 
-        startInterval = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat() /*NumberFormat.getInstance()*/);
+        startInterval = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat() /* NumberFormat.getInstance() */);
         startInterval.setColumns(3);
         startInterval.addKeyListener(new KeyAdapter() {
             @Override
@@ -125,7 +123,7 @@ public class VariableIntervalItem extends JPanel implements CheckSubItem{
             }
         });
 
-        endInterval = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat() /*NumberFormat.getInstance()*/);
+        endInterval = new JFormattedTextField(GuiUtils.getNeptusDecimalFormat() /* NumberFormat.getInstance() */);
         endInterval.setColumns(3);
         endInterval.addKeyListener(new KeyAdapter() {
             @Override
@@ -140,11 +138,11 @@ public class VariableIntervalItem extends JPanel implements CheckSubItem{
             @Override
             public void itemStateChanged(ItemEvent e) {
                 parent.fireChangeEvent(VariableIntervalItem.this);
-            } 
+            }
         });
 
         remove = new JButton(ICON_CLOSE);
-        remove.setMargin(new Insets(0,0,0,0));
+        remove.setMargin(new Insets(0, 0, 0, 0));
         remove.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -171,98 +169,97 @@ public class VariableIntervalItem extends JPanel implements CheckSubItem{
         this.add(new JLabel(" Checked:"));
         this.add(getCheck());
         this.add(remove);
-        //this.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.gray,1));
+        // this.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.gray,1));
 
-        /*this.add(getJPanel(), null);
-		this.add(getNotesPanel(), null);
-		this.add(getActionsPanel(), null);*/
+        /*
+         * this.add(getJPanel(), null); this.add(getNotesPanel(), null); this.add(getActionsPanel(), null);
+         */
     }
 
-    private JLabel getStartInc()
-    {
-        if(startInc==null)
-        {
-            startInc=new JLabel("[");
-            startInc.addMouseListener(new MouseListener(){@Override
+    private JLabel getStartInc() {
+        if (startInc == null) {
+            startInc = new JLabel("[");
+            startInc.addMouseListener(new MouseListener() {
+                @Override
                 public void mouseClicked(MouseEvent e) {
 
-                VariableIntervalItem.this.setStartInclusion(!isStartInclusion());
-                parent.fireChangeEvent(VariableIntervalItem.this);
-            }
+                    VariableIntervalItem.this.setStartInclusion(!isStartInclusion());
+                    parent.fireChangeEvent(VariableIntervalItem.this);
+                }
 
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                // TODO Auto-generated method stub
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    // TODO Auto-generated method stub
 
-            }
+                }
 
-            @Override
-            public void mouseExited(MouseEvent e) {
-                // TODO Auto-generated method stub
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    // TODO Auto-generated method stub
 
-            }
+                }
 
-            @Override
-            public void mousePressed(MouseEvent e) {
-                // TODO Auto-generated method stub
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    // TODO Auto-generated method stub
 
-            }
+                }
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                // TODO Auto-generated method stub
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    // TODO Auto-generated method stub
 
-            } });
+                }
+            });
         }
-        return  startInc;
+        return startInc;
     }
 
-    private JLabel getEndInc()
-    {
-        if(endInc==null)
-        {
-            endInc=new JLabel("]");
-            endInc.addMouseListener(new MouseListener(){@Override
+    private JLabel getEndInc() {
+        if (endInc == null) {
+            endInc = new JLabel("]");
+            endInc.addMouseListener(new MouseListener() {
+                @Override
                 public void mouseClicked(MouseEvent e) {
 
-                VariableIntervalItem.this.setEndInclusion(!isEndInclusion());
-                parent.fireChangeEvent(VariableIntervalItem.this);
-            }
+                    VariableIntervalItem.this.setEndInclusion(!isEndInclusion());
+                    parent.fireChangeEvent(VariableIntervalItem.this);
+                }
 
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                // TODO Auto-generated method stub
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    // TODO Auto-generated method stub
 
-            }
+                }
 
-            @Override
-            public void mouseExited(MouseEvent e) {
-                // TODO Auto-generated method stub
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    // TODO Auto-generated method stub
 
-            }
+                }
 
-            @Override
-            public void mousePressed(MouseEvent e) {
-                // TODO Auto-generated method stub
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    // TODO Auto-generated method stub
 
-            }
+                }
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                // TODO Auto-generated method stub
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    // TODO Auto-generated method stub
 
-            } });	
+                }
+            });
         }
-        return  endInc;
+        return endInc;
     }
-
 
     public boolean isStartInclusion() {
         return startInc.getText().equals("[");
     }
 
     public void setStartInclusion(boolean startInclusion) {
-        if(startInclusion)
+        if (startInclusion)
             startInc.setText("[");
         else
             startInc.setText("]");
@@ -274,16 +271,14 @@ public class VariableIntervalItem extends JPanel implements CheckSubItem{
     }
 
     public void setEndInclusion(boolean endInclusion) {
-        if(endInclusion)
+        if (endInclusion)
             endInc.setText("]");
         else
             endInc.setText("[");
     }
 
-
-    private JCheckBox getCheck()
-    {
-        if(check == null) {
+    private JCheckBox getCheck() {
+        if (check == null) {
             check = new JCheckBox("check");
             check.setOpaque(false);
             check.setText(" ");
@@ -291,47 +286,43 @@ public class VariableIntervalItem extends JPanel implements CheckSubItem{
                 @Override
                 public void itemStateChanged(ItemEvent e) {
                     parent.fireChangeEvent(VariableIntervalItem.this);
-                } 
+                }
             });
         }
-        return	check; 
+        return check;
     }
 
-    public double getRegisteredValue()
-    {
-        if(  lastValue.getValue()==null ||lastValue.getValue().toString().equals("") )
+    public double getRegisteredValue() {
+        if (lastValue.getValue() == null || lastValue.getValue().toString().equals(""))
             return Double.NaN;
-        return ((Number)lastValue.getValue()).doubleValue();
+        return ((Number) lastValue.getValue()).doubleValue();
     }
 
-    public double getStartInterval()
-    {
-        if(  endInterval.getValue()==null ||startInterval.getValue().toString().equals("") )
+    public double getStartInterval() {
+        if (endInterval.getValue() == null || startInterval.getValue().toString().equals(""))
             return Double.NEGATIVE_INFINITY;
-        return ((Number)startInterval.getValue()).doubleValue();
+        return ((Number) startInterval.getValue()).doubleValue();
     }
 
-    public double getEndInterval(){
-        if(endInterval.getValue() ==null || endInterval.getValue().toString().equals("") )
+    public double getEndInterval() {
+        if (endInterval.getValue() == null || endInterval.getValue().toString().equals(""))
             return Double.POSITIVE_INFINITY;
-        return ((Number)endInterval.getValue()).doubleValue();
+        return ((Number) endInterval.getValue()).doubleValue();
     }
 
-    public String getVariableName(){
+    public String getVariableName() {
         return variableName.getText();
     }
 
-    public String getVariablePath(){
+    public String getVariablePath() {
         return variablePath.getText();
     }
 
-    public boolean isOutInterval()
-    {
+    public boolean isOutInterval() {
         return outInterval.isSelected();
     }
 
-    public boolean isChecked()
-    {
+    public boolean isChecked() {
         return check.isSelected();
     }
 
@@ -349,7 +340,7 @@ public class VariableIntervalItem extends JPanel implements CheckSubItem{
 
     @Override
     public CheckAutoSubItem getCheckAutoSubItem() {
-        CheckAutoVarIntervalItem ret=new CheckAutoVarIntervalItem() ;
+        CheckAutoVarIntervalItem ret = new CheckAutoVarIntervalItem();
         ret.setEndInterval(getEndInterval());
         ret.setStartInterval(getStartInterval());
         ret.setVarName(getVariableName());

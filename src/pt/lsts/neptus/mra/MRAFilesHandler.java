@@ -48,6 +48,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.io.FileUtils;
 
 import pt.lsts.imc.lsf.LsfIndexListener;
 import pt.lsts.neptus.NeptusLog;
@@ -62,6 +63,7 @@ import pt.lsts.neptus.util.StreamUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 import pt.lsts.neptus.util.llf.LsfReport;
+import pt.lsts.neptus.util.llf.LsfReportProperties;
 
 /**
  * MRA Files Handler
@@ -158,7 +160,7 @@ public class MRAFilesHandler implements FileHandler {
             mra.getMraPanel().cleanup();
             mra.setMraPanel(null);
             mra.getContentPane().removeAll();
-            NeptusLog.pub().info("<###>Log source was closed.");
+            NeptusLog.pub().info("Log source was closed.");
         }
     }
 
@@ -177,6 +179,7 @@ public class MRAFilesHandler implements FileHandler {
         mra.validate();
         mra.getMRAMenuBar().getSetMissionMenuItem().setEnabled(true);
         mra.getMRAMenuBar().getGenReportMenuItem().setEnabled(true);
+        mra.getMRAMenuBar().getGenReportCustomOptionsMenuItem().setEnabled(true);
     }
 
     /**
@@ -212,7 +215,12 @@ public class MRAFilesHandler implements FileHandler {
                     I18n.text("This log seems to have already been indexed. Index again?"));
 
             if (option == JOptionPane.YES_OPTION) {
-                new File(lsfDir, "mra/lsf.index").delete(); 
+                try {
+                    FileUtils.deleteDirectory(new File(lsfDir, "mra"));
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error("Error while trying to delete mra/ folder", e);
+                }
             }
 
             if (option == JOptionPane.CANCEL_OPTION) {
@@ -384,6 +392,10 @@ public class MRAFilesHandler implements FileHandler {
         SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
             @Override
             protected Boolean doInBackground() throws Exception {
+                GuiUtils.infoMessage(mra, I18n.text("Generating PDF Report..."), I18n.text("Generating PDF Report..."));
+                mra.getMRAMenuBar().getReportMenuItem().setEnabled(false);
+                LsfReportProperties.generatingReport=true;
+                mra.getMraPanel().addStatusBarMsg("Generating Report...");
                 return LsfReport.generateReport(mra.getMraPanel().getSource(), f, mra.getMraPanel());
             }
             @Override
@@ -415,6 +427,9 @@ public class MRAFilesHandler implements FileHandler {
                 }
                 finally {
                     mra.getBgp().block(false);
+                    mra.getMRAMenuBar().getReportMenuItem().setEnabled(true);
+                    LsfReportProperties.generatingReport=false;
+                    mra.getMraPanel().reDrawStatusBar();
                 }
             }
         };
