@@ -83,10 +83,15 @@ public class DistancesRadar extends ConsoleLayer {
     private long lastMessageMillis = 0;
 
     private ArrayList<Point2D> pointList = new ArrayList<>();
+    
+    private JLabel text = new JLabel();
 
     @Override
     public void initLayer() {
         mainSysName = getConsole().getMainSystem();
+
+        text.setHorizontalAlignment(JLabel.RIGHT);
+        text.setBounds(0, 0, LENGTH - MARGIN, LENGTH - MARGIN);
     }
 
     public String validateRadarSize(int value) {
@@ -154,10 +159,8 @@ public class DistancesRadar extends ConsoleLayer {
             }
         }
 
-	JLabel text = new JLabel ("<html><b><font color=#148200>" + radarSize + "</font></b></html>");
-	text.setHorizontalAlignment(JLabel.RIGHT);
-	text.setBounds(0, 0, LENGTH - MARGIN, LENGTH - MARGIN);
-	text.paint(g);
+        text.setText("<html><b><font color=#148200>" + radarSize + "</font></b></html>");
+        text.paint(g);
     }
 
     @Subscribe
