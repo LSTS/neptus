@@ -162,18 +162,23 @@ public class DistancesRadar extends ConsoleLayer {
 
     @Subscribe
     public void consume(Distance msg) {
-        if (!msg.getSourceName().equals(mainSysName))
-            return;
+        try {
+            if (!msg.getSourceName().equals(mainSysName))
+                return;
 
-        int id = EntitiesResolver.resolveId(mainSysName, entityName);
-        if (msg.getSrcEnt() != id)
-            return;
+            int id = EntitiesResolver.resolveId(mainSysName, entityName);
+            if (msg.getSrcEnt() != id)
+                return;
 
-	while (pointList.size() >= numberOfPoints)
-	    pointList.remove(0);
+            while (pointList.size() >= numberOfPoints)
+                pointList.remove(0);
 
-        pointList.add(new Point2D.Double(msg.getValue(), msg.getLocation().get(0).getPsi()));	    
-        lastMessageMillis = System.currentTimeMillis();
+            pointList.add(new Point2D.Double(msg.getValue(), msg.getLocation().get(0).getPsi()));	    
+            lastMessageMillis = System.currentTimeMillis();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Subscribe
