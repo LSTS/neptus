@@ -33,31 +33,21 @@ package pt.lsts.neptus.plugins.position.painter;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-
 import java.util.ArrayList;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
-import pt.lsts.imc.DeviceState;
 import pt.lsts.imc.Distance;
-import pt.lsts.neptus.colormap.ColorMap;
-import pt.lsts.neptus.colormap.ColorMapFactory;
-import pt.lsts.neptus.colormap.InterpolationColorMap;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
-import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
-import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
-import pt.lsts.neptus.util.MathMiscUtils;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -65,7 +55,8 @@ import com.google.common.eventbus.Subscribe;
  * @author José Braga
  * 
  */
-@PluginDescription(name = "Distances Radar", icon = "pt/lsts/neptus/plugins/position/painter/sysinfo.png", description = "Distances Radar on map", documentation = "system-info/system-info.html", category = CATEGORY.INTERFACE)
+@PluginDescription(name = "Distances Radar", icon = "pt/lsts/neptus/plugins/position/painter/sysinfo.png", 
+    description = "Distances Radar on map", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 70)
 public class DistancesRadar extends ConsoleLayer {
 
@@ -89,9 +80,9 @@ public class DistancesRadar extends ConsoleLayer {
     public String entityName = "Pencil Beam";
 
     private String mainSysName;
-    long lastMessageMillis = 0;
+    private long lastMessageMillis = 0;
 
-    ArrayList<Point2D> pointList = new ArrayList<>();
+    private ArrayList<Point2D> pointList = new ArrayList<>();
 
     @Override
     public void initLayer() {
@@ -99,11 +90,11 @@ public class DistancesRadar extends ConsoleLayer {
     }
 
     public String validateRadarSize(int value) {
-	return new IntegerMinMaxValidator(MIN_RADAR_SIZE, MAX_RADAR_SIZE).validate(value);
+        return new IntegerMinMaxValidator(MIN_RADAR_SIZE, MAX_RADAR_SIZE).validate(value);
     }
 
     public String validateNumberOfPoints(int value) {
-	return new IntegerMinMaxValidator(MIN_NUMBER_POINTS, MAX_NUMBER_POINTS).validate(value);
+        return new IntegerMinMaxValidator(MIN_NUMBER_POINTS, MAX_NUMBER_POINTS).validate(value);
     }
 
     @Override
@@ -111,57 +102,57 @@ public class DistancesRadar extends ConsoleLayer {
         if (!enablePainter || mainSysName == null)
             return;
 
-	g.setColor(new Color(0, 0, 0, 200));
-	g.drawOval(renderer.getWidth() - LENGTH - MARGIN,
-		   renderer.getHeight() - LENGTH - MARGIN,
-		   LENGTH,
-		   LENGTH);
+        g.setColor(new Color(0, 0, 0, 200));
+        g.drawOval(renderer.getWidth() - LENGTH - MARGIN,
+                renderer.getHeight() - LENGTH - MARGIN,
+                LENGTH,
+                LENGTH);
 
-	g.setColor(new Color(0, 0, 0, 100));
+        g.setColor(new Color(0, 0, 0, 100));
 
-	g.fillOval(renderer.getWidth() - LENGTH - MARGIN,
-		   renderer.getHeight() - LENGTH - MARGIN,
-		   LENGTH,
-		   LENGTH);
+        g.fillOval(renderer.getWidth() - LENGTH - MARGIN,
+                renderer.getHeight() - LENGTH - MARGIN,
+                LENGTH,
+                LENGTH);
 
-	g.translate(renderer.getWidth() - LENGTH - MARGIN, renderer.getHeight() - LENGTH - MARGIN);
+        g.translate(renderer.getWidth() - LENGTH - MARGIN, renderer.getHeight() - LENGTH - MARGIN);
 
-	// Radar lines.
-	g.setColor(new Color(20, 130, 0));
-	g.drawLine(LENGTH / 2, 0, LENGTH / 2, LENGTH);
-	g.drawLine(0, LENGTH / 2, LENGTH, LENGTH / 2);
+        // Radar lines.
+        g.setColor(new Color(20, 130, 0));
+        g.drawLine(LENGTH / 2, 0, LENGTH / 2, LENGTH);
+        g.drawLine(0, LENGTH / 2, LENGTH, LENGTH / 2);
 
-	// Radar circles.
-	g.drawOval(LENGTH / 4, LENGTH / 4, LENGTH / 2, LENGTH / 2);
-	g.drawOval(MARGIN, MARGIN, LENGTH - MARGIN * 2, LENGTH - MARGIN * 2);
+        // Radar circles.
+        g.drawOval(LENGTH / 4, LENGTH / 4, LENGTH / 2, LENGTH / 2);
+        g.drawOval(MARGIN, MARGIN, LENGTH - MARGIN * 2, LENGTH - MARGIN * 2);
 
         if (System.currentTimeMillis() - lastMessageMillis > 10000)
-	    pointList.clear();
+            pointList.clear();
 
-	// Draw last scanned angle.
-	g.setColor(Color.BLACK);
+        // Draw last scanned angle.
+        g.setColor(Color.BLACK);
 
-	if (pointList.size() > 0) {
-	    Point2D last = pointList.get(pointList.size() - 1);
+        if (pointList.size() > 0) {
+            Point2D last = pointList.get(pointList.size() - 1);
 
-	    int x = (int)Math.ceil(LENGTH / 2 * (1 + Math.sin(last.getY())));
-	    int y = (int)Math.ceil(LENGTH / 2 * (1 - Math.cos(last.getY())));
+            int x = (int)Math.ceil(LENGTH / 2 * (1 + Math.sin(last.getY())));
+            int y = (int)Math.ceil(LENGTH / 2 * (1 - Math.cos(last.getY())));
 
-	    g.drawLine(LENGTH / 2, LENGTH / 2, x, y);
+            g.drawLine(LENGTH / 2, LENGTH / 2, x, y);
 
-	    // Radar points.
-	    g.setColor(Color.GREEN);
-	    double scale = (LENGTH / 2) / radarSize;
+            // Radar points.
+            g.setColor(Color.GREEN);
+            double scale = (LENGTH / 2) / radarSize;
 
-	    for (Point2D p : pointList) {
-		// Only draw the ones within size.
-		if (p.getX() <= radarSize) {
-		    g.drawOval((int)(LENGTH / 2 + p.getX() * Math.sin(p.getY()) * scale), 
-			       (int)(LENGTH / 2 - p.getX() * Math.cos(p.getY()) * scale), 
-			       2, 2);
-		}
-	    }
-	}
+            for (Point2D p : pointList) {
+                // Only draw the ones within size.
+                if (p.getX() <= radarSize) {
+                    g.drawOval((int)(LENGTH / 2 + p.getX() * Math.sin(p.getY()) * scale), 
+                            (int)(LENGTH / 2 - p.getX() * Math.cos(p.getY()) * scale), 
+                            2, 2);
+                }
+            }
+        }
 
 	JLabel text = new JLabel ("<html><b><font color=#148200>" + radarSize + "</font></b></html>");
 	text.setHorizontalAlignment(JLabel.RIGHT);
