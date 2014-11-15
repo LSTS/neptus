@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (feature/formationflight,3422322,dirty)" system="x8-01" i18n="en_US">
+<config format="1" version="2.6.x (feature/formationflight,eb99c99,dirty)" system="x8-01" i18n="en_US">
   <section name="Path Control Leader" name-i18n="Path Control Leader">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>

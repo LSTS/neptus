@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (feature/formationflight,3422322,dirty)" system="sedona" i18n="en_US">
+<config format="1" version="2.6.x (feature/formationflight,eb99c99,dirty)" system="sedona" i18n="en_US">
   <section name="Path Control Leader EstimatedState Filter                      =" name-i18n="Path Control Leader EstimatedState Filter                      =">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
