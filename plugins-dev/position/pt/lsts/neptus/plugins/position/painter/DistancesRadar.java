@@ -55,12 +55,13 @@ import com.google.common.eventbus.Subscribe;
  * @author José Braga
  * 
  */
-@PluginDescription(name = "Distances Radar", icon = "pt/lsts/neptus/plugins/position/painter/sysinfo.png", 
+@PluginDescription(name = "Distances Radar", icon = "pt/lsts/neptus/plugins/position/painter/radar-icon.png", 
     description = "Distances Radar on map", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 70)
 public class DistancesRadar extends ConsoleLayer {
 
     private static final int LENGTH = 200;
+    private static final int EXTRA = 70;
     private static final int MARGIN = 5;
     private static final int MIN_RADAR_SIZE = 5;
     private static final int MAX_RADAR_SIZE = 100;
@@ -109,18 +110,18 @@ public class DistancesRadar extends ConsoleLayer {
 
         g.setColor(new Color(0, 0, 0, 200));
         g.drawOval(renderer.getWidth() - LENGTH - MARGIN,
-                renderer.getHeight() - LENGTH - MARGIN,
+                renderer.getHeight() - LENGTH - EXTRA - 2 * MARGIN,
                 LENGTH,
                 LENGTH);
 
         g.setColor(new Color(0, 0, 0, 100));
 
         g.fillOval(renderer.getWidth() - LENGTH - MARGIN,
-                renderer.getHeight() - LENGTH - MARGIN,
+                renderer.getHeight() - LENGTH - EXTRA - 2 * MARGIN,
                 LENGTH,
                 LENGTH);
 
-        g.translate(renderer.getWidth() - LENGTH - MARGIN, renderer.getHeight() - LENGTH - MARGIN);
+        g.translate(renderer.getWidth() - LENGTH - MARGIN, renderer.getHeight() - LENGTH - EXTRA - 2 * MARGIN);
 
         // Radar lines.
         g.setColor(new Color(20, 130, 0));
