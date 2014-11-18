@@ -90,7 +90,7 @@ public class Vis3DMenuBar extends JMenuBar {
     private JMenu fileMenu, editMenu, viewMenu, toolsMenu, helpMenu;
 
     // File Menu
-    private AbstractAction saveFile, saveFileAsPointCloud, saveFileAsMesh;
+    private AbstractAction add83P, saveFile, saveFileAsPointCloud, saveFileAsMesh;
     // Edit Menu
     private AbstractAction configs;
 
@@ -147,15 +147,35 @@ public class Vis3DMenuBar extends JMenuBar {
     private void setUpFileMenu() {
         fileMenu = new JMenu(I18n.text("File"));
 
-        // FIXME - is it necessary? - Save wherever is on rendereder
-        saveFile = new VisAction(I18n.text("Save file"), ImageUtils.getIcon("images/menus/save.png"),
-                I18n.text("Save file"), KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK, true)) {
+        add83P = new VisAction(I18n.text("Add 83P data"), ImageUtils.getIcon("images/menus/save.png"),
+                I18n.text("Add 83P data"), KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK, true))
+        {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                JFileChooser chooser = new JFileChooser();
+                chooser.setFileFilter(GuiUtils.getCustomFileFilter("83P files", "83P", "83p"));
+                int op = chooser.showOpenDialog(vtkInit.getParent());
+                if (op == JFileChooser.APPROVE_OPTION) {
+                    System.out.println("Open "+chooser.getSelectedFile());
+                    try {
+                        vtkInit.add83p(chooser.getSelectedFile());
+                    }
+                    catch (Exception eex) {
+                        GuiUtils.errorMessage(vtkInit, eex);
+                    }
+                }                
             }
         };
+//        // FIXME - is it necessary? - Save wherever is on rendereder
+//        saveFile = new VisAction(I18n.text("Save file"), ImageUtils.getIcon("images/menus/save.png"),
+//                I18n.text("Save file"), KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK, true)) {
+//
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//
+//            }
+//        };
 
         saveFileAsPointCloud = new VisAction(I18n.text("Save pointcloud as") + "...",
                 ImageUtils.getIcon("images/menus/saveas.png"), I18n.text("Save a pointcloud to a file") + ".",
@@ -163,7 +183,15 @@ public class Vis3DMenuBar extends JMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser chooser = new JFileChooser(vtkInit.getLog().getFile("Data.lsf").getParentFile());
+                
+                
+                JFileChooser chooser;
+                try {
+                    chooser = new JFileChooser(vtkInit.getLog().getFile("Data.lsf").getParentFile());
+                }
+                catch (Exception ec) {
+                    chooser = new JFileChooser(new File("."));
+                }
 
                 // FileFilter filefilter = GuiUtils.getCustomFileFilter(I18n.text("3D files ") + "*.vtk" + ", *.stl"
                 // + ", *.ply" + ", *.obj" + ", *.wrl" + " *.x3d", new String[] { "X3D", "VTK", "STL", "PLY", "OBJ",
@@ -260,7 +288,7 @@ public class Vis3DMenuBar extends JMenuBar {
             }
         };
 
-        fileMenu.add(saveFile);
+        fileMenu.add(add83P);
         fileMenu.addSeparator();
         fileMenu.add(saveFileAsPointCloud);
         fileMenu.add(saveFileAsMesh);

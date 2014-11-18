@@ -37,6 +37,7 @@ import java.io.File;
 import java.util.LinkedHashMap;
 
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import pt.lsts.neptus.NeptusLog;
@@ -67,6 +68,7 @@ import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.plugins.vtk.visualization.Text3D;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.llf.LsfLogSource;
 import vtk.vtkLODActor;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
@@ -105,23 +107,60 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
     private boolean mbFound = false;
     private static final String FILE_83P_EXT = ".83P";
 
+    static {
+        if (!Utils.hasTryedToLoadVtkLib) {
+            Utils.loadVTKLibraries();
+            // VTKMemoryManager.GC.SetAutoGarbageCollection(true);
+        }
+    }
+    
     private MRAPanel mraPanel = null;
+    private PointCloudXYZ pointCloudMultibeam = new PointCloudXYZ();
+    {
+        pointCloudMultibeam.setCloudName("multibeam");
+    }
     
     /**
      * @param panel
      */
     public VtkMRAVis(MRAPanel panel) {
         this.mraPanel = panel;
-        if (!Utils.hasTryedToLoadVtkLib) {
-            Utils.loadVTKLibraries();
-            // VTKMemoryManager.GC.SetAutoGarbageCollection(true);
-        }
+    }
+    
+    public VtkMRAVis(File rootFolder) {
+        setCanvas(new Canvas());
+        getCanvas().LightFollowCameraOn();
+        getCanvas().setEnabled(true);
+
+        winCanvas = new Window(getCanvas(), interactorStyle, linkedHashMapCloud, linkedHashMapMesh, source);
+        interactorStyle = winCanvas.getInteracStyle();
+        setEvents(interactorStyle.getEventsHandler());
+
+        // set Interface Layout
+        setLayout(new BorderLayout());
+
+        menuBar = new Vis3DMenuBar(this);
+        menuBar.createMenuBar();
+        add(menuBar, BorderLayout.NORTH);
+        toolbar = new Vis3DToolBar(this);
+        toolbar.createToolBar();
+        add(toolbar, BorderLayout.WEST);
+
+        add(getCanvas());
+
+        //loadCloud();
+
+        toolbar.remove(toolbar.dvlToggle);
+
     }
 
     @Override
     public String getName() {
         return I18n.text("3D Bathymetry");
     }
+    
+    
+    
 
     @Override
     public Component getComponent(IMraLogGroup source, double timestep) {
@@ -161,9 +200,35 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
         return this;
     }
 
+    public void add83p(File file83p) throws Exception {
+        File parent = file83p.getParentFile();
+        File lsfFile = null;
+        if (new File(parent, "Data.lsf").canRead()) {
+            lsfFile = new File(parent, "Data.lsf");
+        }
+        else if (new File(parent, "Data.lsf.gz").canRead()) {
+            lsfFile = new File(parent, "Data.lsf.gz");
+        }
+        
+        if (lsfFile == null) {
+            throw new Exception("File is not included in a LSF log folder.");
+        }
+        
+        
+        LsfLogSource source = new LsfLogSource(lsfFile, null);
+        this.source = source;
+        LoadToPointCloud load = new LoadToPointCloud(source, pointCloudMultibeam);
+        load.parseMultibeamPointCloud();
+        processPointCloud(pointCloudMultibeam, load);
+        pointCloudMultibeam.getPolyData().GetPointData().SetScalars(((PointCloudHandlerXYZ) (pointCloudMultibeam.getColorHandler())).getColorsZ());
+        events.setSensorTypeInteraction(SensorTypeInteraction.MULTIBEAM);
+        toolbar.multibeamToggle.setSelected(true);
+        
+    }
+    
     private void loadCloud() {
         if (mbFound) {
-            PointCloudXYZ pointCloudMultibeam = new PointCloudXYZ();
+            
             LoadToPointCloud load = new LoadToPointCloud(source, pointCloudMultibeam);
             NeptusLog.pub().info("Parsing Multibeam data.");
             pointCloudMultibeam.setCloudName("multibeam");
@@ -446,5 +511,11 @@ public class VtkMRAVis extends JPanel implements MRAVisualization, PropertiesPro
      */
     private void setEvents(EventsHandler events) {
         this.events = events;
+    }
+    
+    public static void main(String[] args) {
+        Utils.loadVTKLibraries();
+        VtkMRAVis vis = new VtkMRAVis(new File("."));
+        GuiUtils.testFrame(vis);       
     }
 }

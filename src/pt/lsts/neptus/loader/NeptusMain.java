@@ -56,6 +56,7 @@ import pt.lsts.neptus.mc.lauvconsole.LAUVConsole;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.plugins.PluginsLoader;
+import pt.lsts.neptus.plugins.vtk.VtkMRAVis;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.FileUtil;
@@ -83,6 +84,7 @@ public class NeptusMain {
 
         appNames.put("ws", I18n.text("Workspace"));
         appNames.put("mra", I18n.text("Mission Review & Analysis"));
+        appNames.put("vtk", I18n.text("VTK Bathymetry"));
         appNames.put("cl", I18n.text("Empty Console"));
         appNames.put("console", I18n.text("LAUV Console"));
         appNames.put("la", I18n.text("LAUV SE Console"));
@@ -184,6 +186,9 @@ public class NeptusMain {
             if (appargs.length > 1) {
                 mra.openLog(appargs[1]);
             }
+        }
+        else if (app.equalsIgnoreCase("vtk")) {
+            VtkMRAVis.main(appargs);
         }
         // Empty Console
         else if (app.equalsIgnoreCase("cl")) {

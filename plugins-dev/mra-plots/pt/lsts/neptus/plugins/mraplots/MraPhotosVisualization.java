@@ -466,6 +466,8 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             public void actionPerformed(ActionEvent e) {
                 final File[] allFiles = listPhotos(getPhotosDir());
                 final double startTime = timestampOf(allFiles[0]);
+                final double endTime = timestampOf(allFiles[allFiles.length-1]);
+                final double timestep = (endTime - startTime) / allFiles.length;
                 try {
 
                     final VideoCreator creator = new VideoCreator(new File(photosDir.getParentFile(), "Video.mp4"), 800, 600);
@@ -486,7 +488,8 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                             Graphics2D g = tmp.createGraphics();
                             int count = 0;
                             double speedMult = speedMultiplier;
-
+                            double curTime = 0;
+                            
                             for (File f: allFiles) {
                                 if (monitor.isCanceled())
                                     break;
@@ -495,13 +498,14 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                                     g.drawImage(m, 0, 0, tmp.getWidth(), tmp.getHeight(), 0, 0, m.getWidth(null), m.getHeight(null), null);
                                     if (showLegend) {
                                         drawLegend(g, f);
-                                        g.drawImage(hud.getImage(timestampOf(f)), 10, tmp.getHeight()-160, null);
+                                        g.drawImage(hud.getImage(startTime+curTime), 10, tmp.getHeight()-160, null);
                                         if (watermark != null)
                                             g.drawImage(watermark, tmp.getWidth()-55, tmp.getHeight()-55, null);
                                     }
                                     monitor.setNote("Processing "+f.getName());
                                     monitor.setProgress(count++);
-                                    creator.addFrame(tmp, (long)((timestampOf(f)-startTime)*1000/speedMult));
+                                    creator.addFrame(tmp, (long)((curTime)*1000.0/3.0));
+                                    curTime += timestep;
                                 }
                                 catch (Exception e) {
                                     NeptusLog.pub().error(e);
@@ -564,8 +568,9 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         }
     }
 
-    public double timestampOf(File f) {        
-        return Double.parseDouble(f.getName().substring(0, f.getName().lastIndexOf('.')));
+    public double timestampOf(File f) {
+        double timestamp = Double.parseDouble(f.getName().substring(0, f.getName().lastIndexOf('.'))); 
+        return timestamp; 
     }
 
 

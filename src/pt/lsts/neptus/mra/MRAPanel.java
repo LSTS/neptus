@@ -218,6 +218,7 @@ public class MRAPanel extends JPanel {
                 
             }
             catch (Exception e1) {
+                e1.printStackTrace();
                 NeptusLog.pub().error(
                         I18n.text("MRA Visualization not loading properly") + ": " + visName + "  [" + e1.getMessage()
                         + "]");

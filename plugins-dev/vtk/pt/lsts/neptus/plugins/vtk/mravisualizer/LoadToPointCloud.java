@@ -69,7 +69,7 @@ public class LoadToPointCloud {
     
     private vtkPoints points;
     private vtkShortArray intensities;
-
+    private LocationType initLoc = null;
 
     // private int countIntens = 0;
     // private int countIntensZero = 0;
@@ -105,11 +105,11 @@ public class LoadToPointCloud {
 
         BathymetrySwath bs;
 
-        setPoints(new vtkPoints());
+        setPoints(pointCloud.getXYZPoints());
         setIntensities(new vtkShortArray());
 
         int countPoints = 0;
-        LocationType initLoc = null;
+        
 
         while ((bs = parser.nextSwath()) != null) {
             LocationType loc = bs.getPose().getPosition();
