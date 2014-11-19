@@ -44,6 +44,7 @@ import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.Conductivity;
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.Salinity;
 import pt.lsts.imc.Temperature;
 import pt.lsts.imc.VehicleMedium;
 import pt.lsts.imc.lsf.IndexScanner;
@@ -140,6 +141,7 @@ public class CTDExporter implements MRAExporter {
         pmonitor.setMaximum(index.getNumberOfMessages());
         pmonitor.setMinimum(index.getNumberOfMessages());
         pmonitor.setNote("Creating output folder...");
+        boolean containsSalinity = source.getLsfIndex().containsMessagesOfType("Salinity");
         
         File dir = new File(source.getFile("mra"), "csv");
         dir.mkdirs();
@@ -153,7 +155,8 @@ public class CTDExporter implements MRAExporter {
         BufferedWriter writer;
         try {
             writer = new BufferedWriter(new FileWriter(out));
-            writer.write("timestamp (GMT), gmt_time, latitude, longitude, corrected_lat, corrected_lon, conductivity, temperature, depth, medium\n");
+
+            writer.write("timestamp, gmt_time, latitude, longitude, corrected_lat, corrected_lon, conductivity, temperature"+(containsSalinity? ",salinity ": "")+", depth, medium\n");
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -185,12 +188,16 @@ public class CTDExporter implements MRAExporter {
             catch (Exception e) {
                 e.printStackTrace();                
             }
+            
+            Salinity s = null;
+            if (containsSalinity)
+                s = scanner.next(Salinity.class);
+            
             Temperature t = scanner.next(Temperature.class, "CTD");
             if (t == null)
                 return finish(writer, count);
             EstimatedState d = scanner.next(EstimatedState.class);
-
-
+            
             if (d == null)
                 return finish(writer, count);
             count ++;
@@ -213,6 +220,7 @@ public class CTDExporter implements MRAExporter {
                         ((p != null)? p.getPosition().getLongitudeDegs() : loc.getLongitudeDegs())+", "+
                         c.getValue()+", "+
                         t.getValue()+", "+
+                        (containsSalinity? s.getValue()+", " : "")+
                         d.getDepth()+", "+
                         medium+"\n");          
             }
