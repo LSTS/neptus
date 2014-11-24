@@ -77,12 +77,15 @@ public class JsfSonarData {
         Bit 13: Position interpolated
     */
     private short validityBitmap;
+    
     private int x;
     private int y;
     private int lat;
     private int lon;
     private Units units;
-    
+
+    private short msb; 
+
     private int numberOfSamples;
     private int depthMillis;
     private int altMillis;
@@ -395,8 +398,6 @@ public class JsfSonarData {
         this.data = data;
     }
 
-
-    short msb;
     void parseHeader(ByteBuffer buf) {
         // Calculate time stamp
         int pingTime = buf.getInt(0);
