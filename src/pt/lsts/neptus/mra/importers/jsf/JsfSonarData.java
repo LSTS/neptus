@@ -421,7 +421,10 @@ public class JsfSonarData {
             y = buf.getInt(84);
         }
     
+        int msbNumberOfSamples = (msb & 0x0F00) << 8; // First 4 bits of msb shifted so only adding is needed to numberOfSamples
         numberOfSamples = buf.getShort(114) & 0xFFFF;
+        numberOfSamples = msbNumberOfSamples + numberOfSamples;
+        
         range = ((buf.getInt(116) / new Float(Math.pow(10, 9))) * numberOfSamples * 1500) / 2.0f;
         range = Math.round(range);
 
