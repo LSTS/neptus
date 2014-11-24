@@ -407,7 +407,6 @@ public class JsfSonarData {
         short seconds = buf.getShort(164);
         
         msb = buf.getShort(16);
-        int msbStartFreq = (msb & 0x000F) << 16; // First 4 bits of msb shifted so only adding is needed to start Frequency
         
         pingTime = pingTime - ((hours * 3600) + (minutes * 60) + seconds); // Seconds from 1 Jan 1970 to log data at midnight
         timestamp = pingTime * 1000l + buf.getInt(200);
@@ -425,6 +424,8 @@ public class JsfSonarData {
         numberOfSamples = buf.getShort(114) & 0xFFFF;
         range = ((buf.getInt(116) / new Float(Math.pow(10, 9))) * numberOfSamples * 1500) / 2.0f;
         range = Math.round(range);
+
+        int msbStartFreq = (msb & 0x000F) << 16; // First 4 bits of msb shifted so only adding is needed to start Frequency
         frequency = ((buf.getShort(126) & 0xFFFF) + msbStartFreq) / 100.0f;
     
         depthMillis = buf.getInt(140);
