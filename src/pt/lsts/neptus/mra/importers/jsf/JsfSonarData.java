@@ -99,9 +99,10 @@ public class JsfSonarData {
     private short packetNumber;
     private float frequency;
     private float range;
-    
-    
+
+    private short dataFormat;
     private double[] data;
+    
     /**
      * @return the header
      */
@@ -227,7 +228,6 @@ public class JsfSonarData {
     public void setUnits(Units units) {
         this.units = units;
     }
-    
     
     /**
      * @return the speed
@@ -421,6 +421,10 @@ public class JsfSonarData {
             y = buf.getInt(84);
         }
     
+        // 0 = 1 short per sample - Envelope Data 
+        // 1 = 2 shorts per sample - Analytic Signal Data, (Real, Imaginary)
+        dataFormat = (short) (buf.getShort(34) & 0xFFFF);  
+        
         int msbNumberOfSamples = (msb & 0x0F00) << 8; // First 4 bits of msb shifted so only adding is needed to numberOfSamples
         numberOfSamples = buf.getShort(114) & 0xFFFF;
         numberOfSamples = msbNumberOfSamples + numberOfSamples;
@@ -450,12 +454,16 @@ public class JsfSonarData {
 
     void parseData(ByteBuffer buf) {
         data = new double[numberOfSamples];
+        
+        if (dataFormat != 0)
+            return;
+        
         double w = Math.pow(2, -factor); // Calc the weighting factor outside the loop
         
         for (int i = 0; i < numberOfSamples * 2; i += 2) {
             int s = ((buf.get(i + 1) & 0xFF) << 8) + (buf.get(i) & 0xFF); 
             double d = s * w;
-            
+
             if (header.getChannel() == 0) {
                 data[numberOfSamples - (i / 2) - 1] = d;
             }
