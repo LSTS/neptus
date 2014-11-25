@@ -39,8 +39,8 @@ import pt.lsts.neptus.NeptusLog;
 
 public class SdfData {
     private SdfHeader header;
-    private int[] portData;
-    private int[] stbdData;
+    private long[] portData;
+    private long[] stbdData;
     private long timestamp;
     private int numSamples;
 
@@ -52,18 +52,20 @@ public class SdfData {
             return;
         }
 
-        portData = new int[numSamples];
-        stbdData = new int[numSamples];
+        portData = new long[numSamples];
+        stbdData = new long[numSamples];
 
         // index = first 4bytes (marker) + next 4bytes (indicate num of samples)
         int index = 8; 
         // index2 = numSamples * int (size 4bytes) + 12bytes ([4] marker + [4] num samples first array + [4] num samples 2nd array)
         int index2 = (numSamples*4)+12; 
-
-
+        
         for (int i=0;i<numSamples; i++){
-            portData[i] = buf.getInt(index);
-            stbdData[i] = buf.getInt(index2) ;   
+            long portValue = buf.getInt(index) & 0xffffffffL;  //signed int to unsigned long
+            long stbdValue = buf.getInt(index2) & 0xffffffffL; //signed int to unsigned long
+            portData[i] = portValue;
+            stbdData[i] = stbdValue;
+           
             index+=4;
             index2+=4;
         }
@@ -146,7 +148,7 @@ public class SdfData {
     /**
      * @return the portData
      */
-    public int[] getPortData() {
+    public long[] getPortData() {
         return portData;
     }
 
@@ -154,7 +156,7 @@ public class SdfData {
     /**
      * @param portData the portData to set
      */
-    public void setPortData(int[] portData) {
+    public void setPortData(long[] portData) {
         this.portData = portData;
     }
 
@@ -162,7 +164,7 @@ public class SdfData {
     /**
      * @return the stbdData
      */
-    public int[] getStbdData() {
+    public long[] getStbdData() {
         return stbdData;
     }
 
@@ -170,7 +172,7 @@ public class SdfData {
     /**
      * @param stbdData the stbdData to set
      */
-    public void setStbdData(int[] stbdData) {
+    public void setStbdData(long[] stbdData) {
         this.stbdData = stbdData;
     }
     
