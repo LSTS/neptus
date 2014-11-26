@@ -35,6 +35,7 @@ import java.io.File;
 
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParser;
+import pt.lsts.neptus.mra.importers.sdf.SdfSidescanParser;
 import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
