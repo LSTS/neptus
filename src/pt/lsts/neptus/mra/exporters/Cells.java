@@ -37,86 +37,74 @@ import java.util.List;
 
 /**
  * @author Frédéric Leishman
- *
+ * 
  */
 public class Cells {
-    public Cells(int i, int j, double pos_x, double pos_y) 
-    {
+    public Cells(int i, int j, double pos_x, double pos_y) {
         num_pts = 0;
         MAX_POINT_CELLS = 1000;
         PointList = new ArrayList<Double>();
         index_i = i;
-        index_j = j; 
+        index_j = j;
         position_x = pos_x;
         position_y = pos_y;
     }
-    
-    public int GetIndex_i()
-    {
+
+    public int GetIndex_i() {
         return index_i;
     }
-    
-    public int GetIndex_j()
-    {
+
+    public int GetIndex_j() {
         return index_j;
     }
-    
-    public int GetNumPoint()
-    {
+
+    public int GetNumPoint() {
         return num_pts;
     }
-    
-    public void SetNumPoint(int n)
-    {
+
+    public void SetNumPoint(int n) {
         num_pts = n;
     }
-    
-    public void SetValid()
-    {
+
+    public void SetValid() {
         valid = true;
     }
-    
-    public void SetUnvalid()
-    {
+
+    public void SetUnvalid() {
         valid = false;
     }
-     
-    public boolean IsValidated()
-    {
+
+    public boolean IsValidated() {
         return valid;
     }
-    
-    public void ValueByMedian()
-    {
+
+    public void ValueByMedian() {
         // Quicksort is used
         Arrays.sort(PointList.toArray());
-        
+
         // Median computing
         double median = 0;
-        
-        if (PointList.toArray().length % 2 == 0)
-        {
-            median = ((double)PointList.toArray()[PointList.toArray().length/2] + (double)PointList.toArray()[PointList.toArray().length/2 - 1])/2;
+
+        if (PointList.toArray().length % 2 == 0) {
+            median = ((double) PointList.toArray()[PointList.toArray().length / 2] + (double) PointList.toArray()[PointList
+                    .toArray().length / 2 - 1]) / 2;
         }
-        else
-        {
-            median = (double) PointList.toArray()[PointList.toArray().length/2];
+        else {
+            median = (double) PointList.toArray()[PointList.toArray().length / 2];
         }
-        
+
         // Value of cell
         depth = median;
     }
-    
-private
-    int index_i;
+
+    private int index_i;
     int index_j;
     int num_pts;
     List<Double> PointList;
     boolean valid;
 
-public
-    int MAX_POINT_CELLS;
-    
+    public int MAX_POINT_CELLS;
+
     // Value of the cell
     double position_x;
     double position_y;

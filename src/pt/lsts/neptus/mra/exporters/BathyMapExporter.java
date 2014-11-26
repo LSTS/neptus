@@ -53,242 +53,223 @@ import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author Frédéric Leishman
- *
+ * 
  */
 @PluginDescription(name = "Bathy Map Exporter")
 public class BathyMapExporter implements MRAExporter {
-    
+
     IMraLogGroup source;
     ProgressMonitor pmonitor;
     BathymetryParser bparser;
-    
+
     @NeptusProperty(name = "Number point to ignore", description = "Number of points of multibeam measure to ignore")
     public double ptsToIgnore = 2.0;
-    
+
     @NeptusProperty(name = "Resolution", description = "Resolution of the map")
     public double mapResolution = 1.0;
-    
+
     @NeptusProperty(name = "Minimal point to validate a cell", description = "Number minimal of point by cell enables its validation")
     public int ptsMinByCells = 30;
-    
+
     @NeptusProperty(name = "Minimal point for filters", description = "Number minimal of valid value of the gaussian kernel mask enables the interpolation of unvalidate cells")
     public int ptsMinFilter = 20;
-    
+
     @NeptusProperty(name = "Matrix format", description = "Choose the final format. List of point representing each valid cells (val = false)(ex: for paraview importer) or matrix 2D of all cells (val = true) (ex: for matlab importer)")
     public boolean matriceFormat = false;
-    
+
     @NeptusProperty(name = "Empty cell value ", description = "Value to set in the case of unvalidate cells")
-    public String valueCellEmpty = "Nan"; 
-    
+    public String valueCellEmpty = "Nan";
+
     public BathyMapExporter(IMraLogGroup source) {
         this.source = source;
         bparser = null;
     }
-    
+
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         // Bathymetry Parser generated, if ok (.83P exist)-> map generator can be used
         bparser = BathymetryParserFactory.build(source, "multibeam");
-        if(bparser != null)        
-        {
+        if (bparser != null) {
             return true;
         }
         return false;
     }
-    
+
     @Override
     public String getName() {
         return PluginUtils.getPluginDescription(getClass());
     }
-    
+
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-        
+
         // Ask setting map parameters
         PluginUtils.editPluginProperties(this, true);
 
         // Initialization of progression display
         int index_progression = 1;
         this.pmonitor = pmonitor;
-        pmonitor.setMinimum(0);      
+        pmonitor.setMinimum(0);
         pmonitor.setMaximum(10001);
-        
-        pmonitor.setNote("PointCloud Loading... ");       
+
+        pmonitor.setNote("PointCloud Loading... ");
         pmonitor.setProgress(1);
 
         bparser = BathymetryParserFactory.build(source, "multibeam");
-        
+
         int countPoints_MB = 0;
         LocationType initLoc = null;
 
         // Get the reference location of estimated state
         IMCMessage map_ref = source.getLsfIndex().getMessage(
-                source.getLsfIndex().getFirstMessageOfType("EstimatedState")); 
+                source.getLsfIndex().getFirstMessageOfType("EstimatedState"));
 
         double max_x = -100000;
         double max_y = -100000;
         double min_x = 100000;
         double min_y = 100000;
-        
+
         List<double[]> table_MB = new ArrayList<double[]>();
-        
+
         BathymetrySwath bs;
-        while( (bs=bparser.nextSwath())!=null)
-        {           
+        while ((bs = bparser.nextSwath()) != null) {
             LocationType loc = bs.getPose().getPosition();
-                
-            if(initLoc == null)
-            {
+
+            if (initLoc == null) {
                 initLoc = new LocationType(loc);
             }
-            
-            for (int c = 0; c < bs.getNumBeams(); c++) 
-            {
+
+            for (int c = 0; c < bs.getNumBeams(); c++) {
                 // Limitation of number of point (14M pts is too much)
                 if (Math.random() > 1.0 / ptsToIgnore)
                     continue;
-                
+
                 BathymetryPoint p = bs.getData()[c];
-                if (p == null)
-                {
+                if (p == null) {
                     continue;
                 }
-                
+
                 // Gets offset north and east and adds with bathymetry point
-                LocationType tempLoc = new LocationType(loc);                         
+                LocationType tempLoc = new LocationType(loc);
 
                 tempLoc.translatePosition(p.north, p.east, 0);
 
                 // Add data to table
                 double offset[] = tempLoc.getOffsetFrom(initLoc);
-                
+
                 // Add normalized depth
-                double pts_mb[] = {offset[0]+initLoc.getOffsetNorth(), offset[1]+initLoc.getOffsetEast(), p.depth + initLoc.getOffsetDown()};
+                double pts_mb[] = { offset[0] + initLoc.getOffsetNorth(), offset[1] + initLoc.getOffsetEast(),
+                        p.depth + initLoc.getOffsetDown() };
                 table_MB.add(pts_mb);
 
                 ++countPoints_MB;
-                
+
                 // Map border limits
-                if(pts_mb[0] > max_x) {max_x = pts_mb[0];}
-                if(pts_mb[0] < min_x) {min_x = pts_mb[0];}               
-                if(pts_mb[1] > max_y) {max_y = pts_mb[1];}
-                if(pts_mb[1] < min_y) {min_y = pts_mb[1];}
-            }  
-            
-            // Progress notification
-            index_progression = (int)( (double)(countPoints_MB)/(double)(bparser.getBathymetryInfo().totalNumberOfPoints) *8000.0 * ptsToIgnore ); 
-            if(index_progression>0 && index_progression<8000)
-            {
-                pmonitor.setProgress(index_progression);    
-                pmonitor.setNote("PointCloud Loading... "+index_progression/100+"%");
+                if (pts_mb[0] > max_x) {
+                    max_x = pts_mb[0];
+                }
+                if (pts_mb[0] < min_x) {
+                    min_x = pts_mb[0];
+                }
+                if (pts_mb[1] > max_y) {
+                    max_y = pts_mb[1];
+                }
+                if (pts_mb[1] < min_y) {
+                    min_y = pts_mb[1];
+                }
             }
-        }  
-        
+
+            // Progress notification
+            index_progression = (int) ((double) (countPoints_MB)
+                    / (double) (bparser.getBathymetryInfo().totalNumberOfPoints) * 8000.0 * ptsToIgnore);
+            if (index_progression > 0 && index_progression < 8000) {
+                pmonitor.setProgress(index_progression);
+                pmonitor.setNote("PointCloud Loading... " + index_progression / 100 + "%");
+            }
+        }
+
         pmonitor.setProgress(8000);
-        pmonitor.setNote("Map building ... 80%");    
-        
+        pmonitor.setNote("Map building ... 80%");
+
         // Height map initialization
         Map map = new Map(mapResolution, min_x, max_x, min_y, max_y);
         map.SetParameters(ptsMinByCells, ptsMinFilter);
         map.CreateMapWithPointCloud(table_MB, countPoints_MB);
 
         pmonitor.setProgress(9000);
-        pmonitor.setNote("Map exporting ... 90%");      
-        
+        pmonitor.setNote("Map exporting ... 90%");
+
         // Map is generated inside the mra path
         File dir = new File(source.getFile("mra"), "mbp");
         dir.mkdirs();
-        
-        try 
-        {
+
+        try {
             File out = new File(dir, "carte_mbp.txt");
             BufferedWriter bw = new BufferedWriter(new FileWriter(out));
 
-            if(matriceFormat == false)
-            {
-                // Map generates as cells position list 
-                
+            if (matriceFormat == false) {
+                // Map generates as cells position list
+
                 // Map header
-                bw.write(
-                            "#LLH Offset: "+
-                            String.format(Locale.US, "%.8f", map_ref.getDouble("lat"))+", "+                           
-                            String.format(Locale.US, "%.8f", map_ref.getDouble("lon"))+", "+
-                            String.format(Locale.US, "%.8f", map_ref.getDouble("height"))+"\n"+    
-                                                  
-                            "#NED Offset: "+
-                            String.format(Locale.US, "%.3f", map_ref.getDouble("x"))+", "+                           
-                            String.format(Locale.US, "%.3f", map_ref.getDouble("y"))+", "+
-                            String.format(Locale.US, "%.3f", map_ref.getDouble("z"))+"\n"+
-                            
-                            "#Num NED Cells: "+Integer.toString(map.num_cells_valid)+"\n"
-                        );
-    
+                bw.write("#LLH Offset: " + String.format(Locale.US, "%.8f", map_ref.getDouble("lat")) + ", "
+                        + String.format(Locale.US, "%.8f", map_ref.getDouble("lon")) + ", "
+                        + String.format(Locale.US, "%.8f", map_ref.getDouble("height")) + "\n" +
+
+                        "#NED Offset: " + String.format(Locale.US, "%.3f", map_ref.getDouble("x")) + ", "
+                        + String.format(Locale.US, "%.3f", map_ref.getDouble("y")) + ", "
+                        + String.format(Locale.US, "%.3f", map_ref.getDouble("z")) + "\n" +
+
+                        "#Num NED Cells: " + Integer.toString(map.num_cells_valid) + "\n");
+
                 // Map body
-                for(int i=0;i<map.num_cells;i++)
-                {        
-                    if(map.cells.get(i).IsValidated())
-                    {
-                        bw.write(
-                            String.format(Locale.US, "%.3f", map.cells.get(i).position_x)+", "+                           
-                            String.format(Locale.US, "%.3f", map.cells.get(i).position_y)+", "+
-                            String.format(Locale.US, "%.3f", map.cells.get(i).depth)+"\n"  
-                                );
-                    }           
+                for (int i = 0; i < map.num_cells; i++) {
+                    if (map.cells.get(i).IsValidated()) {
+                        bw.write(String.format(Locale.US, "%.3f", map.cells.get(i).position_x) + ", "
+                                + String.format(Locale.US, "%.3f", map.cells.get(i).position_y) + ", "
+                                + String.format(Locale.US, "%.3f", map.cells.get(i).depth) + "\n");
+                    }
                 }
             }
-            else
-            {
+            else {
                 // Map generates as cells matrix disposition
-                
-                // Map header
-                bw.write(
-                            "#LLH Offset: "+
-                            String.format(Locale.US, "%.8f", map_ref.getDouble("lat"))+", "+                           
-                            String.format(Locale.US, "%.8f", map_ref.getDouble("lon"))+", "+
-                            String.format(Locale.US, "%.8f", map_ref.getDouble("height"))+"\n"+    
 
-                            "#NED Offset: "+
-                            String.format(Locale.US, "%.3f", map_ref.getDouble("x"))+", "+                           
-                            String.format(Locale.US, "%.3f", map_ref.getDouble("y"))+", "+
-                            String.format(Locale.US, "%.3f", map_ref.getDouble("z"))+"\n"+
-                            
-                            "#Start Cells Position: "+
-                            String.format(Locale.US, "%.3f", map.min_x)+", "+                        
-                            String.format(Locale.US, "%.3f", map.min_y)+"\n"+
-                            
-                            "#Resolution: "+
-                            String.format(Locale.US, "%.2f", mapResolution)+"\n"
-                        );
-                
+                // Map header
+                bw.write("#LLH Offset: " + String.format(Locale.US, "%.8f", map_ref.getDouble("lat")) + ", "
+                        + String.format(Locale.US, "%.8f", map_ref.getDouble("lon")) + ", "
+                        + String.format(Locale.US, "%.8f", map_ref.getDouble("height")) + "\n" +
+
+                        "#NED Offset: " + String.format(Locale.US, "%.3f", map_ref.getDouble("x")) + ", "
+                        + String.format(Locale.US, "%.3f", map_ref.getDouble("y")) + ", "
+                        + String.format(Locale.US, "%.3f", map_ref.getDouble("z")) + "\n" +
+
+                        "#Start Cells Position: " + String.format(Locale.US, "%.3f", map.min_x) + ", "
+                        + String.format(Locale.US, "%.3f", map.min_y) + "\n" +
+
+                        "#Resolution: " + String.format(Locale.US, "%.2f", mapResolution) + "\n");
+
                 // Map body
                 int id = 0;
-                for(int j=0; j<map.num_j; j++)
-                {
-                    for(int i=0;i<map.num_i;i++)
-                    {
-                        id = i + j*map.num_i;
-                        if(map.cells.get(id).IsValidated())
-                        {
-                            bw.write(
-                                 String.format(Locale.US, "%.3f", map.cells.get(id).depth)+", "  
-                                    );
-                        }    
-                        else
-                        {
-                            bw.write(valueCellEmpty+", ");
+                for (int j = 0; j < map.num_j; j++) {
+                    for (int i = 0; i < map.num_i; i++) {
+                        id = i + j * map.num_i;
+                        if (map.cells.get(id).IsValidated()) {
+                            bw.write(String.format(Locale.US, "%.3f", map.cells.get(id).depth) + ", ");
+                        }
+                        else {
+                            bw.write(valueCellEmpty + ", ");
                         }
                     }
                     bw.write("\n");
-                }  
+                }
             }
-            
-            bw.close();   
+
+            bw.close();
         }
         catch (Exception e) {
             e.printStackTrace();
-        } 
-        
-        // Map export completed 
+        }
+
+        // Map export completed
         pmonitor.setProgress(pmonitor.getMaximum());
         return "Bathy map export is successfully completed";
     }
