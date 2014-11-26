@@ -44,7 +44,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author zp
  * 
  */
-@PluginDescription(name="CPU Usage")
+@PluginDescription(name="CPU Usage", active=false)
 public class CpuUsagePlot extends PiePlot {
 
     public CpuUsagePlot(MRAPanel panel) {

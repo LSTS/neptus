@@ -77,6 +77,7 @@ import pt.lsts.neptus.messages.Enumerated;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.CompassCalibration;
+import pt.lsts.neptus.mp.maneuvers.Dislodge;
 import pt.lsts.neptus.mp.maneuvers.Elevator;
 import pt.lsts.neptus.mp.maneuvers.FollowPath;
 import pt.lsts.neptus.mp.maneuvers.FollowSystem;
@@ -560,7 +561,7 @@ public class IMCUtils {
             m = new StationKeeping();
         else if (message.getAbbrev().equalsIgnoreCase("rowsmaneuver") || message.getAbbrev().equalsIgnoreCase("rows"))
             m = new RowsManeuver();
-        else if (message.getAbbrev().equalsIgnoreCase("followpath")) //TODO handle RIPattern and alike
+        else if (message.getAbbrev().equalsIgnoreCase("followpath"))
             m = FollowPath.createFollowPathOrPattern(message);
         else if (message.getAbbrev().equalsIgnoreCase("followtrajectory"))
             m = new FollowTrajectory();
@@ -572,6 +573,8 @@ public class IMCUtils {
             m = new Elevator();
         else if (message.getAbbrev().equalsIgnoreCase("compasscalibration"))
             m = new CompassCalibration();
+        else if (message.getAbbrev().equalsIgnoreCase("dislodge"))
+            m = new Dislodge();
 
         if (m != null)
             ((IMCSerialization) m).parseIMCMessage(message);

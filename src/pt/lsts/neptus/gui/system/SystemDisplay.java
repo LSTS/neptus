@@ -73,6 +73,7 @@ import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.GlossPainter;
 import org.jdesktop.swingx.painter.RectanglePainter;
 
+import pt.lsts.imc.EntityParameters;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
@@ -165,6 +166,8 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
     private boolean showExtraInfoVisible = false;
     private long selectionTimeMillis = -1;
 
+    private SystemConfigurationEditorPanel systemConfEditor = null;
+    
 	/**
 	 * 
 	 */
@@ -508,7 +511,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
             };
             @Override
             void mouseClicked(MouseEvent e) {
-                SystemConfigurationEditorPanel systemConfEditor = new SystemConfigurationEditorPanel(id, Scope.GLOBAL,
+                systemConfEditor = new SystemConfigurationEditorPanel(id, Scope.GLOBAL,
                         Visibility.USER, true, false, true, ImcMsgManager.getManager());
                 JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(SystemDisplay.this));
                 dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
@@ -516,9 +519,11 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
                 dialog.setSize(600, 600);
                 GuiUtils.centerParent(dialog, dialog.getOwner());
                 dialog.setVisible(true);
+                systemConfEditor = null;
+                dialog.dispose();
             };
         };
-        if (ConfigurationManager.getInstance().hasProperties(id, Visibility.USER, Scope.GLOBAL))
+        if (ConfigurationManager.getInstance().hasProperties(id, Visibility.DEVELOPER, Scope.GLOBAL))
             symSystemParamsSymbol.setActive(true);
         else
             symSystemParamsSymbol.setActive(false);
@@ -1234,11 +1239,24 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
 		return true;
 	}
 
-//	if (ph != h || pw != h)
-//		setFont(getFont().deriveFont((float)(Math.min(h*0.7, w*0.7))));
-//	ph = h;
-//	super.paint(g);
-
+	private long lastUpdatedTimeMillis = -1;
+	/**
+     * @return the systemConfEditor
+     */
+    public void updateSystemParameters(EntityParameters message) {
+        if (systemConfEditor != null) {
+            try {
+                if (lastUpdatedTimeMillis < message.getTimestampMillis()) {
+                    SystemConfigurationEditorPanel.updatePropertyWithMessageArrived(systemConfEditor, message);
+                    lastUpdatedTimeMillis = message.getTimestampMillis();
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		SystemDisplay sys1 = new SystemDisplay("lauv-seacon-1");

@@ -49,8 +49,10 @@ public class ImcSystemsHolder {
     
 	public static boolean registerSystem(ImcSystem system) {
 		ImcSystem resLook = lookupTable.get(system.getId());
-		if (resLook != null)
+		if (resLook != null){
+		    namesTable.put(system.getName(), system);
 			return true; //false;
+		}
 		
 		lookupTable.put(system.getId(), system);
 		namesTable.put(system.getName(), system);

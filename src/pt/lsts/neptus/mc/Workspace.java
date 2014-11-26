@@ -670,7 +670,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 public void actionPerformed(ActionEvent e) {
                     // FIXME with SwingWorker
                     String inputValue = JOptionPane.showInputDialog(Workspace.this,
-                            "Please input a name for this checklist");
+                            I18n.text("Please input a name for this checklist"));
                     if (inputValue != null && !inputValue.trim().equalsIgnoreCase("")) {
                         ChecklistType checklist = new ChecklistType();
                         checklist.setName(inputValue.trim());

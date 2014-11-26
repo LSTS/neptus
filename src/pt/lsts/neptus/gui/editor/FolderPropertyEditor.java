@@ -15,7 +15,7 @@
  *
  * European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -26,58 +26,36 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: José Pinto
- * 12 de Ago de 2011
+ * Author: pdias
+ * Sep 29, 2014
  */
-package pt.lsts.neptus.planeditor;
+package pt.lsts.neptus.gui.editor;
 
-import javax.swing.undo.AbstractUndoableEdit;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
+import javax.swing.JFileChooser;
 
-import pt.lsts.neptus.mp.Maneuver;
-import pt.lsts.neptus.types.mission.plan.PlanType;
+import com.l2fprod.common.beans.editor.FilePropertyEditor;
 
 /**
- * @author ZP
+ * @author pdias
  *
  */
-public class ManeuverRemoveEdit extends AbstractUndoableEdit {
+public class FolderPropertyEditor extends FilePropertyEditor {
 
-    /**
-     * 
+    public FolderPropertyEditor() {
+    }
+
+    /* (non-Javadoc)
+     * @see com.l2fprod.common.beans.editor.FilePropertyEditor#customizeFileChooser(javax.swing.JFileChooser)
      */
-    private static final long serialVersionUID = 1L;
-    protected PlanType plan;
-    protected Maneuver removed;
-    
-    public ManeuverRemoveEdit(PlanType plan, Maneuver man) {
-        this.plan = plan;
-        this.removed = man;
+    @Override
+    protected void customizeFileChooser(JFileChooser chooser) {
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);;
     }
     
-    @Override
-    public boolean canRedo() {
-        return true;
-    }
-    
-    @Override
-    public boolean canUndo() {
-        return true;
-    }
-    
-    @Override
-    public void redo() throws CannotRedoException {
-        plan.getGraph().removeManeuver(plan.getGraph().getManeuver(removed.getId()));
-        
-    }
-    
-    @Override
-    public void undo() throws CannotUndoException {
-        if (plan.getGraph().getManeuver(removed.getId()) == null) {
-            plan.getGraph().addManeuver((Maneuver)removed.clone());            
-        }
-        else
-            throw new CannotRedoException();
+    /**
+     * @param asTableEditor
+     */
+    public FolderPropertyEditor(boolean asTableEditor) {
+        super(asTableEditor);
     }
 }

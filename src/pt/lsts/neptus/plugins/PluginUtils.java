@@ -140,6 +140,11 @@ public class PluginUtils {
 
         return I18n.textAdvanced("PLUGINDESC_" + clazz.getSimpleName(), description, clazz);
     }
+    
+    public static boolean isPluginActive(Class<?> clazz) {
+        PluginDescription pd = clazz.getAnnotation(PluginDescription.class);
+        return pd != null && pd.active();
+    }
 
     /**
      * Retrieves the filename of the icon to be used for this plugin as stated in the {@link PluginDescription}
@@ -388,12 +393,34 @@ public class PluginUtils {
                                     + " has no method to validate user input!");
                     continue;
                 }
+                
+                Class<? extends Object> propClass = propValue.getClass();
+                if (f.getType().isPrimitive()) {
+                    //propClass.isArray() // FIXME
+                    if (propClass == Double.class)
+                        propClass = double.class;
+                    else if (propClass == Float.class)
+                        propClass = float.class;
+                    else if (propClass == Byte.class)
+                        propClass = byte.class;
+                    else if (propClass == Character.class)
+                        propClass = char.class;
+                    else if (propClass == Short.class)
+                        propClass = short.class;
+                    else if (propClass == Integer.class)
+                        propClass = int.class;
+                    else if (propClass == Long.class)
+                        propClass = long.class;
+                    else if (propClass == Boolean.class)
+                        propClass = boolean.class;
+                }
+                
                 try {
-                    m = providerClass.getMethod(validateMethodUpper, propValue.getClass());
+                    m = providerClass.getMethod(validateMethodUpper, propClass);
                 }
                 catch (NoSuchMethodException e1) {
                     try {
-                        m = providerClass.getMethod(validateMethodLower, propValue.getClass());
+                        m = providerClass.getMethod(validateMethodLower, propClass);
                     }
                     catch (NoSuchMethodException e) {
                         NeptusLog.pub().debug("Property "+providerClass.getSimpleName()+"."+name+" has no method to validate user input!" );

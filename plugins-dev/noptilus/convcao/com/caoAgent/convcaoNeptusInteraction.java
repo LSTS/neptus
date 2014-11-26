@@ -138,6 +138,8 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
     protected javax.swing.JButton renewButton;
     protected javax.swing.JButton connectButton;
     // End of variables declaration
+    
+    private boolean active = false;
 
     protected ImageIcon runIcon = ImageUtils.getIcon("images/checklists/run.png");
     protected ImageIcon appLogo = ImageUtils.getIcon("images/control-mode/externalApp.png");
@@ -210,14 +212,24 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
       
         depths = newDepths;
     }
-    
-    
 
     protected NoptilusCoords coords = new NoptilusCoords();
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        
+        Point2D center = renderer.getScreenPosition(coords.squareCenter);
+        double width = renderer.getZoom() * coords.cellWidth * coords.numCols;
+        double height = renderer.getZoom() * coords.cellWidth * coords.numRows;
+        g.setColor(new Color(0,0,255,64));
+        g.translate(center.getX(), center.getY());
+            g.rotate(-renderer.getRotation());
+                g.fill(new Rectangle2D.Double(-width/2, -height/2, width, height));        
+            g.rotate(renderer.getRotation());
+        g.translate(-center.getX(), -center.getY());
+
+        if (!active)
+            return;
+       
         g.setColor(Color.orange);
         int pos = 50;
         for (String v : nameTable.values()) {
@@ -225,12 +237,6 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             pos +=20;
         }
 
-        Point2D center = renderer.getScreenPosition(coords.squareCenter);
-        double width = renderer.getZoom() * coords.cellWidth * coords.numCols;
-        double height = renderer.getZoom() * coords.cellWidth * coords.numRows;
-        g.setColor(new Color(0,0,255,64));
-        g.fill(new Rectangle2D.Double(center.getX() - width/2, center.getY() - height / 2, width, height));
-        
         for (String vehicle : nameTable.values()) {
             LocationType src = positions.get(vehicle);
             LocationType dst = destinations.get(vehicle);
@@ -319,7 +325,6 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
                 URLConnection conn = url.openConnection();
                 conn.setUseCaches(false);
                 conn.connect();
-                //BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
                 BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 String jsonClient = in.readLine();
                 receive = new Gson().fromJson(jsonClient,TransferData.class);    
@@ -368,6 +373,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
                             }
                             catch (Exception e) {
                                 GuiUtils.errorMessage(getConsole(), e);
+                                e.printStackTrace();
                                 return;
                             }
                         }
@@ -438,6 +444,8 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         jLabel10.setText("");
         jLabel6.setText("Please Renew your ID to start again");
         timestep = 1;
+        
+        active = false;
     }
 
 
@@ -453,6 +461,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         timestep = 1;
 
         showText("Starting FollowReference plans on vehicles");
+        active = true;
         try {            
             for (String v : nameTable.values())
                 manager.associateControl(this, VehiclesHolder.getVehicleById(v), controlLatencySecs, controlTimeoutSecs);
@@ -1043,10 +1052,14 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         LocationType dest = destinations.get(vehicle.getId());
         float depth = depths.get(vehicle.getId()).floatValue();
         dest.convertToAbsoluteLatLonDepth();
-        System.out.println("depth for "+vehicle.getId()+" is "+depth);
+        //System.out.println("depth for "+vehicle.getId()+" is "+depth);
         ref.setLat(dest.getLatitudeRads());
         ref.setLon(dest.getLongitudeRads());
         DesiredZ desZ = new DesiredZ(depth, Z_UNITS.DEPTH);
+        
+        if (depth > 0)
+            ref.setRadius(10);
+        
         ref.setZ(desZ);
         System.out.println("Sending this reference to "+vehicle.getId()+":");
         ref.dump(System.out);

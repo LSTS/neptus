@@ -108,6 +108,11 @@ public class MRALogReplayTimeline extends JPanel implements ChangeListener {
         }
         return timeline;
     }
+    
+    public void pause() {
+        if (getPlayButton().isSelected())
+            getPlayButton().doClick();
+    }
 
     private JToggleButton getPlayButton() {
         if (play == null) {

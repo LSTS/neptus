@@ -56,6 +56,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -347,19 +348,19 @@ public class NmeaPlotter extends ConsoleLayer {
 
     @Override
     public void initLayer() {
-        connectItem = getConsole().addMenuItem("Tools>NMEA Plotter>Connect", null, new ActionListener() {
+        connectItem = getConsole().addMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Connect"), null, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     if (!connected) {
                         connect();
                         connected = true;
-                        connectItem.setText("Disconnect");
+                        connectItem.setText(I18n.text("Disconnect"));
                     }
                     else {
                         disconnect();
                         connected = false;
-                        connectItem.setText("Connect");
+                        connectItem.setText(I18n.text("Connect"));
                     }
                 }
                 catch (Exception ex) {
@@ -368,7 +369,7 @@ public class NmeaPlotter extends ConsoleLayer {
             }
         });
 
-        getConsole().addMenuItem("Tools>NMEA Plotter>Settings", null, new ActionListener() {
+        getConsole().addMenuItem(I18n.text("Tools") + ">" + I18n.text("NMEA Plotter") + ">" + I18n.text("Settings"), null, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 PluginUtils.editPluginProperties(NmeaPlotter.this, true);

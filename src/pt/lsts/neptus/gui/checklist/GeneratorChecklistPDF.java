@@ -43,6 +43,7 @@ import java.util.LinkedList;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
 
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
 import pt.lsts.neptus.types.checklist.CheckAutoUserActionItem;
 import pt.lsts.neptus.types.checklist.CheckAutoUserLogItem;
@@ -90,25 +91,20 @@ public class GeneratorChecklistPDF {
             String data = FileUtil.getFileAsString(FileUtil
                     .getResourceAsFile("/images/neptus_logo_ns.svg"));
             try {
-                //logoDoc = f.createSVGDocument(null, new java.io.StringReader((String)data));
                 logoDoc = f.createDocument(null, new StringReader(data));
                 logoDoc = SvgUtil.cleanInkscapeSVG(logoDoc);
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
         return logoDoc;
     }
 
-
-
     public static boolean generateReport(ChecklistType clist, File destination) {
         return generateReport(clist, destination, (short) 3);
     }
 
     public static boolean generateReport(ChecklistType clist, File destination, short columns) {
-
         columns = (short) Math.max(columns, 1);
         columns = (short) Math.min(columns, 3);
 
@@ -125,31 +121,11 @@ public class GeneratorChecklistPDF {
 
             doc.open();
 
-            doc.addTitle("Checklist - "+clist.getName());
+            doc.addTitle(I18n.textf("Checklist - %name", clist.getName()));
             doc.addCreationDate();
-            doc.addCreator("Neptus "+ConfigFetch.getNeptusVersion());
+            doc.addCreator("Neptus " + ConfigFetch.getNeptusVersion());
             doc.addProducer();
             doc.addAuthor(System.getProperty("user.name"));			
-
-            //			PdfContentByte cb = writer.getDirectContent();
-            //			int page = 1;
-            //			writeFirstPage(cb, source);
-            //			page++;
-            //
-            //			doc.newPage();
-            //			writePageNumber(cb, page++, 10);
-            //			writeHeader(cb, source);
-            //			writeFooter(cb, source);
-
-            //BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-            //cb.beginText();
-            //cb.setFontAndSize(bf, 18);
-            //cb.setColorFill(new Color(31, 73, 125));
-            //cb.showText(source.getName());   
-            //doc.add(
-            //		new Phrase("Quick brown fox jumps over the lazy dog. "));
-            //cb.endText();                                       
-
 
             Color BLUE_1 = new Color(31, 73, 125);
 
@@ -162,7 +138,6 @@ public class GeneratorChecklistPDF {
 
             Font font8BoldDarkGray = new Font(bf, 8, Font.BOLD, Color.DARK_GRAY);
 
-            //Font font8 = new Font(bf, 8, Font.NORMAL);
             Font font8NormalBlack = new Font(bf, 8, Font.NORMAL, Color.BLACK);
             Font font8NormalGray = new Font(bf, 8, Font.NORMAL, Color.GRAY);
             Font font8NormalLightGray = new Font(bf, 8, Font.NORMAL, Color.LIGHT_GRAY.darker());
@@ -175,26 +150,21 @@ public class GeneratorChecklistPDF {
             titleP.setSpacingBefore(10);
             titleP.setSpacingAfter(10);
             Phrase title = new Phrase();
-            //font14B.setColor(BLUE_1);
             title.setFont(font14BoldBlue);
             title.add(clist.getName());
             title.add(Chunk.NEWLINE);
             if (clist.getVersion() != null && !"".equalsIgnoreCase(clist.getVersion())) {
                 title.setFont(font10BoldBlue);
-                title.add("Version: " + clist.getVersion());
+                title.add(I18n.textf("Version: %version", clist.getVersion()));
                 title.add(Chunk.NEWLINE);
             }
 
-            //			BarcodePDF417 pdf417 = new BarcodePDF417();
             String text = clist.getName()
-                    + " | " + "version: " + clist.getVersion() 
-                    + " | " + "By:" + System.getProperty("user.name") + " | " + "@" 
+                    + " | " + I18n.textf("Version: %version", clist.getVersion()) 
+                    + " | " + I18n.textf("By: %info", System.getProperty("user.name") + " | " + "@" 
                     + DateTimeUtil.dateTimeFormater.format(new Date(System
                             .currentTimeMillis())) + " | "
-                            + ConfigFetch.getVersionSimpleString();
-            //			pdf417.setText(text);
-            //			Image img = pdf417.getImage();
-            //			img.scalePercent(50, 50 * pdf417.getYHeight());
+                            + ConfigFetch.getVersionSimpleString());
             BufferedImage imgB = BarCodesUtil.createQRCodeImage(text, 50, 50);
             Image img = Image.getInstance(imgB, null);
             titleP.add(img);
@@ -202,16 +172,14 @@ public class GeneratorChecklistPDF {
             titleP.add(title);
             doc.add(titleP);
 
-
-            if (!"".equalsIgnoreCase(clist.getDescription())) {
+            if (clist.getDescription() != null && !clist.getDescription().isEmpty()) {
                 Paragraph descP = new Paragraph();
                 descP.setSpacingBefore(10);
                 descP.setSpacingAfter(5);
                 descP.setAlignment(Paragraph.ALIGN_JUSTIFIED);
                 Phrase desc = new Phrase();
-                //font10B.setColor(BLUE_1);
                 desc.setFont(font10BoldBlue);
-                desc.add("Description:");
+                desc.add(I18n.text("Description:"));
                 desc.add(Chunk.NEWLINE);
                 descP.add(desc);
                 doc.add(descP);
@@ -221,7 +189,6 @@ public class GeneratorChecklistPDF {
                 descP2.setAlignment(Paragraph.ALIGN_JUSTIFIED);
                 descP2.setLeading(11);
                 Phrase descText = new Phrase();
-                //font8.setColor(Color.GRAY);
                 descText.setFont(font8NormalGray);
                 descText.add(clist.getDescription().replaceAll("\n\n", "\n"));
                 descText.add(Chunk.NEWLINE);
@@ -233,15 +200,6 @@ public class GeneratorChecklistPDF {
             mct.addRegularColumns(doc.left(),  
                     doc.right(), 10f, columns);
 
-
-            //Paragraph clP = new Paragraph();
-            //clP.setSpacingBefore(10);
-            //clP.setSpacingAfter(10);
-            //font8.setColor(Color.BLACK);
-            //fontZ14.setColor(Color.DARK_GRAY);
-            //Font fctx  = font8;
-            //Font fcval = fontZ14;
-            //clP.setFont(font8);
             for (String grpName : clist.getGroupList().keySet()) {
                 if (!clist.isFlat()) {
                     Paragraph grpP = new Paragraph();
@@ -258,7 +216,6 @@ public class GeneratorChecklistPDF {
                 for (CheckItem ci : gplist) {
                     Paragraph ciP = new Paragraph();
                     ciP.setLeading(15);
-                    //ciP.setSpacingBefore(10);
                     Phrase ciText = new Phrase();
                     Chunk cv;
                     if (ci.isSkiped())
@@ -270,7 +227,6 @@ public class GeneratorChecklistPDF {
                     fontZ14.setColor(Color.DARK_GRAY);
                     ciText.setFont(fontZ14);
                     ciText.add(cv);
-                    //font8.setColor(Color.BLACK);
                     ciText.setFont(font8NormalBlack);
 
                     ciText.add(" ");
@@ -294,33 +250,22 @@ public class GeneratorChecklistPDF {
                         noteP.setAlignment(Paragraph.ALIGN_JUSTIFIED);
                         noteP.setLeading(9);
                         Phrase noteF = new Phrase();
-                        //font8B.setColor(Color.DARK_GRAY);
                         noteF.setFont(font8BoldDarkGray);
-                        noteF.add("Note: ");
-                        //font8.setColor(Color.LIGHT_GRAY);
+                        noteF.add(I18n.text("Note:") + " ");
                         noteF.setFont(font8NormalLightGray);
                         noteF.add(ci.getNote().replaceAll("\n\n", "\n"));
                         noteP.add(noteF);
                         mct.addElement(noteP);
                     }
                     if (!ci.getAutoSubItems().isEmpty()) {
-                        //Phrase ttF = new Phrase();
-                        //ttF.setFont(font8BoldDarkGray);
-                        //ttF.add("SubItems");
-
                         PdfPTable table = new PdfPTable(1);
-                        //PdfPCell cell = new PdfPCell(new Paragraph(ttF));
-                        ////cell.setColspan(2);
-                        //cell.setBorder(Rectangle.NO_BORDER);
-                        //table.addCell(cell);
 
                         for (CheckAutoSubItem si : ci.getAutoSubItems()) {
                             if (UserActionItem.TYPE_ID.equals(si.getSubItemType())) {
                                 CheckAutoUserActionItem it = (CheckAutoUserActionItem) si;
                                 Phrase uaF = new Phrase();
-                                //font8B.setColor(Color.DARK_GRAY);
                                 uaF.setFont(font8BoldDarkGray);
-                                uaF.add("Action: ");
+                                uaF.add(I18n.text("Action:") + " ");
                                 uaF.setFont(font8NormalLightGray);
                                 uaF.add(it.getAction());
                                 PdfPCell uaCell = new PdfPCell(new Paragraph(uaF));
@@ -341,7 +286,6 @@ public class GeneratorChecklistPDF {
                             else if (UserCommentItem.TYPE_ID.equals(si.getSubItemType())) {
                                 CheckAutoUserLogItem it = (CheckAutoUserLogItem) si;
                                 Phrase uaF = new Phrase();
-                                //font8B.setColor(Color.DARK_GRAY);
                                 uaF.setFont(font8BoldDarkGray);
                                 uaF.add(it.getLogRequest()+": ");
                                 uaF.setFont(font8NormalLightGray);
@@ -364,7 +308,6 @@ public class GeneratorChecklistPDF {
                             else if (VariableIntervalItem.TYPE_ID.equals(si.getSubItemType())) {
                                 CheckAutoVarIntervalItem it = (CheckAutoVarIntervalItem) si;
                                 Phrase uaF = new Phrase();
-                                //font8B.setColor(Color.DARK_GRAY);
                                 uaF.setFont(font8BoldDarkGray);
                                 uaF.add(it.getVarName()+"=");
                                 uaF.setFont(font8NormalLightGray);
@@ -389,145 +332,21 @@ public class GeneratorChecklistPDF {
                         table.setHorizontalAlignment(Element.ALIGN_RIGHT);
                         table.setSpacingBefore(8f);
                         table.setSpacingAfter(8f);
-                        //subItemsP.add(table);
 
-                        //						Phrase noteF = new Phrase();
-                        //						//font8B.setColor(Color.DARK_GRAY);
-                        //						noteF.setFont(font8BoldDarkGray);
-                        //						noteF.add("Note: ");
-                        //						//font8.setColor(Color.LIGHT_GRAY);
-                        //						noteF.setFont(font8NormalLightGray);
-                        //						noteF.add(ci.getNote().replaceAll("\n\n", "\n"));
-                        //						subItemsP.add(noteF);
                         mct.addElement(table);
                     }					
                 }
             }
-            //mct.addElement(clP);
 
             doc.add(mct);
 
             doc.close();
             out.flush();
             out.close();
-
-            //
-            //			
-            //			for (int k = 1; k <= 300; ++k) {  
-            //				doc.add(
-            //						new Phrase("Quick brown fox jumps over the lazy dog. "));
-            //			}
-            //
-            //			bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-            //			cb.setFontAndSize(bf, 9);
-            //			cb.setColorFill(new Color(50, 100, 200));
-
-            //			MultiColumnText mct = new MultiColumnText();   
-            //			mct.addRegularColumns(doc.left(),  
-            //					doc.right(), 10f, 3);
-
-            //			for (int i = 0; i < 30; i++) {                             
-            //				mct.addElement(new Paragraph(String.valueOf(i + 1)));   
-            //				mct.addElement(new Phrase("Quick brown fox jumps over the lazy dog. "));
-            //				for (int j = 0; j < 4; j++) { 
-            //					mct.addElement(new Phrase("Quick brown fox jumps over the lazy dog. "));
-            //				}           
-            //				mct.addElement(new Phrase("Quick brown fox jumps over the lazy dog. "));  
-            //				mct.addElement(new Phrase("\n\n"));            
-            //			}                                                          
-            //			doc.add(mct);
-
-            //			LLFChart[] charts = LLFChartFactory.getAutomaticCharts(source);
-            //
-            //			for (int i = 0; i < charts.length; i++) {
-            //
-            //				doc.newPage();
-            //
-            //				java.awt.Graphics2D g2 = cb.createGraphicsShapes(pageSize.getWidth(), pageSize.getHeight());
-            //				int width = (int) pageSize.getWidth();
-            //				int height = (int) pageSize.getHeight();
-            //
-            //				JFreeChart chart = charts[i].getChart(source, charts[i].getDefaultTimeStep());
-            //				chart.setBackgroundPaint(Color.white);
-            //				chart.draw(g2, new Rectangle2D.Double(25, 25, width-50, height-50));
-            //
-            //				g2.dispose();
-            //				writePageNumber(cb, page++, charts.length+3);
-            //				writeHeader(cb, source);
-            //				writeFooter(cb, source);
-            //			}
-            //
-            //			// Renderer2D
-            //			doc.newPage();
-            //
-            //			int width = (int) pageSize.getWidth();
-            //			int height = (int) pageSize.getHeight();
-            //
-            //			PdfTemplate tp = cb.createTemplate(width-100, height-100);
-            //
-            //			java.awt.Graphics2D g2 = tp.createGraphicsShapes(width-100, height-100);
-            //
-            //
-            //			MissionType mt = LLFUtils.generateMission(source);
-            //			IndividualPlanType plan = LLFUtils.generatePlan(mt, source);
-            //			PathElement path = LLFUtils.generatePath(mt, source);
-            //			StateRenderer2D r2d = new StateRenderer2D(MapGroup.getMapGroupInstance(mt));
-            //			PlanElement po = new PlanElement(r2d.getMapGroup(), new MapType());
-            //			po.setTransp2d(0.5);
-            //			po.setPlan(plan);
-            //			po.setRenderer(r2d);
-            //			po.setColor(new Color(255,255,255,128));
-            //			po.setShowDistances(false);
-            //			po.setShowManNames(false);
-            //			r2d.addPostRenderPainter(po);
-            //
-            //			r2d.setSize(width-100, height-100);
-            //			r2d.focusLocation(path.getCenterPoint());
-            //			r2d.update(g2);
-            //			g2.dispose();
-            //			cb.addTemplate(tp, 50, 50);
-            //			writePageNumber(cb, page++, charts.length+3);
-            //			writeHeader(cb, source);
-            //			writeFooter(cb, source);
-            //			/*
-            //			Camera3D cam =new Camera3D(Camera3D.USER);
-            //			Camera3D[]  cams={cam};
-            //			Renderer3D r3d = new Renderer3D(cams,(short)1,(short)1);
-            //
-            //			r3d.setMapGroup(MapGroup.getMapGroupInstance(mt));
-            //			r3d.focusLocation(path.getCenterLocation());
-            //
-            //			doc.newPage();
-            //
-            //			tp = cb.createTemplate(width-100, height-100);
-            //
-            //			g2 = tp.createGraphicsShapes(width-100, height-100);
-            //
-            //			r3d.setSize(width-100, height-100);
-            //			r3d.cams[0].getCanvas3DPanel().paint(g2);
-            //			//r3d.paint(g2);
-            //
-            //			g2.dispose();
-            //			cb.addTemplate(tp, 50, 50);
-            //			writePageNumber(cb, page++, charts.length+3);
-            //			writeHeader(cb, source);
-            //			writeFooter(cb, source);
-            //			*/
-            //			doc.newPage();
-            //			writeDetailsPage(cb, source);
-            //			writePageNumber(cb, page++, charts.length+3);
-            //			writeHeader(cb, source);
-            //			writeFooter(cb, source);
-
-            //writer.addAnnotation(PdfAnnotation.createFileAttachment(writer, new Rectangle(100f, 100f), "sample file", "test".getBytes(), null, "texto")); 			
-            //			doc.close();
-            //			out.flush();
-            //			out.close();
-
         }
         catch (Exception e) {			
             e.printStackTrace();
-            GuiUtils.errorMessage("Error generating report", e.getMessage());
+            GuiUtils.errorMessage(I18n.text("Error generating report"), e.getMessage());
             return false;
         }
         return true;
@@ -541,27 +360,18 @@ public class GeneratorChecklistPDF {
 
         ConfigFetch.initialize();
 
-        //		if (args.length == 0) {
-        //			NeptusLog.pub().info("<###>Usage: LLFReport <directory>");
-        //			System.exit(1);
-        //		}
-
         generateReport(new ChecklistType("checklists/check3.nchk"), new File(
                 "checklists/check2_test.pdf"));
 
         generateReport(new ChecklistType("checklists/check4.nchk"), new File(
                 "checklists/check2_test1.pdf"));
-
     }
-
-
 }
 
 class PageEvents extends PdfPageEventHelper {
     protected ChecklistType clist = null;
     protected PdfTemplate total;   
     protected BaseFont helv; 
-
 
     public PageEvents(ChecklistType clist) {
         this.clist = clist;
@@ -574,10 +384,12 @@ class PageEvents extends PdfPageEventHelper {
         try {
             helv = BaseFont.createFont(BaseFont.HELVETICA,   
                     BaseFont.WINANSI, BaseFont.NOT_EMBEDDED); 
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new ExceptionConverter(e);
         }
     }
+    
     @Override
     public void onEndPage(PdfWriter writer, Document document) {
         PdfContentByte cb = writer.getDirectContent();
@@ -586,7 +398,7 @@ class PageEvents extends PdfPageEventHelper {
         cb.setColorFill(Color.gray);
 
         //String text = "Page " + writer.getPageNumber() + " of ";
-        String text = "Document generated by Neptus ";//+ConfigFetch.getNeptusVersion();//+" on "+new Date();
+        String text = I18n.text("Document generated by") + " Neptus ";//+ConfigFetch.getNeptusVersion();//+" on "+new Date();
         float textBase = document.bottom() - 20;
         float textSize = helv.getWidthPoint(text, 8);
         cb.beginText();
@@ -601,15 +413,13 @@ class PageEvents extends PdfPageEventHelper {
         textSize = helv.getWidthPoint(text, 8);
         cb.beginText();
         float adjust = helv.getWidthPoint("0", 8);  
-        cb.setTextMatrix(                                                 
-                document.right() - textSize - adjust, textBase);                
+        cb.setTextMatrix(document.right() - textSize - adjust, textBase);                
         cb.showText(text);                                                
         cb.endText();                                       
         cb.addTemplate(total, document.right() - adjust, textBase);   
 
-
         //text = ""+new Date();
-        text = (clist != null)?clist.getName():"";
+        text = (clist != null) ? clist.getName() : "";
         textBase = document.top() + 20;
         textSize = helv.getWidthPoint(text, 8);
         cb.beginText();
@@ -619,7 +429,7 @@ class PageEvents extends PdfPageEventHelper {
         cb.endText();                                       
         cb.addTemplate(total, document.left() + textSize, textBase);   
 
-        text = ""+DateTimeUtil.dateTimeFormaterNoSegs.format(new Date());
+        text = "" + DateTimeUtil.dateTimeFormaterNoSegs.format(new Date());
         textBase = document.top() + 20;
         textSize = helv.getWidthPoint(text, 8);
         cb.beginText();

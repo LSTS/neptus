@@ -61,9 +61,9 @@ import javax.swing.JScrollPane;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 
-import com.google.common.eventbus.Subscribe;
-
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.LblBeacon;
+import pt.lsts.imc.LblConfig;
 import pt.lsts.imc.LblRangeAcceptance;
 import pt.lsts.imc.LblRangeAcceptance.ACCEPTANCE;
 import pt.lsts.neptus.NeptusLog;
@@ -96,10 +96,10 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.ScatterPointsElement;
 import pt.lsts.neptus.types.map.TransponderElement;
-import pt.lsts.neptus.types.map.TransponderUtils;
 import pt.lsts.neptus.types.mission.HomeReference;
 import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -107,6 +107,8 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.lbl.LBLTriangulationHelper;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * @author pdias
@@ -464,6 +466,14 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
         reset();
     }
 
+    @Subscribe
+    public void consume(LblConfig msg) {
+        if (!msg.getSourceName().equals(getConsole().getMainSystem()))
+            return;
+        if (msg.getOp() == LblConfig.OP.CUR_CFG)
+            reInitTracker();
+    }
+
 //    private void updatePosition(int trans1, int trans2, double trans1ToVehicleDistance, double trans2ToVehicleDistance) {
 //        try {
 //            LocationType[] locArray = calculate(trans1, trans2, trans1ToVehicleDistance, trans2ToVehicleDistance);
@@ -728,18 +738,26 @@ SubPanelChangeListener, MissionChangeListener, MapChangeListener, ConfigurationL
     private void initTracker() {
         LinkedHashMap<String, MapMission> mapList = missionType.getMapsList();
 
-        for (MapMission mpm : mapList.values()) {
-            LinkedHashMap<String, TransponderElement> transList = mpm.getMap().getTranspondersList();
+        ImcSystem system = ImcSystemsHolder.getSystemWithName(getMainVehicleId());
+        if (system != null) {
+            LblConfig lbl = (LblConfig) system.retrieveData(ImcSystem.LBL_CONFIG_KEY);
+            Vector<LblBeacon> beaconList;
 
-            ArrayList<TransponderElement> tal = new ArrayList<TransponderElement>(transList.values());
-            // Let us order the beacons in alphabetic order (case insensitive)
-            TransponderUtils.orderTransponders(tal);
-//            Collections.sort(tal, new Comparator<TransponderElement>() {
-//                @Override
-//                public int compare(TransponderElement o1, TransponderElement o2) {
-//                    return o1.getId().compareToIgnoreCase(o2.getId());
-//                }
-//            });
+            try {
+                beaconList = lbl.getBeacons();
+            }
+            catch (Exception e) {
+                return;
+            }
+
+            ArrayList<TransponderElement> tal = new ArrayList<TransponderElement>();
+            short duneId = 0;
+
+            MapGroup mg = MapGroup.getMapGroupInstance(getConsole().getMission());
+            for (LblBeacon tmp : beaconList) {
+                tal.add(new TransponderElement(tmp, duneId, mg, mg.getMaps()[0]));
+                duneId++;
+            }
 
             for (TransponderElement tmp : tal) {
                 transponders.add(tmp);

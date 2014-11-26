@@ -135,7 +135,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
                         }
                         if (markerList.containsKey(row)) {
                             setForeground(Color.RED);
-                            setToolTipText("Marker: " + markerList.get(row).label);
+                            setToolTipText("Marker: " + markerList.get(row).getLabel());
                         }
                         return this;
                     }
@@ -235,7 +235,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
 
     @Override
     public void addLogMarker(LogMarker marker) {
-        Long timestamp = new Double(marker.timestamp).longValue();
+        Long timestamp = new Double(marker.getTimestamp()).longValue();
         for (int i = 0; i < log.getNumberOfEntries() - 1; i++) {
             if (timestamp < ((long) model.getValueAt(i, 0) - 10)) {
                 markerList.put(i, marker);
@@ -248,7 +248,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     @Override
     public void removeLogMarker(LogMarker marker) {
         for (Integer m : markerList.keySet()) {
-            if (marker.timestamp == markerList.get(m).timestamp) {
+            if (marker.getTimestamp() == markerList.get(m).getTimestamp()) {
                 markerList.remove(m);
                 model.fireTableDataChanged();
                 break;

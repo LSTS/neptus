@@ -55,7 +55,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  *
  */
-@PluginDescription
+@PluginDescription(active=false)
 public class IridiumVisualization extends SimpleMRAVisualization {
 
     IridiumMessagesTableModel tableModel = new IridiumMessagesTableModel();

@@ -98,7 +98,7 @@ import pt.lsts.neptus.util.llf.LogUtils;
  * 
  */
 @SuppressWarnings("serial")
-@PluginDescription(author = "Paulo Dias", name = "Bathymetry 2D", version = "0.9", icon = "pt/lsts/neptus/plugins/mraplots/2D_v2.png")
+@PluginDescription(author = "Paulo Dias", name = "Bathymetry 2D", version = "0.9", icon = "pt/lsts/neptus/plugins/mraplots/2D_v2.png", active=false)
 public class BathymetryPlotter extends SimpleMRAVisualization {
 
     // GUI

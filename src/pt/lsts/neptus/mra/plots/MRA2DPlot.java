@@ -187,7 +187,13 @@ public abstract class MRA2DPlot implements LLFChart, LogMarkerListener {
 
         // Do this here to make sure we have a built chart.. //FIXME FIXME FIXME
         for (LogMarker marker : mraPanel.getMarkers()) {
-            addLogMarker(marker);
+            try {
+                addLogMarker(marker);
+            }
+            catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
         return chart;
     }

@@ -5,6 +5,7 @@ jdk:
 
 install:
  - sudo apt-get install sshpass -qq
+ - sudo apt-get install nsis -qq
 
 env:
   global:
@@ -14,5 +15,5 @@ before_script:
   - echo -e "Host zpserver.info\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
   - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 after_script:
-  - sshpass -p "$pass" scp -v *gz lsts@zpserver.info:~/public_html/neptus/Neptus_`git log --pretty=format:%ad_%h --date=short -1`.tar.gz
+  - sshpass -p "$pass" scp -v Neptus-* lsts@zpserver.info:~/public_html/neptus/
 

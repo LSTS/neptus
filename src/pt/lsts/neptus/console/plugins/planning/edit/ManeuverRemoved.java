@@ -55,7 +55,7 @@ public class ManeuverRemoved extends AbstractUndoableEdit {
     protected Vector<TransitionType> addedTransitions = new Vector<TransitionType>();
     protected Vector<TransitionType> removedTransitions = new Vector<TransitionType>();
     protected boolean initial = false;
-    
+
     public ManeuverRemoved(Maneuver maneuver, PlanType plan, Collection<TransitionType> addedTransitions,  Collection<TransitionType> removedTransitions, boolean wasInitial) {
         this.maneuver = maneuver;
         this.plan = plan;    
@@ -63,51 +63,60 @@ public class ManeuverRemoved extends AbstractUndoableEdit {
         this.removedTransitions.addAll(removedTransitions);
         initial = wasInitial;
     }
-    
+
     @Override
     public boolean canUndo() {
         return true;
     }
-    
+
     @Override
     public boolean canRedo() {
         return true;
     }
-    
+
     @Override
     public String getPresentationName() {
-        return I18n.text("Remove the maneuver ") + maneuver.getId();
+        return I18n.textf("Remove the maneuver %maneuverId", maneuver.getId());
     }
-    
+
     @Override
     public void redo() throws CannotUndoException {
         for (TransitionType tt : removedTransitions)
             plan.getGraph().removeTransition(tt);    
-        
-       plan.getGraph().removeManeuver(maneuver);
-        
-       for (TransitionType tt : addedTransitions)
+
+        plan.getGraph().removeManeuver(maneuver);
+
+        for (TransitionType tt : addedTransitions)
             plan.getGraph().addTransition(tt);
+
+        if (initial && !removedTransitions.isEmpty()) {
+            plan.getGraph().setInitialManeuver(removedTransitions.firstElement().getTargetManeuver());
+        }
+            
+
     }
-    
+
     @Override
     public void undo() throws CannotRedoException {
         for (TransitionType tt : addedTransitions)
             plan.getGraph().removeTransition(tt);
-        
+
         plan.getGraph().addManeuver(maneuver);         
-        
+
         for (TransitionType tt : removedTransitions)
             plan.getGraph().addTransition(tt);
+
+        if (initial)
+            plan.getGraph().setInitialManeuver(maneuver.getId());
     }
-    
+
     /**
      * @return the maneuver
      */
     public Maneuver getManeuver() {
         return maneuver;
     }
-    
+
     /**
      * @return the plan
      */
@@ -115,5 +124,5 @@ public class ManeuverRemoved extends AbstractUndoableEdit {
         return plan;
     }
 
-    
+
 }

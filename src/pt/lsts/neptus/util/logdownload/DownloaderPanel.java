@@ -590,6 +590,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
                     NeptusLog.pub().debug("callable download for " + getName());
                     return doDownloadWorker();
                 }
+                queueWorkTickets.release(DownloaderPanel.this); // If we are not using the lease, just release it
                 return true;
             }
         });
@@ -836,7 +837,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
 		    if (stream != null)
 		    stream.close();
         }
-        catch (IOException e) {
+        catch (Exception e) {
             e.printStackTrace();
         }
         try {
@@ -845,7 +846,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             if (invalidate)
                 client = null;
         }
-        catch (IOException e) {
+        catch (Exception e) {
             e.printStackTrace();
         }
         if (getState() != State.DONE)

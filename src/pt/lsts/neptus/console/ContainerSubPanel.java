@@ -218,8 +218,13 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
         super.clean();
         this.removeAll();
         for (ConsolePanel panel : this.panels) {
-            panel.clean();
-            System.out.println("cleaned " + panel.getName());
+            try {
+                panel.clean();
+                NeptusLog.pub().info("Cleaned " + panel.getName() + " in " + ContainerSubPanel.this.getName());
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error("Error cleaning " + panel.getName() + " in " + ContainerSubPanel.this.getName() + " :: " + e.getMessage(), e);
+            }
         }
     }
 

@@ -76,7 +76,7 @@ createLauncher()
   echo "Name[en]=$1" >> "$1.desktop"
   echo "Exec=\"$fullPath/neptus.sh\" $2" >> "$1.desktop"
   echo "Name=$1" >> "$1.desktop"
-  echo "Icon=\"$fullPath/neptus.png\"" >> "$1.desktop"
+  echo "Icon=$fullPath/neptus.png" >> "$1.desktop"
 
   chmod a+x "$1.desktop"
 }

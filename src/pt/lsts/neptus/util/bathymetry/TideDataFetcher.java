@@ -53,6 +53,9 @@ public class TideDataFetcher {
         Leixoes(12, 0),
         DouroCapitania(50, 12),
         DouroCrestuma(42, 12),
+        
+        Funchal(112, 0),
+        PontaDelgada(211, 0),
 
         VianaDoCastelo(74, 0),
         PovoaDeVarzim(49, 74),

@@ -146,7 +146,8 @@ public class AisContactDb implements AISObserver {
     }
     
     public void processBtll(String sentence) {
-        String[] parts = sentence.trim().split(",");
+        //$A-TLL,1,4330.60542,N,01623.45716,E,IVER-UPCT,,,315.4*02
+        String[] parts = sentence.replaceFirst("\\*\\w\\w$", "").trim().split(",");
         int mmsi = Integer.parseInt(parts[1]);
         double lat = 0, lon = 0;
         try {
@@ -164,7 +165,7 @@ public class AisContactDb implements AISObserver {
             return;      
         }
         String id = parts[6];
-        
+
         // no need to use AIS for systems using IMC
         if (ImcSystemsHolder.getSystemWithName(id) != null && ImcSystemsHolder.getSystemWithName(id).isActive()) {
             return;

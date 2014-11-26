@@ -237,6 +237,8 @@ public class GeneralPreferences implements PropertiesProvider {
 
     public static void initialize() {
         String generalPropertiesFile = ConfigFetch.resolvePathBasedOnConfigFile(GENERAL_PROPERTIES_FILE);
+        if (!new File(generalPropertiesFile).exists())
+            generalPropertiesFile = ConfigFetch.resolvePathBasedOnConfigFile("../" + GENERAL_PROPERTIES_FILE);
         PropertiesLoader generalProperties = new PropertiesLoader(generalPropertiesFile, PropertiesLoader.XML_PROPERTIES);
         setPropertiesLoader(generalProperties);
     }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,f298003)" system="adamastor" i18n="en_US">
+<config format="1" version="2.6.0 (HEAD,660f19f)" system="adamastor" i18n="en_US">
   <section name="LED Driver" name-i18n="LED Driver">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1922,15 +1922,6 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
-    <param name="Trace">
-      <name-i18n>Trace</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable verbose output</desc>
-    </param>
     <param name="DB Path">
       <name-i18n>DB Path</name-i18n>
       <type>string</type>
@@ -2172,6 +2163,15 @@
       <default>1000</default>
       <units/>
       <desc>Speed in RPMs to be used in the generated maneuvers</desc>
+    </param>
+    <param name="Generate At Boot">
+      <name-i18n>Generate At Boot</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Set of commands for plans to generate at boot</desc>
     </param>
   </section>
   <section name="Power Supply" name-i18n="Power Supply">
@@ -2463,7 +2463,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>ATX</default>
+      <default>Private (ATX)</default>
       <units/>
       <desc/>
     </param>
@@ -2607,7 +2607,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CPU</default>
+      <default>Private (CPU)</default>
       <units/>
       <desc/>
     </param>
@@ -2715,7 +2715,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>DVL</default>
+      <default>Private (DVL)</default>
       <units/>
       <desc/>
     </param>
@@ -3853,13 +3853,33 @@
       <desc/>
       <min>0</min>
     </param>
-    <param name="Ping Timeout">
-      <name-i18n>Ping Timeout</name-i18n>
-      <type>integer</type>
+    <param name="Transponder Ping Timeout">
+      <name-i18n>Transponder Ping Timeout</name-i18n>
+      <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1000</default>
-      <units>ms</units>
+      <default>2</default>
+      <units>s</units>
+      <desc/>
+      <min>0</min>
+    </param>
+    <param name="Transponder Ping Wait Time">
+      <name-i18n>Transponder Ping Wait Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.5</default>
+      <units>s</units>
+      <desc/>
+      <min>0</min>
+    </param>
+    <param name="Micromodem Ping Timeout">
+      <name-i18n>Micromodem Ping Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>s</units>
       <desc/>
       <min>0</min>
     </param>
@@ -3868,7 +3888,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2</default>
+      <default>3</default>
       <units>s</units>
       <desc/>
       <min>2</min>
@@ -3900,7 +3920,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>5</default>
+      <default>10</default>
       <units>s</units>
       <desc/>
       <min>0</min>

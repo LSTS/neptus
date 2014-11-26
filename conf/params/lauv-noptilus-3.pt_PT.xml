@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,f298003)" system="lauv-noptilus-3" i18n="pt_PT">
+<config format="1" version="2.6.0 (HEAD,660f19f)" system="lauv-noptilus-3" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -1390,7 +1390,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.8</default>
+      <default>1.2</default>
       <units>m</units>
       <desc>Minimum admissible altitude for bottom tracking</desc>
     </param>
@@ -1444,7 +1444,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>false</default>
+      <default>true</default>
       <units/>
       <desc>Enable or disable obstacle avoidance during depth control</desc>
     </param>
@@ -1453,27 +1453,9 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>3.0</default>
+      <default>2.5</default>
       <units>m</units>
       <desc>Admissible altitude when doing depth control</desc>
-    </param>
-    <param name="Filter EstimatedState">
-      <name-i18n>Filter EstimatedState</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable or disable EstimateState filtering by entity</desc>
-    </param>
-    <param name="Filter Entity">
-      <name-i18n>Filter Entity</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Autopilot</default>
-      <units/>
-      <desc>Only accepts EstimatedState from this entity</desc>
     </param>
     <param name="Corridor -- Width">
       <name-i18n>Corridor -- Width</name-i18n>
@@ -1788,6 +1770,15 @@
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
+    <param name="Entity Label -- IdleManeuver">
+      <name-i18n>Entity Label -- IdleManeuver</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Idle Maneuver</default>
+      <units/>
+      <desc>IdleManeuver maneuver's entity label</desc>
+    </param>
     <param name="Entity Label -- Goto">
       <name-i18n>Entity Label -- Goto</name-i18n>
       <type>string</type>
@@ -1869,14 +1860,14 @@
       <units/>
       <desc>Dislodge maneuver's entity label</desc>
     </param>
-    <param name="Entity Label -- Idle">
-      <name-i18n>Entity Label -- Idle</name-i18n>
-      <type>string</type>
+    <param name="Unsupported">
+      <name-i18n>Unsupported</name-i18n>
+      <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Idle Maneuver</default>
+      <default/>
       <units/>
-      <desc>Idle maneuver's entity label</desc>
+      <desc>List of unsupported maneuvers</desc>
     </param>
     <param name="Loiter -- Minimum Radius">
       <name-i18n>Loiter -- Minimum Radius</name-i18n>
@@ -2992,12 +2983,21 @@
       <units>%</units>
       <desc>Minimum confidence for recomputing update</desc>
     </param>
+    <param name="Update Estimate Anytime">
+      <name-i18n>Update Estimate Anytime</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Update estimate even if maneuvering</desc>
+    </param>
     <param name="Estimated Entity Label List">
       <name-i18n>Estimated Entity Label List</name-i18n>
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Camera Module</default>
+      <default>Camera</default>
       <units/>
       <desc>List of entity labels that must be estimated</desc>
     </param>
@@ -3067,6 +3067,33 @@
       <default>1</default>
       <units>Hz</units>
       <desc>Frequência com que a tarefa é executada</desc>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Ativa - Escopo</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>idle</default>
+      <units/>
+      <desc>Escopo do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Ativa - Visibilidade</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>developer</default>
+      <units/>
+      <desc>Visibilidade do parâmetro 'Ativa'</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Ativa</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>idle</scope>
+      <default>1</default>
+      <units/>
+      <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
     </param>
     <param name="Initialization Time">
       <name-i18n>Initialization Time</name-i18n>
@@ -4018,16 +4045,27 @@
       <min>5</min>
       <max>20</max>
     </param>
-    <param name="RPM to Speed multiplicative factor">
-      <name-i18n>RPM to Speed multiplicative factor</name-i18n>
+    <param name="Revolutions to speed factor">
+      <name-i18n>Revolutions to speed factor</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.2e-3</default>
+      <default>1.015e-3</default>
       <units/>
-      <desc>Kalman Filter initial RPM to Speed multiplicative factor state value</desc>
+      <desc>Kalman Filter initial revolutions to speed multiplicative factor state value</desc>
       <min>0.8e-3</min>
       <max>2.0e-3</max>
+    </param>
+    <param name="Revolutions to speed variation">
+      <name-i18n>Revolutions to speed variation</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>6e-4</default>
+      <units/>
+      <desc>Kalman Filter revolutions to speed maximum allowed variation</desc>
+      <min>4e-4</min>
+      <max>8e-4</max>
     </param>
     <param name="Update Heading with Euler Increments">
       <name-i18n>Update Heading with Euler Increments</name-i18n>
@@ -4115,15 +4153,6 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Trace">
-      <name-i18n>Trace</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable verbose output</desc>
     </param>
     <param name="DB Path">
       <name-i18n>DB Path</name-i18n>
@@ -4366,6 +4395,15 @@
       <default>1000</default>
       <units/>
       <desc>Speed in RPMs to be used in the generated maneuvers</desc>
+    </param>
+    <param name="Generate At Boot">
+      <name-i18n>Generate At Boot</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>dislodge</default>
+      <units/>
+      <desc>Set of commands for plans to generate at boot</desc>
     </param>
   </section>
   <section name="Power Supply" name-i18n="Fonte de Energia">
@@ -4657,7 +4695,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>ATX</default>
+      <default>Private (ATX)</default>
       <units/>
       <desc/>
     </param>
@@ -4747,7 +4785,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Sidescan</default>
+      <default>Private (Sidescan)</default>
       <units/>
       <desc/>
     </param>
@@ -4765,7 +4803,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Camera - CPU</default>
+      <default>Private (Camera - CPU)</default>
       <units/>
       <desc/>
     </param>
@@ -4801,7 +4839,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CPU</default>
+      <default>Private (CPU)</default>
       <units/>
       <desc/>
     </param>
@@ -4927,7 +4965,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Ethernet Switch</default>
+      <default>Private (Ethernet Switch)</default>
       <units/>
       <desc/>
     </param>
@@ -4963,7 +5001,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>DVL</default>
+      <default>Private (DVL)</default>
       <units/>
       <desc/>
     </param>
@@ -6239,7 +6277,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.0558, 0.0216, 0.0000</default>
+      <default>0.0546, 0.0158, 0.0</default>
       <units>G</units>
       <desc>Hard-Iron calibration parameters</desc>
       <size>3</size>
@@ -6456,7 +6494,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>DVL</default>
+      <default>Private (DVL)</default>
       <units/>
       <desc>Power channel that controls the power of the device</desc>
     </param>
@@ -6750,7 +6788,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Spew</default>
+      <default>None</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
@@ -6779,7 +6817,7 @@
       <type>boolean</type>
       <visibility>developer</visibility>
       <scope>maneuver</scope>
-      <default>0</default>
+      <default>false</default>
       <units/>
       <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
     </param>
@@ -6788,7 +6826,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Camera - CPU</default>
+      <default>Private (Camera - CPU)</default>
       <units/>
       <desc>Power channel</desc>
     </param>
@@ -8550,7 +8588,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>90</default>
       <units/>
       <desc/>
     </param>
@@ -8597,7 +8635,7 @@
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>maneuver</scope>
-      <default>0</default>
+      <default>false</default>
       <units/>
       <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
     </param>
@@ -8609,6 +8647,15 @@
       <default>-1</default>
       <units/>
       <desc>GPIO that controls power to the camera</desc>
+    </param>
+    <param name="LED GPIO">
+      <name-i18n>LED GPIO</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-1</default>
+      <units/>
+      <desc>GPIO that controls power to the LEDs</desc>
     </param>
     <param name="Camera IPv4 Address">
       <name-i18n>Camera IPv4 Address</name-i18n>

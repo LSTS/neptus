@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.util.logdownload;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -67,7 +68,7 @@ public class QueueWorkTickets <C extends Object> {
      * @param client
      * @return
      */
-    public boolean lease(C client) {
+    protected boolean lease(C client) {
         if (waitingClients.contains(client)) {
             return false;
         }
@@ -84,16 +85,27 @@ public class QueueWorkTickets <C extends Object> {
         return isLeased(client);
     }
 
+    /**
+     * The future will hold the lease result. It is client responsibility to release if result is true.
+     * @param client
+     * @return
+     */
     public Future<Boolean> leaseAndWait(C client) {
         return leaseAndWait(client, null);
     }
 
+    /**
+     * The future will hold the lease result. It is client responsibility to release if result is true.
+     * @param client
+     * @param callable
+     * @return
+     */
     public Future<Boolean> leaseAndWait(C client, Callable<Boolean> callable) {
-        QueueFuture future = new QueueFuture(callable);
         if (futures.containsKey(client)) {
             QueueFuture fTmp = futures.remove(client);
             fTmp.cancel(true);
         }
+        QueueFuture future = new QueueFuture(client, callable);
         futures.put(client, future);
         @SuppressWarnings("unused")
         boolean res = lease(client);
@@ -172,6 +184,7 @@ public class QueueWorkTickets <C extends Object> {
 
     public void cancelAll() {
         synchronized (workingClients) {
+            NeptusLog.pub().warn(QueueWorkTickets.class.getSimpleName() + " |..cancel all....... size of workers=" + workingClients.size() + "  waiting=" + waitingClients.size());
             workingClients.clear();
             waitingClients.clear();
             for (QueueFuture ft : futures.values()) {
@@ -180,13 +193,37 @@ public class QueueWorkTickets <C extends Object> {
         }
     }
 
+    /**
+     * @return A copy of the current ticket older workers. 
+     */
+    @SuppressWarnings("unchecked")
+    public ArrayList<C> getAllWorkingClients() {
+        ArrayList<C> ret = new ArrayList<>();
+        Object[] retArray;
+        try {
+            synchronized (workingClients) {
+                retArray = workingClients.toArray(new Object[workingClients.size()]);
+            }
+            for (Object o : retArray) {
+                ret.add((C) o);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
+    
     private class QueueFuture implements Future<Boolean> {
 
+        private C client = null;
         private Callable<Boolean> callable = null;
         private Boolean result = null;
         private boolean canceled = false;
         
-        public QueueFuture(Callable<Boolean> callable) {
+        public QueueFuture(C client, Callable<Boolean> callable) {
+            this.client = client;
             this.callable = callable;
         }
 
@@ -214,6 +251,7 @@ public class QueueWorkTickets <C extends Object> {
                 catch (Exception e) {
                     e.printStackTrace();
                     result = false;
+                    release(client); // Here we need to be sure to release the lock because we are not able to inform the client 
                 }
             }
             else {
@@ -232,6 +270,7 @@ public class QueueWorkTickets <C extends Object> {
 
         @Override
         public boolean cancel(boolean mayInterruptIfRunning) {
+            // The caller must release the lock
             canceled = true;
             return false;
         }

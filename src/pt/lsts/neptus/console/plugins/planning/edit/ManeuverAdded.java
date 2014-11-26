@@ -38,6 +38,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.types.mission.TransitionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -76,27 +77,39 @@ public class ManeuverAdded extends AbstractUndoableEdit {
     
     @Override
     public String getPresentationName() {
-        return "Add the maneuver "+maneuver.getId();
+        return I18n.textf("Add the maneuver %maneuverId", maneuver.getId());
     }
     
     @Override
     public void undo() throws CannotUndoException {
         //plan.getGraph().removeManeuver(maneuver);
         
-        for (TransitionType tt : addedTransitions)
-            plan.getGraph().removeTransition(tt);
+        for (TransitionType tt : addedTransitions) {
+            if (tt != null)
+                plan.getGraph().removeTransition(tt);
+        }
+            
         plan.getGraph().removeManeuver(maneuver);        
-        for (TransitionType tt : removedTransitions)
-            plan.getGraph().addTransition(tt);
+        for (TransitionType tt : removedTransitions) {
+            if (tt != null)
+                plan.getGraph().addTransition(tt);
+        }
     }
     
     @Override
     public void redo() throws CannotRedoException {
-        for (TransitionType tt : removedTransitions)
-            plan.getGraph().removeTransition(tt);
+        for (TransitionType tt : removedTransitions) {
+            if (tt != null)
+                plan.getGraph().removeTransition(tt);
+        }
         plan.getGraph().addManeuver(maneuver);        
-        for (TransitionType tt : addedTransitions)
-            plan.getGraph().addTransition(tt);        
+        for (TransitionType tt : addedTransitions) {
+            if (tt != null)        
+            plan.getGraph().addTransition(tt);
+        }
+        
+        if(initial)
+            plan.getGraph().setInitialManeuver(maneuver.getId());
     }
     
     /**

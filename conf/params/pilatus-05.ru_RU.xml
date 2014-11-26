@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,f298003)" system="pilatus-05" i18n="ru_RU">
-  <section name="Text Message Parser" name-i18n="Анализа текстовых сообщений">
+<config format="1" version="2.6.0 (HEAD,660f19f)" system="pilatus-05" i18n="ru_RU">
+  <section name="Text Message Parser" name-i18n="Text Message Parser">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Text Message Parser</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -29,7 +29,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -38,7 +38,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -49,27 +49,27 @@
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
   </section>
-  <section name="Follow Reference" name-i18n="Перейти по ссылке">
+  <section name="Follow Reference" name-i18n="Follow Reference">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Follow Reference</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -78,7 +78,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -87,7 +87,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -136,25 +136,25 @@
   </section>
   <section name="Multiplexer Maneuver" name-i18n="Multiplexer Maneuver">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Multiplexer Maneuver</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -163,7 +163,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -172,7 +172,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -181,6 +181,15 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Entity Label -- IdleManeuver">
+      <name-i18n>Entity Label -- IdleManeuver</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Idle Maneuver</default>
+      <units/>
+      <desc>IdleManeuver maneuver's entity label</desc>
     </param>
     <param name="Entity Label -- Goto">
       <name-i18n>Entity Label -- Goto</name-i18n>
@@ -263,14 +272,14 @@
       <units/>
       <desc>Dislodge maneuver's entity label</desc>
     </param>
-    <param name="Entity Label -- Idle">
-      <name-i18n>Entity Label -- Idle</name-i18n>
-      <type>string</type>
+    <param name="Unsupported">
+      <name-i18n>Unsupported</name-i18n>
+      <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Idle Maneuver</default>
+      <default/>
       <units/>
-      <desc>Idle maneuver's entity label</desc>
+      <desc>List of unsupported maneuvers</desc>
     </param>
     <param name="Loiter -- Minimum Radius">
       <name-i18n>Loiter -- Minimum Radius</name-i18n>
@@ -453,27 +462,27 @@
       <desc>Safe depth change to consider the maneuver was successful</desc>
     </param>
   </section>
-  <section name="CPU" name-i18n="Процессор">
+  <section name="CPU" name-i18n="CPU">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>CPU</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -482,7 +491,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -491,7 +500,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -502,13 +511,13 @@
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
     <param name="Execution Frequency">
-      <name-i18n>Частоты выполнения</name-i18n>
+      <name-i18n>Execution Frequency</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>1</default>
       <units>Hz</units>
-      <desc>Частота, на которой выполняется задача</desc>
+      <desc>Frequency at which task is executed</desc>
     </param>
     <param name="CPU - Moving Average Samples">
       <name-i18n>CPU - Moving Average Samples</name-i18n>
@@ -532,27 +541,27 @@
       <max>100</max>
     </param>
   </section>
-  <section name="Clock" name-i18n="Часы">
+  <section name="Clock" name-i18n="Clock">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Clock</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -561,7 +570,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -570,7 +579,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -620,27 +629,27 @@
       <desc>System command to execute everytime the clock is synchronized</desc>
     </param>
   </section>
-  <section name="Entity Monitor" name-i18n="Entity монитор">
+  <section name="Entity Monitor" name-i18n="Entity Monitor">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Entity Monitor</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -649,7 +658,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -658,7 +667,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -716,27 +725,27 @@
       <min>0</min>
     </param>
   </section>
-  <section name="Medium" name-i18n="Среда">
+  <section name="Medium" name-i18n="Medium">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Medium</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -745,7 +754,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -754,7 +763,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -765,13 +774,40 @@
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
     <param name="Execution Frequency">
-      <name-i18n>Частоты выполнения</name-i18n>
+      <name-i18n>Execution Frequency</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>2</default>
       <units>Hz</units>
-      <desc>Частота, на которой выполняется задача</desc>
+      <desc>Frequency at which task is executed</desc>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>idle</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>developer</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>idle</scope>
+      <default>1</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
     </param>
     <param name="Initialization Time">
       <name-i18n>Initialization Time</name-i18n>
@@ -865,27 +901,27 @@
       <desc>Entity label of 'EntityState' Medium Sensor messages</desc>
     </param>
   </section>
-  <section name="Plan Database" name-i18n="План баз данных">
+  <section name="Plan Database" name-i18n="Plan Database">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Plan Database</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -894,7 +930,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -903,7 +939,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -912,15 +948,6 @@
       <desc/>
       <values>None, Debug, Trace, Spew</values>
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Trace">
-      <name-i18n>Trace</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Enable verbose output</desc>
     </param>
     <param name="DB Path">
       <name-i18n>DB Path</name-i18n>
@@ -932,27 +959,27 @@
       <desc>Path to DB file</desc>
     </param>
   </section>
-  <section name="Plan Engine" name-i18n="План двигателя">
+  <section name="Plan Engine" name-i18n="Plan Engine">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Plan Engine</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -961,7 +988,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -970,7 +997,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1071,27 +1098,27 @@
       <desc>Entity label of the IMU for fuel prediction</desc>
     </param>
   </section>
-  <section name="Plan Generator" name-i18n="План Генератор">
+  <section name="Plan Generator" name-i18n="Plan Generator">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Plan Generator</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1100,7 +1127,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1109,7 +1136,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1164,28 +1191,37 @@
       <units/>
       <desc>Speed in RPMs to be used in the generated maneuvers</desc>
     </param>
+    <param name="Generate At Boot">
+      <name-i18n>Generate At Boot</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Set of commands for plans to generate at boot</desc>
+    </param>
   </section>
   <section name="Lost Comms Monitor" name-i18n="Lost Comms Monitor">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Lost Comms Monitor</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1194,7 +1230,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1203,7 +1239,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1214,13 +1250,13 @@
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
     <param name="Execution Frequency">
-      <name-i18n>Частоты выполнения</name-i18n>
+      <name-i18n>Execution Frequency</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>1</default>
       <units>Hz</units>
-      <desc>Частота, на которой выполняется задача</desc>
+      <desc>Frequency at which task is executed</desc>
     </param>
     <param name="Heartbeat Timeout">
       <name-i18n>Heartbeat Timeout</name-i18n>
@@ -1230,6 +1266,8 @@
       <default>10</default>
       <units>s</units>
       <desc>Heartbeat Timeout</desc>
+      <min>0.0</min>
+      <max>60.0</max>
     </param>
     <param name="In Mission Timeout">
       <name-i18n>In Mission Timeout</name-i18n>
@@ -1239,6 +1277,8 @@
       <default>20</default>
       <units>s</units>
       <desc>Timeout if executing plan</desc>
+      <min>0.0</min>
+      <max>60.0</max>
     </param>
     <param name="Lost Comms Plan">
       <name-i18n>Lost Comms Plan</name-i18n>
@@ -1250,27 +1290,27 @@
       <desc>Plan to be executed in case of Lost Communications</desc>
     </param>
   </section>
-  <section name="Vehicle Supervisor" name-i18n="Автомобиль Supervisor">
+  <section name="Vehicle Supervisor" name-i18n="Vehicle Supervisor">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Vehicle Supervisor</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1279,7 +1319,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1288,7 +1328,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1299,13 +1339,13 @@
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
     <param name="Execution Frequency">
-      <name-i18n>Частоты выполнения</name-i18n>
+      <name-i18n>Execution Frequency</name-i18n>
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>2</default>
       <units>Hz</units>
-      <desc>Частота, на которой выполняется задача</desc>
+      <desc>Frequency at which task is executed</desc>
     </param>
     <param name="Safe Entities">
       <name-i18n>Safe Entities</name-i18n>
@@ -1335,27 +1375,27 @@
       <desc>Timeout for starting or stopping a maneuver</desc>
     </param>
   </section>
-  <section name="Announce" name-i18n="Объявлять">
+  <section name="Announce" name-i18n="Announce">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Announce</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1364,7 +1404,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1373,7 +1413,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1474,27 +1514,27 @@
       <desc>List of interfaces whose services will not be announced</desc>
     </param>
   </section>
-  <section name="Cache" name-i18n="Кэш">
+  <section name="Cache" name-i18n="Cache">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Cache</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1503,7 +1543,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1512,7 +1552,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1532,27 +1572,27 @@
       <desc>List of messages ordered by loading order</desc>
     </param>
   </section>
-  <section name="Discovery" name-i18n="Открытие">
+  <section name="Discovery" name-i18n="Discovery">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Discovery</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1561,7 +1601,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1570,7 +1610,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1608,27 +1648,27 @@
       <desc>Print incoming messages (Debug)</desc>
     </param>
   </section>
-  <section name="FTP Server" name-i18n="FTP-сервер">
+  <section name="FTP Server" name-i18n="FTP Server">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>FTP Server</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1637,7 +1677,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1646,7 +1686,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1686,25 +1726,25 @@
   </section>
   <section name="Message Fragments" name-i18n="Message Fragments">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Message Fragments</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1713,7 +1753,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1722,7 +1762,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1742,27 +1782,27 @@
       <desc>Maximum amount of seconds to wait for missing fragments in incoming messages</desc>
     </param>
   </section>
-  <section name="HTTP Server" name-i18n="HTTP-сервер">
+  <section name="HTTP Server" name-i18n="HTTP Server">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>HTTP Server</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1771,7 +1811,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1780,7 +1820,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1818,27 +1858,27 @@
       <desc>List of messages to transport</desc>
     </param>
   </section>
-  <section name="Log Book" name-i18n="Вахтенный журнал">
+  <section name="Log Book" name-i18n="Log Book">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Log Book</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1847,7 +1887,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1856,7 +1896,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1867,27 +1907,27 @@
       <values-i18n>None, Debug, Trace, Spew</values-i18n>
     </param>
   </section>
-  <section name="Logger" name-i18n="Лесоруб">
+  <section name="Logger" name-i18n="Logger">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Logger</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1896,7 +1936,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1905,7 +1945,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1963,25 +2003,25 @@
   </section>
   <section name="UDP" name-i18n="UDP">
     <param name="Entity Label">
-      <name-i18n>Entity Этикетка</name-i18n>
+      <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>UDP</default>
       <units/>
-      <desc>Главным образом ярлык лица</desc>
+      <desc>Main entity label</desc>
     </param>
     <param name="Execution Priority">
-      <name-i18n>Приоритет выполнения</name-i18n>
+      <name-i18n>Execution Priority</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>10</default>
       <units/>
-      <desc>Приоритет выполнения</desc>
+      <desc>Execution priority</desc>
     </param>
     <param name="Activation Time">
-      <name-i18n>Время активации</name-i18n>
+      <name-i18n>Activation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1990,7 +2030,7 @@
       <desc/>
     </param>
     <param name="Deactivation Time">
-      <name-i18n>Время деактивации</name-i18n>
+      <name-i18n>Deactivation Time</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -1999,7 +2039,7 @@
       <desc/>
     </param>
     <param name="Debug Level">
-      <name-i18n>Уровень отладки</name-i18n>
+      <name-i18n>Debug Level</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
@@ -2068,7 +2108,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CpuUsage:0.2, EntityState:1, EstimatedState:5, FormationEval:1, FuelLevel:0.1, SimulatedState:0.5, StorageUsage:0.05, Temperature:0.1</default>
+      <default>CpuUsage:0.2, EntityState:1, EstimatedState:5, FuelLevel:0.1, SimulatedState:0.5, StorageUsage:0.05, Temperature:0.1</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
     </param>
@@ -2077,7 +2117,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>CpuUsage:Daemon, PathControlState:Autopilot</default>
+      <default>CpuUsage:Daemon</default>
       <units/>
       <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>
@@ -2113,7 +2153,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FormationMonitor, FormationEval, FormCtrlParam, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

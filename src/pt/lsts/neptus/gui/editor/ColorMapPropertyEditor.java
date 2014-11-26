@@ -44,8 +44,6 @@ import com.l2fprod.common.beans.editor.AbstractPropertyEditor;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
-
-
 public class ColorMapPropertyEditor extends AbstractPropertyEditor {
 
 	private JComboBox<?> combo = new JComboBox<Object>(ColorMap.cmaps);
@@ -61,7 +59,7 @@ public class ColorMapPropertyEditor extends AbstractPropertyEditor {
 	}
 	
 	@Override
-	public Object getValue() {
+	public Object getValue() {	    
 		return combo.getSelectedItem();
 	}
 	

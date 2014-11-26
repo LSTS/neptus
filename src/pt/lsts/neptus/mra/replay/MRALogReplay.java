@@ -407,6 +407,16 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
     public LsfIndex getIndex() {
         return index;
     }
+    
+    @Override
+    public void onHide() {
+        timeline.pause();
+        for (JDialog d : popups.values()) {
+            d.setVisible(false);
+            d.dispose();
+        }
+        popups.clear();
+    }
 
     /**
      * @return the source

@@ -31,18 +31,37 @@
  */
 package pt.lsts.neptus.mra;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Vector;
+
+import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
+
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.PluginsRepository;
 
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
 /**
- * @author hfq
  * These are Neptus MRA default properties
+ * 
+ * @author hfq
  */
-public class MRAProperties implements PropertiesProvider{
+public class MRAProperties implements PropertiesProvider {
 
     @NeptusProperty(name = "Show 3D replay")
     public static boolean show3D = true;
@@ -50,77 +69,149 @@ public class MRAProperties implements PropertiesProvider{
     @NeptusProperty(name = "Default time step (seconds)")
     public static double defaultTimestep = 1.0;
 
-    @NeptusProperty(name = "Minimum depth for bathymetry", description="Filter all bathymetry data if vehicle's depth is less than this value (meters).")
+    @NeptusProperty(name = "Minimum depth for bathymetry", description = "Filter all bathymetry data if vehicle's depth is less than this value (meters).")
     public static double minDepthForBathymetry = 1.0;
 
-    @NeptusProperty(name = "Points to ignore on Multibeam 3D", description="Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.",
-            category = "Multibeam")
+    @NeptusProperty(name = "Points to ignore on Multibeam 3D", description = "Fixed step of number of points to jump on multibeam Pointcloud stored for render purposes.", category = "Multibeam")
     public static int ptsToIgnore = 50;
 
-    @NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description="Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).",
-            category = "Multibeam")
-    public static boolean approachToIgnorePts = true; 
+    @NeptusProperty(name = "Approach to ignore points on Multibeam 3D", description = "Type of approach to ignore points on multibeam either by a fixed step (false) or by a probability (true).", category = "Multibeam")
+    public static boolean approachToIgnorePts = true;
 
-    @NeptusProperty(name = "Depth exaggeration multiplier", description="Multiplier value for depth exaggeration.",
-            category = "Multibeam")
+    @NeptusProperty(name = "Depth exaggeration multiplier", description = "Multiplier value for depth exaggeration.", category = "Multibeam")
     public static int zExaggeration = 10;
 
-    @NeptusProperty(name = "Timestamp increment", description="Timestamp increment for the 83P parser (in miliseconds).",
-            category = "Multibeam")
+    @NeptusProperty(name = "Timestamp increment", description = "Timestamp increment for the 83P parser (in miliseconds).", category = "Multibeam")
     public static long timestampMultibeamIncrement = 0;
 
-    @NeptusProperty(name = "Yaw Increment", description="180 Yaw (psi) increment for the 83P parser, set true to increment +180\u00B0.",
-            category = "Multibeam")
+    @NeptusProperty(name = "Yaw Increment", description = "180 Yaw (psi) increment for the 83P parser, set true to increment +180\u00B0.", category = "Multibeam")
     public static boolean yawMultibeamIncrement = false;
 
-    @NeptusProperty(name = "Remove Outliers", description="Remove Outliers from Pointcloud redered on multibeam 3D",
-            category = "Multibeam")
-    public static boolean outliersRemoval = false; 
+    @NeptusProperty(name = "Remove Outliers", description = "Remove Outliers from Pointcloud redered on multibeam 3D", category = "Multibeam")
+    public static boolean outliersRemoval = false;
 
-    @NeptusProperty(name = "Apply Sound Speed Correction", description="Apply sound speed correction.",
-            category = "Multibeam")
-    public static boolean soundSpeedCorrection = false; 
+    @NeptusProperty(name = "Apply Sound Speed Correction", description = "Apply sound speed correction.", category = "Multibeam")
+    public static boolean soundSpeedCorrection = false;
 
-    @NeptusProperty(name = "Maximum depth for bathymetry plots", description="Maximum depth to be used in bathymetry plots.")
+    @NeptusProperty(name = "Maximum depth for bathymetry plots", description = "Maximum depth to be used in bathymetry plots.")
     public static double maxBathymDepth = 15;
 
     @NeptusProperty(name = "Print page number in generated reports")
     public static boolean printPageNumbers = true;
-    
+
     @NeptusProperty(name = "Entity to use for depth measurements")
     public static depthEntities depthEntity = depthEntities.CTD;
-    
+
+    private LinkedHashMap<Class<?>, Boolean> visiblePlots = new LinkedHashMap<Class<?>, Boolean>();
+
+    {
+        try {
+            load(new File("conf/mra.properties"));
+        }
+        catch (Exception e) {
+            NeptusLog.pub().warn(e);
+        }
+    }
+
+    public synchronized boolean isVisualizationActive(Class<?> mraVisualization) {
+        return visiblePlots.containsKey(mraVisualization) && visiblePlots.get(mraVisualization);
+    }
+
+    public synchronized Collection<DefaultProperty> getVisibilityProperties() {
+        LinkedHashMap<String, Class<? extends MRAVisualization>> allVisualizations = PluginsRepository
+                .getMraVisualizations();
+        ArrayList<DefaultProperty> props = new ArrayList<DefaultProperty>();
+
+        for (Entry<String, Class<? extends MRAVisualization>> viz : allVisualizations.entrySet()) {
+            Class<?> pluginClass = viz.getValue();
+            boolean visible = isVisualizationActive(pluginClass);
+            // System.out.println(visible);
+            DefaultProperty dp = PropertiesEditor.getPropertyInstance("visibilityOf" + pluginClass.getName(),
+                    Boolean.class, visible, true);
+
+            dp.setDisplayName(PluginUtils.getPluginName(pluginClass));
+            dp.setCategory("Visualizations");
+            dp.setShortDescription(PluginUtils.getPluginDescription(pluginClass));
+            dp.setValue(visible);
+            props.add(dp);
+        }
+
+        java.util.Collections.sort(props, new Comparator<DefaultProperty>() {
+            @Override
+            public int compare(DefaultProperty o1, DefaultProperty o2) {
+                return o1.getDisplayName().compareTo(o2.getDisplayName());
+            }
+        });
+
+        return props;
+    }
 
     public enum depthEntities {
         CTD,
         Depth_Sensor
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.gui.PropertiesProvider#getProperties()
-     */
+    @SuppressWarnings("unchecked")
     @Override
     public DefaultProperty[] getProperties() {
-        return PluginUtils.getPluginProperties(this);
+        Vector<DefaultProperty> props = new Vector<DefaultProperty>();
+        props.addAll(Arrays.asList(PluginUtils.getPluginProperties(this)));
+        props.addAll(getVisibilityProperties());
+        return props.toArray(new DefaultProperty[0]);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.gui.PropertiesProvider#setProperties(com.l2fprod.common.propertysheet.Property[])
-     */
+    public void save() throws Exception {
+        Properties props = PluginUtils.saveProperties(this, false);
+
+        for (DefaultProperty dp : getVisibilityProperties())
+            props.put(dp.getName(), "" + dp.getValue());
+        props.store(new FileOutputStream(new File("conf/mra.properties")), "File generated by Neptus on " + new Date());
+    }
+
+    private void load(File f) throws Exception {
+        Properties props = new Properties();
+        if (f.canRead()) {
+            props.load(new FileReader(f));
+        }
+        
+        PluginUtils.loadProperties(props, this);
+        
+        for (Class<?> c : PluginsRepository.getMraVisualizations().values()) {
+            String propName = "visibilityOf" + c.getName();
+            if (props.containsKey(propName))
+                visiblePlots.put(c, props.get(propName).equals("true"));
+            else
+                visiblePlots.put(c, PluginUtils.isPluginActive(c));            
+        }
+    }
+
     @Override
     public void setProperties(Property[] properties) {
         PluginUtils.setPluginProperties(this, properties);
+        String prefix = "visibilityOf";
+        int prefixLength = prefix.length();
+
+        for (Property p : properties) {
+            if (p.getName().startsWith(prefix)) {
+                try {
+                    Class<?> plugin = Class.forName(p.getName().substring(prefixLength));
+                    visiblePlots.put(plugin, (Boolean) p.getValue());
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                }
+            }
+        }
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.gui.PropertiesProvider#getPropertiesDialogTitle()
-     */
     @Override
     public String getPropertiesDialogTitle() {
         return "MRA Preferences";
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see pt.lsts.neptus.gui.PropertiesProvider#getPropertiesErrors(com.l2fprod.common.propertysheet.Property[])
      */
     @Override
