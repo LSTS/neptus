@@ -66,7 +66,7 @@ public abstract class GeometryElement extends AbstractElement implements Rotatab
     protected double height = 1; // dimensionZ
     // public double width = 1, length = 1, height = 1;
 
-    protected Color color = null;
+    protected Color color = Color.red;
     protected TextureType textureType = null;
 
     // Material
