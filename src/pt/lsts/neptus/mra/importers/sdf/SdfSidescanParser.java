@@ -41,6 +41,7 @@ import pt.lsts.neptus.mra.api.SidescanParser;
 
 public class SdfSidescanParser implements SidescanParser {
 
+    private static final long MAX_VALUE = 4294967295L;
     private SdfParser parser;
 
     public SdfSidescanParser(File f) {
@@ -77,11 +78,32 @@ public class SdfSidescanParser implements SidescanParser {
             SdfData sboardPboard = ping.get(0); // one ping contains both Sboard and Portboard samples
 
             int nSamples = sboardPboard != null ? sboardPboard.getNumSamples() : 0;
+            double fData[] = new double[nSamples*2]; // x2 (portboard + sboard in the same ping)  
 
-            double fData[] = new double[nSamples*2]; // x2 (portboard + sboard in the same ping) 
+            double avgSboard = 0, avgPboard = 0;
+
+            for (int i = 0; i < nSamples; i++) {
+                double r = ping.get(0).getPortData()[i];
+
+                avgPboard += r;
+            }
+
+            for (int i = 0; i < nSamples; i++) {
+                double r = ping.get(0).getStbdData()[i];
+                avgSboard += r;
+            }
+
+            avgPboard /= (double) nSamples * config.getNormalization();
+            avgSboard /= (double) nSamples * config.getNormalization();
+
             
-            //TODO : fData[] ...
+            for (int i=0; i<nSamples ; i++) {
+                fData[nSamples-i-1] = (sboardPboard.getPortData()[i] / avgPboard);// / (MAX_VALUE*config.getNormalization()));
+            }
 
+            for (int i=0; i<nSamples ; i++) {
+                fData[i+nSamples] = (sboardPboard.getStbdData()[i] / avgSboard);
+            }
             SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
             pose.getPosition().setLatitudeDegs(Math.toDegrees(sboardPboard.getHeader().getShipLat())); //rads to degrees
             pose.getPosition().setLongitudeDegs(Math.toDegrees(sboardPboard.getHeader().getShipLon()));//rads to degrees
