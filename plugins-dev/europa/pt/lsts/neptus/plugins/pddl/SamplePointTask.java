@@ -67,6 +67,10 @@ public class SamplePointTask extends MVPlannerTask {
     public void translate(double offsetNorth, double offsetEast) {
         elem.translate(offsetNorth, offsetEast, 0);
     }
+    
+    public LocationType getLocation() {
+        return elem.getCenterLocation().convertToAbsoluteLatLonDepth();
+    }
 
 
     @Override

@@ -36,19 +36,20 @@ package pt.lsts.neptus.plugins.pddl;
  *
  */
 public enum PayloadRequirement {
-    SideScanSonar(30, -3, -3),
-    EdgeTechSSS(50, -5, -5),
-    MultiBeamSonar(15, 3, 3),
-    Camera(5, -2, -2),
-    CTDSensor(100, 2, 20),
-    RodamineSensor(100, 2, 20);
+    edgetech(50, -5, -5, 27),    
+    sidescan(30, -3, -3, 4),    
+    multibeam(15, 3, 3, 5),
+    camera(5, -2, -2, 50),
+    ctd(100, 2, 20, 0),
+    rhodamine(100, 2, 20, 0);
     
     private int swathWidth;
-    private int minDepth, maxDepth;
-    private PayloadRequirement(int swathWidth, int minDepth, int maxDepth) {
+    private int minDepth, maxDepth, consumptionPerHour;
+    private PayloadRequirement(int swathWidth, int minDepth, int maxDepth, int consumptionPerHour) {
         this.swathWidth = swathWidth;
         this.minDepth = minDepth;
         this.maxDepth = maxDepth;
+        this.consumptionPerHour = consumptionPerHour;
     }
     /**
      * @return the swathWidth
@@ -85,5 +86,11 @@ public enum PayloadRequirement {
      */
     public void setMaxDepth(int maxDepth) {
         this.maxDepth = maxDepth;
+    }
+    /**
+     * @return the consumptionPerHour
+     */
+    public final int getConsumptionPerHour() {
+        return consumptionPerHour;
     }    
 }

@@ -65,12 +65,12 @@ public class SurveyAreaTask extends MVPlannerTask {
         updateManeuver();
     }
     
-    private LocationType getEntryPoint() {
+    public LocationType getEntryPoint() {
         pivot.endManeuver();
         return pivot.getStartLocation().convertToAbsoluteLatLonDepth();
     }
     
-    private LocationType getEndPoint() {
+    public LocationType getEndPoint() {
         return pivot.getEndLocation().convertToAbsoluteLatLonDepth();
     }
     
@@ -114,7 +114,7 @@ public class SurveyAreaTask extends MVPlannerTask {
     }
     
     private void updateManeuver() {
-        double minHorStep = area.getWidth();
+        double minHorStep = area.getWidth()/3;
         double minDepth = Double.MAX_VALUE;
         double maxDepth = -Double.MAX_VALUE;
         for (PayloadRequirement p : requiredPayloads) {
@@ -140,7 +140,7 @@ public class SurveyAreaTask extends MVPlannerTask {
         start.translatePosition(offsetNorth, offsetEast, 0);
         start.convertToAbsoluteLatLonDepth();
         pivot.setManeuverLocation(new ManeuverLocation(start));
-        pivot.setParams(area.getWidth(), area.getLength(), 25, pivot.getAlternationPercent(), pivot.getCurvOff(), pivot.isSquareCurve(), area.getYawRad(), pivot.getCrossAngleRadians(), true, false, (short) pivot.getSsRangeShadow());
+        pivot.setParams(area.getWidth(), area.getLength(), minHorStep, pivot.getAlternationPercent(), pivot.getCurvOff(), pivot.isSquareCurve(), area.getYawRad(), pivot.getCrossAngleRadians(), true, false, (short) pivot.getSsRangeShadow());
         
         entry.setCenterLocation(getEntryPoint());
         exit.setCenterLocation(getEndPoint());
@@ -158,12 +158,14 @@ public class SurveyAreaTask extends MVPlannerTask {
         exit.paint((Graphics2D)g.create(), renderer, renderer.getRotation());
     }
     
+    public double getLength() {
+        return pivot.getDistanceTravelled(getEntryPoint());
+    }
+      
     public static void main(String[] args) {
         SurveyAreaTask task = new SurveyAreaTask(new LocationType(41, -8));
         StateRenderer2D renderer = new StateRenderer2D(new LocationType(41, -8));
         renderer.addPostRenderPainter(task, "task");
         GuiUtils.testFrame(renderer);
     }
-
-
 }

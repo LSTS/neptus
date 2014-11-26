@@ -41,12 +41,16 @@ import java.util.Vector;
 
 import javax.swing.JPopupMenu;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -59,7 +63,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private Vector<MVPlannerTask> tasks = new Vector<MVPlannerTask>();
     private MVPlannerTask selectedTask = null;    
     private Point2D lastPoint = null;
-    
+        
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
         
@@ -135,6 +139,20 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             }
         });
         
+        popup.add("Generate").addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
+                for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
+                    activeVehicles.addElement(VehiclesHolder.getVehicleById(s.getName()));
+                }
+                
+                MVProblemSpecification p = new MVProblemSpecification(activeVehicles, tasks);
+                System.out.println(p.asPDDL());
+                
+            }
+        });
         popup.show(source, event.getX(), event.getY());
     }
     

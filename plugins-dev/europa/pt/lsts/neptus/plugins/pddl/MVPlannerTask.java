@@ -83,14 +83,16 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     @Override
     public void setProperties(Property[] properties) {
         
-        requiredPayloads.clear();
+        HashSet<PayloadRequirement> newReqs = new HashSet<PayloadRequirement>();
         
         for (Property p : properties) {
             PayloadRequirement pr = PayloadRequirement.valueOf(p.getName());
             if (pr != null && "true".equals(""+p.getValue())) {
-                requiredPayloads.add(pr);
+                newReqs.add(pr);
             }
         }
+        
+        setRequiredPayloads(newReqs);
     }
     
     @Override
@@ -103,5 +105,11 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     public String[] getPropertiesErrors(Property[] properties) {
         // TODO Auto-generated method stub
         return null;
+    }
+    /**
+     * @return the requiredPayloads
+     */
+    public final HashSet<PayloadRequirement> getRequiredPayloads() {
+        return requiredPayloads;
     }
 }
