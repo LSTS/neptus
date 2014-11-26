@@ -32,7 +32,13 @@
 package pt.lsts.neptus.plugins.pddl;
 
 import java.util.HashSet;
+import java.util.Vector;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
+import pt.lsts.neptus.gui.PropertiesEditor;
+import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -41,7 +47,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author zp
  *
  */
-public abstract class MVPlannerTask implements Renderer2DPainter {
+public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProvider {
 
     protected static int count = 1;
     protected String name = String.format("T%03d", count++);
@@ -64,5 +70,38 @@ public abstract class MVPlannerTask implements Renderer2DPainter {
         this.requiredPayloads = payloads;
     }
     
+    @Override
+    public DefaultProperty[] getProperties() {
+        Vector<DefaultProperty> props = new Vector<DefaultProperty>();
+        for (PayloadRequirement pr : PayloadRequirement.values()) {
+            props.add(PropertiesEditor.getPropertyInstance(pr.name(), "Payload Requirements", Boolean.class, requiredPayloads.contains(pr), true));
+        }
+        
+        return props.toArray(new DefaultProperty[0]);
+    }
     
+    @Override
+    public void setProperties(Property[] properties) {
+        
+        requiredPayloads.clear();
+        
+        for (Property p : properties) {
+            PayloadRequirement pr = PayloadRequirement.valueOf(p.getName());
+            if (pr != null && "true".equals(""+p.getValue())) {
+                requiredPayloads.add(pr);
+            }
+        }
+    }
+    
+    @Override
+    public String getPropertiesDialogTitle() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    @Override
+    public String[] getPropertiesErrors(Property[] properties) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

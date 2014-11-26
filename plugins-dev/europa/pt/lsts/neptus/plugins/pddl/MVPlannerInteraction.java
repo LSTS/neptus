@@ -43,6 +43,7 @@ import javax.swing.JPopupMenu;
 
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -98,7 +99,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    tasks.remove(clickedTask);                    
+                    tasks.remove(clickedTask);        
+                    source.repaint();
                 }
             });
             
@@ -106,8 +108,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    System.out.println("Select payloads for "+clickedTask);
-                    
+                    PropertiesEditor.editProperties(clickedTask, true);                 
                 }
             });
             
@@ -121,6 +122,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             public void actionPerformed(ActionEvent e) {
                 SurveyAreaTask task = new SurveyAreaTask(source.getRealWorldLocation(event.getPoint()));
                 tasks.add(task);
+                source.repaint();
             }
         });
         popup.add("Add sample task").addActionListener(new ActionListener() {
@@ -129,6 +131,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             public void actionPerformed(ActionEvent e) {
                 SamplePointTask task = new SamplePointTask(source.getRealWorldLocation(event.getPoint()));
                 tasks.add(task);
+                source.repaint();
             }
         });
         

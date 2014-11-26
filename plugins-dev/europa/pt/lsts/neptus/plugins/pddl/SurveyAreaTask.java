@@ -57,9 +57,9 @@ public class SurveyAreaTask extends MVPlannerTask {
     public SurveyAreaTask(LocationType clickedLocation) {
         area = new ParallelepipedElement();
         area.setCenterLocation(clickedLocation);
-        area.setWidth(175);
-        area.setLength(230);
-        area.setYawDeg(-32);
+        area.setWidth(75);
+        area.setLength(75);
+        area.setYawDeg(0);
         entry.setId(getName()+"_entry");
         exit.setId(getName()+"_exit");
         updateManeuver();
