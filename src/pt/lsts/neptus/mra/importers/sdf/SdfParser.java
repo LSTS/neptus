@@ -124,7 +124,7 @@ public class SdfParser {
                 long t = ping.getTimestamp(); // Timestamp
                 int f = ping.getHeader().getSonarFreq(); // Frequency
                 int subsystem = ping.getHeader().getPageVersion();
-                System.out.println(pos+": ["+header.getPingNumber()+"] timestamp "+ t + " freq "+f + " subsys "+subsystem);
+              //  System.out.println(pos+": ["+header.getPingNumber()+"] timestamp "+ t + " freq "+f + " subsys "+subsystem);
 
                 if (!index.frequenciesList.contains(f)) {
                     index.frequenciesList.add(f);
