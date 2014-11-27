@@ -125,7 +125,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             @Override
             public void actionPerformed(ActionEvent e) {
                 SurveyAreaTask task = new SurveyAreaTask(source.getRealWorldLocation(event.getPoint()));
-                tasks.add(task);
+                if (!PropertiesEditor.editProperties(task, true))
+                    tasks.add(task);
                 source.repaint();
             }
         });
@@ -134,7 +135,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             @Override
             public void actionPerformed(ActionEvent e) {
                 SamplePointTask task = new SamplePointTask(source.getRealWorldLocation(event.getPoint()));
-                tasks.add(task);
+                if (!PropertiesEditor.editProperties(task, true))
+                    tasks.add(task);
                 source.repaint();
             }
         });

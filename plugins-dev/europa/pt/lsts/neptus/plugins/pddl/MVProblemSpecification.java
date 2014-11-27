@@ -84,7 +84,7 @@ public class MVProblemSpecification {
             if (fuel != null && (System.currentTimeMillis() - fuel.getTimestampMillis()) < 600) {
                 fuelPercent = state.last(FuelLevel.class).getValue();
             }
-            int fuelUnits = (int) (PowerConsumptions.maxBattery(v) * (fuelPercent/100.0));
+            int fuelUnits = (int) (VehicleParams.maxBattery(v) * (fuelPercent/100.0));
             vehicleBattery.put(v.getId(), fuelUnits);            
         }
         
@@ -99,7 +99,7 @@ public class MVProblemSpecification {
         
         // calculate all payload names
         for (VehicleType v : vehicles) {
-            for (PayloadRequirement pr : PowerConsumptions.payloadsFor(v)) {
+            for (PayloadRequirement pr : VehicleParams.payloadsFor(v)) {
                 if (!payloadNames.containsKey(pr.name()))
                     payloadNames.put(pr.name(), new Vector<String>());
                 payloadNames.get(pr.name()).add(v.getNickname()+"_"+pr.name());                
@@ -179,7 +179,7 @@ public class MVProblemSpecification {
         // details of all vehicles
         for (VehicleType v : vehicles) {
             sb.append("\n;"+v.getId()+":\n");
-            int moveConsumption = (int) (PowerConsumptions.moveConsumption(v) * powerUnitMultiplier / 3600);
+            int moveConsumption = (int) (VehicleParams.moveConsumption(v) * powerUnitMultiplier / 3600);
             sb.append("  (=(speed "+v.getNickname()+") "+constantSpeed+")\n");
             sb.append("  (= (battery-consumption-move "+v.getNickname()+") "+moveConsumption+")\n");
             sb.append("  (= (battery-level "+v.getNickname()+") "+(int)(vehicleBattery.get(v.getId())*powerUnitMultiplier)+")\n");
@@ -209,6 +209,7 @@ public class MVProblemSpecification {
 
             for (PayloadRequirement r : t.getRequiredPayloads()) {
                 if (!payloadNames.containsKey(r.name())) {
+                    System.err.println("No vehicle is capable of executing task "+t.getName()+" with "+r.name());
                     continue;
                 }
                 for (String alternative : payloadNames.get(r.name())) {
@@ -222,6 +223,12 @@ public class MVProblemSpecification {
             sb.append("  (free "+t.getName()+"_oi)\n");
             sb.append("  (at_oi "+t.getName()+"_obj "+t.getName()+"_oi"+")\n");
             for (PayloadRequirement r : t.getRequiredPayloads()) {
+                
+                if (!payloadNames.containsKey(r.name())) {
+                    System.err.println("No vehicle is capable of executing task "+t.getName()+" with "+r.name());
+                    continue;
+                }
+                
                 for (String alternative : payloadNames.get(r.name())) {
                     sb.append("  (task_desc "+t.getName()+"_"+r.name()+" "+t.getName()+"_obj "+alternative+")\n");
                 }

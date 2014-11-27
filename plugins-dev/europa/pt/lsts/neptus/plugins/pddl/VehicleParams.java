@@ -34,12 +34,13 @@ package pt.lsts.neptus.plugins.pddl;
 import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
 /**
  * @author zp
  *
  */
-public class PowerConsumptions {
+public class VehicleParams {
     
     private static LinkedHashMap<String, Double> batteryCapacities = new LinkedHashMap<String, Double>();
     static {
@@ -58,6 +59,17 @@ public class PowerConsumptions {
         batteryCapacities.put("lauv-noptilus-3", 700.0);
         batteryCapacities.put("lauv-lsts-1", 700.0);
         batteryCapacities.put("lauv-lupis-1", 525.0);
+    }
+    
+    private static LinkedHashMap<String, String> nicknames = new LinkedHashMap<String, String>();
+    static {
+        String[] vehicles = new String[] { "lauv-dolphin-1", "lauv-dolphin-2", "lauv-dolphin-3", "lauv-oceaneco-1",
+                "lauv-oceaneco-2", "lauv-seacon-1", "lauv-seacon-2", "lauv-seacon-3", "lauv-xtreme-2", "lauv-xplore-1",
+                "lauv-noptilus-1", "lauv-noptilus-2", "lauv-noptilus-3", "lauv-lsts-1", "lauv-lupis-1" };
+        
+        for (String v : vehicles) {
+            nicknames.put(VehiclesHolder.getVehicleById(v).getNickname(), v);
+        }       
     }
     
     private static LinkedHashMap<String, Double> moveConsumption = new LinkedHashMap<String, Double>();
