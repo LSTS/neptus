@@ -141,11 +141,9 @@ public class SdfParser {
                         l = new ArrayList<Long>();
                         l.add(pos);
                         index.positionMapLow.put(t, l);
-                        // System.out.println("low ["+pos+ "] "+ t + " "+ l+ " ");
                     }
                     else {
                         l.add(pos);
-                        // System.out.println("low2 ["+pos+ "] "+ t + " "+ l+ " ");
                     }
                     minTimestampLow = Math.min(minTimestampLow, t);
                     maxTimestampLow = Math.max(maxTimestampLow, t);
@@ -159,12 +157,10 @@ public class SdfParser {
                         l = new ArrayList<Long>();
                         l.add(pos);
                         index.positionMapHigh.put(t, l);
-                        //System.out.println("high ["+pos+ "] "+ t + " "+ l+ " ");
                     }
                     else {
 
                         l.add(pos);
-                        //System.out.println("high2 ["+pos+ "] "+ t + " "+ l+ " ");
                     }
                     minTimestampHigh = Math.min(minTimestampHigh, t);
                     maxTimestampHigh = Math.max(maxTimestampHigh, t);
@@ -178,11 +174,6 @@ public class SdfParser {
                 if (curPosition >= channel.size())
                     break;
             }
-
-            //     System.out.println(" :: " + minTimestampHigh);
-            //     System.out.println(" :: " + maxTimestampHigh);
-            //     System.out.println(" :: " + minTimestampLow);
-            //     System.out.println(" :: " + maxTimestampLow);
 
             index.firstTimestampHigh = minTimestampHigh;
             index.firstTimestampLow = minTimestampLow;
@@ -355,6 +346,4 @@ public class SdfParser {
         //        }
 
     }
-
-
 }
