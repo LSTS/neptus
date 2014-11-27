@@ -157,10 +157,15 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 System.out.println(p.asPDDL());
                 FileUtil.saveToFile("initial_state.pddl", p.asPDDL());
                 try {
-                System.out.println(p.solve());
+                    String solution = p.solve();
+                    if (solution.isEmpty()) 
+                        throw new Exception("No solution has been found.");
+                    GuiUtils.htmlMessage(getConsole(), "found solution", "", "<html><pre>"+solution+"</pre></html>");
+                    System.out.println(solution);
                 }
                 catch (Exception ex) {
                     ex.printStackTrace();
+                    GuiUtils.errorMessage(getConsole(), ex);
                 }
 //                try {
 //                    String result = p.solve();

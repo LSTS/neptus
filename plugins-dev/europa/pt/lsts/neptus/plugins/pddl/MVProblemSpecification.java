@@ -60,15 +60,18 @@ public class MVProblemSpecification {
     private Vector<SurveyAreaTask> surveyTasks = new Vector<SurveyAreaTask>();
     private Vector<VehicleType> vehicles = new Vector<VehicleType>();
 
+    private String command = "lpg -o DOMAIN -f INITIAL_STATE -speed";
+    
     public String solve() throws Exception {
         FileUtil.saveToFile("initial_state.pddl", asPDDL());
         Pattern pat = Pattern.compile(".*([\\d\\.]+)\\:.*\\((.*)\\).* \\[(.*)\\]");
-        Process p = Runtime.getRuntime().exec("lpg -o conf/LSTS_domain.pddl -f initial_state.pddl -speed");
+        String cmd = command.replaceAll("DOMAIN", "conf/LSTS_domain.pddl");
+        cmd = cmd.replaceAll("INITIAL_STATE", "initial_state.pddl");
+        Process p = Runtime.getRuntime().exec(cmd);
         StringBuilder result = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String line = reader.readLine();
         while (line != null) {
-            
             Matcher m = pat.matcher(line);
             if (m.matches())
                 result.append(line.toLowerCase().trim()+"\n");

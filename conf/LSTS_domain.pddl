@@ -1,5 +1,5 @@
 (define (domain LSTS)
-(:requirements :typing :durative-actions :fluents)
+(:requirements :typing :durative-actions :fluents :equality)
 (:types location vehicle payload interest task - object
         area oi - interest
         auv - vehicle
@@ -41,11 +41,25 @@
 :effect (and (at end (sampled ?t ?v))(at start (decrease (battery-level ?v)(* (battery-consumption-payload ?p) 10))))
 )
 
-(:durative-action survey
+(:durative-action survey-one-payload
 :parameters (?v - vehicle ?l1 ?l2 - location ?t -task ?a -area ?p - payload)
 :duration (= ?duration (/ (surveillance_distance ?a)(speed ?v)))
 :condition (and (over all (entry ?a ?l1))(over all (exit ?a ?l2))(over all (having ?p ?v))(over all (task_desc ?t ?a ?p))(at start (at ?v ?l1))(at end (free ?l2))(at start (available ?a))(at start (>= (battery-level ?v)(+ (* (battery-consumption-move ?v)(surveillance_distance ?a))(* (battery-consumption-payload ?p) (/ (surveillance_distance ?a)(speed ?v)))))))
 :effect (and (at end (sampled ?t ?v))(at start (not (available ?a)))(at end (available ?a))(at start (not (at ?v ?l1)))(at end (at ?v ?l2))(at start (free ?l1))(at end (not (free ?l2)))(at start (decrease (battery-level ?v)(+ (* (battery-consumption-move ?v)(surveillance_distance ?a))(* (battery-consumption-payload ?p) (/ (surveillance_distance ?a)(speed ?v)))))))
+)
+
+(:durative-action survey-two-payload
+:parameters (?v - vehicle ?l1 ?l2 - location ?t ?t2 -task ?a -area ?p ?p2 - payload)
+:duration (= ?duration (/ (surveillance_distance ?a)(speed ?v)))
+:condition (and (over all (entry ?a ?l1))(over all (exit ?a ?l2))(over all (having ?p ?v))(over all (task_desc ?t ?a ?p))(over all (having ?p2 ?v))(over all (task_desc ?t2 ?a ?p2))(over all (not (= ?t ?t2)))(at start (at ?v ?l1))(at end (free ?l2))(at start (available ?a))(at start (>= (battery-level ?v)(+ (* (battery-consumption-move ?v)(surveillance_distance ?a))(* (+ (battery-consumption-payload ?p)(battery-consumption-payload ?p2)) (/ (surveillance_distance ?a)(speed ?v)))))))
+:effect (and (at end (sampled ?t ?v))(at end (sampled ?t2 ?v))(at start (not (available ?a)))(at end (available ?a))(at start (not (at ?v ?l1)))(at end (at ?v ?l2))(at start (free ?l1))(at end (not (free ?l2)))(at start (decrease (battery-level ?v)(+ (* (battery-consumption-move ?v)(surveillance_distance ?a))(* (+ (battery-consumption-payload ?p)(battery-consumption-payload ?p2)) (/ (surveillance_distance ?a)(speed ?v)))))))
+)
+
+(:durative-action survey-three-payload
+:parameters (?v - vehicle ?l1 ?l2 - location ?t ?t2 ?t3 -task ?a -area ?p ?p2 ?p3 - payload)
+:duration (= ?duration (/ (surveillance_distance ?a)(speed ?v)))
+:condition (and (over all (entry ?a ?l1))(over all (exit ?a ?l2))(over all (having ?p ?v))(over all (task_desc ?t ?a ?p))(over all (having ?p2 ?v))(over all (task_desc ?t2 ?a ?p2))(over all (having ?p3 ?v))(over all (task_desc ?t3 ?a ?p3))(over all (not (= ?t ?t2)))(over all (not (= ?t ?t3)))(over all (not (= ?t3 ?t2)))(at start (at ?v ?l1))(at end (free ?l2))(at start (available ?a))(at start (>= (battery-level ?v)(+ (* (battery-consumption-move ?v)(surveillance_distance ?a))(* (+ (battery-consumption-payload ?p)(+ (battery-consumption-payload ?p2)(battery-consumption-payload ?p3))) (/ (surveillance_distance ?a)(speed ?v)))))))
+:effect (and (at end (sampled ?t ?v))(at end (sampled ?t2 ?v))(at end (sampled ?t3 ?v))(at start (not (available ?a)))(at end (available ?a))(at start (not (at ?v ?l1)))(at end (at ?v ?l2))(at start (free ?l1))(at end (not (free ?l2)))(at start (decrease (battery-level ?v)(+ (* (battery-consumption-move ?v)(surveillance_distance ?a))(* (+ (battery-consumption-payload ?p)(+ (battery-consumption-payload ?p2)(battery-consumption-payload ?p3))) (/ (surveillance_distance ?a)(speed ?v)))))))
 )
 
 (:durative-action communicate
