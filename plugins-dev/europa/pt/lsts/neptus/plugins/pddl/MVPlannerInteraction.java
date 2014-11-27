@@ -50,7 +50,9 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -147,11 +149,27 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             public void actionPerformed(ActionEvent e) {
                 Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
                 for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
-                    activeVehicles.addElement(VehiclesHolder.getVehicleById(s.getName()));
+                    if (s.getTypeVehicle() == VehicleTypeEnum.UUV)
+                        activeVehicles.addElement(VehiclesHolder.getVehicleById(s.getName()));
                 }
                 
                 MVProblemSpecification p = new MVProblemSpecification(activeVehicles, tasks);
                 System.out.println(p.asPDDL());
+                FileUtil.saveToFile("initial_state.pddl", p.asPDDL());
+                try {
+                System.out.println(p.solve());
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+//                try {
+//                    String result = p.solve();
+//                    GuiUtils.infoMessage(getConsole(), "Solution", result);                    
+//                }
+//                catch (Exception ex) {
+//                    GuiUtils.errorMessage(getConsole(), ex);
+//                }
+                
                 
             }
         });

@@ -31,18 +31,22 @@
  */
 package pt.lsts.neptus.plugins.pddl;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.state.ImcSystemState;
-import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.FileUtil;
 
 /**
  * @author zp
@@ -56,6 +60,24 @@ public class MVProblemSpecification {
     private Vector<SurveyAreaTask> surveyTasks = new Vector<SurveyAreaTask>();
     private Vector<VehicleType> vehicles = new Vector<VehicleType>();
 
+    public String solve() throws Exception {
+        FileUtil.saveToFile("initial_state.pddl", asPDDL());
+        //Pattern pat = Pattern.compile("([\\d\\.]+): \\((.*)\\) \\[.*\\]");
+        Pattern pat = Pattern.compile("(.*)");
+        Process p = Runtime.getRuntime().exec("lpg -o conf/LSTS_domain.pddl -f initial_state.pddl -speed");
+        StringBuilder result = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line = reader.readLine();
+        while (line != null && p.isAlive()) {
+            result.append(line+"\n");
+            Matcher m = pat.matcher(line);
+            System.out.println(line+" "+m.matches());
+            line = reader.readLine();
+        }
+        return result.toString();        
+    }
+    
+    
     public MVProblemSpecification(Collection<VehicleType> vehicles, Collection<MVPlannerTask> tasks) {
         for (MVPlannerTask t : tasks) {
             if (t instanceof SurveyAreaTask) 
@@ -76,8 +98,9 @@ public class MVProblemSpecification {
         
         // calculate all positions to be given to the planner, first from vehicles
         for (VehicleType v : vehicles) {
+            
             ImcSystemState state = ImcMsgManager.getManager().getState(v);
-            LocationType depot = IMCUtils.parseLocation(state.last(EstimatedState.class)).convertToAbsoluteLatLonDepth();
+            LocationType depot = ImcSystemsHolder.getSystemWithName(v.getId()).getLocation();
             locations.put(v.getNickname()+"_depot", depot);
             double fuelPercent = 100.0;
             FuelLevel fuel = state.last(FuelLevel.class);
@@ -170,8 +193,8 @@ public class MVProblemSpecification {
                 
                 String loc1 = locNames.get(i);
                 String loc2 = locNames.get(j);
-                long dist = Math.round(locations.get(loc1).getHorizontalDistanceInMeters(locations.get(loc2)));
-                sb.append("  (=(distance "+loc1+" "+loc2+") "+dist+")\n");
+                double dist = Math.max(0.01, locations.get(loc1).getHorizontalDistanceInMeters(locations.get(loc2)));
+                sb.append("  (=(distance "+loc1+" "+loc2+") "+String.format("%.2f", dist)+")\n");
             }
         }
         sb.append("\n");
@@ -179,17 +202,17 @@ public class MVProblemSpecification {
         // details of all vehicles
         for (VehicleType v : vehicles) {
             sb.append("\n;"+v.getId()+":\n");
-            int moveConsumption = (int) (VehicleParams.moveConsumption(v) * powerUnitMultiplier / 3600);
+            double moveConsumption = VehicleParams.moveConsumption(v) * powerUnitMultiplier / 3600.0;
             sb.append("  (=(speed "+v.getNickname()+") "+constantSpeed+")\n");
-            sb.append("  (= (battery-consumption-move "+v.getNickname()+") "+moveConsumption+")\n");
-            sb.append("  (= (battery-level "+v.getNickname()+") "+(int)(vehicleBattery.get(v.getId())*powerUnitMultiplier)+")\n");
+            sb.append("  (= (battery-consumption-move "+v.getNickname()+") "+String.format("%.2f", moveConsumption)+")\n");
+            sb.append("  (= (battery-level "+v.getNickname()+") "+vehicleBattery.get(v.getId())*powerUnitMultiplier+")\n");
             sb.append("  (base "+v.getNickname()+" "+v.getNickname()+"_depot)\n\n");
             sb.append("  (at "+v.getNickname()+" "+v.getNickname()+"_depot"+")\n");
             for (Entry<String, Vector<String>> entry : payloadNames.entrySet()) {
                 for (String n : entry.getValue()) {
                     if (n.startsWith(v.getNickname()+"_")) {
-                        int consumption = (int) ((PayloadRequirement.valueOf(entry.getKey()).getConsumptionPerHour() / 3600.0) * powerUnitMultiplier);
-                        sb.append("  (= (battery-consumption-payload "+n+") "+consumption+")\n");
+                        double consumption = ((PayloadRequirement.valueOf(entry.getKey()).getConsumptionPerHour() / 3600.0) * powerUnitMultiplier);
+                        sb.append("  (= (battery-consumption-payload "+n+") "+String.format("%.2f", consumption)+")\n");
                         sb.append("  (having "+n+" "+v.getNickname()+")\n");        
                     }
                 }
@@ -206,7 +229,7 @@ public class MVProblemSpecification {
             sb.append("  (free "+t.getName()+"_exit"+")\n");
             sb.append("  (entry "+t.getName()+"_area "+t.getName()+"_entry"+")\n");                    
             sb.append("  (exit "+t.getName()+"_area "+t.getName()+"_exit"+")\n");
-            sb.append("  (surveillance_distance "+t.getName()+"_area "+(int)t.getLength()+")\n");
+            sb.append("  (=(surveillance_distance "+t.getName()+"_area) "+String.format("%.2f", t.getLength())+")\n");
 
             for (PayloadRequirement r : t.getRequiredPayloads()) {
                 if (!payloadNames.containsKey(r.name())) {
@@ -251,7 +274,6 @@ public class MVProblemSpecification {
         sb.append("))\n");
         sb.append("(:metric minimize (total-time)))\n");
         
-        //TODO
         return sb.toString();
     }
     
