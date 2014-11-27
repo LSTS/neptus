@@ -206,6 +206,7 @@ public class MVProblemSpecification {
             sb.append("  (free "+t.getName()+"_exit"+")\n");
             sb.append("  (entry "+t.getName()+"_area "+t.getName()+"_entry"+")\n");                    
             sb.append("  (exit "+t.getName()+"_area "+t.getName()+"_exit"+")\n");
+            sb.append("  (surveillance_distance "+t.getName()+"_area "+(int)t.getLength()+")\n");
 
             for (PayloadRequirement r : t.getRequiredPayloads()) {
                 if (!payloadNames.containsKey(r.name())) {
