@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.pddl;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.util.HashSet;
@@ -56,6 +57,7 @@ public class SurveyAreaTask extends MVPlannerTask {
     
     public SurveyAreaTask(LocationType clickedLocation) {
         area = new ParallelepipedElement();
+        area.setColor(Color.yellow);
         area.setCenterLocation(clickedLocation);
         area.setWidth(75);
         area.setLength(75);

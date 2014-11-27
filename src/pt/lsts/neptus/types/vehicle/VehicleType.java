@@ -532,7 +532,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     }
     
     public String getNickname() {
-        return getName().replaceFirst("lauv-", "").replaceAll("-", "");
+        return getId().replaceFirst("lauv-", "").replaceAll("-", "");
     }
 
     /**
