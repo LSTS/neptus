@@ -62,16 +62,16 @@ public class MVProblemSpecification {
 
     public String solve() throws Exception {
         FileUtil.saveToFile("initial_state.pddl", asPDDL());
-        //Pattern pat = Pattern.compile("([\\d\\.]+): \\((.*)\\) \\[.*\\]");
-        Pattern pat = Pattern.compile("(.*)");
+        Pattern pat = Pattern.compile(".*([\\d\\.]+)\\:.*\\((.*)\\).* \\[(.*)\\]");
         Process p = Runtime.getRuntime().exec("lpg -o conf/LSTS_domain.pddl -f initial_state.pddl -speed");
         StringBuilder result = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String line = reader.readLine();
-        while (line != null && p.isAlive()) {
-            result.append(line+"\n");
+        while (line != null) {
+            
             Matcher m = pat.matcher(line);
-            System.out.println(line+" "+m.matches());
+            if (m.matches())
+                result.append(line.toLowerCase().trim()+"\n");
             line = reader.readLine();
         }
         return result.toString();        
