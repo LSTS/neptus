@@ -139,9 +139,8 @@ public class JsfSidescanParser implements SidescanParser {
                 // Calculate Starboard
                 for (int i = 0; i < sboardNsamples; i++) {
                     double r = 1 - (i / (double) sboardNsamples);
-                    double gain;
+                    double gain = Math.abs(30.0 * Math.log(r));
                     
-                    gain = Math.abs(30.0 * Math.log(r));
                     double sb = sboard.getData()[i] * Math.pow(10, gain / params.getTvgGain());
                     fData[i + pboardNsamples] = sb / avgSboard;
                 }
