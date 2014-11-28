@@ -62,7 +62,7 @@ import pt.lsts.neptus.util.FileUtil;
  *
  */
 public class MVProblemSpecification {
-    
+
     private static final int constantSpeed = 1;
     private static final int powerUnitMultiplier = 1000;
     private Vector<SamplePointTask> sampleTasks = new Vector<SamplePointTask>();
@@ -70,7 +70,33 @@ public class MVProblemSpecification {
     private Vector<VehicleType> vehicles = new Vector<VehicleType>();
     private LocationType defaultLoc = null;
     private String command = "lpg -o DOMAIN -f INITIAL_STATE -speed";
-    
+
+    LinkedHashMap<String, LocationType> calculateLocations() {
+        LinkedHashMap<String, LocationType> locations = new LinkedHashMap<String, LocationType>();
+
+        // calculate all positions to be given to the planner, first from vehicles
+        for (VehicleType v : vehicles) {
+            LocationType depot = new LocationType(defaultLoc);
+            try {
+                depot = ImcSystemsHolder.getSystemWithName(v.getId()).getLocation();
+            }
+            catch (Exception e) {};
+
+            locations.put(v.getNickname()+"_depot", depot);               
+        }
+
+        // and then tasks
+        for (SurveyAreaTask task : surveyTasks) {
+            locations.put(task.getName()+"_entry", task.getEntryPoint());
+            locations.put(task.getName()+"_exit", task.getEndPoint());
+        }
+        for (SamplePointTask task : sampleTasks) {
+            locations.put(task.getName()+"_oi", task.getLocation());            
+        }
+
+        return locations;
+    }
+
     public String solve() throws Exception {
         FileUtil.saveToFile("conf/pddl/initial_state.pddl", asPDDL());
         Pattern pat = Pattern.compile(".*([\\d\\.]+)\\:.*\\((.*)\\).* \\[(.*)\\]");
@@ -82,7 +108,7 @@ public class MVProblemSpecification {
         StringBuilder allText = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String line = reader.readLine();
-        
+
         while (line != null) {
             Matcher m = pat.matcher(line);
             if (m.matches())
@@ -90,15 +116,21 @@ public class MVProblemSpecification {
             allText.append(line+"\n");
             line = reader.readLine();
         }
-        NeptusLog.pub().info("Planner output:\n\n"+allText); 
+        NeptusLog.pub().info("Planner output:\n\n"+allText);
+
+        Vector<MVPlannerTask> tasks = new Vector<MVPlannerTask>();
+        tasks.addAll(sampleTasks);
+        tasks.addAll(surveyTasks);
+
+        MVSolution sol = new MVSolution(calculateLocations(), result.toString(), tasks);
         return result.toString();        
     }
-    
-    
+
+
     public MVProblemSpecification(Collection<VehicleType> vehicles, Collection<MVPlannerTask> tasks, LocationType defaultLoc) {
-        
+
         this.defaultLoc = defaultLoc;
-        
+
         for (MVPlannerTask t : tasks) {
             if (t instanceof SurveyAreaTask) 
                 surveyTasks.add((SurveyAreaTask)t);
@@ -106,28 +138,28 @@ public class MVProblemSpecification {
                 sampleTasks.add((SamplePointTask)t);
             }
         }
-        
+
         this.vehicles.addAll(vehicles);
     }
-    
+
     public String asPDDL() {
-        
+
         LinkedHashMap<String, LocationType> locations = new LinkedHashMap<String, LocationType>();
         LinkedHashMap<String, Integer> vehicleBattery = new LinkedHashMap<String, Integer>();        
         LinkedHashMap<String, Vector<String>> payloadNames = new LinkedHashMap<String, Vector<String>>();
-        
+
         // calculate all positions to be given to the planner, first from vehicles
         for (VehicleType v : vehicles) {
-            
+
             ImcSystemState state = ImcMsgManager.getManager().getState(v);
             LocationType depot = new LocationType(defaultLoc);
             try {
                 depot = ImcSystemsHolder.getSystemWithName(v.getId()).getLocation();
             }
             catch (Exception e) {};
-            
+
             locations.put(v.getNickname()+"_depot", depot);
-            
+
             double fuelPercent = 100.0;
             FuelLevel fuel = state.last(FuelLevel.class);
             if (fuel != null && (System.currentTimeMillis() - fuel.getTimestampMillis()) < 600) {
@@ -136,7 +168,7 @@ public class MVProblemSpecification {
             int fuelUnits = (int) (VehicleParams.maxBattery(v) * (fuelPercent/100.0));
             vehicleBattery.put(v.getId(), fuelUnits);            
         }
-        
+
         // and then tasks
         for (SurveyAreaTask task : surveyTasks) {
             locations.put(task.getName()+"_entry", task.getEntryPoint());
@@ -145,7 +177,7 @@ public class MVProblemSpecification {
         for (SamplePointTask task : sampleTasks) {
             locations.put(task.getName()+"_oi", task.getLocation());            
         }
-        
+
         // calculate all payload names
         for (VehicleType v : vehicles) {
             for (PayloadRequirement pr : VehicleParams.payloadsFor(v)) {
@@ -154,7 +186,7 @@ public class MVProblemSpecification {
                 payloadNames.get(pr.name()).add(v.getNickname()+"_"+pr.name());                
             }
         }
-        
+
         // start printing...
         StringBuilder sb = new StringBuilder();
         sb.append("(define (problem LSTSprob)(:domain LSTS)\n(:objects\n  ");
@@ -164,12 +196,12 @@ public class MVProblemSpecification {
             sb.append(" "+loc);
         }
         sb.append(" - location\n  ");
-        
+
         // print vehicle names
         for (VehicleType v : vehicles)
             sb.append(" "+v.getNickname());
         sb.append(" - auv\n  ");
-        
+
         // print payload names 
         for (String ptype : payloadNames.keySet()) {
             for (String name: payloadNames.get(ptype)) {
@@ -177,7 +209,7 @@ public class MVProblemSpecification {
             }
             sb.append(" - "+ptype+"\n  ");
         }        
-        
+
         if (!surveyTasks.isEmpty()) {
             sb.append(" ");
             for (SurveyAreaTask t : surveyTasks) {
@@ -185,7 +217,7 @@ public class MVProblemSpecification {
             }
             sb.append(" - area\n");
         }
-        
+
         if (!sampleTasks.isEmpty()) {
             sb.append("  ");
             for (SamplePointTask t : sampleTasks) {
@@ -193,7 +225,7 @@ public class MVProblemSpecification {
             }
             sb.append(" - oi\n");
         }
-        
+
         sb.append("  ");
         for (SurveyAreaTask t : surveyTasks) {
             if (t.getRequiredPayloads().size() >= 1)
@@ -206,9 +238,9 @@ public class MVProblemSpecification {
                     sb.append(" "+t.getName()+"_"+pr.name());
         }
         sb.append(" - task\n");
-        
+
         sb.append(")\n(:init\n");
-        
+
         // distance between all locations
         Vector<String> locNames = new Vector<String>();
         locNames.addAll(locations.keySet());
@@ -216,7 +248,7 @@ public class MVProblemSpecification {
             for (int j = 0; j < locNames.size(); j++) {
                 if (i == j)
                     continue;
-                
+
                 String loc1 = locNames.get(i);
                 String loc2 = locNames.get(j);
                 double dist = Math.max(0.01, locations.get(loc1).getHorizontalDistanceInMeters(locations.get(loc2)));
@@ -224,7 +256,7 @@ public class MVProblemSpecification {
             }
         }
         sb.append("\n");
-        
+
         // details of all vehicles
         for (VehicleType v : vehicles) {
             sb.append("\n;"+v.getId()+":\n");
@@ -243,11 +275,11 @@ public class MVProblemSpecification {
                     }
                 }
             }
-            
+
         }
         sb.append("\n");
-        
-        
+
+
         for (SurveyAreaTask t : surveyTasks) {
             sb.append("\n;"+t.getName()+" survey:\n");
             sb.append("  (available "+t.getName()+"_area)\n");
@@ -267,24 +299,24 @@ public class MVProblemSpecification {
                 }
             }
         }
-        
+
         for (SamplePointTask t : sampleTasks) {
             sb.append("\n;"+t.getName()+" object of interest:\n");
             sb.append("  (free "+t.getName()+"_oi)\n");
             sb.append("  (at_oi "+t.getName()+"_obj "+t.getName()+"_oi"+")\n");
             for (PayloadRequirement r : t.getRequiredPayloads()) {
-                
+
                 if (!payloadNames.containsKey(r.name())) {
                     System.err.println("No vehicle is capable of executing task "+t.getName()+" with "+r.name());
                     continue;
                 }
-                
+
                 for (String alternative : payloadNames.get(r.name())) {
                     sb.append("  (task_desc "+t.getName()+"_"+r.name()+" "+t.getName()+"_obj "+alternative+")\n");
                 }
             }
         }
-        
+
         sb.append("\n)");
         sb.append("(:goal (and\n");
         for (SamplePointTask t :sampleTasks) {
@@ -299,10 +331,10 @@ public class MVProblemSpecification {
         }
         sb.append("))\n");
         sb.append("(:metric minimize (total-time)))\n");
-        
+
         return sb.toString();
     }
-    
+
     @SuppressWarnings("unchecked")
     private static MVProblemSpecification generateTest(int numberOfSurveys, int numberOfSamplings, String... vehicles) {
         Vector<VehicleType> vehiclTypes = new Vector<VehicleType>();
@@ -313,10 +345,10 @@ public class MVProblemSpecification {
             vehiclTypes.add(vehicle);
             availablePayloads.addAll(Arrays.asList(VehicleParams.payloadsFor(vehicle)));            
         }
-        
+
         LocationType center = new LocationType(41, -8);
         Random r = new Random(System.currentTimeMillis());
-        
+
         for (int i = 0; i < numberOfSurveys; i++) {
             LocationType loc = new LocationType(center).translatePosition(r.nextDouble()*2500 - 1250, r.nextDouble()*2500- 1250, 0).convertToAbsoluteLatLonDepth();
             SurveyAreaTask task = new SurveyAreaTask(loc);
@@ -328,14 +360,14 @@ public class MVProblemSpecification {
                     reqs.remove(r.nextInt(reqs.size()));
                 }
             }
-            
+
             task.setSize(r.nextDouble()*1000+20, r.nextDouble()*1500+100, r.nextDouble()*360);
             HashSet<PayloadRequirement> payloads = new HashSet<PayloadRequirement>();
             payloads.addAll(reqs);
             task.setRequiredPayloads(payloads);
             generatedTasks.add(task);
         }
-        
+
         for (int i = 0; i < numberOfSamplings; i++) {
             LocationType loc = new LocationType(center).translatePosition(r.nextDouble()*2500- 1250, r.nextDouble()*2500- 1250, 0).convertToAbsoluteLatLonDepth();
             SamplePointTask task = new SamplePointTask(loc);
@@ -352,19 +384,19 @@ public class MVProblemSpecification {
             task.setRequiredPayloads(payloads);
             generatedTasks.add(task);
         }
-        
+
         LocationType defaultLoc = new LocationType(center).translatePosition(r.nextDouble()*300-150, r.nextDouble()*300-150, 0);
         return new MVProblemSpecification(vehiclTypes, generatedTasks, defaultLoc);
     }
-    
+
     /**
      * Unitary test used to generate a series of initial states to feed and test the planner...
      */
     public static void main(String[] args) {
-        
+
         MVPlannerInteraction inter = new MVPlannerInteraction();
         inter.init(new ConsoleLayout());
-        
+
         for (int i = 1; i <= 10; i++) {
             MVProblemSpecification spec = MVProblemSpecification.generateTest(i, i, "lauv-seacon-1", "lauv-xplore-1", "lauv-noptilus-3", "lauv-xtreme-2");
             String pddl = spec.asPDDL();
@@ -373,8 +405,8 @@ public class MVProblemSpecification {
                 System.out.println("Created "+"state"+i+".pddl");
             }
         }
-        
-        
+
+
     }
-    
+
 }

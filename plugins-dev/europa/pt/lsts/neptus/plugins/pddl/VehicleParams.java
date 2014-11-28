@@ -72,6 +72,10 @@ public class VehicleParams {
         }       
     }
     
+    public static VehicleType getVehicleFromNickname(String nickname) {
+        return VehiclesHolder.getVehicleById(nicknames.get(nickname));
+    }
+    
     private static LinkedHashMap<String, Double> moveConsumption = new LinkedHashMap<String, Double>();
     static {
         moveConsumption.put("lauv-dolphin-1", 14.0);
