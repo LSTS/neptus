@@ -153,7 +153,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                         activeVehicles.addElement(VehiclesHolder.getVehicleById(s.getName()));
                 }
                 
-                MVProblemSpecification p = new MVProblemSpecification(activeVehicles, tasks);
+                MVProblemSpecification p = new MVProblemSpecification(activeVehicles, tasks, null);
                 System.out.println(p.asPDDL());
                 FileUtil.saveToFile("initial_state.pddl", p.asPDDL());
                 try {
@@ -245,6 +245,13 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
     }
     
+    /**
+     * @return the tasks
+     */
+    public Vector<MVPlannerTask> getTasks() {
+        return tasks;
+    }
+
     public static void main(String[] args) {
         StateRenderer2D renderer = new StateRenderer2D();
         MVPlannerInteraction inter = new MVPlannerInteraction();

@@ -67,6 +67,13 @@ public class SurveyAreaTask extends MVPlannerTask {
         updateManeuver();
     }
     
+    public void setSize(double width, double length, double bearingRads) {
+        area.setLength(length);
+        area.setWidth(width);
+        area.setYaw(bearingRads);
+        updateManeuver();
+    }
+    
     public LocationType getEntryPoint() {
         pivot.endManeuver();
         return pivot.getStartLocation().convertToAbsoluteLatLonDepth();

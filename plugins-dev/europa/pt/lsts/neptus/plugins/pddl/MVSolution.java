@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.pddl;
 import java.util.ArrayList;
 import java.util.List;
 
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 
@@ -46,13 +47,16 @@ public class MVSolution {
     private ArrayList<Action> actions = new ArrayList<MVSolution.Action>();
     
     public MVSolution(String pddlSolution, List<MVPlannerTask> tasks) {
-        //TODO: parse PDDL
+        for (String line : pddlSolution.split("\n")) {
+            System.out.println("line: "+line);
+        }
     }
     
     static class Action {
         long startTimestamp;
         long endTimestamp;
-        PlanType plan;
+        String payload;
+        Maneuver man;
         VehicleType vehicle;
     }    
 }
