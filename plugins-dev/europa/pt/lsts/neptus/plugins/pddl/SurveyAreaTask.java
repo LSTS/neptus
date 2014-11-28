@@ -171,6 +171,13 @@ public class SurveyAreaTask extends MVPlannerTask {
         return pivot.getDistanceTravelled(getEntryPoint());
     }
       
+    /**
+     * @return the pivot
+     */
+    public final RowsManeuver getPivot() {
+        return pivot;
+    }
+
     public static void main(String[] args) {
         SurveyAreaTask task = new SurveyAreaTask(new LocationType(41, -8));
         StateRenderer2D renderer = new StateRenderer2D(new LocationType(41, -8));

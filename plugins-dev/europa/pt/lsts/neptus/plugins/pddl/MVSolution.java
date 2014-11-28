@@ -37,8 +37,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.ArrayUtils;
-
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.Goto;
@@ -62,7 +60,6 @@ public class MVSolution {
             this.tasks.put(t.getName(), t);
         
         this.locations = locations;
-        System.out.println(locations);
         
         for (String line : pddlSolution.split("\n")) {
             Action act = createAction(line);
@@ -82,7 +79,6 @@ public class MVSolution {
         action.startTimestamp = (long) (1000 * timestamp);
         
         String[] parts = a.split(" ");
-        System.out.println(ArrayUtils.toString(parts));
         action.vehicle = VehicleParams.getVehicleFromNickname(parts[1]);
         LocationType where = locations.get(parts[2]);
         String taskName = parts[2].split("_")[0];
@@ -103,27 +99,43 @@ public class MVSolution {
                 Loiter tmpLoiter = new Loiter();
                 tmpLoiter.setManeuverLocation(new ManeuverLocation(where));
                 tmpLoiter.setLoiterDuration(10); //FIXME
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length-1].split("_")[1]));
                 action.man = tmpLoiter;
                 break;
             case "survey-one-payload":
-                
+                SurveyAreaTask task = (SurveyAreaTask)tasks.get(taskName);
+                action.man = task.getPivot();                
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length-1].split("_")[1]));
                 break;
-            case "survey-two-payloads":
+            case "survey-two-payload":
+                SurveyAreaTask twop = (SurveyAreaTask)tasks.get(taskName);
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length-1].split("_")[1]));
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length-2].split("_")[1]));
+                action.man = twop.getPivot();
                 break;
-            case "survey-three-payloads":
+            case "survey-three-payload":
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length-1].split("_")[1]));
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length-2].split("_")[1]));
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length-3].split("_")[1]));
+                SurveyAreaTask threep = (SurveyAreaTask)tasks.get(taskName);
+                action.man = threep.getPivot();
                 break;
             default:
+                System.err.println("Unrecognized action: "+line);
                 break;
         }
-        
         return action;
     }
     
     static class Action {
         public long startTimestamp;
-        public long endTimestamp;
         public ArrayList<PayloadRequirement> payloads = new ArrayList<PayloadRequirement>();
         public Maneuver man;
         public VehicleType vehicle;
+        
+        @Override
+        public String toString() {
+            return man.getType()+" with payloads "+payloads+", using vehicle "+vehicle+" at time "+startTimestamp;
+        }
     }    
 }

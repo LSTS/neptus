@@ -122,7 +122,10 @@ public class MVProblemSpecification {
         tasks.addAll(sampleTasks);
         tasks.addAll(surveyTasks);
 
+        @SuppressWarnings("unused")
         MVSolution sol = new MVSolution(calculateLocations(), result.toString(), tasks);
+        //TODO generate plans from found solution...
+        
         return result.toString();        
     }
 
