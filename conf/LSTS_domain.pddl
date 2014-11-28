@@ -1,3 +1,5 @@
+; author: Lukas Chrpa
+
 (define (domain LSTS)
 (:requirements :typing :durative-actions :fluents :equality)
 (:types location vehicle payload interest task - object
