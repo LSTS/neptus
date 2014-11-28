@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.pddl;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,6 +48,7 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
 
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.state.ImcSystemState;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -70,20 +72,25 @@ public class MVProblemSpecification {
     private String command = "lpg -o DOMAIN -f INITIAL_STATE -speed";
     
     public String solve() throws Exception {
-        FileUtil.saveToFile("initial_state.pddl", asPDDL());
+        FileUtil.saveToFile("conf/pddl/initial_state.pddl", asPDDL());
         Pattern pat = Pattern.compile(".*([\\d\\.]+)\\:.*\\((.*)\\).* \\[(.*)\\]");
-        String cmd = command.replaceAll("DOMAIN", "conf/LSTS_domain.pddl");
+        String cmd = command.replaceAll("DOMAIN", "LSTS_domain.pddl");
         cmd = cmd.replaceAll("INITIAL_STATE", "initial_state.pddl");
-        Process p = Runtime.getRuntime().exec(cmd);
+        cmd = cmd.replaceAll("/", System.getProperty("file.separator"));
+        Process p = Runtime.getRuntime().exec(cmd, null, new File("conf/pddl"));
         StringBuilder result = new StringBuilder();
+        StringBuilder allText = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String line = reader.readLine();
+        
         while (line != null) {
             Matcher m = pat.matcher(line);
             if (m.matches())
                 result.append(line.toLowerCase().trim()+"\n");
+            allText.append(line+"\n");
             line = reader.readLine();
         }
+        NeptusLog.pub().info("Planner output:\n\n"+allText); 
         return result.toString();        
     }
     
