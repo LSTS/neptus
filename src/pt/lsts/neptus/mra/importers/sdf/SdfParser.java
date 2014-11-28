@@ -114,11 +114,23 @@ public class SdfParser {
                 curPosition += header.getHeaderSize();
                 //System.out.println("curPos " + curPosition);
 
-                //set header of this ping
-                ping.setHeader(header);
-                ping.calculateTimeStamp();
+                
+                if (header.getPageVersion() == SUBSYS_HIGH || header.getPageVersion() == SUBSYS_LOW) {
+                    //set header of this ping
+                    ping.setHeader(header);
+                    ping.calculateTimeStamp();
+                    pos = curPosition-header.getHeaderSize();
+     
+                } else { //ignore other pageVersions
+                    NeptusLog.pub().info("SDF Data file contains unimplemented pageVersion # "+header.getPageVersion());
+                    curPosition += (header.getNumberBytes()+4) - header.getHeaderSize();
+                    pos = curPosition;
+                    if (curPosition >= channel.size()) //check if curPosition is at the end of file
+                        break;
+                    else
+                        continue;
+                }
 
-                pos = curPosition-header.getHeaderSize();
 
                 //get timestamp, freq and subsystem used
                 long t = ping.getTimestamp(); // Timestamp
