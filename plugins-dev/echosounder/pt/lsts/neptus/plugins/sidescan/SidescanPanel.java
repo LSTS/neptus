@@ -279,7 +279,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
         }
         else {
-            creator.closeStreams();
+            if (creator != null)
+                creator.closeStreams();
         }
     }
 
