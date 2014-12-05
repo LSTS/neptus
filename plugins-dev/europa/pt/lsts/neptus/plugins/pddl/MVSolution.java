@@ -127,6 +127,49 @@ public class MVSolution {
         return action;
     }
     
+    private void enablePayloads(ManeuverPayloadConfig manPayloads, ArrayList<PayloadRequirement> requiredPayloads) {
+
+        for (SystemProperty e : manPayloads.getProperties()) {
+            System.out.println(e.toString());
+
+            if (requiredPayloads.contains(PayloadRequirement.ctd)) {
+                // System.out.println("I need CTD : "+ true);   
+            }
+
+            if (e.getCategory().startsWith("Camera") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
+
+                if (requiredPayloads.contains(PayloadRequirement.camera))
+                    e.setValue(true);
+                else
+                    e.setValue(false);
+            }
+
+            if (e.getCategory().startsWith("Multibeam") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
+                if (requiredPayloads.contains(PayloadRequirement.multibeam)) 
+                    e.setValue(true);
+                else
+                    e.setValue(false);
+            }
+
+            if (e.getCategory().equals("Sidescan") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
+                if (requiredPayloads.contains(PayloadRequirement.sidescan) || requiredPayloads.contains(PayloadRequirement.edgetech))
+                    e.setValue(true);
+                else
+                    e.setValue(false);
+            }
+
+            if (e.getCategory().equalsIgnoreCase("rhodamine") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
+                if (requiredPayloads.contains(PayloadRequirement.rhodamine)) {
+                    e.setValue(true);
+                } else {
+                    e.setValue(false);
+                }
+            }
+        }
+
+        manPayloads.setProperties(manPayloads.getProperties());    
+
+    }
     static class Action {
         public long startTimestamp;
         public ArrayList<PayloadRequirement> payloads = new ArrayList<PayloadRequirement>();
