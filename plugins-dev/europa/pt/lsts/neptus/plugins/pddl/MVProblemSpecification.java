@@ -122,10 +122,9 @@ public class MVProblemSpecification {
         tasks.addAll(sampleTasks);
         tasks.addAll(surveyTasks);
 
-        @SuppressWarnings("unused")
-        MVSolution sol = new MVSolution(calculateLocations(), result.toString(), tasks);
-        //TODO generate plans from found solution...
-        
+        //generate plans from found solution...
+        solution = new MVSolution(calculateLocations(), result.toString(), tasks);  
+
         return result.toString();        
     }
 
@@ -390,6 +389,10 @@ public class MVProblemSpecification {
 
         LocationType defaultLoc = new LocationType(center).translatePosition(r.nextDouble()*300-150, r.nextDouble()*300-150, 0);
         return new MVProblemSpecification(vehiclTypes, generatedTasks, defaultLoc);
+    }
+    
+    public MVSolution getSolution() {
+        return solution;
     }
 
     /**
