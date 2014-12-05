@@ -32,18 +32,27 @@
 package pt.lsts.neptus.plugins.pddl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.Loiter;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
+import pt.lsts.neptus.params.ManeuverPayloadConfig;
+import pt.lsts.neptus.params.SystemProperty;
+import pt.lsts.neptus.params.SystemProperty.ValueTypeEnum;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 
 /**
  * @author zp
@@ -52,37 +61,39 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 public class MVSolution {
 
     private ArrayList<Action> actions = new ArrayList<MVSolution.Action>();
+
     private final Pattern pat = Pattern.compile("(.*)\\:.*\\((.*)\\).* \\[(.*)\\]");
     private LinkedHashMap<String, LocationType> locations = null;
     LinkedHashMap<String, MVPlannerTask> tasks = new LinkedHashMap<String, MVPlannerTask>();
+
     public MVSolution(LinkedHashMap<String, LocationType> locations, String pddlSolution, List<MVPlannerTask> tasks) {
         for (MVPlannerTask t : tasks)
             this.tasks.put(t.getName(), t);
-        
+
         this.locations = locations;
-        
+
         for (String line : pddlSolution.split("\n")) {
             Action act = createAction(line);
             if (act != null)
                 actions.add(act);
         }
     }
-    
+
     private Action createAction(String line) {
         Matcher m = pat.matcher(line);
         if (!m.matches())
             System.err.println("Bad output format: "+line);
         double timestamp = Double.parseDouble(m.group(1).trim());
         String a = m.group(2).trim();
-        
+
         Action action = new Action();
         action.startTimestamp = (long) (1000 * timestamp);
-        
+
         String[] parts = a.split(" ");
         action.vehicle = VehicleParams.getVehicleFromNickname(parts[1]);
         LocationType where = locations.get(parts[2]);
         String taskName = parts[2].split("_")[0];
-        
+
         switch (parts[0]) {
             case "move":
                 Goto tmpMove = new Goto();
@@ -126,7 +137,7 @@ public class MVSolution {
         }
         return action;
     }
-    
+
     private void enablePayloads(ManeuverPayloadConfig manPayloads, ArrayList<PayloadRequirement> requiredPayloads) {
 
         for (SystemProperty e : manPayloads.getProperties()) {
@@ -170,12 +181,109 @@ public class MVSolution {
         manPayloads.setProperties(manPayloads.getProperties());    
 
     }
+
+    public ArrayList<MVPlans> generatePlans() {
+
+        TreeMap<String, ArrayList<Maneuver>> manListperVehicle =  new TreeMap<>();
+        HashMap<String, ArrayList<Long>> tsPerVehicle = new HashMap<>();
+
+        for (Action act : actions) {
+            System.out.println(act.toString());
+            ManeuverPayloadConfig payload = new ManeuverPayloadConfig(act.vehicle.getId(), act.man, null);           
+            enablePayloads(payload, act.payloads);
+
+
+
+            //            Vector<IMCMessage> startActions = new Vector<>();
+            //            startActions.addAll(Arrays.asList(act.man.getStartActions().getAllMessages()));
+            //            
+            if (!manListperVehicle.containsKey(act.vehicle.getId())) {
+
+                Maneuver maneuver = (Maneuver) act.man.clone();
+
+                // store maneuvers 
+                ArrayList<Maneuver> manList = new ArrayList<Maneuver>();
+                manList.add(maneuver);
+                manListperVehicle.put(act.vehicle.getId(), manList);
+                // store timestamps
+                ArrayList<Long> tsList = new ArrayList<>();
+                tsList.add(act.startTimestamp);
+                tsPerVehicle.put(act.vehicle.getId(), tsList);
+            } else {
+                ArrayList<Maneuver> storedManeuvers = manListperVehicle.get(act.vehicle.getId());
+                ArrayList<Long> storedTimestamps = tsPerVehicle.get(act.vehicle.getId());
+
+                storedManeuvers.add((Maneuver) act.man.clone());
+                storedTimestamps.add(act.startTimestamp);
+
+            }
+        }
+        TreeMap<String, ArrayList<PlanType>> planListperVehicle = new TreeMap<String, ArrayList<PlanType>>();
+
+        for (Entry<String, ArrayList<Maneuver>> v : manListperVehicle.entrySet()) {
+
+            for (Maneuver m : v.getValue()) {
+                if (planListperVehicle.get(v.getKey())==null ) {
+                    PlanType plan = new PlanType(null);
+                    plan.getGraph().addManeuver(m);
+                    ArrayList<PlanType> planos = new ArrayList<PlanType>();
+                    planos.add(plan);
+                    planListperVehicle.put(v.getKey(), planos);
+                } else {
+                    PlanType plan = new PlanType(null);
+                    plan.getGraph().addManeuver(m);
+
+                    planListperVehicle.get(v.getKey()).add(plan);
+                }
+            }
+        }
+
+        ArrayList<MVPlans> list = new ArrayList<>();
+
+        for (Entry<String, ArrayList<PlanType>> e : planListperVehicle.entrySet()) {
+
+            int i=0;
+            VehicleType veh = VehiclesHolder.getVehicleById(e.getKey());
+            MVPlans vehiclePlans = new MVPlans(veh);
+
+            for (PlanType plan : e.getValue()) {
+                plan.setVehicle(e.getKey());
+
+                if (plan.getGraph().getAllManeuvers().length>0) //ensure that plan has maneuver
+                    plan.setId("pl_"+e.getKey()+"_"+plan.getGraph().getAllManeuvers()[0].getType()+i);
+
+                //System.out.print("["+ plan.getVehicle()+"]   plano : ("+ plan.getId()+")");
+//                for (Maneuver m : plan.getGraph().getAllManeuvers()) {
+//                    if (m instanceof LocatedManeuver) {
+//                        ManeuverLocation l = ((LocatedManeuver) m).getManeuverLocation();
+//                        System.out.println("   |   manobra : "+m.getType() + " ("+m.getId() + ") " + l.toString());
+//                    } else
+//                        System.out.println("   |   manobra : "+m.getType() + " ("+m.getId() + ")");
+//
+//
+//                }
+                vehiclePlans.addPlan(tsPerVehicle.get(veh.getId()).get(i), plan);
+                i++;
+
+            }
+
+
+
+            list.add(vehiclePlans);
+        }
+        for (int i=0; i<list.size(); i++) 
+            System.out.println("tamanho lista : "+list.get(i).planList.toString());
+
+        return list;
+
+    }
+
     static class Action {
         public long startTimestamp;
         public ArrayList<PayloadRequirement> payloads = new ArrayList<PayloadRequirement>();
         public Maneuver man;
         public VehicleType vehicle;
-        
+
         @Override
         public String toString() {
             return man.getType()+" with payloads "+payloads+", using vehicle "+vehicle+" at time "+startTimestamp;
