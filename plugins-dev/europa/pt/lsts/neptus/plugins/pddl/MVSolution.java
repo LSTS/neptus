@@ -180,5 +180,40 @@ public class MVSolution {
         public String toString() {
             return man.getType()+" with payloads "+payloads+", using vehicle "+vehicle+" at time "+startTimestamp;
         }
-    }    
+
+    }
+
+    class MVPlans {
+        private VehicleType vehicle;
+        private LinkedHashMap<Long, PlanType> planList;
+
+        public MVPlans(VehicleType vehicle) {
+            this.setVehicle(vehicle);
+            this.planList = new LinkedHashMap<>();
+            
+
+        }
+
+        public void addPlan(long ts, PlanType planToAdd) {
+            planList.put((Long) ts, planToAdd);
+        }
+
+        public VehicleType getVehicle() {
+            return vehicle;
+        }
+
+        public void setVehicle(VehicleType vehicle) {
+            this.vehicle = vehicle;
+        }
+
+        /**
+         * @return the planList
+         */
+        public HashMap<Long, PlanType> getPlanList() {
+            return planList;
+        }
+
+
+    }
+
 }
