@@ -37,18 +37,26 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.JPopupMenu;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBAdapter;
+import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBControl;
+import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.pddl.MVSolution.MVPlans;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -65,7 +73,64 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private Vector<MVPlannerTask> tasks = new Vector<MVPlannerTask>();
     private MVPlannerTask selectedTask = null;    
     private Point2D lastPoint = null;
-        
+    
+    MVProblemSpecification problem = null;
+    MVExecutor executor = null;
+    
+    protected PlanDBControl pdbControl;
+    
+    protected PlanDBAdapter planDBListener = new PlanDBAdapter() {
+        @Override
+        public void dbCleared() {
+        }
+
+        @Override
+        public void dbInfoUpdated(PlanDBState updatedInfo) {
+        }
+
+        @Override
+        public void dbPlanReceived(PlanType spec) {
+            spec.setMissionType(getConsole().getMission());
+            getConsole().getMission().addPlan(spec);
+            getConsole().getMission().save(true);
+            getConsole().updateMissionListeners();
+
+        }
+
+        @Override
+        public void dbPlanRemoved(String planId) {
+        }
+
+        @Override
+        public void dbPlanSent(String planId) {
+        }
+    };
+    
+    private void removePlanDBListener() {
+        if (pdbControl != null)
+            pdbControl.removeListener(planDBListener);
+    }
+    
+    private void planControlUpdate(String id) {
+        removePlanDBListener();
+        ImcSystem sys = ImcSystemsHolder.lookupSystemByName(id);
+
+        if (sys == null) {
+            pdbControl = null;
+            NeptusLog.pub().error(
+                    "The main vehicle selected " + id
+                    + " is not in the vehicles-defs folder. Please add definitions file for this vehicle.");
+        }
+        else {
+            pdbControl = sys.getPlanDBControl();
+            if (pdbControl == null) {
+                pdbControl = new PlanDBControl();
+                pdbControl.setRemoteSystemId(id);
+            }
+
+            pdbControl.addListener(planDBListener);
+        }
+    }
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
         
@@ -143,6 +208,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             }
         });
         
+
+        
         popup.add("Generate").addActionListener(new ActionListener() {
             
             @Override
@@ -153,11 +220,11 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                         activeVehicles.addElement(VehiclesHolder.getVehicleById(s.getName()));
                 }
                 
-                MVProblemSpecification p = new MVProblemSpecification(activeVehicles, tasks, null);
-                System.out.println(p.asPDDL());
-                FileUtil.saveToFile("initial_state.pddl", p.asPDDL());
+                problem = new MVProblemSpecification(activeVehicles, tasks, null);
+                System.out.println(problem.asPDDL());
+                FileUtil.saveToFile("initial_state.pddl", problem.asPDDL());
                 try {
-                    String solution = p.solve();
+                   String solution = problem.solve();
                     if (solution.isEmpty()) 
                         throw new Exception("No solution has been found.");
                     GuiUtils.htmlMessage(getConsole(), "found solution", "", "<html><pre>"+solution+"</pre></html>");
@@ -178,6 +245,61 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 
             }
         });
+        popup.addSeparator();
+        popup.add("Send solution to vehicles").addActionListener(new ActionListener() {
+            
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               if (problem!=null && problem.getSolution()!=null) {
+                   //generate plans from the found solution
+                    ArrayList<MVPlans> genPlans = problem.getSolution().generatePlans();
+                    
+                    for (MVPlans entry : genPlans) {
+                        VehicleType vehicle = entry.getVehicle();
+                        String vehicleId = vehicle.getId();
+                        planControlUpdate(vehicleId);
+                        
+                        for (Entry<Long, PlanType> pl : entry.getPlanList().entrySet()) {                       
+                            PlanType plan = pl.getValue();
+                            String planId = plan.getId();
+                            
+                            plan.setMissionType(getConsole().getMission());
+                            
+                            // add plans to mission
+                            getConsole().getMission().addPlan(plan);
+                            
+                            /* FIXME SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                                @Override
+                                protected Void doInBackground() throws Exception {
+                                    getConsole().getMission().save(true);
+                                    return null;
+                                }
+                            };
+                            worker.execute();*/
+                            
+                            /*//send plans to vehicle
+                            pdbControl.setRemoteSystemId(vehicleId);
+                            pdbControl.sendPlan(plan);
+                            System.out.println(">> Sending plan '"+planId+ "' to vehicle "+vehicleId);*/
+                        }
+                    }
+//                    if (pdbControl == null) {
+//                        return;
+//                    }
+                    executor = new MVExecutor(genPlans);
+                }
+            }
+        });
+        
+        
+        popup.add("Start Execution").addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                executor.init();
+            }
+        });
+
         popup.show(source, event.getX(), event.getY());
     }
     
