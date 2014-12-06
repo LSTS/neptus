@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.pddl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -42,8 +43,8 @@ import java.util.regex.Pattern;
 
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.maneuvers.Goto;
-import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.Loiter;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.params.ManeuverPayloadConfig;
@@ -60,11 +61,11 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
  */
 public class MVSolution {
 
+    private static final double DEFAULT_DEPTH = 3;
     private ArrayList<Action> actions = new ArrayList<MVSolution.Action>();
-
     private final Pattern pat = Pattern.compile("(.*)\\:.*\\((.*)\\).* \\[(.*)\\]");
     private LinkedHashMap<String, LocationType> locations = null;
-    LinkedHashMap<String, MVPlannerTask> tasks = new LinkedHashMap<String, MVPlannerTask>();
+    private LinkedHashMap<String, MVPlannerTask> tasks = new LinkedHashMap<String, MVPlannerTask>();
 
     public MVSolution(LinkedHashMap<String, LocationType> locations, String pddlSolution, List<MVPlannerTask> tasks) {
         for (MVPlannerTask t : tasks)
@@ -82,7 +83,7 @@ public class MVSolution {
     private Action createAction(String line) {
         Matcher m = pat.matcher(line);
         if (!m.matches())
-            System.err.println("Bad output format: "+line);
+            System.err.println("Bad output format: " + line);
         double timestamp = Double.parseDouble(m.group(1).trim());
         String a = m.group(2).trim();
 
@@ -91,48 +92,80 @@ public class MVSolution {
 
         String[] parts = a.split(" ");
         action.vehicle = VehicleParams.getVehicleFromNickname(parts[1]);
-        LocationType where = locations.get(parts[2]);
+        ManeuverLocation where = new ManeuverLocation(locations.get(parts[2]));
         String taskName = parts[2].split("_")[0];
-
+        MVPlannerTask task = null;
+        
+        int i = 0;
+        while (task == null) {
+            taskName = parts[i++].split("_")[0];
+            task = tasks.get(taskName);
+        }
+        
+        double minDepth = Double.MAX_VALUE;
+        double maxDepth = -Double.MAX_VALUE;
+        
+        if (task.requiredPayloads == null || task.requiredPayloads.isEmpty()) {
+            minDepth = maxDepth = DEFAULT_DEPTH;            
+        }
+        for (PayloadRequirement r : task.requiredPayloads) {
+            minDepth = Math.min(minDepth, r.getMinDepth());
+            maxDepth = Math.max(maxDepth, r.getMaxDepth());
+        }
+        
+        if (minDepth < 0) {
+            where.setZUnits(Z_UNITS.ALTITUDE);
+            where.setZ(-minDepth);
+        }
+        else {
+            where.setZUnits(Z_UNITS.DEPTH);
+            where.setZ(DEFAULT_DEPTH);    
+        }                
+        
         switch (parts[0]) {
             case "move":
                 Goto tmpMove = new Goto();
-                tmpMove.setManeuverLocation(new ManeuverLocation(where));
+                tmpMove.setManeuverLocation(where);
                 action.man = tmpMove;
                 break;
             case "communicate":
                 StationKeeping tmpSk = new StationKeeping();
-                tmpSk.setManeuverLocation(new ManeuverLocation(where));
-                tmpSk.setDuration(10); //FIXME
+                tmpSk.setManeuverLocation(where);
+                where.setZ(0);
+                where.setZUnits(Z_UNITS.DEPTH);
+                tmpSk.setDuration(60); // FIXME
                 action.man = tmpSk;
                 break;
             case "sample":
                 Loiter tmpLoiter = new Loiter();
-                tmpLoiter.setManeuverLocation(new ManeuverLocation(where));
-                tmpLoiter.setLoiterDuration(10); //FIXME
-                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length-1].split("_")[1]));
+                tmpLoiter.setManeuverLocation(where);
+                tmpLoiter.setLoiterDuration(60); // FIXME
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
                 action.man = tmpLoiter;
                 break;
             case "survey-one-payload":
-                SurveyAreaTask task = (SurveyAreaTask)tasks.get(taskName);
-                action.man = task.getPivot();                
-                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length-1].split("_")[1]));
+                SurveyAreaTask onep = (SurveyAreaTask) tasks.get(taskName);
+                onep.getPivot().setManeuverLocation(where);
+                action.man = onep.getPivot();
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
                 break;
             case "survey-two-payload":
-                SurveyAreaTask twop = (SurveyAreaTask)tasks.get(taskName);
-                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length-1].split("_")[1]));
-                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length-2].split("_")[1]));
+                SurveyAreaTask twop = (SurveyAreaTask) tasks.get(taskName);
+                twop.getPivot().setManeuverLocation(where);                
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 2].split("_")[1]));
                 action.man = twop.getPivot();
                 break;
             case "survey-three-payload":
-                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length-1].split("_")[1]));
-                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length-2].split("_")[1]));
-                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length-3].split("_")[1]));
-                SurveyAreaTask threep = (SurveyAreaTask)tasks.get(taskName);
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 2].split("_")[1]));
+                action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 3].split("_")[1]));
+                SurveyAreaTask threep = (SurveyAreaTask) tasks.get(taskName);
+                threep.getPivot().setManeuverLocation(where);
                 action.man = threep.getPivot();
                 break;
             default:
-                System.err.println("Unrecognized action: "+line);
+                System.err.println("Unrecognized action: " + line);
                 break;
         }
         return action;
@@ -144,7 +177,7 @@ public class MVSolution {
             System.out.println(e.toString());
 
             if (requiredPayloads.contains(PayloadRequirement.ctd)) {
-                // System.out.println("I need CTD : "+ true);   
+                // System.out.println("I need CTD : "+ true);
             }
 
             if (e.getCategory().startsWith("Camera") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
@@ -156,14 +189,15 @@ public class MVSolution {
             }
 
             if (e.getCategory().startsWith("Multibeam") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
-                if (requiredPayloads.contains(PayloadRequirement.multibeam)) 
+                if (requiredPayloads.contains(PayloadRequirement.multibeam))
                     e.setValue(true);
                 else
                     e.setValue(false);
             }
 
             if (e.getCategory().equals("Sidescan") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
-                if (requiredPayloads.contains(PayloadRequirement.sidescan) || requiredPayloads.contains(PayloadRequirement.edgetech))
+                if (requiredPayloads.contains(PayloadRequirement.sidescan)
+                        || requiredPayloads.contains(PayloadRequirement.edgetech))
                     e.setValue(true);
                 else
                     e.setValue(false);
@@ -172,36 +206,53 @@ public class MVSolution {
             if (e.getCategory().equalsIgnoreCase("rhodamine") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
                 if (requiredPayloads.contains(PayloadRequirement.rhodamine)) {
                     e.setValue(true);
-                } else {
+                }
+                else {
                     e.setValue(false);
                 }
             }
         }
 
-        manPayloads.setProperties(manPayloads.getProperties());    
+        manPayloads.setProperties(manPayloads.getProperties());
 
     }
 
-    public ArrayList<MVPlans> generatePlans() {
+    public Collection<PlanType> generatePlans() {
 
-        TreeMap<String, ArrayList<Maneuver>> manListperVehicle =  new TreeMap<>();
+        LinkedHashMap<String, PlanType> plansPerVehicle = new LinkedHashMap<String, PlanType>();
+
+        for (Action act : actions) {
+            ManeuverPayloadConfig payload = new ManeuverPayloadConfig(act.vehicle.getId(), act.man, null);
+            enablePayloads(payload, act.payloads);
+            Maneuver maneuver = (Maneuver) act.man.clone();
+
+            if (!plansPerVehicle.containsKey(act.vehicle.getId())) {
+                PlanType newPlan = new PlanType(null);
+                newPlan.setId("mvplanner_"+act.vehicle.getId());
+                newPlan.setVehicle(act.vehicle.getId());
+                plansPerVehicle.put(act.vehicle.getId(), newPlan);                
+            }
+
+            plansPerVehicle.get(act.vehicle.getId()).getGraph().addManeuverAtEnd(maneuver);            
+        }
+        
+        return plansPerVehicle.values();
+    }
+
+    public ArrayList<MVPlans> generatePlansPerAction() {
+
+        TreeMap<String, ArrayList<Maneuver>> manListperVehicle = new TreeMap<>();
         HashMap<String, ArrayList<Long>> tsPerVehicle = new HashMap<>();
 
         for (Action act : actions) {
-            System.out.println(act.toString());
-            ManeuverPayloadConfig payload = new ManeuverPayloadConfig(act.vehicle.getId(), act.man, null);           
+            ManeuverPayloadConfig payload = new ManeuverPayloadConfig(act.vehicle.getId(), act.man, null);
             enablePayloads(payload, act.payloads);
 
-
-
-            //            Vector<IMCMessage> startActions = new Vector<>();
-            //            startActions.addAll(Arrays.asList(act.man.getStartActions().getAllMessages()));
-            //            
             if (!manListperVehicle.containsKey(act.vehicle.getId())) {
 
                 Maneuver maneuver = (Maneuver) act.man.clone();
 
-                // store maneuvers 
+                // store maneuvers
                 ArrayList<Maneuver> manList = new ArrayList<Maneuver>();
                 manList.add(maneuver);
                 manListperVehicle.put(act.vehicle.getId(), manList);
@@ -209,7 +260,8 @@ public class MVSolution {
                 ArrayList<Long> tsList = new ArrayList<>();
                 tsList.add(act.startTimestamp);
                 tsPerVehicle.put(act.vehicle.getId(), tsList);
-            } else {
+            }
+            else {
                 ArrayList<Maneuver> storedManeuvers = manListperVehicle.get(act.vehicle.getId());
                 ArrayList<Long> storedTimestamps = tsPerVehicle.get(act.vehicle.getId());
 
@@ -223,13 +275,14 @@ public class MVSolution {
         for (Entry<String, ArrayList<Maneuver>> v : manListperVehicle.entrySet()) {
 
             for (Maneuver m : v.getValue()) {
-                if (planListperVehicle.get(v.getKey())==null ) {
+                if (planListperVehicle.get(v.getKey()) == null) {
                     PlanType plan = new PlanType(null);
                     plan.getGraph().addManeuver(m);
                     ArrayList<PlanType> planos = new ArrayList<PlanType>();
                     planos.add(plan);
                     planListperVehicle.put(v.getKey(), planos);
-                } else {
+                }
+                else {
                     PlanType plan = new PlanType(null);
                     plan.getGraph().addManeuver(m);
 
@@ -242,37 +295,25 @@ public class MVSolution {
 
         for (Entry<String, ArrayList<PlanType>> e : planListperVehicle.entrySet()) {
 
-            int i=0;
+            int i = 0;
             VehicleType veh = VehiclesHolder.getVehicleById(e.getKey());
             MVPlans vehiclePlans = new MVPlans(veh);
 
             for (PlanType plan : e.getValue()) {
                 plan.setVehicle(e.getKey());
 
-                if (plan.getGraph().getAllManeuvers().length>0) //ensure that plan has maneuver
-                    plan.setId("pl_"+e.getKey()+"_"+plan.getGraph().getAllManeuvers()[0].getType()+i);
+                if (plan.getGraph().getAllManeuvers().length > 0) // ensure that plan has maneuver
+                    plan.setId("pl_" + e.getKey() + "_" + plan.getGraph().getAllManeuvers()[0].getType() + i);
 
-                //System.out.print("["+ plan.getVehicle()+"]   plano : ("+ plan.getId()+")");
-//                for (Maneuver m : plan.getGraph().getAllManeuvers()) {
-//                    if (m instanceof LocatedManeuver) {
-//                        ManeuverLocation l = ((LocatedManeuver) m).getManeuverLocation();
-//                        System.out.println("   |   manobra : "+m.getType() + " ("+m.getId() + ") " + l.toString());
-//                    } else
-//                        System.out.println("   |   manobra : "+m.getType() + " ("+m.getId() + ")");
-//
-//
-//                }
                 vehiclePlans.addPlan(tsPerVehicle.get(veh.getId()).get(i), plan);
                 i++;
 
             }
 
-
-
             list.add(vehiclePlans);
         }
-        for (int i=0; i<list.size(); i++) 
-            System.out.println("tamanho lista : "+list.get(i).planList.toString());
+        for (int i = 0; i < list.size(); i++)
+            System.out.println("tamanho lista : " + list.get(i).planList.toString());
 
         return list;
 
@@ -286,7 +327,8 @@ public class MVSolution {
 
         @Override
         public String toString() {
-            return man.getType()+" with payloads "+payloads+", using vehicle "+vehicle+" at time "+startTimestamp;
+            return man.getType() + " with payloads " + payloads + ", using vehicle " + vehicle + " at time "
+                    + startTimestamp;
         }
 
     }
@@ -298,7 +340,6 @@ public class MVSolution {
         public MVPlans(VehicleType vehicle) {
             this.setVehicle(vehicle);
             this.planList = new LinkedHashMap<>();
-            
 
         }
 
@@ -320,7 +361,6 @@ public class MVSolution {
         public HashMap<Long, PlanType> getPlanList() {
             return planList;
         }
-
 
     }
 

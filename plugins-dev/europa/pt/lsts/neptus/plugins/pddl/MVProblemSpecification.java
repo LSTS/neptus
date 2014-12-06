@@ -70,7 +70,8 @@ public class MVProblemSpecification {
     private Vector<VehicleType> vehicles = new Vector<VehicleType>();
     private LocationType defaultLoc = null;
     private String command = "lpg -o DOMAIN -f INITIAL_STATE -speed";
-
+    private MVSolution solution;
+    
     LinkedHashMap<String, LocationType> calculateLocations() {
         LinkedHashMap<String, LocationType> locations = new LinkedHashMap<String, LocationType>();
 

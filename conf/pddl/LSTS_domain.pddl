@@ -38,9 +38,9 @@
 
 (:durative-action sample
 :parameters (?v - vehicle ?l - location ?t -task ?o -oi ?p - payload)
-:duration (= ?duration 10)
-:condition (and (over all (at_oi ?o ?l))(over all (task_desc ?t ?o ?p))(over all (at ?v ?l))(over all (having ?p ?v))(at start (>= (battery-level ?v)(* (battery-consumption-payload ?p) 10))))
-:effect (and (at end (sampled ?t ?v))(at start (decrease (battery-level ?v)(* (battery-consumption-payload ?p) 10))))
+:duration (= ?duration 60)
+:condition (and (over all (at_oi ?o ?l))(over all (task_desc ?t ?o ?p))(over all (at ?v ?l))(over all (having ?p ?v))(at start (>= (battery-level ?v)(* (battery-consumption-payload ?p) 60))))
+:effect (and (at end (sampled ?t ?v))(at start (decrease (battery-level ?v)(* (battery-consumption-payload ?p) 60))))
 )
 
 (:durative-action survey-one-payload
@@ -66,7 +66,7 @@
 
 (:durative-action communicate
 :parameters (?v - vehicle ?l - location ?t - task)
-:duration (= ?duration 10)
+:duration (= ?duration 60)
 :condition (and (over all (base ?v ?l))(over all (at ?v ?l))(at start (sampled ?t ?v)))
 :effect (and (at end (communicated_data ?t))(at end (not (sampled ?t ?v))))
 )

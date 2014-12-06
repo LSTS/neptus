@@ -144,12 +144,12 @@ public class SurveyAreaTask extends MVPlannerTask {
         start.translatePosition(offsetNorth, offsetEast, 0);
         start.convertToAbsoluteLatLonDepth();
         
-        offsetNorth = (-15+area.getLength()/2) * Math.cos(area.getYawRad()+Math.PI);
-        offsetEast = (-15+area.getLength()/2) * Math.sin(area.getYawRad()+Math.PI);
+        offsetNorth = (area.getLength()/2) * Math.cos(area.getYawRad()+Math.PI);
+        offsetEast = (area.getLength()/2) * Math.sin(area.getYawRad()+Math.PI);
         start.translatePosition(offsetNorth, offsetEast, 0);
         start.convertToAbsoluteLatLonDepth();
         pivot.setManeuverLocation(new ManeuverLocation(start));
-        pivot.setParams(area.getWidth(), area.getLength(), minHorStep, pivot.getAlternationPercent(), pivot.getCurvOff(), pivot.isSquareCurve(), area.getYawRad(), pivot.getCrossAngleRadians(), true, false, (short) pivot.getSsRangeShadow());
+        pivot.setParams(area.getWidth(), area.getLength(), minHorStep, pivot.getAlternationPercent(), 0, pivot.isSquareCurve(), area.getYawRad(), pivot.getCrossAngleRadians(), true, false, (short) pivot.getSsRangeShadow());
         
         entry.setCenterLocation(getEntryPoint());
         exit.setCenterLocation(getEndPoint());
