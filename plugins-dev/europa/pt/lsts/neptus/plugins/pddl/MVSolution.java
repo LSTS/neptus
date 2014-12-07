@@ -125,12 +125,16 @@ public class MVSolution {
         switch (parts[0]) {
             case "move":
                 Goto tmpMove = new Goto();
+                tmpMove.setSpeed(1.0);
+                tmpMove.setSpeedUnits("m/s");
                 tmpMove.setManeuverLocation(where);
                 action.man = tmpMove;
                 break;
             case "communicate":
                 StationKeeping tmpSk = new StationKeeping();
                 tmpSk.setManeuverLocation(where);
+                tmpSk.setSpeed(1.0);
+                tmpSk.setSpeedUnits("m/s");
                 where.setZ(0);
                 where.setZUnits(Z_UNITS.DEPTH);
                 tmpSk.setDuration(60); // FIXME
@@ -139,6 +143,8 @@ public class MVSolution {
             case "sample":
                 Loiter tmpLoiter = new Loiter();
                 tmpLoiter.setManeuverLocation(where);
+                tmpLoiter.setSpeed(1.0);
+                tmpLoiter.setSpeedUnits("m/s");
                 tmpLoiter.setLoiterDuration(60); // FIXME
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
                 action.man = tmpLoiter;
@@ -146,12 +152,16 @@ public class MVSolution {
             case "survey-one-payload":
                 SurveyAreaTask onep = (SurveyAreaTask) tasks.get(taskName);
                 onep.getPivot().setManeuverLocation(where);
+                onep.getPivot().setSpeed(1.0);
+                onep.getPivot().setSpeedUnits("m/s");
                 action.man = onep.getPivot();
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
                 break;
             case "survey-two-payload":
                 SurveyAreaTask twop = (SurveyAreaTask) tasks.get(taskName);
-                twop.getPivot().setManeuverLocation(where);                
+                twop.getPivot().setManeuverLocation(where);
+                twop.getPivot().setSpeed(1.0);
+                twop.getPivot().setSpeedUnits("m/s");
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 1].split("_")[1]));
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 2].split("_")[1]));
                 action.man = twop.getPivot();
@@ -162,6 +172,8 @@ public class MVSolution {
                 action.payloads.add(PayloadRequirement.valueOf(parts[parts.length - 3].split("_")[1]));
                 SurveyAreaTask threep = (SurveyAreaTask) tasks.get(taskName);
                 threep.getPivot().setManeuverLocation(where);
+                threep.getPivot().setSpeed(1.0);
+                threep.getPivot().setSpeedUnits("m/s");
                 action.man = threep.getPivot();
                 break;
             default:

@@ -40,7 +40,9 @@ import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.Vector;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.ProgressMonitor;
 
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -54,6 +56,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -68,6 +71,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private MVPlannerTask selectedTask = null;
     private Point2D lastPoint = null;
     private MVProblemSpecification problem = null;
+    private static final int NUM_TRIES = 50;
 
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
@@ -120,6 +124,18 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                     PropertiesEditor.editProperties(clickedTask, true);
                 }
             });
+            
+            if (clickedTask instanceof SurveyAreaTask) {
+                popup.add("Split " + clickedTask.getName()).addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String answer = JOptionPane.showInputDialog(source, "Enter maximum time, in minutes, per task", (int)((SurveyAreaTask) clickedTask).getLength() / 60)+1;
+                        if (answer != null) {
+                            
+                        }
+                    }
+                });
+            }
 
             popup.addSeparator();
 
@@ -153,19 +169,27 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
                 Thread t = new Thread("Generating Multi-Vehicle plan...") {
                     public void run() {
+                        ProgressMonitor pm = new ProgressMonitor(getConsole(), "Searching for solutions...", "Generating initial state", 0, 5+NUM_TRIES);
+                        
                         Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
                         for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
                             if (s.getTypeVehicle() == VehicleTypeEnum.UUV)
                                 activeVehicles.addElement(VehiclesHolder.getVehicleById(s.getName()));
                         }
-
+                        
                         problem = new MVProblemSpecification(activeVehicles, tasks, null);
                         FileUtil.saveToFile("initial_state.pddl", problem.asPDDL());
-
+                        pm.setProgress(5);
                         double bestYet = 0;
                         String bestSolution = null;
                         
-                        for (int i = 0; i < 25; i++) {
+                        for (int i = 0; i < NUM_TRIES; i++) {
+                            String best = "N/A";
+                            if (bestSolution != null)
+                                best = DateTimeUtil.milliSecondsToFormatedString((long)(bestYet * 1000));
+                            pm.setNote("Current best solution time: "+best);
+                            pm.setProgress(5+i);
+                            
                             try {
                                 String solution = problem.solve();
                                 if (solution.isEmpty())
@@ -178,7 +202,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                                     if (solutionCost(solution) < bestYet) {
                                         bestYet = solutionCost(solution);
                                         bestSolution = solution;
-                                        System.out.println("Solution improved to "+bestYet+" seconds");
+                                        
                                     }
                                 }                                
                             }
@@ -186,6 +210,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                                 
                             }
                         }
+                        pm.setProgress(30);
+                        pm.close();
                         if (bestSolution != null) {
                             MVSolution solution = problem.getSolution();
                             if (solution != null) {
