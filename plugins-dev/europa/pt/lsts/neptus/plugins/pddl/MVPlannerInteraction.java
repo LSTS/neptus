@@ -70,7 +70,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  *
  */
-@PluginDescription(name = "Multi-Vehicle Planner Interaction")
+@PluginDescription(name = "Multi-Vehicle Planner Interaction", icon="pt/lsts/neptus/plugins/pddl/wizard.png")
 public class MVPlannerInteraction extends ConsoleInteraction {
 
     private Vector<MVPlannerTask> tasks = new Vector<MVPlannerTask>();

@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.pddl;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.util.HashSet;
 
@@ -44,6 +45,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author zp
@@ -54,6 +56,7 @@ public class SurveyAreaTask extends MVPlannerTask {
     private RowsManeuver pivot = new RowsManeuver();
     private ParallelepipedElement area = null;
     MarkElement entry = new MarkElement(), exit = new MarkElement();
+    private Image poiImg = null;
     
     public SurveyAreaTask(LocationType clickedLocation) {
         area = new ParallelepipedElement();
@@ -163,14 +166,24 @@ public class SurveyAreaTask extends MVPlannerTask {
     
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
+        area.setColor(new Color(128,255,128,64));
         area.paint((Graphics2D)g.create(), renderer, renderer.getRotation());
         Graphics2D copy = (Graphics2D)g.create();
         Point2D pt = renderer.getScreenPosition(pivot.getStartLocation());
         copy.translate(pt.getX(), pt.getY());
         copy.rotate(-renderer.getRotation()-Math.PI/2);
         ManeuversUtil.paintPointLineList(copy, renderer.getZoom(), pivot.getPathPoints(), false, 0);
-        entry.paint((Graphics2D)g.create(), renderer, renderer.getRotation());
-        exit.paint((Graphics2D)g.create(), renderer, renderer.getRotation());
+        String payloads = getPayloadsAbbreviated();
+        if (poiImg == null)
+            poiImg = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/led.png");
+        if (poiImg == null)
+            poiImg = ImageUtils.getImage("pt/lsts/neptus/plugins/pddl/led.png");
+        g.drawImage(poiImg, (int)pt.getX()-8, (int)pt.getY()-8, null);
+        g.setColor(Color.black);
+        g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+8, (int)pt.getY()+8);
+        g.setColor(Color.green.brighter().brighter());
+        g.drawString(getName()+" ("+payloads+")", (int)pt.getX()+7, (int)pt.getY()+7);
+        
     }
     
     public double getLength() {

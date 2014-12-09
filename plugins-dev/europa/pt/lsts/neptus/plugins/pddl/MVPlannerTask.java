@@ -34,6 +34,8 @@ package pt.lsts.neptus.plugins.pddl;
 import java.util.HashSet;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
@@ -80,6 +82,16 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
         }
         
         return props.toArray(new DefaultProperty[0]);
+    }
+    
+    public final String getPayloadsAbbreviated() {
+        String payloads = StringUtils.join(requiredPayloads.toArray(new PayloadRequirement[0]), ", ");
+        payloads = payloads.replaceAll("camera", "cam");
+        payloads = payloads.replaceAll("multibeam", "mb");
+        payloads = payloads.replaceAll("edgetech", "et");
+        payloads = payloads.replaceAll("sidescan", "sss");
+        payloads = payloads.replaceAll("rhodmanine", "rd");
+        return payloads;
     }
     
     @Override
