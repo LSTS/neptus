@@ -220,6 +220,10 @@ public class MVProblemSpecification {
             }
             sb.append(" - area\n");
         }
+        else {
+            sb.append(" dummy_area - area\n");
+        }
+
 
         if (!sampleTasks.isEmpty()) {
             sb.append("  ");
@@ -227,6 +231,9 @@ public class MVProblemSpecification {
                 sb.append(" "+t.getName()+"_obj");
             }
             sb.append(" - oi\n");
+        }
+        else {
+            sb.append(" dummy_obj - oi\n");
         }
 
         sb.append("  ");
