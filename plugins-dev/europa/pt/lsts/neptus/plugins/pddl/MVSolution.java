@@ -108,22 +108,28 @@ public class MVSolution {
         double minDepth = Double.MAX_VALUE;
         double maxDepth = -Double.MAX_VALUE;
         
-        if (task.requiredPayloads == null || task.requiredPayloads.isEmpty()) {
-            minDepth = maxDepth = DEFAULT_DEPTH;            
-        }
-        for (PayloadRequirement r : task.requiredPayloads) {
-            minDepth = Math.min(minDepth, r.getMinDepth());
-            maxDepth = Math.max(maxDepth, r.getMaxDepth());
-        }
-        
-        if (minDepth < 0) {
-            where.setZUnits(Z_UNITS.ALTITUDE);
-            where.setZ(-minDepth);
+        if (parts[0].contains("survey") || parts[0].contains("sample")) {
+            if (task.requiredPayloads == null || task.requiredPayloads.isEmpty()) {
+                minDepth = maxDepth = DEFAULT_DEPTH;            
+            }
+            for (PayloadRequirement r : task.requiredPayloads) {
+                minDepth = Math.min(minDepth, r.getMinDepth());
+                maxDepth = Math.max(maxDepth, r.getMaxDepth());
+            }
+            
+            if (minDepth < 0) {
+                where.setZUnits(Z_UNITS.ALTITUDE);
+                where.setZ(-minDepth);
+            }
+            else {
+                where.setZUnits(Z_UNITS.DEPTH);
+                where.setZ(DEFAULT_DEPTH);    
+            }                
         }
         else {
             where.setZUnits(Z_UNITS.DEPTH);
             where.setZ(DEFAULT_DEPTH);    
-        }                
+        }
         
         switch (parts[0]) {
             case "move":
