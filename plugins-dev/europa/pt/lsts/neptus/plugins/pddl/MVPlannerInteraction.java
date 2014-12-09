@@ -38,12 +38,18 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.ProgressMonitor;
 
+import pt.lsts.imc.PlanControl;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
@@ -72,7 +78,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     private Point2D lastPoint = null;
     private MVProblemSpecification problem = null;
     private static final int NUM_TRIES = 50;
-
+    private LinkedHashMap<String, PlanType> generatedPlans = new LinkedHashMap<String, PlanType>();
+    
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
 
@@ -187,6 +194,8 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                             String best = "N/A";
                             if (bestSolution != null)
                                 best = DateTimeUtil.milliSecondsToFormatedString((long)(bestYet * 1000));
+                            if (pm.isCanceled())
+                                return;
                             pm.setNote("Current best solution time: "+best);
                             pm.setProgress(5+i);
                             
@@ -207,11 +216,12 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                                 }                                
                             }
                             catch (Exception ex) {
-                                
+                                NeptusLog.pub().error(ex);
                             }
                         }
-                        pm.setProgress(30);
+                        pm.setProgress(5+NUM_TRIES);
                         pm.close();
+                        generatedPlans.clear();
                         if (bestSolution != null) {
                             MVSolution solution = problem.getSolution();
                             if (solution != null) {
@@ -219,8 +229,10 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                                 for (PlanType pt : plans) {
                                     pt.setMissionType(getConsole().getMission());
                                     getConsole().getMission().getIndividualPlansList().put(pt.getId(), pt);
+                                    generatedPlans.put(pt.getVehicle(), pt);
                                 }
                                 getConsole().warnMissionListeners();
+                                getConsole().getMission().save(true);
                             }
                             GuiUtils.htmlMessage(getConsole(), "Multi-Vehicle Planner", "Valid solution found", "<html><pre>" + bestSolution
                                     + "</pre></html>");
@@ -240,17 +252,16 @@ public class MVPlannerInteraction extends ConsoleInteraction {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                if (problem != null) {
-                    MVSolution solution = problem.getSolution();
-                    if (solution != null) {
-                        Collection<PlanType> plans = solution.generatePlans();
-                        for (PlanType pt : plans) {
-                            pt.setMissionType(getConsole().getMission());
-                            getConsole().getMission().getIndividualPlansList().put(pt.getId(), pt);
-                        }
-                        getConsole().warnMissionListeners();
-                    }
+                //start execution of the generated plans
+                for (Entry<String, PlanType> generated : generatedPlans.entrySet()) {
+                    PlanControl startPlan = new PlanControl();
+                    startPlan.setType(pt.lsts.imc.PlanControl.TYPE.REQUEST);
+                    startPlan.setOp(pt.lsts.imc.PlanControl.OP.START);
+                    startPlan.setPlanId(generated.getValue().getId());
+                    startPlan.setArg(generated.getValue().asIMCPlan(true));
+                    int reqId = IMCSendMessageUtils.getNextRequestId();
+                    startPlan.setRequestId(reqId);
+                    ImcMsgManager.getManager().sendMessageToVehicle(startPlan, generated.getKey(), null);                    
                 }
             }
         });
@@ -309,7 +320,9 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             selectedTask.growWidth(xamount * 5 / source.getZoom());
         }
         else if (event.isShiftDown()) {
-            selectedTask.rotate(Math.toRadians((yamount + xamount) * 3));
+            double angle = selectedTask.getCenterLocation().getXYAngle(now);
+            selectedTask.setYaw(angle);
+            
         }
         else {
             double offsets[] = now.getOffsetFrom(prev);

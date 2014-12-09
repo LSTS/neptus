@@ -54,7 +54,9 @@ public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProv
     protected HashSet<PayloadRequirement> requiredPayloads = new HashSet<PayloadRequirement>();
     
     public abstract boolean containsPoint(LocationType lt, StateRenderer2D renderer);
+    public abstract LocationType getCenterLocation();
     public abstract void translate(double offsetNorth, double offsetEast);
+    public abstract void setYaw(double yawRads);
     public abstract void rotate(double amountRads);
     public abstract void growWidth(double amount);
     public abstract void growLength(double amount);

@@ -77,7 +77,11 @@ public class SamplePointTask extends MVPlannerTask {
     public void rotate(double amountRads) {
         // nothing
     }
-
+    
+    @Override
+    public void setYaw(double yawRads) {
+        // nothing
+    }
 
     @Override
     public void growWidth(double amount) {
@@ -87,5 +91,10 @@ public class SamplePointTask extends MVPlannerTask {
     @Override
     public void growLength(double amount) {
         // nothing
+    }
+    
+    @Override
+    public LocationType getCenterLocation() {
+        return getLocation();
     }
 }

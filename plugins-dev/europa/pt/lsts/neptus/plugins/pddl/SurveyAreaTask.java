@@ -97,6 +97,12 @@ public class SurveyAreaTask extends MVPlannerTask {
     }
     
     @Override
+    public void setYaw(double yawRads) {
+        area.setYaw(Math.toDegrees(yawRads));
+        updateManeuver();
+    }
+    
+    @Override
     public void rotate(double amountRads) {
         area.setYaw(area.getYaw()+amountRads);
         updateManeuver();
@@ -169,6 +175,11 @@ public class SurveyAreaTask extends MVPlannerTask {
     
     public double getLength() {
         return pivot.getDistanceTravelled(getEntryPoint());
+    }
+    
+    @Override
+    public LocationType getCenterLocation() {
+        return area.getCenterLocation();
     }
       
     /**

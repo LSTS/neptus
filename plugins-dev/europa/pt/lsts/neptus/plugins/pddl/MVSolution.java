@@ -45,7 +45,10 @@ import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 import pt.lsts.neptus.mp.maneuvers.Loiter;
+import pt.lsts.neptus.mp.maneuvers.PopUp;
+import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.mp.maneuvers.StationKeeping;
 import pt.lsts.neptus.params.ManeuverPayloadConfig;
 import pt.lsts.neptus.params.SystemProperty;
@@ -244,8 +247,20 @@ public class MVSolution {
                 newPlan.setVehicle(act.vehicle.getId());
                 plansPerVehicle.put(act.vehicle.getId(), newPlan);                
             }
-
-            plansPerVehicle.get(act.vehicle.getId()).getGraph().addManeuverAtEnd(maneuver);            
+            
+            if (maneuver instanceof RowsManeuver || maneuver instanceof Loiter) {
+                LocatedManeuver m = (LocatedManeuver) maneuver;
+                PopUp popup = new PopUp();
+                popup.setDuration(120);
+                popup.setSpeed(1.0);
+                popup.setSpeedUnits("m/s");
+                ManeuverLocation loc = new ManeuverLocation(m.getStartLocation());
+                loc.setZ(DEFAULT_DEPTH);
+                loc.setZUnits(Z_UNITS.DEPTH);
+                popup.setManeuverLocation(loc);
+                plansPerVehicle.get(act.vehicle.getId()).getGraph().addManeuverAtEnd(popup);                    
+            }
+            plansPerVehicle.get(act.vehicle.getId()).getGraph().addManeuverAtEnd(maneuver);        
         }
         
         return plansPerVehicle.values();
