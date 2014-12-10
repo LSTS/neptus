@@ -115,7 +115,7 @@ public class VehicleParams {
         payloads.put("lauv-xplore-1", new PayloadRequirement[] { PayloadRequirement.ctd,
                 PayloadRequirement.rhodamine });
         payloads.put("lauv-noptilus-1", new PayloadRequirement[] { PayloadRequirement.sidescan,
-                PayloadRequirement.multibeam });
+                PayloadRequirement.multibeam, PayloadRequirement.ctd });
         payloads.put("lauv-noptilus-2", new PayloadRequirement[] { PayloadRequirement.edgetech });
         payloads.put("lauv-noptilus-3", new PayloadRequirement[] { PayloadRequirement.sidescan,
                 PayloadRequirement.multibeam, PayloadRequirement.camera });

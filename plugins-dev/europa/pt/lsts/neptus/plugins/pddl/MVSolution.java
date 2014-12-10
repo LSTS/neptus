@@ -200,6 +200,10 @@ public class MVSolution {
             if (requiredPayloads.contains(PayloadRequirement.ctd)) {
                 // System.out.println("I need CTD : "+ true);
             }
+            
+            if (e.getCategory().startsWith("UAN") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
+                    e.setValue(true);
+            }
 
             if (e.getCategory().startsWith("Camera") && e.getValueType().equals(ValueTypeEnum.BOOLEAN)) {
 
