@@ -37,10 +37,19 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.Vector;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.ProgressMonitor;
 
+import pt.lsts.imc.PlanControl;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleInteraction;
@@ -49,9 +58,11 @@ import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 
@@ -59,24 +70,27 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  *
  */
-@PluginDescription(name="Multi-Vehicle Planner Interaction")
+@PluginDescription(name = "Multi-Vehicle Planner Interaction", icon="pt/lsts/neptus/plugins/pddl/wizard.png")
 public class MVPlannerInteraction extends ConsoleInteraction {
-    
+
     private Vector<MVPlannerTask> tasks = new Vector<MVPlannerTask>();
-    private MVPlannerTask selectedTask = null;    
+    private MVPlannerTask selectedTask = null;
     private Point2D lastPoint = null;
-        
+    private MVProblemSpecification problem = null;
+    private static final int NUM_TRIES = 50;
+    private LinkedHashMap<String, PlanType> generatedPlans = new LinkedHashMap<String, PlanType>();
+    
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
-        
+
         g.setTransform(new AffineTransform());
         for (MVPlannerTask t : tasks) {
-            t.paint((Graphics2D)g.create(), source);
+            t.paint((Graphics2D) g.create(), source);
         }
-        
+
         super.paintInteraction(g, source);
     }
-    
+
     @Override
     public void mouseClicked(final MouseEvent event, final StateRenderer2D source) {
         if (event.getButton() != MouseEvent.BUTTON3) {
@@ -92,38 +106,50 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             }
         }
 
-//        if (clicked == null) {
-//            super.mouseClicked(event, source);
-//            return;
-//        }
-        
+        // if (clicked == null) {
+        // super.mouseClicked(event, source);
+        // return;
+        // }
+
         JPopupMenu popup = new JPopupMenu();
         final MVPlannerTask clickedTask = clicked;
-        
+
         if (clicked != null) {
-            popup.add("Remove "+clicked.getName()).addActionListener(new ActionListener() {
-                
+            popup.add("Remove " + clicked.getName()).addActionListener(new ActionListener() {
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    tasks.remove(clickedTask);        
+                    tasks.remove(clickedTask);
                     source.repaint();
                 }
             });
-            
-            popup.add("Set payloads for "+clickedTask.getName()).addActionListener(new ActionListener() {
-                
+
+            popup.add("Set payloads for " + clickedTask.getName()).addActionListener(new ActionListener() {
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    PropertiesEditor.editProperties(clickedTask, true);                 
+                    PropertiesEditor.editProperties(clickedTask, true);
                 }
             });
             
+            if (clickedTask instanceof SurveyAreaTask) {
+                popup.add("Split " + clickedTask.getName()).addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String answer = JOptionPane.showInputDialog(source, "Enter maximum time, in minutes, per task", (int)((SurveyAreaTask) clickedTask).getLength() / 60)+1;
+                        if (answer != null) {
+                            
+                        }
+                    }
+                });
+            }
+
             popup.addSeparator();
-            
+
         }
-        
+
         popup.add("Add survey task").addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 SurveyAreaTask task = new SurveyAreaTask(source.getRealWorldLocation(event.getPoint()));
@@ -133,7 +159,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             }
         });
         popup.add("Add sample task").addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 SamplePointTask task = new SamplePointTask(source.getRealWorldLocation(event.getPoint()));
@@ -142,45 +168,115 @@ public class MVPlannerInteraction extends ConsoleInteraction {
                 source.repaint();
             }
         });
-        
+
         popup.add("Generate").addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
-                Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
-                for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
-                    if (s.getTypeVehicle() == VehicleTypeEnum.UUV)
-                        activeVehicles.addElement(VehiclesHolder.getVehicleById(s.getName()));
+
+                Thread t = new Thread("Generating Multi-Vehicle plan...") {
+                    public void run() {
+                        ProgressMonitor pm = new ProgressMonitor(getConsole(), "Searching for solutions...", "Generating initial state", 0, 5+NUM_TRIES);
+                        
+                        Vector<VehicleType> activeVehicles = new Vector<VehicleType>();
+                        for (ImcSystem s : ImcSystemsHolder.lookupActiveSystemVehicles()) {
+                            if (s.getTypeVehicle() == VehicleTypeEnum.UUV)
+                                activeVehicles.addElement(VehiclesHolder.getVehicleById(s.getName()));
+                        }
+                        
+                        problem = new MVProblemSpecification(activeVehicles, tasks, null);
+                        FileUtil.saveToFile("initial_state.pddl", problem.asPDDL());
+                        pm.setProgress(5);
+                        double bestYet = 0;
+                        String bestSolution = null;
+                        
+                        for (int i = 0; i < NUM_TRIES; i++) {
+                            String best = "N/A";
+                            if (bestSolution != null)
+                                best = DateTimeUtil.milliSecondsToFormatedString((long)(bestYet * 1000));
+                            if (pm.isCanceled())
+                                return;
+                            pm.setNote("Current best solution time: "+best);
+                            pm.setProgress(5+i);
+                            
+                            try {
+                                String solution = problem.solve();
+                                if (solution.isEmpty())
+                                    continue;                
+                                if (bestSolution == null) {
+                                    bestSolution = solution;
+                                    bestYet = solutionCost(solution);
+                                }
+                                else {
+                                    if (solutionCost(solution) < bestYet) {
+                                        bestYet = solutionCost(solution);
+                                        bestSolution = solution;
+                                        
+                                    }
+                                }                                
+                            }
+                            catch (Exception ex) {
+                                NeptusLog.pub().error(ex);
+                            }
+                        }
+                        pm.setProgress(5+NUM_TRIES);
+                        pm.close();
+                        generatedPlans.clear();
+                        if (bestSolution != null) {
+                            MVSolution solution = problem.getSolution();
+                            if (solution != null) {
+                                Collection<PlanType> plans = solution.generatePlans();
+                                for (PlanType pt : plans) {
+                                    pt.setMissionType(getConsole().getMission());
+                                    getConsole().getMission().getIndividualPlansList().put(pt.getId(), pt);
+                                    generatedPlans.put(pt.getVehicle(), pt);
+                                }
+                                getConsole().warnMissionListeners();
+                                getConsole().getMission().save(true);
+                            }
+                            GuiUtils.htmlMessage(getConsole(), "Multi-Vehicle Planner", "Valid solution found", "<html><pre>" + bestSolution
+                                    + "</pre></html>");
+                            System.out.println(bestSolution);
+                        }
+                        else
+                            GuiUtils.errorMessage(getConsole(), new Exception("No solution has been found."));
+                    }
+                };
+                t.setDaemon(true);
+                t.start();
+            };
+
+        });
+        popup.addSeparator();
+        popup.add("Start execution").addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //start execution of the generated plans
+                for (Entry<String, PlanType> generated : generatedPlans.entrySet()) {
+                    PlanControl startPlan = new PlanControl();
+                    startPlan.setType(pt.lsts.imc.PlanControl.TYPE.REQUEST);
+                    startPlan.setOp(pt.lsts.imc.PlanControl.OP.START);
+                    startPlan.setPlanId(generated.getValue().getId());
+                    startPlan.setArg(generated.getValue().asIMCPlan(true));
+                    int reqId = IMCSendMessageUtils.getNextRequestId();
+                    startPlan.setRequestId(reqId);
+                    ImcMsgManager.getManager().sendMessageToVehicle(startPlan, generated.getKey(), null);                    
                 }
-                
-                MVProblemSpecification p = new MVProblemSpecification(activeVehicles, tasks, null);
-                System.out.println(p.asPDDL());
-                FileUtil.saveToFile("initial_state.pddl", p.asPDDL());
-                try {
-                    String solution = p.solve();
-                    if (solution.isEmpty()) 
-                        throw new Exception("No solution has been found.");
-                    GuiUtils.htmlMessage(getConsole(), "found solution", "", "<html><pre>"+solution+"</pre></html>");
-                    System.out.println(solution);
-                }
-                catch (Exception ex) {
-                    ex.printStackTrace();
-                    GuiUtils.errorMessage(getConsole(), ex);
-                }
-//                try {
-//                    String result = p.solve();
-//                    GuiUtils.infoMessage(getConsole(), "Solution", result);                    
-//                }
-//                catch (Exception ex) {
-//                    GuiUtils.errorMessage(getConsole(), ex);
-//                }
-                
-                
             }
         });
+
         popup.show(source, event.getX(), event.getY());
     }
-    
+
+    private double solutionCost(String solution) {
+        String parts[] = solution.split("\n");
+        if (parts.length == 0)
+            return Double.MAX_VALUE;
+        String line = parts[parts.length-1]; 
+        return Double.parseDouble(line.substring(0, line.indexOf(':')-1));
+    }
+
     @Override
     public void mousePressed(MouseEvent event, StateRenderer2D source) {
         MVPlannerTask selected = null;
@@ -198,53 +294,55 @@ public class MVPlannerInteraction extends ConsoleInteraction {
             lastPoint = event.getPoint();
         }
     }
-        
+
     @Override
     public void mouseReleased(MouseEvent event, StateRenderer2D source) {
         selectedTask = null;
         lastPoint = null;
         super.mouseReleased(event, source);
     }
-    
+
     @Override
     public void mouseDragged(MouseEvent event, StateRenderer2D source) {
         if (selectedTask == null) {
             super.mouseDragged(event, source);
             return;
         }
-       
+
         LocationType prev = source.getRealWorldLocation(lastPoint);
         LocationType now = source.getRealWorldLocation(event.getPoint());
-        
+
         double xamount = event.getX() - lastPoint.getX();
         double yamount = event.getY() - lastPoint.getY();
-        
+
         if (event.isControlDown()) {
-            selectedTask.growLength(-yamount*5 / source.getZoom());
-            selectedTask.growWidth(xamount*5 / source.getZoom());
+            selectedTask.growLength(-yamount * 5 / source.getZoom());
+            selectedTask.growWidth(xamount * 5 / source.getZoom());
         }
         else if (event.isShiftDown()) {
-            selectedTask.rotate(Math.toRadians((yamount+xamount)*3));
+            double angle = selectedTask.getCenterLocation().getXYAngle(now);
+            selectedTask.setYaw(angle);
+            
         }
         else {
             double offsets[] = now.getOffsetFrom(prev);
             selectedTask.translate(offsets[0], offsets[1]);
         }
-        
+
         // change selected task
         lastPoint = event.getPoint();
     }
-    
+
     @Override
-    public void initInteraction() { 
-        
+    public void initInteraction() {
+
     }
 
     @Override
     public void cleanInteraction() {
 
     }
-    
+
     /**
      * @return the tasks
      */

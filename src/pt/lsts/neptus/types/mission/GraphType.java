@@ -151,6 +151,16 @@ public class GraphType implements XmlOutputMethods {
     public void addManeuver(Maneuver maneuver) {
         addManeuver(maneuver, true);
     }
+    
+    public void addManeuverAtEnd(Maneuver maneuver) {
+        String lastManeuver = null;
+        
+        if (getLastManeuver() != null)
+            lastManeuver = getLastManeuver().getId();
+        addManeuver(maneuver);
+        if (lastManeuver != null)
+            addTransition(lastManeuver, maneuver.getId(), "true");
+    }
 
     /**
      * Adds the given maneuver to this graph
