@@ -1,10 +1,12 @@
 vehicles-defs/*-lauv-dolphin-*.nvcl
 vehicles-defs/*-lauv-lupis-*.nvcl
+vehicles-defs/*-lauv-oceaneco-*.nvcl
 vehicles-files/lauv/*seacon*.*
 vehicles-files/lauv/lauv-seacon0.x3d
 vehicles-files/lauv/lauv-xtreme-2.x3d
 conf/params/lauv-dolphin-*.*.xml
 conf/params/lauv-lupis-*.*.xml
+conf/params/lauv-oceaneco-*.*.xml
 conf/messages/IMC.xml
 conf/consoles/lauv.ncon
 missions/APDL/missao-apdl.nmisz
