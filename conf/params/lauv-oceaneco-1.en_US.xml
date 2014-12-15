@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (feature/oceaneco,af87565)" system="lauv-oceaneco-1" i18n="en_US">
+<config format="1" version="2.6.x (feature/oceaneco,0e6f254)" system="lauv-oceaneco-1" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -456,7 +456,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.4, 0.0, 0.03</default>
+      <default>0.6, 0.0, 0.03</default>
       <units/>
       <desc>PID gains for Roll controller</desc>
       <size>3</size>
@@ -504,7 +504,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>3.0</default>
+      <default>7.5</default>
       <units>°</units>
       <desc>Integral limit for Depth controller</desc>
     </param>
@@ -618,24 +618,6 @@
       <units>°</units>
       <desc>Angle at which to force pitch at the surface</desc>
     </param>
-    <param name="Use Fixed Roll Offset">
-      <name-i18n>Use Fixed Roll Offset</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Use a fixed roll offset to compensate for steady state error</desc>
-    </param>
-    <param name="Roll Offset">
-      <name-i18n>Roll Offset</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units>°</units>
-      <desc>Roll reference offset value</desc>
-    </param>
     <param name="Heading Rate Open Loop">
       <name-i18n>Heading Rate Open Loop</name-i18n>
       <type>boolean</type>
@@ -743,6 +725,54 @@
       <default>2</default>
       <units/>
       <desc>Limit of a fixed number of incoming samples per second</desc>
+    </param>
+    <param name="Roll Compensation -- Use Offset">
+      <name-i18n>Roll Compensation -- Use Offset</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Use a fixed roll offset to compensate for steady state error</desc>
+    </param>
+    <param name="Roll Compensation -- Offset Angle">
+      <name-i18n>Roll Compensation -- Offset Angle</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units>°</units>
+      <desc>Roll reference offset value</desc>
+    </param>
+    <param name="Roll Compensation -- Use Speed">
+      <name-i18n>Roll Compensation -- Use Speed</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Perform roll speed compensation by changing proportional gain</desc>
+    </param>
+    <param name="Roll Compensation -- Speed Bounds">
+      <name-i18n>Roll Compensation -- Speed Bounds</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0, 1.8</default>
+      <units>m/s</units>
+      <desc>Lower and upper speed bounds when doing roll speed compensation</desc>
+      <size>2</size>
+    </param>
+    <param name="Roll Compensation -- Speed Gain">
+      <name-i18n>Roll Compensation -- Speed Gain</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.4</default>
+      <units/>
+      <desc>Roll's minimum proportional gain in speed compensation</desc>
+      <min>0.0</min>
+      <max>2.0</max>
     </param>
   </section>
   <section name="Diving" name-i18n="Diving">
@@ -2625,7 +2655,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AHRS, Clock, Collisions, Fuel, Leak Sensor, Motor Controller, Servo Controller</default>
+      <default>AHRS, Clock, Collisions, Fuel, Leak Sensor, Motor Controller, Servo Controller, Sidescan</default>
       <units/>
       <desc>Additional default entities to monitor in Hardware profile</desc>
     </param>
@@ -3845,15 +3875,6 @@
       <units/>
       <desc>Entity label of 'AHRS' messages</desc>
     </param>
-    <param name="Entity Label - Alignment">
-      <name-i18n>Entity Label - Alignment</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Coarse Alignment</default>
-      <units/>
-      <desc>Entity label of 'EulerAngles' alignment messages</desc>
-    </param>
     <param name="Entity Label - DVL">
       <name-i18n>Entity Label - DVL</name-i18n>
       <type>string</type>
@@ -4710,7 +4731,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>N/C (Bout_2)</default>
+      <default>Private (Sidescan)</default>
       <units/>
       <desc/>
     </param>
@@ -4719,7 +4740,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0</default>
+      <default>1</default>
       <units/>
       <desc/>
     </param>
@@ -5321,6 +5342,168 @@
       <default/>
       <units/>
       <desc/>
+    </param>
+  </section>
+  <section name="Sidescan" name-i18n="Sidescan">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Sidescan</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Execution Frequency">
+      <name-i18n>Execution Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>Hz</units>
+      <desc>Frequency at which task is executed</desc>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>false</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="IPv4 Address">
+      <name-i18n>IPv4 Address</name-i18n>
+      <type>ipv4-address</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>192.168.0.160</default>
+      <units/>
+      <desc>IP address of the sonar</desc>
+    </param>
+    <param name="TCP Port">
+      <name-i18n>TCP Port</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>4040</default>
+      <units/>
+      <desc>TCP port</desc>
+      <min>0</min>
+      <max>65535</max>
+    </param>
+    <param name="Data Gain">
+      <name-i18n>Data Gain</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20</default>
+      <units>%</units>
+      <desc>Data gain</desc>
+      <min>0</min>
+      <max>100</max>
+    </param>
+    <param name="Balance Gain">
+      <name-i18n>Balance Gain</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30</default>
+      <units/>
+      <desc>Balance gain</desc>
+      <min>0</min>
+      <max>60</max>
+    </param>
+    <param name="Frequency">
+      <name-i18n>Frequency</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>770</default>
+      <units>kHz</units>
+      <desc>Operating frequency</desc>
+      <values>260, 330, 770</values>
+      <values-i18n>260, 330, 770</values-i18n>
+    </param>
+    <param name="Range">
+      <name-i18n>Range</name-i18n>
+      <type>integer</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>30</default>
+      <units>m</units>
+      <desc>Operating range</desc>
+      <values-if>
+        <param>Frequency</param>
+        <equals>260</equals>
+        <values>10, 20, 30, 40, 50, 60, 80, 100, 150, 200</values>
+      </values-if>
+      <values-if>
+        <param>Frequency</param>
+        <equals>330</equals>
+        <values>10, 20, 30, 40, 50, 60, 80, 100, 150, 200</values>
+      </values-if>
+      <values-if>
+        <param>Frequency</param>
+        <equals>770</equals>
+        <values>10, 20, 30, 40, 50</values>
+      </values-if>
     </param>
   </section>
   <section name="Depth Sensor" name-i18n="Depth Sensor">
