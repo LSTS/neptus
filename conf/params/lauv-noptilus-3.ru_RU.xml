@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.0 (HEAD,660f19f)" system="lauv-noptilus-3" i18n="ru_RU">
+<config format="1" version="2.6.x (master,5b65a05,dirty)" system="lauv-noptilus-3" i18n="ru_RU">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -1349,6 +1349,17 @@
       <desc>ETA minimum admissible speed</desc>
       <min>0.1</min>
     </param>
+    <param name="New Reference Timeout">
+      <name-i18n>New Reference Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5.0</default>
+      <units>s</units>
+      <desc>Timeout for new incoming path reference</desc>
+      <min>3</min>
+      <max>10</max>
+    </param>
     <param name="Bottom Track -- Enabled">
       <name-i18n>Bottom Track -- Enabled</name-i18n>
       <type>boolean</type>
@@ -2614,7 +2625,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Clock, Collisions, DVL, Fuel, Leak Sensor - Antenna, Leak Sensor - Bottom, Motor Controller, Servo Controller, Sidescan</default>
+      <default>Clock, Collisions, DVL, Fuel, IMU, Leak Sensor - Antenna, Leak Sensor - Bottom, Motor Controller, Servo Controller, Sidescan</default>
       <units/>
       <desc>Additional default entities to monitor in Hardware profile</desc>
     </param>
@@ -3527,92 +3538,6 @@
       <desc/>
     </param>
   </section>
-  <section name="Ranger" name-i18n="Ranger">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Ranger</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Spew</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Active - Scope">
-      <name-i18n>Active - Scope</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>maneuver</default>
-      <units/>
-      <desc>Scoped of the 'Active' parameter</desc>
-    </param>
-    <param name="Active - Visibility">
-      <name-i18n>Active - Visibility</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibility of the 'Active' parameter</desc>
-    </param>
-    <param name="Active">
-      <name-i18n>Active</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
-      <default>0</default>
-      <units/>
-      <desc>True to activate task, false otherwise</desc>
-    </param>
-    <param name="Ping Periodicity">
-      <name-i18n>Ping Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>5</default>
-      <units>s</units>
-      <desc/>
-      <min>2</min>
-    </param>
-  </section>
   <section name="Navigation" name-i18n="Navigation">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -3876,7 +3801,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2.0</default>
+      <default>1.8</default>
       <units/>
       <desc>Maximum Horizontal Accuracy Estimate Moving Average factor</desc>
       <min>1.5</min>
@@ -3919,15 +3844,6 @@
       <default>AHRS</default>
       <units/>
       <desc>Entity label of 'AHRS' messages</desc>
-    </param>
-    <param name="Entity Label - Alignment">
-      <name-i18n>Entity Label - Alignment</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Coarse Alignment</default>
-      <units/>
-      <desc>Entity label of 'EulerAngles' alignment messages</desc>
     </param>
     <param name="Entity Label - DVL">
       <name-i18n>Entity Label - DVL</name-i18n>
@@ -4104,6 +4020,92 @@
       <default>IMU</default>
       <units/>
       <desc>Entity label of the IMU</desc>
+    </param>
+  </section>
+  <section name="Ranger" name-i18n="Ranger">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Ranger</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Spew</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>maneuver</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>0</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Ping Periodicity">
+      <name-i18n>Ping Periodicity</name-i18n>
+      <type>real</type>
+      <visibility>user</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units>s</units>
+      <desc/>
+      <min>2</min>
     </param>
   </section>
   <section name="Plan Database" name-i18n="Plan Database">
@@ -5051,6 +5053,73 @@
       <desc/>
     </param>
   </section>
+  <section name="IMU Power Supply" name-i18n="IMU Power Supply">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>IMU Power Supply</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Power Channel">
+      <name-i18n>Power Channel</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Private (IMU)</default>
+      <units/>
+      <desc>Device name to be activated</desc>
+    </param>
+    <param name="ESCC - PSU Device">
+      <name-i18n>ESCC - PSU Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/escc1</default>
+      <units/>
+      <desc>ESCC device where PSU is connected</desc>
+    </param>
+  </section>
   <section name="GPS" name-i18n="GPS">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -5396,6 +5465,119 @@
       <default/>
       <units/>
       <desc/>
+    </param>
+  </section>
+  <section name="IMU" name-i18n="IMU">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>IMU</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>50</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>idle</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>user</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>user</visibility>
+      <scope>idle</scope>
+      <default>false</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="ESCC - IMU Device">
+      <name-i18n>ESCC - IMU Device</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>/dev/escc0</default>
+      <units/>
+      <desc>HG1700 ESCC Device parameter</desc>
+    </param>
+    <param name="Input Timeout">
+      <name-i18n>Input Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2</default>
+      <units>s</units>
+      <desc>Number of seconds for the watchdog</desc>
+    </param>
+    <param name="IMU Rotation Matrix">
+      <name-i18n>IMU Rotation Matrix</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>-1.0,  0.0,  0.0, 0.0,  0.0, -1.0, 0.0, -1.0,  0.0</default>
+      <units/>
+      <desc>IMU rotation matrix which is dependent of the mounting position</desc>
+      <size>9</size>
+    </param>
+    <param name="Power Channel">
+      <name-i18n>Power Channel</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Private (IMU)</default>
+      <units/>
+      <desc>Power channel that controls the power of the device</desc>
     </param>
   </section>
   <section name="Multibeam" name-i18n="Multibeam">

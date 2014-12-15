@@ -263,13 +263,13 @@ public class GraphType implements XmlOutputMethods {
         at.setAction(action.toString());
         tt.setAction(at);
     	transitions.put(tt.getId(), tt);
-        if (maneuvers.get(sourceManeuverID) != null) {
-            //FIXME Transition true
+        if (maneuvers.containsKey(sourceManeuverID)) {
             ((Maneuver) maneuvers.get(sourceManeuverID)).addTransition(targetManeuverID, "true");
     	}
         else {
-        	new Exception().printStackTrace();
-            NeptusLog.pub().error("Error occured while adding transition from "+sourceManeuverID)  ;
+            String error = "Error occured while adding transition from "+sourceManeuverID;
+        	new Exception(error).printStackTrace();
+            NeptusLog.pub().error(error)  ;
         }
         
         return tt;
