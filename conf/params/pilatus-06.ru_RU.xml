@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.0 (HEAD,660f19f)" system="pilatus-06" i18n="ru_RU">
+<config format="1" version="2.6.x (master,5af600d)" system="pilatus-06" i18n="ru_RU">
   <section name="Gimbal" name-i18n="Gimbal">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
