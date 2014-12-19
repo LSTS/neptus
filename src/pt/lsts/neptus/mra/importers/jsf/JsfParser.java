@@ -328,6 +328,21 @@ public class JsfParser {
 
         return ping;
     }
+    
+    public void cleanup(){
+        try { 
+            if (fis != null) {
+                fis.close();
+            }
+            if (channel != null) {
+                channel.close();
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 
     public static void main(String[] args) throws IOException {
         JsfParser parser = new JsfParser(new File("/home/jqcorreia/lsts/logs/lauv-dolphin-1/20130626/133827_rows_a1.5m/Data.jsf"));

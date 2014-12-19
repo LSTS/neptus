@@ -185,4 +185,14 @@ public class ImcSidescanParser implements SidescanParser {
         }
         return null;
     }
+
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mra.api.SidescanParser#cleanup()
+     */
+    @Override
+    public void cleanup() {
+        // TODO Auto-generated method stub
+        
+    }
 }

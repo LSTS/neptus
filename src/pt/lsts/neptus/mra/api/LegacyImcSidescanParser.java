@@ -140,4 +140,13 @@ public class LegacyImcSidescanParser implements SidescanParser {
     public long getCurrentTime() {
         return pingParser.currentTimeMillis();
     }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mra.api.SidescanParser#cleanup()
+     */
+    @Override
+    public void cleanup() {
+        // TODO Auto-generated method stub
+        
+    }
 }
