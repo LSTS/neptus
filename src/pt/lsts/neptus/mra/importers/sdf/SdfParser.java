@@ -320,7 +320,21 @@ public class SdfParser {
         return ping;
     }
 
+    public void cleanup(){
+        try { 
+            if (fis != null) {
+                fis.close();
+            }
+            if (channel != null) {
+                channel.close();
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
 
+    }
+    
     public static void main(String[] args) {
         //        SdfParser parser = new SdfParser(new File("C://Users//Manuel//workspace//neptus-dev//SDF-datasamples//test.sdf"));
         //        

@@ -153,6 +153,11 @@ public class SdfSidescanParser implements SidescanParser {
         return list;
     }
 
+    @Override
+    public void cleanup() {
+        parser.cleanup();
+        parser=null;  
+    }
 
     public static void main(String args[]) {
 //        SdfSidescanParser p = new SdfSidescanParser(new File("C://Users//Manuel//workspace//neptus-dev//SDF-datasamples//test.sdf"));
