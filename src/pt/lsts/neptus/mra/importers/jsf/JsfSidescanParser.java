@@ -171,4 +171,10 @@ public class JsfSidescanParser implements SidescanParser {
         }
         return list;
     }
+    @Override
+    public void cleanup() {
+        parser.cleanup();
+        parser=null;  
+    }
+    
 }
