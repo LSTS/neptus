@@ -530,6 +530,10 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
     public String getName() {
         return name;
     }
+    
+    public String getNickname() {
+        return getId().replaceFirst("lauv-", "").replaceAll("-", "");
+    }
 
     /**
      * @param name The name to set.
