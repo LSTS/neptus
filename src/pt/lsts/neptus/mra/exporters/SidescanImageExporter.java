@@ -83,7 +83,12 @@ public class SidescanImageExporter implements MRAExporter {
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         parser = SidescanParserFactory.build(source);
-        return parser != null && !parser.getSubsystemList().isEmpty();
+        boolean canBeApplied = (parser != null && !parser.getSubsystemList().isEmpty());
+        if (canBeApplied) {
+            parser.cleanup();
+            parser = null;
+        }
+        return canBeApplied;
     }
     
     public SidescanImageExporter(IMraLogGroup source) {
@@ -92,6 +97,7 @@ public class SidescanImageExporter implements MRAExporter {
     
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
+        parser = SidescanParserFactory.build(source);
         PluginUtils.editPluginProperties(this, true);
         MraVehiclePosHud hud = new MraVehiclePosHud(source, hudSize, hudSize);
         hud.setPathColor(Color.white);
@@ -184,6 +190,10 @@ public class SidescanImageExporter implements MRAExporter {
         }
         pmonitor.close();
         
+        if (parser != null ) {
+            parser.cleanup();
+            parser = null;
+        }
         return "OK";
     }    
 
