@@ -223,6 +223,10 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         removeAll();
         mraPanel = null;
         markerList.clear();
+        if (ssParser!=null) {
+            ssParser.cleanup();
+            ssParser = null;
+        }
     }
 
     @Override
