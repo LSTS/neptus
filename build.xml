@@ -34,7 +34,7 @@ Authors:
   José Pinto <zepinto@fe.up.pt>
 
 Copyright:
-  (c) 2004-2014 FEUP-LSTS, Neptus Team.
+  (c) FEUP-LSTS, Neptus Team.
 ==================================================================== -->
 <?xml-stylesheet type="text/xsl" href="ant2html.xsl"?>
 <project name="Neptus" default="default" basedir=".">
