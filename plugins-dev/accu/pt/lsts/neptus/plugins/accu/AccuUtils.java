@@ -1,20 +1,5 @@
-package pt.lsts.neptus.plugins.accu;
-import java.awt.Color;
-import java.util.Vector;
-
-import javax.vecmath.Point3d;
-
-import pt.lsts.imc.IMCDefinition;
-import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.types.map.AbstractElement;
-import pt.lsts.neptus.types.map.MapGroup;
-import pt.lsts.neptus.types.map.PathElement;
-import pt.lsts.neptus.types.mission.MissionType;
-
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -44,6 +29,21 @@ import pt.lsts.neptus.types.mission.MissionType;
  * Author: José Pinto
  * Apr 15, 2011
  */
+package pt.lsts.neptus.plugins.accu;
+
+import java.awt.Color;
+import java.util.Vector;
+
+import javax.vecmath.Point3d;
+
+import pt.lsts.imc.IMCDefinition;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.PathElement;
+import pt.lsts.neptus.types.mission.MissionType;
 
 /**
  * @author zp
