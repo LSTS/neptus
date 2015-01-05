@@ -157,16 +157,5 @@ public class SdfSidescanParser implements SidescanParser {
         parser=null;  
     }
 
-    public static void main(String args[]) {
-//        SdfSidescanParser p = new SdfSidescanParser(new File("C://Users//Manuel//workspace//neptus-dev//SDF-datasamples//test.sdf"));
-//        long ts1 = 1349084855056L;
-//        long ts2 = 1349084855067L; 
-//        SidescanParameters config = new SidescanParameters(0.2, 75);
-//        ArrayList<SidescanLine> l = p.getLinesBetween(ts1, ts2, 3502, config);
-//        
-//        System.out.println("freq: "+ l.get(0).frequency + ", range: "+ l.get(0).range + " m, TS: " + l.get(0).timestampMillis + ",  alt: "+ 
-//                Math.round(l.get(0).state.getAltitude()) + "m, speed: " + l.get(0).state.getU() + " m/s, Heading: " + l.get(0).state.getYaw() +" rads ("+ Math.round(Math.toDegrees(l.get(0).state.getYaw()))+"deg)");
-        
-    }
 }
 
