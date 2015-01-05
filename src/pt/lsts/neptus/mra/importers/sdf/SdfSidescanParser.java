@@ -67,14 +67,13 @@ public class SdfSidescanParser implements SidescanParser {
             SidescanParameters config) {
 
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
+        SdfData ping = parser.getPingAt(timestamp1, subsystem); 
 
-        ArrayList<SdfData> ping = parser.getPingAt(timestamp1, subsystem);
+        if(ping == null) return list;
 
-        if(ping.size() == 0) return list;
+        while(ping.getTimestamp() < timestamp2) {
 
-        while(ping.get(0).getTimestamp() < timestamp2) {
-
-            SdfData sboardPboard = ping.get(0); // one ping contains both Sboard and Portboard samples
+            SdfData sboardPboard = ping; // one ping contains both Sboard and Portboard samples
 
             int nSamples = sboardPboard != null ? sboardPboard.getNumSamples() : 0;
             double fData[] = new double[nSamples*2]; // x2 (portboard + sboard in the same ping)  
@@ -82,13 +81,13 @@ public class SdfSidescanParser implements SidescanParser {
             double avgSboard = 0, avgPboard = 0;
 
             for (int i = 0; i < nSamples; i++) {
-                double r = ping.get(0).getPortData()[i];
+                double r = ping.getPortData()[i];
 
                 avgPboard += r;
             }
 
             for (int i = 0; i < nSamples; i++) {
-                double r = ping.get(0).getStbdData()[i];
+                double r = ping.getStbdData()[i];
                 avgSboard += r;
             }
 
@@ -135,10 +134,10 @@ public class SdfSidescanParser implements SidescanParser {
             pose.setAltitude(sboardPboard.getHeader().getAltitude() ); // altitude in meters
             pose.setU(sboardPboard.getHeader().getSpeedFish() / 100.0); // Convert cm/s to m/s
 
-            float frequency = ping.get(0).getHeader().getSonarFreq(); //TODO: ou .getSampleFreq()
-            float range = ping.get(0).getHeader().getRange();
+            float frequency = ping.getHeader().getSonarFreq(); //TODO: ou .getSampleFreq()
+            float range = ping.getHeader().getRange();
 
-            list.add(new SidescanLine(ping.get(0).getTimestamp(), range, pose, frequency, fData));
+            list.add(new SidescanLine(ping.getTimestamp(), range, pose, frequency, fData));
 
             try {
                 ping = parser.nextPing(subsystem); //no next ping available
@@ -146,8 +145,7 @@ public class SdfSidescanParser implements SidescanParser {
             catch (ArrayIndexOutOfBoundsException e) {
                 break;
             }
-            if(ping.size() == 0)
-                return list;
+            if(ping == null) return list;
         }
 
         return list;

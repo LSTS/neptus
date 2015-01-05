@@ -50,6 +50,7 @@ import pt.lsts.neptus.NeptusLog;
 
 public class SdfParser {
 
+    @SuppressWarnings("unused")
     private File file;
     private FileInputStream fis;
     private FileChannel channel;
@@ -253,7 +254,7 @@ public class SdfParser {
         return Math.max(index.lastTimestampHigh, index.lastTimestampLow);
     }
 
-    public ArrayList<SdfData> nextPing(int subsystem) {
+    public SdfData nextPing(int subsystem) {
         return getPingAt(nextTimestamp.get(subsystem), subsystem); // This fetches the next ping and updates nextTimestamp
     }
 
@@ -295,10 +296,9 @@ public class SdfParser {
         return ping;
     }
 
-    public ArrayList<SdfData> getPingAt(Long timestamp, int subsystem) {
+    public SdfData getPingAt(Long timestamp, int subsystem) {
         curPosition = 0;
-        ArrayList<SdfData> ping = new ArrayList<SdfData>();
-
+        SdfData ping = null;
         LinkedHashMap<Long, ArrayList<Long>> positionMap = ( subsystem == SUBSYS_LOW ? index.positionMapLow : index.positionMapHigh);
 
         long ts = 0;
@@ -315,8 +315,9 @@ public class SdfParser {
         nextTimestamp.put(subsystem, tslist.get(subsystem)[c+1]);
 
         for(Long pos : positionMap.get(ts)) {
-            ping.add(getPingAtPosition(pos, subsystem));
+            ping = getPingAtPosition(pos, subsystem);
         }
+
         return ping;
     }
 
