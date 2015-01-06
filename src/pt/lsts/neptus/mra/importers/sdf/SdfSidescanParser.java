@@ -67,8 +67,13 @@ public class SdfSidescanParser implements SidescanParser {
             SidescanParameters config) {
 
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
-        SdfData ping = parser.getPingAt(timestamp1, subsystem); 
-
+        SdfData ping;
+        try {
+            ping = parser.getPingAt(timestamp1, subsystem); 
+        }
+        catch (ArrayIndexOutOfBoundsException e){
+            return list;
+        }
         if(ping == null) return list;
 
         while(ping.getTimestamp() < timestamp2) {
@@ -93,17 +98,6 @@ public class SdfSidescanParser implements SidescanParser {
 
             avgPboard /= (double) nSamples * config.getNormalization();
             avgSboard /= (double) nSamples * config.getNormalization();
-
-            
-            /* 
-            for (int i=0; i<nSamples ; i++) {
-                fData[nSamples-i-1] = (sboardPboard.getPortData()[i] / avgPboard);// / (MAX_VALUE*config.getNormalization()));
-            }
-
-             for (int i=0; i<nSamples ; i++) {
-                fData[i+nSamples] = (sboardPboard.getStbdData()[i] / avgSboard);
-            }
-            */
             
             // Calculate Portboard
             for (int i = 0; i < nSamples; i++) {
@@ -134,7 +128,7 @@ public class SdfSidescanParser implements SidescanParser {
             pose.setAltitude(sboardPboard.getHeader().getAltitude() ); // altitude in meters
             pose.setU(sboardPboard.getHeader().getSpeedFish() / 100.0); // Convert cm/s to m/s
 
-            float frequency = ping.getHeader().getSonarFreq(); //TODO: ou .getSampleFreq()
+            float frequency = ping.getHeader().getSonarFreq();
             float range = ping.getHeader().getRange();
 
             list.add(new SidescanLine(ping.getTimestamp(), range, pose, frequency, fData));
@@ -147,7 +141,6 @@ public class SdfSidescanParser implements SidescanParser {
             }
             if(ping == null) return list;
         }
-
         return list;
     }
 
@@ -156,6 +149,4 @@ public class SdfSidescanParser implements SidescanParser {
         parser.cleanup();
         parser=null;  
     }
-
 }
-
