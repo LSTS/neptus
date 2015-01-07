@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (master,5af600d)" system="alfa-07" i18n="en_US">
+<config format="1" version="2.6.1 (HEAD,0c854de)" system="alfa-07" i18n="en_US">
   <section name="Follow Reference" name-i18n="Follow Reference">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
