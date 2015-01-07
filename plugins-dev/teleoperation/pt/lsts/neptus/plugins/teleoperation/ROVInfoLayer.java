@@ -34,17 +34,22 @@ package pt.lsts.neptus.plugins.teleoperation;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+
 import pt.lsts.imc.DesiredHeading;
 import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.conf.DoubleMinMaxValidator;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -61,27 +66,64 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
      * @param console
      */
     
+    private static final double MIN_DEPTH_THRESH = 0.01;
+    private static final double MAX_DEPTH_THRESH = 100;
+    private static final double MIN_HEADING_THRESH = 0.1;
+    private static final double MAX_HEADING_THRESH = 360;
+
+    JLabel info;
     private double desiredDepth = 0;
     private double desiredHeading = 0;
     private double depth = 0;
     private double heading = 0;
     private double altitude = 0;
-    
+
+    @NeptusProperty(name="Heading threshold", description="Threshold when to flag difference RED")
+    public double headingThresh = 15;
+
+    @NeptusProperty(name="Depth threshold", description="Threshold when to flag difference RED")
+    public double depthThresh = 0.3;
+
     public ROVInfoLayer(ConsoleLayout console) {
         super(console);
+
+	info = new JLabel("<html></html>");
+    }
+
+    private String getColor(double reference, double value, double threshold) {
+	if (Math.abs(reference - value) > threshold)
+	    return "#ff0000";
+	else
+	    return "#000000";
+    }
+
+    public String validateDepthThresh(double value) {
+        return new DoubleMinMaxValidator(MIN_DEPTH_THRESH, MAX_DEPTH_THRESH).validate(value);
+    }
+
+    public String validateHeadingThresh(double value) {
+        return new DoubleMinMaxValidator(MIN_HEADING_THRESH, MAX_HEADING_THRESH).validate(value);
     }
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        System.out.println();
         g.setColor(Color.BLACK);
         g.translate(0, renderer.getHeight() - 100);
-        g.drawString("Desired Heading: " + desiredHeading, 10, 0);
-        g.drawString("Heading: " + heading, 10, 10);
-        g.drawString("Desired Depth: " + desiredDepth, 10, 20);
-        g.drawString("Depth: " + depth, 10, 30);
-        g.drawString("Altitude: " + altitude, 10, 40);
-        
+
+	String txt = "<html><font color=#000000>";
+	txt += "<b>Heading: </b> [" + Math.toDegrees(desiredHeading) + "] <b><font color="
+	    + getColor(heading, desiredHeading, headingThresh) + ">" + Math.toDegrees(heading) + "</font></b><br/>";
+	txt += "<b>Depth: </b> [" + desiredDepth + "] <b><font color=" + getColor(depth, desiredDepth, depthThresh) + ">" + depth + "</font></b><br/>";
+	txt += "<b>Altitude: " + altitude + "</b>";
+	txt += "</font></html>";
+
+	info.setText(txt);
+	info.setForeground(Color.white);
+	info.setHorizontalTextPosition(JLabel.CENTER);
+	info.setHorizontalAlignment(JLabel.LEFT);
+	info.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+	info.setBounds(0, 0, 300, 70);
+	info.paint(g);
     }
 
     @Override
