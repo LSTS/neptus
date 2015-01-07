@@ -1,8 +1,22 @@
 Changes
 =======
 
+Neptus 4.2.1 (07-01-2015)
+------------
+ * IMC: No change in IMC and IMCJava (v5.4.3).
+ * Vehicles: Updated systems parameters to DUNE 2.6.1 (HEAD,0c854de).
+ * I18n: Updated POT and translations.
+ * GeneralPreferences: Fix a problem on general preferences creation on the right folder for the first time.
+ * MRA/Sidescan: Implementing fix for sidescan data log files still being open after closing MRA window or log close.
+ * PlanEditor: Fixed missing transitions after adding a maneuver before the first one.
+ * Installers: Added LAUV-Oceaneco 1 and 2 to LE installer includes.
+ * MRA/Sidescan: Added null pointer protection to the sidescan recorder when closing streams in SidescanPanel.
+ * MRA/JSF Parser: Reading data format from header in order to only read if equals to 0 (1 short per sample, was the format supported but if other was in place the processing was done if equal to 0 format). If not valid format it will return empty data array.
+ * MRA/JSF Parser: Fixing reading of number of samples (need to get 4 bits of MSB bytes to be extend the number of samples to 20bit size).
+
+
 Neptus 4.2.0 (11-11-2014)
-----------------
+------------
  * IMC: No change in IMC and IMCJava (v5.4.3).
  * Vehicles: Updated systems parameters to DUNE 2.6.0 (HEAD,660f19f).
  * I18n: Updated POT and translations.
