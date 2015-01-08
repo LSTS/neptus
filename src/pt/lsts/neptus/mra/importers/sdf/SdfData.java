@@ -114,19 +114,14 @@ public class SdfData {
         int hour = header.getHour();
         int minute = header.getMinute();
         int seconds = header.getSecond();
-        int hSeconds = header.gethSecond(); 
-        //float fSeconds = header.getfSecond();
-
-        //TODO: use hSeconds for improved accuracy
-
+        double fSeconds = header.getfSecond();
+        int milis = (int) (fSeconds*1000) ;
+        
         Calendar cal =  Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone("UTC"));
-
         cal.set(year, month-1, day, hour, minute, seconds);
-        cal.set(Calendar.MILLISECOND, hSeconds);
-
+        cal.set(Calendar.MILLISECOND, milis);
         setTimestamp(cal.getTimeInMillis());
-
     }
 
 
