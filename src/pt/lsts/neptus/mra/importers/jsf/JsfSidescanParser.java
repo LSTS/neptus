@@ -69,8 +69,14 @@ public class JsfSidescanParser implements SidescanParser {
     @Override
     public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanParameters params) {
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
+        ArrayList<JsfSonarData> ping;
         
-        ArrayList<JsfSonarData> ping = parser.getPingAt(timestamp1, subsystem);
+        try {
+            ping = parser.getPingAt(timestamp1, subsystem);
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            return list;
+        }
         
         if(ping.size() == 0) return list;
 
