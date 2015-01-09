@@ -110,11 +110,14 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
         g.setColor(Color.BLACK);
         g.translate(0, renderer.getHeight() - 100);
 
+	double headingDeg = Math.toDegrees(heading);
+	double desiredHeadingDeg = Math.toDegrees(desiredHeading);
+
 	String txt = "<html><font color=#000000>";
-	txt += "<b>Heading: </b> [" + Math.toDegrees(desiredHeading) + "] <b><font color="
-	    + getColor(heading, desiredHeading, headingThresh) + ">" + Math.toDegrees(heading) + "</font></b><br/>";
-	txt += "<b>Depth: </b> [" + desiredDepth + "] <b><font color=" + getColor(depth, desiredDepth, depthThresh) + ">" + depth + "</font></b><br/>";
-	txt += "<b>Altitude: " + altitude + "</b>";
+	txt += "<b>Heading: </b> [" + MathMiscUtils.round(desiredHeadingDeg, 2) + "] <b><font color="
+	    + getColor(headingDeg, desiredHeadingDeg, headingThresh) + ">" + MathMiscUtils.round(headingDeg, 2) + "</font></b><br/>";
+	txt += "<b>Depth: </b> [" + MathMiscUtils.round(desiredDepth, 2) + "] <b><font color=" + getColor(depth, desiredDepth, depthThresh) + ">" + MathMiscUtils.round(depth, 2) + "</font></b><br/>";
+	txt += "<b>Altitude: " + MathMiscUtils.round(altitude, 2) + "</b>";
 	txt += "</font></html>";
 
 	info.setText(txt);
