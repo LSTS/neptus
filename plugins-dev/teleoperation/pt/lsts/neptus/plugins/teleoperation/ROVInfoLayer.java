@@ -39,7 +39,9 @@ import javax.swing.JLabel;
 
 import pt.lsts.imc.DesiredHeading;
 import pt.lsts.imc.DesiredZ;
+import pt.lsts.imc.Distance;
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -68,21 +70,34 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
     
     private static final double MIN_DEPTH_THRESH = 0.01;
     private static final double MAX_DEPTH_THRESH = 100;
+    private static final double MIN_DISTANCE_THRESH = 0.01;
+    private static final double MAX_DISTANCE_THRESH = 20;
     private static final double MIN_HEADING_THRESH = 0.1;
     private static final double MAX_HEADING_THRESH = 360;
 
     JLabel info;
     private double desiredDepth = 0;
     private double desiredHeading = 0;
+    private double desiredDistance = 0;
     private double depth = 0;
     private double heading = 0;
     private double altitude = 0;
+    private double distance = 0;
 
     @NeptusProperty(name="Heading threshold", description="Threshold when to flag difference RED")
     public double headingThresh = 15;
 
     @NeptusProperty(name="Depth threshold", description="Threshold when to flag difference RED")
     public double depthThresh = 0.3;
+
+    @NeptusProperty(name="Distance threshold", description="Threshold when to flag difference RED")
+    public double distanceThresh = 0.2;
+
+    @NeptusProperty(name = "Desired Distance Entity Name", description = "DesiredDistance entity name")
+    public String desiredEntityName = "Desired Distance";
+
+    @NeptusProperty(name = "Distance Entity Name", description = "Distance entity name")
+    public String distanceEntityName = "Filtered Wall Distance";
 
     public ROVInfoLayer(ConsoleLayout console) {
         super(console);
@@ -105,6 +120,10 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
         return new DoubleMinMaxValidator(MIN_HEADING_THRESH, MAX_HEADING_THRESH).validate(value);
     }
 
+    public String validateDistanceThresh(double value) {
+        return new DoubleMinMaxValidator(MIN_DISTANCE_THRESH, MAX_DISTANCE_THRESH).validate(value);
+    }
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         g.setColor(Color.BLACK);
@@ -117,6 +136,7 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
 	txt += "<b>Heading: </b> [" + MathMiscUtils.round(desiredHeadingDeg, 2) + "] <b><font color="
 	    + getColor(headingDeg, desiredHeadingDeg, headingThresh) + ">" + MathMiscUtils.round(headingDeg, 2) + "</font></b><br/>";
 	txt += "<b>Depth: </b> [" + MathMiscUtils.round(desiredDepth, 2) + "] <b><font color=" + getColor(depth, desiredDepth, depthThresh) + ">" + MathMiscUtils.round(depth, 2) + "</font></b><br/>";
+	txt += "<b>Distance: </b> [" + MathMiscUtils.round(desiredDistance, 2) + "] <b><font color=" + getColor(distance, desiredDistance, distanceThresh) + ">" + MathMiscUtils.round(distance, 2) + "</font></b><br/>";
 	txt += "<b>Altitude: " + MathMiscUtils.round(altitude, 2) + "</b>";
 	txt += "</font></html>";
 
@@ -160,5 +180,23 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
         if(dh.getSourceName().equals(getMainVehicleId())) {
             desiredHeading = MathMiscUtils.round(dh.getValue(), 3);
         }
+    }
+
+    @Subscribe
+    public void onMessage(Distance d) {
+        if(!d.getSourceName().equals(getMainVehicleId()))
+	    return;
+
+	int idDes = EntitiesResolver.resolveId(getMainVehicleId(),
+					       desiredEntityName);
+
+	int idDis = EntitiesResolver.resolveId(getMainVehicleId(),
+					       distanceEntityName);
+
+	if (d.getSrcEnt() == idDes)
+	    desiredDistance = MathMiscUtils.round(d.getValue(), 3);
+
+	if (d.getSrcEnt() == idDis)
+	    distance = MathMiscUtils.round(d.getValue(), 3);
     }
 }
