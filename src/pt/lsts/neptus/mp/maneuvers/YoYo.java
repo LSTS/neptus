@@ -402,7 +402,7 @@ public class YoYo extends Maneuver implements IMCSerialization, LocatedManeuver 
 		yoyo.setLat(loc.getLatitudeRads());
 		yoyo.setLon(loc.getLongitudeRads());
 		yoyo.setZ(getManeuverLocation().getZ());
-		yoyo.setZUnits(getManeuverLocation().getZUnits().toString());
+		yoyo.setZUnits(pt.lsts.imc.YoYo.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));
 		yoyo.setSpeed(getSpeed());
 		yoyo.setAmplitude(getAmplitude());
 		yoyo.setPitch(getPitchAngle());

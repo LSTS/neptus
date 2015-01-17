@@ -510,7 +510,7 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
         loiter.setLat(loc.getLatitudeRads());
         loiter.setLon(loc.getLongitudeRads());
         loiter.setZ(getManeuverLocation().getZ());
-        loiter.setZUnits((short)getManeuverLocation().getZUnits().value());
+        loiter.setZUnits(pt.lsts.imc.Loiter.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
         loiter.setSpeed(this.getSpeed());
         loiter.setDuration(getLoiterDuration());
        

@@ -240,7 +240,7 @@ public class CompassCalibration extends Maneuver implements LocatedManeuver, IMC
         man.setLat(loc.getLatitudeRads());
         man.setLon(loc.getLongitudeRads());
         man.setZ(getManeuverLocation().getZ());
-        man.setZUnits(getManeuverLocation().getZUnits().toString());
+        man.setZUnits(pt.lsts.imc.CompassCalibration.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));
         man.setPitch(Math.toRadians(pitchDegs));
         man.setAmplitude(amplitude);
         man.setDuration(duration);

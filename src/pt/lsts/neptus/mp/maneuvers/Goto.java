@@ -392,7 +392,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 		gotoManeuver.setLat(l.getLatitudeRads());
 		gotoManeuver.setLon(l.getLongitudeRads());
 		gotoManeuver.setZ(getManeuverLocation().getZ());
-		gotoManeuver.setZUnits((short)getManeuverLocation().getZUnits().value());
+		gotoManeuver.setZUnits(pt.lsts.imc.Goto.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
 		gotoManeuver.setSpeed(this.getSpeed());
        
 		switch (this.getUnits()) {

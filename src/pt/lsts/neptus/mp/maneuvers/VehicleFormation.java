@@ -195,7 +195,8 @@ public class VehicleFormation extends FollowTrajectory {
         vfMessage.setLat(Math.toRadians(lld[0]));
         vfMessage.setLon(Math.toRadians(lld[1]));
         vfMessage.setZ(getManeuverLocation().getZ());
-        vfMessage.setZUnits(getManeuverLocation().getZUnits().toString());
+        vfMessage.setZUnits(pt.lsts.imc.VehicleFormation.Z_UNITS.valueOf(
+                getManeuverLocation().getZUnits().toString()));
         vfMessage.setStartTime(startTime/1000.0);
         vfMessage.setParticipants(getParticipantsIMC());
         vfMessage.setSpeed(speed);

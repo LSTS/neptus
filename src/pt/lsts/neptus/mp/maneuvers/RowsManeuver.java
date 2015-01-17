@@ -637,7 +637,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         man.setLat(latRad);
         man.setLon(lonRad);
         man.setZ(z);
-        man.setZUnits(zunits.toString());
+        man.setZUnits(pt.lsts.imc.Rows.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
         man.setSpeed(speed);
         man.setWidth(width);
         man.setLength(length);
