@@ -47,6 +47,7 @@ import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -67,7 +68,7 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
     /**
      * @param console
      */
-    
+
     private static final double MIN_DEPTH_THRESH = 0.01;
     private static final double MAX_DEPTH_THRESH = 100;
     private static final double MIN_DISTANCE_THRESH = 0.01;
@@ -83,6 +84,11 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
     private double heading = 0;
     private double altitude = 0;
     private double distance = 0;
+
+    private boolean loopWallTracking = false;
+    private boolean loopHeadingControl = false;
+    private boolean lastLoopWallTracking = false;
+    private boolean lastLoopHeadingControl = false;
 
     @NeptusProperty(name="Heading threshold", description="Threshold when to flag difference RED")
     public double headingThresh = 15;
@@ -102,14 +108,14 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
     public ROVInfoLayer(ConsoleLayout console) {
         super(console);
 
-	info = new JLabel("<html></html>");
+        info = new JLabel("<html></html>");
     }
 
     private String getColor(double reference, double value, double threshold) {
-	if (Math.abs(reference - value) > threshold)
-	    return "#ff0000";
-	else
-	    return "#000000";
+        if (Math.abs(reference - value) > threshold)
+            return "#ff0000";
+        else
+            return "#000000";
     }
 
     public String validateDepthThresh(double value) {
@@ -124,41 +130,53 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
         return new DoubleMinMaxValidator(MIN_DISTANCE_THRESH, MAX_DISTANCE_THRESH).validate(value);
     }
 
+    private String getInfo(boolean strike, String text, double desired, double value, double threshold) {
+        String txt = "";
+
+        if (strike)
+            txt += "<strike>";
+        txt += "<b>" + text + ": </b> [" + MathMiscUtils.round(desired, 2) + "] <b><font color="
+            + getColor(value, desired, threshold) + ">" + MathMiscUtils.round(value, 2) + "</font></b><br/>";
+        if (strike)
+            txt += "</strike>";
+
+        return txt;
+    }
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         g.setColor(Color.BLACK);
         g.translate(0, renderer.getHeight() - 100);
 
-	double headingDeg = Math.toDegrees(heading);
-	double desiredHeadingDeg = Math.toDegrees(desiredHeading);
+        double headingDeg = Math.toDegrees(heading);
+        double desiredHeadingDeg = Math.toDegrees(desiredHeading);
 
-	String txt = "<html><font color=#000000>";
-	txt += "<b>Heading: </b> [" + MathMiscUtils.round(desiredHeadingDeg, 2) + "] <b><font color="
-	    + getColor(headingDeg, desiredHeadingDeg, headingThresh) + ">" + MathMiscUtils.round(headingDeg, 2) + "</font></b><br/>";
-	txt += "<b>Depth: </b> [" + MathMiscUtils.round(desiredDepth, 2) + "] <b><font color=" + getColor(depth, desiredDepth, depthThresh) + ">" + MathMiscUtils.round(depth, 2) + "</font></b><br/>";
-	txt += "<b>Distance: </b> [" + MathMiscUtils.round(desiredDistance, 2) + "] <b><font color=" + getColor(distance, desiredDistance, distanceThresh) + ">" + MathMiscUtils.round(distance, 2) + "</font></b><br/>";
-	txt += "<b>Altitude: " + MathMiscUtils.round(altitude, 2) + "</b>";
-	txt += "</font></html>";
+        String txt = "<html><font color=#000000>";
+        txt += getInfo(!lastLoopHeadingControl, "Heading", desiredHeadingDeg, headingDeg, headingThresh);
+        txt += getInfo(!lastLoopWallTracking, "WallTrack", desiredDistance, distance, distanceThresh);
+        txt += getInfo(false, "Depth", desiredDepth, depth, depthThresh);
+        txt += "<b>Altitude: " + MathMiscUtils.round(altitude, 2) + "</b>";
+        txt += "</font></html>";
 
-	info.setText(txt);
-	info.setForeground(Color.white);
-	info.setHorizontalTextPosition(JLabel.CENTER);
-	info.setHorizontalAlignment(JLabel.LEFT);
-	info.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-	info.setBounds(0, 0, 300, 70);
-	info.paint(g);
+        info.setText(txt);
+        info.setForeground(Color.white);
+        info.setHorizontalTextPosition(JLabel.CENTER);
+        info.setHorizontalAlignment(JLabel.LEFT);
+        info.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        info.setBounds(0, 0, 300, 70);
+        info.paint(g);
     }
 
     @Override
     public void initSubPanel() {
-        
+
     }
 
     @Override
     public void cleanSubPanel() {
-        
+
     }
-    
+
     @Subscribe
     public void onMessage(EstimatedState state) {
         if(state.getSourceName().equals(getMainVehicleId())) {
@@ -167,36 +185,50 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
             altitude = MathMiscUtils.round(state.getAlt(), 3);
         }
     }
-    
+
     @Subscribe
     public void onMessage(DesiredZ dz) {
         if(dz.getSourceName().equals(getMainVehicleId())) {
             desiredDepth = MathMiscUtils.round(dz.getValue(), 3);
         }
     }
-    
+
     @Subscribe
     public void onMessage(DesiredHeading dh) {
         if(dh.getSourceName().equals(getMainVehicleId())) {
             desiredHeading = MathMiscUtils.round(dh.getValue(), 3);
+            lastLoopHeadingControl = loopHeadingControl = true;
         }
     }
 
     @Subscribe
     public void onMessage(Distance d) {
         if(!d.getSourceName().equals(getMainVehicleId()))
-	    return;
+            return;
 
-	int idDes = EntitiesResolver.resolveId(getMainVehicleId(),
-					       desiredEntityName);
+        int idDes = EntitiesResolver.resolveId(getMainVehicleId(),
+                                               desiredEntityName);
 
-	int idDis = EntitiesResolver.resolveId(getMainVehicleId(),
-					       distanceEntityName);
+        int idDis = EntitiesResolver.resolveId(getMainVehicleId(),
+                                               distanceEntityName);
 
-	if (d.getSrcEnt() == idDes)
-	    desiredDistance = MathMiscUtils.round(d.getValue(), 3);
+        if (d.getSrcEnt() == idDes) {
+            desiredDistance = MathMiscUtils.round(d.getValue(), 3);
+            lastLoopWallTracking = loopWallTracking = true;
+        }
 
-	if (d.getSrcEnt() == idDis)
-	    distance = MathMiscUtils.round(d.getValue(), 3);
+        if (d.getSrcEnt() == idDis)
+            distance = MathMiscUtils.round(d.getValue(), 3);
     }
+
+    @Periodic(millisBetweenUpdates=5000)
+    public boolean update() {
+        lastLoopWallTracking = loopWallTracking;
+        loopWallTracking = false;
+        lastLoopHeadingControl = loopHeadingControl;
+        loopHeadingControl = false;
+
+        return true;
+    }
+
 }
