@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.1 (HEAD,0c854de)" system="adamastor" i18n="ru_RU">
+<config format="1" version="2.6.x (mission/rov_inspection,56fd7e2)" system="adamastor" i18n="ru_RU">
   <section name="LED Driver" name-i18n="LED Driver">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -112,7 +112,7 @@
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
       <desc>Enable external LED trigger</desc>
     </param>
@@ -694,7 +694,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0, 0.0, 0.0</default>
+      <default>2.0, 0.0, 0.0</default>
       <units/>
       <desc>PID gains for Heading Rate controller</desc>
       <size>3</size>
@@ -752,7 +752,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0</default>
+      <default>2.0</default>
       <units/>
       <desc>Maximum admissible thrust command</desc>
     </param>
@@ -938,7 +938,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.8</default>
+      <default>1.5</default>
       <units>m/s</units>
       <desc>Maximum speed allowed for remote operation</desc>
     </param>
@@ -954,7 +954,7 @@
     <param name="Angular Speed Control">
       <name-i18n>Angular Speed Control</name-i18n>
       <type>boolean</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
       <default>true</default>
       <units/>
@@ -981,11 +981,121 @@
     <param name="Heading Rate">
       <name-i18n>Heading Rate</name-i18n>
       <type>real</type>
-      <visibility>developer</visibility>
+      <visibility>user</visibility>
       <scope>global</scope>
-      <default>30.0</default>
+      <default>0.5</default>
       <units>°/s</units>
       <desc>Rate of increase or decrease of heading with control enabled.</desc>
+    </param>
+    <param name="Depth Increment">
+      <name-i18n>Depth Increment</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.2</default>
+      <units>m</units>
+      <desc>Increment in meters when using button for depth reference.</desc>
+    </param>
+    <param name="Wall Tracking -- Average Window">
+      <name-i18n>Wall Tracking -- Average Window</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Distance moving average window size</desc>
+    </param>
+    <param name="Wall Tracking -- Gains">
+      <name-i18n>Wall Tracking -- Gains</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0, 0.0, 0.1</default>
+      <units/>
+      <desc>Distance PID controller gains</desc>
+      <size>3</size>
+    </param>
+    <param name="Wall Tracking -- Maximum Speed">
+      <name-i18n>Wall Tracking -- Maximum Speed</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.5</default>
+      <units>m/s</units>
+      <desc>Maximum speed output from PID</desc>
+    </param>
+    <param name="Wall Tracking -- Integral Limit">
+      <name-i18n>Wall Tracking -- Integral Limit</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.2</default>
+      <units>m/s</units>
+      <desc>PID Integral limit</desc>
+    </param>
+    <param name="Wall Tracking -- Absolute Maximum Error">
+      <name-i18n>Wall Tracking -- Absolute Maximum Error</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units>m</units>
+      <desc>Absolute value of maximum error in distance</desc>
+    </param>
+    <param name="Wall Tracking -- Distance Increments">
+      <name-i18n>Wall Tracking -- Distance Increments</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.02</default>
+      <units>m</units>
+      <desc>Desired distance to wall increments.</desc>
+    </param>
+    <param name="Wall Tracking -- Distance Bounds">
+      <name-i18n>Wall Tracking -- Distance Bounds</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.15, 3.0</default>
+      <units>m</units>
+      <desc>Desired distance to wall lower and upper bounds.</desc>
+      <size>2</size>
+    </param>
+    <param name="Entity Label - Wall Distance">
+      <name-i18n>Entity Label - Wall Distance</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Pencil Beam</default>
+      <units/>
+      <desc>Entity label of distance to wall</desc>
+    </param>
+    <param name="Entity Label - Desired Wall Distance">
+      <name-i18n>Entity Label - Desired Wall Distance</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Desired Distance</default>
+      <units/>
+      <desc>Entity label of desired distance to wall</desc>
+    </param>
+    <param name="Entity Label - Filtered Wall Distance">
+      <name-i18n>Entity Label - Filtered Wall Distance</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Filtered Distance</default>
+      <units/>
+      <desc>Entity label of the filtered distance to wall</desc>
+    </param>
+    <param name="Wall Tracking -- Distance Threshold">
+      <name-i18n>Wall Tracking -- Distance Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5</default>
+      <units/>
+      <desc>Distance threshold</desc>
     </param>
   </section>
   <section name="Multiplexer Maneuver" name-i18n="Multiplexer Maneuver">
@@ -1538,6 +1648,182 @@
       <units/>
       <desc>Maximum number of consecutive transitions before starting to ignore</desc>
       <min>0</min>
+    </param>
+  </section>
+  <section name="Medium" name-i18n="Medium">
+    <param name="Entity Label">
+      <name-i18n>Entity Label</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Medium</default>
+      <units/>
+      <desc>Main entity label</desc>
+    </param>
+    <param name="Execution Priority">
+      <name-i18n>Execution Priority</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>10</default>
+      <units/>
+      <desc>Execution priority</desc>
+    </param>
+    <param name="Activation Time">
+      <name-i18n>Activation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Deactivation Time">
+      <name-i18n>Deactivation Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Debug Level">
+      <name-i18n>Debug Level</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>None</default>
+      <units/>
+      <desc/>
+      <values>None, Debug, Trace, Spew</values>
+      <values-i18n>None, Debug, Trace, Spew</values-i18n>
+    </param>
+    <param name="Execution Frequency">
+      <name-i18n>Execution Frequency</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>Hz</units>
+      <desc>Frequency at which task is executed</desc>
+    </param>
+    <param name="Active - Scope">
+      <name-i18n>Active - Scope</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>idle</default>
+      <units/>
+      <desc>Scoped of the 'Active' parameter</desc>
+    </param>
+    <param name="Active - Visibility">
+      <name-i18n>Active - Visibility</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>developer</default>
+      <units/>
+      <desc>Visibility of the 'Active' parameter</desc>
+    </param>
+    <param name="Active">
+      <name-i18n>Active</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>idle</scope>
+      <default>1</default>
+      <units/>
+      <desc>True to activate task, false otherwise</desc>
+    </param>
+    <param name="Initialization Time">
+      <name-i18n>Initialization Time</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>30.0</default>
+      <units>s</units>
+      <desc>Time to wait at beginning before assessing vehicle medium</desc>
+      <min>20.0</min>
+      <max>60.0</max>
+    </param>
+    <param name="Wet Data Timeout">
+      <name-i18n>Wet Data Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3.0</default>
+      <units>s</units>
+      <desc>No valid wet sensor data timeout</desc>
+      <min>1.5</min>
+    </param>
+    <param name="Wet Data Threshold">
+      <name-i18n>Wet Data Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1.0</default>
+      <units/>
+      <desc>No valid wet sensor data threshold value</desc>
+      <min>0.0</min>
+      <max>5.0</max>
+    </param>
+    <param name="GPS Timeout">
+      <name-i18n>GPS Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2.0</default>
+      <units>s</units>
+      <desc>No valid GPS fixes timeout</desc>
+      <min>2.0</min>
+    </param>
+    <param name="Air Speed Threshold">
+      <name-i18n>Air Speed Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>12.0</default>
+      <units>m</units>
+      <desc>Minimum air speed necessary to consider a vehicle in air</desc>
+    </param>
+    <param name="Altitude Threshold">
+      <name-i18n>Altitude Threshold</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units>m</units>
+      <desc>Minimum altitude necessary to consider a vehicle (Copter) in air</desc>
+    </param>
+    <param name="Vehicle Type">
+      <name-i18n>Vehicle Type</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>UUV</default>
+      <units/>
+      <desc>Type of vehicle</desc>
+      <values>UUV, ASV, UAV</values>
+      <values-i18n>UUV, ASV, UAV</values-i18n>
+    </param>
+    <param name="Vehicle Sub-Type">
+      <name-i18n>Vehicle Sub-Type</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>FixedWing</default>
+      <units/>
+      <desc>Sub-Type of vehicle</desc>
+      <values>FixedWing, Copter</values>
+      <values-i18n>FixedWing, Copter</values-i18n>
+    </param>
+    <param name="Entity Label - Medium Sensor">
+      <name-i18n>Entity Label - Medium Sensor</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Medium Sensor</default>
+      <units/>
+      <desc>Entity label of 'EntityState' Medium Sensor messages</desc>
     </param>
   </section>
   <section name="Operational Limits" name-i18n="Operational Limits">
@@ -3807,6 +4093,15 @@
       <default>false</default>
       <units/>
       <desc>Update measurements according with measured sound speed</desc>
+    </param>
+    <param name="Invert Orientation Angle">
+      <name-i18n>Invert Orientation Angle</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>true</default>
+      <units/>
+      <desc>Invert orientation angle</desc>
     </param>
     <param name="Sonar position">
       <name-i18n>Sonar position</name-i18n>
