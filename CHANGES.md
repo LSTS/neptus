@@ -1,6 +1,12 @@
 Changes
 =======
 
+Neptus 4.2.x (??-0?-2015)
+------------
+ * MRA/Exporter/DeltaT83PToCorrectedPos83P: Fix to write lat/lon to the right bits in the header.
+ * MRA/JsfSidescanParser: Fixed ArrayIndexOutOfBoundsException when Sidescan Analyzer Visualization's timeline ended.
+
+
 Neptus 4.2.1 (07-01-2015)
 ------------
  * IMC: No change in IMC and IMCJava (v5.4.3).
