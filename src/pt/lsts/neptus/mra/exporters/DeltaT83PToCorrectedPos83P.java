@@ -139,18 +139,22 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
                 String lat83P = CoordinateUtil.latTo83PFormatWorker(posLoc.getLatitudeDegs());
                 String lon83P = CoordinateUtil.lonTo83PFormatWorker(posLoc.getLongitudeDegs());
                 
-                buf.position(33);
+                //buf.position(33);
                 byte[] latBytes = new byte[14];
-                buf.get(latBytes);
-                // try { System.out.println(new String(latBytes, "ASCII")); } catch (UnsupportedEncodingException e) { }
+                //buf.get(latBytes);
+                //try { System.out.println("lat prev: " + new String(latBytes, "ASCII")); } catch (UnsupportedEncodingException e) { }
                 latBytes = lat83P.getBytes(Charset.forName("ASCII"));
+                //try { System.out.println("lat new : " + new String(latBytes, "ASCII")); } catch (UnsupportedEncodingException e) { }
+                buf.position(33);
                 buf.put(latBytes);
 
-                buf.position(47);
+                //buf.position(47);
                 byte[] lonBytes = new byte[14];
-                buf.get(lonBytes);
-                // try { System.out.println(new String(lonBytes, "ASCII")); } catch (UnsupportedEncodingException e) { }
+                //buf.get(lonBytes);
+                //try { System.out.println("lon prev: " + new String(lonBytes, "ASCII")); } catch (UnsupportedEncodingException e) { }
                 lonBytes = lon83P.getBytes(Charset.forName("ASCII"));
+                //try { System.out.println("lon new : " + new String(lonBytes, "ASCII")); } catch (UnsupportedEncodingException e) { }
+                buf.position(47);
                 buf.put(lonBytes);
 
                 nextSwath = deltaParser.nextSwath();
