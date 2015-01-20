@@ -63,7 +63,7 @@ public class DistancesRadar extends ConsoleLayer {
     private static final int LENGTH = 200;
     private static final int EXTRA = 70;
     private static final int MARGIN = 5;
-    private static final int MIN_RADAR_SIZE = 5;
+    private static final int MIN_RADAR_SIZE = 1;
     private static final int MAX_RADAR_SIZE = 100;
     private static final int MIN_NUMBER_POINTS = 1;
     private static final int MAX_NUMBER_POINTS = 250;
@@ -72,10 +72,10 @@ public class DistancesRadar extends ConsoleLayer {
     public boolean enablePainter = true;
 
     @NeptusProperty(name="Radar Size", description="Beam length (meters)")
-    public int radarSize = 30;
+    public int radarSize = 5;
 
     @NeptusProperty(name="Number of Points", description="Number of points shown")
-    private int numberOfPoints = 30;
+    private int numberOfPoints = 100;
 
     @NeptusProperty(name = "Entity Name", description = "Distance entity name")
     public String entityName = "Pencil Beam";
