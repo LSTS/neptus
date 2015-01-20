@@ -103,7 +103,7 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
     public String desiredEntityName = "Desired Distance";
 
     @NeptusProperty(name = "Distance Entity Name", description = "Distance entity name")
-    public String distanceEntityName = "Filtered Wall Distance";
+    public String distanceEntityName = "Filtered Distance";
 
     public ROVInfoLayer(ConsoleLayout console) {
         super(console);
