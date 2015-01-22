@@ -41,8 +41,10 @@ import java.util.Vector;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
+import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -136,6 +138,50 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         if (simulators.containsKey(src)) {
             simulators.get(src).setEstimatedState(msg);
             lastStates.put(src, msg);
+            lastStateTimes.put(src, System.currentTimeMillis());
+        }
+    }
+    
+    @Subscribe
+    public void consume(Announce msg) {
+        String src = msg.getSourceName();
+        if (src == null)
+            return;
+
+        if (simulators.containsKey(src)) {
+            
+            long lastStateTime = lastStateTimes.get(getConsole().getMainSystem());
+
+            if (System.currentTimeMillis() - lastStateTime < 1000)
+                return;
+
+            EstimatedState state = new EstimatedState();
+            state.setLat(msg.getLat());
+            state.setLon(msg.getLon());
+            
+            simulators.get(src).setPositionEstimation(state, 15);
+            lastStateTimes.put(src, System.currentTimeMillis());
+        }
+    }
+    
+    @Subscribe
+    public void consume(RemoteSensorInfo msg) {
+        String src = msg.getSourceName();
+        if (src == null)
+            return;
+
+        if (simulators.containsKey(src)) {
+            
+            long lastStateTime = lastStateTimes.get(getConsole().getMainSystem());
+
+            if (System.currentTimeMillis() - lastStateTime < 1000)
+                return;
+
+            EstimatedState state = new EstimatedState();
+            state.setLat(msg.getLat());
+            state.setLon(msg.getLon());
+            
+            simulators.get(src).setPositionEstimation(state, 50);
             lastStateTimes.put(src, System.currentTimeMillis());
         }
     }
