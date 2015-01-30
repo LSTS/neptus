@@ -93,6 +93,9 @@ public class MRAProperties implements PropertiesProvider {
     @NeptusProperty(name = "Apply Sound Speed Correction", description = "Apply sound speed correction.", category = "Multibeam")
     public static boolean soundSpeedCorrection = false;
 
+    @NeptusProperty(name = "Generate DeltaT Process Report", description = "Generate DeltaT process report. Does not geberate if already exist the report or the bathy.info is present.", category = "Multibeam")
+    public static boolean generateDeltaTProcessReport = false;
+
     @NeptusProperty(name = "Maximum depth for bathymetry plots", description = "Maximum depth to be used in bathymetry plots.")
     public static double maxBathymDepth = 15;
 

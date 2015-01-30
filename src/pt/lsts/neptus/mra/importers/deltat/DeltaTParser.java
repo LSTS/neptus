@@ -38,9 +38,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.util.Date;
+
+import org.apache.commons.io.FileUtils;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
@@ -52,12 +58,15 @@ import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
  * @author jqcorreia
  * @author hfq
- * 
+ * @author pdias
  */
 public class DeltaTParser implements BathymetryParser {
     private final IMraLogGroup source;
@@ -79,6 +88,10 @@ public class DeltaTParser implements BathymetryParser {
 
     private boolean hasIntensity = false;
 
+    private boolean generateProcessReport = false;
+    private String processResultOutputFileName;
+    private Writer processResultOutputWriter;
+    
     public DeltaTParser(IMraLogGroup source) {
         this.source = source;
         file = findDataSource(source);
@@ -96,6 +109,63 @@ public class DeltaTParser implements BathymetryParser {
         initialize();
     }
 
+    private synchronized void initResultOutputFile() {
+        if (processResultOutputWriter != null || new File(processResultOutputFileName).exists()) {
+            generateProcessReport = false;
+            return;
+        }
+        try {
+            try {
+                processResultOutputWriter = new OutputStreamWriter(new FileOutputStream(processResultOutputFileName), "UTF-8");
+            }
+            catch (UnsupportedEncodingException UEe) {
+                System.err.println("\n-- UnsupportedEncodingException\n");
+                System.err.flush();
+                processResultOutputWriter = new OutputStreamWriter(new FileOutputStream(processResultOutputFileName), "iso8859-1");
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            generateProcessReport = false;
+        }
+    }
+
+    private void cleanupResultOutputFile() {
+        if (processResultOutputWriter != null) {
+            try {
+                processResultOutputWriter.flush();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                processResultOutputWriter.close();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    private void recordMsgln(String string) {
+        recordMsg(string + "\r\n");
+    }
+
+    private void recordMsg(String string) {
+//        System.out.println(string);
+        if (generateProcessReport && processResultOutputWriter != null) {
+            try {
+                processResultOutputWriter.write(string);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else if (generateProcessReport && processResultOutputWriter == null) {
+            generateProcessReport = false;
+        }
+    }
+
     /**
      * Used to gather bathymetry info and generate BathymetryInfo object
      */
@@ -106,6 +176,12 @@ public class DeltaTParser implements BathymetryParser {
         if (!folder.exists())
             folder.mkdirs();
 
+        processResultOutputFileName = folder.getAbsolutePath() + "/deltaT-process.txt";
+        if (MRAProperties.generateDeltaTProcessReport)
+            generateProcessReport = true;
+        if (generateProcessReport)
+            initResultOutputFile();
+        
         if (!f.exists()) {
             info = new BathymetryInfo();
 
@@ -168,6 +244,36 @@ public class DeltaTParser implements BathymetryParser {
         }
         // NeptusLog.pub().info("<###> "+info.maxDepth);
         isLoaded = true;
+
+        if (processResultOutputWriter != null) {
+            generateProcessReport = false;
+            cleanupResultOutputFile();
+            
+            StringBuilder dataToSave = new StringBuilder();
+            dataToSave.append("% Log                   : " + folder.getParentFile().getName() + "\r\n");
+            dataToSave.append("% Box top left          : " + info.topLeft + "\r\n");
+            dataToSave.append("% Box bottom right      : " + info.bottomRight + "\r\n");
+            dataToSave.append("% Total number of points: " + info.totalNumberOfPoints + "\r\n");
+            dataToSave.append("% Depths                : [" + info.minDepth + ", " + info.maxDepth + "]" + "\r\n");
+            if (MRAProperties.timestampMultibeamIncrement != 0)
+                dataToSave.append("% Added milliseconds    :" + MRAProperties.timestampMultibeamIncrement + "\r\n");
+            if (MRAProperties.soundSpeedCorrection)
+                dataToSave.append("% Sound speed correction applied to data" + "\r\n");
+
+            dataToSave.append("% -------------------------------------------------------------------------------" + "\r\n");
+            try {
+                File mainFx = new File(processResultOutputFileName);
+                File bkpFx = new File(processResultOutputFileName + ".bak");
+                FileUtils.moveFile(mainFx, bkpFx);
+                FileUtil.saveToFile(processResultOutputFileName, dataToSave.toString());
+                FileUtil.concatFiles(mainFx, bkpFx);
+                bkpFx.delete();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        
     }
 
     public static boolean canBeApplied(IMraLogGroup source) {
@@ -237,8 +343,10 @@ public class DeltaTParser implements BathymetryParser {
             position = new CorrectedPosition(source);
         
         try {
-            if (curPos >= channel.size())
+            if (curPos >= channel.size()) {
+//                cleanupResultOutputFile();
                 return null;
+            }
 
             BathymetryPoint data[];
             realNumberOfBeams = 0;
@@ -264,26 +372,66 @@ public class DeltaTParser implements BathymetryParser {
             long timestamp = header.timestamp + MRAProperties.timestampMultibeamIncrement;
 
             SystemPositionAndAttitude pose = position.getPosition(timestamp/1000.0);
+
+            recordMsgln("");
+            recordMsgln("% Swath time           : " + DateTimeUtil.dateTimeFileNameFormaterMillis.format(new Date(timestamp)));
+            recordMsgln("% Swath position       : " + pose.getPosition().toString().replaceAll("\n", " ") + 
+                    "m depth  :: " + MathMiscUtils.round(pose.getAltitude(), 2) + "m altitude");
+            recordMsgln("% Swath attitude       : " + MathMiscUtils.round(Math.toDegrees(pose.getRoll()), 1) +
+                    "\u00B0 " + MathMiscUtils.round(Math.toDegrees(pose.getPitch()), 1) +
+                    "\u00B0 " + MathMiscUtils.round(Math.toDegrees(pose.getYaw()), 1) + "\u00B0");
+            recordMsgln("% Angle start/increment: " + header.startAngle + "\u00B0" + ", " + header.angleIncrement + "\u00B0");
+            recordMsgln("% Beams                : " + header.numBeams);
+            recordMsgln("% Samples per beam     : " + header.samplesPerBeam);
+            recordMsgln("% Range                : " + header.range + "m");
+            recordMsgln("% Range resolution     : " + header.rangeResolution + "m");
+            recordMsgln("% Sector size          : " + header.sectorSize + "\u00B0 :: " +
+                    (header.angleIncrement * header.numBeams) + "\u00B0 calculated");
+            recordMsgln("% Speed                : " + MathMiscUtils.round(header.speed, 1) + "m/s");
+            recordMsgln("% Sound speed          : " + header.soundVelocity + "m/s");
+            recordMsgln("% ---------------------");
+            
+            StringBuilder rangesStr = new StringBuilder();
+            StringBuilder heightStr = new StringBuilder();
+            StringBuilder oxStr = new StringBuilder();
+            StringBuilder oyStr = new StringBuilder();
+            StringBuilder deltasStr = new StringBuilder();
+            float prevX = Float.NaN;
+            float prevY = Float.NaN;
             
             for (int c = 0; c < header.numBeams; c++) {
                 double range = buf.getShort(c * 2) * (header.rangeResolution / 1000.0);
 
                 if (range == 0.0 || Math.random() > prob) {
+                    if (range != 0) {
+                        recordMsgln("% Skip swath beam " + c + " range=" + range);
+                    }
+                    else { 
+                        rangesStr.append(" " + MathMiscUtils.round(range, 3));
+                        heightStr.append(" " + Double.NaN);
+                        oxStr.append(" " + Double.NaN);
+                        oyStr.append(" " + Double.NaN);
+                        deltasStr.append(" " + Float.NaN);
+                        prevX = Float.NaN;
+                        prevY = Float.NaN;
+                    }
                     continue;
                 }
 
                 if (MRAProperties.soundSpeedCorrection) {
-                    // NeptusLog.pub().info("Sound speed correction applied to data");
-                    // FIXME Look into this further
-                    // NeptusLog.pub().info("header soundVelocity: " + header.soundVelocity);
-                    //if (header.soundVelocity == 1500)
-                    //    NeptusLog.pub().info("No sound speed data to apply to data");
-                    range = range * header.soundVelocity / 1500;
+//                    NeptusLog.pub().info("Sound speed correction applied to data");
+//                    NeptusLog.pub().info("header soundVelocity: " + header.soundVelocity);
+                    if (header.soundVelocity == 1500)
+                        ; // NeptusLog.pub().info("No sound speed data to apply to data");
+                    else
+                        range = range * header.soundVelocity / 1500;
                 }
 
+                rangesStr.append(" " + MathMiscUtils.round(range, 3));
+                
                 double angle = header.startAngle + header.angleIncrement * c;
                 float height = (float) (range * Math.cos(Math.toRadians(angle)) + pose.getPosition().getDepth());
-
+                
                 double x = range * Math.sin(Math.toRadians(angle));
                 double yawAngle = -pose.getYaw();
 
@@ -298,8 +446,33 @@ public class DeltaTParser implements BathymetryParser {
                 data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height);
                 // }
                 realNumberOfBeams++;
+                
+                heightStr.append(" " + MathMiscUtils.round(height, 3));
+                oxStr.append(" " + MathMiscUtils.round(ox, 3));
+                oyStr.append(" " + MathMiscUtils.round(oy, 3));
+                if (!Float.isNaN(prevX) && !Float.isNaN(prevY)) {
+                    float delta = (float) Math.sqrt((ox - prevX) * (ox - prevX) + (oy - prevY) * (oy - prevY));
+                    deltasStr.append(" " + MathMiscUtils.round(delta, 3));
+                }
+                else {
+                    deltasStr.append(" " + Float.NaN);
+                }
+                prevX = ox;
+                prevY = oy;
             }
 
+            recordMsgln("% Ranges:");
+            recordMsgln(rangesStr.toString());
+            recordMsgln("% Heights:");
+            recordMsgln(heightStr.toString());
+            recordMsgln("% Offsets X:");
+            recordMsgln(oxStr.toString());
+            recordMsgln("% Offsets Y:");
+            recordMsgln(oyStr.toString());
+            recordMsgln("% Deltas:");
+            recordMsgln(deltasStr.toString());
+            recordMsgln("% Number of beams vs read: " + header.numBeams + " vs " + realNumberOfBeams);
+            
             // for(int i = 0; i < header.numBeams; ++i) {
             //
             // double intensity = buf.getShort(i*2);
@@ -316,6 +489,7 @@ public class DeltaTParser implements BathymetryParser {
         }
         catch (IOException e) {
             e.printStackTrace();
+//            cleanupResultOutputFile();
             return null;
         }
     }
@@ -379,10 +553,18 @@ public class DeltaTParser implements BathymetryParser {
     public static void main(String[] args) {
         try {
             LsfLogSource source = new LsfLogSource(new File(
-                    "/home/lsts/Desktop/to_upload_20130715/lauv-noptilus-1/20130715/122455_out_survey/Data.lsf"), null);
+                    // "/home/lsts/Desktop/to_upload_20130715/lauv-noptilus-1/20130715/122455_out_survey/Data.lsf"
+                    "D:\\LSTS-Logs\\2014-11-09-Madeira\\2014-11-12-Madeira_115528_rows_maneuver_cais2_day3\\Data.lsf"
+                    ), null);
+            File fxB = source.getFile("mra/bathy.info");
+            if (fxB != null && fxB.exists())
+                fxB.delete();
+            fxB = source.getFile("mra/deltaT-process.txt");
+            if (fxB != null && fxB.exists())
+                fxB.delete();
+            MRAProperties.generateDeltaTProcessReport = true;
+            MRAProperties.soundSpeedCorrection = true;
             DeltaTParser p = new DeltaTParser(source);
-            // Kryo kryo = new Kryo();
-            // Output output = new Output(new FileOutputStream("kryo.bin"));
 
             int c = 0;
             BathymetrySwath s;
@@ -400,7 +582,7 @@ public class DeltaTParser implements BathymetryParser {
                 // c++;
                 // // kryo.writeObject(output, bs);
 
-                System.out.println(Math.toDegrees(s.getPose().getYaw()));
+                //System.out.println(Math.toDegrees(s.getPose().getYaw()));
 
             }
             NeptusLog.pub().info("<###> " + c);
