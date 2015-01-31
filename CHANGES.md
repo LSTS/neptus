@@ -3,6 +3,7 @@ Changes
 
 Neptus 4.2.x (??-0?-2015)
 ------------
+ * MRA/DeltaTParser: Fix reading of soundspeed.
  * MRA/Exporter/DeltaT83PToCorrectedPos83P: Fix to write lat/lon to the right bits in the header.
  * MRA/JsfSidescanParser: Fixed ArrayIndexOutOfBoundsException when Sidescan Analyzer Visualization's timeline ended.
 
