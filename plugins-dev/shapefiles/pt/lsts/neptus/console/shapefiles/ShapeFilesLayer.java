@@ -33,15 +33,21 @@ package pt.lsts.neptus.console.shapefiles;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 
+import javax.swing.JFileChooser;
+
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.ColorUtils;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author pdias
@@ -54,6 +60,8 @@ public class ShapeFilesLayer extends ConsoleLayer implements ConfigurationListen
     private OffScreenLayerImageControl offScreenImageControl = new OffScreenLayerImageControl();
 
     private ArrayList<ShapeFileObject> shapeFiles = new ArrayList<ShapeFileObject>();
+
+    private String menuItemAddShapeFile = I18n.text("Tools") + ">" + I18n.text("Shape File Add");
     
     public ShapeFilesLayer() {
     }
@@ -71,26 +79,51 @@ public class ShapeFilesLayer extends ConsoleLayer implements ConfigurationListen
      */
     @Override
     public void initLayer() {
-        String d1 = "C:\\Users\\pdias\\workspace-java\\TestShapefilesLoader\\testdata\\OSPAR_Inner_Boundary.shp";
-        String d2 = "C:\\Users\\pdias\\workspace-java\\TestShapefilesLoader\\testdata\\OSPAR_Outer_Boundary.shp";
-        String d3 = "C:\\Users\\pdias\\workspace-java\\TestShapefilesLoader\\testdata\\OSPAR_Regions_pg.shp";
         
-        ShapeFileObject shObj1 = ShapeFileLoader.loadShapeFileObject(new File(d1));
-        ShapeFileObject shObj2 = ShapeFileLoader.loadShapeFileObject(new File(d2));
-        ShapeFileObject shObj3 = ShapeFileLoader.loadShapeFileObject(new File(d3));
+        ActionListener addShapeFileAction = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser chooser = new JFileChooser();
+                chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("Shape File"),
+                        new String[] { "shp" }));
+                chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                chooser.setMultiSelectionEnabled(true);
+                int op = chooser.showOpenDialog(getConsole());
+                if (op == JFileChooser.APPROVE_OPTION) {
+                    File[] selFiles = chooser.getSelectedFiles();
+                    for (File fx : selFiles) {
+                        ShapeFileObject shObj1 = ShapeFileLoader.loadShapeFileObject(fx);
+                        if (shObj1 != null) {
+                            shObj1.setColor(ColorUtils.setTransparencyToColor(Color.PINK, 150));
+                            shapeFiles.add(shObj1);
+                            offScreenImageControl.triggerImageRebuild();
+                        }
+                    }
+                }
+            }
+        };
+        getConsole().addMenuItem(menuItemAddShapeFile, null, addShapeFileAction);
         
-        if (shObj1 != null) {
-            shObj1.setColor(ColorUtils.setTransparencyToColor(Color.GREEN, 75));
-            shapeFiles.add(shObj1);
-        }
-        if (shObj2 != null) {
-            shObj2.setColor(ColorUtils.setTransparencyToColor(Color.YELLOW, 75));
-            shapeFiles.add(shObj2);
-        }
-        if (shObj3 != null) {
-            shObj3.setColor(ColorUtils.setTransparencyToColor(Color.PINK, 75));
-            shapeFiles.add(shObj3);
-        }
+//        String d1 = "C:\\Users\\pdias\\workspace-java\\TestShapefilesLoader\\testdata\\OSPAR_Inner_Boundary.shp";
+//        String d2 = "C:\\Users\\pdias\\workspace-java\\TestShapefilesLoader\\testdata\\OSPAR_Outer_Boundary.shp";
+//        String d3 = "C:\\Users\\pdias\\workspace-java\\TestShapefilesLoader\\testdata\\OSPAR_Regions_pg.shp";
+//        
+//        ShapeFileObject shObj1 = ShapeFileLoader.loadShapeFileObject(new File(d1));
+//        ShapeFileObject shObj2 = ShapeFileLoader.loadShapeFileObject(new File(d2));
+//        ShapeFileObject shObj3 = ShapeFileLoader.loadShapeFileObject(new File(d3));
+//        
+//        if (shObj1 != null) {
+//            shObj1.setColor(ColorUtils.setTransparencyToColor(Color.PINK.darker(), 150));
+//            shapeFiles.add(shObj1);
+//        }
+//        if (shObj2 != null) {
+//            shObj2.setColor(ColorUtils.setTransparencyToColor(Color.YELLOW, 150));
+//            shapeFiles.add(shObj2);
+//        }
+//        if (shObj3 != null) {
+//            shObj3.setColor(ColorUtils.setTransparencyToColor(Color.PINK, 75));
+//            shapeFiles.add(shObj3);
+//        }
     }
 
     /* (non-Javadoc)
@@ -98,6 +131,7 @@ public class ShapeFilesLayer extends ConsoleLayer implements ConfigurationListen
      */
     @Override
     public void cleanLayer() {
+        getConsole().removeMenuItem(menuItemAddShapeFile.split(">"));
     }
 
     /* (non-Javadoc)
