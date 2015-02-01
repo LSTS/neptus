@@ -48,6 +48,7 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author pdias
@@ -62,6 +63,8 @@ public class ShapeFilesLayer extends ConsoleLayer implements ConfigurationListen
     private ArrayList<ShapeFileObject> shapeFiles = new ArrayList<ShapeFileObject>();
 
     private String menuItemAddShapeFile = I18n.text("Tools") + ">" + I18n.text("Shape File Add");
+    
+    private File lastOpenFolder = null;
     
     public ShapeFilesLayer() {
     }
@@ -88,15 +91,30 @@ public class ShapeFilesLayer extends ConsoleLayer implements ConfigurationListen
                         new String[] { "shp" }));
                 chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 chooser.setMultiSelectionEnabled(true);
+                if (lastOpenFolder == null) {
+                    lastOpenFolder = new File(ConfigFetch.getConfigFile());
+                }
+                chooser.setCurrentDirectory(lastOpenFolder);
                 int op = chooser.showOpenDialog(getConsole());
                 if (op == JFileChooser.APPROVE_OPTION) {
                     File[] selFiles = chooser.getSelectedFiles();
                     for (File fx : selFiles) {
-                        ShapeFileObject shObj1 = ShapeFileLoader.loadShapeFileObject(fx);
-                        if (shObj1 != null) {
-                            shObj1.setColor(ColorUtils.setTransparencyToColor(Color.PINK, 150));
-                            shapeFiles.add(shObj1);
-                            offScreenImageControl.triggerImageRebuild();
+                        boolean skip = false;
+                        for (ShapeFileObject so : shapeFiles) {
+                            if (so.getName().equalsIgnoreCase(fx.getName())) {
+                                skip = true;
+                                break;
+                            }
+                        }
+                        if (!skip) {
+                            ShapeFileObject shObj1 = ShapeFileLoader.loadShapeFileObject(fx);
+                            if (shObj1 != null) {
+                                shObj1.setColor(ColorUtils.setTransparencyToColor(Color.PINK, 150));
+                                shapeFiles.add(shObj1);
+                                offScreenImageControl.triggerImageRebuild();
+                            }
+                            
+                            lastOpenFolder = fx;
                         }
                     }
                 }
@@ -157,7 +175,7 @@ public class ShapeFilesLayer extends ConsoleLayer implements ConfigurationListen
         
         // Legend
         Graphics2D gl = (Graphics2D) g.create();
-        gl.translate(10, 50);
+        gl.translate(10, 60);
         gl.setColor(Color.WHITE);
         gl.drawString(getName(), 0, 0); // (int)pt.getX()+17, (int)pt.getY()+2
         gl.dispose();
