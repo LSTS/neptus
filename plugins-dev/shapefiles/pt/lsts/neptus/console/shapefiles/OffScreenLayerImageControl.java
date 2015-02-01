@@ -64,7 +64,16 @@ public class OffScreenLayerImageControl {
     
     private Graphics2D imageGraphics = null;
 
+    private int imageTransparencyType = Transparency.TRANSLUCENT;
+
     public OffScreenLayerImageControl() {
+    }
+
+    /**
+     * @param imageTransparencyType  See {@link Transparency}
+     */
+    public OffScreenLayerImageControl(int imageTransparencyType) {
+        this.imageTransparencyType = imageTransparencyType;
     }
 
     public void triggerImageRebuild() {
@@ -94,7 +103,8 @@ public class OffScreenLayerImageControl {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             GraphicsDevice gs = ge.getDefaultScreenDevice();
             GraphicsConfiguration gc = gs.getDefaultConfiguration();
-            cacheImg = gc.createCompatibleImage((int) dim.getWidth() + offScreenBufferPixel * 2, (int) dim.getHeight() + offScreenBufferPixel * 2, Transparency.BITMASK); 
+            cacheImg = gc.createCompatibleImage((int) dim.getWidth() + offScreenBufferPixel * 2, (int) dim.getHeight()
+                    + offScreenBufferPixel * 2, imageTransparencyType);
             Graphics2D g2 = cacheImg.createGraphics();
             
             g2.translate(offScreenBufferPixel, offScreenBufferPixel);

@@ -155,7 +155,7 @@ public class ShapeFileObject {
         Point2D pt = renderer.getScreenPosition(loc);
         Graphics2D gt = (Graphics2D) g.create();
         gt.translate(pt.getX(), pt.getY());
-        gt.setColor(color);
+        gt.setColor(color.darker());
         gt.fill(circle);
         gt.dispose();
     }
@@ -199,7 +199,7 @@ public class ShapeFileObject {
     private void paintPolyLineShape(AbstractShape shp, StateRenderer2D renderer, Graphics2D g) {
         PolylineShape s = (PolylineShape) shp;
         Graphics2D gt = (Graphics2D) g.create();
-        gt.setColor(color);
+        gt.setColor(color.darker());
 
         for (int i = 0; i < s.getNumberOfParts(); i++) {
             PointData[] points = s.getPointsOfPart(i);
