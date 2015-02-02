@@ -157,7 +157,7 @@ public class DeltaTHeader {
         }
         else {
             byte vel84 = b.get(84);
-            float sv = (float) ((((vel83 & 0x7F) << 8) | vel84) / 10.0);
+            float sv = (float) ((((vel83 & 0x7F) << 8) | (vel84 & 0xFF)) / 10.0);
             return sv;
         }    
     }
