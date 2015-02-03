@@ -373,26 +373,41 @@ public class DeltaTParser implements BathymetryParser {
 
             SystemPositionAndAttitude pose = position.getPosition(timestamp/1000.0);
 
+            boolean doSpeedCorrection = MRAProperties.soundSpeedCorrection;
+
             recordMsgln("");
             recordMsgln("% Swath time           : " + DateTimeUtil.dateTimeFileNameFormaterMillis.format(new Date(timestamp)));
             recordMsgln("% Swath position       : " + pose.getPosition().toString().replaceAll("\n", " ") + 
                     "m depth  :: " + MathMiscUtils.round(pose.getAltitude(), 2) + "m altitude");
-            recordMsgln("% Swath attitude       : " + MathMiscUtils.round(Math.toDegrees(pose.getRoll()), 1) +
-                    "\u00B0 " + MathMiscUtils.round(Math.toDegrees(pose.getPitch()), 1) +
-                    "\u00B0 " + MathMiscUtils.round(Math.toDegrees(pose.getYaw()), 1) + "\u00B0");
+            recordMsgln("% Swath attitude       : R" + MathMiscUtils.round(Math.toDegrees(pose.getRoll()), 1) +
+                    "\u00B0 P" + MathMiscUtils.round(Math.toDegrees(pose.getPitch()), 1) +
+                    "\u00B0 Y" + MathMiscUtils.round(Math.toDegrees(pose.getYaw()), 1) + "\u00B0");
+            recordMsgln("% Orient. module       : R" + MathMiscUtils.round(Math.toDegrees(header.rollAngleDegreesOrientModule), 1) +
+                    "\u00B0 P" + MathMiscUtils.round(Math.toDegrees(header.pitchAngleDegreesOrientModule), 1) +
+                    "\u00B0 H" + MathMiscUtils.round(Math.toDegrees(header.headingAngleDegreesOrientModule), 1) + "\u00B0");
             recordMsgln("% Angle start/increment: " + header.startAngle + "\u00B0" + ", " + header.angleIncrement + "\u00B0");
             recordMsgln("% Beams                : " + header.numBeams);
             recordMsgln("% Samples per beam     : " + header.samplesPerBeam);
+            recordMsgln("% Number of pings avg  : " + header.numberOfPingsAveraged);
+            recordMsgln("% Sample rate high/std : " + (header.sampleRateHigh?"high":"std") + " [std(1 in 500)/high (1 in 5000)]");
             recordMsgln("% Range                : " + header.range + "m");
-            recordMsgln("% Range resolution     : " + header.rangeResolution + "m");
+            recordMsgln("% Range resolution     : " + header.rangeResolution + "mm");
+            recordMsgln("% Sonar Freq.          : " + header.sonarFreqKHz + "kHz");
+            recordMsgln("% Pulse lenght         : " + header.pulseLenght + "\u03BCs");
+            recordMsgln("% 1/PRF                : " + header.pulseRepetingRate + "ms (" + MathMiscUtils.parseToEngineeringNotation(1./(header.pulseRepetingRate / 1E3), 1) + "Hz)");
+            recordMsgln("% Ping number          : " + header.pingNumber);
             recordMsgln("% Sector size          : " + header.sectorSize + "\u00B0 :: " +
                     (header.angleIncrement * header.numBeams) + "\u00B0 calculated");
             recordMsgln("% Speed                : " + MathMiscUtils.round(header.speed, 1) + "m/s");
-            recordMsgln("% Sound speed          : " + header.soundVelocity + "m/s");
+            recordMsgln("% Sound speed          : " + header.soundVelocity + "m/s" + (doSpeedCorrection?"":" (used for calculation 1500m/s)"));
+            recordMsgln("% Roll correction      : " + (header.dataIsCorrectedForRoll?"yes":"no"));
+            recordMsgln("% RayBending correction: " + (header.dataIsCorrectedForRayBending?"yes":"no"));
+            recordMsgln("% Op overlap mode      : " + (header.sonarIsOperatingInOverlappedMode?"yes":"no"));
             recordMsgln("% ---------------------");
             
             StringBuilder rangesStr = new StringBuilder();
             StringBuilder heightStr = new StringBuilder();
+            StringBuilder intensityStr = new StringBuilder();
             StringBuilder oxStr = new StringBuilder();
             StringBuilder oyStr = new StringBuilder();
             StringBuilder deltasStr = new StringBuilder();
@@ -400,7 +415,7 @@ public class DeltaTParser implements BathymetryParser {
             float prevY = Float.NaN;
             
             for (int c = 0; c < header.numBeams; c++) {
-                double range = buf.getShort(c * 2) * (header.rangeResolution / 1000.0);
+                double range = buf.getShort(c * 2) * (header.rangeResolution / 1000.0); // rangeResolution in mm 
 
                 if (range == 0.0 || Math.random() > prob) {
                     if (range != 0) {
@@ -409,6 +424,7 @@ public class DeltaTParser implements BathymetryParser {
                     else { 
                         rangesStr.append(" " + MathMiscUtils.round(range, 3));
                         heightStr.append(" " + Double.NaN);
+                        intensityStr.append(" " + Double.NaN);
                         oxStr.append(" " + Double.NaN);
                         oyStr.append(" " + Double.NaN);
                         deltasStr.append(" " + Float.NaN);
@@ -418,7 +434,7 @@ public class DeltaTParser implements BathymetryParser {
                     continue;
                 }
 
-                if (MRAProperties.soundSpeedCorrection) {
+                if (doSpeedCorrection) {
 //                    NeptusLog.pub().info("Sound speed correction applied to data");
 //                    NeptusLog.pub().info("header soundVelocity: " + header.soundVelocity);
                     if (header.soundVelocity == 1500)
@@ -438,13 +454,15 @@ public class DeltaTParser implements BathymetryParser {
                 float ox = (float) (x * Math.sin(yawAngle));
                 float oy = (float) (x * Math.cos(yawAngle));
 
-                // if (header.hasIntensity) {
-                // short intensity = buf.getShort(480 + (c*2) - 1); // sometimes there's a return = 0
-                // data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height, intensity);
-                // }
-                // else {
-                data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height);
-                // }
+                if (header.hasIntensity) {
+                    short intensity = buf.getShort(480 + (c * 2) - 1); // sometimes there's a return = 0
+                    data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height, intensity);
+                    intensityStr.append(" " + intensity);
+                }
+                else {
+                    data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height);
+                    intensityStr.append(" " + Double.NaN);
+                }
                 realNumberOfBeams++;
                 
                 heightStr.append(" " + MathMiscUtils.round(height, 3));
@@ -465,6 +483,8 @@ public class DeltaTParser implements BathymetryParser {
             recordMsgln(rangesStr.toString());
             recordMsgln("% Heights:");
             recordMsgln(heightStr.toString());
+            recordMsgln("% Intensities:");
+            recordMsgln(intensityStr.toString());
             recordMsgln("% Offsets X:");
             recordMsgln(oxStr.toString());
             recordMsgln("% Offsets Y:");

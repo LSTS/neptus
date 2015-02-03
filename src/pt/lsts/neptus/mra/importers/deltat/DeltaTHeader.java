@@ -56,6 +56,12 @@ public class DeltaTHeader {
     
     public float angleIncrement;
     public short range;
+    public short sonarFreqKHz;
+    
+    public int pingNumber;
+    
+    public double pulseLenght; // Pulse Length (in microseconds)
+    public double pulseRepetingRate;// Repeting Rate (in miliseconds) - time between pings
     
     public double speed;
     
@@ -65,6 +71,18 @@ public class DeltaTHeader {
     
     public float soundVelocity;
     
+    public boolean sampleRateHigh; //Sample Rate ( 0 = Standard Resolution (1 in 500) - 1 = High Resolution (1 in 5000)
+    
+    public double rollAngleDegreesOrientModule; // equal to pitch
+    public double pitchAngleDegreesOrientModule;//Pitch Angle (from Orientation Module) - (Pitch Angle*10)+900|P = bit 7 of byte 64|if 'P' = 0, Pitch Angle = 0 degrees|if 'P' = 1, Pitch Angle = [[((Byte 64 & 0x7F)<<8) | (byte 65)}-900]/10
+    public double headingAngleDegreesOrientModule; // the same but no 900
+
+    public Boolean dataIsCorrectedForRoll;
+    public Boolean dataIsCorrectedForRayBending;
+    public Boolean sonarIsOperatingInOverlappedMode;
+
+    public short numberOfPingsAveraged;
+
     private static Calendar cal;
     private static Pattern pTimeStamp;
     {
@@ -87,11 +105,18 @@ public class DeltaTHeader {
         numBytes = b.getShort(4);
         numBeams = b.getShort(70);
         
+        pingNumber = b.getInt(93);
+        
         samplesPerBeam = b.getShort(72);
         sectorSize = b.getShort(74); 
         startAngle = b.getShort(76) / 100f - 180;
         angleIncrement = b.get(78) / 100f;
         range = b.getShort(79);
+        
+        sonarFreqKHz = b.getShort(81);
+        
+        pulseLenght = b.getShort(87);
+        pulseRepetingRate = b.getShort(91);
         
         soundVelocity = parseSoundVelocity(b);
         
@@ -101,7 +126,10 @@ public class DeltaTHeader {
         
         byte hasInt = b.get(117);
         hasIntensity = (hasInt == 1) ? true : false;
-        
+
+        byte srate = b.get(122);
+        sampleRateHigh = (srate == 0) ? false : true;
+
         // Timestamp processing
         b.position(8);
         b.get(timestampBuf, 0, 25);
@@ -144,6 +172,39 @@ public class DeltaTHeader {
                 Integer.valueOf(m.group(5)), Integer.valueOf(m.group(6)));
         cal.set(Calendar.MILLISECOND, Integer.valueOf(millisStr.substring(1, 4)));
         timestamp = cal.getTimeInMillis();
+        
+        
+        byte vel66 = b.get(66);
+        if (!isBitSet(vel66, 7)){
+            rollAngleDegreesOrientModule = 0;
+        }
+        else {
+            byte vel67 = b.get(67);
+            rollAngleDegreesOrientModule = ((((vel66 & 0x7F) << 8) | (vel67 & 0xFF)) - 900) / 10.0;
+        }    
+        byte vel64 = b.get(64);
+        if (!isBitSet(vel64, 7)){
+            pitchAngleDegreesOrientModule = 0;
+        }
+        else {
+            byte vel65 = b.get(65);
+            pitchAngleDegreesOrientModule = ((((vel64 & 0x7F) << 8) | (vel65 & 0xFF)) - 900) / 10.0;
+        }    
+        byte vel68 = b.get(68);
+        if (!isBitSet(vel68, 7)){
+            headingAngleDegreesOrientModule = 0;
+        }
+        else {
+            byte vel69 = b.get(69);
+            headingAngleDegreesOrientModule = (((vel68 & 0x7F) << 8) | (vel69 & 0xFF)) / 10.0;
+        }    
+
+        byte vel123 = b.get(123);
+        dataIsCorrectedForRoll = isBitSet(vel123, 0); // Bit 0 - 1 = data is corrected for roll
+        dataIsCorrectedForRayBending = isBitSet(vel123, 1); // Bit 1 - 1 = data is corrected for ray bending
+        sonarIsOperatingInOverlappedMode = isBitSet(vel123, 2); // Bit 2 - 1 = sonar is operating in overlapped mode
+        
+        numberOfPingsAveraged = b.get(125); // Number of Pings Averaged - 0 to 25
     }
     
     /**
