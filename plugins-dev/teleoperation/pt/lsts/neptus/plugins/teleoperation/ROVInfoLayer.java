@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.teleoperation;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -64,7 +65,7 @@ import com.google.common.eventbus.Subscribe;
  * @author jqcorreia
  *
  */
-@Popup(pos = POSITION.CENTER, width = 200, height = 120)
+@Popup(pos = POSITION.CENTER, width = 210, height = 140)
 @PluginDescription(name = "ROV Information Layer", icon = "pt/lsts/neptus/plugins/position/position.png", description = "ROV Information Layer", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 70)
 public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
@@ -158,7 +159,7 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        if (isShowingDialog)
+        if (dialog!=null && dialog.isShowing())
             return;
         
         g.setColor(Color.BLACK);
@@ -172,23 +173,8 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
 
     @Override
     public void initSubPanel() {
-
-        if (dialog != null) {
+        if (dialog != null)
             dialog.setResizable(false);
-             WindowAdapter l = new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    isShowingDialog = false;
-                }
-
-                @Override
-                public void windowActivated(WindowEvent e) {
-                    isShowingDialog = true;
-                }
-            };
-
-            dialog.addWindowListener(l);
-        }
     }
 
     @Override
