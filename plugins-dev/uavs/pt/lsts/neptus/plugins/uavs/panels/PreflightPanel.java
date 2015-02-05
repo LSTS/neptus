@@ -41,6 +41,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.AutopilotMode;
+import pt.lsts.imc.AutopilotMode.AUTONOMY;
 import pt.lsts.imc.Calibration;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -95,8 +97,9 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
 
     private void buttonPanelSetup() {
         buttonPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
-        JButton calibButton = new JButton("Calibrate");
 
+        // Calibrate
+        JButton calibButton = new JButton("Calibrate");
         calibButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -104,12 +107,38 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
                 send(calib);
             }
         });
-        buttonPanel.add(calibButton);
+        buttonPanel.add(calibButton, "w 34%, h 100%");
+
+        // Arm
+        JButton armButton = new JButton("Arm");
+        armButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AutopilotMode apmode = new AutopilotMode();
+                apmode.setAutonomy(AUTONOMY.MANUAL);
+                apmode.setMode("ARM");
+                send(apmode);
+            }
+        });
+        buttonPanel.add(armButton, "w 33%, h 100%");
+
+        // Disarm
+        JButton disarmButton = new JButton("Disarm");
+        disarmButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AutopilotMode apmode = new AutopilotMode();
+                apmode.setAutonomy(AUTONOMY.MANUAL);
+                apmode.setMode("DISARM");
+                send(apmode);
+            }
+        });
+        buttonPanel.add(disarmButton, "w 33%, h 100%");
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
      */
     @Override
