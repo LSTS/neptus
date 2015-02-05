@@ -45,6 +45,8 @@ import javax.swing.JLabel;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.Distance;
+import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -111,8 +113,8 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
     private JComboBox<Integer> radarDistanceRange = new JComboBox<Integer>(rangeValues);
     private JComboBox<Integer> sensorRange = new JComboBox<Integer>(rangeValues);
     private JComboBox<Integer> sectorWith = new JComboBox<Integer>(sectorWithValues);
-    private long range;
-    private long sectorWidth;
+    private int range;
+    private int sectorWidth;
     private Scope scopeToUse = Scope.GLOBAL;
     private Visibility visibility = Visibility.USER;
     /**
@@ -139,8 +141,51 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
     }
 
 
-    private void sendEntityParameter(int rangeValue) {
-        // TODO Auto-generated method stub
+    private void saveEntityParameter(String type, long value) {
+        if (mainSysName==null)
+            return;
+
+        SystemProperty rangeProp = null;
+        SystemProperty sectorWidthProp = null;
+        ArrayList<SystemProperty> sysProps = ConfigurationManager.getInstance().getProperties(mainSysName, visibility, scopeToUse);
+        for (SystemProperty s : sysProps) {
+            if (s.getName().equals("Range"))
+                rangeProp = s;
+            if (s.getName().equals("Sector Width"))
+                sectorWidthProp = s;
+        }
+
+        if (type.equals("Range")) {
+            if (rangeProp!=null) {
+                rangeProp.setValue(value);
+                sendParam(rangeProp);
+            }
+        } else if (type.equals("Sector Width")) {
+            if (sectorWidthProp!=null) {
+                sectorWidthProp.setValue(value);
+                sendParam(sectorWidthProp);
+            }
+        }
+    }
+
+
+    /**
+     * @param prop
+     */
+    private void sendParam(SystemProperty prop) {
+        String category = prop.getCategoryId();
+        
+        EntityParameter ep = new EntityParameter();
+        ep.setName(prop.getName());
+        ep.setValue((String) prop.getValue().toString());
+
+        ArrayList<EntityParameter> propList = new ArrayList<>(1);
+        propList.add(ep);
+        SetEntityParameters setParams = new SetEntityParameters();
+        setParams.setName(category);
+        setParams.setParams(propList);
+         
+        send(setParams);
     }
 
     /* (non-Javadoc)
@@ -162,21 +207,19 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
             sensorRange.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     JComboBox cbox = (JComboBox)e.getSource();
-                    int rangeValue = (Integer) cbox.getSelectedItem();
-                    // System.out.println("choosen value: "+ rangeValue);
-                    sendEntityParameter(rangeValue);
+                    int rangeValue = (int) cbox.getSelectedItem();
+                    saveEntityParameter("Range", rangeValue);
                 }
             });
 
             sectorWith.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     JComboBox cbox = (JComboBox)e.getSource();
-                    int sectorWithValue = (Integer) cbox.getSelectedItem();
-                    //System.out.println("choosen value: "+ sectorWithValue);
-                    sendEntityParameter(sectorWithValue);
+                    int sectorWithValue = (int) cbox.getSelectedItem();
+                    saveEntityParameter("Sector Width", sectorWithValue);
                 }
             });
-            
+
             radarDistanceRange.setSelectedItem(radarSize);
             add(radarDistanceTxt);
             add(radarDistanceRange, "wrap");
@@ -201,16 +244,17 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
     private void getRadarAndSensorValues() {
 
         if (mainSysName!=null) {
-            System.out.println("r " + radarSize);
             radarDistanceRange.setSelectedItem(radarSize);
-            
+
             ArrayList<SystemProperty> pr = ConfigurationManager.getInstance().getProperties(mainSysName, visibility, scopeToUse);
+
             for (SystemProperty s : pr) {
+
                 if (s.getName().equals("Range")) {
-                    range = (long) s.getValue();
+                    range = ((Long) s.getValue()).intValue();
                 }
                 if (s.getName().equals("Sector Width")){
-                    sectorWidth = (long) s.getValue();
+                    sectorWidth = ((Long) s.getValue()).intValue();
                 }
             }
             if ((int)sensorRange.getSelectedItem() != range) 
@@ -218,7 +262,6 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
             if ((int)sectorWith.getSelectedItem() != sectorWidth) 
                 sectorWith.setSelectedItem((int) sectorWidth);
         }
-
     }
 
 
