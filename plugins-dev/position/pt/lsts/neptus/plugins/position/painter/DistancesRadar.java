@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.position.painter;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -39,11 +40,8 @@ import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.Distance;
@@ -51,11 +49,16 @@ import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.params.ConfigurationManager;
+import pt.lsts.neptus.params.SystemProperty;
+import pt.lsts.neptus.params.SystemProperty.Scope;
+import pt.lsts.neptus.params.SystemProperty.Visibility;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -67,7 +70,7 @@ import com.google.common.eventbus.Subscribe;
  * @author José Braga
  * 
  */
-@Popup(pos = POSITION.RIGHT, width = 450, height = 335)
+@Popup(pos = POSITION.RIGHT, width = 220, height = 335)
 @PluginDescription(name = "Distances Radar", icon = "pt/lsts/neptus/plugins/position/painter/radar-icon.png", 
 description = "Distances Radar on map", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 70)
@@ -103,34 +106,41 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
     Integer[] sectorWithValues = { 0, 10, 20, 40, 80, 100, 120, 140, 160, 180, 220, 360 };
     private JLabel text;
     private JLabel radarDistanceTxt;
-    private JLabel sensorDistanceTxt;
+    private JLabel sensorRangeTxt;
     private JLabel sectorWithTxt;
     private JComboBox<Integer> radarDistanceRange = new JComboBox<Integer>(rangeValues);
     private JComboBox<Integer> sensorRange = new JComboBox<Integer>(rangeValues);
     private JComboBox<Integer> sectorWith = new JComboBox<Integer>(sectorWithValues);
-
+    private long range;
+    private long sectorWidth;
+    private Scope scopeToUse = Scope.GLOBAL;
+    private Visibility visibility = Visibility.USER;
     /**
      * @param console
      */
     public DistancesRadar(ConsoleLayout console) {
         super(console);
         mainSysName = getConsole().getMainSystem();
-        MigLayout layout=new MigLayout("");
+        MigLayout layout=new MigLayout();
         setLayout(layout);
         radarDistanceTxt = new JLabel("Radar Range:");
-        sensorDistanceTxt = new JLabel("Sens. Range:");
-        sectorWithTxt = new JLabel("Sens. sector with:");
-        
+        sensorRangeTxt = new JLabel("Sensor Range:");
+        sectorWithTxt = new JLabel("Sensor sector with:");
+
         text = new JLabel() {
             @Override
             public void paint(Graphics g) {
-                // TODO Auto-generated method stub
-                super.paint(g);
-                paintRadarWorker((Graphics2D) g, LENGTH + MARGIN, LENGTH + EXTRA + 2 * MARGIN);
+                if (dialog!=null && dialog.isShowing()) 
+                    paintRadarWorker((Graphics2D) g, LENGTH + MARGIN, LENGTH + EXTRA + 2 * MARGIN);
             }
         };
-        //text.setHorizontalAlignment(JLabel.RIGHT);
+
         text.setBounds(0, 0, LENGTH - MARGIN, LENGTH - MARGIN);
+    }
+
+
+    private void sendEntityParameter(int rangeValue) {
+        // TODO Auto-generated method stub
     }
 
     /* (non-Javadoc)
@@ -140,48 +150,78 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
     public void initSubPanel() {
         if (dialog!=null) {
             add(text, "w 100%, h " + (LENGTH + EXTRA + 2 * MARGIN) + "px, grow, span, wrap");
-            
+
             radarDistanceRange.addActionListener(new ActionListener() {
-              
                 public void actionPerformed(ActionEvent e) {
                     JComboBox cbox = (JComboBox)e.getSource();
-                    int rangeValue = (Integer) cbox.getSelectedItem();
-                    System.out.println("choosen value: "+ rangeValue);
-                    // TODO
+                    radarSize = (Integer) cbox.getSelectedItem();
+                    text.repaint();
                 }
             });
-            
+
             sensorRange.addActionListener(new ActionListener() {
-                
                 public void actionPerformed(ActionEvent e) {
                     JComboBox cbox = (JComboBox)e.getSource();
                     int rangeValue = (Integer) cbox.getSelectedItem();
-                    System.out.println("choosen value: "+ rangeValue);
-                    // TODO
+                    // System.out.println("choosen value: "+ rangeValue);
+                    sendEntityParameter(rangeValue);
                 }
             });
-            
+
             sectorWith.addActionListener(new ActionListener() {
-                
                 public void actionPerformed(ActionEvent e) {
                     JComboBox cbox = (JComboBox)e.getSource();
                     int sectorWithValue = (Integer) cbox.getSelectedItem();
-                    System.out.println("choosen value: "+ sectorWithValue);
-                    // TODO
+                    //System.out.println("choosen value: "+ sectorWithValue);
+                    sendEntityParameter(sectorWithValue);
                 }
             });
-            add(radarDistanceTxt);
-            add(radarDistanceRange);
             
-            add(sensorDistanceTxt);
-            add(sensorRange);
+            radarDistanceRange.setSelectedItem(radarSize);
+            add(radarDistanceTxt);
+            add(radarDistanceRange, "wrap");
+
+            add(sensorRangeTxt);
+            add(sensorRange, "wrap");
 
             add(sectorWithTxt);
             add(sectorWith);
             dialog.setResizable(false);
-
         }
     }
+
+    @Periodic(millisBetweenUpdates=5000)
+    private void update() {
+        getRadarAndSensorValues();
+    }
+
+    /**
+     * 
+     */
+    private void getRadarAndSensorValues() {
+
+        if (mainSysName!=null) {
+            System.out.println("r " + radarSize);
+            radarDistanceRange.setSelectedItem(radarSize);
+            
+            ArrayList<SystemProperty> pr = ConfigurationManager.getInstance().getProperties(mainSysName, visibility, scopeToUse);
+            for (SystemProperty s : pr) {
+                if (s.getName().equals("Range")) {
+                    range = (long) s.getValue();
+                }
+                if (s.getName().equals("Sector Width")){
+                    sectorWidth = (long) s.getValue();
+                }
+            }
+            if ((int)sensorRange.getSelectedItem() != range) 
+                sensorRange.setSelectedItem((int) range);
+            if ((int)sectorWith.getSelectedItem() != sectorWidth) 
+                sectorWith.setSelectedItem((int) sectorWidth);
+        }
+
+    }
+
+
 
     public String validateRadarSize(int value) {
         return new IntegerMinMaxValidator(MIN_RADAR_SIZE, MAX_RADAR_SIZE).validate(value);
@@ -193,13 +233,13 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-       
 
-        int width = renderer.getWidth();
-        int height = renderer.getHeight();
+        if (dialog!=null && !dialog.isShowing()) {
+            int width = renderer.getWidth();
+            int height = renderer.getHeight();
 
-        paintRadarWorker(g, width, height);
-        
+            paintRadarWorker(g, width, height);
+        }
     }
 
     /**
@@ -212,7 +252,7 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
             return;
         if (width == 0 || height==0)
             return;
-   //     System.out.println("with "+ width + " " + height);
+
         g.setColor(new Color(0, 0, 0, 200));
         g.drawOval(width - LENGTH - MARGIN, height - LENGTH - EXTRA - 2 * MARGIN, LENGTH, LENGTH);
 
@@ -258,9 +298,11 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
                 }
             }
         }
-
-       text.setText("<html><b><font color=#148200>" + radarSize + "</font></b></html>");
-
+        Font font = new Font("default", Font.BOLD, g.getFont().getSize());
+        g.setFont(font);
+        g.setColor(Color.BLACK);
+        //System.out.println("size " + radarSize);
+        g.drawString(""+radarSize, LENGTH - MARGIN*4, LENGTH/2+MARGIN);
     }
 
     @Subscribe
