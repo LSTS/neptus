@@ -174,7 +174,7 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
      */
     private void sendParam(SystemProperty prop) {
         String category = prop.getCategoryId();
-        
+
         EntityParameter ep = new EntityParameter();
         ep.setName(prop.getName());
         ep.setValue((String) prop.getValue().toString());
@@ -184,7 +184,7 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
         SetEntityParameters setParams = new SetEntityParameters();
         setParams.setName(category);
         setParams.setParams(propList);
-         
+
         send(setParams);
     }
 
@@ -247,20 +247,28 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
             radarDistanceRange.setSelectedItem(radarSize);
 
             ArrayList<SystemProperty> pr = ConfigurationManager.getInstance().getProperties(mainSysName, visibility, scopeToUse);
-
+            boolean hasPencilBeam = false;
             for (SystemProperty s : pr) {
-
-                if (s.getName().equals("Range")) {
+                if (s.getName().equals("Range") && s.getCategoryId().equals("Pencil Beam")) {
                     range = ((Long) s.getValue()).intValue();
+                    hasPencilBeam = true;
                 }
-                if (s.getName().equals("Sector Width")){
+                if (s.getName().equals("Sector Width")  && s.getCategoryId().equals("Pencil Beam")){
                     sectorWidth = ((Long) s.getValue()).intValue();
                 }
             }
-            if ((int)sensorRange.getSelectedItem() != range) 
-                sensorRange.setSelectedItem((int) range);
-            if ((int)sectorWith.getSelectedItem() != sectorWidth) 
-                sectorWith.setSelectedItem((int) sectorWidth);
+            if (!hasPencilBeam) {
+                sensorRange.setEnabled(false);
+                sectorWith.setEnabled(false);
+                
+            } else {
+                sensorRange.setEnabled(true);
+                sectorWith.setEnabled(true);
+                if ((int)sensorRange.getSelectedItem() != range) 
+                    sensorRange.setSelectedItem((int) range);
+                if ((int)sectorWith.getSelectedItem() != sectorWidth) 
+                    sectorWith.setSelectedItem((int) sectorWidth);
+            }
         }
     }
 
@@ -344,7 +352,6 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
         Font font = new Font("default", Font.BOLD, g.getFont().getSize());
         g.setFont(font);
         g.setColor(Color.BLACK);
-        //System.out.println("size " + radarSize);
         g.drawString(""+radarSize, LENGTH - MARGIN*4, LENGTH/2+MARGIN);
     }
 
