@@ -43,7 +43,8 @@ import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.AutopilotMode;
 import pt.lsts.imc.AutopilotMode.AUTONOMY;
-import pt.lsts.imc.Calibration;
+import pt.lsts.imc.DevCalibrationControl;
+import pt.lsts.imc.DevCalibrationControl.OP;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
@@ -103,7 +104,8 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
         calibButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Calibration calib = Calibration.create("time", 0);
+                DevCalibrationControl calib = new DevCalibrationControl();
+                calib.setOp(OP.START);
                 send(calib);
             }
         });
@@ -138,7 +140,7 @@ public class PreflightPanel extends ConsolePanel implements MainVehicleChangeLis
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
      */
     @Override
