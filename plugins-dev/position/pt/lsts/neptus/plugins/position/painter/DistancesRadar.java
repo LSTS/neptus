@@ -117,7 +117,7 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
     private JComboBox<Integer> sensorRange = new JComboBox<Integer>(rangeValues);
     private JComboBox<Integer> sectorWidth = new JComboBox<Integer>(sectorWidthValues);
     private int range;
-    private int sectorWidth;
+    private int width;
     private Scope scopeToUse = Scope.GLOBAL;
     private Visibility visibility = Visibility.USER;
     /**
@@ -271,7 +271,7 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
                     hasPencilBeam = true;
                 }
                 if (s.getName().equals("Sector Width")  && s.getCategoryId().equals(entityName)){
-                    sectorWidth = ((Long) s.getValue()).intValue();
+                    width = ((Long) s.getValue()).intValue();
                 }
             }
             if (!hasPencilBeam) {
@@ -283,8 +283,8 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
                 sectorWidth.setEnabled(true);
                 if ((int)sensorRange.getSelectedItem() != range) 
                     sensorRange.setSelectedItem((int) range);
-                if ((int)sectorWidth.getSelectedItem() != sectorWidth) 
-                    sectorWidth.setSelectedItem((int) sectorWidth);
+                if ((int)sectorWidth.getSelectedItem() != width)
+                    sectorWidth.setSelectedItem((int) width);
             }
         }
     }
