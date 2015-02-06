@@ -37,6 +37,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
@@ -57,6 +59,7 @@ import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -87,16 +90,16 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
     private static final int MIN_NUMBER_POINTS = 1;
     private static final int MAX_NUMBER_POINTS = 250;
 
-    @NeptusProperty(name = "Enable")
+    @NeptusProperty(name = "Enable", userLevel=LEVEL.REGULAR)
     public boolean enablePainter = true;
 
-    @NeptusProperty(name="Radar Size", description="Beam length (meters)")
+    @NeptusProperty(name="Radar Size", description="Beam length (meters)", userLevel=LEVEL.REGULAR)
     public int radarSize = 5;
 
-    @NeptusProperty(name="Number of Points", description="Number of points shown")
+    @NeptusProperty(name="Number of Points", description="Number of points shown", userLevel=LEVEL.REGULAR)
     private int numberOfPoints = 100;
 
-    @NeptusProperty(name = "Entity Name", description = "Distance entity name")
+    @NeptusProperty(name = "Entity Name", description = "Distance entity name", userLevel=LEVEL.REGULAR)
     public String entityName = "Pencil Beam";
 
     private String mainSysName;
@@ -193,6 +196,20 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
      */
     @Override
     public void initSubPanel() {
+
+            WindowAdapter l = new WindowAdapter() {
+                @Override
+                public void windowActivated(WindowEvent e) {
+                    if (!enablePainter) {
+                        dialog.setVisible(false);
+                    } else {
+                        dialog.setVisible(true);
+                    }
+                }
+            };
+            
+            dialog.addWindowListener(l);
+
         if (dialog!=null) {
             add(text, "w 100%, h " + (LENGTH + EXTRA + 2 * MARGIN) + "px, grow, span, wrap");
 
@@ -249,11 +266,11 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
             ArrayList<SystemProperty> pr = ConfigurationManager.getInstance().getProperties(mainSysName, visibility, scopeToUse);
             boolean hasPencilBeam = false;
             for (SystemProperty s : pr) {
-                if (s.getName().equals("Range") && s.getCategoryId().equals("Pencil Beam")) {
+                if (s.getName().equals("Range") && s.getCategoryId().equals(entityName)) {
                     range = ((Long) s.getValue()).intValue();
                     hasPencilBeam = true;
                 }
-                if (s.getName().equals("Sector Width")  && s.getCategoryId().equals("Pencil Beam")){
+                if (s.getName().equals("Sector Width")  && s.getCategoryId().equals(entityName)){
                     sectorWidth = ((Long) s.getValue()).intValue();
                 }
             }
