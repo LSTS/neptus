@@ -108,14 +108,14 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
     private ArrayList<Point2D> pointList = new ArrayList<>();
 
     Integer[] rangeValues = { 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 60, 80, 100 };
-    Integer[] sectorWithValues = { 0, 10, 20, 40, 80, 100, 120, 140, 160, 180, 220, 360 };
+    Integer[] sectorWidthValues = { 0, 10, 20, 40, 80, 100, 120, 140, 160, 180, 220, 360 };
     private JLabel text;
     private JLabel radarDistanceTxt;
     private JLabel sensorRangeTxt;
-    private JLabel sectorWithTxt;
+    private JLabel sectorWidthTxt;
     private JComboBox<Integer> radarDistanceRange = new JComboBox<Integer>(rangeValues);
     private JComboBox<Integer> sensorRange = new JComboBox<Integer>(rangeValues);
-    private JComboBox<Integer> sectorWith = new JComboBox<Integer>(sectorWithValues);
+    private JComboBox<Integer> sectorWidth = new JComboBox<Integer>(sectorWidthValues);
     private int range;
     private int sectorWidth;
     private Scope scopeToUse = Scope.GLOBAL;
@@ -130,7 +130,7 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
         setLayout(layout);
         radarDistanceTxt = new JLabel("Radar Range:");
         sensorRangeTxt = new JLabel("Sensor Range:");
-        sectorWithTxt = new JLabel("Sensor sector with:");
+        sectorWidthTxt = new JLabel("Sector Width:");
 
         text = new JLabel() {
             @Override
@@ -229,11 +229,11 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
                 }
             });
 
-            sectorWith.addActionListener(new ActionListener() {
+            sectorWidth.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     JComboBox cbox = (JComboBox)e.getSource();
-                    int sectorWithValue = (int) cbox.getSelectedItem();
-                    saveEntityParameter("Sector Width", sectorWithValue);
+                    int sectorWidthValue = (int) cbox.getSelectedItem();
+                    saveEntityParameter("Sector Width", sectorWidthValue);
                 }
             });
 
@@ -244,8 +244,8 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
             add(sensorRangeTxt);
             add(sensorRange, "wrap");
 
-            add(sectorWithTxt);
-            add(sectorWith);
+            add(sectorWidthTxt);
+            add(sectorWidth);
             dialog.setResizable(false);
         }
     }
@@ -276,15 +276,15 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
             }
             if (!hasPencilBeam) {
                 sensorRange.setEnabled(false);
-                sectorWith.setEnabled(false);
+                sectorWidth.setEnabled(false);
                 
             } else {
                 sensorRange.setEnabled(true);
-                sectorWith.setEnabled(true);
+                sectorWidth.setEnabled(true);
                 if ((int)sensorRange.getSelectedItem() != range) 
                     sensorRange.setSelectedItem((int) range);
-                if ((int)sectorWith.getSelectedItem() != sectorWidth) 
-                    sectorWith.setSelectedItem((int) sectorWidth);
+                if ((int)sectorWidth.getSelectedItem() != sectorWidth) 
+                    sectorWidth.setSelectedItem((int) sectorWidth);
             }
         }
     }
