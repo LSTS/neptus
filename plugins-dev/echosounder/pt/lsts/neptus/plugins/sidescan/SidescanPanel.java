@@ -256,6 +256,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 bufferedCache = ImageUtils.createCompatibleImage(view.getWidth(), view.getHeight(), Transparency.OPAQUE);
                 g2d = (Graphics2D) image.getGraphics();
                 layer = ImageUtils.createCompatibleImage(view.getWidth(), view.getHeight(), Transparency.TRANSLUCENT);
+                lines.clear();
             }
         });
 
@@ -430,7 +431,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             ExecutorService threadExecutor = Executors.newCachedThreadPool();
             threadExecutor.execute(a);
             int ypos = lines.size();
-
+            if (ypos < 100) 
+                return;
             synchronized (lines) {
                 for (SidescanLine e : lines ) { 
                     e.ysize = 1;
