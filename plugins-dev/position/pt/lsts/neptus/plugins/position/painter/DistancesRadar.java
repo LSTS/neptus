@@ -356,14 +356,13 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
 
             // Radar points.
             g.setColor(Color.GREEN);
-            double scale = (LENGTH / 2) / radarSize;
 
             for (Point2D p : pointList) {
                 // Only draw the ones within size.
                 if (p.getX() <= radarSize) {
-                    g.drawOval((int)(LENGTH / 2 + p.getX() * Math.sin(p.getY()) * scale), 
-                            (int)(LENGTH / 2 - p.getX() * Math.cos(p.getY()) * scale), 
-                            2, 2);
+                    g.drawOval((int)(LENGTH / 2 * (1 + (p.getX() * Math.sin(p.getY()) / radarSize))),
+                               (int)(LENGTH / 2 * (1 - (p.getX() * Math.cos(p.getY()) / radarSize))),
+                               2, 2);
                 }
             }
         }
