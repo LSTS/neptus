@@ -256,6 +256,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 bufferedCache = ImageUtils.createCompatibleImage(view.getWidth(), view.getHeight(), Transparency.OPAQUE);
                 g2d = (Graphics2D) image.getGraphics();
                 layer = ImageUtils.createCompatibleImage(view.getWidth(), view.getHeight(), Transparency.TRANSLUCENT);
+                clearLines();
                 lines.clear();
             }
         });
