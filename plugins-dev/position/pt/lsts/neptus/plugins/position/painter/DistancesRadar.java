@@ -75,7 +75,7 @@ import com.google.common.eventbus.Subscribe;
  * @author José Braga
  * 
  */
-@Popup(pos = POSITION.RIGHT, width = 220, height = 335)
+@Popup(pos = POSITION.RIGHT, width = 223, height = 335)
 @PluginDescription(name = "Distances Radar", icon = "pt/lsts/neptus/plugins/position/painter/radar-icon.png", 
 description = "Distances Radar on map", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 70)
@@ -202,7 +202,8 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
                 public void windowActivated(WindowEvent e) {
                     if (!enablePainter) {
                         dialog.setVisible(false);
-                    } else {
+                    }
+                    else {
                         dialog.setVisible(true);
                     }
                 }
@@ -387,10 +388,15 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
 
             pointList.add(new Point2D.Double(msg.getValue(), msg.getLocation().get(0).getPsi()));	    
             lastMessageMillis = System.currentTimeMillis();
+            updateDialogPanel();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    private void updateDialogPanel(){
+        repaint();
     }
 
     @Subscribe
