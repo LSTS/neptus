@@ -409,80 +409,75 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         int X = (int) MathMiscUtils.clamp(mouseX, ZOOM_BOX_SIZE / 2, image.getWidth() - ZOOM_BOX_SIZE / 2);
         int Y = (int) MathMiscUtils.clamp(mouseY, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
-        
-        /*BEGIN old zoom
-         * TODO: delete old zoom
-         * 
-         * Change (line 481) - to position the zoom box: 
-         *  g.drawImage(full, layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), 250 + ypos+MAX_RULER_SIZE, null);
-         * To:
-         *  g.drawImage(full, layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), ypos + layer.getHeight() - (ZOOM_LAYER_BOX_SIZE), null);
-         */
-        BufferedImage zoomImage = image.getSubimage(X - ZOOM_BOX_SIZE / 2, Y - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
-        BufferedImage zoomLayerImage = layer.getSubimage(X - ZOOM_BOX_SIZE / 2, Y - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
 
-        // Draw zoomed image.
-        g.drawImage(ImageUtils.getFasterScaledInstance(zoomImage, ZOOM_LAYER_BOX_SIZE, ZOOM_LAYER_BOX_SIZE),
-                image.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), image.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
-        g.drawImage(ImageUtils.getFasterScaledInstance(zoomLayerImage, ZOOM_LAYER_BOX_SIZE, ZOOM_LAYER_BOX_SIZE),
-                layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
-
-        // END old zoom
-        
         // Understand what we are zooming in.
         g.drawRect(X - ZOOM_BOX_SIZE / 2, Y - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
 
-        Updater a = new Updater();
-        ExecutorService threadExecutor = Executors.newCachedThreadPool();
-        threadExecutor.execute(a);
-        int ypos = lines.size();
+        if (parent.getTimeline().isRunning()) {
 
-        synchronized (lines) {
+            BufferedImage zoomImage = image.getSubimage(X - ZOOM_BOX_SIZE / 2, Y - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
+            BufferedImage zoomLayerImage = layer.getSubimage(X - ZOOM_BOX_SIZE / 2, Y - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
 
-            for (SidescanLine e : lines ) { 
-                e.ysize = 1;
-                int beginIndex = 0;
-                int endIndex = 0;
-                int leftMousePos = mouseX - ZOOM_BOX_SIZE / 2;
-                int rightMousePos = mouseX + ZOOM_BOX_SIZE / 2;
+            // Draw zoomed image.
+            g.drawImage(ImageUtils.getFasterScaledInstance(zoomImage, ZOOM_LAYER_BOX_SIZE, ZOOM_LAYER_BOX_SIZE),
+                    image.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), image.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
+            g.drawImage(ImageUtils.getFasterScaledInstance(zoomLayerImage, ZOOM_LAYER_BOX_SIZE, ZOOM_LAYER_BOX_SIZE),
+                    layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
 
-                if (leftMousePos < 0) {
-                    beginIndex = 0;
-                    rightMousePos = ZOOM_BOX_SIZE;
-                    endIndex = (rightMousePos * e.data.length ) / image.getWidth() ;
+        } else {
+
+            Updater a = new Updater();
+            ExecutorService threadExecutor = Executors.newCachedThreadPool();
+            threadExecutor.execute(a);
+            int ypos = lines.size();
+
+            synchronized (lines) {
+
+                for (SidescanLine e : lines ) { 
+                    e.ysize = 1;
+                    int beginIndex = 0;
+                    int endIndex = 0;
+                    int leftMousePos = mouseX - ZOOM_BOX_SIZE / 2;
+                    int rightMousePos = mouseX + ZOOM_BOX_SIZE / 2;
+
+                    if (leftMousePos < 0) {
+                        beginIndex = 0;
+                        rightMousePos = ZOOM_BOX_SIZE;
+                        endIndex = (rightMousePos * e.data.length ) / image.getWidth() ;
+                    }
+
+                    else if (rightMousePos > image.getWidth()) {
+                        leftMousePos = image.getWidth() - ZOOM_BOX_SIZE;
+                        beginIndex = (leftMousePos * e.data.length ) / image.getWidth() ;
+                        endIndex = (image.getWidth() * e.data.length ) / image.getWidth() ;
+                    }
+
+                    else {
+                        beginIndex = (leftMousePos * e.data.length ) / image.getWidth() ;
+                        endIndex = (rightMousePos * e.data.length ) / image.getWidth() ;
+                    }
+
+                    e.image = new BufferedImage(endIndex-beginIndex, 3, BufferedImage.TYPE_INT_RGB);
+
+                    // Apply colormap to data
+                    int z=0;
+
+                    for (int c = beginIndex ; c <  endIndex ; c++) {
+                        if (c+3 >= e.data.length || c< 0)
+                            break;
+
+                        e.image.setRGB(z, 0, config.colorMap.getColor(e.data[c]).getRGB());
+                        e.image.setRGB(z, 1, config.colorMap.getColor(e.data[c]).getRGB());
+                        e.image.setRGB(z, 2, config.colorMap.getColor(e.data[c]).getRGB());
+                        z++;
+                    }
+ 
+                    Image full = ImageUtils.getScaledImage(e.image, ZOOM_LAYER_BOX_SIZE, 3, true);
+                    g.drawImage(full, layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight()-(ZOOM_BOX_SIZE*2)-ypos, null);
+                    ypos = ypos - 3;
                 }
 
-                else if (rightMousePos > image.getWidth()) {
-                    leftMousePos = image.getWidth() - ZOOM_BOX_SIZE;
-                    beginIndex = (leftMousePos * e.data.length ) / image.getWidth() ;
-                    endIndex = (image.getWidth() * e.data.length ) / image.getWidth() ;
-                }
-
-                else {
-                    beginIndex = (leftMousePos * e.data.length ) / image.getWidth() ;
-                    endIndex = (rightMousePos * e.data.length ) / image.getWidth() ;
-                }
-
-                e.image = new BufferedImage(endIndex-beginIndex, 3, BufferedImage.TYPE_INT_RGB);
-                
-                // Apply colormap to data
-                int z=0;
-
-                for (int c = beginIndex ; c <  endIndex ; c++) {
-                    if (c+3 >= e.data.length || c< 0)
-                        break;
-
-                    e.image.setRGB(z, 0, config.colorMap.getColor(e.data[c]).getRGB());
-                    e.image.setRGB(z, 1, config.colorMap.getColor(e.data[c]).getRGB());
-                    e.image.setRGB(z, 2, config.colorMap.getColor(e.data[c]).getRGB());
-                    z++;
-                }
-
-                Image full = ImageUtils.getScaledImage(e.image, ZOOM_LAYER_BOX_SIZE, 3, true);
-                g.drawImage(full, layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), 250 + ypos+MAX_RULER_SIZE, null);
-                ypos = ypos - 3;
             }
-
         }
     }
 
