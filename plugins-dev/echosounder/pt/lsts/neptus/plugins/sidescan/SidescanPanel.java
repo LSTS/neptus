@@ -432,7 +432,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             int ypos = lines.size();
 
             synchronized (lines) {
-
                 for (SidescanLine e : lines ) { 
                     e.ysize = 1;
                     int beginIndex = 0;
@@ -471,10 +470,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         e.image.setRGB(z, 2, config.colorMap.getColor(e.data[c]).getRGB());
                         z++;
                     }
- 
+
                     Image full = ImageUtils.getScaledImage(e.image, ZOOM_LAYER_BOX_SIZE, 3, true);
-                    g.drawImage(full, layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight()-(ZOOM_BOX_SIZE*2)-ypos, null);
-                    ypos = ypos - 3;
+                    g.drawImage(full, layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight()+(ZOOM_BOX_SIZE)-ypos, null);
+                    ypos = ypos + 3;
                 }
 
             }
