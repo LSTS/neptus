@@ -33,9 +33,6 @@ package pt.lsts.neptus.plugins.teleoperation;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.event.ComponentListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -68,20 +65,16 @@ import com.google.common.eventbus.Subscribe;
 @Popup(pos = POSITION.CENTER, width = 210, height = 140)
 @PluginDescription(name = "ROV Information Layer", icon = "pt/lsts/neptus/plugins/position/position.png", description = "ROV Information Layer", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 70)
-public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
-{
+public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter {
+    
     private static final long serialVersionUID = 4624519156694623532L;
-    /**
-     * @param console
-     */
-
+    
     private static final double MIN_DEPTH_THRESH = 0.01;
     private static final double MAX_DEPTH_THRESH = 100;
     private static final double MIN_DISTANCE_THRESH = 0.01;
     private static final double MAX_DISTANCE_THRESH = 20;
     private static final double MIN_HEADING_THRESH = 0.1;
     private static final double MAX_HEADING_THRESH = 360;
-
 
     private double desiredDepth = 0;
     private double desiredHeading = 0;
@@ -121,15 +114,17 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
         info = new JLabel("<html></html>");
 
         this.add(info);
-
     }
 
+    @Override
+    public void initSubPanel() {
+        if (dialog != null)
+            dialog.setResizable(false);
+    }
 
-    private String getColor(double reference, double value, double threshold) {
-        if (Math.abs(reference - value) > threshold)
-            return "#ff0000";
-        else
-            return "#000000";
+    @Override
+    public void cleanSubPanel() {
+        removeAll();
     }
 
     public String validateDepthThresh(double value) {
@@ -142,6 +137,13 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
 
     public String validateDistanceThresh(double value) {
         return new DoubleMinMaxValidator(MIN_DISTANCE_THRESH, MAX_DISTANCE_THRESH).validate(value);
+    }
+
+    private String getColor(double reference, double value, double threshold) {
+        if (Math.abs(reference - value) > threshold)
+            return "#ff0000";
+        else
+            return "#000000";
     }
 
     private String getInfo(boolean strike, String text, double desired, double value, double threshold) {
@@ -161,25 +163,10 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if (dialog!=null && dialog.isShowing())
             return;
-        
+
         g.setColor(Color.BLACK);
-
         g.translate(0, renderer.getHeight() - 100);
-
         info.paint(g);
-    }
-
-
-
-    @Override
-    public void initSubPanel() {
-        if (dialog != null)
-            dialog.setResizable(false);
-    }
-
-    @Override
-    public void cleanSubPanel() {
-        removeAll();
     }
 
     @Subscribe
