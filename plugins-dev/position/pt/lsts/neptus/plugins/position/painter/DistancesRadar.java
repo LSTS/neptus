@@ -150,6 +150,80 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
         text.setBounds(0, 0, LENGTH - MARGIN, LENGTH - MARGIN);
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.ConsolePanel#initSubPanel()
+     */
+    @Override
+    public void initSubPanel() {
+
+            WindowAdapter l = new WindowAdapter() {
+                @Override
+                public void windowActivated(WindowEvent e) {
+                    if (!enablePainter) {
+                        dialog.setVisible(false);
+                    }
+                    else {
+                        dialog.setVisible(true);
+                    }
+                }
+            };
+            
+            dialog.addWindowListener(l);
+
+        if (dialog!=null) {
+            add(text, "w 100%, h " + (LENGTH + EXTRA + 2 * MARGIN) + "px, grow, span, wrap");
+
+            radarDistanceRange.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    @SuppressWarnings("rawtypes")
+                    JComboBox cbox = (JComboBox)e.getSource();
+                    radarSize = (Integer) cbox.getSelectedItem();
+                    text.repaint();
+                }
+            });
+
+            sensorRange.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    @SuppressWarnings("rawtypes")
+                    JComboBox cbox = (JComboBox)e.getSource();
+                    int rangeValue = (int) cbox.getSelectedItem();
+                    saveEntityParameter("Range", rangeValue);
+                }
+            });
+
+            sectorWidth.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    @SuppressWarnings("rawtypes")
+                    JComboBox cbox = (JComboBox)e.getSource();
+                    int sectorWidthValue = (int) cbox.getSelectedItem();
+                    saveEntityParameter("Sector Width", sectorWidthValue);
+                }
+            });
+
+            radarDistanceRange.setSelectedItem(radarSize);
+            add(radarDistanceTxt);
+            add(radarDistanceRange, "wrap");
+
+            add(sensorRangeTxt);
+            add(sensorRange, "wrap");
+
+            add(sectorWidthTxt);
+            add(sectorWidth);
+            dialog.setResizable(false);
+        }
+    }
+
+    @Override
+    public void cleanSubPanel() {
+    }
+
+    public String validateRadarSize(int value) {
+        return new IntegerMinMaxValidator(MIN_RADAR_SIZE, MAX_RADAR_SIZE).validate(value);
+    }
+
+    public String validateNumberOfPoints(int value) {
+        return new IntegerMinMaxValidator(MIN_NUMBER_POINTS, MAX_NUMBER_POINTS).validate(value);
+    }
 
     private void saveEntityParameter(String type, long value) {
         if (mainSysName==null)
@@ -178,7 +252,6 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
         }
     }
 
-
     /**
      * @param prop
      */
@@ -198,74 +271,11 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
         send(setParams);
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.console.ConsolePanel#initSubPanel()
-     */
-    @Override
-    public void initSubPanel() {
-
-            WindowAdapter l = new WindowAdapter() {
-                @Override
-                public void windowActivated(WindowEvent e) {
-                    if (!enablePainter) {
-                        dialog.setVisible(false);
-                    }
-                    else {
-                        dialog.setVisible(true);
-                    }
-                }
-            };
-            
-            dialog.addWindowListener(l);
-
-        if (dialog!=null) {
-            add(text, "w 100%, h " + (LENGTH + EXTRA + 2 * MARGIN) + "px, grow, span, wrap");
-
-            radarDistanceRange.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    JComboBox cbox = (JComboBox)e.getSource();
-                    radarSize = (Integer) cbox.getSelectedItem();
-                    text.repaint();
-                }
-            });
-
-            sensorRange.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    JComboBox cbox = (JComboBox)e.getSource();
-                    int rangeValue = (int) cbox.getSelectedItem();
-                    saveEntityParameter("Range", rangeValue);
-                }
-            });
-
-            sectorWidth.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    JComboBox cbox = (JComboBox)e.getSource();
-                    int sectorWidthValue = (int) cbox.getSelectedItem();
-                    saveEntityParameter("Sector Width", sectorWidthValue);
-                }
-            });
-
-            radarDistanceRange.setSelectedItem(radarSize);
-            add(radarDistanceTxt);
-            add(radarDistanceRange, "wrap");
-
-            add(sensorRangeTxt);
-            add(sensorRange, "wrap");
-
-            add(sectorWidthTxt);
-            add(sectorWidth);
-            dialog.setResizable(false);
-        }
-    }
-
     @Periodic(millisBetweenUpdates=5000)
     private void update() {
         getRadarAndSensorValues();
     }
 
-    /**
-     * 
-     */
     private void getRadarAndSensorValues() {
 
         if (mainSysName!=null) {
@@ -297,23 +307,11 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
         }
     }
 
-
-
-    public String validateRadarSize(int value) {
-        return new IntegerMinMaxValidator(MIN_RADAR_SIZE, MAX_RADAR_SIZE).validate(value);
-    }
-
-    public String validateNumberOfPoints(int value) {
-        return new IntegerMinMaxValidator(MIN_NUMBER_POINTS, MAX_NUMBER_POINTS).validate(value);
-    }
-
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-
         if (dialog!=null && !dialog.isShowing()) {
             int width = renderer.getWidth();
             int height = renderer.getHeight();
-
             paintRadarWorker(g, width, height);
         }
     }
@@ -356,8 +354,8 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
         if (pointList.size() > 0) {
             Point2D last = pointList.get(pointList.size() - 1);
 
-            int x = (int)Math.ceil(LENGTH / 2 * (1 + Math.sin(last.getY())));
-            int y = (int)Math.ceil(LENGTH / 2 * (1 - Math.cos(last.getY())));
+            int x = (int) Math.ceil(LENGTH / 2 * (1 + Math.sin(last.getY())));
+            int y = (int) Math.ceil(LENGTH / 2 * (1 - Math.cos(last.getY())));
 
             g.drawLine(LENGTH / 2, LENGTH / 2, x, y);
 
@@ -376,7 +374,7 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
         Font font = new Font("default", Font.BOLD, g.getFont().getSize());
         g.setFont(font);
         g.setColor(Color.BLACK);
-        g.drawString(""+radarSize, LENGTH - MARGIN*4, LENGTH/2+MARGIN);
+        g.drawString("" + radarSize, LENGTH - MARGIN * 4, LENGTH / 2 + MARGIN);
     }
 
     @Subscribe
@@ -409,10 +407,4 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
     public void consume(ConsoleEventMainSystemChange ev) {
         mainSysName = ev.getCurrent();
     }
-
-    @Override
-    public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-    }
-
 }
