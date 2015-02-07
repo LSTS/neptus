@@ -54,6 +54,7 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.DoubleMinMaxValidator;
 
@@ -147,13 +148,13 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter {
             return "#000000";
     }
 
-    private String getInfo(boolean strike, String text, double desired, double value, double threshold) {
+    private String getInfo(boolean strike, String text, double desired, double value, double threshold, String unitString) {
         String txt = "";
 
         if (strike)
             txt += "<strike>";
-        txt += "<b>" + text + ": </b> [" + MathMiscUtils.round(desired, 2) + "] <b><font color="
-                + getColor(value, desired, threshold) + ">" + MathMiscUtils.round(value, 2) + "</font></b><br/>";
+        txt += "<b>" + text + ": </b> [" + MathMiscUtils.round(desired, 2) + unitString + "] <b><font color="
+                + getColor(value, desired, threshold) + ">" + MathMiscUtils.round(value, 2) + unitString + "</font></b><br/>";
         if (strike)
             txt += "</strike>";
 
@@ -220,10 +221,10 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter {
         double desiredHeadingDeg = Math.toDegrees(desiredHeading);
 
         String txt = "<html><font color=#000000>";
-        txt += getInfo(!lastLoopHeadingControl, I18n.text("Heading"), desiredHeadingDeg, headingDeg, headingThresh);
-        txt += getInfo(!lastLoopWallTracking, I18n.text("WallTrack"), desiredDistance, distance, distanceThresh);
-        txt += getInfo(false, I18n.text("Depth"), desiredDepth, depth, depthThresh);
-        txt += "<b>Altitude: " + MathMiscUtils.round(altitude, 2) + "</b>";
+        txt += getInfo(!lastLoopHeadingControl, I18n.text("Heading"), desiredHeadingDeg, headingDeg, headingThresh, "" + CoordinateUtil.CHAR_DEGREE);
+        txt += getInfo(!lastLoopWallTracking, I18n.text("WallTrack"), desiredDistance, distance, distanceThresh, "m");
+        txt += getInfo(false, I18n.text("Depth"), desiredDepth, depth, depthThresh, "m");
+        txt += "<b>Altitude: " + MathMiscUtils.round(altitude, 2) + "m</b>";
         txt += "</font></html>";
 
         info.setText(txt);
