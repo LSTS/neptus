@@ -73,15 +73,16 @@ import com.google.common.eventbus.Subscribe;
 
 /**
  * @author José Braga
- * 
+ * @author Manuel Ribeiro
  */
+@PluginDescription(name = "Distances Radar", icon = "pt/lsts/neptus/plugins/position/painter/radar-icon.png",
+    description = "Distances Radar on map", category = CATEGORY.INTERFACE, author = "José Braga")
 @Popup(pos = POSITION.RIGHT, width = 223, height = 335)
-@PluginDescription(name = "Distances Radar", icon = "pt/lsts/neptus/plugins/position/painter/radar-icon.png", 
-description = "Distances Radar on map", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 70)
 public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
 
     private static final long serialVersionUID = -7637556359747388703L;
+    
     private static final int LENGTH = 200;
     private static final int EXTRA = 70;
     private static final int MARGIN = 5;
@@ -107,8 +108,13 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
 
     private ArrayList<Point2D> pointList = new ArrayList<>();
 
-    Integer[] rangeValues = { 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 60, 80, 100 };
-    Integer[] sectorWidthValues = { 0, 10, 20, 40, 80, 100, 120, 140, 160, 180, 220, 360 };
+    private Integer[] rangeValues = { 1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 60, 80, 100 };
+    private Integer[] sectorWidthValues = { 0, 10, 20, 40, 80, 100, 120, 140, 160, 180, 220, 360 };
+    private int range;
+    private int width;
+    private Scope scopeToUse = Scope.GLOBAL;
+    private Visibility visibility = Visibility.USER;
+
     private JLabel text;
     private JLabel radarDistanceTxt;
     private JLabel sensorRangeTxt;
@@ -116,17 +122,17 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
     private JComboBox<Integer> radarDistanceRange = new JComboBox<Integer>(rangeValues);
     private JComboBox<Integer> sensorRange = new JComboBox<Integer>(rangeValues);
     private JComboBox<Integer> sectorWidth = new JComboBox<Integer>(sectorWidthValues);
-    private int range;
-    private int width;
-    private Scope scopeToUse = Scope.GLOBAL;
-    private Visibility visibility = Visibility.USER;
+    
     /**
      * @param console
      */
+    @SuppressWarnings("serial")
     public DistancesRadar(ConsoleLayout console) {
         super(console);
+        
         mainSysName = getConsole().getMainSystem();
-        MigLayout layout=new MigLayout();
+        
+        MigLayout layout = new MigLayout();
         setLayout(layout);
         radarDistanceTxt = new JLabel("Radar Range:");
         sensorRangeTxt = new JLabel("Sensor Range:");
@@ -139,7 +145,6 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
                     paintRadarWorker((Graphics2D) g, LENGTH + MARGIN, LENGTH + EXTRA + 2 * MARGIN);
             }
         };
-
         text.setBounds(0, 0, LENGTH - MARGIN, LENGTH - MARGIN);
     }
 
