@@ -53,6 +53,7 @@ import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.SystemProperty.Scope;
@@ -134,9 +135,10 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
         
         MigLayout layout = new MigLayout();
         setLayout(layout);
-        radarDistanceTxt = new JLabel("Radar Range:");
-        sensorRangeTxt = new JLabel("Sensor Range:");
-        sectorWidthTxt = new JLabel("Sector Width:");
+        
+        radarDistanceTxt = new JLabel(I18n.text("Radar Range")+ ":");
+        sensorRangeTxt = new JLabel(I18n.text("Sensor Range") + ":");
+        sectorWidthTxt = new JLabel(I18n.text("Sector Width") + ":");
 
         text = new JLabel() {
             @Override
