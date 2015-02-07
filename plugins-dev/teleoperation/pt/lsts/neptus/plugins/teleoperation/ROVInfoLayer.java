@@ -44,13 +44,17 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.DoubleMinMaxValidator;
 
@@ -60,15 +64,13 @@ import com.google.common.eventbus.Subscribe;
  * @author jqcorreia
  *
  */
+@Popup(pos = POSITION.CENTER, width = 220, height = 140)
 @PluginDescription(name = "ROV Information Layer", icon = "pt/lsts/neptus/plugins/position/position.png", description = "ROV Information Layer", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 70)
-public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
-{
+public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter {
+    
     private static final long serialVersionUID = 4624519156694623532L;
-    /**
-     * @param console
-     */
-
+    
     private static final double MIN_DEPTH_THRESH = 0.01;
     private static final double MAX_DEPTH_THRESH = 100;
     private static final double MIN_DISTANCE_THRESH = 0.01;
@@ -76,7 +78,6 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
     private static final double MIN_HEADING_THRESH = 0.1;
     private static final double MAX_HEADING_THRESH = 360;
 
-    JLabel info;
     private double desiredDepth = 0;
     private double desiredHeading = 0;
     private double desiredDistance = 0;
@@ -105,17 +106,27 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
     @NeptusProperty(name = "Distance Entity Name", description = "Distance entity name")
     public String distanceEntityName = "Filtered Distance";
 
+    private JLabel info;
+
+    private boolean isShowingDialog = false;
+
     public ROVInfoLayer(ConsoleLayout console) {
         super(console);
-
+        removeAll();
         info = new JLabel("<html></html>");
+
+        this.add(info);
     }
 
-    private String getColor(double reference, double value, double threshold) {
-        if (Math.abs(reference - value) > threshold)
-            return "#ff0000";
-        else
-            return "#000000";
+    @Override
+    public void initSubPanel() {
+        if (dialog != null)
+            dialog.setResizable(false);
+    }
+
+    @Override
+    public void cleanSubPanel() {
+        removeAll();
     }
 
     public String validateDepthThresh(double value) {
@@ -130,13 +141,20 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
         return new DoubleMinMaxValidator(MIN_DISTANCE_THRESH, MAX_DISTANCE_THRESH).validate(value);
     }
 
-    private String getInfo(boolean strike, String text, double desired, double value, double threshold) {
+    private String getColor(double reference, double value, double threshold) {
+        if (Math.abs(reference - value) > threshold)
+            return "#ff0000";
+        else
+            return "#000000";
+    }
+
+    private String getInfo(boolean strike, String text, double desired, double value, double threshold, String unitString) {
         String txt = "";
 
         if (strike)
             txt += "<strike>";
-        txt += "<b>" + text + ": </b> [" + MathMiscUtils.round(desired, 2) + "] <b><font color="
-            + getColor(value, desired, threshold) + ">" + MathMiscUtils.round(value, 2) + "</font></b><br/>";
+        txt += "<b>" + text + ": </b> [" + MathMiscUtils.round(desired, 2) + unitString + "] <b><font color="
+                + getColor(value, desired, threshold) + ">" + MathMiscUtils.round(value, 2) + unitString + "</font></b><br/>";
         if (strike)
             txt += "</strike>";
 
@@ -145,36 +163,12 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
+        if (dialog!=null && dialog.isShowing())
+            return;
+
         g.setColor(Color.BLACK);
         g.translate(0, renderer.getHeight() - 100);
-
-        double headingDeg = Math.toDegrees(heading);
-        double desiredHeadingDeg = Math.toDegrees(desiredHeading);
-
-        String txt = "<html><font color=#000000>";
-        txt += getInfo(!lastLoopHeadingControl, "Heading", desiredHeadingDeg, headingDeg, headingThresh);
-        txt += getInfo(!lastLoopWallTracking, "WallTrack", desiredDistance, distance, distanceThresh);
-        txt += getInfo(false, "Depth", desiredDepth, depth, depthThresh);
-        txt += "<b>Altitude: " + MathMiscUtils.round(altitude, 2) + "</b>";
-        txt += "</font></html>";
-
-        info.setText(txt);
-        info.setForeground(Color.white);
-        info.setHorizontalTextPosition(JLabel.CENTER);
-        info.setHorizontalAlignment(JLabel.LEFT);
-        info.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-        info.setBounds(0, 0, 300, 70);
         info.paint(g);
-    }
-
-    @Override
-    public void initSubPanel() {
-
-    }
-
-    @Override
-    public void cleanSubPanel() {
-
     }
 
     @Subscribe
@@ -207,10 +201,10 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
             return;
 
         int idDes = EntitiesResolver.resolveId(getMainVehicleId(),
-                                               desiredEntityName);
+                desiredEntityName);
 
         int idDis = EntitiesResolver.resolveId(getMainVehicleId(),
-                                               distanceEntityName);
+                distanceEntityName);
 
         if (d.getSrcEnt() == idDes) {
             desiredDistance = MathMiscUtils.round(d.getValue(), 3);
@@ -220,15 +214,38 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter
         if (d.getSrcEnt() == idDis)
             distance = MathMiscUtils.round(d.getValue(), 3);
     }
+    
+    @Periodic(millisBetweenUpdates=500)
+    public boolean updateLabel(){
+        double headingDeg = Math.toDegrees(heading);
+        double desiredHeadingDeg = Math.toDegrees(desiredHeading);
 
+        String txt = "<html><font color=#000000>";
+        txt += getInfo(!lastLoopHeadingControl, I18n.text("Heading"), desiredHeadingDeg, headingDeg, headingThresh, "" + CoordinateUtil.CHAR_DEGREE);
+        txt += getInfo(!lastLoopWallTracking, I18n.text("WallTrack"), desiredDistance, distance, distanceThresh, "m");
+        txt += getInfo(false, I18n.text("Depth"), desiredDepth, depth, depthThresh, "m");
+        txt += "<b>Altitude: " + MathMiscUtils.round(altitude, 2) + "m</b>";
+        txt += "</font></html>";
+
+        info.setText(txt);
+        info.setForeground(Color.white);
+        info.setHorizontalTextPosition(JLabel.CENTER);
+        info.setHorizontalAlignment(JLabel.LEFT);
+        info.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        info.setBounds(0, 0, 300, 70);
+        
+        if (isShowingDialog)
+            this.repaint();
+        
+        return true;
+    }
+    
     @Periodic(millisBetweenUpdates=5000)
     public boolean update() {
         lastLoopWallTracking = loopWallTracking;
         loopWallTracking = false;
         lastLoopHeadingControl = loopHeadingControl;
         loopHeadingControl = false;
-
         return true;
     }
-
 }
