@@ -44,6 +44,7 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
@@ -215,14 +216,13 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter {
     
     @Periodic(millisBetweenUpdates=500)
     public boolean updateLabel(){
-        
         double headingDeg = Math.toDegrees(heading);
         double desiredHeadingDeg = Math.toDegrees(desiredHeading);
 
         String txt = "<html><font color=#000000>";
-        txt += getInfo(!lastLoopHeadingControl, "Heading", desiredHeadingDeg, headingDeg, headingThresh);
-        txt += getInfo(!lastLoopWallTracking, "WallTrack", desiredDistance, distance, distanceThresh);
-        txt += getInfo(false, "Depth", desiredDepth, depth, depthThresh);
+        txt += getInfo(!lastLoopHeadingControl, I18n.text("Heading"), desiredHeadingDeg, headingDeg, headingThresh);
+        txt += getInfo(!lastLoopWallTracking, I18n.text("WallTrack"), desiredDistance, distance, distanceThresh);
+        txt += getInfo(false, I18n.text("Depth"), desiredDepth, depth, depthThresh);
         txt += "<b>Altitude: " + MathMiscUtils.round(altitude, 2) + "</b>";
         txt += "</font></html>";
 
@@ -245,8 +245,6 @@ public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter {
         loopWallTracking = false;
         lastLoopHeadingControl = loopHeadingControl;
         loopHeadingControl = false;
-
         return true;
     }
-
 }
