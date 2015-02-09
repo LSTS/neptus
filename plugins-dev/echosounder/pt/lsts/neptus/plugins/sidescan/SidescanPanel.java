@@ -83,6 +83,8 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
  * MRA sidescan panel
  * 
  * @author jqcorreia
+ * @author Manuel Ribeiro (new zoom)
+ * @author pdias
  */
 public class SidescanPanel extends JPanel implements MouseListener, MouseMotionListener {
     private static final long serialVersionUID = 1L;
@@ -426,14 +428,15 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             g.drawImage(ImageUtils.getFasterScaledInstance(zoomLayerImage, ZOOM_LAYER_BOX_SIZE, ZOOM_LAYER_BOX_SIZE),
                     layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight() - (ZOOM_LAYER_BOX_SIZE + 1), null);
 
-        } else {
-
+        }
+        else {
             Updater a = new Updater();
             ExecutorService threadExecutor = Executors.newCachedThreadPool();
             threadExecutor.execute(a);
             int ypos = lines.size();
             if (ypos < 100) 
                 return;
+        
             synchronized (lines) {
                 for (SidescanLine e : lines ) { 
                     e.ysize = 1;
@@ -624,7 +627,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g2d.drawLine(layer.getWidth() / 2, 0, layer.getWidth() / 2, MAX_RULER_SIZE);
         g2d.drawString("0", layer.getWidth() / 2 - 10, fontSize);
 
-        // Draw the maxes
+        // Draw the axes
         g2d.drawLine(0, 0, 0, 15);
         g2d.drawString("" + (int) range, 2, 11);
 
@@ -753,11 +756,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                     if (line.ypos == ZOOM_BOX_SIZE) 
                         bottomZoomTimestamp = line.timestampMillis;
-
-                } else {
+                } 
+                else {
                     if ((line.ypos + (ZOOM_BOX_SIZE/2 ) <= Y) && Y <= (line.ypos + (ZOOM_BOX_SIZE/2 ) + line.ysize))
                         topZoomTimestamp = line.timestampMillis;
-
                 }
                 if ((line.ypos - (ZOOM_BOX_SIZE/2 ) <= Y) && Y <= (line.ypos - (ZOOM_BOX_SIZE/2 ) + line.ysize))
                     bottomZoomTimestamp = line.timestampMillis;
@@ -767,8 +769,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     @Override
     public void mouseDragged(MouseEvent e) {
-
-
         mouseX = e.getX();
         mouseY = e.getY();
         int y = e.getY();
