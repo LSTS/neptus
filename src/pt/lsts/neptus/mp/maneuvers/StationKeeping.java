@@ -335,7 +335,7 @@ public class StationKeeping extends Maneuver implements LocatedManeuver, IMCSeri
 		message.setLat(loc.getLatitudeRads());
 		message.setLon(loc.getLongitudeRads());
 		message.setZ(getManeuverLocation().getZ());
-		message.setZUnits(getManeuverLocation().getZUnits().toString());
+		message.setZUnits(pt.lsts.imc.StationKeeping.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));
 		message.setDuration(getDuration());
 		message.setSpeed(this.getSpeed());
 		String speedU = this.getSpeedUnits();

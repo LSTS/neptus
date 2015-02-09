@@ -55,8 +55,8 @@ public class SidescanConfig implements PropertiesProvider {
     @NeptusProperty (name="Apply speed correction (along path)", category="Visualization parameters")
     public boolean speedCorrection = false;
     
-    @NeptusProperty (name="Apply time variable gain", category="Visualization parameters")
-    public boolean timeVariableGain = false;
+    //@NeptusProperty (name="Apply time variable gain", category="Visualization parameters")
+    //public boolean timeVariableGain = false;
     
     @NeptusProperty (name="Color map to use", category="Visualization parameters")
     public ColorMap colorMap = ColorMapFactory.createBronzeColormap();

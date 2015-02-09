@@ -613,7 +613,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             trajMessage.setLat(Math.toRadians(lld[0]));
             trajMessage.setLon(Math.toRadians(lld[1]));
             trajMessage.setZ(getManeuverLocation().getZ());
-            trajMessage.setZUnits(getManeuverLocation().getZUnits().toString());
+            trajMessage.setZUnits(pt.lsts.imc.FollowTrajectory.Z_UNITS.valueOf(
+                    getManeuverLocation().getZUnits().toString()));
             trajMessage.setSpeed(speed);
             try {
                 String speedU = this.getUnits();
@@ -649,7 +650,8 @@ StateRendererInteraction, IMCSerialization, PathProvider {
             pathMessage.setLat(Math.toRadians(lld[0]));
             pathMessage.setLon(Math.toRadians(lld[1]));
             pathMessage.setZ(getManeuverLocation().getZ());
-            pathMessage.setZUnits(getManeuverLocation().getZUnits().toString());
+            pathMessage.setZUnits(pt.lsts.imc.FollowPath.Z_UNITS.valueOf(
+                    getManeuverLocation().getZUnits().toString()));            
             pathMessage.setSpeed(speed);
             try {
                 String speedU = this.getUnits();

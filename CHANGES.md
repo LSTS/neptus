@@ -1,6 +1,18 @@
 Changes
 =======
 
+Neptus 4.3.x (??-0?-2015)
+ * MRA/Sidescan Zoom: Added support for better sidescan zoom (active if not waterfalling).
+ * Console/ROV: Improved ROVInfoLayer and DistancesRadar to be a console layer or a panel (popup dialog).
+ * MRA/SDFParser: Added support for Klein sidescan SDF format.
+
+Neptus 4.2.x (??-0?-2015)
+------------
+ * MRA/DeltaTParser: Fix reading of soundspeed.
+ * MRA/Exporter/DeltaT83PToCorrectedPos83P: Fix to write lat/lon to the right bits in the header.
+ * MRA/JsfSidescanParser: Fixed ArrayIndexOutOfBoundsException when Sidescan Analyzer Visualization's timeline ended.
+
+
 Neptus 4.2.1 (07-01-2015)
 ------------
  * IMC: No change in IMC and IMCJava (v5.4.3).

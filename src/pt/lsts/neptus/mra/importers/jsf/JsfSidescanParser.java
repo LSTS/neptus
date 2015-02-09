@@ -69,8 +69,14 @@ public class JsfSidescanParser implements SidescanParser {
     @Override
     public ArrayList<SidescanLine> getLinesBetween(long timestamp1, long timestamp2, int subsystem, SidescanParameters params) {
         ArrayList<SidescanLine> list = new ArrayList<SidescanLine>();
+        ArrayList<JsfSonarData> ping;
         
-        ArrayList<JsfSonarData> ping = parser.getPingAt(timestamp1, subsystem);
+        try {
+            ping = parser.getPingAt(timestamp1, subsystem);
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            return list;
+        }
         
         if(ping.size() == 0) return list;
 
@@ -128,8 +134,7 @@ public class JsfSidescanParser implements SidescanParser {
                 // Calculate Portboard
                 for (int i = 0; i < pboardNsamples; i++) {
                     double r =  i / (double) pboardNsamples;
-                    double gain;
-                    gain = Math.abs(30.0 * Math.log(r));
+                    double gain = Math.abs(30.0 * Math.log(r));
                     
                     double pb = pboard.getData()[i] * Math.pow(10, gain / params.getTvgGain());
                     fData[i] = pb / avgPboard;
@@ -140,9 +145,8 @@ public class JsfSidescanParser implements SidescanParser {
                 // Calculate Starboard
                 for (int i = 0; i < sboardNsamples; i++) {
                     double r = 1 - (i / (double) sboardNsamples);
-                    double gain;
+                    double gain = Math.abs(30.0 * Math.log(r));
                     
-                    gain = Math.abs(30.0 * Math.log(r));
                     double sb = sboard.getData()[i] * Math.pow(10, gain / params.getTvgGain());
                     fData[i + pboardNsamples] = sb / avgSboard;
                 }

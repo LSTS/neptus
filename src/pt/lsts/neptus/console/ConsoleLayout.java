@@ -1394,6 +1394,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
             for (IConsoleLayer layer : layers.keySet().toArray(new IConsoleLayer[layers.size()])) {
                 try {
+                    NeptusLog.pub().info("Cleaning " + layer.getName());
                     layer.clean();
                     NeptusLog.pub().info("Cleaned " + layer.getName());
                 }

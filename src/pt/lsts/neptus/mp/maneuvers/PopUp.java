@@ -506,7 +506,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    msg.setLat(loc.getLatitudeRads());
 	    msg.setLon(loc.getLongitudeRads());
 		msg.setZ(getManeuverLocation().getZ());
-		msg.setZUnits(getManeuverLocation().getZUnits().toString());
+		
+		msg.setZUnits(pt.lsts.imc.PopUp.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));
 	    msg.setDuration(getDuration());
 	    msg.setSpeed(speed);
 	    switch (units) {
