@@ -97,6 +97,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private long topZoomTimestamp = 0;
     private long bottomZoomTimestamp = 0;
     private List<SidescanLine> lines = Collections.synchronizedList(new ArrayList<SidescanLine>());
+    private boolean isShowingZoomedImage = false;
 
     private SidescanAnalyzer parent;
     SidescanConfig config = new SidescanConfig();
@@ -144,6 +145,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         Graphics2D gz = (Graphics2D) g.create();
                         gz.setColor(Color.WHITE);
                         drawZoom(gz); // Update layer with zoom information
+
+                        Graphics2D zoomRuler = (Graphics2D) g.create();
+                        zoomRuler.setColor(Color.WHITE);
+                        drawZoomRuler(zoomRuler);
+
+
                     }
 
                     if (info)
@@ -245,6 +252,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         posHud = new MraVehiclePosHud(analyzer.mraPanel.getSource(), config.hudSize, config.hudSize);
     }
+
 
     private void initialize() {
         firstPingTime = ssParser.firstPingTimestamp();
@@ -408,9 +416,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     private void drawZoom(Graphics g) {
 
-        if (mouseX == -1 && mouseY == -1) 
+        if (mouseX == -1 && mouseY == -1)  {
+            isShowingZoomedImage = false;
             return;
+        }
 
+        isShowingZoomedImage = true;
         int X = (int) MathMiscUtils.clamp(mouseX, ZOOM_BOX_SIZE / 2, image.getWidth() - ZOOM_BOX_SIZE / 2);
         int Y = (int) MathMiscUtils.clamp(mouseY, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
 
@@ -434,9 +445,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             ExecutorService threadExecutor = Executors.newCachedThreadPool();
             threadExecutor.execute(a);
             int ypos = lines.size();
-            if (ypos < 100) 
+            if (ypos < 100)  {
+                isShowingZoomedImage = false;
                 return;
-        
+            }
             synchronized (lines) {
                 for (SidescanLine e : lines ) { 
                     e.ysize = 1;
@@ -469,7 +481,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                         e.image.setRGB(c - beginIndex , 0, config.colorMap.getColor(e.data[c]).getRGB());
                     }
-                    
+
                     int vZoomScale = 3;
                     Image full = ImageUtils.getScaledImage(e.image, ZOOM_LAYER_BOX_SIZE, vZoomScale, true);
                     g.drawImage(full, layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight() + (ZOOM_BOX_SIZE) - ypos, null);
@@ -597,6 +609,51 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
         }
         g.dispose();
+    }
+
+
+    /**
+     * @param zoomRuler
+     */
+    private void drawZoomRuler(Graphics g) {
+
+        if (!isShowingZoomedImage)
+            return;
+        
+        Graphics2D g2d = (Graphics2D) g;
+        int fontSize = 11;
+        int x = layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1);
+        int y = layer.getHeight() - (ZOOM_LAYER_BOX_SIZE);
+        // Draw Horizontal Line
+        g2d.setColor(Color.BLACK);
+        g2d.drawLine(x, y, layer.getWidth(), y);
+
+        Rectangle drawRulerHere = new Rectangle(x, y - MAX_RULER_SIZE, ZOOM_LAYER_BOX_SIZE+1, MAX_RULER_SIZE);
+        g2d.setColor(Color.LIGHT_GRAY);
+        g2d.fill(drawRulerHere);
+
+        g2d.setFont(new Font("SansSerif", Font.PLAIN, fontSize));
+        g2d.setColor(Color.BLACK);
+
+        // Draw top line
+        g2d.drawLine(x, y-MAX_RULER_SIZE, layer.getWidth(), y- MAX_RULER_SIZE);
+
+        // Draw the zero
+        g2d.drawLine(x, y, x , y-MAX_RULER_SIZE);
+        // g2d.drawString("0", x+5, y-3);
+
+        float zoomRange  = (ZOOM_BOX_SIZE * (range*2f)) / layer.getWidth();
+        float zoomRangeStep = 1;
+
+        double step = ((zoomRangeStep * ZOOM_LAYER_BOX_SIZE) / zoomRange);
+        double r = zoomRangeStep;
+
+        int c = x + (int) step;
+
+        for (; c<=layer.getWidth(); c += step , r += zoomRangeStep) {
+            g2d.drawLine(c, y, c, y-MAX_RULER_SIZE);
+            g2d.drawString("" + (int) r, c - 13, y-3);
+        }        
     }
 
     private void drawRuler(Graphics g) {
