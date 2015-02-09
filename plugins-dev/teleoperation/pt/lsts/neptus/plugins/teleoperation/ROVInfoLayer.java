@@ -64,8 +64,8 @@ import com.google.common.eventbus.Subscribe;
  * @author jqcorreia
  *
  */
-@Popup(pos = POSITION.CENTER, width = 220, height = 140)
 @PluginDescription(name = "ROV Information Layer", icon = "pt/lsts/neptus/plugins/position/position.png", description = "ROV Information Layer", category = CATEGORY.INTERFACE)
+@Popup(pos = POSITION.CENTER, width = 220, height = 140, accelerator = '9')
 @LayerPriority(priority = 70)
 public class ROVInfoLayer extends ConsolePanel implements Renderer2DPainter {
     
