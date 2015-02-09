@@ -78,7 +78,7 @@ import com.google.common.eventbus.Subscribe;
  */
 @PluginDescription(name = "Distances Radar", icon = "pt/lsts/neptus/plugins/position/painter/radar-icon.png",
     description = "Distances Radar on map", category = CATEGORY.INTERFACE, author = "José Braga")
-@Popup(pos = POSITION.RIGHT, width = 223, height = 335)
+@Popup(pos = POSITION.RIGHT, width = 223, height = 335, accelerator = '0')
 @LayerPriority(priority = 70)
 public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
 
