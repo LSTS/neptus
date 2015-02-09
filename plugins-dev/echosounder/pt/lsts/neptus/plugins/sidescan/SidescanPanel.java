@@ -450,36 +450,30 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         rightMousePos = ZOOM_BOX_SIZE;
                         endIndex = (rightMousePos * e.data.length ) / image.getWidth() ;
                     }
-
                     else if (rightMousePos > image.getWidth()) {
                         leftMousePos = image.getWidth() - ZOOM_BOX_SIZE;
                         beginIndex = (leftMousePos * e.data.length ) / image.getWidth() ;
                         endIndex = (image.getWidth() * e.data.length ) / image.getWidth() ;
                     }
-
                     else {
                         beginIndex = (leftMousePos * e.data.length ) / image.getWidth() ;
                         endIndex = (rightMousePos * e.data.length ) / image.getWidth() ;
                     }
 
-                    e.image = new BufferedImage(endIndex-beginIndex, 3, BufferedImage.TYPE_INT_RGB);
+                    e.image = new BufferedImage(endIndex-beginIndex, 1, BufferedImage.TYPE_INT_RGB);
 
                     // Apply colormap to data
-                    int z=0;
-
-                    for (int c = beginIndex ; c <  endIndex ; c++) {
-                        if (c+3 >= e.data.length || c< 0)
+                    for (int c = beginIndex; c < endIndex; c++) {
+                        if (c >= e.data.length || c < 0)
                             break;
 
-                        e.image.setRGB(z, 0, config.colorMap.getColor(e.data[c]).getRGB());
-                        e.image.setRGB(z, 1, config.colorMap.getColor(e.data[c]).getRGB());
-                        e.image.setRGB(z, 2, config.colorMap.getColor(e.data[c]).getRGB());
-                        z++;
+                        e.image.setRGB(c - beginIndex , 0, config.colorMap.getColor(e.data[c]).getRGB());
                     }
-
-                    Image full = ImageUtils.getScaledImage(e.image, ZOOM_LAYER_BOX_SIZE, 3, true);
-                    g.drawImage(full, layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight()+(ZOOM_BOX_SIZE)-ypos, null);
-                    ypos = ypos + 3;
+                    
+                    int vZoomScale = 3;
+                    Image full = ImageUtils.getScaledImage(e.image, ZOOM_LAYER_BOX_SIZE, vZoomScale, true);
+                    g.drawImage(full, layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight() + (ZOOM_BOX_SIZE) - ypos, null);
+                    ypos = ypos + vZoomScale;
                 }
 
             }
