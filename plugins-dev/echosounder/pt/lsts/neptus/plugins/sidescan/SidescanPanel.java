@@ -124,11 +124,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 super.paintComponent(g);
 
                 if (image != null && layer != null) {
-                    g.drawImage(image, 0, 0, null); // Draw sidescan image
+                    g.drawImage(image, 0, MAX_RULER_SIZE, null); // Draw sidescan image
 
                     Graphics2D lg2d = (Graphics2D) layer.getGraphics();
                     lg2d.setBackground(new Color(255, 255, 255, 0));
-                    lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight()); // Clear layer image
+                    lg2d.clearRect(0, MAX_RULER_SIZE, layer.getWidth(), layer.getHeight()); // Clear layer image
 
                     //                    if (zoom)
                     //                        drawZoom(layer.getGraphics()); // Update layer with zoom information
