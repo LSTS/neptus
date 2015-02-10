@@ -98,6 +98,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private long bottomZoomTimestamp = 0;
     private List<SidescanLine> lines = Collections.synchronizedList(new ArrayList<SidescanLine>());
     private boolean isShowingZoomedImage = false;
+    private long lastMouseMoveTS = 0;
+    private ExecutorService threadExecutor = Executors.newCachedThreadPool();
 
     private SidescanAnalyzer parent;
     SidescanConfig config = new SidescanConfig();
@@ -112,7 +114,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     }
 
     private InteractionMode imode = InteractionMode.INFO;
-
     private MraVehiclePosHud posHud;
 
     private JPanel view = new JPanel() {
@@ -130,10 +131,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     lg2d.setBackground(new Color(255, 255, 255, 0));
                     lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight()); // Clear layer image
 
-                    //                    if (zoom)
-                    //                        drawZoom(layer.getGraphics()); // Update layer with zoom information
-                    //                    if (info)
-                    //                        drawInfo(layer.getGraphics()); // update layer with location information
                     if (measure && !parent.getTimeline().isRunning()) {
                         drawMeasure(layer.getGraphics());
                     }
@@ -148,9 +145,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                         Graphics2D zoomRuler = (Graphics2D) g.create();
                         zoomRuler.setColor(Color.WHITE);
-                        drawZoomRuler(zoomRuler);
-
-
+                        drawZoomRuler(zoomRuler);  // Update layer with zoom ruler information
                     }
 
                     if (info)
@@ -243,7 +238,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     protected boolean record = false;
 
-
     public SidescanPanel(SidescanAnalyzer analyzer, SidescanParser parser, int subsystem) {
         this.parent = analyzer;
         ssParser = parser;
@@ -280,6 +274,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         setLayout(new MigLayout("ins 0, gap 5"));
         add(toolbar, "w 100%, wrap");
         add(view, "w 100%, h 100%");
+
+        threadExecutor.execute(detectMouse);
     }
 
     /**
@@ -398,7 +394,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         removeList.clear();
     }
 
-    private class Updater implements Runnable {
+    private Runnable updateLines = new Runnable() {
 
         @Override
         public void run() {
@@ -412,7 +408,47 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 }
             }
         }
-    }
+    };
+
+    private Runnable detectMouse = new Runnable() {
+
+        @Override
+        public void run() {
+            boolean updated = false;
+
+            while (true) {
+                if (zoom) {
+                    if (parent.getTimeline().isRunning()) 
+                        updated = false;
+
+                    while (!updated) {
+                        try {
+                            if (isMouseAtRest() && !parent.getTimeline().isRunning()) {
+                                setSSLines(mouseY, null);
+                                threadExecutor.execute(updateLines);
+                                view.repaint();
+                                updated=true;
+                            }
+
+                            Thread.sleep(500);
+                        }
+                        catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
+
+                try {
+                    Thread.sleep(10);
+                }
+                catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    };
 
     private void drawZoom(Graphics g) {
 
@@ -441,9 +477,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         }
         else {
-            Updater a = new Updater();
-            ExecutorService threadExecutor = Executors.newCachedThreadPool();
-            threadExecutor.execute(a);
+
+            threadExecutor.execute(updateLines);
             int ypos = lines.size();
             if (ypos < 100)  {
                 isShowingZoomedImage = false;
@@ -619,7 +654,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         if (!isShowingZoomedImage)
             return;
-        
+
         Graphics2D g2d = (Graphics2D) g;
         int fontSize = 11;
         int x = layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1);
@@ -784,10 +819,19 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        if (image == null )
+            return;
         mouseX = e.getX();
         mouseY = e.getY();
+        lastMouseMoveTS = System.nanoTime();
+        setSSLines(mouseY, e);
+    }
 
-        int y = e.getY();
+    /*
+     * @param y , mouse Y coordinate to retrieve sidescanLine from
+     * also sets top and bottom timestamp based on the mouseSidescanLine, for zoom function.
+     */
+    private void setSSLines(int y, MouseEvent e) {
 
         int Y = (int) MathMiscUtils.clamp(mouseY, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
         synchronized (lineList) {
@@ -797,7 +841,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                 if (y >= line.ypos && y <= (line.ypos + line.ysize)) {
                     mouseSidescanLine = line;
-                    ((JPanel) e.getSource()).repaint();
+                    if (e!=null) ((JPanel) e.getSource()).repaint();
                 }
 
                 // save bottom and top timestamps for zoom box according to mouse position
@@ -817,6 +861,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
         }
     };
+
+    private boolean isMouseAtRest() {
+        long now = System.nanoTime();
+        if (now - 1000000000 > lastMouseMoveTS)
+            return true;
+
+        return false;
+    }
 
     @Override
     public void mouseDragged(MouseEvent e) {
@@ -982,4 +1034,5 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         mouseX = mouseY = -1;
         repaint();
     }
+
 }
