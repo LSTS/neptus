@@ -30,12 +30,13 @@
  * Feb 11, 2015
  */
 
-package pt.lsts.neptus.mra;
+package pt.lsts.neptus.mra.markermanagement;
 
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -48,6 +49,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -55,9 +57,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DocumentFilter;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.i18n.I18n;
@@ -70,7 +69,7 @@ import pt.lsts.neptus.util.ImageUtils;
  *
  */
 @SuppressWarnings("serial")
-public class MarkerEdit extends JFrame implements LogMarkerListener {
+public class MarkerEdit extends JFrame {
 
     private static final long serialVersionUID = 1613149353413851878L;
 
@@ -78,11 +77,13 @@ public class MarkerEdit extends JFrame implements LogMarkerListener {
     private JTextField textField;
     private JTextField txtMarkerlabel;
     private Markermanagement parent;
-    private AbstractAction save, exit, freeDraw, rectDraw;
+    private AbstractAction save, del, exit, freeDraw, rectDraw;
     private String[] classificationList = new String[] {"1 - <Unknown>", "2 - <Ship>", "3 - <Etc1>", "4 - <Etc2>", "5 - <Etc3>"};
     private JPopupMenu drawPopupMenu;
+    private LogMarkerItem selectedMarker;
 
     public MarkerEdit(Markermanagement parent) {
+        setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerEdit.class.getResource("/images/menus/edit.png")));
         this.parent = parent;
 
         setResizable(false);
@@ -195,12 +196,23 @@ public class MarkerEdit extends JFrame implements LogMarkerListener {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                setVisible(false);
-                dispose();
+                //TODO : save current marker
             }
         };
         save.putValue(Action.SHORT_DESCRIPTION, I18n.text("Save Marker") + ".");
-        mnFile.add(save);
+
+        del = new AbstractAction(I18n.text("Delete"), ImageUtils.getIcon("images/menus/editdelete.png")) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int res = showDelDialog();
+                if (res==0)  { 
+                    //TODO : delete
+                }
+            }
+        };
+        del.putValue(Action.SHORT_DESCRIPTION, I18n.text("Delete Marker") + ".");
+
 
         exit = new AbstractAction(I18n.text("Exit"), ImageUtils.getIcon("images/menus/exit.png")) {
 
@@ -211,58 +223,34 @@ public class MarkerEdit extends JFrame implements LogMarkerListener {
             }
         };
         exit.putValue(Action.SHORT_DESCRIPTION, I18n.text("Exit Marker Editor") + ".");
+
+
+
+
+        mnFile.add(save);
+        mnFile.add(del);
         mnFile.add(exit);
+
+
+    }
+    
+    private int showDelDialog() {
+        Object[] options = {"Yes, please", "No, thanks"};
+        int n = JOptionPane.showOptionDialog(this,
+                "Are you sure you want to delete this marker?",
+                        "Confirm delete",
+                        JOptionPane.YES_NO_CANCEL_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+        
+        return n;
     }
 
-    public void loadMarker(LogMarker log) {
+    public void loadMarker(LogMarkerItem log) {
+        selectedMarker = log;
         System.out.println(log.toString());
     }
 
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mra.plots.LogMarkerListener#addLogMarker(pt.lsts.neptus.mra.LogMarker)
-     */
-    @Override
-    public void addLogMarker(LogMarker marker) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mra.plots.LogMarkerListener#removeLogMarker(pt.lsts.neptus.mra.LogMarker)
-     */
-    @Override
-    public void removeLogMarker(LogMarker marker) {
-        // TODO Auto-generated method stub
-
-    }
-
-    /* (non-Javadoc)
-     * @see pt.lsts.neptus.mra.plots.LogMarkerListener#GotoMarker(pt.lsts.neptus.mra.LogMarker)
-     */
-    @Override
-    public void GotoMarker(LogMarker marker) {
-        // TODO Auto-generated method stub
-
-    }
-
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    MarkerEdit frame = new MarkerEdit(null);
-                    frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    private class PopUpDemo extends JPopupMenu {
-        JMenuItem anItem;
-        public PopUpDemo(){
-            anItem = new JMenuItem("Click Me!");
-            add(anItem);
-        }
-    }
 }

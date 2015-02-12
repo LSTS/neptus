@@ -29,7 +29,7 @@
  * Author: Manuel
  * Feb 12, 2015
  */
-package pt.lsts.neptus.mra;
+package pt.lsts.neptus.mra.markermanagement;
 
 import java.util.List;
 

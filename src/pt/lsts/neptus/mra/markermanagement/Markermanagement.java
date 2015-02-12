@@ -30,10 +30,11 @@
  * Feb 11, 2015
  */
 
-package pt.lsts.neptus.mra;
+package pt.lsts.neptus.mra.markermanagement;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DateFormat;
@@ -49,6 +50,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.mra.MRAPanel;
+import pt.lsts.neptus.mra.NeptusMRA;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -81,6 +85,7 @@ public class Markermanagement {
     private void initialize() {
 
         frmMarkerManagement = new JFrame();
+        frmMarkerManagement.setIconImage(Toolkit.getDefaultToolkit().getImage(Markermanagement.class.getResource("/images/menus/marker.png")));
         frmMarkerManagement.setTitle("Marker Management");
         frmMarkerManagement.setBounds(100, 100, 687, 426);
         frmMarkerManagement.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -111,7 +116,7 @@ public class Markermanagement {
         };
 
         table = new JTable(defTableModel);
-
+        table.setAutoCreateRowSorter(true);
         table.setShowVerticalLines(false);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().addListSelectionListener(new RowListener());
@@ -136,7 +141,6 @@ public class Markermanagement {
         table.getColumnModel().getColumn(4).setPreferredWidth(176);
         table.setShowGrid(false);
         table.setPreferredScrollableViewportSize(new Dimension(500, 70));
-        table.setFillsViewportHeight(true);
 
         defTableModel.removeRow(0);
         fillTableWithMarkers();
@@ -154,7 +158,7 @@ public class Markermanagement {
         Object selected = defTableModel.getDataVector().get(table.getSelectedRow());
 
         System.out.println(selected.toString());
-        LogMarker log = getLogFromTableRow();
+       // LogMarker log = getLogFromTableRow();
 
         //  markerEditFrame.loadMarker(log);
         //markerEditFrame.setSize(470, 540);

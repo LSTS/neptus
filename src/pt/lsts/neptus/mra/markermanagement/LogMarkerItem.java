@@ -29,9 +29,11 @@
  * Author: Manuel R.
  * Feb 12, 2015
  */
-package pt.lsts.neptus.mra;
+package pt.lsts.neptus.mra.markermanagement;
 
 import java.awt.image.BufferedImage;
+
+import pt.lsts.neptus.mra.LogMarker;
 
 /**
  * @author Manuel
