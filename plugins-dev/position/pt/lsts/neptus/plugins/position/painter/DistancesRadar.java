@@ -383,8 +383,8 @@ public class DistancesRadar extends ConsolePanel implements Renderer2DPainter {
             if (!msg.getSourceName().equals(mainSysName))
                 return;
 
-            if (msg.getValidity() == Distance.VALIDITY.VALID)
-                return;
+//            if (msg.getValidity() != Distance.VALIDITY.VALID)
+//                return;
             
             int id = EntitiesResolver.resolveId(mainSysName, entityName);
             if (msg.getSrcEnt() != id)
