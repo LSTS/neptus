@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.mra.markermanagement;
 
+import java.text.DateFormat;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -40,6 +41,8 @@ import javax.swing.table.AbstractTableModel;
  *
  */
 public class LogMarkerItemModel extends AbstractTableModel {
+
+    private static final long serialVersionUID = 1L;
     private static final int COLUMN_INDEX         = 0;
     private static final int COLUMN_LABEL         = 1;
     private static final int COLUMN_TIMESTAMP    = 2;
@@ -81,6 +84,8 @@ public class LogMarkerItemModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         LogMarkerItem marker = markerList.get(rowIndex);
         Object returnValue = null;
+        
+        
 
         switch (columnIndex) {
             case COLUMN_INDEX:
@@ -90,7 +95,7 @@ public class LogMarkerItemModel extends AbstractTableModel {
                 returnValue = marker.getLabel();
                 break;
             case COLUMN_TIMESTAMP:
-                returnValue = marker.getTimestamp();
+                returnValue = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(marker.getDate());
                 break;
             case COLUMN_LOCATION:
                 returnValue = marker.getLocation();

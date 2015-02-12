@@ -39,6 +39,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -46,9 +47,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -91,88 +96,47 @@ public class Markermanagement {
         frmMarkerManagement.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frmMarkerManagement.getContentPane().setLayout(new MigLayout("", "[grow]", "[grow]"));
         frmMarkerManagement.setVisible(true);
+        frmMarkerManagement.setResizable(false);
 
         markerEditFrame = new MarkerEdit(this);
         logMarkers.addAll(mraPanel.getMarkers());
 
         JPanel panel = new JPanel();
         frmMarkerManagement.getContentPane().add(panel, "cell 0 0,grow");
-        panel.setLayout(new MigLayout("", "[][grow]", "[][grow]"));
+        panel.setLayout(new MigLayout("", "[][][grow]", "[][][grow]"));
 
-        JButton btnPrintMarkers = new JButton("Print Markers");
-        panel.add(btnPrintMarkers, "cell 1 0,alignx left");
+        List<LogMarkerItem> listMarker = fillTableWithMarkers();
+        TableModel tableModel = new LogMarkerItemModel(listMarker);
+        table = new JTable(tableModel);
+        
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
+        table.setRowSorter(sorter);
+        List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+        
+       
+        int columnIndexToSort = 1;
+        sortKeys.add(new RowSorter.SortKey(columnIndexToSort, SortOrder.DESCENDING));
+        
+        sorter.setSortKeys(sortKeys);
+        sorter.sort();
 
-        data = new Object[][] {{"", "", ""}};
-
-        defTableModel = new DefaultTableModel(data, columnNames) 
-        {
-
-            boolean[] columnEditables = new boolean[] {
-                    false, false, false, false, false
-            };
-            public boolean isCellEditable(int row, int column) {
-                return columnEditables[column];
-            }
-        };
-
-        table = new JTable(defTableModel);
-        table.setAutoCreateRowSorter(true);
-        table.setShowVerticalLines(false);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.getSelectionModel().addListSelectionListener(new RowListener());
-
-        table.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent me) {
-                JTable table =(JTable) me.getSource();
-                Point p = me.getPoint();
-                int row = table.rowAtPoint(p);
-                if (me.getClickCount() == 2) {
-                    //                    JFrame frame2 = new JFrame();
-                    openMarkerEditor();
-
-                }
-            }
-
-        });
-
-
-        table.getColumnModel().getColumn(1).setPreferredWidth(96);
-        table.getColumnModel().getColumn(2).setPreferredWidth(146);
-        table.getColumnModel().getColumn(4).setPreferredWidth(176);
-        table.setShowGrid(false);
-        table.setPreferredScrollableViewportSize(new Dimension(500, 70));
-
-        defTableModel.removeRow(0);
-        fillTableWithMarkers();
+        JButton button = new JButton("Print Markers");
+        panel.add(button, "cell 0 0");
 
         JScrollPane scrollPane = new JScrollPane(table);
 
-        panel.add(scrollPane, "cell 1 1,grow");
+        panel.add(scrollPane, "cell 0 2 3 1,grow");
 
     }
 
-    /**
-     * 
-     */
     private void openMarkerEditor() {
-        Object selected = defTableModel.getDataVector().get(table.getSelectedRow());
 
-        System.out.println(selected.toString());
-       // LogMarker log = getLogFromTableRow();
+        // LogMarkerItem selected = ...;
+        // markerEditFrame.loadMarker();
 
-        //  markerEditFrame.loadMarker(log);
-        //markerEditFrame.setSize(470, 540);
+        markerEditFrame.setSize(470, 540);
         markerEditFrame.setVisible(true);
         markerEditFrame.setLocation(frmMarkerManagement.getLocation().x + frmMarkerManagement.getSize().width, frmMarkerManagement.getLocation().y);
-    }
-
-    /**
-     * @param selectedRow
-     * @return
-     */
-    private LogMarker getLogFromTableRow() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     private class RowListener implements ListSelectionListener {
@@ -184,10 +148,17 @@ public class Markermanagement {
         }
     }
 
-    private void fillTableWithMarkers() {
-        for(LogMarker l : logMarkers) {
-            defTableModel.addRow(new Object[]{l.getLabel(), DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(l.getDate()), l.getLocation().toString(), "0", "empty"});
+    private List<LogMarkerItem> fillTableWithMarkers() {
+        List<LogMarkerItem> listMarker = new ArrayList<>();
+
+        int i=0;
+        for(LogMarker l : mraPanel.getMarkers()) {
+            listMarker.add(new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), l.getLat(), l.getLon(), null, 0, "", 0, 0));
+            i++;
+            // defTableModel.addRow(new Object[]{l.getLabel(), DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(l.getDate()), l.getLocation().toString(), "0", "empty"});
         }
+
+        return listMarker;
 
     }
 
