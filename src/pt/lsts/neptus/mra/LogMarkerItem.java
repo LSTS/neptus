@@ -40,6 +40,7 @@ import java.awt.image.BufferedImage;
 public class LogMarkerItem extends LogMarker {
 
     private static final long serialVersionUID = 1L;
+    private int index;
     private BufferedImage image;
     private float range;
     private String annotation;
@@ -52,7 +53,7 @@ public class LogMarkerItem extends LogMarker {
      * @param lat
      * @param lon
      */
-    public LogMarkerItem(String label, double timestamp, double lat, double lon, BufferedImage img, float range, String annot, int depth, int classif) {
+    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, BufferedImage img, float range, String annot, int depth, int classif) {
         super(label, timestamp, lat, lon);
         this.image = img;
         this.range = range;
@@ -129,6 +130,20 @@ public class LogMarkerItem extends LogMarker {
      */
     public void setClassification(int classification) {
         this.classification = classification;
+    }
+
+    /**
+     * @return the index
+     */
+    public int getIndex() {
+        return index;
+    }
+
+    /**
+     * @param index the index to set
+     */
+    public void setIndex(int index) {
+        this.index = index;
     }
 
 
