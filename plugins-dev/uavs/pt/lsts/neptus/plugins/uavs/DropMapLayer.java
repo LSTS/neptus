@@ -47,6 +47,7 @@ import pt.lsts.imc.PowerChannelControl;
 import pt.lsts.imc.PowerChannelControl.OP;
 import pt.lsts.imc.Target;
 import pt.lsts.imc.Target.Z_UNITS;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -69,12 +70,16 @@ public class DropMapLayer extends SimpleRendererInteraction implements Renderer2
 
     @NeptusProperty(name = "Target height [m]", description = "Height of location to hit.")
     public int dropHeight = 50;
+
     @NeptusProperty(name = "Drop radius [m]", description = "Circle inside which the drop should hit.")
     public int dropRadius = 20;
 
+    @NeptusProperty(name = "Entity Name", description = "Vehicle Drop control entity name")
+    public String dropEntity = "Drop on Target";
+
     private static final long serialVersionUID = 1L;
 
-    protected boolean dropped = false;
+    protected boolean dropped = false, targetSet = false;
 
     private LocationType targetPos, dropPos;
 
@@ -97,7 +102,8 @@ public class DropMapLayer extends SimpleRendererInteraction implements Renderer2
             JPopupMenu popup = new JPopupMenu();
             final LocationType loc = source.getRealWorldLocation(event.getPoint());
 
-            addStartDropMenu(popup);
+            if (targetSet)
+                addStartDropMenu(popup);
             addSetTargetMenu(popup, loc);
             addSettingMenu(popup);
             popup.show(source, event.getPoint().x, event.getPoint().y);
@@ -141,6 +147,7 @@ public class DropMapLayer extends SimpleRendererInteraction implements Renderer2
                 loc.convertToAbsoluteLatLonDepth();
                 targetPos = loc;
                 dropped = false;
+                targetSet = true;
             }
         });
     }
@@ -186,6 +193,9 @@ public class DropMapLayer extends SimpleRendererInteraction implements Renderer2
     @Subscribe
     public void on(PowerChannelControl msg) {
         if (!msg.getSourceName().equals(getConsole().getMainSystem()))
+            return;
+
+        if (EntitiesResolver.resolveId(getConsole().getMainSystem(), dropEntity) != msg.getSrcEnt())
             return;
 
         if (msg.getOp() == OP.TURN_ON)
