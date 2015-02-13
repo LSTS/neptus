@@ -10,4 +10,3 @@ pt.lsts.neptus.plugins.uavs.panels.UavHUDPanel
 pt.lsts.neptus.plugins.uavs.panels.SpeedIndicatorPanel
 pt.lsts.neptus.plugins.uavs.panels.AutopilotModePanel
 pt.lsts.neptus.plugins.uavs.panels.PreflightPanel
-pt.lsts.neptus.plugins.uavs.DropMapLayer
