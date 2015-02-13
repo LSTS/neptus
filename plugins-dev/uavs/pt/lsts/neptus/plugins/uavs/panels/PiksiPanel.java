@@ -40,8 +40,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import org.quartz.simpl.ZeroSizeThreadPool;
-
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.RemoteActions;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -65,8 +63,6 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
     // GUI
     private JPanel titlePanel = null;
     private JPanel buttonPanel = null;
-    private JPanel statusPanel = null;
-    
   
     /**
      * @param console
@@ -100,7 +96,7 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
         buttonPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
 
         // Calibrate
-        JButton initBaselineButton = new JButton("Init Baseline");
+        JButton initBaselineButton = new JButton(I18n.text("Init Baseline"));
         initBaselineButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -112,7 +108,7 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
         buttonPanel.add(initBaselineButton, "w 34%, h 100%");
 
         // Arm
-        JButton resetFilterButton = new JButton("Reset Filter");
+        JButton resetFilterButton = new JButton(I18n.text("Reset Filter"));
         resetFilterButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -124,7 +120,7 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
         buttonPanel.add(resetFilterButton, "w 33%, h 100%");
 
         // Disarm
-        JButton resetIARButton = new JButton("Reset IAR");
+        JButton resetIARButton = new JButton(I18n.text("Reset IAR"));
         resetIARButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -143,7 +139,5 @@ public class PiksiPanel extends ConsolePanel implements MainVehicleChangeListene
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
     }
 }
