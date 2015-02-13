@@ -414,15 +414,19 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         });
         ctrlPanel.add(btn);
 
-        toggle = new JToggleButton(I18n.text("Show Ranges"));
+        final String rangesShow = I18n.text("Show Ranges");
+        final String rangesHidden = I18n.text("Clear Ranges");
+        toggle = new JToggleButton(rangesShow);
         toggle.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
                 showRanges = ((JToggleButton) event.getSource()).isSelected();
-                if (!showRanges) {
+                if (!showRanges) {  
                     rangeDistances.clear();
                     rangeSources.clear();
-                }
+                    toggle.setText(rangesShow);
+                }else
+                    toggle.setText(rangesHidden);
             }
         });
         toggle.setSelected(showRanges);
