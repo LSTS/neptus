@@ -72,6 +72,11 @@ import com.google.common.eventbus.Subscribe;
 @LayerPriority(priority = 70)
 public class SystemInfoPainter extends ConsoleLayer {
 
+    private static final String GPS_DIFF = I18n.textc("DIFF", "Use a single small word");
+    private static final String GPS_3D = I18n.textc("3D", "Use a single small word");
+    private static final String GPS_2D = I18n.textc("2D", "Use a single small word");
+    private static final String GPS_NO_FIX = I18n.textc("NoFix", "Use a single small word");
+
     private static final int RECT_WIDTH = 200;
     private static final int RECT_HEIGHT = 70;
     private static final int MARGIN = 5;
@@ -99,7 +104,7 @@ public class SystemInfoPainter extends ConsoleLayer {
     private JLabel toDraw;
     private String mainSysName;
 
-    long lastMessageMillis = 0;
+    private long lastMessageMillis = 0;
 
     private int cpuUsage = 0, fixQuality = 0;
     private double batteryVoltage, current;
@@ -122,7 +127,7 @@ public class SystemInfoPainter extends ConsoleLayer {
         strComms = I18n.textc("Comms", "Use a single small word");
         strGPS = I18n.textc("GPS", "Use a single small word");
 
-        strGPSFix = "NoFix";
+        strGPSFix = GPS_NO_FIX;
     }
 
     private InterpolationColorMap rygColorMap = new InterpolationColorMap(new double[] { 0.0, 0.01, 0.75, 1.0 },
@@ -254,19 +259,19 @@ public class SystemInfoPainter extends ConsoleLayer {
 
         if (fixType == TYPE.DEAD_RECKONING) {
             fixQuality = 0;
-            strGPSFix = "NoFix";
+            strGPSFix = GPS_NO_FIX;
         }
         else if (fixType == TYPE.STANDALONE) {
             fixQuality = 70;
-            strGPSFix = "2D";
+            strGPSFix = GPS_2D;
             if ((fixValidity & GpsFix.GFV_VALID_VDOP) != 0) {
                 fixQuality = 90;
-                strGPSFix = "3D";
+                strGPSFix = GPS_3D;
             }
         }
         else if (fixType == TYPE.DIFFERENTIAL) {
             fixQuality = 100;
-            strGPSFix = "DIFF";
+            strGPSFix = GPS_DIFF;
         }
     }
 
@@ -288,7 +293,7 @@ public class SystemInfoPainter extends ConsoleLayer {
         cpuUsage = 0;
         storageUsage = 0;
         hbCount = 0;
-        strGPSFix = "NoFix";
+        strGPSFix = GPS_NO_FIX;
         fixQuality = 0;
         mainSysName = ev.getCurrent();
 
@@ -327,7 +332,5 @@ public class SystemInfoPainter extends ConsoleLayer {
 
     @Override
     public void cleanLayer() {
-        // TODO Auto-generated method stub
-
     }
 }
