@@ -45,6 +45,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -191,11 +192,12 @@ public class ImcMessageSenderPanel extends JPanel {
 
 	private JComboBox<?> getMessagesComboBox() {
 		if (messagesComboBox == null) {
-            Vector<String> mValid = new Vector<String>();
+         	List<String> mList = new ArrayList<String>(IMCDefinition.getInstance().getMessageCount());
 			for (String mt : IMCDefinition.getInstance().getMessageNames()) {
-                mValid.add(mt);
+			    mList.add(mt);
 			}
-			messagesComboBox = new JComboBox<Object>(mValid.toArray(new String[]{}));
+			Collections.sort(mList);
+			messagesComboBox = new JComboBox<Object>(mList.toArray(new String[mList.size()]));
 		}
 		return messagesComboBox;
 	}
