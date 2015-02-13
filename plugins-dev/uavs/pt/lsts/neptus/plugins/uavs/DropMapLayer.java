@@ -50,7 +50,6 @@ import pt.lsts.imc.Target.Z_UNITS;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.PropertiesEditor;
-import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.SimpleRendererInteraction;
@@ -74,11 +73,6 @@ public class DropMapLayer extends SimpleRendererInteraction implements Renderer2
     public int dropRadius = 20;
 
     private static final long serialVersionUID = 1L;
-    private Maneuver lastManeuver = null;
-
-    protected boolean surveyEdit = false;
-    protected int surveyPos = 0;
-    protected boolean active = false;
 
     protected boolean dropped = false;
 
@@ -94,7 +88,6 @@ public class DropMapLayer extends SimpleRendererInteraction implements Renderer2
     @Override
     public void setActive(boolean mode, StateRenderer2D source) {
         super.setActive(mode, source);
-        active = mode;
     }
 
     @Override
