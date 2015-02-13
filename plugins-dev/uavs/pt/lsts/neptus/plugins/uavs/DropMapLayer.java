@@ -57,6 +57,7 @@ import pt.lsts.neptus.plugins.SimpleRendererInteraction;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.util.WGS84Utilities;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -133,6 +134,8 @@ public class DropMapLayer extends SimpleRendererInteraction implements Renderer2
                 target.setLabel("neptus");
 
                 send(target);
+
+                dropped = false;
             }
         });
     }
@@ -144,6 +147,7 @@ public class DropMapLayer extends SimpleRendererInteraction implements Renderer2
             public void actionPerformed(ActionEvent e) {
                 loc.convertToAbsoluteLatLonDepth();
                 targetPos = loc;
+                dropped = false;
             }
         });
     }
@@ -157,21 +161,23 @@ public class DropMapLayer extends SimpleRendererInteraction implements Renderer2
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         Point2D pt = renderer.getScreenPosition(targetPos);
         g.translate(pt.getX(), pt.getY());
-        g.setColor(Color.orange);
+        if (!dropped)
+            g.setColor(Color.orange);
+        else
+            g.setColor(Color.green);
         g.fill(new Ellipse2D.Double(-6, -6, 12, 12));
+
         g.setColor(Color.white);
         g.setStroke(new BasicStroke(1.5f));
         g.setColor(new Color(255, 255, 255, 128));
         double radius = Math.abs(dropRadius * renderer.getZoom());
         g.draw(new Ellipse2D.Double(-radius, -radius, radius * 2, radius * 2));
 
-        if (!dropped)
-            return;
-
-        Point2D pt2 = renderer.getScreenPosition(dropPos);
-        g.translate(pt2.getX(), pt2.getY());
-        g.setColor(Color.black);
-        g.fill(new Ellipse2D.Double(-5, -5, 10, 10));
+        if (dropped) {
+            Point2D pt2 = renderer.getScreenPosition(dropPos);
+            g.setColor(Color.red);
+            g.fill(new Ellipse2D.Double(pt2.getX() - pt.getX() - 5, pt2.getY() - pt.getY() - 5, 10, 10));
+        }
     }
 
     @Override
@@ -198,7 +204,11 @@ public class DropMapLayer extends SimpleRendererInteraction implements Renderer2
         if (!msg.getSourceName().equals(getConsole().getMainSystem()))
             return;
 
-        dropPos.setLatitudeRads(msg.getLat());
-        dropPos.setLongitudeRads(msg.getLon());
+        if (dropped)
+            return;
+
+        double pos[] = WGS84Utilities.toLatLonDepth(msg);
+
+        dropPos = new LocationType(pos[0], pos[1]);
     }
 }
