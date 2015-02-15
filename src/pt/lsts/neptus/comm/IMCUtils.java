@@ -62,6 +62,7 @@ import org.dom4j.tree.DefaultAttribute;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCFieldType;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.types.PlanSpecificationAdapter;
 import pt.lsts.neptus.NeptusLog;
@@ -140,7 +141,7 @@ public class IMCUtils {
         if (veh != null)
             return (veh.getImcId() != ImcId16.NULL_ID) ? veh.getImcId() : ImcId16.NULL_ID;
 
-        return ImcId16.NULL_ID;
+            return ImcId16.NULL_ID;
     }
 
     /**
@@ -640,7 +641,7 @@ public class IMCUtils {
         }
         else if (startEl != null) {
             NeptusLog.pub().warn("Unable to retrieve homeref from mission type.");
-            
+
             absLoc.setLocation(startEl.getCenterLocation());
             absLoc = absLoc.getNewAbsoluteLatLonDepth();
         }
@@ -1053,211 +1054,206 @@ public class IMCUtils {
     public static Vector<PluginProperty> getProperties(final IMCMessage message) {
         return getProperties(message, false);
     }
-    @SuppressWarnings("serial")
+
+    private static PluginProperty getFieldProperty(final IMCMessage message, final String field) {
+        final IMCMessageType msgType = message.getMessageType();
+        
+        boolean headerField = message.getHeader().getTypeOf(field) != null;
+        Class<?> fieldClass = null;
+        String fieldType = null;
+        if (headerField) {
+            fieldClass = IMCDefinition.getInstance().getHeaderType().getFieldType(field).getJavaType();
+            fieldType = message.getHeader().getTypeOf(field);
+        }
+        else {
+            fieldClass = message.getMessageType().getFieldType(field).getJavaType();
+            fieldType = message.getTypeOf(field);
+        }
+        
+        
+        try {
+
+            Object fieldValue = message.getValue(field);
+
+            if (msgType.getFieldUnits(field) != null) {
+                if (msgType.getFieldUnits(field).equalsIgnoreCase("Enumerated")) {
+                    Enumerated em = new Enumerated(msgType.getFieldPossibleValues(field), 
+                            message.getLong(field));
+                    fieldValue = em;
+                    fieldClass = Enumerated.class;
+                }
+                else if (msgType.getFieldUnits(field).equalsIgnoreCase("Bitmask")
+                        || msgType.getFieldUnits(field).equalsIgnoreCase("Bitfield")) {
+                    Bitmask bm = new Bitmask(msgType.getFieldPossibleValues(field),
+                            message.getLong(field));
+                    fieldValue = bm;
+                    fieldClass = Bitmask.class;
+                }
+            }                
+            
+            PluginProperty ap = null;
+            if (fieldValue != null) {
+                ap = new PluginProperty(field, fieldClass, fieldValue);
+                ap.setDisplayName(msgType.getFullFieldName(field));
+            }
+            else if (fieldType.equals("message")){
+                // TODO allow editing inline messages
+                return null;
+            }            
+            else if (fieldType.equals("message-list")){
+                // TODO allow editing inline message lists
+                return null;
+            }    
+            else if (fieldType.equals("rawdata")){
+                // TODO allow editing of raw data fields
+                return null;
+            }
+            else {    
+                try {
+                    ap = new PluginProperty(field, fieldClass, fieldClass.newInstance());
+                    ap.setDisplayName(msgType.getFullFieldName(field));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+            ap.setCategory("payload");
+            
+            String fieldName = field;
+            fieldName = fieldName.substring(0, 1).toUpperCase()+fieldName.substring(1);
+            String desc = "<html>"+field;
+            if ((msgType.getFieldUnits(field) != null) && 
+                    !"".equalsIgnoreCase(msgType.getFieldUnits(field)))
+                desc = desc.concat(" (" + msgType.getFieldUnits(field) + ")");
+
+            ap.setShortDescription(desc);
+            
+            try {
+                Object min = message.getClass().getField(fieldName+"_MIN").get(message);
+                Object max = message.getClass().getField(fieldName+"_MAX").get(message);
+                String d = desc + "<br>[ " + min + " .. " + max + " ]</html>";
+                ap.setShortDescription(d);
+            }
+            catch (Exception e) {
+                ap.setShortDescription(desc);
+            }
+
+            if ("rad".equalsIgnoreCase(msgType.getFieldUnits(field))
+                    || "radians".equalsIgnoreCase(msgType.getFieldUnits(field))) {
+                PropertiesEditor.getPropertyEditorRegistry().registerEditor(
+                        ap, AngleEditorRadsShowDegrees.class);
+                PropertiesEditor.getPropertyRendererRegistry().registerRenderer(ap, 
+                        new DefaultCellRenderer() {
+                    private static final long serialVersionUID = 1L;
+                    {
+                        setShowOddAndEvenRows(false);
+                    }
+                    @Override
+                    protected String convertToString(Object value) {
+                        try {
+                            Number nb = (Number) value;
+                            return Math.toDegrees(nb.doubleValue()) + "\u00B0 deg";
+                        }
+                        catch (Exception e) {
+                            return super.convertToString(value);
+                        }
+                    }
+                });
+            }
+            else if ("deg".equalsIgnoreCase(msgType.getFieldUnits(field))
+                    || "degrees".equalsIgnoreCase(msgType.getFieldUnits(field))) {
+                PropertiesEditor.getPropertyEditorRegistry().registerEditor(
+                        ap, AngleEditorDegs.class);
+                PropertiesEditor.getPropertyRendererRegistry().registerRenderer(ap, 
+                        new DefaultCellRenderer() {
+                    private static final long serialVersionUID = 1L;
+                    {
+                        setShowOddAndEvenRows(false);
+                    }
+                    @Override
+                    protected String convertToString(Object value) {
+                        try {
+                            Number nb = (Number) value;
+                            return nb.doubleValue() + "\u00B0 deg";
+                        }
+                        catch (Exception e) {
+                            return super.convertToString(value);
+                        }
+                    }
+                });
+            }
+            else if ("Enumerated".equalsIgnoreCase(msgType.getFieldUnits(field))
+                    || "Bitmask".equalsIgnoreCase(msgType.getFieldUnits(field))
+                    || "Bitfield".equalsIgnoreCase(msgType.getFieldUnits(field))) {
+                // Do nothing
+            }
+            else {
+                PropertiesEditor.getPropertyRendererRegistry().registerRenderer(ap, new DefaultCellRenderer() {
+                    private static final long serialVersionUID = 1L;
+                    {
+                        setShowOddAndEvenRows(false);
+                    }
+                    @Override
+                    protected String convertToString(Object value) {
+                        String funits = msgType.getFieldUnits(field);
+                        return super.convertToString(value) + " " + (funits != null ? funits : "");
+                    }
+                });
+            }
+
+            return ap;
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+            GuiUtils.errorMessage(null, e);
+            return null;
+        }
+    }
+
     public static Vector<PluginProperty> getProperties(final IMCMessage message, boolean ignoreHeaderFields) {
         //FIXME Enumerated e BitMask edition
 
         Vector<PluginProperty> properties = new Vector<PluginProperty>();
 
+        // add header properties
         if (!ignoreHeaderFields) {
-            IMCMessage headerType = IMCDefinition.getInstance().createHeader();
-
-            for (String hf : headerType.getFieldNames()) {
-                try {
-                    Object fieldValue;
-                    fieldValue = message.getHeader().getValue(hf);
-                    
-                    PluginProperty ap = null;
-
-                    if(fieldValue == null) {
-                        continue;
-                    }
-                    else {
-                        if (hf.equalsIgnoreCase("src") || hf.equalsIgnoreCase("dst")) {
-                            fieldValue = new ImcId16(fieldValue);
-                        }
-                        ap = new PluginProperty(hf, fieldValue.getClass(), fieldValue);
-                        ap.setDisplayName(headerType.getLongFieldName(hf));
-                    }
-                    
-                    ap.setCategory("header");
-                    if (hf.equalsIgnoreCase("time") || hf.equalsIgnoreCase("mgid") || hf.equalsIgnoreCase("sync") ||
-                            hf.equalsIgnoreCase("size")) {
-                        ap.setEditable(false);
-                    }
-                    if (hf.equalsIgnoreCase("sync")) {
-                        PropertiesEditor.getPropertyRendererRegistry().registerRenderer(ap, 
-                                new DefaultCellRenderer() {
-                            {
-                                setShowOddAndEvenRows(false);
-                            }
-                            @Override
-                            protected String convertToString(Object value) {
-                                try {
-                                    Number nb = (Number) value;
-                                    return "0x" + Long.toHexString(nb.longValue()) + " (" + nb + ")";
-                                }
-                                catch (Exception e) {
-                                    return super.convertToString(value);
-                                }
-                            }
-                        });
-                    }
-
-                    properties.add(ap);
-
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().error(e.getStackTrace());
+            for (String hf : message.getHeader().getFieldNames()) {
+                PluginProperty pp = getFieldProperty(message, hf);
+                if (pp != null) {
+                    pp.setCategory("header");
+                    properties.add(pp);
                 }
             }
         }
-
-        for (final String fi : message.getMessageType().getFieldNames()) {           
-            try {
-                Object fieldValue = message.getValue(fi);
-
-                if (message.getMessageType().getFieldUnits(fi) != null) {
-                    if (message.getMessageType().getFieldUnits(fi).equalsIgnoreCase("Enumerated")) {
-                        Enumerated em = new Enumerated(message.getMessageType().getFieldPossibleValues(fi), 
-                                message.getLong(fi));
-                        fieldValue = em;
-                    }
-                    else if (message.getMessageType().getFieldUnits(fi).equalsIgnoreCase("Bitmask")
-                            || message.getMessageType().getFieldUnits(fi).equalsIgnoreCase("Bitfield")) {
-                        Bitmask bm = new Bitmask(message.getMessageType().getFieldPossibleValues(fi),
-                                message.getLong(fi));
-                        fieldValue = bm;
-                    }
-                }                
-
-                PluginProperty ap = null;
-                if (fieldValue != null) {
-                    ap = new PluginProperty(fi, fieldValue.getClass(), fieldValue);
-                    ap.setDisplayName(message.getMessageType().getFullFieldName(fi));
-                }
-                //                    ap = PropertiesEditor.getPropertyInstance(fi, "payload", fieldValue.getClass(), fieldValue, true);
-                else {
-                    try {
-                        Class<?> type = message.getMessageType().getFieldType(fi).getJavaType();
-                        ap = new PluginProperty(fi, type, type.newInstance());
-                        ap.setDisplayName(message.getMessageType().getFullFieldName(fi));
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                        continue;
-                    }
-                }
-                ap.setCategory("payload");
-
-                String fieldName = fi;
-                fieldName = fieldName.substring(0, 1).toUpperCase()+fieldName.substring(1);
-                String desc = "<html>"+fi;
-                if ((message.getMessageType().getFieldUnits(fi) != null) && 
-                        !"".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi)))
-                    desc = desc.concat(" (" + message.getMessageType().getFieldUnits(fi) + ")");
-
-                try {
-                    Object min = message.getClass().getField(fieldName+"_MIN").get(message);
-                    Object max = message.getClass().getField(fieldName+"_MAX").get(message);
-                    String d = desc + "<br>[ " + min + " .. " + max + " ]</html>";
-                    ap.setShortDescription(d);
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().error(e.getMessage());
-                    ap.setShortDescription(desc);
-                }
-
-                if ("rad".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi))
-                        || "radians".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi))) {
-                    PropertiesEditor.getPropertyEditorRegistry().registerEditor(
-                            ap, AngleEditorRadsShowDegrees.class);
-                    PropertiesEditor.getPropertyRendererRegistry().registerRenderer(ap, 
-                            new DefaultCellRenderer() {
-                        {
-                            setShowOddAndEvenRows(false);
-                        }
-                        @Override
-                        protected String convertToString(Object value) {
-                            try {
-                                Number nb = (Number) value;
-                                return Math.toDegrees(nb.doubleValue()) + "\u00B0 deg";
-                            }
-                            catch (Exception e) {
-                                return super.convertToString(value);
-                            }
-                        }
-                    });
-                }
-                else if ("deg".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi))
-                        || "degrees".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi))) {
-                    PropertiesEditor.getPropertyEditorRegistry().registerEditor(
-                            ap, AngleEditorDegs.class);
-                    PropertiesEditor.getPropertyRendererRegistry().registerRenderer(ap, 
-                            new DefaultCellRenderer() {
-                        {
-                            setShowOddAndEvenRows(false);
-                        }
-                        @Override
-                        protected String convertToString(Object value) {
-                            try {
-                                Number nb = (Number) value;
-                                return nb.doubleValue() + "\u00B0 deg";
-                            }
-                            catch (Exception e) {
-                                return super.convertToString(value);
-                            }
-                        }
-                    });
-                }
-                else if ("Enumerated".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi))
-                        || "Bitmask".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi))
-                        || "Bitfield".equalsIgnoreCase(message.getMessageType().getFieldUnits(fi))) {
-                    // Do nothing
-                }
-                else {
-                    PropertiesEditor.getPropertyRendererRegistry().registerRenderer(ap, new DefaultCellRenderer() {
-                        {
-                            setShowOddAndEvenRows(false);
-                        }
-                        @Override
-                        protected String convertToString(Object value) {
-                            String funits = message.getMessageType().getFieldUnits(fi);
-                            return super.convertToString(value) + " " + (funits != null ? funits : "");
-                        }
-                    });
-                }
-
-                //if (message.getType().getFieldType(fi).equalsIgnoreCase("message")) {
-                //  PropertiesEditor.getPropertyEditorRegitry().registerEditor(
-                //          ap, MessageEditorImc.class);
-                //}
-
-                properties.add(ap);
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-                GuiUtils.errorMessage(null, e);
+        
+        // add payload fields
+        for (String fi : message.getMessageType().getFieldNames()) {
+            PluginProperty pp = getFieldProperty(message, fi);
+            if (pp != null) {
+                pp.setCategory("payload");
+                properties.add(pp);
             }
         }
+        
         return properties;
     }
-    
+
     public static void dumpPayloadBytes(IMCMessage message) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         IMCOutputStream ios = new IMCOutputStream(baos);
         IMCDefinition.getInstance().serializeFields(message, ios);
         byte[] data = baos.toByteArray();
-        
+
         for (int i = 0; i < data.length; i++) {
             if (i % 10 == 0)
                 System.out.print(" ");
             System.out.printf("%02X", data[i]);
         }       
     }
-    
-    
-    
+
+
+
     /**
      * Given an IMC ID, this method returns the system type.
      * @see https://github.com/LSTS/imc/blob/master/IMC_Addressing_Scheme.txt
@@ -1267,9 +1263,9 @@ public class IMCUtils {
     public static String getSystemType(int imcId) {
         int sys_selector = 0xE000;
         int vtype_selector = 0x1800;
-        
+
         int sys_type = (imcId & sys_selector) >> 13;
-        
+
         switch (sys_type) {
             case 0:
             case 1:
@@ -1290,7 +1286,7 @@ public class IMCUtils {
             default:
                 break;
         }
-        
+
         String name = IMCDefinition.getInstance().getResolver().resolve(imcId).toLowerCase();
         if (name.contains("ccu"))
             return "CCU";
@@ -1302,10 +1298,10 @@ public class IMCUtils {
             return "Gateway";
         return "Unknown";
     }
-    
+
     public static void testSysTypeResolution() throws Exception {
         String address_url = "file:///home/zp/Desktop/IMC_Addresses.xml";
-        
+
         URLConnection conn = new URL(address_url).openConnection();
         Document doc = DocumentHelper.parseText(IOUtils.toString(conn.getInputStream()));
         List<?> nodes = doc.getRootElement().selectNodes("address/@id");
