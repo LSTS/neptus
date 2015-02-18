@@ -35,7 +35,6 @@ package pt.lsts.neptus.mra.markermanagement;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 
@@ -48,7 +47,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -60,7 +58,6 @@ import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mra.plots.LogMarkerListener;
 import pt.lsts.neptus.util.ImageUtils;
 
 
@@ -76,13 +73,13 @@ public class MarkerEdit extends JFrame {
     private JMenuBar menuBar;
     private JTextField textField;
     private JTextField txtMarkerlabel;
-    private Markermanagement parent;
+    private MarkerManagement parent;
     private AbstractAction save, del, exit, freeDraw, rectDraw;
     private String[] classificationList = new String[] {"1 - <Unknown>", "2 - <Ship>", "3 - <Etc1>", "4 - <Etc2>", "5 - <Etc3>"};
     private JPopupMenu drawPopupMenu;
     private LogMarkerItem selectedMarker;
 
-    public MarkerEdit(Markermanagement parent) {
+    public MarkerEdit(MarkerManagement parent) {
         setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerEdit.class.getResource("/images/menus/edit.png")));
         this.parent = parent;
 
@@ -96,6 +93,7 @@ public class MarkerEdit extends JFrame {
 
     }
 
+    @SuppressWarnings("unchecked")
     private void initialize() {
         JPanel panel = new JPanel();
         getContentPane().add(panel, BorderLayout.CENTER);
@@ -224,13 +222,9 @@ public class MarkerEdit extends JFrame {
         };
         exit.putValue(Action.SHORT_DESCRIPTION, I18n.text("Exit Marker Editor") + ".");
 
-
-
-
         mnFile.add(save);
         mnFile.add(del);
         mnFile.add(exit);
-
 
     }
     
