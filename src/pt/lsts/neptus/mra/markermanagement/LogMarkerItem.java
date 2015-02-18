@@ -32,6 +32,7 @@
 package pt.lsts.neptus.mra.markermanagement;
 
 import java.awt.image.BufferedImage;
+import java.text.DateFormat;
 
 import pt.lsts.neptus.mra.LogMarker;
 
@@ -47,15 +48,38 @@ public class LogMarkerItem extends LogMarker {
     private float range;
     private String annotation;
     private int depth;
-    private int classification;
+    private Classification classification;
     
+    public enum Classification {
+        UNDEFINED(-1), 
+        UNKNOWN(1), 
+        SHIP(2), 
+        OTHER1(3), 
+        OTHER2(4), 
+        OTHER3(5);
+
+
+        public int getValue() {
+            return this.value;
+        }
+
+        private int value;
+
+        private Classification(int value) {
+            this.value = value;
+        }
+
+    }
+
+    //TODO : add free draw attribute, independently from image (to be able to export image without draw or just draw, or both!)
+
     /**
      * @param label
      * @param timestamp
      * @param lat
      * @param lon
      */
-    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, BufferedImage img, float range, String annot, int depth, int classif) {
+    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, BufferedImage img, float range, String annot, int depth, Classification classif) {
         super(label, timestamp, lat, lon);
         this.image = img;
         this.range = range;
@@ -63,7 +87,7 @@ public class LogMarkerItem extends LogMarker {
         this.depth = depth;
         this.classification = classif;
     }
-    
+
     /**
      * @return the image
      */
@@ -76,6 +100,20 @@ public class LogMarkerItem extends LogMarker {
      */
     public void setImage(BufferedImage image) {
         this.image = image;
+    }
+
+    /**
+     * @return the classification
+     */
+    public Classification getClassification() {
+        return classification;
+    }
+
+    /**
+     * @param classification the classification to set
+     */
+    public void setClassification(Classification classification) {
+        this.classification = classification;
     }
 
     /**
@@ -121,20 +159,6 @@ public class LogMarkerItem extends LogMarker {
     }
 
     /**
-     * @return the classification
-     */
-    public int getClassification() {
-        return classification;
-    }
-
-    /**
-     * @param classification the classification to set
-     */
-    public void setClassification(int classification) {
-        this.classification = classification;
-    }
-
-    /**
      * @return the index
      */
     public int getIndex() {
@@ -148,7 +172,21 @@ public class LogMarkerItem extends LogMarker {
         this.index = index;
     }
 
+    public String toString(){
+        StringBuilder string = new StringBuilder();
+        string.append(index + " ");
+        string.append(getLabel() + " ");
+        string.append(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(getDate()) + " ");
+        string.append(getLat() + " ");
+        string.append(getLon() + " ");
+        string.append(getRange()+ " ");
+        string.append(getDepth()+ " ");
+        string.append(getAnnotation()+ " ");
+        string.append(getClassification()+ " ");
 
-    
+        return string.toString();
+    }
+
+
 
 }
