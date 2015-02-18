@@ -37,6 +37,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.text.DateFormat;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -58,6 +59,7 @@ import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
 import pt.lsts.neptus.util.ImageUtils;
 
 
@@ -71,13 +73,20 @@ public class MarkerEdit extends JFrame {
     private static final long serialVersionUID = 1613149353413851878L;
 
     private JMenuBar menuBar;
-    private JTextField textField;
-    private JTextField txtMarkerlabel;
+
     private MarkerManagement parent;
     private AbstractAction save, del, exit, freeDraw, rectDraw;
     private String[] classificationList = new String[] {"1 - <Unknown>", "2 - <Ship>", "3 - <Etc1>", "4 - <Etc2>", "5 - <Etc3>"};
     private JPopupMenu drawPopupMenu;
     private LogMarkerItem selectedMarker;
+
+    //
+    private JTextField nameLabelValue;
+    private JLabel timeStampValue;
+    private JLabel locationValue;
+    private JLabel depthValue;
+    private JComboBox<String> classifValue;
+    private JTextArea annotationValue;
 
     public MarkerEdit(MarkerManagement parent) {
         setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerEdit.class.getResource("/images/menus/edit.png")));
@@ -99,64 +108,80 @@ public class MarkerEdit extends JFrame {
         getContentPane().add(panel, BorderLayout.CENTER);
         panel.setLayout(new MigLayout("", "[][][][][grow][][][][grow]", "[][][][][][][grow][][grow]"));
 
-        JLabel lblNewLabel = new JLabel();
-        lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        lblNewLabel.setIcon(new ImageIcon(MarkerEdit.class.getResource("/images/unknown.png")));
+        JLabel markerImage = new JLabel();
+        markerImage.setHorizontalAlignment(SwingConstants.CENTER);
+        markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource("/images/unknown.png")));
 
         setupDrawPopup();
 
-        lblNewLabel.setComponentPopupMenu(drawPopupMenu);
+        markerImage.setComponentPopupMenu(drawPopupMenu);
 
-        panel.add(lblNewLabel, "cell 0 0 7 7,alignx center");
+        panel.add(markerImage, "cell 0 0 7 7,alignx center");
 
-        JLabel lblName = new JLabel("Label:");
-        panel.add(lblName, "cell 7 0,alignx left");
+        JLabel nameLabel = new JLabel("Label:");
+        panel.add(nameLabel, "cell 7 0,alignx left");
 
-        txtMarkerlabel = new JTextField();
-        txtMarkerlabel.setBackground(Color.WHITE);
-        txtMarkerlabel.setText("MARKER_LABEL");
-        panel.add(txtMarkerlabel, "cell 8 0,alignx left");
-        txtMarkerlabel.setColumns(13);
+        nameLabelValue = new JTextField();
+        nameLabelValue.setBackground(Color.WHITE);
+        nameLabelValue.setText("MARKER_LABEL");
+        panel.add(nameLabelValue, "cell 8 0,alignx left");
+        nameLabelValue.setColumns(13);
 
-        JLabel lblNewLabel_1 = new JLabel("Timestamp:");
-        panel.add(lblNewLabel_1, "cell 7 1,alignx left");
+        JLabel timeStampLabel = new JLabel("Timestamp:");
+        panel.add(timeStampLabel, "cell 7 1,alignx left");
 
-        JLabel lblTs = new JLabel("TS");
-        panel.add(lblTs, "cell 8 1,alignx left");
+        timeStampValue = new JLabel("TS");
+        panel.add(timeStampValue, "cell 8 1,alignx left");
 
-        JLabel lblNewLabel_2 = new JLabel("Location:");
-        panel.add(lblNewLabel_2, "cell 7 2,alignx left");
+        JLabel locationLabel = new JLabel("Location:");
+        panel.add(locationLabel, "cell 7 2,alignx left");
 
-        JLabel lblLocation = new JLabel("LOCATION");
-        panel.add(lblLocation, "cell 8 2,alignx left");
+        locationValue = new JLabel("LOCATION");
+        panel.add(locationValue, "cell 8 2,alignx left");
 
-        JLabel lblNewLabel_3 = new JLabel("Depth:");
-        panel.add(lblNewLabel_3, "cell 7 3,alignx left");
+        JLabel depthLabel = new JLabel("Depth:");
+        panel.add(depthLabel, "cell 7 3,alignx left");
 
-        JLabel lblDepth = new JLabel("DEPTH");
-        panel.add(lblDepth, "cell 8 3,alignx left");
+        depthValue = new JLabel("DEPTH");
+        panel.add(depthValue, "cell 8 3,alignx left");
 
-        JLabel lblClassification = new JLabel("Classification:");
-        panel.add(lblClassification, "cell 7 4,alignx trailing");
+        JLabel classifLabel = new JLabel("Classification:");
+        panel.add(classifLabel, "cell 7 4,alignx trailing");
 
-        JComboBox<String> comboBox = new JComboBox<>();
-        comboBox.setBackground(Color.WHITE);
-        comboBox.setModel(new DefaultComboBoxModel(classificationList));
-        panel.add(comboBox, "cell 8 4,alignx left");
+        classifValue = new JComboBox<>();
+        classifValue.setBackground(Color.WHITE);
+        classifValue.setModel(new DefaultComboBoxModel(Classification.values()));
+        panel.add(classifValue, "cell 8 4,alignx left");
 
-        JLabel lblAnnotation = new JLabel("Annotation:");
-        panel.add(lblAnnotation, "cell 7 5");
+        JLabel annotationLabel = new JLabel("Annotation:");
+        panel.add(annotationLabel, "cell 7 5");
 
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         panel.add(scrollPane, "cell 7 6 2 1,grow");
 
-        JTextArea textArea = new JTextArea();
-        textArea.setText("<Your annotations here>");
-        textArea.setLineWrap(true); //Auto down line if the line is too long
-        textArea.setWrapStyleWord(true); //Auto set up the style of words
-        textArea.setRows(8);
-        scrollPane.setViewportView(textArea);
+        annotationValue = new JTextArea();
+        annotationValue.setText("<Your annotations here>");
+        annotationValue.setLineWrap(true); //Auto down line if the line is too long
+        annotationValue.setWrapStyleWord(true); //Auto set up the style of words
+        annotationValue.setRows(8);
+        scrollPane.setViewportView(annotationValue);
+    }
+    
+
+    public void loadMarker(LogMarkerItem log) {
+        selectedMarker = log;
+
+        nameLabelValue.setText(selectedMarker.getLabel());
+        timeStampValue.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(selectedMarker.getTimestamp()));
+        locationValue.setText(selectedMarker.getLocation().toString());
+        depthValue.setText(Integer.toString(selectedMarker.getDepth()));
+        classifValue.setSelectedItem(selectedMarker.getClassification());
+        
+        if (!selectedMarker.getAnnotation().equals(""))
+            annotationValue.setText(selectedMarker.getAnnotation());
+        
+        System.out.println(selectedMarker.toString());
     }
 
     private void setupDrawPopup() {
@@ -227,24 +252,19 @@ public class MarkerEdit extends JFrame {
         mnFile.add(exit);
 
     }
-    
+
     private int showDelDialog() {
         Object[] options = {"Yes, please", "No, thanks"};
         int n = JOptionPane.showOptionDialog(this,
                 "Are you sure you want to delete this marker?",
-                        "Confirm delete",
-                        JOptionPane.YES_NO_CANCEL_OPTION,
-                        JOptionPane.QUESTION_MESSAGE,
-                        null,
-                        options,
-                        options[0]);
-        
-        return n;
-    }
+                "Confirm delete",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
 
-    public void loadMarker(LogMarkerItem log) {
-        selectedMarker = log;
-        System.out.println(log.toString());
+        return n;
     }
 
 }
