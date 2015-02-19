@@ -84,8 +84,6 @@ public class LogMarkerItemModel extends AbstractTableModel {
     public Object getValueAt(int rowIndex, int columnIndex) {
         LogMarkerItem marker = markerList.get(rowIndex);
         Object returnValue = null;
-        
-        
 
         switch (columnIndex) {
             case COLUMN_INDEX:
@@ -136,4 +134,17 @@ public class LogMarkerItemModel extends AbstractTableModel {
         return columnNames[columnIndex];
     }
 
+    public void removeRow(int row) {
+        fireTableRowsDeleted(row, row);
+    }
+
+    public void updateRow(int row) {
+
+        fireTableRowsUpdated(row, row);
+    }
+    public void insertRow(int row) {
+
+        fireTableRowsInserted(row, row);
+
+    }
 }
