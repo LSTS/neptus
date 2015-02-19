@@ -60,6 +60,7 @@ import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
 
 
@@ -76,10 +77,10 @@ public class MarkerEdit extends JFrame {
 
     private MarkerManagement parent;
     private AbstractAction save, del, exit, freeDraw, rectDraw;
-    private String[] classificationList = new String[] {"1 - <Unknown>", "2 - <Ship>", "3 - <Etc1>", "4 - <Etc2>", "5 - <Etc3>"};
+   // private String[] classificationList = new String[] {"1 - <Unknown>", "2 - <Ship>", "3 - <Etc1>", "4 - <Etc2>", "5 - <Etc3>"};
     private JPopupMenu drawPopupMenu;
     private LogMarkerItem selectedMarker;
-
+    private int selectMarkerRowIndex = -1;
     //
     private JTextField nameLabelValue;
     private JLabel timeStampValue;
@@ -87,6 +88,8 @@ public class MarkerEdit extends JFrame {
     private JLabel depthValue;
     private JComboBox<String> classifValue;
     private JTextArea annotationValue;
+
+
 
     public MarkerEdit(MarkerManagement parent) {
         setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerEdit.class.getResource("/images/menus/edit.png")));
@@ -169,8 +172,9 @@ public class MarkerEdit extends JFrame {
     }
     
 
-    public void loadMarker(LogMarkerItem log) {
+    public void loadMarker(LogMarkerItem log, int rowIndex) {
         selectedMarker = log;
+        selectMarkerRowIndex = rowIndex;
 
         nameLabelValue.setText(selectedMarker.getLabel());
         timeStampValue.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(selectedMarker.getTimestamp()));
@@ -181,7 +185,7 @@ public class MarkerEdit extends JFrame {
         if (!selectedMarker.getAnnotation().equals(""))
             annotationValue.setText(selectedMarker.getAnnotation());
         
-        System.out.println(selectedMarker.toString());
+        System.out.println(selectedMarker.toString()); //FIXME
     }
 
     private void setupDrawPopup() {
@@ -219,7 +223,21 @@ public class MarkerEdit extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO : save current marker
+                //get all values from fields
+                String label = nameLabelValue.getText();
+               // DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(marker.getDate())
+                double ts = 0.0;// timeStampValue.getText();
+                LocationType location = new LocationType();//locationValue.getText();
+                int depth = Integer.parseInt(depthValue.getText());
+                
+                float range = 0;
+                Classification classif = (Classification) classifValue.getSelectedItem();
+                
+                String annotation = annotationValue.getText();
+                
+                //build new LogMarkerItem
+               //LogMarkerItem toSave = new LogMarkerItem(selectedMarker.getIndex(), label, ts,  location.getl, location.getLon(), );
+                
             }
         };
         save.putValue(Action.SHORT_DESCRIPTION, I18n.text("Save Marker") + ".");
@@ -230,7 +248,8 @@ public class MarkerEdit extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 int res = showDelDialog();
                 if (res==0)  { 
-                    //TODO : delete
+                    parent.deleteLog(selectedMarker, selectMarkerRowIndex);
+                    dispose();
                 }
             }
         };

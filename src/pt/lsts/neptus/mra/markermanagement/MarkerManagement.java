@@ -75,6 +75,7 @@ public class MarkerManagement {
 
     private JFrame frmMarkerManagement;
     private JTable table;
+    private LogMarkerItemModel tableModel;
     private MarkerEdit markerEditFrame;
     protected MRAPanel mraPanel;
     private final ArrayList<LogMarker> logMarkers = new ArrayList<>();
@@ -99,8 +100,8 @@ public class MarkerManagement {
 
         markerEditFrame = new MarkerEdit(this);
         markerEditFrame.setLocation(frmMarkerManagement.getLocation().x + frmMarkerManagement.getSize().width, frmMarkerManagement.getLocation().y);
-        markerEditFrame.setSize(470, 540);
-        
+        // markerEditFrame.setSize(470, 540);
+
         logMarkers.addAll(mraPanel.getMarkers());
 
         JPanel panel = new JPanel();
@@ -110,36 +111,25 @@ public class MarkerManagement {
         //check if markers file exists and creates new file if not
         markersSetup();
 
-        TableModel tableModel = new LogMarkerItemModel(markerList);
+        tableModel = new LogMarkerItemModel(markerList);
         table = new JTable(tableModel);
 
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
         table.setRowSorter(sorter);
         List<RowSorter.SortKey> sortKeys = new ArrayList<>();
 
-
         int columnIndexToSort = 1;
-        sortKeys.add(new RowSorter.SortKey(columnIndexToSort, SortOrder.DESCENDING));
-
+        sortKeys.add(new RowSorter.SortKey(columnIndexToSort, SortOrder.ASCENDING));
         sorter.setSortKeys(sortKeys);
         sorter.sort();
 
-       /* table.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-            public void valueChanged(ListSelectionEvent event) {
-                // do some actions here, for example
-                // print first column value from selected row
-                if (!event.getValueIsAdjusting()) {
-                    openMarkerEditor();
-                    System.out.println(table.getValueAt(table.getSelectedRow(), 0).toString());
-                }
-            }
-        });
-        */
         table.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent me) {
                 JTable table =(JTable) me.getSource();
+                int rowIndex = table.getSelectedRow();
                 if (me.getClickCount() == 2) {
-                    openMarkerEditor(table.getValueAt(table.getSelectedRow(), 1).toString());
+                    
+                    openMarkerEditor(table.getValueAt(table.getSelectedRow(), 1).toString(), rowIndex);
                     //System.out.println(table.getValueAt(table.getSelectedRow(), 1).toString());
                 }
             }
@@ -154,14 +144,14 @@ public class MarkerManagement {
 
     }
 
-    private void openMarkerEditor(String label) {
+    private void openMarkerEditor(String label, int rowIndex) {
 
         LogMarkerItem selected = findMarker(label);
         if (selected == null) {
             System.out.println("DEBUG : cannot find selected marker on markers list!"); //FIXME DEBUG
             return;
         }
-        markerEditFrame.loadMarker(selected);
+        markerEditFrame.loadMarker(selected, rowIndex);
         markerEditFrame.setVisible(true);
 
     }
@@ -202,6 +192,7 @@ public class MarkerManagement {
 
         int i=1;
         for(LogMarker l : mraPanel.getMarkers()) {
+
             LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), l.getLat(), l.getLon(), null, 0, "", 0, Classification.UNDEFINED);
 
             //add new LogMarkerItem to list
@@ -278,6 +269,52 @@ public class MarkerManagement {
     private boolean loadMarkers() {
 
         return false;
+    }
+
+    /**
+     * @param selectedMarker
+     */
+    public void deleteLog(LogMarkerItem selectedMarker, int row) {
+        tableModel.removeRow(row);
+        markerList.remove(selectedMarker);
+        
+        for (LogMarkerItem l : markerList) {
+            System.out.println("log : " + l.toString());
+        }
+        
+        //TODO: save XML
+        
+    }
+    
+    public static void main(String[] args) {
+        LogMarkerItem test1 = new LogMarkerItem(1, "1", 2.0, 1.0, 1.0, null, 1 , "anot1", 5, Classification.OTHER1 );
+        LogMarkerItem test2 = new LogMarkerItem(2, "2", 2.0, 1.0, 1.0, null, 1 , "anot2", 5, Classification.OTHER1 );
+        LogMarkerItem test3 = new LogMarkerItem(3, "3", 2.0, 1.0, 1.0, null, 1 , "anot3", 5, Classification.OTHER1 );
+        LogMarkerItem test4 = new LogMarkerItem(4, "4", 2.0, 1.0, 1.0, null, 1 , "anot4", 5, Classification.OTHER1 );
+        LogMarkerItem test5 = new LogMarkerItem(5, "5", 2.0, 1.0, 1.0, null, 1 , "anot5", 5, Classification.OTHER1 );
+        LogMarkerItem test6 = new LogMarkerItem(6, "6", 2.0, 1.0, 1.0, null, 1 , "anot6", 5, Classification.OTHER1 );
+
+        
+        ArrayList<LogMarkerItem> list = new ArrayList<>();
+        list.add(test1);
+        list.add(test3);
+        list.add(test6);
+        list.add(test5);
+        list.add(test2);
+        list.add(test4);
+        
+        for (LogMarkerItem l : list) {
+            System.out.println("log : " + l.toString());
+        }
+        
+        
+        list.remove(test3);
+        System.out.println("removed log 3");
+        for (LogMarkerItem l : list) {
+            System.out.println("log : " + l.toString());
+        }
+        
+        
     }
 
 }
