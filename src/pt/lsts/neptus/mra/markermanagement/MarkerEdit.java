@@ -35,6 +35,10 @@ package pt.lsts.neptus.mra.markermanagement;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.text.DateFormat;
@@ -60,7 +64,6 @@ import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
-import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
 
 
@@ -77,15 +80,15 @@ public class MarkerEdit extends JFrame {
 
     private MarkerManagement parent;
     private AbstractAction save, del, exit, freeDraw, rectDraw;
-   // private String[] classificationList = new String[] {"1 - <Unknown>", "2 - <Ship>", "3 - <Etc1>", "4 - <Etc2>", "5 - <Etc3>"};
+    // private String[] classificationList = new String[] {"1 - <Unknown>", "2 - <Ship>", "3 - <Etc1>", "4 - <Etc2>", "5 - <Etc3>"};
     private JPopupMenu drawPopupMenu;
     private LogMarkerItem selectedMarker;
     private int selectMarkerRowIndex = -1;
     //
-    private JTextField nameLabelValue;
+    private JLabel nameLabelValue;
     private JLabel timeStampValue;
     private JLabel locationValue;
-    private JLabel depthValue;
+    private JLabel altitudeValue;
     private JComboBox<String> classifValue;
     private JTextArea annotationValue;
 
@@ -97,7 +100,7 @@ public class MarkerEdit extends JFrame {
 
         setResizable(false);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setBounds(100, 100, 470, 340);
+        setBounds(100, 100, 540, 340);
 
         setupFileMenu();
 
@@ -105,13 +108,22 @@ public class MarkerEdit extends JFrame {
 
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void initialize() {
         JPanel panel = new JPanel();
         getContentPane().add(panel, BorderLayout.CENTER);
         panel.setLayout(new MigLayout("", "[][][][][grow][][][][grow]", "[][][][][][][grow][][grow]"));
 
-        JLabel markerImage = new JLabel();
+        JLabel markerImage = new JLabel() { 
+            @Override
+            protected void paintChildren(Graphics g) {
+                super.paintChildren(g);
+                drawZoomRuler(g);
+            }
+        };
+        
+        markerImage.setPreferredSize(new Dimension(265, 265));
+        
         markerImage.setHorizontalAlignment(SwingConstants.CENTER);
         markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource("/images/unknown.png")));
 
@@ -119,16 +131,17 @@ public class MarkerEdit extends JFrame {
 
         markerImage.setComponentPopupMenu(drawPopupMenu);
 
-        panel.add(markerImage, "cell 0 0 7 7,alignx center");
+        panel.add(markerImage, "cell 0 0 7 7,alignx left,aligny top");
 
         JLabel nameLabel = new JLabel("Label:");
         panel.add(nameLabel, "cell 7 0,alignx left");
 
-        nameLabelValue = new JTextField();
+        nameLabelValue = new JLabel();
         nameLabelValue.setBackground(Color.WHITE);
         nameLabelValue.setText("MARKER_LABEL");
+     
         panel.add(nameLabelValue, "cell 8 0,alignx left");
-        nameLabelValue.setColumns(13);
+
 
         JLabel timeStampLabel = new JLabel("Timestamp:");
         panel.add(timeStampLabel, "cell 7 1,alignx left");
@@ -142,11 +155,11 @@ public class MarkerEdit extends JFrame {
         locationValue = new JLabel("LOCATION");
         panel.add(locationValue, "cell 8 2,alignx left");
 
-        JLabel depthLabel = new JLabel("Depth:");
-        panel.add(depthLabel, "cell 7 3,alignx left");
+        JLabel altitudeLabel = new JLabel("Altitude:");
+        panel.add(altitudeLabel, "cell 7 3,alignx left");
 
-        depthValue = new JLabel("DEPTH");
-        panel.add(depthValue, "cell 8 3,alignx left");
+        altitudeValue = new JLabel("ALTITUDE");
+        panel.add(altitudeValue, "cell 8 3,alignx left");
 
         JLabel classifLabel = new JLabel("Classification:");
         panel.add(classifLabel, "cell 7 4,alignx trailing");
@@ -170,22 +183,38 @@ public class MarkerEdit extends JFrame {
         annotationValue.setRows(8);
         scrollPane.setViewportView(annotationValue);
     }
-    
+
+    private void drawZoomRuler(Graphics g) {
+
+        Graphics2D g2d = (Graphics2D) g;
+
+        int fontSize = 11;
+        g2d.setFont(new Font("SansSerif", Font.PLAIN, fontSize));
+        g2d.setColor(Color.BLACK);
+        
+        //draw zero
+        g2d.drawString("0", 8, 260);
+        
+        g2d.drawLine(15, 250, 250, 250);
+        
+        g2d.drawLine(15, 0, 15, 250);
+        
+        
+        //TODO : finish
+
+    }
 
     public void loadMarker(LogMarkerItem log, int rowIndex) {
         selectedMarker = log;
         selectMarkerRowIndex = rowIndex;
 
         nameLabelValue.setText(selectedMarker.getLabel());
+        nameLabelValue.setToolTipText(selectedMarker.getLabel());
         timeStampValue.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(selectedMarker.getTimestamp()));
         locationValue.setText(selectedMarker.getLocation().toString());
-        depthValue.setText(Integer.toString(selectedMarker.getDepth()));
+        altitudeValue.setText(Double.toString(selectedMarker.getAltitude()));
         classifValue.setSelectedItem(selectedMarker.getClassification());
-        
-        if (!selectedMarker.getAnnotation().equals(""))
-            annotationValue.setText(selectedMarker.getAnnotation());
-        
-        System.out.println(selectedMarker.toString()); //FIXME
+        annotationValue.setText(selectedMarker.getAnnotation());
     }
 
     private void setupDrawPopup() {
@@ -223,21 +252,18 @@ public class MarkerEdit extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                //get all values from fields
+                //get values from fields
                 String label = nameLabelValue.getText();
-               // DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(marker.getDate())
-                double ts = 0.0;// timeStampValue.getText();
-                LocationType location = new LocationType();//locationValue.getText();
-                int depth = Integer.parseInt(depthValue.getText());
-                
-                float range = 0;
+
                 Classification classif = (Classification) classifValue.getSelectedItem();
-                
+
                 String annotation = annotationValue.getText();
-                
-                //build new LogMarkerItem
-               //LogMarkerItem toSave = new LogMarkerItem(selectedMarker.getIndex(), label, ts,  location.getl, location.getLon(), );
-                
+
+                //TODO: may be add setLabel on LogMarker.java ?
+                // selectedMarker.setLabel(label);
+                selectedMarker.setClassification(classif);
+                selectedMarker.setAnnotation(annotation);
+                parent.updateTableRow(selectedMarker, selectMarkerRowIndex);
             }
         };
         save.putValue(Action.SHORT_DESCRIPTION, I18n.text("Save Marker") + ".");

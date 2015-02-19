@@ -45,9 +45,8 @@ public class LogMarkerItem extends LogMarker {
     private static final long serialVersionUID = 1L;
     private int index;
     private BufferedImage image;
-    private float range;
     private String annotation;
-    private int depth;
+    private double altitude;
     private Classification classification;
     
     public enum Classification {
@@ -79,14 +78,14 @@ public class LogMarkerItem extends LogMarker {
      * @param lat
      * @param lon
      */
-    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, BufferedImage img, float range, String annot, int depth, Classification classif) {
+    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, BufferedImage img, String annot, double altitude, Classification classif) {
         super(label, timestamp, lat, lon);
         this.index = index;
         this.image = img;
-        this.range = range;
         this.annotation = annot;
-        this.depth = depth;
+        this.altitude = altitude;
         this.classification = classif;
+        //System.out.println(toString());
     }
 
     /**
@@ -118,20 +117,6 @@ public class LogMarkerItem extends LogMarker {
     }
 
     /**
-     * @return the range
-     */
-    public float getRange() {
-        return range;
-    }
-
-    /**
-     * @param range the range to set
-     */
-    public void setRange(float range) {
-        this.range = range;
-    }
-
-    /**
      * @return the annotation
      */
     public String getAnnotation() {
@@ -146,17 +131,17 @@ public class LogMarkerItem extends LogMarker {
     }
 
     /**
-     * @return the depth
+     * @return the altitude
      */
-    public int getDepth() {
-        return depth;
+    public double getAltitude() {
+        return altitude;
     }
 
     /**
      * @param depth the depth to set
      */
-    public void setDepth(int depth) {
-        this.depth = depth;
+    public void setAltitude(double depth) {
+        this.altitude = depth;
     }
 
     /**
@@ -180,14 +165,18 @@ public class LogMarkerItem extends LogMarker {
         string.append(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(getDate()) + " ");
         string.append(getLat() + " ");
         string.append(getLon() + " ");
-        string.append(getRange()+ " ");
-        string.append(getDepth()+ " ");
+        string.append(getAltitude()+ " ");
         string.append(getAnnotation()+ " ");
         string.append(getClassification()+ " ");
 
         return string.toString();
     }
 
+    public void copy(LogMarkerItem from) {
+        this.annotation = from.annotation;
+        this.classification = from.classification;
+        this.image = from.image;
+    }
 
 
 }

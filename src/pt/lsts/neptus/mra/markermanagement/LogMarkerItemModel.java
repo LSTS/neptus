@@ -43,19 +43,21 @@ import javax.swing.table.AbstractTableModel;
 public class LogMarkerItemModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;
-    private static final int COLUMN_INDEX         = 0;
-    private static final int COLUMN_LABEL         = 1;
-    private static final int COLUMN_TIMESTAMP    = 2;
-    private static final int COLUMN_LOCATION     = 3;
-    private static final int COLUMN_DEPTH        = 4;
-    private static final int COLUMN_ANNOTATION  = 5;
+    private static final int COLUMN_INDEX           = 0;
+    private static final int COLUMN_LABEL           = 1;
+    private static final int COLUMN_TIMESTAMP      = 2;
+    private static final int COLUMN_LOCATION       = 3;
+    private static final int COLUMN_ALTITUDE           = 4;
+    private static final int COLUMN_CLASSIFICATION = 5;
+    private static final int COLUMN_ANNOTATION     = 6;
 
     private String[] columnNames = {
-            "Index #",
+            "#",
             "Label",
             "Timestamp",
             "Location",
-            "Depth",
+            "Altitude (m)",
+            "Classification",
             "Annotation"
     };
 
@@ -63,11 +65,6 @@ public class LogMarkerItemModel extends AbstractTableModel {
 
     public LogMarkerItemModel(List<LogMarkerItem> markerList) {
         this.markerList = markerList;
-
-        int indexCount = 1;
-        for (LogMarkerItem marker : markerList) {
-            marker.setIndex(indexCount++);
-        }
     }
 
     @Override
@@ -82,6 +79,8 @@ public class LogMarkerItemModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        
+        //FIXME : NULL WHEN DELETING AFTER EDITING MARKER!
         LogMarkerItem marker = markerList.get(rowIndex);
         Object returnValue = null;
 
@@ -98,8 +97,11 @@ public class LogMarkerItemModel extends AbstractTableModel {
             case COLUMN_LOCATION:
                 returnValue = marker.getLocation();
                 break;
-            case COLUMN_DEPTH:
-                returnValue = marker.getDepth();
+            case COLUMN_ALTITUDE:
+                returnValue = marker.getAltitude();
+                break;
+            case COLUMN_CLASSIFICATION:
+                returnValue = marker.getClassification();
                 break;
             case COLUMN_ANNOTATION:
                 returnValue = marker.getAnnotation();
