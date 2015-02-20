@@ -80,7 +80,6 @@ public class LogMarkerItemModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         
-        //FIXME : NULL WHEN DELETING AFTER EDITING MARKER!
         LogMarkerItem marker = markerList.get(rowIndex);
         Object returnValue = null;
 

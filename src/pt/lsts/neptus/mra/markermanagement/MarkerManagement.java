@@ -37,16 +37,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -83,8 +79,6 @@ import pt.lsts.neptus.mra.SidescanLogMarker;
 import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.Dom4JUtil;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 /**
  * @author Manuel R.
  *
@@ -130,13 +124,13 @@ public class MarkerManagement {
         //set markerEdit frame location next to this window
         markerEditFrame.setLocation(frmMarkerManagement.getLocation().x + frmMarkerManagement.getSize().width, frmMarkerManagement.getLocation().y);
 
-        //Add old LogMarkers
+        //Add existing LogMarkers (only SidescanLogMarker ones)
         for (LogMarker m : mraPanel.getMarkers()) {
             if (m.getClass() == SidescanLogMarker.class) {
-                System.out.println("m is sidescan line");
+               logMarkers.add(m);
             }
         }
-        logMarkers.addAll(mraPanel.getMarkers());
+        //logMarkers.addAll(mraPanel.getMarkers());
 
         JPanel panel = new JPanel();
         frmMarkerManagement.getContentPane().add(panel, "cell 0 0,grow");
@@ -269,7 +263,7 @@ public class MarkerManagement {
             }
         }
     }
-
+    
     private void createMarkers() {
 
         //XML document structure
@@ -282,8 +276,9 @@ public class MarkerManagement {
 
            // BufferedImage bufImage = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
             //TODO build sidescanimage 
-            
-            LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), l.getLat(), l.getLon(), null, "<Your annotation here.>", 0, Classification.UNDEFINED);
+            LocationType loc = l.getLocation();
+
+            LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), null, "<Your annotation here.>", 0, Classification.UNDEFINED);
 
             
             //add new LogMarkerItem to list
@@ -307,11 +302,11 @@ public class MarkerManagement {
             mark.appendChild(ts);
 
             Element lat = xml.createElement("Lat");
-            lat.appendChild(xml.createTextNode(l.getLat() + ""));
+            lat.appendChild(xml.createTextNode(loc.getLatitudeDegs() + ""));
             mark.appendChild(lat);
 
             Element lon = xml.createElement("Lon");
-            lon.appendChild(xml.createTextNode(l.getLon() + ""));
+            lon.appendChild(xml.createTextNode(loc.getLongitudeDegs() + ""));
             mark.appendChild(lon);
 
             Element image = xml.createElement("Image");
@@ -366,12 +361,12 @@ public class MarkerManagement {
     }
 
     public void deleteLog(LogMarkerItem selectedMarker, int row) {
-        tableModel.removeRow(row);
         markerList.remove(selectedMarker);
+        tableModel.removeRow(row);
 
         if (DEBUG)
-            System.out.println("after deleted: " +markerList.size());
-        //TODO FIX ! NULLPOINTER
+            System.out.println("after deleted: " + markerList.size());
+        
         //TODO: save XML
 
     }
@@ -491,4 +486,8 @@ public class MarkerManagement {
         }
     }
 
+    public static void main(String[] args) {
+
+
+    }
 }
