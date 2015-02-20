@@ -51,12 +51,12 @@ public class LogMarkerItem extends LogMarker {
     
     public enum Classification {
         UNDEFINED(-1), 
-        UNKNOWN(1), 
-        SHIP(2), 
-        OTHER1(3), 
-        OTHER2(4), 
-        OTHER3(5);
-
+        NONE(1), 
+        CABLE(2), 
+        PIPE(3), 
+        ROCK(4), 
+        WRECK(5),
+        UNKOWN(6);
 
         public int getValue() {
             return this.value;
@@ -156,6 +156,10 @@ public class LogMarkerItem extends LogMarker {
      */
     public void setIndex(int index) {
         this.index = index;
+    }
+    
+    public LocationType getLocation() {
+        return new LocationType(Math.toDegrees(getLat()), Math.toDegrees(getLon()));
     }
 
     public String toString(){
