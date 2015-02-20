@@ -127,7 +127,7 @@ public class MarkerManagement {
         //Add existing LogMarkers (only SidescanLogMarker ones)
         for (LogMarker m : mraPanel.getMarkers()) {
             if (m.getClass() == SidescanLogMarker.class) {
-               logMarkers.add(m);
+                logMarkers.add(m);
             }
         }
         //logMarkers.addAll(mraPanel.getMarkers());
@@ -272,15 +272,15 @@ public class MarkerManagement {
         xml.appendChild(rootElement);
 
         int i=1;
-        for(LogMarker l : mraPanel.getMarkers()) {
+        for(LogMarker l : logMarkers) {
 
-           // BufferedImage bufImage = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
-            //TODO build sidescanimage 
             LocationType loc = l.getLocation();
 
             LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), null, "<Your annotation here.>", 0, Classification.UNDEFINED);
 
-            
+            //format date timestamp
+            String date = DateTimeUtil.dateFormaterXMLUTC.format(l.getTimestamp());
+
             //add new LogMarkerItem to list
             markerList.add(marker);
 
@@ -298,7 +298,7 @@ public class MarkerManagement {
             mark.appendChild(label);
 
             Element ts = xml.createElement("Timestamp");
-            ts.appendChild(xml.createTextNode(l.getTimestamp() + ""));
+            ts.appendChild(xml.createTextNode(date));
             mark.appendChild(ts);
 
             Element lat = xml.createElement("Lat");
@@ -330,7 +330,7 @@ public class MarkerManagement {
             annot.appendChild(xml.createTextNode(marker.getAnnotation()));
             mark.appendChild(annot);
             // end XML related
-            
+
             i++;
         }
 
@@ -364,20 +364,35 @@ public class MarkerManagement {
         markerList.remove(selectedMarker);
         tableModel.removeRow(row);
 
+        LogMarker marker = findLogMarker(selectedMarker.getLabel());
+
+        //delete marker from mraPanel
+        if (marker != null)
+            mraPanel.removeMarker(marker);
+
         if (DEBUG)
             System.out.println("after deleted: " + markerList.size());
-        
+
         //TODO: save XML
 
+    }
+
+    private LogMarker findLogMarker(String label) {
+
+        for (LogMarker log : mraPanel.getMarkers()) {
+            if (log.getLabel().equals(label))
+                return log;
+        }
+        return null;
     }
 
     public void updateTableRow(LogMarkerItem selectedMarker, int row) {
         LogMarkerItem marker = findMarker(selectedMarker.getLabel());
         marker.copy(selectedMarker);
-        
+
         if (DEBUG)
             System.out.println("udpating row "+ row);
-        
+
         tableModel.updateRow(row);
     }
 
@@ -426,8 +441,18 @@ public class MarkerManagement {
     private LogMarkerItem getLogMarkerItem(Element markerEl) {
         int index = getAttIntValue(markerEl, "id");
         String name = getTextValue(markerEl,"Label");
+        String tsString = getTextValue(markerEl, "Timestamp");
+        SimpleDateFormat format = DateTimeUtil.dateFormaterXMLUTC;
+        Date parsed = null;
 
-        double ts = getDoubleValue(markerEl,"Timestamp");
+        try {
+            parsed = format.parse(tsString);
+        }
+        catch (ParseException e1) {
+            e1.printStackTrace();
+        }
+
+        double ts = parsed.getTime();
         double lon = getDoubleValue(markerEl,"Lon");
         double lat = getDoubleValue(markerEl,"Lat");
         // BufferedImage image = 
