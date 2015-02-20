@@ -32,9 +32,11 @@
 package pt.lsts.neptus.mra.markermanagement;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.text.DateFormat;
 
 import pt.lsts.neptus.mra.LogMarker;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author Manuel
@@ -45,6 +47,8 @@ public class LogMarkerItem extends LogMarker {
     private static final long serialVersionUID = 1L;
     private int index;
     private BufferedImage image;
+    private File sidescanImgPath;
+    private File drawImgPath;
     private String annotation;
     private double altitude;
     private Classification classification;
@@ -69,8 +73,6 @@ public class LogMarkerItem extends LogMarker {
         }
 
     }
-
-    //TODO : add free draw attribute, independently from image (to be able to export image without draw or just draw, or both!)
 
     /**
      * @param label
