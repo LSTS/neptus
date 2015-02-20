@@ -39,9 +39,16 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.Transparency;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 import java.text.DateFormat;
+import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -52,12 +59,12 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 
@@ -75,24 +82,29 @@ import pt.lsts.neptus.util.ImageUtils;
 public class MarkerEdit extends JFrame {
 
     private static final long serialVersionUID = 1613149353413851878L;
-
+    private final int RULER_SIZE = 15;
     private JMenuBar menuBar;
 
     private MarkerManagement parent;
-    private AbstractAction save, del, exit, freeDraw, rectDraw;
-    // private String[] classificationList = new String[] {"1 - <Unknown>", "2 - <Ship>", "3 - <Etc1>", "4 - <Etc2>", "5 - <Etc3>"};
+    private AbstractAction save, del, exit, freeDraw, rectDraw, circleDraw, clearDraw;
     private JPopupMenu drawPopupMenu;
     private LogMarkerItem selectedMarker;
     private int selectMarkerRowIndex = -1;
-    //
+
+    private JLabel markerImage;
     private JLabel nameLabelValue;
     private JLabel timeStampValue;
     private JLabel locationValue;
     private JLabel altitudeValue;
     private JComboBox<String> classifValue;
     private JTextArea annotationValue;
-
-
+    private int mouseX, mouseY, initialX, initialY;
+    private boolean enableFreeDraw = false;
+    private boolean enableRectDraw = false;
+    private boolean enableCircleDraw = false;
+    private BufferedImage layer;
+    
+    private ArrayList<Point> pointsList = new ArrayList<>();
 
     public MarkerEdit(MarkerManagement parent) {
         setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerEdit.class.getResource("/images/menus/edit.png")));
@@ -108,22 +120,40 @@ public class MarkerEdit extends JFrame {
 
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void initialize() {
+
         JPanel panel = new JPanel();
         getContentPane().add(panel, BorderLayout.CENTER);
         panel.setLayout(new MigLayout("", "[][][][][grow][][][][grow]", "[][][][][][][grow][][grow]"));
 
-        JLabel markerImage = new JLabel() { 
+        markerImage = new JLabel() { 
             @Override
-            protected void paintChildren(Graphics g) {
-                super.paintChildren(g);
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
                 drawZoomRuler(g);
+
+                Graphics2D lg2d = (Graphics2D) layer.getGraphics();
+                lg2d.setBackground(new Color(100, 100, 255, 0));
+                lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight());
+
+                if (enableRectDraw) 
+                    drawRect(g);
+
+                if (enableFreeDraw)
+                    drawFree(g);
+
+                if (enableCircleDraw)
+                    drawCircle(g);
+
+                g.drawImage(layer, 16, 0, null);
+
             }
         };
-        
+
+
         markerImage.setPreferredSize(new Dimension(265, 265));
-        
+
         markerImage.setHorizontalAlignment(SwingConstants.CENTER);
         markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource("/images/unknown.png")));
 
@@ -131,7 +161,66 @@ public class MarkerEdit extends JFrame {
 
         markerImage.setComponentPopupMenu(drawPopupMenu);
 
+        markerImage.addMouseListener(new MouseListener() {
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+                //((JLabel) e.getSource()).repaint();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                mouseX = e.getX();
+                mouseY = e.getY();         
+
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    initialX = mouseX;
+                    initialY = mouseY;
+                    pointsList.add(new Point(mouseX, mouseY));
+                    // ((JLabel) e.getSource()).repaint();
+                }
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                mouseX = mouseY = -1;                
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+            }
+        });
+
+        markerImage.addMouseMotionListener(new MouseMotionListener() {
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                mouseX = e.getX();
+                mouseY = e.getY();
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {                    
+                mouseX = e.getX();
+                mouseY = e.getY();
+                if ((mouseX > RULER_SIZE && mouseX < markerImage.getPreferredSize().width && mouseY > 0) &&
+                        (mouseY < markerImage.getPreferredSize().height-RULER_SIZE )) {
+                    
+                    pointsList.add(new Point(mouseX, mouseY));
+                    ((JLabel) e.getSource()).repaint();
+                    
+                }
+            }
+        });
         panel.add(markerImage, "cell 0 0 7 7,alignx left,aligny top");
+
+        layer = ImageUtils.createCompatibleImage(markerImage.getPreferredSize().width-RULER_SIZE, 
+                markerImage.getPreferredSize().height-RULER_SIZE, Transparency.TRANSLUCENT);
 
         JLabel nameLabel = new JLabel("Label:");
         panel.add(nameLabel, "cell 7 0,alignx left");
@@ -139,7 +228,7 @@ public class MarkerEdit extends JFrame {
         nameLabelValue = new JLabel();
         nameLabelValue.setBackground(Color.WHITE);
         nameLabelValue.setText("MARKER_LABEL");
-     
+
         panel.add(nameLabelValue, "cell 8 0,alignx left");
 
 
@@ -184,6 +273,41 @@ public class MarkerEdit extends JFrame {
         scrollPane.setViewportView(annotationValue);
     }
 
+    private void drawRect(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g;
+
+        int x = Math.min(initialX, mouseX);
+        int y = Math.min(initialY, mouseY);
+        int w = Math.max(initialX, mouseX) - Math.min(initialX, mouseX);
+        int h = Math.max(initialY, mouseY) - Math.min(initialY, mouseY);
+
+        System.out.println("x: "+x + " y: "+ y + " w: " + w + " h: "+ h);
+        g2.drawRect(x, y, w, h);
+
+        //System.out.println("i'm innnnn");
+    }
+
+
+    private void drawFree(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g;
+
+        for (Point p : pointsList) {
+            g2.drawLine(p.x, p.y, p.x, p.y);
+        }
+    }
+
+    private void drawCircle(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g;
+
+        int x = Math.min(initialX, mouseX);
+        int y = Math.min(initialY, mouseY);
+
+        int w = Math.max(initialX, mouseX) - Math.min(initialX, mouseX);
+        int h = Math.max(initialY, mouseY) - Math.min(initialY, mouseY);
+
+        g2.drawOval(x,y,w,h);
+    }
+
     private void drawZoomRuler(Graphics g) {
 
         Graphics2D g2d = (Graphics2D) g;
@@ -191,15 +315,17 @@ public class MarkerEdit extends JFrame {
         int fontSize = 11;
         g2d.setFont(new Font("SansSerif", Font.PLAIN, fontSize));
         g2d.setColor(Color.BLACK);
-        
+
         //draw zero
         g2d.drawString("0", 8, 260);
-        
-        g2d.drawLine(15, 250, 250, 250);
-        
-        g2d.drawLine(15, 0, 15, 250);
-        
-        
+
+        //horizontal line
+        g2d.drawLine(RULER_SIZE, 250, markerImage.getPreferredSize().width, 250);
+
+        //vertical line
+        g2d.drawLine(RULER_SIZE, 0, RULER_SIZE, 250);
+
+
         //TODO : finish
 
     }
@@ -220,25 +346,60 @@ public class MarkerEdit extends JFrame {
     private void setupDrawPopup() {
         drawPopupMenu = new JPopupMenu();
         freeDraw = new AbstractAction(I18n.text("Free draw"), null) {
+
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                // TODO Auto-generated method stub
-
+                enableRectDraw = false;
+                enableCircleDraw = false;
+                enableFreeDraw = true;
+                System.out.println("free draw enabled");
             }
         };
-        freeDraw.putValue(Action.SHORT_DESCRIPTION, I18n.text("Draw with mouse.") + ".");
+        freeDraw.putValue(Action.SHORT_DESCRIPTION, I18n.text("Draw with mouse mov.") + ".");
 
         rectDraw = new AbstractAction(I18n.text("Rectangle draw"), null) {
+
+
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                // TODO Auto-generated method stub
+                enableFreeDraw = false;
+                enableCircleDraw = false;
+                enableRectDraw = true;
+                System.out.println("rectangle draw enabled");
+            }
+        };
+        rectDraw.putValue(Action.SHORT_DESCRIPTION, I18n.text("Draw a rectangle.") + ".");
+
+        clearDraw = new AbstractAction(I18n.text("Clear Drawings"), null) {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                enableFreeDraw = false;
+                enableRectDraw = false;
+                enableCircleDraw = false;
+
+                System.out.println("cancel all draws");
 
             }
         };
-        freeDraw.putValue(Action.SHORT_DESCRIPTION, I18n.text("Draw rectangle.") + ".");
+        clearDraw.putValue(Action.SHORT_DESCRIPTION, I18n.text("Clear draw.") + ".");
+
+
+        circleDraw = new AbstractAction(I18n.text("Circle Draw"), null) {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                enableFreeDraw = false;
+                enableRectDraw = false;
+                enableCircleDraw = true;
+            }
+        };
+        clearDraw.putValue(Action.SHORT_DESCRIPTION, I18n.text("Draw a circle.") + ".");
+
+
 
         drawPopupMenu.add(rectDraw);
+        drawPopupMenu.add(circleDraw);
         drawPopupMenu.add(freeDraw);
+        drawPopupMenu.add(clearDraw);
     }
 
     private void setupFileMenu() {
@@ -275,6 +436,7 @@ public class MarkerEdit extends JFrame {
                 int res = showDelDialog();
                 if (res==0)  { 
                     parent.deleteLog(selectedMarker, selectMarkerRowIndex);
+                    // TODO : delete from mraPanel -> parent.mraPanel.removeMarker(marker);
                     dispose();
                 }
             }
@@ -295,6 +457,12 @@ public class MarkerEdit extends JFrame {
         mnFile.add(save);
         mnFile.add(del);
         mnFile.add(exit);
+
+        JMenu mnDraw = new JMenu("Draw");
+        menuBar.add(mnDraw);
+
+        JMenuItem mntmClearDrawings = new JMenuItem("Clear drawings");
+        mnDraw.add(mntmClearDrawings);
 
     }
 
