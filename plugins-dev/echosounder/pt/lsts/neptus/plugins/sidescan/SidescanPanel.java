@@ -97,6 +97,9 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private long topZoomTimestamp = 0;
     private long bottomZoomTimestamp = 0;
     private List<SidescanLine> lines = Collections.synchronizedList(new ArrayList<SidescanLine>());
+    private boolean isShowingZoomedImage = false;
+    private long lastMouseMoveTS = 0;
+    private ExecutorService threadExecutor = Executors.newCachedThreadPool();
 
     private SidescanAnalyzer parent;
     SidescanConfig config = new SidescanConfig();
@@ -111,7 +114,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     }
 
     private InteractionMode imode = InteractionMode.INFO;
-
     private MraVehiclePosHud posHud;
 
     private JPanel view = new JPanel() {
@@ -129,10 +131,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     lg2d.setBackground(new Color(255, 255, 255, 0));
                     lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight()); // Clear layer image
 
-                    //                    if (zoom)
-                    //                        drawZoom(layer.getGraphics()); // Update layer with zoom information
-                    //                    if (info)
-                    //                        drawInfo(layer.getGraphics()); // update layer with location information
                     if (measure && !parent.getTimeline().isRunning()) {
                         drawMeasure(layer.getGraphics());
                     }
@@ -144,6 +142,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         Graphics2D gz = (Graphics2D) g.create();
                         gz.setColor(Color.WHITE);
                         drawZoom(gz); // Update layer with zoom information
+
+                        Graphics2D zoomRuler = (Graphics2D) g.create();
+                        zoomRuler.setColor(Color.WHITE);
+                        drawZoomRuler(zoomRuler);  // Update layer with zoom ruler information
                     }
 
                     if (info)
@@ -236,7 +238,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     protected boolean record = false;
 
-
     public SidescanPanel(SidescanAnalyzer analyzer, SidescanParser parser, int subsystem) {
         this.parent = analyzer;
         ssParser = parser;
@@ -245,6 +246,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         posHud = new MraVehiclePosHud(analyzer.mraPanel.getSource(), config.hudSize, config.hudSize);
     }
+
 
     private void initialize() {
         firstPingTime = ssParser.firstPingTimestamp();
@@ -272,6 +274,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         setLayout(new MigLayout("ins 0, gap 5"));
         add(toolbar, "w 100%, wrap");
         add(view, "w 100%, h 100%");
+
+        threadExecutor.execute(detectMouse);
     }
 
     /**
@@ -390,7 +394,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         removeList.clear();
     }
 
-    private class Updater implements Runnable {
+    private Runnable updateLines = new Runnable() {
 
         @Override
         public void run() {
@@ -404,13 +408,56 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 }
             }
         }
-    }
+    };
+
+    private Runnable detectMouse = new Runnable() {
+
+        @Override
+        public void run() {
+            boolean updated = false;
+
+            while (true) {
+                if (zoom) {
+                    if (parent.getTimeline().isRunning()) 
+                        updated = false;
+
+                    while (!updated) {
+                        try {
+                            if (isMouseAtRest() && !parent.getTimeline().isRunning()) {
+                                setSSLines(mouseY, null);
+                                threadExecutor.execute(updateLines);
+                                view.repaint();
+                                updated=true;
+                            }
+
+                            Thread.sleep(500);
+                        }
+                        catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
+
+                try {
+                    Thread.sleep(10);
+                }
+                catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    };
 
     private void drawZoom(Graphics g) {
 
-        if (mouseX == -1 && mouseY == -1) 
+        if (mouseX == -1 && mouseY == -1)  {
+            isShowingZoomedImage = false;
             return;
+        }
 
+        isShowingZoomedImage = true;
         int X = (int) MathMiscUtils.clamp(mouseX, ZOOM_BOX_SIZE / 2, image.getWidth() - ZOOM_BOX_SIZE / 2);
         int Y = (int) MathMiscUtils.clamp(mouseY, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
 
@@ -430,13 +477,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         }
         else {
-            Updater a = new Updater();
-            ExecutorService threadExecutor = Executors.newCachedThreadPool();
-            threadExecutor.execute(a);
+
+            threadExecutor.execute(updateLines);
             int ypos = lines.size();
-            if (ypos < 100) 
+            if (ypos < 100)  {
+                isShowingZoomedImage = false;
                 return;
-        
+            }
             synchronized (lines) {
                 for (SidescanLine e : lines ) { 
                     e.ysize = 1;
@@ -469,7 +516,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                         e.image.setRGB(c - beginIndex , 0, config.colorMap.getColor(e.data[c]).getRGB());
                     }
-                    
+
                     int vZoomScale = 3;
                     Image full = ImageUtils.getScaledImage(e.image, ZOOM_LAYER_BOX_SIZE, vZoomScale, true);
                     g.drawImage(full, layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight() + (ZOOM_BOX_SIZE) - ypos, null);
@@ -597,6 +644,51 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
         }
         g.dispose();
+    }
+
+
+    /**
+     * @param zoomRuler
+     */
+    private void drawZoomRuler(Graphics g) {
+
+        if (!isShowingZoomedImage)
+            return;
+
+        Graphics2D g2d = (Graphics2D) g;
+        int fontSize = 11;
+        int x = layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1);
+        int y = layer.getHeight() - (ZOOM_LAYER_BOX_SIZE);
+        // Draw Horizontal Line
+        g2d.setColor(Color.BLACK);
+        g2d.drawLine(x, y, layer.getWidth(), y);
+
+        Rectangle drawRulerHere = new Rectangle(x, y - MAX_RULER_SIZE, ZOOM_LAYER_BOX_SIZE+1, MAX_RULER_SIZE);
+        g2d.setColor(Color.LIGHT_GRAY);
+        g2d.fill(drawRulerHere);
+
+        g2d.setFont(new Font("SansSerif", Font.PLAIN, fontSize));
+        g2d.setColor(Color.BLACK);
+
+        // Draw top line
+        g2d.drawLine(x, y-MAX_RULER_SIZE, layer.getWidth(), y- MAX_RULER_SIZE);
+
+        // Draw the zero
+        g2d.drawLine(x, y, x , y-MAX_RULER_SIZE);
+        // g2d.drawString("0", x+5, y-3);
+
+        float zoomRange  = (ZOOM_BOX_SIZE * (range*2f)) / layer.getWidth();
+        float zoomRangeStep = 1;
+
+        double step = ((zoomRangeStep * ZOOM_LAYER_BOX_SIZE) / zoomRange);
+        double r = zoomRangeStep;
+
+        int c = x + (int) step;
+
+        for (; c<=layer.getWidth(); c += step , r += zoomRangeStep) {
+            g2d.drawLine(c, y, c, y-MAX_RULER_SIZE);
+            g2d.drawString("" + (int) r, c - 13, y-3);
+        }        
     }
 
     private void drawRuler(Graphics g) {
@@ -727,10 +819,19 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        if (image == null )
+            return;
         mouseX = e.getX();
         mouseY = e.getY();
+        lastMouseMoveTS = System.nanoTime();
+        setSSLines(mouseY, e);
+    }
 
-        int y = e.getY();
+    /*
+     * @param y , mouse Y coordinate to retrieve sidescanLine from
+     * also sets top and bottom timestamp based on the mouseSidescanLine, for zoom function.
+     */
+    private void setSSLines(int y, MouseEvent e) {
 
         int Y = (int) MathMiscUtils.clamp(mouseY, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
         synchronized (lineList) {
@@ -740,7 +841,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                 if (y >= line.ypos && y <= (line.ypos + line.ysize)) {
                     mouseSidescanLine = line;
-                    ((JPanel) e.getSource()).repaint();
+                    if (e!=null) ((JPanel) e.getSource()).repaint();
                 }
 
                 // save bottom and top timestamps for zoom box according to mouse position
@@ -760,6 +861,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
         }
     };
+
+    private boolean isMouseAtRest() {
+        long now = System.nanoTime();
+        if (now - 1000000000 > lastMouseMoveTS)
+            return true;
+
+        return false;
+    }
 
     @Override
     public void mouseDragged(MouseEvent e) {
@@ -925,4 +1034,5 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         mouseX = mouseY = -1;
         repaint();
     }
+
 }
