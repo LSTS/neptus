@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<console name="UAV Operation Console" width="1922" height="1175" resizable="true" mission-file="../../../missions/NTNU/Agdenes.nmisz" main-vehicle="ntnu-x8-006">
+<console name="UAV Operation Console" width="1922" height="1175" resizable="true" mission-file="../../../missions/NTNU/Agdenes.nmisz" main-vehicle="ntnu-hexa-001">
   <!-- Data saved on 2015-02-20T11:27:18.0Z with Neptus version 4.3.0-dev_R14.03 (compiled on 2015-02-19, gneptus-4.2.1_R14.03-203-gf4886e0). -->
   <mainpanel name="console main panel">
     <subpanel class="pt.lsts.neptus.console.plugins.containers.MigLayoutContainer" x="0" y="0" width="1920" height="1094">
