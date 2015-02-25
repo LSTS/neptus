@@ -40,9 +40,12 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.Polygon;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+
+import pt.lsts.imc.Abort;
 import pt.lsts.imc.PlanGeneration;
 import pt.lsts.imc.PlanGeneration.CMD;
 import pt.lsts.imc.PlanGeneration.OP;
@@ -62,38 +65,47 @@ import pt.lsts.neptus.types.coord.LocationType;
  *
  */
 
-@PluginDescription(name = "LandMapLayer", icon = "pt/lsts/neptus/plugins/land/land.png")
+@PluginDescription(name = "LandMapLayer", icon = "pt/lsts/neptus/plugins/land/land_icon.png")
 public class LandMapLayer extends SimpleRendererInteraction implements Renderer2DPainter, MainVehicleChangeListener {
 
-    @NeptusProperty(name = "Net height [m]", description = "Height of the net.")
+// Simple settings
+    
+    @NeptusProperty(name = "Net height [m]", description = "Height of the net.", category = "Simple")
     public double netHeight = 3;
 
-    @NeptusProperty(name = "Net orientation (N=0, E=90) [deg]", description = "Heading for UAV to enter net.")
+    @NeptusProperty(name = "Net orientation (N=0, E=90) [deg]", description = "Heading for UAV to enter net.", category = "Simple")
     public double netHeading = 66.5;
 
-    @NeptusProperty(name = "Net latitude [decimal degrees]", description = "Position of landing net (lat).")
+    @NeptusProperty(name = "Net latitude [decimal deg]", description = "Position of landing net (lat).", category = "Simple")
     public double netLat = 63.628600;
 
-    @NeptusProperty(name = "Net longitude [decimal degrees]", description = "Position of landing net (lon).")
+    @NeptusProperty(name = "Net longitude [decimal deg]", description = "Position of landing net (lon).", category = "Simple")
     public double netLon = 9.727570;
 
-    @NeptusProperty(name = "Minimum turn radius [m]", description = "Lateral turning radius of UAV.")
+    @NeptusProperty(name = "Ground level [m]", description = "Height from \"ground\" to bottom of net.", category = "Simple")
+    public double ground_level = 20;   
+
+// Advanced settings
+    @NeptusProperty(name = "Minimum turn radius [m]", description = "Lateral turning radius of UAV.", category = "Advanced")
     public double minTurnRad = 150;
 
-    @NeptusProperty(name = "Attack angle [deg]", description = "Vertical angle of attack into the net.")
+    @NeptusProperty(name = "Attack angle [deg]", description = "Vertical angle of attack into the net.", category = "Advanced")
     public double attackAngle = 4;
 
-    @NeptusProperty(name = "Descend angle [deg]", description = "Vertical angle of UAV when descending.")
+    @NeptusProperty(name = "Descend angle [deg]", description = "Vertical angle of UAV when descending.", category = "Advanced")
     public double descendAngle = 4;
 
-    @NeptusProperty(name = "Speed 123 [m/s]", description = "Speed of WP1-3.")
-    public double speed123 = 16;
+    @NeptusProperty(name = "Speed 12 [m/s]", description = "{tmp. name} Speed of WP1-2.", category = "Advanced")
+    public double speed12 = 18;
 
-    @NeptusProperty(name = "Speed 45 [m/s]", description = "Speed of WP4-5.")
-    public double speed45 = 16;
+    @NeptusProperty(name = "Speed 345 [m/s]", description = "{tmp. name} Speed of WP3-5.", category = "Advanced")
+    public double speed345 = 16; 
 
-    @NeptusProperty(name = "Land PowerChannel Name", description = "Vehicle land control power channel name.")
-    public String landPowerChannel = "land";
+    @NeptusProperty(name = "Distance in front [m]", description = "Distance from net to WP before (should be negative).", category = "Advanced")
+    public double dist_infront = -100;
+
+    @NeptusProperty(name = "Distance behind [m]", description = "Distance from net to aimingpoint (WP) after net.", category = "Advanced")
+    public double dist_behind = 150; 
 
     private static final long serialVersionUID = 1L;
     private LocationType landPos = null;
@@ -162,27 +174,29 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
                 params += "attack_angle=" + attackAngle + ";";
                 params += "descend_angle=" + descendAngle + ";"; // 7.2 // sin(a)=sink_max/speed (2/16)
 
-                params += "dist_behind=100;";
-                params += "dist_infront=-100;";
-                params += "H=50;"; // Supposed to be actual hight of UAV when landing is executed (get_current_height();)
-                params += "speed123=" + speed123 + ";";
-                params += "speed45=" + speed45 + ";";
+                params += "dist_behind=" + dist_behind + ";";
+                params += "dist_infront=" + dist_infront + ";";
+                params += "speed12=" + speed12 + ";";
+                params += "speed345=" + speed345 + ";";
 
                 params += "z_unit=height;"; // "height" or "altitude"
+                params += "ground_level=" + ground_level + ";";
 
                 pg.setParams(params);
-                pg.setCmd(CMD.GENERATE); //CMD.EXECUTE
+                pg.setCmd(CMD.EXECUTE); //CMD.GENERATE
                 pg.setOp(OP.REQUEST);
                 pg.setPlanId("land");
-                send(pg);
                 
-//                Target target = new Target();
-//                target.setLat(targetPos.getLatitudeRads());
-//                target.setLon(targetPos.getLongitudeRads());
-//                target.setZ(netHeight);
-//                target.setZUnits(Z_UNITS.HEIGHT);
-//                target.setLabel("neptus");
-//                send(target);
+                if(pg.getCmd() == CMD.EXECUTE){
+                    send(new Abort());
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(500);
+                    } catch (InterruptedException err) {
+                        //Handle exception
+                    }
+                }
+                
+                send(pg);
             }
         });
         item.setEnabled(landPos != null);
@@ -224,7 +238,7 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
         g.setColor(Color.green);
         g.fillPolygon(poly);
         
-        // Draws the dot in the middle
+        // Draws the "aiming point" in the middle
         g.setColor(Color.red);
         g.fill(new Ellipse2D.Double(-3, -3, 6, 6));
 
@@ -239,6 +253,12 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
     }
+    
+//    @Subscribe
+//    public void handleMessage(EntityState stateMsg) {
+//        netHeading = 66.5; // change to received net heading
+//        updateNetArrow();
+//    }
     
     private void updateNetArrow(){
         double angle = Math.toRadians(netHeading);
