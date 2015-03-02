@@ -87,6 +87,7 @@ public class LogMarkerItem extends LogMarker {
         this.annotation = annot;
         this.altitude = altitude;
         this.classification = classif;
+        this.sidescanImgPath = null;
         //System.out.println(toString());
     }
 
@@ -182,6 +183,20 @@ public class LogMarkerItem extends LogMarker {
         this.annotation = from.annotation;
         this.classification = from.classification;
         this.image = from.image;
+    }
+
+    /**
+     * @return the sidescanImgPath
+     */
+    public File getSidescanImgPath() {
+        return sidescanImgPath;
+    }
+
+    /**
+     * @param sidescanImgPath the sidescanImgPath to set
+     */
+    public void setSidescanImgPath(File sidescanImgPath) {
+        this.sidescanImgPath = sidescanImgPath;
     }
 
 
