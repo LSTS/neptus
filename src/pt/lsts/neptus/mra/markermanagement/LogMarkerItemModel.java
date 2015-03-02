@@ -32,9 +32,20 @@
 package pt.lsts.neptus.mra.markermanagement;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+
+import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
+import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author Manuel R.
@@ -143,9 +154,55 @@ public class LogMarkerItemModel extends AbstractTableModel {
 
         fireTableRowsUpdated(row, row);
     }
+    
     public void insertRow(int row) {
-
         fireTableRowsInserted(row, row);
+    }
+    
+    public void setTableSorter(int columnIndexToSort, JTable table) {
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
+        table.setRowSorter(sorter);
+        List<RowSorter.SortKey> sortKeys = new ArrayList<>();
 
+        sortKeys.add(new RowSorter.SortKey(columnIndexToSort, SortOrder.ASCENDING));
+        sorter.setSortKeys(sortKeys);
+        sorter.sort();
+    }
+
+    public void setCenteredColumns(JTable table) {
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment( JLabel.CENTER );
+
+        DefaultTableCellRenderer centerRenderer2 = new DefaultTableCellRenderer();
+        centerRenderer2.setHorizontalAlignment( JLabel.LEFT );
+
+        table.setDefaultRenderer(String.class, centerRenderer2);
+        table.setDefaultRenderer(Classification.class, centerRenderer);
+        table.setDefaultRenderer(Integer.class, centerRenderer);
+        table.setDefaultRenderer(Double.class, centerRenderer);
+        table.setDefaultRenderer(LocationType.class, centerRenderer);
+    }
+
+    public void setColumnsWidth(JTable table) {
+        // column 0 - width
+        table.getColumnModel().getColumn(0).setMinWidth(25);
+        table.getColumnModel().getColumn(0).setMaxWidth(25);
+        table.getColumnModel().getColumn(0).setPreferredWidth(25);
+
+        // column 2 - width
+        table.getColumnModel().getColumn(2).setMaxWidth(140);
+        table.getColumnModel().getColumn(2).setPreferredWidth(115);
+
+        // column 3 - width
+        table.getColumnModel().getColumn(3).setMaxWidth(170);
+        table.getColumnModel().getColumn(3).setPreferredWidth(145);
+
+        // column 4 - width
+        table.getColumnModel().getColumn(4).setMaxWidth(75);
+        table.getColumnModel().getColumn(4).setPreferredWidth(70);
+
+        // column 5 - width
+        table.getColumnModel().getColumn(5).setMaxWidth(120);
+        table.getColumnModel().getColumn(5).setPreferredWidth(105);
     }
 }
