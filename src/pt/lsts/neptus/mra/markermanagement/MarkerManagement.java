@@ -32,28 +32,28 @@
 
 package pt.lsts.neptus.mra.markermanagement;
 
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.RowSorter;
-import javax.swing.SortOrder;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -72,21 +72,27 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.plugins.PropertiesProviders.SidescanConfig;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.mra.SidescanLogMarker;
+import pt.lsts.neptus.mra.api.SidescanParameters;
+import pt.lsts.neptus.mra.api.SidescanParser;
+import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.Dom4JUtil;
+import pt.lsts.neptus.util.llf.LsfReport;
+import pt.lsts.neptus.util.llf.LsfReportProperties;
 /**
  * @author Manuel R.
  *
  */
 public class MarkerManagement {
 
-    private static final boolean DEBUG = true;
-    
     private final int DEFAULT_COLUMN_TO_SORT = 0;
     private JFrame frmMarkerManagement;
     private JTable table;
@@ -96,8 +102,8 @@ public class MarkerManagement {
     private final ArrayList<LogMarker> logMarkers = new ArrayList<>();
     private String markerFilePath;
     private List<LogMarkerItem> markerList = new ArrayList<>();
-
     private Document dom;
+    InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
 
 
     /**
@@ -120,9 +126,6 @@ public class MarkerManagement {
         frmMarkerManagement.setResizable(false);
 
         markerEditFrame = new MarkerEdit(this);
-        
-        //set markerEdit frame location next to this window
-        markerEditFrame.setLocation(frmMarkerManagement.getLocation().x + frmMarkerManagement.getSize().width, frmMarkerManagement.getLocation().y);
 
         //Add existing LogMarkers (only SidescanLogMarker ones)
         for (LogMarker m : mraPanel.getMarkers()) {
@@ -130,7 +133,6 @@ public class MarkerManagement {
                 logMarkers.add(m);
             }
         }
-        //logMarkers.addAll(mraPanel.getMarkers());
 
         JPanel panel = new JPanel();
         frmMarkerManagement.getContentPane().add(panel, "cell 0 0,grow");
@@ -141,22 +143,29 @@ public class MarkerManagement {
 
         tableModel = new LogMarkerItemModel(markerList);
         table = new JTable(tableModel);
+        //TODO add : 
+        //       add(loader, BorderLayout.CENTER);
+        //       loader.setText(I18n.text("Loading Markers"));
+
+        loader.start();
+
+        table.setEnabled(false);
 
         //define max columns width
-        setColumnsWidth();
-        
-        setCenteredColumns();
+        tableModel.setColumnsWidth(table);
+
+        tableModel.setCenteredColumns(table);
 
         //define default column to sort when creating table
-        setTableSorter(DEFAULT_COLUMN_TO_SORT);
+        tableModel.setTableSorter(DEFAULT_COLUMN_TO_SORT, table);
 
         table.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent me) {
                 JTable table =(JTable) me.getSource();
                 int rowIndex = table.getSelectedRow();
                 if (me.getClickCount() == 2) {
-
-                    openMarkerEditor(table.getValueAt(table.getSelectedRow(), 1).toString(), rowIndex);
+                    if (table.getSelectedRow() != -1)
+                        openMarkerEditor(table.getValueAt(table.getSelectedRow(), 1).toString(), rowIndex);
                     //System.out.println(table.getValueAt(table.getSelectedRow(), 1).toString());
                 }
             }
@@ -175,61 +184,98 @@ public class MarkerManagement {
 
         panel.add(scrollPane, "cell 0 2 3 1,grow");
 
-    }
-    
-    private void setTableSorter(int columnIndexToSort) {
-        TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
-        table.setRowSorter(sorter);
-        List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+        Thread t = new Thread(new Runnable() {
 
-        sortKeys.add(new RowSorter.SortKey(columnIndexToSort, SortOrder.ASCENDING));
-        sorter.setSortKeys(sortKeys);
-        sorter.sort();
-    }
-    
-    private void setCenteredColumns() {
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment( JLabel.CENTER );
-        
-        DefaultTableCellRenderer centerRenderer2 = new DefaultTableCellRenderer();
-        centerRenderer2.setHorizontalAlignment( JLabel.LEFT );
-        
-        table.setDefaultRenderer(String.class, centerRenderer2);
-        table.setDefaultRenderer(Classification.class, centerRenderer);
-        table.setDefaultRenderer(Integer.class, centerRenderer);
-        table.setDefaultRenderer(Double.class, centerRenderer);
-        table.setDefaultRenderer(LocationType.class, centerRenderer);
-    }
-    
-    private void setColumnsWidth() {
-        // column 0 - width
-        table.getColumnModel().getColumn(0).setMinWidth(25);
-        table.getColumnModel().getColumn(0).setMaxWidth(25);
-        table.getColumnModel().getColumn(0).setPreferredWidth(25);
+            @Override
+            public void run() {
 
-        // column 2 - width
-        table.getColumnModel().getColumn(2).setMaxWidth(140);
-        table.getColumnModel().getColumn(2).setPreferredWidth(115);
-        
-        // column 3 - width
-        table.getColumnModel().getColumn(3).setMaxWidth(170);
-        table.getColumnModel().getColumn(3).setPreferredWidth(145);
-        
-        // column 4 - width
-        table.getColumnModel().getColumn(4).setMaxWidth(75);
-        table.getColumnModel().getColumn(4).setPreferredWidth(70);
-        
-        // column 5 - width
-        table.getColumnModel().getColumn(5).setMaxWidth(120);
-        table.getColumnModel().getColumn(5).setPreferredWidth(105);
+                SidescanParser ssParser = SidescanParserFactory.build(mraPanel.getSource());
+                getImagesForMarkers(ssParser);
+                addImagesToMarkers();
+                table.setEnabled(true);
+                loader.stop();
+
+            }
+        });
+        t.setDaemon(true);
+        t.start();
+
+    }
+
+
+    private void addImagesToMarkers() {
+        String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
+
+        for (LogMarkerItem log : markerList) {
+
+            File f = new File(path+log.getLabel()+".png");
+
+            if(f.exists() && !f.isDirectory()) {
+                log.setSidescanImgPath(f);
+                System.out.println("stored path "+ log.getSidescanImgPath().getPath());
+            }
+        }
+    }
+
+    private void getImagesForMarkers(SidescanParser ssParser) {
+        int nSubsys = ssParser.getSubsystemList().size();
+        SidescanConfig config = new SidescanConfig();
+        int colorMapCode = LsfReportProperties.sidescanColorMap;
+        boolean globalColorMap = true;
+        if (colorMapCode == -1) {
+            globalColorMap = false;
+        }
+        else {
+            config.colorMap = LsfReport.getColorMapFromCode(colorMapCode);
+        }
+
+        SidescanParameters sidescanParams = new SidescanParameters(0, 0);
+        sidescanParams.setNormalization(config.normalization);
+        sidescanParams.setTvgGain(config.tvgGain);
+
+        for (LogMarker m : logMarkers) {
+            createImages((SidescanLogMarker) m, ssParser, nSubsys, config, sidescanParams, globalColorMap);
+        }
+    }
+
+    private void createImages(SidescanLogMarker m, SidescanParser parser, int nSubsys, SidescanConfig config, SidescanParameters sidescanParams, boolean globalColorMap) {
+
+        m.setDefaults(parser.getSubsystemList().get(0));//setDefaults if they are N/A
+
+        for (int i = 0; i < nSubsys; i++) {
+
+            BufferedImage image = null;
+            try {
+                image = LsfReport.getSidescanMarkImage(mraPanel.getSource(), parser, sidescanParams, config, globalColorMap, m, i);
+            }catch(Exception e){
+                NeptusLog.pub().error(e.getMessage());
+            }
+
+            if (image != null) {
+                String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
+                File dir = new File(path);
+
+                //create dir if it doesnt exists
+                if (!dir.exists())
+                    dir.mkdirs();
+
+                try {
+                    ImageIO.write(image, "PNG", new File(path, m.getLabel() + ".png"));
+                }
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+            else {// no image to display
+                System.out.println("oops, no image!");
+            }
+        }
     }
 
     private void openMarkerEditor(String label, int rowIndex) {
 
         LogMarkerItem selected = findMarker(label);
         if (selected == null) {
-            if (DEBUG)
-                System.out.println("Cannot find selected marker on markers list!");
             return;
         }
         markerEditFrame.loadMarker(selected, rowIndex);
@@ -263,7 +309,7 @@ public class MarkerManagement {
             }
         }
     }
-    
+
     private void createMarkers() {
 
         //XML document structure
@@ -353,9 +399,7 @@ public class MarkerManagement {
     private boolean loadMarkers() {
         parseXmlFile();
         parseDocument();
-        if (DEBUG)
-            printData();
-
+        //printData();
 
         return !markerList.isEmpty();
     }
@@ -369,9 +413,6 @@ public class MarkerManagement {
         //delete marker from mraPanel
         if (marker != null)
             mraPanel.removeMarker(marker);
-
-        if (DEBUG)
-            System.out.println("after deleted: " + markerList.size());
 
         //TODO: save XML
 
@@ -389,9 +430,6 @@ public class MarkerManagement {
     public void updateTableRow(LogMarkerItem selectedMarker, int row) {
         LogMarkerItem marker = findMarker(selectedMarker.getLabel());
         marker.copy(selectedMarker);
-
-        if (DEBUG)
-            System.out.println("udpating row "+ row);
 
         tableModel.updateRow(row);
     }
@@ -466,8 +504,7 @@ public class MarkerManagement {
             annot = getTextValue(markerEl, "Annotation");
         }
         catch (NullPointerException e) {
-            if (DEBUG)
-                System.out.println("null pointer");
+            NeptusLog.pub().error("Error parsing marker values from XML file");
         }
 
         //Create new LogMarkerItem with the value read from xml
@@ -511,6 +548,11 @@ public class MarkerManagement {
         }
     }
 
+    public Point getwindowLocation() {
+        Point p = new Point(frmMarkerManagement.getLocation().x + frmMarkerManagement.getSize().width, frmMarkerManagement.getLocation().y);
+        
+        return p;
+    }
     public static void main(String[] args) {
 
 

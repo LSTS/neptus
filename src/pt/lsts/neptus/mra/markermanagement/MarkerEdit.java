@@ -47,9 +47,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
@@ -103,7 +106,8 @@ public class MarkerEdit extends JFrame {
     private boolean enableRectDraw = false;
     private boolean enableCircleDraw = false;
     private BufferedImage layer;
-    
+    private BufferedImage image;
+
     private ArrayList<Point> pointsList = new ArrayList<>();
 
     public MarkerEdit(MarkerManagement parent) {
@@ -112,7 +116,7 @@ public class MarkerEdit extends JFrame {
 
         setResizable(false);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setBounds(100, 100, 540, 340);
+        setBounds(100, 100, 590, 395);
 
         setupFileMenu();
 
@@ -131,28 +135,28 @@ public class MarkerEdit extends JFrame {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
 
-                drawZoomRuler(g);
-
                 Graphics2D lg2d = (Graphics2D) layer.getGraphics();
                 lg2d.setBackground(new Color(100, 100, 255, 0));
                 lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight());
+                
+                if (image!=null) {
+                    g.drawImage(image, RULER_SIZE+1, RULER_SIZE+1, null);
+                    
+                    drawZoomRuler(g);
 
-                if (enableRectDraw) 
-                    drawRect(g);
+                    if (enableRectDraw) 
+                        drawRect(g);
 
-                if (enableFreeDraw)
-                    drawFree(g);
+                    if (enableFreeDraw)
+                        drawFree(g);
 
-                if (enableCircleDraw)
-                    drawCircle(g);
+                    if (enableCircleDraw)
+                        drawCircle(g);
 
-                g.drawImage(layer, 16, 0, null);
-
+                    g.drawImage(layer, 16, 0, null);
+                }
             }
         };
-
-
-        markerImage.setPreferredSize(new Dimension(265, 265));
 
         markerImage.setHorizontalAlignment(SwingConstants.CENTER);
         markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource("/images/unknown.png")));
@@ -210,10 +214,10 @@ public class MarkerEdit extends JFrame {
                 mouseY = e.getY();
                 if ((mouseX > RULER_SIZE && mouseX < markerImage.getPreferredSize().width && mouseY > 0) &&
                         (mouseY < markerImage.getPreferredSize().height-RULER_SIZE )) {
-                    
+
                     pointsList.add(new Point(mouseX, mouseY));
                     ((JLabel) e.getSource()).repaint();
-                    
+
                 }
             }
         });
@@ -282,9 +286,9 @@ public class MarkerEdit extends JFrame {
         int h = Math.max(initialY, mouseY) - Math.min(initialY, mouseY);
 
         System.out.println("x: "+x + " y: "+ y + " w: " + w + " h: "+ h);
+        g2.setColor(Color.WHITE);
         g2.drawRect(x, y, w, h);
 
-        //System.out.println("i'm innnnn");
     }
 
 
@@ -292,6 +296,7 @@ public class MarkerEdit extends JFrame {
         Graphics2D g2 = (Graphics2D) g;
 
         for (Point p : pointsList) {
+            g2.setColor(Color.WHITE);
             g2.drawLine(p.x, p.y, p.x, p.y);
         }
     }
@@ -317,13 +322,15 @@ public class MarkerEdit extends JFrame {
         g2d.setColor(Color.BLACK);
 
         //draw zero
-        g2d.drawString("0", 8, 260);
+        g2d.drawString("0", 8, image.getHeight()+RULER_SIZE+8);
 
+        g2d.setColor(Color.RED);
         //horizontal line
-        g2d.drawLine(RULER_SIZE, 250, markerImage.getPreferredSize().width, 250);
+        g2d.drawLine(RULER_SIZE, image.getHeight()+RULER_SIZE, markerImage.getPreferredSize().width-RULER_SIZE, image.getHeight()+RULER_SIZE);
+
 
         //vertical line
-        g2d.drawLine(RULER_SIZE, 0, RULER_SIZE, 250);
+        g2d.drawLine(RULER_SIZE, 0, RULER_SIZE, image.getHeight());
 
 
         //TODO : finish
@@ -334,6 +341,25 @@ public class MarkerEdit extends JFrame {
         selectedMarker = log;
         selectMarkerRowIndex = rowIndex;
 
+        //TODO Draw image selectedMarker.getSidescanImgPath on markerImage label
+        if (selectedMarker.getSidescanImgPath() != null )
+        try {
+            System.out.println("Trying to read "+ selectedMarker.getSidescanImgPath().getPath());
+            
+            image = ImageIO.read(new File(selectedMarker.getSidescanImgPath().getPath()));
+            int width = image.getWidth();
+            int height = image.getHeight();
+            markerImage.repaint();
+            markerImage.setPreferredSize(new Dimension(width+25, height+25));
+            
+            setBounds(100, 100, width + 265 + 25, height + 80 + 25);
+            setLocation(parent.getwindowLocation());
+            
+        } catch (IOException e) {
+            System.out.println("Error reading image file for "+ selectedMarker.getLabel());
+        }
+
+
         nameLabelValue.setText(selectedMarker.getLabel());
         nameLabelValue.setToolTipText(selectedMarker.getLabel());
         timeStampValue.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(selectedMarker.getTimestamp()));
@@ -341,12 +367,14 @@ public class MarkerEdit extends JFrame {
         altitudeValue.setText(Double.toString(selectedMarker.getAltitude()));
         classifValue.setSelectedItem(selectedMarker.getClassification());
         annotationValue.setText(selectedMarker.getAnnotation());
+        nameLabelValue.setSize(nameLabelValue.getPreferredSize() );
+
     }
 
     private void setupDrawPopup() {
         drawPopupMenu = new JPopupMenu();
         freeDraw = new AbstractAction(I18n.text("Free draw"), null) {
-
+            
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 enableRectDraw = false;
