@@ -78,6 +78,7 @@ import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.mra.SidescanLogMarker;
+import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanParserFactory;
@@ -213,25 +214,25 @@ public class MarkerManagement {
     }
 
 
+    @SuppressWarnings("unused")
     private void addImagesToMarkers() {
         String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
 
         System.out.println("add size " + markerList.size());
         for (LogMarkerItem log : markerList) {
-
             File f = new File(path+log.getLabel()+".png");
 
             if(f.exists() && !f.isDirectory()) {
                 log.setSidescanImgPath(f);
-                System.out.println("stored path "+ log.getSidescanImgPath().getPath());
+               // System.out.println("stored path "+ log.getSidescanImgPath().getPath());
             }
         }
     }
 
     private void getImagesForMarkers(SidescanParser ssParser) {
         int nSubsys = ssParser.getSubsystemList().size();
-        SidescanConfig config = new SidescanConfig();
         int colorMapCode = LsfReportProperties.sidescanColorMap;
+        SidescanConfig config = new SidescanConfig();
         boolean globalColorMap = true;
         if (colorMapCode == -1) {
             globalColorMap = false;
@@ -240,15 +241,22 @@ public class MarkerManagement {
             config.colorMap = LsfReport.getColorMapFromCode(colorMapCode);
         }
 
-        SidescanParameters sidescanParams = new SidescanParameters(0, 0);
-        sidescanParams.setNormalization(config.normalization);
-        sidescanParams.setTvgGain(config.tvgGain);
+        SidescanParameters sidescanParams = setupSscanParam(config);
 
         for (LogMarker m : logMarkers) {
             createImages((SidescanLogMarker) m, ssParser, nSubsys, config, sidescanParams, globalColorMap);
         }
     }
-
+   
+    
+    private SidescanParameters setupSscanParam(SidescanConfig config) {
+        
+        SidescanParameters sidescanParams = new SidescanParameters(0, 0);
+        sidescanParams.setNormalization(config.normalization);
+        sidescanParams.setTvgGain(config.tvgGain);
+        
+        return sidescanParams;
+    }
     private void createImages(SidescanLogMarker m, SidescanParser parser, int nSubsys, SidescanConfig config, SidescanParameters sidescanParams, boolean globalColorMap) {
 
         m.setDefaults(parser.getSubsystemList().get(0));//setDefaults if they are N/A
@@ -316,8 +324,10 @@ public class MarkerManagement {
             for(LogMarker l : logMarkers) {
 
                 LocationType loc = l.getLocation();
-
-                LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(l.getLabel()), "<Your annotation here.>", 0, Classification.UNDEFINED);
+                double depth = getDepth(l, ssParser);
+                double alt = getAltitude(l, ssParser);
+                
+                LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(l.getLabel()), "<Your annotation here.>", alt, depth, Classification.UNDEFINED);
 
                 //format date timestamp
                 String date = DateTimeUtil.dateFormaterXMLUTC.format(l.getTimestamp());
@@ -395,9 +405,34 @@ public class MarkerManagement {
 
     }
 
+    private double getAltitude(LogMarker l, SidescanParser ssParser) {
+        int nSubsys = ssParser.getSubsystemList().size();
+        SidescanLogMarker sMarker = (SidescanLogMarker) l;
+        sMarker.setDefaults(ssParser.getSubsystemList().get(0));
+        
+        SidescanConfig config = new SidescanConfig();
+        SidescanParameters sidescanParams = setupSscanParam(config);
+        double altitude = 0;
+        for (int i = 0; i < nSubsys; i++) {
+            int subsys = ssParser.getSubsystemList().get(i);
+            ArrayList<SidescanLine> lines = LsfReport.getLines(ssParser, subsys, sidescanParams, (SidescanLogMarker) l);
+            if (lines != null && lines.size() != -1)
+                altitude = lines.get(0).state.getAltitude();
+        }
+ 
+        
+        return (double)Math.round(altitude * 100) / 100;
+    }
+
+    private double getDepth(LogMarker l, SidescanParser ssParser) {
+        //TODO
+        return 0;
+ 
+    }
+
     /**
      * @param marker
-     * @return
+     * @return File of marker image
      */
     private File getImgPath(String marker) {
         String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
@@ -528,8 +563,8 @@ public class MarkerManagement {
         }
 
         //Create new LogMarkerItem with the value read from xml
-        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, annot, altitude, cls);
-
+        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, annot, altitude, 0, cls);
+ 
         return e;
     }
 
@@ -558,6 +593,7 @@ public class MarkerManagement {
     }
 
 
+    @SuppressWarnings("unused")
     private void printData(){
 
         System.out.println("No of LogMarkerItems '" + markerList.size() + "'.");
