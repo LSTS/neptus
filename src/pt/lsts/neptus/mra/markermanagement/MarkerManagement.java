@@ -92,6 +92,11 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
  * @author Manuel R.
  *
  */
+
+/*TODO :
+ *  (1) when opening markerManagement window  read XML and compare number of markers with actual mraPanel markers, update XML accordingly
+ *  (2) when markerManagement window is already open, listen for mraPanel markers changes, update XML accordingly
+ */
 public class MarkerManagement {
 
     private final int DEFAULT_COLUMN_TO_SORT = 0;
@@ -100,7 +105,7 @@ public class MarkerManagement {
     private LogMarkerItemModel tableModel;
     private MarkerEdit markerEditFrame;
     protected MRAPanel mraPanel;
-    private final ArrayList<LogMarker> logMarkers = new ArrayList<>();
+    private final ArrayList<SidescanLogMarker> logMarkers = new ArrayList<>();
     private String markerFilePath;
     private List<LogMarkerItem> markerList = new ArrayList<>();
     private Document dom;
@@ -108,9 +113,6 @@ public class MarkerManagement {
 
     private JPanel panel;
 
-    /**
-     * @wbp.parser.entryPoint
-     */
     public MarkerManagement(NeptusMRA mra, MRAPanel mraPanel) {
         this.mraPanel = mraPanel;
         initialize();
@@ -132,7 +134,7 @@ public class MarkerManagement {
         //Add existing LogMarkers (only SidescanLogMarker ones)
         for (LogMarker m : mraPanel.getMarkers()) {
             if (m.getClass() == SidescanLogMarker.class) {
-                logMarkers.add(m);
+                logMarkers.add((SidescanLogMarker) m);
             }
         }
 
@@ -142,31 +144,31 @@ public class MarkerManagement {
 
         JButton button = new JButton("Print Markers");
         panel.add(button, "cell 0 0");
-        
+
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //TODO
             }
         });
-        
-//        Thread t = new Thread(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//
-//
-//            }
-//        });
-//        t.setDaemon(true);
-//        panel.add(loader, BorderLayout.CENTER);
-//        loader.setText(I18n.text("Loading Markers"));
-//        loader.start();
-//        t.start();
-        
+
+        //        Thread t = new Thread(new Runnable() {
+        //
+        //            @Override
+        //            public void run() {
+        //
+        //
+        //            }
+        //        });
+        //        t.setDaemon(true);
+        //        panel.add(loader, BorderLayout.CENTER);
+        //        loader.setText(I18n.text("Loading Markers"));
+        //        loader.start();
+        //        t.start();
+
         //check for XML file, load or create a new one 
         setupMarkers();
-        
+
         tableModel = new LogMarkerItemModel(markerList);
         table = new JTable(tableModel);
 
@@ -188,7 +190,7 @@ public class MarkerManagement {
                 }
             }
         });
-        
+
 
         JScrollPane scrollPane = new JScrollPane(table);
         panel.add(scrollPane, "cell 0 2 3 1,grow");
@@ -224,7 +226,7 @@ public class MarkerManagement {
 
             if(f.exists() && !f.isDirectory()) {
                 log.setSidescanImgPath(f);
-               // System.out.println("stored path "+ log.getSidescanImgPath().getPath());
+                // System.out.println("stored path "+ log.getSidescanImgPath().getPath());
             }
         }
     }
@@ -243,18 +245,18 @@ public class MarkerManagement {
 
         SidescanParameters sidescanParams = setupSscanParam(config);
 
-        for (LogMarker m : logMarkers) {
-            createImages((SidescanLogMarker) m, ssParser, nSubsys, config, sidescanParams, globalColorMap);
+        for (SidescanLogMarker m : logMarkers) {
+            createImages(m, ssParser, nSubsys, config, sidescanParams, globalColorMap);
         }
     }
-   
-    
+
+
     private SidescanParameters setupSscanParam(SidescanConfig config) {
-        
+
         SidescanParameters sidescanParams = new SidescanParameters(0, 0);
         sidescanParams.setNormalization(config.normalization);
         sidescanParams.setTvgGain(config.tvgGain);
-        
+
         return sidescanParams;
     }
     private void createImages(SidescanLogMarker m, SidescanParser parser, int nSubsys, SidescanConfig config, SidescanParameters sidescanParams, boolean globalColorMap) {
@@ -311,7 +313,7 @@ public class MarkerManagement {
     }
 
     private void createMarkers() {
-        
+
         SidescanParser ssParser = SidescanParserFactory.build(mraPanel.getSource());
         getImagesForMarkers(ssParser);
 
@@ -321,73 +323,78 @@ public class MarkerManagement {
         xml.appendChild(rootElement);
 
         int i=1;
-            for(LogMarker l : logMarkers) {
+        for(SidescanLogMarker l : logMarkers) {
 
-                LocationType loc = l.getLocation();
-                double depth = getDepth(l, ssParser);
-                double alt = getAltitude(l, ssParser);
-                
-                LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(l.getLabel()), "<Your annotation here.>", alt, depth, Classification.UNDEFINED);
+            LocationType loc = l.getLocation();
+            double depth = loc.getDepth(); // FIXME : always returning 0... is this returning real depth ?
+            double alt = getAltitude(l, ssParser);
+            double range = l.wMeters;
 
-                //format date timestamp
-                String date = DateTimeUtil.dateFormaterXMLUTC.format(l.getTimestamp());
+            LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(l.getLabel()), "<Your annotation here.>", alt, depth, range, Classification.UNDEFINED);
 
-                //add new LogMarkerItem to list
-                markerList.add(marker);
+            //format date timestamp
+            String date = DateTimeUtil.dateFormaterXMLUTC.format(l.getTimestamp());
 
-                // XML related
-                Element mark = xml.createElement("Mark");
-                rootElement.appendChild(mark);
+            //add new LogMarkerItem to list
+            markerList.add(marker);
 
-                //set Index
-                Attr attr = xml.createAttribute("id");
-                attr.setValue(Integer.toString(i));
-                mark.setAttributeNode(attr);
+            // XML related
+            Element mark = xml.createElement("Mark");
+            rootElement.appendChild(mark);
 
-                Element label = xml.createElement("Label");
-                label.appendChild(xml.createTextNode(l.getLabel()));
-                mark.appendChild(label);
+            //set Index
+            Attr attr = xml.createAttribute("id");
+            attr.setValue(Integer.toString(i));
+            mark.setAttributeNode(attr);
 
-                Element ts = xml.createElement("Timestamp");
-                ts.appendChild(xml.createTextNode(date));
-                mark.appendChild(ts);
+            Element label = xml.createElement("Label");
+            label.appendChild(xml.createTextNode(l.getLabel()));
+            mark.appendChild(label);
 
-                Element lat = xml.createElement("Lat");
-                lat.appendChild(xml.createTextNode(loc.getLatitudeDegs() + ""));
-                mark.appendChild(lat);
+            Element ts = xml.createElement("Timestamp");
+            ts.appendChild(xml.createTextNode(date));
+            mark.appendChild(ts);
 
-                Element lon = xml.createElement("Lon");
-                lon.appendChild(xml.createTextNode(loc.getLongitudeDegs() + ""));
-                mark.appendChild(lon);
+            Element lat = xml.createElement("Lat");
+            lat.appendChild(xml.createTextNode(loc.getLatitudeDegs() + ""));
+            mark.appendChild(lat);
 
-                Element image = xml.createElement("Image");
-                if (marker.getSidescanImgPath() != null) {
-                    image.appendChild(xml.createTextNode(marker.getSidescanImgPath().getPath()));
-                } 
-                else {
-                    image.appendChild(xml.createTextNode(""));
-                }
-                mark.appendChild(image);
+            Element lon = xml.createElement("Lon");
+            lon.appendChild(xml.createTextNode(loc.getLongitudeDegs() + ""));
+            mark.appendChild(lon);
 
-                Element draw = xml.createElement("Draw");
-                draw.appendChild(xml.createTextNode(""));
-                mark.appendChild(draw);
-
-                Element altitude = xml.createElement("Altitude");
-                altitude.appendChild(xml.createTextNode(marker.getAltitude() + ""));
-                mark.appendChild(altitude);
-
-                Element classif = xml.createElement("Classification");
-                classif.appendChild(xml.createTextNode(Classification.UNDEFINED.toString()));
-                mark.appendChild(classif);
-
-                Element annot = xml.createElement("Annotation");
-                annot.appendChild(xml.createTextNode(marker.getAnnotation()));
-                mark.appendChild(annot);
-                // end XML related
-
-                i++;
+            Element image = xml.createElement("Image");
+            if (marker.getSidescanImgPath() != null) {
+                image.appendChild(xml.createTextNode(marker.getSidescanImgPath().getPath()));
+            } 
+            else {
+                image.appendChild(xml.createTextNode(""));
             }
+            mark.appendChild(image);
+
+            Element draw = xml.createElement("Draw");
+            draw.appendChild(xml.createTextNode(""));
+            mark.appendChild(draw);
+
+            Element altitude = xml.createElement("Altitude");
+            altitude.appendChild(xml.createTextNode(marker.getAltitude() + ""));
+            mark.appendChild(altitude);
+
+            Element dep = xml.createElement("Depth");
+            dep.appendChild(xml.createTextNode(marker.getDepth() + ""));
+            mark.appendChild(dep);
+
+            Element classif = xml.createElement("Classification");
+            classif.appendChild(xml.createTextNode(Classification.UNDEFINED.toString()));
+            mark.appendChild(classif);
+
+            Element annot = xml.createElement("Annotation");
+            annot.appendChild(xml.createTextNode(marker.getAnnotation()));
+            mark.appendChild(annot);
+            // end XML related
+
+            i++;
+        }
 
         // write the content into xml file
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -405,29 +412,23 @@ public class MarkerManagement {
 
     }
 
-    private double getAltitude(LogMarker l, SidescanParser ssParser) {
+    private double getAltitude(SidescanLogMarker l, SidescanParser ssParser) {
         int nSubsys = ssParser.getSubsystemList().size();
         SidescanLogMarker sMarker = (SidescanLogMarker) l;
         sMarker.setDefaults(ssParser.getSubsystemList().get(0));
-        
+
         SidescanConfig config = new SidescanConfig();
         SidescanParameters sidescanParams = setupSscanParam(config);
         double altitude = 0;
         for (int i = 0; i < nSubsys; i++) {
             int subsys = ssParser.getSubsystemList().get(i);
-            ArrayList<SidescanLine> lines = LsfReport.getLines(ssParser, subsys, sidescanParams, (SidescanLogMarker) l);
+            ArrayList<SidescanLine> lines = LsfReport.getLines(ssParser, subsys, sidescanParams, l);
             if (lines != null && lines.size() != -1)
                 altitude = lines.get(0).state.getAltitude();
         }
- 
-        
-        return (double)Math.round(altitude * 100) / 100;
-    }
 
-    private double getDepth(LogMarker l, SidescanParser ssParser) {
-        //TODO
-        return 0;
- 
+
+        return (double)Math.round(altitude * 100) / 100;
     }
 
     /**
@@ -533,10 +534,10 @@ public class MarkerManagement {
         String tsString = getTextValue(markerEl, "Timestamp");
         SimpleDateFormat format = DateTimeUtil.dateFormaterXMLUTC;
         Date parsed = null;
-        
+
         String ssImgPath = getTextValue(markerEl, "Image");
         File path = new File(ssImgPath);
-        
+
 
         try {
             parsed = format.parse(tsString);
@@ -548,9 +549,11 @@ public class MarkerManagement {
         double ts = parsed.getTime();
         double lon = getDoubleValue(markerEl,"Lon");
         double lat = getDoubleValue(markerEl,"Lat");
-        // BufferedImage image = 
-        // BufferedImage draw = 
-        double altitude = -1.0;
+        double altitude = getDoubleValue(markerEl, "Altitude");
+        double depth = getDoubleValue(markerEl, "Depth");
+        double range = getDoubleValue(markerEl, "Range");
+
+
         Classification cls = Classification.UNDEFINED;
         String annot = "";
         try  {
@@ -563,8 +566,8 @@ public class MarkerManagement {
         }
 
         //Create new LogMarkerItem with the value read from xml
-        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, annot, altitude, 0, cls);
- 
+        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, annot, altitude, depth, range, cls);
+
         return e;
     }
 

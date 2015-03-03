@@ -52,8 +52,9 @@ public class LogMarkerItem extends LogMarker {
     private String annotation;
     private double altitude;
     private double depth;
+    private double range;
     private Classification classification;
-    
+
     public enum Classification {
         UNDEFINED(-1), 
         NONE(1), 
@@ -81,13 +82,14 @@ public class LogMarkerItem extends LogMarker {
      * @param lat
      * @param lon
      */
-    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, File sidescanImgPath, String annot, double altitude, double depth, Classification classif) {
+    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, File sidescanImgPath, String annot, double altitude, double depth, double range, Classification classif) {
         super(label, timestamp, lat, lon);
         this.index = index;
         this.sidescanImgPath = sidescanImgPath;
         this.annotation = annot;
         this.altitude = altitude;
-        this.setDepth(depth);
+        this.depth = depth;
+        this.range = range;
         this.classification = classif;
     }
 
@@ -160,7 +162,7 @@ public class LogMarkerItem extends LogMarker {
     public void setIndex(int index) {
         this.index = index;
     }
-    
+
     public LocationType getLocation() {
         return new LocationType(Math.toDegrees(getLat()), Math.toDegrees(getLon()));
     }
@@ -213,5 +215,17 @@ public class LogMarkerItem extends LogMarker {
         this.depth = depth;
     }
 
+    /**
+     * @return the range
+     */
+    public double getRange() {
+        return range;
+    }
 
+    /**
+     * @param range the range to set
+     */
+    public void setRange(double range) {
+        this.range = range;
+    }
 }
