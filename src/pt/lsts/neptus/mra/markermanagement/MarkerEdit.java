@@ -72,6 +72,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
 import pt.lsts.neptus.util.ImageUtils;
@@ -124,6 +125,7 @@ public class MarkerEdit extends JFrame {
 
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void initialize() {
 
         JPanel panel = new JPanel();
@@ -344,7 +346,7 @@ public class MarkerEdit extends JFrame {
         //TODO Draw image selectedMarker.getSidescanImgPath on markerImage label
         if (selectedMarker.getSidescanImgPath() != null )
             try {
-                System.out.println("Trying to read "+ selectedMarker.getSidescanImgPath().getPath());
+                //System.out.println("Trying to read "+ selectedMarker.getSidescanImgPath().getPath());
 
                 image = ImageIO.read(new File(selectedMarker.getSidescanImgPath().getPath()));
                 int width = image.getWidth();
@@ -356,7 +358,7 @@ public class MarkerEdit extends JFrame {
                 setLocation(parent.getwindowLocation());
 
             } catch (IOException e) {
-                System.out.println("Error reading image file for "+ selectedMarker.getLabel());
+                NeptusLog.pub().error("Error reading image file for "+ selectedMarker.getLabel());
             }
 
 
@@ -442,14 +444,9 @@ public class MarkerEdit extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //get values from fields
-                String label = nameLabelValue.getText();
-
                 Classification classif = (Classification) classifValue.getSelectedItem();
-
                 String annotation = annotationValue.getText();
-
-                //TODO: may be add setLabel on LogMarker.java ?
-                // selectedMarker.setLabel(label);
+                
                 selectedMarker.setClassification(classif);
                 selectedMarker.setAnnotation(annotation);
                 parent.updateTableRow(selectedMarker, selectMarkerRowIndex);
@@ -464,7 +461,6 @@ public class MarkerEdit extends JFrame {
                 int res = showDelDialog();
                 if (res==0)  { 
                     parent.deleteLog(selectedMarker, selectMarkerRowIndex);
-                    // TODO : delete from mraPanel -> parent.mraPanel.removeMarker(marker);
                     dispose();
                 }
             }
