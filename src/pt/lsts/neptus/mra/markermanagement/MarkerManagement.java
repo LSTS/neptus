@@ -383,6 +383,10 @@ public class MarkerManagement {
             Element dep = xml.createElement("Depth");
             dep.appendChild(xml.createTextNode(marker.getDepth() + ""));
             mark.appendChild(dep);
+            
+            Element rang = xml.createElement("Range");
+            rang.appendChild(xml.createTextNode(marker.getRange() + ""));
+            mark.appendChild(rang);
 
             Element classif = xml.createElement("Classification");
             classif.appendChild(xml.createTextNode(Classification.UNDEFINED.toString()));
