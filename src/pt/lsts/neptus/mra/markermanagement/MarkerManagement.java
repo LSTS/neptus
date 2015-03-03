@@ -105,6 +105,7 @@ public class MarkerManagement {
     private Document dom;
     InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
 
+    private JPanel panel;
 
     /**
      * @wbp.parser.entryPoint
@@ -134,22 +135,39 @@ public class MarkerManagement {
             }
         }
 
-        JPanel panel = new JPanel();
+        panel = new JPanel();
         frmMarkerManagement.getContentPane().add(panel, "cell 0 0,grow");
         panel.setLayout(new MigLayout("", "[][][grow]", "[][][grow]"));
 
-        //check if markers file exists and creates new file if not
-        markersSetup();
-
+        JButton button = new JButton("Print Markers");
+        panel.add(button, "cell 0 0");
+        
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //TODO
+            }
+        });
+        
+//        Thread t = new Thread(new Runnable() {
+//
+//            @Override
+//            public void run() {
+//
+//
+//            }
+//        });
+//        t.setDaemon(true);
+//        panel.add(loader, BorderLayout.CENTER);
+//        loader.setText(I18n.text("Loading Markers"));
+//        loader.start();
+//        t.start();
+        
+        //check for XML file, load or create a new one 
+        setupMarkers();
+        
         tableModel = new LogMarkerItemModel(markerList);
         table = new JTable(tableModel);
-        //TODO add : 
-        //       add(loader, BorderLayout.CENTER);
-        //       loader.setText(I18n.text("Loading Markers"));
-
-        loader.start();
-
-        table.setEnabled(false);
 
         //define max columns width
         tableModel.setColumnsWidth(table);
@@ -166,46 +184,39 @@ public class MarkerManagement {
                 if (me.getClickCount() == 2) {
                     if (table.getSelectedRow() != -1)
                         openMarkerEditor(table.getValueAt(table.getSelectedRow(), 1).toString(), rowIndex);
-                    //System.out.println(table.getValueAt(table.getSelectedRow(), 1).toString());
                 }
             }
         });
+        
 
-        JButton button = new JButton("Print Markers");
-        panel.add(button, "cell 0 0");
-
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //TODO PRINT MARKERS
-            }
-        });
         JScrollPane scrollPane = new JScrollPane(table);
-
         panel.add(scrollPane, "cell 0 2 3 1,grow");
 
-        Thread t = new Thread(new Runnable() {
+    }
 
-            @Override
-            public void run() {
+    private void setupMarkers() {
+        markerFilePath = mraPanel.getSource().getFile("Data.lsf").getParent() + "/marks.xml";
 
-                SidescanParser ssParser = SidescanParserFactory.build(mraPanel.getSource());
-                getImagesForMarkers(ssParser);
-                addImagesToMarkers();
-                table.setEnabled(true);
-                loader.stop();
-
+        //XML markers file doesnt exist and there are Markers to be added
+        if (!new File(markerFilePath).exists() && !logMarkers.isEmpty()) {
+            NeptusLog.pub().info("Creating markers... ");
+            createMarkers();
+        }
+        else {
+            //XML markers file exists, load markers from it
+            NeptusLog.pub().info("Loading markers... ");
+            if(!loadMarkers()) {
+                NeptusLog.pub().error("Corrupted markers file. Trying to create new markers file.");
+                createMarkers();
             }
-        });
-        t.setDaemon(true);
-        t.start();
-
+        }
     }
 
 
     private void addImagesToMarkers() {
         String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
 
+        System.out.println("add size " + markerList.size());
         for (LogMarkerItem log : markerList) {
 
             File f = new File(path+log.getLabel()+".png");
@@ -291,26 +302,10 @@ public class MarkerManagement {
         return null;
     }
 
-    private void markersSetup() {
-
-        markerFilePath = mraPanel.getSource().getFile("Data.lsf").getParent() + "/marks.xml";
-
-        //XML markers file doesnt exist and there are Markers 
-        if (!new File(markerFilePath).exists() && !logMarkers.isEmpty()) {
-            NeptusLog.pub().info("Creating markers... ");
-            createMarkers();
-        }
-        else {
-            //XML markers file exists, load markers from it
-            NeptusLog.pub().info("Loading markers... ");
-            if(!loadMarkers()) {
-                NeptusLog.pub().error("Corrupted markers file. Trying to create new markers file.");
-                createMarkers();
-            }
-        }
-    }
-
     private void createMarkers() {
+        
+        SidescanParser ssParser = SidescanParserFactory.build(mraPanel.getSource());
+        getImagesForMarkers(ssParser);
 
         //XML document structure
         Document xml = Dom4JUtil.createEmptyDOMDocument();
@@ -318,67 +313,71 @@ public class MarkerManagement {
         xml.appendChild(rootElement);
 
         int i=1;
-        for(LogMarker l : logMarkers) {
+            for(LogMarker l : logMarkers) {
 
-            LocationType loc = l.getLocation();
+                LocationType loc = l.getLocation();
 
-            LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), null, "<Your annotation here.>", 0, Classification.UNDEFINED);
+                LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(l.getLabel()), "<Your annotation here.>", 0, Classification.UNDEFINED);
 
-            //format date timestamp
-            String date = DateTimeUtil.dateFormaterXMLUTC.format(l.getTimestamp());
+                //format date timestamp
+                String date = DateTimeUtil.dateFormaterXMLUTC.format(l.getTimestamp());
 
-            //add new LogMarkerItem to list
-            markerList.add(marker);
+                //add new LogMarkerItem to list
+                markerList.add(marker);
 
-            // XML related
-            Element mark = xml.createElement("Mark");
-            rootElement.appendChild(mark);
+                // XML related
+                Element mark = xml.createElement("Mark");
+                rootElement.appendChild(mark);
 
-            //set Index
-            Attr attr = xml.createAttribute("id");
-            attr.setValue(Integer.toString(i));
-            mark.setAttributeNode(attr);
+                //set Index
+                Attr attr = xml.createAttribute("id");
+                attr.setValue(Integer.toString(i));
+                mark.setAttributeNode(attr);
 
-            Element label = xml.createElement("Label");
-            label.appendChild(xml.createTextNode(l.getLabel()));
-            mark.appendChild(label);
+                Element label = xml.createElement("Label");
+                label.appendChild(xml.createTextNode(l.getLabel()));
+                mark.appendChild(label);
 
-            Element ts = xml.createElement("Timestamp");
-            ts.appendChild(xml.createTextNode(date));
-            mark.appendChild(ts);
+                Element ts = xml.createElement("Timestamp");
+                ts.appendChild(xml.createTextNode(date));
+                mark.appendChild(ts);
 
-            Element lat = xml.createElement("Lat");
-            lat.appendChild(xml.createTextNode(loc.getLatitudeDegs() + ""));
-            mark.appendChild(lat);
+                Element lat = xml.createElement("Lat");
+                lat.appendChild(xml.createTextNode(loc.getLatitudeDegs() + ""));
+                mark.appendChild(lat);
 
-            Element lon = xml.createElement("Lon");
-            lon.appendChild(xml.createTextNode(loc.getLongitudeDegs() + ""));
-            mark.appendChild(lon);
+                Element lon = xml.createElement("Lon");
+                lon.appendChild(xml.createTextNode(loc.getLongitudeDegs() + ""));
+                mark.appendChild(lon);
 
-            Element image = xml.createElement("Image");
-            image.appendChild(xml.createTextNode(""));
-            //image.setTextContent(encodedImage); // store it inside node
-            mark.appendChild(image);
+                Element image = xml.createElement("Image");
+                if (marker.getSidescanImgPath() != null) {
+                    image.appendChild(xml.createTextNode(marker.getSidescanImgPath().getPath()));
+                } 
+                else {
+                    image.appendChild(xml.createTextNode(""));
+                }
+                mark.appendChild(image);
 
-            Element draw = xml.createElement("Draw");
-            draw.appendChild(xml.createTextNode(""));
-            mark.appendChild(draw);
+                Element draw = xml.createElement("Draw");
+                draw.appendChild(xml.createTextNode(""));
+                mark.appendChild(draw);
 
-            Element altitude = xml.createElement("Altitude");
-            altitude.appendChild(xml.createTextNode(marker.getAltitude() + ""));
-            mark.appendChild(altitude);
+                Element altitude = xml.createElement("Altitude");
+                altitude.appendChild(xml.createTextNode(marker.getAltitude() + ""));
+                mark.appendChild(altitude);
 
-            Element classif = xml.createElement("Classification");
-            classif.appendChild(xml.createTextNode(Classification.UNDEFINED.toString()));
-            mark.appendChild(classif);
+                Element classif = xml.createElement("Classification");
+                classif.appendChild(xml.createTextNode(Classification.UNDEFINED.toString()));
+                mark.appendChild(classif);
 
-            Element annot = xml.createElement("Annotation");
-            annot.appendChild(xml.createTextNode(marker.getAnnotation()));
-            mark.appendChild(annot);
-            // end XML related
+                Element annot = xml.createElement("Annotation");
+                annot.appendChild(xml.createTextNode(marker.getAnnotation()));
+                mark.appendChild(annot);
+                // end XML related
 
-            i++;
-        }
+                i++;
+            }
 
         // write the content into xml file
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -394,6 +393,23 @@ public class MarkerManagement {
 
         NeptusLog.pub().info("Markers XML file saved - " + markerFilePath);
 
+    }
+
+    /**
+     * @param marker
+     * @return
+     */
+    private File getImgPath(String marker) {
+        String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
+
+        File f = new File(path+marker+".png");
+
+        if(f.exists() && !f.isDirectory()) {
+            //System.out.println("file exists");
+            return f;
+        }
+
+        return null;
     }
 
     private boolean loadMarkers() {
@@ -482,6 +498,10 @@ public class MarkerManagement {
         String tsString = getTextValue(markerEl, "Timestamp");
         SimpleDateFormat format = DateTimeUtil.dateFormaterXMLUTC;
         Date parsed = null;
+        
+        String ssImgPath = getTextValue(markerEl, "Image");
+        File path = new File(ssImgPath);
+        
 
         try {
             parsed = format.parse(tsString);
@@ -508,7 +528,7 @@ public class MarkerManagement {
         }
 
         //Create new LogMarkerItem with the value read from xml
-        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, null, annot, altitude, cls);
+        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, annot, altitude, cls);
 
         return e;
     }
@@ -550,7 +570,7 @@ public class MarkerManagement {
 
     public Point getwindowLocation() {
         Point p = new Point(frmMarkerManagement.getLocation().x + frmMarkerManagement.getSize().width, frmMarkerManagement.getLocation().y);
-        
+
         return p;
     }
     public static void main(String[] args) {

@@ -80,14 +80,13 @@ public class LogMarkerItem extends LogMarker {
      * @param lat
      * @param lon
      */
-    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, BufferedImage img, String annot, double altitude, Classification classif) {
+    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, File sidescanImgPath, String annot, double altitude, Classification classif) {
         super(label, timestamp, lat, lon);
         this.index = index;
-        this.image = img;
+        this.sidescanImgPath = sidescanImgPath;
         this.annotation = annot;
         this.altitude = altitude;
         this.classification = classif;
-        this.sidescanImgPath = null;
         //System.out.println(toString());
     }
 
