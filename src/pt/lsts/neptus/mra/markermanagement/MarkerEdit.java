@@ -138,10 +138,10 @@ public class MarkerEdit extends JFrame {
                 Graphics2D lg2d = (Graphics2D) layer.getGraphics();
                 lg2d.setBackground(new Color(100, 100, 255, 0));
                 lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight());
-                
+
                 if (image!=null) {
                     g.drawImage(image, RULER_SIZE+1, RULER_SIZE+1, null);
-                    
+
                     drawZoomRuler(g);
 
                     if (enableRectDraw) 
@@ -326,11 +326,11 @@ public class MarkerEdit extends JFrame {
 
         g2d.setColor(Color.RED);
         //horizontal line
-        g2d.drawLine(RULER_SIZE, image.getHeight()+RULER_SIZE, markerImage.getPreferredSize().width-RULER_SIZE, image.getHeight()+RULER_SIZE);
+        g2d.drawLine(RULER_SIZE, image.getHeight()+RULER_SIZE, image.getWidth()+RULER_SIZE, image.getHeight()+RULER_SIZE);
 
 
         //vertical line
-        g2d.drawLine(RULER_SIZE, 0, RULER_SIZE, image.getHeight());
+        g2d.drawLine(RULER_SIZE, RULER_SIZE, RULER_SIZE, image.getHeight()+RULER_SIZE);
 
 
         //TODO : finish
@@ -343,21 +343,21 @@ public class MarkerEdit extends JFrame {
 
         //TODO Draw image selectedMarker.getSidescanImgPath on markerImage label
         if (selectedMarker.getSidescanImgPath() != null )
-        try {
-            System.out.println("Trying to read "+ selectedMarker.getSidescanImgPath().getPath());
-            
-            image = ImageIO.read(new File(selectedMarker.getSidescanImgPath().getPath()));
-            int width = image.getWidth();
-            int height = image.getHeight();
-            markerImage.repaint();
-            markerImage.setPreferredSize(new Dimension(width+25, height+25));
-            
-            setBounds(100, 100, width + 265 + 25, height + 80 + 25);
-            setLocation(parent.getwindowLocation());
-            
-        } catch (IOException e) {
-            System.out.println("Error reading image file for "+ selectedMarker.getLabel());
-        }
+            try {
+                System.out.println("Trying to read "+ selectedMarker.getSidescanImgPath().getPath());
+
+                image = ImageIO.read(new File(selectedMarker.getSidescanImgPath().getPath()));
+                int width = image.getWidth();
+                int height = image.getHeight();
+                markerImage.repaint();
+                markerImage.setPreferredSize(new Dimension(width+25, height+25));
+
+                setBounds(100, 100, width + 265 + 25, height + 80 + 25);
+                setLocation(parent.getwindowLocation());
+
+            } catch (IOException e) {
+                System.out.println("Error reading image file for "+ selectedMarker.getLabel());
+            }
 
 
         nameLabelValue.setText(selectedMarker.getLabel());
@@ -374,7 +374,7 @@ public class MarkerEdit extends JFrame {
     private void setupDrawPopup() {
         drawPopupMenu = new JPopupMenu();
         freeDraw = new AbstractAction(I18n.text("Free draw"), null) {
-            
+
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 enableRectDraw = false;
