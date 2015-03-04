@@ -248,7 +248,6 @@ public class LogUtils {
             while (it.hasNext()) {
                 GpsFix fix = it.next();
                 if ((fix.getValidity() & GpsFix.GFV_VALID_POS) != 0) {
-                    System.out.println(fix);
                     LocationType loc = new LocationType();
                     loc.setLatitudeRads(fix.getLat());
                     loc.setLongitudeRads(fix.getLon());
