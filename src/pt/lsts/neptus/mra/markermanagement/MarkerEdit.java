@@ -171,7 +171,7 @@ public class MarkerEdit extends JFrame {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-
+                pointsList.clear();
                 //((JLabel) e.getSource()).repaint();
             }
 
@@ -183,7 +183,8 @@ public class MarkerEdit extends JFrame {
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     initialX = mouseX;
                     initialY = mouseY;
-                    pointsList.add(new Point(mouseX, mouseY));
+                    if (enableFreeDraw) 
+                        pointsList.add(new Point(mouseX, mouseY));
                     // ((JLabel) e.getSource()).repaint();
                 }
             }
@@ -305,7 +306,7 @@ public class MarkerEdit extends JFrame {
 
     private void drawCircle(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
-
+        g2.setColor(Color.WHITE);
         int x = Math.min(initialX, mouseX);
         int y = Math.min(initialY, mouseY);
 
@@ -320,13 +321,14 @@ public class MarkerEdit extends JFrame {
         Graphics2D g2d = (Graphics2D) g;
 
         int fontSize = 11;
+        int margin = 8;
         g2d.setFont(new Font("SansSerif", Font.PLAIN, fontSize));
         g2d.setColor(Color.BLACK);
 
         //draw zero
-        g2d.drawString("0", 8, image.getHeight()+RULER_SIZE+8);
+        g2d.drawString("0", margin, image.getHeight()+RULER_SIZE+10);
 
-        g2d.setColor(Color.RED);
+        g2d.setColor(Color.BLACK);
         //horizontal line
         g2d.drawLine(RULER_SIZE, image.getHeight()+RULER_SIZE, image.getWidth()+RULER_SIZE, image.getHeight()+RULER_SIZE);
 
@@ -334,8 +336,36 @@ public class MarkerEdit extends JFrame {
         //vertical line
         g2d.drawLine(RULER_SIZE, RULER_SIZE, RULER_SIZE, image.getHeight()+RULER_SIZE);
 
+        double range = selectedMarker.getRange();
+        float zoomRangeStep = 1;
+        if (range > 10.0 && range < 30.0)
+            zoomRangeStep = 2;
+        else {
+            if (range > 30.0)
+                zoomRangeStep = 5;
+        }
+        System.out.println("range "+ range);
+        
+        // horizontal ruler (range)
+        int y = image.getHeight()+RULER_SIZE;
+        double step = zoomRangeStep * (image.getWidth()+margin) / range;
+        double r = zoomRangeStep;
+        int c = margin + (int) step;
+        g2d.setColor(Color.WHITE);
 
-        //TODO : finish
+        for (; c<=image.getWidth()+8; c += step , r += zoomRangeStep) {
+            int length = (int)(Math.log10(r)+1);
+            g2d.setColor(Color.WHITE);
+            g2d.drawLine(c, y-1, c, y-10);
+            if (length >= 2) {
+                margin = 13;
+            }
+            g2d.drawString("" + (int) r, c - margin, y-1);
+            g2d.setColor(Color.BLACK);
+            g2d.drawLine(c, y+1, c, y+10);
+
+        }
+        
 
     }
 
@@ -343,11 +373,8 @@ public class MarkerEdit extends JFrame {
         selectedMarker = log;
         selectMarkerRowIndex = rowIndex;
 
-        //TODO Draw image selectedMarker.getSidescanImgPath on markerImage label
-        if (selectedMarker.getSidescanImgPath() != null )
+        if (selectedMarker.getSidescanImgPath() != null ) {
             try {
-                //System.out.println("Trying to read "+ selectedMarker.getSidescanImgPath().getPath());
-
                 image = ImageIO.read(new File(selectedMarker.getSidescanImgPath().getPath()));
                 int width = image.getWidth();
                 int height = image.getHeight();
@@ -360,7 +387,7 @@ public class MarkerEdit extends JFrame {
             } catch (IOException e) {
                 NeptusLog.pub().error("Error reading image file for "+ selectedMarker.getLabel());
             }
-
+        }
 
         nameLabelValue.setText(selectedMarker.getLabel());
         nameLabelValue.setToolTipText(selectedMarker.getLabel());
@@ -446,7 +473,7 @@ public class MarkerEdit extends JFrame {
                 //get values from fields
                 Classification classif = (Classification) classifValue.getSelectedItem();
                 String annotation = annotationValue.getText();
-                
+
                 selectedMarker.setClassification(classif);
                 selectedMarker.setAnnotation(annotation);
                 parent.updateTableRow(selectedMarker, selectMarkerRowIndex);
