@@ -991,7 +991,7 @@ public class IMCUtils {
 
         return lblConfig;
     }
-
+    
     /**
      * @param estimatedStateEntry
      * @return
@@ -1009,7 +1009,7 @@ public class IMCUtils {
                 estimatedStateMsg.getDouble("z")
                 );
 
-        return loc;        
+        return loc;
     }
 
 

@@ -48,7 +48,6 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
-import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
@@ -284,10 +283,7 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
         }
         
         timeline = new MRALogReplayTimeline(this);
-        if (index.containsMessagesOfType("EstimatedState")) {
-            r2d.setCenter(IMCUtils.getLocation(index.getFirst(EstimatedState.class)));
-        }
-
+        
         Thread t = new Thread("Starting replay") {
             @Override
             public void run() {
