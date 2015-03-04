@@ -366,6 +366,9 @@ public class MarkerEdit extends JFrame {
 
         }
         
+        // vertical ruler (height)
+        double height = selectedMarker.getHeight() / 2.0;
+        
 
     }
 

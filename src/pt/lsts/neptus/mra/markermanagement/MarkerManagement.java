@@ -327,10 +327,13 @@ public class MarkerManagement {
 
             LocationType loc = l.getLocation();
             double depth = loc.getDepth(); // FIXME : always returning 0... is this returning real depth ?
-            double alt = getAltitude(l, ssParser);
+            double[] altAndHeight = getAltAndHeight(l, ssParser);
             double range = l.wMeters;
+            
+            double alt = altAndHeight[0];
+            double heightValue = altAndHeight[1];
 
-            LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(l.getLabel()), "<Your annotation here.>", alt, depth, range, Classification.UNDEFINED);
+            LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(l.getLabel()), "<Your annotation here.>", alt, depth, range, heightValue, Classification.UNDEFINED);
 
             //format date timestamp
             String date = DateTimeUtil.dateFormaterXMLUTC.format(l.getTimestamp());
@@ -383,10 +386,14 @@ public class MarkerManagement {
             Element dep = xml.createElement("Depth");
             dep.appendChild(xml.createTextNode(marker.getDepth() + ""));
             mark.appendChild(dep);
-            
+
             Element rang = xml.createElement("Range");
             rang.appendChild(xml.createTextNode(marker.getRange() + ""));
             mark.appendChild(rang);
+
+            Element height = xml.createElement("Height");
+            height.appendChild(xml.createTextNode(marker.getHeight() + ""));
+            mark.appendChild(height);
 
             Element classif = xml.createElement("Classification");
             classif.appendChild(xml.createTextNode(Classification.UNDEFINED.toString()));
@@ -416,24 +423,42 @@ public class MarkerManagement {
 
     }
 
-    private double getAltitude(SidescanLogMarker l, SidescanParser ssParser) {
-        int nSubsys = ssParser.getSubsystemList().size();
+    private double[] getAltAndHeight(SidescanLogMarker l, SidescanParser ssParser) {
         SidescanLogMarker sMarker = (SidescanLogMarker) l;
         sMarker.setDefaults(ssParser.getSubsystemList().get(0));
 
         SidescanConfig config = new SidescanConfig();
         SidescanParameters sidescanParams = setupSscanParam(config);
         double altitude = 0;
-        for (int i = 0; i < nSubsys; i++) {
-            int subsys = ssParser.getSubsystemList().get(i);
-            ArrayList<SidescanLine> lines = LsfReport.getLines(ssParser, subsys, sidescanParams, l);
-            if (lines != null && lines.size() != -1)
-                altitude = lines.get(0).state.getAltitude();
+        double height = 0;
+        LocationType bottomLocation = null;
+        LocationType topLocation = null;
+
+        int subsys = l.subSys;
+        ArrayList<SidescanLine> lines = LsfReport.getLines(ssParser, subsys, sidescanParams, l);
+        if (lines != null && lines.size() != -1) {
+            //get location
+            bottomLocation = new LocationType(lines.get(0).state.getPosition());
+            topLocation = new LocationType(lines.get(lines.size()-1).state.getPosition());
+            System.out.println("marker: "+l.getLabel()+"- bottom "+ bottomLocation.getLatitudeDegs() + " "+ bottomLocation.getLongitudeDegs() );
+            System.out.println("marker: "+l.getLabel()+"- top "+ topLocation.getLatitudeDegs() + " "+ topLocation.getLongitudeDegs() );
+
+            //get altitude from the line in the middle of the list
+            altitude = lines.get(lines.size()/2).state.getAltitude(); 
         }
 
+        //calculate distance between two locations
+        height = bottomLocation.getDistanceInMeters(topLocation); //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
+        System.out.println("Altura: " + height);
+        //store altitude in meters at pos 0
+        //store height   in meters at pos 1
+        double[] result = { ((double)Math.round(altitude * 100) / 100), height };
 
-        return (double)Math.round(altitude * 100) / 100;
+
+        return result;
     }
+
+
 
     /**
      * @param marker
@@ -556,6 +581,7 @@ public class MarkerManagement {
         double altitude = getDoubleValue(markerEl, "Altitude");
         double depth = getDoubleValue(markerEl, "Depth");
         double range = getDoubleValue(markerEl, "Range");
+        double height = getDoubleValue(markerEl, "Height");
 
 
         Classification cls = Classification.UNDEFINED;
@@ -570,7 +596,7 @@ public class MarkerManagement {
         }
 
         //Create new LogMarkerItem with the value read from xml
-        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, annot, altitude, depth, range, cls);
+        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, annot, altitude, depth, range, height, cls);
 
         return e;
     }
