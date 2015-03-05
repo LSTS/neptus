@@ -59,6 +59,7 @@ import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -71,6 +72,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.filechooser.FileFilter;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
@@ -91,7 +93,7 @@ public class MarkerEdit extends JFrame {
     private JMenuBar menuBar;
 
     private MarkerManagement parent;
-    private AbstractAction save, del, exit, freeDraw, rectDraw, circleDraw, clearDraw;
+    private AbstractAction save, del, exit, freeDraw, rectDraw, circleDraw, clearDraw, exportImage;
     private JPopupMenu drawPopupMenu;
     private LogMarkerItem selectedMarker;
     private int selectMarkerRowIndex = -1;
@@ -338,7 +340,7 @@ public class MarkerEdit extends JFrame {
             if (range > 30.0)
                 zoomRangeStep = 5;
         }
-        System.out.println("Range "+ range);
+        //System.out.println("Range "+ range);
 
         //horizontal black rectangle
         //g2d.setColor(new Color(.3f, .4f, .5f, .6f));
@@ -442,7 +444,7 @@ public class MarkerEdit extends JFrame {
                 System.out.println("free draw enabled");
             }
         };
-        freeDraw.putValue(Action.SHORT_DESCRIPTION, I18n.text("Draw with mouse mov.") + ".");
+        freeDraw.putValue(Action.SHORT_DESCRIPTION, I18n.text("Draw with mouse mov."));
 
         rectDraw = new AbstractAction(I18n.text("Rectangle draw"), null) {
 
@@ -455,7 +457,7 @@ public class MarkerEdit extends JFrame {
                 System.out.println("rectangle draw enabled");
             }
         };
-        rectDraw.putValue(Action.SHORT_DESCRIPTION, I18n.text("Draw a rectangle.") + ".");
+        rectDraw.putValue(Action.SHORT_DESCRIPTION, I18n.text("Draw a rectangle."));
 
         clearDraw = new AbstractAction(I18n.text("Clear Drawings"), null) {
             @Override
@@ -468,7 +470,7 @@ public class MarkerEdit extends JFrame {
 
             }
         };
-        clearDraw.putValue(Action.SHORT_DESCRIPTION, I18n.text("Clear draw.") + ".");
+        clearDraw.putValue(Action.SHORT_DESCRIPTION, I18n.text("Clear draw."));
 
 
         circleDraw = new AbstractAction(I18n.text("Circle Draw"), null) {
@@ -479,14 +481,61 @@ public class MarkerEdit extends JFrame {
                 enableCircleDraw = true;
             }
         };
-        clearDraw.putValue(Action.SHORT_DESCRIPTION, I18n.text("Draw a circle.") + ".");
+        circleDraw.putValue(Action.SHORT_DESCRIPTION, I18n.text("Draw a circle."));
 
 
+        exportImage = new AbstractAction(I18n.text("Export Image"), null) {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                //TODO SAVE IMAGE
+                if (markerImage != null) {
+                    BufferedImage img = new BufferedImage(markerImage.getWidth(), markerImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D g2d = img.createGraphics();
+                    markerImage.printAll(g2d);
+                    g2d.dispose();
+
+                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
+
+                    JFileChooser fileChooser = new JFileChooser(new File(path));
+                    fileChooser.setFileFilter(new FileFilter() {
+                        @Override
+                        public boolean accept(File f) {
+                            if (f.isDirectory()) {
+                                return true;
+                            }
+                            final String name = f.getName();
+                            return name.endsWith(".png") || name.endsWith(".jpg");
+                        }
+
+                        @Override
+                        public String getDescription() {
+                            return "*.png,*.jpg";
+                        }
+                    });
+                    
+                    int retVal = fileChooser.showSaveDialog(null);
+                    if(retVal == JFileChooser.APPROVE_OPTION){
+
+                        try {
+                            ImageIO.write(img, "png", fileChooser.getSelectedFile());
+                        }
+                        catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+
+            }
+        };
+        exportImage.putValue(Action.SHORT_DESCRIPTION, I18n.text("Export this image to a file."));
 
         drawPopupMenu.add(rectDraw);
         drawPopupMenu.add(circleDraw);
         drawPopupMenu.add(freeDraw);
         drawPopupMenu.add(clearDraw);
+        drawPopupMenu.addSeparator();
+        drawPopupMenu.add(exportImage);
+
     }
 
     private void setupFileMenu() {
