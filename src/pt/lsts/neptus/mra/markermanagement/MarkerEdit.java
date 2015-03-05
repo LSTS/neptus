@@ -339,24 +339,24 @@ public class MarkerEdit extends JFrame {
                 zoomRangeStep = 5;
         }
         System.out.println("Range "+ range);
-        
+
         //horizontal black rectangle
         //g2d.setColor(new Color(.3f, .4f, .5f, .6f));
         g2d.setColor(new Color(.5f, .6f, .7f,.8f));
         Rectangle horizRect = new Rectangle(RULER_SIZE, image.getHeight()+3, image.getWidth()+1, 12);
         g2d.fill(horizRect);
-        
+
         //vertical black rectangle
         Rectangle vertRect = new Rectangle(RULER_SIZE, RULER_SIZE+1, RULER_SIZE, image.getHeight()-12);
         g2d.fill(vertRect);
-        
+
         g2d.setColor(Color.BLACK);
         //horizontal line
         g2d.drawLine(RULER_SIZE, image.getHeight()+RULER_SIZE, image.getWidth()+RULER_SIZE, image.getHeight()+RULER_SIZE);
 
         //vertical line
         g2d.drawLine(RULER_SIZE, RULER_SIZE+1, RULER_SIZE, image.getHeight()+RULER_SIZE);
-        
+
         // horizontal ruler (range)
         int y = image.getHeight()+RULER_SIZE;
         double step = zoomRangeStep * (image.getWidth()+margin) / range;
@@ -376,21 +376,25 @@ public class MarkerEdit extends JFrame {
             g2d.drawLine(c, y, c, y+lineWith);
 
         }
-        
+
         // vertical ruler (height)
         double height = selectedMarker.getHeight() / 2.0;
-        System.out.println("Height "+ height);
-        
+
         double zoomRangeStepV = 2.0;
         double stepV = zoomRangeStepV * (image.getHeight()) / height;
-        double rV = zoomRangeStepV;
-        int cV = RULER_SIZE + (int) stepV;
-        g2d.setColor(Color.BLACK);
-        //FIXME , it's upside down
-        for (; cV<=y; cV += stepV , rV += zoomRangeStepV) {
-            g2d.setColor(Color.WHITE);
-            g2d.drawLine(RULER_SIZE+1, cV, (RULER_SIZE+1)+lineWith, cV);
-            g2d.drawString("" + (int) rV,  RULER_SIZE + 4 , cV - margin);
+        double rV = 0;
+        int cV = y;
+
+
+        for (; cV >= 0 ; cV -= stepV , rV += zoomRangeStepV) {
+            if (cV < y) {
+                g2d.setColor(Color.WHITE);
+                g2d.drawLine(RULER_SIZE+1, cV, (RULER_SIZE+3)+lineWith, cV);
+                g2d.drawString("" + (int) rV,  RULER_SIZE + 4 , cV+11);
+
+                g2d.setColor(Color.BLACK);
+                g2d.drawLine(RULER_SIZE+1, cV, (RULER_SIZE)-lineWith, cV);
+            }
         }
 
     }
