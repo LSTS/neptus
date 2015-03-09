@@ -49,9 +49,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.xml.parsers.DocumentBuilder;
@@ -74,6 +77,7 @@ import org.xml.sax.SAXException;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.PropertiesProviders.SidescanConfig;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.NeptusMRA;
@@ -118,6 +122,7 @@ public class MarkerManagement {
         initialize();
     }
 
+    @SuppressWarnings("serial")
     private void initialize() {
 
         frmMarkerManagement = new JFrame();
@@ -193,6 +198,28 @@ public class MarkerManagement {
 
 
         JScrollPane scrollPane = new JScrollPane(table);
+        
+        JPopupMenu popupMenu = new JPopupMenu();
+
+        AbstractAction del = new AbstractAction(I18n.text("Delete marker"), null) {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                int rowIndex = table.getSelectedRow();
+                if (table.getSelectedRow() != -1) {
+                    LogMarkerItem selectedMarker = findMarker(table.getValueAt(table.getSelectedRow(), 1).toString());
+                    deleteLogMarker(selectedMarker, rowIndex);
+                    //openMarkerEditor(table.getValueAt(table.getSelectedRow(), 1).toString(), rowIndex);
+                    System.out.println("Delete");
+                }
+
+            }
+        };
+        del.putValue(Action.SHORT_DESCRIPTION, I18n.text("Delete this marker."));
+        popupMenu.add(del);
+
+        table.setComponentPopupMenu(popupMenu);
+        
         panel.add(scrollPane, "cell 0 2 3 1,grow");
 
     }
@@ -617,7 +644,6 @@ public class MarkerManagement {
         String ssImgPath = getTextValue(markerEl, "Image");
         File path = new File(ssImgPath);
 
-
         try {
             parsed = format.parse(tsString);
         }
@@ -626,18 +652,22 @@ public class MarkerManagement {
         }
 
         double ts = parsed.getTime();
-        double lon = getDoubleValue(markerEl,"Lon");
-        double lat = getDoubleValue(markerEl,"Lat");
-        double altitude = getDoubleValue(markerEl, "Altitude");
-        double depth = getDoubleValue(markerEl, "Depth");
-        double range = getDoubleValue(markerEl, "Range");
-        double height = getDoubleValue(markerEl, "Height");
-
-
+        double lon = 0;
+        double lat = 0;
+        double altitude = 0;
+        double depth = 0;
+        double range = 0;
+        double height = 0;
         Classification cls = Classification.UNDEFINED;
         String annot = "";
+
         try  {
-            altitude = getDoubleValue(markerEl,"Altitude");
+            lon = getDoubleValue(markerEl,"Lon");
+            lat = getDoubleValue(markerEl,"Lat");
+            altitude = getDoubleValue(markerEl, "Altitude");
+            depth = getDoubleValue(markerEl, "Depth");
+            range = getDoubleValue(markerEl, "Range");
+            height = getDoubleValue(markerEl, "Height");
             cls = Classification.valueOf(getTextValue(markerEl,"Classification"));
             annot = getTextValue(markerEl, "Annotation");
         }
