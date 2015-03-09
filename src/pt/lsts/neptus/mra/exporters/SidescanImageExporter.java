@@ -80,6 +80,9 @@ public class SidescanImageExporter implements MRAExporter {
     @NeptusProperty
     public int hudSize = 250;
     
+    @NeptusProperty
+    public boolean showHud = true;
+    
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         parser = SidescanParserFactory.build(source);
@@ -127,17 +130,14 @@ public class SidescanImageExporter implements MRAExporter {
         BufferedImage img = null;
         int width = imageWidth, height = 1000;
         double startTime = start / 1000.0, endTime;
+        
         for (long time = start; time < end - 1000; time += 1000) {
             if (pmonitor.isCanceled())
                 return "Cancelled by the user";
+            lines = parser.getLinesBetween(time, time + 1000, sys, params);
 
-            int d = 0;
-            while (lines.isEmpty() && d<10000){
-                d += 1000;
-                lines = parser.getLinesBetween(time, time + d, sys, params);
-            }
             if (lines.isEmpty())
-                break;
+                continue;
 
             if (img == null) {
                 width = Math.min(imageWidth, lines.get(0).xsize);
@@ -151,8 +151,11 @@ public class SidescanImageExporter implements MRAExporter {
                 pmonitor.setProgress((int)((time - start)/1000));
                 if (ypos >= height || time == end) {
                     endTime = time / 1000.0;
-                    BufferedImage hudImg = hud.getImage(startTime, endTime, 1.0);
-                    img.getGraphics().drawImage(hudImg, 10, height - hudSize-10, hudSize - 10, height-10, 0, 0, hudSize, hudSize, null);
+                    
+                    if (showHud) {
+                        BufferedImage hudImg = hud.getImage(startTime, endTime, 1.0);
+                        img.getGraphics().drawImage(hudImg, 10, height - hudSize-10, hudSize - 10, height-10, 0, 0, hudSize, hudSize, null);
+                    }
                     
                     try {
                         ImageIO.write(img, "PNG", new File(out, "sss_"+image_num+".png"));
