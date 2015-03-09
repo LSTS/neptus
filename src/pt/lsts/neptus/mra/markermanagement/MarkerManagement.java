@@ -142,10 +142,10 @@ public class MarkerManagement {
         frmMarkerManagement.getContentPane().add(panel, "cell 0 0,grow");
         panel.setLayout(new MigLayout("", "[][][grow]", "[][][grow]"));
 
-        JButton button = new JButton("Print Markers");
-        panel.add(button, "cell 0 0");
+        JButton prntButton = new JButton("Print Markers");
+        panel.add(prntButton, "cell 0 0");
 
-        button.addActionListener(new ActionListener() {
+        prntButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //TODO
@@ -318,9 +318,9 @@ public class MarkerManagement {
         getImagesForMarkers(ssParser);
 
         //XML document structure
-        Document xml = Dom4JUtil.createEmptyDOMDocument();
-        Element rootElement = xml.createElement("markers");
-        xml.appendChild(rootElement);
+        dom = Dom4JUtil.createEmptyDOMDocument();
+        Element rootElement = dom.createElement("markers");
+        dom.appendChild(rootElement);
 
         int i=1;
         for(SidescanLogMarker l : logMarkers) {
@@ -329,7 +329,7 @@ public class MarkerManagement {
             double depth = loc.getDepth(); // FIXME : always returning 0... is this returning real depth ?
             double[] altAndHeight = getAltAndHeight(l, ssParser);
             double range = l.wMeters;
-            
+
             double alt = altAndHeight[0];
             double heightValue = altAndHeight[1];
 
@@ -342,65 +342,65 @@ public class MarkerManagement {
             markerList.add(marker);
 
             // XML related
-            Element mark = xml.createElement("Mark");
+            Element mark = dom.createElement("Mark");
             rootElement.appendChild(mark);
 
             //set Index
-            Attr attr = xml.createAttribute("id");
+            Attr attr = dom.createAttribute("id");
             attr.setValue(Integer.toString(i));
             mark.setAttributeNode(attr);
 
-            Element label = xml.createElement("Label");
-            label.appendChild(xml.createTextNode(l.getLabel()));
+            Element label = dom.createElement("Label");
+            label.appendChild(dom.createTextNode(l.getLabel()));
             mark.appendChild(label);
 
-            Element ts = xml.createElement("Timestamp");
-            ts.appendChild(xml.createTextNode(date));
+            Element ts = dom.createElement("Timestamp");
+            ts.appendChild(dom.createTextNode(date));
             mark.appendChild(ts);
 
-            Element lat = xml.createElement("Lat");
-            lat.appendChild(xml.createTextNode(loc.getLatitudeDegs() + ""));
+            Element lat = dom.createElement("Lat");
+            lat.appendChild(dom.createTextNode(loc.getLatitudeDegs() + ""));
             mark.appendChild(lat);
 
-            Element lon = xml.createElement("Lon");
-            lon.appendChild(xml.createTextNode(loc.getLongitudeDegs() + ""));
+            Element lon = dom.createElement("Lon");
+            lon.appendChild(dom.createTextNode(loc.getLongitudeDegs() + ""));
             mark.appendChild(lon);
 
-            Element image = xml.createElement("Image");
+            Element image = dom.createElement("Image");
             if (marker.getSidescanImgPath() != null) {
-                image.appendChild(xml.createTextNode(marker.getSidescanImgPath().getPath()));
+                image.appendChild(dom.createTextNode(marker.getSidescanImgPath().getPath()));
             } 
             else {
-                image.appendChild(xml.createTextNode(""));
+                image.appendChild(dom.createTextNode(""));
             }
             mark.appendChild(image);
 
-            Element draw = xml.createElement("Draw");
-            draw.appendChild(xml.createTextNode(""));
+            Element draw = dom.createElement("Draw");
+            draw.appendChild(dom.createTextNode(""));
             mark.appendChild(draw);
 
-            Element altitude = xml.createElement("Altitude");
-            altitude.appendChild(xml.createTextNode(marker.getAltitude() + ""));
+            Element altitude = dom.createElement("Altitude");
+            altitude.appendChild(dom.createTextNode(marker.getAltitude() + ""));
             mark.appendChild(altitude);
 
-            Element dep = xml.createElement("Depth");
-            dep.appendChild(xml.createTextNode(marker.getDepth() + ""));
+            Element dep = dom.createElement("Depth");
+            dep.appendChild(dom.createTextNode(marker.getDepth() + ""));
             mark.appendChild(dep);
 
-            Element rang = xml.createElement("Range");
-            rang.appendChild(xml.createTextNode(marker.getRange() + ""));
+            Element rang = dom.createElement("Range");
+            rang.appendChild(dom.createTextNode(marker.getRange() + ""));
             mark.appendChild(rang);
 
-            Element height = xml.createElement("Height");
-            height.appendChild(xml.createTextNode(marker.getHeight() + ""));
+            Element height = dom.createElement("Height");
+            height.appendChild(dom.createTextNode(marker.getHeight() + ""));
             mark.appendChild(height);
 
-            Element classif = xml.createElement("Classification");
-            classif.appendChild(xml.createTextNode(Classification.UNDEFINED.toString()));
+            Element classif = dom.createElement("Classification");
+            classif.appendChild(dom.createTextNode(Classification.UNDEFINED.toString()));
             mark.appendChild(classif);
 
-            Element annot = xml.createElement("Annotation");
-            annot.appendChild(xml.createTextNode(marker.getAnnotation()));
+            Element annot = dom.createElement("Annotation");
+            annot.appendChild(dom.createTextNode(marker.getAnnotation()));
             mark.appendChild(annot);
             // end XML related
 
@@ -408,19 +408,7 @@ public class MarkerManagement {
         }
 
         // write the content into xml file
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        try {
-            Transformer transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(xml);
-            StreamResult result = new StreamResult(new File(markerFilePath));
-            transformer.transform(source, result);
-        }
-        catch (TransformerException e) {
-            e.printStackTrace();
-        }
-
-        NeptusLog.pub().info("Markers XML file saved - " + markerFilePath);
-
+        saveXML(dom);
     }
 
     private double[] getAltAndHeight(SidescanLogMarker l, SidescanParser ssParser) {
@@ -485,18 +473,87 @@ public class MarkerManagement {
         return !markerList.isEmpty();
     }
 
-    public void deleteLog(LogMarkerItem selectedMarker, int row) {
+    public void deleteLogMarker(LogMarkerItem selectedMarker, int row) {
         markerList.remove(selectedMarker);
         tableModel.removeRow(row);
 
         LogMarker marker = findLogMarker(selectedMarker.getLabel());
 
+        //update & save XML
+        deleteEntryXML(dom, selectedMarker);
+        saveXML(dom);
+
         //delete marker from mraPanel
         if (marker != null)
             mraPanel.removeMarker(marker);
+    }
 
-        //TODO: save XML
+    private void deleteEntryXML(Document doc, LogMarkerItem mrkerToDel) {
 
+        String markLabel = mrkerToDel.getLabel();
+        if (doc == null) {
+            System.out.println("NULLLLLLLLLLLLLLLLLLLL.");
+        }
+        NodeList nodes = doc.getElementsByTagName("Mark");
+
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Element mark = (Element)nodes.item(i);
+            Element label = (Element)mark.getElementsByTagName("Label").item(0);
+            String pLabel = label.getTextContent();
+            if (pLabel.equals(markLabel)) {
+                mark.getParentNode().removeChild(mark);
+            }
+        }
+    }
+
+    public void updateLogMarker(LogMarkerItem selectedMarker, int row) {
+        LogMarkerItem marker = findMarker(selectedMarker.getLabel());
+        marker.copy(selectedMarker);
+
+        tableModel.updateRow(row);
+
+        //update & save XML
+        updateEntryXML(dom, selectedMarker);
+        saveXML(dom);
+
+    }
+
+    /**
+     * @param dom2
+     * @param selectedMarker
+     */
+    private void updateEntryXML(Document doc, LogMarkerItem mrkerToUpd) {
+
+        String markLabel = mrkerToUpd.getLabel();
+        NodeList nodes = dom.getElementsByTagName("Mark");
+
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Element mark = (Element)nodes.item(i);
+            Element label = (Element)mark.getElementsByTagName("Label").item(0);
+            String pLabel = label.getTextContent();
+            if (pLabel.equals(markLabel)) {
+                mark.getElementsByTagName("Annotation").item(0).setTextContent(mrkerToUpd.getAnnotation());
+                mark.getElementsByTagName("Classification").item(0).setTextContent(mrkerToUpd.getClassification().name());
+            }
+        }
+    }
+
+    /** Write the content into xml file
+     * @param doc, document to be written to XML
+     */
+    private void saveXML(Document doc) {
+
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        try {
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(new File(markerFilePath));
+            transformer.transform(source, result);
+        }
+        catch (TransformerException e) {
+            e.printStackTrace();
+        }
+        NeptusLog.pub().info("Markers XML file saved - " + markerFilePath);
     }
 
     private LogMarker findLogMarker(String label) {
@@ -506,13 +563,6 @@ public class MarkerManagement {
                 return log;
         }
         return null;
-    }
-
-    public void updateTableRow(LogMarkerItem selectedMarker, int row) {
-        LogMarkerItem marker = findMarker(selectedMarker.getLabel());
-        marker.copy(selectedMarker);
-
-        tableModel.updateRow(row);
     }
 
     private void parseXmlFile(){

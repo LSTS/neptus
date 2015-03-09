@@ -103,6 +103,7 @@ public class MarkerEdit extends JFrame {
     private JLabel timeStampValue;
     private JLabel locationValue;
     private JLabel altitudeValue;
+    private JLabel depthValue;
     private JComboBox<String> classifValue;
     private JTextArea annotationValue;
     private int mouseX, mouseY, initialX, initialY;
@@ -258,7 +259,7 @@ public class MarkerEdit extends JFrame {
         panel.add(altitudeLabel, "cell 7 3,alignx left");
 
         altitudeValue = new JLabel("ALTITUDE");
-        panel.add(altitudeValue, "cell 8 3,alignx left");
+        panel.add(altitudeValue, "flowx,cell 8 3,alignx left");
 
         JLabel classifLabel = new JLabel("Classification:");
         panel.add(classifLabel, "cell 7 4,alignx trailing");
@@ -281,6 +282,12 @@ public class MarkerEdit extends JFrame {
         annotationValue.setWrapStyleWord(true); //Auto set up the style of words
         annotationValue.setRows(8);
         scrollPane.setViewportView(annotationValue);
+        
+        JLabel depthLabel = new JLabel(" / Depth:");
+        panel.add(depthLabel, "cell 8 3");
+        
+        depthValue = new JLabel("DEPTH");
+        panel.add(depthValue, "cell 8 3");
     }
 
     private void drawRect(Graphics g) {
@@ -387,6 +394,8 @@ public class MarkerEdit extends JFrame {
         double rV = 0;
         int cV = y;
 
+        //System.out.println("height "+ height);
+        
 
         for (; cV >= 0 ; cV -= stepV , rV += zoomRangeStepV) {
             if (cV < y) {
@@ -426,6 +435,8 @@ public class MarkerEdit extends JFrame {
         timeStampValue.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(selectedMarker.getTimestamp()));
         locationValue.setText(selectedMarker.getLocation().toString());
         altitudeValue.setText(Double.toString(selectedMarker.getAltitude()));
+        depthValue.setText(Double.toString(selectedMarker.getDepth()));
+        
         classifValue.setSelectedItem(selectedMarker.getClassification());
         annotationValue.setText(selectedMarker.getAnnotation());
         nameLabelValue.setSize(nameLabelValue.getPreferredSize() );
@@ -555,7 +566,7 @@ public class MarkerEdit extends JFrame {
 
                 selectedMarker.setClassification(classif);
                 selectedMarker.setAnnotation(annotation);
-                parent.updateTableRow(selectedMarker, selectMarkerRowIndex);
+                parent.updateLogMarker(selectedMarker, selectMarkerRowIndex);
             }
         };
         save.putValue(Action.SHORT_DESCRIPTION, I18n.text("Save Marker") + ".");
@@ -566,7 +577,7 @@ public class MarkerEdit extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 int res = showDelDialog();
                 if (res==0)  { 
-                    parent.deleteLog(selectedMarker, selectMarkerRowIndex);
+                    parent.deleteLogMarker(selectedMarker, selectMarkerRowIndex);
                     dispose();
                 }
             }
