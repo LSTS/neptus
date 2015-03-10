@@ -63,6 +63,8 @@ import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.DVLBathymetryParser;
+import pt.lsts.neptus.mra.importers.deltat.DeltaTHeader;
+import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
@@ -133,6 +135,11 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
 
     int kT_actual = 0;
     int kT_preview = 0;
+    
+    //Offset for the multibeam initial ned
+    double init_offset_north = 0;
+    double init_offset_east = 0;                   
+    double init_offset_down = 0;    
 
     // Map visualization variables
     class CMaps {
@@ -140,6 +147,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         public double latitude, longitude, height;
         public double north, east, down;
         public int num_point;
+        public double offset_checked;
     }
 
     CMaps map_ref;
@@ -260,6 +268,15 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             map_ref = new CMaps();
             map_ref.pointCloud = new PointCloudXYZ();
 
+            map_ref.offset_checked = 0;
+            for (IMCMessage m : source.getLsfIndex().getIterator("CorrectedState", 0, 1000)) {
+                map_ref.offset_checked = (float) m.getValue("alt");
+                if(map_ref.offset_checked!=0)
+                {
+                    break;
+                }
+            }
+            
             // Read header
             if ((ligne = br.readLine()) != null) { // LLH Offset
                 String[] str_point = ligne.split("[,:]");
@@ -295,7 +312,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                 String[] str_point = ligne.split("[,]");
                 double pos_x = Convert.getDouble(str_point[0]) - offsetLatLon[0];
                 double pos_y = Convert.getDouble(str_point[1]) - offsetLatLon[1];
-                double pos_z = Convert.getDouble(str_point[2]) - offsetHeight;
+                double pos_z = Convert.getDouble(str_point[2]) - offsetHeight + map_ref.offset_checked;
                 pts.InsertNextPoint(pos_x, pos_y, pos_z);
             }
 
@@ -360,6 +377,11 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                 LocationType loc = bs.getPose().getPosition();
                 if (initLoc == null) {
                     initLoc = new LocationType(loc);
+                    
+                    // Warning offset for multibeam is missed
+                    init_offset_north = initLoc.getOffsetNorth();
+                    init_offset_east = initLoc.getOffsetEast();                   
+                    init_offset_down = initLoc.getOffsetDown();                
                 }
 
                 for (int c = 0; c < bs.getNumBeams(); ++c) {
@@ -397,6 +419,64 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         // Add the particles blocs to the list
         list_actor.AddActor("DVL_Cloud");
     }
+    
+    public void LoadMBSPointCloud() {
+        vtkPoints pts = new vtkPoints();
+        int num_mbs_point = 0;
+        BathymetryParser parser = BathymetryParserFactory.build(this.source, "multibeam");
+
+        if (parser instanceof DeltaTParser) {
+            parser.rewind();
+            BathymetrySwath bs;
+
+            LocationType initLoc = null;
+
+            while ((bs = parser.nextSwath()) != null) {
+                LocationType loc = bs.getPose().getPosition();
+                if (initLoc == null) {
+                    initLoc = new LocationType(loc);
+                    
+                    // Warning offset for multibeam is missed
+                    initLoc.setOffsetNorth(-init_offset_north);
+                    initLoc.setOffsetEast(-init_offset_east);                   
+                    initLoc.setOffsetDown(init_offset_down);  
+                }
+
+                for (int c = 0; c < bs.getNumBeams(); ++c) {
+                    BathymetryPoint p = bs.getData()[c];
+                    if (p == null)
+                        continue;
+
+                    LocationType tempLoc = new LocationType(loc);
+
+                    tempLoc.translatePosition(p.north, p.east, 0);
+
+                    double offset[] = tempLoc.getOffsetFrom(initLoc);
+
+                    pts.InsertNextPoint(offset[0], offset[1], p.depth);
+
+                    ++num_mbs_point;
+                }
+            }
+        }
+
+        // Conditioning the particle list XYZ in VTK PointCloud table
+        APointCloud<?> pointcloud_mbs = new PointCloudXYZ();
+        pointcloud_mbs.setNumberOfPoints(num_mbs_point);
+        pointcloud_mbs.setXYZPoints(pts);
+        pointcloud_mbs.createActorFromPoints();
+        pointcloud_mbs.generateHandler();
+
+        // Add the particles blocs to the scene
+        pointcloud_mbs.getCloudLODActor().VisibilityOn();
+        pointcloud_mbs.getCloudLODActor().GetProperty().SetColor(0.0, 0.7, 0.2);
+        pointcloud_mbs.getCloudLODActor().GetProperty().SetPointSize(2);
+        canvas.GetRenderer().AddActor(pointcloud_mbs.getCloudLODActor());
+
+        // Add the particles blocs to the list
+        list_actor.AddActor("MBS_Cloud");
+    }
+    
 
     public int LoadCorrectedStateAndParticles() {
         corrected_state = new CCorrectedState();
@@ -416,7 +496,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
 
             if (k_correctedstate < k_particle) {
                 corrected_state.orientation[k_correctedstate] = m.getDouble("psi");
-            }
+            }            
             k_correctedstate++;
         }
 
@@ -562,9 +642,19 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             double x = (float) m.getValue("x");
             double y = (float) m.getValue("y");
             double depth = (float) m.getValue("depth");
-            pts_trajectory.InsertNextPoint(x, y, depth);
-
+            
+            
+            if(x!=0 && y!=0)
+            {
+                pts_trajectory.InsertNextPoint(x, y, depth);
+            }
+            else
+            {
+                k--;
+            }
         }
+        
+        corrected_state.kt = k;
 
         for (int i = 1; i < corrected_state.kt; i++) {
             // Create each line of the trajectory
@@ -729,14 +819,6 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         vtkDataArray normal = polydata.GetPointData().GetArray("Normals");
 
         polydata.GetPointData().SetNormals(normal);
-
-        /*
-         * for(int i=0; i<color.GetNumberOfTuples();i++) { double R = color.GetTuple3(i)[0]; double G =
-         * color.GetTuple3(i)[1]; double B = color.GetTuple3(i)[2];
-         * 
-         * color.SetTuple3(i,R,G,B); }
-         */
-
         polydata.GetPointData().SetScalars(color);
 
         // Transform the source in function to the Z exaggeration
@@ -788,8 +870,9 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             CreateVtkWindow();
 
             // Load all 3D object in the vtk 3d buffer
-            LoadMapToPointCloud();
+            LoadMapToPointCloud();           
             LoadDVLPointCloud();
+            LoadMBSPointCloud();
             LoadCorrectedStateAndParticles();
             LoadEstimatedState();
             LoadLauvModel();

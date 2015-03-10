@@ -60,7 +60,7 @@ public class BathyMapExporter implements MRAExporter {
 
     IMraLogGroup source;
     ProgressMonitor pmonitor;
-    BathymetryParser bparser;
+    BathymetryParser bparser;   
 
     @NeptusProperty(name = "Number point to ignore", description = "Number of points of multibeam measure to ignore")
     public double ptsToIgnore = 2.0;
@@ -158,8 +158,7 @@ public class BathyMapExporter implements MRAExporter {
                 double offset[] = tempLoc.getOffsetFrom(initLoc);
 
                 // Add normalized depth
-                double pts_mb[] = { offset[0] + initLoc.getOffsetNorth(), offset[1] + initLoc.getOffsetEast(),
-                        p.depth + initLoc.getOffsetDown() };
+                double pts_mb[] = {offset[0]+initLoc.getOffsetNorth(), offset[1]+initLoc.getOffsetEast(), p.depth+initLoc.getOffsetDown()};
                 table_MB.add(pts_mb);
 
                 ++countPoints_MB;
