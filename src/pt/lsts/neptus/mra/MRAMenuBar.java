@@ -118,7 +118,7 @@ public class MRAMenuBar {
     private AbstractAction preferences;
     private AbstractAction httpDuneDownload, httpVehicleDownload, concatenateLSFLogs, fuseLSFLogs, markerManagement;
     protected AbstractAction setMission;
-    protected MarkerManagement markerMngmt;
+    private MarkerManagement markerMngmt;
 
     private LinkedHashMap<JMenuItem, File> miscFilesOpened;
     private NeptusMRA mra;
