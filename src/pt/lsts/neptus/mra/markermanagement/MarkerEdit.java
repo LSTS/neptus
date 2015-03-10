@@ -96,7 +96,6 @@ public class MarkerEdit extends JFrame {
     //private JPopupMenu drawPopupMenu;
     private LogMarkerItem selectedMarker;
     private int selectMarkerRowIndex = -1;
-
     private JLabel markerImage;
     private JLabel nameLabelValue;
     private JLabel timeStampValue;
@@ -124,9 +123,7 @@ public class MarkerEdit extends JFrame {
         setBounds(100, 100, 590, 395);
 
         setupFileMenu();
-
         initialize();
-
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -144,20 +141,18 @@ public class MarkerEdit extends JFrame {
                 Graphics2D lg2d = (Graphics2D) layer.getGraphics();
                 lg2d.setBackground(new Color(100, 100, 255, 0));
                 lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight());
-                
+
                 Graphics2D rg2d = (Graphics2D) rulerLayer.getGraphics();
                 rg2d.setBackground(new Color(100, 100, 255, 0));
                 rg2d.clearRect(0, 0, rulerLayer.getWidth(), rulerLayer.getHeight());
 
-
-                
                 if (image!=null) {
                     g.drawImage(image, RULER_SIZE+1, RULER_SIZE+1, null);
-                    
+
                     drawZoomRuler(rg2d);
-                    
+
                     g.drawImage(rulerLayer, 0, 0, null);
-                    
+
                     if (enableRectDraw) 
                         drawRect(lg2d);
 
@@ -166,7 +161,7 @@ public class MarkerEdit extends JFrame {
 
                     if (enableCircleDraw)
                         drawCircle(lg2d);
-                    
+
                     g.drawImage(layer, RULER_SIZE+1, RULER_SIZE+1, null);
 
                 }
@@ -176,15 +171,14 @@ public class MarkerEdit extends JFrame {
         markerImage.setHorizontalAlignment(SwingConstants.CENTER);
         markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource("/images/unknown.png")));
 
-       // setupDrawPopup();
+        // setupDrawPopup();
 
-       // markerImage.setComponentPopupMenu(drawPopupMenu);
+        // markerImage.setComponentPopupMenu(drawPopupMenu);
 
         markerImage.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
                 pointsList.clear();
-                //((JLabel) e.getSource()).repaint();
             }
 
             @Override
@@ -225,63 +219,48 @@ public class MarkerEdit extends JFrame {
                 }
             }
         });
-        
+
         panel.add(markerImage, "cell 0 0 7 7,alignx left,aligny top");
 
         JLabel nameLabel = new JLabel("Label:");
-        panel.add(nameLabel, "cell 7 0,alignx left");
-
         nameLabelValue = new JLabel();
+        JLabel timeStampLabel = new JLabel("Timestamp:");
+        timeStampValue = new JLabel("TS");
+        JLabel locationLabel = new JLabel("Location:");
+        locationValue = new JLabel("LOCATION");
+        JLabel altitudeLabel = new JLabel("Altitude:");
+        altitudeValue = new JLabel("ALTITUDE");
+        JLabel classifLabel = new JLabel("Classification:");
+        classifValue = new JComboBox<>();
+        JLabel annotationLabel = new JLabel("Annotation:");
+        JScrollPane scrollPane = new JScrollPane();
+        annotationValue = new JTextArea();
+        JLabel depthLabel = new JLabel(" / Depth:");
+        depthValue = new JLabel("DEPTH");
+
         nameLabelValue.setBackground(Color.WHITE);
         nameLabelValue.setText("MARKER_LABEL");
-
+        panel.add(nameLabel, "cell 7 0,alignx left");
         panel.add(nameLabelValue, "cell 8 0,alignx left");
-
-
-        JLabel timeStampLabel = new JLabel("Timestamp:");
         panel.add(timeStampLabel, "cell 7 1,alignx left");
-
-        timeStampValue = new JLabel("TS");
         panel.add(timeStampValue, "cell 8 1,alignx left");
-
-        JLabel locationLabel = new JLabel("Location:");
         panel.add(locationLabel, "cell 7 2,alignx left");
-
-        locationValue = new JLabel("LOCATION");
         panel.add(locationValue, "cell 8 2,alignx left");
-
-        JLabel altitudeLabel = new JLabel("Altitude:");
         panel.add(altitudeLabel, "cell 7 3,alignx left");
-
-        altitudeValue = new JLabel("ALTITUDE");
         panel.add(altitudeValue, "flowx,cell 8 3,alignx left");
-
-        JLabel classifLabel = new JLabel("Classification:");
         panel.add(classifLabel, "cell 7 4,alignx trailing");
-
-        classifValue = new JComboBox<>();
         classifValue.setBackground(Color.WHITE);
         classifValue.setModel(new DefaultComboBoxModel(Classification.values()));
         panel.add(classifValue, "cell 8 4,alignx left");
-
-        JLabel annotationLabel = new JLabel("Annotation:");
         panel.add(annotationLabel, "cell 7 5");
-
-        JScrollPane scrollPane = new JScrollPane();
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         panel.add(scrollPane, "cell 7 6 2 1,grow");
-
-        annotationValue = new JTextArea();
         annotationValue.setText("<Your annotations here>");
         annotationValue.setLineWrap(true); //Auto down line if the line is too long
         annotationValue.setWrapStyleWord(true); //Auto set up the style of words
         annotationValue.setRows(8);
         scrollPane.setViewportView(annotationValue);
-
-        JLabel depthLabel = new JLabel(" / Depth:");
         panel.add(depthLabel, "cell 8 3");
-
-        depthValue = new JLabel("DEPTH");
         panel.add(depthValue, "cell 8 3");
     }
 
@@ -298,7 +277,6 @@ public class MarkerEdit extends JFrame {
         g2.drawRect(x, y, w, h);
 
     }
-
 
     private void drawFree(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
@@ -329,7 +307,7 @@ public class MarkerEdit extends JFrame {
         int margin = 8;
         int lineWith = 9;
         int y = image.getHeight()+RULER_SIZE;
-        
+
         g2d.setFont(new Font("SansSerif", Font.PLAIN, fontSize));
         g2d.setColor(Color.BLACK);
 
@@ -393,7 +371,6 @@ public class MarkerEdit extends JFrame {
 
         System.out.println("height "+ height);
 
-
         for (; cV >= 0 ; cV -= stepV , rV += zoomRangeStepV) {
             if (cV < y && rV < height) {
                 g2d.setColor(Color.WHITE);
@@ -404,7 +381,6 @@ public class MarkerEdit extends JFrame {
                 g2d.drawLine(RULER_SIZE+1, cV, (RULER_SIZE)-lineWith, cV);
             }
         }
-
     }
 
     public void loadMarker(LogMarkerItem log, int rowIndex) {
@@ -414,20 +390,20 @@ public class MarkerEdit extends JFrame {
 
         if (selectedMarker.getSidescanImgPath() != null ) {
             try {
-    
+
                 image = ImageIO.read(new File(selectedMarker.getSidescanImgPath().getPath()));
                 int width = image.getWidth();
                 int height = image.getHeight();
                 int prefWidth = 265;
                 int prefHeight = 80;
-                
+
                 markerImage.repaint();
                 markerImage.setPreferredSize(new Dimension(width + RULER_SIZE + 10, height + RULER_SIZE + 10));
 
                 setBounds(100, 100, width + prefWidth + RULER_SIZE + 10, height + prefHeight + RULER_SIZE + 10);
                 setLocation(parent.getwindowLocation());
                 layer = ImageUtils.createCompatibleImage(markerImage.getPreferredSize().width, 
-                        markerImage.getPreferredSize().height, Transparency.OPAQUE);
+                        markerImage.getPreferredSize().height, Transparency.TRANSLUCENT);
 
                 rulerLayer = ImageUtils.createCompatibleImage(markerImage.getPreferredSize().width, 
                         markerImage.getPreferredSize().height, Transparency.TRANSLUCENT);
@@ -436,7 +412,7 @@ public class MarkerEdit extends JFrame {
                 NeptusLog.pub().error("Error reading image file for "+ selectedMarker.getLabel());
             }
         }
-        
+
         enableCircleDraw = enableFreeDraw = enableRectDraw = false;
         nameLabelValue.setText(selectedMarker.getLabel());
         nameLabelValue.setToolTipText(selectedMarker.getLabel());
@@ -449,87 +425,87 @@ public class MarkerEdit extends JFrame {
         nameLabelValue.setSize(nameLabelValue.getPreferredSize() );
     }
 
-//    private void setupDrawPopup() {
-//        drawPopupMenu = new JPopupMenu();
-//        freeDraw = new AbstractAction(I18n.text("Free draw"), null) {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent arg0) {
-//                enableRectDraw = false;
-//                enableCircleDraw = false;
-//                enableFreeDraw = true;
-//            }
-//        };
-//
-//        rectDraw = new AbstractAction(I18n.text("Rectangle draw"), null) {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent arg0) {
-//                enableFreeDraw = false;
-//                enableCircleDraw = false;
-//                enableRectDraw = true;
-//            }
-//        };
-//
-//        clearDraw = new AbstractAction(I18n.text("Clear Drawings"), null) {
-//            @Override
-//            public void actionPerformed(ActionEvent arg0) {
-//                enableFreeDraw = false;
-//                enableRectDraw = false;
-//                enableCircleDraw = false;
-//
-//                Graphics2D g2d = (Graphics2D) layer.getGraphics();
-//                g2d.setBackground(new Color(100, 100, 255, 0));
-//                g2d.clearRect(0, 0, layer.getWidth(), layer.getHeight());
-//                markerImage.repaint();
-//            }
-//        };
-//
-//
-//        circleDraw = new AbstractAction(I18n.text("Circle Draw"), null) {
-//            @Override
-//            public void actionPerformed(ActionEvent arg0) {
-//                enableFreeDraw = false;
-//                enableRectDraw = false;
-//                enableCircleDraw = true;
-//            }
-//        };
-//
-//
-//        exportImage = new AbstractAction(I18n.text("Export Image"), null) {
-//            @Override
-//            public void actionPerformed(ActionEvent arg0) {
-//                if (markerImage != null) {
-//                    BufferedImage img = new BufferedImage(markerImage.getWidth(), markerImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
-//                    Graphics2D g2d = img.createGraphics();
-//                    markerImage.printAll(g2d);
-//                    g2d.dispose();
-//                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
-//
-//                    // save image to file
-//                    String fileName = chooseSaveFile(img, path);
-//                    // show saved dialog
-//                    if (fileName != null)
-//                        showSuccessDlg(fileName);
-//                }
-//            }
-//        };
-//
-//        drawPopupMenu.add(rectDraw);
-//        drawPopupMenu.add(circleDraw);
-//        drawPopupMenu.add(freeDraw);
-//        drawPopupMenu.add(clearDraw);
-//        drawPopupMenu.addSeparator();
-//        drawPopupMenu.add(exportImage);
-//    }
+    //    private void setupDrawPopup() {
+    //        drawPopupMenu = new JPopupMenu();
+    //        freeDraw = new AbstractAction(I18n.text("Free draw"), null) {
+    //
+    //            @Override
+    //            public void actionPerformed(ActionEvent arg0) {
+    //                enableRectDraw = false;
+    //                enableCircleDraw = false;
+    //                enableFreeDraw = true;
+    //            }
+    //        };
+    //
+    //        rectDraw = new AbstractAction(I18n.text("Rectangle draw"), null) {
+    //
+    //            @Override
+    //            public void actionPerformed(ActionEvent arg0) {
+    //                enableFreeDraw = false;
+    //                enableCircleDraw = false;
+    //                enableRectDraw = true;
+    //            }
+    //        };
+    //
+    //        clearDraw = new AbstractAction(I18n.text("Clear Drawings"), null) {
+    //            @Override
+    //            public void actionPerformed(ActionEvent arg0) {
+    //                enableFreeDraw = false;
+    //                enableRectDraw = false;
+    //                enableCircleDraw = false;
+    //
+    //                Graphics2D g2d = (Graphics2D) layer.getGraphics();
+    //                g2d.setBackground(new Color(100, 100, 255, 0));
+    //                g2d.clearRect(0, 0, layer.getWidth(), layer.getHeight());
+    //                markerImage.repaint();
+    //            }
+    //        };
+    //
+    //
+    //        circleDraw = new AbstractAction(I18n.text("Circle Draw"), null) {
+    //            @Override
+    //            public void actionPerformed(ActionEvent arg0) {
+    //                enableFreeDraw = false;
+    //                enableRectDraw = false;
+    //                enableCircleDraw = true;
+    //            }
+    //        };
+    //
+    //
+    //        exportImage = new AbstractAction(I18n.text("Export Image"), null) {
+    //            @Override
+    //            public void actionPerformed(ActionEvent arg0) {
+    //                if (markerImage != null) {
+    //                    BufferedImage img = new BufferedImage(markerImage.getWidth(), markerImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+    //                    Graphics2D g2d = img.createGraphics();
+    //                    markerImage.printAll(g2d);
+    //                    g2d.dispose();
+    //                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
+    //
+    //                    // save image to file
+    //                    String fileName = chooseSaveFile(img, path);
+    //                    // show saved dialog
+    //                    if (fileName != null)
+    //                        showSuccessDlg(fileName);
+    //                }
+    //            }
+    //        };
+    //
+    //        drawPopupMenu.add(rectDraw);
+    //        drawPopupMenu.add(circleDraw);
+    //        drawPopupMenu.add(freeDraw);
+    //        drawPopupMenu.add(clearDraw);
+    //        drawPopupMenu.addSeparator();
+    //        drawPopupMenu.add(exportImage);
+    //    }
 
     private void showSuccessDlg(String path) {
         if (!path.endsWith(".png"))
             path = path + ".png";
-        
+
         JOptionPane.showMessageDialog(this, "Image exported to: "+path, "Success", JOptionPane.INFORMATION_MESSAGE);
     }
-    
+
     private String chooseSaveFile(BufferedImage image, String path) {
 
         JFileChooser fileChooser = new JFileChooser(new File(path));
@@ -643,7 +619,7 @@ public class MarkerEdit extends JFrame {
                 enableCircleDraw = false;
             }
         };
-        
+
         AbstractAction drawCircleItem = new AbstractAction(I18n.text("Circle")) {
 
             @Override
@@ -654,7 +630,7 @@ public class MarkerEdit extends JFrame {
                 enableFreeDraw = false;
             }
         };
-        
+
         AbstractAction drawFreeItem = new AbstractAction(I18n.text("Free")) {
 
             @Override
@@ -665,17 +641,17 @@ public class MarkerEdit extends JFrame {
                 enableFreeDraw = true;
             }
         };
-        
-        
+
+
         mnDraw.add(drawRectItem);
         mnDraw.add(drawCircleItem);
         mnDraw.add(drawFreeItem);
         mnDraw.addSeparator();
         mnDraw.add(mntmClearDrawings);
-        
+
         JMenu mnImage = new JMenu("Export");
         menuBar.add(mnImage);
-        
+
         AbstractAction exportImgOnly = new AbstractAction(I18n.text("Image only")) {
 
             @Override
@@ -683,7 +659,7 @@ public class MarkerEdit extends JFrame {
                 if (markerImage != null) {
                     BufferedImage img = new BufferedImage(markerImage.getWidth(), markerImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g2d = img.createGraphics();
-                    
+
                     g2d.drawImage(image, 0, 0, null);
                     g2d.dispose();
                     String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
@@ -696,16 +672,16 @@ public class MarkerEdit extends JFrame {
                 }
             }
         };
-        
+
         AbstractAction exportImageWruler = new AbstractAction(I18n.text("Image w/ ruler")) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (markerImage != null && rulerLayer != null) {
-                    
+
                     BufferedImage img = new BufferedImage(markerImage.getWidth()+RULER_SIZE, markerImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g2d = img.createGraphics();
-                    
+
                     g2d.drawImage(image, RULER_SIZE, 0, null);
                     g2d.drawImage(rulerLayer, 0, -RULER_SIZE, null);
                     g2d.dispose();
@@ -719,19 +695,19 @@ public class MarkerEdit extends JFrame {
                 }
             }
         };
-        
+
         AbstractAction exportImgWdrawing = new AbstractAction(I18n.text("Image w/ drawing")) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (markerImage != null && rulerLayer != null) {
-                    
+
                     BufferedImage img = new BufferedImage(markerImage.getWidth()+RULER_SIZE, markerImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g2d = img.createGraphics();
-                    
+
                     //TODO : fix ! Isnt saving drawing properly !!!
                     String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
-                    
+
                     g2d.drawImage(image, RULER_SIZE, 0, null);
                     g2d.drawImage(layer, 0, 0, null);
                     g2d.dispose();
@@ -744,20 +720,20 @@ public class MarkerEdit extends JFrame {
                 }
             }
         };
-        
+
         AbstractAction exportAll = new AbstractAction(I18n.text("All")) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (markerImage != null && rulerLayer != null) {
-                    
+
                     BufferedImage img = new BufferedImage(markerImage.getWidth()+RULER_SIZE, markerImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g2d = img.createGraphics();
-                    
+
                     g2d.drawImage(image, RULER_SIZE, 0, null);
                     g2d.drawImage(layer, 0, -RULER_SIZE, null);
                     g2d.drawImage(rulerLayer, 0, -RULER_SIZE, null);
-                    
+
                     g2d.dispose();
                     String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
 
@@ -769,7 +745,7 @@ public class MarkerEdit extends JFrame {
                 }
             }
         };
-        
+
         mnImage.add(exportImgOnly);
         mnImage.add(exportImageWruler);
         mnImage.add(exportImgWdrawing);
@@ -789,7 +765,7 @@ public class MarkerEdit extends JFrame {
 
         return n;
     }
-   
+
     private void clearLayer(){
         initialX = initialY = mouseX = mouseY = -1;
         Graphics2D g2d = (Graphics2D) layer.getGraphics();

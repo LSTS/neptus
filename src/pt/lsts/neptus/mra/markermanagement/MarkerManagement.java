@@ -156,7 +156,7 @@ public class MarkerManagement {
                 if (table != null) {
                     if (table.getSelectedRows().length > 0) {
                         for (int i=0; i< table.getSelectedRows().length ; i++ ) {
-                        //TODO : export selected markers to a file (.pdf ? )
+                            //TODO : export selected markers to a file (.pdf ? )
                         }
                     }
                 }
@@ -280,7 +280,6 @@ public class MarkerManagement {
         }
     }
 
-
     private SidescanParameters setupSscanParam(SidescanConfig config) {
 
         SidescanParameters sidescanParams = new SidescanParameters(0, 0);
@@ -289,6 +288,7 @@ public class MarkerManagement {
 
         return sidescanParams;
     }
+
     private void createImages(SidescanLogMarker m, SidescanParser parser, int nSubsys, SidescanConfig config, SidescanParameters sidescanParams, boolean globalColorMap) {
 
         m.setDefaults(parser.getSubsystemList().get(0));//setDefaults if they are N/A
@@ -436,7 +436,6 @@ public class MarkerManagement {
 
             i++;
         }
-
         // write the content into xml file
         saveXML(dom);
     }
@@ -458,7 +457,7 @@ public class MarkerManagement {
             //get location
             bottomLocation = new LocationType(lines.get(0).state.getPosition());
             topLocation = new LocationType(lines.get(lines.size()-1).state.getPosition());
-           // System.out.println("marker: "+l.getLabel()+"- bottom "+ bottomLocation.getLatitudeDegs() + " "+ bottomLocation.getLongitudeDegs() );
+            // System.out.println("marker: "+l.getLabel()+"- bottom "+ bottomLocation.getLatitudeDegs() + " "+ bottomLocation.getLongitudeDegs() );
             //System.out.println("marker: "+l.getLabel()+"- top "+ topLocation.getLatitudeDegs() + " "+ topLocation.getLongitudeDegs() );
 
             //get altitude from the line in the middle of the list
@@ -468,15 +467,13 @@ public class MarkerManagement {
         //calculate distance between two locations
         height = bottomLocation.getDistanceInMeters(topLocation); //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
         //System.out.println("Altura: " + height);
-        
+
         //store altitude in meters at pos 0
         //store height   in meters at pos 1
         double[] result = { ((double)Math.round(altitude * 100) / 100), height };
 
         return result;
     }
-
-
 
     /**
      * @param marker
@@ -708,7 +705,6 @@ public class MarkerManagement {
         return Double.parseDouble(getTextValue(ele,tagName));
     }
 
-
     @SuppressWarnings("unused")
     private void printData(){
 
@@ -724,9 +720,5 @@ public class MarkerManagement {
         Point p = new Point(frmMarkerManagement.getLocation().x + frmMarkerManagement.getSize().width, frmMarkerManagement.getLocation().y);
 
         return p;
-    }
-    public static void main(String[] args) {
-
-
     }
 }
