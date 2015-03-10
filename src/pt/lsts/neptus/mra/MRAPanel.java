@@ -146,6 +146,8 @@ public class MRAPanel extends JPanel {
 
         // adds Exporters MenuItem to Tools menu after a Log is loaded
         mra.getMRAMenuBar().setUpExportersMenu(source);
+        
+        mra.getMRAMenuBar().setUpMarkerManagementMenu();
     }
 
     /**

@@ -73,6 +73,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.ConcatenateLsfLog;
+import pt.lsts.neptus.mra.markermanagement.MarkerManagement;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.types.mission.MissionType;
@@ -105,6 +106,7 @@ public class MRAMenuBar {
     private JMenu fileMenu, reportMenu, settingsMenu, toolsMenu, helpMenu;
     private JMenu recentlyOpenFilesMenu = null;
     private JMenu exporters;
+    private JMenuItem markerItem;
 
     private boolean isExportersAdded = false;;
 
@@ -114,14 +116,14 @@ public class MRAMenuBar {
     protected AbstractAction reportOptions;
     private AbstractAction batchReport;
     private AbstractAction preferences;
-    private AbstractAction httpDuneDownload, httpVehicleDownload, concatenateLSFLogs, fuseLSFLogs;
+    private AbstractAction httpDuneDownload, httpVehicleDownload, concatenateLSFLogs, fuseLSFLogs, markerManagement;
     protected AbstractAction setMission;
 
     private LinkedHashMap<JMenuItem, File> miscFilesOpened;
     private NeptusMRA mra;
     //private MRAPanel mraPanel; 
 
-    
+
     /**
      * Constructor
      * 
@@ -154,7 +156,7 @@ public class MRAMenuBar {
         return menuBar;
     }
 
-    
+
     /**
      * Set up File Menu
      */
@@ -282,7 +284,7 @@ public class MRAMenuBar {
             }
         };
         genReport = new AbstractAction(I18n.text("Save as PDF"), ImageUtils.getIcon("images/menus/document-pdf.png")) {
-        
+
             @Override
             public void actionPerformed(ActionEvent e) {
 
@@ -584,6 +586,8 @@ public class MRAMenuBar {
         toolsMenu.addSeparator();
         toolsMenu.add(concatenateLSFLogs);
         toolsMenu.add(fuseLSFLogs);
+
+
     }
 
     /**
@@ -729,5 +733,25 @@ public class MRAMenuBar {
      */
     private void setExportersMenu(JMenu exportersMenu) {
         this.exporters = exportersMenu;
+    }
+
+    /**
+     * 
+     */
+    public void setUpMarkerManagementMenu() {
+        if (markerManagement != null) {
+            toolsMenu.remove(markerItem);
+        }
+        markerManagement = new AbstractAction(I18n.text("Markers Management"), ImageUtils.getIcon("images/menus/marker.png")) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MarkerManagement m = new MarkerManagement(mra, mra.getMraPanel());
+
+            }
+        };
+
+        //added for MarkerManagement
+        markerItem = toolsMenu.add(markerManagement);
     }
 }
