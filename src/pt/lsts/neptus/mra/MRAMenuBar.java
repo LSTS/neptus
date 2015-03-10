@@ -118,6 +118,7 @@ public class MRAMenuBar {
     private AbstractAction preferences;
     private AbstractAction httpDuneDownload, httpVehicleDownload, concatenateLSFLogs, fuseLSFLogs, markerManagement;
     protected AbstractAction setMission;
+    protected MarkerManagement markerMngmt;
 
     private LinkedHashMap<JMenuItem, File> miscFilesOpened;
     private NeptusMRA mra;
@@ -746,12 +747,19 @@ public class MRAMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                MarkerManagement m = new MarkerManagement(mra, mra.getMraPanel());
+                markerMngmt = new MarkerManagement(mra, mra.getMraPanel());
 
             }
         };
 
         //added for MarkerManagement
         markerItem = toolsMenu.add(markerManagement);
+    }
+
+    /**
+     * 
+     */
+    public void MarkerMngcleanup() {
+        markerMngmt.cleanup();
     }
 }

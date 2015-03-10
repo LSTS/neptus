@@ -53,6 +53,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -133,9 +134,21 @@ public class MarkerManagement {
         frmMarkerManagement.getContentPane().setLayout(new MigLayout("", "[grow]", "[grow]"));
         frmMarkerManagement.setVisible(true);
         frmMarkerManagement.setResizable(false);
-
         markerEditFrame = new MarkerEdit(this);
+        
 
+        frmMarkerManagement.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                if (JOptionPane.showConfirmDialog(frmMarkerManagement, 
+                    "Are you sure to close this window?", "Really Closing?", 
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+                    markerEditFrame.dispose();
+                }
+            }
+        });
+        
         //Add existing LogMarkers (only SidescanLogMarker ones)
         for (LogMarker m : mraPanel.getMarkers()) {
             if (m.getClass() == SidescanLogMarker.class) {
@@ -725,5 +738,14 @@ public class MarkerManagement {
         Point p = new Point(frmMarkerManagement.getLocation().x + frmMarkerManagement.getSize().width, frmMarkerManagement.getLocation().y);
 
         return p;
+    }
+
+    /**
+     * 
+     */
+    public void cleanup() {
+        markerList.clear();
+        logMarkers.clear();
+        frmMarkerManagement.dispose();
     }
 }
