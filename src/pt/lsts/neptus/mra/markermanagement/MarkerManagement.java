@@ -153,7 +153,13 @@ public class MarkerManagement {
         prntButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO
+                if (table != null) {
+                    if (table.getSelectedRows().length > 0) {
+                        for (int i=0; i< table.getSelectedRows().length ; i++ ) {
+                        //TODO : export selected markers to a file (.pdf ? )
+                        }
+                    }
+                }
             }
         });
 
@@ -198,7 +204,7 @@ public class MarkerManagement {
 
 
         JScrollPane scrollPane = new JScrollPane(table);
-        
+
         JPopupMenu popupMenu = new JPopupMenu();
 
         AbstractAction del = new AbstractAction(I18n.text("Delete marker"), null) {
@@ -209,17 +215,14 @@ public class MarkerManagement {
                 if (table.getSelectedRow() != -1) {
                     LogMarkerItem selectedMarker = findMarker(table.getValueAt(table.getSelectedRow(), 1).toString());
                     deleteLogMarker(selectedMarker, rowIndex);
-                    //openMarkerEditor(table.getValueAt(table.getSelectedRow(), 1).toString(), rowIndex);
-                    System.out.println("Delete");
                 }
-
             }
         };
         del.putValue(Action.SHORT_DESCRIPTION, I18n.text("Delete this marker."));
         popupMenu.add(del);
 
         table.setComponentPopupMenu(popupMenu);
-        
+
         panel.add(scrollPane, "cell 0 2 3 1,grow");
 
     }
@@ -455,8 +458,8 @@ public class MarkerManagement {
             //get location
             bottomLocation = new LocationType(lines.get(0).state.getPosition());
             topLocation = new LocationType(lines.get(lines.size()-1).state.getPosition());
-            System.out.println("marker: "+l.getLabel()+"- bottom "+ bottomLocation.getLatitudeDegs() + " "+ bottomLocation.getLongitudeDegs() );
-            System.out.println("marker: "+l.getLabel()+"- top "+ topLocation.getLatitudeDegs() + " "+ topLocation.getLongitudeDegs() );
+           // System.out.println("marker: "+l.getLabel()+"- bottom "+ bottomLocation.getLatitudeDegs() + " "+ bottomLocation.getLongitudeDegs() );
+            //System.out.println("marker: "+l.getLabel()+"- top "+ topLocation.getLatitudeDegs() + " "+ topLocation.getLongitudeDegs() );
 
             //get altitude from the line in the middle of the list
             altitude = lines.get(lines.size()/2).state.getAltitude(); 
@@ -464,11 +467,11 @@ public class MarkerManagement {
 
         //calculate distance between two locations
         height = bottomLocation.getDistanceInMeters(topLocation); //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
-        System.out.println("Altura: " + height);
+        //System.out.println("Altura: " + height);
+        
         //store altitude in meters at pos 0
         //store height   in meters at pos 1
         double[] result = { ((double)Math.round(altitude * 100) / 100), height };
-
 
         return result;
     }

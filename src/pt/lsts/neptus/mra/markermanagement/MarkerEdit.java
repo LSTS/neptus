@@ -55,7 +55,6 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
@@ -64,10 +63,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
@@ -94,8 +91,9 @@ public class MarkerEdit extends JFrame {
     private JMenuBar menuBar;
 
     private MarkerManagement parent;
-    private AbstractAction save, del, exit, freeDraw, rectDraw, circleDraw, clearDraw, exportImage;
-    private JPopupMenu drawPopupMenu;
+    private AbstractAction save, del, exit;
+    //private AbstractAction freeDraw, rectDraw, circleDraw, clearDraw, exportImage;
+    //private JPopupMenu drawPopupMenu;
     private LogMarkerItem selectedMarker;
     private int selectMarkerRowIndex = -1;
 
@@ -197,8 +195,6 @@ public class MarkerEdit extends JFrame {
                 if (SwingUtilities.isLeftMouseButton(e)) {
                     initialX = mouseX;
                     initialY = mouseY;
-                    if (enableFreeDraw) 
-                        pointsList.add(new Point(mouseX, mouseY));
                 }
             }
 
@@ -221,15 +217,15 @@ public class MarkerEdit extends JFrame {
             public void mouseDragged(MouseEvent e) {                    
                 mouseX = e.getX();
                 mouseY = e.getY();
-                if ((mouseX > RULER_SIZE && mouseX < markerImage.getPreferredSize().width && mouseY > 0) &&
-                        (mouseY < markerImage.getPreferredSize().height-RULER_SIZE )) {
+                if ((mouseX > RULER_SIZE && mouseX < image.getWidth()+RULER_SIZE && mouseY > 0) &&
+                        (mouseY < image.getHeight())) {
 
-                    pointsList.add(new Point(mouseX, mouseY));
+                    pointsList.add(new Point(mouseX-RULER_SIZE-1, mouseY-RULER_SIZE-1));
                     ((JLabel) e.getSource()).repaint();
-
                 }
             }
         });
+        
         panel.add(markerImage, "cell 0 0 7 7,alignx left,aligny top");
 
         JLabel nameLabel = new JLabel("Label:");
@@ -292,13 +288,13 @@ public class MarkerEdit extends JFrame {
     private void drawRect(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
 
-        int x = Math.min(initialX, mouseX);
-        int y = Math.min(initialY, mouseY);
-        int w = Math.max(initialX, mouseX) - Math.min(initialX, mouseX);
-        int h = Math.max(initialY, mouseY) - Math.min(initialY, mouseY);
+        int x = Math.min(initialX-RULER_SIZE-1, mouseX-RULER_SIZE-1);
+        int y = Math.min(initialY-RULER_SIZE-1, mouseY-RULER_SIZE-1);
+        int w = Math.max(initialX-RULER_SIZE-1, mouseX-RULER_SIZE-1) - Math.min(initialX-RULER_SIZE-1, mouseX-RULER_SIZE-1);
+        int h = Math.max(initialY-RULER_SIZE-1, mouseY-RULER_SIZE-1) - Math.min(initialY-RULER_SIZE-1, mouseY-RULER_SIZE-1);
 
         System.out.println("x: "+x + " y: "+ y + " w: " + w + " h: "+ h);
-        g2.setColor(Color.WHITE);
+        g2.setColor(Color.BLACK);
         g2.drawRect(x, y, w, h);
 
     }
@@ -309,18 +305,18 @@ public class MarkerEdit extends JFrame {
 
         for (Point p : pointsList) {
             g2.setColor(Color.WHITE);
-            g2.drawLine(p.x, p.y, p.x, p.y);
+            g2.drawLine(p.x+2, p.y, p.x, p.y);
         }
     }
 
     private void drawCircle(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
         g2.setColor(Color.WHITE);
-        int x = Math.min(initialX, mouseX);
-        int y = Math.min(initialY, mouseY);
+        int x = Math.min(initialX-RULER_SIZE-1, mouseX-RULER_SIZE-1);
+        int y = Math.min(initialY-RULER_SIZE-1, mouseY-RULER_SIZE-1);
 
-        int w = Math.max(initialX, mouseX) - Math.min(initialX, mouseX);
-        int h = Math.max(initialY, mouseY) - Math.min(initialY, mouseY);
+        int w = Math.max(initialX-RULER_SIZE-1, mouseX-RULER_SIZE-1) - Math.min(initialX-RULER_SIZE-1, mouseX-RULER_SIZE-1);
+        int h = Math.max(initialY-RULER_SIZE-1, mouseY-RULER_SIZE-1) - Math.min(initialY-RULER_SIZE-1, mouseY-RULER_SIZE-1);
 
         g2.drawOval(x,y,w,h);
     }
@@ -419,42 +415,38 @@ public class MarkerEdit extends JFrame {
         if (selectedMarker.getSidescanImgPath() != null ) {
             try {
     
-                
                 image = ImageIO.read(new File(selectedMarker.getSidescanImgPath().getPath()));
                 int width = image.getWidth();
                 int height = image.getHeight();
+                int prefWidth = 265;
+                int prefHeight = 80;
+                
                 markerImage.repaint();
-                markerImage.setPreferredSize(new Dimension(width+25, height+25));
+                markerImage.setPreferredSize(new Dimension(width + RULER_SIZE + 10, height + RULER_SIZE + 10));
 
-                setBounds(100, 100, width + 265 + 25, height + 80 + 25);
+                setBounds(100, 100, width + prefWidth + RULER_SIZE + 10, height + prefHeight + RULER_SIZE + 10);
                 setLocation(parent.getwindowLocation());
                 layer = ImageUtils.createCompatibleImage(markerImage.getPreferredSize().width, 
-                        markerImage.getPreferredSize().height, Transparency.TRANSLUCENT);
+                        markerImage.getPreferredSize().height, Transparency.OPAQUE);
 
                 rulerLayer = ImageUtils.createCompatibleImage(markerImage.getPreferredSize().width, 
                         markerImage.getPreferredSize().height, Transparency.TRANSLUCENT);
-                
+                clearLayer();
             } catch (IOException e) {
                 NeptusLog.pub().error("Error reading image file for "+ selectedMarker.getLabel());
             }
         }
-
         
-
-        
-
-        
+        enableCircleDraw = enableFreeDraw = enableRectDraw = false;
         nameLabelValue.setText(selectedMarker.getLabel());
         nameLabelValue.setToolTipText(selectedMarker.getLabel());
         timeStampValue.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(selectedMarker.getTimestamp()));
         locationValue.setText(selectedMarker.getLocation().toString());
         altitudeValue.setText(Double.toString(selectedMarker.getAltitude()));
         depthValue.setText(Double.toString(selectedMarker.getDepth()));
-
         classifValue.setSelectedItem(selectedMarker.getClassification());
         annotationValue.setText(selectedMarker.getAnnotation());
         nameLabelValue.setSize(nameLabelValue.getPreferredSize() );
-
     }
 
 //    private void setupDrawPopup() {
@@ -638,17 +630,14 @@ public class MarkerEdit extends JFrame {
                 enableFreeDraw = false;
                 enableRectDraw = false;
                 enableCircleDraw = false;
-
-                Graphics2D g2d = (Graphics2D) layer.getGraphics();
-                g2d.setBackground(new Color(100, 100, 255, 0));
-                g2d.clearRect(0, 0, layer.getWidth(), layer.getHeight());
-                markerImage.repaint();
+                clearLayer();
             }
         };
         AbstractAction drawRectItem = new AbstractAction(I18n.text("Rectangle")) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                clearLayer();
                 enableFreeDraw = false;
                 enableRectDraw = true;
                 enableCircleDraw = false;
@@ -659,6 +648,7 @@ public class MarkerEdit extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                clearLayer();
                 enableRectDraw = false;
                 enableCircleDraw = true;
                 enableFreeDraw = false;
@@ -669,6 +659,7 @@ public class MarkerEdit extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                clearLayer();
                 enableRectDraw = false;
                 enableCircleDraw = false;
                 enableFreeDraw = true;
@@ -738,10 +729,12 @@ public class MarkerEdit extends JFrame {
                     BufferedImage img = new BufferedImage(markerImage.getWidth()+RULER_SIZE, markerImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g2d = img.createGraphics();
                     
+                    //TODO : fix ! Isnt saving drawing properly !!!
+                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
+                    
                     g2d.drawImage(image, RULER_SIZE, 0, null);
                     g2d.drawImage(layer, 0, 0, null);
                     g2d.dispose();
-                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
 
                     // save image to file
                     String fileName = chooseSaveFile(img, path);
@@ -796,5 +789,13 @@ public class MarkerEdit extends JFrame {
 
         return n;
     }
-
+   
+    private void clearLayer(){
+        initialX = initialY = mouseX = mouseY = -1;
+        Graphics2D g2d = (Graphics2D) layer.getGraphics();
+        g2d.setBackground(new Color(100, 100, 255, 0));
+        g2d.clearRect(0, 0, layer.getWidth(), layer.getHeight());
+        g2d.dispose();
+        markerImage.repaint();
+    }
 }
