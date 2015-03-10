@@ -1,6 +1,14 @@
 Changes
 =======
 
+Neptus 4.3.x (??-0?-2015)
+ * MRA/Sidescan Zoom: New ruller for zoomed image.
+ * SPOT: Stream ID on the URL is now a configurable parameter.
+ * DropMapLayer: Added new interaction for dropping of payload.
+ * MRA/Sidescan Zoom: Added support for better sidescan zoom (active if not waterfalling).
+ * Console/ROV: Improved ROVInfoLayer and DistancesRadar to be a console layer or a panel (popup dialog).
+ * MRA/SDFParser: Added support for Klein sidescan SDF format.
+
 Neptus 4.2.x (??-0?-2015)
 ------------
  * MRA/DeltaTParser: Fix reading of soundspeed.

@@ -251,7 +251,7 @@ public class PluginsLoader {
     private static FileSystem createZipFileSystem(String zipFilename, boolean create) throws IOException {
         // convert the filename to a URI
         final Path path = Paths.get(zipFilename);
-        final URI uri = URI.create("jar:file:" + path.toUri().getPath());
+        final URI uri = URI.create("jar:file:" + path.toUri().getRawPath());
 
         final Map<String, String> env = new HashMap<>();
         if (create) {
@@ -259,5 +259,4 @@ public class PluginsLoader {
         }
         return FileSystems.newFileSystem(uri, env);
     }
-
 }

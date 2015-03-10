@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <system xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="..\schemas\neptus-vehicle.xsd">
     <properties>
-        <id>ntnu-hexa-002</id>
-        <name>NTNU-Hexa-002</name>
+        <id>ntnu-x8-005</id>
+        <name>NTNU-x8-005</name>
         <type>UAV</type>
         <model>Cularis</model>
         <appearance>
@@ -98,7 +98,7 @@
         <comm-mean>
             <name>ethernet</name>
             <type>ethernet</type>
-            <host-address>192.168.0.62</host-address>
+            <host-address>192.168.0.114</host-address>
             <credentials username="root"/>
             <protocols>imc</protocols>
             <latency value="10M" unit="bps"/>
@@ -108,14 +108,14 @@
                     <port-tcp>6002</port-tcp>
                     <udp-on>true</udp-on>
                     <tcp-on>false</tcp-on>
-                    <imc3-id>2c:02</imc3-id>
+                    <imc3-id>2c:25</imc3-id>
                 </imc>
             </protocols-args>
         </comm-mean>
     </communication-means>
     <consoles>
         <console name="UAV Console">
-            <xml-file>../conf/consoles/ntnu/copter.ncon</xml-file>
+            <xml-file>../conf/consoles/uav-light.ncon</xml-file>
         </console>
     </consoles>
 </system>
