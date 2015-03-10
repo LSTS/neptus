@@ -132,7 +132,7 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
                 curPos = deltaParser.getCurrentPosition() - header.numBytes;
                 
                 long nextSwathTimeStamp = nextSwath.getTimestamp();
-                SystemPositionAndAttitude pos = correctedPosition.getPosition(nextSwathTimeStamp);
+                SystemPositionAndAttitude pos = correctedPosition.getPosition(nextSwathTimeStamp / 1E3);
                 LocationType posLoc = pos.getPosition();
                 posLoc = posLoc.getNewAbsoluteLatLonDepth();
                 
