@@ -178,7 +178,12 @@ public class MarkerManagement {
         //        t.start();
 
         //check for XML file, load or create a new one 
-        setupMarkers();
+        if (!logMarkers.isEmpty())
+            setupMarkers();
+        else  {
+            NeptusLog.pub().info("No markers for this log, or erroneous XML mark file.");
+            return;
+        }
 
         tableModel = new LogMarkerItemModel(markerList);
         table = new JTable(tableModel);
@@ -640,18 +645,9 @@ public class MarkerManagement {
         String tsString = getTextValue(markerEl, "Timestamp");
         SimpleDateFormat format = DateTimeUtil.dateFormaterXMLUTC;
         Date parsed = null;
+        File path = null;
 
-        String ssImgPath = getTextValue(markerEl, "Image");
-        File path = new File(ssImgPath);
-
-        try {
-            parsed = format.parse(tsString);
-        }
-        catch (ParseException e1) {
-            e1.printStackTrace();
-        }
-
-        double ts = parsed.getTime();
+        double ts = 0;
         double lon = 0;
         double lat = 0;
         double altitude = 0;
@@ -662,6 +658,12 @@ public class MarkerManagement {
         String annot = "";
 
         try  {
+            String ssImgPath = getTextValue(markerEl, "Image");
+            path = new File(ssImgPath);
+            
+            parsed = format.parse(tsString);
+            
+            ts = parsed.getTime();
             lon = getDoubleValue(markerEl,"Lon");
             lat = getDoubleValue(markerEl,"Lat");
             altitude = getDoubleValue(markerEl, "Altitude");
@@ -670,6 +672,9 @@ public class MarkerManagement {
             height = getDoubleValue(markerEl, "Height");
             cls = Classification.valueOf(getTextValue(markerEl,"Classification"));
             annot = getTextValue(markerEl, "Annotation");
+        }
+        catch (ParseException e1) {
+            e1.printStackTrace();
         }
         catch (NullPointerException e) {
             NeptusLog.pub().error("Error parsing marker values from XML file");

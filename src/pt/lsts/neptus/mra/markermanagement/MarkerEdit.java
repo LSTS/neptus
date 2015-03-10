@@ -138,15 +138,15 @@ public class MarkerEdit extends JFrame {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
 
-                Graphics2D lg2d = (Graphics2D) layer.getGraphics();
-                lg2d.setBackground(new Color(100, 100, 255, 0));
-                lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight());
+                if (image!=null && layer!=null) {
+                    Graphics2D lg2d = (Graphics2D) layer.getGraphics();
+                    lg2d.setBackground(new Color(100, 100, 255, 0));
+                    lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight());
 
-                Graphics2D rg2d = (Graphics2D) rulerLayer.getGraphics();
-                rg2d.setBackground(new Color(100, 100, 255, 0));
-                rg2d.clearRect(0, 0, rulerLayer.getWidth(), rulerLayer.getHeight());
-
-                if (image!=null) {
+                    Graphics2D rg2d = (Graphics2D) rulerLayer.getGraphics();
+                    rg2d.setBackground(new Color(100, 100, 255, 0));
+                    rg2d.clearRect(0, 0, rulerLayer.getWidth(), rulerLayer.getHeight());
+                    
                     g.drawImage(image, RULER_SIZE+1, RULER_SIZE+1, null);
 
                     drawZoomRuler(rg2d);
@@ -597,7 +597,8 @@ public class MarkerEdit extends JFrame {
         mnFile.add(exit);
 
         JMenu mnDraw = new JMenu("Draw");
-        menuBar.add(mnDraw);
+        if (image != null && layer != null)
+            menuBar.add(mnDraw);
 
         AbstractAction mntmClearDrawings = new AbstractAction(I18n.text("Clear all")) {
 
@@ -650,7 +651,8 @@ public class MarkerEdit extends JFrame {
         mnDraw.add(mntmClearDrawings);
 
         JMenu mnImage = new JMenu("Export");
-        menuBar.add(mnImage);
+        if (image != null && layer != null)
+            menuBar.add(mnImage);
 
         AbstractAction exportImgOnly = new AbstractAction(I18n.text("Image only")) {
 
