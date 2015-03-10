@@ -49,11 +49,14 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.LblBeacon;
+import pt.lsts.imc.LblConfig;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.mp.MapChangeEvent;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
@@ -66,7 +69,9 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.TransponderElement;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
@@ -95,6 +100,7 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
     private final LinkedHashMap<String, Vector<LogReplayComponent>> observers = new LinkedHashMap<>();
     private final LinkedHashMap<LogReplayPanel, JDialog> popups = new LinkedHashMap<>();
     private final MRAPanel panel;
+    
 
     public MRALogReplay(MRAPanel panel) {
         super(panel);
@@ -118,6 +124,31 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
         this.source = source;
         return true;
     }
+    
+    @Subscribe
+    public synchronized void on(LblConfig m) {
+        
+        for (LblBeacon b: m.getBeacons()) {
+            String id = b.getBeacon();
+            double lat = Math.toDegrees(b.getLat());
+            double lon = Math.toDegrees(b.getLon());
+            double depth = b.getDepth();
+            LocationType lt = new LocationType();
+            lt.setLatitudeDegs(lat);
+            lt.setLongitudeDegs(lon);
+            lt.setDepth(depth);
+            try {
+                TransponderElement el = (TransponderElement) r2d.getMapGroup().getMapObjectsByID(id)[0];
+                el.setCenterLocation(lt);
+                r2d.mapChanged(new MapChangeEvent(MapChangeEvent.OBJECT_CHANGED));
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+            
+        }
+        
+    }
 
     @Subscribe
     public synchronized void on(IMCMessage m) {
@@ -131,6 +162,7 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
                         NeptusLog.pub().error(
                                 "Error occured while sending replayed message '" + m.getAbbrev() + "' to component '"
                                         + c.getName() + "'");
+                        e.printStackTrace();
                     }
                 }
                 r2d.repaint();
@@ -287,8 +319,8 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
         Thread t = new Thread("Starting replay") {
             @Override
             public void run() {
-                MissionType mt = LogUtils.generateMission(source);
-                r2d.setMapGroup(MapGroup.getMapGroupInstance(mt));
+                MissionType mission = LogUtils.generateMission(source);
+                r2d.setMapGroup(MapGroup.getMapGroupInstance(mission));
 
                 ExecutorService executorService = Executors.newCachedThreadPool();
                 

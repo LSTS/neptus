@@ -385,8 +385,8 @@ public class LogUtils {
         }
         return null;
     }
-
-    public static TransponderElement[] getTransponders(IMraLogGroup source) {
+    
+        public static TransponderElement[] getTransponders(IMraLogGroup source) {
         IMraLog parser = source.getLog("LblConfig");
         if (parser == null)
             return new TransponderElement[0];
