@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.uavs.panels;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
 import javax.swing.ImageIcon;
@@ -130,6 +131,7 @@ public class SpeedIndicatorPanel extends ConsolePanel implements MainVehicleChan
 
         // clears all the unused initializations of the standard SimpleSubPanel
         removeAll();
+        formatter.setRoundingMode(RoundingMode.UP);
     }
 
     // Listeners

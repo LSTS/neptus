@@ -98,26 +98,30 @@ public class UavHUDPanel extends ConsolePanel implements NeptusMessageListener {
     // NeptusMessageListener_BEGIN
     @Override
     public String[] getObservedMessages() {
-        return new String[] { "EstimatedState" };
+        return new String[] { "EstimatedState", "IndicatedSpeed" };
     }
 
     @Override
     public void messageArrived(IMCMessage message) {
+//        indicatedSpeed = Math.sqrt(Math.pow(message.getDouble("u"), 2) + Math.pow(message.getDouble("v"), 2)
+//                + Math.pow(message.getDouble("w"), 2));
+        
+        if (message.getAbbrev().equals("IndicatedSpeed")) {
+            indicatedSpeed = message.getDouble("value");
+            args.put("indicatedSpeed", indicatedSpeed);
+        }
+        else {
+            args.put("altitude", (message.getInteger("height")) - (message.getInteger("z")));
+            args.put("roll", Math.toDegrees(message.getDouble("phi")));
+            args.put("pitch", Math.toDegrees(message.getDouble("theta")));
 
-        indicatedSpeed = Math.sqrt(Math.pow(message.getDouble("u"), 2) + Math.pow(message.getDouble("v"), 2)
-                + Math.pow(message.getDouble("w"), 2));
+            tmpVar = Math.toDegrees(message.getDouble("psi"));
 
-        args.put("indicatedSpeed", indicatedSpeed);
-        args.put("altitude", (message.getInteger("height")) - (message.getInteger("z")));
-        args.put("roll", Math.toDegrees(message.getDouble("phi")));
-        args.put("pitch", Math.toDegrees(message.getDouble("theta")));
+            if (tmpVar < 0)
+                tmpVar = 360 + tmpVar;
 
-        tmpVar = Math.toDegrees(message.getDouble("psi"));
-
-        if (tmpVar < 0)
-            tmpVar = 360 + tmpVar;
-
-        args.put("yaw", tmpVar);
+            args.put("yaw", tmpVar);
+        }
 
         repaint();
     }
