@@ -471,7 +471,7 @@ public class MarkerManagement {
 
         int subsys = l.subSys;
         ArrayList<SidescanLine> lines = LsfReport.getLines(ssParser, subsys, sidescanParams, l);
-        if (lines != null && lines.size() != -1) {
+        if (lines != null && !lines.isEmpty()) {
             //get location
             bottomLocation = new LocationType(lines.get(0).state.getPosition());
             topLocation = new LocationType(lines.get(lines.size()-1).state.getPosition());
@@ -481,9 +481,10 @@ public class MarkerManagement {
             //get altitude from the line in the middle of the list
             altitude = lines.get(lines.size()/2).state.getAltitude(); 
         }
-
+        
         //calculate distance between two locations
-        height = bottomLocation.getDistanceInMeters(topLocation); //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
+        if (topLocation != null)
+            height = bottomLocation.getDistanceInMeters(topLocation); //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
         //System.out.println("Altura: " + height);
 
         //store altitude in meters at pos 0
@@ -747,5 +748,27 @@ public class MarkerManagement {
         markerList.clear();
         logMarkers.clear();
         frmMarkerManagement.dispose();
+    }
+    
+    private int findMarker(LogMarker marker) {
+        int row = -1;
+        for(int i=0; i < table.getRowCount() ; i++) {
+            if (table.getValueAt(i, 1).equals(marker.getLabel())) {
+                row = i;
+                break;
+            }
+        }
+        
+        return row;
+    }
+    
+    public void openMarker(LogMarker marker) {
+        int row = findMarker(marker);
+        if (row == -1) {
+            NeptusLog.pub().error("Cannot open selected marker...");
+            return;
+        }
+        table.setRowSelectionInterval(row, row);
+        openMarkerEditor(table.getValueAt(table.getSelectedRow(), 1).toString(), row);
     }
 }
