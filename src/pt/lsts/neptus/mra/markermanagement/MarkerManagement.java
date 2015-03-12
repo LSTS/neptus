@@ -191,7 +191,7 @@ public class MarkerManagement {
         public void run() {
             
             panel.add(loader, "cell 0 2 3 1,grow");
-            loader.setText(I18n.text("Loading Markers"));
+            loader.setText(I18n.text("Initializing Marker Management..."));
             loader.start();
             
             //check for XML file, load or create a new one 
@@ -246,13 +246,9 @@ public class MarkerManagement {
             table.setComponentPopupMenu(popupMenu);
 
             panel.add(scrollPane, "cell 0 2 3 1,grow");
-            //
-            table.repaint();
+            
             table.updateUI();
-            panel.repaint();
             panel.updateUI();
-
-            frmMarkerManagement.repaint();
 
         }
 
@@ -263,13 +259,17 @@ public class MarkerManagement {
 
         //XML markers file doesnt exist and there are Markers to be added
         if (!new File(markerFilePath).exists() && !logMarkers.isEmpty()) {
-            NeptusLog.pub().info("Creating markers... ");
+            NeptusLog.pub().info("Creating markers...");
+            loader.setText(I18n.text("Creating markers file"));
             createMarkers();
         }
         else {
             //XML markers file exists, load markers from it
-            NeptusLog.pub().info("Loading markers... ");
+            NeptusLog.pub().info("Loading markers...");
+            loader.setText(I18n.text("Loading markers"));
+
             if(!loadMarkers()) {
+                loader.setText(I18n.text("Creating markers"));
                 NeptusLog.pub().error("Corrupted markers file. Trying to create new markers file.");
                 createMarkers();
             }
