@@ -102,6 +102,7 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
  *  (1) when opening markerManagement window  read XML and compare number of markers with actual mraPanel markers, update XML accordingly
  *  (2) when markerManagement window is already open, listen for mraPanel markers changes, update XML accordingly
  */
+@SuppressWarnings("serial")
 public class MarkerManagement {
 
     private final int DEFAULT_COLUMN_TO_SORT = 0;
@@ -123,7 +124,6 @@ public class MarkerManagement {
         initialize();
     }
 
-    @SuppressWarnings("serial")
     private void initialize() {
 
         if (mraPanel.getMarkers().isEmpty()) {
@@ -145,7 +145,7 @@ public class MarkerManagement {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
                 if (JOptionPane.showConfirmDialog(frmMarkerManagement, 
-                        "Are you sure to close this window?", "Really Closing?", 
+                        "Are you sure you want to close?", frmMarkerManagement.getTitle(), 
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
                     markerEditFrame.dispose();
@@ -164,6 +164,11 @@ public class MarkerManagement {
         frmMarkerManagement.getContentPane().add(panel, "cell 0 0,grow");
         panel.setLayout(new MigLayout("", "[][][grow]", "[][][grow]"));
 
+        new Thread(new LoadMarkers()).start();
+
+    }
+
+    private void setupPrintButton() {
         JButton prntButton = new JButton("Print Markers");
         panel.add(prntButton, "cell 0 0");
 
@@ -179,69 +184,77 @@ public class MarkerManagement {
                 }
             }
         });
+    }
+    private class LoadMarkers implements Runnable {
 
-        //        Thread t = new Thread(new Runnable() {
-        //
-        //            @Override
-        //            public void run() {
-        //
-        //
-        //            }
-        //        });
-        //        t.setDaemon(true);
-        //        panel.add(loader, BorderLayout.CENTER);
-        //        loader.setText(I18n.text("Loading Markers"));
-        //        loader.start();
-        //        t.start();
+        @Override
+        public void run() {
+            
+            panel.add(loader, "cell 0 2 3 1,grow");
+            loader.setText(I18n.text("Loading Markers"));
+            loader.start();
+            
+            //check for XML file, load or create a new one 
+            if (!logMarkers.isEmpty()) 
+                setupMarkers();
+            loader.stop();
+            panel.remove(loader);
+            
+            setupPrintButton();
+            //
+            tableModel = new LogMarkerItemModel(markerList);
+            table = new JTable(tableModel);
 
-        //check for XML file, load or create a new one 
-        if (!logMarkers.isEmpty())
-            setupMarkers();
+            //define max columns width
+            tableModel.setColumnsWidth(table);
 
-        tableModel = new LogMarkerItemModel(markerList);
-        table = new JTable(tableModel);
+            tableModel.setCenteredColumns(table);
 
-        //define max columns width
-        tableModel.setColumnsWidth(table);
+            //define default column to sort when creating table
+            tableModel.setTableSorter(DEFAULT_COLUMN_TO_SORT, table);
 
-        tableModel.setCenteredColumns(table);
-
-        //define default column to sort when creating table
-        tableModel.setTableSorter(DEFAULT_COLUMN_TO_SORT, table);
-
-        table.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent me) {
-                JTable table =(JTable) me.getSource();
-                int rowIndex = table.getSelectedRow();
-                if (me.getClickCount() == 2) {
-                    if (table.getSelectedRow() != -1)
-                        openMarkerEditor(table.getValueAt(table.getSelectedRow(), 1).toString(), rowIndex);
+            table.addMouseListener(new MouseAdapter() {
+                public void mousePressed(MouseEvent me) {
+                    JTable table =(JTable) me.getSource();
+                    int rowIndex = table.getSelectedRow();
+                    if (me.getClickCount() == 2) {
+                        if (table.getSelectedRow() != -1)
+                            openMarkerEditor(table.getValueAt(table.getSelectedRow(), 1).toString(), rowIndex);
+                    }
                 }
-            }
-        });
+            });
 
 
-        JScrollPane scrollPane = new JScrollPane(table);
+            JScrollPane scrollPane = new JScrollPane(table);
 
-        JPopupMenu popupMenu = new JPopupMenu();
+            JPopupMenu popupMenu = new JPopupMenu();
 
-        AbstractAction del = new AbstractAction(I18n.text("Delete marker"), null) {
+            AbstractAction del = new AbstractAction(I18n.text("Delete marker"), null) {
 
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                int rowIndex = table.getSelectedRow();
-                if (table.getSelectedRow() != -1) {
-                    LogMarkerItem selectedMarker = findMarker(table.getValueAt(table.getSelectedRow(), 1).toString());
-                    deleteLogMarker(selectedMarker, rowIndex);
+                @Override
+                public void actionPerformed(ActionEvent arg0) {
+                    int rowIndex = table.getSelectedRow();
+                    if (table.getSelectedRow() != -1) {
+                        LogMarkerItem selectedMarker = findMarker(table.getValueAt(table.getSelectedRow(), 1).toString());
+                        deleteLogMarker(selectedMarker, rowIndex);
+                    }
                 }
-            }
-        };
-        del.putValue(Action.SHORT_DESCRIPTION, I18n.text("Delete this marker."));
-        popupMenu.add(del);
+            };
+            del.putValue(Action.SHORT_DESCRIPTION, I18n.text("Delete this marker."));
+            popupMenu.add(del);
 
-        table.setComponentPopupMenu(popupMenu);
+            table.setComponentPopupMenu(popupMenu);
 
-        panel.add(scrollPane, "cell 0 2 3 1,grow");
+            panel.add(scrollPane, "cell 0 2 3 1,grow");
+            //
+            table.repaint();
+            table.updateUI();
+            panel.repaint();
+            panel.updateUI();
+
+            frmMarkerManagement.repaint();
+
+        }
 
     }
 
@@ -552,7 +565,7 @@ public class MarkerManagement {
                 deleteImage(mrkerToDel.getDrawImgPath().toString());
             }
         }
-        
+
         //delete sidescan image file
         if (!mrkerToDel.getSidescanImgPath().toString().equals("")) {
             deleteImage(mrkerToDel.getSidescanImgPath().toString());
