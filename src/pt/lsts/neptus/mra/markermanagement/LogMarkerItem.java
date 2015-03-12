@@ -83,10 +83,11 @@ public class LogMarkerItem extends LogMarker {
      * @param lat
      * @param lon
      */
-    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, File sidescanImgPath, String annot, double altitude, double depth, double range, double height, Classification classif) {
+    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, File sidescanImgPath, File drawImgPath, String annot, double altitude, double depth, double range, double height, Classification classif) {
         super(label, timestamp, lat, lon);
         this.index = index;
         this.sidescanImgPath = sidescanImgPath;
+        this.drawImgPath = drawImgPath;
         this.annotation = annot;
         this.altitude = altitude;
         this.depth = depth;
@@ -243,5 +244,19 @@ public class LogMarkerItem extends LogMarker {
      */
     public void setHeight(double height) {
         this.height = height;
+    }
+
+    /**
+     * @return the drawImgPath
+     */
+    public File getDrawImgPath() {
+        return drawImgPath;
+    }
+
+    /**
+     * @param drawImgPath the drawImgPath to set
+     */
+    public void setDrawImgPath(File drawImgPath) {
+        this.drawImgPath = drawImgPath;
     }
 }

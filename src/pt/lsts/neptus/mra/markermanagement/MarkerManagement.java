@@ -126,6 +126,10 @@ public class MarkerManagement {
     @SuppressWarnings("serial")
     private void initialize() {
 
+        if (mraPanel.getMarkers().isEmpty()) {
+            NeptusLog.pub().info("No markers for this log, or erroneous XML mark file.");
+            return;
+        }
         frmMarkerManagement = new JFrame();
         frmMarkerManagement.setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerManagement.class.getResource("/images/menus/marker.png")));
         frmMarkerManagement.setTitle("Marker Management");
@@ -135,20 +139,20 @@ public class MarkerManagement {
         frmMarkerManagement.setVisible(true);
         frmMarkerManagement.setResizable(false);
         markerEditFrame = new MarkerEdit(this);
-        
+
 
         frmMarkerManagement.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
                 if (JOptionPane.showConfirmDialog(frmMarkerManagement, 
-                    "Are you sure to close this window?", "Really Closing?", 
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+                        "Are you sure to close this window?", "Really Closing?", 
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
                     markerEditFrame.dispose();
                 }
             }
         });
-        
+
         //Add existing LogMarkers (only SidescanLogMarker ones)
         for (LogMarker m : mraPanel.getMarkers()) {
             if (m.getClass() == SidescanLogMarker.class) {
@@ -193,10 +197,6 @@ public class MarkerManagement {
         //check for XML file, load or create a new one 
         if (!logMarkers.isEmpty())
             setupMarkers();
-        else  {
-            NeptusLog.pub().info("No markers for this log, or erroneous XML mark file.");
-            return;
-        }
 
         tableModel = new LogMarkerItemModel(markerList);
         table = new JTable(tableModel);
@@ -268,7 +268,6 @@ public class MarkerManagement {
     private void addImagesToMarkers() {
         String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
 
-        System.out.println("add size " + markerList.size());
         for (LogMarkerItem log : markerList) {
             File f = new File(path+log.getLabel()+".png");
 
@@ -336,7 +335,7 @@ public class MarkerManagement {
                 }
             }
             else {// no image to display
-                System.out.println("oops, no image!");
+                System.out.println("Oops, no image available for mark "+m.getLabel()+ " ...");
             }
         }
     }
@@ -381,7 +380,7 @@ public class MarkerManagement {
             double alt = altAndHeight[0];
             double heightValue = altAndHeight[1];
 
-            LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(l.getLabel()), "<Your annotation here.>", alt, depth, range, heightValue, Classification.UNDEFINED);
+            LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(l.getLabel()), null, "<Your annotation here.>", alt, depth, range, heightValue, Classification.UNDEFINED);
 
             //format date timestamp
             String date = DateTimeUtil.dateFormaterXMLUTC.format(l.getTimestamp());
@@ -424,7 +423,7 @@ public class MarkerManagement {
             mark.appendChild(image);
 
             Element draw = dom.createElement("Draw");
-            draw.appendChild(dom.createTextNode(""));
+            draw.appendChild(dom.createTextNode("null"));
             mark.appendChild(draw);
 
             Element altitude = dom.createElement("Altitude");
@@ -481,7 +480,7 @@ public class MarkerManagement {
             //get altitude from the line in the middle of the list
             altitude = lines.get(lines.size()/2).state.getAltitude(); 
         }
-        
+
         //calculate distance between two locations
         if (topLocation != null)
             height = bottomLocation.getDistanceInMeters(topLocation); //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
@@ -537,9 +536,6 @@ public class MarkerManagement {
     private void deleteEntryXML(Document doc, LogMarkerItem mrkerToDel) {
 
         String markLabel = mrkerToDel.getLabel();
-        if (doc == null) {
-            System.out.println("NULLLLLLLLLLLLLLLLLLLL.");
-        }
         NodeList nodes = doc.getElementsByTagName("Mark");
 
         for (int i = 0; i < nodes.getLength(); i++) {
@@ -550,6 +546,19 @@ public class MarkerManagement {
                 mark.getParentNode().removeChild(mark);
             }
         }
+        //delete draw image file
+        if (mrkerToDel.getDrawImgPath() != null) {
+            if (!mrkerToDel.getDrawImgPath().toString().equals("null")) {
+                deleteImage(mrkerToDel.getDrawImgPath().toString());
+            }
+        }
+        
+        //delete sidescan image file
+        if (!mrkerToDel.getSidescanImgPath().toString().equals("")) {
+            deleteImage(mrkerToDel.getSidescanImgPath().toString());
+        }
+
+
     }
 
     public void updateLogMarker(LogMarkerItem selectedMarker, int row) {
@@ -580,7 +589,23 @@ public class MarkerManagement {
             if (pLabel.equals(markLabel)) {
                 mark.getElementsByTagName("Annotation").item(0).setTextContent(mrkerToUpd.getAnnotation());
                 mark.getElementsByTagName("Classification").item(0).setTextContent(mrkerToUpd.getClassification().name());
+                mark.getElementsByTagName("Draw").item(0).setTextContent(mrkerToUpd.getDrawImgPath().getPath());
             }
+        }
+        //delete draw image, if exists
+        if (mrkerToUpd.getDrawImgPath().toString().equals("null")) {
+            deleteImage(mrkerToUpd.getDrawImgPath().toString());
+        }
+    }
+
+    private void deleteImage(String path) {
+        try {
+            File fileTemp = new File(path);
+            if (fileTemp.exists()) {
+                fileTemp.delete();
+            }
+        }catch(Exception f){
+            f.printStackTrace();
         }
     }
 
@@ -599,7 +624,9 @@ public class MarkerManagement {
         catch (TransformerException e) {
             e.printStackTrace();
         }
-        NeptusLog.pub().info("Markers XML file saved - " + markerFilePath);
+        if (!markerList.isEmpty()) {
+            NeptusLog.pub().info("Markers XML file saved - " + markerFilePath);
+        }
     }
 
     private LogMarker findLogMarker(String label) {
@@ -660,6 +687,7 @@ public class MarkerManagement {
         SimpleDateFormat format = DateTimeUtil.dateFormaterXMLUTC;
         Date parsed = null;
         File path = null;
+        File drawPath = null;
 
         double ts = 0;
         double lon = 0;
@@ -668,15 +696,18 @@ public class MarkerManagement {
         double depth = 0;
         double range = 0;
         double height = 0;
-        Classification cls = Classification.UNDEFINED;
+        Classification cls = Classification.valueOf(getTextValue(markerEl,"Classification"));
         String annot = "";
 
         try  {
             String ssImgPath = getTextValue(markerEl, "Image");
             path = new File(ssImgPath);
-            
+
+            String ssDrawImgPath = getTextValue(markerEl, "Draw");
+            drawPath = new File(ssDrawImgPath);
+
             parsed = format.parse(tsString);
-            
+
             ts = parsed.getTime();
             lon = getDoubleValue(markerEl,"Lon");
             lat = getDoubleValue(markerEl,"Lat");
@@ -691,11 +722,12 @@ public class MarkerManagement {
             e1.printStackTrace();
         }
         catch (NullPointerException e) {
+            e.printStackTrace();
             NeptusLog.pub().error("Error parsing marker values from XML file");
         }
 
         //Create new LogMarkerItem with the value read from xml
-        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, annot, altitude, depth, range, height, cls);
+        LogMarkerItem e = new LogMarkerItem(index, name, ts, lat, lon, path, drawPath, annot, altitude, depth, range, height, cls);
 
         return e;
     }
@@ -747,9 +779,10 @@ public class MarkerManagement {
     public void cleanup() {
         markerList.clear();
         logMarkers.clear();
-        frmMarkerManagement.dispose();
+        if (frmMarkerManagement != null)
+            frmMarkerManagement.dispose();
     }
-    
+
     private int findMarker(LogMarker marker) {
         int row = -1;
         for(int i=0; i < table.getRowCount() ; i++) {
@@ -758,10 +791,10 @@ public class MarkerManagement {
                 break;
             }
         }
-        
+
         return row;
     }
-    
+
     public void openMarker(LogMarker marker) {
         int row = findMarker(marker);
         if (row == -1) {
