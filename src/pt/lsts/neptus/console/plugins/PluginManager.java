@@ -35,6 +35,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.Collator;
@@ -81,8 +83,8 @@ import com.sun.java.swing.plaf.windows.WindowsButtonUI;
  * @author Hugo
  * 
  */
-@Popup(name = "Plugin Manager", icon = "images/buttons/events.png",  pos = POSITION.CENTER, width = 500, height = 500, accelerator = 'P')
-//@PluginDescription(name = "Plugin Manager", icon = "images/buttons/events.png")
+@Popup(name = "Plugin Manager", icon = "images/buttons/events.png", pos = POSITION.CENTER, width = 500, height = 500, accelerator = 'P')
+// @PluginDescription(name = "Plugin Manager", icon = "images/buttons/events.png")
 public class PluginManager extends ConsolePanel {
 
     private static final long serialVersionUID = 1L;
@@ -103,6 +105,8 @@ public class PluginManager extends ConsolePanel {
     private JButton btnRemove;
     private JButton btnSettings;
 
+    private KeyListener keyboardListener;
+
     /**
      * Constructor
      * 
@@ -113,7 +117,7 @@ public class PluginManager extends ConsolePanel {
         this.setLayout(new BorderLayout());
         // Content Panel
         this.add(content = new JPanel(new MigLayout("gap 5px 0, ins 5px")), BorderLayout.CENTER);
-        
+
         // Status Bar
         StatusBar statusBar = new StatusBar();
         statusBar.setZoneBorder(BorderFactory.createLineBorder(Color.GRAY));
@@ -122,7 +126,7 @@ public class PluginManager extends ConsolePanel {
         this.add(statusBar, BorderLayout.SOUTH);
         // Add components to the content panel
         this.createComponents();
-        ///this.refreshActivePlugins();
+        // /this.refreshActivePlugins();
         this.createActions();
         this.createListeners();
     }
@@ -138,7 +142,7 @@ public class PluginManager extends ConsolePanel {
         info.add(new JLabel(I18n.text("Type") + ":"));
         info.add(type, "span, wrap");
         info.add(description, "span");
-        
+
         content.add(availablePluginsPanel, "h 100%, w 50%");
         content.add(activePluginsPanel, "h 100%, w 50%, wrap");
         content.add(info, "w 100%, h 150px, span");
@@ -189,8 +193,8 @@ public class PluginManager extends ConsolePanel {
             public void actionPerformed(ActionEvent e) {
                 if (availableSelected == null)
                     return;
-                Class<?> clazz = plugins.get(availableSelected); 
-                 
+                Class<?> clazz = plugins.get(availableSelected);
+
                 if (ConsolePanel.class.isAssignableFrom(clazz)) {
                     ConsolePanel sp = PluginsRepository.getPanelPlugin(availableSelected, getConsole());
                     container.addSubPanel(sp);
@@ -198,24 +202,26 @@ public class PluginManager extends ConsolePanel {
                     getConsole().informSubPanelListener(sp, SubPanelChangeAction.ADDED);
                     refreshActivePlugins();
                     NeptusLog.pub().warn(
-                            "Added new console panel: " + sp.getName() + " Class name : " + sp.getClass().getCanonicalName());
+                            "Added new console panel: " + sp.getName() + " Class name : "
+                                    + sp.getClass().getCanonicalName());
                 }
-                
+
                 if (ConsoleLayer.class.isAssignableFrom(clazz)) {
                     ConsoleLayer sp = PluginsRepository.getConsoleLayer(availableSelected);
                     getConsole().addMapLayer(sp);
                     refreshActivePlugins();
                     NeptusLog.pub().warn(
-                            "Added new console layer: " + sp.getName() + " Class name : " + sp.getClass().getCanonicalName());
+                            "Added new console layer: " + sp.getName() + " Class name : "
+                                    + sp.getClass().getCanonicalName());
                 }
-                
-                
+
                 if (ConsoleInteraction.class.isAssignableFrom(clazz)) {
                     ConsoleInteraction sp = PluginsRepository.getConsoleInteraction(availableSelected);
                     getConsole().addInteraction(sp);
                     refreshActivePlugins();
                     NeptusLog.pub().warn(
-                            "Added new console interaction: " + sp.getName() + " Class name : " + sp.getClass().getCanonicalName());
+                            "Added new console interaction: " + sp.getName() + " Class name : "
+                                    + sp.getClass().getCanonicalName());
                 }
             }
         });
@@ -228,34 +234,34 @@ public class PluginManager extends ConsolePanel {
             public void actionPerformed(ActionEvent e) {
                 if (activeSelected == null)
                     return;
-                
+
                 Class<?> clazz = plugins.get(activeSelected);
                 if (ConsolePanel.class.isAssignableFrom(clazz)) {
-                    ConsolePanel sp = (ConsolePanel)pluginsMap.get(activeSelected);
+                    ConsolePanel sp = (ConsolePanel) pluginsMap.get(activeSelected);
                     container.removeSubPanel(activeSelected);
                     getConsole().informSubPanelListener(sp, SubPanelChangeAction.REMOVED);
                     refreshActivePlugins();
                     NeptusLog.pub().warn(
-                            "Removed console panel: " + sp.getName() + " Class name : " + sp.getClass().getCanonicalName());
+                            "Removed console panel: " + sp.getName() + " Class name : "
+                                    + sp.getClass().getCanonicalName());
                 }
-                
+
                 if (ConsoleLayer.class.isAssignableFrom(clazz)) {
-                    ConsoleLayer sp = (ConsoleLayer)pluginsMap.get(activeSelected);
+                    ConsoleLayer sp = (ConsoleLayer) pluginsMap.get(activeSelected);
                     getConsole().removeMapLayer(sp);
                     refreshActivePlugins();
                     NeptusLog.pub().warn(
                             "Removed layer: " + sp.getName() + " Class name : " + sp.getClass().getCanonicalName());
                 }
-                
-                
+
                 if (ConsoleInteraction.class.isAssignableFrom(clazz)) {
-                    ConsoleInteraction sp = (ConsoleInteraction)pluginsMap.get(activeSelected);
+                    ConsoleInteraction sp = (ConsoleInteraction) pluginsMap.get(activeSelected);
                     getConsole().removeInteraction(sp);
                     refreshActivePlugins();
                     NeptusLog.pub().warn(
-                            "Removed console interaction: " + sp.getName() + " Class name : " + sp.getClass().getCanonicalName());
+                            "Removed console interaction: " + sp.getName() + " Class name : "
+                                    + sp.getClass().getCanonicalName());
                 }
-                
 
             }
         });
@@ -268,12 +274,13 @@ public class PluginManager extends ConsolePanel {
             public void actionPerformed(ActionEvent e) {
                 if (activeSelected == null)
                     return;
-                if(pluginsMap.get(activeSelected) instanceof PropertiesProvider){
-                    PropertiesEditor.editProperties((PropertiesProvider)pluginsMap.get(activeSelected), true);
+                if (pluginsMap.get(activeSelected) instanceof PropertiesProvider) {
+                    PropertiesEditor.editProperties((PropertiesProvider) pluginsMap.get(activeSelected), true);
                 }
             }
         });
-        btnSettings.getAction().putValue(Action.SHORT_DESCRIPTION, I18n.text("Open settings dialog for the selected plugin"));
+        btnSettings.getAction().putValue(Action.SHORT_DESCRIPTION,
+                I18n.text("Open settings dialog for the selected plugin"));
     }
 
     private void createListeners() {
@@ -283,8 +290,8 @@ public class PluginManager extends ConsolePanel {
                     int index = activePluginsList.locationToIndex(e.getPoint());
                     if (index > -1) {
                         activeSelected = (String) activePluginsList.getSelectedValue();
-                        if(pluginsMap.get(activeSelected) instanceof PropertiesProvider){
-                            PropertiesEditor.editProperties((PropertiesProvider)pluginsMap.get(activeSelected), true);
+                        if (pluginsMap.get(activeSelected) instanceof PropertiesProvider) {
+                            PropertiesEditor.editProperties((PropertiesProvider) pluginsMap.get(activeSelected), true);
                         }
                     }
                 }
@@ -313,21 +320,48 @@ public class PluginManager extends ConsolePanel {
                 }
             }
         });
+
+        keyboardListener = new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+
+            @Override
+            public void keyPressed(KeyEvent e) {}
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String pluginName;
+                if ((JList<?>) e.getSource() == availablePluginsList) {
+                    pluginName = (String) availablePluginsList.getSelectedValue();
+                    availableSelected = pluginName;
+                }
+                else {
+                    pluginName = (String) activePluginsList.getSelectedValue();
+                    activeSelected = pluginName;
+                }
+
+                Class<?> clazz = plugins.get(pluginName);
+                type.setText(getType(clazz));
+                description.setText(PluginUtils.getPluginDescription(clazz));
+            }
+        };
+        availablePluginsList.addKeyListener(keyboardListener);
+        activePluginsList.addKeyListener(keyboardListener);
     }
 
-    private String getType(Class<?> clazz){
+    private String getType(Class<?> clazz) {
         String type = "N/A";
-        if(ConsolePanel.class.isAssignableFrom(clazz))
+        if (ConsolePanel.class.isAssignableFrom(clazz))
             type = "Panel";
-        if(ConsoleLayer.class.isAssignableFrom(clazz))
+        if (ConsoleLayer.class.isAssignableFrom(clazz))
             type = "Layer";
-        if(ConsoleInteraction.class.isAssignableFrom(clazz))
+        if (ConsoleInteraction.class.isAssignableFrom(clazz))
             type = "Interaction";
         return type;
     }
-    
+
     private String[] getAvailablePlugins() {
-       
+
         plugins.putAll(PluginsRepository.getPanelPlugins());
         plugins.putAll(PluginsRepository.getConsoleInteractions());
         plugins.putAll(PluginsRepository.getConsoleLayerPlugins());
@@ -340,7 +374,7 @@ public class PluginManager extends ConsolePanel {
                 return collator.compare(PluginUtils.i18nTranslate(o1), PluginUtils.i18nTranslate(o2));
             }
         });
-        
+
         return pluginNames;
     }
 
@@ -353,7 +387,7 @@ public class PluginManager extends ConsolePanel {
             if (panel instanceof ContainerSubPanel) {
                 container = (ContainerSubPanel) panel;
                 List<ConsolePanel> panels = ((ContainerSubPanel) panel).getSubPanels();
-                
+
                 Collections.sort(panels, new Comparator<ConsolePanel>() {
                     @Override
                     public int compare(ConsolePanel o1, ConsolePanel o2) {
@@ -362,24 +396,24 @@ public class PluginManager extends ConsolePanel {
                                 PluginUtils.i18nTranslate(o2.getName()));
                     }
                 });
-               
+
                 for (ConsolePanel panel2 : panels) {
                     names.add(panel2.getName());
                     pluginsMap.put(panel2.getName(), panel2);
                 }
             }
         }
-        
+
         for (IConsoleLayer layer : getConsole().getLayers()) {
             names.add(layer.getName());
             pluginsMap.put(layer.getName(), layer);
         }
-        
+
         for (IConsoleInteraction interaction : getConsole().getInteractions()) {
             names.add(interaction.getName());
             pluginsMap.put(interaction.getName(), interaction);
         }
-       
+
         activePluginsList.setListData(names.toArray(new String[0]));
     }
 
