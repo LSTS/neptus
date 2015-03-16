@@ -27,7 +27,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Marcus Frølich, João Fortuna
+ * Author: Marcus Frølich
  * Feb 17, 2015
  */
 package pt.lsts.neptus.plugins.land;
@@ -70,7 +70,7 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
 
 // Simple settings
     
-    @NeptusProperty(name = "Net height [m]", description = "Height of the net.", category = "Simple")
+    @NeptusProperty(name = "Net height [m]", description = "Height of the actual net.", category = "Simple")
     public double netHeight = 3;
 
     @NeptusProperty(name = "Net orientation (N=0, E=90) [deg]", description = "Heading for UAV to enter net.", category = "Simple")
@@ -175,7 +175,7 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
                 params += "net_height=" + netHeight/2 + ";";
                 params += "min_turn_radius=" + minTurnRad + ";";
                 params += "attack_angle=" + attackAngle + ";";
-                params += "descend_angle=" + descendAngle + ";"; // 7.2 // sin(a)=sink_max/speed (2/16)
+                params += "descend_angle=" + descendAngle + ";";
 
                 params += "dist_behind=" + dist_behind + ";";
                 params += "dist_infront=" + dist_infront + ";";
@@ -232,7 +232,7 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
      */
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        // If the target position has not been set, there is nothing to paint
+        // If the land position has not been set, there is nothing to paint
         if (landPos == null)
             return;
 
@@ -270,6 +270,7 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
         for(int i=0; i<poly.npoints; i++){
             int x = arrX[i];
             int y = arrY[i];
+            
             //APPLY ROTATION
             double temp_x = x * Math.cos(angle) - y * Math.sin(angle);
             double temp_y = x * Math.sin(angle) + y * Math.cos(angle);
