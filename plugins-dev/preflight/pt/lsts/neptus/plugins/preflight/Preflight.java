@@ -1,0 +1,219 @@
+/*
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
+ * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
+ * All rights reserved.
+ * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
+ *
+ * This file is part of Neptus, Command and Control Framework.
+ *
+ * Commercial Licence Usage
+ * Licencees holding valid commercial Neptus licences may use this file
+ * in accordance with the commercial licence agreement provided with the
+ * Software or, alternatively, in accordance with the terms contained in a
+ * written agreement between you and Universidade do Porto. For licensing
+ * terms, conditions, and further information contact lsts@fe.up.pt.
+ *
+ * European Union Public Licence - EUPL v.1.1 Usage
+ * Alternatively, this file may be used under the terms of the EUPL,
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
+ * included in the packaging of this file. You may not use this work
+ * except in compliance with the Licence. Unless required by applicable
+ * law or agreed to in writing, software distributed under the Licence is
+ * distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ * ANY KIND, either express or implied. See the Licence for the specific
+ * language governing permissions and limitations at
+ * https://www.lsts.pt/neptus/licence.
+ *
+ * For more information please see <http://lsts.fe.up.pt/neptus>.
+ *
+ * Author: tsmarques
+ * 13 Mar 2015
+ */
+package pt.lsts.neptus.plugins.preflight;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import com.google.common.eventbus.Subscribe;
+
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.FuelLevel;
+import pt.lsts.imc.GpsFix;
+import pt.lsts.imc.Voltage;
+import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.gui.system.MainVehicleSymbol;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
+import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
+
+/**
+ * @author tsmarques
+ *
+ */
+@SuppressWarnings("serial")
+@PluginDescription(name = "Preflight", author = "tsmarques", version = "0.1")
+@Popup(name = "Preflight", pos = POSITION.CENTER, width = 450, height = 500)
+public class Preflight extends ConsolePanel {
+    private static final String NOT_UAV_ERROR = "Main vehicle is not an UAV";
+    
+    private static final String SYS_NAME_LABEL = "<html><b>System Name:</b></html>";
+    private static final String FUEL_LEVEL_LABEL = "<html><b>Fuel Level:</b></html>";
+    private static final String GPS_FIX_LABEL = "<html><b>GPS Fix:</b></html>";
+    
+    private static final String GPS_DIFF = I18n.textc("DIFF", "Use a single small word");
+    private static final String GPS_3D = I18n.textc("3D", "Use a single small word");
+    private static final String GPS_2D = I18n.textc("2D", "Use a single small word");
+    private static final String GPS_NO_FIX = I18n.textc("NoFix", "Use a single small word");
+    
+    
+    /* Test */ 
+    private String mainSysName = "?";
+    private String gpsFixStr = GPS_NO_FIX; 
+    private Double voltage = 0.0;
+    private Double aSpeed = 0.0;
+    private float fuelLevel = 0;
+    private JPanel contentPanel;
+    private JLabel sysNameLabel;
+    
+    private JLabel systemChecksLabel;
+   
+    public Preflight(ConsoleLayout console) {
+        super(console);      
+        initMainPanel();
+    }
+    
+    private void initMainPanel() {
+        //setPreferredSize(new Dimension(430,480));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        sysNameLabel = new JLabel(mainSysName);
+        sysNameLabel.setAlignmentX(CENTER_ALIGNMENT);
+        add(Box.createVerticalStrut(5));
+        add(sysNameLabel);
+        add(Box.createVerticalStrut(5));
+        addSection();
+    }
+    
+    /* TEST */
+    private void addSectionLabel(String sectionName) {
+        JPanel labelPanel = new JPanel();
+        JLabel sectionLabel = new JLabel(sectionName);
+        labelPanel.setName(sectionName);
+        
+        Dimension d = new Dimension(430, 20);
+        labelPanel.setBackground(Color.DARK_GRAY);
+        labelPanel.setMaximumSize(d);
+        labelPanel.setMinimumSize(d);
+        labelPanel.setLayout(new GridBagLayout());
+        labelPanel.add(sectionLabel, new GridBagConstraints());
+        
+        labelPanel.addMouseListener(new MouseListener() {
+            
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if(e.getSource() instanceof JPanel) {
+                    String panelName = ((JPanel)e.getSource()).getName();
+                    System.out.println("# YOU CLICKED ON: " + panelName);
+                }
+                else
+                    System.out.println("## NOT A JPANEL");
+            }
+            
+            @Override
+            public void mousePressed(MouseEvent e) {}
+            @Override
+            public void mouseExited(MouseEvent e) {}
+            @Override
+            public void mouseEntered(MouseEvent e) {}
+            @Override
+            public void mouseClicked(MouseEvent e) {}
+        });
+        add(labelPanel);
+    }
+    
+    /*  TEST */
+    private void addSection() {
+        addSectionLabel("System Checks");
+        JPanel sectionPanel = new JPanel();
+        add(Box.createVerticalStrut(3));
+        sectionPanel.setBackground(Color.CYAN);
+        sectionPanel.setPreferredSize(new Dimension(430, 100));
+        add(sectionPanel);
+    }
+    
+    
+    private boolean msgFromMainVehicle(String msgSrc) {
+        return(msgSrc.equals(mainSysName));
+    }
+
+    @Subscribe
+    public void on(EstimatedState msg) {
+        if(!msgFromMainVehicle(msg.getSourceName()))
+            return;
+    }
+    
+    @Subscribe
+    public void on(GpsFix msg) {
+        if(!msgFromMainVehicle(msg.getSourceName()))
+            return;
+        
+    }
+    
+    @Subscribe
+    public void on(FuelLevel msg) {
+        if(!msgFromMainVehicle(msg.getSourceName()))
+            return;
+    }
+    
+    @Subscribe
+    public void on(Voltage msg) {
+        if(!msgFromMainVehicle(msg.getSourceName()))
+            return;
+        voltage = msg.getValue();
+    }
+       
+    @Subscribe
+    public void on(ConsoleEventMainSystemChange ev) { /* When a diff vehicle has been selected as main Vehicle */
+        mainSysName = getConsole().getMainSystem();
+                
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(mainSysName);
+        if(sys.getTypeVehicle() != VehicleTypeEnum.UAV) {
+        }
+        sysNameLabel.setText(mainSysName);
+        revalidate();
+    }
+    
+    private String makeLabel(String labelStr, String str) {
+        return "<html><b>" + labelStr + "</b>" + str + "</html>";
+    }
+    
+    @Override
+    public void cleanSubPanel() {
+
+    }
+
+    @Override
+    public void initSubPanel() {
+
+    }
+}
