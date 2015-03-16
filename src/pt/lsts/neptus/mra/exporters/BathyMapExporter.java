@@ -45,6 +45,7 @@ import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryParserFactory;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
+import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -131,12 +132,28 @@ public class BathyMapExporter implements MRAExporter {
 
         List<double[]> table_MB = new ArrayList<double[]>();
 
+        //NED offset to the MBS acquisition beginning
+        double init_offset_north = 0;
+        double init_offset_east = 0;
+        double init_offset_down = 0;
+
+        IMraLog estimated_state_parser = source.getLog("EstimatedState");
+        
         BathymetrySwath bs;
         while ((bs = bparser.nextSwath()) != null) {
             LocationType loc = bs.getPose().getPosition();
 
             if (initLoc == null) {
                 initLoc = new LocationType(loc);
+                
+                // Offset Correction, we get the first location correspond to the Mbs acquisition beginning  
+                init_offset_north = (double) estimated_state_parser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("x");
+                init_offset_east  = (double) estimated_state_parser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("y");
+                init_offset_down  = (double) estimated_state_parser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("z");
+                
+                initLoc.setOffsetNorth(-init_offset_north);
+                initLoc.setOffsetEast(-init_offset_east);                   
+                initLoc.setOffsetDown(init_offset_down);  
             }
 
             for (int c = 0; c < bs.getNumBeams(); c++) {
@@ -155,10 +172,10 @@ public class BathyMapExporter implements MRAExporter {
                 tempLoc.translatePosition(p.north, p.east, 0);
 
                 // Add data to table
-                double offset[] = tempLoc.getOffsetFrom(initLoc);
+                double data[] = tempLoc.getOffsetFrom(initLoc);
 
                 // Add normalized depth
-                double pts_mb[] = {offset[0]+initLoc.getOffsetNorth(), offset[1]+initLoc.getOffsetEast(), p.depth+initLoc.getOffsetDown()};
+                double pts_mb[] = {data[0], data[1], p.depth};
                 table_MB.add(pts_mb);
 
                 ++countPoints_MB;

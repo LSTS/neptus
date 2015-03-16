@@ -46,7 +46,6 @@ import java.util.TimeZone;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.plaf.basic.BasicSliderUI;
-
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.colormap.ColorMapFactory;
 import pt.lsts.imc.IMCMessage;
@@ -63,7 +62,6 @@ import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.lsf.DVLBathymetryParser;
-import pt.lsts.neptus.mra.importers.deltat.DeltaTHeader;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -135,11 +133,6 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
 
     int kT_actual = 0;
     int kT_preview = 0;
-    
-    //Offset for the multibeam initial ned
-    double init_offset_north = 0;
-    double init_offset_east = 0;                   
-    double init_offset_down = 0;    
 
     // Map visualization variables
     class CMaps {
@@ -151,18 +144,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
     }
 
     CMaps map_ref;
-
-    // Corrected state and particles variables
-    class CCorrectedState {
-        public long[] timestamp;
-        public double[] orientation;
-        public List<APointCloud<?>> particle_cloud;
-        public List<vtkLineSource> trajectory;
-        public int kt;
-    }
-
-    CCorrectedState corrected_state;
-
+    
     // Estimated state variables
     class CEstimatedState {
         public IMraLog parser;
@@ -170,12 +152,33 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         public List<vtkLineSource> trajectory;
         public List<double[]> position = new ArrayList<double[]>();
         public List<double[]> orientation = new ArrayList<double[]>();
+        public List<Long> timestamp = new ArrayList<Long>();
         public double latitude, longitude, height;
         public double north, east, down;
     }
 
     CEstimatedState estimated_state;
+    
+    // Corrected state
+    class CCorrectedState {
+        public int enable = 0;
+        public int kt = 0;     
+        public List<vtkLineSource> trajectory;       
+        public List<Long> timestamp = new ArrayList<Long>();
+    }
 
+    CCorrectedState corrected_state;
+    
+    // Particles
+    class CParticles {
+        public int enable = 0;
+        public int kt = 0;
+        public List<Long> timestamp = new ArrayList<Long>();
+        long iteration_time = 0;
+    } 
+    
+    CParticles particles;
+    
     // Identifier of actors used
     class C3DListElement {
         public List<Integer> id = new ArrayList<Integer>();
@@ -193,7 +196,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         }
     }
 
-    C3DListElement list_actor;
+    C3DListElement id_actor_list;
 
     public FilterMra(MRAPanel panel) {
         this.mraPanel = panel;
@@ -257,10 +260,11 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
     }
 
     public void LoadMapToPointCloud() {
+        
         // Read the map file (list NED format)
         try {
             InputStream ips = new FileInputStream(
-                    "./plugins-dev/filter-viewer/pt/lsts/neptus/plugins/filterviewer/Maps/Map_Leixoes.txt");
+                    "./plugins-dev/filter-viewer/pt/lsts/neptus/plugins/filterviewer/Maps/carte_mbp.txt");
             InputStreamReader ipsr = new InputStreamReader(ips);
             BufferedReader br = new BufferedReader(ipsr);
             String ligne;
@@ -269,6 +273,8 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             map_ref.pointCloud = new PointCloudXYZ();
 
             map_ref.offset_checked = 0;
+            
+            // Get vertical offset if exist
             for (IMCMessage m : source.getLsfIndex().getIterator("CorrectedState", 0, 1000)) {
                 map_ref.offset_checked = (float) m.getValue("alt");
                 if(map_ref.offset_checked!=0)
@@ -349,7 +355,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                 canvas.GetRenderer().AddActor(mesh.getMeshCloudLODActor());
 
                 // Add the map to the list
-                list_actor.AddActor("Map");
+                id_actor_list.AddActor("Map");
 
                 // Add and display the color scalar bar (winCanvas is used (UI canvas))
                 interactorStyle.getScalarBar().setUpScalarBarLookupTable(
@@ -363,9 +369,12 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
     }
 
     public void LoadDVLPointCloud() {
+        
         vtkPoints pts = new vtkPoints();
         int num_dvl_point = 0;
+        
         BathymetryParser parser = BathymetryParserFactory.build(this.source, "dvl");
+        IMraLog estimated_state_parser = source.getLog("EstimatedState");     
 
         if (parser instanceof DVLBathymetryParser) {
             parser.rewind();
@@ -378,10 +387,14 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                 if (initLoc == null) {
                     initLoc = new LocationType(loc);
                     
-                    // Warning offset for multibeam is missed
-                    init_offset_north = initLoc.getOffsetNorth();
-                    init_offset_east = initLoc.getOffsetEast();                   
-                    init_offset_down = initLoc.getOffsetDown();                
+                    // Offset Correction, we get the first location correspond to the DVL acquisition beginning
+                    double init_offset_north = (double) estimated_state_parser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("x");
+                    double init_offset_east  = (double) estimated_state_parser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("y");
+                    double init_offset_down  = (double) estimated_state_parser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("z");
+                    
+                    initLoc.setOffsetNorth(-init_offset_north);
+                    initLoc.setOffsetEast(-init_offset_east);                   
+                    initLoc.setOffsetDown(init_offset_down);    
                 }
 
                 for (int c = 0; c < bs.getNumBeams(); ++c) {
@@ -390,12 +403,10 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                         continue;
 
                     LocationType tempLoc = new LocationType(loc);
-
                     tempLoc.translatePosition(p.north, p.east, 0);
 
-                    double offset[] = tempLoc.getOffsetFrom(initLoc);
-
-                    pts.InsertNextPoint(offset[0] + initLoc.getOffsetNorth(), offset[1] + initLoc.getOffsetEast(),
+                    double data[] = tempLoc.getOffsetFrom(initLoc);
+                    pts.InsertNextPoint(data[0] + initLoc.getOffsetNorth(), data[1] + initLoc.getOffsetEast(),
                             p.depth);
 
                     ++num_dvl_point;
@@ -417,15 +428,19 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         canvas.GetRenderer().AddActor(pointcloud_dvl.getCloudLODActor());
 
         // Add the particles blocs to the list
-        list_actor.AddActor("DVL_Cloud");
+        id_actor_list.AddActor("DVL_Cloud");
     }
     
     public void LoadMBSPointCloud() {
+        
         vtkPoints pts = new vtkPoints();
         int num_mbs_point = 0;
+        
         BathymetryParser parser = BathymetryParserFactory.build(this.source, "multibeam");
-
+        IMraLog estimated_state_parser = source.getLog("EstimatedState");        
+        
         if (parser instanceof DeltaTParser) {
+            
             parser.rewind();
             BathymetrySwath bs;
 
@@ -436,7 +451,11 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                 if (initLoc == null) {
                     initLoc = new LocationType(loc);
                     
-                    // Warning offset for multibeam is missed
+                    // Offset Correction, we get the first location correspond to the MBS acquisition beginning
+                    double init_offset_north = (double) estimated_state_parser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("x");
+                    double init_offset_east  = (double) estimated_state_parser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("y");
+                    double init_offset_down  = (double) estimated_state_parser.getEntryAtOrAfter(bs.getTimestamp()).getDouble("z");
+                    
                     initLoc.setOffsetNorth(-init_offset_north);
                     initLoc.setOffsetEast(-init_offset_east);                   
                     initLoc.setOffsetDown(init_offset_down);  
@@ -448,12 +467,10 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                         continue;
 
                     LocationType tempLoc = new LocationType(loc);
-
                     tempLoc.translatePosition(p.north, p.east, 0);
 
-                    double offset[] = tempLoc.getOffsetFrom(initLoc);
-
-                    pts.InsertNextPoint(offset[0], offset[1], p.depth);
+                    double data[] = tempLoc.getOffsetFrom(initLoc);
+                    pts.InsertNextPoint(data[0], data[1], p.depth);
 
                     ++num_mbs_point;
                 }
@@ -474,335 +491,12 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         canvas.GetRenderer().AddActor(pointcloud_mbs.getCloudLODActor());
 
         // Add the particles blocs to the list
-        list_actor.AddActor("MBS_Cloud");
+        id_actor_list.AddActor("MBS_Cloud");
     }
     
-
-    public int LoadCorrectedStateAndParticles() {
-        corrected_state = new CCorrectedState();
-        corrected_state.trajectory = new ArrayList<vtkLineSource>();
-        corrected_state.particle_cloud = new ArrayList<APointCloud<?>>();
-
-        int k_particle = 0;
-        for (IMCMessage m : source.getLsfIndex().getIterator("DataParticle", 0, 1000)) {
-            k_particle++;
-        }
-
-        corrected_state.kt = k_particle;
-        corrected_state.orientation = new double[corrected_state.kt];
-
-        int k_correctedstate = 0;
-        for (IMCMessage m : source.getLsfIndex().getIterator("CorrectedState", 0, 1000)) {
-
-            if (k_correctedstate < k_particle) {
-                corrected_state.orientation[k_correctedstate] = m.getDouble("psi");
-            }            
-            k_correctedstate++;
-        }
-
-        if (k_particle != k_correctedstate) {
-            // corrected_state.kt = 0;
-            // return -1;
-            corrected_state.kt = Math.min(k_particle, k_correctedstate);
-        }
-
-        int k = 0;
-        for (IMCMessage m : source.getLsfIndex().getIterator("DataParticle", 0, 1000)) {
-            int num_particle = (int) m.getValue("num");
-            byte[] tab_data;
-            tab_data = (byte[]) m.getValue("data");
-
-            double x, y, d, w;
-
-            String str_data = "";
-
-            for (int i = 0; i < tab_data.length; i++) {
-                str_data += (char) tab_data[i];
-            }
-
-            String[] list_str = str_data.split(" ");
-
-            int i = 0;
-
-            vtkPoints pts = new vtkPoints();
-
-            double wmax = -10;
-            double wmin = 10;
-
-            for (int n = 0; n < num_particle; n++) {
-                x = Convert.getDouble(list_str[i]);
-                y = Convert.getDouble(list_str[i + 1]);
-                d = Convert.getDouble(list_str[i + 2]);
-                w = Convert.getDouble(list_str[i + 3]);
-
-                // Min/Max Weight for normalization
-                if (wmax < w) {
-                    wmax = w;
-                }
-                if (wmin > w) {
-                    wmin = w;
-                }
-
-                i = i + 4;
-
-                // Particle position
-                pts.InsertNextPoint(x, y, d);
-            }
-
-            // Colors attribution
-            vtkUnsignedCharArray colors = new vtkUnsignedCharArray();
-            colors.SetNumberOfComponents(3);
-            colors.SetName("Colors");
-
-            // Normals attribution
-            vtkDoubleArray normal = new vtkDoubleArray();
-            normal.SetNumberOfComponents(3);
-            normal.SetName("Normals");
-
-            // Color Intensity format
-            ColorMap cm = ColorMapFactory.createWhiteColorMap();
-
-            i = 0;
-            for (int n = 0; n < num_particle; n++) {
-                w = Convert.getDouble(list_str[i + 3]);
-                i = i + 4;
-
-                // Weight normalization (0->wmax : 0->1)
-                w = w / wmax;
-
-                // Color Intensity function of particle weight
-                colors.InsertNextTuple3(cm.getColor(w).getRed(), cm.getColor(w).getGreen(), cm.getColor(w).getBlue());
-
-                // Normals direction
-                normal.InsertNextTuple3(Math.cos(corrected_state.orientation[k]),
-                        Math.sin(corrected_state.orientation[k]), 0.0);
-            }
-
-            // Define the polydata
-            vtkPolyData polydata = new vtkPolyData();
-            polydata.SetPoints(pts);
-            polydata.GetPointData().SetScalars(colors);
-            polydata.GetPointData().SetNormals(normal);
-
-            // Define the source associates to the glyph
-            vtkArrowSource arrow = new vtkArrowSource();
-            arrow.SetTipResolution(3);
-            arrow.SetShaftResolution(4);
-
-            // Transform the source in function to the Z exaggeration
-            vtkTransform transform = new vtkTransform();
-            transform.Scale(1.0, 1.0, 1.0 / MRAProperties.zExaggeration);
-
-            vtkTransformFilter transformfilter = new vtkTransformFilter();
-            transformfilter.SetTransform(transform);
-            transformfilter.SetInputConnection(arrow.GetOutputPort());
-
-            // Create and define the glyph
-            vtkGlyph3D glyph = new vtkGlyph3D();
-
-            glyph.SetColorModeToColorByScalar();
-
-            glyph.OrientOn();
-            glyph.SetVectorModeToUseNormal();
-
-            glyph.ScalingOn();
-            glyph.SetScaleFactor(0.002);
-
-            glyph.SetSourceConnection(transformfilter.GetOutputPort());
-            glyph.SetInput(polydata);
-
-            glyph.Update();
-
-            // Actor mapping
-            vtkPolyDataMapper mapper = new vtkPolyDataMapper();
-            mapper.SetInputConnection(glyph.GetOutputPort());
-            vtkActor actor = new vtkActor();
-            actor.SetMapper(mapper);
-            // actor.VisibilityOff();
-
-            // Add each line to the scene
-            canvas.GetRenderer().AddActor(actor);
-
-            // Add the particles blocs to the list
-            list_actor.AddActor("Particle");
-            k++;
-        }
-
-        corrected_state.timestamp = new long[corrected_state.kt];
-        k = 0;
-        vtkPoints pts_trajectory = new vtkPoints();
-        for (IMCMessage m : source.getLsfIndex().getIterator("CorrectedState", 0, 1000)) {
-            // Get the timestamp for each point
-            if (k < corrected_state.kt) {
-                corrected_state.timestamp[k] = (long) m.getTimestampMillis();
-            }
-            k++;
-
-            // Point defining the corrected trajectory
-            double x = (float) m.getValue("x");
-            double y = (float) m.getValue("y");
-            double depth = (float) m.getValue("depth");
-            
-            
-            if(x!=0 && y!=0)
-            {
-                pts_trajectory.InsertNextPoint(x, y, depth);
-            }
-            else
-            {
-                k--;
-            }
-        }
-        
-        corrected_state.kt = k;
-
-        for (int i = 1; i < corrected_state.kt; i++) {
-            // Create each line of the trajectory
-            vtkLineSource line_temp = new vtkLineSource();
-            line_temp.SetPoint1(pts_trajectory.GetPoint(i - 1));
-            line_temp.SetPoint2(pts_trajectory.GetPoint(i));
-            corrected_state.trajectory.add(line_temp);
-
-            // Actor mapping
-            vtkPolyDataMapper mapper = new vtkPolyDataMapper();
-            mapper.SetInputConnection(line_temp.GetOutputPort());
-            vtkActor actor = new vtkActor();
-            actor.SetMapper(mapper);
-            actor.GetProperty().SetLineWidth(1);
-            actor.GetProperty().SetColor(0.0, 0.0, 1.0);
-            // actor.VisibilityOff();
-
-            // Add each line to the scene
-            canvas.GetRenderer().AddActor(actor);
-
-            // Add the corrected trajectory to the list
-            list_actor.AddActor("PathCorrected");
-        }
-
-        return 1;
-    }
-
-    public int LoadEstimatedState() {
-        vtkPoints pts_trajectory = new vtkPoints();
-        estimated_state.trajectory = new ArrayList<vtkLineSource>();
-
-        int k = 0;
-        double x = 0;
-        double y = 0;
-        double depth = 0;
-        double phi = 0;
-        double theta = 0;
-        double psi = 0;
-
-        if (corrected_state.kt > 0) {
-            // If Particle filter is operational
-            estimated_state.kt = corrected_state.kt;
-
-            for (IMCMessage m : source.getLsfIndex().getIterator("EstimatedState", 0, 1000)) {
-                if (k < corrected_state.kt) {
-                    if (m.getTimestampMillis() >= corrected_state.timestamp[k]) {
-                        x = (float) m.getValue("x");
-                        y = (float) m.getValue("y");
-                        depth = (float) m.getValue("depth");
-
-                        pts_trajectory.InsertNextPoint(x, y, depth);
-
-                        phi = (float) m.getValue("phi");
-                        theta = (float) m.getValue("theta");
-                        psi = (float) m.getValue("psi");
-
-                        double position[] = { x, y, depth * MRAProperties.zExaggeration };
-                        estimated_state.position.add(position);
-
-                        double orientation[] = { Math.toDegrees(phi), Math.toDegrees(theta), Math.toDegrees(psi) };
-                        estimated_state.orientation.add(orientation);
-
-                        k++;
-                    }
-                }
-            }
-
-            // If the estimated state is just before the last corrected state
-            if (estimated_state.kt > k) {
-                while (estimated_state.kt > k) {
-                    // For draw lines of trajectory
-                    pts_trajectory.InsertNextPoint(x, y, depth);
-
-                    // For the position of the LAUV 3D models
-                    double position[] = { x, y, depth * MRAProperties.zExaggeration };
-                    estimated_state.position.add(position);
-
-                    double orientation[] = { Math.toDegrees(phi), Math.toDegrees(theta), Math.toDegrees(psi) };
-                    estimated_state.orientation.add(orientation);
-
-                    k++;
-                }
-            }
-        }
-        else {
-            // If there is no corrected state inside the Log
-            k = 0;
-
-            for (IMCMessage m : source.getLsfIndex().getIterator("EstimatedState", 0, 1000)) {
-                x = (float) m.getValue("x");
-                y = (float) m.getValue("y");
-                depth = (float) m.getValue("depth");
-
-                pts_trajectory.InsertNextPoint(x, y, depth);
-
-                phi = (float) m.getValue("phi");
-                theta = (float) m.getValue("theta");
-                psi = (float) m.getValue("psi");
-
-                double position[] = { x, y, depth * MRAProperties.zExaggeration };
-                estimated_state.position.add(position);
-
-                double orientation[] = { Math.toDegrees(phi), Math.toDegrees(theta), Math.toDegrees(psi) };
-                estimated_state.orientation.add(orientation);
-
-                k++;
-            }
-            estimated_state.kt = k;
-        }
-
-        // Create and convert vtkLine in actor inside the scene
-        for (int i = 1; i < estimated_state.kt; i++) {
-            // Create each line of the trajectory
-            vtkLineSource line_temp = new vtkLineSource();
-            line_temp.SetPoint1(pts_trajectory.GetPoint(i - 1));
-            line_temp.SetPoint2(pts_trajectory.GetPoint(i));
-            estimated_state.trajectory.add(line_temp);
-
-            // Actor mapping
-            vtkPolyDataMapper mapper = new vtkPolyDataMapper();
-            mapper.SetInputConnection(line_temp.GetOutputPort());
-            vtkActor actor = new vtkActor();
-            actor.SetMapper(mapper);
-            actor.GetProperty().SetLineWidth(1);
-            actor.GetProperty().SetColor(1.0, 0.0, 0.0);
-            // actor.VisibilityOff();
-
-            // Add each line to the scene
-            canvas.GetRenderer().AddActor(actor);
-
-            // Add the estimated trajectory to the list
-            list_actor.AddActor("PathEstimated");
-        }
-
-        return 1;
-    }
-
     public void LoadLauvModel() {
-        /*
-         * vtkPolyDataReader vtk_reader = new vtkPolyDataReader(); vtk_reader.SetFileName(
-         * "./plugins-dev/filter-visualization/pt/lsts/neptus/plugins/filtervisualization/Models/noptilus.vtk");
-         * 
-         * vtk_reader.ReadAllNormalsOn(); vtk_reader.ReadAllScalarsOn(); vtk_reader.ReadAllVectorsOn();
-         * vtk_reader.ReadAllColorScalarsOn();
-         * 
-         * vtk_reader.Update();
-         */
 
+        // Load the LAUV 3D model (vtk file)
         vtkGenericDataObjectReader vtk_generic_reader = new vtkGenericDataObjectReader();
         vtk_generic_reader
                 .SetFileName("./plugins-dev/filter-viewer/pt/lsts/neptus/plugins/filterviewer/Models/noptilus.vtk");
@@ -838,7 +532,290 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
 
         // Add each line to the scene
         canvas.GetRenderer().AddActor(actor);
-        list_actor.AddActor("NoptilusModel");
+        id_actor_list.AddActor("NoptilusModel");
+    }
+    
+    public void LoadEstimatedState() {
+        
+        vtkPoints pts_trajectory = new vtkPoints();
+        estimated_state.trajectory = new ArrayList<vtkLineSource>();
+       
+        int k = 0;
+        double x = 0;
+        double y = 0;
+        double depth = 0;
+        double phi = 0;
+        double theta = 0;
+        double psi = 0;
+
+        // Get the estimated state list
+        for (IMCMessage m : source.getLsfIndex().getIterator("EstimatedState", 0, 1000)) {
+            x = (float) m.getValue("x");
+            y = (float) m.getValue("y");
+            depth = (float) m.getValue("depth");
+
+            pts_trajectory.InsertNextPoint(x, y, depth);
+
+            phi = (float) m.getValue("phi");
+            theta = (float) m.getValue("theta");
+            psi = (float) m.getValue("psi");
+
+            double position[] = { x, y, depth * MRAProperties.zExaggeration };
+            estimated_state.position.add(position);
+
+            double orientation[] = { Math.toDegrees(phi), Math.toDegrees(theta), Math.toDegrees(psi) };
+            estimated_state.orientation.add(orientation);
+            
+            Long timestamp = m.getTimestampMillis();
+            estimated_state.timestamp.add(timestamp);
+
+            k++;
+        }
+        estimated_state.kt = k;
+
+        // Create and convert vtkLine in actor inside the scene
+        for (int i = 1; i < estimated_state.kt; i++) {
+            // Create each line of the trajectory
+            vtkLineSource line_temp = new vtkLineSource();
+            line_temp.SetPoint1(pts_trajectory.GetPoint(i - 1));
+            line_temp.SetPoint2(pts_trajectory.GetPoint(i));
+            estimated_state.trajectory.add(line_temp);
+
+            // Actor mapping
+            vtkPolyDataMapper mapper = new vtkPolyDataMapper();
+            mapper.SetInputConnection(line_temp.GetOutputPort());
+            vtkActor actor = new vtkActor();
+            actor.SetMapper(mapper);
+            actor.GetProperty().SetLineWidth(1);
+            actor.GetProperty().SetColor(1.0, 0.0, 0.0);
+            // actor.VisibilityOff();
+
+            // Add each line to the scene
+            canvas.GetRenderer().AddActor(actor);
+
+            // Add the estimated trajectory to the list
+            id_actor_list.AddActor("PathEstimated");
+        }
+    }
+    
+    public void LoadCorrectedState() {
+
+        IMraLog estimated_state_parser = source.getLog("EstimatedState");
+        long last_timestamp = estimated_state_parser.getLastEntry().getTimestampMillis();
+        
+        corrected_state = new CCorrectedState();
+        
+        // Corrected State Structure Initialization
+        int k = 0;
+        vtkPoints pts_trajectory = new vtkPoints();
+        
+        for (IMCMessage m : source.getLsfIndex().getIterator("CorrectedState", 0, 1000)) {
+
+            // Point defining the corrected trajectory
+            double x = (float) m.getValue("x");
+            double y = (float) m.getValue("y");
+            double depth = (float) m.getValue("depth");
+            
+            // Point is added only if it's valid
+            if(x!=0 && y!=0)
+            {
+                if(m.getTimestampMillis() < last_timestamp) {
+                    // Coord of valid point
+                    pts_trajectory.InsertNextPoint(x, y, depth);
+                    
+                    // Get the timestamp for each valid point 
+                    Long timestamp = m.getTimestampMillis();
+                    corrected_state.timestamp.add(timestamp); 
+                    
+                    k++;
+                }
+            }
+        }
+        
+        // No corrected state
+        if(k==0){
+            corrected_state.enable = 0;
+            return;
+        }
+        
+        // Number of corrected state valid
+        corrected_state.kt = k;
+        corrected_state.trajectory = new ArrayList<vtkLineSource>();
+
+        for (int i = 1; i < corrected_state.kt; i++) {
+            // Create each line of the trajectory
+            vtkLineSource line_temp = new vtkLineSource();
+            line_temp.SetPoint1(pts_trajectory.GetPoint(i - 1));
+            line_temp.SetPoint2(pts_trajectory.GetPoint(i));
+            corrected_state.trajectory.add(line_temp);
+
+            // Actor mapping
+            vtkPolyDataMapper mapper = new vtkPolyDataMapper();
+            mapper.SetInputConnection(line_temp.GetOutputPort());
+            vtkActor actor = new vtkActor();
+            actor.SetMapper(mapper);
+            actor.GetProperty().SetLineWidth(1);
+            actor.GetProperty().SetColor(0.0, 0.0, 1.0);
+            // actor.VisibilityOff();
+
+            // Add each line to the scene
+            canvas.GetRenderer().AddActor(actor);
+
+            // Add the corrected trajectory to the list
+            id_actor_list.AddActor("PathCorrected");
+        }
+    }
+    
+    public void LoadParticles() {
+    
+        IMraLog estimated_state_parser = source.getLog("EstimatedState");
+        long last_timestamp = estimated_state_parser.getLastEntry().getTimestampMillis();
+        
+        particles = new CParticles();
+        
+        int k = 0;
+        for (IMCMessage m : source.getLsfIndex().getIterator("DataParticle", 0, 1000)) {
+                       
+            int num_particle = (int) m.getValue("num");
+            byte[] tab_data;
+            tab_data = (byte[]) m.getValue("data");
+    
+            double x, y, d, w;           
+    
+            String str_data = "";
+    
+            for (int i = 0; i < tab_data.length; i++) {
+                str_data += (char) tab_data[i];
+            }
+    
+            String[] list_str = str_data.split(" ");
+    
+            int i = 0;
+    
+            vtkPoints pts = new vtkPoints();
+    
+            double wmax = -10;
+            double wmin = 10;
+    
+            for (int n = 0; n < num_particle; n++) {
+                x = Convert.getDouble(list_str[i]);
+                y = Convert.getDouble(list_str[i + 1]);
+                d = Convert.getDouble(list_str[i + 2]);
+                w = Convert.getDouble(list_str[i + 3]);
+    
+                // Min/Max Weight for normalization
+                if (wmax < w) {
+                    wmax = w;
+                }
+                if (wmin > w) {
+                    wmin = w;
+                }
+    
+                i = i + 4;
+    
+                // Particle position
+                pts.InsertNextPoint(x, y, d);
+            }
+    
+            // Colors attribution
+            vtkUnsignedCharArray colors = new vtkUnsignedCharArray();
+            colors.SetNumberOfComponents(3);
+            colors.SetName("Colors");
+    
+            // Normals attribution
+            vtkDoubleArray normal = new vtkDoubleArray();
+            normal.SetNumberOfComponents(3);
+            normal.SetName("Normals");
+    
+            // Color Intensity format
+            ColorMap cm = ColorMapFactory.createWhiteColorMap();
+            
+            // Get Vehicle Orientation
+            if(m.getTimestampMillis() < last_timestamp)
+            {
+                Long timestamp = m.getTimestampMillis();
+                particles.timestamp.add(timestamp);
+                
+                double direction = (double) estimated_state_parser.getEntryAtOrAfter(m.getTimestampMillis()).getDouble("psi");
+    
+                i = 0;
+                for (int n = 0; n < num_particle; n++) {
+                    w = Convert.getDouble(list_str[i + 3]);
+                    i = i + 4;
+        
+                    // Weight normalization (0->wmax : 0->1)
+                    w = w / wmax;
+        
+                    // Color Intensity function of particle weight
+                    colors.InsertNextTuple3(cm.getColor(w).getRed(), cm.getColor(w).getGreen(), cm.getColor(w).getBlue());
+        
+                    // Normals direction
+                    normal.InsertNextTuple3(Math.cos(direction),
+                            Math.sin(direction), 0.0);
+                }
+        
+                // Define the polydata
+                vtkPolyData polydata = new vtkPolyData();
+                polydata.SetPoints(pts);
+                polydata.GetPointData().SetScalars(colors);
+                polydata.GetPointData().SetNormals(normal);
+        
+                // Define the source associates to the glyph
+                vtkArrowSource arrow = new vtkArrowSource();
+                arrow.SetTipResolution(3);
+                arrow.SetShaftResolution(4);
+        
+                // Transform the source in function to the Z exaggeration
+                vtkTransform transform = new vtkTransform();
+                transform.Scale(1.0, 1.0, 1.0 / MRAProperties.zExaggeration);
+        
+                vtkTransformFilter transformfilter = new vtkTransformFilter();
+                transformfilter.SetTransform(transform);
+                transformfilter.SetInputConnection(arrow.GetOutputPort());
+        
+                // Create and define the glyph
+                vtkGlyph3D glyph = new vtkGlyph3D();
+        
+                glyph.SetColorModeToColorByScalar();
+        
+                glyph.OrientOn();
+                glyph.SetVectorModeToUseNormal();
+        
+                glyph.ScalingOn();
+                glyph.SetScaleFactor(0.002);
+        
+                glyph.SetSourceConnection(transformfilter.GetOutputPort());
+                glyph.SetInput(polydata);
+        
+                glyph.Update();
+        
+                // Actor mapping
+                vtkPolyDataMapper mapper = new vtkPolyDataMapper();
+                mapper.SetInputConnection(glyph.GetOutputPort());
+                vtkActor actor = new vtkActor();
+                actor.SetMapper(mapper);
+                // actor.VisibilityOff();
+        
+                // Add each line to the scene
+                canvas.GetRenderer().AddActor(actor);
+        
+                // Add the particles blocs to the list
+                id_actor_list.AddActor("Particle");
+                k++;
+            }
+        }
+        
+        // No particle
+        if(k==0){
+            particles.enable = 0;
+            return;
+        }
+        
+        if(k>=1){
+            particles.iteration_time = (particles.timestamp.get(2)-particles.timestamp.get(1));
+        }
+        particles.kt = k;
+        
     }
 
     public void SceneScaleAxesExageration(double Sx, double Sy, double Sz) {
@@ -863,7 +840,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             setLayout(new MigLayout());
 
             // 3D Scene Actor identifier
-            list_actor = new C3DListElement();
+            id_actor_list = new C3DListElement();
 
             // Create and configure the MRA panel (timeline and vtk window)
             CreateTimeline();
@@ -873,13 +850,14 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             LoadMapToPointCloud();           
             LoadDVLPointCloud();
             LoadMBSPointCloud();
-            LoadCorrectedStateAndParticles();
             LoadEstimatedState();
-            LoadLauvModel();
+            LoadLauvModel();    
+            LoadCorrectedState();
+            LoadParticles();
 
             // Control adequacy between actor present inside the scene and our list of actor
-            vtkActorCollection actor_list = canvas.GetRenderer().GetActors();
-            if (list_actor.num_actor != actor_list.GetNumberOfItems()) {
+            vtkActorCollection vtk_actor_list = canvas.GetRenderer().GetActors();
+            if (id_actor_list.num_actor != vtk_actor_list.GetNumberOfItems()) {
                 return null;
             }
 
@@ -1021,40 +999,44 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             timeline.setTime(firstPingTime + currentTime);
 
             // Id Iteration
-            kT_actual = (int) ((double) (estimated_state.kt - 1) * (double) (currentTime) / (double) (lastPingTime - firstPingTime));
-
+            kT_actual = (int) ((double) (estimated_state.kt) * (double) (currentTime) / (double) (lastPingTime - firstPingTime));
+            
+            if(kT_actual > estimated_state.kt - 1) {
+                kT_actual =estimated_state.kt - 1; 
+            }
+            
             // Update the dynamic 3D mesh state
-            vtkActorCollection actor_list = canvas.GetRenderer().GetActors();
-            actor_list.InitTraversal();
+            vtkActorCollection vtk_actor_list = canvas.GetRenderer().GetActors();
+            vtk_actor_list.InitTraversal();
 
-            for (int n = 0; n < actor_list.GetNumberOfItems(); n++) {
-                vtkActor actor = actor_list.GetNextItem();
-                if (list_actor.GetDescription(n) == "NoptilusModel") {
+            for (int n = 0; n < vtk_actor_list.GetNumberOfItems(); n++) {
+                vtkActor actor = vtk_actor_list.GetNextItem();
+                if (id_actor_list.GetDescription(n) == "NoptilusModel") {
                     actor.SetPosition(estimated_state.position.get(kT_actual));
                     actor.SetOrientation(estimated_state.orientation.get(kT_actual));
                 }
             }
-
+            
+            // The camera tracking is operational only for the normal reading
+            //if((kT_actual-kT_preview)==1) { ComputeCameraView(kT_actual, 40.0, 70.0); }
+            
             // Update the static 3D mesh preprocessed
             if ((kT_actual - kT_preview) >= 1) {
 
-                // The camera tracking is operational only for the normal reading
-                /*
-                 * if((kT_actual-kT_preview)==1) { ComputeCameraView(kT_actual, 20.0, 10.0); }
-                 */
-
                 // Visible only until time position
-                actor_list = canvas.GetRenderer().GetActors();
-                actor_list.InitTraversal();
+                vtk_actor_list = canvas.GetRenderer().GetActors();
+                vtk_actor_list.InitTraversal();
 
                 int k_particle = 0;
                 int k_corrected = 0;
                 int k_estimated = 0;
 
-                for (int n = 0; n < actor_list.GetNumberOfItems(); n++) {
-                    vtkActor actor = actor_list.GetNextItem();
-                    if (list_actor.GetDescription(n) == "Particle") {
-                        if (k_particle == kT_actual) {
+                for (int n = 0; n < vtk_actor_list.GetNumberOfItems(); n++) {
+                    vtkActor actor = vtk_actor_list.GetNextItem();
+                    
+                    if (id_actor_list.GetDescription(n) == "Particle") {
+                        if ( (particles.timestamp.get(k_particle)<=estimated_state.timestamp.get(kT_actual))
+                                &&(estimated_state.timestamp.get(kT_actual)-particles.timestamp.get(k_particle)<particles.iteration_time)){
                             actor.VisibilityOn();
                         }
                         else {
@@ -1063,8 +1045,8 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                         k_particle++;
                     }
 
-                    if (list_actor.GetDescription(n) == "PathCorrected") {
-                        if (k_corrected < kT_actual) {
+                    if (id_actor_list.GetDescription(n) == "PathCorrected") {
+                        if (corrected_state.timestamp.get(k_corrected) < estimated_state.timestamp.get(kT_actual)) {
                             actor.VisibilityOn();
                         }
                         else {
@@ -1073,7 +1055,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                         k_corrected++;
                     }
 
-                    if (list_actor.GetDescription(n) == "PathEstimated") {
+                    if (id_actor_list.GetDescription(n) == "PathEstimated") {
                         if (k_estimated < kT_actual) {
                             actor.VisibilityOn();
                         }
@@ -1087,30 +1069,32 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             else {
                 if ((kT_actual - kT_preview) < 0) {
                     // Visible only until time position
-                    actor_list = canvas.GetRenderer().GetActors();
-                    actor_list.InitTraversal();
+                    vtk_actor_list = canvas.GetRenderer().GetActors();
+                    vtk_actor_list.InitTraversal();
 
                     int k_particle = 0;
                     int k_corrected = 0;
                     int k_estimated = 0;
-
-                    for (int n = 0; n < actor_list.GetNumberOfItems(); n++) {
-                        vtkActor actor = actor_list.GetNextItem();
+                    
+                    for (int n = 0; n < vtk_actor_list.GetNumberOfItems(); n++) {
+                        vtkActor actor = vtk_actor_list.GetNextItem();
 
                         // Display only the current cloud particle
-                        if (list_actor.GetDescription(n) == "Particle") {
-                            if (k_particle == kT_actual) {
-                                actor.VisibilityOn();
-                            }
-                            else {
-                                actor.VisibilityOff();
-                            }
-                            k_particle++;
+                        if (id_actor_list.GetDescription(n) == "Particle") {
+
+                                if (   (particles.timestamp.get(k_particle)<=estimated_state.timestamp.get(kT_actual))
+                                     &&(estimated_state.timestamp.get(kT_actual)-particles.timestamp.get(k_particle)<particles.iteration_time) ) {
+                                    actor.VisibilityOn();
+                                }
+                                else {
+                                    actor.VisibilityOff();
+                                }
+                                k_particle++;
                         }
 
                         // Display all corrected trajectories before kT actual
-                        if (list_actor.GetDescription(n) == "PathCorrected") {
-                            if (k_corrected < kT_actual) {
+                        if (id_actor_list.GetDescription(n) == "PathCorrected") {
+                            if (corrected_state.timestamp.get(k_corrected) < estimated_state.timestamp.get(kT_actual)) {
                                 actor.VisibilityOn();
                             }
                             else {
@@ -1120,7 +1104,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                         }
 
                         // Display all estimated trajectories before kT actual
-                        if (list_actor.GetDescription(n) == "PathEstimated") {
+                        if (id_actor_list.GetDescription(n) == "PathEstimated") {
                             if (k_estimated < kT_actual) {
                                 actor.VisibilityOn();
                             }
