@@ -27,56 +27,48 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * Mar 10, 2014
+ * Jun 21, 2013
  */
-package pt.lsts.neptus.plugins.vtk.ctd3d;
-
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.vtk.visualization.Canvas;
-import vtk.vtkRenderWindowInteractor;
-import vtk.vtkRenderer;
+package pt.lsts.neptus.vtk.utils;
 
 /**
  * @author hfq
  * 
  */
-public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
+public class CalcUtils {
 
-    private final EventsHandlerCTD3D events;
+    /**
+     * Calc distance between 2 points in space
+     * @param p1
+     * @param p2
+     * @return
+     */
+    public static float distanceBetween2Points(float p1[], float p2[]) {
+        return (float) (Math.sqrt((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1])
+                + (p1[2] - p2[2]) * (p1[2] - p2[2])));
 
-    // ########## Keyboard interaction ##########
-    private final KeyboardEventCTD3D keyboardEvent;
+    }
+
+    /**
+     * Calc distance between 2 points in space
+     * @param p1
+     * @param p2
+     * @return
+     */
+    public static double distanceBetween2Points(double[] p1, double[] p2) {
+        return (Math.sqrt((p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1]) + (p1[2] - p2[2])
+                * (p1[2] - p2[2])));
+    }
 
     /**
      * 
-     * @param canvas
-     * @param renderer
-     * @param renWinInteractor
+     * @param sum - sum of values
+     * @param sqSum - sum of the square values
+     * @param numberValues
+     * @return
      */
-    public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
-            IMraLogGroup source) {
-        super(canvas, renderer, renWinInteractor);
-
-        this.events = new EventsHandlerCTD3D(this, source);
-        this.keyboardEvent = new KeyboardEventCTD3D(canvas, this, events);
-
-        onInitialize();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera#initialize()
-     */
-    @Override
-    protected void onInitialize() {
-        UseTimersOn();
-        AutoAdjustCameraClippingRangeOn();
-        HandleObserversOn();
-
-        getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
-
-        getCanvas().addKeyListener(keyboardEvent);
+    public static double stddev(double sum, double sqSum, int numberValues) {
+        double variance = (sqSum - (sum * sum) / numberValues) / (numberValues - 1);
+        return Math.sqrt(variance);
     }
 }

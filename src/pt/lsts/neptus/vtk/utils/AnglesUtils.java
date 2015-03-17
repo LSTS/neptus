@@ -27,56 +27,34 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * Mar 10, 2014
+ * Apr 9, 2013
  */
-package pt.lsts.neptus.plugins.vtk.ctd3d;
-
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.vtk.visualization.Canvas;
-import vtk.vtkRenderWindowInteractor;
-import vtk.vtkRenderer;
+package pt.lsts.neptus.vtk.utils;
 
 /**
  * @author hfq
  * 
  */
-public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
+public class AnglesUtils {
 
-    private final EventsHandlerCTD3D events;
-
-    // ########## Keyboard interaction ##########
-    private final KeyboardEventCTD3D keyboardEvent;
-
-    /**
-     * 
-     * @param canvas
-     * @param renderer
-     * @param renWinInteractor
-     */
-    public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
-            IMraLogGroup source) {
-        super(canvas, renderer, renWinInteractor);
-
-        this.events = new EventsHandlerCTD3D(this, source);
-        this.keyboardEvent = new KeyboardEventCTD3D(canvas, this, events);
-
-        onInitialize();
+    public static float normAngle(float alpha) {
+        float ein = 0.0f;
+        return ein;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera#initialize()
-     */
-    @Override
-    protected void onInitialize() {
-        UseTimersOn();
-        AutoAdjustCameraClippingRangeOn();
-        HandleObserversOn();
+    public static float rad2deg(float alpha) {
+        return (alpha * 52.29578f);
+    }
 
-        getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
+    public static double rad2deg(double alpha) {
+        return (alpha * 52.29578);
+    }
 
-        getCanvas().addKeyListener(keyboardEvent);
+    public static float deg2rad(float alpha) {
+        return (alpha * 0.017453293f);
+    }
+
+    public static double deg2rad(double alpha) {
+        return (alpha * 0.017453293);
     }
 }

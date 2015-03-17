@@ -27,56 +27,48 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * Mar 10, 2014
+ * May 14, 2013
  */
-package pt.lsts.neptus.plugins.vtk.ctd3d;
+package pt.lsts.neptus.vtk.visualization;
 
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.vtk.visualization.Canvas;
+import vtk.vtkAxesActor;
+import vtk.vtkOrientationMarkerWidget;
 import vtk.vtkRenderWindowInteractor;
-import vtk.vtkRenderer;
 
 /**
- * @author hfq
+ * @author hfq Adds axes fixed to viewport position
  * 
+ *         FIXME - Orientation Marker should be a prop from Axes or AxesActor Classes
  */
-public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
+public class AxesWidget extends vtkOrientationMarkerWidget {
 
-    private final EventsHandlerCTD3D events;
-
-    // ########## Keyboard interaction ##########
-    private final KeyboardEventCTD3D keyboardEvent;
+    private final vtkRenderWindowInteractor interactor;
 
     /**
      * 
-     * @param canvas
-     * @param renderer
-     * @param renWinInteractor
+     * @param interactor
      */
-    public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
-            IMraLogGroup source) {
-        super(canvas, renderer, renWinInteractor);
-
-        this.events = new EventsHandlerCTD3D(this, source);
-        this.keyboardEvent = new KeyboardEventCTD3D(canvas, this, events);
-
-        onInitialize();
+    public AxesWidget(vtkRenderWindowInteractor interactor) {
+        this.interactor = interactor;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * 
-     * @see pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera#initialize()
      */
-    @Override
-    protected void onInitialize() {
-        UseTimersOn();
-        AutoAdjustCameraClippingRangeOn();
-        HandleObserversOn();
+    public void createAxesWidget() {
+        try {
+            SetInteractor(interactor);
 
-        getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
+            vtkAxesActor axes = new vtkAxesActor();
 
-        getCanvas().addKeyListener(keyboardEvent);
+            SetOutlineColor(0.9300, 0.5700, 0.1300);
+            SetOrientationMarker(axes);
+
+            SetViewport(0.00, 0.05, 0.23, 0.28);
+            EnabledOn();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

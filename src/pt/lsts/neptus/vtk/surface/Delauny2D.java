@@ -27,56 +27,53 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * Mar 10, 2014
+ * May 23, 2013
  */
-package pt.lsts.neptus.plugins.vtk.ctd3d;
+package pt.lsts.neptus.vtk.surface;
 
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.vtk.visualization.Canvas;
-import vtk.vtkRenderWindowInteractor;
-import vtk.vtkRenderer;
+import pt.lsts.neptus.vtk.pointcloud.APointCloud;
+import vtk.vtkCleanPolyData;
+import vtk.vtkDelaunay2D;
+import vtk.vtkPolyData;
 
 /**
  * @author hfq
- * 
+ *
  */
-public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
+public class Delauny2D {
+    private vtkPolyData polyData;
 
-    private final EventsHandlerCTD3D events;
+    public Delauny2D() {
 
-    // ########## Keyboard interaction ##########
-    private final KeyboardEventCTD3D keyboardEvent;
-
-    /**
-     * 
-     * @param canvas
-     * @param renderer
-     * @param renWinInteractor
-     */
-    public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
-            IMraLogGroup source) {
-        super(canvas, renderer, renWinInteractor);
-
-        this.events = new EventsHandlerCTD3D(this, source);
-        this.keyboardEvent = new KeyboardEventCTD3D(canvas, this, events);
-
-        onInitialize();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera#initialize()
+    public void performDelauny(APointCloud<?> inputCloud) {
+
+        // Clean point cloud
+        vtkCleanPolyData cleanPolyData = new vtkCleanPolyData();
+        cleanPolyData.SetInputConnection(inputCloud.getPolyData().GetProducerPort());
+        cleanPolyData.Update();
+
+        // Generate mesh
+        vtkDelaunay2D delauny = new vtkDelaunay2D();
+        delauny.SetInputConnection(cleanPolyData.GetOutputPort());
+        //delauny.BoundingTriangulationOn();
+        delauny.Update();
+
+        setPolyData(delauny.GetOutput());
+    }
+
+    /**
+     * @return the polyData
      */
-    @Override
-    protected void onInitialize() {
-        UseTimersOn();
-        AutoAdjustCameraClippingRangeOn();
-        HandleObserversOn();
+    public vtkPolyData getPolyData() {
+        return polyData;
+    }
 
-        getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
-
-        getCanvas().addKeyListener(keyboardEvent);
+    /**
+     * @param polyData the polyData to set
+     */
+    private void setPolyData(vtkPolyData polyData) {
+        this.polyData = polyData;
     }
 }

@@ -27,13 +27,14 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * Mar 10, 2014
+ * Apr 16, 2013
  */
-package pt.lsts.neptus.plugins.vtk.ctd3d;
+package pt.lsts.neptus.vtk.visualization;
 
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.vtk.visualization.Canvas;
+import vtk.vtkBoxRepresentation;
+import vtk.vtkBoxWidget;
+import vtk.vtkBoxWidget2;
+import vtk.vtkDataSet;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
 
@@ -41,42 +42,41 @@ import vtk.vtkRenderer;
  * @author hfq
  * 
  */
-public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
-
-    private final EventsHandlerCTD3D events;
-
-    // ########## Keyboard interaction ##########
-    private final KeyboardEventCTD3D keyboardEvent;
+public class BoxWidget {
 
     /**
      * 
-     * @param canvas
-     * @param renderer
-     * @param renWinInteractor
+     * @param ren
+     * @param interactor
+     * @param dataSet
      */
-    public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
-            IMraLogGroup source) {
-        super(canvas, renderer, renWinInteractor);
+    public static void addBoxWidget1ToVisualizer(vtkRenderer ren, vtkRenderWindowInteractor interactor,
+            vtkDataSet dataSet) {
+        vtkBoxWidget widget = new vtkBoxWidget();
 
-        this.events = new EventsHandlerCTD3D(this, source);
-        this.keyboardEvent = new KeyboardEventCTD3D(canvas, this, events);
+        widget.SetCurrentRenderer(ren);
+        widget.SetInteractor(interactor);
+        widget.SetPlaceFactor(1.25);
+        widget.PlaceWidget();
+        widget.SetInput(dataSet.GetData(null)); // não está bem penso eu
 
-        onInitialize();
+        widget.EnabledOn();
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * 
-     * @see pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera#initialize()
+     * @param ren
+     * @param interactor
      */
-    @Override
-    protected void onInitialize() {
-        UseTimersOn();
-        AutoAdjustCameraClippingRangeOn();
-        HandleObserversOn();
+    public static void addBoxWidget2Tovisualizer(vtkRenderer ren, vtkRenderWindowInteractor interactor) {
+        vtkBoxWidget2 widget = new vtkBoxWidget2();
 
-        getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
+        vtkBoxRepresentation boxrep = new vtkBoxRepresentation();
+        boxrep.SetPlaceFactor(1.25);
+        widget.SetRepresentation(boxrep);
+        widget.SetCurrentRenderer(ren);
+        widget.SetInteractor(interactor);
 
-        getCanvas().addKeyListener(keyboardEvent);
+        widget.EnabledOn();
     }
 }

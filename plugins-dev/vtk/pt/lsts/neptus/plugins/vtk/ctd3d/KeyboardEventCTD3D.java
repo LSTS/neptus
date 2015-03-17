@@ -33,9 +33,9 @@ package pt.lsts.neptus.plugins.vtk.ctd3d;
 
 import java.awt.event.KeyEvent;
 
-import pt.lsts.neptus.plugins.vtk.events.AKeyboardEvent;
-import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
+import pt.lsts.neptus.vtk.events.AKeyboardEvent;
+import pt.lsts.neptus.vtk.visualization.AInteractorStyleTrackballCamera;
+import pt.lsts.neptus.vtk.visualization.Canvas;
 import vtk.vtkAbstractPropPicker;
 import vtk.vtkAssemblyPath;
 

@@ -27,56 +27,53 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * Mar 10, 2014
+ * Apr 9, 2013
  */
-package pt.lsts.neptus.plugins.vtk.ctd3d;
+package pt.lsts.neptus.vtk.visualization;
 
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.vtk.visualization.Canvas;
+import vtk.vtkCompassRepresentation;
+import vtk.vtkCompassWidget;
 import vtk.vtkRenderWindowInteractor;
-import vtk.vtkRenderer;
 
 /**
- * @author hfq
- * 
+ * @author hfq Sets up a Compass Widget to the renderer FIXME - not conneted to actors on renderer (?)
  */
-public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
+public class Compass {
 
-    private final EventsHandlerCTD3D events;
+    // public vtkCompassRepresentation compassRep = new vtkCompassRepresentation();
+    public vtkCompassWidget compassWidget = new vtkCompassWidget();
 
-    // ########## Keyboard interaction ##########
-    private final KeyboardEventCTD3D keyboardEvent;
+    public Compass() {
 
-    /**
-     * 
-     * @param canvas
-     * @param renderer
-     * @param renWinInteractor
-     */
-    public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
-            IMraLogGroup source) {
-        super(canvas, renderer, renWinInteractor);
-
-        this.events = new EventsHandlerCTD3D(this, source);
-        this.keyboardEvent = new KeyboardEventCTD3D(canvas, this, events);
-
-        onInitialize();
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Adds a vtk compassWiget to render window
      * 
-     * @see pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera#initialize()
+     * @param renderWinInteractor
      */
-    @Override
-    protected void onInitialize() {
-        UseTimersOn();
-        AutoAdjustCameraClippingRangeOn();
-        HandleObserversOn();
+    public void addCompassToVisualization(vtkRenderWindowInteractor interactor) {
+        vtkCompassRepresentation compassRep = new vtkCompassRepresentation();
+        compassRep.NeedToRenderOn();
+        compassRep.VisibilityOn();
+        compassRep.SetUseBounds(true);
+        compassRep.Modified();
+        // compassRep.BuildRepresentation();
 
-        getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
+        compassWidget.SetInteractor(interactor);
+        compassWidget.SetRepresentation(compassRep);
+        compassWidget.On();
+        compassWidget.EnabledOn();
 
-        getCanvas().addKeyListener(keyboardEvent);
+        compassWidget.KeyPressActivationOn();
+        // compassWidget.On();
+        compassWidget.EnabledOn();
+        // compassWidget.Render();
+    }
+
+    public void removeCompassFromVisualization(vtkRenderWindowInteractor interactor) {
+        compassWidget.EnabledOff();
+        compassWidget.Off();
+        // compassWidget.Render();
     }
 }

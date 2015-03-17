@@ -27,56 +27,46 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * Mar 10, 2014
+ * Apr 8, 2013
  */
-package pt.lsts.neptus.plugins.vtk.ctd3d;
-
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.vtk.visualization.Canvas;
-import vtk.vtkRenderWindowInteractor;
-import vtk.vtkRenderer;
+package pt.lsts.neptus.vtk.pointtypes;
 
 /**
  * @author hfq
- * 
+ *
  */
-public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
+public class PointXYZI extends APoint {
+    private int intensity;
 
-    private final EventsHandlerCTD3D events;
-
-    // ########## Keyboard interaction ##########
-    private final KeyboardEventCTD3D keyboardEvent;
-
-    /**
-     * 
-     * @param canvas
-     * @param renderer
-     * @param renWinInteractor
-     */
-    public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
-            IMraLogGroup source) {
-        super(canvas, renderer, renWinInteractor);
-
-        this.events = new EventsHandlerCTD3D(this, source);
-        this.keyboardEvent = new KeyboardEventCTD3D(canvas, this, events);
-
-        onInitialize();
+    public PointXYZI() {
+        super();
+        setIntensity(0);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera#initialize()
+    public PointXYZI (double x, double y, double z, int intensity) {
+        super(x, y, z);
+        setIntensity(intensity);
+    }
+
+    /**
+     * @return the intensity
+     */
+    public int getIntensity() {
+        return intensity;
+    }
+
+    /**
+     * @param intensity the intensity to set
+     */
+    private void setIntensity(int intensity) {
+        this.intensity = intensity;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.pointtypes.APoint#toString()
      */
     @Override
-    protected void onInitialize() {
-        UseTimersOn();
-        AutoAdjustCameraClippingRangeOn();
-        HandleObserversOn();
-
-        getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
-
-        getCanvas().addKeyListener(keyboardEvent);
+    public String toString() {
+        return getX() + " " + getY() + " " + getZ() + " " + getIntensity();
     }
 }

@@ -27,56 +27,78 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * Mar 10, 2014
+ * May 5, 2014
  */
-package pt.lsts.neptus.plugins.vtk.ctd3d;
-
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.vtk.visualization.Canvas;
-import vtk.vtkRenderWindowInteractor;
-import vtk.vtkRenderer;
+package pt.lsts.neptus.vtk.pointtypes;
 
 /**
  * @author hfq
- * 
+ *
  */
-public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
+public abstract class APoint {
 
-    private final EventsHandlerCTD3D events;
-
-    // ########## Keyboard interaction ##########
-    private final KeyboardEventCTD3D keyboardEvent;
+    private double x;
+    private double y;
+    private double z;
 
     /**
-     * 
-     * @param canvas
-     * @param renderer
-     * @param renWinInteractor
+     * Default constructor
      */
-    public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
-            IMraLogGroup source) {
-        super(canvas, renderer, renWinInteractor);
-
-        this.events = new EventsHandlerCTD3D(this, source);
-        this.keyboardEvent = new KeyboardEventCTD3D(canvas, this, events);
-
-        onInitialize();
+    public APoint() {
+        this.x = this.y = this.z = 0.0;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera#initialize()
+    public APoint(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    /**
+     * @return the x
      */
+    public double getX() {
+        return x;
+    }
+
+    /**
+     * @param x the x to set
+     */
+    public void setX(double x) {
+        this.x = x;
+    }
+
+    /**
+     * @return the y
+     */
+    public double getY() {
+        return y;
+    }
+
+    /**
+     * @param y the y to set
+     */
+    public double setY(double y) {
+        this.y = y;
+        return y;
+    }
+
+    /**
+     * @return the z
+     */
+    public double getZ() {
+        return z;
+    }
+
+    /**
+     * @param z the z to set
+     */
+    public double setZ(double z) {
+        this.z = z;
+        return z;
+    }
+
     @Override
-    protected void onInitialize() {
-        UseTimersOn();
-        AutoAdjustCameraClippingRangeOn();
-        HandleObserversOn();
+    public abstract String toString();
 
-        getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
-
-        getCanvas().addKeyListener(keyboardEvent);
-    }
 }

@@ -27,56 +27,65 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * Mar 10, 2014
+ * Jun 3, 2014
  */
-package pt.lsts.neptus.plugins.vtk.ctd3d;
+package pt.lsts.neptus.vtk.pointcloud;
 
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.vtk.visualization.Canvas;
-import vtk.vtkRenderWindowInteractor;
-import vtk.vtkRenderer;
+import pt.lsts.neptus.vtk.pointtypes.PointXYZRGB;
 
 /**
  * @author hfq
- * 
+ *
  */
-public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
-
-    private final EventsHandlerCTD3D events;
-
-    // ########## Keyboard interaction ##########
-    private final KeyboardEventCTD3D keyboardEvent;
+public class PointCloudRGB extends APointCloud<PointXYZRGB>{
 
     /**
      * 
-     * @param canvas
-     * @param renderer
-     * @param renWinInteractor
      */
-    public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
-            IMraLogGroup source) {
-        super(canvas, renderer, renWinInteractor);
-
-        this.events = new EventsHandlerCTD3D(this, source);
-        this.keyboardEvent = new KeyboardEventCTD3D(canvas, this, events);
-
-        onInitialize();
+    public PointCloudRGB() {
+        super();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera#initialize()
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud#getPointAtIndex(int)
      */
     @Override
-    protected void onInitialize() {
-        UseTimersOn();
-        AutoAdjustCameraClippingRangeOn();
-        HandleObserversOn();
+    public PointXYZRGB getPointAtIndex(int index) {
 
-        getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
-
-        getCanvas().addKeyListener(keyboardEvent);
+        return null;
     }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud#addPoint(java.lang.Object)
+     */
+    @Override
+    public void addPoint(PointXYZRGB p) {
+
+
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud#addPointAtIndex(java.lang.Object, int)
+     */
+    @Override
+    public void addPointAtIndex(PointXYZRGB p, int index) {
+
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud#createActorFromPoints()
+     */
+    @Override
+    public void createActorFromPoints() {
+
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud#generateHandler()
+     */
+    @Override
+    public void generateHandler() {
+
+    }
+
 }

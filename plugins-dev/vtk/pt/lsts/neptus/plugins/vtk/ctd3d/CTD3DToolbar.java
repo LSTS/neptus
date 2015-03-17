@@ -47,13 +47,13 @@ import javax.swing.JToolBar;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vtk.CTD3D;
-import pt.lsts.neptus.plugins.vtk.pointcloud.DepthExaggeration;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudCTD;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudHandlerCTD;
-import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
-import pt.lsts.neptus.plugins.vtk.visualization.ScalarBar;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.vtk.pointcloud.DepthExaggeration;
+import pt.lsts.neptus.vtk.pointcloud.PointCloudCTD;
+import pt.lsts.neptus.vtk.pointcloud.PointCloudHandlerCTD;
+import pt.lsts.neptus.vtk.visualization.Canvas;
+import pt.lsts.neptus.vtk.visualization.ScalarBar;
 
 /**
  * @author hfq

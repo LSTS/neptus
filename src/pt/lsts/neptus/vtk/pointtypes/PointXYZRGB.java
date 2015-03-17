@@ -27,56 +27,93 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: hfq
- * Mar 10, 2014
+ * Apr 8, 2013
  */
-package pt.lsts.neptus.plugins.vtk.ctd3d;
-
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.vtk.visualization.Canvas;
-import vtk.vtkRenderWindowInteractor;
-import vtk.vtkRenderer;
+package pt.lsts.neptus.vtk.pointtypes;
 
 /**
  * @author hfq
- * 
+ *
  */
-public class InteractorStyleCTD3D extends AInteractorStyleTrackballCamera {
+public class PointXYZRGB extends APoint{
 
-    private final EventsHandlerCTD3D events;
-
-    // ########## Keyboard interaction ##########
-    private final KeyboardEventCTD3D keyboardEvent;
+    private int r;
+    private int g;
+    private int b;
 
     /**
      * 
-     * @param canvas
-     * @param renderer
-     * @param renWinInteractor
      */
-    public InteractorStyleCTD3D(Canvas canvas, vtkRenderer renderer, vtkRenderWindowInteractor renWinInteractor,
-            IMraLogGroup source) {
-        super(canvas, renderer, renWinInteractor);
-
-        this.events = new EventsHandlerCTD3D(this, source);
-        this.keyboardEvent = new KeyboardEventCTD3D(canvas, this, events);
-
-        onInitialize();
+    public PointXYZRGB() {
+        super();
+        setR(0);
+        setG(0);
+        setB(0);
     }
 
-    /*
-     * (non-Javadoc)
+    /**
      * 
-     * @see pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera#initialize()
+     * @param x
+     * @param y
+     * @param z
+     * @param r
+     * @param g
+     * @param b
+     */
+    public PointXYZRGB(double x, double y, double z, int r, int g, int b) {
+        super(x, y, z);
+        setR(r);
+        setG(g);
+        setB(b);
+    }
+
+    /**
+     * @return the r
+     */
+    public int getR() {
+        return r;
+    }
+
+    /**
+     * @param r the r to set
+     */
+    public void setR(int r) {
+        this.r = r;
+    }
+
+    /**
+     * @return the g
+     */
+    public int getG() {
+        return g;
+    }
+
+    /**
+     * @param g the g to set
+     */
+    public void setG(int g) {
+        this.g = g;
+    }
+
+    /**
+     * @return the b
+     */
+    public int getB() {
+        return b;
+    }
+
+    /**
+     * @param b the b to set
+     */
+    public void setB(int b) {
+        this.b = b;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.vtk.pointtypes.APoint#toString()
      */
     @Override
-    protected void onInitialize() {
-        UseTimersOn();
-        AutoAdjustCameraClippingRangeOn();
-        HandleObserversOn();
-
-        getInteractor().AddObserver("RenderEvent", this, "callbackFunctionFPS");
-
-        getCanvas().addKeyListener(keyboardEvent);
+    public String toString() {
+        return getX() + " " + getY() + " " + getZ() + " " + getR() + " " + getG() + " " + getB();
     }
 }

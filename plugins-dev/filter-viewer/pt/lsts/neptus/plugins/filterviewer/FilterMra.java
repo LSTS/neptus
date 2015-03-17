@@ -46,6 +46,7 @@ import java.util.TimeZone;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.plaf.basic.BasicSliderUI;
+
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.colormap.ColorMapFactory;
 import pt.lsts.imc.IMCMessage;
@@ -66,21 +67,21 @@ import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.InteractorStyleVis3D;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.Window;
-import pt.lsts.neptus.plugins.vtk.mravisualizer.EventsHandler.SensorTypeInteraction;
-import pt.lsts.neptus.plugins.vtk.pointcloud.APointCloud;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudHandlerXYZ;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudXYZ;
-import pt.lsts.neptus.plugins.vtk.surface.Delauny2D;
-import pt.lsts.neptus.plugins.vtk.surface.MeshSmoothingLaplacian;
-import pt.lsts.neptus.plugins.vtk.surface.PointCloudMesh;
-import pt.lsts.neptus.plugins.vtk.utils.Utils;
-import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.vtk.mravisualizer.EventsHandler;
+import pt.lsts.neptus.vtk.mravisualizer.InteractorStyleVis3D;
+import pt.lsts.neptus.vtk.mravisualizer.Window;
+import pt.lsts.neptus.vtk.mravisualizer.EventsHandler.SensorTypeInteraction;
+import pt.lsts.neptus.vtk.pointcloud.APointCloud;
+import pt.lsts.neptus.vtk.pointcloud.PointCloudHandlerXYZ;
+import pt.lsts.neptus.vtk.pointcloud.PointCloudXYZ;
+import pt.lsts.neptus.vtk.surface.Delauny2D;
+import pt.lsts.neptus.vtk.surface.MeshSmoothingLaplacian;
+import pt.lsts.neptus.vtk.surface.PointCloudMesh;
+import pt.lsts.neptus.vtk.utils.Utils;
+import pt.lsts.neptus.vtk.visualization.Canvas;
 import visad.browser.Convert;
 import vtk.vtkActor;
 import vtk.vtkActorCollection;
@@ -979,7 +980,9 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
     @Override
     public void onCleanup() {
         mraPanel = null;
-        canvas.Delete();
+        if (canvas != null)
+            canvas.Delete();
+        
         removeAll();
     }
 
