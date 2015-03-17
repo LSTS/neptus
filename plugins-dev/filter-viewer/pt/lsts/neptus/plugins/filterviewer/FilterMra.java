@@ -815,8 +815,65 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             particles.iteration_time = (particles.timestamp.get(2)-particles.timestamp.get(1));
         }
         particles.kt = k;
-        
     }
+    
+    
+    public void LoadReferenceTrajectory() {
+
+        IMraLog estimated_state_parser = source.getLog("EstimatedState");
+        long last_timestamp = estimated_state_parser.getLastEntry().getTimestampMillis();
+        
+        // Corrected State Structure Initialization
+        int k = 0;
+        vtkPoints pts_trajectory = new vtkPoints();
+        
+        for (IMCMessage m : source.getLsfIndex().getIterator("SensoriMotorState", 0, 1000)) {
+
+            // Point defining the corrected trajectory
+            double x = (float) m.getMessage("EstimatedState").getValue("x");
+            double y = (float) m.getMessage("EstimatedState").getValue("y");
+            double depth = (float) m.getMessage("EstimatedState").getValue("depth");
+            
+            // Point is added only if it's valid
+            if(x!=0 && y!=0)
+            {
+                if(m.getTimestampMillis() < last_timestamp) {
+                    // Coord of valid point
+                    pts_trajectory.InsertNextPoint(x, y, depth);
+                    k++;
+                }
+            }
+        }
+        
+        // No reference trajectory
+        if(k<=1){
+            return;
+        }
+
+        for (int i = 1; i < k; i++) {
+            
+            // Create each line of the trajectory
+            vtkLineSource line_temp = new vtkLineSource();
+            line_temp.SetPoint1(pts_trajectory.GetPoint(i - 1));
+            line_temp.SetPoint2(pts_trajectory.GetPoint(i));
+
+            // Actor mapping
+            vtkPolyDataMapper mapper = new vtkPolyDataMapper();
+            mapper.SetInputConnection(line_temp.GetOutputPort());
+            vtkActor actor = new vtkActor();
+            actor.SetMapper(mapper);
+            actor.GetProperty().SetLineWidth(3);
+            actor.GetProperty().SetColor(0.0, 1.0, 0.0);
+            // actor.VisibilityOff();
+
+            // Add each line to the scene
+            canvas.GetRenderer().AddActor(actor);
+
+            // Add the corrected trajectory to the list
+            id_actor_list.AddActor("Reference_trajectory");
+        }
+    }
+    
 
     public void SceneScaleAxesExageration(double Sx, double Sy, double Sz) {
         vtkActorCollection actor_list = canvas.GetRenderer().GetActors();
@@ -854,6 +911,8 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             LoadLauvModel();    
             LoadCorrectedState();
             LoadParticles();
+            
+            LoadReferenceTrajectory();
 
             // Control adequacy between actor present inside the scene and our list of actor
             vtkActorCollection vtk_actor_list = canvas.GetRenderer().GetActors();

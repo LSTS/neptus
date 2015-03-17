@@ -54,6 +54,8 @@
 <name-i18n>Active - Visibility</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>user</default><units></units><desc>Visibility of the &apos;Active&apos; parameter</desc></param>
 <param name="Active">
 <name-i18n>Active</name-i18n><type>boolean</type><visibility>user</visibility><scope>maneuver</scope><default>true</default><units></units><desc>True to activate task, false otherwise</desc></param>
+<param name="State">
+<name-i18n>State</name-i18n><type>string</type><visibility>user</visibility><scope>maneuver</scope><default>Stop</default><units></units><desc>State of the path recorder</desc><values>Start, Stop</values><values-i18n>Start, Stop</values-i18n></param>
 </section>
 <section name="PathRecorder" name-i18n="PathRecorder">
 <param name="Entity Label">
@@ -72,6 +74,8 @@
 <name-i18n>Active - Visibility</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default>user</default><units></units><desc>Visibility of the &apos;Active&apos; parameter</desc></param>
 <param name="Active">
 <name-i18n>Active</name-i18n><type>boolean</type><visibility>user</visibility><scope>maneuver</scope><default>true</default><units></units><desc>True to activate task, false otherwise</desc></param>
+<param name="State">
+<name-i18n>State</name-i18n><type>string</type><visibility>user</visibility><scope>maneuver</scope><default>Stop</default><units></units><desc>State of the path recorder</desc><values>Start, Stop</values><values-i18n>Start, Stop</values-i18n></param>
 </section>
 <section name="Service Announcer" name-i18n="Service Announcer">
 <param name="Entity Label">
@@ -143,7 +147,7 @@
 <param name="LSF Volume Directories">
 <name-i18n>LSF Volume Directories</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default></default><units></units><desc></desc></param>
 <param name="Transports">
-<name-i18n>Transports</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default>Acceleration, Depth, Distance, DataMBS, EstimatedState, EulerAngles, CorrectedState, DataParticle, SonarData, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, GpsFix, GpsFixRejection, SensoriMotorPath</default><units></units><desc></desc></param>
+<name-i18n>Transports</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default>Acceleration, Depth, Distance, DataMBS, EstimatedState, EulerAngles, CorrectedState, DataParticle, SonarData, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, GpsFix, GpsFixRejection, SensoriMotorState</default><units></units><desc></desc></param>
 </section>
 <section name="Replay" name-i18n="Replay">
 <param name="Entity Label">
@@ -159,7 +163,7 @@
 <param name="Load At Start">
 <name-i18n>Load At Start</name-i18n><type>string</type><visibility>developer</visibility><scope>global</scope><default></default><units></units><desc>File to load for replay at startup</desc></param>
 <param name="Replay Messages">
-<name-i18n>Replay Messages</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default>Abort, Acceleration, AllocatedControlTorques, AngularVelocity, Announce, ControlLoops, ControlParcel, CpuUsage, Current, Depth, DesiredControl, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredZ, DevDataBinary, DevDataText, Distance, DvlRejection, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FuelLevel, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, LblConfig, LblDetection, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, LoggingControl, MagneticField, ManeuverControlState, NavigationData, NavigationUncertainty, PathControlState, PlanControl, PlanControlState, PlanDB, PlanSpecification, PopEntityParameters, PowerChannelState, Pressure, PushEntityParameters, Rpm, SensoriMotorPath, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SoundSpeed, StopManeuver, Temperature, TransportBindings, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterVelocity</default><units></units><desc>Messages to replay</desc></param>
+<name-i18n>Replay Messages</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default>Abort, Acceleration, AllocatedControlTorques, AngularVelocity, Announce, ControlLoops, ControlParcel, CpuUsage, Current, Depth, DesiredControl, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DesiredZ, DevDataBinary, DevDataText, Distance, DvlRejection, EntityActivationState, EntityInfo, EntityList, EntityMonitoringState, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FuelLevel, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, LblConfig, LblDetection, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, LoggingControl, MagneticField, ManeuverControlState, NavigationData, NavigationUncertainty, PathControlState, PlanControl, PlanControlState, PlanDB, PlanSpecification, PopEntityParameters, PowerChannelState, Pressure, PushEntityParameters, Rpm, SensoriMotorState, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SoundSpeed, StopManeuver, Temperature, TransportBindings, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterVelocity</default><units></units><desc>Messages to replay</desc></param>
 <param name="Entities">
 <name-i18n>Entities</name-i18n><type>list:string</type><visibility>developer</visibility><scope>global</scope><default>Broom, Broom (Bridge), Broom (MCU), SCRT (0), SCRT (1), SCRT (2), SCRT (3), SCRT (+5V), Servo Controller, Allocator, Attitude, Roll Parcel, Pitch Parcel, Depth Parcel, Heading Parcel, Heading Rate Control, Diving, Path Control, Bottom Track, Follow Path Maneuver, Follow System Maneuver, Goto Maneuver, Idle Maneuver, Loiter Maneuver, Pop up Maneuver, Rows Maneuver, Station Keeping Maneuver, Teleoperation Maneuver, Vehicule Formation (SMC) Maneuver, Yo-Yo Maneuver, CPU, Clock, Collisions, Emergency Monitor, Entity Monitor, Fuel, Medium, Operational Limits, Servo Monitor, Navigation, Coarse Alignment, LBL Estimator, Plan Database, Plan Engine, Plan Generator, Power Supply, Batteries, Power Supply (+12VDC), Power Supply (+5VDC), Leak Sensor - Bottom, Leak Sensor - Antenna, GPS, IMU, Multibeam, Echo Sounder, Sidescan, Depth Sensor, AHRS, LBL, SVS, DVL, DVL Beam 0, DVL Beam 1, DVL Beam 2, DVL Beam 3, DVL Filtered, Mainboard, Mainboard (Core), Mainboard (SuperIO), Mainboard (Board), Power Supervisor, Cache, GSM, HTTP Server, Log Book, LEDs</default><units></units><desc>Entities for which state should be reported</desc></param>
 </section>
