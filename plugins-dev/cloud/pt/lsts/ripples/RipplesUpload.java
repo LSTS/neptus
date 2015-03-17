@@ -196,8 +196,12 @@ public class RipplesUpload extends ConsolePanel {
             tmp.put("depth", state.getValue().getV());
             assetState.put("position", tmp);
             assetState.put("updated_at", state.getValue().getTime());
-            assetState.put("type",
-                    IMCUtils.getSystemType(IMCDefinition.getInstance().getResolver().resolve(state.getKey())));
+            if (state.getKey().equals(GeneralPreferences.imcCcuName))
+                assetState.put("type", "CCU");            
+            else
+                assetState.put("type",
+                        IMCUtils.getSystemType(IMCDefinition.getInstance().getResolver().resolve(state.getKey())));
+            
             synchronized (firebase) {
                 if (firebase != null) {
                     firebase.child("assets/" + state.getKey()).getRef().updateChildren(assetState);
