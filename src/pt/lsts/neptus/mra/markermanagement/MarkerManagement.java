@@ -58,6 +58,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -91,6 +92,7 @@ import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.Dom4JUtil;
+import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LsfReport;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
 /**
@@ -169,7 +171,12 @@ public class MarkerManagement {
     }
 
     private void setupPrintButton() {
-        JButton prntButton = new JButton("Print Markers");
+        JButton prntButton = new JButton();
+
+        prntButton.setHorizontalTextPosition(SwingConstants.CENTER);
+        prntButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+        prntButton.setIcon(ImageUtils.getIcon("images/menus/print.png"));
+
         panel.add(prntButton, "cell 0 0");
 
         prntButton.addActionListener(new ActionListener() {
@@ -189,19 +196,19 @@ public class MarkerManagement {
 
         @Override
         public void run() {
-            
+
             panel.add(loader, "cell 0 2 3 1,grow");
             loader.setText(I18n.text("Initializing Marker Management..."));
             loader.start();
-            
+
             //check for XML file, load or create a new one 
             if (!logMarkers.isEmpty()) 
                 setupMarkers();
             loader.stop();
             panel.remove(loader);
-            
+
             setupPrintButton();
-            //
+
             tableModel = new LogMarkerItemModel(markerList);
             table = new JTable(tableModel);
 
@@ -246,7 +253,7 @@ public class MarkerManagement {
             table.setComponentPopupMenu(popupMenu);
 
             panel.add(scrollPane, "cell 0 2 3 1,grow");
-            
+
             table.updateUI();
             panel.updateUI();
 
