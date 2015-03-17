@@ -115,7 +115,7 @@
     </communication-means>
     <consoles>
         <console name="UAV Console">
-            <xml-file>../conf/consoles/uav-light.ncon</xml-file>
+            <xml-file>../conf/consoles/ntnu/copter.ncon</xml-file>
         </console>
     </consoles>
 </system>

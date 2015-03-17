@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -35,6 +35,7 @@ import java.io.File;
 
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParser;
+import pt.lsts.neptus.mra.importers.sdf.SdfSidescanParser;
 import pt.lsts.neptus.util.llf.LogUtils;
 
 /**
@@ -42,6 +43,12 @@ import pt.lsts.neptus.util.llf.LogUtils;
  *
  */
 public class SidescanParserFactory {
+    
+    private static final String JSF_FILE = "Data.jsf";
+    private static final String SDF_FILE = "Data.sdf";
+    
+    private static String[] validSidescanFiles = { JSF_FILE,  SDF_FILE };
+    
     static File dir;
     static File file;
     static IMraLogGroup source;
@@ -64,17 +71,32 @@ public class SidescanParserFactory {
         return getParser();
     }
     
+    public static boolean existsSidescanParser(IMraLogGroup log) {
+        for (String file : validSidescanFiles) {
+            if (log.getFile(file) != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     private static SidescanParser getParser() {
         if(file != null) {
             return null; //FIXME for now only directories are supported 
         }
         else if(dir != null) {
-            
-            file = new File(dir.getAbsolutePath()+"/Data.jsf");
+
+            file = new File(dir.getAbsolutePath()+"/"+JSF_FILE);
             if(file.exists()) {
                 return new JsfSidescanParser(file);
+            } 
+            else {
+                file = new File(dir.getAbsolutePath()+"/"+SDF_FILE);
+                if(file.exists()) {
+                    return new SdfSidescanParser(file);
+                }
             }
-            
+
             // Next cases should be file = new File(...) and check for existence
             // TODO
 

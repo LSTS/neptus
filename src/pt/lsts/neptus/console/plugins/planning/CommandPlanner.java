@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -103,8 +103,11 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
     @NeptusProperty(name = "AUV Station Keeping radius", category = "AUV", userLevel = LEVEL.REGULAR)
     public double auvSkRadius = 15;
 
-    @NeptusProperty(name = "UAV flying altitude", category = "UAV", userLevel = LEVEL.REGULAR)
-    public double uavAltitude = 200;
+    @NeptusProperty(name = "UAV Z", category = "UAV", userLevel = LEVEL.REGULAR)
+    public double uavZ = 200;
+
+    @NeptusProperty(name = "UAV Z Reference", category = "UAV", userLevel = LEVEL.REGULAR)
+    private pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS uavZUnits = ManeuverLocation.Z_UNITS.HEIGHT;
 
     @NeptusProperty(name = "UAV flying speed", category = "UAV", userLevel = LEVEL.REGULAR)
     public double uavSpeed = 18;
@@ -245,8 +248,8 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                 }
                                 else if ("uav".equalsIgnoreCase(v.getType())) {
                                     speed = uavSpeed;
-                                    z = uavAltitude;
-                                    zunits = ManeuverLocation.Z_UNITS.ALTITUDE;
+                                    z = uavZ;
+                                    zunits = uavZUnits;
                                     speedUnit = uavSpeedUnits;
                                     creator.setZ(z, zunits);
                                 }
@@ -266,7 +269,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
                                 plan.setId(PLAN_PREFIX + "go_" + plan.getId());
-                                plan = addPlanToMission(plan);                              
+                                plan = addPlanToMission(plan);
                                 startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
                             }
                         }.start();
@@ -309,7 +312,7 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
                                 plan.setId(PLAN_PREFIX + "sk_" + plan.getId());
-                                plan = addPlanToMission(plan);                                
+                                plan = addPlanToMission(plan);
                                 startPlan(plan, false, (arg0.getModifiers() & ActionEvent.CTRL_MASK) != 0);
                             }
                         }.start();
@@ -351,8 +354,8 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                     speed = uavSpeed;
                                     speedUnit = uavSpeedUnits;
                                     radius = uavLoiterRadius;
-                                    z = uavAltitude;
-                                    zunits = Z_UNITS.ALTITUDE;
+                                    z = uavZ;
+                                    zunits = uavZUnits;
                                 }
                                 else {
                                     return;
@@ -361,8 +364,8 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
                                 PlanCreator creator = new PlanCreator(getConsole().getMission());
                                 creator.setLocation(target);
                                 creator.setZ(z, zunits);
-                                creator.addManeuver("Loiter", "speed", speed, "speedUnits", speedUnit, "loiterDuration",
-                                        duration, "radius", radius);
+                                creator.addManeuver("Loiter", "speed", speed, "speedUnits", speedUnit,
+                                        "loiterDuration", duration, "radius", radius);
                                 PlanType plan = creator.getPlan();
                                 plan.setVehicle(v);
                                 plan.setId(PLAN_PREFIX + "lt_" + plan.getId());
@@ -404,14 +407,13 @@ public class CommandPlanner extends ConsolePanel implements IEditorMenuExtension
         int reqId = IMCSendMessageUtils.getNextRequestId();
         startPlan.setRequestId(reqId);
 
-        startPlan.setFlags(
-                (calibrate? PlanControl.FLG_CALIBRATE : 0) | 
-                (ignoreErrors? PlanControl.FLG_IGNORE_ERRORS : 0));
+        startPlan.setFlags((calibrate ? PlanControl.FLG_CALIBRATE : 0)
+                | (ignoreErrors ? PlanControl.FLG_IGNORE_ERRORS : 0));
 
-        boolean ret = IMCSendMessageUtils.sendMessage(startPlan, CommandPlanner.this,
-                "Error starting " + plan.getId() + " plan", false, true, plan.getVehicle());
+        boolean ret = IMCSendMessageUtils.sendMessage(startPlan, CommandPlanner.this, "Error starting " + plan.getId()
+                + " plan", false, true, plan.getVehicle());
         if (ret)
-            registerPlanControlRequest(reqId);       
+            registerPlanControlRequest(reqId);
     }
 
     /**

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.0 (HEAD,660f19f)" system="lauv-dolphin-1" i18n="pt_PT">
+<config format="1" version="2.6.1 (HEAD,0c854de)" system="lauv-dolphin-1" i18n="pt_PT">
   <section name="Motor Controller" name-i18n="Controlador de Motor">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -618,24 +618,6 @@
       <units>°</units>
       <desc>Angle at which to force pitch at the surface</desc>
     </param>
-    <param name="Use Fixed Roll Offset">
-      <name-i18n>Use Fixed Roll Offset</name-i18n>
-      <type>boolean</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>false</default>
-      <units/>
-      <desc>Use a fixed roll offset to compensate for steady state error</desc>
-    </param>
-    <param name="Roll Offset">
-      <name-i18n>Roll Offset</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.0</default>
-      <units>°</units>
-      <desc>Roll reference offset value</desc>
-    </param>
     <param name="Heading Rate Open Loop">
       <name-i18n>Heading Rate Open Loop</name-i18n>
       <type>boolean</type>
@@ -743,6 +725,54 @@
       <default>2</default>
       <units/>
       <desc>Limit of a fixed number of incoming samples per second</desc>
+    </param>
+    <param name="Roll Compensation -- Use Offset">
+      <name-i18n>Roll Compensation -- Use Offset</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Use a fixed roll offset to compensate for steady state error</desc>
+    </param>
+    <param name="Roll Compensation -- Offset Angle">
+      <name-i18n>Roll Compensation -- Offset Angle</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units>°</units>
+      <desc>Roll reference offset value</desc>
+    </param>
+    <param name="Roll Compensation -- Use Speed">
+      <name-i18n>Roll Compensation -- Use Speed</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Perform roll speed compensation by changing proportional gain</desc>
+    </param>
+    <param name="Roll Compensation -- Speed Bounds">
+      <name-i18n>Roll Compensation -- Speed Bounds</name-i18n>
+      <type>list:real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0, 0.0</default>
+      <units>m/s</units>
+      <desc>Lower and upper speed bounds when doing roll speed compensation</desc>
+      <size>2</size>
+    </param>
+    <param name="Roll Compensation -- Speed Gain">
+      <name-i18n>Roll Compensation -- Speed Gain</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0.0</default>
+      <units/>
+      <desc>Roll's minimum proportional gain in speed compensation</desc>
+      <min>0.0</min>
+      <max>2.0</max>
     </param>
   </section>
   <section name="Diving" name-i18n="Mergulho">
@@ -1348,6 +1378,17 @@
       <units>m/s</units>
       <desc>ETA minimum admissible speed</desc>
       <min>0.1</min>
+    </param>
+    <param name="New Reference Timeout">
+      <name-i18n>New Reference Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>5.0</default>
+      <units>s</units>
+      <desc>Timeout for new incoming path reference</desc>
+      <min>3</min>
+      <max>10</max>
     </param>
     <param name="Bottom Track -- Enabled">
       <name-i18n>Bottom Track -- Enabled</name-i18n>
@@ -3790,7 +3831,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>2.0</default>
+      <default>1.8</default>
       <units/>
       <desc>Maximum Horizontal Accuracy Estimate Moving Average factor</desc>
       <min>1.5</min>
@@ -3833,15 +3874,6 @@
       <default>AHRS</default>
       <units/>
       <desc>Entity label of 'AHRS' messages</desc>
-    </param>
-    <param name="Entity Label - Alignment">
-      <name-i18n>Entity Label - Alignment</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Coarse Alignment</default>
-      <units/>
-      <desc>Entity label of 'EulerAngles' alignment messages</desc>
     </param>
     <param name="Entity Label - DVL">
       <name-i18n>Entity Label - DVL</name-i18n>

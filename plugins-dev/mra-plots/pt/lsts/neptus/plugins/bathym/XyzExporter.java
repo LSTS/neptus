@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -31,8 +31,10 @@
  */
 package pt.lsts.neptus.plugins.bathym;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -215,9 +217,25 @@ public class XyzExporter implements MRAExporter {
     /**
      * @param args
      */
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
+    public static void main(String[] args) throws Exception {
+        BufferedReader reader = new BufferedReader(new FileReader(new File("/home/zp/Desktop/BathymFunchal/Stripped/data.xyz")));
+        String line = reader.readLine();
+        LocationType ref = null;
+        while (line != null) {
+            String[] parts = line.split("\t");
+            double lon = Double.parseDouble(parts[0]);
+            double lat = Double.parseDouble(parts[1]);
+            double alt = Double.parseDouble(parts[2]);
+            if (ref == null)
+                ref = new LocationType(lat, lon);
+            else {
+                LocationType loc = new LocationType(lat, lon);
+                double[] offsets = loc.getOffsetFrom(ref);
+                System.out.println(offsets[1]+"\t"+offsets[0]+"\t"+alt);
+            }
+            line = reader.readLine();
+        }
+        reader.close();
     }
 
 }

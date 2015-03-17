@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -237,8 +237,11 @@ public class GeneralPreferences implements PropertiesProvider {
 
     public static void initialize() {
         String generalPropertiesFile = ConfigFetch.resolvePathBasedOnConfigFile(GENERAL_PROPERTIES_FILE);
-        if (!new File(generalPropertiesFile).exists())
-            generalPropertiesFile = ConfigFetch.resolvePathBasedOnConfigFile("../" + GENERAL_PROPERTIES_FILE);
+        if (!new File(generalPropertiesFile).exists()) {
+            String testFile = ConfigFetch.resolvePathBasedOnConfigFile("../" + GENERAL_PROPERTIES_FILE);
+            if (new File(testFile).exists())
+                generalPropertiesFile = testFile;
+        }
         PropertiesLoader generalProperties = new PropertiesLoader(generalPropertiesFile, PropertiesLoader.XML_PROPERTIES);
         setPropertiesLoader(generalProperties);
     }

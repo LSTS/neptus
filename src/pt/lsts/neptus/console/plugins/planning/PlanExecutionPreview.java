@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -41,8 +41,10 @@ import java.util.Vector;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
+import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.PlanControlState;
+import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -140,6 +142,50 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         }
     }
 
+    @Subscribe
+    public void consume(Announce msg) {
+        String src = msg.getSourceName();
+        if (src == null)
+            return;
+
+        if (simulators.containsKey(src) && lastStateTimes.containsKey(getConsole().getMainSystem())) {
+
+            long lastStateTime = lastStateTimes.get(getConsole().getMainSystem());
+
+            if (System.currentTimeMillis() - lastStateTime < 1000)
+                return;
+
+            EstimatedState state = new EstimatedState();
+            state.setLat(msg.getLat());
+            state.setLon(msg.getLon());
+
+            simulators.get(src).setPositionEstimation(state, 15);
+            lastStateTimes.put(src, System.currentTimeMillis());
+        }
+    }
+
+    @Subscribe
+    public void consume(RemoteSensorInfo msg) {
+        String src = msg.getSourceName();
+        if (src == null)
+            return;
+
+        if (simulators.containsKey(src)) {
+
+            long lastStateTime = lastStateTimes.get(getConsole().getMainSystem());
+
+            if (System.currentTimeMillis() - lastStateTime < 1000)
+                return;
+
+            EstimatedState state = new EstimatedState();
+            state.setLat(msg.getLat());
+            state.setLon(msg.getLon());
+
+            simulators.get(src).setPositionEstimation(state, 50);
+            lastStateTimes.put(src, System.currentTimeMillis());
+        }
+    }
+
     protected long lastEstimateTime = 0;
 
     @Subscribe
@@ -176,10 +222,10 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
     public synchronized void consume(PlanControlState msg) {
         String src = msg.getSourceName();
         boolean main = src == getConsole().getMainSystem();
-        
+
         if (msg.getPlanId().isEmpty())
             return;
-        
+
         if (msg.getState() != PlanControlState.STATE.EXECUTING) {
 
             if (forceSimVisualization && main)
@@ -241,13 +287,13 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
 
     @Override
     public void paint(Graphics2D g2, StateRenderer2D renderer) {
-    
+
         Graphics2D g;
         Vector<String> strs = new Vector<>();
-        
+
         for (PlanSimulator sim : simulators.values()) {
             g = (Graphics2D)g2.create();
-            
+
             String vehicle = sim.getVehicleId();
             long lastTime = lastStateTimes.containsKey(vehicle) ? lastStateTimes.get(vehicle) : 0; 
             long simTime = System.currentTimeMillis() - lastTime;
@@ -255,7 +301,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                 strs.add("[" + I18n.textf("Simulating %vehicle for %time", vehicle,
                         DateTimeUtil.milliSecondsToFormatedString(simTime)) + "]");                
             }
-    
+
             long lastStateTime = lastStateTimes.containsKey(vehicle)? lastStateTimes.get(vehicle) : 0;
             if (System.currentTimeMillis() - lastStateTime < millisToWait) {
                 continue;
@@ -283,7 +329,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
         }
         if (!strs.isEmpty()) {
             Collections.sort(strs);
-            
+
             g = (Graphics2D)g2.create();
             int ypos = 20;
             double maxWidth = 0;
@@ -291,7 +337,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                 maxWidth = Math.max(maxWidth, g.getFontMetrics().getStringBounds(str, g).getWidth());
             g.setColor(new Color(255,255,255,64));
             g.fill(new RoundRectangle2D.Double(50, 5, maxWidth+10, strs.size() * 15 + 10, 10, 10));
-            
+
             for (String str : strs) {
                 g.setColor(new Color(68,68,68,128));
                 g.drawString(str, 56, ypos);
@@ -300,7 +346,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                 ypos += 15;
             }
         }
-        
+
 
     }
 

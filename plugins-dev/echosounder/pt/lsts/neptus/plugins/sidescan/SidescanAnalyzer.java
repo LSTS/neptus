@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -184,7 +184,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        return LogUtils.hasIMCSidescan(source) || source.getFile("Data.jsf") != null
+        return LogUtils.hasIMCSidescan(source) || SidescanParserFactory.existsSidescanParser(source)
                 || source.getLog("SidescanPing") != null;
     }
 
@@ -223,6 +223,10 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
         removeAll();
         mraPanel = null;
         markerList.clear();
+        if (ssParser!=null) {
+            ssParser.cleanup();
+            ssParser = null;
+        }
     }
 
     @Override
