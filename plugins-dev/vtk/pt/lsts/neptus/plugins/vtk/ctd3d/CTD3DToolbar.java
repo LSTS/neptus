@@ -65,13 +65,13 @@ public class CTD3DToolbar extends JToolBar {
     private static final short ICON_SIZE = 18;
 
     private static final ImageIcon ICON_TEMP = ImageUtils.getScaledIcon(
-            "pt/lsts/neptus/plugins/vtk/assets/temperature.png", ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/vtk/assets/temperature.png", ICON_SIZE, ICON_SIZE);
     private static final ImageIcon ICON_SALINITY = ImageUtils.getScaledIcon(
-            "pt/lsts/neptus/plugins/vtk/assets/salinity.png", ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/vtk/assets/salinity.png", ICON_SIZE, ICON_SIZE);
     private static final ImageIcon ICON_PRESSURE = ImageUtils.getScaledIcon(
-            "pt/lsts/neptus/plugins/vtk/assets/pressure.png", ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/vtk/assets/pressure.png", ICON_SIZE, ICON_SIZE);
     private static final ImageIcon ICON_Z = ImageUtils.getScaledIcon(
-            "pt/lsts/neptus/plugins/vtk/assets/zexaggerate.png", ICON_SIZE, ICON_SIZE);
+            "pt/lsts/neptus/vtk/assets/zexaggerate.png", ICON_SIZE, ICON_SIZE);
     private static final ImageIcon ICON_RESETVIEWPORT = ImageUtils.getScaledIcon(
             "images/menus/camera.png", ICON_SIZE, ICON_SIZE);
 
