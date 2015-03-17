@@ -32,7 +32,11 @@
 package pt.lsts.neptus.mra.api;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParser;
 import pt.lsts.neptus.mra.importers.sdf.SdfSidescanParser;
@@ -77,7 +81,61 @@ public class SidescanParserFactory {
                 return true;
             }
         }
+        
+        if (hasMultipleSDFFiles(log)) {
+            return true;
+        }
+        
         return false;
+    }
+    
+    private static boolean hasMultipleSDFFiles(IMraLogGroup log) {
+        FilenameFilter sdfFilter = new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".sdf");
+            }
+        };
+        
+        File[] files = log.getDir().listFiles(sdfFilter);
+        
+        return (files.length > 1);
+    }
+    
+    private static File mergeSDFFiles() {
+        File outputFile = new File(dir.getAbsolutePath()+"/"+SDF_FILE);
+        FileOutputStream fos;
+        FileInputStream fis;
+        byte[] fileBytes;
+        int bytesRead = 0;
+        
+        FilenameFilter sdfFilter = new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".sdf");
+            }
+        };
+        
+        File[] list = dir.listFiles(sdfFilter);
+        try {
+            fos = new FileOutputStream(outputFile,true);
+            for (File file : list) {
+                fis = new FileInputStream(file);
+                fileBytes = new byte[(int) file.length()];
+                bytesRead = fis.read(fileBytes, 0,(int)  file.length());
+                assert(bytesRead == fileBytes.length);
+                assert(bytesRead == (int) file.length());
+                fos.write(fileBytes);
+                fos.flush();
+                fileBytes = null;
+                fis.close();
+                fis = null;
+            }
+            fos.close();
+            fos = null;
+        }catch (Exception e){
+            NeptusLog.pub().error("Error merging sdf data files...");
+        }
+        
+        return outputFile;
     }
     
     private static SidescanParser getParser() {
@@ -91,7 +149,14 @@ public class SidescanParserFactory {
                 return new JsfSidescanParser(file);
             } 
             else {
+                //check if this log folder has multiple sdf data files and merge them into a single one
+                
                 file = new File(dir.getAbsolutePath()+"/"+SDF_FILE);
+                
+                if (hasMultipleSDFFiles(source) && !file.exists()) {
+                    file = mergeSDFFiles();
+                }
+
                 if(file.exists()) {
                     return new SdfSidescanParser(file);
                 }
@@ -109,6 +174,7 @@ public class SidescanParserFactory {
                 }
             }
         }
+        System.out.println("IM NULL BABY");
         return null;
     }
 }
