@@ -759,7 +759,7 @@ public class MRAMenuBar {
     /**
      * 
      */
-    public void MarkerMngcleanup() {
+    public void markerMngcleanup() {
         markerMngmt.cleanup();
     }
 }

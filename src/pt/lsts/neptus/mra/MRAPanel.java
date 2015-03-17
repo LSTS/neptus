@@ -321,7 +321,7 @@ public class MRAPanel extends JPanel {
         source.cleanup();
         source = null;
         
-        mra.getMRAMenuBar().MarkerMngcleanup();
+        mra.getMRAMenuBar().markerMngcleanup();
         
     }
 
