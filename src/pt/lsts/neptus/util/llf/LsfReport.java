@@ -122,7 +122,6 @@ public class LsfReport {
                 logoDoc = SvgUtil.cleanInkscapeSVG(logoDoc);
             }
             catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -653,6 +652,7 @@ public class LsfReport {
         SidescanLogMarker adjustedMark = adjustMark(mark);
         int subSys = ssParser.getSubsystemList().get(subSysN);
         double wMeters = adjustedMark.wMeters;
+        boolean point = adjustedMark.point;
 
         // get the lines
         ArrayList<SidescanLine> list = null;
@@ -700,8 +700,16 @@ public class LsfReport {
         if (globalColorMap == false) {
             config.colorMap = ColorMapFactory.getColorMapByName(adjustedMark.colorMap);
         }
-
-        result = createImgLineList(list, i1, i2, config, adjustedMark);
+        
+        if (point) {
+            Color color = getColor(adjustedMark,ssParser,sidescanParams,config);
+            result = createImgLineList(list, i1, i2, config, adjustedMark);
+            result = paintPointHighlight(result, (result.getWidth()/2), (result.getHeight()/2), color, config.colorMap);
+        } 
+        else {
+            result = createImgLineList(list, i1, i2, config, adjustedMark);
+        }
+        
         return result;
     }
 
