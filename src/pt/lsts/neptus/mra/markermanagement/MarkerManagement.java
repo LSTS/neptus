@@ -478,18 +478,17 @@ public class MarkerManagement {
     }
 
     private double[] getAltAndHeight(SidescanLogMarker l, SidescanParser ssParser) {
-        SidescanLogMarker sMarker = (SidescanLogMarker) l;
-        sMarker.setDefaults(ssParser.getSubsystemList().get(0));
-
+        l.setDefaults(ssParser.getSubsystemList().get(0));
         SidescanConfig config = new SidescanConfig();
         SidescanParameters sidescanParams = setupSscanParam(config);
         double altitude = 0;
         double height = 0;
         LocationType bottomLocation = null;
         LocationType topLocation = null;
-
         int subsys = l.subSys;
+        
         ArrayList<SidescanLine> lines = LsfReport.getLines(ssParser, subsys, sidescanParams, l);
+        
         if (lines != null && !lines.isEmpty()) {
             //get location
             bottomLocation = new LocationType(lines.get(0).state.getPosition());
@@ -503,7 +502,7 @@ public class MarkerManagement {
 
         //calculate distance between two locations
         if (topLocation != null)
-            height = bottomLocation.getDistanceInMeters(topLocation); //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
+            height = bottomLocation.getDistanceInMeters(topLocation) / 2; //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
         //System.out.println("Altura: " + height);
 
         //store altitude in meters at pos 0
@@ -523,7 +522,6 @@ public class MarkerManagement {
         File f = new File(path+marker+".png");
 
         if(f.exists() && !f.isDirectory()) {
-            //System.out.println("file exists");
             return f;
         }
 

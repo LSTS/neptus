@@ -400,7 +400,7 @@ public class MarkerEdit extends JFrame {
         }
 
         // vertical ruler (height)
-        double height = selectedMarker.getHeight() / 2.0; //FIXME , height is returning 2X
+        double height = selectedMarker.getHeight();
 
         double zoomRangeStepV = 2.0;
         double stepV = zoomRangeStepV * (image.getHeight()) / height;
