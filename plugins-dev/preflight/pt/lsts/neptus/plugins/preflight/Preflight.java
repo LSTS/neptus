@@ -31,13 +31,10 @@
  */
 package pt.lsts.neptus.plugins.preflight;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -50,21 +47,17 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.Voltage;
-import pt.lsts.neptus.comm.manager.imc.EntitiesResolver;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
-import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
-import pt.lsts.neptus.gui.system.MainVehicleSymbol;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
-import pt.lsts.neptus.plugins.PluginDescription.CATEGORY;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.update.Periodic;
-import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.plugins.preflight.checklistsections.SystemCheck;
+import pt.lsts.neptus.plugins.preflight.checklistsections.TestChecks;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 
 /**
@@ -75,122 +68,53 @@ import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 @PluginDescription(name = "Preflight", author = "tsmarques", version = "0.1")
 @Popup(name = "Preflight", pos = POSITION.CENTER, width = 450, height = 500)
 public class Preflight extends ConsolePanel {
+    public static final int WIDTH = 450;
+    public static final int HEIGHT = 500;
     private static final String NOT_UAV_ERROR = "Main vehicle is not an UAV";
     
-    private static final String SYS_NAME_LABEL = "<html><b>System Name:</b></html>";
-    private static final String FUEL_LEVEL_LABEL = "<html><b>Fuel Level:</b></html>";
-    private static final String GPS_FIX_LABEL = "<html><b>GPS Fix:</b></html>";
-    
-    private static final String GPS_DIFF = I18n.textc("DIFF", "Use a single small word");
-    private static final String GPS_3D = I18n.textc("3D", "Use a single small word");
-    private static final String GPS_2D = I18n.textc("2D", "Use a single small word");
-    private static final String GPS_NO_FIX = I18n.textc("NoFix", "Use a single small word");
     
     
     /* Test */ 
-    private String mainSysName = "?";
-    private String gpsFixStr = GPS_NO_FIX; 
-    private Double voltage = 0.0;
-    private Double aSpeed = 0.0;
-    private float fuelLevel = 0;
-    private JPanel contentPanel;
-    private JLabel sysNameLabel;
-    
-    private JLabel systemChecksLabel;
+    private JPanel mainSysNamePanel; 
+    private JLabel mainSysNameLabel;
+    private String mainSysName; /* Gets changed when main vehicle changes */
    
     public Preflight(ConsoleLayout console) {
-        super(console);      
-        initMainPanel();
-    }
-    
-    private void initMainPanel() {
-        //setPreferredSize(new Dimension(430,480));
+        super(console);
+        
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        sysNameLabel = new JLabel(mainSysName);
-        sysNameLabel.setAlignmentX(CENTER_ALIGNMENT);
-        add(Box.createVerticalStrut(5));
-        add(sysNameLabel);
-        add(Box.createVerticalStrut(5));
-        addSection();
+        setResizable(false);
+        setBackground(Color.WHITE);
+        
+        initNameSysNamePanel();
+        add(new SystemCheck());
+        add(new TestChecks());
     }
     
-    /* TEST */
-    private void addSectionLabel(String sectionName) {
-        JPanel labelPanel = new JPanel();
-        JLabel sectionLabel = new JLabel(sectionName);
-        labelPanel.setName(sectionName);
+    private void initNameSysNamePanel() {
+        mainSysName = "?";
+        mainSysNameLabel = new JLabel(mainSysName);
         
+        mainSysNamePanel = new JPanel();
         Dimension d = new Dimension(430, 20);
-        labelPanel.setBackground(Color.DARK_GRAY);
-        labelPanel.setMaximumSize(d);
-        labelPanel.setMinimumSize(d);
-        labelPanel.setLayout(new GridBagLayout());
-        labelPanel.add(sectionLabel, new GridBagConstraints());
+        mainSysNamePanel.setLayout(new GridBagLayout());
+        mainSysNamePanel.setMaximumSize(d);
+        mainSysNamePanel.setMinimumSize(d);
+        mainSysNamePanel.setLayout(new GridBagLayout());
+        mainSysNamePanel.setBackground(Color.WHITE);
+        mainSysNamePanel.add(mainSysNameLabel, new GridBagConstraints());
         
-        labelPanel.addMouseListener(new MouseListener() {
-            
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if(e.getSource() instanceof JPanel) {
-                    String panelName = ((JPanel)e.getSource()).getName();
-                    System.out.println("# YOU CLICKED ON: " + panelName);
-                }
-                else
-                    System.out.println("## NOT A JPANEL");
-            }
-            
-            @Override
-            public void mousePressed(MouseEvent e) {}
-            @Override
-            public void mouseExited(MouseEvent e) {}
-            @Override
-            public void mouseEntered(MouseEvent e) {}
-            @Override
-            public void mouseClicked(MouseEvent e) {}
-        });
-        add(labelPanel);
+        add(Box.createVerticalStrut(1));
+        add(mainSysNamePanel);
+        add(Box.createVerticalStrut(2));
     }
-    
-    /*  TEST */
-    private void addSection() {
-        addSectionLabel("System Checks");
-        JPanel sectionPanel = new JPanel();
-        add(Box.createVerticalStrut(3));
-        sectionPanel.setBackground(Color.CYAN);
-        sectionPanel.setPreferredSize(new Dimension(430, 100));
-        add(sectionPanel);
-    }
-    
-    
-    private boolean msgFromMainVehicle(String msgSrc) {
-        return(msgSrc.equals(mainSysName));
-    }
+     
 
-    @Subscribe
-    public void on(EstimatedState msg) {
-        if(!msgFromMainVehicle(msg.getSourceName()))
-            return;
-    }
-    
-    @Subscribe
-    public void on(GpsFix msg) {
-        if(!msgFromMainVehicle(msg.getSourceName()))
-            return;
-        
-    }
-    
-    @Subscribe
-    public void on(FuelLevel msg) {
-        if(!msgFromMainVehicle(msg.getSourceName()))
-            return;
-    }
-    
-    @Subscribe
-    public void on(Voltage msg) {
-        if(!msgFromMainVehicle(msg.getSourceName()))
-            return;
-        voltage = msg.getValue();
-    }
+//    @Subscribe
+//    public void on(EstimatedState msg) {
+//        if(!msgFromMainVehicle(msg.getSourceName()))
+//            return;
+//    }
        
     @Subscribe
     public void on(ConsoleEventMainSystemChange ev) { /* When a diff vehicle has been selected as main Vehicle */
@@ -199,12 +123,13 @@ public class Preflight extends ConsolePanel {
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(mainSysName);
         if(sys.getTypeVehicle() != VehicleTypeEnum.UAV) {
         }
-        sysNameLabel.setText(mainSysName);
+        mainSysNameLabel.setText(mainSysName);
         revalidate();
     }
     
-    private String makeLabel(String labelStr, String str) {
-        return "<html><b>" + labelStr + "</b>" + str + "</html>";
+    @Subscribe
+    public void on(EstimatedState msg) {
+        System.out.println("# HEY");
     }
     
     @Override
