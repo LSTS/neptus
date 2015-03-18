@@ -253,7 +253,8 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
     public void addLogMarker(LogMarker e) {
         ValueMarker marker = new ValueMarker(e.getTimestamp() - localTimeOffset);
         marker.setLabel(e.getLabel());
-        chart.getCategoryPlot().addRangeMarker(marker);
+        if (chart != null)
+            chart.getCategoryPlot().addRangeMarker(marker);
     }
 
     @Override
