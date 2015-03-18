@@ -45,7 +45,10 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.Abort;
+import pt.lsts.imc.DeviceState;
 import pt.lsts.imc.PlanGeneration;
 import pt.lsts.imc.PlanGeneration.CMD;
 import pt.lsts.imc.PlanGeneration.OP;
@@ -83,7 +86,7 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
     public double netLon = 9.727570;
 
     @NeptusProperty(name = "Ground level [m]", description = "Height from \"ground\" to bottom of net.", category = "Simple")
-    public double ground_level = 20;   
+    public double ground_level = 30;   
 
 // Advanced settings
     @NeptusProperty(name = "Minimum turn radius [m]", description = "Lateral turning radius of UAV.", category = "Advanced")
@@ -259,11 +262,12 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
         // TODO Auto-generated method stub
     }
     
-//    @Subscribe
-//    public void handleMessage(EntityState stateMsg) {
-//        netHeading = 66.5; // change to received net heading
-//        updateNetArrow();
-//    }
+    @Subscribe
+    public void on(DeviceState state) {
+        // Consumes changes to the net
+        netHeading = Math.toDegrees(state.getPsi());
+        updateNetArrow();
+    }
     
     private void updateNetArrow(){
         double angle = Math.toRadians(netHeading);
@@ -271,7 +275,7 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
             int x = arrX[i];
             int y = arrY[i];
             
-            //APPLY ROTATION
+            //Apply rotation
             double temp_x = x * Math.cos(angle) - y * Math.sin(angle);
             double temp_y = x * Math.sin(angle) + y * Math.cos(angle);
 
