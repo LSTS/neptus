@@ -32,6 +32,8 @@
 
 package pt.lsts.neptus.mra.markermanagement;
 
+import java.awt.Font;
+import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -45,7 +47,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -53,6 +54,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -100,9 +102,8 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
  *
  */
 
-/*TODO :
- *  (1) when opening markerManagement window  read XML and compare number of markers with actual mraPanel markers, update XML accordingly
- *  (2) when markerManagement window is already open, listen for mraPanel markers changes, update XML accordingly
+/*
+ * Abrir mraPanel, não chegar a abrir MarkerManagement e apagar uma marker do mraPanel , é necessário actualizar o XML !
  */
 @SuppressWarnings("serial")
 public class MarkerManagement {
@@ -128,10 +129,7 @@ public class MarkerManagement {
 
     private void initialize() {
 
-        if (mraPanel.getMarkers().isEmpty()) {
-            NeptusLog.pub().info("No markers for this log, or erroneous XML mark file.");
-            return;
-        }
+
         frmMarkerManagement = new JFrame();
         frmMarkerManagement.setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerManagement.class.getResource("/images/menus/marker.png")));
         frmMarkerManagement.setTitle("Marker Management");
@@ -140,6 +138,18 @@ public class MarkerManagement {
         frmMarkerManagement.getContentPane().setLayout(new MigLayout("", "[grow]", "[grow]"));
         frmMarkerManagement.setVisible(true);
         frmMarkerManagement.setResizable(false);
+
+        if (mraPanel.getMarkers().isEmpty()) {
+            frmMarkerManagement.setLayout(new GridBagLayout());
+            JLabel error = new JLabel("NO MARKERS TO DISPLAY!");
+            Font font = error.getFont();
+            Font boldFont = new Font(font.getFontName(), Font.BOLD, 15);
+            error.setFont(boldFont);            
+
+            frmMarkerManagement.add(error);
+            return;
+        }
+
         markerEditFrame = new MarkerEdit(this);
 
 
@@ -243,7 +253,8 @@ public class MarkerManagement {
                     int rowIndex = table.getSelectedRow();
                     if (table.getSelectedRow() != -1) {
                         LogMarkerItem selectedMarker = findMarker(table.getValueAt(table.getSelectedRow(), 1).toString());
-                        deleteLogMarker(selectedMarker, rowIndex);
+                        removeMarkerItem(selectedMarker, rowIndex);
+                        removePanelMarkerItem(selectedMarker);
                     }
                 }
             };
@@ -293,11 +304,31 @@ public class MarkerManagement {
 
             if(f.exists() && !f.isDirectory()) {
                 log.setSidescanImgPath(f);
-                // System.out.println("stored path "+ log.getSidescanImgPath().getPath());
             }
         }
     }
 
+    private void getImageForSingleMarker(SidescanParser ssParser, SidescanLogMarker marker) {
+        int nSubsys = ssParser.getSubsystemList().size();
+        int colorMapCode = LsfReportProperties.sidescanColorMap;
+        SidescanConfig config = new SidescanConfig();
+        boolean globalColorMap = true;
+        if (colorMapCode == -1) {
+            globalColorMap = false;
+        }
+        else {
+            config.colorMap = LsfReport.getColorMapFromCode(colorMapCode);
+        }
+
+        SidescanParameters sidescanParams = setupSscanParam(config);
+
+        createImage(marker, ssParser, nSubsys, config, sidescanParams, globalColorMap);
+    }
+
+    /** Creates an image for every existing marker
+     * 
+     * @param ssParser
+     */
     private void getImagesForMarkers(SidescanParser ssParser) {
         int nSubsys = ssParser.getSubsystemList().size();
         int colorMapCode = LsfReportProperties.sidescanColorMap;
@@ -313,7 +344,7 @@ public class MarkerManagement {
         SidescanParameters sidescanParams = setupSscanParam(config);
 
         for (SidescanLogMarker m : logMarkers) {
-            createImages(m, ssParser, nSubsys, config, sidescanParams, globalColorMap);
+            createImage(m, ssParser, nSubsys, config, sidescanParams, globalColorMap);
         }
     }
 
@@ -325,16 +356,25 @@ public class MarkerManagement {
 
         return sidescanParams;
     }
+    
+    /** Creates an image for a specified Sidescan logmarker
+     * 
+     * @param ssLogMarker
+     * @param parser
+     * @param nSubsys
+     * @param config
+     * @param sidescanParams
+     * @param globalColorMap
+     */
+    private void createImage(SidescanLogMarker ssLogMarker, SidescanParser parser, int nSubsys, SidescanConfig config, SidescanParameters sidescanParams, boolean globalColorMap) {
 
-    private void createImages(SidescanLogMarker m, SidescanParser parser, int nSubsys, SidescanConfig config, SidescanParameters sidescanParams, boolean globalColorMap) {
-
-        m.setDefaults(parser.getSubsystemList().get(0));//setDefaults if they are N/A
+        ssLogMarker.setDefaults(parser.getSubsystemList().get(0));//setDefaults if they are N/A
 
         for (int i = 0; i < nSubsys; i++) {
 
             BufferedImage image = null;
             try {
-                image = LsfReport.getSidescanMarkImage(mraPanel.getSource(), parser, sidescanParams, config, globalColorMap, m, i);
+                image = LsfReport.getSidescanMarkImage(mraPanel.getSource(), parser, sidescanParams, config, globalColorMap, ssLogMarker, i);
             }catch(Exception e){
                 NeptusLog.pub().error(e.getMessage());
             }
@@ -348,18 +388,23 @@ public class MarkerManagement {
                     dir.mkdirs();
 
                 try {
-                    ImageIO.write(image, "PNG", new File(path, m.getLabel() + ".png"));
+                    ImageIO.write(image, "PNG", new File(path, ssLogMarker.getLabel() + ".png"));
                 }
                 catch (IOException e1) {
                     e1.printStackTrace();
                 }
             }
             else {// no image to display
-                System.out.println("Oops, no image available for mark "+m.getLabel()+ " ...");
+                NeptusLog.pub().info("Oops, no image available for mark "+ssLogMarker.getLabel()+ " ...");
             }
         }
     }
 
+    /** Opens the MarkerEdit with a specificed marker
+     * 
+     * @param label, name of the marker to be loaded to MarkerEdit
+     * @param rowIndex
+     */
     private void openMarkerEditor(String label, int rowIndex) {
 
         LogMarkerItem selected = findMarker(label);
@@ -370,15 +415,127 @@ public class MarkerManagement {
         markerEditFrame.setVisible(true);
 
     }
+    /** Adds a new marker to the marker management
+     * Creates an image for the marker and updates the XML and table model accordingly.
+     * 
+     * @param marker
+     */
 
-    private LogMarkerItem findMarker(String label) {
-        for (LogMarkerItem marker : markerList) {
-            if (marker.getLabel().equals(label))
-                return marker;
+    private void addNewMarker(SidescanLogMarker marker) {
+        if (dom == null)
+            return;
+        SidescanParser ssParser = SidescanParserFactory.build(mraPanel.getSource());
+        getImageForSingleMarker(ssParser, marker);
+        int lastIndex = 0;
+        if (!markerList.isEmpty()) {
+            lastIndex = markerList.get(markerList.size()-1).getIndex();
         }
-        return null;
+
+        int insertIndex = lastIndex + 1;
+        Element rootElement = dom.getDocumentElement();
+
+        newLogMarkerItem(marker, ssParser, rootElement, insertIndex);
+
+        int row;
+        if (tableModel.getRowCount() == 0)
+            row = 1;
+        else 
+            row = tableModel.getRowCount()-1;
+        tableModel.insertRow(row);
+        //update XML
+        saveXML(dom);
     }
 
+    /** Creates a new LogMarkerItem and stores it on a document
+     * 
+     * @param ssLogMarker
+     * @param ssParser
+     * @param rootElem
+     * @param index
+     */
+    private void newLogMarkerItem(SidescanLogMarker ssLogMarker, SidescanParser ssParser, Element rootElem, int index) {
+        LocationType loc = ssLogMarker.getLocation();
+        double depth = loc.getDepth(); // FIXME : always returning 0... is this returning real depth ?
+        double[] altAndHeight = getAltAndHeight(ssLogMarker, ssParser);
+        double range = ssLogMarker.wMeters;
+
+        double alt = altAndHeight[0];
+        double heightValue = altAndHeight[1];
+
+        LogMarkerItem marker = new LogMarkerItem(index, ssLogMarker.getLabel(), ssLogMarker.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), null, "<Your annotation here.>", alt, depth, range, heightValue, Classification.UNDEFINED);
+
+        //format date timestamp
+        String date = DateTimeUtil.dateFormaterXMLUTC.format(ssLogMarker.getTimestamp());
+
+        //add new LogMarkerItem to list
+        markerList.add(marker);
+
+        // XML related
+        Element mark = dom.createElement("Mark");
+        rootElem.appendChild(mark);
+
+        //set Index
+        Attr attr = dom.createAttribute("id");
+        attr.setValue(Integer.toString(index));
+        mark.setAttributeNode(attr);
+
+        Element label = dom.createElement("Label");
+        label.appendChild(dom.createTextNode(ssLogMarker.getLabel()));
+        mark.appendChild(label);
+
+        Element ts = dom.createElement("Timestamp");
+        ts.appendChild(dom.createTextNode(date));
+        mark.appendChild(ts);
+
+        Element lat = dom.createElement("Lat");
+        lat.appendChild(dom.createTextNode(loc.getLatitudeDegs() + ""));
+        mark.appendChild(lat);
+
+        Element lon = dom.createElement("Lon");
+        lon.appendChild(dom.createTextNode(loc.getLongitudeDegs() + ""));
+        mark.appendChild(lon);
+
+        Element image = dom.createElement("Image");
+        if (marker.getSidescanImgPath() != null) {
+            image.appendChild(dom.createTextNode(marker.getSidescanImgPath().getPath()));
+        } 
+        else {
+            image.appendChild(dom.createTextNode(""));
+        }
+        mark.appendChild(image);
+
+        Element draw = dom.createElement("Draw");
+        draw.appendChild(dom.createTextNode("null"));
+        mark.appendChild(draw);
+
+        Element altitude = dom.createElement("Altitude");
+        altitude.appendChild(dom.createTextNode(marker.getAltitude() + ""));
+        mark.appendChild(altitude);
+
+        Element dep = dom.createElement("Depth");
+        dep.appendChild(dom.createTextNode(marker.getDepth() + ""));
+        mark.appendChild(dep);
+
+        Element rang = dom.createElement("Range");
+        rang.appendChild(dom.createTextNode(marker.getRange() + ""));
+        mark.appendChild(rang);
+
+        Element height = dom.createElement("Height");
+        height.appendChild(dom.createTextNode(marker.getHeight() + ""));
+        mark.appendChild(height);
+
+        Element classif = dom.createElement("Classification");
+        classif.appendChild(dom.createTextNode(Classification.UNDEFINED.toString()));
+        mark.appendChild(classif);
+
+        Element annot = dom.createElement("Annotation");
+        annot.appendChild(dom.createTextNode(marker.getAnnotation()));
+        mark.appendChild(annot);
+    }
+
+    /** Creates images for every existing marker and creates a 
+     *  new LogMarkerITem for each existing marker, along with all marker information
+     */
     private void createMarkers() {
 
         SidescanParser ssParser = SidescanParserFactory.build(mraPanel.getSource());
@@ -391,104 +548,31 @@ public class MarkerManagement {
 
         int i=1;
         for(SidescanLogMarker l : logMarkers) {
-
-            LocationType loc = l.getLocation();
-            double depth = loc.getDepth(); // FIXME : always returning 0... is this returning real depth ?
-            double[] altAndHeight = getAltAndHeight(l, ssParser);
-            double range = l.wMeters;
-
-            double alt = altAndHeight[0];
-            double heightValue = altAndHeight[1];
-
-            LogMarkerItem marker = new LogMarkerItem(i, l.getLabel(), l.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(l.getLabel()), null, "<Your annotation here.>", alt, depth, range, heightValue, Classification.UNDEFINED);
-
-            //format date timestamp
-            String date = DateTimeUtil.dateFormaterXMLUTC.format(l.getTimestamp());
-
-            //add new LogMarkerItem to list
-            markerList.add(marker);
-
-            // XML related
-            Element mark = dom.createElement("Mark");
-            rootElement.appendChild(mark);
-
-            //set Index
-            Attr attr = dom.createAttribute("id");
-            attr.setValue(Integer.toString(i));
-            mark.setAttributeNode(attr);
-
-            Element label = dom.createElement("Label");
-            label.appendChild(dom.createTextNode(l.getLabel()));
-            mark.appendChild(label);
-
-            Element ts = dom.createElement("Timestamp");
-            ts.appendChild(dom.createTextNode(date));
-            mark.appendChild(ts);
-
-            Element lat = dom.createElement("Lat");
-            lat.appendChild(dom.createTextNode(loc.getLatitudeDegs() + ""));
-            mark.appendChild(lat);
-
-            Element lon = dom.createElement("Lon");
-            lon.appendChild(dom.createTextNode(loc.getLongitudeDegs() + ""));
-            mark.appendChild(lon);
-
-            Element image = dom.createElement("Image");
-            if (marker.getSidescanImgPath() != null) {
-                image.appendChild(dom.createTextNode(marker.getSidescanImgPath().getPath()));
-            } 
-            else {
-                image.appendChild(dom.createTextNode(""));
-            }
-            mark.appendChild(image);
-
-            Element draw = dom.createElement("Draw");
-            draw.appendChild(dom.createTextNode("null"));
-            mark.appendChild(draw);
-
-            Element altitude = dom.createElement("Altitude");
-            altitude.appendChild(dom.createTextNode(marker.getAltitude() + ""));
-            mark.appendChild(altitude);
-
-            Element dep = dom.createElement("Depth");
-            dep.appendChild(dom.createTextNode(marker.getDepth() + ""));
-            mark.appendChild(dep);
-
-            Element rang = dom.createElement("Range");
-            rang.appendChild(dom.createTextNode(marker.getRange() + ""));
-            mark.appendChild(rang);
-
-            Element height = dom.createElement("Height");
-            height.appendChild(dom.createTextNode(marker.getHeight() + ""));
-            mark.appendChild(height);
-
-            Element classif = dom.createElement("Classification");
-            classif.appendChild(dom.createTextNode(Classification.UNDEFINED.toString()));
-            mark.appendChild(classif);
-
-            Element annot = dom.createElement("Annotation");
-            annot.appendChild(dom.createTextNode(marker.getAnnotation()));
-            mark.appendChild(annot);
-            // end XML related
-
+            newLogMarkerItem(l, ssParser, rootElement, i);
             i++;
         }
         // write the content into xml file
         saveXML(dom);
     }
 
-    private double[] getAltAndHeight(SidescanLogMarker l, SidescanParser ssParser) {
-        l.setDefaults(ssParser.getSubsystemList().get(0));
+    /** Calculates the Altitude and Height of a specific Sidescan marker
+     * 
+     * @param ssLogMarker
+     * @param ssParser
+     * @return
+     */
+    private double[] getAltAndHeight(SidescanLogMarker ssLogMarker, SidescanParser ssParser) {
+        ssLogMarker.setDefaults(ssParser.getSubsystemList().get(0));
         SidescanConfig config = new SidescanConfig();
         SidescanParameters sidescanParams = setupSscanParam(config);
         double altitude = 0;
         double height = 0;
         LocationType bottomLocation = null;
         LocationType topLocation = null;
-        int subsys = l.subSys;
-        
-        ArrayList<SidescanLine> lines = LsfReport.getLines(ssParser, subsys, sidescanParams, l);
-        
+        int subsys = ssLogMarker.subSys;
+
+        ArrayList<SidescanLine> lines = LsfReport.getLines(ssParser, subsys, sidescanParams, ssLogMarker);
+
         if (lines != null && !lines.isEmpty()) {
             //get location
             bottomLocation = new LocationType(lines.get(0).state.getPosition());
@@ -512,7 +596,7 @@ public class MarkerManagement {
         return result;
     }
 
-    /**
+    /** Creates a File for a marker with the specified string
      * @param marker
      * @return File of marker image
      */
@@ -528,6 +612,10 @@ public class MarkerManagement {
         return null;
     }
 
+    /** Loads markers that are stored on a XML File
+     * 
+     * @return true if markers were loaded successfully
+     */
     private boolean loadMarkers() {
         parseXmlFile();
         parseDocument();
@@ -536,21 +624,56 @@ public class MarkerManagement {
         return !markerList.isEmpty();
     }
 
-    public void deleteLogMarker(LogMarkerItem selectedMarker, int row) {
-        markerList.remove(selectedMarker);
-        tableModel.removeRow(row);
-
-        LogMarker marker = findLogMarker(selectedMarker.getLabel());
+    /** Deletes a LogMarkerItem from the table. XML and udpates the table model.
+     * 
+     * @param marker, the marker to be removed from the marker management
+     * @param row, the row position in the table of the affected marker
+     */
+    public void removeMarkerItem(LogMarkerItem marker, int row) {
 
         //update & save XML
-        deleteEntryXML(dom, selectedMarker);
+        deleteEntryXML(dom, marker);
         saveXML(dom);
 
-        //delete marker from mraPanel
-        if (marker != null)
-            mraPanel.removeMarker(marker);
+        tableModel.removeRow(row);
+        markerList.remove(marker);
     }
 
+    /** Deletes the LogMarker from the mraPanel.
+     *  
+     * @param sMarker, marker to be removed
+     */
+    public void removePanelMarkerItem(LogMarkerItem sMarker) {
+        LogMarker marker = findLogMarker(sMarker.getLabel());
+
+        //delete marker from mraPanel
+        if (marker != null) {
+            mraPanel.removeMarkerAux(marker);
+        }
+    }
+
+    /** Deletes a LogMarker from the table, XML and updates the table model.
+     *  (Only used when calling removeMarker from MRAPanel)
+     * @param marker, marker to be removed
+     */
+    public void removeMarker(LogMarker marker) {
+        int row = findMarker(marker);
+        LogMarkerItem markerToDel = findMarker(marker.getLabel());
+
+        //update & save XML
+        deleteEntryXML(dom, markerToDel);
+        saveXML(dom);
+
+        tableModel.removeRow(row);
+        markerList.remove(markerToDel);
+
+    }
+
+    /** Deletes an entry in the XML file
+     * 
+     * @param doc, the document (XML) from where the marker will be removed
+     * @param mrkerToDel the marker to delete from doc
+     */
     private void deleteEntryXML(Document doc, LogMarkerItem mrkerToDel) {
 
         String markLabel = mrkerToDel.getLabel();
@@ -579,6 +702,11 @@ public class MarkerManagement {
 
     }
 
+    /** Updates the table with a modified LogMarkerItem at a specified row 
+     * 
+     * @param selectedMarker The updated marker
+     * @param row The row that has been updated
+     */
     public void updateLogMarker(LogMarkerItem selectedMarker, int row) {
         LogMarkerItem marker = findMarker(selectedMarker.getLabel());
         marker.copy(selectedMarker);
@@ -591,9 +719,9 @@ public class MarkerManagement {
 
     }
 
-    /**
-     * @param dom2
-     * @param selectedMarker
+    /** Updates an entry in the XML file
+     * @param dom2 the document (XML) that will be updated with modified LogMarkerItem
+     * @param selectedMarker the marker entry to be updated
      */
     private void updateEntryXML(Document doc, LogMarkerItem mrkerToUpd) {
 
@@ -616,6 +744,16 @@ public class MarkerManagement {
         }
     }
 
+    /** Add new LogMarker to MarkerManagement
+     * @marker, the marker to be added
+     * 
+     */
+    public void addMarker(LogMarker marker) {
+        logMarkers.add((SidescanLogMarker) marker);
+
+        addNewMarker((SidescanLogMarker) marker);
+    }
+
     private void deleteImage(String path) {
         try {
             File fileTemp = new File(path);
@@ -628,7 +766,7 @@ public class MarkerManagement {
     }
 
     /** Write the content into xml file
-     * @param doc, document to be written to XML
+     * @param doc, document content to be written to XML
      */
     private void saveXML(Document doc) {
 
@@ -720,12 +858,9 @@ public class MarkerManagement {
         try  {
             String ssImgPath = getTextValue(markerEl, "Image");
             path = new File(ssImgPath);
-
             String ssDrawImgPath = getTextValue(markerEl, "Draw");
             drawPath = new File(ssDrawImgPath);
-
             parsed = format.parse(tsString);
-
             ts = parsed.getTime();
             lon = getDoubleValue(markerEl,"Lon");
             lat = getDoubleValue(markerEl,"Lat");
@@ -774,17 +909,6 @@ public class MarkerManagement {
         return Double.parseDouble(getTextValue(ele,tagName));
     }
 
-    @SuppressWarnings("unused")
-    private void printData(){
-
-        System.out.println("No of LogMarkerItems '" + markerList.size() + "'.");
-
-        Iterator<LogMarkerItem> it = markerList.iterator();
-        while(it.hasNext()) {
-            System.out.println(it.next().toString());
-        }
-    }
-
     public Point getwindowLocation() {
         Point p = new Point(frmMarkerManagement.getLocation().x + frmMarkerManagement.getSize().width, frmMarkerManagement.getLocation().y);
 
@@ -799,6 +923,15 @@ public class MarkerManagement {
         logMarkers.clear();
         if (frmMarkerManagement != null)
             frmMarkerManagement.dispose();
+    }
+
+    private LogMarkerItem findMarker(String label) {
+        for (LogMarkerItem marker : markerList) {
+            if (marker.getLabel().equals(label)) {
+                return marker;
+            }
+        }
+        return null;
     }
 
     private int findMarker(LogMarker marker) {

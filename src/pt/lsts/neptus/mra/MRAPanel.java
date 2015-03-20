@@ -103,7 +103,7 @@ public class MRAPanel extends JPanel {
     private MRAVisualization shownViz = null;
     private Vector<MissionChangeListener> mcl = new Vector<>();
     private NeptusMRA mra;
-    
+
     InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
 
     /**
@@ -146,7 +146,7 @@ public class MRAPanel extends JPanel {
 
         // adds Exporters MenuItem to Tools menu after a Log is loaded
         mra.getMRAMenuBar().setUpExportersMenu(source);
-        
+
         mra.getMRAMenuBar().setUpMarkerManagementMenu();
     }
 
@@ -203,7 +203,7 @@ public class MRAPanel extends JPanel {
         for (String visName : PluginsRepository.getMraVisualizations().keySet()) {
             try {
                 Class<?> vis = PluginsRepository.getMraVisualizations().get(visName);
-                
+
                 if (!mra.getMraProperties().isVisualizationActive(vis))
                     continue;
 
@@ -217,7 +217,7 @@ public class MRAPanel extends JPanel {
                 if (visualization instanceof MissionChangeListener) {
                     addMissionChangeListener((MissionChangeListener)visualization);
                 }
-                
+
             }
             catch (Exception e1) {
                 NeptusLog.pub().error(
@@ -320,9 +320,9 @@ public class MRAPanel extends JPanel {
 
         source.cleanup();
         source = null;
-        
-        mra.getMRAMenuBar().markerMngcleanup();
-        
+
+        mra.getMRAMenuBar().getMarkerManagement().cleanup();
+
     }
 
     /**
@@ -397,10 +397,12 @@ public class MRAPanel extends JPanel {
             marker.setLat(loc.getLatitudeRads());
             marker.setLon(loc.getLongitudeRads());
         }
+
+        Runnable r = new AddMarkerTask(marker);
+        new Thread(r).start();
+
         logTree.addMarker(marker);
         logMarkers.add(marker);
-
-        // getTimestampsForMarker(marker, 2);
 
         for (MRAVisualization vis : visualizationList.values()) {
             if (vis instanceof LogMarkerListener) {
@@ -420,12 +422,18 @@ public class MRAPanel extends JPanel {
      * @param marker
      */
     public void removeMarker(LogMarker marker) {
-
         if (LsfReportProperties.generatingReport==true){
             GuiUtils.infoMessage(getRootPane(), I18n.text("Can not remove Marks"), I18n.text("Can not remove Marks - Generating Report."));
             return;
         }
 
+        if (mra.getMRAMenuBar().getMarkerManagement() != null)
+            mra.getMRAMenuBar().getMarkerManagement().removeMarker(marker);
+
+        removeMarkerAux(marker);
+    }
+
+    public void removeMarkerAux(LogMarker marker) {
         logTree.removeMarker(marker);
         logMarkers.remove(marker);
         for (MRAVisualization vis : visualizationList.values()) {
@@ -440,6 +448,32 @@ public class MRAPanel extends JPanel {
         }
     }
 
+    public void removeMarker2(LogMarker marker, boolean toDel) {
+        if (LsfReportProperties.generatingReport==true){
+            GuiUtils.infoMessage(getRootPane(), I18n.text("Can not remove Marks"), I18n.text("Can not remove Marks - Generating Report."));
+            return;
+        }
+
+        if (mra.getMRAMenuBar().getMarkerManagement() != null && toDel)
+            mra.getMRAMenuBar().getMarkerManagement().removeMarker(marker);
+
+        removeMarkerAux(marker);
+    }
+
+    class AddMarkerTask implements Runnable {
+        
+        LogMarker marker;
+        public AddMarkerTask(LogMarker marker) {
+            this.marker = marker;
+        }
+
+        @Override
+        public void run() {
+            if (mra.getMRAMenuBar().getMarkerManagement() != null)
+                mra.getMRAMenuBar().getMarkerManagement().addMarker(marker);
+        }
+
+    }
     /**
      * Load markers
      */
@@ -493,19 +527,19 @@ public class MRAPanel extends JPanel {
     public InfiniteProgressPanel getLoader() {
         return loader;
     }
-    
+
     public void addMissionChangeListener(MissionChangeListener l) {
         if (!mcl.contains(l))
             mcl.add(l);
-        
+
     }
-    
+
     public void warnChangeListeners(MissionType newMission) {
         for (MissionChangeListener m : mcl) {
             m.missionReplaced(newMission);
         }
     }
-    
+
 
     /**
      *
@@ -550,7 +584,7 @@ public class MRAPanel extends JPanel {
                         ((LogMarkerListener) vis).addLogMarker(marker);
                     }
                 }
-                
+
                 loader.stop();
                 loadingVisualizations.remove(vis.getName());
             }

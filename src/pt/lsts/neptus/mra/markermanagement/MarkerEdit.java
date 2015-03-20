@@ -627,7 +627,8 @@ public class MarkerEdit extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 int res = showDelDialog();
                 if (res==0)  { 
-                    parent.deleteLogMarker(selectedMarker, selectMarkerRowIndex);
+                    parent.removeMarkerItem(selectedMarker, selectMarkerRowIndex);
+                    parent.removePanelMarkerItem(selectedMarker);
                     dispose();
                 }
             }
