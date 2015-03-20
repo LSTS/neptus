@@ -70,8 +70,7 @@ public class SdfParser {
             this.file = file;
             fis = new FileInputStream(file);
             channel = fis.getChannel();
-
-            indexPath = file.getParent() + "/mra/sdf.index";
+            indexPath = file.getParent().endsWith("mra") ? file.getParent() + "/sdf.index" : file.getParent() + "/mra/sdf.index";
 
             if (!new File(indexPath).exists()) {
                 NeptusLog.pub().info("Generating SDF index for " + file.getAbsolutePath());

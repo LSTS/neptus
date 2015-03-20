@@ -102,7 +102,7 @@ public class SidescanParserFactory {
     }
     
     private static File mergeSDFFiles() {
-        File outputFile = new File(dir.getAbsolutePath()+"/"+SDF_FILE);
+        File outputFile = new File(dir.getAbsolutePath()+"/mra/"+SDF_FILE);
         FileOutputStream fos;
         FileInputStream fis;
         byte[] fileBytes;
@@ -152,11 +152,15 @@ public class SidescanParserFactory {
                 //check if this log folder has multiple sdf data files and merge them into a single one
                 
                 file = new File(dir.getAbsolutePath()+"/"+SDF_FILE);
+                File merged = new File(dir.getAbsolutePath()+"/mra/"+SDF_FILE);
                 
-                if (hasMultipleSDFFiles(source) && !file.exists()) {
+                if (hasMultipleSDFFiles(source) && !file.exists() && !merged.exists()) {
                     file = mergeSDFFiles();
                 }
-
+                if (merged.exists()) {
+                    file = merged;
+                    return new SdfSidescanParser(file);
+                }
                 if(file.exists()) {
                     return new SdfSidescanParser(file);
                 }
@@ -174,7 +178,6 @@ public class SidescanParserFactory {
                 }
             }
         }
-        System.out.println("IM NULL BABY");
         return null;
     }
 }
