@@ -52,6 +52,7 @@ import pt.lsts.imc.DeviceState;
 import pt.lsts.imc.PlanGeneration;
 import pt.lsts.imc.PlanGeneration.CMD;
 import pt.lsts.imc.PlanGeneration.OP;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.gui.PropertiesEditor;
@@ -217,6 +218,8 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
             public void actionPerformed(ActionEvent e) {
                 loc.convertToAbsoluteLatLonDepth();
                 landPos = loc;
+                netLat = landPos.getLatitudeDegs();
+                netLon = landPos.getLongitudeDegs();
                 updateNetArrow();
             }
         });
@@ -266,6 +269,11 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
     public void on(DeviceState state) {
         // Consumes changes to the net
         netHeading = Math.toDegrees(state.getPsi());
+        double[] displaced = CoordinateUtil.WGS84displace(netLat,netLon,0.0,state.getY(),state.getX(),0.0);
+        netLat = displaced[0];
+        netLon = displaced[1];
+        landPos.setLatitudeDegs(netLat);
+        landPos.setLongitudeDegs(netLon);
         updateNetArrow();
     }
     
