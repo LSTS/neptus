@@ -448,20 +448,8 @@ public class MRAPanel extends JPanel {
         }
     }
 
-    public void removeMarker2(LogMarker marker, boolean toDel) {
-        if (LsfReportProperties.generatingReport==true){
-            GuiUtils.infoMessage(getRootPane(), I18n.text("Can not remove Marks"), I18n.text("Can not remove Marks - Generating Report."));
-            return;
-        }
-
-        if (mra.getMRAMenuBar().getMarkerManagement() != null && toDel)
-            mra.getMRAMenuBar().getMarkerManagement().removeMarker(marker);
-
-        removeMarkerAux(marker);
-    }
-
     class AddMarkerTask implements Runnable {
-        
+
         LogMarker marker;
         public AddMarkerTask(LogMarker marker) {
             this.marker = marker;
