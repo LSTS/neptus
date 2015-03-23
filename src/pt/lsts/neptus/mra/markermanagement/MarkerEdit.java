@@ -145,6 +145,12 @@ public class MarkerEdit extends JFrame {
                     rg2d.clearRect(0, 0, rulerLayer.getWidth(), rulerLayer.getHeight());
 
                     g.drawImage(image, RULER_SIZE+1, RULER_SIZE+1, null);
+                    
+                    //horizontal line
+                    g.drawLine(RULER_SIZE, image.getHeight()+RULER_SIZE, image.getWidth()+RULER_SIZE, image.getHeight()+RULER_SIZE);
+
+                    //vertical line
+                    g.drawLine(RULER_SIZE, RULER_SIZE+1, RULER_SIZE, image.getHeight()+RULER_SIZE);
 
                     if (enableRectDraw) 
                         drawRect(layer.getGraphics(), 0, 0);
@@ -349,7 +355,10 @@ public class MarkerEdit extends JFrame {
         //draw zero
         g2d.drawString("0", RULER_SIZE-5, y+lineWith);
 
+        //set range (width) and height
         double range = selectedMarker.getRange();
+        double height = selectedMarker.getHeight();
+
         float zoomRangeStep = 1;
         if (range > 10.0 && range < 30.0)
             zoomRangeStep = 2;
@@ -359,22 +368,21 @@ public class MarkerEdit extends JFrame {
         }
         //System.out.println("Range "+ range);
 
-        //horizontal black rectangle
+        //horizontal rectangle
         //g2d.setColor(new Color(.3f, .4f, .5f, .6f));
         g2d.setColor(new Color(.5f, .6f, .7f,.8f));
-        Rectangle horizRect = new Rectangle(RULER_SIZE, image.getHeight()+3, image.getWidth()+1, 12);
-        g2d.fill(horizRect);
+        if (range != 0) {
+            Rectangle horizRect = new Rectangle(RULER_SIZE, image.getHeight()+3, image.getWidth()+1, 12);
+            g2d.fill(horizRect);
+        }
 
-        //vertical black rectangle
-        Rectangle vertRect = new Rectangle(RULER_SIZE, RULER_SIZE+1, RULER_SIZE, image.getHeight()-12);
-        g2d.fill(vertRect);
+        //vertical rectangle
+        if (height != 0) {
+            Rectangle vertRect = new Rectangle(RULER_SIZE, RULER_SIZE+1, RULER_SIZE, image.getHeight());
+            g2d.fill(vertRect);
+        }
 
         g2d.setColor(Color.BLACK);
-        //horizontal line
-        g2d.drawLine(RULER_SIZE, y, image.getWidth()+RULER_SIZE, y);
-
-        //vertical line
-        g2d.drawLine(RULER_SIZE, RULER_SIZE+1, RULER_SIZE, y);
 
         // horizontal ruler (range)
 
@@ -400,7 +408,7 @@ public class MarkerEdit extends JFrame {
         }
 
         // vertical ruler (height)
-        double height = selectedMarker.getHeight();
+
 
         double zoomRangeStepV = 2.0;
         double stepV = zoomRangeStepV * (image.getHeight()) / height;
@@ -822,7 +830,7 @@ public class MarkerEdit extends JFrame {
         toolBar.add(showRulerBtn);
         toolBar.addSeparator();
         toolBar.add(exportImgBtn);
-        
+
         popup.add(new JMenuItem(exportImgOnly));
         popup.add(new JMenuItem(exportImageWruler));
         popup.add(new JMenuItem(exportImgWdrawing));
@@ -837,7 +845,7 @@ public class MarkerEdit extends JFrame {
         clearDrawBtn.addActionListener(clearDrawings);
         showGridBtn.addActionListener(showGrid);
         showRulerBtn.addActionListener(showRuler);
-        
+
         exportImgBtn.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 popup.show(e.getComponent(), e.getX()+10, e.getY()+15);
