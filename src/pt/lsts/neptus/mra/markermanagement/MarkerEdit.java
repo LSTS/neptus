@@ -330,7 +330,6 @@ public class MarkerEdit extends JFrame {
             mouseX = endX;
             mouseY = endY;
         }
-        System.out.println(mouseX + "  " +mouseY + " --- "+lastMouseX + " "+ lastMouseY);
         Graphics2D g2 = (Graphics2D) g;
         g2.setColor(Color.WHITE);
         int x = 0, y = 0, w = 0, h = 0;

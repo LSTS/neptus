@@ -55,7 +55,6 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -151,19 +150,6 @@ public class MarkerManagement {
         }
 
         markerEditFrame = new MarkerEdit(this);
-
-
-        frmMarkerManagement.addWindowListener(new java.awt.event.WindowAdapter() {
-            @Override
-            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                if (JOptionPane.showConfirmDialog(frmMarkerManagement, 
-                        "Are you sure you want to close?", frmMarkerManagement.getTitle(), 
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-                    markerEditFrame.dispose();
-                }
-            }
-        });
 
         //Add existing LogMarkers (only SidescanLogMarker ones)
         for (LogMarker m : mraPanel.getMarkers()) {
