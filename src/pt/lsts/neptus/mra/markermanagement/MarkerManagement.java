@@ -368,8 +368,6 @@ public class MarkerManagement {
             if (image != null) {
                 String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
                 File dir = new File(path);
-                System.out.println("path "+ path);
-                System.out.println("dir "+dir.getAbsolutePath());
 
                 //create dir if it doesnt exists
                 if (!dir.exists())
@@ -943,5 +941,26 @@ public class MarkerManagement {
         }
         table.setRowSelectionInterval(row, row);
         openMarkerEditor(table.getValueAt(table.getSelectedRow(), 1).toString(), row);
+    }
+
+    /**
+     * @param selectMarkerRowIndex
+     */
+    public void prevMark(int index) {
+        if (index > 0) {
+            int rowToOpen = index - 1;
+            openMarkerEditor(table.getValueAt(rowToOpen, 1).toString(), rowToOpen);
+        }
+    }
+
+    /**
+     * @param selectMarkerRowIndex
+     */
+    public void nextMark(int index) {
+        if (index >= 0 && index < table.getRowCount()-1) {
+            int rowToOpen = index + 1;
+            openMarkerEditor(table.getValueAt(rowToOpen, 1).toString(), rowToOpen);
+        }
+        
     }
 }

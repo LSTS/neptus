@@ -57,6 +57,7 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
+import javax.swing.Box;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -102,7 +103,7 @@ public class MarkerEdit extends JFrame {
     private JLabel markerImage, nameLabelValue, timeStampValue, locationValue, altitudeValue, depthValue;
     private JComboBox<String> classifValue;
     private JTextArea annotationValue;
-    private JButton rectDrawBtn, circleDrawBtn, freeDrawBtn, exportImgBtn;
+    private JButton rectDrawBtn, circleDrawBtn, freeDrawBtn, exportImgBtn, previousMarkBtn, nextMarkBtn;
     private int mouseX, mouseY, initialX, initialY, lastMouseX, lastMouseY;
     private boolean enableFreeDraw = false;
     private boolean enableRectDraw = false;
@@ -590,6 +591,9 @@ public class MarkerEdit extends JFrame {
         JButton showGridBtn = createBtn("images/menus/grid.png", "Show grid");
         JButton showRulerBtn = createBtn("images/menus/ruler.png", "Show ruler");
         exportImgBtn = createBtn("images/menus/export.png", "Export");
+        
+        previousMarkBtn = createBtn("images/menus/previous.png", "Previous Mark");
+        nextMarkBtn = createBtn("images/menus/next.png", "Next Mark");
 
         save = new AbstractAction(I18n.text("Save"), ImageUtils.getIcon("images/menus/save.png")) {
 
@@ -825,6 +829,23 @@ public class MarkerEdit extends JFrame {
                 }
             }
         };
+        
+        AbstractAction previousMark = new AbstractAction(I18n.text("prevMark")) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               parent.prevMark(selectMarkerRowIndex);
+            }
+        };
+        
+        AbstractAction nextMark = new AbstractAction(I18n.text("nextMark")) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                parent.nextMark(selectMarkerRowIndex);
+            }
+        };
+        
 
         //add buttons to toolbar
         toolBar.add(saveBtn);
@@ -840,6 +861,10 @@ public class MarkerEdit extends JFrame {
         toolBar.addSeparator();
         toolBar.add(exportImgBtn);
 
+        toolBar.add(Box.createHorizontalGlue());
+        toolBar.add(previousMarkBtn); 
+        toolBar.add(nextMarkBtn);
+        
         popup.add(new JMenuItem(exportImgOnly));
         popup.add(new JMenuItem(exportImageWruler));
         popup.add(new JMenuItem(exportImgWdrawing));
@@ -854,6 +879,8 @@ public class MarkerEdit extends JFrame {
         clearDrawBtn.addActionListener(clearDrawings);
         showGridBtn.addActionListener(showGrid);
         showRulerBtn.addActionListener(showRuler);
+        previousMarkBtn.addActionListener(previousMark);
+        nextMarkBtn.addActionListener(nextMark);
 
         exportImgBtn.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
