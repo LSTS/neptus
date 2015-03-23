@@ -82,6 +82,7 @@ import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
 
@@ -878,17 +879,8 @@ public class MarkerEdit extends JFrame {
 
 
     private int showDelDialog() {
-        Object[] options = {"Yes, please", "No, thanks"};
-        int n = JOptionPane.showOptionDialog(this,
-                "Are you sure you want to delete this marker?",
-                "Confirm delete",
-                JOptionPane.YES_NO_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                options,
-                options[0]);
-
-        return n;
+        int ans = GuiUtils.confirmDialog(this, "Confirm delete", "Are you sure you want to delete this marker?");
+        return ans;
     }
 
     private void clearLayer(){

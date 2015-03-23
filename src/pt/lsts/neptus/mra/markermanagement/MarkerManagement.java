@@ -283,7 +283,7 @@ public class MarkerManagement {
 
     @SuppressWarnings("unused")
     private void addImagesToMarkers() {
-        String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
+        String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
 
         for (LogMarkerItem log : markerList) {
             File f = new File(path+log.getLabel()+".png");
@@ -366,8 +366,10 @@ public class MarkerManagement {
             }
 
             if (image != null) {
-                String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
+                String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
                 File dir = new File(path);
+                System.out.println("path "+ path);
+                System.out.println("dir "+dir.getAbsolutePath());
 
                 //create dir if it doesnt exists
                 if (!dir.exists())
@@ -587,7 +589,7 @@ public class MarkerManagement {
      * @return File of marker image
      */
     private File getImgPath(String marker) {
-        String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
+        String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
 
         File f = new File(path+marker+".png");
 
