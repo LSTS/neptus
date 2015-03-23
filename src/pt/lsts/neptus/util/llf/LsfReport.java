@@ -803,7 +803,8 @@ public class LsfReport {
         int w = mark.w;
         int h = mark.h;
 
-        BufferedImage imgScalled = new BufferedImage(w*2, h*2, BufferedImage.TYPE_INT_RGB);
+        BufferedImage imgScalled = new BufferedImage(w*3, h*3, BufferedImage.TYPE_INT_RGB);
+
         Graphics2D g2d = imgScalled.createGraphics();
 
         int y = list.size();
@@ -815,8 +816,7 @@ public class LsfReport {
                 int rgb = config.colorMap.getColor(l.data[c + i1]).getRGB();
                 imgLine.setRGB(c, 0, rgb);
             }
-
-            int vZoomScale = 2;
+            int vZoomScale = 3;
             Image full = ImageUtils.getScaledImage(imgLine, imgScalled.getWidth(), vZoomScale, true);
             g2d.drawImage(full, 0, imgScalled.getHeight() + h - y, null);
 
