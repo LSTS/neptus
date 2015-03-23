@@ -145,7 +145,7 @@ public class MarkerEdit extends JFrame {
                     rg2d.clearRect(0, 0, rulerLayer.getWidth(), rulerLayer.getHeight());
 
                     g.drawImage(image, RULER_SIZE+1, RULER_SIZE+1, null);
-                    
+
                     //horizontal line
                     g.drawLine(RULER_SIZE, image.getHeight()+RULER_SIZE, image.getWidth()+RULER_SIZE, image.getHeight()+RULER_SIZE);
 
@@ -177,11 +177,6 @@ public class MarkerEdit extends JFrame {
 
         markerImage.setHorizontalAlignment(SwingConstants.CENTER);
         markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource("/images/unknown.png")));
-
-        // setupDrawPopup();
-
-        // markerImage.setComponentPopupMenu(drawPopupMenu);
-
         markerImage.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseReleased(MouseEvent e) {
@@ -300,13 +295,20 @@ public class MarkerEdit extends JFrame {
             mouseX = endX;
             mouseY = endY;
         }
+        int x = 0, y = 0, w = 0, h = 0;
+        if (mouseX == -1) { //mouse got out of markerimage window (use last X and Y coordinates)
+            x = Math.min(initialX - RULER_SIZE - 1, lastMouseX - RULER_SIZE -1);
+            y = Math.min(initialY - RULER_SIZE - 1, lastMouseY - RULER_SIZE -1);
+            w = Math.max(initialX - RULER_SIZE -1, lastMouseX - RULER_SIZE -1) - Math.min(initialX - RULER_SIZE -1, lastMouseX - RULER_SIZE -1);
+            h = Math.max(initialY - RULER_SIZE -1, lastMouseY - RULER_SIZE -1) - Math.min(initialY - RULER_SIZE -1, lastMouseY - RULER_SIZE -1);
 
-        int x = Math.min(initialX - RULER_SIZE - 1, mouseX - RULER_SIZE -1);
-        int y = Math.min(initialY - RULER_SIZE - 1, mouseY - RULER_SIZE -1);
-        int w = Math.max(initialX - RULER_SIZE -1, mouseX - RULER_SIZE -1) - Math.min(initialX - RULER_SIZE -1, mouseX - RULER_SIZE -1);
-        int h = Math.max(initialY - RULER_SIZE -1, mouseY - RULER_SIZE -1) - Math.min(initialY - RULER_SIZE -1, mouseY - RULER_SIZE -1);
+        } else {
+            x = Math.min(initialX - RULER_SIZE - 1, mouseX - RULER_SIZE -1);
+            y = Math.min(initialY - RULER_SIZE - 1, mouseY - RULER_SIZE -1);
+            w = Math.max(initialX - RULER_SIZE -1, mouseX - RULER_SIZE -1) - Math.min(initialX - RULER_SIZE -1, mouseX - RULER_SIZE -1);
+            h = Math.max(initialY - RULER_SIZE -1, mouseY - RULER_SIZE -1) - Math.min(initialY - RULER_SIZE -1, mouseY - RULER_SIZE -1);
 
-
+        }
         g2.setColor(Color.WHITE);
         g2.drawRect(x, y, w, h);
     }
@@ -328,15 +330,22 @@ public class MarkerEdit extends JFrame {
             mouseX = endX;
             mouseY = endY;
         }
-
+        System.out.println(mouseX + "  " +mouseY + " --- "+lastMouseX + " "+ lastMouseY);
         Graphics2D g2 = (Graphics2D) g;
         g2.setColor(Color.WHITE);
-
-        int x = Math.min(initialX - RULER_SIZE - 1, mouseX - RULER_SIZE -1);
-        int y = Math.min(initialY - RULER_SIZE - 1, mouseY - RULER_SIZE -1);
-        int w = Math.max(initialX - RULER_SIZE -1, mouseX - RULER_SIZE -1) - Math.min(initialX - RULER_SIZE -1, mouseX - RULER_SIZE -1);
-        int h = Math.max(initialY - RULER_SIZE -1, mouseY - RULER_SIZE -1) - Math.min(initialY - RULER_SIZE -1, mouseY - RULER_SIZE -1);
-
+        int x = 0, y = 0, w = 0, h = 0;
+        if (mouseX == -1) { //mouse got out of markerimage window (use last X and Y coordinates)
+            x = Math.min(initialX - RULER_SIZE - 1, lastMouseX - RULER_SIZE -1);
+            y = Math.min(initialY - RULER_SIZE - 1, lastMouseY - RULER_SIZE -1);
+            w = Math.max(initialX - RULER_SIZE -1, lastMouseX - RULER_SIZE -1) - Math.min(initialX - RULER_SIZE -1, lastMouseX - RULER_SIZE -1);
+            h = Math.max(initialY - RULER_SIZE -1, lastMouseY - RULER_SIZE -1) - Math.min(initialY - RULER_SIZE -1, lastMouseY - RULER_SIZE -1);
+        } else {
+            x = Math.min(initialX - RULER_SIZE - 1, mouseX - RULER_SIZE -1);
+            y = Math.min(initialY - RULER_SIZE - 1, mouseY - RULER_SIZE -1);
+            w = Math.max(initialX - RULER_SIZE -1, mouseX - RULER_SIZE -1) - Math.min(initialX - RULER_SIZE -1, mouseX - RULER_SIZE -1);
+            h = Math.max(initialY - RULER_SIZE -1, mouseY - RULER_SIZE -1) - Math.min(initialY - RULER_SIZE -1, mouseY - RULER_SIZE -1);
+        }
+        
         g2.drawOval(x,y,w,h);
     }
 
@@ -884,7 +893,7 @@ public class MarkerEdit extends JFrame {
     }
 
     private void clearLayer(){
-        initialX = initialY = mouseX = mouseY = -1;
+        initialX = initialY = mouseX = mouseY = lastMouseX = lastMouseY = -1;
         Graphics2D g2d = (Graphics2D) layer.getGraphics();
         g2d.setBackground(new Color(100, 100, 255, 0));
         g2d.clearRect(0, 0, layer.getWidth(), layer.getHeight());
