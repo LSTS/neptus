@@ -273,7 +273,7 @@ public class MarkerManagement {
     }
 
     private void setupMarkers() {
-        markerFilePath = mraPanel.getSource().getFile("Data.lsf").getParent() + "/marks.xml";
+        markerFilePath = mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/marks.xml";
 
         //XML markers file doesnt exist and there are Markers to be added
         if (!new File(markerFilePath).exists() && !logMarkers.isEmpty()) {
@@ -356,7 +356,7 @@ public class MarkerManagement {
 
         return sidescanParams;
     }
-    
+
     /** Creates an image for a specified Sidescan logmarker
      * 
      * @param ssLogMarker
@@ -774,14 +774,15 @@ public class MarkerManagement {
         try {
             Transformer transformer = transformerFactory.newTransformer();
             DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File(markerFilePath));
+            StreamResult result = new StreamResult(new File(markerFilePath).getAbsolutePath());
             transformer.transform(source, result);
+
+            if (!markerList.isEmpty()) {
+                NeptusLog.pub().info("Markers XML file saved - " + markerFilePath);
+            }
         }
         catch (TransformerException e) {
             e.printStackTrace();
-        }
-        if (!markerList.isEmpty()) {
-            NeptusLog.pub().info("Markers XML file saved - " + markerFilePath);
         }
     }
 
