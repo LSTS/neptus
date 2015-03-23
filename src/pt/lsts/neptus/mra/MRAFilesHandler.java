@@ -412,9 +412,7 @@ public class MRAFilesHandler implements FileHandler {
                         GuiUtils.infoMessage(mra, I18n.text("Generate PDF Report"),
                                 I18n.text("File saved to") +" "+ f.getAbsolutePath());
                         final String pdfF = f.getAbsolutePath();
-
-                        int resp = JOptionPane.showConfirmDialog(mra,
-                                I18n.text("Do you want to open PDF Report file?"));
+                        int resp = GuiUtils.confirmDialog(mra, I18n.text("Open PDF Report"), I18n.text("Do you want to open PDF Report file?"));
                         if (resp == JOptionPane.YES_OPTION) {
                             new Thread() {
                                 @Override
@@ -468,8 +466,8 @@ public class MRAFilesHandler implements FileHandler {
         catch (Exception ex) {
             ex.printStackTrace();
         }
-        GuiUtils.infoMessage(mra,  I18n.text("PDF Report Generated"),
-                I18n.text("Opening file") +" "+ pdf);
+       // GuiUtils.infoMessage(mra,  I18n.text("PDF Report Generated"),
+       //         I18n.text("Opening file") +" "+ pdf);
     }
 
     // --- Recently opened files ---
