@@ -918,4 +918,8 @@ public class MarkerEdit extends JFrame {
         g2d.dispose();
         markerImage.repaint();
     }
+    
+    public LogMarkerItem getOpenMarker(){
+        return selectedMarker;
+    }
 }

@@ -239,8 +239,15 @@ public class MarkerManagement {
                     int rowIndex = table.getSelectedRow();
                     if (table.getSelectedRow() != -1) {
                         LogMarkerItem selectedMarker = findMarker(table.getValueAt(table.getSelectedRow(), 1).toString());
+                        
+                        if (markerEditFrame.getOpenMarker() == selectedMarker) {
+                            System.out.println("trying to delete marker that is opened");
+                            markerEditFrame.dispose();
+                        }
+                        
                         removeMarkerItem(selectedMarker, rowIndex);
                         removePanelMarkerItem(selectedMarker);
+                        
                     }
                 }
             };
