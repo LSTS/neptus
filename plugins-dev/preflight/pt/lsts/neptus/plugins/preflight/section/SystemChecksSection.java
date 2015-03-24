@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 17 Mar 2015
  */
-package pt.lsts.neptus.plugins.preflight.checklistsections;
+package pt.lsts.neptus.plugins.preflight.section;
 
 import java.awt.Dimension;
 
@@ -41,7 +41,7 @@ import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.Voltage;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.preflight.ChecklistSection;
+import pt.lsts.neptus.plugins.preflight.PreflightSection;
 import pt.lsts.neptus.plugins.preflight.Preflight;
 
 /**
@@ -49,7 +49,7 @@ import pt.lsts.neptus.plugins.preflight.Preflight;
  *
  */
 @SuppressWarnings("serial")
-public class SystemCheck extends ChecklistSection {
+public class SystemChecksSection extends PreflightSection {
     private static final String GPS_DIFF = I18n.textc("DIFF", "Use a single small word");
     private static final String GPS_3D = I18n.textc("3D", "Use a single small word");
     private static final String GPS_2D = I18n.textc("2D", "Use a single small word");
@@ -74,7 +74,7 @@ public class SystemCheck extends ChecklistSection {
     private String gpsFixValue;
     private double fuelLevelValue;
     
-    public SystemCheck() {
+    public SystemChecksSection() {
         super("Section");          
         
         initValues();
@@ -106,7 +106,7 @@ public class SystemCheck extends ChecklistSection {
     @Override
     public void buildChecksPanel() {
         /* TEST */
-        checksPanel.setMaximumSize(new Dimension(Preflight.WIDTH - 40, Preflight.HEIGHT - 400));
+        checksPanel.setPreferredSize(new Dimension(Preflight.WIDTH - 40, Preflight.HEIGHT - 400));
         
         /* LEFT */
         addElementWithConstraints(voltageLabel, 0, 0, 0.3);
@@ -138,6 +138,8 @@ public class SystemCheck extends ChecklistSection {
     
     @Subscribe
     public void on(GpsFix msg) {
+        System.out.println("## GPS");
+        System.out.println("# SOURCE " + msg.getSourceName());
         if(!msgFromMainVehicle(msg.getSourceName()))
             return;
         
@@ -147,6 +149,8 @@ public class SystemCheck extends ChecklistSection {
     
     @Subscribe
     public void on(FuelLevel msg) {
+        System.out.println("# FUEL");
+        System.out.println("# SOURCE " + msg.getSourceName());
         if(!msgFromMainVehicle(msg.getSourceName()))
             return;
         
@@ -156,6 +160,8 @@ public class SystemCheck extends ChecklistSection {
     
     @Subscribe
     public void on(Voltage msg) {
+        System.out.println("## VOLTAGE");
+        System.out.println("# SOURCE " + msg.getSourceName());
         if(!msgFromMainVehicle(msg.getSourceName()))
             return;
         

@@ -36,10 +36,12 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -56,8 +58,9 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.preflight.checklistsections.SystemCheck;
-import pt.lsts.neptus.plugins.preflight.checklistsections.TestChecks;
+import pt.lsts.neptus.plugins.preflight.section.AnotherTestSection;
+import pt.lsts.neptus.plugins.preflight.section.SystemChecksSection;
+import pt.lsts.neptus.plugins.preflight.section.TestChecksSection;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 
 /**
@@ -66,37 +69,57 @@ import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "Preflight", author = "tsmarques", version = "0.1")
-@Popup(name = "Preflight", pos = POSITION.CENTER, width = 450, height = 500)
+@Popup(name = "Preflight", pos = POSITION.CENTER, width = 450, height = 650)
 public class Preflight extends ConsolePanel {
     public static final int WIDTH = 450;
-    public static final int HEIGHT = 500;
+    public static final int HEIGHT = 650;
+    public static final int MAX_COMPONENT_WIDTH = WIDTH - 20; /* Maximum child component width */
+    
     private static final String NOT_UAV_ERROR = "Main vehicle is not an UAV";
     
     
-    
     /* Test */ 
+    private JPanel contentPanel; /* main panel */
+    private JScrollPane scrollMainPanel;
+    
     private JPanel mainSysNamePanel; 
     private JLabel mainSysNameLabel;
     private String mainSysName; /* Gets changed when main vehicle changes */
    
     public Preflight(ConsoleLayout console) {
         super(console);
-        
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setResizable(false);
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Color.WHITE);
         
-        initNameSysNamePanel();
-        add(new SystemCheck());
-        add(new TestChecks());
+        initMainPanel();
+        initSysNamePanel();
+//        add(new SystemChecksSection());
+//        add(new TestChecks());
+        contentPanel.add(new AnotherTestSection());
     }
     
-    private void initNameSysNamePanel() {
+    private void initMainPanel() {
+        contentPanel = new JPanel();
+        scrollMainPanel = new JScrollPane(contentPanel);
+        
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBackground(Color.WHITE);
+        
+        final Dimension d = new Dimension(MAX_COMPONENT_WIDTH, HEIGHT);
+        scrollMainPanel.setMaximumSize(d);
+        scrollMainPanel.setMinimumSize(d);
+        scrollMainPanel.setBorder(BorderFactory.createEmptyBorder());
+//        add(contentPanel);
+        add(scrollMainPanel);
+    }
+    
+    private void initSysNamePanel() {
         mainSysName = "?";
         mainSysNameLabel = new JLabel(mainSysName);
         
         mainSysNamePanel = new JPanel();
-        Dimension d = new Dimension(430, 20);
+        final Dimension d = new Dimension(430, 20);
         mainSysNamePanel.setLayout(new GridBagLayout());
         mainSysNamePanel.setMaximumSize(d);
         mainSysNamePanel.setMinimumSize(d);
@@ -104,9 +127,9 @@ public class Preflight extends ConsolePanel {
         mainSysNamePanel.setBackground(Color.WHITE);
         mainSysNamePanel.add(mainSysNameLabel, new GridBagConstraints());
         
-        add(Box.createVerticalStrut(1));
-        add(mainSysNamePanel);
-        add(Box.createVerticalStrut(2));
+        contentPanel.add(Box.createVerticalStrut(1));
+        contentPanel.add(mainSysNamePanel);
+        contentPanel.add(Box.createVerticalStrut(2));
     }
      
 
@@ -129,7 +152,6 @@ public class Preflight extends ConsolePanel {
     
     @Subscribe
     public void on(EstimatedState msg) {
-        System.out.println("# HEY");
     }
     
     @Override

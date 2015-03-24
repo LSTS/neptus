@@ -43,14 +43,19 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.gui.editor.NeptusMessageEditor;
+import pt.lsts.neptus.plugins.NeptusMessageListener;
 
 /**
  * @author tsmarques
  *
  */
 @SuppressWarnings("serial")
-public abstract class ChecklistSection extends JPanel implements MainVehicleChangeListener {
+public abstract class PreflightSection extends JPanel implements MainVehicleChangeListener {
+    
     protected String mainVehicle;
     
     private JPanel sectionNamePanel;
@@ -60,40 +65,53 @@ public abstract class ChecklistSection extends JPanel implements MainVehicleChan
     
     private boolean sectionIsMinimized;
     
-    public ChecklistSection(String sectionName) {
+    public PreflightSection(String sectionName) {
+        /* init main panel */
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Color.WHITE);
         
-        sectionNamePanel = new JPanel();
-        sectionNameLabel = new JLabel(sectionName);
-        sectionNameLabel.setForeground(Color.WHITE);
+        initSectionNamePanel(sectionName);
+        initChecksPanel();
+        buildSectionNamePanel();
         
-        checksPanel = new JPanel();
-        checksPanel.setLayout(new GridBagLayout());
-        checksPanel.setBackground(Color.WHITE);
         sectionIsMinimized = false;
-        
-        buildNamePanel();
-        
-        /* TEST */
-//        checksPanel.setBackground(Color.CYAN);
         
         add(Box.createVerticalStrut(2));
         add(sectionNamePanel);
         add(Box.createVerticalStrut(1));
         add(checksPanel);
+        
+       // buildChecksPanel();
+        
+        /* TEST */
+        ImcMsgManager.registerBusListener(this);
     }
     
-    /* Build the panel that will contain the actual checks for this section */
+    /* Build the panel that will contain the actual "checks" for this section */
     protected abstract void buildChecksPanel();
     
-    private void buildNamePanel() {
-        Dimension d = new Dimension(430, 20);
+    private void initSectionNamePanel(String sectionName) {
+        sectionNamePanel = new JPanel();
+        final Dimension d = new Dimension(Preflight.MAX_COMPONENT_WIDTH, 20);
         sectionNamePanel.setBackground(Color.DARK_GRAY);
         sectionNamePanel.setMaximumSize(d);
         sectionNamePanel.setMinimumSize(d);
         sectionNamePanel.setLayout(new GridBagLayout());
         
+        sectionNameLabel = new JLabel(sectionName);
+        sectionNameLabel.setForeground(Color.WHITE);
+    }
+    
+    private void initChecksPanel() {
+        checksPanel = new JPanel();
+//        checksPanel.setLayout(new GridBagLayout());
+        checksPanel.setLayout(new BoxLayout(checksPanel, BoxLayout.Y_AXIS));
+        checksPanel.setBackground(Color.WHITE);
+//        checksPanel.setMaximumSize(new Dimension(MAX_COMPONENT_WIDTH, getPreferredSize().height));
+    }
+    
+    /* Build Panel that contains the name/description label of this section */
+    private void buildSectionNamePanel() {       
         sectionNamePanel.add(sectionNameLabel, new GridBagConstraints());
         sectionNamePanel.addMouseListener(new MouseListener() {        
             @Override
@@ -117,6 +135,7 @@ public abstract class ChecklistSection extends JPanel implements MainVehicleChan
             public void mouseClicked(MouseEvent e) {}
         });
     }
+        
     /* Add elements to checksPanel */
     protected void addElementWithConstraints(Component comp, int gridx, int gridy, double weightx) {
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -127,6 +146,7 @@ public abstract class ChecklistSection extends JPanel implements MainVehicleChan
         checksPanel.add(comp, c);
     }
     
+    /* Returns if the source of a message is the current main vehicle */
     protected boolean msgFromMainVehicle(String msgSrc) {
         return(msgSrc.equals(mainVehicle));
     }

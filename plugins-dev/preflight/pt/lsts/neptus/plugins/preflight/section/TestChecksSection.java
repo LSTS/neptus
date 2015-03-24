@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 17 Mar 2015
  */
-package pt.lsts.neptus.plugins.preflight.checklistsections;
+package pt.lsts.neptus.plugins.preflight.section;
 
 import java.awt.Dimension;
 
@@ -44,7 +44,7 @@ import pt.lsts.imc.IndicatedSpeed;
 import pt.lsts.imc.TrueSpeed;
 import pt.lsts.imc.Voltage;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.preflight.ChecklistSection;
+import pt.lsts.neptus.plugins.preflight.PreflightSection;
 import pt.lsts.neptus.plugins.preflight.Preflight;
 
 /**
@@ -52,7 +52,7 @@ import pt.lsts.neptus.plugins.preflight.Preflight;
  *
  */
 @SuppressWarnings("serial")
-public class TestChecks extends ChecklistSection {  
+public class TestChecksSection extends PreflightSection {  
     private JLabel phiLabel;
     private JLabel thetaLabel;
     private JLabel psiLabel;
@@ -65,7 +65,7 @@ public class TestChecks extends ChecklistSection {
     private double iasValue;
     private double trueSpeedValue;
     
-    public TestChecks() {
+    public TestChecksSection() {
         super("Another section");
         
         initValues();
