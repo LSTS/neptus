@@ -47,24 +47,24 @@ import pt.lsts.neptus.util.llf.LogUtils;
  *
  */
 public class SidescanParserFactory {
-    
+
     private static final String JSF_FILE = "Data.jsf";
     private static final String SDF_FILE = "Data.sdf";
-    
+
     private static String[] validSidescanFiles = { JSF_FILE,  SDF_FILE };
-    
+
     static File dir;
     static File file;
     static IMraLogGroup source;
-    
+
     public static SidescanParser build(IMraLogGroup log) {
         file = null;
         dir = log.getDir();
         source = log;
-        
+
         return getParser();
     }
-    
+
     public static SidescanParser build(File fileOrDir) {
         source = null;
         if(fileOrDir.isDirectory())
@@ -74,46 +74,51 @@ public class SidescanParserFactory {
         }
         return getParser();
     }
-    
+
     public static boolean existsSidescanParser(IMraLogGroup log) {
         for (String file : validSidescanFiles) {
             if (log.getFile(file) != null) {
                 return true;
             }
         }
-        
+
         if (hasMultipleSDFFiles(log)) {
             return true;
         }
-        
+
         return false;
     }
-    
-    private static boolean hasMultipleSDFFiles(IMraLogGroup log) {
+
+    private static FilenameFilter SDFFilter() {
         FilenameFilter sdfFilter = new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.toLowerCase().endsWith(".sdf");
             }
         };
-        
+        return sdfFilter;
+    }
+
+    private static boolean hasMultipleSDFFiles(IMraLogGroup log) {
+        FilenameFilter sdfFilter = SDFFilter();
+
         File[] files = log.getDir().listFiles(sdfFilter);
-        
+
         return (files.length > 1);
     }
-    
+
     private static File mergeSDFFiles() {
         File outputFile = new File(dir.getAbsolutePath()+"/mra/"+SDF_FILE);
         FileOutputStream fos;
         FileInputStream fis;
         byte[] fileBytes;
         int bytesRead = 0;
-        
+
         FilenameFilter sdfFilter = new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.toLowerCase().endsWith(".sdf");
             }
         };
-        
+
         File[] list = dir.listFiles(sdfFilter);
         try {
             fos = new FileOutputStream(outputFile,true);
@@ -134,10 +139,10 @@ public class SidescanParserFactory {
         }catch (Exception e){
             NeptusLog.pub().error("Error merging sdf data files...");
         }
-        
+
         return outputFile;
     }
-    
+
     private static SidescanParser getParser() {
         if(file != null) {
             return null; //FIXME for now only directories are supported 
@@ -148,22 +153,39 @@ public class SidescanParserFactory {
             if(file.exists()) {
                 return new JsfSidescanParser(file);
             } 
+            //            else {
+            //                //check if this log folder has multiple sdf data files and merge them into a single one
+            //                
+            //                file = new File(dir.getAbsolutePath()+"/"+SDF_FILE);
+            //                File merged = new File(dir.getAbsolutePath()+"/mra/"+SDF_FILE);
+            //                
+            //                if (hasMultipleSDFFiles(source) && !file.exists() && !merged.exists()) {
+            //                    file = mergeSDFFiles();
+            //                }
+            //                if (merged.exists()) {
+            //                    file = merged;
+            //                    return new SdfSidescanParser(file);
+            //                }
+            //                if(file.exists()) {
+            //                    return new SdfSidescanParser(file);
+            //                }
+            //            }
+
             else {
                 //check if this log folder has multiple sdf data files and merge them into a single one
-                
+
                 file = new File(dir.getAbsolutePath()+"/"+SDF_FILE);
-                File merged = new File(dir.getAbsolutePath()+"/mra/"+SDF_FILE);
-                
-                if (hasMultipleSDFFiles(source) && !file.exists() && !merged.exists()) {
-                    file = mergeSDFFiles();
+
+                if (hasMultipleSDFFiles(source) && !file.exists()) {
+                    FilenameFilter sdfFilter = SDFFilter();
+
+                    File[] files = source.getDir().listFiles(sdfFilter);
+                    return new SdfSidescanParser(files);
                 }
-                if (merged.exists()) {
-                    file = merged;
-                    return new SdfSidescanParser(file);
-                }
-                if(file.exists()) {
-                    return new SdfSidescanParser(file);
-                }
+                else
+                    if(file.exists()) {
+                        return new SdfSidescanParser(file);
+                    }
             }
 
             // Next cases should be file = new File(...) and check for existence

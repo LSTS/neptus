@@ -47,6 +47,13 @@ public class SdfSidescanParser implements SidescanParser {
         parser = new SdfParser(f);
     }
 
+    /**
+     * @param files
+     */
+    public SdfSidescanParser(File[] files) {
+        parser = new SdfParser(files);
+    }
+
     @Override
     public long firstPingTimestamp() {
         return parser.getFirstTimeStamp();
