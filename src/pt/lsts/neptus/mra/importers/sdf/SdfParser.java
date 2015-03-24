@@ -75,7 +75,7 @@ public class SdfParser {
             this.file = file;
             fis = new FileInputStream(file);
             channel = fis.getChannel();
-            indexPath = file.getParent().endsWith("mra") ? file.getParent() + "/sdf.index" : file.getParent() + "/mra/sdf.index";
+            indexPath = file.getParent() + "/mra/sdf.index";
 
             if (!new File(indexPath).exists()) {
                 NeptusLog.pub().info("Generating SDF index for " + file.getAbsolutePath());
@@ -141,7 +141,7 @@ public class SdfParser {
                 count++;
             }
         }
-        
+
         count = 0;
         for (int i=0; i< tsSHigh.size(); i++) {
             for (int j=0; j < tsSHigh.get(i).length; j++) {
@@ -149,29 +149,17 @@ public class SdfParser {
                 count++;
             }
         }
-        
-//        for (Long[] set : tsSLow) {
-//            longLow = ArrayUtils.addAll(longLow, set);
-//        }
-//
-//        for (Long[] set : tsSHigh) {
-//            longHigh = ArrayUtils.addAll(longHigh, set);
-//        }
-//        
-        for (int j=0; j<longHigh.length ; j++) {
-            System.out.println("values " + longHigh[j]);
-        }
 
         tslist.put(SUBSYS_LOW, longLow);
         tslist.put(SUBSYS_HIGH, longHigh);
 
-        for (Entry<File, SdfIndex> e : fileIndex.entrySet()) {
-            System.out.println(e.getKey().getName() + /*" " + e.getValue().firstTimestampLow +*/ " "
-                    + e.getValue().firstTimestampHigh+ " "/*+ e.getValue().lastTimestampLow +" "*/+  e.getValue().lastTimestampHigh);
-        }
-
-        System.out.println(getFirstTimeStamp());
-        System.out.println(getLastTimeStamp());
+        //        for (Entry<File, SdfIndex> e : fileIndex.entrySet()) {
+        //            System.out.println(e.getKey().getName() + /*" " + e.getValue().firstTimestampLow +*/ " "
+        //                    + e.getValue().firstTimestampHigh+ " "/*+ e.getValue().lastTimestampLow +" "*/+  e.getValue().lastTimestampHigh);
+        //        }
+        //
+        //        System.out.println(getFirstTimeStamp());
+        //        System.out.println(getLastTimeStamp());
     }
 
     private void generateIndex() {
@@ -296,8 +284,9 @@ public class SdfParser {
             ObjectOutputStream out = new ObjectOutputStream(new  FileOutputStream(indexPath));
             out.writeObject(index2);
             out.close();
-
-            fileIndex.put(file, index2);
+            
+            if (multipleFiles)
+                fileIndex.put(file, index2);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -341,11 +330,9 @@ public class SdfParser {
             tslisthigh = indexN.positionMapHigh.keySet().toArray(new Long[] {});
             tslistlow = indexN.positionMapLow.keySet().toArray(new Long[] {});
 
-            // FIXME : tem que se adicionar os que estão pra trás tambem!!!
-
             Arrays.sort(tslisthigh);
             Arrays.sort(tslistlow);
-            
+
             tsSHigh.add(tslisthigh);
             tsSLow.add(tslistlow);
 
@@ -404,9 +391,10 @@ public class SdfParser {
         SdfData ping = new SdfData();
         try {
             // Map right file 
-
-            fis = new FileInputStream(file);
-            channel = fis.getChannel();
+            if (multipleFiles) {
+                fis = new FileInputStream(file);
+                channel = fis.getChannel();
+            }
             //
             ByteBuffer buf = channel.map(MapMode.READ_ONLY, pos, 512);
             buf.order(ByteOrder.LITTLE_ENDIAN);
@@ -453,14 +441,14 @@ public class SdfParser {
                 }
         }
     }
-    
+
     private boolean existsTimestamp(long timestamp, SdfIndex searchIndex) {
         if (timestamp >= searchIndex.firstTimestampLow && timestamp <= searchIndex.lastTimestampLow)
             return true;
-        
+
         return false;
     }
-    
+
     public SdfData getPingAt(Long timestamp, int subsystem) {
 
         // point index to right index_ file according to timestamp
