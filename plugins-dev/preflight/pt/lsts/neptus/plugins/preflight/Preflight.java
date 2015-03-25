@@ -95,17 +95,17 @@ public class Preflight extends ConsolePanel {
         initMainPanel();
         initSysNamePanel();
         addNewSection(new AnotherTestSection("1"));
-        addNewSection(new AnotherTestSection("2"));
-        addNewSection(new AnotherTestSection("3"));
-        addNewSection(new AnotherTestSection("4"));
-        addNewSection(new AnotherTestSection("5"));
-        addNewSection(new AnotherTestSection("6"));
-        addNewSection(new AnotherTestSection("7"));
-        addNewSection(new AnotherTestSection("8"));
-        addNewSection(new AnotherTestSection("9"));
-        addNewSection(new AnotherTestSection("10"));
-        addNewSection(new AnotherTestSection("11"));
-        addNewSection(new AnotherTestSection("12"));
+//        addNewSection(new AnotherTestSection("2"));
+//        addNewSection(new AnotherTestSection("3"));
+//        addNewSection(new AnotherTestSection("4"));
+//        addNewSection(new AnotherTestSection("5"));
+//        addNewSection(new AnotherTestSection("6"));
+//        addNewSection(new AnotherTestSection("7"));
+//        addNewSection(new AnotherTestSection("8"));
+//        addNewSection(new AnotherTestSection("9"));
+//        addNewSection(new AnotherTestSection("10"));
+//        addNewSection(new AnotherTestSection("11"));
+//        addNewSection(new AnotherTestSection("12"));
     }
     
     private void initMainPanel() {

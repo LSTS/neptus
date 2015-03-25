@@ -31,10 +31,15 @@
  */
 package pt.lsts.neptus.plugins.preflight.check;
 
+import pt.lsts.neptus.plugins.preflight.PreflightCheck;
+
 /**
  * @author tsmarques
  *
  */
-public class ManualCheck {
-
+@SuppressWarnings("serial")
+public class ManualCheck extends PreflightCheck {
+    public ManualCheck(String description, String category, boolean maintainState) {
+        super(description, category, maintainState, "Manual");
+    }
 }
