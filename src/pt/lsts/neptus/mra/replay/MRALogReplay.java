@@ -404,7 +404,12 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
 
         for (LogReplayLayer l : layers) {
             l.cleanup();
-            replayBus.unregister(l);
+            try {
+                replayBus.unregister(l);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
         }
         for (LogReplayPanel p: panels) {
             p.cleanup();
