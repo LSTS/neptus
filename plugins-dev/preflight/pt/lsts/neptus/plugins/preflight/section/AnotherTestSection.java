@@ -32,10 +32,10 @@
 package pt.lsts.neptus.plugins.preflight.section;
 
 import java.awt.Color;
-import java.awt.Dimension;
 
-import pt.lsts.neptus.plugins.preflight.Preflight;
-import pt.lsts.neptus.plugins.preflight.PreflightCheck;
+import com.google.common.eventbus.Subscribe;
+
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.plugins.preflight.PreflightSection;
 import pt.lsts.neptus.plugins.preflight.check.TestCheck;
 
@@ -47,7 +47,6 @@ import pt.lsts.neptus.plugins.preflight.check.TestCheck;
 public class AnotherTestSection extends PreflightSection {
     public AnotherTestSection() {
         super("Another test section");
-        buildChecksPanel();
         setBackground(Color.WHITE);
     }
 
@@ -55,6 +54,13 @@ public class AnotherTestSection extends PreflightSection {
     protected void buildChecksPanel() { 
         //checksPanel.setPreferredSize(new Dimension(Preflight.WIDTH - 40, Preflight.HEIGHT - 400));
         checksPanel.add(new TestCheck());
+        checksPanel.add(new TestCheck());
+        checksPanel.add(new TestCheck());
+        checksPanel.add(new TestCheck());
     }
 
+    @Subscribe
+    public void on(EstimatedState msg) {
+        System.out.println("PIM");
+    }
 }

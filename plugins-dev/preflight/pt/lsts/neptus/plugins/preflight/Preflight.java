@@ -94,9 +94,8 @@ public class Preflight extends ConsolePanel {
         
         initMainPanel();
         initSysNamePanel();
-//        add(new SystemChecksSection());
-//        add(new TestChecks());
-        contentPanel.add(new AnotherTestSection());
+        addNewSection(new AnotherTestSection());
+        addNewSection(new AnotherTestSection());
     }
     
     private void initMainPanel() {
@@ -110,7 +109,6 @@ public class Preflight extends ConsolePanel {
         scrollMainPanel.setMaximumSize(d);
         scrollMainPanel.setMinimumSize(d);
         scrollMainPanel.setBorder(BorderFactory.createEmptyBorder());
-//        add(contentPanel);
         add(scrollMainPanel);
     }
     
@@ -130,6 +128,10 @@ public class Preflight extends ConsolePanel {
         contentPanel.add(Box.createVerticalStrut(1));
         contentPanel.add(mainSysNamePanel);
         contentPanel.add(Box.createVerticalStrut(2));
+    }
+    
+    private void addNewSection(PreflightSection section) {
+        contentPanel.add(section);
     }
      
 

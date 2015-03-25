@@ -95,21 +95,21 @@ public class TestChecksSection extends PreflightSection {
         checksPanel.setMaximumSize(new Dimension(Preflight.WIDTH - 40, Preflight.HEIGHT - 400));
         
         /* LEFT */
-        addElementWithConstraints(phiLabel, 0, 0, 0.3);
-        addElementWithConstraints(new JLabel("[OK]"), 1, 0, 0.5);
-        
-        addElementWithConstraints(thetaLabel, 0, 1, 0.3);
-        addElementWithConstraints(new JLabel("[OK]"), 1, 1, 0.5);
-        
-        addElementWithConstraints(psiLabel, 0, 2, 0.3);
-        addElementWithConstraints(new JLabel("[OK]"), 1, 2, 0.5);
-        
-        /* RIGHT */
-        addElementWithConstraints(iasLabel, 2, 0, 0.3);
-        addElementWithConstraints(new JLabel("[OK]"), 3, 0, 0.3);
-        
-        addElementWithConstraints(trueSpeedLabel, 2, 1, 0.3);
-        addElementWithConstraints(new JLabel("[OK]"), 3, 1, 0.3);
+//        addElementWithConstraints(phiLabel, 0, 0, 0.3);
+//        addElementWithConstraints(new JLabel("[OK]"), 1, 0, 0.5);
+//        
+//        addElementWithConstraints(thetaLabel, 0, 1, 0.3);
+//        addElementWithConstraints(new JLabel("[OK]"), 1, 1, 0.5);
+//        
+//        addElementWithConstraints(psiLabel, 0, 2, 0.3);
+//        addElementWithConstraints(new JLabel("[OK]"), 1, 2, 0.5);
+//        
+//        /* RIGHT */
+//        addElementWithConstraints(iasLabel, 2, 0, 0.3);
+//        addElementWithConstraints(new JLabel("[OK]"), 3, 0, 0.3);
+//        
+//        addElementWithConstraints(trueSpeedLabel, 2, 1, 0.3);
+//        addElementWithConstraints(new JLabel("[OK]"), 3, 1, 0.3);
     }
     
     @Subscribe

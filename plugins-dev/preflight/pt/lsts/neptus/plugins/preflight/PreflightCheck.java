@@ -31,25 +31,20 @@
  */
 package pt.lsts.neptus.plugins.preflight;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 
-import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import pt.lsts.neptus.console.ConsoleLayout;
-
 /**
  * @author tsmarques
  *
  */
+@SuppressWarnings("serial")
 public abstract class PreflightCheck extends JPanel {
     private JLabel state;
     private JLabel description;
@@ -69,6 +64,7 @@ public abstract class PreflightCheck extends JPanel {
         super();
         init(description, category, maintainState);
         add(this.description, 0);
+        buildPanel(type);
     }
     
     
@@ -84,7 +80,9 @@ public abstract class PreflightCheck extends JPanel {
         this.description = new JLabel(description, SwingConstants.CENTER);
         this.category = category;
         this.maintainState = maintainState;
+        
         checkBox = new JCheckBox();
+        checkBox.setBackground(Color.WHITE);
         valuesLabel = new JLabel("", SwingConstants.CENTER);
     }
     
@@ -95,7 +93,12 @@ public abstract class PreflightCheck extends JPanel {
             addCheckBox();
         }
         else if(type.equals("Automated")) {
-            
+            addStateLabel();
+            addValuesLabel();
+        }
+        else if(type.equals("Manual")) {
+            addStateLabel();
+            addCheckBox();
         }
     }
     

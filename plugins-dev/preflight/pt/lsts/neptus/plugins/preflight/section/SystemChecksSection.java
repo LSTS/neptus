@@ -109,30 +109,30 @@ public class SystemChecksSection extends PreflightSection {
         checksPanel.setPreferredSize(new Dimension(Preflight.WIDTH - 40, Preflight.HEIGHT - 400));
         
         /* LEFT */
-        addElementWithConstraints(voltageLabel, 0, 0, 0.3);
-        addElementWithConstraints(new JLabel("[OK]"), 1, 0, 0.5);
-        
-        addElementWithConstraints(rssiLabel, 0, 1, 0.3);
-        addElementWithConstraints(new JLabel("[OK]"), 1, 1, 0.5);
-        
-        addElementWithConstraints(vehicleMediumLabel, 0, 2, 0.3);
-        addElementWithConstraints(new JLabel("[OK]"), 1, 2, 0.5);
-        
-        addElementWithConstraints(gpsFixLabel, 0, 3, 0.3);
-        addElementWithConstraints(new JLabel("[OK]"), 1, 3, 0.5);
-        
-        /* RIGHT */
-        addElementWithConstraints(maxSpeedLabel, 2, 0, 0.3);
-        addElementWithConstraints(new JLabel("[OK]"), 3, 0, 0.3);
-        
-        addElementWithConstraints(minSpeedLabel, 2, 1, 0.3);
-        addElementWithConstraints(new JLabel("[OK]"), 3, 1, 0.3);
-        
-        addElementWithConstraints(maneuverTypeLabel, 2, 2, 0.3);
-        addElementWithConstraints(new JLabel("[OK]"), 3, 2, 0.3);
-        
-        addElementWithConstraints(fuelLevelLabel, 2, 3, 0.3);
-        addElementWithConstraints(new JLabel("[OK]"), 3, 3, 0.3);
+//        addElementWithConstraints(voltageLabel, 0, 0, 0.3);
+//        addElementWithConstraints(new JLabel("[OK]"), 1, 0, 0.5);
+//        
+//        addElementWithConstraints(rssiLabel, 0, 1, 0.3);
+//        addElementWithConstraints(new JLabel("[OK]"), 1, 1, 0.5);
+//        
+//        addElementWithConstraints(vehicleMediumLabel, 0, 2, 0.3);
+//        addElementWithConstraints(new JLabel("[OK]"), 1, 2, 0.5);
+//        
+//        addElementWithConstraints(gpsFixLabel, 0, 3, 0.3);
+//        addElementWithConstraints(new JLabel("[OK]"), 1, 3, 0.5);
+//        
+//        /* RIGHT */
+//        addElementWithConstraints(maxSpeedLabel, 2, 0, 0.3);
+//        addElementWithConstraints(new JLabel("[OK]"), 3, 0, 0.3);
+//        
+//        addElementWithConstraints(minSpeedLabel, 2, 1, 0.3);
+//        addElementWithConstraints(new JLabel("[OK]"), 3, 1, 0.3);
+//        
+//        addElementWithConstraints(maneuverTypeLabel, 2, 2, 0.3);
+//        addElementWithConstraints(new JLabel("[OK]"), 3, 2, 0.3);
+//        
+//        addElementWithConstraints(fuelLevelLabel, 2, 3, 0.3);
+//        addElementWithConstraints(new JLabel("[OK]"), 3, 3, 0.3);
     }
     
     

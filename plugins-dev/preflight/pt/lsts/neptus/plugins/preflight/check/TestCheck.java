@@ -41,8 +41,8 @@ import pt.lsts.neptus.plugins.preflight.PreflightCheck;
 public class TestCheck extends PreflightCheck {
 
     public TestCheck() {
-        super("Minimum Altitude", "Automated", false);
+        super("Minimum Altitude", "Category", false, "Automated");
         setState("[OK]");
-        setValuesLabelText("[0.01W]");
+        setValuesLabelText("[0.01 W]");
     }
 }

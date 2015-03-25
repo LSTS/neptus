@@ -32,7 +32,6 @@
 package pt.lsts.neptus.plugins.preflight;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -46,8 +45,6 @@ import javax.swing.JPanel;
 
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
-import pt.lsts.neptus.gui.editor.NeptusMessageEditor;
-import pt.lsts.neptus.plugins.NeptusMessageListener;
 
 /**
  * @author tsmarques
@@ -79,12 +76,10 @@ public abstract class PreflightSection extends JPanel implements MainVehicleChan
         add(Box.createVerticalStrut(2));
         add(sectionNamePanel);
         add(Box.createVerticalStrut(1));
+        buildChecksPanel();
         add(checksPanel);
-        
-       // buildChecksPanel();
-        
-        /* TEST */
-        ImcMsgManager.registerBusListener(this);
+                        
+        ImcMsgManager.registerBusListener(this); /* Subscribe to messages */
     }
     
     /* Build the panel that will contain the actual "checks" for this section */
@@ -104,10 +99,8 @@ public abstract class PreflightSection extends JPanel implements MainVehicleChan
     
     private void initChecksPanel() {
         checksPanel = new JPanel();
-//        checksPanel.setLayout(new GridBagLayout());
         checksPanel.setLayout(new BoxLayout(checksPanel, BoxLayout.Y_AXIS));
         checksPanel.setBackground(Color.WHITE);
-//        checksPanel.setMaximumSize(new Dimension(MAX_COMPONENT_WIDTH, getPreferredSize().height));
     }
     
     /* Build Panel that contains the name/description label of this section */
@@ -134,16 +127,6 @@ public abstract class PreflightSection extends JPanel implements MainVehicleChan
             @Override
             public void mouseClicked(MouseEvent e) {}
         });
-    }
-        
-    /* Add elements to checksPanel */
-    protected void addElementWithConstraints(Component comp, int gridx, int gridy, double weightx) {
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = weightx;
-        c.gridx = gridx;
-        c.gridy = gridy;
-        
-        checksPanel.add(comp, c);
     }
     
     /* Returns if the source of a message is the current main vehicle */
