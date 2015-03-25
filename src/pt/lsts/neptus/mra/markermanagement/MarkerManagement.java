@@ -71,6 +71,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import net.miginfocom.swing.MigLayout;
 
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -101,9 +102,6 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
  *
  */
 
-/*
- * Abrir mraPanel, não chegar a abrir MarkerManagement e apagar uma marker do mraPanel , é necessário actualizar o XML !
- */
 @SuppressWarnings("serial")
 public class MarkerManagement {
 
@@ -239,15 +237,15 @@ public class MarkerManagement {
                     int rowIndex = table.getSelectedRow();
                     if (table.getSelectedRow() != -1) {
                         LogMarkerItem selectedMarker = findMarker(table.getValueAt(table.getSelectedRow(), 1).toString());
-                        
+
                         if (markerEditFrame.getOpenMarker() == selectedMarker) {
                             System.out.println("trying to delete marker that is opened");
                             markerEditFrame.dispose();
                         }
-                        
+
                         removeMarkerItem(selectedMarker, rowIndex);
                         removePanelMarkerItem(selectedMarker);
-                        
+
                     }
                 }
             };
@@ -275,18 +273,52 @@ public class MarkerManagement {
             createMarkers();
         }
         else {
-            //XML markers file exists, load markers from it
-            NeptusLog.pub().info("Loading markers...");
-            loader.setText(I18n.text("Loading markers"));
+            if (changedMarkers()) {
+                FileUtils.deleteQuietly(new File(markerFilePath));
 
-            if(!loadMarkers()) {
-                loader.setText(I18n.text("Creating markers"));
-                NeptusLog.pub().error("Corrupted markers file. Trying to create new markers file.");
+                File markerImgPath = new File(mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/");
+                FileUtils.deleteQuietly(markerImgPath);
+                markerList = new ArrayList<>();
+
+                NeptusLog.pub().info("Updating markers...");
+                loader.setText(I18n.text("Updating markers file"));
                 createMarkers();
+            }
+            else {
+
+                //XML markers file exists, load markers from it
+                NeptusLog.pub().info("Loading markers...");
+                loader.setText(I18n.text("Loading markers"));
+
+                if(!loadMarkers()) {
+                    loader.setText(I18n.text("Creating markers"));
+                    NeptusLog.pub().error("Corrupted markers file. Trying to create new markers file.");
+                    createMarkers();
+                }
             }
         }
     }
 
+
+    /** checks for added or deleted markers
+     * @return
+     */
+    private boolean changedMarkers() {
+        //loads xml marker file
+        loadMarkers();
+
+        if (markerList.size() != logMarkers.size())
+            return true;
+
+        for (LogMarker log : logMarkers) {
+            if (findMarker(log.getLabel()) == null) {
+                System.out.println("found one marker "+ log.getLabel() + " that didnt exist previously");
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     @SuppressWarnings("unused")
     private void addImagesToMarkers() {
@@ -968,6 +1000,6 @@ public class MarkerManagement {
             int rowToOpen = index + 1;
             openMarkerEditor(table.getValueAt(rowToOpen, 1).toString(), rowToOpen);
         }
-        
+
     }
 }

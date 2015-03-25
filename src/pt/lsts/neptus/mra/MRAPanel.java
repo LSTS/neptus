@@ -321,8 +321,9 @@ public class MRAPanel extends JPanel {
         source.cleanup();
         source = null;
 
-        if (mra.getMRAMenuBar().getMarkerManagement() != null)
-            mra.getMRAMenuBar().getMarkerManagement().cleanup();
+        if (mra.getMRAMenuBar().getMarkerManagement() != null) {
+            mra.getMRAMenuBar().MarkerManagementCleanup();
+        }
 
     }
 

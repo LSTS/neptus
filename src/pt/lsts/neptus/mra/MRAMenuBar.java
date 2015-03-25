@@ -756,6 +756,13 @@ public class MRAMenuBar {
         markerItem = toolsMenu.add(markerManagement);
     }
     
+    public void MarkerManagementCleanup() {
+        if (markerMngmt != null) {
+            markerMngmt.cleanup();
+            markerMngmt = null;
+        }
+        
+    }
     public MarkerManagement getMarkerManagement() {
         return markerMngmt;
     }
