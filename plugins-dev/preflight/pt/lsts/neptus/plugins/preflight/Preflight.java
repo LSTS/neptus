@@ -94,8 +94,18 @@ public class Preflight extends ConsolePanel {
         
         initMainPanel();
         initSysNamePanel();
-        addNewSection(new AnotherTestSection());
-        addNewSection(new AnotherTestSection());
+        addNewSection(new AnotherTestSection("1"));
+        addNewSection(new AnotherTestSection("2"));
+        addNewSection(new AnotherTestSection("3"));
+        addNewSection(new AnotherTestSection("4"));
+        addNewSection(new AnotherTestSection("5"));
+        addNewSection(new AnotherTestSection("6"));
+        addNewSection(new AnotherTestSection("7"));
+        addNewSection(new AnotherTestSection("8"));
+        addNewSection(new AnotherTestSection("9"));
+        addNewSection(new AnotherTestSection("10"));
+        addNewSection(new AnotherTestSection("11"));
+        addNewSection(new AnotherTestSection("12"));
     }
     
     private void initMainPanel() {
@@ -108,6 +118,8 @@ public class Preflight extends ConsolePanel {
         final Dimension d = new Dimension(MAX_COMPONENT_WIDTH, HEIGHT);
         scrollMainPanel.setMaximumSize(d);
         scrollMainPanel.setMinimumSize(d);
+        scrollMainPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollMainPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollMainPanel.setBorder(BorderFactory.createEmptyBorder());
         add(scrollMainPanel);
     }

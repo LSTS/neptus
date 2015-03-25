@@ -45,8 +45,8 @@ import pt.lsts.neptus.plugins.preflight.check.TestCheck;
  */
 @SuppressWarnings("serial")
 public class AnotherTestSection extends PreflightSection {
-    public AnotherTestSection() {
-        super("Another test section");
+    public AnotherTestSection(String t) {
+        super("Another test section" + t);
         setBackground(Color.WHITE);
     }
 
