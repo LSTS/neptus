@@ -49,6 +49,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -85,6 +86,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 
 
 /**
@@ -210,23 +212,14 @@ public class MarkerEdit extends JFrame {
                     mouseY = e.getY();
                     initialX = mouseX;
                     initialY = mouseY;
-                    
-                    
                 }
-
-                //before ((JPanel) e.getSource()).repaint();
                 markerImage.repaint();
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                // System.out.println("Exited");
                 mouseX = mouseY = -1;    
-
-                //repaint();
-                //markerImage.repaint();
             }
-
         });
 
         markerImage.addMouseMotionListener(new MouseMotionListener() {
@@ -234,7 +227,6 @@ public class MarkerEdit extends JFrame {
 
             @Override
             public void mouseMoved(MouseEvent e) {
-                //System.out.println("moved");
                 mouseX = e.getX();
                 mouseY = e.getY();
             }   
@@ -249,7 +241,6 @@ public class MarkerEdit extends JFrame {
                     pointsList.add(new Point(mouseX-RULER_SIZE-1, mouseY-RULER_SIZE-1));
 
                 }
-                //before ((JPanel) e.getSource()).repaint();
                 markerImage.repaint();
             }
         });
@@ -332,6 +323,27 @@ public class MarkerEdit extends JFrame {
 
         g2.setColor(Color.WHITE);
         g2.drawRect(mouseX - RULER_SIZE -1 -25, mouseY - RULER_SIZE -1 -25, 50, 50);
+        
+        int ZOOM_BOX_SIZE = 50;
+        
+        int X = (int) MathMiscUtils.clamp(mouseX - RULER_SIZE -1, ZOOM_BOX_SIZE / 2, image.getWidth() - ZOOM_BOX_SIZE / 2);
+        int Y = (int) MathMiscUtils.clamp(mouseY - RULER_SIZE -1, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
+        
+        int scale = 3; //2x ZOOM 
+        
+        BufferedImage zoomImage = image.getSubimage(X - ZOOM_BOX_SIZE / 2, Y - ZOOM_BOX_SIZE / 2, 50, ZOOM_BOX_SIZE);
+        
+        //g2.drawImage(zoomImage, image.getWidth()-RULER_SIZE-ZOOM_BOX_SIZE, image.getHeight()-RULER_SIZE-ZOOM_BOX_SIZE, null);
+        
+        int w = getWidth();
+        int h = getHeight();
+        int imageWidth = zoomImage.getWidth();
+        int imageHeight = zoomImage.getHeight();
+        double x = (w - scale * imageWidth)/2;
+        double y = (h - scale * imageHeight)/2;
+        AffineTransform at = AffineTransform.getTranslateInstance(x,y);
+        at.scale(scale, scale);
+        g2.drawRenderedImage(image, at);
     }
 
     private void drawFree(Graphics g) {
