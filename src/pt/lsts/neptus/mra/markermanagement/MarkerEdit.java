@@ -103,13 +103,15 @@ public class MarkerEdit extends JFrame {
     private JLabel markerImage, nameLabelValue, timeStampValue, locationValue, altitudeValue, depthValue;
     private JComboBox<String> classifValue;
     private JTextArea annotationValue;
-    private JButton rectDrawBtn, circleDrawBtn, freeDrawBtn, exportImgBtn, previousMarkBtn, nextMarkBtn;
+    private JButton rectDrawBtn, circleDrawBtn, freeDrawBtn, exportImgBtn;
     private int mouseX, mouseY, initialX, initialY, lastMouseX, lastMouseY;
     private boolean enableFreeDraw = false;
     private boolean enableRectDraw = false;
     private boolean enableCircleDraw = false;
     private boolean enableGrid = false;
     private boolean enableRuler = true;
+    private boolean enableZoom = false;
+    private boolean mouseDown = false;
     private boolean toDeleteDraw = false;
     private BufferedImage layer,  rulerLayer, image, drawImageOverlay;
     private ArrayList<Point> pointsList = new ArrayList<>();
@@ -162,6 +164,10 @@ public class MarkerEdit extends JFrame {
 
                     if (enableCircleDraw)
                         drawCircle(layer.getGraphics(), 0, 0);
+                    
+                    if (enableZoom && mouseDown)
+                        zoom(layer.getGraphics());
+
 
                     g.drawImage(layer, RULER_SIZE+1, RULER_SIZE+1, null);
 
@@ -186,6 +192,7 @@ public class MarkerEdit extends JFrame {
                 markerImage.repaint();
 
                 if (SwingUtilities.isLeftMouseButton(e)) {
+                    mouseDown = false;
                     lastMouseX = mouseX;
                     lastMouseY = mouseY;
                 }
@@ -195,6 +202,7 @@ public class MarkerEdit extends JFrame {
             public void mousePressed(MouseEvent e) {
 
                 if (SwingUtilities.isLeftMouseButton(e)) {
+                    mouseDown = true;
                     if (enableFreeDraw && e.getClickCount() == 2) {
                         pointsList.clear();
                     }
@@ -202,6 +210,8 @@ public class MarkerEdit extends JFrame {
                     mouseY = e.getY();
                     initialX = mouseX;
                     initialY = mouseY;
+                    
+                    
                 }
 
                 //before ((JPanel) e.getSource()).repaint();
@@ -314,6 +324,15 @@ public class MarkerEdit extends JFrame {
         g2.setColor(Color.WHITE);
         g2.drawRect(x, y, w, h);
     }
+    
+    private void zoom(Graphics g) {
+        if (mouseX == -1 && lastMouseX == -1) 
+            return;
+        Graphics2D g2 = (Graphics2D) g;
+
+        g2.setColor(Color.WHITE);
+        g2.drawRect(mouseX - RULER_SIZE -1 -25, mouseY - RULER_SIZE -1 -25, 50, 50);
+    }
 
     private void drawFree(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
@@ -382,13 +401,13 @@ public class MarkerEdit extends JFrame {
         //g2d.setColor(new Color(.3f, .4f, .5f, .6f));
         g2d.setColor(new Color(.5f, .6f, .7f,.8f));
         if (range != 0) {
-            Rectangle horizRect = new Rectangle(RULER_SIZE, image.getHeight()+3, image.getWidth()+1, 12);
+            Rectangle horizRect = new Rectangle(RULER_SIZE+1, image.getHeight()+3, image.getWidth(), 12);
             g2d.fill(horizRect);
         }
 
         //vertical rectangle
         if (height != 0) {
-            Rectangle vertRect = new Rectangle(RULER_SIZE, RULER_SIZE+1, RULER_SIZE, image.getHeight());
+            Rectangle vertRect = new Rectangle(RULER_SIZE+1, RULER_SIZE+1, RULER_SIZE, image.getHeight()-1);
             g2d.fill(vertRect);
         }
 
@@ -436,7 +455,7 @@ public class MarkerEdit extends JFrame {
                     g2d.drawLine(RULER_SIZE+1, cV, image.getWidth()+RULER_SIZE, cV);
 
                 g2d.setColor(Color.BLACK);
-                g2d.drawLine(RULER_SIZE+1, cV, (RULER_SIZE)-lineWith, cV);
+                g2d.drawLine(RULER_SIZE, cV, (RULER_SIZE)-lineWith, cV);
             }
         }
     }
@@ -592,8 +611,10 @@ public class MarkerEdit extends JFrame {
         JButton showRulerBtn = createBtn("images/menus/ruler.png", "Show ruler");
         exportImgBtn = createBtn("images/menus/export.png", "Export");
         
-        previousMarkBtn = createBtn("images/menus/previous.png", "Previous Mark");
-        nextMarkBtn = createBtn("images/menus/next.png", "Next Mark");
+        JButton previousMarkBtn = createBtn("images/menus/previous.png", "Previous Mark");
+        JButton nextMarkBtn = createBtn("images/menus/next.png", "Next Mark");
+        
+        JButton zoomBtn = createBtn("images/menus/zoom_btn.png", "Zoom");
 
         save = new AbstractAction(I18n.text("Save"), ImageUtils.getIcon("images/menus/save.png")) {
 
@@ -845,6 +866,16 @@ public class MarkerEdit extends JFrame {
                 parent.nextMark(selectMarkerRowIndex);
             }
         };
+        AbstractAction zoomAction = new AbstractAction(I18n.text("Zoom")) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (enableZoom)
+                    enableZoom = false;
+                else
+                    enableZoom = true;
+            }
+        };
         
 
         //add buttons to toolbar
@@ -858,6 +889,7 @@ public class MarkerEdit extends JFrame {
         toolBar.addSeparator(); 
         toolBar.add(showGridBtn);
         toolBar.add(showRulerBtn);
+        toolBar.add(zoomBtn);
         toolBar.addSeparator();
         toolBar.add(exportImgBtn);
 
@@ -879,8 +911,10 @@ public class MarkerEdit extends JFrame {
         clearDrawBtn.addActionListener(clearDrawings);
         showGridBtn.addActionListener(showGrid);
         showRulerBtn.addActionListener(showRuler);
-        previousMarkBtn.addActionListener(previousMark);
+        showRulerBtn.addActionListener(showRuler);
+        zoomBtn.addActionListener(zoomAction);
         nextMarkBtn.addActionListener(nextMark);
+        previousMarkBtn.addActionListener(previousMark);
 
         exportImgBtn.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {

@@ -644,7 +644,6 @@ public class MarkerManagement {
     private boolean loadMarkers() {
         parseXmlFile();
         parseDocument();
-        //printData();
 
         return !markerList.isEmpty();
     }
@@ -989,6 +988,7 @@ public class MarkerManagement {
         if (index > 0) {
             int rowToOpen = index - 1;
             openMarkerEditor(table.getValueAt(rowToOpen, 1).toString(), rowToOpen);
+            table.setRowSelectionInterval(rowToOpen, rowToOpen);
         }
     }
 
@@ -999,6 +999,7 @@ public class MarkerManagement {
         if (index >= 0 && index < table.getRowCount()-1) {
             int rowToOpen = index + 1;
             openMarkerEditor(table.getValueAt(rowToOpen, 1).toString(), rowToOpen);
+            table.setRowSelectionInterval(rowToOpen, rowToOpen);
         }
 
     }
