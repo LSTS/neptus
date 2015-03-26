@@ -36,6 +36,7 @@ package pt.lsts.neptus.mra.markermanagement;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -71,12 +72,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 import net.miginfocom.swing.MigLayout;
@@ -105,7 +109,7 @@ public class MarkerEdit extends JFrame {
     private JComboBox<String> classifValue;
     private JTextArea annotationValue;
     private JButton rectDrawBtn, circleDrawBtn, freeDrawBtn, exportImgBtn;
-    private int mouseX, mouseY, initialX, initialY, lastMouseX, lastMouseY;
+    private int mouseX, mouseY, initialX, initialY, lastMouseX, lastMouseY, zoomScale;
     private boolean enableFreeDraw = false;
     private boolean enableRectDraw = false;
     private boolean enableCircleDraw = false;
@@ -327,26 +331,15 @@ public class MarkerEdit extends JFrame {
         int X = (int) MathMiscUtils.clamp(mouseX - RULER_SIZE -1, ZOOM_BOX_SIZE / 2, image.getWidth() - ZOOM_BOX_SIZE / 2);
         int Y = (int) MathMiscUtils.clamp(mouseY - RULER_SIZE -1, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
 
-        int scale = 2; //2x ZOOM 
+        //zoomScale = 2; //2x ZOOM 
 
         BufferedImage zoomImage = image.getSubimage(X - ZOOM_BOX_SIZE / 2, Y - ZOOM_BOX_SIZE / 2, 50, ZOOM_BOX_SIZE);
 
         int w = zoomImage.getWidth();
         int h = zoomImage.getHeight();
 
-
-        g2.drawRect(image.getWidth()-RULER_SIZE-(w*scale)-1, image.getHeight()-RULER_SIZE-(h*scale)-1, w*scale+1, h*scale+1);
-        g2.drawImage(ImageUtils.getFasterScaledInstance(zoomImage, w*scale, h*scale), image.getWidth()-RULER_SIZE-(w*scale), image.getHeight()-RULER_SIZE-(h*scale), null);
-
-        //        int w = getWidth();
-        //        int h = getHeight();
-        //        int imageWidth = zoomImage.getWidth();
-        //        int imageHeight = zoomImage.getHeight();
-        //        double x = (w - scale * imageWidth)/2;
-        //        double y = (h - scale * imageHeight)/2;
-        //        AffineTransform at = AffineTransform.getTranslateInstance(x,y);
-        //        at.scale(scale, scale);
-        //        g2.drawRenderedImage(image, at);
+        g2.drawRect(image.getWidth()-RULER_SIZE-(w*zoomScale)-1, image.getHeight()-RULER_SIZE-(h*zoomScale)-1, w*zoomScale+1, h*zoomScale+1);
+        g2.drawImage(ImageUtils.getFasterScaledInstance(zoomImage, w*zoomScale, h*zoomScale), image.getWidth()-RULER_SIZE-(w*zoomScale), image.getHeight()-RULER_SIZE-(h*zoomScale), null);
     }
 
     private void drawFree(Graphics g) {
@@ -609,9 +602,54 @@ public class MarkerEdit extends JFrame {
         return btn;
     }
 
+    public static void main(String[] args) {
+        JFrame frm = new JFrame();
+        
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout());
+        
+        JSlider slider = new JSlider(JSlider.HORIZONTAL, 1, 5, 2);
+        slider.setMinorTickSpacing(1);
+        slider.setMajorTickSpacing(1);
+        slider.setPaintTicks(true);
+        slider.setPaintLabels(true);
+        slider.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        slider.setPreferredSize(new Dimension(70, 50));
+        panel.add(slider);
+        
+        frm.add(panel);
+        
+        frm.add(panel);
+        frm.setSize(300, 300);
+        frm.setLocationRelativeTo(null);
+        frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frm.setVisible(true);
+    }
     private void setupMenu() {
 
         final JPopupMenu popup = new JPopupMenu();
+        final JPopupMenu popupSlider = new JPopupMenu();
+        
+        JSlider slider = new JSlider(JSlider.HORIZONTAL, 1, 5, 2);
+        slider.setMinorTickSpacing(1);
+        slider.setMajorTickSpacing(1);
+        slider.setPaintTicks(true);
+        slider.setPaintLabels(true);
+        slider.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        slider.setPreferredSize(new Dimension(70, 50));
+        ChangeListener l = new ChangeListener() {
+            
+            @Override
+            public void stateChanged(ChangeEvent ce) {
+                JSlider source = (JSlider)ce.getSource();
+                if (!source.getValueIsAdjusting()) {
+                zoomScale = (int)source.getValue();
+                }
+            }
+        };
+        slider.addChangeListener(l);
+        popupSlider.add(slider);
+        
         JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
         toolBar.setRollover(true);
@@ -942,6 +980,14 @@ public class MarkerEdit extends JFrame {
             }
         });
 
+        
+        zoomBtn.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    popupSlider.show(e.getComponent(), e.getX()+10, e.getY()+15);
+                }
+            }
+        });
         //setup shortcuts - key bindings
         panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK), "save");
         panel.getActionMap().put("save", save);
