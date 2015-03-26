@@ -52,7 +52,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -92,6 +91,7 @@ import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.Dom4JUtil;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.llf.LsfReport;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
@@ -99,7 +99,6 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
  * @author Manuel R.
  *
  */
-
 @SuppressWarnings("serial")
 public class MarkerManagement {
 
@@ -124,17 +123,18 @@ public class MarkerManagement {
     private void initialize() {
 
         if (mraPanel.getMarkers().isEmpty()) {
-            JOptionPane.showMessageDialog(mraPanel, "No markers to show!");
-//            frmMarkerManagement.setLayout(new GridBagLayout());
-//            JLabel error = new JLabel("NO MARKERS TO DISPLAY!");
-//            Font font = error.getFont();
-//            Font boldFont = new Font(font.getFontName(), Font.BOLD, 15);
-//            error.setFont(boldFont);            
-//
-//            frmMarkerManagement.add(error);
+            GuiUtils.infoMessage(mraPanel, "MarkerManagement", "No markers to show!");
+            deleteMarkersFiles();
+            //            frmMarkerManagement.setLayout(new GridBagLayout());
+            //            JLabel error = new JLabel("NO MARKERS TO DISPLAY!");
+            //            Font font = error.getFont();
+            //            Font boldFont = new Font(font.getFontName(), Font.BOLD, 15);
+            //            error.setFont(boldFont);            
+            //
+            //            frmMarkerManagement.add(error);
             return;
         }
-        
+
         frmMarkerManagement = new JFrame();
         frmMarkerManagement.setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerManagement.class.getResource("/images/menus/marker.png")));
         frmMarkerManagement.setTitle("Marker Management");
@@ -258,7 +258,14 @@ public class MarkerManagement {
         }
 
     }
-
+    private void deleteMarkersFiles() {
+        markerFilePath = mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/marks.xml";
+        FileUtils.deleteQuietly(new File(markerFilePath));
+        
+        File markerImgPath = new File(mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/");
+        FileUtils.deleteQuietly(markerImgPath);
+    }
+    
     private void setupMarkers() {
         markerFilePath = mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/marks.xml";
 
@@ -272,10 +279,7 @@ public class MarkerManagement {
         }
         else {
             if (changedMarkers()) {
-                FileUtils.deleteQuietly(new File(markerFilePath));
-
-                File markerImgPath = new File(mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/");
-                FileUtils.deleteQuietly(markerImgPath);
+                deleteMarkersFiles();
                 markerList = new ArrayList<>();
 
                 NeptusLog.pub().info("Updating markers...");
@@ -310,7 +314,6 @@ public class MarkerManagement {
 
         for (LogMarker log : logMarkers) {
             if (findMarker(log.getLabel()) == null) {
-                System.out.println("found one marker "+ log.getLabel() + " that didnt exist previously");
                 return true;
             }
         }
