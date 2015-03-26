@@ -32,8 +32,6 @@
 
 package pt.lsts.neptus.mra.markermanagement;
 
-import java.awt.Font;
-import java.awt.GridBagLayout;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -54,7 +52,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -107,17 +105,16 @@ public class MarkerManagement {
 
     private final int DEFAULT_COLUMN_TO_SORT = 0;
     private JFrame frmMarkerManagement;
+    private JPanel panel;
+    protected MRAPanel mraPanel;
     private JTable table;
     private LogMarkerItemModel tableModel;
     private MarkerEdit markerEditFrame;
-    protected MRAPanel mraPanel;
     private final ArrayList<SidescanLogMarker> logMarkers = new ArrayList<>();
-    private String markerFilePath;
     private List<LogMarkerItem> markerList = new ArrayList<>();
+    private String markerFilePath;
     private Document dom;
-    InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
-
-    private JPanel panel;
+    private static InfiniteProgressPanel loader = InfiniteProgressPanel.createInfinitePanelBeans("");
 
     public MarkerManagement(NeptusMRA mra, MRAPanel mraPanel) {
         this.mraPanel = mraPanel;
@@ -126,7 +123,18 @@ public class MarkerManagement {
 
     private void initialize() {
 
-
+        if (mraPanel.getMarkers().isEmpty()) {
+            JOptionPane.showMessageDialog(mraPanel, "No markers to show!");
+//            frmMarkerManagement.setLayout(new GridBagLayout());
+//            JLabel error = new JLabel("NO MARKERS TO DISPLAY!");
+//            Font font = error.getFont();
+//            Font boldFont = new Font(font.getFontName(), Font.BOLD, 15);
+//            error.setFont(boldFont);            
+//
+//            frmMarkerManagement.add(error);
+            return;
+        }
+        
         frmMarkerManagement = new JFrame();
         frmMarkerManagement.setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerManagement.class.getResource("/images/menus/marker.png")));
         frmMarkerManagement.setTitle("Marker Management");
@@ -135,17 +143,6 @@ public class MarkerManagement {
         frmMarkerManagement.getContentPane().setLayout(new MigLayout("", "[grow]", "[grow]"));
         frmMarkerManagement.setVisible(true);
         frmMarkerManagement.setResizable(false);
-
-        if (mraPanel.getMarkers().isEmpty()) {
-            frmMarkerManagement.setLayout(new GridBagLayout());
-            JLabel error = new JLabel("NO MARKERS TO DISPLAY!");
-            Font font = error.getFont();
-            Font boldFont = new Font(font.getFontName(), Font.BOLD, 15);
-            error.setFont(boldFont);            
-
-            frmMarkerManagement.add(error);
-            return;
-        }
 
         markerEditFrame = new MarkerEdit(this);
 
@@ -239,7 +236,6 @@ public class MarkerManagement {
                         LogMarkerItem selectedMarker = findMarker(table.getValueAt(table.getSelectedRow(), 1).toString());
 
                         if (markerEditFrame.getOpenMarker() == selectedMarker) {
-                            System.out.println("trying to delete marker that is opened");
                             markerEditFrame.dispose();
                         }
 
@@ -775,9 +771,11 @@ public class MarkerManagement {
      * 
      */
     public void addMarker(LogMarker marker) {
-        logMarkers.add((SidescanLogMarker) marker);
+        if (marker.getClass() == SidescanLogMarker.class) {
+            logMarkers.add((SidescanLogMarker) marker);
 
-        addNewMarker((SidescanLogMarker) marker);
+            addNewMarker((SidescanLogMarker) marker);
+        }
     }
 
     private void deleteImage(String path) {
@@ -815,8 +813,10 @@ public class MarkerManagement {
     private LogMarker findLogMarker(String label) {
 
         for (LogMarker log : mraPanel.getMarkers()) {
-            if (log.getLabel().equals(label))
-                return log;
+            if (log.getClass() == SidescanLogMarker.class) {
+                if (log.getLabel().equals(label))
+                    return log;
+            }
         }
         return null;
     }

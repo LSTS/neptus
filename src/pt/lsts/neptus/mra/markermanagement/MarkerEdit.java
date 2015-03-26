@@ -973,7 +973,7 @@ public class MarkerEdit extends JFrame {
 
         exportImgBtn.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
-                popup.show(e.getComponent(), e.getX()+10, e.getY()+15);
+                popup.show(e.getComponent(), e.getX(), e.getY());
             }
         });
         
