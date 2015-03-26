@@ -268,6 +268,8 @@ public class MarkerManagement {
 
         //XML markers file doesnt exist and there are Markers to be added
         if (!new File(markerFilePath).exists() && !logMarkers.isEmpty()) {
+            File markerImgPath = new File(mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/");
+            FileUtils.deleteQuietly(markerImgPath);
             NeptusLog.pub().info("Creating markers...");
             loader.setText(I18n.text("Creating markers file"));
             createMarkers();

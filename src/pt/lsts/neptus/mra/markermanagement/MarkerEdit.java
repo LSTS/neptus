@@ -109,7 +109,7 @@ public class MarkerEdit extends JFrame {
     private JComboBox<String> classifValue;
     private JTextArea annotationValue;
     private JButton rectDrawBtn, circleDrawBtn, freeDrawBtn, exportImgBtn;
-    private int mouseX, mouseY, initialX, initialY, lastMouseX, lastMouseY, zoomScale;
+    private int mouseX, mouseY, initialX, initialY, lastMouseX, lastMouseY, zoomScale = 2;
     private boolean enableFreeDraw = false;
     private boolean enableRectDraw = false;
     private boolean enableCircleDraw = false;
@@ -169,7 +169,7 @@ public class MarkerEdit extends JFrame {
                     if (enableCircleDraw)
                         drawCircle(layer.getGraphics(), 0, 0);
 
-                    if (enableZoom && mouseDown)
+                    if (enableZoom && mouseDown) //FIXME create new layer for zoom (grid is being draw on top of zoom :| )
                         zoom(layer.getGraphics());
 
 
@@ -194,7 +194,6 @@ public class MarkerEdit extends JFrame {
             public void mouseReleased(MouseEvent e) {
                 //before ((JPanel) e.getSource()).repaint();
                 markerImage.repaint();
-
                 if (SwingUtilities.isLeftMouseButton(e)) {
                     mouseDown = false;
                     lastMouseX = mouseX;
@@ -638,7 +637,6 @@ public class MarkerEdit extends JFrame {
         slider.setFont(new Font("SansSerif", Font.PLAIN, 10));
         slider.setPreferredSize(new Dimension(70, 50));
         ChangeListener l = new ChangeListener() {
-            
             @Override
             public void stateChanged(ChangeEvent ce) {
                 JSlider source = (JSlider)ce.getSource();
@@ -679,7 +677,7 @@ public class MarkerEdit extends JFrame {
                 //save drawing image
                 BufferedImage img = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
                 Graphics2D g2d = img.createGraphics();
-                String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
+                String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
 
                 // drawRect(layer.getGraphics(), lastMouseX, lastMouseY);
 
@@ -815,7 +813,7 @@ public class MarkerEdit extends JFrame {
 
                     g2d.drawImage(image, 0, 0, null);
                     g2d.dispose();
-                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
+                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
 
                     // save image to file
                     String fileName = chooseSaveFile(img, path);
@@ -838,7 +836,7 @@ public class MarkerEdit extends JFrame {
                     g2d.drawImage(image, RULER_SIZE, 0, null);
                     g2d.drawImage(rulerLayer, 0, -RULER_SIZE, null);
                     g2d.dispose();
-                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
+                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
 
                     // save image to file
                     String fileName = chooseSaveFile(img, path);
@@ -856,7 +854,7 @@ public class MarkerEdit extends JFrame {
                 if (markerImage != null && rulerLayer != null) {
                     BufferedImage img = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g2d = img.createGraphics();
-                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
+                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
 
                     // drawRect(layer.getGraphics(), lastMouseX, lastMouseY);
 
@@ -896,7 +894,7 @@ public class MarkerEdit extends JFrame {
                     g2d.drawImage(rulerLayer, 0, -RULER_SIZE, null);
 
                     g2d.dispose();
-                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/markers/";
+                    String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
 
                     // save image to file
                     String fileName = chooseSaveFile(img, path);
@@ -969,7 +967,6 @@ public class MarkerEdit extends JFrame {
         clearDrawBtn.addActionListener(clearDrawings);
         showGridBtn.addActionListener(showGrid);
         showRulerBtn.addActionListener(showRuler);
-        showRulerBtn.addActionListener(showRuler);
         zoomBtn.addActionListener(zoomAction);
         nextMarkBtn.addActionListener(nextMark);
         previousMarkBtn.addActionListener(previousMark);
@@ -979,7 +976,6 @@ public class MarkerEdit extends JFrame {
                 popup.show(e.getComponent(), e.getX()+10, e.getY()+15);
             }
         });
-
         
         zoomBtn.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
@@ -1000,6 +996,12 @@ public class MarkerEdit extends JFrame {
 
         panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK), "showRuler");
         panel.getActionMap().put("showRuler", showRuler);
+        
+        panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "nextMark");
+        panel.getActionMap().put("nextMark", nextMark);
+        
+        panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "prevMark");
+        panel.getActionMap().put("prevMark", previousMark);
 
         add(toolBar, BorderLayout.PAGE_START);
     }

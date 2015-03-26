@@ -194,8 +194,8 @@ public class LogMarkerItemModel extends AbstractTableModel {
         table.getColumnModel().getColumn(2).setPreferredWidth(115);
 
         // column 3 - width
-        table.getColumnModel().getColumn(3).setMaxWidth(170);
-        table.getColumnModel().getColumn(3).setPreferredWidth(145);
+        table.getColumnModel().getColumn(3).setMaxWidth(190);
+        table.getColumnModel().getColumn(3).setPreferredWidth(175);
 
         // column 4 - width
         table.getColumnModel().getColumn(4).setMaxWidth(75);
