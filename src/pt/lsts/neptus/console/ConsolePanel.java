@@ -121,7 +121,6 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     private boolean popupPositionFlag = false;
     private boolean resizable = true;
     private boolean visibility = true;
-    private Collection<IPeriodicUpdates> periodicMethods = null;
     
     public ConsolePanel(ConsoleLayout console) {
         this.console = console;
@@ -329,12 +328,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         if (this instanceof IPeriodicUpdates)
             PeriodicUpdatesService.unregister((IPeriodicUpdates) this);
 
-        if (periodicMethods != null) {
-            for (IPeriodicUpdates i : periodicMethods) {
-                PeriodicUpdatesService.unregister(i);
-            }
-            periodicMethods.clear();
-        }
+        PeriodicUpdatesService.unregisterPojo(this);
         
         if (this instanceof NeptusMessageListener) {
             if (getConsole() != null) {
@@ -499,14 +493,10 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
         // After all setup let us register the IPeriodicUpdates and Message callbacks
 
-        if (this instanceof IPeriodicUpdates) {
+        if (this instanceof IPeriodicUpdates)
             PeriodicUpdatesService.register((IPeriodicUpdates) this);
-        }
         
-        periodicMethods = PeriodicUpdatesService.inspect(this);
-        for (IPeriodicUpdates i : periodicMethods) {
-            PeriodicUpdatesService.register(i);
-        }
+        PeriodicUpdatesService.registerPojo(this);
         
         ImcMsgManager.registerBusListener(this);
 
