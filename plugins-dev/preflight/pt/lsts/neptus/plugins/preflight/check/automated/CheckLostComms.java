@@ -27,36 +27,41 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: tsmarques
- * 23 Mar 2015
+ * 25 Mar 2015
  */
-package pt.lsts.neptus.plugins.preflight.section;
+package pt.lsts.neptus.plugins.preflight.check.automated;
 
-import java.awt.Color;
+import pt.lsts.neptus.plugins.preflight.Preflight;
+import pt.lsts.neptus.plugins.preflight.check.AutomatedCheck;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
-import com.google.common.eventbus.Subscribe;
-
-import pt.lsts.imc.EstimatedState;
-import pt.lsts.neptus.plugins.preflight.PreflightSection;
-import pt.lsts.neptus.plugins.preflight.check.ManualCheck;
-import pt.lsts.neptus.plugins.preflight.check.TestCheck;
-import pt.lsts.neptus.plugins.preflight.check.automated.CheckLostComms;
-import pt.lsts.neptus.plugins.preflight.check.automated.DiskSpaceCheck;
-
-/**
- * @author tsmarques
- *
- */
 @SuppressWarnings("serial")
-public class AnotherTestSection extends PreflightSection {
-    public AnotherTestSection(String t) {
-        super("Another test section" + t);
-        setBackground(Color.WHITE);
+public class CheckLostComms extends AutomatedCheck {
+    public CheckLostComms(boolean maintainState) {
+        super("Lost Comms", "Planning", maintainState);
     }
 
     @Override
-    protected void buildChecksPanel() { 
-        addNewCheckItem(new ManualCheck("Manual Check", "Status", false));
-        addNewCheckItem(new CheckLostComms(false));
-        addNewCheckItem(new DiskSpaceCheck(false));
+    public long millisBetweenUpdates() {
+        return 2000;
+    }
+
+    
+    /* TODO: Check lost comms in the vehicle, not just the console */
+    @Override
+    public boolean update() {
+        PlanType lostComms = Preflight.CONSOLE.
+                getMission().
+                    getIndividualPlansList().
+                        get("lost_comms");
+        try {
+            if(lostComms.validatePlan())
+                setState(VALIDATED);
+        }
+        catch(Exception e) {
+            setState(NOT_VALIDATED);
+        }
+        return true;
     }
 }

@@ -35,15 +35,20 @@ package pt.lsts.neptus.plugins.preflight.check;
  * @author tsmarques
  *
  */
-public class WithinRangeCheck extends AutomatedCheck {
-
-    /**
-     * @param description
-     * @param category
-     * @param maintainState
-     */
+@SuppressWarnings("serial")
+public abstract class WithinRangeCheck extends AutomatedCheck {
+    private double maxValue;
+    private double minValue;
+    
     public WithinRangeCheck(String description, String category, boolean maintainState) {
         super(description, category, maintainState);
     }
+    
+    protected abstract double getMaxValue();
+    protected abstract double getMinValue();
 
+    
+    protected boolean isWithingRange(double value) {
+        return(value >= getMinValue() && value <= getMaxValue());
+    }
 }

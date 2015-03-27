@@ -42,6 +42,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+
 /**
  * @author tsmarques
  *
@@ -57,19 +59,13 @@ public abstract class PreflightCheck extends JPanel {
     private JCheckBox checkBox;
     private JLabel valuesLabel; /* E.g, whithinRange values */
     private boolean maintainState;
-    
-    public PreflightCheck(String description, String category, boolean maintainState) {
-        super();
-        
-        init(description, category, maintainState);
-        add(this.description, 0);
-        buildPanel("");
-    }
-    
+      
     public PreflightCheck(String description, String category, boolean maintainState, String type) {
         super();
         init(description, category, maintainState);
         buildPanel(type);
+        
+        ImcMsgManager.registerBusListener(this); /* Subscribe to messages */
     }
         
     private void init(String description, String category, boolean maintainState) {
@@ -116,10 +112,7 @@ public abstract class PreflightCheck extends JPanel {
             addValuesLabel();
         }
     }
-    
-//    public final void init(ConsoleLayout c) {
-//    }
-    
+        
     public void setState(String newState) {
         if(newState.equals(VALIDATED)) {
             state.setForeground(Color.GREEN);
@@ -165,6 +158,10 @@ public abstract class PreflightCheck extends JPanel {
                 }
             }
         });
+    }
+    
+    protected boolean messageFromMainVehicle(String msgSrc) {
+        return(msgSrc.equals(Preflight.CONSOLE.getMainSystem()));
     }
         
     public String getState() {

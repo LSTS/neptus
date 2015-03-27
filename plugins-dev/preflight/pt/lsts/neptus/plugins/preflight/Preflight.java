@@ -59,8 +59,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.preflight.section.AnotherTestSection;
-import pt.lsts.neptus.plugins.preflight.section.SystemChecksSection;
-import pt.lsts.neptus.plugins.preflight.section.TestChecksSection;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 
 /**
@@ -74,6 +72,8 @@ public class Preflight extends ConsolePanel {
     public static final int WIDTH = 550;
     public static final int HEIGHT = 750;
     public static final int MAX_COMPONENT_WIDTH = WIDTH - 20; /* Maximum child component width */
+    
+    /* Not sure if best solution */
     public static ConsoleLayout CONSOLE;
     
     
@@ -146,13 +146,6 @@ public class Preflight extends ConsolePanel {
     private void addNewSection(PreflightSection section) {
         contentPanel.add(section);
     }
-     
-
-//    @Subscribe
-//    public void on(EstimatedState msg) {
-//        if(!msgFromMainVehicle(msg.getSourceName()))
-//            return;
-//    }
        
     @Subscribe
     public void on(ConsoleEventMainSystemChange ev) { /* When a diff vehicle has been selected as main Vehicle */
@@ -163,6 +156,9 @@ public class Preflight extends ConsolePanel {
         }
         mainSysNameLabel.setText(mainSysName);
         revalidate();
+        
+        /* TODO: Instead of just changing the name of the system
+         * also change the Preflight Panel */
     }
     
     @Subscribe

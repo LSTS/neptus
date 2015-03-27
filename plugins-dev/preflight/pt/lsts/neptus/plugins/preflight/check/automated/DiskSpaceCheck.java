@@ -27,38 +27,56 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: tsmarques
- * 25 Mar 2015
+ * 27 Mar 2015
  */
-package pt.lsts.neptus.plugins.preflight.check;
+package pt.lsts.neptus.plugins.preflight.check.automated;
 
+import com.google.common.eventbus.Subscribe;
+
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.StorageUsage;
 import pt.lsts.neptus.plugins.preflight.Preflight;
-import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
-import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.plugins.preflight.check.WithinRangeCheck;
 
+/**
+ * @author tsmarques
+ *
+ */
 @SuppressWarnings("serial")
-public class CheckLostComms extends AutomatedCheck {
-    public CheckLostComms(String description, String category, boolean maintainState) {
-        super(description, category, maintainState);
+public class DiskSpaceCheck extends WithinRangeCheck {
+    public DiskSpaceCheck(boolean maintainStateOnReboot) {
+        super("Disk Space", "Status", maintainStateOnReboot);
     }
 
     @Override
-    public long millisBetweenUpdates() {
-        return 2000;
+    protected double getMaxValue() {
+        return 100;
     }
 
     @Override
-    public boolean update() {
-        PlanType lostComms = Preflight.CONSOLE.
-                getMission().
-                    getIndividualPlansList().
-                        get("lost_comms");
-        try {
-            if(lostComms.validatePlan())
-                setState(VALIDATED);
-        }
-        catch(Exception e) {
+    protected double getMinValue() {
+        return 40;
+    }
+   
+    @Subscribe
+    public void on(StorageUsage msg) {
+        if(!messageFromMainVehicle(msg.getSourceName()))
+            return;
+        
+        int diskSpacePerc = msg.getValue();/* get used space (%)*/
+        double diskSpace = msg.getAvailable() / 1024; /* to GiB */
+        setValuesLabelText("[" + diskSpace + " GiB" + "/" + (100 - diskSpacePerc) + "%]");
+        
+        if(isWithingRange(diskSpacePerc))
+            setState(VALIDATED);
+        else
+            System.out.println("## NOT VALIDATED ##");
             setState(NOT_VALIDATED);
-        }
-        return true;
     }
+    
+    
+    @Override
+    public long millisBetweenUpdates() {return 0;}
+    @Override
+    public boolean update() {return false;}
 }

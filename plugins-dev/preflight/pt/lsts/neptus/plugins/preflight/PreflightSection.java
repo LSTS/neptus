@@ -78,8 +78,6 @@ public abstract class PreflightSection extends JPanel implements MainVehicleChan
         add(Box.createVerticalStrut(1));
         buildChecksPanel();
         add(checksPanel);
-                        
-        ImcMsgManager.registerBusListener(this); /* Subscribe to messages */
     }
     
     /* Build the panel that will contain the actual "checks" for this section */
@@ -129,9 +127,8 @@ public abstract class PreflightSection extends JPanel implements MainVehicleChan
         });
     }
     
-    /* Returns if the source of a message is the current main vehicle */
-    protected boolean msgFromMainVehicle(String msgSrc) {
-        return(msgSrc.equals(mainVehicle));
+    protected void addNewCheckItem(PreflightCheck newItem) {
+        checksPanel.add(newItem);
     }
     
     @Override
