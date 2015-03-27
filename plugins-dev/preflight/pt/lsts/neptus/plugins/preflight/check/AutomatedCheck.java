@@ -32,21 +32,22 @@
 package pt.lsts.neptus.plugins.preflight.check;
 
 import pt.lsts.neptus.plugins.preflight.PreflightCheck;
+import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
+import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 
 /**
  * @author tsmarques
  *
  */
-public class AutomatedCheck extends PreflightCheck {
-
-    /**
-     * @param description
-     * @param category
-     * @param maintainState
-     */
+public abstract class AutomatedCheck extends PreflightCheck implements IPeriodicUpdates {  
     public AutomatedCheck(String description, String category, boolean maintainState) {
-        super(description, category, maintainState);
+        super(description, category, maintainState, "Automated");
+        PeriodicUpdatesService.register(this);
     }
-
-
+    
+    /* Signal to unregister periodic updates */
+    protected final void stopValidation() {
+        PeriodicUpdatesService.unregister(this);
+    }
 }

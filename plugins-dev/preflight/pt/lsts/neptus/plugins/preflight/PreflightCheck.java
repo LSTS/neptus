@@ -85,7 +85,7 @@ public abstract class PreflightCheck extends JPanel {
         
         checkBox = new JCheckBox();
         checkBox.setBackground(Color.WHITE);
-        valuesLabel = new JLabel("", SwingConstants.CENTER);
+        valuesLabel = new JLabel("?", SwingConstants.CENTER);
         
         add(this.description, 0);
         add(state, 1);
@@ -97,6 +97,7 @@ public abstract class PreflightCheck extends JPanel {
         checkBox.setVisible(false);
     }
     
+    /* Adds the panel elements, according to the check type */
     private void buildPanel(String type) {
         if(type.equals("")) {
             addStateLabel();

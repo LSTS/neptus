@@ -69,13 +69,12 @@ import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "Preflight", author = "tsmarques", version = "0.1")
-@Popup(name = "Preflight", pos = POSITION.CENTER, width = 450, height = 650)
+@Popup(name = "Preflight", pos = POSITION.CENTER, width = 550, height = 750)
 public class Preflight extends ConsolePanel {
-    public static final int WIDTH = 450;
-    public static final int HEIGHT = 650;
+    public static final int WIDTH = 550;
+    public static final int HEIGHT = 750;
     public static final int MAX_COMPONENT_WIDTH = WIDTH - 20; /* Maximum child component width */
-    
-    private static final String NOT_UAV_ERROR = "Main vehicle is not an UAV";
+    public static ConsoleLayout CONSOLE;
     
     
     /* Test */ 
@@ -88,9 +87,11 @@ public class Preflight extends ConsolePanel {
    
     public Preflight(ConsoleLayout console) {
         super(console);
+        CONSOLE = getConsole();
         setResizable(false);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Color.WHITE);
+        
         
         initMainPanel();
         initSysNamePanel();

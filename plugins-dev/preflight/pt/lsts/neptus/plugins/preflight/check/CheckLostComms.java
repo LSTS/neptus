@@ -27,37 +27,38 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: tsmarques
- * 23 Mar 2015
+ * 25 Mar 2015
  */
-package pt.lsts.neptus.plugins.preflight.section;
+package pt.lsts.neptus.plugins.preflight.check;
 
-import java.awt.Color;
+import pt.lsts.neptus.plugins.preflight.Preflight;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
-import com.google.common.eventbus.Subscribe;
-
-import pt.lsts.imc.EstimatedState;
-import pt.lsts.neptus.plugins.preflight.PreflightSection;
-import pt.lsts.neptus.plugins.preflight.check.ManualCheck;
-import pt.lsts.neptus.plugins.preflight.check.CheckLostComms;
-import pt.lsts.neptus.plugins.preflight.check.TestCheck;
-
-/**
- * @author tsmarques
- *
- */
 @SuppressWarnings("serial")
-public class AnotherTestSection extends PreflightSection {
-    public AnotherTestSection(String t) {
-        super("Another test section" + t);
-        setBackground(Color.WHITE);
+public class CheckLostComms extends AutomatedCheck {
+    public CheckLostComms(String description, String category, boolean maintainState) {
+        super(description, category, maintainState);
     }
 
     @Override
-    protected void buildChecksPanel() { 
-//        checksPanel.add(new TestCheck());
-//        checksPanel.add(new TestCheck());
-//        checksPanel.add(new TestAutomatedCheck("Automated Test", "B", false));
-        checksPanel.add(new ManualCheck("Manual Check", "A", false));
-        checksPanel.add(new CheckLostComms("Check Lost Comms", "A", false));
+    public long millisBetweenUpdates() {
+        return 2000;
+    }
+
+    @Override
+    public boolean update() {
+        PlanType lostComms = Preflight.CONSOLE.
+                getMission().
+                    getIndividualPlansList().
+                        get("lost_comms");
+        try {
+            if(lostComms.validatePlan())
+                setState(VALIDATED);
+        }
+        catch(Exception e) {
+            setState(NOT_VALIDATED);
+        }
+        return true;
     }
 }
