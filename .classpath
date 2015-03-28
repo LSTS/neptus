@@ -57,6 +57,7 @@
 	<classpathentry kind="src" path="plugins-dev/bathymLayer"/>
 	<classpathentry kind="src" path="plugins-dev/cloud"/>
 	<classpathentry kind="src" path="plugins-dev/drop"/>
+	<classpathentry kind="src" path="plugins-dev/shapefiles"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
@@ -223,5 +224,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/zxing-bin.jar"/>
+	<classpathentry kind="lib" path="plugins-dev/shapefiles/lib/shapefilereader-1.0.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
