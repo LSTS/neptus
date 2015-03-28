@@ -29,7 +29,7 @@
  * Author: pdias
  * 31/01/2015
  */
-package pt.lsts.neptus.console.shapefiles;
+package pt.lsts.neptus.renderer2d;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -40,11 +40,37 @@ import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 
-import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.AngleCalc;
 
 /**
+ * This is a helper class in order to control an offscreen buffered image to be used in
+ * the {@link StateRenderer2D} painter.
+ * An example of its use in the painter method is present next:
+ * <blockquote><pre>
+ * private OffScreenLayerImageControl offScreenImageControl = new OffScreenLayerImageControl();
+ * 
+ *  @Override
+ *  public void paint(Graphics2D g, StateRenderer2D renderer) {
+ *      super.paint(g, renderer);
+ *      
+ *      boolean recreateImage = offScreenImageControl.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
+ *      if (recreateImage) {
+ *          Graphics2D g2 = offScreenImageControl.getImageGraphics();
+ *          // Paint what you want in the graphics
+ *          ...
+ *      }            
+ *      offScreenImageControl.paintPhaseEndFinishImageRecreateAndPainImageCacheToRenderer(g, renderer);
+ *       
+ *      ...
+ *  }
+ * </pre></blockquote>
+ * 
+ * Also if you want to force a repaint/recreation of the image, call:
+ * <blockquote><pre>
+ *  offScreenImageControl.triggerImageRebuild();
+ * </pre></blockquote>
+ * 
  * @author pdias
  *
  */
