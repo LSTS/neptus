@@ -45,6 +45,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.GuiUtils;
