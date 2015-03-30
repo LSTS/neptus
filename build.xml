@@ -1814,19 +1814,19 @@ For simple use the main targets are:
 		<condition property="exclude-linux" value=",**/*.dll,**/*.exe,**/*.bat" else="">
 			<contains string="${jre-os}" substring="linux" casesensitive="false" />
 		</condition>
-		<condition property="copy-laucher-bat" value="true">
+		<condition property="copy-launcher-bat" value="true">
 			<or>
 				<contains string="${jre-os}" substring="all" casesensitive="false" />
 				<contains string="${jre-os}" substring="windows" casesensitive="false" />
 			</or>
 		</condition>
-		<condition property="copy-laucher-sh" value="true">
+		<condition property="copy-launcher-sh" value="true">
 			<or>
 				<contains string="${jre-os}" substring="all" casesensitive="false" />
 				<contains string="${jre-os}" substring="linux" casesensitive="false" />
 			</or>
 		</condition>
-		<condition property="copy-laucher-exe" value="true">
+		<condition property="copy-launcher-exe" value="true">
 			<or>
 				<contains string="${jre-os}" substring="all" casesensitive="false" />
 				<contains string="${jre-os}" substring="windows" casesensitive="false" />
@@ -1841,24 +1841,24 @@ For simple use the main targets are:
 			</fileset>
 		</copy>
 		<copy file="${src.dir}/images/neptus-icon2.png" tofile="${dist.tmp.dir}/neptus.png" preservelastmodified="true" />
-		<antcall target="copy-laucher-bat.worker" />
-		<antcall target="copy-laucher-sh.worker" />
-		<antcall target="copy-laucher-exe.worker" />
+		<antcall target="copy-launcher-bat.worker" />
+		<antcall target="copy-launcher-sh.worker" />
+		<antcall target="copy-launcher-exe.worker" />
 		<copy file="${scm.info.file}" tofile="${dist.tmp.dir}/conf/version"
 				overwrite="yes" failonerror="false" preservelastmodified="true">
 		</copy>
 	</target>
-	<target name="copy-laucher-bat.worker" if="copy-laucher-bat">
+	<target name="copy-launcher-bat.worker" if="copy-launcher-bat">
 		<copy file="${nsis_src.dir}/batch_files/${sh-bash-basename}.bat" tofile="${dist.tmp.dir}/neptus.bat" 
 				overwrite="yes" failonerror="yes" preservelastmodified="true">
 		</copy>
 	</target>
-	<target name="copy-laucher-sh.worker" if="copy-laucher-sh">
+	<target name="copy-launcher-sh.worker" if="copy-launcher-sh">
 		<copy file="${nsis_src.dir}/batch_files/${sh-bash-basename}.sh" tofile="${dist.tmp.dir}/neptus.sh" 
 				overwrite="yes" failonerror="yes" preservelastmodified="true">
 		</copy>
 	</target>
-	<target name="copy-laucher-exe.worker" if="copy-laucher-exe">
+	<target name="copy-launcher-exe.worker" if="copy-launcher-exe">
 		<copy file="neptus.exe" todir="${dist.tmp.dir}" 
 				overwrite="yes" failonerror="yes" preservelastmodified="true">
 		</copy>
