@@ -105,7 +105,7 @@ public class MRAFilesHandler implements FileHandler {
         File fileToOpen = null;
 
         String errorMessage = "";
-        
+
         if (fx.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED)) {
             fileToOpen = extractGzip(fx);
         }
@@ -123,7 +123,7 @@ public class MRAFilesHandler implements FileHandler {
                     + errorMessage);
             return false;
         }
-        
+
         return openLSF(fileToOpen);
     }
 
@@ -190,13 +190,13 @@ public class MRAFilesHandler implements FileHandler {
     private boolean openLSF(File f) {
         mra.getBgp().block(true);
         mra.getBgp().setText(I18n.text("Loading LSF Data"));
-        
+
         if (!f.exists()) {
             mra.getBgp().block(false);
             GuiUtils.errorMessage(mra, I18n.text("Invalid LSF file"), I18n.text("LSF file does not exist!"));
             return false; 
         }
-        
+
         final File lsfDir = f.getParentFile();
 
         //IMCDefinition.pathToDefaults = ConfigFetch.getDefaultIMCDefinitionsLocation();
@@ -412,12 +412,15 @@ public class MRAFilesHandler implements FileHandler {
                         GuiUtils.infoMessage(mra, I18n.text("Generate PDF Report"),
                                 I18n.text("File saved to") +" "+ f.getAbsolutePath());
                         final String pdfF = f.getAbsolutePath();
-                        new Thread() {
-                            @Override
-                            public void run() {
-                                openPDFInExternalViewer(pdfF);
-                            };
-                        }.start();
+                        int resp = GuiUtils.confirmDialog(mra, I18n.text("Open PDF Report"), I18n.text("Do you want to open PDF Report file?"));
+                        if (resp == JOptionPane.YES_OPTION) {
+                            new Thread() {
+                                @Override
+                                public void run() {
+                                    openPDFInExternalViewer(pdfF);
+                                };
+                            }.start();
+                        }
                     }
                 }
                 catch (Exception e) {
@@ -463,8 +466,8 @@ public class MRAFilesHandler implements FileHandler {
         catch (Exception ex) {
             ex.printStackTrace();
         }
-        GuiUtils.infoMessage(mra,  I18n.text("PDF Report Generated"),
-                I18n.text("File saved to") +" "+ pdf);
+       // GuiUtils.infoMessage(mra,  I18n.text("PDF Report Generated"),
+       //         I18n.text("Opening file") +" "+ pdf);
     }
 
     // --- Recently opened files ---
@@ -492,13 +495,13 @@ public class MRAFilesHandler implements FileHandler {
             return;
         }
 
-//        if (recentlyOpenedFiles == null) {
-//            JOptionPane.showInternalMessageDialog(mra, "Cannot Load");
-//            return;
-//        }
+        //        if (recentlyOpenedFiles == null) {
+        //            JOptionPane.showInternalMessageDialog(mra, "Cannot Load");
+        //            return;
+        //        }
 
-//        if (!new File(recentlyOpenedFiles).exists())
-//            return;
+        //        if (!new File(recentlyOpenedFiles).exists())
+        //            return;
 
         RecentlyOpenedFilesUtil.loadRecentlyOpenedFiles(recentlyOpenedFiles, methodUpdate, this);
     }
