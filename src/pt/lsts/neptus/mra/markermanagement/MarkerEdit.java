@@ -45,6 +45,8 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Transparency;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -120,7 +122,7 @@ public class MarkerEdit extends JFrame {
     private boolean toDeleteDraw = false;
     private BufferedImage layer,  rulerLayer, image, drawImageOverlay;
     private ArrayList<Point> pointsList = new ArrayList<>();
-    
+
     public MarkerEdit(MarkerManagement parent) {
         this.parent = parent;
 
@@ -133,9 +135,24 @@ public class MarkerEdit extends JFrame {
         initialize();
     }
 
+
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void initialize() {
+        panel.requestFocus();
+        FocusListener l = new FocusListener() {
 
+            @Override
+            public void focusLost(FocusEvent e) {
+                System.out.println("focus lost");
+            }
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                System.out.println("focus gained");                
+            }
+        };
+        panel.addFocusListener(l);
         getContentPane().add(panel, BorderLayout.CENTER);
         panel.setLayout(new MigLayout("", "[][][][][grow][][][][grow]", "[][][][][][][grow][][grow]"));
         markerImage = new JLabel() { 
@@ -186,7 +203,7 @@ public class MarkerEdit extends JFrame {
                 }
             }
         };
-        
+
         markerImage.setHorizontalAlignment(SwingConstants.CENTER);
         markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource("/images/unknown.png")));
         markerImage.addMouseListener(new MouseAdapter() {
@@ -603,10 +620,10 @@ public class MarkerEdit extends JFrame {
 
     public static void main(String[] args) {
         JFrame frm = new JFrame();
-        
+
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());
-        
+
         JSlider slider = new JSlider(JSlider.HORIZONTAL, 1, 5, 2);
         slider.setMinorTickSpacing(1);
         slider.setMajorTickSpacing(1);
@@ -615,9 +632,9 @@ public class MarkerEdit extends JFrame {
         slider.setFont(new Font("SansSerif", Font.PLAIN, 10));
         slider.setPreferredSize(new Dimension(70, 50));
         panel.add(slider);
-        
+
         frm.add(panel);
-        
+
         frm.add(panel);
         frm.setSize(300, 300);
         frm.setLocationRelativeTo(null);
@@ -628,7 +645,7 @@ public class MarkerEdit extends JFrame {
 
         final JPopupMenu popup = new JPopupMenu();
         final JPopupMenu popupSlider = new JPopupMenu();
-        
+
         JSlider slider = new JSlider(JSlider.HORIZONTAL, 1, 5, 2);
         slider.setMinorTickSpacing(1);
         slider.setMajorTickSpacing(1);
@@ -641,14 +658,15 @@ public class MarkerEdit extends JFrame {
             public void stateChanged(ChangeEvent ce) {
                 JSlider source = (JSlider)ce.getSource();
                 if (!source.getValueIsAdjusting()) {
-                zoomScale = (int)source.getValue();
+                    zoomScale = (int)source.getValue();
                 }
             }
         };
         slider.addChangeListener(l);
         popupSlider.add(slider);
-        
+
         JToolBar toolBar = new JToolBar();
+        toolBar.setRequestFocusEnabled(false);
         toolBar.setFloatable(false);
         toolBar.setRollover(true);
 
@@ -976,7 +994,7 @@ public class MarkerEdit extends JFrame {
                 popup.show(e.getComponent(), e.getX(), e.getY());
             }
         });
-        
+
         zoomBtn.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) {
@@ -996,12 +1014,18 @@ public class MarkerEdit extends JFrame {
 
         panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK), "showRuler");
         panel.getActionMap().put("showRuler", showRuler);
-        
+
         panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "nextMark");
         panel.getActionMap().put("nextMark", nextMark);
-        
+
         panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "prevMark");
         panel.getActionMap().put("prevMark", previousMark);
+
+        toolBar.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "nextMark");
+        toolBar.getActionMap().put("nextMark", nextMark);
+
+        toolBar.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "prevMark");
+        toolBar.getActionMap().put("prevMark", previousMark);
 
         add(toolBar, BorderLayout.PAGE_START);
     }
