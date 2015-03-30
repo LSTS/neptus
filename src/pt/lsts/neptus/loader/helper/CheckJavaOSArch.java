@@ -33,7 +33,7 @@ package pt.lsts.neptus.loader.helper;
 
 
 /**
- * Used in the bat and sh lauchers. Don't use Neptus log.
+ * Used in the bat and sh launchers. Don't use Neptus log.
  * @author pdias
  *
  */
