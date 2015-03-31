@@ -50,8 +50,9 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
  */
 @SuppressWarnings("serial")
 public abstract class PreflightCheck extends JPanel {
-    protected static final String VALIDATED = "[OK]";
-    protected static final String NOT_VALIDATED = "[]";
+    protected static final int VALIDATED = 0;
+    protected static final int NOT_VALIDATED = -1;
+    protected static final int VALIDATED_WITH_WARNINGS = 1;
     
     private JLabel state;
     private JLabel description;
@@ -113,14 +114,18 @@ public abstract class PreflightCheck extends JPanel {
         }
     }
         
-    public void setState(String newState) {
-        if(newState.equals(VALIDATED)) {
+    public void setState(int newState) {
+        if(newState == VALIDATED) {
             state.setForeground(Color.GREEN);
-            state.setText(VALIDATED);
+            state.setText("[OK]");
         }
-        else {
+        else if(newState == NOT_VALIDATED){
             state.setForeground(Color.RED);
-            state.setText(NOT_VALIDATED);
+            state.setText("[]");
+        }
+        else if(newState == VALIDATED_WITH_WARNINGS) {
+            state.setForeground(Color.YELLOW);
+            state.setText("[OK]");
         }
         //revalidate();
     }
@@ -131,8 +136,7 @@ public abstract class PreflightCheck extends JPanel {
     }
     
     public void addStateLabel() {
-        state.setForeground(Color.RED);
-        state.setText(NOT_VALIDATED);
+        setState(NOT_VALIDATED);
         state.setVisible(true);
     }
     

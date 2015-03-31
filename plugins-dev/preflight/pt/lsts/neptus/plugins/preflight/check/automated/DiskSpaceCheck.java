@@ -70,7 +70,6 @@ public class DiskSpaceCheck extends WithinRangeCheck {
         if(isWithingRange(diskSpacePerc))
             setState(VALIDATED);
         else
-            System.out.println("## NOT VALIDATED ##");
             setState(NOT_VALIDATED);
     }
 
