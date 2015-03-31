@@ -29,21 +29,23 @@
  * Author: tsmarques
  * 23 Mar 2015
  */
-package pt.lsts.neptus.plugins.preflight;
+package pt.lsts.neptus.plugins.preflight.check;
+
+import pt.lsts.neptus.plugins.preflight.PreflightCheck;
 
 /**
  * @author tsmarques
  *
  */
-public class InfoElement extends PreflightCheck {
+public class PreflightInfo extends PreflightCheck {
 
     /**
      * @param description
      * @param category
      * @param maintainState
      */
-    public InfoElement(String description, String category, boolean maintainState) {
-        super(description, category, maintainState);
+    public PreflightInfo(String description, String category, boolean maintainState) {
+        super(description, category, maintainState, "Info");
     }
 
 }
