@@ -33,10 +33,10 @@ package pt.lsts.neptus.plugins.preflight.check.automated;
 
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
+import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.plugins.preflight.Preflight;
 import pt.lsts.neptus.plugins.preflight.check.AutomatedCheck;
 import pt.lsts.neptus.plugins.update.Periodic;
-import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 @SuppressWarnings("serial")
@@ -47,21 +47,34 @@ public class CheckLostComms extends AutomatedCheck {
     
     /* TODO: Check lost comms in the vehicle, not just the console */
     @Override
-    @Periodic(millisBetweenUpdates = 10000)
+    @Periodic(millisBetweenUpdates = 1000)
     public void validateCheck() {
-        System.out.println("### I'M validating ###");
         PlanType lostComms = Preflight.CONSOLE.
                 getMission().
                     getIndividualPlansList().
                         get("lost_comms");
         
-//        ImcSystem sys = ImcSystemsHolder.getSystemWithName(Preflight.CONSOLE.getMainSystem());
-        try {
-            if(lostComms.validatePlan())
-                setState(VALIDATED);
-        }
-        catch(Exception e) {
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(Preflight.CONSOLE.getMainSystem());
+        if(lostComms == null || sys == null) { /* "lost comms" plan doesn't exist */
+            setValuesLabelText("");
             setState(NOT_VALIDATED);
+            return;
+        }
+        
+        PlanDBState prs = sys.getPlanDBControl().getRemoteState();
+        if (prs == null || !prs.matchesRemotePlan(lostComms)) { /* not in sync with vehicle*/
+            setValuesLabelText("Not synchronised");
+            setState(NOT_VALIDATED);
+        }
+        else {
+            if(lostComms.isEmpty()) {
+                setValuesLabelText("Empty plan");
+                setState(VALIDATED_WITH_WARNINGS);
+            }
+            else {
+                setValuesLabelText("");
+                setState(VALIDATED);
+            }
         }
     }
 }
