@@ -57,20 +57,29 @@ public class DiskSpaceCheck extends WithinRangeCheck {
     protected double getMinValue() {
         return 40;
     }
+    
+    private double getWarningThreshold() {
+        return (getMinValue() + 10);
+    }
    
     @Subscribe
     public void on(StorageUsage msg) {
         if(!messageFromMainVehicle(msg.getSourceName()))
             return;
         
-        int diskSpacePerc = msg.getValue();/* get used space (%)*/
+        int diskSpacePerc = 100 - msg.getValue();/* get free space (%)*/
         double diskSpace = msg.getAvailable() / 1024; /* to GiB */
-        setValuesLabelText("[" + diskSpace + " GiB" + "/" + (100 - diskSpacePerc) + "%]");
+        setValuesLabelText("[" + diskSpace + " GiB" + "/" + diskSpacePerc + "%]");
         
-        if(isWithingRange(diskSpacePerc))
-            setState(VALIDATED);
-        else
+        if(isWithingRange(diskSpacePerc)) {
+            if(diskSpacePerc < getWarningThreshold())
+                setState(VALIDATED_WITH_WARNINGS);
+            else
+                setState(VALIDATED);
+        }
+        else {
             setState(NOT_VALIDATED);
+        }
     }
 
     @Override
