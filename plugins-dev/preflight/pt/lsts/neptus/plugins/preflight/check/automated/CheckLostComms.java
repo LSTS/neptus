@@ -31,30 +31,31 @@
  */
 package pt.lsts.neptus.plugins.preflight.check.automated;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.plugins.preflight.Preflight;
 import pt.lsts.neptus.plugins.preflight.check.AutomatedCheck;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 @SuppressWarnings("serial")
 public class CheckLostComms extends AutomatedCheck {
     public CheckLostComms(boolean maintainState) {
-        super("Lost Comms", "Planning", maintainState);
+        super("Lost Comms", "Planning", maintainState, true);
     }
-
-    @Override
-    public long millisBetweenUpdates() {
-        return 2000;
-    }
-
     
     /* TODO: Check lost comms in the vehicle, not just the console */
     @Override
-    public boolean update() {
+    @Periodic(millisBetweenUpdates = 10000)
+    public void validateCheck() {
+        System.out.println("### I'M validating ###");
         PlanType lostComms = Preflight.CONSOLE.
                 getMission().
                     getIndividualPlansList().
                         get("lost_comms");
+        
+//        ImcSystem sys = ImcSystemsHolder.getSystemWithName(Preflight.CONSOLE.getMainSystem());
         try {
             if(lostComms.validatePlan())
                 setState(VALIDATED);
@@ -62,6 +63,5 @@ public class CheckLostComms extends AutomatedCheck {
         catch(Exception e) {
             setState(NOT_VALIDATED);
         }
-        return true;
     }
 }

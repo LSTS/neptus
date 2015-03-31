@@ -45,7 +45,7 @@ import pt.lsts.neptus.plugins.preflight.check.WithinRangeCheck;
 @SuppressWarnings("serial")
 public class DiskSpaceCheck extends WithinRangeCheck {
     public DiskSpaceCheck(boolean maintainStateOnReboot) {
-        super("Disk Space", "Status", maintainStateOnReboot);
+        super("Disk Space", "Status", maintainStateOnReboot, false);
     }
 
     @Override
@@ -73,10 +73,7 @@ public class DiskSpaceCheck extends WithinRangeCheck {
             System.out.println("## NOT VALIDATED ##");
             setState(NOT_VALIDATED);
     }
-    
-    
+
     @Override
-    public long millisBetweenUpdates() {return 0;}
-    @Override
-    public boolean update() {return false;}
+    public void validateCheck() {}
 }
