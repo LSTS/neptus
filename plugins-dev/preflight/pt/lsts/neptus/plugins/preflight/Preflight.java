@@ -73,7 +73,6 @@ public class Preflight extends ConsolePanel {
     public static final int HEIGHT = 750;
     public static final int MAX_COMPONENT_WIDTH = WIDTH - 20; /* Maximum child component width */
     
-    /* Not sure if best solution */
     public static ConsoleLayout CONSOLE;
     
     
@@ -155,10 +154,7 @@ public class Preflight extends ConsolePanel {
         if(sys.getTypeVehicle() != VehicleTypeEnum.UAV) {
         }
         mainSysNameLabel.setText(mainSysName);
-        revalidate();
-        
-        /* TODO: Instead of just changing the name of the system
-         * also change the Preflight Panel */
+//        revalidate();
     }
     
     @Subscribe

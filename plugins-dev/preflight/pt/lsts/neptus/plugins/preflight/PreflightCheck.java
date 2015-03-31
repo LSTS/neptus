@@ -122,7 +122,7 @@ public abstract class PreflightCheck extends JPanel {
             state.setForeground(Color.RED);
             state.setText(NOT_VALIDATED);
         }
-        revalidate();
+        //revalidate();
     }
     
     public void setValuesLabelText(String txt) {
@@ -146,15 +146,11 @@ public abstract class PreflightCheck extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(checkBox.isVisible()) {
-                    if(!checkBox.isSelected()) {
-                        state.setForeground(Color.RED);
-                        state.setText(NOT_VALIDATED);
-                    }
-                    else {
-                        state.setForeground(Color.GREEN);
-                        state.setText(VALIDATED);
-                    }
-                    revalidate();
+                    if(!checkBox.isSelected())
+                        setState(NOT_VALIDATED);
+                    else
+                        setState(VALIDATED);
+                    //revalidate();
                 }
             }
         });
