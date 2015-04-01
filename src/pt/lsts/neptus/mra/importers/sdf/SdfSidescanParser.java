@@ -129,6 +129,7 @@ public class SdfSidescanParser implements SidescanParser {
             pose.setYaw(Math.toRadians(sboardPboard.getHeader().getShipHeading()));           
             pose.setAltitude(sboardPboard.getHeader().getAltitude() ); // altitude in meters
             pose.setU(sboardPboard.getHeader().getSpeedFish() / 100.0); // Convert cm/s to m/s
+            pose.getPosition().setDepth(sboardPboard.getHeader().getAuxDepth());
 
             float frequency = ping.getHeader().getSonarFreq();
             float range = ping.getHeader().getRange();
