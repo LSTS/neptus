@@ -170,15 +170,20 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
     }
 
     public void keyPressed(KeyEvent event, StateRenderer2D source) {
-
+//        System.out.println(event.getKeyChar() + "|KCD " + event.getKeyCode() 
+//                + "|MOD " + event.getModifiers() + "|EX " + event.getExtendedKeyCode()
+//                + "|MODEx " + event.getModifiersEx()+ "|LOC " + event.getKeyLocation()
+//                + "|ID " + event.getID());
         switch (event.getKeyCode()) {
             case (KeyEvent.VK_PLUS):
+            case (KeyEvent.VK_ADD):
             case (KeyEvent.VK_PAGE_UP):
                 source.setLevelOfDetail(source.getLevelOfDetail() + 1);
                 source.repaint();
                 break;
 
             case (KeyEvent.VK_MINUS):
+            case (KeyEvent.VK_SUBTRACT):
             case (KeyEvent.VK_PAGE_DOWN):
                 source.setLevelOfDetail(source.getLevelOfDetail() - 1);
                 source.repaint();
