@@ -267,8 +267,9 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                 break;
             case (KeyEvent.VK_S):
                 JFileChooser chooser = new JFileChooser();
-                chooser.setApproveButtonText("Save Map");
-                chooser.setFileFilter(GuiUtils.getCustomFileFilter("Image files", "png", "jpg", "pdf"));
+                chooser.setApproveButtonText(I18n.text("Save Map"));
+                chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("Image files (png, jpg, pdf)"), "png",
+                        "jpg", "pdf"));
                 int op = chooser.showSaveDialog(source);
                 if (op != JFileChooser.APPROVE_OPTION)
                     return;
@@ -312,7 +313,7 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
                         }
                         break;
                     default:
-                        GuiUtils.errorMessage(getConsole(), "Save as Image", I18n.text("Invalid file type"));
+                        GuiUtils.errorMessage(getConsole(), I18n.text("Save as Image"), I18n.text("Invalid file type"));
                         break;
                 }
                 break;
