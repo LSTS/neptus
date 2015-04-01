@@ -40,9 +40,17 @@ public class TransferData
     public String SessionID = "";
     public int timeStep = 0;
 
+    
     // 1 row per auv, 1 coordinates (depth)         
     public double[] Bathymeter;
-
+    
     // 1 row per auv, 2 coordinates (northing, easting) 
     public double[][] Location;
+    
+    // 1 row per beam
+    public double[] MBSamples;
+    
+    // 1 row per beam (position where beam intercepts with ocean floor)
+    public double[][] SampleLocations;
+    
 };

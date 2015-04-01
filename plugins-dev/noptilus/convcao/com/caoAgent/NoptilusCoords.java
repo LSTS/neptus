@@ -84,16 +84,16 @@ public class NoptilusCoords implements PropertiesProvider {
     }
     
     public LocationType convert(double row, double col) {
-        if (col < 0 || col >= numCols) {
-            System.err.println("Invalid column: "+col);
-            return null;
-        }
         
-        if (row < 0 || col >= numRows) {
-            System.err.println("Invalid Row: "+row);
-            return null;
-        }
+        if (col < 0)
+            col = 0;
+        if (col >= numCols)
+            col = numCols - 0.1;
         
+        if (row < 0)
+            row = 0;
+        if (row >= numRows)
+            row = numRows - 0.1;
         
         LocationType loc = new LocationType(squareCenter);
         double transN = ((-numRows/2) + row) * cellWidth;
