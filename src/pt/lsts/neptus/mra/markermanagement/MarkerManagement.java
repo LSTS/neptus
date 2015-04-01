@@ -84,10 +84,12 @@ import pt.lsts.neptus.mra.LogMarker;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.mra.SidescanLogMarker;
+import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanParserFactory;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
@@ -121,6 +123,11 @@ public class MarkerManagement {
         initialize();
     }
 
+    private double depth(long timestamp) { 
+        IMraLogGroup source = mraPanel.getSource();
+        CorrectedPosition pos = new CorrectedPosition(source);
+        return pos.getPosition(timestamp / 1000.0).toEstimatedState().getDepth();
+    }
     private void initialize() {
 
         if (mraPanel.getMarkers().isEmpty()) {
@@ -482,12 +489,12 @@ public class MarkerManagement {
      */
     private void newLogMarkerItem(SidescanLogMarker ssLogMarker, SidescanParser ssParser, Element rootElem, int index) {
         LocationType loc = ssLogMarker.getLocation();
-        double depth = loc.getDepth(); // FIXME : always returning 0... is this returning real depth ?
         double[] altAndHeight = getAltAndHeight(ssLogMarker, ssParser);
         double range = ssLogMarker.wMeters;
 
         double alt = altAndHeight[0];
         double heightValue = altAndHeight[1];
+        double depth = altAndHeight[2];
 
         LogMarkerItem marker = new LogMarkerItem(index, ssLogMarker.getLabel(), ssLogMarker.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), null, "<Your annotation here.>", alt, depth, range, heightValue, Classification.UNDEFINED);
 
@@ -594,6 +601,8 @@ public class MarkerManagement {
         SidescanParameters sidescanParams = setupSscanParam(config);
         double altitude = 0;
         double height = 0;
+        double hHeight = 0;
+        double depth = 0;
         LocationType bottomLocation = null;
         LocationType topLocation = null;
         int subsys = ssLogMarker.subSys;
@@ -604,25 +613,33 @@ public class MarkerManagement {
             //get location
             bottomLocation = new LocationType(lines.get(0).state.getPosition());
             topLocation = new LocationType(lines.get(lines.size()-1).state.getPosition());
-            // System.out.println("marker: "+l.getLabel()+"- bottom "+ bottomLocation.getLatitudeDegs() + " "+ bottomLocation.getLongitudeDegs() );
-            //System.out.println("marker: "+l.getLabel()+"- top "+ topLocation.getLatitudeDegs() + " "+ topLocation.getLongitudeDegs() );
-
+            System.out.println("marker: "+ssLogMarker.getLabel()+"- bottom "+ bottomLocation.getLatitudeDegs() + " "+ bottomLocation.getLongitudeDegs() );
+            System.out.println("marker: "+ssLogMarker.getLabel()+"- top "+ topLocation.getLatitudeDegs() + " "+ topLocation.getLongitudeDegs() );
+            //TODO for each line compare HEIGHT!!!
+            
+            
             //get altitude from the line in the middle of the list
             altitude = lines.get(lines.size()/2).state.getAltitude(); 
+            depth = depth(lines.get(lines.size()/2).timestampMillis);
         }
 
         //calculate distance between two locations
-        if (topLocation != null)
+        if (topLocation != null) {
             height = bottomLocation.getDistanceInMeters(topLocation) / 2; //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
-        //System.out.println("Altura: " + height);
+            hHeight = bottomLocation.getHorizontalDistanceInMeters(topLocation);
+        }
+        System.out.println("Altura: " + height);
+        System.out.println("altura horiz: "+ hHeight);
 
+        
         //store altitude in meters at pos 0
         //store height   in meters at pos 1
-        double[] result = { ((double)Math.round(altitude * 100) / 100), height };
+        double[] result = { ((double)Math.round(altitude * 100) / 100), height, depth };
 
         return result;
     }
 
+    
     /** Creates a File for a marker with the specified string
      * @param marker
      * @return File of marker image
