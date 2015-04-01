@@ -42,7 +42,7 @@ public class TestCheck extends PreflightCheck {
 
     public TestCheck() {
         super("Minimum Altitude", "Category", false, "Automated");
-        setState("[OK]");
+        setState(VALIDATED);
         setValuesLabelText("[0.01 W]");
     }
 }
