@@ -71,7 +71,7 @@ public class DiskSpaceCheck extends WithinRangeCheck {
         double diskSpace = msg.getAvailable() / 1024; /* to GiB */
         setValuesLabelText("[" + diskSpace + " GiB" + "/" + diskSpacePerc + "%]");
         
-        if(isWithingRange(diskSpacePerc)) {
+        if(isWithinRange(diskSpacePerc)) {
             if(diskSpacePerc < getWarningThreshold())
                 setState(VALIDATED_WITH_WARNINGS);
             else

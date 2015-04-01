@@ -48,7 +48,7 @@ public abstract class WithinRangeCheck extends AutomatedCheck {
     protected abstract double getMaxValue();
     protected abstract double getMinValue();
     
-    protected boolean isWithingRange(double value) {
+    protected boolean isWithinRange(double value) {
         return(value >= getMinValue() && value <= getMaxValue());
     }
 }
