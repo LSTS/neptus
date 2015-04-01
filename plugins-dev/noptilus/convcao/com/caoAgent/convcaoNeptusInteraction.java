@@ -91,6 +91,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.bathymetry.TidePrediction;
 
 import com.google.gson.Gson;
 
@@ -166,6 +167,10 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
 
     @NeptusProperty(name="Near distance", description="Distance, in meters, to consider that the vehicles have arrived at desired reference points")
     public double nearDistance = 12.5;
+    
+    @NeptusProperty(name="Subtract Tide Level", description="Subtract the tide height when communicating bathymetry data do CONVCAO.")
+    public boolean subtractTide = true;
+    
 
     protected Thread controlThread = null;
     
@@ -475,13 +480,13 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         controlThread.start();
     }
 
-
     private void updateLocalStructures() {
         for (String auvName : nameTable.values()) {            
             EstimatedState state = ImcMsgManager.getManager().getState(auvName).last(EstimatedState.class);
             LocationType auvPosition = IMCUtils.getLocation(state);
             positions.put(auvName, auvPosition);
-            bathymetry.put(auvName, state.getDepth() + state.getAlt()); // FIXME tide offsets
+            double tideOffset = subtractTide? TidePrediction.currentTideLevel() : 0;
+            bathymetry.put(auvName, state.getDepth() + state.getAlt() - tideOffset);
             double dist = auvPosition.getHorizontalDistanceInMeters(destinations.get(auvName));
             if (dist < nearDistance)
                 arrived.put(auvName, true);    
