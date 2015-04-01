@@ -56,6 +56,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Random;
@@ -68,6 +69,7 @@ import org.apache.commons.net.ftp.FTPClient;
 
 import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.DesiredZ.Z_UNITS;
+import pt.lsts.imc.Distance;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowRefState;
 import pt.lsts.imc.Reference;
@@ -93,7 +95,11 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.bathymetry.TidePrediction;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.gson.Gson;
+
+import convcao.com.caoAgent.model.InputData;
+import convcao.com.caoAgent.model.TransferData;
 
 
 /**
@@ -147,6 +153,17 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
     protected ImageIcon noptilusLogo = ImageUtils.getIcon("images/control-mode/noptilus.png");
     protected ControllerManager manager = new ControllerManager();
     
+ // ICONTROLLER METHODS //    
+    protected LinkedHashMap<String, LocationType> positions = new LinkedHashMap<>();
+    protected LinkedHashMap<String, LocationType> destinations = new LinkedHashMap<>();
+    protected LinkedHashMap<String, Double> bathymetry = new LinkedHashMap<>();    
+    protected LinkedHashMap<String, Boolean> arrived = new LinkedHashMap<>();
+    protected LinkedHashMap<Integer, String> nameTable = new LinkedHashMap<>();
+    protected LinkedHashMap<String, Double> depths = new LinkedHashMap<>();
+    protected LinkedHashMap<String, ArrayList<Distance>> dvlMeasurements = new LinkedHashMap<>();
+    
+    
+    
     @NeptusProperty(name="Used vehicles", description="Identifiers of the vehicles to be used, separated by commas")
     public String controlledVehicles = "lauv-noptilus-1,lauv-noptilus-2";
 
@@ -171,28 +188,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
     @NeptusProperty(name="Subtract Tide Level", description="Subtract the tide height when communicating bathymetry data do CONVCAO.")
     public boolean subtractTide = true;
     
-
     protected Thread controlThread = null;
-    
-    public class InputData
-    {
-        public String DateTime = "";
-        public String SessionID = "";
-        public String DemoMode = "1";
-        public String AUVs = "";
-    };
-
-    public class TransferData
-    {
-        public String SessionID = "";
-        public int timeStep = 0;
-
-        // 1 row per auv, 1 coordinates (depth)         
-        public double[] Bathymeter;
-
-        // 1 row per auv, 2 coordinates (northing, easting) 
-        public double[][] Location;
-    };
 
     int timestep = 1;
 
@@ -479,7 +475,17 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         controlThread = auvMonitor();
         controlThread.start();
     }
-
+    
+    @Subscribe
+    public void on(Distance msg) {
+        synchronized (dvlMeasurements) {
+            if (!dvlMeasurements.containsKey(msg.getSourceName()))
+                dvlMeasurements.put(msg.getSourceName(), new ArrayList<Distance>());
+            dvlMeasurements.get(msg.getSourceName()).add(msg);
+        }
+    }
+    
+    
     private void updateLocalStructures() {
         for (String auvName : nameTable.values()) {            
             EstimatedState state = ImcMsgManager.getManager().getState(auvName).last(EstimatedState.class);
@@ -1024,13 +1030,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
 
     }
 
-    // ICONTROLLER METHODS //    
-    protected LinkedHashMap<String, LocationType> positions = new LinkedHashMap<>();
-    protected LinkedHashMap<String, LocationType> destinations = new LinkedHashMap<>();
-    protected LinkedHashMap<String, Double> bathymetry = new LinkedHashMap<>();    
-    protected LinkedHashMap<String, Boolean> arrived = new LinkedHashMap<>();
-    protected LinkedHashMap<Integer, String> nameTable = new LinkedHashMap<>();
-    protected LinkedHashMap<String, Double> depths = new LinkedHashMap<>();
+    
 
     void updateConvCaoService() {
 
