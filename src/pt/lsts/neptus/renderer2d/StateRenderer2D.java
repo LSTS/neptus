@@ -80,6 +80,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeListener;
 
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.plugins.planning.MapShortcutsLayer;
 import pt.lsts.neptus.gui.MenuScroller;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.PropertiesProvider;
@@ -1223,22 +1224,26 @@ CustomInteractionSupport, IMapPopup, FocusListener {
                                     .getSuperParentFrame(),
                                     I18n.text("2D Renderer Shortcuts"),
                                     I18n.text("(Keys pressed while the Renderer component is focused)"),
-                                    "<html><h1>" + I18n.text("2D Renderer Shortcuts")
-                                    + "</h1><br><div align='center'><table border='1' align='center'><tr><th>"
-                                    + I18n.text("Key Combination") + "</th><th>" + I18n.text("Action") + "</th></tr>"
-                                    + "<tr><td>" + I18n.text("plus (+)") + "</td><td>"
-                                    + I18n.text("Double the current zoom value") + "</td></tr>" + "<tr><td>"
-                                    + I18n.text("minus (-)") + "</td><td>" + I18n.text("Half the current zoom value")
-                                    + "</td></tr>" + "<tr><td>" + I18n.text("left") + "</td><td>"
-                                    + I18n.text("Move the map to the left") + "</td></tr>" + "<tr><td>"
-                                    + I18n.text("right") + "</td><td>" + I18n.text("Move the map to the right")
-                                    + "</td></tr>" + "<tr><td>" + I18n.text("up") + "</td><td>"
-                                    + I18n.text("Move the map upwards") + "</td></tr>" + "<tr><td>"
-                                    + I18n.text("down") + "</td><td>" + I18n.text("Move the map downwards") + "</td></tr>"
-                                    + "<tr><td>" + I18n.textc("N", "N key") + "</td><td>"
-                                    + I18n.text("Reset the current rotation (up facing north)") + "</td></tr>"
-                                    + "<tr><td>" + I18n.text("F1") + "</td><td>"
-                                    + I18n.text("Reset the current view to defaults") + "</td></tr></table></div>");
+//                                    "<html><h1>" + I18n.text("2D Renderer Shortcuts")
+//                                    + "</h1><br><div align='center'><table border='1' align='center'><tr><th>"
+//                                    + I18n.text("Key Combination") + "</th><th>" + I18n.text("Action") + "</th></tr>"
+//                                    + "<tr><td>" + I18n.text("PgUp or plus (+)") + "</td><td>"
+//                                    + I18n.text("Double the current zoom value (plus in keyboards where '+' key does not need Shift)")
+//                                    + "</td></tr>" + "<tr><td>"
+//                                    + I18n.text("PgDn or minus (-)") + "</td><td>"
+//                                    + I18n.text("Half the current zoom value (minus in keyboards where '-' key does not need Shift)")
+//                                    + "</td></tr>" + "<tr><td>" + I18n.text("left") + "</td><td>"
+//                                    + I18n.text("Move the map to the left") + "</td></tr>" + "<tr><td>"
+//                                    + I18n.text("right") + "</td><td>" + I18n.text("Move the map to the right")
+//                                    + "</td></tr>" + "<tr><td>" + I18n.text("up") + "</td><td>"
+//                                    + I18n.text("Move the map upwards") + "</td></tr>" + "<tr><td>"
+//                                    + I18n.text("down") + "</td><td>" + I18n.text("Move the map downwards") + "</td></tr>"
+//                                    + "<tr><td>" + I18n.textc("N", "N key") + "</td><td>"
+//                                    + I18n.text("Reset the current rotation (up facing north)") + "</td></tr>"
+//                                    + "<tr><td>" + I18n.text("F1") + "</td><td>"
+//                                    + I18n.text("Reset the current view to defaults") + "</td></tr></table></div>"
+                                    MapShortcutsLayer.getShortcutsHtml()
+                                    );
                 }
             });
             item.setIcon(ImageUtils.getIcon("images/menus/info.png"));
