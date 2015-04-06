@@ -58,6 +58,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.plugins.preflight.panel.X801Panel;
 import pt.lsts.neptus.plugins.preflight.section.AnotherTestSection;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 
@@ -76,12 +77,9 @@ public class Preflight extends ConsolePanel {
     public static ConsoleLayout CONSOLE;
     
     
-    /* Test */ 
-    private JPanel contentPanel; /* main panel */
+    private PreflightPanel contentPanel; /* main panel */
     private JScrollPane scrollMainPanel;
     
-    private JPanel mainSysNamePanel; 
-    private JLabel mainSysNameLabel;
     private String mainSysName; /* Gets changed when main vehicle changes */
    
     public Preflight(ConsoleLayout console) {
@@ -91,29 +89,12 @@ public class Preflight extends ConsolePanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Color.WHITE);
         
-        
         initMainPanel();
-        initSysNamePanel();
-        addNewSection(new AnotherTestSection("1"));
-//        addNewSection(new AnotherTestSection("2"));
-//        addNewSection(new AnotherTestSection("3"));
-//        addNewSection(new AnotherTestSection("4"));
-//        addNewSection(new AnotherTestSection("5"));
-//        addNewSection(new AnotherTestSection("6"));
-//        addNewSection(new AnotherTestSection("7"));
-//        addNewSection(new AnotherTestSection("8"));
-//        addNewSection(new AnotherTestSection("9"));
-//        addNewSection(new AnotherTestSection("10"));
-//        addNewSection(new AnotherTestSection("11"));
-//        addNewSection(new AnotherTestSection("12"));
     }
     
     private void initMainPanel() {
-        contentPanel = new JPanel();
+        contentPanel = new X801Panel();
         scrollMainPanel = new JScrollPane(contentPanel);
-        
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        contentPanel.setBackground(Color.WHITE);
         
         final Dimension d = new Dimension(MAX_COMPONENT_WIDTH, HEIGHT);
         scrollMainPanel.setMaximumSize(d);
@@ -124,42 +105,19 @@ public class Preflight extends ConsolePanel {
         add(scrollMainPanel);
     }
     
-    private void initSysNamePanel() {
-        mainSysName = "?";
-        mainSysNameLabel = new JLabel(mainSysName);
-        
-        mainSysNamePanel = new JPanel();
-        final Dimension d = new Dimension(430, 20);
-        mainSysNamePanel.setLayout(new GridBagLayout());
-        mainSysNamePanel.setMaximumSize(d);
-        mainSysNamePanel.setMinimumSize(d);
-        mainSysNamePanel.setLayout(new GridBagLayout());
-        mainSysNamePanel.setBackground(Color.WHITE);
-        mainSysNamePanel.add(mainSysNameLabel, new GridBagConstraints());
-        
-        contentPanel.add(Box.createVerticalStrut(1));
-        contentPanel.add(mainSysNamePanel);
-        contentPanel.add(Box.createVerticalStrut(2));
-    }
     
-    private void addNewSection(PreflightSection section) {
-        contentPanel.add(section);
-    }
        
     @Subscribe
     public void on(ConsoleEventMainSystemChange ev) { /* When a diff vehicle has been selected as main Vehicle */
-        mainSysName = getConsole().getMainSystem();
+        mainSysName = CONSOLE.getMainSystem();
                 
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(mainSysName);
         if(sys.getTypeVehicle() != VehicleTypeEnum.UAV) {
         }
-        mainSysNameLabel.setText(mainSysName);
+        contentPanel.setSysName(mainSysName);
 //        revalidate();
     }
     
-    @Subscribe
-    public void on(EstimatedState msg) {
-    }
     
     @Override
     public void cleanSubPanel() {
