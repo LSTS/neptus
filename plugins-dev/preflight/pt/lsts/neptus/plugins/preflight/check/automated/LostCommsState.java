@@ -27,22 +27,35 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: tsmarques
- * 23 Mar 2015
+ * 1 Apr 2015
  */
-package pt.lsts.neptus.plugins.preflight.check;
+package pt.lsts.neptus.plugins.preflight.check.automated;
 
-import pt.lsts.neptus.plugins.preflight.PreflightCheck;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
  * @author tsmarques
  *
  */
-@SuppressWarnings("serial")
-public class TestCheck extends PreflightCheck {
-
-    public TestCheck() {
-        super("Minimum Altitude", "Category", false, "Automated");
-        setState(VALIDATED);
-        setValuesLabelText("[0.01 W]");
+public final class LostCommsState {   
+    protected static boolean existsLocally(PlanType lostComms) {
+        if(lostComms == null)
+            return false;
+        return true;
+    }
+    
+    protected static boolean isSynchronized(PlanType lostComms, ImcSystem sys) {
+        PlanDBState prs = sys.getPlanDBControl().getRemoteState();
+        if (prs == null || !prs.matchesRemotePlan(lostComms))
+            return false;
+        return true;
+    }
+    
+    protected static boolean isEmpty(PlanType lostComms, ImcSystem sys) {
+        if(lostComms.isEmpty())
+            return true;
+        return false;
     }
 }

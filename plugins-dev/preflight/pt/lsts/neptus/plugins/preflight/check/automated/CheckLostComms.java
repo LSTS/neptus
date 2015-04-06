@@ -35,6 +35,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.plugins.preflight.Preflight;
+import pt.lsts.neptus.plugins.preflight.PreflightCheck;
 import pt.lsts.neptus.plugins.preflight.check.AutomatedCheck;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -45,7 +46,6 @@ public class CheckLostComms extends AutomatedCheck {
         super("Lost Comms", "Planning", maintainState, true);
     }
     
-    /* TODO: Check lost comms in the vehicle, not just the console */
     @Override
     @Periodic(millisBetweenUpdates = 1000)
     public void validateCheck() {
@@ -53,21 +53,24 @@ public class CheckLostComms extends AutomatedCheck {
                 getMission().
                     getIndividualPlansList().
                         get("lost_comms");
-        
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(Preflight.CONSOLE.getMainSystem());
-        if(lostComms == null || sys == null) { /* "lost comms" plan doesn't exist */
+        
+        if(sys == null) {
             setValuesLabelText("");
             setState(NOT_VALIDATED);
             return;
         }
         
-        PlanDBState prs = sys.getPlanDBControl().getRemoteState();
-        if (prs == null || !prs.matchesRemotePlan(lostComms)) { /* not in sync with vehicle*/
+        if(!LostCommsState.existsLocally(lostComms)) {
+            setValuesLabelText("");
+            setState(NOT_VALIDATED);
+        }
+        if(!LostCommsState.isSynchronized(lostComms, sys)) {
             setValuesLabelText("Not synchronised");
             setState(NOT_VALIDATED);
         }
         else {
-            if(lostComms.isEmpty()) {
+            if(LostCommsState.isEmpty(lostComms, sys)) {
                 setValuesLabelText("Empty plan");
                 setState(VALIDATED_WITH_WARNINGS);
             }
