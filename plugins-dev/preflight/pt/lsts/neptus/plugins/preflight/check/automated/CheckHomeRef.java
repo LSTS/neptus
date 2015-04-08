@@ -64,31 +64,25 @@ public class CheckHomeRef extends WithinRangeCheck {
     @Override
     @Periodic(millisBetweenUpdates = 5000)
     public void validateCheck() {
-        PlanType lostComms = Preflight.CONSOLE.
-                getMission().
-                    getIndividualPlansList().
-                        get("lost_comms");
-        ImcSystem sys = ImcSystemsHolder.getSystemWithName(Preflight.CONSOLE.getMainSystem());
-        
-        if(!PlanState.existsLocally(lostComms)) {
+        if(!PlanState.existsLocally("lost_comms")) {
             setValuesLabelText("?");
             setState(NOT_VALIDATED);
             validated = false;
         }
-        else if(!PlanState.isSynchronized(lostComms, sys)) {
+        else if(!PlanState.isSynchronized("lost_comms")) {
             setValuesLabelText("Not synchronised");
             setState(NOT_VALIDATED);
             validated = false;
         }
         else {
-            if(PlanState.isEmpty(lostComms, sys)) {
+            if(PlanState.isEmpty("lost_comms")) {
                 setValuesLabelText("?");
                 setState(NOT_VALIDATED);
                 validated = false;
             }
             else {
                 if(homeRefChanged() || !validated) {
-                    if(maneuversWithinRange(lostComms)) {
+                    if(maneuversWithinRange()) {
                         setValuesLabelText("[<" + getMaxValue() + "m]");
                         setState(VALIDATED);
                     }
@@ -104,8 +98,13 @@ public class CheckHomeRef extends WithinRangeCheck {
         }
     }
 
-    private boolean maneuversWithinRange(PlanType lostComms) {
-        /* Check distance of each lost_comms maneuver to home reference */  
+    /* Check distance of each lost_comms maneuver to home reference */
+    private boolean maneuversWithinRange() {
+        PlanType lostComms = Preflight.CONSOLE.
+                getMission().
+                    getIndividualPlansList().
+                        get("lost_comms");
+          
         Vector<LocationType> planPath = lostComms.planPath();
 
         for(LocationType loc : planPath)

@@ -50,10 +50,6 @@ public class CheckLostComms extends AutomatedCheck {
     @Override
     @Periodic(millisBetweenUpdates = 1000)
     public void validateCheck() {
-        PlanType lostComms = Preflight.CONSOLE.
-                getMission().
-                    getIndividualPlansList().
-                        get("lost_comms");
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(Preflight.CONSOLE.getMainSystem());
         
         if(sys == null) {
@@ -62,16 +58,16 @@ public class CheckLostComms extends AutomatedCheck {
             return;
         }
         
-        if(!PlanState.existsLocally(lostComms)) {
+        if(!PlanState.existsLocally("lost_comms")) {
             setValuesLabelText("");
             setState(NOT_VALIDATED);
         }
-        if(!PlanState.isSynchronized(lostComms, sys)) {
+        if(!PlanState.isSynchronized("lost_comms")) {
             setValuesLabelText("Not synchronised");
             setState(NOT_VALIDATED);
         }
         else {
-            if(PlanState.isEmpty(lostComms, sys)) {
+            if(PlanState.isEmpty("lost_comms")) {
                 setValuesLabelText("Empty plan");
                 setState(VALIDATED_WITH_WARNINGS);
             }

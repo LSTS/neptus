@@ -32,7 +32,9 @@
 package pt.lsts.neptus.plugins.preflight.utils;
 
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
+import pt.lsts.neptus.plugins.preflight.Preflight;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
 /**
@@ -42,21 +44,36 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 public final class PlanState {
     private PlanState() {}
     
-    public static boolean existsLocally(PlanType lostComms) {
-        if(lostComms == null)
+    public static boolean existsLocally(String planId) {
+        PlanType plan = Preflight.CONSOLE.
+                getMission().
+                    getIndividualPlansList().
+                        get(planId);
+        
+        if(plan == null)
             return false;
         return true;
     }
     
-    public static boolean isSynchronized(PlanType lostComms, ImcSystem sys) {
+    public static boolean isSynchronized(String planId) {
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(Preflight.CONSOLE.getMainSystem());
+        PlanType plan = Preflight.CONSOLE.
+                getMission().
+                    getIndividualPlansList().
+                        get(planId);
+        
         PlanDBState prs = sys.getPlanDBControl().getRemoteState();
-        if (prs == null || !prs.matchesRemotePlan(lostComms))
+        if (prs == null || !prs.matchesRemotePlan(plan))
             return false;
         return true;
     }
     
-    public static boolean isEmpty(PlanType lostComms, ImcSystem sys) {
-        if(lostComms.isEmpty())
+    public static boolean isEmpty(String planId) {
+        PlanType plan = Preflight.CONSOLE.
+                getMission().
+                    getIndividualPlansList().
+                        get(planId);
+        if(plan.isEmpty())
             return true;
         return false;
     }
