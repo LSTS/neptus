@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.logs;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class HistoryMessage implements Comparable<HistoryMessage> {
     public enum msg_type {
@@ -44,7 +45,7 @@ public class HistoryMessage implements Comparable<HistoryMessage> {
         debug
     };
 
-    protected static final DateFormat format = new SimpleDateFormat("HH:mm:ss");
+    protected final DateFormat format = new SimpleDateFormat("HH:mm:ss");
     public long timestamp;
     public String text;
     public String context;
@@ -52,7 +53,7 @@ public class HistoryMessage implements Comparable<HistoryMessage> {
     public msg_type type = msg_type.info;
     
     public HistoryMessage(){
-        
+        format.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
     
     @Override
