@@ -752,7 +752,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     }
 
     private void processEntityInfo(MessageInfo info, EntityInfo msg) {
-        IMCDefinition.getInstance().getResolver().setEntityName(msg.getSrc(), msg.getSrcEnt(), msg.getLabel());        
+        imcDefinition.getResolver().setEntityName(msg.getSrc(), msg.getSrcEnt(), msg.getLabel());        
     }
     
     private void processMessagePart(MessageInfo info, MessagePart msg) {
@@ -763,7 +763,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
     
     private void processEntityList(ImcId16 id, MessageInfo info, EntityList msg) {
         EntitiesResolver.setEntities(id.toString(), msg);
-        IMCDefinition.getInstance().getResolver().setEntityMap(msg.getSrc(), msg.getList());
+        imcDefinition.getResolver().setEntityMap(msg.getSrc(), msg.getList());
         ImcSystem sys = ImcSystemsHolder.lookupSystem(id);
         if (sys != null) {
             EntitiesResolver.setEntities(sys.getName(), msg);
@@ -786,7 +786,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 if (Announce.ID_STATIC == msg.getMgid()) {
                     String localUid = announceWorker.getNeptusInstanceUniqueID();
                     String serv = announceWorker.getImcServicesFromMessage(msg);
-                    IMCDefinition.getInstance().getResolver().addEntry(msg.getSrc(), msg.getString("sys_name"));
+                    imcDefinition.getResolver().addEntry(msg.getSrc(), msg.getString("sys_name"));
                     String uid = IMCUtils.getUidFromServices(serv);
                     boolean sameHost = false;
                     Vector<NInterface> iList = getNetworkInterfaces();
