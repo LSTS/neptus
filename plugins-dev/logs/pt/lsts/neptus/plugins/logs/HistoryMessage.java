@@ -53,12 +53,12 @@ public class HistoryMessage implements Comparable<HistoryMessage> {
     public msg_type type = msg_type.info;
     
     public HistoryMessage(){
-        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
     
     @Override
     public String toString() {
-        return "["+format.format(new Date(timestamp))+"] "+" ["+context+"] "+text;
+        return "["+format.format(new Date(timestamp))+" UTC] "+" ["+context+"] "+text;
     }
     
     public HistoryMessage(long timestamp, String text, String context, boolean assynchronous, msg_type type) {
