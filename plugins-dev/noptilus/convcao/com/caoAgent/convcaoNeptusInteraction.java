@@ -440,10 +440,13 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         for (int AUV = 0; AUV < receive.Location.length; AUV++) {
             String name = nameTable.get(AUV);
             LocationType loc = coords.convert(receive.Location[AUV][0], receive.Location[AUV][1]);
-            System.out.println(loc);
-            loc.setDepth(1+AUV*1.5);//coords.convertNoptilusDepthToWgsDepth(receive.Location[AUV][2]));
+            loc.setDepth(firstVehicleDepth+AUV*depthIncrements);//coords.convertNoptilusDepthToWgsDepth(receive.Location[AUV][2]));
             destinations.put(name, loc);
-            showText(name+" is being sent to "+receive.Location[AUV][0]+", "+receive.Location[AUV][1]);
+            showText(name+" is being sent to "+receive.Location[AUV][0]+", "+receive.Location[AUV][1]);                        
+        }
+        // reset arrived states
+        for (String auvName : nameTable.values()) {
+            arrived.put(auvName, false);
         }
 
         myDeleteFile(SessionID + "_Data.txt");
@@ -594,10 +597,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             bathymetry.put(auvName, state.getDepth() + state.getAlt() - tideOffset);
             double dist = auvPosition.getHorizontalDistanceInMeters(destinations.get(auvName));
             if (dist < nearDistance)
-                arrived.put(auvName, true);    
-            else {
-                arrived.put(auvName, false);
-            }                
+                arrived.put(auvName, true);                     
         }   
     }
 
