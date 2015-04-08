@@ -45,7 +45,8 @@ public class HistoryMessage implements Comparable<HistoryMessage> {
         debug
     };
 
-    protected final DateFormat format = new SimpleDateFormat("HH:mm:ss");
+    @SuppressWarnings("serial")
+    protected final DateFormat format = new SimpleDateFormat("HH:mm:ss") {{ setTimeZone(TimeZone.getTimeZone("UTC")); }};
     public long timestamp;
     public String text;
     public String context;
@@ -53,7 +54,6 @@ public class HistoryMessage implements Comparable<HistoryMessage> {
     public msg_type type = msg_type.info;
     
     public HistoryMessage(){
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
     
     @Override
