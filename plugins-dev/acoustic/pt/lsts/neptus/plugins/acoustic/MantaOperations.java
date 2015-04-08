@@ -607,9 +607,10 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
                     rangeDistances.add(msg.getRange());
                     rangeSources.add(loc);
-                    addText(I18n.textf("Distance to %systemName is %distance", msg.getSystem().toString(),
-                            GuiUtils.getNeptusDecimalFormat(1).format(msg.getRange())));
                 }
+
+                addText(I18n.textf("Distance to %systemName is %distance", msg.getSystem().toString(),
+                        GuiUtils.getNeptusDecimalFormat(1).format(msg.getRange())));
                 break;
             case ABORT_ACKED:
                 addText(I18n.textf("%systemName has acknowledged abort command", msg.getSystem().toString()));
