@@ -37,6 +37,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.plugins.preflight.Preflight;
 import pt.lsts.neptus.plugins.preflight.check.WithinRangeCheck;
+import pt.lsts.neptus.plugins.preflight.utils.PlanState;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.HomeReference;
@@ -69,18 +70,18 @@ public class CheckHomeRef extends WithinRangeCheck {
                         get("lost_comms");
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(Preflight.CONSOLE.getMainSystem());
         
-        if(!LostCommsState.existsLocally(lostComms)) {
+        if(!PlanState.existsLocally(lostComms)) {
             setValuesLabelText("?");
             setState(NOT_VALIDATED);
             validated = false;
         }
-        else if(!LostCommsState.isSynchronized(lostComms, sys)) {
+        else if(!PlanState.isSynchronized(lostComms, sys)) {
             setValuesLabelText("Not synchronised");
             setState(NOT_VALIDATED);
             validated = false;
         }
         else {
-            if(LostCommsState.isEmpty(lostComms, sys)) {
+            if(PlanState.isEmpty(lostComms, sys)) {
                 setValuesLabelText("?");
                 setState(NOT_VALIDATED);
                 validated = false;

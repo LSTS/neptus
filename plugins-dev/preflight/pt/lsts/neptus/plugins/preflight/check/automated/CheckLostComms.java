@@ -37,6 +37,7 @@ import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.plugins.preflight.Preflight;
 import pt.lsts.neptus.plugins.preflight.PreflightCheck;
 import pt.lsts.neptus.plugins.preflight.check.AutomatedCheck;
+import pt.lsts.neptus.plugins.preflight.utils.PlanState;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 
@@ -61,16 +62,16 @@ public class CheckLostComms extends AutomatedCheck {
             return;
         }
         
-        if(!LostCommsState.existsLocally(lostComms)) {
+        if(!PlanState.existsLocally(lostComms)) {
             setValuesLabelText("");
             setState(NOT_VALIDATED);
         }
-        if(!LostCommsState.isSynchronized(lostComms, sys)) {
+        if(!PlanState.isSynchronized(lostComms, sys)) {
             setValuesLabelText("Not synchronised");
             setState(NOT_VALIDATED);
         }
         else {
-            if(LostCommsState.isEmpty(lostComms, sys)) {
+            if(PlanState.isEmpty(lostComms, sys)) {
                 setValuesLabelText("Empty plan");
                 setState(VALIDATED_WITH_WARNINGS);
             }

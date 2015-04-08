@@ -29,7 +29,7 @@
  * Author: tsmarques
  * 1 Apr 2015
  */
-package pt.lsts.neptus.plugins.preflight.check.automated;
+package pt.lsts.neptus.plugins.preflight.utils;
 
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
@@ -39,21 +39,23 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  * @author tsmarques
  *
  */
-public final class LostCommsState {   
-    protected static boolean existsLocally(PlanType lostComms) {
+public final class PlanState {
+    private PlanState() {}
+    
+    public static boolean existsLocally(PlanType lostComms) {
         if(lostComms == null)
             return false;
         return true;
     }
     
-    protected static boolean isSynchronized(PlanType lostComms, ImcSystem sys) {
+    public static boolean isSynchronized(PlanType lostComms, ImcSystem sys) {
         PlanDBState prs = sys.getPlanDBControl().getRemoteState();
         if (prs == null || !prs.matchesRemotePlan(lostComms))
             return false;
         return true;
     }
     
-    protected static boolean isEmpty(PlanType lostComms, ImcSystem sys) {
+    public static boolean isEmpty(PlanType lostComms, ImcSystem sys) {
         if(lostComms.isEmpty())
             return true;
         return false;
