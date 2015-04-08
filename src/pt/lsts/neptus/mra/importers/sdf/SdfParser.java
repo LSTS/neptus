@@ -97,6 +97,8 @@ public class SdfParser {
 
     public SdfParser(File[] files) {
         multipleFiles = true;
+        Arrays.sort(files);
+
         for (File file : files) {
             try {
                 this.file = file;
