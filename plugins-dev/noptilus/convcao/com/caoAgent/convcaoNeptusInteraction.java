@@ -113,7 +113,8 @@ import convcao.com.caoAgent.model.TransferData;
 public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2DPainter, IController, ConfigurationListener {
 
     private static final long serialVersionUID = -1330079540844029305L;
-
+    private static final double DVL_ANGLE = Math.toRadians(22.5);
+    
     // Variables declaration - do not modify
     protected int AUVS ;
     protected String SessionID = "";
@@ -320,10 +321,13 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         
         // H² = Ca² + Cb²
         double H = d.getValue();
-        double Ca = Math.cos(Math.toRadians(22.5)) * H;
-        double Cb = Math.sin(Math.toRadians(22.5)) * H;
+        double Ca = Math.cos(DVL_ANGLE) * H;
+        double Cb = Math.sin(DVL_ANGLE) * H;
         
         String beamId = d.getEntityName();
+        
+        if (beamId == null)
+            beamId = "DVL Filtered";
         
         double tide = 0;
         
@@ -348,6 +352,11 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
          */
         
         switch (beamId) {
+            // pointing down
+            case "DVL Filtered":
+                Cb = 0;
+                Ca = H;
+                break;
             case "DVL Beam 1":
                 heading += Math.toRadians(90);
                 break;
