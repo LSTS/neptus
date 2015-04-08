@@ -808,15 +808,10 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         sameIdErrorDetected = true;
                         sameIdErrorDetectedTimeMillis = System.currentTimeMillis();
                     }
-                    // System.out.println(localId + " :: " + id + " :: " + localId.equals(id) + " :: " + (Announce.ID_STATIC == msg.getMgid()));
-                    // System.out.println(localUid + " :: " + uid + " :: " + !localUid.equalsIgnoreCase(uid));
                 }
                 return false;
             }
 
-            if (localId.equals(id)) {
-                System.out.println(msg.getAbbrev());
-            }
             vci = getCommInfoById(id);
             if (!ImcId16.NULL_ID.equals(id) && !ImcId16.BROADCAST_ID.equals(id) && !ImcId16.ANNOUNCE.equals(id)
                     && !localId.equals(id)) {
@@ -834,6 +829,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                         break;
                     case MessagePart.ID_STATIC:
                         processMessagePart(info, (MessagePart)msg);
+                        break;
                     default:
                         break;
                 }
