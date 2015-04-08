@@ -93,7 +93,7 @@ public class Preflight extends ConsolePanel {
     }
     
     private void initMainPanel() {
-        contentPanel = new X801Panel();
+        initContentPanel();
         scrollMainPanel = new JScrollPane(contentPanel);
         
         final Dimension d = new Dimension(MAX_COMPONENT_WIDTH, HEIGHT);
@@ -105,7 +105,12 @@ public class Preflight extends ConsolePanel {
         add(scrollMainPanel);
     }
     
-    
+    private void initContentPanel() {
+        mainSysName = CONSOLE.getMainSystem();
+        
+        contentPanel = new X801Panel();
+        contentPanel.setSysName(mainSysName);
+    }
        
     @Subscribe
     public void on(ConsoleEventMainSystemChange ev) { /* When a diff vehicle has been selected as main Vehicle */
