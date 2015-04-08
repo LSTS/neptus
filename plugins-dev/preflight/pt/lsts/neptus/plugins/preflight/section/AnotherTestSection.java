@@ -38,7 +38,6 @@ import com.google.common.eventbus.Subscribe;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.plugins.preflight.PreflightSection;
 import pt.lsts.neptus.plugins.preflight.check.ManualCheck;
-import pt.lsts.neptus.plugins.preflight.check.TestCheck;
 import pt.lsts.neptus.plugins.preflight.check.automated.CheckLostComms;
 import pt.lsts.neptus.plugins.preflight.check.automated.DiskSpaceCheck;
 
