@@ -814,15 +814,6 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
                 return false;
             }
 
-            
-            
-            // Handling of fragmented messages
-            if (msg instanceof MessagePart) {
-                IMCMessage m = fragmentHandler.setFragment((MessagePart)msg);
-                if (m != null)
-                    postInternalMessage(msg.getSourceName(), m);
-            }
-
             if (localId.equals(id)) {
                 System.out.println(msg.getAbbrev());
             }
