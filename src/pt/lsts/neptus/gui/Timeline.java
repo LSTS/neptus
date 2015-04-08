@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -70,6 +71,8 @@ public class Timeline extends JPanel implements ChangeListener {
     private Runnable updater;
     
     public Timeline(int min, int max, int frequency, int perSecond, boolean wait) {
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+
         slider = new JSlider(min, max);
         slider.addChangeListener(this);
 
@@ -201,7 +204,7 @@ public class Timeline extends JPanel implements ChangeListener {
     }
     
     public void setTime(long epochTimeMillis) {
-        this.time.setText(fmt.format(new Date(epochTimeMillis)) + "(x" + speed + ")");
+        this.time.setText(fmt.format(new Date(epochTimeMillis)) + " UTC (x" + speed + ")");
     }
     
     public static void main(String args[]) {
