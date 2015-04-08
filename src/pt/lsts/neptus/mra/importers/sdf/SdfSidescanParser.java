@@ -104,7 +104,7 @@ public class SdfSidescanParser implements SidescanParser {
             
             // Calculate Portboard
             for (int i = 0; i < nSamples; i++) {
-                double r =  i / (double) nSamples;
+                double r =  1 - (i / (double) nSamples);
                 double gain = Math.abs(30.0 * Math.log(r));
                 double pb = sboardPboard.getPortData()[i] * Math.pow(10, gain / config.getTvgGain());
                 
