@@ -211,7 +211,7 @@ public class MRAFilesHandler implements FileHandler {
             alreadyConverted = true;
 
         if (alreadyConverted) {
-            int option = JOptionPane.showConfirmDialog(mra,
+            int option = GuiUtils.confirmDialogWithCancel(mra, I18n.text("Open Log"),
                     I18n.text("This log seems to have already been indexed. Index again?"));
 
             if (option == JOptionPane.YES_OPTION) {
@@ -223,7 +223,7 @@ public class MRAFilesHandler implements FileHandler {
                 }
             }
 
-            if (option == JOptionPane.CANCEL_OPTION) {
+            if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
                 mra.getBgp().block(false);
                 return false;
             }
