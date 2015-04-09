@@ -31,8 +31,8 @@
  */
 package pt.lsts.neptus.plugins.preflight.panel;
 
-import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.preflight.PreflightPanel;
+import pt.lsts.neptus.plugins.preflight.section.AircraftControlSection;
 import pt.lsts.neptus.plugins.preflight.section.AnotherTestSection;
 
 /**
@@ -50,6 +50,6 @@ public class X801Panel extends PreflightPanel{
     @Override
     public void addSections() {
         addNewSection(new AnotherTestSection("1"));
+        addNewSection(new AircraftControlSection());
     }
-
 }

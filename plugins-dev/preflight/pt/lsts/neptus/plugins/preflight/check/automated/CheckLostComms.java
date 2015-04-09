@@ -33,13 +33,10 @@ package pt.lsts.neptus.plugins.preflight.check.automated;
 
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
-import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.plugins.preflight.Preflight;
-import pt.lsts.neptus.plugins.preflight.PreflightCheck;
 import pt.lsts.neptus.plugins.preflight.check.AutomatedCheck;
 import pt.lsts.neptus.plugins.preflight.utils.PlanState;
 import pt.lsts.neptus.plugins.update.Periodic;
-import pt.lsts.neptus.types.mission.plan.PlanType;
 
 @SuppressWarnings("serial")
 public class CheckLostComms extends AutomatedCheck {

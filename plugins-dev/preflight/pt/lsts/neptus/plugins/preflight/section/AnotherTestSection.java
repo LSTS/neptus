@@ -32,12 +32,12 @@
 package pt.lsts.neptus.plugins.preflight.section;
 
 import java.awt.Color;
-
-import com.google.common.eventbus.Subscribe;
-
-import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.plugins.preflight.PreflightSection;
 import pt.lsts.neptus.plugins.preflight.check.ManualCheck;
+import pt.lsts.neptus.plugins.preflight.check.automated.CheckAirspeed;
+import pt.lsts.neptus.plugins.preflight.check.automated.CheckAutoLandPlan;
+import pt.lsts.neptus.plugins.preflight.check.automated.CheckAutoTakeOffPlan;
+import pt.lsts.neptus.plugins.preflight.check.automated.CheckHomeRef;
 import pt.lsts.neptus.plugins.preflight.check.automated.CheckLostComms;
 import pt.lsts.neptus.plugins.preflight.check.automated.DiskSpaceCheck;
 
@@ -56,6 +56,10 @@ public class AnotherTestSection extends PreflightSection {
     protected void buildChecksPanel() { 
         addNewCheckItem(new ManualCheck("Manual Check", "Status", false));
         addNewCheckItem(new CheckLostComms(false));
+        addNewCheckItem(new CheckHomeRef(false));
+        addNewCheckItem(new CheckAutoTakeOffPlan(false));
+        addNewCheckItem(new CheckAutoLandPlan(false));
         addNewCheckItem(new DiskSpaceCheck(false));
+        addNewCheckItem(new CheckAirspeed(false));
     }
 }
