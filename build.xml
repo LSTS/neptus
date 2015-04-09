@@ -82,8 +82,8 @@ For simple use the main targets are:
 	<property name="build.compiler" value="modern" />
 	<property name="debug" value="on" />
 	<property name="deprecation" value="off" />
-	<property name="compile-source" value="1.7" />
-	<property name="compile-target" value="1.7" />
+	<property name="compile-source" value="1.8" />
+	<property name="compile-target" value="1.8" />
 	<property name="compile-encoding" value="UTF-8" />
 	<!--property name="extra-compile-args" value="-Xlint:unchecked"/-->
 	<property name="extra-compile-args" value="" />
