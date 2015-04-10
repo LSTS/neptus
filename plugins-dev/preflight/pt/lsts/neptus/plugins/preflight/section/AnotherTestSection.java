@@ -32,13 +32,12 @@
 package pt.lsts.neptus.plugins.preflight.section;
 
 import java.awt.Color;
+
 import pt.lsts.neptus.plugins.preflight.PreflightSection;
 import pt.lsts.neptus.plugins.preflight.check.ManualCheck;
 import pt.lsts.neptus.plugins.preflight.check.automated.CheckAirspeed;
-import pt.lsts.neptus.plugins.preflight.check.automated.CheckAutoLandPlan;
-import pt.lsts.neptus.plugins.preflight.check.automated.CheckAutoTakeOffPlan;
 import pt.lsts.neptus.plugins.preflight.check.automated.CheckHomeRef;
-import pt.lsts.neptus.plugins.preflight.check.automated.CheckLostComms;
+import pt.lsts.neptus.plugins.preflight.check.automated.CheckPlan;
 import pt.lsts.neptus.plugins.preflight.check.automated.DiskSpaceCheck;
 
 /**
@@ -55,10 +54,10 @@ public class AnotherTestSection extends PreflightSection {
     @Override
     protected void buildChecksPanel() { 
         addNewCheckItem(new ManualCheck("Manual Check", "Status", false));
-        addNewCheckItem(new CheckLostComms(false));
+        addNewCheckItem(new CheckPlan("lost_comms", "Lost Comms", false));
         addNewCheckItem(new CheckHomeRef(false));
-        addNewCheckItem(new CheckAutoTakeOffPlan(false));
-        addNewCheckItem(new CheckAutoLandPlan(false));
+        addNewCheckItem(new CheckPlan("auto_takeoff", "Auto-TakeOff", false));
+        addNewCheckItem(new CheckPlan("auto_land", "Auto-Land", false));
         addNewCheckItem(new DiskSpaceCheck(false));
         addNewCheckItem(new CheckAirspeed(false));
     }

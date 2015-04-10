@@ -27,7 +27,7 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: tsmarques
- * 8 Apr 2015
+ * 10 Apr 2015
  */
 package pt.lsts.neptus.plugins.preflight.check.automated;
 
@@ -42,13 +42,15 @@ import pt.lsts.neptus.plugins.update.Periodic;
  * @author tsmarques
  *
  */
-public class CheckAutoTakeOffPlan extends AutomatedCheck {
-    private static final String PLAN_NAME = "auto_takeoff";
+@SuppressWarnings("serial")
+public class CheckPlan extends AutomatedCheck {
+    private String planToCheck;
     
-    public CheckAutoTakeOffPlan(boolean maintainState) {
-        super("Auto-Takeoff", "Planning", maintainState, true);
+    public CheckPlan(String planId, String planName, boolean maintainState) {
+        super(planName, "Planning", maintainState, true);
+        planToCheck = planId;
     }
-
+    
     @Override
     @Periodic(millisBetweenUpdates = 1000)
     public void validateCheck() {
@@ -60,16 +62,16 @@ public class CheckAutoTakeOffPlan extends AutomatedCheck {
             return;
         }
         
-        if(!PlanState.existsLocally(PLAN_NAME)) {
+        if(!PlanState.existsLocally(planToCheck)) {
             setValuesLabelText("No plan");
             setState(NOT_VALIDATED);
         }
-        if(!PlanState.isSynchronized(PLAN_NAME)) {
-            setValuesLabelText(PLAN_NAME);
+        else if(!PlanState.isSynchronized(planToCheck)) {
+            setValuesLabelText("Not synchronised");
             setState(NOT_VALIDATED);
         }
         else {
-            if(PlanState.isEmpty(PLAN_NAME)) {
+            if(PlanState.isEmpty(planToCheck)) {
                 setValuesLabelText("Empty plan");
                 setState(VALIDATED_WITH_WARNINGS);
             }
