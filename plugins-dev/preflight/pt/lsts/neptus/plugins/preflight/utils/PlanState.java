@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.plugins.preflight.utils;
 
+import java.util.TreeMap;
+
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
@@ -45,16 +47,14 @@ public final class PlanState {
     private PlanState() {}
     
     public static boolean existsLocally(String planId) {
-        PlanType plan = Preflight.CONSOLE.
+        TreeMap<String, PlanType> plansList = Preflight.CONSOLE.
                 getMission().
-                    getIndividualPlansList().
-                        get(planId);
-        
-        if(plan == null)
-            return false;
-        return true;
+                getIndividualPlansList();
+
+       return plansList.containsKey(planId);
     }
     
+    /* This method assumes that the plan with planId exists */
     public static boolean isSynchronized(String planId) {
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(Preflight.CONSOLE.getMainSystem());
         PlanType plan = Preflight.CONSOLE.
@@ -68,6 +68,7 @@ public final class PlanState {
         return true;
     }
     
+    /* This method assumes that the plan with planId exists */
     public static boolean isEmpty(String planId) {
         PlanType plan = Preflight.CONSOLE.
                 getMission().
