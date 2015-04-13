@@ -257,7 +257,7 @@ public class LogTableVisualization implements MRAVisualization, LogMarkerListene
     }
 
     @Override
-    public void GotoMarker(LogMarker marker) {
+    public void goToMarker(LogMarker marker) {
 
     }
 }

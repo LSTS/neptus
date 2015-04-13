@@ -335,7 +335,7 @@ public class MRAPanel extends JPanel {
     public void synchVisualizations(LogMarker marker) {
         for (MRAVisualization v : visualizationList.values()) {
             if (v instanceof LogMarkerListener)
-                ((LogMarkerListener) v).GotoMarker(marker);
+                ((LogMarkerListener) v).goToMarker(marker);
         }
     }
 
