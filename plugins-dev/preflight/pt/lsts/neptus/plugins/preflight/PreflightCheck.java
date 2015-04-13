@@ -71,6 +71,7 @@ public abstract class PreflightCheck extends JPanel {
         buildPanel(type);
         
         ImcMsgManager.registerBusListener(this); /* Subscribe to messages */
+        setState(NOT_VALIDATED);
     }
         
     private void init(String description, String category, boolean maintainState) {
