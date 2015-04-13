@@ -385,10 +385,10 @@ public class MRALogReplay extends SimpleMRAVisualization implements LogMarkerLis
     }
 
     @Override
-    public void GotoMarker(LogMarker marker) {
+    public void goToMarker(LogMarker marker) {
         for (LogReplayLayer l : layers) {
             if (l instanceof LogMarkerListener)
-                ((LogMarkerListener) l).GotoMarker(marker);
+                ((LogMarkerListener) l).goToMarker(marker);
         }
     }
 

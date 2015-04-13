@@ -129,7 +129,7 @@ public class XYPlot extends MRA2DPlot {
     }
 
     @Override
-    public void GotoMarker(LogMarker marker) {
+    public void goToMarker(LogMarker marker) {
 
     }
 

@@ -218,7 +218,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     }
 
     @Override
-    public void GotoMarker(LogMarker marker) {
+    public void goToMarker(LogMarker marker) {
         if (photosDir == null)
             return;
         File[] allFiles = photosDir.listFiles();

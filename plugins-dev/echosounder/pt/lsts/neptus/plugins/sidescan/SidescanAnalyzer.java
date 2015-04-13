@@ -245,7 +245,7 @@ public class SidescanAnalyzer extends JPanel implements MRAVisualization, Timeli
     }
 
     @Override
-    public void GotoMarker(LogMarker marker) {
+    public void goToMarker(LogMarker marker) {
 
     }
 

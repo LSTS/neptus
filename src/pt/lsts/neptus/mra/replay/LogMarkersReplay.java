@@ -136,7 +136,7 @@ public class LogMarkersReplay implements LogReplayLayer, LogMarkerListener {
     
 
     @Override
-    public void GotoMarker(LogMarker marker) {
+    public void goToMarker(LogMarker marker) {
         //nothing
     }
     
