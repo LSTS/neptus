@@ -52,11 +52,12 @@ public class CheckHomeRef extends WithinRangeCheck {
     private boolean validated;
     
     public CheckHomeRef(boolean maintainState) {
-        super("Home distance", "Planning", maintainState, true);
+        super("Home distance", "Planning", maintainState);
         home = Preflight.CONSOLE.getMission().getHomeRef();
         homeLat = home.getLatitudeRads();
         homeLong = home.getLongitudeRads();
         validated = false;
+        setAsPeriodic();
     }
 
     @Override

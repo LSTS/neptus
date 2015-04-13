@@ -42,7 +42,7 @@ import pt.lsts.neptus.plugins.preflight.check.WithinRangeCheck;
 @SuppressWarnings("serial")
 public class DiskSpaceCheck extends WithinRangeCheck {
     public DiskSpaceCheck(boolean maintainStateOnReboot) {
-        super("Disk Space", "Status", maintainStateOnReboot, false);
+        super("Disk Space", "Status", maintainStateOnReboot);
     }
 
     @Override

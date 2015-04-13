@@ -38,8 +38,8 @@ package pt.lsts.neptus.plugins.preflight.check;
  */
 @SuppressWarnings("serial")
 public abstract class WithinRangeCheck extends AutomatedCheck {
-    public WithinRangeCheck(String description, String category, boolean maintainState, boolean isPeriodic) {
-        super(description, category, maintainState, isPeriodic);
+    public WithinRangeCheck(String description, String category, boolean maintainState) {
+        super(description, category, maintainState);
     }
     
     protected abstract double getMaxValue();

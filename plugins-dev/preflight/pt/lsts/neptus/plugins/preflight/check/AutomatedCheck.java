@@ -40,10 +40,8 @@ import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
  *
  */
 public abstract class AutomatedCheck extends PreflightCheck {
-    public AutomatedCheck(String description, String category, boolean maintainState, boolean isPeriodic) {
+    public AutomatedCheck(String description, String category, boolean maintainState) {
         super(description, category, maintainState, "Automated");
-        if(isPeriodic)
-            PeriodicUpdatesService.registerPojo(this);
     }
     
     /* Override and set period as needed */
@@ -52,5 +50,9 @@ public abstract class AutomatedCheck extends PreflightCheck {
     
     protected final void stopValidation() {
         PeriodicUpdatesService.unregisterPojo(this);
+    }
+    
+    protected void setAsPeriodic() {
+        PeriodicUpdatesService.registerPojo(this);        
     }
 }
