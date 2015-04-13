@@ -37,6 +37,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -54,7 +55,10 @@ public abstract class PreflightCheck extends JPanel {
     protected static final int NOT_VALIDATED = -1;
     protected static final int VALIDATED_WITH_WARNINGS = 1;
     
-    private JLabel state;
+    protected static final Color COLOR_VALIDATED = new Color(200, 255, 200);
+    protected static final Color COLOR_NOT_VALIDATED = new Color(255, 128, 128);
+    protected static final Color COLOR_VALIDATED_W_WARNINGS = new Color(255, 255, 128);
+    
     private JLabel description;
     private String category;
     private JCheckBox checkBox;
@@ -70,12 +74,11 @@ public abstract class PreflightCheck extends JPanel {
     }
         
     private void init(String description, String category, boolean maintainState) {
-        setLayout(new GridLayout(0, 4));
+        setLayout(new GridLayout(0, 3));
         setBackground(Color.WHITE);
         setMinimumSize(new Dimension(Preflight.MAX_COMPONENT_WIDTH, 20));
         setMaximumSize(new Dimension(Preflight.MAX_COMPONENT_WIDTH, 20));
         
-        this.state = new JLabel("", SwingConstants.CENTER);
         this.description = new JLabel(description, SwingConstants.CENTER);
         this.category = category;
         this.maintainState = maintainState;
@@ -85,11 +88,12 @@ public abstract class PreflightCheck extends JPanel {
         valuesLabel = new JLabel("?", SwingConstants.CENTER);
         
         add(this.description, 0);
-        add(state, 1);
-        add(valuesLabel, 2);
-        add(checkBox, 3);
+        this.description.setOpaque(true);
+        add(valuesLabel, 1);
+        valuesLabel.setOpaque(true);
+        add(checkBox, 2);
+        checkBox.setOpaque(true);
         
-        state.setVisible(false);
         valuesLabel.setVisible(false);
         checkBox.setVisible(false);
     }
@@ -97,16 +101,13 @@ public abstract class PreflightCheck extends JPanel {
     /* Adds the panel elements, according to the check type */
     private void buildPanel(String type) {
         if(type.equals("")) {
-            addStateLabel();
             addValuesLabel();
             addCheckBox();
         }
         else if(type.equals("Automated")) {
-            addStateLabel();
             addValuesLabel();
         }
         else if(type.equals("Manual")) {
-            addStateLabel();            
             addCheckBox();
         }
         else if(type.equals("Info")) {
@@ -115,31 +116,31 @@ public abstract class PreflightCheck extends JPanel {
     }
         
     public void setState(int newState) {
-        if(newState == VALIDATED) {
-            state.setForeground(Color.GREEN);
-            state.setText("[OK]");
-        }
-        else if(newState == NOT_VALIDATED){
-            state.setForeground(Color.RED);
-            state.setText("[]");
-        }
-        else if(newState == VALIDATED_WITH_WARNINGS) {
-            state.setForeground(Color.YELLOW);
-            state.setText("[OK]");
-        }
-        //revalidate();
+        Color color = COLOR_NOT_VALIDATED;
+        
+        if(newState == VALIDATED)
+            color = COLOR_VALIDATED;
+        else if(newState == NOT_VALIDATED)
+            color = COLOR_NOT_VALIDATED;
+        else if(newState == VALIDATED_WITH_WARNINGS)
+            color = COLOR_VALIDATED_W_WARNINGS;
+        
+        
+        setCheckBackgroundAs(color);
+    }
+    
+    private void setCheckBackgroundAs(Color color) {
+        setBackground(color);
+        description.setBackground(color);
+        valuesLabel.setBackground(color);
+        checkBox.setBackground(color);
     }
     
     public void setValuesLabelText(String txt) {
         valuesLabel.setText(txt);
         revalidate();
     }
-    
-    public void addStateLabel() {
-        setState(NOT_VALIDATED);
-        state.setVisible(true);
-    }
-    
+       
     public void addValuesLabel() {
         valuesLabel.setVisible(true);
     }
@@ -163,11 +164,7 @@ public abstract class PreflightCheck extends JPanel {
     protected boolean messageFromMainVehicle(String msgSrc) {
         return(msgSrc.equals(Preflight.CONSOLE.getMainSystem()));
     }
-        
-    public String getState() {
-        return state.getText();
-    }
-    
+           
     public String getDescription() {
         return description.getText();
     }
