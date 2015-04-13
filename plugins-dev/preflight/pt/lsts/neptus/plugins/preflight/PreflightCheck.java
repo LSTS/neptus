@@ -69,6 +69,7 @@ public abstract class PreflightCheck extends JPanel {
         super();
         init(description, category, maintainState);
         buildPanel(type);
+        setBorder(BorderFactory.createLineBorder(Color.white, 1));
         
         ImcMsgManager.registerBusListener(this); /* Subscribe to messages */
         setState(NOT_VALIDATED);
