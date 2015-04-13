@@ -127,7 +127,7 @@ public class EstimatedStatePlot extends MRA2DPlot implements LogMarkerListener {
     }
 
     @Override
-    public void GotoMarker(LogMarker marker) {
+    public void gotToMarker(LogMarker marker) {
 
     }
 

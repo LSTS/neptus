@@ -81,7 +81,7 @@ public class ActualPosition extends MRA2DPlot {
     }
 
     @Override
-    public void GotoMarker(LogMarker marker) {
+    public void goToMarker(LogMarker marker) {
         // TODO
 
     }

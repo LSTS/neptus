@@ -267,7 +267,7 @@ public abstract class MRAGanttPlot implements LLFChart, LogMarkerListener {
     }
 
     @Override
-    public void GotoMarker(LogMarker marker) {
+    public void goToMarker(LogMarker marker) {
 
     }
 
