@@ -103,9 +103,6 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
 @PluginDescription(name = "Photos", icon = "pt/lsts/neptus/plugins/mraplots/camera.png")
 public class MraPhotosVisualization extends JComponent implements MRAVisualization, LogMarkerListener {
     private static final long serialVersionUID = 1L;
-    protected PriorityBlockingQueue<File> files = new PriorityBlockingQueue<>(3);
-    protected PriorityBlockingQueue<LoadedImage> imgs = new PriorityBlockingQueue<>(3);
-    protected int loadingThreads = 2;
     protected File photosDir;
     protected LsfIndex index;
     protected Image imageToDisplay = null;
@@ -654,84 +651,6 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             g.drawString(details.firstElement(), 20, y);
             details.remove(0);
         }
-    }
-
-    protected Thread loadingThread(final String name) {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Vector<BufferedImageOp> ops = new Vector<>();
-                    if (whiteBalanceOp != null)
-                        ops.add(whiteBalanceOp);
-                    if (contrast)
-                        ops.add(contrastOp);
-                    if (sharpen)
-                        ops.add(sharpenOp);
-                    if (brighten)
-                        ops.add(brightenOp);
-                    if (grayscale)
-                        ops.add(grayscaleOp);
-                    final BufferedImageOp[] operations = ops.toArray(new BufferedImageOp[0]);
-
-                    while (!files.isEmpty()) {
-                        File nextFile = files.take();
-                        LoadedImage img = new LoadedImage();
-                        BufferedImage original = ImageIO.read(nextFile);
-
-                        if (fullRes) {
-                            if (!ops.isEmpty())
-                                img.image = Scalr.apply(original, operations);
-                            else
-                                img.image = original;
-                        }
-                        else {
-                            img.image = Scalr.resize(original, getWidth(), getHeight(), operations);
-                        }
-
-                        img.timestamp = timestampOf(nextFile);
-                        img.file = nextFile;
-                        while (imgs.size() > 5) {
-                            System.out.println("waiting..." + imgs.size());
-                            Thread.sleep(10);
-                        }
-                        addImage(img);
-                    }
-                    running.remove(this);
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().info("Thread '" + name + "' stopped");
-                    running.remove(this);
-                }
-            }
-        }, name);
-        t.setDaemon(true);
-        return t;
-    }
-
-    protected synchronized boolean addImage(LoadedImage img) {
-        try {
-            return imgs.offer(img, 100, TimeUnit.MILLISECONDS);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    class LoadedImage implements Comparable<LoadedImage> {
-        @Override
-        public int compareTo(LoadedImage o) {
-            if (timestamp == o.timestamp)
-                return 0;
-            if (timestamp > o.timestamp)
-                return 1;
-            return -1;
-        }
-
-        public double timestamp;
-        public Image image;
-        public File file;
     }
 
     @Override
