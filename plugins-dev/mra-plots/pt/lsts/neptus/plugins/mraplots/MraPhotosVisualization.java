@@ -107,7 +107,6 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     protected LsfIndex index;
     protected Image imageToDisplay = null;
     protected double curTime = 0;
-    protected Vector<Thread> running = new Vector<>();
     protected File curFile = null;
     protected PhotoToolbar toolbar = null;
     protected double speedMultiplier = 1.0;
