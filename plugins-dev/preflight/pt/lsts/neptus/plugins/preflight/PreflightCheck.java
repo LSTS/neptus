@@ -64,6 +64,7 @@ public abstract class PreflightCheck extends JPanel {
     private JCheckBox checkBox;
     private JLabel valuesLabel; /* E.g, whithinRange values */
     private boolean maintainState;
+    private boolean isRegistered;
       
     public PreflightCheck(String description, String category, boolean maintainState, String type) {
         super();
@@ -71,7 +72,7 @@ public abstract class PreflightCheck extends JPanel {
         buildPanel(type);
         setBorder(BorderFactory.createLineBorder(Color.white, 1));
         
-        ImcMsgManager.registerBusListener(this); /* Subscribe to messages */
+        registerToEventbus(); /* Subscribe to messages */
         setState(NOT_VALIDATED);
     }
         
@@ -115,6 +116,15 @@ public abstract class PreflightCheck extends JPanel {
         else if(type.equals("Info")) {
             addValuesLabel();
         }
+    }
+    
+    public boolean isRegistered() {
+        return isRegistered;
+    }
+    
+    public void registerToEventbus() {
+        ImcMsgManager.registerBusListener(this);
+        isRegistered = true;
     }
         
     public void setState(int newState) {
