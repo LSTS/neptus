@@ -322,10 +322,10 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     }
 
     public static File[] listPhotos(File photosDir) {
-        File[] allFiles = photosDir.listFiles();
+        File[] files = photosDir.listFiles();
         Vector<File> allF = new Vector<>();
 
-        for (File f : allFiles) {
+        for (File f : files) {
             if (!f.isDirectory())
                 allF.add(f);
             else
@@ -337,10 +337,10 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                 allF.remove(i--);
         }
 
-        allFiles = allF.toArray(new File[0]);
-        Arrays.sort(allFiles);
+        files = allF.toArray(new File[0]);
+        Arrays.sort(files);
 
-        return allFiles;
+        return files;
     }
 
     /**
