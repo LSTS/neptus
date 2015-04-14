@@ -220,7 +220,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
 
         JPanel panel = new JPanel(new MigLayout());
         panel.add(this, "w 100%, h 100%, wrap");
-        panel.add(timeline, "split");
+        panel.add(timeline, "split, span, grow");
         panel.add(toolbar, "wrap");
 
         synchronized (markers) {
