@@ -193,7 +193,6 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
 
         timeline = new Timeline(0, (int) (endTime - startTime), 7, 1000, false);
         timeline.addTimelineChangeListener(new TimelineChangeListener() {
-
             @Override
             public void timelineChanged(int value) {
                 setTime((startTime + value) / 1000.0);
@@ -353,9 +352,11 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     protected void loadStates() {
         File[] files = listPhotos(getPhotosDir());
 
-        int lastIndex = 0, stateId = index.getDefinitions().getMessageId("EstimatedState");
-        int lastBDistanceIndex = 0, bdistId = index.getDefinitions().getMessageId("BottomDistance"), dvlId = index
-                .getEntityId("DVL");
+        int lastIndex = 0;
+        int stateId = index.getDefinitions().getMessageId("EstimatedState");
+        int lastBDistanceIndex = 0;
+        int bdistId = index.getDefinitions().getMessageId("BottomDistance");
+        int dvlId = index.getEntityId("DVL");
 
         states = new LinkedHashMap<>();
         for (int i = 0; i < files.length; i++) {
@@ -383,12 +384,12 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                         lastBDistanceIndex = bdIndex;
                     }
                 }
-                else
+                else {
                     state.setW(m.getDouble("alt"));
+                }
 
                 state.setU(m.getDouble("u"));
                 states.put(files[i], state);
-
             }
         }
     }
