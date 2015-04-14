@@ -298,15 +298,9 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     public void goToMarker(LogMarker marker) {
         if (photosDir == null)
             return;
-        File[] allFiles = photosDir.listFiles();
-        Arrays.sort(allFiles);
 
-        for (int i = 0; i < allFiles.length; i++) {
-            if (timestampOf(allFiles[i]) >= marker.getTimestamp() / 1000) {
-                setCurFile(allFiles[i]);
-                return;
-            }
-        }
+        double sliderValue = marker.getTimestamp() - startTime;
+        timeline.getSlider().setValue((int)sliderValue);
     }
 
     public File getCurFile() {
