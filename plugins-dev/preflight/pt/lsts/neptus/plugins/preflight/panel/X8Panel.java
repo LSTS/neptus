@@ -40,8 +40,8 @@ import pt.lsts.neptus.plugins.preflight.section.AnotherTestSection;
  *
  */
 @SuppressWarnings("serial")
-public class X801Panel extends PreflightPanel{
-    public X801Panel() {
+public class X8Panel extends PreflightPanel{
+    public X8Panel() {
         super();
         addSections();
     }

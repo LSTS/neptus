@@ -47,7 +47,7 @@ import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.preflight.panel.X801Panel;
+import pt.lsts.neptus.plugins.preflight.panel.X8Panel;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 
 /**
@@ -96,7 +96,7 @@ public class Preflight extends ConsolePanel {
     private void initContentPanel() {
         mainSysName = CONSOLE.getMainSystem();
         
-        contentPanel = new X801Panel();
+        contentPanel = new X8Panel();
         contentPanel.setSysName(mainSysName);
     }
        
