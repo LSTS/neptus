@@ -313,6 +313,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         try {
             imageToDisplay = loadImage(curFile, false);
             curTime = timestampOf(curFile);
+            timeline.setTime((long)(curTime * 1000));
             repaint();
         }
         catch (Exception e) {
