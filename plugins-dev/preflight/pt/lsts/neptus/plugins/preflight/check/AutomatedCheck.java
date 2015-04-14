@@ -40,8 +40,11 @@ import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
  *
  */
 public abstract class AutomatedCheck extends PreflightCheck {
+    private boolean isPeriodic;
+    
     public AutomatedCheck(String description, String category, boolean maintainState) {
         super(description, category, maintainState, "Automated");
+        isPeriodic = false;
     }
     
     /* Override and set period as needed */
@@ -52,7 +55,12 @@ public abstract class AutomatedCheck extends PreflightCheck {
         PeriodicUpdatesService.unregisterPojo(this);
     }
     
+    protected boolean isPeriodic() {
+        return isPeriodic;
+    }
+    
     protected void setAsPeriodic() {
+        isPeriodic = true;
         PeriodicUpdatesService.registerPojo(this);        
     }
 }
