@@ -55,8 +55,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
 import java.util.Vector;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -90,6 +88,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
@@ -342,9 +341,6 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         return files;
     }
 
-    /**
-     * @return the curTime
-     */
     public double getCurTime() {
         return curTime;
     }
@@ -589,11 +585,6 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         return original;
     }
 
-    protected SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-    {
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
-
     protected Integer legendWidth = null;
 
     protected int getLegendWidth(Vector<String> strs, Graphics2D g) {
@@ -628,7 +619,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         Vector<String> details = new Vector<>();
         details.add(lat);
         details.add(lon);
-        details.add(I18n.text("Time") + ": " + sdf.format(new Date(timeUTC)));
+        details.add(I18n.text("Time") + ": " + DateTimeUtil.timeFormaterUTC.format(new Date(timeUTC)));
         details.add(I18n.text("Depth") + ": " + depth);
         details.add(I18n.text("Altitude") + ": " + alt);
         details.add(I18n.text("Roll") + ": " + roll);
