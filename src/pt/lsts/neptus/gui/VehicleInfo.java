@@ -1107,14 +1107,6 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                     new String(cm.getHostAddress()), true);
             propertiesList.add(comP);
 
-            comP = PropertiesEditor.getPropertyInstance("user name", category, String.class,
-                    new String(cm.getUserName()), true);
-            propertiesList.add(comP);
-
-            comP = PropertiesEditor.getPropertyInstance("is password saved", category, Boolean.class,
-                    new Boolean(cm.isPasswordSaved()), true);
-            propertiesList.add(comP);
-
             String protocolsString = "";
             for (String protocol : cm.getProtocols())
                 protocolsString += protocol + " ";
@@ -1225,12 +1217,6 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
             if (cm != null) {
                 if (prop.getName().equals("host name")) {
                     cm.setHostAddress((String) prop.getValue());
-                }
-                else if (prop.getName().equals("user name")) {
-                    cm.setUserName((String) prop.getValue());
-                }
-                else if (prop.getName().equals("is password saved")) {
-                    cm.setPasswordSaved((Boolean) prop.getValue());
                 }
                 else {
                     // for (String protocol : cm.getProtocols())

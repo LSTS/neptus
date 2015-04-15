@@ -66,11 +66,6 @@ public class CommMean implements XmlOutputMethods {
     protected String type = "";
     protected String hostAddress = "127.0.0.1";
     
-    //Credentials
-    protected String userName = "root";
-    protected String password = null;
-    protected boolean isPasswordSaved = false;
-    
     protected LinkedList<String> protocols = new LinkedList<String>();
     protected LinkedHashMap<String, ProtocolArgs> protocolsArgs = new LinkedHashMap<String, ProtocolArgs>();
     
@@ -109,16 +104,8 @@ public class CommMean implements XmlOutputMethods {
             type = doc.selectSingleNode("//type").getText();
             
             hostAddress = doc.selectSingleNode("//host-address").getText();
-            userName = doc.selectSingleNode("//credentials/@username").getText();
-            Node nd = doc.selectSingleNode("//credentials/@password");
-            if (nd != null) {
-                password = nd.getText();
-                isPasswordSaved = true;
-            }
-            else
-                isPasswordSaved = false;
             
-            nd = doc.selectSingleNode("//protocols");
+            Node nd = doc.selectSingleNode("//protocols");
             String protocolsStr = nd.getText();
             StringTokenizer strt = new StringTokenizer(protocolsStr, " ");
             while (strt.hasMoreTokens()) {
@@ -181,57 +168,6 @@ public class CommMean implements XmlOutputMethods {
      */
     public void setType(String type) {
         this.type = type;
-    }
-
-    /**
-     * @return Returns the userName.
-     */
-    public String getUserName() {
-        return userName;
-    }
-
-    /**
-     * @param userName
-     *            The userName to set.
-     */
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    /**
-     * @return Returns the password.
-     */
-    public String getPassword() {
-        if ((password == null) || !isPasswordSaved()) {
-            String[] ret = PasswordPanel.showPasswordDialog("Enter password for " + hostAddress,
-                    userName, password, isPasswordSaved);
-            setPassword(ret[0]);
-            setPasswordSaved(Boolean.parseBoolean(ret[1]));
-        }
-        return password;
-    }
-
-    /**
-     * @param password
-     *            The password to set.
-     */
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    /**
-     * @return Returns the isPasswordSaved.
-     */
-    public boolean isPasswordSaved() {
-        return isPasswordSaved;
-    }
-
-    /**
-     * @param isPasswordSaved
-     *            The isPasswordSaved to set.
-     */
-    public void setPasswordSaved(boolean isPasswordSaved) {
-        this.isPasswordSaved = isPasswordSaved;
     }
 
     /**
@@ -374,11 +310,6 @@ public class CommMean implements XmlOutputMethods {
         root.addElement("type").setText(type);
 
         root.addElement("host-address").setText(hostAddress);
-
-        Element cred = root.addElement("credentials");
-        cred.addAttribute("username", userName);
-        if (isPasswordSaved)
-            cred.addAttribute("password", password);
 
         String protocolsStr = "";
         Iterator<?> it = protocols.iterator();

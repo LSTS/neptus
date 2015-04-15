@@ -281,7 +281,6 @@
             <name>ethernet</name>
             <type>ethernet</type>
             <host-address>10.0.10.140</host-address>
-            <credentials username="root"/>
             <protocols>imc</protocols>
             <latency value="100M" unit="bps"/>
             <protocols-args>
