@@ -136,6 +136,11 @@ public abstract class PreflightCheck extends JPanel {
         isPeriodic = true;
         PeriodicUpdatesService.registerPojo(this);        
     }
+    
+    protected void stopPeriodicUpdates() {
+        if(isPeriodic)
+            PeriodicUpdatesService.unregisterPojo(this);
+    }
         
     public void setState(int newState) {
         Color color = COLOR_NOT_VALIDATED;

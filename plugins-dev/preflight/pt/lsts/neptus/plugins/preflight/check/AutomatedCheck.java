@@ -48,8 +48,4 @@ public abstract class AutomatedCheck extends PreflightCheck {
     
     /* Override and set period as needed */
     public abstract void validateCheck();
-    
-    protected final void stopValidation() {
-        PeriodicUpdatesService.unregisterPojo(this);
-    }
 }
