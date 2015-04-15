@@ -99,7 +99,7 @@ public class XYZUtils {
         double minX = Double.POSITIVE_INFINITY;
         double maxX = Double.NEGATIVE_INFINITY;
         for (double xt : xvec) {
-            if (xt == Double.NaN)
+            if (Double.isNaN(xt))
                 continue;
             if (xt < minX)
                 minX = xt;
@@ -288,7 +288,7 @@ public class XYZUtils {
         double maxZ1 = Double.NEGATIVE_INFINITY;
         for (double[] zt1 : quadMatrixArray) {
             for (double zt : zt1) {
-                if (zt == Double.NaN)
+                if (Double.isNaN(zt))
                     continue;
                 if (zt < minZ1)
                     minZ1 = zt;
