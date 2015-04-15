@@ -35,6 +35,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.ArrayList;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -49,6 +50,7 @@ import javax.swing.JPanel;
 public abstract class PreflightPanel extends JPanel {
     private JPanel mainSysNamePanel; 
     private JLabel mainSysNameLabel;
+    private ArrayList<PreflightSection> sections;
     
     public PreflightPanel() {
         super();
@@ -56,6 +58,7 @@ public abstract class PreflightPanel extends JPanel {
         setBackground(Color.WHITE);
         
         initSysNamePanel();
+        sections = new ArrayList<>();
     }
     
     public abstract void addSections();
@@ -79,9 +82,14 @@ public abstract class PreflightPanel extends JPanel {
     
     public void addNewSection(PreflightSection section) {
         add(section);
+        sections.add(section);
     }
     
     public void setSysName(String sysName) {
         mainSysNameLabel.setText(sysName);
+    }
+    
+    public ArrayList<PreflightSection> getPanelSections() {
+        return sections;
     }
 }
