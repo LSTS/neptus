@@ -126,8 +126,8 @@ class RemotePositionHelper {
                             }
                         }
                     }
-                    if (loc != null && phi != Double.NaN && theta != Double.NaN
-                            && psi != Double.NaN) {
+                    if (loc != null && !Double.isNaN(phi) && !Double.isNaN(theta)
+                            && !Double.isNaN(psi)) {
                         loc.setRoll(Math.toDegrees(phi));
                         loc.setPitch(Math.toDegrees(theta));
                         loc.setYaw(Math.toDegrees(psi));
