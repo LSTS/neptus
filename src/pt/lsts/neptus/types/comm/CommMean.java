@@ -44,7 +44,6 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.PasswordPanel;
 import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.types.comm.protocol.FTPArgs;
 import pt.lsts.neptus.types.comm.protocol.IMCArgs;
