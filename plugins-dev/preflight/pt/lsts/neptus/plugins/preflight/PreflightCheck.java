@@ -141,6 +141,11 @@ public abstract class PreflightCheck extends JPanel {
         if(isPeriodic)
             PeriodicUpdatesService.unregisterPojo(this);
     }
+    
+    protected void unregister() {
+        if(isRegistered)
+            ImcMsgManager.unregisterBusListener(this);
+    }
         
     public void setState(int newState) {
         Color color = COLOR_NOT_VALIDATED;
