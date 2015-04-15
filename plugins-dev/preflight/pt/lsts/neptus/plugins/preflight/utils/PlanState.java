@@ -47,6 +47,8 @@ public final class PlanState {
     private PlanState() {}
     
     public static boolean existsLocally(String planId) {
+        if(planId == null)
+            return false;
         TreeMap<String, PlanType> plansList = Preflight.CONSOLE.
                 getMission().
                 getIndividualPlansList();
@@ -56,6 +58,9 @@ public final class PlanState {
     
     /* This method assumes that the plan with planId exists */
     public static boolean isSynchronized(String planId) {
+        if(planId == null)
+            return false;
+        
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(Preflight.CONSOLE.getMainSystem());
         PlanType plan = Preflight.CONSOLE.
                 getMission().
@@ -70,6 +75,9 @@ public final class PlanState {
     
     /* This method assumes that the plan with planId exists */
     public static boolean isEmpty(String planId) {
+        if(planId == null)
+            return false;
+        
         PlanType plan = Preflight.CONSOLE.
                 getMission().
                     getIndividualPlansList().
