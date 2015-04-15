@@ -46,7 +46,6 @@ import org.dom4j.Node;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.PasswordPanel;
 import pt.lsts.neptus.types.XmlOutputMethods;
-import pt.lsts.neptus.types.comm.protocol.AdjustTimeShellArgs;
 import pt.lsts.neptus.types.comm.protocol.FTPArgs;
 import pt.lsts.neptus.types.comm.protocol.IMCArgs;
 import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
@@ -143,10 +142,6 @@ public class CommMean implements XmlOutputMethods {
                 else if (nodeName.equalsIgnoreCase(IMC)) {
                     IMCArgs imcA = new IMCArgs(ndP.asXML());
                     protocolsArgs.put(CommMean.IMC, imcA);
-                }
-                else if (nodeName.equalsIgnoreCase(AdjustTimeShellArgs.DEFAULT_ROOT_ELEMENT)) {
-                    AdjustTimeShellArgs adjTimeParam = new AdjustTimeShellArgs(ndP.asXML());
-                    protocolsArgs.put(AdjustTimeShellArgs.DEFAULT_ROOT_ELEMENT, adjTimeParam);
                 }
             }
         }

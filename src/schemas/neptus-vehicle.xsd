@@ -140,27 +140,6 @@ Author: Paulo Dias, José Pinto
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="time-shell" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>
-						shell command in the format: 'date
-						MMddHHmm[[[CC]yy][.ss]] &amp;&amp; hwclock
-						--systohc'
-					</xs:documentation>
-				</xs:annotation>
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="set-seconds" type="xs:boolean"
-							default="true" minOccurs="0" />
-						<xs:element name="set-year" type="xs:boolean"
-							default="true" minOccurs="0" />
-						<xs:element name="use-2-digit-year"
-							type="xs:boolean" default="false" minOccurs="0" />
-						<xs:element name="use-hwclock" type="xs:boolean"
-							default="true" minOccurs="0" />
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
 			<xs:element name="gsm" type="gsmType" maxOccurs="1"
 				minOccurs="0">
 			</xs:element>
