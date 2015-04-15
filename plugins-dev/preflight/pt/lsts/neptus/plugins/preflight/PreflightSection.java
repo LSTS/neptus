@@ -37,6 +37,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -57,14 +58,16 @@ public abstract class PreflightSection extends JPanel implements MainVehicleChan
     private JPanel sectionNamePanel;
     private JLabel sectionNameLabel;    
     protected JPanel checksPanel; /* Panel that contains the "values" and checks */
-    protected final GridBagConstraints c = new GridBagConstraints();
-    
+    protected final GridBagConstraints c = new GridBagConstraints();    
     private boolean sectionIsMinimized;
+    
+    private ArrayList<PreflightCheck> checks;
     
     public PreflightSection(String sectionName) {
         /* init main panel */
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Color.WHITE);
+        checks = new ArrayList<>();
         
         initSectionNamePanel(sectionName);
         initChecksPanel();
@@ -128,6 +131,12 @@ public abstract class PreflightSection extends JPanel implements MainVehicleChan
     
     protected void addNewCheckItem(PreflightCheck newItem) {
         checksPanel.add(newItem);
+        checks.add(newItem);
+        System.out.println("### In section " + sectionNameLabel.getText() + ": " + checks.size() + " items");
+    }
+    
+    public ArrayList<PreflightCheck> getSectionChecks() {
+        return checks;
     }
     
     @Override
