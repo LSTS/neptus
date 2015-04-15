@@ -266,20 +266,6 @@ Author: Paulo Dias, José Pinto
 										</xs:simpleType>
 									</xs:element>
 									<xs:element name="host-address" type="xs:string"/>
-									<xs:element name="credentials">
-										<xs:complexType>
-											<xs:attribute name="username" use="required">
-												<xs:simpleType>
-													<xs:restriction base="xs:string"/>
-												</xs:simpleType>
-											</xs:attribute>
-											<xs:attribute name="password" use="optional">
-												<xs:simpleType>
-													<xs:restriction base="xs:string"/>
-												</xs:simpleType>
-											</xs:attribute>
-										</xs:complexType>
-									</xs:element>
 									<xs:element name="protocols" type="xs:NMTOKENS"/>
 									<xs:element name="latency">
 										<xs:complexType>
