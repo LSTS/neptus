@@ -39,7 +39,7 @@ import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
  * @author tsmarques
  *
  */
-public abstract class AutomatedCheck extends PreflightCheck {
+public abstract class AutomatedCheck extends PreflightCheck {  
     public AutomatedCheck(String description, String category, boolean maintainState) {
         super(description, category, maintainState, "Automated");
         registerToEventbus(); /* Subscribe to messages */
@@ -47,7 +47,6 @@ public abstract class AutomatedCheck extends PreflightCheck {
     }
     
     /* Override and set period as needed */
-    @Periodic
     public abstract void validateCheck();
     
     protected final void stopValidation() {
