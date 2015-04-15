@@ -49,7 +49,6 @@ public class CheckPlan extends AutomatedCheck {
     public CheckPlan(String planId, String planName, boolean maintainState) {
         super(planName, "Planning", maintainState);
         planToCheck = planId;
-        setAsPeriodic();
     }
     
     @Override

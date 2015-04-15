@@ -57,7 +57,6 @@ public class CheckHomeRef extends WithinRangeCheck {
         homeLat = home.getLatitudeRads();
         homeLong = home.getLongitudeRads();
         validated = false;
-        setAsPeriodic();
     }
 
     @Override

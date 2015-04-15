@@ -44,6 +44,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 
 /**
  * @author tsmarques
@@ -65,6 +66,7 @@ public abstract class PreflightCheck extends JPanel {
     private JLabel valuesLabel; /* E.g, whithinRange values */
     private boolean maintainState;
     private boolean isRegistered;
+    private boolean isPeriodic;
       
     public PreflightCheck(String description, String category, boolean maintainState, String type) {
         super();
@@ -72,7 +74,6 @@ public abstract class PreflightCheck extends JPanel {
         buildPanel(type);
         setBorder(BorderFactory.createLineBorder(Color.white, 1));
         
-        registerToEventbus(); /* Subscribe to messages */
         setState(NOT_VALIDATED);
     }
         
@@ -125,6 +126,15 @@ public abstract class PreflightCheck extends JPanel {
     public void registerToEventbus() {
         ImcMsgManager.registerBusListener(this);
         isRegistered = true;
+    }
+    
+    protected boolean isPeriodic() {
+        return isPeriodic;
+    }
+    
+    protected void setAsPeriodic() {
+        isPeriodic = true;
+        PeriodicUpdatesService.registerPojo(this);        
     }
         
     public void setState(int newState) {
