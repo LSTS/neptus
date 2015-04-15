@@ -114,7 +114,7 @@ public class Preflight extends ConsolePanel {
     
     @Override
     public void cleanSubPanel() {
-
+        contentPanel.cleanUp();
     }
 
     @Override
