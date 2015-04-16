@@ -121,7 +121,7 @@ public class FtpDownloader {
      * @param host the host to set
      */
     public void setHostAndPort(String host, int port) {
-        if (this.host != host || this.port != port) {
+        if (!this.host.equals(host) || this.port != port) {
             try {
                 renewClient();
             }
