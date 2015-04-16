@@ -61,7 +61,8 @@ public class CheckVariableItem extends CheckSubItemExe implements MessageListene
 		checkSubItem = ci;
 		this.system = system;
 		initialize();
-		path = checkSubItem.getVarPath().split(".");
+
+		path = checkSubItem.getVarPath().split("\\.");
 	}
 
 	private void initialize() {
