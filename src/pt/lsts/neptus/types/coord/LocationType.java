@@ -335,6 +335,32 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         return CoordinateUtil.dmsToLonString(CoordinateUtil.decimalDegreesToDMS(getLongitudeDegs()));
     }
 
+    
+    public String getLatLonAsPrettyString() {
+        String lat = CoordinateUtil.latitudeAsPrettyString(getLatitudeDegs(), false);
+        String lon = CoordinateUtil.longitudeAsPrettyString(getLongitudeDegs(), false);
+
+        char dir = 'N';
+        if (lat.indexOf('N') == -1 ) {
+            dir = 'S';
+        }
+        char dir2 = 'W';
+        if (lon.indexOf('W') == -1 ) {
+            dir2 = 'E';
+        }
+        
+        String latDegMin = lat.replace(dir, CoordinateUtil.CHAR_DEGREE);
+        String lonDegMin = lon.replace(dir2, CoordinateUtil.CHAR_DEGREE);
+        StringBuilder latLon = new StringBuilder();
+        latLon.append(dir);
+        latLon.append(latDegMin);
+        latLon.append("' ");
+        latLon.append(dir2);
+        latLon.append(lonDegMin);
+        latLon.append("'");
+        
+        return latLon.toString();
+    }
     /**
      * @return in decimal degrees
      */

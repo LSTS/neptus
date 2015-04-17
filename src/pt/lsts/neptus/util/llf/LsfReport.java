@@ -599,7 +599,8 @@ public class LsfReport {
         table.addCell(dateAsText);
         table.addCell(m.getLabel());
         LocationType loc = new LocationType(Math.toDegrees(m.getLat()), Math.toDegrees(m.getLon()));
-        String locString = loc.toString();
+        String locString = loc.getLatLonAsPrettyString();
+        
         table.addCell(locString);
     }
 
