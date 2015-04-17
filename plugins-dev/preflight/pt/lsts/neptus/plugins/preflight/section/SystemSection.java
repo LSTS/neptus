@@ -27,33 +27,30 @@
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
  * Author: tsmarques
- * 6 Apr 2015
+ * 17 Apr 2015
  */
-package pt.lsts.neptus.plugins.preflight.panel;
+package pt.lsts.neptus.plugins.preflight.section;
 
-import pt.lsts.neptus.NeptusProperties;
-import pt.lsts.neptus.plugins.preflight.Preflight;
-import pt.lsts.neptus.plugins.preflight.PreflightPanel;
-import pt.lsts.neptus.plugins.preflight.section.AircraftControlSection;
-import pt.lsts.neptus.plugins.preflight.section.PlanningSection;
-import pt.lsts.neptus.plugins.preflight.section.SystemSection;
+import pt.lsts.neptus.plugins.preflight.PreflightSection;
+import pt.lsts.neptus.plugins.preflight.check.automated.CheckAirspeed;
+import pt.lsts.neptus.plugins.preflight.check.automated.CheckGpsFix;
+import pt.lsts.neptus.plugins.preflight.check.automated.CheckVoltage;
+import pt.lsts.neptus.plugins.preflight.check.automated.DiskSpaceCheck;
 
 /**
  * @author tsmarques
  *
  */
-@SuppressWarnings("serial")
-public class X8Panel extends PreflightPanel{
-    public X8Panel() {
-        super();
-        addSections();
+public class SystemSection extends PreflightSection {
+    public SystemSection() {
+        super("Sensors");
     }
 
-    
     @Override
-    public void addSections() {
-        addNewSection(new PlanningSection());
-        addNewSection(new AircraftControlSection());
-        addNewSection(new SystemSection());
+    protected void buildChecksPanel() {
+        addNewCheckItem(new DiskSpaceCheck(false));
+        addNewCheckItem(new CheckAirspeed(false));
+        addNewCheckItem(new CheckGpsFix(false));
+        addNewCheckItem(new CheckVoltage(false));
     }
 }
