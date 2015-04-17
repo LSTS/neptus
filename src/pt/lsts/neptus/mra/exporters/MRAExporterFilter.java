@@ -38,20 +38,29 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import javax.swing.JFileChooser;
 import javax.swing.ProgressMonitor;
 
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.gui.PropertiesProvider;
+import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.Popup;
+import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
+
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author Manuel R.
  *
  */
 @PluginDescription
-public class MRAExporterFilter implements MRAExporter {
+@Popup(icon = "images/menus/settings.png", name = "MRA Exporter")
+public class MRAExporterFilter implements MRAExporter, PropertiesProvider {
 
     IMraLogGroup source;
     ProgressMonitor pmonitor;
@@ -67,11 +76,54 @@ public class MRAExporterFilter implements MRAExporter {
         return true;
     }
 
+    private File chooseSaveFile(String path) {
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setSelectedFile(new File(path.concat("/Data_filtered.lsf")));
+        
+        
+        fileChooser.setFileView(new NeptusFileView());
+        fileChooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("LSF log files"),
+                new String[] { "lsf", FileUtil.FILE_TYPE_LSF_COMPRESSED, 
+            FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2 }));
+        
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        
+
+        int status = fileChooser.showSaveDialog(null);
+
+        String fileName = null;
+
+        if (status == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+
+            try {
+                fileName = selectedFile.getCanonicalPath();
+                if (!fileName.endsWith(".lsf")) {
+                    return selectedFile = new File(fileName + ".lsf");
+                }
+                if (fileName.endsWith(".lsf")) {
+                    return selectedFile = new File(fileName);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+    
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
+        //list of messages in this log source
         String[] logs = source.listLogs();
         LsfIndex index = source.getLsfIndex();
-        File outputFile = new File("C://Data.lsf");
+        
+        String path = source.getFile("Data.lsf").getParent();
+        File outputFile = chooseSaveFile(path);
+        if (outputFile == null) {
+            return "Cancelled by the user";
+        }
         OutputStream fos = null;
         if(!outputFile.exists()) {
             try {
@@ -93,26 +145,9 @@ public class MRAExporterFilter implements MRAExporter {
 
                 int mgid = index.getDefinitions().getMessageId(logName);
                 int firstPos = index.getFirstMessageOfType(mgid);
-                int secondPos = index.getNextMessageOfType(mgid, firstPos);
-                int thPos = index.getNextMessageOfType(mgid, secondPos);
-
                 int lastPos = index.getLastMessageOfType(mgid);
-
-                System.out.println("First pos "+ firstPos + " - Last:  "+ lastPos);
-
-                IMCMessage entry1 = index.getMessage(firstPos);
-                System.out.println(entry1.toString());
-
-                IMCMessage entry2 = index.getMessage(secondPos);
-                System.out.println(entry2.toString());
-
-                IMCMessage entry3 = index.getMessage(thPos);
-                System.out.println(entry3.toString());
-
-                IMCMessage entryLast = index.getMessage(lastPos);
-                System.out.println(entryLast.toString());
-                System.out.println("-------------------");
                 int j = firstPos;
+                
                 try {
                     while (j < lastPos) {
                         //  IMCMessage entry = index.getMessage(j);
@@ -135,6 +170,12 @@ public class MRAExporterFilter implements MRAExporter {
             }
 
         }
+        try {
+            fos.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return I18n.text("Process complete");
     }
@@ -142,6 +183,30 @@ public class MRAExporterFilter implements MRAExporter {
     @Override
     public String getName() {
         return I18n.text("Export filtered");
+    }
+
+    @Override
+    public DefaultProperty[] getProperties() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setProperties(Property[] properties) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public String getPropertiesDialogTitle() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String[] getPropertiesErrors(Property[] properties) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
