@@ -45,20 +45,17 @@ import pt.lsts.neptus.plugins.preflight.check.automated.DiskSpaceCheck;
  *
  */
 @SuppressWarnings("serial")
-public class AnotherTestSection extends PreflightSection {
-    public AnotherTestSection(String t) {
-        super("Another test section" + t);
+public class PlanningSection extends PreflightSection {
+    public PlanningSection() {
+        super("Planning");
         setBackground(Color.WHITE);
     }
 
     @Override
     protected void buildChecksPanel() { 
-        addNewCheckItem(new ManualCheck("Manual Check", "Status", false));
         addNewCheckItem(new CheckPlan("lost_comms", "Lost Comms", false));
         addNewCheckItem(new CheckHomeRef(false));
         addNewCheckItem(new CheckPlan("auto_takeoff", "Auto-TakeOff", false));
         addNewCheckItem(new CheckPlan("auto_land", "Auto-Land", false));
-        addNewCheckItem(new DiskSpaceCheck(false));
-        addNewCheckItem(new CheckAirspeed(false));
     }
 }
