@@ -95,6 +95,14 @@ public abstract class PreflightPanel extends JPanel implements OnCloseCleanup {
         return sections;
     }
     
+    public ArrayList<PreflightCheck> getPanelChecks() {
+        ArrayList<PreflightCheck> checks = new ArrayList<>();
+        for(PreflightSection section : sections)
+            checks.addAll(section.getSectionChecks());
+        
+        return checks;
+    }
+    
     @Override
     public void cleanUp() {
         for(PreflightSection section : sections)
