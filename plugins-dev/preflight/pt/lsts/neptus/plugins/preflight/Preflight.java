@@ -33,12 +33,14 @@ package pt.lsts.neptus.plugins.preflight;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.util.HashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JScrollPane;
 
 import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -69,10 +71,12 @@ public class Preflight extends ConsolePanel {
     private JScrollPane scrollMainPanel;
     
     private String mainSysName; /* Gets changed when main vehicle changes */
+    private HashMap<String, PreflightPanel> panels;
    
     public Preflight(ConsoleLayout console) {
         super(console);
         CONSOLE = getConsole();
+        panels = new HashMap<>();
         setResizable(false);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Color.WHITE);
@@ -104,13 +108,22 @@ public class Preflight extends ConsolePanel {
     public void on(ConsoleEventMainSystemChange ev) { /* When a diff vehicle has been selected as main Vehicle */
         mainSysName = CONSOLE.getMainSystem();
                 
-        ImcSystem sys = ImcSystemsHolder.getSystemWithName(mainSysName);
-        if(sys.getTypeVehicle() != VehicleTypeEnum.UAV) {
-        }
-        contentPanel.setSysName(mainSysName);
-//        revalidate();
+//        ImcSystem sys = ImcSystemsHolder.getSystemWithName(mainSysName);
+//        if(sys.getTypeVehicle() != VehicleTypeEnum.UAV) {
+//        }
+        switchPreflightPanel(mainSysName);
     }
     
+    private void switchPreflightPanel(String systemId) {
+        contentPanel.cleanUp();
+        scrollMainPanel.remove(contentPanel);
+        
+        contentPanel = new X8Panel();
+        contentPanel.setSysName(systemId);
+        scrollMainPanel.setViewportView(contentPanel);
+        
+        scrollMainPanel.repaint();
+    }  
     
     @Override
     public void cleanSubPanel() {
