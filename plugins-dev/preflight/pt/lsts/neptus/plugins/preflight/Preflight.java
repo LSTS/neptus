@@ -39,7 +39,10 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JScrollPane;
 
+import org.springframework.beans.propertyeditors.PropertiesEditor;
+
 import com.google.common.eventbus.Subscribe;
+import com.l2fprod.common.propertysheet.DefaultProperty;
 
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -47,6 +50,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.preflight.panel.X8Panel;
@@ -115,7 +119,7 @@ public class Preflight extends ConsolePanel {
     }
     
     private void switchPreflightPanel(String systemId) {
-        contentPanel.cleanUp();
+        cleanUp();
         scrollMainPanel.remove(contentPanel);
         
         contentPanel = new X8Panel();
@@ -123,11 +127,20 @@ public class Preflight extends ConsolePanel {
         scrollMainPanel.setViewportView(contentPanel);
         
         scrollMainPanel.repaint();
-    }  
+    }
     
     @Override
     public void cleanSubPanel() {
-        contentPanel.cleanUp();
+        cleanUp();
+    }
+    
+    private void cleanUp() {
+        for(PreflightCheck check : contentPanel.getPanelChecks()) {
+            if(check.isPeriodic())
+                check.stopPeriodicUpdates();
+            if(check.isRegistered())
+                check.unregister();
+        }
     }
 
     @Override
