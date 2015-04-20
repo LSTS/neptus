@@ -45,14 +45,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
-import pt.lsts.neptus.plugins.preflight.interfaces.OnCloseCleanup;
 
 /**
  * @author tsmarques
  *
  */
 @SuppressWarnings("serial")
-public abstract class PreflightSection extends JPanel implements MainVehicleChangeListener, OnCloseCleanup {
+public abstract class PreflightSection extends JPanel implements MainVehicleChangeListener {
     
     protected String mainVehicle;
     
@@ -143,15 +142,5 @@ public abstract class PreflightSection extends JPanel implements MainVehicleChan
     public void mainVehicleChange(String id) {
         System.out.println("# MAIN VEHICLE CHANGE");
         mainVehicle = id;  
-    }
-    
-    @Override
-    public void cleanUp() {
-        for(PreflightCheck check : checks) {
-            if(check.isPeriodic())
-                check.stopPeriodicUpdates();
-            if(check.isRegistered())
-                check.unregister();
-        }
     }
 }

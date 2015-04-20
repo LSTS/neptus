@@ -42,14 +42,12 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import pt.lsts.neptus.plugins.preflight.interfaces.OnCloseCleanup;
-
 /**
  * @author tsmarques
  *
  */
 @SuppressWarnings("serial")
-public abstract class PreflightPanel extends JPanel implements OnCloseCleanup {
+public abstract class PreflightPanel extends JPanel {
     private JPanel mainSysNamePanel; 
     private JLabel mainSysNameLabel;
     private ArrayList<PreflightSection> sections;
@@ -101,11 +99,5 @@ public abstract class PreflightPanel extends JPanel implements OnCloseCleanup {
             checks.addAll(section.getSectionChecks());
         
         return checks;
-    }
-    
-    @Override
-    public void cleanUp() {
-        for(PreflightSection section : sections)
-            section.cleanUp();
     }
 }
