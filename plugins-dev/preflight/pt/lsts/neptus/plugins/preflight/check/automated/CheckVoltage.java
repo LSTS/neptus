@@ -57,6 +57,11 @@ public class CheckVoltage extends WithinRangeCheck {
     protected double getMinValue() {
         return minVal;
     }
+    
+    @Override
+    protected boolean isWithinRange(double value) {
+        return(value >= getMinValue() && value <= getMaxValue());
+    }
    
     @Subscribe
     public void on(Voltage msg) {
@@ -73,5 +78,4 @@ public class CheckVoltage extends WithinRangeCheck {
     
     @Override
     public void validateCheck() {}
-
 }

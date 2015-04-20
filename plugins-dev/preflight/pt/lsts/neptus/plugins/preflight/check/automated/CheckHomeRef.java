@@ -95,6 +95,21 @@ public class CheckHomeRef extends WithinRangeCheck {
             }
         }
     }
+    
+    @Override
+    protected double getMaxValue() {
+        return 600; /* meters */
+    }
+
+    @Override
+    protected double getMinValue() {
+        return 0;
+    }
+    
+    @Override
+    protected boolean isWithinRange(double value) {
+        return(value >= getMinValue() && value <= getMaxValue());
+    }
 
     /* Check distance of each lost_comms maneuver to home reference */
     private boolean maneuversWithinRange() {
@@ -127,15 +142,5 @@ public class CheckHomeRef extends WithinRangeCheck {
         HomeReference currHome = Preflight.CONSOLE.getMission().getHomeRef();
         homeLat = currHome.getLatitudeRads();
         homeLong = currHome.getLongitudeRads();
-    }
-    
-    @Override
-    protected double getMaxValue() {
-        return 600; /* meters */
-    }
-
-    @Override
-    protected double getMinValue() {
-        return 0;
     }
 }

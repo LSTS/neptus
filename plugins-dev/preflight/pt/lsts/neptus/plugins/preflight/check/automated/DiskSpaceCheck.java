@@ -55,6 +55,11 @@ public class DiskSpaceCheck extends WithinRangeCheck {
         return 40;
     }
     
+    @Override
+    protected boolean isWithinRange(double value) {
+        return(value >= getMinValue() && value <= getMaxValue());
+    }
+    
     private double getWarningThreshold() {
         return (getMinValue() + 10);
     }
