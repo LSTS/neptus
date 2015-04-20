@@ -58,7 +58,7 @@ public class CheckGpsFix extends AutomatedCheck {
 
     @Subscribe
     public void on(GpsFix msg) {
-        if (!msg.getSourceName().equals(msg.getSourceName()))
+        if(!messageFromMainVehicle(msg.getSourceName()))
             return;
         
         GpsFix.TYPE fixType = msg.getType();
