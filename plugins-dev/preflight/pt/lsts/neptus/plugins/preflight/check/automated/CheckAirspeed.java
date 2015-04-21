@@ -75,7 +75,7 @@ public class CheckAirspeed extends WithinRangeCheck {
         }
         else {
             BigDecimal bd = new BigDecimal(airspeed);
-            bd = bd.setScale(2, RoundingMode.HALF_UP);
+            bd = bd.setScale(1, RoundingMode.HALF_UP);
             setValuesLabelText(bd.doubleValue() + " m/s");
             setState(NOT_VALIDATED);
         }
