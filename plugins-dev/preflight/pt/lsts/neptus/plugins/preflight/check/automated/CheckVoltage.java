@@ -31,6 +31,9 @@
  */
 package pt.lsts.neptus.plugins.preflight.check.automated;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.Voltage;
@@ -74,6 +77,9 @@ public class CheckVoltage extends WithinRangeCheck {
             setState(VALIDATED);
         else
             setState(NOT_VALIDATED);
+        BigDecimal bd = new BigDecimal(voltage);
+        bd = bd.setScale(1, RoundingMode.HALF_UP);
+        setValuesLabelText(bd.doubleValue() + " V");
     }
     
     @Override
