@@ -53,9 +53,9 @@ public class PlanningSection extends PreflightSection {
 
     @Override
     protected void buildChecksPanel() { 
-        addNewCheckItem(new CheckPlan("lost_comms", "Lost Comms", false));
-        addNewCheckItem(new CheckHomeRef(false));
-        addNewCheckItem(new CheckPlan("auto_takeoff", "Auto-TakeOff", false));
-        addNewCheckItem(new CheckPlan("auto_land", "Auto-Land", false));
+        addNewCheckItem(new CheckPlan("lost_comms", "Lost Comms"));
+        addNewCheckItem(new CheckHomeRef());
+        addNewCheckItem(new CheckPlan("auto_takeoff", "Auto-TakeOff"));
+        addNewCheckItem(new CheckPlan("auto_land", "Auto-Land"));
     }
 }

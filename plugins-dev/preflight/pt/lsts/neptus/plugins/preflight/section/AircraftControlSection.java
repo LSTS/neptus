@@ -45,12 +45,12 @@ public class AircraftControlSection extends PreflightSection {
 
     @Override
     protected void buildChecksPanel() {
-        addNewCheckItem(new ManualCheck("Elevators up/down", "Aircraft Controlo", false));
-        addNewCheckItem(new ManualCheck("Ailerons up/down", "Aircraft Control", false));
-        addNewCheckItem(new ManualCheck("Rudder left/right", "Aircraft Control", false));
-        addNewCheckItem(new ManualCheck("Rudder left/right", "Aircraft Control", false));
-        addNewCheckItem(new ManualCheck("Flaps up/down", "Aircraft Control", false));
-        addNewCheckItem(new ManualCheck("Wheel left/right", "Aircraft Control", false));
+        addNewCheckItem(new ManualCheck("Elevators up/down", "Aircraft Controlo"));
+        addNewCheckItem(new ManualCheck("Ailerons up/down", "Aircraft Control"));
+        addNewCheckItem(new ManualCheck("Rudder left/right", "Aircraft Control"));
+        addNewCheckItem(new ManualCheck("Rudder left/right", "Aircraft Control"));
+        addNewCheckItem(new ManualCheck("Flaps up/down", "Aircraft Control"));
+        addNewCheckItem(new ManualCheck("Wheel left/right", "Aircraft Control"));
     }
 
 }

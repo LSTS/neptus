@@ -39,7 +39,7 @@ import pt.lsts.neptus.plugins.preflight.PreflightCheck;
  */
 @SuppressWarnings("serial")
 public class ManualCheck extends PreflightCheck {
-    public ManualCheck(String description, String category, boolean maintainState) {
-        super(description, category, maintainState, "Manual");
+    public ManualCheck(String description, String category) {
+        super(description, category, "Manual");
     }
 }

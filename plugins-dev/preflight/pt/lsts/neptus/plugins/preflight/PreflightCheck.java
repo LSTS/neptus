@@ -64,20 +64,19 @@ public abstract class PreflightCheck extends JPanel {
     private String category;
     private JCheckBox checkBox;
     private JLabel valuesLabel; /* E.g, whithinRange values */
-    private boolean maintainState;
     private boolean isRegistered;
     private boolean isPeriodic;
       
-    public PreflightCheck(String description, String category, boolean maintainState, String type) {
+    public PreflightCheck(String description, String category, String type) {
         super();
-        init(description, category, maintainState);
+        init(description, category);
         buildPanel(type);
         setBorder(BorderFactory.createLineBorder(Color.white, 1));
         
         setState(NOT_VALIDATED);
     }
         
-    private void init(String description, String category, boolean maintainState) {
+    private void init(String description, String category) {
         setLayout(new GridLayout(0, 3));
         setBackground(Color.WHITE);
         setMinimumSize(new Dimension(Preflight.MAX_COMPONENT_WIDTH, 20));
@@ -85,7 +84,6 @@ public abstract class PreflightCheck extends JPanel {
         
         this.description = new JLabel(description, SwingConstants.CENTER);
         this.category = category;
-        this.maintainState = maintainState;
         
         checkBox = new JCheckBox();
         checkBox.setBackground(Color.WHITE);
@@ -203,9 +201,5 @@ public abstract class PreflightCheck extends JPanel {
     
     public String getCategory() {
         return category;
-    }
-        
-    public boolean maintainStateOnReboot() {
-        return maintainState;
     }
 }

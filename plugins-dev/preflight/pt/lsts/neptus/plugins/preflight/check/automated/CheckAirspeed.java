@@ -43,8 +43,8 @@ import pt.lsts.neptus.plugins.preflight.check.WithinRangeCheck;
  */
 @SuppressWarnings("serial")
 public class CheckAirspeed extends WithinRangeCheck {
-    public CheckAirspeed(boolean maintainState) {
-        super("Airspeed", "Vehcile Sensors", maintainState);
+    public CheckAirspeed() {
+        super("Airspeed", "Vehcile Sensors");
         setValuesLabelText("[< 2 m/s]");
     }
 

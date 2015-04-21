@@ -48,9 +48,9 @@ public class SystemSection extends PreflightSection {
 
     @Override
     protected void buildChecksPanel() {
-        addNewCheckItem(new DiskSpaceCheck(false));
-        addNewCheckItem(new CheckAirspeed(false));
-        addNewCheckItem(new CheckGpsFix(false));
-        addNewCheckItem(new CheckVoltage(false));
+        addNewCheckItem(new DiskSpaceCheck());
+        addNewCheckItem(new CheckAirspeed());
+        addNewCheckItem(new CheckGpsFix());
+        addNewCheckItem(new CheckVoltage());
     }
 }

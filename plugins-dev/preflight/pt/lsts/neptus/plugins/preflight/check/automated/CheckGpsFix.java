@@ -51,8 +51,8 @@ public class CheckGpsFix extends AutomatedCheck {
     private static final String GPS_2D = I18n.textc("2D", "Use a single small word");
     private static final String GPS_NO_FIX = I18n.textc("NoFix", "Use a single small word");
     
-    public CheckGpsFix(boolean maintainState) {
-        super("GPS Fix", "Vehcile Sensors", maintainState);
+    public CheckGpsFix() {
+        super("GPS Fix", "Vehcile Sensors");
     }
     
 

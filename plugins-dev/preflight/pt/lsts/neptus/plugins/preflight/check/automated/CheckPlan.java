@@ -46,8 +46,8 @@ import pt.lsts.neptus.plugins.update.Periodic;
 public class CheckPlan extends AutomatedCheck {
     private String planToCheck;
     
-    public CheckPlan(String planId, String planName, boolean maintainState) {
-        super(planName, "Planning", maintainState);
+    public CheckPlan(String planId, String planName) {
+        super(planName, "Planning");
         planToCheck = planId;
     }
     

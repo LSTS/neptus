@@ -47,8 +47,8 @@ public class CheckVoltage extends WithinRangeCheck {
     private double minVal = Double.MIN_VALUE;
     private double maxVal = Double.MAX_VALUE;
     
-    public CheckVoltage(boolean maintainState) {
-        super("Voltage", "System", maintainState);
+    public CheckVoltage() {
+        super("Voltage", "System");
     }
 
     @Override

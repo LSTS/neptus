@@ -44,8 +44,8 @@ public class PreflightInfo extends PreflightCheck {
      * @param category
      * @param maintainState
      */
-    public PreflightInfo(String description, String category, boolean maintainState) {
-        super(description, category, maintainState, "Info");
+    public PreflightInfo(String description, String category) {
+        super(description, category, "Info");
     }
 
 }
