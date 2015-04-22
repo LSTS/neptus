@@ -52,8 +52,8 @@ public class X8Panel extends PreflightPanel{
     
     @Override
     public void addSections() {
-        addNewSection(new PlanningSection());
-        addNewSection(new AircraftControlSection());
-        addNewSection(new SystemSection());
+//        addNewSection(new PlanningSection());
+//        addNewSection(new AircraftControlSection());
+//        addNewSection(new SystemSection());
     }
 }
