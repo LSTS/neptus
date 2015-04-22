@@ -34,9 +34,6 @@ package pt.lsts.neptus.plugins.preflight.panel;
 import pt.lsts.neptus.NeptusProperties;
 import pt.lsts.neptus.plugins.preflight.Preflight;
 import pt.lsts.neptus.plugins.preflight.PreflightPanel;
-import pt.lsts.neptus.plugins.preflight.section.AircraftControlSection;
-import pt.lsts.neptus.plugins.preflight.section.PlanningSection;
-import pt.lsts.neptus.plugins.preflight.section.SystemSection;
 
 /**
  * @author tsmarques
@@ -52,8 +49,6 @@ public class X8Panel extends PreflightPanel{
     
     @Override
     public void addSections() {
-//        addNewSection(new PlanningSection());
-//        addNewSection(new AircraftControlSection());
-//        addNewSection(new SystemSection());
+
     }
 }
