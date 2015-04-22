@@ -77,6 +77,7 @@ public class Preflight extends ConsolePanel {
     private String mainSysName; /* Gets changed when main vehicle changes */
     private HashMap<String, PreflightPanel> panels;
     
+    private PreflightPanelBuilder builder;
    
     public Preflight(ConsoleLayout console) {
         super(console);
@@ -86,6 +87,7 @@ public class Preflight extends ConsolePanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Color.WHITE);
         
+        builder = new PreflightPanelBuilder();
         initMainPanel();
     }
     
@@ -105,7 +107,7 @@ public class Preflight extends ConsolePanel {
     private void initContentPanel() {
         mainSysName = CONSOLE.getMainSystem();
         
-        contentPanel = new PreflightPanel();
+        contentPanel = builder.buildPanel(mainSysName);
         contentPanel.setSysName(mainSysName);
     }
        
@@ -123,7 +125,7 @@ public class Preflight extends ConsolePanel {
         cleanUp();
         scrollMainPanel.remove(contentPanel);
         
-        contentPanel = new PreflightPanel();
+        contentPanel = builder.buildPanel(mainSysName);
         contentPanel.setSysName(systemId);
         scrollMainPanel.setViewportView(contentPanel);
         
