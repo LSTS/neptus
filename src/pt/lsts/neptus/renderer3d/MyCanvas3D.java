@@ -859,11 +859,7 @@ class MyCanvas3D extends Canvas3D {
 		String text="";
 		LocationType curLocation = null;
 		if (camera.lockobj == null) {
-			//double location[] = (double[]) camera.associatedrender.location
-			//		.getOffsetFrom(new LocationType());
 			double location[] = {0, 0, 0};
-			//camera.associatedrender.location.getLongitudeAsDoubleValue(),
-			//camera.associatedrender.location.getDepth());
 			Point3d vec = new Point3d(location[0], location[1], location[2]);
 			vec.x += camera.pivot.x;
 			vec.y += camera.pivot.y;
@@ -877,15 +873,9 @@ class MyCanvas3D extends Canvas3D {
 		} 
 		else if(camera.lock != null )
 		{
-			//double location[] = (double[]) camera.associatedrender.location
-			//		.getOffsetFrom(new LocationType());
 			double location[] = {0, 0, 0};
-			//camera.associatedrender.location.getLongitudeAsDoubleValue(),
-			//camera.associatedrender.location.getDepth());
 			Point3d vec2 = new Point3d(location[0], location[1], location[2]);
-			/*Vector3d vec2=new Vector3d(camera.associatedrender.location.getLatitudeAsDoubleValue(),
-			 camera.associatedrender.location.getLongitudeAsDoubleValue(),
-			 camera.associatedrender.location.getDepth());*/
+
 			Vector3d vec = new Vector3d(camera.lockobj.pos[0],
 					camera.lockobj.pos[1], camera.lockobj.pos[2]);
 			vec.x += camera.pivot.x;
@@ -902,15 +892,9 @@ class MyCanvas3D extends Canvas3D {
 		}
 		else if (camera.lockmapobj != null)
 		{
-			//double location[] = (double[]) camera.associatedrender.location
-			//		.getOffsetFrom(new LocationType());
 			double location[] = {0, 0, 0};
-			//camera.associatedrender.location.getLongitudeAsDoubleValue(),
-			//camera.associatedrender.location.getDepth());
 			Point3d vec2 = new Point3d(location[0], location[1], location[2]);
-			/*Vector3d vec2=new Vector3d(camera.associatedrender.location.getLatitudeAsDoubleValue(),
-			 camera.associatedrender.location.getLongitudeAsDoubleValue(),
-			 camera.associatedrender.location.getDepth());*/
+
 			Vector3d vec = new Vector3d(camera.lockobj.pos[0],
 					camera.lockobj.pos[1], camera.lockobj.pos[2]);
 			vec.x += camera.pivot.x;

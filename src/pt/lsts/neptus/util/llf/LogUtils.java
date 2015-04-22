@@ -741,12 +741,10 @@ public class LogUtils {
                     double y = entry.getDouble("y");
                     double z = entry.getDouble("z");
 
-                    // if (lat != tmp.getLatitudeAsDoubleValue() && lon != tmp.getLongitudeAsDoubleValue()
-                    // && depth != tmp.getDepth()) {
                     tmp.setLatitudeDegs(Math.toDegrees(lat));
                     tmp.setLongitudeDegs(Math.toDegrees(lon));
                     tmp.setDepth(depth);
-                    // }
+
                     double[] offs = tmp.getOffsetFrom(mission.getStartLocation());
                     // if (!(xVals.contains(offs[0]+x) && yVals.contains(offs[1]+y))) {
                     // xVals.add(offs[0]+x);
