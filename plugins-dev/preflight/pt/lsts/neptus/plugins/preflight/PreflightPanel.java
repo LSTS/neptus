@@ -47,7 +47,7 @@ import javax.swing.JPanel;
  *
  */
 @SuppressWarnings("serial")
-public abstract class PreflightPanel extends JPanel {
+public class PreflightPanel extends JPanel {
     private JPanel mainSysNamePanel; 
     private JLabel mainSysNameLabel;
     private ArrayList<PreflightSection> sections;
@@ -60,8 +60,6 @@ public abstract class PreflightPanel extends JPanel {
         initSysNamePanel();
         sections = new ArrayList<>();
     }
-    
-    public abstract void addSections();
     
     private void initSysNamePanel() {
         mainSysNameLabel = new JLabel("?");

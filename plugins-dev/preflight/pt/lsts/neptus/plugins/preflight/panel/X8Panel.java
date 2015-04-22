@@ -43,12 +43,5 @@ import pt.lsts.neptus.plugins.preflight.PreflightPanel;
 public class X8Panel extends PreflightPanel{
     public X8Panel() {
         super();
-        addSections();
-    }
-
-    
-    @Override
-    public void addSections() {
-
     }
 }
