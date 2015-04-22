@@ -51,7 +51,7 @@ import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
  *
  */
 @SuppressWarnings("serial")
-public abstract class PreflightSection extends JPanel implements MainVehicleChangeListener {
+public class PreflightSection extends JPanel implements MainVehicleChangeListener {
     
     protected String mainVehicle;
     
@@ -83,7 +83,9 @@ public abstract class PreflightSection extends JPanel implements MainVehicleChan
     }
     
     /* Build the panel that will contain the actual "checks" for this section */
-    protected abstract void buildChecksPanel();
+    protected void buildChecksPanel() {
+        
+    }
     
     private void initSectionNamePanel(String sectionName) {
         sectionNamePanel = new JPanel();
@@ -129,7 +131,7 @@ public abstract class PreflightSection extends JPanel implements MainVehicleChan
         });
     }
     
-    protected void addNewCheckItem(PreflightCheck newItem) {
+    public void addNewCheckItem(PreflightCheck newItem) {
         checksPanel.add(newItem);
         checks.add(newItem);
     }
