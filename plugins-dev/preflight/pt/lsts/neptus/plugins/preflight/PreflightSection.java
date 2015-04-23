@@ -95,7 +95,7 @@ public class PreflightSection extends JPanel implements MainVehicleChangeListene
         sectionNamePanel.setMinimumSize(d);
         sectionNamePanel.setLayout(new GridBagLayout());
         
-        sectionNameLabel = new JLabel(sectionName);
+        sectionNameLabel = new JLabel("<html><b>" + sectionName + "</b></html>");
         sectionNameLabel.setForeground(Color.WHITE);
     }
     
