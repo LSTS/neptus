@@ -59,7 +59,8 @@ public class PreflightBuilder {
     public PreflightBuilder() {}
     
     public PreflightPanel buildPanel(String vehicle) {
-        try {
+        PreflightPanel panel = new PreflightPanel();
+        try {          
             File fXmlFile = new File(getPanelXmlFile(vehicle));
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -69,30 +70,22 @@ public class PreflightBuilder {
             
             NodeList nList = doc.getElementsByTagName("section");
             
-            PreflightPanel panel = new PreflightPanel();
             for (int i= 0; i < nList.getLength(); i++) {               
                 PreflightSection section = buildSection(nList.item(i));
                 if(section != null)
                     panel.addNewSection(section);
             }
-            
-            return panel;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return new PreflightPanel();
+        } catch (Exception e) { e.printStackTrace(); }
+        
+        return panel;
     }
     
     
     
     private PreflightSection buildSection(Node section) {
-        
         Element sectionElement = (Element) section;
         String clazz = sectionElement.getAttribute("id");
-        
-//        if(!clazz.equals("Planning"))
-//            return null;
-        
+                
         PreflightSection prefSection = new PreflightSection(clazz);
         NodeList checks = sectionElement.getElementsByTagName("check");
         for(int i = 0; i < checks.getLength(); i++) {
@@ -109,25 +102,22 @@ public class PreflightBuilder {
     public PreflightCheck buildCheck(Node checkXml) {
         Element elemCheck = (Element) checkXml;
         String clazz = elemCheck.getAttribute("class");
-        
-//        if(!clazz.equals("pt.lsts.neptus.plugins.preflight.check.automated.CheckPlan"))
-//            return null;
-        
-          try {             
-              if(!classXmlWellDefined())
-                  return null;
-              
-              System.out.println("Preflight loaded: " + clazz);
-              Class<?> c = Class.forName(clazz);
-              Constructor<?> cons = c.getConstructors()[0];
-              Object[] args = getConstructorArguments(elemCheck);
 
-              return (PreflightCheck)cons.newInstance(args);
-          }
-          catch (Exception e) {
-              e.printStackTrace();
-          }            
-        return null; /**/
+        try {             
+            if(!classXmlWellDefined())
+                return null;
+
+            System.out.println("Preflight loaded: " + clazz);
+            Class<?> c = Class.forName(clazz);
+            Constructor<?> cons = c.getConstructors()[0];
+            Object[] args = getConstructorArguments(elemCheck);
+
+            return (PreflightCheck)cons.newInstance(args);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }            
+        return null;
     }
     
     
