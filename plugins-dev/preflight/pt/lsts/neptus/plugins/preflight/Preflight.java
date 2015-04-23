@@ -53,7 +53,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
-import pt.lsts.neptus.plugins.preflight.utils.PreflightPanelBuilder;
+import pt.lsts.neptus.plugins.preflight.utils.PreflightBuilder;
 import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 
 /**
@@ -77,7 +77,7 @@ public class Preflight extends ConsolePanel {
     private String mainSysName; /* Gets changed when main vehicle changes */
     private HashMap<String, PreflightPanel> panels;
     
-    private PreflightPanelBuilder builder;
+    private PreflightBuilder builder;
    
     public Preflight(ConsoleLayout console) {
         super(console);
@@ -87,7 +87,7 @@ public class Preflight extends ConsolePanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Color.WHITE);
         
-        builder = new PreflightPanelBuilder();
+        builder = new PreflightBuilder();
         initMainPanel();
     }
     

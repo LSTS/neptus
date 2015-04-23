@@ -54,10 +54,10 @@ import pt.lsts.neptus.plugins.preflight.check.automated.CheckHomeRef;
  * @author tsmarques
  *
  */
-public class PreflightPanelBuilder {
+public class PreflightBuilder {
     private static final String XML_PATH = "plugins-dev/preflight/pt/lsts/neptus/plugins/preflight/etc/";
     
-    public PreflightPanelBuilder() {}
+    public PreflightBuilder() {}
     
     public PreflightPanel buildPanel(String vehicle) {
         try {
@@ -177,7 +177,7 @@ public class PreflightPanelBuilder {
     }
     
     public static void main(String [] args) {
-        PreflightPanelBuilder builder = new PreflightPanelBuilder();
+        PreflightBuilder builder = new PreflightBuilder();
         builder.buildPanel("x8-01");
         
 //        try {
