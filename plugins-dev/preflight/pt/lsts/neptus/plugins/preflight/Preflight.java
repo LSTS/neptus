@@ -67,14 +67,12 @@ public class Preflight extends ConsolePanel {
     private JScrollPane scrollMainPanel;
     
     private String mainSysName; /* Gets changed when main vehicle changes */
-    private HashMap<String, PreflightPanel> panels;
     
     private PreflightBuilder builder;
    
     public Preflight(ConsoleLayout console) {
         super(console);
         CONSOLE = getConsole();
-        panels = new HashMap<>();
         setResizable(false);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(Color.WHITE);
