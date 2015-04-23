@@ -84,6 +84,8 @@ public class PreflightPanelBuilder {
         return new PreflightPanel();
     }
     
+    
+    
     private PreflightSection buildSection(Node section) {
         
         Element sectionElement = (Element) section;
@@ -102,6 +104,8 @@ public class PreflightPanelBuilder {
         }
         return prefSection;
     }
+    
+    
     
     public PreflightCheck buildCheck(Node checkXml) {
         Element elemCheck = (Element) checkXml;
@@ -127,8 +131,9 @@ public class PreflightPanelBuilder {
         return null; /**/
     }
     
+    
+    
     /* If no arguments, returns an empty array */
-    /* FIXME For now it assumes that all the constructor arguments are of type String */
     private Object[] getConstructorArguments(Element clazz) {
         NodeList xmlArgs = clazz.getElementsByTagName("arg");
         int nArgs = xmlArgs.getLength();
@@ -138,14 +143,27 @@ public class PreflightPanelBuilder {
             args = new ArrayList<>();
             for(int i = 0; i < nArgs; i++) {
                 Element arg = (Element) xmlArgs.item(i);
-                String argValue = arg.getTextContent();
-                args.add(argValue);             
+                String argValueStr = arg.getTextContent();
+                String argType = arg.getAttribute("type");
+                
+                if(argType.equals("integer"))
+                    args.add(Integer.parseInt(argValueStr));
+                else if(argType.equals("double"))
+                    args.add(Double.parseDouble(argValueStr));
+                else if(argType.equals("float"))
+                    args.add(Float.parseFloat(argValueStr));
+                else if(argType.equals("bool"))
+                    args.add(Boolean.parseBoolean(argValueStr));
+                else
+                    args.add(argValueStr);             
             }
             return args.toArray();
         }
         else
             return new Object[0];
     }
+    
+    
     
     private String getPanelXmlFile(String vehicle) {
         return XML_PATH + "x8.xml"; /* for now */
