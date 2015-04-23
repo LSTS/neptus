@@ -47,7 +47,6 @@ import org.w3c.dom.Element;
 import pt.lsts.neptus.plugins.preflight.PreflightCheck;
 import pt.lsts.neptus.plugins.preflight.PreflightPanel;
 import pt.lsts.neptus.plugins.preflight.PreflightSection;
-import pt.lsts.neptus.plugins.preflight.check.automated.CheckHomeRef;
 
 
 /**

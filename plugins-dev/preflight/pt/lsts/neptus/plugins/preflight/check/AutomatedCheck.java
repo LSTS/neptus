@@ -32,8 +32,6 @@
 package pt.lsts.neptus.plugins.preflight.check;
 
 import pt.lsts.neptus.plugins.preflight.PreflightCheck;
-import pt.lsts.neptus.plugins.update.Periodic;
-import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 
 /**
  * @author tsmarques

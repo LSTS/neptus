@@ -38,23 +38,15 @@ import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JScrollPane;
-
-import org.springframework.beans.propertyeditors.PropertiesEditor;
-
 import com.google.common.eventbus.Subscribe;
-import com.l2fprod.common.propertysheet.DefaultProperty;
 
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.preflight.utils.PreflightBuilder;
-import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 
 /**
  * @author tsmarques

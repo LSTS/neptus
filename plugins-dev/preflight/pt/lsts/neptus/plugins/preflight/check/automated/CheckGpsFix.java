@@ -33,13 +33,10 @@ package pt.lsts.neptus.plugins.preflight.check.automated;
 
 import com.google.common.eventbus.Subscribe;
 
-import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.GpsFix.TYPE;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.preflight.Preflight;
 import pt.lsts.neptus.plugins.preflight.check.AutomatedCheck;
-import pt.lsts.neptus.types.map.MapGroup;
 
 /**
  * @author tsmarques
