@@ -44,9 +44,12 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.plugins.preflight.PreflightCheck;
 import pt.lsts.neptus.plugins.preflight.PreflightPanel;
 import pt.lsts.neptus.plugins.preflight.PreflightSection;
+import pt.lsts.neptus.types.vehicle.VehicleType.VehicleTypeEnum;
 
 
 /**
@@ -60,6 +63,12 @@ public class PreflightBuilder {
     
     public PreflightPanel buildPanel(String vehicle) {
         PreflightPanel panel = new PreflightPanel();
+        
+        /* if not a UAV, return a blank panel */
+        ImcSystem sys  = ImcSystemsHolder.getSystemWithName(vehicle);
+        if(sys.getTypeVehicle() != VehicleTypeEnum.UAV)
+            return panel;
+        
         try {          
             File fXmlFile = new File(getPanelXmlFile(vehicle));
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
