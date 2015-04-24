@@ -52,6 +52,29 @@
       <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckGpsFix"></check>
       <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckVoltage"></check>
     </section>
+
+    <section id = "Operational Limits">
+      <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckOpLimits">
+        <arg type = "string">Min Altitude</arg>
+        <arg type = "string">min_altitude</arg>
+      </check>
+      
+      <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckOpLimits">
+        <arg type = "string">Max Altitude</arg>
+        <arg type = "string">max_altitude</arg>
+      </check>
+
+      <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckOpLimits">
+        <arg type = "string">Min Speed</arg>
+        <arg type = "string">min_speed</arg>
+      </check>
+
+      <check class = "pt.lsts.neptus.plugins.preflight.check.automated.CheckOpLimits">
+        <arg type = "string">Max Speed</arg>
+        <arg type = "string">max_speed</arg>
+      </check>
+      
+    </section>
 </x8>
     
     
