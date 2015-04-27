@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.uavs.panels;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.text.DecimalFormat;
 import java.util.Hashtable;
 
 import pt.lsts.imc.IMCMessage;
@@ -69,6 +70,8 @@ public class UavHUDPanel extends ConsolePanel implements NeptusMessageListener {
 
     // active main vehicle's current heading angle
     private double tmpVar;
+    
+    private DecimalFormat formatter = new DecimalFormat("0.0");
 
     public UavHUDPanel(ConsoleLayout console) {
         super(console);
@@ -108,7 +111,7 @@ public class UavHUDPanel extends ConsolePanel implements NeptusMessageListener {
         
         if (message.getAbbrev().equals("IndicatedSpeed")) {
             indicatedSpeed = message.getDouble("value");
-            args.put("indicatedSpeed", indicatedSpeed);
+            args.put("indicatedSpeed", Double.parseDouble(formatter.format(indicatedSpeed)));
         }
         else {
             args.put("altitude", (message.getInteger("height")) - (message.getInteger("z")));
