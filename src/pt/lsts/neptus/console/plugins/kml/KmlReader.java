@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.console.plugins.kml;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,44 +55,49 @@ import de.micromata.opengis.kml.v_2_2_0.Point;
 public class KmlReader {
 
     protected Kml kml;
-    
-    public KmlReader(URL url, boolean zipped) throws Exception {        
-        if (!zipped)
-            kml = Kml.unmarshal( url.openStream());
-        else {            
-            ZipInputStream zip = new ZipInputStream(url.openStream());
-            ZipEntry entry;
-            while ((entry = zip.getNextEntry()) != null)
-                if (entry.getName().endsWith(".kml")) {
-                    kml = Kml.unmarshal(zip);
-                    break;
-                }
+
+    public KmlReader(URL url, boolean zipped) {
+        try {
+            if (!zipped)
+                kml = Kml.unmarshal( url.openStream());
+            else {            
+                ZipInputStream zip = new ZipInputStream(url.openStream());
+                ZipEntry entry;
+                while ((entry = zip.getNextEntry()) != null)
+                    if (entry.getName().endsWith(".kml")) {
+                        kml = Kml.unmarshal(zip);
+                        break;
+                    }
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
         }
     }
-    
+
     private TreeMap<String, String> extractFeatures() {       
         List<Placemark> features = listPlacemarks("", kml.getFeature());
         TreeMap<String, String> f = new TreeMap<>();
-        
+
         System.out.println(kml.getFeature().getName());
-        
+
         for (Placemark pm : features) {
             String featureName = pm.getName().substring(pm.getName().lastIndexOf("/")+1);
             String featureGeometry = pm.getGeometry().getClass().getSimpleName();
             f.put(featureName, featureGeometry);
             System.out.println(pm.getName()+", "+pm.getGeometry());
         }
-        
+
         return f;
     }
-    
+
     private List<Placemark> listPlacemarks(String path, Feature f) {
         if (f instanceof Placemark) {
             Placemark mark = (Placemark) f;
             mark.setName(path+mark.getName());
             return Arrays.asList((Placemark)f);
         }
-            
+
         else if (f instanceof Folder) {
             ArrayList<Placemark> ret = new ArrayList<>();
             Folder folder = (Folder)f;
@@ -99,7 +105,7 @@ public class KmlReader {
                 ret.addAll(listPlacemarks(path+folder.getName()+"/", j));  
             return ret;
         }
-        
+
         else if (f instanceof Document) {
             ArrayList<Placemark> ret = new ArrayList<>();
             Document d = (Document)f;
@@ -110,7 +116,7 @@ public class KmlReader {
         else 
             return new ArrayList<>();
     }   
-        
+
     public static void main(String[] args) throws Exception {
         //KmlBrowser browser = new KmlBrowser(new URL("file:///home/zp/Desktop/Douro/doc.kml"));
         KmlReader browser = new KmlReader(new URL("https://www.google.com/maps/d/kml?mid=z4oHb_uriB5A.kLTuB2xlrlcc"), true);
