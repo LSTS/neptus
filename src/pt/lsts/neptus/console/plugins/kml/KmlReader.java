@@ -44,9 +44,7 @@ import de.micromata.opengis.kml.v_2_2_0.Document;
 import de.micromata.opengis.kml.v_2_2_0.Feature;
 import de.micromata.opengis.kml.v_2_2_0.Folder;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
-import de.micromata.opengis.kml.v_2_2_0.LineString;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
-import de.micromata.opengis.kml.v_2_2_0.Point;
 
 /**
  * @author zp
@@ -82,13 +80,20 @@ public class KmlReader {
         System.out.println(kml.getFeature().getName());
 
         for (Placemark pm : features) {
-            String featureName = pm.getName().substring(pm.getName().lastIndexOf("/")+1);
+            String featureName = parseFeatureName(pm);
             String featureGeometry = pm.getGeometry().getClass().getSimpleName();
             f.put(featureName, featureGeometry);
             System.out.println(pm.getName()+", "+pm.getGeometry());
         }
 
         return f;
+    }
+    
+    private String parseFeatureName(Placemark pm) {
+        String str = pm.getName().substring(pm.getName().lastIndexOf("/")+1);
+        String featName = str.split(",")[0];
+        
+        return featName;
     }
 
     private List<Placemark> listPlacemarks(String path, Feature f) {
