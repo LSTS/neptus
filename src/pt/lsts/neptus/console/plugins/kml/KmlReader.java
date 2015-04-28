@@ -35,6 +35,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -50,46 +51,41 @@ import de.micromata.opengis.kml.v_2_2_0.Point;
  * @author zp
  *
  */
-public class KmlListing {
+public class KmlReader {
 
     protected Kml kml;
     
-    public KmlListing(URL url, boolean zipped) throws Exception {
-        
+    public KmlReader(URL url, boolean zipped) throws Exception {        
         if (!zipped)
             kml = Kml.unmarshal( url.openStream());
-        else {
-            
+        else {            
             ZipInputStream zip = new ZipInputStream(url.openStream());
             ZipEntry entry;
-            while ((entry = zip.getNextEntry()) != null) {
+            while ((entry = zip.getNextEntry()) != null)
                 if (entry.getName().endsWith(".kml")) {
                     kml = Kml.unmarshal(zip);
                     break;
                 }
-            }
         }
-        
+    }
+    
+    private TreeMap<String, String> extractFeatures() {       
         List<Placemark> features = listPlacemarks("", kml.getFeature());
+        TreeMap<String, String> f = new TreeMap<>();
+        
+        System.out.println(kml.getFeature().getName());
         
         for (Placemark pm : features) {
             String featureName = pm.getName().substring(pm.getName().lastIndexOf("/")+1);
-            switch(pm.getGeometry().getClass().getSimpleName()) {
-                case "Point":
-                    Point point = (Point)pm.getGeometry();
-                    break;
-                case "LineString":
-                    LineString lineString = (LineString)pm.getGeometry();
-                    break;
-                case "Polygon":
-                    break;
-            }
+            String featureGeometry = pm.getGeometry().getClass().getSimpleName();
+            f.put(featureName, featureGeometry);
             System.out.println(pm.getName()+", "+pm.getGeometry());
-            
         }
-    }    
+        
+        return f;
+    }
     
-    List<Placemark> listPlacemarks(String path, Feature f) {
+    private List<Placemark> listPlacemarks(String path, Feature f) {
         if (f instanceof Placemark) {
             Placemark mark = (Placemark) f;
             mark.setName(path+mark.getName());
@@ -117,7 +113,7 @@ public class KmlListing {
         
     public static void main(String[] args) throws Exception {
         //KmlBrowser browser = new KmlBrowser(new URL("file:///home/zp/Desktop/Douro/doc.kml"));
-        KmlListing browser = new KmlListing(new URL("https://www.google.com/maps/d/kml?mid=z4oHb_uriB5A.kLTuB2xlrlcc"), true);
-        
+        KmlReader browser = new KmlReader(new URL("https://www.google.com/maps/d/kml?mid=z4oHb_uriB5A.kLTuB2xlrlcc"), true);
+        browser.extractFeatures();
     }
 }
