@@ -36,14 +36,17 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.TreeMap;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -69,9 +72,11 @@ public class KmlImport extends ConsolePanel {
     private JMenuItem kmlFile; /* load kml features from a file */
     private JMenuItem kmlUrl; /* load kml features from a URL */
     
-    private JList<JLabel> listingPanel; /* actual listing of kml features */
-    private final DefaultListModel<JLabel> listModel = new DefaultListModel<>();
+    private JList<String> listingPanel; /* actual listing of kml features */
+    private final DefaultListModel<String> listModel = new DefaultListModel<>();
     private JFileChooser fileChooser;
+    
+    private TreeMap<String, String> kmlFeatures;
     
     
     public KmlImport(ConsoleLayout console) {
@@ -102,11 +107,18 @@ public class KmlImport extends ConsolePanel {
     
     private void initListingPanel() {
         listingPanel = new JList<>(listModel);
-        listingPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT));                
+        listingPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        add(listingPanel);
     }
     
-    private void listKmlFeatures() {
+    private void listKmlFeatures(URL url) {
+        KmlReader kml = new KmlReader(url, true);
+        kmlFeatures = kml.extractFeatures();
         
+        for(String fname : kmlFeatures.keySet()) {
+            String fgeom = kmlFeatures.get(fname);
+            listModel.addElement(fname + " <" + fgeom + ">");
+        }
     }
     
     private void addMenuListeners() {
@@ -116,7 +128,14 @@ public class KmlImport extends ConsolePanel {
                 int result = fileChooser.showOpenDialog(getParent());
                 if (result == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
-                    System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+                    System.out.println("Selected file: " + selectedFile.getAbsolutePath());                 
+                    try {
+                        URL fileUrl = new URL(selectedFile.getAbsolutePath().toString());
+                        listKmlFeatures(fileUrl);
+                    }
+                    catch(MalformedURLException e1) {
+                        e1.printStackTrace();
+                    }
                 }
             }
         });
@@ -124,7 +143,15 @@ public class KmlImport extends ConsolePanel {
         kmlUrl.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("# Open from Url");
+                String urlStr = JOptionPane.showInputDialog("Enter a URL");
+                System.out.println("URL: " + urlStr);
+                
+                try {
+                    listKmlFeatures(new URL(urlStr));
+                }
+                catch(MalformedURLException e1) {
+                    e1.printStackTrace();
+                }
             }
         });
     }
