@@ -75,7 +75,7 @@ public class KmlReader {
         }
     }
 
-    private TreeMap<String, String> extractFeatures() {       
+    public TreeMap<String, String> extractFeatures() {       
         List<Placemark> features = listPlacemarks("", kml.getFeature());
         TreeMap<String, String> f = new TreeMap<>();
 
