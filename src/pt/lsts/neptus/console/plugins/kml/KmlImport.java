@@ -35,6 +35,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -47,6 +49,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -66,63 +70,97 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 public class KmlImport extends ConsolePanel {
     private static final int WIDTH = 230;
     private static final int HEIGHT = 500;
-    
+
     private JMenuBar menuBar;
     private JMenu openMenu;
     private JMenuItem kmlFile; /* load kml features from a file */
     private JMenuItem kmlUrl; /* load kml features from a URL */
-    
+
+    private JPopupMenu popup;
+    private JMenuItem addItem;
+
+
     private JList<String> listingPanel; /* actual listing of kml features */
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
     private JFileChooser fileChooser;
-    
+
     private TreeMap<String, String> kmlFeatures;
-    
-    
+
+
     public KmlImport(ConsoleLayout console) {
         super(console);
         initPluginPanel();        
         initListingPanel();  
     }
-    
-    
+
+
     private void initPluginPanel() {
         setLayout(new BorderLayout());
-        
+
         menuBar  = new JMenuBar();
         openMenu = new JMenu("Open");
         kmlFile = new JMenuItem("Open from file");
         kmlUrl = new JMenuItem("Open from Url");
-        
+
         openMenu.add(kmlFile);
         openMenu.add(kmlUrl);
         menuBar.add(openMenu);
-     
+
         add(menuBar, BorderLayout.NORTH);
         addMenuListeners();
-        
+
         fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+
+        popup = new JPopupMenu();
+        addItem = new JMenuItem("Add to map");
+        popup.add(addItem);
+
+        addItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                /* Do something */
+            }
+        });
     }
-    
+
     private void initListingPanel() {
         listingPanel = new JList<>(listModel);
         listingPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         add(listingPanel);
+
+        listingPanel.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                showPopup(e);
+            }
+
+            public void mouseReleased(MouseEvent e) {
+                showPopup(e);
+            }
+
+            private void showPopup(MouseEvent me) {
+                if(SwingUtilities.isRightMouseButton(me) 
+                        && !listingPanel.isSelectionEmpty()
+                        && listingPanel.locationToIndex(me.getPoint())
+                        == listingPanel.getSelectedIndex()) {
+                    popup.show(listingPanel, me.getX(), me.getY());
+                }
+            }
+        });
     }
-    
+
     private void listKmlFeatures(URL url) {
         cleanListing();
-        
+
         KmlReader kml = new KmlReader(url, true);
         kmlFeatures = kml.extractFeatures();
-        
+
         for(String fname : kmlFeatures.keySet()) {
             String fgeom = kmlFeatures.get(fname);
             listModel.addElement(fname + " <" + fgeom + ">");
         }
     }
-    
+
     private void addMenuListeners() {
         kmlFile.addActionListener(new ActionListener() {
             @Override
@@ -141,13 +179,13 @@ public class KmlImport extends ConsolePanel {
                 }
             }
         });
-        
+
         kmlUrl.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String urlStr = JOptionPane.showInputDialog("Enter a URL");
                 System.out.println("URL: " + urlStr);
-                
+
                 try {
                     listKmlFeatures(new URL(urlStr));
                 }
@@ -157,24 +195,24 @@ public class KmlImport extends ConsolePanel {
             }
         });
     }
-    
+
     private void cleanListing() {
         int nElements = listModel.getSize();
         if(nElements != 0)           
             listModel.removeAllElements();
     }
-    
+
 
     @Override
     public void cleanSubPanel() {
         // TODO Auto-generated method stub
-        
+
     }
 
 
     @Override
     public void initSubPanel() {
         // TODO Auto-generated method stub
-        
+
     }
 }
