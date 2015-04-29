@@ -79,6 +79,8 @@ public class KmlImport extends ConsolePanel {
     private JMenu openMenu;
     private JMenuItem kmlFile; /* load kml features from a file */
     private JMenuItem kmlUrl; /* load kml features from a URL */
+    
+    private String kmlFeatUrl; /* Url given by the user */
 
     private JPopupMenu popup;
     private JMenuItem addItem;
@@ -100,11 +102,12 @@ public class KmlImport extends ConsolePanel {
 
     private void initPluginPanel() {
         setLayout(new BorderLayout());
-
+        
         menuBar  = new JMenuBar();
         openMenu = new JMenu("Open");
         kmlFile = new JMenuItem("Open from file");
         kmlUrl = new JMenuItem("Open from Url");
+        kmlFeatUrl = "";
 
         openMenu.add(kmlFile);
         openMenu.add(kmlUrl);
@@ -203,11 +206,12 @@ public class KmlImport extends ConsolePanel {
 
         kmlUrl.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                String urlStr = JOptionPane.showInputDialog("Enter a URL");
+            public void actionPerformed(ActionEvent e) {               
+                String urlStr = JOptionPane.showInputDialog("Enter a URL", kmlFeatUrl);
                 System.out.println("URL: " + urlStr);
 
                 try {
+                    kmlFeatUrl = urlStr;
                     listKmlFeatures(new URL(urlStr));
                 }
                 catch(MalformedURLException e1) {
