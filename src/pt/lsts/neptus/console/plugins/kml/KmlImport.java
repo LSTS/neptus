@@ -32,6 +32,7 @@
 package pt.lsts.neptus.console.plugins.kml;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,12 +45,14 @@ import java.util.TreeMap;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -58,6 +61,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author tsmarques
@@ -80,8 +84,8 @@ public class KmlImport extends ConsolePanel {
     private JMenuItem addItem;
 
 
-    private JList<String> listingPanel; /* actual listing of kml features */
-    private final DefaultListModel<String> listModel = new DefaultListModel<>();
+    private JList<JLabel> listingPanel; /* actual listing of kml features */
+    private final DefaultListModel<JLabel> listModel = new DefaultListModel<>();
     private JFileChooser fileChooser;
 
     private TreeMap<String, String> kmlFeatures;
@@ -129,6 +133,8 @@ public class KmlImport extends ConsolePanel {
         listingPanel.setPreferredSize(new Dimension(WIDTH, HEIGHT));
         add(listingPanel);
 
+        listingPanel.setCellRenderer(new CustomListCellRenderer());
+
         listingPanel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 showPopup(e);
@@ -157,8 +163,23 @@ public class KmlImport extends ConsolePanel {
 
         for(String fname : kmlFeatures.keySet()) {
             String fgeom = kmlFeatures.get(fname);
-            listModel.addElement(fname + " <" + fgeom + ">");
+            listModel.addElement(getFeatureLabel(fname, fgeom));
         }
+    }
+    
+    private JLabel getFeatureLabel(String fname, String fgeom) {
+        JLabel feature = new JLabel(fname);
+        String iconUrl = "";
+        
+        if(fgeom.equals("Point"))
+            iconUrl = "pt/lsts/neptus/console/plugins/kml/icons/point.png";
+        else if(fgeom.equals("LineString"))
+            iconUrl = "pt/lsts/neptus/console/plugins/kml/icons/lnstr.png";
+        else if(fgeom.equals("Point"))
+            iconUrl = "pt/lsts/neptus/console/plugins/kml/icons/polyg.png";
+        
+        feature.setIcon(ImageUtils.getScaledIcon(iconUrl, 15, 15));        
+        return feature;
     }
 
     private void addMenuListeners() {
@@ -204,15 +225,25 @@ public class KmlImport extends ConsolePanel {
 
 
     @Override
-    public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
-    }
-
+    public void cleanSubPanel() {}
 
     @Override
-    public void initSubPanel() {
-        // TODO Auto-generated method stub
+    public void initSubPanel() {}
 
+    private class CustomListCellRenderer implements ListCellRenderer<JLabel> {
+        @Override
+        public Component getListCellRendererComponent(JList<? extends JLabel> list, JLabel value, int index,
+                boolean isSelected, boolean cellHasFocus) {
+            value.setOpaque(true);
+            if (isSelected) {
+                value.setBackground(list.getSelectionBackground());
+                value.setForeground(list.getSelectionForeground());
+            }
+            else {
+                value.setBackground(list.getBackground());
+                value.setForeground(list.getForeground());
+            }        
+            return value;
+        }
     }
 }
