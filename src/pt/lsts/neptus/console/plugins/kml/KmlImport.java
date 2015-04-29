@@ -61,11 +61,11 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "Kml Import", description = "Import map features from KML, from a file or URL", author = "tsmarques", version = "0.1")
-@Popup(name = "Kml Import", pos = POSITION.CENTER, width = 300, height = 600)
+@Popup(name = "Kml Import", pos = POSITION.CENTER, width = 230, height = 500)
 @LayerPriority(priority = 50)
 public class KmlImport extends ConsolePanel {
-    private static final int WIDTH = 300;
-    private static final int HEIGHT = 600;
+    private static final int WIDTH = 230;
+    private static final int HEIGHT = 500;
     
     private JMenuBar menuBar;
     private JMenu openMenu;
