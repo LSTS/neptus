@@ -112,6 +112,8 @@ public class KmlImport extends ConsolePanel {
     }
     
     private void listKmlFeatures(URL url) {
+        cleanListing();
+        
         KmlReader kml = new KmlReader(url, true);
         kmlFeatures = kml.extractFeatures();
         
@@ -154,6 +156,12 @@ public class KmlImport extends ConsolePanel {
                 }
             }
         });
+    }
+    
+    private void cleanListing() {
+        int nElements = listModel.getSize();
+        if(nElements != 0)           
+            listModel.removeAllElements();
     }
     
 
