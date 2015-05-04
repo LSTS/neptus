@@ -43,6 +43,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 import javax.swing.DefaultListModel;
@@ -67,6 +68,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.util.ImageUtils;
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
@@ -229,14 +231,16 @@ public class KmlImport extends ConsolePanel {
             @Override
             public void actionPerformed(ActionEvent e) {               
                 String urlStr = JOptionPane.showInputDialog("Enter a URL", kmlFeatUrl);
-                System.out.println("URL: " + urlStr);
+                if(urlStr != null && !urlStr.equals("")) {
+                    System.out.println("URL: " + urlStr);
 
-                try {
-                    kmlFeatUrl = urlStr;
-                    listKmlFeatures(new URL(urlStr));
-                }
-                catch(MalformedURLException e1) {
-                    e1.printStackTrace();
+                    try {
+                        kmlFeatUrl = urlStr;
+                        listKmlFeatures(new URL(urlStr));
+                    }
+                    catch(MalformedURLException e1) {
+                        e1.printStackTrace();
+                    }
                 }
             }
         });
@@ -249,11 +253,10 @@ public class KmlImport extends ConsolePanel {
         if(featGeom.equals("Point"))
             addPoint((Point)((Placemark) feature).getGeometry(), idByUser);
         else if(featGeom.equals("LineString")) {
-            
         }
         else if(featGeom.equals("Polygon")) {
-            
         }
+
         
         addedFeatures.add(featName);
     }
