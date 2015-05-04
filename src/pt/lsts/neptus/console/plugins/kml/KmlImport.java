@@ -80,10 +80,10 @@ public class KmlImport extends ConsolePanel {
     private JMenuItem kmlFile; /* load kml features from a file */
     private JMenuItem kmlUrl; /* load kml features from a URL */
     
-    private String kmlFeatUrl; /* Url given by the user */
+    private String kmlFeatUrl; /* tmp store Url given by the user */
 
-    private JPopupMenu popup;
-    private JMenuItem addItem;
+    private JPopupMenu rightClickPopup;
+    private JMenuItem rightClickAddItem;
 
 
     private JList<JLabel> listingPanel; /* actual listing of kml features */
@@ -119,11 +119,11 @@ public class KmlImport extends ConsolePanel {
         fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 
-        popup = new JPopupMenu();
-        addItem = new JMenuItem("Add to map");
-        popup.add(addItem);
+        rightClickPopup = new JPopupMenu();
+        rightClickAddItem = new JMenuItem("Add to map");
+        rightClickPopup.add(rightClickAddItem);
 
-        addItem.addActionListener(new ActionListener() {
+        rightClickAddItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 /* Do something */
@@ -152,7 +152,7 @@ public class KmlImport extends ConsolePanel {
                         && !listingPanel.isSelectionEmpty()
                         && listingPanel.locationToIndex(me.getPoint())
                         == listingPanel.getSelectedIndex()) {
-                    popup.show(listingPanel, me.getX(), me.getY());
+                    rightClickPopup.show(listingPanel, me.getX(), me.getY());
                 }
             }
         });
