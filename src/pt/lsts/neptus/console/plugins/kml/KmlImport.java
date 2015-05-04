@@ -43,7 +43,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.TreeMap;
 
 import javax.swing.DefaultListModel;
@@ -247,20 +246,8 @@ public class KmlImport extends ConsolePanel {
         Placemark feature = kmlFeatures.get(featName);
         String featGeom = feature.getGeometry().getClass().getSimpleName();
         
-        if(featGeom.equals("Point")) {
-            Point point =(Point) ((Placemark) feature).getGeometry();
-            Coordinate coords = point.getCoordinates().get(0);
-            
-//            MapGroup.resetMissionInstance(getConsole().getMission());
-            MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
-            MarkElement kmlPoint = new MarkElement(mapType.getMapGroup(), mapType);
-            LocationType kmlPointLoc = new LocationType(coords.getLatitude(), coords.getLongitude());
-
-            kmlPoint.setId(idByUser);
-            kmlPoint.setCenterLocation(kmlPointLoc);
-            mapType.addObject(kmlPoint);
-
-        }
+        if(featGeom.equals("Point"))
+            addPoint((Point)((Placemark) feature).getGeometry(), idByUser);
         else if(featGeom.equals("LineString")) {
             
         }
@@ -271,6 +258,18 @@ public class KmlImport extends ConsolePanel {
         addedFeatures.add(featName);
     }
     
+    private void addPoint(Point point, String idByUser) {
+        Coordinate coords = point.getCoordinates().get(0);
+        
+        MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
+        MarkElement kmlPoint = new MarkElement(mapType.getMapGroup(), mapType);
+        LocationType kmlPointLoc = new LocationType(coords.getLatitude(), coords.getLongitude());
+
+        kmlPoint.setId(idByUser);
+        kmlPoint.setCenterLocation(kmlPointLoc);
+        mapType.addObject(kmlPoint);
+    }
+    
     private void cleanListing() {
         int nElements = listModel.getSize();
         if(nElements != 0)           
@@ -278,11 +277,6 @@ public class KmlImport extends ConsolePanel {
     }
 
 
-    @Override
-    public void cleanSubPanel() {}
-
-    @Override
-    public void initSubPanel() {}
 
     private class CustomListCellRenderer implements ListCellRenderer<JLabel> {
         @Override
@@ -304,4 +298,10 @@ public class KmlImport extends ConsolePanel {
             return value;
         }
     }
+    
+    @Override
+    public void cleanSubPanel() {}
+
+    @Override
+    public void initSubPanel() {}
 }
