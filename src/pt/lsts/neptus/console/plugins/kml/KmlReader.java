@@ -73,16 +73,15 @@ public class KmlReader {
         }
     }
 
-    public TreeMap<String, String> extractFeatures() {       
+    public TreeMap<String, Placemark> extractFeatures() {       
         List<Placemark> features = listPlacemarks("", kml.getFeature());
-        TreeMap<String, String> f = new TreeMap<>();
+        TreeMap<String, Placemark> f = new TreeMap<>();
 
         System.out.println(kml.getFeature().getName());
 
         for (Placemark pm : features) {
             String featureName = parseFeatureName(pm);
-            String featureGeometry = pm.getGeometry().getClass().getSimpleName();
-            f.put(featureName, featureGeometry);
+            f.put(featureName, pm);
             System.out.println(pm.getName()+", "+pm.getGeometry());
         }
 

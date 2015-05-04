@@ -55,6 +55,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 
+import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -90,7 +91,7 @@ public class KmlImport extends ConsolePanel {
     private final DefaultListModel<JLabel> listModel = new DefaultListModel<>();
     private JFileChooser fileChooser;
 
-    private TreeMap<String, String> kmlFeatures;
+    private TreeMap<String, Placemark> kmlFeatures;
 
 
     public KmlImport(ConsoleLayout console) {
@@ -165,7 +166,7 @@ public class KmlImport extends ConsolePanel {
         kmlFeatures = kml.extractFeatures();
 
         for(String fname : kmlFeatures.keySet()) {
-            String fgeom = kmlFeatures.get(fname);
+            String fgeom = kmlFeatures.get(fname).getGeometry().getClass().getSimpleName();
             listModel.addElement(getFeatureLabel(fname, fgeom));
         }
     }
@@ -181,6 +182,7 @@ public class KmlImport extends ConsolePanel {
         else if(fgeom.equals("Point"))
             iconUrl = "pt/lsts/neptus/console/plugins/kml/icons/polyg.png";
         
+        feature.setName(fname);
         feature.setIcon(ImageUtils.getScaledIcon(iconUrl, 15, 15));        
         return feature;
     }
