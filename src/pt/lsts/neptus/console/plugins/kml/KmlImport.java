@@ -32,6 +32,7 @@
 package pt.lsts.neptus.console.plugins.kml;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -41,6 +42,8 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 import javax.swing.DefaultListModel;
@@ -55,14 +58,22 @@ import javax.swing.JPopupMenu;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 
-import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.util.ImageUtils;
+import de.micromata.opengis.kml.v_2_2_0.Coordinate;
+import de.micromata.opengis.kml.v_2_2_0.Placemark;
+import de.micromata.opengis.kml.v_2_2_0.LineString;
+import de.micromata.opengis.kml.v_2_2_0.Point;
+import de.micromata.opengis.kml.v_2_2_0.Polygon;
 
 /**
  * @author tsmarques
@@ -73,6 +84,7 @@ import pt.lsts.neptus.util.ImageUtils;
 @Popup(name = "Kml Import", pos = POSITION.CENTER, width = 230, height = 500)
 @LayerPriority(priority = 50)
 public class KmlImport extends ConsolePanel {
+    private static final Color COLOR_SELECTED = new Color(200, 255, 200);
     private static final int WIDTH = 230;
     private static final int HEIGHT = 500;
 
@@ -92,10 +104,12 @@ public class KmlImport extends ConsolePanel {
     private JFileChooser fileChooser;
 
     private TreeMap<String, Placemark> kmlFeatures;
+    private ArrayList<String> addedFeatures; /* features already added to the map */    
 
 
     public KmlImport(ConsoleLayout console) {
         super(console);
+        addedFeatures = new ArrayList<>();
         initPluginPanel();        
         initListingPanel();  
     }
@@ -127,7 +141,12 @@ public class KmlImport extends ConsolePanel {
         rightClickAddItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                /* Do something */
+                int selectedFeatureIndex = listingPanel.getSelectedIndex();
+                String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
+                String idByUser = JOptionPane.showInputDialog("Element Id");
+                
+                if(idByUser != null)
+                  addFeatureToMap(featName, idByUser);
             }
         });
     }
@@ -153,6 +172,7 @@ public class KmlImport extends ConsolePanel {
                         && !listingPanel.isSelectionEmpty()
                         && listingPanel.locationToIndex(me.getPoint())
                         == listingPanel.getSelectedIndex()) {
+                    listingPanel.getSelectedValue().setBackground(COLOR_SELECTED);
                     rightClickPopup.show(listingPanel, me.getX(), me.getY());
                 }
             }
@@ -223,6 +243,34 @@ public class KmlImport extends ConsolePanel {
         });
     }
 
+    private void addFeatureToMap(String featName, String idByUser) {
+        Placemark feature = kmlFeatures.get(featName);
+        String featGeom = feature.getGeometry().getClass().getSimpleName();
+        
+        if(featGeom.equals("Point")) {
+            Point point =(Point) ((Placemark) feature).getGeometry();
+            Coordinate coords = point.getCoordinates().get(0);
+            
+//            MapGroup.resetMissionInstance(getConsole().getMission());
+            MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
+            MarkElement kmlPoint = new MarkElement(mapType.getMapGroup(), mapType);
+            LocationType kmlPointLoc = new LocationType(coords.getLatitude(), coords.getLongitude());
+
+            kmlPoint.setId(idByUser);
+            kmlPoint.setCenterLocation(kmlPointLoc);
+            mapType.addObject(kmlPoint);
+
+        }
+        else if(featGeom.equals("LineString")) {
+            
+        }
+        else if(featGeom.equals("Polygon")) {
+            
+        }
+        
+        addedFeatures.add(featName);
+    }
+    
     private void cleanListing() {
         int nElements = listModel.getSize();
         if(nElements != 0)           
@@ -246,7 +294,11 @@ public class KmlImport extends ConsolePanel {
                 value.setForeground(list.getSelectionForeground());
             }
             else {
-                value.setBackground(list.getBackground());
+                if(!addedFeatures.contains(value.getText()))
+                    value.setBackground(list.getBackground());
+                else
+                    value.setBackground(COLOR_SELECTED);
+                
                 value.setForeground(list.getForeground());
             }        
             return value;
