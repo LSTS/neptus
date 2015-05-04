@@ -146,7 +146,7 @@ public class KmlImport extends ConsolePanel {
                 String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
                 String idByUser = JOptionPane.showInputDialog("Element Id");
                 
-                if(idByUser != null)
+                if(idByUser != null && !idByUser.equals(""))
                   addFeatureToMap(featName, idByUser);
             }
         });
