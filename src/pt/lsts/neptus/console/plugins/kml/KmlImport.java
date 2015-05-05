@@ -70,6 +70,7 @@ import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.util.ImageUtils;
+
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import de.micromata.opengis.kml.v_2_2_0.LineString;
@@ -252,10 +253,12 @@ public class KmlImport extends ConsolePanel {
         
         if(featGeom.equals("Point"))
             addPoint((Point)((Placemark) feature).getGeometry(), idByUser);
-        else if(featGeom.equals("LineString")) {
-        }
-        else if(featGeom.equals("Polygon")) {
-        }
+        
+        else if(featGeom.equals("LineString"))
+            addPathElement(feature, idByUser, false);
+        
+        else if(featGeom.equals("Polygon"))
+            addPathElement(feature, idByUser, true);
 
         
         addedFeatures.add(featName);
@@ -271,6 +274,44 @@ public class KmlImport extends ConsolePanel {
         kmlPoint.setId(idByUser);
         kmlPoint.setCenterLocation(kmlPointLoc);
         mapType.addObject(kmlPoint);
+    }
+    
+    private void addPathElement(Placemark feature,String idByUser, boolean isFilled) {
+        MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
+        List<Coordinate> coords = getPathCoordinates(feature, isFilled);       
+        
+        LocationType firstLoc = new LocationType(coords.get(0).getLatitude(), coords.get(0).getLongitude());
+        PathElement pathElem = new PathElement(mapType.getMapGroup(), mapType, firstLoc);
+        pathElem.addPoint(0, 0, 0, false);
+
+        /* add points to the path */
+        for(int i = 1; i < coords.size(); i++) {
+            Coordinate coord = coords.get(i);
+            LocationType elemLoc = new LocationType(coord.getLatitude(), coord.getLongitude());
+            
+            double offsets[] = elemLoc.getOffsetFrom(firstLoc);
+            pathElem.addPoint(offsets[1], offsets[0], offsets[2], false);
+        }    
+        
+        pathElem.setId(idByUser);
+        pathElem.setFill(isFilled);
+        pathElem.setShape(isFilled);
+        
+        mapType.addObject(pathElem);
+    }
+    
+    private List<Coordinate> getPathCoordinates(Placemark feature, boolean featureIsPolygon) {
+        List<Coordinate> coords;
+        
+        /* get coordinates of the LineStrings forming the polygon boundary */
+        if(featureIsPolygon) {
+            Polygon polyg = (Polygon)((Placemark) feature).getGeometry();
+            coords = polyg.getOuterBoundaryIs().getLinearRing().getCoordinates();
+        }
+        else
+            coords = ((LineString)((Placemark) feature).getGeometry()).getCoordinates();
+        
+        return coords;
     }
     
     private void cleanListing() {
