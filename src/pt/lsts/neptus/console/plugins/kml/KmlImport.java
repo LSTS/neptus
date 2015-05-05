@@ -232,7 +232,7 @@ public class KmlImport extends ConsolePanel {
         String iconUrl = "";
         
         if(fgeom.equals("Point"))
-            iconUrl = "pt/lsts/neptus/console/plugins/kml/icons/point.png";
+            iconUrl = "images/mark.png";
         else if(fgeom.equals("LineString"))
             iconUrl = "pt/lsts/neptus/plugins/map/interactions/draw-line.png";
         else if(fgeom.equals("Polygon"))
