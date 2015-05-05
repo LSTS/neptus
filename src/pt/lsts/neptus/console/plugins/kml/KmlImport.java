@@ -150,9 +150,9 @@ public class KmlImport extends ConsolePanel {
             public void actionPerformed(ActionEvent e) {
                 int selectedFeatureIndex = listingPanel.getSelectedIndex();
                 String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
-                String idByUser = JOptionPane.showInputDialog("Element Id");
+                String idByUser = JOptionPane.showInputDialog("Element Id", featName);
                 
-                if(idByUser != null && !idByUser.equals(""))
+                if(idByUser != null)
                   addFeatureToMap(featName, idByUser, false);
             }
         });
@@ -163,9 +163,9 @@ public class KmlImport extends ConsolePanel {
             public void actionPerformed(ActionEvent e) {
                 int selectedFeatureIndex = listingPanel.getSelectedIndex();
                 String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
-                String idByUser = JOptionPane.showInputDialog("Plan Id");
+                String idByUser = JOptionPane.showInputDialog("Plan Id", featName);
                 
-                if(idByUser != null && !idByUser.equals(""))
+                if(idByUser != null)
                   addFeatureToMap(featName, idByUser, true);
             }
         });
