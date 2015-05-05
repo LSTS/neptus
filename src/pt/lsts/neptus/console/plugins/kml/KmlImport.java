@@ -234,9 +234,9 @@ public class KmlImport extends ConsolePanel {
         if(fgeom.equals("Point"))
             iconUrl = "pt/lsts/neptus/console/plugins/kml/icons/point.png";
         else if(fgeom.equals("LineString"))
-            iconUrl = "pt/lsts/neptus/console/plugins/kml/icons/lnstr.png";
+            iconUrl = "pt/lsts/neptus/plugins/map/interactions/draw-line.png";
         else if(fgeom.equals("Point"))
-            iconUrl = "pt/lsts/neptus/console/plugins/kml/icons/polyg.png";
+            iconUrl = "pt/lsts/neptus/plugins/map/interactions/poly.png";
         
         feature.setName(fname);
         feature.setIcon(ImageUtils.getScaledIcon(iconUrl, 15, 15));        
@@ -367,6 +367,7 @@ public class KmlImport extends ConsolePanel {
         }
         mission.addPlan(plan);
         mission.save(false);
+        getConsole().warnMissionListeners();
     }
     
     private List<Coordinate> getPathCoordinates(Placemark feature, boolean featureIsPolygon) {
