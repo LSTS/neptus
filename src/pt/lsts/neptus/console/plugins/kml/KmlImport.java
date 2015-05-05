@@ -286,22 +286,22 @@ public class KmlImport extends ConsolePanel {
         String featGeom = featuresGeom.get(featName);
         
         if(featGeom.equals("Point"))
-            addPoint((Point)((Placemark) feature).getGeometry(), idByUser);
+            addAsPoint((Point)((Placemark) feature).getGeometry(), idByUser);
         
         else if(featGeom.equals("LineString"))
             if(!addAsPlan)
-                addPathElement(feature, idByUser, false);
+                addAsPathElement(feature, idByUser, false);
             else
                 addLineStringAsPlan(feature, idByUser);
         
         else if(featGeom.equals("Polygon"))
-            addPathElement(feature, idByUser, true);
+            addAsPathElement(feature, idByUser, true);
 
         
         addedFeatures.add(featName);
     }
     
-    private void addPoint(Point point, String idByUser) {
+    private void addAsPoint(Point point, String idByUser) {
         Coordinate coords = point.getCoordinates().get(0);
         
         MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
@@ -314,7 +314,7 @@ public class KmlImport extends ConsolePanel {
     }
     
     /* Add a LineString or Polygon as a Neptus PathElement */
-    private void addPathElement(Placemark feature, String idByUser, boolean isFilled) {
+    private void addAsPathElement(Placemark feature, String idByUser, boolean isFilled) {
         MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
         List<Coordinate> coords = getPathCoordinates(feature, isFilled);       
         
