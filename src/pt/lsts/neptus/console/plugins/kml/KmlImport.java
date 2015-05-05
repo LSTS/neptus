@@ -60,6 +60,8 @@ import javax.swing.SwingUtilities;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -69,8 +71,9 @@ import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.PathElement;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ImageUtils;
-
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import de.micromata.opengis.kml.v_2_2_0.LineString;
@@ -99,6 +102,7 @@ public class KmlImport extends ConsolePanel {
 
     private JPopupMenu rightClickPopup;
     private JMenuItem rightClickAddItem;
+    private JMenuItem rightClickAddAsPlan; /* add kml LineStrings as vehicles plans */
 
 
     private JList<JLabel> listingPanel; /* actual listing of kml features */
@@ -149,7 +153,20 @@ public class KmlImport extends ConsolePanel {
                 String idByUser = JOptionPane.showInputDialog("Element Id");
                 
                 if(idByUser != null && !idByUser.equals(""))
-                  addFeatureToMap(featName, idByUser);
+                  addFeatureToMap(featName, idByUser, false);
+            }
+        });
+        
+        rightClickAddAsPlan = new JMenuItem("Add as plan");
+        rightClickAddAsPlan.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedFeatureIndex = listingPanel.getSelectedIndex();
+                String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
+                String idByUser = JOptionPane.showInputDialog("Plan Id");
+                
+                if(idByUser != null && !idByUser.equals(""))
+                  addFeatureToMap(featName, idByUser, true);
             }
         });
     }
@@ -162,6 +179,18 @@ public class KmlImport extends ConsolePanel {
         listingPanel.setCellRenderer(new CustomListCellRenderer());
 
         listingPanel.addMouseListener(new MouseAdapter() {
+            private void addPopUpItems() {
+                rightClickPopup.removeAll();
+                rightClickPopup.add(rightClickAddItem);
+                
+                int selectedFeatureIndex = listingPanel.getSelectedIndex();
+                String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
+                String featGeom = featuresGeom.get(featName);
+                
+                if(featGeom.equals("LineString"))
+                    rightClickPopup.add(rightClickAddAsPlan);
+            }
+            
             public void mousePressed(MouseEvent e) {
                 showPopup(e);
             }
@@ -175,7 +204,9 @@ public class KmlImport extends ConsolePanel {
                         && !listingPanel.isSelectionEmpty()
                         && listingPanel.locationToIndex(me.getPoint())
                         == listingPanel.getSelectedIndex()) {
+                    
                     listingPanel.getSelectedValue().setBackground(COLOR_SELECTED);
+                    addPopUpItems();
                     rightClickPopup.show(listingPanel, me.getX(), me.getY());
                 }
             }
@@ -250,7 +281,7 @@ public class KmlImport extends ConsolePanel {
         });
     }
 
-    private void addFeatureToMap(String featName, String idByUser) {
+    private void addFeatureToMap(String featName, String idByUser, boolean addAsPlan) {
         Placemark feature = kmlFeatures.get(featName);
         String featGeom = featuresGeom.get(featName);
         
@@ -258,7 +289,10 @@ public class KmlImport extends ConsolePanel {
             addPoint((Point)((Placemark) feature).getGeometry(), idByUser);
         
         else if(featGeom.equals("LineString"))
-            addPathElement(feature, idByUser, false);
+            if(!addAsPlan)
+                addPathElement(feature, idByUser, false);
+            else
+                addLineStringAsPlan(feature, idByUser);
         
         else if(featGeom.equals("Polygon"))
             addPathElement(feature, idByUser, true);
@@ -279,7 +313,8 @@ public class KmlImport extends ConsolePanel {
         mapType.addObject(kmlPoint);
     }
     
-    private void addPathElement(Placemark feature,String idByUser, boolean isFilled) {
+    /* Add a LineString or Polygon as a Neptus PathElement */
+    private void addPathElement(Placemark feature, String idByUser, boolean isFilled) {
         MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];
         List<Coordinate> coords = getPathCoordinates(feature, isFilled);       
         
@@ -303,6 +338,37 @@ public class KmlImport extends ConsolePanel {
         mapType.addObject(pathElem);
     }
     
+    private void addLineStringAsPlan(Placemark lineString, String idByUser) {
+        MissionType mission = getConsole().getMission();
+        mission.save(false);
+        
+        String mainVehicle = getConsole().getMainSystem();
+        PlanType plan = new PlanType(mission);
+        
+        plan.setId(idByUser);
+        plan.setVehicle(mainVehicle);
+        
+        List<Coordinate> coords = getPathCoordinates(lineString, false);
+        int nManeuver = 0;
+        for (Coordinate coord : coords) {
+            nManeuver++;
+            
+            Goto maneuver = new Goto();
+            maneuver.setId("point " + nManeuver);
+            LocationType loc = new LocationType(coord.getLatitude(), coord.getLongitude());
+            ManeuverLocation mloc = new ManeuverLocation(loc);
+            mloc.setZUnits(ManeuverLocation.Z_UNITS.DEPTH);
+            mloc.setZ(0);
+            
+            maneuver.setSpeed(1.3);
+            maneuver.setSpeedUnits("m/s");
+            maneuver.setManeuverLocation(mloc);
+            plan.getGraph().addManeuverAtEnd(maneuver);
+        }
+        mission.addPlan(plan);
+        mission.save(false);
+    }
+    
     private List<Coordinate> getPathCoordinates(Placemark feature, boolean featureIsPolygon) {
         List<Coordinate> coords;
         
@@ -322,7 +388,6 @@ public class KmlImport extends ConsolePanel {
         if(nElements != 0)           
             listModel.removeAllElements();
     }
-
 
 
     private class CustomListCellRenderer implements ListCellRenderer<JLabel> {
