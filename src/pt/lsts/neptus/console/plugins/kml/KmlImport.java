@@ -235,7 +235,7 @@ public class KmlImport extends ConsolePanel {
             iconUrl = "pt/lsts/neptus/console/plugins/kml/icons/point.png";
         else if(fgeom.equals("LineString"))
             iconUrl = "pt/lsts/neptus/plugins/map/interactions/draw-line.png";
-        else if(fgeom.equals("Point"))
+        else if(fgeom.equals("Polygon"))
             iconUrl = "pt/lsts/neptus/plugins/map/interactions/poly.png";
         
         feature.setName(fname);
