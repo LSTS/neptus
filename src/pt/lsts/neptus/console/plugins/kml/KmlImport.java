@@ -213,10 +213,10 @@ public class KmlImport extends ConsolePanel {
         });
     }
 
-    private void listKmlFeatures(URL url) {
+    private void listKmlFeatures(URL url, boolean fromFile) {
         cleanListing();
 
-        KmlReader kml = new KmlReader(url, true);
+        KmlReader kml = new KmlReader(url, fromFile);
         kmlFeatures = kml.extractFeatures();
         featuresGeom = new TreeMap<>();
 
@@ -252,8 +252,8 @@ public class KmlImport extends ConsolePanel {
                     File selectedFile = fileChooser.getSelectedFile();
                     System.out.println("Selected file: " + selectedFile.getAbsolutePath());                 
                     try {
-                        URL fileUrl = new URL(selectedFile.getAbsolutePath().toString());
-                        listKmlFeatures(fileUrl);
+                        URL fileUrl = selectedFile.toURI().toURL();
+                        listKmlFeatures(fileUrl, true);
                     }
                     catch(MalformedURLException e1) {
                         e1.printStackTrace();
@@ -271,7 +271,7 @@ public class KmlImport extends ConsolePanel {
 
                     try {
                         kmlFeatUrl = urlStr;
-                        listKmlFeatures(new URL(urlStr));
+                        listKmlFeatures(new URL(urlStr), false);
                     }
                     catch(MalformedURLException e1) {
                         e1.printStackTrace();

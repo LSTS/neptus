@@ -54,7 +54,14 @@ public class KmlReader {
 
     protected Kml kml;
 
-    public KmlReader(URL url, boolean zipped) {
+    public KmlReader(URL url, boolean fromFile) {
+        boolean zipped;
+        
+        if(!fromFile)
+            zipped = true;
+        else
+            zipped = fileIsZipped(url);
+        
         try {
             if (!zipped)
                 kml = Kml.unmarshal( url.openStream());
@@ -71,6 +78,10 @@ public class KmlReader {
         catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    private boolean fileIsZipped(URL url) {
+        return url.getPath().toString().endsWith(".kmz");
     }
 
     public TreeMap<String, Placemark> extractFeatures() {       
@@ -123,7 +134,7 @@ public class KmlReader {
 
     public static void main(String[] args) throws Exception {
         //KmlBrowser browser = new KmlBrowser(new URL("file:///home/zp/Desktop/Douro/doc.kml"));
-        KmlReader browser = new KmlReader(new URL("https://www.google.com/maps/d/kml?mid=z4oHb_uriB5A.kLTuB2xlrlcc"), true);
+        KmlReader browser = new KmlReader(new URL("https://www.google.com/maps/d/kml?mid=z4oHb_uriB5A.kLTuB2xlrlcc"), false);
         browser.extractFeatures();
     }
 }
