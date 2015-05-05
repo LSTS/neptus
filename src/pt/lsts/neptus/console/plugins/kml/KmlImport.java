@@ -105,7 +105,8 @@ public class KmlImport extends ConsolePanel {
     private final DefaultListModel<JLabel> listModel = new DefaultListModel<>();
     private JFileChooser fileChooser;
 
-    private TreeMap<String, Placemark> kmlFeatures;
+    private TreeMap<String, Placemark> kmlFeatures; /* init in listKmlFeatures()*/
+    private TreeMap<String, String> featuresGeom; /* init in listKmlFeatures()*/
     private ArrayList<String> addedFeatures; /* features already added to the map */    
 
 
@@ -186,9 +187,11 @@ public class KmlImport extends ConsolePanel {
 
         KmlReader kml = new KmlReader(url, true);
         kmlFeatures = kml.extractFeatures();
+        featuresGeom = new TreeMap<>();
 
         for(String fname : kmlFeatures.keySet()) {
             String fgeom = kmlFeatures.get(fname).getGeometry().getClass().getSimpleName();
+            featuresGeom.put(fname, fgeom);
             listModel.addElement(getFeatureLabel(fname, fgeom));
         }
     }
@@ -249,7 +252,7 @@ public class KmlImport extends ConsolePanel {
 
     private void addFeatureToMap(String featName, String idByUser) {
         Placemark feature = kmlFeatures.get(featName);
-        String featGeom = feature.getGeometry().getClass().getSimpleName();
+        String featGeom = featuresGeom.get(featName);
         
         if(featGeom.equals("Point"))
             addPoint((Point)((Placemark) feature).getGeometry(), idByUser);
