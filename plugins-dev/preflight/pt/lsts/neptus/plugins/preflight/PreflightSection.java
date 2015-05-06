@@ -73,13 +73,7 @@ public class PreflightSection extends JPanel implements MainVehicleChangeListene
         add(Box.createVerticalStrut(2));
         add(sectionNamePanel);
         add(Box.createVerticalStrut(1));
-        buildChecksPanel();
         add(checksPanel);
-    }
-    
-    /* Build the panel that will contain the actual "checks" for this section */
-    protected void buildChecksPanel() {
-        
     }
     
     private void initSectionNamePanel(String sectionName) {
