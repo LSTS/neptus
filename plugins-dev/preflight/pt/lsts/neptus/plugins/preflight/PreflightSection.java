@@ -35,8 +35,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.Box;
@@ -59,7 +57,6 @@ public class PreflightSection extends JPanel implements MainVehicleChangeListene
     private JLabel sectionNameLabel;    
     protected JPanel checksPanel; /* Panel that contains the "values" and checks */
     protected final GridBagConstraints c = new GridBagConstraints();    
-    private boolean sectionIsMinimized;
     
     private ArrayList<PreflightCheck> checks;
     
@@ -71,9 +68,7 @@ public class PreflightSection extends JPanel implements MainVehicleChangeListene
         
         initSectionNamePanel(sectionName);
         initChecksPanel();
-        buildSectionNamePanel();
-        
-        sectionIsMinimized = false;
+        sectionNamePanel.add(sectionNameLabel, new GridBagConstraints());
         
         add(Box.createVerticalStrut(2));
         add(sectionNamePanel);
@@ -103,32 +98,6 @@ public class PreflightSection extends JPanel implements MainVehicleChangeListene
         checksPanel = new JPanel();
         checksPanel.setLayout(new BoxLayout(checksPanel, BoxLayout.Y_AXIS));
         checksPanel.setBackground(Color.WHITE);
-    }
-    
-    /* Build Panel that contains the name/description label of this section */
-    private void buildSectionNamePanel() {       
-        sectionNamePanel.add(sectionNameLabel, new GridBagConstraints());
-        sectionNamePanel.addMouseListener(new MouseListener() {        
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if(sectionIsMinimized)
-                    add(checksPanel);
-                else
-                    remove(checksPanel);
-                
-                sectionIsMinimized = !sectionIsMinimized;
-                revalidate();
-            }
-            
-            @Override
-            public void mousePressed(MouseEvent e) {}
-            @Override
-            public void mouseExited(MouseEvent e) {}
-            @Override
-            public void mouseEntered(MouseEvent e) {}
-            @Override
-            public void mouseClicked(MouseEvent e) {}
-        });
     }
     
     public void addNewCheckItem(PreflightCheck newItem) {
