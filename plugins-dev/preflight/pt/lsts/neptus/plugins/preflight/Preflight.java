@@ -57,10 +57,10 @@ import pt.lsts.neptus.plugins.preflight.utils.PreflightBuilder;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "Preflight", author = "tsmarques", version = "0.1")
-@Popup(name = "Preflight", pos = POSITION.CENTER, width = 550, height = 750)
+@Popup(name = "Preflight", pos = POSITION.CENTER, width = 550, height = 500)
 public class Preflight extends ConsolePanel {
     public static final int WIDTH = 550;
-    public static final int HEIGHT = 750;
+    public static final int HEIGHT = 500;
     public static final int MAX_COMPONENT_WIDTH = WIDTH - 20; /* Maximum child component width */
     
     public static ConsoleLayout CONSOLE;
