@@ -112,9 +112,6 @@ public abstract class PreflightCheck extends JPanel {
         else if(type.equals("Manual")) {
             addCheckBox();
         }
-        else if(type.equals("Info")) {
-            addValuesLabel();
-        }
     }
     
     public boolean isRegistered() {
