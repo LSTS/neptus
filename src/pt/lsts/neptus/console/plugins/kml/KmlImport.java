@@ -217,6 +217,10 @@ public class KmlImport extends ConsolePanel {
         cleanListing();
 
         KmlReader kml = new KmlReader(url, fromFile);
+        if(!kml.streamIsOpen) {
+            showErrorMessage("Stream could not be opened.");
+            return;
+        }
         kmlFeatures = kml.extractFeatures();
         featuresGeom = new TreeMap<>();
 
@@ -274,7 +278,7 @@ public class KmlImport extends ConsolePanel {
                         listKmlFeatures(new URL(urlStr), false);
                     }
                     catch(MalformedURLException e1) {
-                        e1.printStackTrace();
+                        showErrorMessage("URL not valid!");
                     }
                 }
             }
@@ -388,6 +392,13 @@ public class KmlImport extends ConsolePanel {
         int nElements = listModel.getSize();
         if(nElements != 0)           
             listModel.removeAllElements();
+    }
+    
+    private void showErrorMessage(String msg) {
+        JOptionPane.showMessageDialog(this,
+                msg,
+                "Inane error",
+                JOptionPane.ERROR_MESSAGE);
     }
 
 

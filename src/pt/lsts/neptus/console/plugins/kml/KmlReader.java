@@ -53,12 +53,13 @@ import de.micromata.opengis.kml.v_2_2_0.Placemark;
 public class KmlReader {
 
     protected Kml kml;
+    protected boolean streamIsOpen;
 
     public KmlReader(URL url, boolean fromFile) {
-        unmarshalStream(url, fromFile);
+        streamIsOpen = unmarshalStream(url, fromFile);
     }
     
-    private void unmarshalStream(URL url, boolean fromFile) {
+    private boolean unmarshalStream(URL url, boolean fromFile) {
         boolean zipped;
         
         if(!fromFile)
@@ -78,10 +79,15 @@ public class KmlReader {
                         break;
                     }
             }
+            
+            if(kml == null)
+                return false;
         }
         catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
+        return true;
     }
     
     private boolean fileIsZipped(URL url) {
