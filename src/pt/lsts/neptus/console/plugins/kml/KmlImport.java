@@ -90,8 +90,6 @@ import de.micromata.opengis.kml.v_2_2_0.Polygon;
 @LayerPriority(priority = 50)
 public class KmlImport extends ConsolePanel {
     private static final Color COLOR_SELECTED = new Color(200, 255, 200);
-    private static final int WIDTH = 230;
-    private static final int HEIGHT = 500;
 
     private JMenuBar menuBar;
     private JMenu openMenu;
