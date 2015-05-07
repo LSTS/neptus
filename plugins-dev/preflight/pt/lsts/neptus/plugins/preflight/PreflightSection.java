@@ -42,17 +42,12 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
-
 /**
  * @author tsmarques
  *
  */
 @SuppressWarnings("serial")
-public class PreflightSection extends JPanel implements MainVehicleChangeListener {
-    
-    protected String mainVehicle;
-    
+public class PreflightSection extends JPanel {
     private JPanel sectionNamePanel;
     private JLabel sectionNameLabel;    
     protected JPanel checksPanel; /* Panel that contains the "values" and checks */
@@ -101,11 +96,5 @@ public class PreflightSection extends JPanel implements MainVehicleChangeListene
     
     public ArrayList<PreflightCheck> getSectionChecks() {
         return checks;
-    }
-    
-    @Override
-    public void mainVehicleChange(String id) {
-        System.out.println("# MAIN VEHICLE CHANGE");
-        mainVehicle = id;  
     }
 }
