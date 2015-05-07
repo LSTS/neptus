@@ -251,8 +251,7 @@ public class KmlImport extends ConsolePanel {
             public void actionPerformed(ActionEvent e) {
                 int result = fileChooser.showOpenDialog(getParent());
                 if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    System.out.println("Selected file: " + selectedFile.getAbsolutePath());                 
+                    File selectedFile = fileChooser.getSelectedFile();                 
                     try {
                         URL fileUrl = selectedFile.toURI().toURL();
                         listKmlFeatures(fileUrl, true);
@@ -269,8 +268,6 @@ public class KmlImport extends ConsolePanel {
             public void actionPerformed(ActionEvent e) {               
                 String urlStr = JOptionPane.showInputDialog("Enter a URL", kmlFeatUrl);
                 if(urlStr != null && !urlStr.equals("")) {
-                    System.out.println("URL: " + urlStr);
-
                     try {
                         kmlFeatUrl = urlStr;
                         listKmlFeatures(new URL(urlStr), false);
