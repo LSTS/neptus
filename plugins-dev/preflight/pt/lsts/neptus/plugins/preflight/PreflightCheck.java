@@ -147,8 +147,6 @@ public abstract class PreflightCheck extends JPanel {
         
         if(newState == VALIDATED)
             color = COLOR_VALIDATED;
-        else if(newState == NOT_VALIDATED)
-            color = COLOR_NOT_VALIDATED;
         else if(newState == VALIDATED_WITH_WARNINGS)
             color = COLOR_VALIDATED_W_WARNINGS;
         
