@@ -55,6 +55,10 @@ public class KmlReader {
     protected Kml kml;
 
     public KmlReader(URL url, boolean fromFile) {
+        unmarshalStream(url, fromFile);
+    }
+    
+    private void unmarshalStream(URL url, boolean fromFile) {
         boolean zipped;
         
         if(!fromFile)
