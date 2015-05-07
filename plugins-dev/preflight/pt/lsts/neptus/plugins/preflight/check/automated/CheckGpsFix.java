@@ -60,22 +60,24 @@ public class CheckGpsFix extends AutomatedCheck {
         
         GpsFix.TYPE fixType = msg.getType();
         int fixValidity = msg.getValidity();
+        int nSat = msg.getSatellites();
+        String nSatStr = "(" + nSat + ")";
 
         if (fixType == TYPE.DEAD_RECKONING) {
             setState(NOT_VALIDATED);
-            setValuesLabelText(GPS_NO_FIX);
+            setValuesLabelText(GPS_NO_FIX + nSatStr);
         }
         else if (fixType == TYPE.STANDALONE) {
             setState(VALIDATED_WITH_WARNINGS);
-            setValuesLabelText(GPS_2D);
+            setValuesLabelText(GPS_2D + nSatStr);
             if ((fixValidity & GpsFix.GFV_VALID_VDOP) != 0) {
                 setState(VALIDATED);
-                setValuesLabelText(GPS_3D);
+                setValuesLabelText(GPS_3D + nSatStr);
             }
         }
         else if (fixType == TYPE.DIFFERENTIAL) {
             setState(VALIDATED);
-            setValuesLabelText(GPS_DIFF);
+            setValuesLabelText(GPS_DIFF + nSatStr);
         }
     }
        
