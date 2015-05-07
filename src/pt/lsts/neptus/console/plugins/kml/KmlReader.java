@@ -98,12 +98,9 @@ public class KmlReader {
         List<Placemark> features = listPlacemarks("", kml.getFeature());
         TreeMap<String, Placemark> f = new TreeMap<>();
 
-        System.out.println(kml.getFeature().getName());
-
         for (Placemark pm : features) {
             String featureName = parseFeatureName(pm);
             f.put(featureName, pm);
-            System.out.println(pm.getName()+", "+pm.getGeometry());
         }
 
         return f;
@@ -143,7 +140,6 @@ public class KmlReader {
     }   
 
     public static void main(String[] args) throws Exception {
-        //KmlBrowser browser = new KmlBrowser(new URL("file:///home/zp/Desktop/Douro/doc.kml"));
         KmlReader browser = new KmlReader(new URL("https://www.google.com/maps/d/kml?mid=z4oHb_uriB5A.kLTuB2xlrlcc"), false);
         browser.extractFeatures();
     }
