@@ -36,6 +36,7 @@ import java.math.RoundingMode;
 
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.Voltage;
 import pt.lsts.neptus.plugins.preflight.check.WithinRangeCheck;
 
@@ -46,6 +47,8 @@ import pt.lsts.neptus.plugins.preflight.check.WithinRangeCheck;
 public class CheckVoltage extends WithinRangeCheck {
     private double minVal = Double.MIN_VALUE;
     private double maxVal = Double.MAX_VALUE;
+    
+    private double batteryPerc = -1;
     
     public CheckVoltage() {
         super("Voltage", "System");
@@ -79,7 +82,21 @@ public class CheckVoltage extends WithinRangeCheck {
             setState(NOT_VALIDATED);
         BigDecimal bd = new BigDecimal(voltage);
         bd = bd.setScale(1, RoundingMode.HALF_UP);
-        setValuesLabelText(bd.doubleValue() + " V");
+        
+        String displayMsg = bd.doubleValue() + "V";
+        
+        if(batteryPerc != -1)
+            displayMsg += " (" + batteryPerc + "%)";
+        
+        setValuesLabelText(displayMsg);
+    }
+    
+    @Subscribe
+    public void on(FuelLevel msg) {
+        if(!messageFromMainVehicle(msg.getSourceName()))
+            return;
+        
+        batteryPerc = msg.getValue();
     }
     
     @Override
