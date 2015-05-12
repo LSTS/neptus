@@ -435,7 +435,7 @@ public class IMCUtils {
             msgBeaconSetup.setValue("lon", absLoc.getLongitudeRads());
             msgBeaconSetup.setValue("depth",absLoc.getDepth());
 
-            int queryChannel = 0, replyChannel = 0, transponderDelay = 0, id;
+            int id = 0;
             PropertiesLoader propConf = transp.getPropConf();
             if (propConf == null) {
                 GuiUtils.errorMessage(ConfigFetch.getSuperParentAsFrame(), "Send transponders",
@@ -443,14 +443,8 @@ public class IMCUtils {
                 return null;
             }
             String propId = propConf.getProperty("id");
-            String prop1 = propConf.getProperty("interrogation channel");
-            String prop2 = propConf.getProperty("reply channel");
-            String prop3 = propConf.getProperty("transponder delay (msecs.)");
             try {
                 id = (int) Double.parseDouble(propId);
-                queryChannel = (int) Double.parseDouble(prop1);
-                replyChannel = (int) Double.parseDouble(prop2);
-                transponderDelay = (int) Double.parseDouble(prop3);
             }
             catch (NumberFormatException e2) {
                 GuiUtils.errorMessage(ConfigFetch.getSuperParentAsFrame(), "Send transponders",
@@ -461,9 +455,10 @@ public class IMCUtils {
 
             msgBeaconSetup.setValue("id", id);
 
-            msgBeaconSetup.setValue("query_channel", queryChannel);
-            msgBeaconSetup.setValue("reply_channel", replyChannel);
-            msgBeaconSetup.setValue("transponder_delay", transponderDelay);
+            // Obsolete fields.
+            msgBeaconSetup.setValue("query_channel", 0);
+            msgBeaconSetup.setValue("reply_channel", 0);
+            msgBeaconSetup.setValue("transponder_delay", 0);
 
             msgs.add(msgBeaconSetup);
 
@@ -954,20 +949,14 @@ public class IMCUtils {
             TransponderElement transp = transpondersList.get(i);
             LocationType absLoc = transp.getCenterLocation().getNewAbsoluteLatLonDepth();
             try {
-                // int id = (int) Double.parseDouble(transp.getPropConf().getProperty("id"));
-                int queryChannel = (int) Double.parseDouble(transp.getPropConf().getProperty("interrogation channel"));
-                int replyChannel = (int) Double.parseDouble(transp.getPropConf().getProperty("reply channel"));
-                int transpDelay = (int) Double.parseDouble(transp.getPropConf().getProperty(
-                        "transponder delay (msecs.)"));
-
                 IMCMessage lblBeacon = IMCDefinition.getInstance().create("LblBeacon",
                         "beacon", transp.getId(),
                         "lat", absLoc.getLatitudeRads(),
                         "lon", absLoc.getLongitudeRads(),
                         "depth", absLoc.getDepth(),
-                        "query_channel", queryChannel,
-                        "reply_channel", replyChannel,
-                        "transponder_delay", transpDelay
+                        "query_channel", 0,  // Obsolete.
+                        "reply_channel", 0,  // Obsolete.
+                        "transponder_delay"  // Obsolete.
                         );
 
                 beaconMessages.add(lblBeacon);
