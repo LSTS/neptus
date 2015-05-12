@@ -453,7 +453,7 @@ public class CoordinateSystem extends LocationType { //implements XmlOutputMetho
             origin.addElement("zenith").addText(String.valueOf(getZenith()));
         }
 
-        if (!((getOffsetNorth() == 0) & (getOffsetEast() == 0) & (getOffsetUp() == 0))) {
+        if (!((getOffsetNorth() == 0) && (getOffsetEast() == 0) && (getOffsetUp() == 0))) {
             if (isOffsetNorthUsed())
                 origin.addElement("offset-north").addText(String.valueOf(getOffsetNorth()));
             else
