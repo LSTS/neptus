@@ -32,11 +32,8 @@
 package pt.lsts.neptus.mra.api;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.jsf.JsfSidescanParser;
 import pt.lsts.neptus.mra.importers.sdf.SdfSidescanParser;
@@ -88,15 +85,6 @@ public class SidescanParserFactory {
         return false;
     }
 
-    private static FilenameFilter SDFFilter() {
-        FilenameFilter sdfFilter = new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".sdf");
-            }
-        };
-        return sdfFilter;
-    }
-
     private static int countSDFFiles(IMraLogGroup log) {
         FilenameFilter sdfFilter = SDFFilter();
         File[] files = log.getDir().listFiles(sdfFilter);
@@ -112,7 +100,8 @@ public class SidescanParserFactory {
             file = new File(dir.getAbsolutePath()+"/"+JSF_FILE);
             if(file.exists()) {
                 return new JsfSidescanParser(file);
-            } else {
+            } 
+            else {
                     FilenameFilter sdfFilter = SDFFilter();
                     File[] files = source.getDir().listFiles(sdfFilter);
                     if (files.length == 1)
@@ -134,5 +123,14 @@ public class SidescanParserFactory {
             }
         }
         return null;
+    }
+    
+    private static FilenameFilter SDFFilter() {
+        FilenameFilter sdfFilter = new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".sdf"); // Possibly test if it starts with "Data"
+            }
+        };
+        return sdfFilter;
     }
 }
