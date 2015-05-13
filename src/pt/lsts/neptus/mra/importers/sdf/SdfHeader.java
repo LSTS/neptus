@@ -1159,14 +1159,14 @@ public class SdfHeader {
        // setFixTimeMinute(buffer.getInt(104));
        // setFixTimeSecond(buffer.getFloat(108));
 
-        setFishHeading(buffer.getFloat(112));
+        //setFishHeading(buffer.getFloat(112));
         setPitch(buffer.getFloat(116));
         setRoll(buffer.getFloat(120));
         setDepth(buffer.getFloat(124));
         setAltitude(buffer.getFloat(128));
         setTemperature(buffer.getFloat(132));
 //        setSpeed(buffer.getFloat(136));
-//        setShipHeading(buffer.getFloat(140));
+        setShipHeading(buffer.getFloat(140));
 //        setMagneticVariation(buffer.getFloat(144));
         setShipLat(buffer.getDouble(148));
         setShipLon(buffer.getDouble(156));
