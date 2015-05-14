@@ -94,13 +94,15 @@ public class CSVBathymetryExporter implements MRAExporter {
         if (!canBeApplied(source))
             return "No data to process!";
         
-        File f = new File(source.getFile("Data.lsf").getParent() + "/mra/bathy.info");
         File folder = new File(source.getFile("Data.lsf").getParent() + "/mra/");
 
         if (!folder.exists())
             folder.mkdirs();
 
-        processResultOutputFileName = folder.getAbsolutePath() + "/bathymetry-process.csv";
+        // To include plan name and timestamp in the csv file name
+        String parentFolderAbsolutePath = source.getFile("Data.lsf").getParent();
+        String parentFolder = parentFolderAbsolutePath.substring(parentFolderAbsolutePath.lastIndexOf('/') + 1);
+        processResultOutputFileName = folder.getAbsolutePath() + "/"+parentFolder+"-bathymetry-process.csv";
         boolean fileChecker = initResultOutputFile();
         if (!fileChecker) {
             pmonitor.setNote("Shit Sherlock");
