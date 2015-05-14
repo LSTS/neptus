@@ -44,6 +44,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Date;
 
 import javax.swing.ProgressMonitor;
 
@@ -57,6 +58,7 @@ import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 
 /**
@@ -110,42 +112,58 @@ public class CSVBathymetryExporter implements MRAExporter {
         if (pmonitor != null)
             pmonitor.setNote(I18n.text("Copying file"));
         
-        
-        
         deltaParser = new DeltaTParser(source);
         
         BathymetrySwath nextSwath = null; 
-        
+        recordMsg("%Time UTC,Latitude Degrees,Longitude Degrees,Roll Radians,Pitch Radians,Yaw Radians, Number of data elem, (X-Offset Y-Offset Heights Meters)* \n");
+        long previousTimeStamp = 0;
         try {
             nextSwath = deltaParser.nextSwath();
             while (nextSwath != null) {
-                // 33-46    -   GNSS Ships Positon Latitude (14 bytes) "_dd.mm.xxxxx_N" dd = degrees, mm = minutes, xxxxx = decimal Minutes, _ = Space, N = North or S = South
-                // 47-60    -   GNSS Ships Postion Longitude (14 byes) "ddd.mm.xxxxx_E" ddd= degrees, mm = minutes, xxxxx = decimal minutes, E = East or W = West
-                // position e orientation of vehicle
-                nextSwath.getPose();
-                // timestamp
-                //long nextSwathTimeStamp = nextSwath.getTimestamp();
-                // offset
-                //float allo = nextSwath.getData()[0].east;
-                // height
-                //float allo1 = nextSwath.getData()[0].depth;
-                
-                for (int i = 0; i < nextSwath.getData().length; i++) {
-                    recordMsg("lat:" + nextSwath.getPose().getPosition().getLatitudeDegs()); 
-                }               
-                           
+            
+                long timeInSeconds = (long) (nextSwath.getTimestamp() / 1000);
+                // Only one beam array for second
+                if (previousTimeStamp == 0 || previousTimeStamp != timeInSeconds) {
+
+                    // Timestamp
+                    recordMsg(timeInSeconds * 1000+",");
+                    // Position in degrees
+                    recordMsg(nextSwath.getPose().getPosition().getLatitudeDegs()+",");
+                    recordMsg(nextSwath.getPose().getPosition().getLongitudeDegs()+",");
+                    // Attitude in radians
+                    recordMsg(nextSwath.getPose().getRoll()+",");
+                    recordMsg(nextSwath.getPose().getPitch()+",");
+                    recordMsg(nextSwath.getPose().getYaw()+",");
+                    // Number of beams
+                    recordMsg(nextSwath.getData().length+",");
+                    for (int i = 0; i < nextSwath.getData().length; i++) {
+                        if (nextSwath.getData()[i] != null) {
+                            // Beam x offset
+                            recordMsg(nextSwath.getData()[i].north+" ");
+                            // Beam y offset
+                            recordMsg(nextSwath.getData()[i].east+" ");
+                            // Beam Height
+                            recordMsg(nextSwath.getData()[i].depth+",");
+                        }
+                        else
+                            recordMsg("NaN NaN NaN,");
+                    } 
+                    recordMsgln("");
+                    
+                    previousTimeStamp = timeInSeconds;
+                }                          
 
                 nextSwath = deltaParser.nextSwath();
                 
                 if (pmonitor != null && pmonitor.isCanceled())
-                    return "Export to 83P interrupted!";
+                    return "Export interrupted!";
             }
             
-            return "Export to 83P completed successfully";
+            return "Export completed successfully";
         }
         catch (Exception e) {
             e.printStackTrace();
-            return "Export to 83P completed with errors! (" + e.getMessage() + ")";
+            return "Export completed with errors! (" + e.getMessage() + ")";
         }
         finally {
             cleanupResultOutputFile();
@@ -196,7 +214,6 @@ public class CSVBathymetryExporter implements MRAExporter {
     }
 
     private void recordMsg(String string) {
-//        System.out.println(string);
         if (processResultOutputWriter != null) {
             try {
                 processResultOutputWriter.write(string);
