@@ -33,6 +33,8 @@ package com.inovaworks;
 
 import java.util.ArrayList;
 
+import com.inovaworks.Observation.Procedure.ObservationTypeEnum;
+
 import pt.lsts.imc.Conductivity;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.Salinity;
@@ -56,6 +58,7 @@ public class ObservationFactory {
         
         o.procedure.sensor = "EstimatedState";
         o.procedure.sensorHumanName = "DUNE Estimated State";
+        o.procedure.type = ObservationTypeEnum.reading.toString();
         
         o.featureOfInterest.id = state.getSourceName();
         
