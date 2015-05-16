@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -59,6 +59,10 @@ import javax.swing.ImageIcon;
 
 import pt.lsts.neptus.NeptusLog;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifSubIFDDescriptor;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.jhlabs.image.ContrastFilter;
 
 /**
@@ -515,6 +519,12 @@ public class ImageUtils {
             NeptusLog.waste().debug("[ImageLoader] Loading image " + location + " failed");
             return null;
         }
+    }
+    
+    public static String readExifComment(File jpegFile) throws Exception {
+        Metadata metadata = ImageMetadataReader.readMetadata(jpegFile);
+        ExifSubIFDDescriptor descriptor = new ExifSubIFDDescriptor(metadata.getDirectory(ExifSubIFDDirectory.class));
+        return descriptor.getUserCommentDescription();
     }
     
     public static ImageIcon createScaleImageIcon(String path, int width, int height ) {

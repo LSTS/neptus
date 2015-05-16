@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -706,8 +706,8 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                     if (editableInfo) {
                         EditorLauncher ed = new EditorLauncher();
                         short edType;
-                        if ("xml".equals(fxTypeValue.getText()) | "xslt".equals(fxTypeValue.getText())
-                                | "xsl".equals(fxTypeValue.getText()))
+                        if ("xml".equals(fxTypeValue.getText()) || "xslt".equals(fxTypeValue.getText())
+                                || "xsl".equals(fxTypeValue.getText()))
                             edType = ed.XML_EDITOR_TYPE;
                         else
                             edType = ed.TEXT_EDITOR_TYPE;

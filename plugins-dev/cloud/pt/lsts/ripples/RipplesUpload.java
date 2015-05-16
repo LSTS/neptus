@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -51,6 +51,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.CheckMenuChangeListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -59,6 +60,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 import com.firebase.client.Firebase;
 import com.google.common.eventbus.Subscribe;
@@ -178,7 +180,11 @@ public class RipplesUpload extends ConsolePanel {
             copy.putAll(toSend);
             toSend.clear();
         }
-
+        
+        SystemPositionAndAttitude mine = new SystemPositionAndAttitude(MyState.getLocation(), 0, 0, 0);
+        mine.setTime(System.currentTimeMillis());
+        copy.put(GeneralPreferences.imcCcuName, mine);
+        
         for (Entry<String, SystemPositionAndAttitude> state : copy.entrySet()) {
             Map<String, Object> assetState = new LinkedHashMap<String, Object>();
             Map<String, Object> tmp = new LinkedHashMap<String, Object>();
@@ -190,8 +196,12 @@ public class RipplesUpload extends ConsolePanel {
             tmp.put("depth", state.getValue().getV());
             assetState.put("position", tmp);
             assetState.put("updated_at", state.getValue().getTime());
-            assetState.put("type",
-                    IMCUtils.getSystemType(IMCDefinition.getInstance().getResolver().resolve(state.getKey())));
+            if (state.getKey().equals(GeneralPreferences.imcCcuName))
+                assetState.put("type", "CCU");            
+            else
+                assetState.put("type",
+                        IMCUtils.getSystemType(IMCDefinition.getInstance().getResolver().resolve(state.getKey())));
+            
             synchronized (firebase) {
                 if (firebase != null) {
                     firebase.child("assets/" + state.getKey()).getRef().updateChildren(assetState);

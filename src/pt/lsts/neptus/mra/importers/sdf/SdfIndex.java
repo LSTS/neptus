@@ -15,7 +15,7 @@
  *
  * European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -26,16 +26,34 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: 
- * 20??/??/??
+ * Author: Manuel R.
+ * Oct 21, 2014
  */
-package pt.lsts.neptus.gps;
+package pt.lsts.neptus.mra.importers.sdf;
 
-public interface GPSListener {
-	/**
-	 * Every time the GPS has a new state, this method is invoked
-	 * @param oldState The last state that was read
-	 * @param newState The new state being reported
-	 */
-	public void GPSStateChanged(GPSState oldState, GPSState newState);
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+
+public class SdfIndex implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    long firstTimestampHigh = -1;
+    long lastTimestampHigh = -1;
+    
+    long firstTimestampLow = -1;
+    long lastTimestampLow = -1;
+
+    long numberOfPackets = -1;
+    
+    boolean hasHigh = false;
+    boolean hasLow = false;
+    
+    LinkedHashMap<Long, ArrayList<Long>> positionMapHigh = new LinkedHashMap<Long, ArrayList<Long>>();
+    LinkedHashMap<Long, ArrayList<Long>> positionMapLow = new LinkedHashMap<Long, ArrayList<Long>>();
+    
+    ArrayList<Integer> frequenciesList = new ArrayList<Integer>();
+    ArrayList<Integer> subSystemsList = new ArrayList<Integer>();
+    
 }
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -510,7 +510,7 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
         loiter.setLat(loc.getLatitudeRads());
         loiter.setLon(loc.getLongitudeRads());
         loiter.setZ(getManeuverLocation().getZ());
-        loiter.setZUnits((short)getManeuverLocation().getZUnits().value());
+        loiter.setZUnits(pt.lsts.imc.Loiter.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
         loiter.setSpeed(this.getSpeed());
         loiter.setDuration(getLoiterDuration());
        

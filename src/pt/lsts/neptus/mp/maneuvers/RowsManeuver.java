@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -637,7 +637,7 @@ IMCSerialization, StatisticsProvider, PathProvider {
         man.setLat(latRad);
         man.setLon(lonRad);
         man.setZ(z);
-        man.setZUnits(zunits.toString());
+        man.setZUnits(pt.lsts.imc.Rows.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));        
         man.setSpeed(speed);
         man.setWidth(width);
         man.setLength(length);

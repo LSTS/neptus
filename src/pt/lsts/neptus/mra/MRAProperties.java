@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -92,6 +92,9 @@ public class MRAProperties implements PropertiesProvider {
 
     @NeptusProperty(name = "Apply Sound Speed Correction", description = "Apply sound speed correction.", category = "Multibeam")
     public static boolean soundSpeedCorrection = false;
+
+    @NeptusProperty(name = "Generate DeltaT Process Report", description = "Generate DeltaT process report. Does not geberate if already exist the report or the bathy.info is present.", category = "Multibeam")
+    public static boolean generateDeltaTProcessReport = false;
 
     @NeptusProperty(name = "Maximum depth for bathymetry plots", description = "Maximum depth to be used in bathymetry plots.")
     public static double maxBathymDepth = 15;

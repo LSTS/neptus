@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -392,7 +392,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 		gotoManeuver.setLat(l.getLatitudeRads());
 		gotoManeuver.setLon(l.getLongitudeRads());
 		gotoManeuver.setZ(getManeuverLocation().getZ());
-		gotoManeuver.setZUnits((short)getManeuverLocation().getZUnits().value());
+		gotoManeuver.setZUnits(pt.lsts.imc.Goto.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
 		gotoManeuver.setSpeed(this.getSpeed());
        
 		switch (this.getUnits()) {

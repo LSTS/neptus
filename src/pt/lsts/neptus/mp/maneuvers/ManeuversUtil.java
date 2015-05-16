@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -39,6 +39,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 import pt.lsts.neptus.NeptusLog;
@@ -248,7 +249,7 @@ public class ManeuversUtil {
      * @param paintSSRange
      * @param sRange
      */
-    public static void paintPointLineList(Graphics2D g2d, double zoom, Vector<double[]> points,
+    public static void paintPointLineList(Graphics2D g2d, double zoom, List<double[]> points,
             boolean paintSSRange, double sRange) {
         paintPointLineList(g2d, zoom, points, paintSSRange, sRange, false);
     }
@@ -262,7 +263,7 @@ public class ManeuversUtil {
      * @param sRange
      * @param editMode
      */
-    public static void paintPointLineList(Graphics2D g2d, double zoom, Vector<double[]> points,
+    public static void paintPointLineList(Graphics2D g2d, double zoom, List<double[]> points,
             boolean paintSSRange, double sRange, boolean editMode) {
         double[] pointI, pointF, pointN;
         

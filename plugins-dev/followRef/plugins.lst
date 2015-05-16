@@ -7,3 +7,4 @@
 
 pt.lsts.neptus.plugins.followref.FollowReferenceInteraction
 pt.lsts.neptus.plugins.followref.FollowReferenceControl
+pt.lsts.neptus.plugins.followref.LowLevelControl

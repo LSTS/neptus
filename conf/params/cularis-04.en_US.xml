@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.0 (HEAD,660f19f)" system="cularis-04" i18n="en_US">
+<config format="1" version="2.6.1 (HEAD,0c854de)" system="cularis-04" i18n="en_US">
   <section name="Autopilot" name-i18n="Autopilot">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -2241,7 +2241,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AngularVelocity, AutopilotMode, ControlLoops, CpuUsage, Current, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, Rpm, RSSI, SetControlSurfaceDeflection, SetThrusterActuation, SimulatedState, StopManeuver, StorageUsage, Temperature, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, VehicleCommand, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, AngularVelocity, Announce, AutopilotMode, ControlLoops, CpuUsage, Current, DesiredHeading, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityState, EstimatedState, EstimatedStreamVelocity, FollowReference, FollowRefState, FuelLevel, GpsFix, IndicatedSpeed, LeaderState, LinkLevel, LogBookEntry, MagneticField, ManeuverControlState, PathControlState, PlanControl, PlanSpecification, PlanControlState, PlanDB, PowerChannelControl, Pressure, Reference, Rpm, RSSI, SetControlSurfaceDeflection, SetThrusterActuation, SimulatedState, StopManeuver, StorageUsage, Temperature, TrueSpeed, TrexObservation, TrexPlan, TrexToken, TrueSpeed, VehicleCommand, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc/>
     </param>
@@ -2474,7 +2474,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Acceleration, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default>
+      <default>Acceleration, AngularVelocity, AutopilotMode, CpuUsage, Current, DesiredPath, DesiredRoll, DesiredSpeed, DesiredVerticalRate, DesiredZ, EntityList, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, FollowRefState, FuelLevel, GpsFix, Heartbeat, IndicatedSpeed, LeaderState, LinkLevel, LogBookControl, LoggingControl, MagneticField, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PowerChannelControl, Pressure, QueryEntityParameters, RemoteActionsRequest, Rpm, RSSI, SaveEntityParameters, SetEntityParameters, SetServoPosition, SimulatedState, StorageUsage, Target, Temperature, TrexOperation, TrueSpeed, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

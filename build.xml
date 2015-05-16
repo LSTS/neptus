@@ -2,7 +2,7 @@
 <!-- ===================================================================
    Build file for Neptus
 
-Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
 Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
 All rights reserved.
 Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -34,7 +34,7 @@ Authors:
   José Pinto <zepinto@fe.up.pt>
 
 Copyright:
-  (c) 2004-2014 FEUP-LSTS, Neptus Team.
+  (c) FEUP-LSTS, Neptus Team.
 ==================================================================== -->
 <?xml-stylesheet type="text/xsl" href="ant2html.xsl"?>
 <project name="Neptus" default="default" basedir=".">
@@ -74,7 +74,7 @@ For simple use the main targets are:
 
 	<property name="name" value="neptus" />
 	<property name="Name" value="Neptus" />
-	<property name="years" value="2004-2014" />
+	<property name="years" value="2004-2015" />
 	<property name="legal.copy" value="(c)${years} LSTS-FEUP and Neptus developers. All Rights Reserved."/>
 	<property name="legal.copy.html" value="Copyright &#169; ${years} FEUP-LSTS and Neptus developers. All Rights Reserved."/>
 
@@ -82,8 +82,8 @@ For simple use the main targets are:
 	<property name="build.compiler" value="modern" />
 	<property name="debug" value="on" />
 	<property name="deprecation" value="off" />
-	<property name="compile-source" value="1.7" />
-	<property name="compile-target" value="1.7" />
+	<property name="compile-source" value="1.8" />
+	<property name="compile-target" value="1.8" />
 	<property name="compile-encoding" value="UTF-8" />
 	<!--property name="extra-compile-args" value="-Xlint:unchecked"/-->
 	<property name="extra-compile-args" value="" />
@@ -1491,7 +1491,14 @@ For simple use the main targets are:
 	</target>
 
 	<!-- Travis-CI test target -->
-	<target name="test" depends="default, junit, distribution-full-all-os, distribution-full-windows">
+	<target name="test">
+	    <property name="extra-compile-args" value="-Xlint"/>
+	    <antcall target="test-worker">
+			<param name="extra-compile-args" value="-Xlint"/>
+		</antcall>
+	</target>
+	
+	<target name="test-worker" depends="default, junit, distribution-full-all-os, distribution-full-windows">
 	</target>
 	
 	<!-- =================================================================== -->
@@ -1807,19 +1814,19 @@ For simple use the main targets are:
 		<condition property="exclude-linux" value=",**/*.dll,**/*.exe,**/*.bat" else="">
 			<contains string="${jre-os}" substring="linux" casesensitive="false" />
 		</condition>
-		<condition property="copy-laucher-bat" value="true">
+		<condition property="copy-launcher-bat" value="true">
 			<or>
 				<contains string="${jre-os}" substring="all" casesensitive="false" />
 				<contains string="${jre-os}" substring="windows" casesensitive="false" />
 			</or>
 		</condition>
-		<condition property="copy-laucher-sh" value="true">
+		<condition property="copy-launcher-sh" value="true">
 			<or>
 				<contains string="${jre-os}" substring="all" casesensitive="false" />
 				<contains string="${jre-os}" substring="linux" casesensitive="false" />
 			</or>
 		</condition>
-		<condition property="copy-laucher-exe" value="true">
+		<condition property="copy-launcher-exe" value="true">
 			<or>
 				<contains string="${jre-os}" substring="all" casesensitive="false" />
 				<contains string="${jre-os}" substring="windows" casesensitive="false" />
@@ -1834,24 +1841,24 @@ For simple use the main targets are:
 			</fileset>
 		</copy>
 		<copy file="${src.dir}/images/neptus-icon2.png" tofile="${dist.tmp.dir}/neptus.png" preservelastmodified="true" />
-		<antcall target="copy-laucher-bat.worker" />
-		<antcall target="copy-laucher-sh.worker" />
-		<antcall target="copy-laucher-exe.worker" />
+		<antcall target="copy-launcher-bat.worker" />
+		<antcall target="copy-launcher-sh.worker" />
+		<antcall target="copy-launcher-exe.worker" />
 		<copy file="${scm.info.file}" tofile="${dist.tmp.dir}/conf/version"
 				overwrite="yes" failonerror="false" preservelastmodified="true">
 		</copy>
 	</target>
-	<target name="copy-laucher-bat.worker" if="copy-laucher-bat">
+	<target name="copy-launcher-bat.worker" if="copy-launcher-bat">
 		<copy file="${nsis_src.dir}/batch_files/${sh-bash-basename}.bat" tofile="${dist.tmp.dir}/neptus.bat" 
 				overwrite="yes" failonerror="yes" preservelastmodified="true">
 		</copy>
 	</target>
-	<target name="copy-laucher-sh.worker" if="copy-laucher-sh">
+	<target name="copy-launcher-sh.worker" if="copy-launcher-sh">
 		<copy file="${nsis_src.dir}/batch_files/${sh-bash-basename}.sh" tofile="${dist.tmp.dir}/neptus.sh" 
 				overwrite="yes" failonerror="yes" preservelastmodified="true">
 		</copy>
 	</target>
-	<target name="copy-laucher-exe.worker" if="copy-laucher-exe">
+	<target name="copy-launcher-exe.worker" if="copy-launcher-exe">
 		<copy file="neptus.exe" todir="${dist.tmp.dir}" 
 				overwrite="yes" failonerror="yes" preservelastmodified="true">
 		</copy>

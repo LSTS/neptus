@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -335,7 +335,7 @@ public class MRAPanel extends JPanel {
     public void synchVisualizations(LogMarker marker) {
         for (MRAVisualization v : visualizationList.values()) {
             if (v instanceof LogMarkerListener)
-                ((LogMarkerListener) v).GotoMarker(marker);
+                ((LogMarkerListener) v).goToMarker(marker);
         }
     }
 

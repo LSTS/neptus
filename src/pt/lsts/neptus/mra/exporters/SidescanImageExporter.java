@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -80,10 +80,18 @@ public class SidescanImageExporter implements MRAExporter {
     @NeptusProperty
     public int hudSize = 250;
     
+    @NeptusProperty
+    public boolean showHud = true;
+    
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
         parser = SidescanParserFactory.build(source);
-        return parser != null && !parser.getSubsystemList().isEmpty();
+        boolean canBeApplied = (parser != null && !parser.getSubsystemList().isEmpty());
+        if (canBeApplied) {
+            parser.cleanup();
+            parser = null;
+        }
+        return canBeApplied;
     }
     
     public SidescanImageExporter(IMraLogGroup source) {
@@ -92,6 +100,7 @@ public class SidescanImageExporter implements MRAExporter {
     
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
+        parser = SidescanParserFactory.build(source);
         PluginUtils.editPluginProperties(this, true);
         MraVehiclePosHud hud = new MraVehiclePosHud(source, hudSize, hudSize);
         hud.setPathColor(Color.white);
@@ -121,17 +130,14 @@ public class SidescanImageExporter implements MRAExporter {
         BufferedImage img = null;
         int width = imageWidth, height = 1000;
         double startTime = start / 1000.0, endTime;
+        
         for (long time = start; time < end - 1000; time += 1000) {
             if (pmonitor.isCanceled())
                 return "Cancelled by the user";
+            lines = parser.getLinesBetween(time, time + 1000, sys, params);
 
-            int d = 0;
-            while (lines.isEmpty() && d<10000){
-                d += 1000;
-                lines = parser.getLinesBetween(time, time + d, sys, params);
-            }
             if (lines.isEmpty())
-                break;
+                continue;
 
             if (img == null) {
                 width = Math.min(imageWidth, lines.get(0).xsize);
@@ -145,8 +151,11 @@ public class SidescanImageExporter implements MRAExporter {
                 pmonitor.setProgress((int)((time - start)/1000));
                 if (ypos >= height || time == end) {
                     endTime = time / 1000.0;
-                    BufferedImage hudImg = hud.getImage(startTime, endTime, 1.0);
-                    img.getGraphics().drawImage(hudImg, 10, height - hudSize-10, hudSize - 10, height-10, 0, 0, hudSize, hudSize, null);
+                    
+                    if (showHud) {
+                        BufferedImage hudImg = hud.getImage(startTime, endTime, 1.0);
+                        img.getGraphics().drawImage(hudImg, 10, height - hudSize-10, hudSize - 10, height-10, 0, 0, hudSize, hudSize, null);
+                    }
                     
                     try {
                         ImageIO.write(img, "PNG", new File(out, "sss_"+image_num+".png"));
@@ -184,6 +193,10 @@ public class SidescanImageExporter implements MRAExporter {
         }
         pmonitor.close();
         
+        if (parser != null ) {
+            parser.cleanup();
+            parser = null;
+        }
         return "OK";
     }    
 

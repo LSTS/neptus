@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -271,9 +271,11 @@ public class Elevator extends Maneuver implements LocatedManeuver, IMCSerializat
         elevator.setLat(getManeuverLocation().getLatitudeRads());
         elevator.setLon(getManeuverLocation().getLongitudeRads());
         elevator.setStartZ(startZ);
-        elevator.setStartZUnits(startZUnits.toString());
+        elevator.setStartZUnits(pt.lsts.imc.Elevator.START_Z_UNITS.valueOf(
+                startZUnits.toString()));
         elevator.setEndZ(getManeuverLocation().getZ());
-        elevator.setEndZUnits(getManeuverLocation().getZUnits().toString());
+        elevator.setEndZUnits(pt.lsts.imc.Elevator.END_Z_UNITS.valueOf(
+                getManeuverLocation().getZUnits().toString()));
         elevator.setRadius(getRadius());
         elevator.setSpeed(getSpeed());
         elevator.setCustom(getCustomSettings());

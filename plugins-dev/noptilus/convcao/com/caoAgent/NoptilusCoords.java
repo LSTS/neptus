@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -84,16 +84,16 @@ public class NoptilusCoords implements PropertiesProvider {
     }
     
     public LocationType convert(double row, double col) {
-        if (col < 0 || col >= numCols) {
-            System.err.println("Invalid column: "+col);
-            return null;
-        }
         
-        if (row < 0 || col >= numRows) {
-            System.err.println("Invalid Row: "+row);
-            return null;
-        }
+        if (col < 0)
+            col = 0;
+        if (col >= numCols)
+            col = numCols - 0.1;
         
+        if (row < 0)
+            row = 0;
+        if (row >= numRows)
+            row = numRows - 0.1;
         
         LocationType loc = new LocationType(squareCenter);
         double transN = ((-numRows/2) + row) * cellWidth;

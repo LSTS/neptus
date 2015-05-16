@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -184,5 +184,15 @@ public class ImcSidescanParser implements SidescanParser {
             }
         }
         return null;
+    }
+
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mra.api.SidescanParser#cleanup()
+     */
+    @Override
+    public void cleanup() {
+        // TODO Auto-generated method stub
+        
     }
 }

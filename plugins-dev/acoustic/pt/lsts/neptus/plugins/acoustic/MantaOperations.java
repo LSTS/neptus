@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -414,15 +414,19 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         });
         ctrlPanel.add(btn);
 
-        toggle = new JToggleButton(I18n.text("Show Ranges"));
+        final String rangesShow = I18n.text("Show Ranges");
+        final String rangesHidden = I18n.text("Clear Ranges");
+        toggle = new JToggleButton(rangesShow);
         toggle.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
                 showRanges = ((JToggleButton) event.getSource()).isSelected();
-                if (!showRanges) {
+                if (!showRanges) {  
                     rangeDistances.clear();
                     rangeSources.clear();
-                }
+                    toggle.setText(rangesShow);
+                }else
+                    toggle.setText(rangesHidden);
             }
         });
         toggle.setSelected(showRanges);
@@ -603,9 +607,10 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
                     rangeDistances.add(msg.getRange());
                     rangeSources.add(loc);
-                    addText(I18n.textf("Distance to %systemName is %distance", msg.getSystem().toString(),
-                            GuiUtils.getNeptusDecimalFormat(1).format(msg.getRange())));
                 }
+
+                addText(I18n.textf("Distance to %systemName is %distance", msg.getSystem().toString(),
+                        GuiUtils.getNeptusDecimalFormat(1).format(msg.getRange())));
                 break;
             case ABORT_ACKED:
                 addText(I18n.textf("%systemName has acknowledged abort command", msg.getSystem().toString()));

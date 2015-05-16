@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -56,9 +56,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -68,6 +71,7 @@ import org.apache.commons.net.ftp.FTPClient;
 
 import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.DesiredZ.Z_UNITS;
+import pt.lsts.imc.Distance;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowRefState;
 import pt.lsts.imc.Reference;
@@ -91,8 +95,13 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.bathymetry.TidePrediction;
 
+import com.google.common.eventbus.Subscribe;
 import com.google.gson.Gson;
+
+import convcao.com.caoAgent.model.InputData;
+import convcao.com.caoAgent.model.TransferData;
 
 
 /**
@@ -104,7 +113,8 @@ import com.google.gson.Gson;
 public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2DPainter, IController, ConfigurationListener {
 
     private static final long serialVersionUID = -1330079540844029305L;
-
+    private static final double DVL_ANGLE = Math.toRadians(22.5);
+    
     // Variables declaration - do not modify
     protected int AUVS ;
     protected String SessionID = "";
@@ -138,56 +148,50 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
     protected javax.swing.JButton renewButton;
     protected javax.swing.JButton connectButton;
     // End of variables declaration
-    
+
     private boolean active = false;
 
     protected ImageIcon runIcon = ImageUtils.getIcon("images/checklists/run.png");
     protected ImageIcon appLogo = ImageUtils.getIcon("images/control-mode/externalApp.png");
     protected ImageIcon noptilusLogo = ImageUtils.getIcon("images/control-mode/noptilus.png");
     protected ControllerManager manager = new ControllerManager();
-    
+
+    // ICONTROLLER METHODS //    
+    protected LinkedHashMap<String, LocationType> positions = new LinkedHashMap<>();
+    protected LinkedHashMap<String, LocationType> destinations = new LinkedHashMap<>();
+    protected LinkedHashMap<String, Double> bathymetry = new LinkedHashMap<>();    
+    protected LinkedHashMap<String, Boolean> arrived = new LinkedHashMap<>();
+    protected LinkedHashMap<Integer, String> nameTable = new LinkedHashMap<>();
+    protected LinkedHashMap<String, Double> depths = new LinkedHashMap<>();
+    protected LinkedHashMap<EstimatedState, ArrayList<Distance>> dvlMeasurements = new LinkedHashMap<>();
+
+
+
     @NeptusProperty(name="Used vehicles", description="Identifiers of the vehicles to be used, separated by commas")
     public String controlledVehicles = "lauv-noptilus-1,lauv-noptilus-2";
 
     @NeptusProperty(name="First Depth", description="Depth for vehicle closer to the surface")
     public double firstVehicleDepth = 1.5;
-    
+
     @NeptusProperty(name="Depth separation", description="Depth separation between vehicles")
     public double depthIncrements = 1.5;
-    
+
     @NeptusProperty(name="Control Latency", description="Time, in seconds, between sending vehicle references")
     public int controlLatencySecs = 3;
-    
+
     @NeptusProperty(name="Control Timeout", description="Time, in seconds, after which the vehicle will stop executing the plan if no references are received")
     public int controlTimeoutSecs = 120;
-    
+
     @NeptusProperty(name="Use Acoustic Communications", description="Use acoustic communications to transmit desired control references")
     public boolean useAcousticComms = false;
 
     @NeptusProperty(name="Near distance", description="Distance, in meters, to consider that the vehicles have arrived at desired reference points")
     public double nearDistance = 12.5;
 
+    @NeptusProperty(name="Subtract Tide Level", description="Subtract the tide height when communicating bathymetry data do CONVCAO.")
+    public boolean subtractTide = true;
+
     protected Thread controlThread = null;
-    
-    public class InputData
-    {
-        public String DateTime = "";
-        public String SessionID = "";
-        public String DemoMode = "1";
-        public String AUVs = "";
-    };
-
-    public class TransferData
-    {
-        public String SessionID = "";
-        public int timeStep = 0;
-
-        // 1 row per auv, 1 coordinates (depth)         
-        public double[] Bathymeter;
-
-        // 1 row per auv, 2 coordinates (northing, easting) 
-        public double[][] Location;
-    };
 
     int timestep = 1;
 
@@ -202,14 +206,14 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
     @Override
     public void propertiesChanged() {
         manager.setUseAcousticComms(useAcousticComms);
-        
+
         LinkedHashMap<String, Double> newDepths = new LinkedHashMap<>();
         double depth = firstVehicleDepth;
         for (String v : positions.keySet()) {         
             newDepths.put(v, depth);
             depth += depthIncrements;
         }
-      
+
         depths = newDepths;
     }
 
@@ -222,14 +226,14 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         double height = renderer.getZoom() * coords.cellWidth * coords.numRows;
         g.setColor(new Color(0,0,255,64));
         g.translate(center.getX(), center.getY());
-            g.rotate(-renderer.getRotation());
-                g.fill(new Rectangle2D.Double(-width/2, -height/2, width, height));        
-            g.rotate(renderer.getRotation());
+        g.rotate(-renderer.getRotation());
+        g.fill(new Rectangle2D.Double(-width/2, -height/2, width, height));        
+        g.rotate(renderer.getRotation());
         g.translate(-center.getX(), -center.getY());
 
         if (!active)
             return;
-       
+
         g.setColor(Color.orange);
         int pos = 50;
         for (String v : nameTable.values()) {
@@ -237,11 +241,10 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             pos +=20;
         }
 
-        
         for (String vehicle : nameTable.values()) {
             LocationType src = positions.get(vehicle);
             LocationType dst = destinations.get(vehicle);
-            
+
             if (!arrived.get(vehicle))
                 g.setColor(Color.red.darker());
             else
@@ -250,14 +253,14 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT,
                     BasicStroke.JOIN_MITER,5.0f, dash, 0.0f));
             g.draw(new Line2D.Double(renderer.getScreenPosition(src), renderer.getScreenPosition(dst)));
-            
+
             Point2D dstPt = renderer.getScreenPosition(dst);
-            
+
             if (!arrived.get(vehicle))
                 g.setColor(Color.red.darker());
             else
                 g.setColor(Color.green.darker());
-            
+
             g.fill(new Ellipse2D.Double(dstPt.getX()-4, dstPt.getY()-4, 8, 8));
         }
     }
@@ -284,7 +287,101 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             data.Location[AUV][2] = (int)noptDepth;                                   
         }
 
+        LinkedHashMap<EstimatedState, ArrayList<Distance>> samples = new LinkedHashMap<>();
+
+        synchronized (dvlMeasurements) {
+            samples.putAll(dvlMeasurements);
+            dvlMeasurements.clear();
+        }
+
+        Vector<double[]> locations = new Vector<>();
+        Vector<Double> bathymetry = new Vector<>();
+
+        for (Entry<EstimatedState, ArrayList<Distance>> beams : samples.entrySet() ) {
+            for (Distance d : beams.getValue()) {
+                double measurement[] = getBeamMeasurement(beams.getKey(), d);
+                locations.add(new double[] {measurement[0], measurement[1], measurement[2]});
+                bathymetry.add(measurement[3]);
+            }
+        }
+        
+        data.MBSamples = new double[bathymetry.size()];
+        data.SampleLocations = new double[bathymetry.size()][3];
+        
+        for (int i = 0; i < bathymetry.size(); i++) {
+            data.MBSamples[i] = bathymetry.get(i);
+            data.SampleLocations[i] = locations.get(i);
+        }
+        
         return data;
+    }
+    
+    private double[] getBeamMeasurement(EstimatedState state, Distance d) {
+        double[] ret = new double[4];
+        
+        // H² = Ca² + Cb²
+        double H = d.getValue();
+        double Ca = Math.cos(DVL_ANGLE) * H;
+        double Cb = Math.sin(DVL_ANGLE) * H;
+        
+        String beamId = d.getEntityName();
+        
+        if (beamId == null)
+            beamId = "DVL Filtered";
+        
+        double tide = 0;
+        
+        if (subtractTide) {
+            try {
+                tide = TidePrediction.getTideLevel(state.getDate());
+            }
+            catch (Exception e) {
+                NeptusLog.pub().warn(e);
+            }
+        }
+         
+        double depth = state.getDepth();
+        double heading = state.getPsi();
+        
+        /* DVL Beams       
+         *   (0) | 
+         *       |
+         *(3) ---+--- (1)
+         *       |
+         *       | (2)         
+         */
+        
+        switch (beamId) {
+            // pointing down
+            case "DVL Filtered":
+                Cb = 0;
+                Ca = H;
+                break;
+            case "DVL Beam 1":
+                heading += Math.toRadians(90);
+                break;
+            case "DVL Beam 2":
+                heading += Math.toRadians(180);                
+                break;
+            case "DVL Beam 3":
+                heading += Math.toRadians(270);
+                break;
+            default:
+                break;
+        }
+        
+        LocationType ground = IMCUtils.getLocation(state);
+        ground.setOffsetDistance(Cb);
+        ground.setAzimuth(Math.toDegrees(heading));
+        ground.convertToAbsoluteLatLonDepth();
+        
+        double c[] = coords.convert(ground);
+        ret[0] = c[0];
+        ret[1] = c[1];
+        ret[2] = state.getDepth();
+        ret[3] = Ca + depth - tide;
+        
+        return ret;
     }
 
     /**
@@ -343,9 +440,13 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         for (int AUV = 0; AUV < receive.Location.length; AUV++) {
             String name = nameTable.get(AUV);
             LocationType loc = coords.convert(receive.Location[AUV][0], receive.Location[AUV][1]);
-            loc.setDepth(1+AUV*1.5);//coords.convertNoptilusDepthToWgsDepth(receive.Location[AUV][2]));
+            loc.setDepth(firstVehicleDepth+AUV*depthIncrements);//coords.convertNoptilusDepthToWgsDepth(receive.Location[AUV][2]));
             destinations.put(name, loc);
-            showText(name+" is being sent to "+receive.Location[AUV][0]+", "+receive.Location[AUV][1]);
+            showText(name+" is being sent to "+receive.Location[AUV][0]+", "+receive.Location[AUV][1]);                        
+        }
+        // reset arrived states
+        for (String auvName : nameTable.values()) {
+            arrived.put(auvName, false);
         }
 
         myDeleteFile(SessionID + "_Data.txt");
@@ -399,7 +500,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         super(console);
 
     }
-    
+
     private String GenerateID()
     {
         Random rnd = new Random(System.currentTimeMillis());
@@ -432,7 +533,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         cancel=true;
         if (controlThread != null)
             controlThread.interrupt();
-        
+
         manager.stop();
         jLabel9.setVisible(false);
         jButton1.setEnabled(false);
@@ -445,7 +546,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         jLabel10.setText("");
         jLabel6.setText("Please Renew your ID to start again");
         timestep = 1;
-        
+
         active = false;
     }
 
@@ -471,24 +572,32 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             GuiUtils.errorMessage(getConsole(), e);
             return;
         }
-        
+
         controlThread = auvMonitor();
         controlThread.start();
     }
 
+    @Subscribe
+    public void on(Distance msg) {
+        EstimatedState state = ImcMsgManager.getManager().getState(msg.getSourceName()).last(EstimatedState.class);
+        
+        synchronized (dvlMeasurements) {
+            if (!dvlMeasurements.containsKey(state))
+                dvlMeasurements.put(state, new ArrayList<Distance>());
+            dvlMeasurements.get(state).add(msg);
+        }
+    }
 
     private void updateLocalStructures() {
         for (String auvName : nameTable.values()) {            
             EstimatedState state = ImcMsgManager.getManager().getState(auvName).last(EstimatedState.class);
             LocationType auvPosition = IMCUtils.getLocation(state);
             positions.put(auvName, auvPosition);
-            bathymetry.put(auvName, state.getDepth() + state.getAlt()); // FIXME tide offsets
+            double tideOffset = subtractTide? TidePrediction.currentTideLevel() : 0;
+            bathymetry.put(auvName, state.getDepth() + state.getAlt() - tideOffset);
             double dist = auvPosition.getHorizontalDistanceInMeters(destinations.get(auvName));
             if (dist < nearDistance)
-                arrived.put(auvName, true);    
-            else {
-                arrived.put(auvName, false);
-            }                
+                arrived.put(auvName, true);                     
         }   
     }
 
@@ -498,7 +607,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         bathymetry.clear();
         nameTable.clear();
         arrived.clear();
-        
+
         for (String auvName : vehicles) {            
             EstimatedState state = ImcMsgManager.getManager().getState(auvName).last(EstimatedState.class);
             if (state == null)
@@ -535,7 +644,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         }
 
         AUVS = positions.keySet().size();
-      
+
         showText("Initializing server connection");
 
         FTPClient client = new FTPClient();
@@ -576,7 +685,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             System.out.println("Uploading first file");
             Upload("www.convcao.com","NEPTUS","",jTextField1.getText(),new String(jPasswordField1.getPassword()),fileName); //send first file
             System.out.println("Uploading second file");
-            Upload("www.convcao.com","NEPTUS/" + SessionID,"plugins-dev/caoAgent/convcao/com/caoAgent/",jTextField1.getText(),new String(jPasswordField1.getPassword()),"mapPortoSparse.txt"); //send sparse map
+            Upload("www.convcao.com","NEPTUS/" + SessionID,"plugins-dev/noptilus/convcao/com/caoAgent/",jTextField1.getText(),new String(jPasswordField1.getPassword()),"mapPortoSparse.txt"); //send sparse map
             System.out.println("Both files uploaded");
             jButton1.setEnabled(true);
             jButton2.setEnabled(true);
@@ -635,8 +744,8 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
 
         FTPClient client = new FTPClient();
         FileInputStream fis = null;
-        
-        
+
+
 
         try {
             client.connect(ftpServer);
@@ -645,9 +754,9 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             client.setFileType(FTP.BINARY_FILE_TYPE);
             fis = new FileInputStream(SourcePathDirectory+filename);
             client.changeWorkingDirectory("/"+pathDirectory);
-            
+
             client.storeFile(filename, fis);
-            
+
             System.out.println("The file "+SourcePathDirectory+" was stored to "+"/"+pathDirectory+"/"+filename);
             client.logout();
 
@@ -971,14 +1080,14 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
                 coords.saveProps();                
             }
         });
-        
+
         addMenuItem("Settings>Noptilus>ConvCAO Settings", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 PluginUtils.editPluginProperties(convcaoNeptusInteraction.this, true);                               
             }
         });
-        
+
         addMenuItem("Settings>Noptilus>Force vehicle depth", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -987,10 +1096,10 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
                     return;
                 }
                 String[] choices = nameTable.values().toArray(new String[0]);
-                
+
                 String vehicle = (String) JOptionPane.showInputDialog(getConsole(), "Force vehicle depth", "Choose vehicle",
-                    JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]); 
-                
+                        JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]); 
+
                 if (vehicle != null) {
                     double depth = depths.get(vehicle);
                     String newDepth = JOptionPane.showInputDialog(getConsole(), "New depth", ""+depth);
@@ -1020,13 +1129,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
 
     }
 
-    // ICONTROLLER METHODS //    
-    protected LinkedHashMap<String, LocationType> positions = new LinkedHashMap<>();
-    protected LinkedHashMap<String, LocationType> destinations = new LinkedHashMap<>();
-    protected LinkedHashMap<String, Double> bathymetry = new LinkedHashMap<>();    
-    protected LinkedHashMap<String, Boolean> arrived = new LinkedHashMap<>();
-    protected LinkedHashMap<Integer, String> nameTable = new LinkedHashMap<>();
-    protected LinkedHashMap<String, Double> depths = new LinkedHashMap<>();
+
 
     void updateConvCaoService() {
 
@@ -1057,10 +1160,10 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         ref.setLat(dest.getLatitudeRads());
         ref.setLon(dest.getLongitudeRads());
         DesiredZ desZ = new DesiredZ(depth, Z_UNITS.DEPTH);
-        
+
         if (depth > 0)
             ref.setRadius(10);
-        
+
         ref.setZ(desZ);
         System.out.println("Sending this reference to "+vehicle.getId()+":");
         ref.dump(System.out);

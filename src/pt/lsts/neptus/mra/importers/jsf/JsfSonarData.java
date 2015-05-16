@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -77,12 +77,15 @@ public class JsfSonarData {
         Bit 13: Position interpolated
     */
     private short validityBitmap;
+    
     private int x;
     private int y;
     private int lat;
     private int lon;
     private Units units;
-    
+
+    private short msb; 
+
     private int numberOfSamples;
     private int depthMillis;
     private int altMillis;
@@ -96,9 +99,10 @@ public class JsfSonarData {
     private short packetNumber;
     private float frequency;
     private float range;
-    
-    
+
+    private short dataFormat;
     private double[] data;
+    
     /**
      * @return the header
      */
@@ -224,7 +228,6 @@ public class JsfSonarData {
     public void setUnits(Units units) {
         this.units = units;
     }
-    
     
     /**
      * @return the speed
@@ -395,8 +398,6 @@ public class JsfSonarData {
         this.data = data;
     }
 
-
-    short msb;
     void parseHeader(ByteBuffer buf) {
         // Calculate time stamp
         int pingTime = buf.getInt(0);
@@ -406,7 +407,6 @@ public class JsfSonarData {
         short seconds = buf.getShort(164);
         
         msb = buf.getShort(16);
-        int msbStartFreq = (msb & 0x000F) << 16; // First 4 bits of msb shifted so only adding is needed to start Frequency
         
         pingTime = pingTime - ((hours * 3600) + (minutes * 60) + seconds); // Seconds from 1 Jan 1970 to log data at midnight
         timestamp = pingTime * 1000l + buf.getInt(200);
@@ -421,9 +421,18 @@ public class JsfSonarData {
             y = buf.getInt(84);
         }
     
+        // 0 = 1 short per sample - Envelope Data 
+        // 1 = 2 shorts per sample - Analytic Signal Data, (Real, Imaginary)
+        dataFormat = (short) (buf.getShort(34) & 0xFFFF);  
+        
+        int msbNumberOfSamples = (msb & 0x0F00) << 8; // First 4 bits of msb shifted so only adding is needed to numberOfSamples
         numberOfSamples = buf.getShort(114) & 0xFFFF;
+        numberOfSamples = msbNumberOfSamples + numberOfSamples;
+        
         range = ((buf.getInt(116) / new Float(Math.pow(10, 9))) * numberOfSamples * 1500) / 2.0f;
         range = Math.round(range);
+
+        int msbStartFreq = (msb & 0x000F) << 16; // First 4 bits of msb shifted so only adding is needed to start Frequency
         frequency = ((buf.getShort(126) & 0xFFFF) + msbStartFreq) / 100.0f;
     
         depthMillis = buf.getInt(140);
@@ -445,12 +454,16 @@ public class JsfSonarData {
 
     void parseData(ByteBuffer buf) {
         data = new double[numberOfSamples];
+        
+        if (dataFormat != 0)
+            return;
+        
         double w = Math.pow(2, -factor); // Calc the weighting factor outside the loop
         
         for (int i = 0; i < numberOfSamples * 2; i += 2) {
             int s = ((buf.get(i + 1) & 0xFF) << 8) + (buf.get(i) & 0xFF); 
             double d = s * w;
-            
+
             if (header.getChannel() == 0) {
                 data[numberOfSamples - (i / 2) - 1] = d;
             }

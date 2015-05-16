@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -1702,11 +1702,12 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
         man = create(manType, renderer.getRealWorldLocation(loc), copyFrom);
 
         Vector<TransitionType> addedTransitions = new Vector<TransitionType>();
-
+        plan.getGraph().addManeuver(man);
+        
         if (initial != null)
             addedTransitions.add(plan.getGraph().addTransition(man.getId(), initial, defaultCondition));
 
-        plan.getGraph().addManeuver(man);
+        
         plan.getGraph().setInitialManeuver(man.getId());
         parsePlan();
         manager.addEdit(new ManeuverAdded(man, plan, addedTransitions, new Vector<TransitionType>()));
@@ -1721,9 +1722,13 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     private Maneuver addManeuverAtEnd(Point loc, String manType) {
 
         Maneuver lastMan = plan.getGraph().getLastManeuver();
+        
+        //System.out.println(Arrays.asList(plan.getGraph().getManeuversSequence()));
+        
         LocationType worldLoc = renderer.getRealWorldLocation(loc);
         Maneuver man = create(manType, worldLoc, lastMan);
-
+        plan.getGraph().addManeuver(man);
+        
         Vector<TransitionType> addedTransitions = new Vector<TransitionType>();
         Vector<TransitionType> removedTransitions = new Vector<TransitionType>();
 

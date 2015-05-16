@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -506,7 +506,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    msg.setLat(loc.getLatitudeRads());
 	    msg.setLon(loc.getLongitudeRads());
 		msg.setZ(getManeuverLocation().getZ());
-		msg.setZUnits(getManeuverLocation().getZUnits().toString());
+		
+		msg.setZUnits(pt.lsts.imc.PopUp.Z_UNITS.valueOf(getManeuverLocation().getZUnits().toString()));
 	    msg.setDuration(getDuration());
 	    msg.setSpeed(speed);
 	    switch (units) {

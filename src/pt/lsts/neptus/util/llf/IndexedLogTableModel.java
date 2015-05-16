@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -108,8 +108,7 @@ public class IndexedLogTableModel extends AbstractTableModel {
     }
 
     public IndexedLogTableModel(IMraLogGroup source, String msgName) {
-        this(source, msgName, -1l, (long) (source.getLsfIndex()
-                .getEndTime() * 1000));
+        this(source, msgName, -1l, Long.MAX_VALUE);
     }
 
     public IndexedLogTableModel(IMraLogGroup source, String msgName, long initTime, long finalTime) {
@@ -140,7 +139,7 @@ public class IndexedLogTableModel extends AbstractTableModel {
         msgNames.add("dst");
         msgNames.add("dst_ent");
         msgNames.addAll(imcMsgType.getFieldNames());
-        
+
         // load the "row <-> msg index" table
         loadIndexes(initTime/1000.0, finalTime/1000.0);
     }

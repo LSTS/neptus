@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -46,6 +46,8 @@ import java.util.zip.ZipInputStream;
 
 import org.jfree.chart.JFreeChart;
 
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LblBeacon;
 import pt.lsts.imc.SonarData;
@@ -233,6 +235,28 @@ public class LogUtils {
         long endMillis = msgLog.getLastEntry().getTimestampMillis();
         return new Date[] { new Date(startMillis), new Date(endMillis) };
     }
+    
+    public static LocationType getFirstValidLocation(IMraLogGroup source) {
+        LsfIndex index = source.getLsfIndex();
+        
+        if (index.containsMessagesOfType(EstimatedState.class.getSimpleName())) {
+            return IMCUtils.getLocation(index.getFirst(EstimatedState.class));
+        }
+        else if (index.containsMessagesOfType(GpsFix.class.getSimpleName())) {
+            LsfIterator<GpsFix> it = index.getIterator(GpsFix.class);
+            
+            while (it.hasNext()) {
+                GpsFix fix = it.next();
+                if ((fix.getValidity() & GpsFix.GFV_VALID_POS) != 0) {
+                    LocationType loc = new LocationType();
+                    loc.setLatitudeRads(fix.getLat());
+                    loc.setLongitudeRads(fix.getLon());
+                    return loc;
+                }                
+            }
+        }        
+        return null;
+    }
 
     public static MissionType generateMission(IMraLogGroup source) {
 
@@ -275,38 +299,12 @@ public class LogUtils {
     }
     
     public static LocationType getHomeRef(IMraLogGroup source) {
-        IMraLog parser = source.getLog("HomeRef");
-        if (parser != null) {
-            IMCMessage lastEntry = parser.getLastEntry();
-//            NeptusLog.pub().info("<###>-----" + lastEntry);
-            double lat = lastEntry.getDouble("lat");
-            double lon = lastEntry.getDouble("lon");
-            double depth = lastEntry.getDouble("depth");
-            lat = Math.toDegrees(lat);
-            lon = Math.toDegrees(lon);
-
-            LocationType center = new LocationType();
-            center.setLatitudeDegs(lat);
-            center.setLongitudeDegs(lon);
-            center.setDepth(depth);
-            return center;
-        }
-        else if (source.getLog("EstimatedState") != null){
-            IMCMessage lastEntry = source.getLog("EstimatedState").getLastEntry();
-            double lat = lastEntry.getDouble("lat");
-            double lon = lastEntry.getDouble("lon");
-            double depth = lastEntry.getDouble("depth");
-            lat = Math.toDegrees(lat);
-            lon = Math.toDegrees(lon);
-            
-            LocationType center = new LocationType();
-            center.setLatitudeDegs(lat);
-            center.setLongitudeDegs(lon);
-            center.setDepth(depth);
-            
-            return center;
-        }
-        return null;
+        LocationType loc = getFirstValidLocation(source);
+        
+        if (loc == null)
+            loc = new LocationType();
+        
+        return loc;
     }
 
     public static OperationLimits getOperationLimits(IMraLogGroup source) {
@@ -387,8 +385,8 @@ public class LogUtils {
         }
         return null;
     }
-
-    public static TransponderElement[] getTransponders(IMraLogGroup source) {
+    
+        public static TransponderElement[] getTransponders(IMraLogGroup source) {
         IMraLog parser = source.getLog("LblConfig");
         if (parser == null)
             return new TransponderElement[0];
@@ -743,12 +741,10 @@ public class LogUtils {
                     double y = entry.getDouble("y");
                     double z = entry.getDouble("z");
 
-                    // if (lat != tmp.getLatitudeAsDoubleValue() && lon != tmp.getLongitudeAsDoubleValue()
-                    // && depth != tmp.getDepth()) {
                     tmp.setLatitudeDegs(Math.toDegrees(lat));
                     tmp.setLongitudeDegs(Math.toDegrees(lon));
                     tmp.setDepth(depth);
-                    // }
+
                     double[] offs = tmp.getOffsetFrom(mission.getStartLocation());
                     // if (!(xVals.contains(offs[0]+x) && yVals.contains(offs[1]+y))) {
                     // xVals.add(offs[0]+x);

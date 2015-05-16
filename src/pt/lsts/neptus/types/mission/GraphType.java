@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -151,6 +151,16 @@ public class GraphType implements XmlOutputMethods {
     public void addManeuver(Maneuver maneuver) {
         addManeuver(maneuver, true);
     }
+    
+    public void addManeuverAtEnd(Maneuver maneuver) {
+        String lastManeuver = null;
+        
+        if (getLastManeuver() != null)
+            lastManeuver = getLastManeuver().getId();
+        addManeuver(maneuver);
+        if (lastManeuver != null)
+            addTransition(lastManeuver, maneuver.getId(), "true");
+    }
 
     /**
      * Adds the given maneuver to this graph
@@ -263,13 +273,13 @@ public class GraphType implements XmlOutputMethods {
         at.setAction(action.toString());
         tt.setAction(at);
     	transitions.put(tt.getId(), tt);
-        if (maneuvers.get(sourceManeuverID) != null) {
-            //FIXME Transition true
+        if (maneuvers.containsKey(sourceManeuverID)) {
             ((Maneuver) maneuvers.get(sourceManeuverID)).addTransition(targetManeuverID, "true");
     	}
         else {
-        	new Exception().printStackTrace();
-            NeptusLog.pub().error("Error occured while adding transition from "+sourceManeuverID)  ;
+            String error = "Error occured while adding transition from "+sourceManeuverID;
+        	new Exception(error).printStackTrace();
+            NeptusLog.pub().error(error)  ;
         }
         
         return tt;

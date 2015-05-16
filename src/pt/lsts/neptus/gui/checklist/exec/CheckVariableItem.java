@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2014 Universidade do Porto - Faculdade de Engenharia
+ * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
  * Laboratório de Sistemas e Tecnologia Subaquática (LSTS)
  * All rights reserved.
  * Rua Dr. Roberto Frias s/n, sala I203, 4200-465 Porto, Portugal
@@ -61,7 +61,8 @@ public class CheckVariableItem extends CheckSubItemExe implements MessageListene
 		checkSubItem = ci;
 		this.system = system;
 		initialize();
-		path = checkSubItem.getVarPath().split(".");
+
+		path = checkSubItem.getVarPath().split("\\.");
 	}
 
 	private void initialize() {
