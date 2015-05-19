@@ -29,15 +29,25 @@
  * Author: tsmarques
  * 18 May 2015
  */
+
 package pt.lsts.neptus.hyperspectral;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Image;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.LinkedList;
+import java.util.Queue;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+
+import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -54,7 +64,9 @@ public class RealtimeViewer extends JPanel {
     private JLabel wavelengthDisplayer;
     
     private JPanel metadataPanel; /* metadata, etc*/
-
+    
+    /* testing */
+    Queue<ImageIcon> frames;
     
     public RealtimeViewer() {
         super();
@@ -62,6 +74,10 @@ public class RealtimeViewer extends JPanel {
         
         setupMetadataPanel();
         setupDataDisplayPanels();
+        
+        /**** Just for testing ****/
+        frames = loadFrames();        
+        PeriodicUpdatesService.registerPojo(this);
     }
     
     /* where the actual data are displayed */
@@ -97,4 +113,44 @@ public class RealtimeViewer extends JPanel {
 //    private void on(HyperSpecData msg) {
 //        
 //    }
+    
+    /***** Just for testing *****/
+    
+    private Queue<ImageIcon> loadFrames() {
+        File dir = new File(System.getProperty("user.dir") + "/plugins-dev/hyperspectral/hypercap-sampledata/");
+        File[] frames = dir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".jpg");
+            }            
+        });
+        
+        LinkedList<ImageIcon> framesList = new LinkedList<>();
+        for(int i = 0; i < frames.length; i++) {
+            ImageIcon origFrame = new ImageIcon(frames[i].getAbsolutePath());
+            
+            int scaledWidth = (int)(0.80 * origFrame.getIconWidth());
+            int scaledHeight = (int)(0.80 * origFrame.getIconHeight());
+            
+            ImageIcon scaledFrame = new ImageIcon(origFrame.getImage()
+                    .getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_DEFAULT));
+            
+            framesList.add(scaledFrame);
+        }
+        
+        fullSpectrumDisplayer.setIcon(framesList.get(30)); /* fixed image for top display */
+        
+        return framesList;
+    }
+    
+    
+    
+    /* 2fps */
+    @Periodic(millisBetweenUpdates = 500)
+    public void validateCheck() {
+        ImageIcon currentFrame = frames.poll();   
+        
+        wavelengthDisplayer.setIcon(currentFrame); /* display frame */
+        
+        frames.offer(currentFrame); /* add current frame to the end of the queue */
+    }
 }
