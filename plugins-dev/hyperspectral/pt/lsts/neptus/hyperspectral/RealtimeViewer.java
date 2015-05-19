@@ -46,7 +46,7 @@ import com.google.common.eventbus.Subscribe;
  *
  */
 @SuppressWarnings("serial")
-public class RealtimeVisualizer extends JPanel {
+public class RealtimeViewer extends JPanel {
     private JSplitPane dataSplitPane;
     private JPanel fullSpectrumPanel; /* contains real-time images with all the frequencies requested by the user*/
     private JPanel selectedWavelengthPanel; /* contains real-time (stitched) images of a specific wavelength */
@@ -56,7 +56,7 @@ public class RealtimeVisualizer extends JPanel {
     private JPanel metadataPanel; /* metadata, etc*/
 
     
-    public RealtimeVisualizer() {
+    public RealtimeViewer() {
         super();
         setLayout(new BorderLayout());
         

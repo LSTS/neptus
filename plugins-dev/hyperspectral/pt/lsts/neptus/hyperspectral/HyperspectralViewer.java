@@ -58,7 +58,7 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 @PluginDescription(name = "HyperSpectral Data Viewer", author = "tsmarques", version = "0.1")
 @Popup(name = "HyperSpectral Data Viewer", pos = POSITION.CENTER, width = 1000, height = 700)
 public class HyperspectralViewer extends ConsolePanel {
-    private RealtimeVisualizer realtimePanel;
+    private RealtimeViewer realtimePanel;
     private JPanel snapshotsPanel;
     
     private JMenuBar menuBar;
@@ -72,7 +72,7 @@ public class HyperspectralViewer extends ConsolePanel {
         super(console);   
         setLayout(new BorderLayout());
         setupMenu();
-        realtimePanel = new RealtimeVisualizer();
+        realtimePanel = new RealtimeViewer();
         
         add(realtimePanel);
         add(menuBar, BorderLayout.NORTH);
