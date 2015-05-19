@@ -31,17 +31,70 @@
  */
 package pt.lsts.neptus.hyperspectral;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * @author tsmarques
  *
  */
+@SuppressWarnings("serial")
 public class RealtimeVisualizer extends JPanel {
+    private JSplitPane dataSplitPane;
+    private JPanel fullSpectrumPanel; /* contains real-time images with all the frequencies requested by the user*/
+    private JPanel selectedWavelengthPanel; /* contains real-time (stitched) images of a specific wavelength */
+    private JLabel fullSpectrumDisplayer;
+    private JLabel wavelengthDisplayer;
+    
+    private JPanel metadataPanel; /* metadata, etc*/
+
+    
     public RealtimeVisualizer() {
         super();
-        setBackground(Color.WHITE);
+        setLayout(new BorderLayout());
+        
+        setupMetadataPanel();
+        setupDataDisplayPanels();
     }
+    
+    /* where the actual data are displayed */
+    private void setupDataDisplayPanels() {
+        dataSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        dataSplitPane.setResizeWeight(0.5); /* split panels evenly */
+        
+        fullSpectrumPanel = new JPanel();
+        selectedWavelengthPanel = new JPanel();
+    
+        add(dataSplitPane, BorderLayout.EAST);
+        dataSplitPane.add(fullSpectrumPanel);
+        dataSplitPane.add(selectedWavelengthPanel);
+        
+        fullSpectrumDisplayer = new JLabel();
+        wavelengthDisplayer = new JLabel();
+        
+        fullSpectrumPanel.add(fullSpectrumDisplayer, BorderLayout.CENTER);
+        selectedWavelengthPanel.add(wavelengthDisplayer, BorderLayout.CENTER);
+    }
+    
+    /* metadata, etc */
+    private void setupMetadataPanel() {       
+        metadataPanel = new JPanel();
+        add(metadataPanel);
+        
+        int paneWidth = (int)(metadataPanel.getParent().getWidth() * 0.2);
+        int paneHeight = (int)(metadataPanel.getParent().getHeight());
+        metadataPanel.setPreferredSize(new Dimension(paneWidth, paneHeight));
+    }
+        
+//    @Subscribe
+//    private void on(HyperSpecData msg) {
+//        
+//    }
 }
