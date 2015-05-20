@@ -31,6 +31,9 @@
  */
 package pt.lsts.neptus.plugins.preflight.check.automated;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.GpsFix;
@@ -61,23 +64,28 @@ public class CheckGpsFix extends AutomatedCheck {
         GpsFix.TYPE fixType = msg.getType();
         int fixValidity = msg.getValidity();
         int nSat = msg.getSatellites();
-        String nSatStr = "(" + nSat + ")";
+        double vdop = msg.getVdop();
+        
+        BigDecimal bd = new BigDecimal(vdop);
+        bd = bd.setScale(1, RoundingMode.HALF_UP);
+        
+        String strMsg = "(" + nSat + ")" + " | Vdop: " + bd.doubleValue();;
 
         if (fixType == TYPE.DEAD_RECKONING) {
             setState(NOT_VALIDATED);
-            setValuesLabelText(GPS_NO_FIX + nSatStr);
+            setValuesLabelText(GPS_NO_FIX + strMsg);
         }
         else if (fixType == TYPE.STANDALONE) {
             setState(VALIDATED_WITH_WARNINGS);
-            setValuesLabelText(GPS_2D + nSatStr);
+            setValuesLabelText(GPS_2D + strMsg);
             if ((fixValidity & GpsFix.GFV_VALID_VDOP) != 0) {
                 setState(VALIDATED);
-                setValuesLabelText(GPS_3D + nSatStr);
+                setValuesLabelText(GPS_3D + strMsg);
             }
         }
         else if (fixType == TYPE.DIFFERENTIAL) {
             setState(VALIDATED);
-            setValuesLabelText(GPS_DIFF + nSatStr);
+            setValuesLabelText(GPS_DIFF + strMsg);
         }
     }
        
