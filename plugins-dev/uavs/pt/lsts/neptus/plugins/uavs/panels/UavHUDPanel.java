@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.uavs.panels;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.text.DecimalFormat;
 import java.util.Hashtable;
 
 import pt.lsts.imc.IMCMessage;
@@ -69,6 +70,8 @@ public class UavHUDPanel extends ConsolePanel implements NeptusMessageListener {
 
     // active main vehicle's current heading angle
     private double tmpVar;
+    
+    private DecimalFormat formatter = new DecimalFormat("0.0");
 
     public UavHUDPanel(ConsoleLayout console) {
         super(console);
@@ -98,26 +101,30 @@ public class UavHUDPanel extends ConsolePanel implements NeptusMessageListener {
     // NeptusMessageListener_BEGIN
     @Override
     public String[] getObservedMessages() {
-        return new String[] { "EstimatedState" };
+        return new String[] { "EstimatedState", "IndicatedSpeed" };
     }
 
     @Override
     public void messageArrived(IMCMessage message) {
+//        indicatedSpeed = Math.sqrt(Math.pow(message.getDouble("u"), 2) + Math.pow(message.getDouble("v"), 2)
+//                + Math.pow(message.getDouble("w"), 2));
+        
+        if (message.getAbbrev().equals("IndicatedSpeed")) {
+            indicatedSpeed = message.getDouble("value");
+            args.put("indicatedSpeed", Double.parseDouble(formatter.format(indicatedSpeed)));
+        }
+        else {
+            args.put("altitude", (message.getInteger("height")) - (message.getInteger("z")));
+            args.put("roll", Math.toDegrees(message.getDouble("phi")));
+            args.put("pitch", Math.toDegrees(message.getDouble("theta")));
 
-        indicatedSpeed = Math.sqrt(Math.pow(message.getDouble("u"), 2) + Math.pow(message.getDouble("v"), 2)
-                + Math.pow(message.getDouble("w"), 2));
+            tmpVar = Math.toDegrees(message.getDouble("psi"));
 
-        args.put("indicatedSpeed", indicatedSpeed);
-        args.put("altitude", (message.getInteger("height")) - (message.getInteger("z")));
-        args.put("roll", Math.toDegrees(message.getDouble("phi")));
-        args.put("pitch", Math.toDegrees(message.getDouble("theta")));
+            if (tmpVar < 0)
+                tmpVar = 360 + tmpVar;
 
-        tmpVar = Math.toDegrees(message.getDouble("psi"));
-
-        if (tmpVar < 0)
-            tmpVar = 360 + tmpVar;
-
-        args.put("yaw", tmpVar);
+            args.put("yaw", tmpVar);
+        }
 
         repaint();
     }
