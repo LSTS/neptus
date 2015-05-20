@@ -35,16 +35,24 @@ package pt.lsts.neptus.hyperspectral;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.JTextField;
 
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
@@ -57,13 +65,20 @@ import com.google.common.eventbus.Subscribe;
  */
 @SuppressWarnings("serial")
 public class RealtimeViewer extends JPanel {
+    /* data visualization/display panel */
     private JSplitPane dataSplitPane;
     private JPanel fullSpectrumPanel; /* contains real-time images with all the frequencies requested by the user*/
     private JPanel selectedWavelengthPanel; /* contains real-time (stitched) images of a specific wavelength */
     private JLabel fullSpectrumDisplayer;
     private JLabel wavelengthDisplayer;
     
+    /* control panel */
+    private JSplitPane controlSplitPanel;
     private JPanel metadataPanel; /* metadata, etc*/
+    private JPanel wavelengthSelectionPanel;
+    private JTextField wavelengthField;
+    private JLabel wavelengthUnits;
+    private JButton sendRequest;
     
     /* testing */
     Queue<ImageIcon> frames;
@@ -72,7 +87,7 @@ public class RealtimeViewer extends JPanel {
         super();
         setLayout(new BorderLayout());
         
-        setupMetadataPanel();
+        setupControlPanels();
         setupDataDisplayPanels();
         
         /**** Just for testing ****/
@@ -99,14 +114,47 @@ public class RealtimeViewer extends JPanel {
         selectedWavelengthPanel.add(wavelengthDisplayer, BorderLayout.CENTER);
     }
     
-    /* metadata, etc */
+    private void setupControlPanels() {
+        controlSplitPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        controlSplitPanel.setResizeWeight(0.97);
+        add(controlSplitPanel);
+        
+        int paneWidth = (int)(controlSplitPanel.getParent().getWidth() * 0.2);
+        int paneHeight = (int)(controlSplitPanel.getParent().getHeight());
+        controlSplitPanel.setPreferredSize(new Dimension(paneWidth, paneHeight));
+        
+        setupMetadataPanel();
+        setupWavelengthSelectionPanel();
+        
+        controlSplitPanel.setTopComponent(metadataPanel);
+        controlSplitPanel.setBottomComponent(wavelengthSelectionPanel);
+    }
+    
     private void setupMetadataPanel() {       
         metadataPanel = new JPanel();
-        add(metadataPanel);
+   }
+    
+    private void setupWavelengthSelectionPanel() {
+        wavelengthSelectionPanel = new JPanel();
+        wavelengthSelectionPanel.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
         
-        int paneWidth = (int)(metadataPanel.getParent().getWidth() * 0.2);
-        int paneHeight = (int)(metadataPanel.getParent().getHeight());
-        metadataPanel.setPreferredSize(new Dimension(paneWidth, paneHeight));
+        wavelengthField = new JTextField();
+        wavelengthField.setColumns(20);
+        wavelengthUnits = new JLabel("nm");
+        sendRequest = new JButton("Send request");
+        
+        
+        JComponent components[] = {wavelengthField, wavelengthUnits, sendRequest};
+        
+        for(int i = 0; i < components.length; i++) {
+            c.weightx = 0.5;
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.gridx = i;
+            c.gridy = 0;
+            
+            wavelengthSelectionPanel.add(components[i], c);
+        }
     }
         
 //    @Subscribe
