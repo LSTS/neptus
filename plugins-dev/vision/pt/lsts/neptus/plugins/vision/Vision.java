@@ -65,6 +65,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
+
 import net.miginfocom.swing.MigLayout;
 
 import org.opencv.core.Core;
@@ -121,6 +122,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     float y_scale;
     //read size of pack compress
     String line;
+    //Buffer for data receive from DUNE tcp
+    String dune_gps;
     //Size of image received
     int length_image;
     //buffer for save data receive
@@ -145,6 +148,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     JTextField txtText;
     //Text of data receive over IMC message
     JTextField txtData;
+  //Text of data receive over DUNE TCP message
+    JTextField txtData_tcp;
     //JFrame for menu options
     JFrame menu;
     //Buffer for the info treatment 
@@ -165,7 +170,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     //worker thread designed to acquire the data packet from DUNE
     protected Thread updater = null; 
-  //worker thread designed to save image do HD
+    //worker thread designed to save image do HD
     protected Thread save_img = null;
     
     public Vision(ConsoleLayout console) {
@@ -312,17 +317,25 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         txtText = new JTextField();
         txtText.setEditable(false);
         txtText.setToolTipText("Info of Frame received from DUNE.");
-        info = String.format("X = 0 - Y = 0   x 1   0 bytes (KiB = 0)\t\t    ");
+        info = String.format("X = 0 - Y = 0   x 1   0 bytes (KiB = 0)\t\t  ");
         txtText.setText(info);
         config.add(txtText, "cell 0 4 3 1, wrap");
+        
+       //Text info Data GPS received TCP
+        txtData_tcp = new JTextField();
+        txtData_tcp.setEditable(false);
+        txtData_tcp.setToolTipText("Info of GPS received from DUNE - TCP.");
+        info = String.format("\t\t\t\t  ");
+        txtData_tcp.setText(info);
+        config.add(txtData_tcp, "cell 0 5 3 1, wrap");
         
         //Text info
         txtData = new JTextField();
         txtData.setEditable(false);
         txtData.setToolTipText("Info of Frame received from DUNE.");
-        info = String.format("\t\t\t\t");
+        info = String.format("\t\t\t\t  ");
         txtData.setText(info);
-        config.add(txtData, "cell 0 5 3 1, wrap");
+        config.add(txtData, "cell 0 6 3 1, wrap");
         
         menu = new JFrame("Menu_Config");
         menu.setVisible(show_menu);
@@ -503,7 +516,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 double height_v = msg.getHeight();
                 //System.out.println("SourceEntity: "+msg.getSrc());
                 //System.out.printf("LAT: %f # LON: %f # rad\n",lat_rad, lon_rad);
-                info = String.format("LAT: %f # LON: %f # Alt: %.2f m", lat, lon, height_v);
+                info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, height_v);
                 txtData.setText(info);
             }
             catch (Exception e) {
@@ -540,10 +553,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         
         if (line == null){
             //custom title, error icon
-            JOptionPane.showMessageDialog(frame,
-                "Lost connection with Vehicle...",
-                "Connection error",
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Lost connection with Vehicle...", "Connection error", JOptionPane.ERROR_MESSAGE);
             isRunning = false;
             state = false;
             try {
@@ -564,8 +574,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             try { 
                 serverSocket = new ServerSocket(2424); 
             } 
-            catch (IOException e) 
-            { 
+            catch (IOException e){ 
             }    
         }
         else{        
@@ -607,6 +616,15 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     return;
                 }
                 read += read_bytes;
+            }           
+            
+            //Receive data GPS over tcp DUNE
+            try {
+                dune_gps = in.readLine();
+            }
+            catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
             }
             
             //Decompress data received 
@@ -653,6 +671,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             //Display image in JFrame
             info = String.format("X = %d - Y = %d   x %.2f   %d bytes (KiB = %d)", width, height,x_scale,length_image,length_image/1024);
             txtText.setText(info);
+            txtData_tcp.setText(dune_gps);
             show_image(temp);
         }
     }
