@@ -43,6 +43,7 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -50,9 +51,11 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -62,7 +65,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
-
 import net.miginfocom.swing.MigLayout;
 
 import org.opencv.core.Core;
@@ -96,7 +98,7 @@ import com.google.common.eventbus.Subscribe;
  */
 @Popup( pos = POSITION.RIGHT, width=640, height=400)
 @LayerPriority(priority=0)
-@PluginDescription(name="Video Stream", version="1.0", author="Pedro Gonçalves", description="Neptus Plugin for View Strem IPCAM", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
+@PluginDescription(name="Video Stream", version="1.0", author="Pedro Gonçalves", description="Neptus Plugin for View video Strem TCP-IP", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
 public class Vision extends ConsolePanel implements ConfigurationListener, ItemListener{
 
     private static final long serialVersionUID = 1L;
@@ -113,60 +115,72 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     int width;
     //Height size of image
     int height;
-    int width_win = 960+500; //frame+140
-    int height_win = 720+40;  //frame+140
+    //Scale factor of x
     float x_scale;
+    //Scale factor of y
     float y_scale;
     //read size of pack compress
     String line;
+    //Size of image received
     int length_image;
     //buffer for save data receive
     byte[] data;
     //Buffer image for JFrame/showImage
     BufferedImage temp;
-    
+    //Flag - start acquired image
     boolean isRunning = false;
+    //Flag - Lost connection to the vehicle
     boolean state = false;
+    //Flag - Show/hide Menu JFrame
     boolean show_menu = false;
-    
+    //Label for image
     JLabel picLabel;
+    //Panel for Image
     JPanel frame;
+    //Panel for display image
     JPanel panel_image;
+    //Panel for info and config values
     JPanel config;
+    //Text info of data receive
     JTextField txtText;
+    //Text of data receive over IMC message
     JTextField txtData;
-    //JPanel info_box;
+    //JFrame for menu options
     JFrame menu;
+    //Buffer for the info treatment 
     String info;
-     
+    //Popup Menu
+    JPopupMenu popup;
+
+    //*** TEST FOR SAVE VIDEO **/
+    File outputfile;
+    boolean flag_buff_img = false;
+    int cnt=0;
+    int FPS = 12;
+    //*************************/
+    
+    //IMC message
     EstimatedState msg;
+    protected LinkedHashMap<String, EstimatedState> msgsSetLeds = new LinkedHashMap<>(); 
     
-   //worker thread designed to acquire the data packet from the RaspiCAM
-    protected Thread updater = null;    
-    
-    protected LinkedHashMap<String, EstimatedState> msgsSetLeds = new LinkedHashMap<>();
+    //worker thread designed to acquire the data packet from DUNE
+    protected Thread updater = null; 
+  //worker thread designed to save image do HD
+    protected Thread save_img = null;
     
     public Vision(ConsoleLayout console) {
         super(console);
-        // clears all the unused initializations of the standard ConsolePanel  Y = 121
+        //clears all the unused initializations of the standard ConsolePanel
         removeAll();
-
         //Mouse click
         addMouseListener(new MouseListener() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1){
-                    int mouse_x = (int) ((e.getX() - 13)/x_scale);
+                    int mouse_x = (int) ((e.getX() - 13)/x_scale);  //shift window bar
                     int mouse_y = (int) ((e.getY() - 10)/y_scale) ; //shift window bar
-                    /*System.out.printf("Real:  %d %d\n", e.getX(),e.getY());
-                    System.out.printf("Calc:  %d %d\n\n", mouse_x,mouse_y);*/
                     if (mouse_x >= 0 && mouse_y >= 0 && mouse_x <= width && mouse_y <= height ){
-                        //System.out.printf("\nX = %d\tY = %d\n",mouse_x, mouse_y);
                         out.printf("%d#%d;\0", mouse_x,mouse_y);
-                        //Tracking msg = new Tracking();
-                        //msg.setValueX(mouse_x);
-                        //msg.setValueY(mouse_y);
-                        //send(msg);
                     }
                 }
             }
@@ -182,16 +196,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
-                    JPopupMenu popup = new JPopupMenu();
+                    popup = new JPopupMenu();
                     popup.add("Start Connection").addActionListener(new ActionListener() {
-                        
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             isRunning = true;
                         }
                     });
                     popup.add("Close Connection").addActionListener(new ActionListener() {
-                        
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             isRunning = false;
@@ -199,40 +211,33 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         }
                     });
                     popup.add("Menu/Config").addActionListener(new ActionListener() {
-                        
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            show_menu = !show_menu;
-                            menu.setVisible(show_menu);
+                            //show_menu = !show_menu;
+                            menu.setVisible(true);
                         }
                     });
                     popup.show((Component) e.getSource(), e.getX(), e.getY());
                 }
             }
         });
-        
         return;
     }
     
+    //!Print Image to JPanel
     public void show_image(BufferedImage image){
         picLabel.setIcon(new ImageIcon(image));
         panel_image.add(picLabel);
         repaint();
     }
     
-  /*  public void paint(Graphics g) {
-        g.drawImage(temp,1,1,960,720,null);
-    }*/
-    
+    //!Config Layout
     public void layout_user(){
-        
         //Label for image
         picLabel = new JLabel();
-        
         //Panel for Image
         panel_image = new JPanel();
         panel_image.setBackground(Color.black);
-        
         frame = new JPanel();
         frame.setLayout(new BorderLayout());
         frame.add(panel_image, BorderLayout.WEST);
@@ -242,10 +247,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         
         //Panel for info and config values      
         config = new JPanel(new MigLayout());
-        //info_box = new JPanel(new MigLayout()); 
-        //frame.add(info_box,BorderLayout.EAST);
-        
-        //config.setBackground(Color.blue);
 
         //Tpl ComboBox
         String[] sizeStrings = { "TPL Size", "25", "50", "75", "100", "150"};
@@ -253,7 +254,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         final JComboBox tplList = new JComboBox(sizeStrings);
         tplList.setSelectedIndex(0);
         tplList.addActionListener(new ActionListener() {
-            
             @Override
             public void actionPerformed(ActionEvent e)
               {
@@ -273,7 +273,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         final JComboBox windowList = new JComboBox(sizeStrings2);
         windowList.setSelectedIndex(0);
         windowList.addActionListener(new ActionListener() {
-            
             @Override
             public void actionPerformed(ActionEvent e)
               {
@@ -290,15 +289,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //Button Save snapshot
         JButton button_I = new JButton();
         button_I.setText("Snapshot");
-        //button_I.setPreferredSize( new Dimension(40, 60));
         button_I.addActionListener(new ActionListener() {
-            
             @Override
-            public void actionPerformed(ActionEvent e)
-              {
-                //System.out.println("Save snapshot\n");
+            public void actionPerformed(ActionEvent e) {
                 out.printf("-3#123;\0");
-                
               }
         });
         config.add(button_I, "width 160:180:200, h 40!");
@@ -306,14 +300,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //Button Save Video
         JButton button_V = new JButton();
         button_V.setText("Save/Stop video");
-        //color letter
-        //button_V.setForeground(Color.blue);
         button_V.addActionListener(new ActionListener() {
-            
             @Override
-            public void actionPerformed(ActionEvent e)
-              {
-                //System.out.println("Save video\n");
+            public void actionPerformed(ActionEvent e) {
                 out.printf("-4#123;\0");
               }
         });
@@ -365,15 +354,16 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
      */
     @Override
     public void initSubPanel() {
-        
         ImcMsgManager.getManager().addListener(this);
         layout_user();
         updater = updaterThread();
         updater.start();
+        save_img = updaterThread2();
+        save_img.start();
     }
     
+    //Get size of image
     public void init_size_image(){
-        //Get size of image
         //Width size of image
         try {
             width = Integer.parseInt(in.readLine());
@@ -393,23 +383,24 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         }
         x_scale = (float)960/width;
         y_scale = (float)720/height;
-        System.out.printf("\n\nImage Size: %d x %d\n\n", width, height);
+        //System.out.printf("\n\nImage Size: %d x %d\n\n", width, height);
     }
     
+    //!Thread to handle data receive
     private Thread updaterThread() {
-        
-        Thread ret = new Thread("RaspiCAM Thread") {
+        Thread ret = new Thread("Vision Thread") {
             @Override
             public void run() {
                 while(true){
                     if (isRunning ) {
-                        
                         if (state == false){
                             //connection
                             tcp_connection();
+                            //receive info of image size
                             init_size_image();
                             state = true;
                         }
+                        //receive data image
                         received_data_image();
                         if(!isRunning && !state){
                             try {
@@ -426,7 +417,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             }
                             out.close();
                         }
-                        //System.out.printf("\n>>> Image Size: %d x %d", width, height);
                     }
                     else
                         inic_image();
@@ -435,32 +425,100 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         };
         return ret;
     }
-    
-    @Subscribe
-    public void consume(EstimatedState msg) {
-        
-        //System.out.println("Received Pixel: "+msg);
-        
-        try {
-            // update the position of target
-            double valor_x = msg.getLat();
-            double valor_y = msg.getLon();
 
-            //NeptusLog.pub().warn("\nValor: X = "+valor_x+" Y = "+valor_y+"\n");
-            //System.out.println("\nValor: X = "+valor_x+" Y = "+valor_y+"\n");
-            info = String.format("X = %f - Y = %f", valor_x, valor_y);
-            txtData.setText(info);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+  //!Thread to handle save image
+    private Thread updaterThread2() {
+        Thread si = new Thread("Save Image") {
+            @Override
+            public void run() {
+                while(true){
+                    if (isRunning ) {
+                        if(flag_buff_img == true){
+                            flag_buff_img = false;
+                            long startTime = System.currentTimeMillis();
+                            String teste = String.format("/home/pedro/foto_java/%d.jpeg",cnt);
+                            outputfile = new File(teste);
+                            try {
+                                ImageIO.write(temp, "jpeg", outputfile);
+                            }
+                            catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            cnt++;
+                            long stopTime = System.currentTimeMillis();
+                            //long elapsedTime = stopTime - startTime;
+                            while((stopTime - startTime) < (1000/FPS))
+                            {
+                                stopTime = System.currentTimeMillis();
+                            }
+                            long elapsedTime = stopTime - startTime;
+                            System.out.println("\n"+elapsedTime);
+                        }
+                        else
+                        {
+                            try {
+                                TimeUnit.MILLISECONDS.sleep(100);
+                            }
+                            catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }     
+                    }
+                    else
+                    {
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(100);
+                        }
+                        catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+               }
+           }
+        };
+        return si;
+    }
+    
+    //!IMC handle
+    @Subscribe
+    public void consume(EstimatedState msg) {   
+        if(msg.getSrc() == 3078){
+            try {
+                //! update the position of target
+                //LAT and LON rad
+                double lat_rad = msg.getLat();
+                double lon_rad = msg.getLon();
+                //LAT and LON deg
+                double lat_deg = lat_rad*(180/Math.PI);
+                double lon_deg = lon_rad*(180/Math.PI);
+                //Offset (m)
+                double offset_n = msg.getX();
+                double offset_e = msg.getY();
+                //Lat and Lon final
+                double lat = lat_deg + (180/Math.PI)*(offset_e/6378137);
+                double lon = lon_deg + (180/Math.PI)*(offset_n/6378137)/Math.cos(lat_deg);
+                //height of Vehicle 
+                double height_v = msg.getHeight();
+                //System.out.println("SourceEntity: "+msg.getSrc());
+                //System.out.printf("LAT: %f # LON: %f # rad\n",lat_rad, lon_rad);
+                info = String.format("LAT: %f # LON: %f # Alt: %.2f m", lat, lon, height_v);
+                txtData.setText(info);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
     
     @Subscribe
     public void consume(Announce announce) {
+        //System.out.println("Announce: "+announce.getSysName()+"  ID: "+announce.getSrc());
         //System.out.println("RECEIVED ANNOUNCE"+announce);
     }
     
+    //!Fill cv::Mat image with zeros
     public void inic_image(){
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         Mat mat_resize = new Mat(720, 960, CvType.CV_8UC3);
@@ -470,11 +528,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         show_image(temp);
     }
     
-    //Received data Image
+    //!Received data Image
     public void received_data_image(){
-        
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        
         try {
             line = in.readLine();
         }
@@ -565,14 +621,15 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 try {
                     int count = decompresser.inflate(buf);                  
                     bos.write(buf, 0, count);
-                    } 
+                } 
                 catch (DataFormatException e) {
                     break;
                 }
             }
             try {
                 bos.close();
-            } catch (IOException e) {
+            } 
+            catch (IOException e) {
             }
             
             // Get the decompressed data
@@ -582,27 +639,27 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             //Transform byte data to cv::Mat (for display image)
             Mat mat = new Mat(height, width, CvType.CV_8UC3);
             mat.put(0, 0, decompressedData);
-            
+            //Resize image to 960x720 resolution
             Mat mat_resize = new Mat(960, 720, CvType.CV_8UC3);
             Size size = new Size(960, 720);
             Imgproc.resize(mat, mat_resize, size);
                        
             //Convert Mat to BufferedImage
             temp=matToBufferedImage(mat_resize);
-            //System.out.printf("\nShow Image   Size = %d",length_image/1024);
+            
+            //TODO: CHANGE TO TRUE FOR END DEBUG (SAVE IMAGE TO DISK)
+            flag_buff_img = false;      
             
             //Display image in JFrame
             info = String.format("X = %d - Y = %d   x %.2f   %d bytes (KiB = %d)", width, height,x_scale,length_image,length_image/1024);
             txtText.setText(info);
-            
             show_image(temp);
-            //repaint();
         }
     }
     
-    //Create Socket service
+    //!Create Socket service
     public void tcp_connection(){
-      //Socket Config
+        //Socket Config
         ServerSocket serverSocket = null;    
         try { 
             serverSocket = new ServerSocket(2424); 
@@ -612,7 +669,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             System.err.println("Could not listen on port: "+ serverSocket); 
             System.exit(1); 
         } 
-
         Socket clientSocket = null; 
         System.out.println ("Waiting for connection.....");
         try { 
@@ -623,12 +679,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             System.err.println("Accept failed."); 
             System.exit(1); 
         } 
-
         System.out.println ("Connection successful from Server: "+clientSocket.getInetAddress()+":"+serverSocket.getLocalPort());
         System.out.println ("Receiving data image.....");
         
-        
-      //Send data for sync 
+        //Send data for sync 
         try {
             out = new PrintWriter(clientSocket.getOutputStream(), true);
         }
@@ -646,6 +700,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //Buffer for info of data image
         in = new BufferedReader( new InputStreamReader( is ));
     }
+    
     /**  
      * Converts/writes a Mat into a BufferedImage.  
      * @param matrix Mat of type CV_8UC3 or CV_8UC1  
@@ -675,10 +730,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         default:  
             return null;  
         }
-        
         BufferedImage image2 = new BufferedImage(cols, rows, type);  
         image2.getRaster().setDataElements(0, 0, cols, rows, data);  
-        return image2;  
+        return image2;
     }
-
 }
