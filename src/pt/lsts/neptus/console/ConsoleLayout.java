@@ -153,6 +153,7 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * 
@@ -219,6 +220,8 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     // -------------------------------- XML console
     public File fileName = null;
     public boolean resizableConsole = false;
+    
+    private boolean systemComboOnMenu = true;
 
     /**
      * Static factory method
@@ -258,13 +261,18 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
      * Constructor: begins an empty Console
      */
     public ConsoleLayout() {
+        systemComboOnMenu = GeneralPreferences.placeMainVehicleComboOnMenuOrStatusBar;
+        
         NeptusEvents.create(this);
         this.setupListeners();
         this.setupKeyBindings();
         this.setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         notificationsDialog = new NotificationsDialog(new NotificationsCollection(this), this);
-        statusBar = new StatusBar(this, notificationsDialog);
+        if (systemComboOnMenu)
+            statusBar = new StatusBar(this, notificationsDialog);
+        else
+            statusBar = new StatusBar(this, notificationsDialog, new MainSystemSelectionCombo(this));
 
         mainPanel = new MainPanel(this);
         this.add(mainPanel, BorderLayout.CENTER);
@@ -620,9 +628,11 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     }
 
     protected void includeExtraMainMenus() {
-        menuBar.add(Box.createHorizontalGlue());
-        mainSystemCombo = new MainSystemSelectionCombo(this);
-        menuBar.add(mainSystemCombo);
+        if (systemComboOnMenu) {
+            menuBar.add(Box.createHorizontalGlue());
+            mainSystemCombo = new MainSystemSelectionCombo(this);
+            menuBar.add(mainSystemCombo);
+        }
     }
 
     /**

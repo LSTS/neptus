@@ -52,6 +52,7 @@ import pt.lsts.neptus.console.events.ConsoleEventNewNotification;
 import pt.lsts.neptus.console.events.ConsoleEventPlanChange;
 import pt.lsts.neptus.console.notifications.NotificationsDialog;
 import pt.lsts.neptus.events.NeptusEvents;
+import pt.lsts.neptus.gui.system.selection.MainSystemSelectionCombo;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.DateTimeUtil;
 
@@ -72,18 +73,25 @@ public class StatusBar extends JPanel {
     private ConsoleLayout console;
     private NotificationsDialog notificationsDialog;
     private int notificationCount = 0;
+    private MainSystemSelectionCombo mainSystemSelectionCombo = null; 
 
     protected Timer clockTimer = null;
     protected TimerTask clockTimerTask = null;
 
     public StatusBar(ConsoleLayout console, NotificationsDialog notificationsDialog) {
+        this(console, notificationsDialog, null);
+    }
+
+    public StatusBar(ConsoleLayout console, NotificationsDialog notificationsDialog, MainSystemSelectionCombo mainSystemSelectionCombo) {
         super();
 
         this.setBorder(new BevelBorder(BevelBorder.LOWERED));
         this.setPreferredSize(new Dimension(console.getWidth(), 25));
         this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         this.notificationsDialog = notificationsDialog;
+        this.mainSystemSelectionCombo = mainSystemSelectionCombo;
         this.console = console;
+
         this.initialize();
         NeptusEvents.register(this, console);
         this.setVisible(true);
@@ -139,6 +147,9 @@ public class StatusBar extends JPanel {
             }
         });
         this.add(notificationButton);
+        
+        if (mainSystemSelectionCombo != null)
+            this.add(mainSystemSelectionCombo);
     }
 
     public void startClock() {
