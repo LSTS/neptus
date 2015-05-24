@@ -230,6 +230,12 @@ public class GeneralPreferences implements PropertiesProvider {
     public static int maximumSizePlanNameForAcoustics = 31;
     
     // -------------------------------------------------------------------------
+
+    @NeptusProperty(name = "Place Main Vehicle Combobox On Menu Or Status Bar", category="Console", userLevel = LEVEL.REGULAR,
+       description = "Place the console vehicle combobox on the menu bar or status bar (overcomes Utity hidding menus).")
+    public static boolean placeMainVehicleComboOnMenuOrStatusBar = true;
+        
+    // -------------------------------------------------------------------------
     // Constructor and initialize
 
     public GeneralPreferences() {
