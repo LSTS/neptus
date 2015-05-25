@@ -42,6 +42,7 @@ import javax.swing.ProgressMonitor;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
@@ -78,6 +79,9 @@ public class SidescanImageExporter implements MRAExporter {
     public int imageHeight = 1080;
     
     @NeptusProperty
+    public int imageOverlap = 0;
+    
+    @NeptusProperty
     public int hudSize = 250;
     
     @NeptusProperty
@@ -101,7 +105,10 @@ public class SidescanImageExporter implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         parser = SidescanParserFactory.build(source);
-        PluginUtils.editPluginProperties(this, true);
+        boolean cancel = PluginUtils.editPluginProperties(this, true);
+        if (cancel)
+            return "Cancelled by user";
+        
         MraVehiclePosHud hud = new MraVehiclePosHud(source, hudSize, hudSize);
         hud.setPathColor(Color.white);
         //double ratio = 9.0 / 16.0;
@@ -133,7 +140,7 @@ public class SidescanImageExporter implements MRAExporter {
         
         for (long time = start; time < end - 1000; time += 1000) {
             if (pmonitor.isCanceled())
-                return "Cancelled by the user";
+                return I18n.text("Cancelled by the user");
             lines = parser.getLinesBetween(time, time + 1000, sys, params);
 
             if (lines.isEmpty())
@@ -147,21 +154,27 @@ public class SidescanImageExporter implements MRAExporter {
             }
             BufferedImage tmp = new BufferedImage(lines.get(0).data.length, 1, BufferedImage.TYPE_INT_RGB);
             for (SidescanLine l : lines) {
-                pmonitor.setNote("Generating image "+image_num);
+                pmonitor.setNote(I18n.textf("Generating image %num",image_num));
                 pmonitor.setProgress((int)((time - start)/1000));
                 if (ypos >= height || time == end) {
                     endTime = time / 1000.0;
                     
-                    if (showHud) {
+                    if (imageOverlap == 0 && showHud) {
                         BufferedImage hudImg = hud.getImage(startTime, endTime, 1.0);
                         img.getGraphics().drawImage(hudImg, 10, height - hudSize-10, hudSize - 10, height-10, 0, 0, hudSize, hudSize, null);
                     }
                     
                     try {
                         ImageIO.write(img, "PNG", new File(out, "sss_"+image_num+".png"));
-                        img.getGraphics().clearRect(0, 0, img.getWidth(), img.getHeight());
-                        ypos = 0;
+                        
+                        if (imageOverlap > 0)
+                            img.getGraphics().drawImage(img, 0, 0, img.getWidth(), imageOverlap, 0, img.getHeight()-imageOverlap, img.getWidth(), img.getHeight(), null);                            
+                        
+                        img.getGraphics().clearRect(0, imageOverlap, img.getWidth(), img.getHeight()-imageOverlap);
+
+                        ypos = imageOverlap;
                         image_num++;
+                        
                     }
                     catch (Exception e) {
                         NeptusLog.pub().error(e);
@@ -197,7 +210,7 @@ public class SidescanImageExporter implements MRAExporter {
             parser.cleanup();
             parser = null;
         }
-        return "OK";
+        return I18n.textf("%num images were exported to %path.", image_num, out.getAbsolutePath());
     }    
 
     @Override
