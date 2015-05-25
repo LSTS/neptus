@@ -183,7 +183,7 @@ public class SituationAwareness extends ConsoleInteraction implements IConsoleLa
         wg = ImageUtils.getImage("pt/lsts/neptus/plugins/sunfish/wg.png");
     }
     
-    @Periodic
+    @Periodic(millisBetweenUpdates=1000 * 60 * 15)
     public void fetchAssetProperties() {
         NeptusLog.pub().info("Fetching asset properties");
         for (AssetDesc a : props.fetchAssets()) {

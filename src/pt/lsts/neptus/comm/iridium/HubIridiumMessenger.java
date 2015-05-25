@@ -65,7 +65,7 @@ import com.google.gson.Gson;
 public class HubIridiumMessenger implements IridiumMessenger {
 
     protected boolean available = true;
-    protected String serverUrl = "http://hub.lsts.pt/api/v1/";
+    protected String serverUrl = "http://ripples.lsts.pt/api/v1/";
     // protected String serverUrl = "http://lsts-hub/api/v1/";
     protected String systemsUrl = serverUrl+"systems";
     protected String activeSystemsUrl = systemsUrl+"/active";
@@ -74,7 +74,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
     protected HashSet<IridiumMessageListener> listeners = new HashSet<>();
     
     private static TimeZone tz = TimeZone.getTimeZone("UTC");
-    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
     static { dateFormat.setTimeZone(tz); }
     
    // protected Thread t = null;
