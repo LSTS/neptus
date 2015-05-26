@@ -180,7 +180,7 @@ public class HubIridiumMessenger implements IridiumMessenger {
             NeptusLog.pub().error(e);
         }
         
-        if (conn.getResponseCode() != 201) {
+        if (conn.getResponseCode() != 200) {
             throw new Exception("Server returned "+conn.getResponseCode()+": "+conn.getResponseMessage());
         }
     }
