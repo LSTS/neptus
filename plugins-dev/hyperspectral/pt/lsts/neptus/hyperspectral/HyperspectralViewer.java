@@ -72,7 +72,7 @@ public class HyperspectralViewer extends ConsolePanel {
         super(console);   
         setLayout(new BorderLayout());
         setupMenu();
-        realtimePanel = new RealtimeViewer();
+        realtimePanel = new RealtimeViewer(console);
         
         add(realtimePanel);
         add(menuBar, BorderLayout.NORTH);

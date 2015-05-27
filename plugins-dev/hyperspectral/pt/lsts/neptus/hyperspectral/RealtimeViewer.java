@@ -54,6 +54,8 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 
+import pt.lsts.imc.HyperSpecData;
+import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 
@@ -65,6 +67,11 @@ import com.google.common.eventbus.Subscribe;
  */
 @SuppressWarnings("serial")
 public class RealtimeViewer extends JPanel {
+    private static int MIN_FREQ = 0;
+    private static int MAX_FREQ = 740;
+    
+    private ConsoleLayout console;
+    
     /* data visualization/display panel */
     private JSplitPane dataSplitPane;
     private JPanel fullSpectrumPanel; /* contains real-time images with all the frequencies requested by the user*/
@@ -82,10 +89,14 @@ public class RealtimeViewer extends JPanel {
     
     /* testing */
     Queue<ImageIcon> frames;
+    private double selectedWavelength;
     
-    public RealtimeViewer() {
+    public RealtimeViewer(ConsoleLayout console) {
         super();
+        this.console = console;
         setLayout(new BorderLayout());
+        
+        selectedWavelength = 0;
         
         setupControlPanels();
         setupDataDisplayPanels();
@@ -94,6 +105,7 @@ public class RealtimeViewer extends JPanel {
         frames = loadFrames();        
         PeriodicUpdatesService.registerPojo(this);
     }
+    
     
     /* where the actual data are displayed */
     private void setupDataDisplayPanels() {
@@ -157,10 +169,25 @@ public class RealtimeViewer extends JPanel {
         }
     }
         
-//    @Subscribe
-//    private void on(HyperSpecData msg) {
-//        
-//    }
+    @Subscribe
+    private void on(HyperSpecData msg) {
+        /* in this case is it necessary? */
+        String msgSrc = msg.getSourceName();       
+        if(!msgSrc.equals(console.getMainSystem()))
+                return;
+        
+        double minFreq = msg.getStartFreq();
+        double maxFreq = msg.getEndFreq();
+        byte[] frameBytes = msg.getData();
+        
+        ImageIcon frame = new ImageIcon(frameBytes);
+        
+        if(minFreq == MIN_FREQ && maxFreq == MAX_FREQ)
+            fullSpectrumDisplayer.setIcon(frame);
+        
+        else if((minFreq == selectedWavelength) || (maxFreq == selectedWavelength))
+            wavelengthDisplayer.setIcon(frame);
+    }
     
     /***** Just for testing *****/
     
