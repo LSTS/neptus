@@ -109,7 +109,7 @@ public class LandMapLayer extends SimpleRendererInteraction implements Renderer2
     public double dist_infront = -100;
 
     @NeptusProperty(name = "Distance behind [m]", description = "Distance from net to aimingpoint (WP) after net.", category = "Advanced")
-    public double dist_behind = 150;
+    public double dist_behind = 100;
 
     @NeptusProperty(name = "Ignore evasive [bool]", description = "If true: Force landing despite error demanding evasive.", category = "Advanced")
     public boolean ignore_evasive = false;
