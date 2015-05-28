@@ -50,6 +50,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.DataFormatException;
@@ -156,12 +157,22 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     String info;
     //Popup Menu
     JPopupMenu popup;
+    //Data system
+    Date date = new Date();
+    //Location of log_dir
+    String log_dir;
+    //Image resize
+    Mat mat_resize;
+    //Image receive
+    Mat mat;
+    //ID vehicle
+    int id_vehicle = 0;
 
     //*** TEST FOR SAVE VIDEO **/
     File outputfile;
     boolean flag_buff_img = false;
     int cnt=0;
-    int FPS = 12;
+    int FPS = 10;
     //*************************/
     
     //IMC message
@@ -238,6 +249,16 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     //!Config Layout
     public void layout_user(){
+        //Create Dir to save image data
+        log_dir = String.format("/home/%s/NEPTUS_LOG",System.getProperty("user.name"));
+        File dir = new File(log_dir);
+        dir.mkdir();
+        //System.out.println(dir.mkdir());
+        log_dir = String.format("/home/%s/NEPTUS_LOG/%s",System.getProperty("user.name"),date);
+        dir = new File(log_dir);
+        dir.mkdir();
+        //System.out.println(dir.mkdir());
+        
         //Label for image
         picLabel = new JLabel();
         //Panel for Image
@@ -336,6 +357,29 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         info = String.format("\t\t\t\t  ");
         txtData.setText(info);
         config.add(txtData, "cell 0 6 3 1, wrap");
+        
+        //Vehicle ComboBox
+        String[] vehicleStrings = { "Vehicle", "x8-03", "mariner-01","aero-01"};
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+        final JComboBox vehicleList = new JComboBox(vehicleStrings);
+        vehicleList.setSelectedIndex(0);
+        vehicleList.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+              {
+                String string_value = (String) vehicleList.getSelectedItem();
+                String check = "TPL Size";
+                if (string_value != check ){
+                    if (string_value == "x8-03")
+                        id_vehicle = 3078;
+                    if (string_value == "mariner-01")
+                        id_vehicle = 3079;
+                    if (string_value == "aero-01")
+                        id_vehicle = 3080;
+                }
+              }
+        });
+        config.add(vehicleList,"width 160:180:200, h 30!");
         
         menu = new JFrame("Menu_Config");
         menu.setVisible(show_menu);
@@ -449,7 +493,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         if(flag_buff_img == true){
                             flag_buff_img = false;
                             long startTime = System.currentTimeMillis();
-                            String teste = String.format("/home/pedro/foto_java/%d.jpeg",cnt);
+                            String teste = String.format("%s/%d.jpeg",log_dir,cnt);
+                            System.out.println(teste);
                             outputfile = new File(teste);
                             try {
                                 ImageIO.write(temp, "jpeg", outputfile);
@@ -497,7 +542,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //!IMC handle
     @Subscribe
     public void consume(EstimatedState msg) {   
-        if(msg.getSrc() == 3078){
+        if(msg.getSrc() == id_vehicle){
             try {
                 //! update the position of target
                 //LAT and LON rad
@@ -527,7 +572,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     @Subscribe
     public void consume(Announce announce) {
-        //System.out.println("Announce: "+announce.getSysName()+"  ID: "+announce.getSrc());
+        System.out.println("Announce: "+announce.getSysName()+"  ID: "+announce.getSrc());
         //System.out.println("RECEIVED ANNOUNCE"+announce);
     }
     
@@ -623,7 +668,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 dune_gps = in.readLine();
             }
             catch (IOException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
             
@@ -655,10 +699,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             //System.out.println("Original Size = " + decompressedData.length +" bytes");
             
             //Transform byte data to cv::Mat (for display image)
-            Mat mat = new Mat(height, width, CvType.CV_8UC3);
+            mat = new Mat(height, width, CvType.CV_8UC3);
             mat.put(0, 0, decompressedData);
             //Resize image to 960x720 resolution
-            Mat mat_resize = new Mat(960, 720, CvType.CV_8UC3);
+            mat_resize = new Mat(960, 720, CvType.CV_8UC3);
             Size size = new Size(960, 720);
             Imgproc.resize(mat, mat_resize, size);
                        
@@ -666,7 +710,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             temp=matToBufferedImage(mat_resize);
             
             //TODO: CHANGE TO TRUE FOR END DEBUG (SAVE IMAGE TO DISK)
-            flag_buff_img = false;      
+            flag_buff_img = true;      
             
             //Display image in JFrame
             info = String.format("X = %d - Y = %d   x %.2f   %d bytes (KiB = %d)", width, height,x_scale,length_image,length_image/1024);
