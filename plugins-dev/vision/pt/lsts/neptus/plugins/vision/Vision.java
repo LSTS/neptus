@@ -373,7 +373,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     if (string_value == "x8-03")
                         id_vehicle = 3078;
                     if (string_value == "mariner-01")
-                        id_vehicle = 3079;
+                        id_vehicle = 3081;
                     if (string_value == "aero-01")
                         id_vehicle = 3080;
                 }
