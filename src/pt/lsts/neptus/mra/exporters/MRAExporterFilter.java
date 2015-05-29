@@ -93,8 +93,7 @@ public class MRAExporterFilter implements MRAExporter {
     private IMraLogGroup source;
     private ProgressMonitor pmonitor;
     private ArrayList<String> defaultLogs = new ArrayList<String>();
-    private FilterList filterList;
-
+    
     /**
      * @wbp.parser.entryPoint
      */
@@ -120,9 +119,8 @@ public class MRAExporterFilter implements MRAExporter {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setSelectedFile(new File(path.concat("/Data_filtered.lsf")));
         fileChooser.setFileView(new NeptusFileView());
-        fileChooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("LSF log files"),
-                new String[] { "lsf", FileUtil.FILE_TYPE_LSF_COMPRESSED, 
-            FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2 }));
+        fileChooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("Log files"),
+                new String[] { FileUtil.FILE_TYPE_LSF, FileUtil.FILE_TYPE_LSF_COMPRESSED }));
 
         fileChooser.setAcceptAllFileFilterUsed(false);
 
@@ -157,7 +155,7 @@ public class MRAExporterFilter implements MRAExporter {
         //list of messages in this log source
         String[] logs = source.listLogs();
         //create JFrame with default logs selected and the rest of available logs
-        filterList = new FilterList(defaultLogs, logs);
+        new FilterList(defaultLogs, logs);
 
         return null;
     }
@@ -362,8 +360,8 @@ public class MRAExporterFilter implements MRAExporter {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     // filterList.setVisible(false);
-                    defaultLogs.addAll(filterList.getSelectedItems());
-                    applyFilter(filterList);
+                    defaultLogs.addAll(getSelectedItems());
+                    applyFilter(FilterList.this);
                 }
             };
             saveBtn.addActionListener(saveFileAct);
