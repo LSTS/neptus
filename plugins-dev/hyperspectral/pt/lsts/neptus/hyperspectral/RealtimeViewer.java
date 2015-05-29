@@ -52,6 +52,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
@@ -181,6 +182,29 @@ public class RealtimeViewer extends JPanel {
                     frames = loadFrames();
                     setAsPeriodic();
                 }
+                
+                String valueStr = wavelengthField.getText();
+                if(valueStr == null || valueStr.equals("") || valueStr.equals(" "))
+                    return;
+                
+                double value = Double.parseDouble(valueStr);
+                if(value >= HyperspectralViewer.MIN_FREQ && value <= HyperspectralViewer.MAX_FREQ){
+                    if(value != selectedWavelength) {
+                        selectedWavelength = value;
+                        /* request wavelength */
+                    }
+                }
+                else
+                    JOptionPane.showMessageDialog(controlSplitPanel,
+                            "Invalid wavelength!\nShould be between "
+                            + HyperspectralViewer.MIN_FREQ
+                            + " and "
+                            + HyperspectralViewer.MAX_FREQ
+                            + " nm",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                
+                wavelengthField.setText("");
             }
         });
     }
