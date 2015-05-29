@@ -193,7 +193,14 @@ public abstract class RangePainter implements Renderer2DPainter {
 	
 	public abstract void callParentRepaint();
 	
-	public void updateGraphics(final double newRange, boolean accepted, String reason) {
+	/**
+     * @param curLoc the curLoc to set
+     */
+    public void setCurLoc(LocationType curLoc) {
+        this.curLoc = curLoc;
+    }
+
+    public void updateGraphics(final double newRange, boolean accepted, String reason) {
 		// setCurLoc(curLoc);
 		setRange(newRange);
 		setAccepted(accepted);

@@ -158,6 +158,7 @@ public class JsfSidescanParser implements SidescanParser {
                 SystemPositionAndAttitude pose = new SystemPositionAndAttitude();
                 pose.getPosition().setLatitudeDegs((pboard.getLat() / 10000.0) / 60.0);
                 pose.getPosition().setLongitudeDegs((pboard.getLon() / 10000.0) / 60.0);
+                pose.getPosition().setDepth( pboard.getDepthMillis() / 1E3);
                 pose.setRoll(Math.toRadians(pboard.getRoll() * (180 / 32768.0)));
                 pose.setYaw(Math.toRadians(pboard.getHeading() / 100));
                 pose.setAltitude(pboard.getAltMillis() / 1000.0);

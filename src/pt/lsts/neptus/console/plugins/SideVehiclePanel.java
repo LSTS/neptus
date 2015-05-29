@@ -78,7 +78,7 @@ public class SideVehiclePanel extends JPanel {
             return;
         
         vsizeX = veh.getXSize();
-        vsizeX = veh.getZSize();
+        vsizeZ = veh.getZSize();
 
         image = ImageUtils.getImage(VehiclesHolder.getVehicleById(id).getSideImageHref());
         pitch = 0.0f;

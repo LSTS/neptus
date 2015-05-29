@@ -574,6 +574,10 @@ public class GuiUtils {
         return confirmDialog(owner, title, message, ModalityType.DOCUMENT_MODAL);
     }
 
+    public static int confirmDialogWithCancel(Component owner, String title, String message) {
+        return confirmDialogWorker(owner, title, message, ModalityType.DOCUMENT_MODAL, JOptionPane.YES_NO_CANCEL_OPTION);
+    }
+
     /**
      * Use this instead of JOptionPane.showMessageDialog(..., JOptionPane.QUESTION_MESSAGE)
      * @param owner
@@ -582,10 +586,15 @@ public class GuiUtils {
      * @return {@link JOptionPane#YES_OPTION}, {@link JOptionPane#NO_OPTION}, or {@link JOptionPane#CLOSED_OPTION}
      */
     public static int confirmDialog(Component owner, String title, String message, ModalityType modalityType) {
+        return confirmDialogWorker(owner, title, message, modalityType, JOptionPane.YES_NO_OPTION);
+    }
+    
+    private static int confirmDialogWorker(Component owner, String title, String message, ModalityType modalityType,
+            int option) {
         // int response = JOptionPane.showConfirmDialog(owner, message, title, JOptionPane.YES_NO_OPTION);
         // return response; // == JOptionPane.YES_OPTION;
 
-        JOptionPane jop = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+        JOptionPane jop = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, option);
         JDialog dialog = jop.createDialog(owner, title);
         dialog.setModalityType(modalityType);
         dialog.setVisible(true);

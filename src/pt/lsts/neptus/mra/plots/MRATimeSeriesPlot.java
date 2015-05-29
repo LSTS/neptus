@@ -239,7 +239,7 @@ public abstract class MRATimeSeriesPlot implements LLFChart, LogMarkerListener {
     }
 
     @Override
-    public void GotoMarker(LogMarker marker) {
+    public void goToMarker(LogMarker marker) {
 
     }
 }

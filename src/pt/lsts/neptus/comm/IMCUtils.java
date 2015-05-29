@@ -64,6 +64,7 @@ import pt.lsts.imc.IMCFieldType;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCMessageType;
 import pt.lsts.imc.IMCOutputStream;
+import pt.lsts.imc.ImcStringDefs;
 import pt.lsts.imc.types.PlanSpecificationAdapter;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
@@ -1262,14 +1263,14 @@ public class IMCUtils {
      */
     public static String getSystemType(int imcId) {
         int sys_selector = 0xE000;
-        int vtype_selector = 0x1800;
-
+        int vtype_selector = 0x1C00;
+        
         int sys_type = (imcId & sys_selector) >> 13;
 
         switch (sys_type) {
             case 0:
             case 1:
-                switch ((imcId & vtype_selector) >> 11) {
+                switch ((imcId & vtype_selector) >> 10) {
                     case 0:
                         return "UUV";
                     case 1:
@@ -1299,6 +1300,14 @@ public class IMCUtils {
         return "Unknown";
     }
 
+    public static void main(String[] args) {
+        
+        
+        for (String v : ImcStringDefs.IMC_ADDRESSES.keySet()) {
+            System.out.println(v+" is of type "+getSystemType(ImcStringDefs.IMC_ADDRESSES.get(v)));
+        }
+    }
+    
     public static void testSysTypeResolution() throws Exception {
         String address_url = "file:///home/zp/Desktop/IMC_Addresses.xml";
 

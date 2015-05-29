@@ -15,7 +15,7 @@
  *
  * European Union Public Licence - EUPL v.1.1 Usage
  * Alternatively, this file may be used under the terms of the EUPL,
- * Version 1.1 only (the "Licence"), appearing in the file LICENCE.md
+ * Version 1.1 only (the "Licence"), appearing in the file LICENSE.md
  * included in the packaging of this file. You may not use this work
  * except in compliance with the Licence. Unless required by applicable
  * law or agreed to in writing, software distributed under the Licence is
@@ -26,16 +26,31 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: 
- * 20??/??/??
+ * Author: zp
+ * Apr 1, 2015
  */
-package pt.lsts.neptus.gps;
+package convcao.com.caoAgent.model;
 
-public interface GPSListener {
-	/**
-	 * Every time the GPS has a new state, this method is invoked
-	 * @param oldState The last state that was read
-	 * @param newState The new state being reported
-	 */
-	public void GPSStateChanged(GPSState oldState, GPSState newState);
-}
+/**
+ * @author zp
+ *
+ */
+public class TransferData
+{
+    public String SessionID = "";
+    public int timeStep = 0;
+
+    
+    // 1 row per auv, 1 coordinates (depth)         
+    public double[] Bathymeter;
+    
+    // 1 row per auv, 2 coordinates (northing, easting) 
+    public double[][] Location;
+    
+    // 1 row per beam
+    public double[] MBSamples;
+    
+    // 1 row per beam (position where beam intercepts with ocean floor)
+    public double[][] SampleLocations;
+    
+};

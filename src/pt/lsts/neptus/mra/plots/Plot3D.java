@@ -365,7 +365,7 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
     }
 
     @Override
-    public void GotoMarker(LogMarker marker) {
+    public void goToMarker(LogMarker marker) {
 
     }
 

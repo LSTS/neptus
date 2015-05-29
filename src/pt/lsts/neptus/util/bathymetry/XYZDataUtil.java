@@ -260,7 +260,7 @@ public class XYZDataUtil {
 		double maxZ1 = Double.NEGATIVE_INFINITY;
 		for (double[] zt1 : kdkd) {
 			for (double zt : zt1) {
-			if (zt == Double.NaN)
+			if (Double.isNaN(zt))
 				continue;
 			if (zt < minZ1)
 				minZ1 = zt;

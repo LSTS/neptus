@@ -40,5 +40,5 @@ import pt.lsts.neptus.mra.LogMarker;
 public interface LogMarkerListener {
     public void addLogMarker(LogMarker marker);
     public void removeLogMarker(LogMarker marker);
-    public void GotoMarker(LogMarker marker);
+    public void goToMarker(LogMarker marker);
 }

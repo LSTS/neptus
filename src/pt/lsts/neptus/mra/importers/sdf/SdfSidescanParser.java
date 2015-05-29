@@ -47,6 +47,13 @@ public class SdfSidescanParser implements SidescanParser {
         parser = new SdfParser(f);
     }
 
+    /**
+     * @param files
+     */
+    public SdfSidescanParser(File[] files) {
+        parser = new SdfParser(files);
+    }
+
     @Override
     public long firstPingTimestamp() {
         return parser.getFirstTimeStamp();
@@ -97,7 +104,7 @@ public class SdfSidescanParser implements SidescanParser {
             
             // Calculate Portboard
             for (int i = 0; i < nSamples; i++) {
-                double r =  i / (double) nSamples;
+                double r =  1 - (i / (double) nSamples);
                 double gain = Math.abs(30.0 * Math.log(r));
                 double pb = sboardPboard.getPortData()[i] * Math.pow(10, gain / config.getTvgGain());
                 
@@ -122,6 +129,7 @@ public class SdfSidescanParser implements SidescanParser {
             pose.setYaw(Math.toRadians(sboardPboard.getHeader().getShipHeading()));           
             pose.setAltitude(sboardPboard.getHeader().getAltitude() ); // altitude in meters
             pose.setU(sboardPboard.getHeader().getSpeedFish() / 100.0); // Convert cm/s to m/s
+            pose.getPosition().setDepth(sboardPboard.getHeader().getAuxDepth());
 
             float frequency = ping.getHeader().getSonarFreq();
             float range = ping.getHeader().getRange();

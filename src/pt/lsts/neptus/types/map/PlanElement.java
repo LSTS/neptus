@@ -797,7 +797,6 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
 
     public void preferencesUpdated() {
         setColor(GeneralPreferences.rendererPlanColor);
-        renderer.repaint();
     }
 
     public String getSelectedManeuver() {
