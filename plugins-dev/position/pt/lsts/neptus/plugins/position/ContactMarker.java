@@ -49,6 +49,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.CcuEvent;
@@ -57,6 +61,7 @@ import pt.lsts.imc.DevDataBinary;
 import pt.lsts.imc.MapFeature;
 import pt.lsts.imc.MapFeature.FEATURE_TYPE;
 import pt.lsts.imc.MapPoint;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
@@ -98,10 +103,10 @@ import pt.lsts.neptus.util.ReflectionUtil;
 // icon = "pt/lsts/neptus/plugins/acoustic/lbl.png",
 description = "Mark a contact on the map from a system location.", documentation = "contact-maker/contact-maker.html")
 public class ContactMarker extends ConsolePanel implements IEditorMenuExtension, ConfigurationListener,
-        SubPanelChangeListener, MainVehicleChangeListener {
+SubPanelChangeListener, MainVehicleChangeListener {
 
     @NeptusProperty(name = "Use Single Mark Addition Mode", userLevel = LEVEL.ADVANCED, 
-            description = "Hability to only add marks by inputing the location or using an active system")
+            description = "Ability to only add marks by inputing the location or using an active system")
     public boolean useSingleMarkAdditionMode = true;
 
     private Vector<IMapPopup> renderersPopups = new Vector<IMapPopup>();
@@ -290,15 +295,15 @@ public class ContactMarker extends ConsolePanel implements IEditorMenuExtension,
                                 };
                             };
                             Toolkit.getDefaultToolkit()
-                                    .getSystemClipboard()
-                                    .setContents(new StringSelection(elem.getCenterLocation().getClipboardText()),
-                                            owner);
+                            .getSystemClipboard()
+                            .setContents(new StringSelection(elem.getCenterLocation().getClipboardText()),
+                                    owner);
                         }
                     };
                     copy.add(rem);
                     MenuScroller.setScrollerFor(copy, 25);
                 }
-                
+
                 JMenu dissem = new JMenu(I18n.text("Disseminate mark"));
                 menus.add(dissem);
                 for (final AbstractElement elem : marks) {
@@ -321,7 +326,7 @@ public class ContactMarker extends ConsolePanel implements IEditorMenuExtension,
 
         return menus;
     }
-    
+
     @Subscribe
     public void on(CcuEvent ev) {
         if (ev.getType() == TYPE.MAP_FEATURE_ADDED) {
@@ -330,7 +335,37 @@ public class ContactMarker extends ConsolePanel implements IEditorMenuExtension,
             if (answer == JOptionPane.OK_OPTION) {
                 DevDataBinary data = (DevDataBinary)ev.getArg();
                 String xml = new String(data.getValue());
-                System.out.println(xml);
+
+                try {
+                    Document doc = DocumentHelper.parseText(xml);
+                    switch(doc.getRootElement().getName()) {
+                        case "mark":
+                            MarkElement el = new MarkElement(xml);
+                            
+                            MapGroup mg = MapGroup.getMapGroupInstance(getConsole().getMission());
+                            AbstractElement[] els = mg.getMapObjectsByID(el.getId());
+                            if (els.length != 0) {
+                                int resp = GuiUtils.confirmDialog(getConsole(), "Add mark", "Existing map element will be updated. Proceed?");
+                                if (resp == JOptionPane.OK_OPTION) {
+                                    els[0].setCenterLocation(el.getCenterLocation());
+                                }
+                            }
+                            else {
+                                MapType mapType = mg.getMaps()[0];// mapMission.getMap();
+                                mapType.addObject(el);
+                                getConsole().getMission().save(true);
+                                getConsole().warnMissionListeners();                                
+                            }
+                            break;
+                        default:
+                            GuiUtils.errorMessage(getConsole(), "Add map feature", "Features of type "
+                                    + doc.getRootElement().getName() + " are not supported.");
+                            break;
+                    }
+                }
+                catch (DocumentException e) {
+                    NeptusLog.pub().error(e);                    
+                }
             }
         }
     }
