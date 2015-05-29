@@ -38,6 +38,8 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -72,6 +74,8 @@ public class RealtimeViewer extends JPanel {
     
     private ConsoleLayout console;
     
+    private JSplitPane mainSplitPane;
+    
     /* data visualization/display panel */
     private JSplitPane dataSplitPane;
     private JPanel fullSpectrumPanel; /* contains real-time images with all the frequencies requested by the user*/
@@ -96,14 +100,16 @@ public class RealtimeViewer extends JPanel {
         this.console = console;
         setLayout(new BorderLayout());
         
+        mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        mainSplitPane.setResizeWeight(0.3);
+        add(mainSplitPane, BorderLayout.CENTER);
+        
         selectedWavelength = 0;
         
-        setupControlPanels();
+        setupControlPanels();       
         setupDataDisplayPanels();
         
-        /**** Just for testing ****/
-        frames = loadFrames();        
-        PeriodicUpdatesService.registerPojo(this);
+        mainSplitPane.setDividerLocation(0.3);
     }
     
     
@@ -111,25 +117,26 @@ public class RealtimeViewer extends JPanel {
     private void setupDataDisplayPanels() {
         dataSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         dataSplitPane.setResizeWeight(0.5); /* split panels evenly */
+        mainSplitPane.setRightComponent(dataSplitPane);
         
         fullSpectrumPanel = new JPanel();
         selectedWavelengthPanel = new JPanel();
-    
-        add(dataSplitPane, BorderLayout.EAST);
-        dataSplitPane.add(fullSpectrumPanel);
-        dataSplitPane.add(selectedWavelengthPanel);
         
         fullSpectrumDisplayer = new JLabel();
         wavelengthDisplayer = new JLabel();
         
         fullSpectrumPanel.add(fullSpectrumDisplayer, BorderLayout.CENTER);
         selectedWavelengthPanel.add(wavelengthDisplayer, BorderLayout.CENTER);
+        
+        dataSplitPane.setTopComponent(fullSpectrumPanel);
+        dataSplitPane.setBottomComponent(selectedWavelengthPanel);
+        dataSplitPane.setDividerLocation(0.5);
     }
     
     private void setupControlPanels() {
         controlSplitPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         controlSplitPanel.setResizeWeight(0.97);
-        add(controlSplitPanel);
+        mainSplitPane.setLeftComponent(controlSplitPanel);
         
         int paneWidth = (int)(controlSplitPanel.getParent().getWidth() * 0.2);
         int paneHeight = (int)(controlSplitPanel.getParent().getHeight());
@@ -167,6 +174,18 @@ public class RealtimeViewer extends JPanel {
             
             wavelengthSelectionPanel.add(components[i], c);
         }
+        
+        sendRequest.addActionListener(new ActionListener() {
+            boolean clicked = false;
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!clicked) { /* testing */
+                    clicked = true;
+                    frames = loadFrames();
+                    setAsPeriodic();
+                }
+            }
+        });
     }
         
     @Subscribe
@@ -203,8 +222,8 @@ public class RealtimeViewer extends JPanel {
         for(int i = 0; i < frames.length; i++) {
             ImageIcon origFrame = new ImageIcon(frames[i].getAbsolutePath());
             
-            int scaledWidth = (int)(0.80 * origFrame.getIconWidth());
-            int scaledHeight = (int)(0.80 * origFrame.getIconHeight());
+            int scaledWidth = (int)(0.85 * origFrame.getIconWidth());
+            int scaledHeight = (int)(0.85 * origFrame.getIconHeight());
             
             ImageIcon scaledFrame = new ImageIcon(origFrame.getImage()
                     .getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_DEFAULT));
@@ -217,6 +236,9 @@ public class RealtimeViewer extends JPanel {
         return framesList;
     }
     
+    private void setAsPeriodic() {
+        PeriodicUpdatesService.registerPojo(this);
+    }
     
     
     /* 2fps */
