@@ -285,7 +285,7 @@ public class MRAExporterFilter implements MRAExporter {
         @SuppressWarnings({ "unchecked", "serial" })
         public FilterList(ArrayList<String> defaultLogs, String[] logs) {
 
-            super("MRA Exporter");
+            super(I18n.text("MRA Exporter"));
             setType(Type.NORMAL);
             setSize(230, 300);
             getContentPane().setLayout(new MigLayout("", "[240px]", "[300px]"));
@@ -316,7 +316,7 @@ public class MRAExporterFilter implements MRAExporter {
             JPanel p = new JPanel();
             p.setLayout(new BorderLayout());
             p.add(ps, BorderLayout.CENTER);
-            p.setBorder(new TitledBorder(new EtchedBorder(), "Filter messages:") );
+            p.setBorder(new TitledBorder(new EtchedBorder(), I18n.text("Filter messages")+":") );
 
             Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -356,7 +356,7 @@ public class MRAExporterFilter implements MRAExporter {
             getContentPane().add(p, "cell 0 1,alignx left,aligny top");
 
 
-            JButton saveBtn = new JButton("Save File");
+            JButton saveBtn = new JButton(I18n.text("Save File"));
             AbstractAction saveFileAct = new AbstractAction() {
 
                 @Override
