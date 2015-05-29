@@ -49,7 +49,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.CcuEvent;
+import pt.lsts.imc.CcuEvent.TYPE;
+import pt.lsts.imc.DevDataBinary;
 import pt.lsts.imc.MapFeature;
 import pt.lsts.imc.MapFeature.FEATURE_TYPE;
 import pt.lsts.imc.MapPoint;
@@ -294,10 +298,41 @@ public class ContactMarker extends ConsolePanel implements IEditorMenuExtension,
                     copy.add(rem);
                     MenuScroller.setScrollerFor(copy, 25);
                 }
+                
+                JMenu dissem = new JMenu(I18n.text("Disseminate mark"));
+                menus.add(dissem);
+                for (final AbstractElement elem : marks) {
+                    final String markId = elem.getId();
+                    AbstractAction rem = new AbstractAction(markId) {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            CcuEvent event = new CcuEvent();
+                            event.setType(TYPE.MAP_FEATURE_ADDED);
+                            event.setId(markId);
+                            event.setArg(new DevDataBinary(elem.asXML().getBytes()));
+                            System.out.println(sendToOtherCCUs(event));
+                        }                        
+                    };
+                    dissem.add(rem);
+                    MenuScroller.setScrollerFor(dissem, 25);
+                }
             }
         }
 
         return menus;
+    }
+    
+    @Subscribe
+    public void on(CcuEvent ev) {
+        if (ev.getType() == TYPE.MAP_FEATURE_ADDED) {
+            int answer = GuiUtils.confirmDialog(getConsole(), "Map Feature Added", "Do you wish to add the feature '" + ev.getId()
+                    + "' disseminated by '" + ev.getSourceName() + "' to the map?");
+            if (answer == JOptionPane.OK_OPTION) {
+                DevDataBinary data = (DevDataBinary)ev.getArg();
+                String xml = new String(data.getValue());
+                System.out.println(xml);
+            }
+        }
     }
 
     @Override
