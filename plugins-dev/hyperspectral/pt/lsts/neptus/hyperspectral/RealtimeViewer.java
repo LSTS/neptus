@@ -68,10 +68,7 @@ import com.google.common.eventbus.Subscribe;
  *
  */
 @SuppressWarnings("serial")
-public class RealtimeViewer extends JPanel {
-    private static int MIN_FREQ = 0;
-    private static int MAX_FREQ = 740;
-    
+public class RealtimeViewer extends JPanel {   
     private ConsoleLayout console;
     
     private JSplitPane mainSplitPane;
@@ -201,7 +198,7 @@ public class RealtimeViewer extends JPanel {
         
         ImageIcon frame = new ImageIcon(frameBytes);
         
-        if(minFreq == MIN_FREQ && maxFreq == MAX_FREQ)
+        if(minFreq == HyperspectralViewer.MIN_FREQ && maxFreq == HyperspectralViewer.MAX_FREQ)
             fullSpectrumDisplayer.setIcon(frame);
         
         else if((minFreq == selectedWavelength) || (maxFreq == selectedWavelength))
