@@ -43,12 +43,13 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -71,6 +72,9 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import net.miginfocom.swing.MigLayout;
+
+import org.apache.commons.io.FileUtils;
+
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
@@ -83,12 +87,13 @@ import pt.lsts.neptus.util.GuiUtils;
  *
  */
 @PluginDescription
+
 public class MRAExporterFilter implements MRAExporter {
 
     private IMraLogGroup source;
     private ProgressMonitor pmonitor;
     private ArrayList<String> defaultLogs = new ArrayList<String>();
-    private FilterList list;
+    private FilterList filterList;
 
     /**
      * @wbp.parser.entryPoint
@@ -129,6 +134,9 @@ public class MRAExporterFilter implements MRAExporter {
 
             try {
                 fileName = selectedFile.getCanonicalPath();
+                if (fileName.endsWith(".gz")) {
+                    return selectedFile = new File(fileName);
+                }
                 if (!fileName.endsWith(".lsf")) {
                     return selectedFile = new File(fileName + ".lsf");
                 }
@@ -139,43 +147,67 @@ public class MRAExporterFilter implements MRAExporter {
                 e.printStackTrace();
             }
         }
+        return null;
+    }
+
+    @Override
+    public String process(IMraLogGroup source, ProgressMonitor pPmonitor) {
+        pmonitor = pPmonitor;
+
+        //list of messages in this log source
+        String[] logs = source.listLogs();
+        //create JFrame with default logs selected and the rest of available logs
+        filterList = new FilterList(defaultLogs, logs);
 
         return null;
     }
 
     @Override
-    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
+    public String getName() {
+        return I18n.text("Export filtered log");
+    }
 
-        //list of messages in this log source
-        String[] logs = source.listLogs();
 
-        //create JFrame with default logs selected and the rest of available logs
-        list = new FilterList(defaultLogs, logs);
-
+    private void applyFilter(FilterList filter) {
         LsfIndex index = source.getLsfIndex();
 
         String path = source.getFile("Data.lsf").getParent();
+
         File outputFile = chooseSaveFile(path);
-        if (outputFile == null) {
-            return "Cancelled by the user";
+        FileOutputStream fos = null;
+        GZIPOutputStream gzipOS = null;
+        if(outputFile == null)
+            return;
+
+        try {
+            //create file
+            outputFile.createNewFile();
+            fos = new FileOutputStream(outputFile, true);
+
+            //GZIP if user selected .gz
+            if (outputFile.getName().toLowerCase().endsWith(FileUtil.FILE_TYPE_LSF_COMPRESSED))  {
+                gzipOS = new GZIPOutputStream(fos);
+            }
+
         }
-        OutputStream fos = null;
-        if(!outputFile.exists()) {
-            try {
-                outputFile.createNewFile();
-                fos = new FileOutputStream(outputFile, true);
-            }
-            catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        } 
+        writeToStream(index, fos, gzipOS);
 
-        System.out.println("Filtering... " + defaultLogs.toString());
-        for (String logName : logs) {
+        copyCheck(path.toString(), outputFile.getParentFile().getAbsolutePath());
+
+        pmonitor.setProgress(100);
+        filter.setVisible(false);
+        GuiUtils.infoMessage(filter, getName(), I18n.text("Process complete"));
+        filter.dispose();
+    }   
+
+    private void writeToStream(LsfIndex index, FileOutputStream fos, GZIPOutputStream gzipOutputStream) {
+        pmonitor.setNote(I18n.text("Filtering"));
+    
+        for (String logName : source.listLogs()) {
             if (defaultLogs.contains(logName)) {
                 int mgid = index.getDefinitions().getMessageId(logName);
                 int firstPos = index.getFirstMessageOfType(mgid);
@@ -190,13 +222,22 @@ public class MRAExporterFilter implements MRAExporter {
 
                         //write msg bytes
                         byte[] by = index.getMessageBytes(j);
-                        fos.write(by);
+                        if (gzipOutputStream == null) {
+                            fos.write(by);
+                        }
+                        else 
+                            gzipOutputStream.write(by);
 
                         j = index.getNextMessageOfType(mgid, j);
                     }
                     //append last message
                     byte[] lastMsg = index.getMessageBytes(lastPos);
-                    fos.write(lastMsg);
+                    if (gzipOutputStream == null)
+                        fos.write(lastMsg);
+                    else 
+                        gzipOutputStream.write(lastMsg);
+
+
                 }
                 catch (IOException e) {
                     e.printStackTrace();
@@ -204,33 +245,49 @@ public class MRAExporterFilter implements MRAExporter {
             }
 
         }
+        
+        //close resources
         try {
+            if (gzipOutputStream != null)
+                gzipOutputStream.close();
             fos.close();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-
-        return I18n.text("Process complete");
+    }
+    /** Copies IMC.xml.gz and Output.txt to location2, if location1 != location2.
+     * @param location1 
+     * @param location2 
+     * 
+     */
+    private void copyCheck(String location1, String location2) {
+        if (!location1.equals(location2)){
+            File sourceIMCXML = new File(location1+ "/IMC.xml.gz");
+            File sourceOutputTxt = new File(location1+ "/Output.txt");
+            File destIMC = new File(location2+"/IMC.xml.gz");
+            File destOutputTxt = new File(location2+"/Output.txt");
+            try {
+                FileUtils.copyFile(sourceIMCXML, destIMC);
+                FileUtils.copyFile(sourceOutputTxt, destOutputTxt);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } 
+        }
     }
 
-    @Override
-    public String getName() {
-        return I18n.text("Export filtered");
-    }
-
-
-    class FilterList extends JFrame {
-
-        protected JList  m_list;
+    @SuppressWarnings("rawtypes")
+    private class FilterList extends JFrame {
+        private static final long serialVersionUID = 1L;
+        protected JList m_list;
         private JTextField textField = null;
-        
+
+        @SuppressWarnings({ "unchecked", "serial" })
         public FilterList(ArrayList<String> defaultLogs, String[] logs) {
 
             super("MRA Exporter");
-            setType(Type.UTILITY);
+            setType(Type.NORMAL);
             setSize(230, 300);
-            setAlwaysOnTop(true);
             getContentPane().setLayout(new MigLayout("", "[240px]", "[300px]"));
 
             ArrayList<LogItem> options = new ArrayList<>();
@@ -264,16 +321,16 @@ public class MRAExporterFilter implements MRAExporter {
             Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 
             final ActionListener entAct = new ActionListener() {
-                
+
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     int index = m_list.getNextMatch(textField.getText(), 0, javax.swing.text.Position.Bias.Forward);
                     m_list.setSelectedIndex(index);
                     m_list.ensureIndexIsVisible(index);
-                    
+
                 }
             };
-            
+
             AbstractAction finder = new AbstractAction() {
 
                 @Override
@@ -298,15 +355,47 @@ public class MRAExporterFilter implements MRAExporter {
 
             getContentPane().add(p, "cell 0 1,alignx left,aligny top");
 
+
             JButton saveBtn = new JButton("Save File");
+            AbstractAction saveFileAct = new AbstractAction() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // filterList.setVisible(false);
+                    defaultLogs.addAll(filterList.getSelectedItems());
+                    applyFilter(filterList);
+                }
+            };
+            saveBtn.addActionListener(saveFileAct);
             getContentPane().add(saveBtn, "cell 0 2,alignx center");
-            
+            setVisible(true);
+
             this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
             setResizable(false);
-            setVisible(true);
 
         }
 
+        /**
+         * @return 
+         * 
+         */
+        private Collection<String> getSelectedItems() {
+            List<String> selected = new ArrayList<>();
+
+            int listSize = m_list.getModel().getSize();
+
+            // Get all the selected items using the indices
+            for (int i = 0; i < listSize; i++) {
+                LogItem sel = (LogItem)m_list.getModel().getElementAt(i);
+                if (sel.m_selected) {
+                    selected.add(sel.logName);
+                }
+
+            }
+            return selected;            
+        }
+
+        @SuppressWarnings("serial")
         class CheckListCellRenderer extends JCheckBox implements ListCellRenderer {
 
             protected Border m_noFocusBorder = new EmptyBorder(1, 1, 1, 1);
@@ -334,10 +423,8 @@ public class MRAExporterFilter implements MRAExporter {
 
         class CheckListener implements MouseListener, KeyListener {
 
-            protected FilterList m_parent;
             protected JList m_list;
             public CheckListener(FilterList parent) {
-                m_parent = parent;
                 m_list = parent.m_list;
             }
 
@@ -389,8 +476,10 @@ public class MRAExporterFilter implements MRAExporter {
 
             }
 
+            @SuppressWarnings("unused")
             public String getName() { return logName; }
 
+            @SuppressWarnings("unused")
             public void setSelected(boolean selected) {
                 m_selected = selected;
             }
