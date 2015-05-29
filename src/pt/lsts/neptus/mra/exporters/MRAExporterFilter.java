@@ -42,6 +42,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -151,12 +153,28 @@ public class MRAExporterFilter implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pPmonitor) {
         pmonitor = pPmonitor;
-
+        
         //list of messages in this log source
         String[] logs = source.listLogs();
         //create JFrame with default logs selected and the rest of available logs
-        new FilterList(defaultLogs, logs);
+        FilterList window = new FilterList(defaultLogs, logs);
 
+        window.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                
+            }
+        } );
+        
+        while (window.isShowing()) {
+            try {
+                Thread.sleep(100);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Finito");
         return null;
     }
 
