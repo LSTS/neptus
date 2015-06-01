@@ -186,7 +186,7 @@ public class MRAExporterFilter implements MRAExporter {
             outputFile.delete();
             return "Cancelled by the user";
         }
-        return ((progress == 100 ) && (!pmonitor.isCanceled()) ? "Exported filtered log successfully." : "Filtered log not exported successfully." );
+        return ((progress == 100 ) && (!pmonitor.isCanceled()) ? I18n.text("Exported filtered log successfully.") : I18n.text("Filtered log not exported successfully."));
 
     }
 
@@ -281,7 +281,7 @@ public class MRAExporterFilter implements MRAExporter {
                 if (pmonitor.isCanceled()){
                     break;
                 }
-                pmonitor.setNote("Filtering "+ logName +"...");
+                pmonitor.setNote(I18n.textf("Filtering %logname...", logName));
                 pmonitor.setProgress(progress);
                 progress = progress + x;
                 int mgid = index.getDefinitions().getMessageId(logName);
@@ -344,7 +344,7 @@ public class MRAExporterFilter implements MRAExporter {
             File sourceOutputTxt = new File(location1+ "/Output.txt");
             File destIMC = new File(location2+"/IMC.xml.gz");
             File destOutputTxt = new File(location2+"/Output.txt");
-            pmonitor.setNote("Copying additional files...");
+            pmonitor.setNote(I18n.text("Copying additional files..."));
             try {
                 FileUtils.copyFile(sourceIMCXML, destIMC);
                 FileUtils.copyFile(sourceOutputTxt, destOutputTxt);
