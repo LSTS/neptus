@@ -67,6 +67,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.ProgressMonitor;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -95,7 +96,9 @@ public class MRAExporterFilter implements MRAExporter {
     private IMraLogGroup source;
     private ProgressMonitor pmonitor;
     private ArrayList<String> defaultLogs = new ArrayList<String>();
-    
+    private int progress;
+    private Task processTask;
+    private File outputFile;
     /**
      * @wbp.parser.entryPoint
      */
@@ -152,21 +155,25 @@ public class MRAExporterFilter implements MRAExporter {
 
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pPmonitor) {
+        progress = 0;
         pmonitor = pPmonitor;
-        
+        pmonitor.setMinimum(0);
+        pmonitor.setMaximum(100);
+
         //list of messages in this log source
         String[] logs = source.listLogs();
+
         //create JFrame with default logs selected and the rest of available logs
         FilterList window = new FilterList(defaultLogs, logs);
 
         window.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                
+
             }
         } );
-        
-        while (window.isShowing()) {
+
+        while ((window.isShowing() || progress < 100 ) && !pmonitor.isCanceled()) {
             try {
                 Thread.sleep(100);
             }
@@ -174,8 +181,13 @@ public class MRAExporterFilter implements MRAExporter {
                 e.printStackTrace();
             }
         }
-        System.out.println("Finito");
-        return null;
+
+        if (pmonitor.isCanceled()) {
+            outputFile.delete();
+            return "Cancelled by the user";
+        }
+        return ((progress == 100 ) && (!pmonitor.isCanceled()) ? "Exported filtered log successfully." : "Filtered log not exported successfully." );
+
     }
 
     @Override
@@ -209,27 +221,73 @@ public class MRAExporterFilter implements MRAExporter {
         catch (IOException e) {
             e.printStackTrace();
         }
+        this.outputFile = outputFile;
+        processTask = new Task(index, fos, gzipOS, path, outputFile);
+        processTask.execute();
 
-        writeToStream(index, fos, gzipOS);
-
-        copyCheck(path.toString(), outputFile.getParentFile().getAbsolutePath());
-
-        pmonitor.setProgress(100);
+        pmonitor.close();
         filter.setVisible(false);
-        GuiUtils.infoMessage(filter, getName(), I18n.text("Process complete"));
         filter.dispose();
-    }   
+    }
+
+    class Task extends SwingWorker<Void, Void> {
+        private LsfIndex index;
+        private FileOutputStream fos;
+        private GZIPOutputStream gzipOS;
+        private String path;
+        private File outputFile;
+        /**
+         * @param index2
+         * @param fos2
+         * @param gzipOS2
+         */
+        public Task(LsfIndex index, FileOutputStream fos, GZIPOutputStream gzipOS, String path, File outputFile) {
+            this.index = index;
+            this.fos = fos;
+            this.gzipOS = gzipOS;
+            this.path = path;
+            this.outputFile = outputFile;
+        }
+
+        @Override
+        public Void doInBackground() {
+
+            writeToStream(index, fos, gzipOS);
+            if (pmonitor.isCanceled())
+                return null;
+            copyCheck(path.toString(), outputFile.getParentFile().getAbsolutePath());
+
+            return null;
+        }
+
+        @Override
+        public void done() {
+
+        }
+    }
+
 
     private void writeToStream(LsfIndex index, FileOutputStream fos, GZIPOutputStream gzipOutputStream) {
         pmonitor.setNote(I18n.text("Filtering"));
-    
+        int count = 0;
         for (String logName : source.listLogs()) {
             if (defaultLogs.contains(logName)) {
+                count++;
+            }
+        }
+        int x = 100 / count;
+        for (String logName : source.listLogs()) {
+            if (defaultLogs.contains(logName)) {
+                if (pmonitor.isCanceled()){
+                    break;
+                }
+                pmonitor.setNote("Filtering "+ logName +"...");
+                pmonitor.setProgress(progress);
+                progress = progress + x;
                 int mgid = index.getDefinitions().getMessageId(logName);
                 int firstPos = index.getFirstMessageOfType(mgid);
                 int lastPos = index.getLastMessageOfType(mgid);
                 int j = firstPos;
-
                 try {
                     while (j < lastPos) {
                         //  IMCMessage entry = index.getMessage(j);
@@ -261,7 +319,8 @@ public class MRAExporterFilter implements MRAExporter {
             }
 
         }
-        
+        pmonitor.setProgress(progress);
+
         //close resources
         try {
             if (gzipOutputStream != null)
@@ -278,11 +337,14 @@ public class MRAExporterFilter implements MRAExporter {
      * 
      */
     private void copyCheck(String location1, String location2) {
+        progress = 99;
+        pmonitor.setProgress(progress);
         if (!location1.equals(location2)){
             File sourceIMCXML = new File(location1+ "/IMC.xml.gz");
             File sourceOutputTxt = new File(location1+ "/Output.txt");
             File destIMC = new File(location2+"/IMC.xml.gz");
             File destOutputTxt = new File(location2+"/Output.txt");
+            pmonitor.setNote("Copying additional files...");
             try {
                 FileUtils.copyFile(sourceIMCXML, destIMC);
                 FileUtils.copyFile(sourceOutputTxt, destOutputTxt);
@@ -290,6 +352,9 @@ public class MRAExporterFilter implements MRAExporter {
                 e.printStackTrace();
             } 
         }
+        progress = 100;
+        pmonitor.setProgress(progress);
+
     }
 
     @SuppressWarnings("rawtypes")
