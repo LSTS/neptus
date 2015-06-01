@@ -59,7 +59,7 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 @Popup(name = "HyperSpectral Data Viewer", pos = POSITION.CENTER, width = 1100, height = 800)
 public class HyperspectralViewer extends ConsolePanel {
     public static final int MIN_FREQ = 0;
-    public static final int MAX_FREQ = 740;
+    public static final int MAX_FREQ = 640;
     
     private RealtimeViewer realtimePanel;
     private JPanel snapshotsPanel;
