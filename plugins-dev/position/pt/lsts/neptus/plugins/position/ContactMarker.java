@@ -315,7 +315,7 @@ SubPanelChangeListener, MainVehicleChangeListener {
                             event.setType(TYPE.MAP_FEATURE_ADDED);
                             event.setId(markId);
                             event.setArg(new DevDataBinary(elem.asXML().getBytes()));
-                            System.out.println(sendToOtherCCUs(event));
+//                            System.out.println(sendToOtherCCUs(event));
                         }                        
                     };
                     dissem.add(rem);
@@ -330,8 +330,9 @@ SubPanelChangeListener, MainVehicleChangeListener {
     @Subscribe
     public void on(CcuEvent ev) {
         if (ev.getType() == TYPE.MAP_FEATURE_ADDED) {
-            int answer = GuiUtils.confirmDialog(getConsole(), "Map Feature Added", "Do you wish to add the feature '" + ev.getId()
-                    + "' disseminated by '" + ev.getSourceName() + "' to the map?");
+            int answer = GuiUtils.confirmDialog(getConsole(), I18n.text("Map Feature Added"), 
+                    I18n.textf("Do you wish to add the feature '%featureId' disseminated by '%senderName' to the map?", 
+                            ev.getId(), ev.getSourceName()));
             if (answer == JOptionPane.OK_OPTION) {
                 DevDataBinary data = (DevDataBinary)ev.getArg();
                 String xml = new String(data.getValue());
@@ -345,7 +346,8 @@ SubPanelChangeListener, MainVehicleChangeListener {
                             MapGroup mg = MapGroup.getMapGroupInstance(getConsole().getMission());
                             AbstractElement[] els = mg.getMapObjectsByID(el.getId());
                             if (els.length != 0) {
-                                int resp = GuiUtils.confirmDialog(getConsole(), "Add mark", "Existing map element will be updated. Proceed?");
+                                int resp = GuiUtils.confirmDialog(getConsole(), I18n.text("Add mark"), 
+                                        I18n.text("Existing map element will be updated. Proceed?"));
                                 if (resp == JOptionPane.OK_OPTION) {
                                     els[0].setCenterLocation(el.getCenterLocation());
                                 }
@@ -358,8 +360,9 @@ SubPanelChangeListener, MainVehicleChangeListener {
                             }
                             break;
                         default:
-                            GuiUtils.errorMessage(getConsole(), "Add map feature", "Features of type "
-                                    + doc.getRootElement().getName() + " are not supported.");
+                            GuiUtils.errorMessage(getConsole(), I18n.text("Add map feature"), 
+                                    I18n.textf("Features of type %type are not supported.", 
+                                            doc.getRootElement().getName()));
                             break;
                     }
                 }

@@ -699,7 +699,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         
         for (ImcSystem s : ccus) {
             boolean success = ImcMsgManager.getManager().sendMessageToSystem(message, s.getName());
-            System.out.println("Sending "+message.getAbbrev()+" to "+s.getName()+": "+success);
+//            System.out.println("Sending "+message.getAbbrev()+" to "+s.getName()+": "+success);
             sent |= success;
         }
         
