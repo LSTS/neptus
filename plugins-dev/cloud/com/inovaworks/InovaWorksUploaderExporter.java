@@ -44,10 +44,12 @@ import org.apache.http.util.EntityUtils;
 
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.http.client.HttpClientConnectionHelper;
 
 /**
@@ -77,7 +79,7 @@ public class InovaWorksUploaderExporter implements MRAExporter {
      */
     @Override
     public String getName() {
-        return "InovaWorks State Upload Exporter";
+        return "Inovaworks State Upload Exporter";
     }
 
     /* (non-Javadoc)
@@ -95,7 +97,11 @@ public class InovaWorksUploaderExporter implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         if (!canBeApplied(source))
-            return "No data to process!";
+            return I18n.text("No data to process!");
+        
+        if (PluginUtils.editPluginProperties(this, true)) {
+            return I18n.text("Cancelled!");
+        }
         
         this.log = source;
         
