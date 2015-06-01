@@ -42,6 +42,7 @@ import pt.lsts.imc.Temperature;
 import pt.lsts.imc.lsf.IndexScanner;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.bathymetry.TidePrediction;
 
@@ -80,6 +81,29 @@ public class ObservationFactory {
         return o;        
     }
     
+    public static Observation create(String sourceName, String sourceType, SystemPositionAndAttitude state) {
+        Observation o = new Observation();
+        o.observationTime = state.getTime();
+        o.phenomenonTime = state.getTime();
+        
+        o.procedure.sensor = "EstimatedState";
+        o.procedure.sensorHumanName = "LSTS Estimated State";
+        o.procedure.type = ObservationTypeEnum.reading.toString();
+        
+        o.featureOfInterest.id = sourceName;
+        
+        o.featureOfInterest.type = sourceType;
+
+        LocationType loc = state.getPosition();
+        
+        o.addProperty(ObservedProperty.position(loc.getLatitudeDegs(), loc.getLongitudeDegs(), loc.getHeight()));
+        o.addProperty(ObservedProperty.speed(state.getU()));
+        o.addProperty(ObservedProperty.verticalSpeed(state.getV()));
+        o.addProperty(ObservedProperty.heading(Math.toDegrees(state.getYaw())));
+        
+        return o;        
+    }
+
     public static ArrayList<Observation> create(LsfIndex index, long separationMillis) throws Exception {
         ArrayList<Observation> observations = new ArrayList<Observation>();
         
