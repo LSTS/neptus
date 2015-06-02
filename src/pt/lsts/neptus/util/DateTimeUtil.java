@@ -77,6 +77,13 @@ public class DateTimeUtil {
     public static final SimpleDateFormat dateTimeFileNameFormater = new SimpleDateFormat("yyyy-MM-dd_HH'h'mm'm'ss's'");
     public static final SimpleDateFormat dateTimeFileNameFormaterMillis = new SimpleDateFormat("yyyy-MM-dd_HH'h'mm'm'ss.SSS's'");
 
+    // yyyy-mm-dd hh:mm:ss
+    // Omitted time-zone shall be interpreted as UTC. This deviates from the iso-8601 specification which specifies no time zone information to be interpreted as local time.
+    public static final SimpleDateFormat dateTimeFormaterISO8601 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+    public static final SimpleDateFormat dateTimeFormaterISO8601_1 = new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+    public static final SimpleDateFormat dateTimeFormaterISO8601_2 = new SimpleDateFormat("yyyymmdd'T'HHmmss") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
+    
+    
 //    static {
 //        dateFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
 //        dateFormaterXMLUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
