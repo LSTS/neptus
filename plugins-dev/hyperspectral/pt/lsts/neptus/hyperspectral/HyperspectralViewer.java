@@ -1,22 +1,21 @@
 package pt.lsts.neptus.hyperspectral;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.MenuBar;
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 
+import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.Popup;
-import pt.lsts.neptus.plugins.Popup.POSITION;
+import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 
 /*
  * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
@@ -56,52 +55,55 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
  */
 @SuppressWarnings("serial")
 @PluginDescription(name = "HyperSpectral Data Viewer", author = "tsmarques", version = "0.1")
-@Popup(name = "HyperSpectral Data Viewer", pos = POSITION.CENTER, width = 1100, height = 800)
-public class HyperspectralViewer extends ConsolePanel {
+@LayerPriority(priority = 40)
+public class HyperspectralViewer extends ConsoleLayer {
     public static final int MIN_FREQ = 0;
-    public static final int MAX_FREQ = 640;
+    public static final int MAX_FREQ = 640; /* also frame's width */
+    /* frames will be FRAME_WIDTH x MAX_FREQ px */
+    private static final int FRAME_HEIGHT = 250;
+    private static final float FRAME_OPACITY = 0.9f;
+    /* draw frames with opacity */
+    private final AlphaComposite alcom = AlphaComposite.getInstance(
+            AlphaComposite.SRC_OVER, FRAME_OPACITY);
     
-    private RealtimeViewer realtimePanel;
-    private JPanel snapshotsPanel;
+    private ConsoleLayout console;
+    private float selectedWavelength;
     
-    private JMenuBar menuBar;
-    private JMenu viewMenu;
-    private JRadioButtonMenuItem viewRealtimePanel;
-    private JRadioButtonMenuItem viewSnapshotsPanel;
-    private ButtonGroup buttonsGroup;
+    /* testing */
+    private Image frame;
+
+    public HyperspectralViewer() {
+        this.console = getConsole();
+        selectedWavelength = 0;
+                
+        /* testing */
+        File imgFile = new File("../hyperspec-data/1431432615.6176.bmp");
+        try {
+            frame = ImageIO.read(imgFile);
+        }
+        catch (IOException e) { e.printStackTrace(); }
+    }
     
-    
-    public HyperspectralViewer(ConsoleLayout console) {
-        super(console);   
-        setLayout(new BorderLayout());
-        setupMenu();
-        realtimePanel = new RealtimeViewer(console);
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        int posX = 0;
+        int posY = (renderer.getHeight() - FRAME_HEIGHT) / 2;
         
-        add(realtimePanel);
-        add(menuBar, BorderLayout.NORTH);
+        g.setComposite(alcom);
+        g.drawImage(frame, posX, posY, null);
+    }
+    
+    @Override
+    public void initLayer() {
+
     }
 
-    private void setupMenu() {
-        menuBar = new JMenuBar();
-        viewMenu = new JMenu("View");
-        viewRealtimePanel = new JRadioButtonMenuItem("Real-Time data");
-        viewSnapshotsPanel = new JRadioButtonMenuItem("Data snapshots");
-        buttonsGroup = new ButtonGroup();
+
+    @Override
+    public void cleanLayer() {
         
-        buttonsGroup.add(viewRealtimePanel);
-        buttonsGroup.add(viewSnapshotsPanel);
-        
-        viewRealtimePanel.setSelected(true);
-        
-        viewMenu.add(viewRealtimePanel);
-        viewMenu.add(viewSnapshotsPanel);
-        menuBar.add(viewMenu);
     }
 
     @Override
-    public void cleanSubPanel() {}
-
-    @Override
-    public void initSubPanel() {}
-
+    public boolean userControlsOpacity() { return false; }
 }
