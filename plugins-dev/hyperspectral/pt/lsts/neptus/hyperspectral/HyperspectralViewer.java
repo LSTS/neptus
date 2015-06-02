@@ -5,7 +5,11 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -14,6 +18,8 @@ import javax.swing.JLabel;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 
@@ -70,27 +76,64 @@ public class HyperspectralViewer extends ConsoleLayer {
     private float selectedWavelength;
     
     /* testing */
-    private Image frame;
+    private Image currFrame; /* last frame received */
+    private Queue<Image> frames;
+    private boolean framesLoaded = false;
 
     public HyperspectralViewer() {
         this.console = getConsole();
         selectedWavelength = 0;
                 
         /* testing */
-        File imgFile = new File("../hyperspec-data/1431432615.6176.bmp");
-        try {
-            frame = ImageIO.read(imgFile);
+        frames = loadFrames();
+        currFrame = frames.poll();
+        frames.offer(currFrame); /* make a circular queue */
+        setAsPeriodic();
+    }
+    
+    private Queue<Image> loadFrames() {
+        File dir = new File("../hyperspec-data/");
+        File[] frames = dir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".bmp");
+            }            
+        });
+        
+        Queue<Image> framesList = new LinkedList<>();
+        
+        /* just load 100 frames */
+        for(int i = 0; i < frames.length; i++) {
+            try {
+                Image frame = ImageIO.read(frames[i]);
+                framesList.offer(frame);
+            }
+            catch (IOException e) { e.printStackTrace(); }
         }
-        catch (IOException e) { e.printStackTrace(); }
+        
+        framesLoaded = true;
+        return framesList;
     }
     
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        int posX = 0;
+        if(!framesLoaded)
+            return;
+        
         int posY = (renderer.getHeight() - FRAME_HEIGHT) / 2;
         
         g.setComposite(alcom);
-        g.drawImage(frame, posX, posY, null);
+        g.drawImage(currFrame, 0, posY, null);
+    }
+    
+    private void setAsPeriodic() {
+        PeriodicUpdatesService.registerPojo(this);
+    }
+    
+    /* Simulate the reception of a frame */
+    @Periodic(millisBetweenUpdates = 500)
+    public void simReceivedFrame() {
+        currFrame = frames.poll();
+        frames.offer(currFrame);
     }
     
     @Override
