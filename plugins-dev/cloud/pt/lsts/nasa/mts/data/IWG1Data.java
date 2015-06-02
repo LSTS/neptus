@@ -31,8 +31,6 @@
  */
 package pt.lsts.nasa.mts.data;
 
-import java.io.Reader;
-import java.io.StringReader;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -41,8 +39,6 @@ import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.MathMiscUtils;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
 /**
@@ -204,10 +200,6 @@ public class IWG1Data {
     private double salinity = Double.NaN;
     @Expose
     private double condutivity = Double.NaN;
-    
-    
-    private static Gson gson = null;
-    
     
     public IWG1Data() {
     }
@@ -925,6 +917,9 @@ public class IWG1Data {
                 return Double.NaN;
             if ("inf".equalsIgnoreCase(tk))
                 return Double.NaN;
+            if (tk.startsWith("0x") || tk.startsWith("0X")) {
+                return Long.parseLong(tk.substring(2), 16);                
+            }
             return Double.parseDouble(tk);
         }
         catch (NumberFormatException e) {
@@ -1068,7 +1063,7 @@ public class IWG1Data {
             // Private fields
             sb.append(",");
             if (sourceId != ImcId16.NULL_ID.longValue()) {
-                sb.append(sourceId);
+                sb.append("0x" + Long.toHexString(sourceId).toUpperCase());
             }
             sb.append(",");
             if (!Double.isNaN(bathymetry)) {
@@ -1092,35 +1087,6 @@ public class IWG1Data {
         return sb.toString();
     }
 
-    public static IWG1Data parseJSON(Reader jsonReader) {
-        synchronized (IWG1Data.class) {
-            if (gson == null)
-                gson = new GsonBuilder()
-                    .excludeFieldsWithoutExposeAnnotation()
-                    //.registerTypeAdapter(Id.class, new IdTypeAdapter())
-                    .enableComplexMapKeySerialization()
-                    .serializeSpecialFloatingPointValues()
-                    //.setDateFormat(DateFormat.LONG)
-                    //.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-                    .setPrettyPrinting()
-                    .setVersion(1.0)
-                    .create();;
-        }
-        return gson.fromJson(jsonReader, IWG1Data.class);
-    }
-    
-    public static IWG1Data parseJSON(String json) {
-        return parseJSON(new StringReader(json));
-    }
-
-    public String toJSON() {
-        synchronized (IWG1Data.class) {
-            if (gson == null)
-                gson = new Gson();
-        }
-        return gson.toJson(this);
-    }
-    
     public static void main(String[] args) throws Exception {
 //        IWG1Data o = IWG1Data.parseJSON(new FileReader(new File(".", "plugins-dev/cloud/com/inovaworks/example.json")));
         IWG1Data i = new IWG1Data();

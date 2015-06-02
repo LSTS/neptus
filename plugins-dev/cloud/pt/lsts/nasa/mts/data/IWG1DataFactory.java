@@ -161,8 +161,14 @@ public class IWG1DataFactory {
     public static void main(String[] args) throws Exception {
         LsfLogSource log = new LsfLogSource("D:\\LSTS-Logs\\2015-05-28-netmar\\lauv-np3-20150528-073052_bath_np3\\Data.lsf", null);
         ArrayList<IWG1Data> dataLst = create(log.getLsfIndex(), 1000);
+        String testStr = "";
         for (IWG1Data iwg1Data : dataLst) {
-            System.out.print(iwg1Data.toIWG1());
+            testStr = iwg1Data.toIWG1();
+            System.out.print(testStr);
         }
+        
+        IWG1Data o = IWG1Data.parseIWG1(testStr);
+        System.out.println("--------------");
+        System.out.println(o.toIWG1());
     }
 }
