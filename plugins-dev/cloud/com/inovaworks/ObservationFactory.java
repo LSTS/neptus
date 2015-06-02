@@ -68,8 +68,9 @@ public class ObservationFactory {
         LocationType loc = IMCUtils.parseLocation(state);
         
         o.addProperty(ObservedProperty.position(loc.getLatitudeDegs(), loc.getLongitudeDegs(), state.getHeight()-state.getZ()));
-        o.addProperty(ObservedProperty.speed(state.getU()));
-        o.addProperty(ObservedProperty.verticalSpeed(state.getV()));
+        o.addProperty(ObservedProperty.speed(Math.sqrt(state.getVx() * state.getVx() + state.getVy() * state.getVy()
+                + state.getVz() * state.getVz())));
+        o.addProperty(ObservedProperty.verticalSpeed(state.getVz()));
         o.addProperty(ObservedProperty.heading(Math.toDegrees(state.getPsi())));
         
         if (state.getDepth() != -1 && state.getAlt() != -1) {
