@@ -435,7 +435,7 @@ public class JsfSonarData {
         int msbStartFreq = (msb & 0x000F) << 16; // First 4 bits of msb shifted so only adding is needed to start Frequency
         frequency = ((buf.getShort(126) & 0xFFFF) + msbStartFreq) / 100.0f;
     
-        depthMillis = buf.getInt(140);
+        depthMillis = buf.getInt(136);
         altMillis = buf.getInt(144);
         
         factor = buf.getShort(168);
