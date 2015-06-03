@@ -117,6 +117,10 @@ Sun_Az_AC   degrees_true    0 to 359.9999   Sun Azimuth from Aircraft
 [2] Negative is left wing down, positive is right wing down.
 [3] Negative is downward, positive is upward.
 
+
+example:
+IWG1,2015-05-22T15:40:55.999000,37.9328982,-75.4706931,13.0,,,4.0,,,,,,301.54,301.5,,-2.13,1.07,,,,-70.2,-49.9,,,1019.8,,,,,,1432308536.0,
+
  * @author pdias
  *
  */
@@ -888,15 +892,36 @@ public class IWG1Data {
     private static void parseTimeStamp(IWG1Data ret, String tk) {
         Date dateTime = null;
         try {
-            dateTime = DateTimeUtil.dateTimeFormaterISO8601.parse(tk);
+            int dpt = DateTimeUtil.dateTimeFormaterISO8601.toPattern().replace("'", "").length();
+            String st = tk.substring(0, dpt);
+            dateTime = DateTimeUtil.dateTimeFormaterISO8601.parse(st);
+            String st1 = DateTimeUtil.dateTimeFormaterISO8601.format(dateTime);
+            if (!st.equalsIgnoreCase(st1)) {
+                dateTime = null;
+                throw new ParseException("Not possible to revert parse!", 0);
+            }
         }
         catch (ParseException e) {
             try {
-                dateTime = DateTimeUtil.dateTimeFormaterISO8601_1.parse(tk);
+                int dpt = DateTimeUtil.dateTimeFormaterISO8601_1.toPattern().replace("'", "").length();
+                String st = tk.substring(0, dpt);
+                dateTime = DateTimeUtil.dateTimeFormaterISO8601_1.parse(st);
+                String st1 = DateTimeUtil.dateTimeFormaterISO8601_1.format(dateTime);
+                if (!st.equalsIgnoreCase(st1)) {
+                    dateTime = null;
+                    throw new ParseException("Not possible to revert parse!", 0);
+                }
             }
             catch (ParseException e1) {
                 try {
-                    dateTime = DateTimeUtil.dateTimeFormaterISO8601_2.parse(tk);
+                    int dpt = DateTimeUtil.dateTimeFormaterISO8601_2.toPattern().replace("'", "").length();
+                    String st = tk.substring(0, dpt);
+                    dateTime = DateTimeUtil.dateTimeFormaterISO8601_2.parse(st);
+                    String st1 = DateTimeUtil.dateTimeFormaterISO8601_2.format(dateTime);
+                    if (!st.equalsIgnoreCase(st1)) {
+                        dateTime = null;
+                        throw new ParseException("Not possible to revert parse!", 0);
+                    }
                 }
                 catch (ParseException e2) {
                     e2.printStackTrace();
@@ -937,127 +962,127 @@ public class IWG1Data {
             }
             sb.append(",");
             if (!Double.isNaN(latitudeDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(latitudeDegs), 4));
+                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(latitudeDegs), 7));
             }
             sb.append(",");
             if (!Double.isNaN(longitudeDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(longitudeDegs), 4));
+                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(longitudeDegs), 7));
             }
             sb.append(",");
             if (!Double.isNaN(gpsAltMSL)) {
-                sb.append(MathMiscUtils.round(gpsAltMSL, 4));
+                sb.append(MathMiscUtils.round(gpsAltMSL, 2));
             }
             sb.append(",");
             if (!Double.isNaN(gpsAltitude)) {
-                sb.append(MathMiscUtils.round(gpsAltitude, 4));
+                sb.append(MathMiscUtils.round(gpsAltitude, 2));
             }
             sb.append(",");
             if (!Double.isNaN(pressureAltitude)) {
-                sb.append(MathMiscUtils.round(pressureAltitude, 4));
+                sb.append(MathMiscUtils.round(pressureAltitude, 2));
             }
             sb.append(",");
             if (!Double.isNaN(radarAltitude)) {
-                sb.append(MathMiscUtils.round(radarAltitude, 4));
+                sb.append(MathMiscUtils.round(radarAltitude, 2));
             }
             sb.append(",");
             if (!Double.isNaN(groundSpeed)) {
-                sb.append(MathMiscUtils.round(groundSpeed, 4));
+                sb.append(MathMiscUtils.round(groundSpeed, 2));
             }
             sb.append(",");
             if (!Double.isNaN(trueAirSpeed)) {
-                sb.append(MathMiscUtils.round(trueAirSpeed, 4));
+                sb.append(MathMiscUtils.round(trueAirSpeed, 2));
             }
             sb.append(",");
             if (!Double.isNaN(indicatedAirSpeed)) {
-                sb.append(MathMiscUtils.round(indicatedAirSpeed, 4));
+                sb.append(MathMiscUtils.round(indicatedAirSpeed, 2));
             }
             sb.append(",");
             if (!Double.isNaN(machNumber)) {
-                sb.append(MathMiscUtils.round(machNumber, 4));
+                sb.append(MathMiscUtils.round(machNumber, 2));
             }
             sb.append(",");
             if (!Double.isNaN(verticalSpeed)) {
-                sb.append(MathMiscUtils.round(verticalSpeed, 4));
+                sb.append(MathMiscUtils.round(verticalSpeed, 2));
             }
             sb.append(",");
             if (!Double.isNaN(trueHeadingDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(trueHeadingDegs), 4));
+                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(trueHeadingDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(trackAngleDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(trackAngleDegs), 4));
+                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(trackAngleDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(driftAngleDegs)) {
-                sb.append(MathMiscUtils.round(driftAngleDegs, 4));
+                sb.append(MathMiscUtils.round(driftAngleDegs, 2));
             }
             sb.append(",");
             if (!Double.isNaN(pitchAngleDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(pitchAngleDegs), 4));
+                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(pitchAngleDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(rollAngleDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(rollAngleDegs), 4));
+                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(rollAngleDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(slipAngleDegs)) {
-                sb.append(MathMiscUtils.round(slipAngleDegs, 4));
+                sb.append(MathMiscUtils.round(slipAngleDegs, 2));
             }
             sb.append(",");
             if (!Double.isNaN(attackAngleDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(attackAngleDegs), 4));
+                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees180(attackAngleDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(staticAirTemp)) {
-                sb.append(MathMiscUtils.round(staticAirTemp, 4));
+                sb.append(MathMiscUtils.round(staticAirTemp, 1));
             }
             sb.append(",");
             if (!Double.isNaN(dewPoint)) {
-                sb.append(MathMiscUtils.round(dewPoint, 4));
+                sb.append(MathMiscUtils.round(dewPoint, 1));
             }
             sb.append(",");
             if (!Double.isNaN(totalAirTemp)) {
-                sb.append(MathMiscUtils.round(totalAirTemp, 4));
+                sb.append(MathMiscUtils.round(totalAirTemp, 1));
             }
             sb.append(",");
             if (!Double.isNaN(staticPressure)) {
-                sb.append(MathMiscUtils.round(staticPressure, 4));
+                sb.append(MathMiscUtils.round(staticPressure, 2));
             }
             sb.append(",");
             if (!Double.isNaN(dynamicPressure)) {
-                sb.append(MathMiscUtils.round(dynamicPressure, 4));
+                sb.append(MathMiscUtils.round(dynamicPressure, 2));
             }
             sb.append(",");
             if (!Double.isNaN(cabinPressure)) {
-                sb.append(MathMiscUtils.round(cabinPressure, 4));
+                sb.append(MathMiscUtils.round(cabinPressure, 2));
             }
             sb.append(",");
             if (!Double.isNaN(windSpeed)) {
-                sb.append(MathMiscUtils.round(windSpeed, 4));
+                sb.append(MathMiscUtils.round(windSpeed, 2));
             }
             sb.append(",");
             if (!Double.isNaN(windDirection)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(windDirection), 4));
+                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(windDirection), 2));
             }
             sb.append(",");
             if (!Double.isNaN(vertWindSpeed)) {
-                sb.append(MathMiscUtils.round(vertWindSpeed, 4));
+                sb.append(MathMiscUtils.round(vertWindSpeed, 2));
             }
             sb.append(",");
             if (!Double.isNaN(solarZenithAngleDegs)) {
-                sb.append(MathMiscUtils.round(solarZenithAngleDegs, 4));
+                sb.append(MathMiscUtils.round(solarZenithAngleDegs, 2));
             }
             sb.append(",");
             if (!Double.isNaN(aircraftSunElevationDegs)) {
-                sb.append(MathMiscUtils.round(aircraftSunElevationDegs, 4));
+                sb.append(MathMiscUtils.round(aircraftSunElevationDegs, 2));
             }
             sb.append(",");
             if (!Double.isNaN(sunAzimuthDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(sunAzimuthDegs), 4));
+                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(sunAzimuthDegs), 2));
             }
             sb.append(",");
             if (!Double.isNaN(aircraftSunAzimuthDegs)) {
-                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(aircraftSunAzimuthDegs), 4));
+                sb.append(MathMiscUtils.round(AngleCalc.nomalizeAngleDegrees360(aircraftSunAzimuthDegs), 2));
             }
 
             // Private fields
@@ -1067,21 +1092,20 @@ public class IWG1Data {
             }
             sb.append(",");
             if (!Double.isNaN(bathymetry)) {
-                sb.append(MathMiscUtils.round(bathymetry, 4));
+                sb.append(MathMiscUtils.round(bathymetry, 2));
             }
             sb.append(",");
             if (!Double.isNaN(temperature)) {
-                sb.append(MathMiscUtils.round(temperature, 4));
+                sb.append(MathMiscUtils.round(temperature, 1));
             }
             sb.append(",");
             if (!Double.isNaN(salinity)) {
-                sb.append(MathMiscUtils.round(salinity, 4));
+                sb.append(MathMiscUtils.round(salinity, 2));
             }
             sb.append(",");
             if (!Double.isNaN(condutivity)) {
-                sb.append(MathMiscUtils.round(condutivity, 4));
+                sb.append(MathMiscUtils.round(condutivity, 2));
             }
-
         }
         sb.append("\r\n");
         return sb.toString();
@@ -1091,5 +1115,12 @@ public class IWG1Data {
 //        IWG1Data o = IWG1Data.parseJSON(new FileReader(new File(".", "plugins-dev/cloud/com/inovaworks/example.json")));
         IWG1Data i = new IWG1Data();
         System.out.println(i.toIWG1());
+        
+        String iwg1_c130 = "IWG1,2015-05-22T15:40:55.999000,37.9328982,-75.4706931,13.0,,,4.0,,,,,,301.54,301.5,,-2.13,1.07,,,,-70.2,-49.9,,,1019.8,,,,,,1432308536.0,\r\n";
+        System.out.print(iwg1_c130);
+        IWG1Data o1 = IWG1Data.parseIWG1(iwg1_c130);
+        System.out.print(o1.toIWG1());
+        IWG1Data o2 = IWG1Data.parseIWG1(o1.toIWG1());
+        System.out.print(o2.toIWG1());
     }
 }
