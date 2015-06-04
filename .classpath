@@ -216,10 +216,8 @@
 	<classpathentry kind="lib" path="lib/firebase-client-jvm-2.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/metadata-extractor-2.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/xmpcore-5.1.2.jar"/>
-	<classpathentry kind="lib" path="/home/pedro/Eclipse_workspace/opencv-2.4.11-0.11-linux-x86.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Opencv-2.4.9"/>
 	<classpathentry kind="lib" path="conf"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/vtk.jar">
@@ -229,5 +227,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/zxing-bin.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/shapefiles/lib/shapefilereader-1.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Opencv-2.4.9"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
