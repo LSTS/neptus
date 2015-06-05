@@ -817,7 +817,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
                     String.valueOf(MathMiscUtils.round(getZenith(), 3)));
         }
 
-        if (!((getOffsetNorth() == 0) & (getOffsetEast() == 0) & (getOffsetUp() == 0))) {
+        if (!((getOffsetNorth() == 0) && (getOffsetEast() == 0) && (getOffsetUp() == 0))) {
             if (isOffsetNorthUsed)
                 coordinate.addElement("offset-north").addText(
                         String.valueOf(MathMiscUtils.round(getOffsetNorth(), 3)));

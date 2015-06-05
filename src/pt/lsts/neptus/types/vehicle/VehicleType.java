@@ -983,7 +983,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             }
         }
 
-        if ((maneuverAdditionalFile != null) | (miscConfigurationFiles.size() != 0)) {
+        if ((maneuverAdditionalFile != null) || (miscConfigurationFiles.size() != 0)) {
             Element configurationFiles = root.addElement("configuration-files");
             if (maneuverAdditionalFile != null)
                 configurationFiles.add(maneuverAdditionalFile.asElement());

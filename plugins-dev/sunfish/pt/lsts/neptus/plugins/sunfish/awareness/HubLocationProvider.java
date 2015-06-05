@@ -71,8 +71,8 @@ import com.google.gson.Gson;
 public class HubLocationProvider implements ILocationProvider {
 
     SituationAwareness parent;
-    private String systemsUrl = "http://hub.lsts.pt/api/v1/systems/active";
-    private String iridiumUrl = "http://hub.lsts.pt/api/v1/iridium";    
+    private String systemsUrl = "http://ripples.lsts.pt/api/v1/systems/active";
+    private String iridiumUrl = "http://ripples.lsts.pt/api/v1/iridium";    
 
     @Override
     public void onInit(SituationAwareness instance) {
@@ -161,7 +161,7 @@ public class HubLocationProvider implements ILocationProvider {
                 if (pos.getAssetName().equals("hermes"))
                     pos.setType("ASV");
                 
-                if (!m.pos_error_class.isEmpty()) {                    
+                if (m.pos_error_class != null && !m.pos_error_class.isEmpty()) {                    
                     pos.putExtra("Loc. Class", m.pos_error_class);
                 }
                 parent.addAssetPosition(pos);

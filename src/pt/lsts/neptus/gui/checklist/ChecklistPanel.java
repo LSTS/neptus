@@ -551,7 +551,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                 @Override
                 public void mouseClicked(java.awt.event.MouseEvent e) {
                     // NeptusLog.pub().info("<###>mouseClicked()");
-                    if (e.getButton() == MouseEvent.BUTTON3 & e.getClickCount() == 1) {
+                    if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
                         getChecklistPopupMenu().show((Component) e.getSource(), e.getX(), e.getY());
                     }
                 }
