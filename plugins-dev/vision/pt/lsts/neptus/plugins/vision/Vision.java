@@ -114,9 +114,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //Buffer for info of data image
     BufferedReader in = null;
     //Width size of image
-    int width;
+    int widthImgRec;
     //Height size of image
-    int height;
+    int heightImgRec;
     //Scale factor of x
     float xScale;
     //Scale factor of y
@@ -193,10 +193,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1){
-                    int mouse_x = (int) ((e.getX() - 13)/xScale);  //shift window bar
-                    int mouse_y = (int) ((e.getY() - 10)/yScale) ; //shift window bar
-                    if (mouse_x >= 0 && mouse_y >= 0 && mouse_x <= width && mouse_y <= height ){
-                        out.printf("%d#%d;\0", mouse_x,mouse_y);
+                    int mouseX = (int) ((e.getX() - 13)/xScale);  //shift window bar
+                    int mouseY = (int) ((e.getY() - 10)/yScale) ; //shift window bar
+                    if (mouseX >= 0 && mouseY >= 0 && mouseX <= widthImgRec && mouseY <= heightImgRec ){
+                        out.printf("%d#%d;\0", mouseX,mouseY);
                     }
                 }
             }
@@ -249,6 +249,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     //!Config Layout
     public void layout_user(){
+        //Create Buffer (type MAT) for Image resize
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        matResize = new Mat(720, 960, CvType.CV_8UC3);
+        
         //!Create folder to save image data
         //Create folder image in log if don't exist
         logDir = String.format("log/image");
@@ -419,14 +423,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     public void initSizeImage(){
         //Width size of image
         try {
-            width = Integer.parseInt(in.readLine());
+            widthImgRec = Integer.parseInt(in.readLine());
         }
         catch (NumberFormatException | IOException e) {
             e.printStackTrace();
         }
         //Height size of image
         try {
-            height = Integer.parseInt(in.readLine());
+            heightImgRec = Integer.parseInt(in.readLine());
         }
         catch (NumberFormatException e) {
             e.printStackTrace();
@@ -434,8 +438,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         catch (IOException e) {
             e.printStackTrace();
         }
-        xScale = (float)960/width;
-        yScale = (float)720/height;
+        xScale = (float)960/widthImgRec;
+        yScale = (float)720/heightImgRec;
+        //Create Buffer (type MAT) for Image receive
+        mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
     }
     
     //!Thread to handle data receive
@@ -565,7 +571,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //!Fill cv::Mat image with zeros
     public void inicImage(){
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        Mat matResize = new Mat(720, 960, CvType.CV_8UC3);
         Scalar black = new Scalar(0);
         matResize.setTo(black);
         temp=matToBufferedImage(matResize);
@@ -663,7 +668,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             //Create an expandable byte array to hold the decompressed data
             ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length);
             // Decompress the data
-            byte[] buf = new byte[(width*height*3)];
+            byte[] buf = new byte[(widthImgRec*heightImgRec*3)];
             while (!decompresser.finished()) 
             {
                 try {
@@ -685,10 +690,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             //System.out.println("Original Size = " + decompressedData.length +" bytes");
             
             //Transform byte data to cv::Mat (for display image)
-            mat = new Mat(height, width, CvType.CV_8UC3);
+            //mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
             mat.put(0, 0, decompressedData);
             //Resize image to 960x720 resolution
-            matResize = new Mat(960, 720, CvType.CV_8UC3);
+            //matResize = new Mat(960, 720, CvType.CV_8UC3);
             Size size = new Size(960, 720);
             Imgproc.resize(mat, matResize, size);
                        
@@ -699,7 +704,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             flagBuffImg = false;      
             
             //Display image in JFrame
-            info = String.format("X = %d - Y = %d   x %.2f   %d bytes (KiB = %d)", width, height,xScale,lengthImage,lengthImage/1024);
+            info = String.format("X = %d - Y = %d   x %.2f   %d bytes (KiB = %d)", widthImgRec, heightImgRec,xScale,lengthImage,lengthImage/1024);
             txtText.setText(info);
             txtDataTcp.setText(duneGps);
             showImage(temp);
