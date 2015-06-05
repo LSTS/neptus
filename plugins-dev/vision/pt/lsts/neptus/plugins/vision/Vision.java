@@ -118,15 +118,15 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //Height size of image
     int height;
     //Scale factor of x
-    float x_scale;
+    float xScale;
     //Scale factor of y
-    float y_scale;
+    float yScale;
     //read size of pack compress
     String line;
-    //Buffer for data receive from DUNE tcp
-    String dune_gps;
+    //Buffer for data receive from DUNE over tcp
+    String duneGps;
     //Size of image received
-    int length_image;
+    int lengthImage;
     //buffer for save data receive
     byte[] data;
     //Buffer image for JFrame/showImage
@@ -137,40 +137,40 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     boolean state = false;
     //Flag - Show/hide Menu JFrame
     boolean show_menu = false;
-    //Label for image
+    //JLabel for image
     JLabel picLabel;
-    //Panel for Image
+    //JPanel for Image
     JPanel frame;
-    //Panel for display image
-    JPanel panel_image;
-    //Panel for info and config values
+    //JPanel for display image
+    JPanel panelImage;
+    //JPanel for info and config values
     JPanel config;
-    //Text info of data receive
+    //JText info of data receive
     JTextField txtText;
-    //Text of data receive over IMC message
+    //JText of data receive over IMC message
     JTextField txtData;
-  //Text of data receive over DUNE TCP message
-    JTextField txtData_tcp;
+    //JText of data receive over DUNE TCP message
+    JTextField txtDataTcp;
     //JFrame for menu options
     JFrame menu;
-    //Buffer for the info treatment 
+    //String for the info treatment 
     String info;
-    //Popup Menu
+    //JPopup Menu
     JPopupMenu popup;
     //Data system
     Date date = new Date();
-    //Location of log_dir
-    String log_dir;
+    //Location of log folder
+    String logDir;
     //Image resize
-    Mat mat_resize;
+    Mat matResize;
     //Image receive
     Mat mat;
     //ID vehicle
-    int id_vehicle = 0;
+    int idVehicle = 0;
 
     //*** TEST FOR SAVE VIDEO **/
     File outputfile;
-    boolean flag_buff_img = false;
+    boolean flagBuffImg = false;
     int cnt=0;
     int FPS = 10;
     //*************************/
@@ -182,7 +182,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //worker thread designed to acquire the data packet from DUNE
     protected Thread updater = null; 
     //worker thread designed to save image do HD
-    protected Thread save_img = null;
+    protected Thread saveImg = null;
     
     public Vision(ConsoleLayout console) {
         super(console);
@@ -193,8 +193,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1){
-                    int mouse_x = (int) ((e.getX() - 13)/x_scale);  //shift window bar
-                    int mouse_y = (int) ((e.getY() - 10)/y_scale) ; //shift window bar
+                    int mouse_x = (int) ((e.getX() - 13)/xScale);  //shift window bar
+                    int mouse_y = (int) ((e.getY() - 10)/yScale) ; //shift window bar
                     if (mouse_x >= 0 && mouse_y >= 0 && mouse_x <= width && mouse_y <= height ){
                         out.printf("%d#%d;\0", mouse_x,mouse_y);
                     }
@@ -241,100 +241,97 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //!Print Image to JPanel
-    public void show_image(BufferedImage image){
+    public void showImage(BufferedImage image) {
         picLabel.setIcon(new ImageIcon(image));
-        panel_image.add(picLabel);
+        panelImage.add(picLabel);
         repaint();
     }
     
     //!Config Layout
     public void layout_user(){
-        //Create Dir to save image data
-        log_dir = String.format("/home/%s/NEPTUS_LOG",System.getProperty("user.name"));
-        File dir = new File(log_dir);
+        //!Create folder to save image data
+        //Create folder image in log if don't exist
+        logDir = String.format("log/image");
+        File dir = new File(logDir);
         dir.mkdir();
-        //System.out.println(dir.mkdir());
-        log_dir = String.format("/home/%s/NEPTUS_LOG/%s",System.getProperty("user.name"),date);
-        dir = new File(log_dir);
+        logDir = String.format("log/image/%s",date);
+        dir = new File(logDir);
         dir.mkdir();
-        //System.out.println(dir.mkdir());
         
-        //Label for image
+        //JLabel for image
         picLabel = new JLabel();
-        //Panel for Image
-        panel_image = new JPanel();
-        panel_image.setBackground(Color.black);
+        //JPanel for Image
+        panelImage = new JPanel();
+        panelImage.setBackground(Color.black);
         frame = new JPanel();
         frame.setLayout(new BorderLayout());
-        frame.add(panel_image, BorderLayout.WEST);
+        frame.add(panelImage, BorderLayout.WEST);
         
         this.setLayout(new MigLayout());
         this.add(frame);
         
-        //Panel for info and config values      
+        //JPanel for info and config values      
         config = new JPanel(new MigLayout());
 
-        //Tpl ComboBox
+        //Tpl JComboBox
         String[] sizeStrings = { "TPL Size", "25", "50", "75", "100", "150"};
         @SuppressWarnings({ "rawtypes", "unchecked" })
         final JComboBox tplList = new JComboBox(sizeStrings);
         tplList.setSelectedIndex(0);
         tplList.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e)
-              {
-                String string_value = (String) tplList.getSelectedItem();
+            public void actionPerformed(ActionEvent e) {
+                String stringValue = (String) tplList.getSelectedItem();
                 String check = "TPL Size";
-                if (string_value != check ){
-                int value = Integer.parseInt(string_value);
+                if (stringValue != check ){
+                int value = Integer.parseInt(stringValue);
                 out.printf("-1#%d;\0", value);
                 }
               }
         });
         config.add(tplList,"width 160:180:200, h 30!");
                 
-        //Window ComboBox
+        //Window JComboBox
         String[] sizeStrings2 = { "Window Size", "30", "55", "80", "105", "155"};
         @SuppressWarnings({ "rawtypes", "unchecked" })
         final JComboBox windowList = new JComboBox(sizeStrings2);
         windowList.setSelectedIndex(0);
         windowList.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e)
-              {
-                String string_value = (String) windowList.getSelectedItem();
+            public void actionPerformed(ActionEvent e) {
+                String stringValue = (String) windowList.getSelectedItem();
                 String check = "Window Size";
-                if (string_value != check ){
-                int value = Integer.parseInt(string_value);
+                if (stringValue != check ){
+                int value = Integer.parseInt(stringValue);
                 out.printf("-2#%d;\0", value);
                 }
               }
         });
         config.add(windowList,"width 160:180:200, h 30!, wrap");
             
-        //Button Save snapshot
-        JButton button_I = new JButton();
-        button_I.setText("Snapshot");
-        button_I.addActionListener(new ActionListener() {
+        //JButton Save snapshot
+        JButton buttonS = new JButton();
+        buttonS.setText("Snapshot");
+        buttonS.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 out.printf("-3#123;\0");
               }
         });
-        config.add(button_I, "width 160:180:200, h 40!");
+        config.add(buttonS, "width 160:180:200, h 40!");
                 
-        //Button Save Video
-        JButton button_V = new JButton();
-        button_V.setText("Save/Stop video");
-        button_V.addActionListener(new ActionListener() {
+        //JButton Save Video
+        JButton buttonV = new JButton();
+        buttonV.setText("Save/Stop video");
+        buttonV.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 out.printf("-4#123;\0");
               }
         });
-        config.add(button_V,"width 160:180:200, h 40!, wrap");
+        config.add(buttonV,"width 160:180:200, h 40!, wrap");
         
-        //Text info Data received
+        //JText info Data received
         txtText = new JTextField();
         txtText.setEditable(false);
         txtText.setToolTipText("Info of Frame received from DUNE.");
@@ -342,15 +339,15 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         txtText.setText(info);
         config.add(txtText, "cell 0 4 3 1, wrap");
         
-       //Text info Data GPS received TCP
-        txtData_tcp = new JTextField();
-        txtData_tcp.setEditable(false);
-        txtData_tcp.setToolTipText("Info of GPS received from DUNE - TCP.");
+        //JText info Data GPS received TCP
+        txtDataTcp = new JTextField();
+        txtDataTcp.setEditable(false);
+        txtDataTcp.setToolTipText("Info of GPS received from DUNE (TCP).");
         info = String.format("\t\t\t\t  ");
-        txtData_tcp.setText(info);
-        config.add(txtData_tcp, "cell 0 5 3 1, wrap");
+        txtDataTcp.setText(info);
+        config.add(txtDataTcp, "cell 0 5 3 1, wrap");
         
-        //Text info
+        //JText info
         txtData = new JTextField();
         txtData.setEditable(false);
         txtData.setToolTipText("Info of Frame received from DUNE.");
@@ -358,24 +355,23 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         txtData.setText(info);
         config.add(txtData, "cell 0 6 3 1, wrap");
         
-        //Vehicle ComboBox
+        //Vehicle JComboBox
         String[] vehicleStrings = { "Vehicle", "x8-03", "mariner-01","aero-01"};
         @SuppressWarnings({ "rawtypes", "unchecked" })
         final JComboBox vehicleList = new JComboBox(vehicleStrings);
         vehicleList.setSelectedIndex(0);
         vehicleList.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e)
-              {
-                String string_value = (String) vehicleList.getSelectedItem();
+            public void actionPerformed(ActionEvent e) {
+                String stringValue = (String) vehicleList.getSelectedItem();
                 String check = "TPL Size";
-                if (string_value != check ){
-                    if (string_value == "x8-03")
-                        id_vehicle = 3078;
-                    if (string_value == "mariner-01")
-                        id_vehicle = 3081;
-                    if (string_value == "aero-01")
-                        id_vehicle = 3080;
+                if (stringValue != check ){
+                    if (stringValue == "x8-03")
+                        idVehicle = 3078;
+                    if (stringValue == "mariner-01")
+                        idVehicle = 3081;
+                    if (stringValue == "aero-01")
+                        idVehicle = 3080;
                 }
               }
         });
@@ -415,12 +411,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         layout_user();
         updater = updaterThread();
         updater.start();
-        save_img = updaterThread2();
-        save_img.start();
+        saveImg = updaterThreadSave();
+        saveImg.start();
     }
     
     //Get size of image
-    public void init_size_image(){
+    public void initSizeImage(){
         //Width size of image
         try {
             width = Integer.parseInt(in.readLine());
@@ -438,9 +434,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         catch (IOException e) {
             e.printStackTrace();
         }
-        x_scale = (float)960/width;
-        y_scale = (float)720/height;
-        //System.out.printf("\n\nImage Size: %d x %d\n\n", width, height);
+        xScale = (float)960/width;
+        yScale = (float)720/height;
     }
     
     //!Thread to handle data receive
@@ -452,13 +447,13 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     if (isRunning ) {
                         if (state == false){
                             //connection
-                            tcp_connection();
+                            tcpConnection();
                             //receive info of image size
-                            init_size_image();
+                            initSizeImage();
                             state = true;
                         }
                         //receive data image
-                        received_data_image();
+                        receivedDataImage();
                         if(!isRunning && !state){
                             try {
                                 is.close();
@@ -476,26 +471,25 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         }
                     }
                     else
-                        inic_image();
+                        inicImage();
                 }
             }
         };
         return ret;
     }
 
-  //!Thread to handle save image
-    private Thread updaterThread2() {
+    //!Thread to handle save image
+    private Thread updaterThreadSave() {
         Thread si = new Thread("Save Image") {
             @Override
             public void run() {
                 while(true){
                     if (isRunning ) {
-                        if(flag_buff_img == true){
-                            flag_buff_img = false;
+                        if(flagBuffImg == true){
+                            flagBuffImg = false;
                             long startTime = System.currentTimeMillis();
-                            String teste = String.format("%s/%d.jpeg",log_dir,cnt);
-                            System.out.println(teste);
-                            outputfile = new File(teste);
+                            String imageJpeg = String.format("%s/%d.jpeg",logDir,cnt);
+                            outputfile = new File(imageJpeg);
                             try {
                                 ImageIO.write(temp, "jpeg", outputfile);
                             }
@@ -504,16 +498,11 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             }
                             cnt++;
                             long stopTime = System.currentTimeMillis();
-                            //long elapsedTime = stopTime - startTime;
-                            while((stopTime - startTime) < (1000/FPS))
-                            {
+                            while((stopTime - startTime) < (1000/FPS)) {
                                 stopTime = System.currentTimeMillis();
                             }
-                            long elapsedTime = stopTime - startTime;
-                            System.out.println("\n"+elapsedTime);
                         }
-                        else
-                        {
+                        else{
                             try {
                                 TimeUnit.MILLISECONDS.sleep(100);
                             }
@@ -522,8 +511,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             }
                         }     
                     }
-                    else
-                    {
+                    else{
                         try {
                             TimeUnit.MILLISECONDS.sleep(100);
                         }
@@ -542,26 +530,24 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //!IMC handle
     @Subscribe
     public void consume(EstimatedState msg) {   
-        if(msg.getSrc() == id_vehicle){
+        if(msg.getSrc() == idVehicle){
             try {
                 //! update the position of target
                 //LAT and LON rad
-                double lat_rad = msg.getLat();
-                double lon_rad = msg.getLon();
+                double latRad = msg.getLat();
+                double lonRad = msg.getLon();
                 //LAT and LON deg
-                double lat_deg = lat_rad*(180/Math.PI);
-                double lon_deg = lon_rad*(180/Math.PI);
+                double latDeg = latRad*(180/Math.PI);
+                double lonDeg = lonRad*(180/Math.PI);
                 //Offset (m)
-                double offset_n = msg.getX();
-                double offset_e = msg.getY();
+                double offsetN = msg.getX();
+                double offsetE = msg.getY();
                 //Lat and Lon final
-                double lat = lat_deg + (180/Math.PI)*(offset_e/6378137);
-                double lon = lon_deg + (180/Math.PI)*(offset_n/6378137)/Math.cos(lat_deg);
+                double lat = latDeg + (180/Math.PI)*(offsetE/6378137);
+                double lon = lonDeg + (180/Math.PI)*(offsetN/6378137)/Math.cos(latDeg);
                 //height of Vehicle 
-                double height_v = msg.getHeight();
-                //System.out.println("SourceEntity: "+msg.getSrc());
-                //System.out.printf("LAT: %f # LON: %f # rad\n",lat_rad, lon_rad);
-                info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, height_v);
+                double heightV = msg.getHeight();
+                info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, heightV);
                 txtData.setText(info);
             }
             catch (Exception e) {
@@ -572,22 +558,22 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     @Subscribe
     public void consume(Announce announce) {
-        System.out.println("Announce: "+announce.getSysName()+"  ID: "+announce.getSrc());
+        //System.out.println("Announce: "+announce.getSysName()+"  ID: "+announce.getSrc());
         //System.out.println("RECEIVED ANNOUNCE"+announce);
     }
     
     //!Fill cv::Mat image with zeros
-    public void inic_image(){
+    public void inicImage(){
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        Mat mat_resize = new Mat(720, 960, CvType.CV_8UC3);
+        Mat matResize = new Mat(720, 960, CvType.CV_8UC3);
         Scalar black = new Scalar(0);
-        mat_resize.setTo(black);
-        temp=matToBufferedImage(mat_resize);
-        show_image(temp);
+        matResize.setTo(black);
+        temp=matToBufferedImage(matResize);
+        showImage(temp);
     }
     
     //!Received data Image
-    public void received_data_image(){
+    public void receivedDataImage(){
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         try {
             line = in.readLine();
@@ -623,22 +609,22 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             }    
         }
         else{        
-            length_image = Integer.parseInt(line);
+            lengthImage = Integer.parseInt(line);
             //buffer for save data receive
-            data = new byte[length_image];
+            data = new byte[lengthImage];
             //Send 1 for server for sync data send
             out.println("1\0");
-            //read data image for buffer (ZP)
+            //read data image (ZP)
             int read = 0;
-            while (read < length_image) {
-                int read_bytes = 0;
+            while (read < lengthImage) {
+                int readBytes = 0;
                 try {
-                    read_bytes = is.read(data, read, length_image-read);
+                    readBytes = is.read(data, read, lengthImage-read);
                 }
                 catch (IOException e) {
                     e.printStackTrace();
                 }
-                if (read_bytes < 0) {
+                if (readBytes < 0) {
                     System.err.println("stream ended");
                     try {
                         is.close();
@@ -660,12 +646,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     } 
                     return;
                 }
-                read += read_bytes;
+                read += readBytes;
             }           
             
             //Receive data GPS over tcp DUNE
             try {
-                dune_gps = in.readLine();
+                duneGps = in.readLine();
             }
             catch (IOException e1) {
                 e1.printStackTrace();
@@ -673,7 +659,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             
             //Decompress data received 
             Inflater decompresser = new Inflater(false);
-            decompresser.setInput(data,0,length_image);
+            decompresser.setInput(data,0,lengthImage);
             //Create an expandable byte array to hold the decompressed data
             ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length);
             // Decompress the data
@@ -702,26 +688,26 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             mat = new Mat(height, width, CvType.CV_8UC3);
             mat.put(0, 0, decompressedData);
             //Resize image to 960x720 resolution
-            mat_resize = new Mat(960, 720, CvType.CV_8UC3);
+            matResize = new Mat(960, 720, CvType.CV_8UC3);
             Size size = new Size(960, 720);
-            Imgproc.resize(mat, mat_resize, size);
+            Imgproc.resize(mat, matResize, size);
                        
             //Convert Mat to BufferedImage
-            temp=matToBufferedImage(mat_resize);
+            temp=matToBufferedImage(matResize);
             
             //TODO: CHANGE TO TRUE FOR END DEBUG (SAVE IMAGE TO DISK)
-            flag_buff_img = true;      
+            flagBuffImg = false;      
             
             //Display image in JFrame
-            info = String.format("X = %d - Y = %d   x %.2f   %d bytes (KiB = %d)", width, height,x_scale,length_image,length_image/1024);
+            info = String.format("X = %d - Y = %d   x %.2f   %d bytes (KiB = %d)", width, height,xScale,lengthImage,lengthImage/1024);
             txtText.setText(info);
-            txtData_tcp.setText(dune_gps);
-            show_image(temp);
+            txtDataTcp.setText(duneGps);
+            showImage(temp);
         }
     }
     
     //!Create Socket service
-    public void tcp_connection(){
+    public void tcpConnection(){
         //Socket Config
         ServerSocket serverSocket = null;    
         try { 
