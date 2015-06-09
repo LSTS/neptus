@@ -35,14 +35,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
-import java.awt.Transparency;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -66,9 +61,9 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.urready4os.rhodamine.importers.CSVDataParser;
 import pt.lsts.neptus.plugins.urready4os.rhodamine.importers.MedslikDataParser;
 import pt.lsts.neptus.renderer2d.LayerPriority;
+import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
@@ -149,15 +144,10 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 //    private static final String[] totFileExt = { "tot", "lv1" };
 
     // Cache image
-    private BufferedImage cacheImg = null;
-    private BufferedImage cachePredictionImg = null;
-    private static int offScreenBufferPixel = 400;
-    private Dimension dim = null;
-    private int lastLod = -1;
-    private LocationType lastCenter = null;
-    private double lastRotation = Double.NaN;
-    private BufferedImage cacheColorBarImg = null;
-
+    private OffScreenLayerImageControl offScreenImageControlData = new OffScreenLayerImageControl();
+    private OffScreenLayerImageControl offScreenImageControlPrediction = new OffScreenLayerImageControl();
+    private OffScreenLayerImageControl offScreenImageControlColorBar = new OffScreenLayerImageControl();
+    
     private boolean clearImgCachRqst = false;
     private boolean clearColorBarImgCachRqst = false;
     
@@ -413,165 +403,79 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         super.paint(g, renderer);
-        
-        if (!clearImgCachRqst) {
-            if (isToRegenerateCache(renderer)) {
-                cacheImg = null;
-                cachePredictionImg = null;
-            }
-        }
-        else {
-            cacheImg = null;
-            cachePredictionImg = null;
-            clearImgCachRqst = false;
-        }
-        
-        if (cacheImg == null) {
-            dim = renderer.getSize(new Dimension());
-            lastLod = renderer.getLevelOfDetail();
-            lastCenter = renderer.getCenter();
-            lastRotation = renderer.getRotation();
 
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            GraphicsDevice gs = ge.getDefaultScreenDevice();
-            GraphicsConfiguration gc = gs.getDefaultConfiguration();
-            cacheImg = gc.createCompatibleImage((int) dim.getWidth() + offScreenBufferPixel * 2, (int) dim.getHeight() + offScreenBufferPixel * 2, Transparency.BITMASK); 
-            Graphics2D g2 = cacheImg.createGraphics();
-            
-            g2.translate(offScreenBufferPixel, offScreenBufferPixel);
-            
-//            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-            
+        checkIfClearCache();
+
+        boolean recreateImageData = offScreenImageControlData.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
+        if (recreateImageData) {
+            Graphics2D g2 = offScreenImageControlData.getImageGraphics();
             paintData(renderer, g2);
-            
             g2.dispose();
-        }
+        }            
+        offScreenImageControlData.paintPhaseEndFinishImageRecreateAndPainImageCacheToRenderer(g, renderer);
 
-        if (cachePredictionImg == null) {
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            GraphicsDevice gs = ge.getDefaultScreenDevice();
-            GraphicsConfiguration gc = gs.getDefaultConfiguration();
-            cachePredictionImg = gc.createCompatibleImage((int) dim.getWidth() + offScreenBufferPixel * 2, (int) dim.getHeight() + offScreenBufferPixel * 2, Transparency.BITMASK); 
-            Graphics2D g2 = cachePredictionImg.createGraphics();
-            
-            g2.translate(offScreenBufferPixel, offScreenBufferPixel);
-            
-//            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-            
-            paintPredictionData(renderer, g2);
-            
-            g2.dispose();
-        }
+        paintColorBar(g, renderer);            
 
-//        if (cachePredictionImg != null && showPrediction) {
-//            //          System.out.println(".........................");
-//            Graphics2D g3 = (Graphics2D) g.create();
-//
-//            double[] offset = renderer.getCenter().getDistanceInPixelTo(lastCenter, renderer.getLevelOfDetail());
-//            offset = AngleCalc.rotate(renderer.getRotation(), offset[0], offset[1], true);
-//
-//            g3.drawImage(cachePredictionImg, null, (int) offset[0] - offScreenBufferPixel, (int) offset[1] - offScreenBufferPixel);
-//
-//            g3.dispose();
-//        }
-
-        if (cacheImg != null) {
-            //          System.out.println(".........................");
-            Graphics2D g3 = (Graphics2D) g.create();
-
-            double[] offset = renderer.getCenter().getDistanceInPixelTo(lastCenter, renderer.getLevelOfDetail());
-            offset = AngleCalc.rotate(renderer.getRotation(), offset[0], offset[1], true);
-
-            g3.drawImage(cacheImg, null, (int) offset[0] - offScreenBufferPixel, (int) offset[1] - offScreenBufferPixel);
-
-            g3.dispose();
-        }
-        
-        paintColorBar(renderer, g);
-        
-        // Legend
-        Graphics2D gl = (Graphics2D) g.create();
-        gl.translate(10, 50);
-        gl.setColor(Color.WHITE);
-        gl.drawString(getName(), 0, 0); // (int)pt.getX()+17, (int)pt.getY()+2
-        gl.dispose();
+        paintLegend(g);
     }
 
-    public void paintPrediction(Graphics2D g, StateRenderer2D renderer) {
-        if (cachePredictionImg != null) {
-            //          System.out.println(".........................");
-            Graphics2D g3 = (Graphics2D) g.create();
-
-            double[] offset = renderer.getCenter().getDistanceInPixelTo(lastCenter, renderer.getLevelOfDetail());
-            offset = AngleCalc.rotate(renderer.getRotation(), offset[0], offset[1], true);
-
-            g3.drawImage(cachePredictionImg, null, (int) offset[0] - offScreenBufferPixel, (int) offset[1] - offScreenBufferPixel);
-
-            g3.dispose();
+    private void checkIfClearCache() {
+        if (clearImgCachRqst) {
+            offScreenImageControlData.triggerImageRebuild();
+            offScreenImageControlPrediction.triggerImageRebuild();
         }
-
-        paintColorBar(renderer, g);
         
-        // Legend
-        Graphics2D gl = (Graphics2D) g.create();
-        gl.translate(10, 50);
-        gl.setColor(Color.WHITE);
-        gl.drawString(getName(), 0, 0); // (int)pt.getX()+17, (int)pt.getY()+2
-        gl.dispose();
-    }
-
-    private void paintColorBar(StateRenderer2D renderer, Graphics2D g2) {
         if (clearColorBarImgCachRqst) {
-            cacheColorBarImg = null;
-            clearColorBarImgCachRqst = false;
+            offScreenImageControlColorBar.triggerImageRebuild();
         }
-        
-        if (cacheColorBarImg == null) {
-//            BufferedImage img = new BufferedImage(100, 170, BufferedImage.TYPE_INT_ARGB);
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            GraphicsDevice gs = ge.getDefaultScreenDevice();
-            GraphicsConfiguration gc = gs.getDefaultConfiguration();
-            cacheColorBarImg = gc.createCompatibleImage(100, 170, Transparency.BITMASK); 
+    }
 
-            Graphics2D g = (Graphics2D) cacheColorBarImg.getGraphics();
-            g.setColor(new Color(255, 255, 255, 100));
-            g.fillRect(5, 30, 70, 110);
+    /**
+     * @param g
+     */
+    private void paintLegend(Graphics2D g) {
+        // Legend
+        Graphics2D gl = (Graphics2D) g.create();
+        gl.translate(10, 50);
+        gl.setColor(Color.WHITE);
+        gl.drawString(getName(), 0, 0); // (int)pt.getX()+17, (int)pt.getY()+2
+        gl.dispose();
+    }
+
+    /**
+     * @param g
+     * @param renderer
+     */
+    private void paintColorBar(Graphics2D g, StateRenderer2D renderer) {
+        boolean recreateImageColorBar = offScreenImageControlColorBar.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
+        if (recreateImageColorBar) {
+            Graphics2D g2 = offScreenImageControlColorBar.getImageGraphics();
+            g2.setColor(new Color(255, 255, 255, 100));
+            g2.fillRect(5, 30, 70, 110);
 
             ColorMap cmap = colorMap;
             ColorBar cb = new ColorBar(ColorBar.VERTICAL_ORIENTATION, cmap);
             cb.setSize(15, 80);
-            g.setColor(Color.WHITE);
-            Font prev = g.getFont();
-            g.setFont(new Font("Helvetica", Font.BOLD, 18));
-            g.setFont(prev);
-            g.translate(15, 45);
-            cb.paint(g);
-            g.translate(-10, -15);
+            g2.setColor(Color.WHITE);
+            Font prev = g2.getFont();
+            g2.setFont(new Font("Helvetica", Font.BOLD, 18));
+            g2.setFont(prev);
+            g2.translate(15, 45);
+            cb.paint(g2);
+            g2.translate(-10, -15);
 
             try {
-                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 28, 20);
-                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue / 2), 28, 60);
-                g.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 28, 100);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 28, 20);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue / 2), 28, 60);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 28, 100);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
                 e.printStackTrace();
             }
+            g2.dispose();
         }
-        
-        if (cacheColorBarImg != null) {
-            Graphics2D g3 = (Graphics2D) g2.create();
-//            double[] offset = renderer.getCenter().getDistanceInPixelTo(lastCenter, renderer.getLevelOfDetail());
-//            offset = AngleCalc.rotate(renderer.getRotation(), offset[0], offset[1], true);
-            g3.drawImage(cacheColorBarImg, null, 10, 20);
-            g3.dispose();
-        }
+        offScreenImageControlColorBar.paintPhaseEndFinishImageRecreateAndPainImageCacheToRenderer(g, renderer);
     }
     
     private void paintData(StateRenderer2D renderer, Graphics2D g2) {
@@ -631,32 +535,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
     }
 
-    /**
-     * @return 
-     * 
-     */
-    private boolean isToRegenerateCache(StateRenderer2D renderer) {
-        if (dim == null || lastLod < 0 || lastCenter == null || Double.isNaN(lastRotation)) {
-            Dimension dimN = renderer.getSize(new Dimension());
-            if (dimN.height != 0 && dimN.width != 0)
-                dim = dimN;
-            return true;
-        }
-        LocationType current = renderer.getCenter().getNewAbsoluteLatLonDepth();
-        LocationType last = lastCenter == null ? new LocationType(0, 0) : lastCenter;
-        double[] offset = current.getDistanceInPixelTo(last, renderer.getLevelOfDetail());
-        if (Math.abs(offset[0]) > offScreenBufferPixel || Math.abs(offset[1]) > offScreenBufferPixel) {
-            return true;
-        }
-
-        if (!dim.equals(renderer.getSize()) || lastLod != renderer.getLevelOfDetail()
-                /*|| !lastCenter.equals(renderer.getCenter())*/ || Double.compare(lastRotation, renderer.getRotation()) != 0) {
-            return true;
-        }
-        
-        return false;
-    }
-
     @Subscribe
     public void on(EstimatedState msg) {
         // From any system
@@ -688,6 +566,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
      */
     private boolean isVisibleInRender(Point2D sPos, StateRenderer2D renderer) {
         Dimension rendDim = renderer.getSize();
+        int offScreenBufferPixel = offScreenImageControlData.getOffScreenBufferPixel();
         if (sPos.getX() < 0 - offScreenBufferPixel && sPos.getY() < 0 - offScreenBufferPixel)
             return false;
         else if (sPos.getX() > rendDim.getWidth() + offScreenBufferPixel && sPos.getY() > rendDim.getHeight() + offScreenBufferPixel)
@@ -739,8 +618,20 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         @Override
         public void paint(Graphics2D g, StateRenderer2D renderer) {
             super.paint(g, renderer);
-            
-            paintPrediction(g, renderer);
+
+            checkIfClearCache();
+
+            boolean recreateImagePrediction = offScreenImageControlPrediction.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
+            if (recreateImagePrediction) {
+                Graphics2D g2 = offScreenImageControlPrediction.getImageGraphics();
+                paintPredictionData(renderer, g2);
+                g2.dispose();
+            }            
+            offScreenImageControlPrediction.paintPhaseEndFinishImageRecreateAndPainImageCacheToRenderer(g, renderer);
+
+            paintColorBar(g, renderer);            
+
+            paintLegend(g);
         }
     }
 }
