@@ -145,6 +145,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 //    private FineOil lastFineOil = null;
     
     private static final String csvFilePattern = ".\\.csv$";
+    private static final String totFilePattern = ".\\.tot$";
 //    private static final String[] totFileExt = { "tot", "lv1" };
 
     // Cache image
@@ -164,6 +165,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     private ArrayList<BaseData> dataList = new ArrayList<>();
     private ArrayList<BaseData> dataPredictionList = new ArrayList<>();
+    long dataPredictionMillisPassedFromSpillMax = 0;
     
     private HashMap<Integer, EstimatedState> lastEstimatedStateFromSystems = new HashMap<>();
 
@@ -209,6 +211,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public void propertiesChanged() {
         if (clearData) {
             dataList.clear();
+            clearDataPredictionList();
             lastEstimatedStateFromSystems.clear();
             clearData = false;
         }
@@ -272,14 +275,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         if (fileList != null && fileList.length > 0) {
             for (int i = (readAllOrLastOfOrderedFiles ? 0 : fileList.length -1); i < fileList.length; i++) {
                 File csvFx = fileList[i];
-                try {
-                    CSVDataParser csv = new CSVDataParser(csvFx);
-                    csv.parse();
-                    updateValues(dataList, csv.getPoints());
-                }
-                catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
+                loadDataFile(csvFx);
             }
         }
         
@@ -290,14 +286,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 if (fileList != null && fileList.length > 0) {
                     for (int i = (readAllOrLastOfOrderedFiles ? 0 : fileList.length -1); i < fileList.length; i++) {
                         File csvFx = fileList[i];
-                        try {
-                            CSVDataParser csv = new CSVDataParser(csvFx);
-                            csv.parse();
-                            updateValues(dataList, csv.getPoints());
-                        }
-                        catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
+                        loadDataFile(csvFx);
                     }
                 }
             }
@@ -305,32 +294,71 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         
         // Load prediction
         if (predictionFile.exists() && predictionFile.isFile()) {
-            String fxExt = FileUtil.getFileExtension(predictionFile);
-            if ("csv".equalsIgnoreCase(fxExt)) {
-                try {
-                    CSVDataParser csv = new CSVDataParser(predictionFile);
-                    csv.parse();
-                    dataPredictionList.clear();
-                    updateValues(dataPredictionList, csv.getPoints());
-                }
-                catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-            else {
-                try {
-                    MedslikDataParser totFile = new MedslikDataParser(predictionFile);
-                    totFile.parse();
-                    dataPredictionList.clear();
-                    updateValues(dataPredictionList, totFile.getPoints());
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
+            clearDataPredictionList();
+            loadPredictionFile(predictionFile);
+        }
+        else if (predictionFile.exists() && predictionFile.isDirectory()) {
+            clearDataPredictionList();
+            fileList = FileUtil.getFilesFromDisk(predictionFile, totFilePattern);
+            if (fileList != null && fileList.length > 0) {
+                for (int i = 0; i < fileList.length; i++) {
+                    File totFx = fileList[i];
+                    loadPredictionFile(totFx);
                 }
             }
         }
         
         return true;
+    }
+
+    private void clearDataPredictionList() {
+        dataPredictionList.clear();
+        dataPredictionMillisPassedFromSpillMax = 0;
+    }
+
+    /**
+     * @param csvFx
+     */
+    private void loadDataFile(File csvFx) {
+        try {
+            CSVDataParser csv = new CSVDataParser(csvFx);
+            csv.parse();
+            updateValues(dataList, csv.getPoints());
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * @param predictionFile 
+     * 
+     */
+    private void loadPredictionFile(File predictionFile) {
+        String fxExt = FileUtil.getFileExtension(predictionFile);
+        if ("csv".equalsIgnoreCase(fxExt)) {
+            try {
+                CSVDataParser csv = new CSVDataParser(predictionFile);
+                csv.parse();
+                updateValues(dataPredictionList, csv.getPoints());
+            }
+            catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            try {
+                MedslikDataParser totFile = new MedslikDataParser(predictionFile);
+                totFile.parse();
+                dataPredictionMillisPassedFromSpillMax = Math.max(dataPredictionMillisPassedFromSpillMax,
+                        totFile.getMillisPassedFromSpill());
+                updateValues(dataPredictionList, totFile.getPoints());
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
