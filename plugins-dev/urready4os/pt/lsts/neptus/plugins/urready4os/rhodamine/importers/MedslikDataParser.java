@@ -38,6 +38,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 
 import pt.lsts.neptus.plugins.urready4os.rhodamine.BaseData;
+import pt.lsts.neptus.util.DateTimeUtil;
 
 /**
  * @author pdias
@@ -61,6 +62,10 @@ public class MedslikDataParser {
     private ArrayList<BaseData> points = new ArrayList<>();
     
     private long numberOfDataLines = 0;
+    
+    private long millisPassedFromSpill = 0;
+    private double latDegsSpillLocation = Double.NaN;
+    private double lonDegsSpillLocation = Double.NaN;
 
     public MedslikDataParser(File file) throws FileNotFoundException {
         this.file = file;
@@ -76,14 +81,41 @@ public class MedslikDataParser {
         return points;
     }
     
+    /**
+     * @return the millisPassedFromSpill
+     */
+    public long getMillisPassedFromSpill() {
+        return millisPassedFromSpill;
+    }
+    
+    /**
+     * @return the latDegsSpillLocation
+     */
+    public double getLatDegsSpillLocation() {
+        return latDegsSpillLocation;
+    }
+    
+    /**
+     * @return the lonDegsSpillLocation
+     */
+    public double getLonDegsSpillLocation() {
+        return lonDegsSpillLocation;
+    }
+    
     public boolean parse() {
         int counter = 0;
         long dataLines = 0;
         try {
             String line = reader.readLine(); 
             while (line != null) {
-                if (counter == 7) {
+                if (counter == 2) {
+                    processTimePassedLines(line);
+                }
+                else if (counter == 7) {
                     processNumberOfDataLines(line);
+                }
+                else if (counter == 4) {
+                    processLatLonSpillLines(line);
                 }
                 else if (counter > 8) {
                     if (dataLines < numberOfDataLines) {
@@ -140,7 +172,7 @@ public class MedslikDataParser {
         if (Double.isNaN(lat) || Double.isNaN(lon))
             return;
         
-        BaseData point = new BaseData(lat, lon, Double.NaN, 0);
+        BaseData point = new BaseData(lat, lon, Double.NaN, millisPassedFromSpill);
         point.setRhodamineDyePPB(rhodamine);
         
         points.add(point);
@@ -157,7 +189,42 @@ public class MedslikDataParser {
         
         numberOfDataLines = Long.parseLong(tokens[0].trim());
     }
-    
+
+    private void processTimePassedLines(String line) throws Exception {
+        String[] tokens = line.split(":");
+        if (tokens.length == 0)
+            throwUnexpectedException();
+        
+        double tk0 = Double.parseDouble(tokens[0].trim());
+        String tklc = tokens[1].toLowerCase();
+        if (tklc.contains("minute"))
+            millisPassedFromSpill = (long) (tk0 * DateTimeUtil.MINUTE);
+        else if (tklc.contains("second"))
+            millisPassedFromSpill = (long) (tk0 * DateTimeUtil.SECOND);
+        else if (tklc.contains("millisecond"))
+            millisPassedFromSpill = (long) tk0;
+        else if (tklc.contains("day"))
+            millisPassedFromSpill = (long) (tk0 * DateTimeUtil.DAY);
+        else
+            millisPassedFromSpill = (long) (tk0 * DateTimeUtil.HOUR);
+    }
+
+    private void processLatLonSpillLines(String line) throws Exception {
+        String[] tokens = line.split(":");
+        if (tokens.length == 0)
+            throwUnexpectedException();
+        
+        String tk0Str = tokens[0].trim();
+        String[] tokensLatLon = tk0Str.split(" +");
+        if (tokensLatLon.length < 2)
+            return;
+            
+        double tkLat = Double.parseDouble(tokensLatLon[0].trim());
+        double tkLon = Double.parseDouble(tokensLatLon[1].trim());
+        latDegsSpillLocation = tkLat;
+        lonDegsSpillLocation = tkLon;
+    }
+
     public static void main(String[] args) throws FileNotFoundException {
         MedslikDataParser csv = new MedslikDataParser(new File("out0003.tot"));
         
