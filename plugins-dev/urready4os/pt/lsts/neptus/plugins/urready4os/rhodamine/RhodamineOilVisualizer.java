@@ -31,7 +31,9 @@
  */
 package pt.lsts.neptus.plugins.urready4os.rhodamine;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -43,6 +45,13 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.CrudeOil;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FineOil;
@@ -53,6 +62,7 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -133,6 +143,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     
     private final PrevisionRhodamineConsoleLayer previsionLayer = new PrevisionRhodamineConsoleLayer();
 
+    private long lastPaintCallMillis = -1;
     
 //    private EstimatedState lastEstimatedState = null;
 //    private RhodamineDye lastRhodamineDye = null;
@@ -155,11 +166,25 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     private ArrayList<BaseData> dataList = new ArrayList<>();
     private ArrayList<BaseData> dataPredictionList = new ArrayList<>();
-    long dataPredictionMillisPassedFromSpillMax = 0;
+    private long dataPredictionMillisPassedFromSpillMax = 0;
+    private ArrayList<Long> dataPredictionValues = new ArrayList<>();
     
     private HashMap<Integer, EstimatedState> lastEstimatedStateFromSystems = new HashMap<>();
 
     private long lastUpdatedValues = -1;
+    
+    // Extra GUI
+    private String predictionTxt = I18n.text("Prediction");
+    private String valueTxt = I18n.text("value");
+    private String minTxt = I18n.text("min");
+    private String maxTxt = I18n.text("max");
+
+    private JPanel sliderPanel;
+    private JSlider sliderPrevision;
+    private JLabel labelPrediction;
+    private JLabel labelValue;
+    private JLabel labelMinValue;
+    private JLabel labelMaxValue;
 
     public RhodamineOilVisualizer() {
     }
@@ -170,6 +195,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
      */
     @Override
     public void initLayer() {
+        offScreenImageControlColorBar.setOffScreenBufferPixel(0);
 //        try {
 //            CSVDataParser csv = new CSVDataParser(new File("test.csv"));
 //            CSVDataParser csv = new CSVDataParser(new File("log_2014-09-24_22-15.csv"));
@@ -181,6 +207,58 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 //        }
         
         getConsole().addMapLayer(previsionLayer, false);
+        
+        initGUI();
+    }
+
+    private void initGUI() {
+        sliderPrevision = new JSlider(0, 0, 0);
+
+        labelPrediction = new JLabel(predictionTxt);
+        labelValue = new JLabel("");
+        labelMinValue = new JLabel(minTxt + "=0");
+        labelMaxValue = new JLabel();
+        updatePredictionTimeSliderTime();
+
+        sliderPrevision.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                updatePredictionTimeSliderTime();
+//                oldestTimestampSelection = slider.getValue() * 1000l;
+//                newestTimestampSelection = (slider.getValue() + slider.getExtent()) * 1000l;
+//                if (slider.getUpperValue() - slider.getValue() < 3600) {
+//                    sliderPrevision.setUpperValue(Math.min(slider.getMaximum(), slider.getValue()+3600));
+//                }
+                int oldestTimestampSelection = sliderPrevision.getValue();
+                int newestTimestampSelection = (sliderPrevision.getValue() + sliderPrevision.getExtent());;
+                //sliderPrevision.setUpperValue(Math.min(sliderPrevision.getMaximum(), sliderPrevision.getValue()));
+            }
+        });
+
+
+        sliderPanel = new JPanel(new MigLayout());
+        sliderPanel.add(labelPrediction);
+        sliderPanel.add(labelValue, "gapleft 10");
+        sliderPanel.add(labelMinValue, "gapleft 10");
+        sliderPanel.add(sliderPrevision, "width :100%:");
+        sliderPanel.add(labelMaxValue);
+    }
+
+    /**
+     * @param dataPredictionMillisPassedFromSpillMax the dataPredictionMillisPassedFromSpillMax to set
+     */
+    public void setDataPredictionMillisPassedFromSpillMax(long dataPredictionMillisPassedFromSpillMax) {
+        this.dataPredictionMillisPassedFromSpillMax = dataPredictionMillisPassedFromSpillMax;
+        
+        int oldValue = this.sliderPrevision.getValue();
+        this.sliderPrevision.setMaximum((int)dataPredictionMillisPassedFromSpillMax);
+        this.sliderPrevision.setValue(Math.min(oldValue, this.sliderPrevision.getMaximum()));
+    }
+    
+    private void updatePredictionTimeSliderTime() {
+        labelMaxValue.setText(maxTxt + "="
+                + DateTimeUtil.milliSecondsToFormatedString(dataPredictionMillisPassedFromSpillMax));
+        labelValue.setText(valueTxt + "=" + DateTimeUtil.milliSecondsToFormatedString(sliderPrevision.getValue()));
     }
 
     /* (non-Javadoc)
@@ -284,11 +362,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         
         // Load prediction
         if (predictionFile.exists() && predictionFile.isFile()) {
-            clearDataPredictionList();
+            dataPredictionList.clear();
             loadPredictionFile(predictionFile);
         }
         else if (predictionFile.exists() && predictionFile.isDirectory()) {
-            clearDataPredictionList();
+            dataPredictionList.clear();
             fileList = FileUtil.getFilesFromDisk(predictionFile, totFilePattern);
             if (fileList != null && fileList.length > 0) {
                 for (int i = 0; i < fileList.length; i++) {
@@ -297,13 +375,14 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 }
             }
         }
+        setDataPredictionMillisPassedFromSpillMax(dataPredictionMillisPassedFromSpillMax);
         
         return true;
     }
 
     private void clearDataPredictionList() {
         dataPredictionList.clear();
-        dataPredictionMillisPassedFromSpillMax = 0;
+        setDataPredictionMillisPassedFromSpillMax(0);
     }
 
     /**
@@ -396,14 +475,55 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         return dataUpdated;
     }
 
+    @Periodic(millisBetweenUpdates = 500)
+    public boolean updateExtraGUI() {
+        if (System.currentTimeMillis() - lastPaintCallMillis > 800)
+            setupExtraGui(false, null);
+        return true;
+    }
+    
+    private boolean updating = false; 
+    public void setupExtraGui(boolean mode, StateRenderer2D source) {
+        if (updating)
+            return;
+        
+        updating = true;
+
+        boolean repaint = false;
+        Container parent = source != null ? source.getParent() : null;
+        if (source != null && mode && sliderPanel.getParent() == null) {
+            while (parent != null && !(parent.getLayout() instanceof BorderLayout)) { 
+                parent = parent.getParent();
+            }
+            parent.add(sliderPanel, BorderLayout.SOUTH);
+            repaint = true;
+        }
+        else if (!mode && sliderPanel.getParent() != null) {
+            parent = sliderPanel.getParent();
+            sliderPanel.getParent().remove(sliderPanel);
+            repaint = true;
+        }
+        
+        if (repaint) {
+            parent.invalidate();
+            parent.validate();
+            parent.repaint();
+        }
+        
+        updating = false;
+    }
 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsoleLayer#paint(java.awt.Graphics2D, pt.lsts.neptus.renderer2d.StateRenderer2D)
      */
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
+        lastPaintCallMillis = System.currentTimeMillis();
+
         super.paint(g, renderer);
 
+        setupExtraGui(true, renderer);
+        
         checkIfClearCache();
 
         boolean recreateImageData = offScreenImageControlData.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
@@ -436,7 +556,10 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private void paintLegend(Graphics2D g) {
         // Legend
         Graphics2D gl = (Graphics2D) g.create();
-        gl.translate(10, 50);
+        gl.translate(10, 35);
+        gl.setColor(Color.BLACK);
+        gl.drawString(getName(), 0, 0); // (int)pt.getX()+17, (int)pt.getY()+2
+        gl.translate(1, 1);
         gl.setColor(Color.WHITE);
         gl.drawString(getName(), 0, 0); // (int)pt.getX()+17, (int)pt.getY()+2
         gl.dispose();
@@ -450,7 +573,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         boolean recreateImageColorBar = offScreenImageControlColorBar.paintPhaseStartTestRecreateImageAndRecreate(g, renderer);
         if (recreateImageColorBar) {
             Graphics2D g2 = offScreenImageControlColorBar.getImageGraphics();
-            g2.setColor(new Color(255, 255, 255, 100));
+            g2.setColor(new Color(250, 250, 250, 100));
             g2.fillRect(5, 30, 70, 110);
 
             ColorMap cmap = colorMap;
@@ -465,9 +588,18 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             g2.translate(-10, -15);
 
             try {
+                g2.setColor(Color.BLACK);
                 g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 28, 20);
+                g2.setColor(Color.WHITE);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue), 29, 21);
+                g2.setColor(Color.BLACK);
                 g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue / 2), 28, 60);
+                g2.setColor(Color.WHITE);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(maxValue / 2), 29, 61);
+                g2.setColor(Color.BLACK);
                 g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 28, 100);
+                g2.setColor(Color.WHITE);
+                g2.drawString(GuiUtils.getNeptusDecimalFormat(1).format(minValue), 29, 101);
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
@@ -617,7 +749,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
          */
         @Override
         public void paint(Graphics2D g, StateRenderer2D renderer) {
+            lastPaintCallMillis = System.currentTimeMillis();
+
             super.paint(g, renderer);
+
+            setupExtraGui(true, renderer);
 
             checkIfClearCache();
 
