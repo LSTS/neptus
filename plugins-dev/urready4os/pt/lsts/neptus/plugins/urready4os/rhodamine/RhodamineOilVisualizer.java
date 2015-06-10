@@ -36,20 +36,25 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.basic.BasicSliderUI;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.CrudeOil;
@@ -213,6 +218,28 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     private void initGUI() {
         sliderPrevision = new JSlider(0, 0, 0);
+        sliderPrevision.setUI(new BasicSliderUI(sliderPrevision) {
+            @Override
+            public void paintThumb(Graphics g) {
+                Rectangle knobBounds = thumbRect;
+                int w = knobBounds.width;
+                int h = knobBounds.height;      
+                
+                Graphics2D g2d = (Graphics2D) g.create();
+                Shape thumbShape = new Ellipse2D.Double(0, 0, w - 1, h - 1);
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.translate(knobBounds.x, knobBounds.y);
+
+                g2d.setColor(Color.CYAN);
+                g2d.fill(thumbShape);
+
+                g2d.setColor(Color.BLUE);
+                g2d.draw(thumbShape);
+                
+                g2d.dispose();
+            }
+        });
 
         labelPrediction = new JLabel(predictionTxt);
         labelValue = new JLabel("");
@@ -224,6 +251,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             @Override
             public void stateChanged(ChangeEvent e) {
                 updatePredictionTimeSliderTime();
+                invalidateCache();
 //                oldestTimestampSelection = slider.getValue() * 1000l;
 //                newestTimestampSelection = (slider.getValue() + slider.getExtent()) * 1000l;
 //                if (slider.getUpperValue() - slider.getValue() < 3600) {
@@ -250,9 +278,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public void setDataPredictionMillisPassedFromSpillMax(long dataPredictionMillisPassedFromSpillMax) {
         this.dataPredictionMillisPassedFromSpillMax = dataPredictionMillisPassedFromSpillMax;
         
-        int oldValue = this.sliderPrevision.getValue();
-        this.sliderPrevision.setMaximum((int)dataPredictionMillisPassedFromSpillMax);
-        this.sliderPrevision.setValue(Math.min(oldValue, this.sliderPrevision.getMaximum()));
+        if (sliderPrevision != null) {
+            int oldValue = this.sliderPrevision.getValue();
+            this.sliderPrevision.setMaximum((int)dataPredictionMillisPassedFromSpillMax);
+            this.sliderPrevision.setValue(Math.min(oldValue, this.sliderPrevision.getMaximum()));
+        }
     }
     
     private void updatePredictionTimeSliderTime() {
@@ -363,10 +393,12 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         // Load prediction
         if (predictionFile.exists() && predictionFile.isFile()) {
             dataPredictionList.clear();
+            dataPredictionValues.clear();
             loadPredictionFile(predictionFile);
         }
         else if (predictionFile.exists() && predictionFile.isDirectory()) {
             dataPredictionList.clear();
+            dataPredictionValues.clear();
             fileList = FileUtil.getFilesFromDisk(predictionFile, totFilePattern);
             if (fileList != null && fileList.length > 0) {
                 for (int i = 0; i < fileList.length; i++) {
@@ -382,6 +414,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     private void clearDataPredictionList() {
         dataPredictionList.clear();
+        dataPredictionValues.clear();
         setDataPredictionMillisPassedFromSpillMax(0);
     }
 
@@ -422,6 +455,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 totFile.parse();
                 dataPredictionMillisPassedFromSpillMax = Math.max(dataPredictionMillisPassedFromSpillMax,
                         totFile.getMillisPassedFromSpill());
+                if (!dataPredictionValues.contains(totFile.getMillisPassedFromSpill()))
+                    dataPredictionValues.add(totFile.getMillisPassedFromSpill());
                 updateValues(dataPredictionList, totFile.getPoints());
             }
             catch (Exception e) {
@@ -615,7 +650,30 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     }
 
     private void paintPredictionData(StateRenderer2D renderer, Graphics2D g2) {
-        paintDataWorker(renderer, g2, true, dataPredictionList);
+        ArrayList<BaseData> tmpLst = new ArrayList<>(dataPredictionList);
+        List<Long> tmpValLst = new ArrayList<>(dataPredictionValues);
+        //Collections.sort(tmpValLst);
+        long curSelTime = sliderPrevision.getValue();
+        long filterTime = -1;
+        for (long tm : tmpValLst) {
+            if (filterTime == -1) {
+                filterTime = tm;
+                continue;
+            }
+            
+            if (tm < curSelTime)
+                filterTime = Math.max(filterTime, tm);
+            else if (tm == curSelTime)
+                filterTime = Math.max(filterTime, tm);
+            else
+                filterTime = Math.min(filterTime, tm);
+        }
+        
+        for (BaseData dpt : tmpLst.toArray(new BaseData[tmpLst.size()])) {
+            if (dpt.timeMillis != filterTime)
+                tmpLst.remove(dpt);
+        }
+        paintDataWorker(renderer, g2, true, tmpLst);
     }
 
     private void paintDataWorker(StateRenderer2D renderer, Graphics2D g2, boolean prediction, ArrayList<BaseData> dList) {
