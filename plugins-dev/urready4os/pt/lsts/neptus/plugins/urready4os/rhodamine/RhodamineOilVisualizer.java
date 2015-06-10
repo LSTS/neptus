@@ -185,11 +185,12 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private String maxTxt = I18n.text("max");
 
     private JPanel sliderPanel;
-    private JSlider sliderPrevision;
-    private JLabel labelPrediction;
-    private JLabel labelValue;
-    private JLabel labelMinValue;
-    private JLabel labelMaxValue;
+    private JPanel predictionPanel;
+    private JSlider predictionSlider;
+    private JLabel predictionLabel;
+    private JLabel predictionLabelValue;
+    private JLabel predictionLabelMinValue;
+    private JLabel predictionLabelMaxValue;
 
     public RhodamineOilVisualizer() {
     }
@@ -217,8 +218,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     }
 
     private void initGUI() {
-        sliderPrevision = new JSlider(0, 0, 0);
-        sliderPrevision.setUI(new BasicSliderUI(sliderPrevision) {
+        predictionSlider = new JSlider(0, 0, 0);
+        predictionSlider.setUI(new BasicSliderUI(predictionSlider) {
             @Override
             public void paintThumb(Graphics g) {
                 Rectangle knobBounds = thumbRect;
@@ -241,13 +242,13 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             }
         });
 
-        labelPrediction = new JLabel(predictionTxt);
-        labelValue = new JLabel("");
-        labelMinValue = new JLabel(minTxt + "=0");
-        labelMaxValue = new JLabel();
+        predictionLabel = new JLabel(predictionTxt);
+        predictionLabelValue = new JLabel("");
+        predictionLabelMinValue = new JLabel(minTxt + "=0");
+        predictionLabelMaxValue = new JLabel();
         updatePredictionTimeSliderTime();
 
-        sliderPrevision.addChangeListener(new ChangeListener() {
+        predictionSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 updatePredictionTimeSliderTime();
@@ -257,19 +258,22 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 //                if (slider.getUpperValue() - slider.getValue() < 3600) {
 //                    sliderPrevision.setUpperValue(Math.min(slider.getMaximum(), slider.getValue()+3600));
 //                }
-                int oldestTimestampSelection = sliderPrevision.getValue();
-                int newestTimestampSelection = (sliderPrevision.getValue() + sliderPrevision.getExtent());;
+                int oldestTimestampSelection = predictionSlider.getValue();
+                int newestTimestampSelection = (predictionSlider.getValue() + predictionSlider.getExtent());;
                 //sliderPrevision.setUpperValue(Math.min(sliderPrevision.getMaximum(), sliderPrevision.getValue()));
             }
         });
 
 
+        predictionPanel = new JPanel(new MigLayout());
+        predictionPanel.add(predictionLabel);
+        predictionPanel.add(predictionLabelValue, "gapleft 10, width 50::");
+        predictionPanel.add(predictionLabelMinValue, "gapleft 10, , width 50::");
+        predictionPanel.add(predictionSlider, "width :100%:");
+        predictionPanel.add(predictionLabelMaxValue, "width 50::");
+        
         sliderPanel = new JPanel(new MigLayout());
-        sliderPanel.add(labelPrediction);
-        sliderPanel.add(labelValue, "gapleft 10");
-        sliderPanel.add(labelMinValue, "gapleft 10");
-        sliderPanel.add(sliderPrevision, "width :100%:");
-        sliderPanel.add(labelMaxValue);
+        sliderPanel.add(predictionPanel, "width 50::");
     }
 
     /**
@@ -278,17 +282,17 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public void setDataPredictionMillisPassedFromSpillMax(long dataPredictionMillisPassedFromSpillMax) {
         this.dataPredictionMillisPassedFromSpillMax = dataPredictionMillisPassedFromSpillMax;
         
-        if (sliderPrevision != null) {
-            int oldValue = this.sliderPrevision.getValue();
-            this.sliderPrevision.setMaximum((int)dataPredictionMillisPassedFromSpillMax);
-            this.sliderPrevision.setValue(Math.min(oldValue, this.sliderPrevision.getMaximum()));
+        if (predictionSlider != null) {
+            int oldValue = this.predictionSlider.getValue();
+            this.predictionSlider.setMaximum((int)dataPredictionMillisPassedFromSpillMax);
+            this.predictionSlider.setValue(Math.min(oldValue, this.predictionSlider.getMaximum()));
         }
     }
     
     private void updatePredictionTimeSliderTime() {
-        labelMaxValue.setText(maxTxt + "="
+        predictionLabelMaxValue.setText(maxTxt + "="
                 + DateTimeUtil.milliSecondsToFormatedString(dataPredictionMillisPassedFromSpillMax));
-        labelValue.setText(valueTxt + "=" + DateTimeUtil.milliSecondsToFormatedString(sliderPrevision.getValue()));
+        predictionLabelValue.setText(valueTxt + "=" + DateTimeUtil.milliSecondsToFormatedString(predictionSlider.getValue()));
     }
 
     /* (non-Javadoc)
@@ -656,7 +660,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         ArrayList<BaseData> tmpLst = new ArrayList<>(dataPredictionList);
         List<Long> tmpValLst = new ArrayList<>(dataPredictionValues);
         //Collections.sort(tmpValLst);
-        long curSelTime = sliderPrevision.getValue();
+        long curSelTime = predictionSlider.getValue();
         long filterTime = -1;
         for (long tm : tmpValLst) {
             if (filterTime == -1) {
