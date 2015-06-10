@@ -134,7 +134,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private int dataAgeToCleanInMinutes = 120;
     
     @NeptusProperty(name = "Prediction file", userLevel = LEVEL.REGULAR, category = "Prediction")
-    public File predictionFile = new File("log/rhodamine-prediction/current.tot");
+    public File predictionFile = new File("log/rhodamine-prediction");
 
 //    @NeptusProperty(name = "Show Prediction", userLevel = LEVEL.REGULAR, category = "Prediction")
     public boolean showPrediction = false;
