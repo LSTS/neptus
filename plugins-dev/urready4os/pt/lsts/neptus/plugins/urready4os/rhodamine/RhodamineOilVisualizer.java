@@ -392,11 +392,13 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         
         // Load prediction
         if (predictionFile.exists() && predictionFile.isFile()) {
+            dataPredictionMillisPassedFromSpillMax = -1;
             dataPredictionList.clear();
             dataPredictionValues.clear();
             loadPredictionFile(predictionFile);
         }
         else if (predictionFile.exists() && predictionFile.isDirectory()) {
+            dataPredictionMillisPassedFromSpillMax = -1;
             dataPredictionList.clear();
             dataPredictionValues.clear();
             fileList = FileUtil.getFilesFromDisk(predictionFile, totFilePattern);
