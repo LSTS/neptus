@@ -67,6 +67,7 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
+import pt.lsts.neptus.gui.swing.RangeSlider;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -148,7 +149,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     
     private final PrevisionRhodamineConsoleLayer previsionLayer = new PrevisionRhodamineConsoleLayer();
 
-    private long lastPaintCallMillis = -1;
+    private long lastPaintMillis = -1;
+    private long lastPaintDataMillis = -1;
+    private long lastPaintPredictonMillis = -1;
     
 //    private EstimatedState lastEstimatedState = null;
 //    private RhodamineDye lastRhodamineDye = null;
@@ -178,19 +181,37 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     private long lastUpdatedValues = -1;
     
+    
     // Extra GUI
     private String predictionTxt = I18n.text("Prediction");
+    private String timeTxt = I18n.text("Time");
+    private String depthTxt = I18n.text("Depth");
     private String valueTxt = I18n.text("value");
     private String minTxt = I18n.text("min");
     private String maxTxt = I18n.text("max");
 
     private JPanel sliderPanel;
+
     private JPanel predictionPanel;
     private JSlider predictionSlider;
     private JLabel predictionLabel;
     private JLabel predictionLabelValue;
     private JLabel predictionLabelMinValue;
     private JLabel predictionLabelMaxValue;
+
+    private JPanel timePanel;
+    private RangeSlider timeSlider;
+    private JLabel timeLabel;
+    private JLabel timeLabelValue;
+    private JLabel timeLabelMinValue;
+    private JLabel timeLabelMaxValue;
+
+    private JPanel depthPanel;
+    private RangeSlider depthSlider;
+    private JLabel depthLabel;
+    private JLabel depthLabelValue;
+    private JLabel depthLabelMinValue;
+    private JLabel depthLabelMaxValue;
 
     public RhodamineOilVisualizer() {
     }
@@ -247,7 +268,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         predictionLabelMinValue = new JLabel(minTxt + "=0");
         predictionLabelMaxValue = new JLabel();
         updatePredictionTimeSliderTime();
-
         predictionSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -265,15 +285,71 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         });
 
 
-        predictionPanel = new JPanel(new MigLayout());
+        predictionPanel = new JPanel(new MigLayout("ins 0"));
         predictionPanel.add(predictionLabel);
-        predictionPanel.add(predictionLabelValue, "gapleft 10, width 50::");
-        predictionPanel.add(predictionLabelMinValue, "gapleft 10, , width 50::");
+        predictionPanel.add(predictionLabelValue, "gapleft 10, width :100:");
+        predictionPanel.add(predictionLabelMinValue, "gapleft 10, , width :100:");
         predictionPanel.add(predictionSlider, "width :100%:");
-        predictionPanel.add(predictionLabelMaxValue, "width 50::");
+        predictionPanel.add(predictionLabelMaxValue, "width :100:");
+
         
+        timeSlider = new RangeSlider(0, 0);
+        timeLabel = new JLabel(timeTxt);
+        timeLabelValue = new JLabel("");
+        timeLabelMinValue = new JLabel(minTxt + "=0");
+        timeLabelMaxValue = new JLabel();
+        //updatePredictionTimeSliderTime();
+        timeSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+//                updatePredictionTimeSliderTime();
+                invalidateCache();
+//                oldestTimestampSelection = slider.getValue() * 1000l;
+//                newestTimestampSelection = (slider.getValue() + slider.getExtent()) * 1000l;
+//                if (slider.getUpperValue() - slider.getValue() < 3600) {
+//                    sliderPrevision.setUpperValue(Math.min(slider.getMaximum(), slider.getValue()+3600));
+//                }
+            }
+        });
+
+        timePanel = new JPanel(new MigLayout("ins 0"));
+        timePanel.add(timeLabel);
+        timePanel.add(timeLabelValue, "gapleft 10, width :100:");
+        timePanel.add(timeLabelMinValue, "gapleft 10, , width :100:");
+        timePanel.add(timeSlider, "width :100%:");
+        timePanel.add(timeLabelMaxValue, "width :100:");
+
+        
+        depthSlider = new RangeSlider(0, 0);
+        depthLabel = new JLabel(depthTxt);
+        depthLabelValue = new JLabel("");
+        depthLabelMinValue = new JLabel(minTxt + "=0");
+        depthLabelMaxValue = new JLabel();
+        //updatePredictionTimeSliderTime();
+        depthSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+//                updatePredictionTimeSliderTime();
+                invalidateCache();
+//                oldestTimestampSelection = slider.getValue() * 1000l;
+//                newestTimestampSelection = (slider.getValue() + slider.getExtent()) * 1000l;
+//                if (slider.getUpperValue() - slider.getValue() < 3600) {
+//                    sliderPrevision.setUpperValue(Math.min(slider.getMaximum(), slider.getValue()+3600));
+//                }
+            }
+        });
+
+        depthPanel = new JPanel(new MigLayout("ins 0"));
+        depthPanel.add(depthLabel);
+        depthPanel.add(depthLabelValue, "gapleft 10, width :100:");
+        depthPanel.add(depthLabelMinValue, "gapleft 10, , width :100:");
+        depthPanel.add(depthSlider, "width :100%:");
+        depthPanel.add(depthLabelMaxValue, "width :100:");
+
         sliderPanel = new JPanel(new MigLayout());
-        sliderPanel.add(predictionPanel, "width 50::");
+        sliderPanel.add(predictionPanel, "width :100%:,wrap");
+        sliderPanel.add(timePanel, "width :100%:,wrap");
+        sliderPanel.add(depthPanel, "width :100%:");
     }
 
     /**
@@ -519,8 +595,20 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     @Periodic(millisBetweenUpdates = 500)
     public boolean updateExtraGUI() {
-        if (System.currentTimeMillis() - lastPaintCallMillis > 800)
+        if (System.currentTimeMillis() - lastPaintMillis > 2000) {
             setupExtraGui(false, null);
+        }
+
+        if (System.currentTimeMillis() - lastPaintDataMillis > 2000)
+            timePanel.setVisible(false);
+        else
+            timePanel.setVisible(true);
+
+        if (System.currentTimeMillis() - lastPaintPredictonMillis > 2000)
+            predictionPanel.setVisible(false);
+        else
+            predictionPanel.setVisible(true);
+
         return true;
     }
     
@@ -560,7 +648,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
      */
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        lastPaintCallMillis = System.currentTimeMillis();
+        lastPaintMillis = System.currentTimeMillis();
+        lastPaintDataMillis = lastPaintMillis;
 
         super.paint(g, renderer);
 
@@ -814,7 +903,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
          */
         @Override
         public void paint(Graphics2D g, StateRenderer2D renderer) {
-            lastPaintCallMillis = System.currentTimeMillis();
+            lastPaintMillis = System.currentTimeMillis();
+            lastPaintPredictonMillis = lastPaintMillis;
 
             super.paint(g, renderer);
 
