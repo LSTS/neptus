@@ -297,6 +297,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @Override
     public void cleanLayer() {
         dataList.clear();
+        clearDataPredictionList();
         lastEstimatedStateFromSystems.clear();
 
         getConsole().removeMapLayer(previsionLayer);
