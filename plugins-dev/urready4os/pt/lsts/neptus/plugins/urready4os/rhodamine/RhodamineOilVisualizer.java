@@ -637,7 +637,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             parent.add(sliderPanel, BorderLayout.SOUTH);
             repaint = true;
         }
-        else if (!mode && sliderPanel.getParent() != null) {
+        else if (!mode && sliderPanel != null && sliderPanel.getParent() != null) {
             parent = sliderPanel.getParent();
             sliderPanel.getParent().remove(sliderPanel);
             repaint = true;
