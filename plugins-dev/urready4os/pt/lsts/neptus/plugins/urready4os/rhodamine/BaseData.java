@@ -70,6 +70,13 @@ public class BaseData  implements Comparable<BaseData> {
     }
     
     /**
+     * @return the depth
+     */
+    public double getDepth() {
+        return depth;
+    }
+    
+    /**
      * @return the timeMillis
      */
     public long getTimeMillis() {
