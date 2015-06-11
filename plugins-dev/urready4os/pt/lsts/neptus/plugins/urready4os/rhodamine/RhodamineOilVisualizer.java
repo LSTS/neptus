@@ -179,11 +179,17 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private long dataPredictionMillisPassedFromSpillMax = 0;
     private ArrayList<Long> dataPredictionValues = new ArrayList<>();
     
+    private long timeStampSliderScale = 1000;
     private long oldestTimestamp = new Date().getTime();
     private long newestTimestamp = 0;
     private long oldestTimestampSelection = new Date().getTime();
     private long newestTimestampSelection = 0;
 
+    private long depthSliderScale = 10;
+    private int oldestDepth = 0;
+    private int newestDepth = 0;
+    private int oldestDepthSelection = 0;
+    private int newestDepthSelection = 0;
     
     private HashMap<Integer, EstimatedState> lastEstimatedStateFromSystems = new HashMap<>();
 
@@ -292,8 +298,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             public void stateChanged(ChangeEvent e) {
                 updateTimeSliderTime();
                 invalidateCache();
-                oldestTimestampSelection = timeSlider.getValue() * 1000l;
-                newestTimestampSelection = (timeSlider.getValue() + timeSlider.getExtent()) * 1000l;
+                oldestTimestampSelection = timeSlider.getValue() * timeStampSliderScale;
+                newestTimestampSelection = (timeSlider.getValue() + timeSlider.getExtent()) * timeStampSliderScale;
                 if (timeSlider.getUpperValue() - timeSlider.getValue() < 3600) {
                     timeSlider.setUpperValue(Math.min(timeSlider.getMaximum(), timeSlider.getValue()+3600));
                 }
@@ -305,11 +311,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         depthLabelValue = new JLabel("");
         depthLabelMinValue = new JLabel(minTxt + "=0m");
         depthLabelMaxValue = new JLabel(maxTxt + "=0m");
-        //updatePredictionTimeSliderTime();
+        updateDepthSliderTime();
         depthSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-//                updatePredictionTimeSliderTime();
+                updateDepthSliderTime();
                 invalidateCache();
 //                oldestTimestampSelection = slider.getValue() * 1000l;
 //                newestTimestampSelection = (slider.getValue() + slider.getExtent()) * 1000l;
@@ -345,6 +351,13 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         timeLabelMinValue.setVisible(b);
         timeSlider.setVisible(b);
         timeLabelMaxValue.setVisible(b);
+
+        depthLabel.setVisible(b);
+        depthLabelValue.setVisible(b);
+        depthLabelMinValue.setVisible(b);
+        depthSlider.setVisible(b);
+        depthLabelMaxValue.setVisible(b);
+
         sliderPanel.repaint();
     }
 
@@ -378,10 +391,26 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     
     private void updateTimeSliderTime() {
         timeLabelMinValue.setText(minTxt + "="
-                + dateTimeFmt.format(new Date(timeSlider.getValue() * 1000)));
+                + dateTimeFmt.format(new Date(timeSlider.getMinimum() * timeStampSliderScale)));
         timeLabelMaxValue.setText(maxTxt + "="
-                + dateTimeFmt.format(new Date((timeSlider.getValue() + timeSlider.getExtent()) * 1000)));
-        timeLabelValue.setText(valueTxt + "=" + DateTimeUtil.milliSecondsToFormatedString(timeSlider.getValue() * 1000));
+                + dateTimeFmt.format(new Date(timeSlider.getMaximum() * timeStampSliderScale)));
+        timeLabelValue.setText(valueTxt + "=[" 
+                + dateTimeFmt.format(new Date(timeSlider.getValue() * timeStampSliderScale))
+                + "; "
+                + dateTimeFmt.format(new Date(timeSlider.getUpperValue() * timeStampSliderScale))
+                + "]");
+    }
+
+    private void updateDepthSliderTime() {
+        depthLabelMinValue.setText(minTxt + "="
+                + (timeSlider.getMinimum() * depthSliderScale) + "m");
+        depthLabelMaxValue.setText(maxTxt + "="
+                + (timeSlider.getMaximum() * depthSliderScale) + "m");
+        depthLabelValue.setText(valueTxt + "=[" 
+                + (depthSlider.getValue() * depthSliderScale)
+                + "; "
+                + (depthSlider.getUpperValue() * depthSliderScale)
+                + "] m");
     }
 
     /* (non-Javadoc)
