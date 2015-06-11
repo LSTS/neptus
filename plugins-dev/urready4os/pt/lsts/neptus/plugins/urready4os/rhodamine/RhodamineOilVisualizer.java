@@ -270,7 +270,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         });
         predictionLabel = new JLabel(predictionTxt);
         predictionLabelValue = new JLabel("");
-        predictionLabelMinValue = new JLabel(minTxt + "=0");
+        predictionLabelMinValue = new JLabel(minTxt + "=" + DateTimeUtil.milliSecondsToFormatedString(0));
         predictionLabelMaxValue = new JLabel();
         updatePredictionTimeSliderTime();
         predictionSlider.addChangeListener(new ChangeListener() {
@@ -303,8 +303,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         depthSlider = new RangeSlider(0, 0);
         depthLabel = new JLabel(depthTxt);
         depthLabelValue = new JLabel("");
-        depthLabelMinValue = new JLabel(minTxt + "=0");
-        depthLabelMaxValue = new JLabel();
+        depthLabelMinValue = new JLabel(minTxt + "=0m");
+        depthLabelMaxValue = new JLabel(maxTxt + "=0m");
         //updatePredictionTimeSliderTime();
         depthSlider.addChangeListener(new ChangeListener() {
             @Override
@@ -377,7 +377,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     }
     
     private void updateTimeSliderTime() {
-        timeLabelMaxValue.setText(maxTxt + "="
+        timeLabelMinValue.setText(minTxt + "="
                 + dateTimeFmt.format(new Date(timeSlider.getValue() * 1000)));
         timeLabelMaxValue.setText(maxTxt + "="
                 + dateTimeFmt.format(new Date((timeSlider.getValue() + timeSlider.getExtent()) * 1000)));
