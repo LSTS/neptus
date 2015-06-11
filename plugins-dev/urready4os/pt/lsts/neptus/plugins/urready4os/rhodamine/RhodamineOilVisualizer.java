@@ -356,13 +356,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         timeLabelMinValue.setVisible(b);
         timeSlider.setVisible(b);
         timeLabelMaxValue.setVisible(b);
-
-//        depthLabel.setVisible(b);
-//        depthLabelValue.setVisible(b);
-//        depthLabelMinValue.setVisible(b);
-//        depthSlider.setVisible(b);
-//        depthLabelMaxValue.setVisible(b);
-
         sliderPanel.repaint();
     }
 
