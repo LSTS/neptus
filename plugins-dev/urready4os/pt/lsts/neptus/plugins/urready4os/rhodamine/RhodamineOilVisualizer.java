@@ -109,10 +109,10 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public boolean showRefineOil = false;
     
     @NeptusProperty(name = "Minimum value", userLevel = LEVEL.REGULAR, category="Scale")
-    public int minValue = 0;
+    public double minValue = 0;
 
     @NeptusProperty(name = "Maximum value", userLevel = LEVEL.REGULAR, category="Scale")
-    public int maxValue = 70;
+    public double maxValue = 70;
 
     @NeptusProperty(name = "Colormap", userLevel = LEVEL.REGULAR, category="Scale")
     private final ColorMap colorMap = ColorMapFactory.createJetColorMap();
