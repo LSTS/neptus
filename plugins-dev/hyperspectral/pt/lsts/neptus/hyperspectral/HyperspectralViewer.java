@@ -1,19 +1,30 @@
 package pt.lsts.neptus.hyperspectral;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+
+import org.apache.commons.collections15.buffer.CircularFifoBuffer;
+import org.apache.commons.lang.ArrayUtils;
 
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -22,6 +33,8 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+
+import java.awt.image.DataBufferByte;
 
 /*
  * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
@@ -66,52 +79,96 @@ public class HyperspectralViewer extends ConsoleLayer {
     public static final int MIN_FREQ = 0;
     public static final int MAX_FREQ = 640; /* also frame's width */
     /* frames will be FRAME_WIDTH x MAX_FREQ px */
-    private static final int FRAME_HEIGHT = 250;
+    public static final int FRAME_HEIGHT = 250;
     private static final float FRAME_OPACITY = 0.9f;
     /* draw frames with opacity */
     private final AlphaComposite alcom = AlphaComposite.getInstance(
             AlphaComposite.SRC_OVER, FRAME_OPACITY);
     
     private ConsoleLayout console;
-    private float selectedWavelength;
+    
+    
     
     /* testing */
-    private Image currFrame; /* last frame received */
-    private Queue<Image> frames;
+    private BufferedImage dataDisplay; /* image currently being displayed */
+    private Queue<BufferedImage> frames;
     private boolean framesLoaded = false;
+    private int selectedWavelength = 320; /* column to crop from test data */
+    
+    BufferedImage i = null;
 
     public HyperspectralViewer() {
         this.console = getConsole();
-        selectedWavelength = 0;
+        initDisplayedImage();
                 
         /* testing */
-        frames = loadFrames();
-        currFrame = frames.poll();
-        frames.offer(currFrame); /* make a circular queue */
+        frames = loadFrames(selectedWavelength + "/"); /* load bmps */
         setAsPeriodic();
     }
     
-    private Queue<Image> loadFrames() {
-        File dir = new File("../hyperspec-data/");
+    private void initDisplayedImage() {
+        dataDisplay = new BufferedImage(MAX_FREQ, FRAME_HEIGHT, BufferedImage.TYPE_INT_RGB);
+        Graphics g = dataDisplay.getGraphics();
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, MAX_FREQ, FRAME_HEIGHT);
+        g.dispose();
+    }
+    
+    private void updateDisplay(BufferedImage newFrame) {
+        BufferedImage updatedImage = new BufferedImage(dataDisplay.getWidth(),
+                dataDisplay.getHeight(),
+                BufferedImage.TYPE_INT_ARGB);
+        
+        /* remove oldest frame */
+        dataDisplay = dataDisplay.getSubimage(1, 0, MAX_FREQ - 1, FRAME_HEIGHT); 
+        dataDisplay = joinBufferedImage(dataDisplay, newFrame);
+    }
+    
+    private static BufferedImage joinBufferedImage(BufferedImage img1,BufferedImage img2) {
+
+        //create a new buffer and draw two image into the new image
+        BufferedImage newImage = new BufferedImage(MAX_FREQ, FRAME_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = newImage.createGraphics();
+
+        g2.drawImage(img1, null, 0, 0);
+        g2.drawImage(img2, null, img1.getWidth(), 0);
+        g2.dispose();
+        
+        return newImage;
+    }
+    
+    private Queue<BufferedImage> loadFrames(String path) {
+        File dir = new File("../hyperspec-data/" + path);
         File[] frames = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.toLowerCase().endsWith(".bmp");
             }            
         });
         
-        Queue<Image> framesList = new LinkedList<>();
+        Queue<BufferedImage> framesList = new LinkedList<>();
         
-        /* just load 100 frames */
         for(int i = 0; i < frames.length; i++) {
             try {
-                Image frame = ImageIO.read(frames[i]);
-                framesList.offer(frame);
+                framesList.add((BufferedImage) ImageIO.read(frames[i]));
             }
             catch (IOException e) { e.printStackTrace(); }
         }
-        
+
         framesLoaded = true;
         return framesList;
+    }
+    
+    /* Given some frames from the test data,
+       remove everything but the column
+       correspondent to the selected wavelength */
+    private void cropFrames(int wave, BufferedImage[] frames) {       
+        try {
+            for(int i = 0; i < frames.length; i++) {
+                BufferedImage cropped = frames[i].getSubimage(wave - 1, 0, 1, 250);
+                ImageIO.write(cropped, "bmp", new File("../hyperspec-data/" + wave + "/" + "frame" + i + ".bmp"));   
+            }
+        }
+        catch (IOException e) { e.printStackTrace(); }
     }
     
     @Override
@@ -122,26 +179,27 @@ public class HyperspectralViewer extends ConsoleLayer {
         int posY = (renderer.getHeight() - FRAME_HEIGHT) / 2;
         
         g.setComposite(alcom);
-        g.drawImage(currFrame, 0, posY, null);
+        g.drawImage(dataDisplay, 0, posY, null);
     }
+    
     
     private void setAsPeriodic() {
         PeriodicUpdatesService.registerPojo(this);
     }
     
     /* Simulate the reception of a frame */
-    @Periodic(millisBetweenUpdates = 500)
+//    @Periodic(millisBetweenUpdates = 500)
     public void simReceivedFrame() {
-        currFrame = frames.poll();
-        frames.offer(currFrame);
+        BufferedImage newFrame = frames.poll();
+        updateDisplay(newFrame);
+        frames.offer(newFrame); /* keep a circular queue */
     }
     
     @Override
     public void initLayer() {
 
     }
-
-
+    
     @Override
     public void cleanLayer() {
         
