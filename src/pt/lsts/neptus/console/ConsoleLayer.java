@@ -73,8 +73,7 @@ public abstract class ConsoleLayer extends AbstractConsolePlugin implements ICon
     }
 
     @Override
-    public final void init(ConsoleLayout console) {
-        super.init(console);
+    protected final void initPlugin(ConsoleLayout console) {
         initLayer();
     }
     
