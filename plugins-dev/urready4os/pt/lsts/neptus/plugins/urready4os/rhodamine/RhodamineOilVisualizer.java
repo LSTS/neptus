@@ -249,6 +249,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         getConsole().addMapLayer(previsionLayer, false);
         
         initGUI();
+        
+        clearAndUpdateTimeAndDepthValues();
     }
 
     private void initGUI() {
@@ -301,9 +303,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 invalidateCache();
                 oldestTimestampSelection = timeSlider.getValue() * timeStampSliderScale;
                 newestTimestampSelection = (timeSlider.getValue() + timeSlider.getExtent()) * timeStampSliderScale;
-                if (timeSlider.getUpperValue() - timeSlider.getValue() < 3600) {
-                    timeSlider.setUpperValue(Math.min(timeSlider.getMaximum(), timeSlider.getValue()+3600));
-                }
+//                if (timeSlider.getUpperValue() - timeSlider.getValue() < 3600) {
+//                    timeSlider.setUpperValue(Math.min(timeSlider.getMaximum(), timeSlider.getValue()+3600));
+//                }
             }
         });
 
@@ -318,6 +320,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             public void stateChanged(ChangeEvent e) {
                 updateDepthSliderTime();
                 invalidateCache();
+                oldestDepthSelection = depthSlider.getValue() * depthSliderScale;
+                newestDepthSelection = (depthSlider.getValue() + depthSlider.getExtent()) * depthSliderScale;
 //                oldestTimestampSelection = slider.getValue() * 1000l;
 //                newestTimestampSelection = (slider.getValue() + slider.getExtent()) * 1000l;
 //                if (slider.getUpperValue() - slider.getValue() < 3600) {
@@ -897,6 +901,18 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             
             if (point.getRhodamineDyePPB() < minValue)
                 continue;
+            
+            if (!prediction) {
+                if (point.getTimeMillis() < oldestTimestampSelection
+                        || point.getTimeMillis() > newestTimestampSelection)
+                    continue;
+                if (point.getDepth() < oldestDepthSelection
+                        || point.getDepth() > newestDepthSelection)
+                    continue;
+            }
+            else {
+                
+            }
             
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
