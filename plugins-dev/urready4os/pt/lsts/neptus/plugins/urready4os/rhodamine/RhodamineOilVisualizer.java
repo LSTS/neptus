@@ -450,7 +450,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         if (maxValue < minValue)
             maxValue = minValue;
 
-        updateValues();
+        if (sliderPanel != null)
+            updateValues();
         
         clearImgCachRqst = true;
         clearColorBarImgCachRqst = true;
@@ -669,6 +670,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
      * @param pt
      */
     private void updateTimeAndDepthValuesMinMax(BaseData pt) {
+        if (pt == null)
+            return;
+            
         // Time
         if (pt.getTimeMillis() > 0 && pt.getTimeMillis() < oldestTimestamp) {// && pt.getTimestamp() > minDate) {
             oldestTimestamp = pt.getTimeMillis();
