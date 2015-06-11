@@ -303,9 +303,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 invalidateCache();
                 oldestTimestampSelection = timeSlider.getValue() * timeStampSliderScale;
                 newestTimestampSelection = (timeSlider.getValue() + timeSlider.getExtent()) * timeStampSliderScale;
-//                if (timeSlider.getUpperValue() - timeSlider.getValue() < 3600) {
-//                    timeSlider.setUpperValue(Math.min(timeSlider.getMaximum(), timeSlider.getValue()+3600));
-//                }
             }
         });
 
@@ -322,11 +319,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 invalidateCache();
                 oldestDepthSelection = depthSlider.getValue() * depthSliderScale;
                 newestDepthSelection = (depthSlider.getValue() + depthSlider.getExtent()) * depthSliderScale;
-//                oldestTimestampSelection = slider.getValue() * 1000l;
-//                newestTimestampSelection = (slider.getValue() + slider.getExtent()) * 1000l;
-//                if (slider.getUpperValue() - slider.getValue() < 3600) {
-//                    sliderPrevision.setUpperValue(Math.min(slider.getMaximum(), slider.getValue()+3600));
-//                }
             }
         });
 
