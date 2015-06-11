@@ -86,6 +86,7 @@ import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.IntegerMinMaxValidator;
 
 import com.google.common.eventbus.Subscribe;
@@ -185,11 +186,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private long oldestTimestampSelection = new Date().getTime();
     private long newestTimestampSelection = 0;
 
-    private long depthSliderScale = 10;
-    private int oldestDepth = 0;
-    private int newestDepth = 0;
-    private int oldestDepthSelection = 0;
-    private int newestDepthSelection = 0;
+    private double depthSliderScale = 0.01;
+    private double oldestDepth = Double.MAX_VALUE;
+    private double newestDepth = 0;
+    private double oldestDepthSelection = Double.MAX_VALUE;
+    private double newestDepthSelection = 0;
     
     private HashMap<Integer, EstimatedState> lastEstimatedStateFromSystems = new HashMap<>();
 
@@ -403,13 +404,13 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     private void updateDepthSliderTime() {
         depthLabelMinValue.setText(minTxt + "="
-                + (timeSlider.getMinimum() * depthSliderScale) + "m");
+                + MathMiscUtils.round(depthSlider.getMinimum() * depthSliderScale, 2) + "m");
         depthLabelMaxValue.setText(maxTxt + "="
-                + (timeSlider.getMaximum() * depthSliderScale) + "m");
+                + MathMiscUtils.round(depthSlider.getMaximum() * depthSliderScale, 2) + "m");
         depthLabelValue.setText(valueTxt + "=[" 
-                + (depthSlider.getValue() * depthSliderScale)
+                + MathMiscUtils.round(depthSlider.getValue() * depthSliderScale, 2)
                 + "; "
-                + (depthSlider.getUpperValue() * depthSliderScale)
+                + MathMiscUtils.round(depthSlider.getUpperValue() * depthSliderScale, 2)
                 + "] m");
     }
 
@@ -541,6 +542,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         dataPredictionList.clear();
         dataPredictionValues.clear();
         setDataPredictionMillisPassedFromSpillMax(0);
+        clearAndUpdateTimeAndDepthValues();
     }
 
     /**
@@ -550,7 +552,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         try {
             CSVDataParser csv = new CSVDataParser(csvFx);
             csv.parse();
-            updateValues(dataList, csv.getPoints());
+            updateValues(dataList, csv.getPoints(), true);
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -568,7 +570,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             try {
                 CSVDataParser csv = new CSVDataParser(predictionFile);
                 csv.parse();
-                updateValues(dataPredictionList, csv.getPoints());
+                updateValues(dataPredictionList, csv.getPoints(), true);
             }
             catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -582,7 +584,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                         totFile.getMillisPassedFromSpill());
                 if (!dataPredictionValues.contains(totFile.getMillisPassedFromSpill()))
                     dataPredictionValues.add(totFile.getMillisPassedFromSpill());
-                updateValues(dataPredictionList, totFile.getPoints());
+                updateValues(dataPredictionList, totFile.getPoints(), false);
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -594,7 +596,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
      * @param list
      * @param points
      */
-    private boolean updateValues(ArrayList<BaseData> list, ArrayList<BaseData> points) {
+    private boolean updateValues(ArrayList<BaseData> list, ArrayList<BaseData> points, boolean dataOrPrediction) {
         boolean dataUpdated = false;
         
         if (autoCleanData) {
@@ -607,17 +609,22 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 if (curTimeMillis - bd.getTimeMillis() > dataAgeToCleanInMinutes * DateTimeUtil.MINUTE)
                     list.remove(bd);
             }
+            
+            clearAndUpdateTimeAndDepthValues();
         }
         
         for (BaseData testPoint : points) {
             int counter = 0;
             boolean found = false;
-            for (BaseData toTestPoint : list) {
+            for (BaseData toTestPoint : list.toArray(new BaseData[list.size()])) {
                 if (toTestPoint.equals(testPoint)) {
                     if (toTestPoint.getTimeMillis() < testPoint.getTimeMillis()) {
                         list.remove(counter);
                         list.add(counter, testPoint);
                         dataUpdated = true;
+                        
+                        if (dataOrPrediction)
+                            updateTimeAndDepthValuesMinMax(testPoint);
                     }
 //                    System.out.println("######### " + counter);
                     found = true;
@@ -634,6 +641,57 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         System.out.println("List size: " + list.size());
         return dataUpdated;
     }
+
+    private void clearAndUpdateTimeAndDepthValues() {
+        // Reset values
+        oldestTimestamp = new Date().getTime();
+        newestTimestamp = 0;
+//        oldestTimestampSelection = new Date().getTime();
+//        newestTimestampSelection = 0;
+
+        oldestDepth = Double.MAX_VALUE;
+        newestDepth = 0;
+//        oldestDepthSelection = Double.MAX_VALUE;
+//        newestDepthSelection = 0;
+
+        // Calc new values
+        for (BaseData pt : dataList) {
+            updateTimeAndDepthValuesMinMax(pt);
+        }
+    }
+
+
+    /**
+     * @param pt
+     */
+    private void updateTimeAndDepthValuesMinMax(BaseData pt) {
+        // Time
+        if (pt.getTimeMillis() > 0 && pt.getTimeMillis() < oldestTimestamp) {// && pt.getTimestamp() > minDate) {
+            oldestTimestamp = pt.getTimeMillis();
+            timeSlider.setMinimum((int)(oldestTimestamp / timeStampSliderScale));
+            updateTimeSliderTime();
+        }
+        if (pt.getTimeMillis() > 0 && pt.getTimeMillis() > newestTimestamp) {
+            newestTimestampSelection = newestTimestamp = pt.getTimeMillis();
+            timeSlider.setMaximum((int)(newestTimestamp / timeStampSliderScale));
+            timeSlider.setUpperValue((int)(newestTimestamp / timeStampSliderScale));
+            updateTimeSliderTime();
+        }
+        
+        // Depth
+        if (!Double.isNaN(pt.getDepth()) && pt.getDepth() < oldestDepth) {// && pt.getTimestamp() > minDate) {
+            oldestDepth = pt.getDepth();
+            depthSlider.setMinimum((int)(oldestDepth / depthSliderScale));
+            updateDepthSliderTime();
+        }
+        if (!Double.isNaN(pt.getDepth()) && pt.getDepth() > newestDepth) {
+            newestDepthSelection = newestDepth = pt.getDepth();
+            depthSlider.setMaximum((int)(newestDepth / depthSliderScale));
+            depthSlider.setUpperValue((int)(newestDepth / depthSliderScale));
+            updateDepthSliderTime();
+        }
+    }
+
 
     @Periodic(millisBetweenUpdates = 500)
     public boolean updateExtraGUI() {
