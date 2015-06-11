@@ -66,6 +66,9 @@ public class MedslikDataParser {
     private long millisPassedFromSpill = 0;
     private double latDegsSpillLocation = Double.NaN;
     private double lonDegsSpillLocation = Double.NaN;
+    
+    private double depthUpper = 0;
+    private double depthLower = Double.MAX_VALUE;
 
     public MedslikDataParser(File file) throws FileNotFoundException {
         this.file = file;
@@ -116,6 +119,9 @@ public class MedslikDataParser {
                 }
                 else if (counter == 4) {
                     processLatLonSpillLines(line);
+                }
+                else if (counter == 1) {
+                    processDepthsLines(line);
                 }
                 else if (counter > 8) {
                     if (dataLines < numberOfDataLines) {
@@ -172,7 +178,8 @@ public class MedslikDataParser {
         if (Double.isNaN(lat) || Double.isNaN(lon))
             return;
         
-        BaseData point = new BaseData(lat, lon, Double.NaN, millisPassedFromSpill);
+        BaseData point = new BaseData(lat, lon, depthUpper, millisPassedFromSpill);
+        point.setDepthLower(depthLower);
         point.setRhodamineDyePPB(rhodamine);
         
         points.add(point);
@@ -225,6 +232,24 @@ public class MedslikDataParser {
         lonDegsSpillLocation = tkLon;
     }
 
+    private void processDepthsLines(String line) throws Exception {
+        String[] tokens = line.trim().split(" +", 3);
+        if (tokens.length < 3)
+            return;
+        
+        String tk0Str = tokens[0].trim();
+        String tk1Str = tokens[1].trim();
+        String tk2Str = tokens[2].trim();
+        
+        if (!tk2Str.startsWith("metres"))
+            return;
+        
+        double tkDepthUpper = Double.parseDouble(tk0Str);
+        double tkDepthLower = Double.parseDouble(tk1Str);
+        depthUpper = tkDepthUpper;
+        depthLower = tkDepthLower;
+    }
+    
     public static void main(String[] args) throws FileNotFoundException {
         MedslikDataParser csv = new MedslikDataParser(new File("out0003.tot"));
         

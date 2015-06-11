@@ -357,11 +357,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         timeSlider.setVisible(b);
         timeLabelMaxValue.setVisible(b);
 
-        depthLabel.setVisible(b);
-        depthLabelValue.setVisible(b);
-        depthLabelMinValue.setVisible(b);
-        depthSlider.setVisible(b);
-        depthLabelMaxValue.setVisible(b);
+//        depthLabel.setVisible(b);
+//        depthLabelValue.setVisible(b);
+//        depthLabelMinValue.setVisible(b);
+//        depthSlider.setVisible(b);
+//        depthLabelMaxValue.setVisible(b);
 
         sliderPanel.repaint();
     }
@@ -911,7 +911,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                     continue;
             }
             else {
-                
+                if (point.getDepthLower() < oldestDepthSelection
+                        || point.getDepth() > newestDepthSelection)
+                    continue;
             }
             
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

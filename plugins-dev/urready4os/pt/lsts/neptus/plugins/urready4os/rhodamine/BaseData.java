@@ -42,6 +42,7 @@ public class BaseData  implements Comparable<BaseData> {
     protected long timeMillis;
     
     protected double depth;
+    protected double depthLower = Double.NaN;
 
     protected double rhodamineDyePPB = Double.NaN;
     protected double crudeOilPPB = Double.NaN;
@@ -74,6 +75,20 @@ public class BaseData  implements Comparable<BaseData> {
      */
     public double getDepth() {
         return depth;
+    }
+    
+    /**
+     * @return the depthLower
+     */
+    public double getDepthLower() {
+        return depthLower;
+    }
+    
+    /**
+     * @param depthLower the depthLower to set
+     */
+    public void setDepthLower(double depthLower) {
+        this.depthLower = depthLower;
     }
     
     /**
