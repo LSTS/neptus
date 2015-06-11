@@ -117,8 +117,13 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
         return PluginUtils.getPluginName(getClass());
     }
     
-    public void init(ConsoleLayout console) {
+    public final void init(ConsoleLayout console) {
         this.console = console;
+        
+        initPlugin(console);
+        
+        // After all setup let us register the IPeriodicUpdates and Message callbacks
+        
         if (this instanceof MissionChangeListener)
             getConsole().addMissionListener((MissionChangeListener) this);
 
@@ -138,6 +143,12 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
         ImcMsgManager.registerBusListener(this);
     }
     
+    /**
+     * Use this to setup your plugin before the register of 
+     * the IPeriodicUpdates and Message callbacks.
+     */
+    protected abstract void initPlugin(ConsoleLayout console);
+
     public void clean() {
         NeptusEvents.unregister(this, getConsole());
         if (this instanceof MissionChangeListener) {
