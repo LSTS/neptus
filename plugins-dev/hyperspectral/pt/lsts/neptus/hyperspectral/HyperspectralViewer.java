@@ -103,7 +103,6 @@ public class HyperspectralViewer extends ConsoleLayer {
                 
         /* testing */
         frames = loadFrames(selectedWavelength + "/"); /* load bmps */
-        setAsPeriodic();
     }
     
     private void initDisplayedImage() {
@@ -181,14 +180,9 @@ public class HyperspectralViewer extends ConsoleLayer {
         g.setComposite(alcom);
         g.drawImage(dataDisplay, 0, posY, null);
     }
-    
-    
-    private void setAsPeriodic() {
-        PeriodicUpdatesService.registerPojo(this);
-    }
-    
+        
     /* Simulate the reception of a frame */
-//    @Periodic(millisBetweenUpdates = 500)
+    @Periodic(millisBetweenUpdates = 500)
     public void simReceivedFrame() {
         BufferedImage newFrame = frames.poll();
         updateDisplay(newFrame);
