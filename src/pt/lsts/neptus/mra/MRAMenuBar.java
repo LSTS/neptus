@@ -619,7 +619,8 @@ public class MRAMenuBar {
                 exporterList.add(clazz.getConstructor(IMraLogGroup.class).newInstance(new Object[] { source }));
             }
             catch (Exception e) {
-                NeptusLog.pub().error(e);
+                System.out.println(clazz.getName());
+                e.printStackTrace();
             }
         }
 
