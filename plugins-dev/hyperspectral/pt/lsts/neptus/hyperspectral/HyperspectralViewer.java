@@ -24,7 +24,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 import org.apache.commons.collections15.buffer.CircularFifoBuffer;
+import org.apache.commons.io.comparator.NameFileComparator;
 import org.apache.commons.lang.ArrayUtils;
+import org.jzy3d.maths.Array;
 
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -113,13 +115,9 @@ public class HyperspectralViewer extends ConsoleLayer {
         g.dispose();
     }
     
-    private void updateDisplay(BufferedImage newFrame) {
-        BufferedImage updatedImage = new BufferedImage(dataDisplay.getWidth(),
-                dataDisplay.getHeight(),
-                BufferedImage.TYPE_INT_ARGB);
-        
+    private void updateDisplay(BufferedImage newFrame) {       
         /* remove oldest frame */
-        dataDisplay = dataDisplay.getSubimage(1, 0, MAX_FREQ - 1, FRAME_HEIGHT); 
+        dataDisplay = dataDisplay.getSubimage(1, 0, MAX_FREQ - 1, FRAME_HEIGHT);
         dataDisplay = joinBufferedImage(dataDisplay, newFrame);
     }
     
@@ -138,11 +136,19 @@ public class HyperspectralViewer extends ConsoleLayer {
     
     private Queue<BufferedImage> loadFrames(String path) {
         File dir = new File("../hyperspec-data/" + path);
-        File[] frames = dir.listFiles(new FilenameFilter() {
+        File[] tmpFrames = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.toLowerCase().endsWith(".bmp");
             }            
         });
+        
+        File frames[] = new File[tmpFrames.length];
+       
+        
+        for(int i = 0; i < frames.length ; i++) {
+            int filepos = Integer.parseInt(tmpFrames[i].getName().split(".bmp")[0]);
+            frames[filepos] = tmpFrames[i];
+        }
         
         Queue<BufferedImage> framesList = new LinkedList<>();
         
@@ -164,7 +170,7 @@ public class HyperspectralViewer extends ConsoleLayer {
         try {
             for(int i = 0; i < frames.length; i++) {
                 BufferedImage cropped = frames[i].getSubimage(wave - 1, 0, 1, 250);
-                ImageIO.write(cropped, "bmp", new File("../hyperspec-data/" + wave + "/" + "frame" + i + ".bmp"));   
+                ImageIO.write(cropped, "bmp", new File("../hyperspec-data/" + wave + "/" + i + ".bmp"));   
             }
         }
         catch (IOException e) { e.printStackTrace(); }
@@ -180,10 +186,14 @@ public class HyperspectralViewer extends ConsoleLayer {
         g.setComposite(alcom);
         g.drawImage(dataDisplay, 0, posY, null);
     }
-        
+
+    
     /* Simulate the reception of a frame */
     @Periodic(millisBetweenUpdates = 500)
     public void simReceivedFrame() {
+        if(!framesLoaded)
+            return;
+        
         BufferedImage newFrame = frames.poll();
         updateDisplay(newFrame);
         frames.offer(newFrame); /* keep a circular queue */
