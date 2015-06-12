@@ -75,7 +75,7 @@ import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.PathElement;
@@ -598,10 +598,9 @@ public class LsfReport {
         String dateAsText = new SimpleDateFormat("HH:mm:ss.ms").format(m.getTimestamp());
         table.addCell(dateAsText);
         table.addCell(m.getLabel());
-        LocationType loc = new LocationType(Math.toDegrees(m.getLat()), Math.toDegrees(m.getLon()));
-        String locString = loc.getLatLonAsPrettyString();
-        
-        table.addCell(locString);
+        String lat = CoordinateUtil.latitudeAsPrettyString(Math.toDegrees(m.getLat()), false);
+        String lon = CoordinateUtil.longitudeAsPrettyString(Math.toDegrees(m.getLon()), false);
+        table.addCell(lat + " " + lon);
     }
 
     public static void setRowsWidth(PdfPTable table, int nSubsys){
