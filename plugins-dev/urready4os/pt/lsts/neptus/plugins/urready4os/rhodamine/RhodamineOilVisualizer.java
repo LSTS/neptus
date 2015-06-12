@@ -67,6 +67,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.colormap.ColorBar;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.gui.editor.FolderPropertyEditor;
 import pt.lsts.neptus.gui.swing.RangeSlider;
@@ -150,6 +151,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             description = "True to read all CSV files of just the last of ordered files in folder.")
     public boolean readAllOrLastOfOrderedFiles = true;
     
+    @NeptusProperty(name = "Max delta time between EstimatedState and message data received in millis", 
+            userLevel = LEVEL.REGULAR, category = "Data Update",
+            description = "If the maximum time difference allowed between EstimatedState and message data to data to be accepted.")
+    private long maxDeltaTimeBetweenEstimatedStateAndMessageDataReceivedMillis = 200;
+    
     private final PrevisionRhodamineConsoleLayer previsionLayer = new PrevisionRhodamineConsoleLayer();
 
     private long lastPaintMillis = -1;
@@ -160,6 +166,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 //    private RhodamineDye lastRhodamineDye = null;
 //    private CrudeOil lastCrudeOil = null;
 //    private FineOil lastFineOil = null;
+    
+    private HashMap<Integer, EstimatedState> lastEstimatedStateList = new HashMap<>();
+    private HashMap<Integer, ArrayList<BaseData>> lastRhodamineDyeList = new HashMap<>();
     
     private static final String csvFilePattern = ".\\.csv$";
     private static final String totFilePattern = ".\\.tot$";
@@ -192,8 +201,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private double oldestDepthSelection = Double.MAX_VALUE;
     private double newestDepthSelection = 0;
     
-    private HashMap<Integer, EstimatedState> lastEstimatedStateFromSystems = new HashMap<>();
-
     private long lastUpdatedValues = -1;
     
     private SimpleDateFormat dateTimeFmt = new SimpleDateFormat("MM-dd HH:mm");
@@ -412,7 +419,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public void cleanLayer() {
         dataList.clear();
         clearDataPredictionList();
-        lastEstimatedStateFromSystems.clear();
+        lastEstimatedStateList.clear();
+        lastRhodamineDyeList.clear();
 
         getConsole().removeMapLayer(previsionLayer);
     }
@@ -425,7 +433,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         if (clearData) {
             dataList.clear();
             clearDataPredictionList();
-            lastEstimatedStateFromSystems.clear();
+            lastEstimatedStateList.clear();
+            lastRhodamineDyeList.clear();
             clearData = false;
         }
         
@@ -964,12 +973,30 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public void on(EstimatedState msg) {
         // From any system
 //        System.out.println(msg.asJSON());
+        lastEstimatedStateList.put(msg.getSrc(), msg);
     }
 
     @Subscribe
     public void on(RhodamineDye msg) {
         // From any system
 //        System.out.println(msg.asJSON());
+        EstimatedState lastSystemES = lastEstimatedStateList.get(msg.getSrc());
+        if (lastSystemES != null) {
+            long rdmTs = msg.getTimestampMillis();
+            long lastSystemESTs = lastSystemES.getTimestampMillis();
+            long delta = Math.abs(rdmTs - lastSystemESTs);
+            if (delta <= maxDeltaTimeBetweenEstimatedStateAndMessageDataReceivedMillis) {
+                LocationType loc = IMCUtils.getLocation(lastSystemES);
+                loc.convertToAbsoluteLatLonDepth();
+                BaseData pt = new BaseData(loc.getLatitudeDegs(), loc.getLongitudeDegs(), 
+                        loc.getDepth(), rdmTs);
+                pt.setRefineOilPPB(msg.getValue());
+                // TODO store this data
+                ArrayList<BaseData> data = new ArrayList<>(); 
+                data.add(pt);
+                updateValues(dataList, data, true);
+            }
+        }
     }
 
     @Subscribe
