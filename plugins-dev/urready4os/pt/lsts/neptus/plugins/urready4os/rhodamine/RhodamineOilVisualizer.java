@@ -96,7 +96,8 @@ import com.google.common.eventbus.Subscribe;
  * @author pdias
  *
  */
-@PluginDescription(name="Rhodamine Oil Visualizer", author="Paulo Dias", version="0.3", icon = "pt/lsts/neptus/plugins/urready4os/urready4os.png")
+@PluginDescription(name="Rhodamine Oil Visualizer", author="Paulo Dias", version="0.8", 
+    icon = "pt/lsts/neptus/plugins/urready4os/urready4os.png")
 @LayerPriority(priority = -50)
 public class RhodamineOilVisualizer extends ConsoleLayer implements ConfigurationListener {
 
