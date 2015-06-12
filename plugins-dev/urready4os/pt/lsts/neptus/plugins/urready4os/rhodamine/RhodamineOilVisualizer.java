@@ -100,34 +100,34 @@ import com.google.common.eventbus.Subscribe;
 @LayerPriority(priority = -50)
 public class RhodamineOilVisualizer extends ConsoleLayer implements ConfigurationListener {
 
-    @NeptusProperty(name = "Show rhodamine dye", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
-    public boolean showRhodamine = true;
-
-    @NeptusProperty(name = "Show crude oil", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
-    public boolean showCrudeOil = false;
-
-    @NeptusProperty(name = "Show refine oil", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
-    public boolean showRefineOil = false;
+//    @NeptusProperty(name = "Show rhodamine dye", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
+//    private boolean showRhodamine = true;
+//
+//    @NeptusProperty(name = "Show crude oil", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
+//    private boolean showCrudeOil = false;
+//
+//    @NeptusProperty(name = "Show refine oil", userLevel = LEVEL.REGULAR, category="Visibility", editable = false)
+//    private boolean showRefineOil = false;
     
     @NeptusProperty(name = "Minimum value", userLevel = LEVEL.REGULAR, category="Scale")
-    public double minValue = 0;
+    private double minValue = 0;
 
     @NeptusProperty(name = "Maximum value", userLevel = LEVEL.REGULAR, category="Scale")
-    public double maxValue = 70;
+    private double maxValue = 70;
 
     @NeptusProperty(name = "Colormap", userLevel = LEVEL.REGULAR, category="Scale")
     private final ColorMap colorMap = ColorMapFactory.createJetColorMap();
     
     @NeptusProperty(name = "Clear data", userLevel = LEVEL.REGULAR, category="Reset")
-    public boolean clearData = false;
+    private boolean clearData = false;
 
     @NeptusProperty(name = "Pixel size data", userLevel = LEVEL.REGULAR, category="Scale")
-    public int pixelSizeData = 4;
+    private int pixelSizeData = 4;
     
     @NeptusProperty(name = "Base folder for CSV files", userLevel = LEVEL.REGULAR, category = "Data Update",
             description = "Defines the base folder fo CSV lookup. The children folders will also be considered. (Be aware of the \"Read all or last of ordered files\" flag.)",
             editorClass = FolderPropertyEditor.class)
-    public File baseFolderForCSVFiles = new File("log/rhodamine");
+    private File baseFolderForCSVFiles = new File("log/rhodamine");
     
     @NeptusProperty(name = "Period seconds to update", userLevel = LEVEL.REGULAR, category = "Data Update")
     private int periodSecondsToUpdate = 30;
@@ -139,17 +139,17 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private int dataAgeToCleanInMinutes = 120;
     
     @NeptusProperty(name = "Prediction file", userLevel = LEVEL.REGULAR, category = "Prediction")
-    public File predictionFile = new File("log/rhodamine-prediction");
+    private File predictionFile = new File("log/rhodamine-prediction");
 
 //    @NeptusProperty(name = "Show Prediction", userLevel = LEVEL.REGULAR, category = "Prediction")
-    public boolean showPrediction = false;
+//    private boolean showPrediction = false;
 
     @NeptusProperty(name = "Prediction scale factor", userLevel = LEVEL.REGULAR, category = "Prediction")
-    public double predictionScaleFactor = 100;
+    private double predictionScaleFactor = 100;
 
     @NeptusProperty(name = "Read all or last of ordered files", userLevel = LEVEL.REGULAR, category = "Data Update",
             description = "True to read all CSV files of just the last of ordered files in folder.")
-    public boolean readAllOrLastOfOrderedFiles = true;
+    private boolean readAllOrLastOfOrderedFiles = true;
     
     @NeptusProperty(name = "Max delta time between EstimatedState and message data received in millis", 
             userLevel = LEVEL.REGULAR, category = "Data Update",
