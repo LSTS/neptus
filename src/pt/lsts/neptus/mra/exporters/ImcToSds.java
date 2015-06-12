@@ -38,11 +38,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCInputStream;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 
 /**
  * Class responsible for converting IMC lsf files containing sidescan data to Sonar Data Stream (SDS) format used

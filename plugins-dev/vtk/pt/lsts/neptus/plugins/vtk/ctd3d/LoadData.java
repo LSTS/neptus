@@ -41,8 +41,8 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.vtk.pointcloud.PointCloudCTD;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.vtk.pointcloud.PointCloudCTD;
 import vtk.vtkDoubleArray;
 import vtk.vtkPoints;
 
