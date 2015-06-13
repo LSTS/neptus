@@ -36,12 +36,9 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.vtk.ctd3d.CTD3DToolbar;
 import pt.lsts.neptus.plugins.vtk.ctd3d.InteractorStyleCTD3D;
 import pt.lsts.neptus.plugins.vtk.ctd3d.Window;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.vtk.pointcloud.PointCloudCTD;
-import pt.lsts.neptus.vtk.pointcloud.PointCloudHandlerCTD;
 import pt.lsts.neptus.vtk.utils.Utils;
 import pt.lsts.neptus.vtk.visualization.AxesWidget;
 import pt.lsts.neptus.vtk.visualization.Canvas;
@@ -113,6 +110,8 @@ public class Rhodamine3DPanel extends JPanel {
 
         toolbar.getRhodToggle().setSelected(true);
 
+        reloadCanvas();
+
     }
     
     /* (non-Javadoc)
@@ -120,16 +119,17 @@ public class Rhodamine3DPanel extends JPanel {
      */
     @Override
     public void setVisible(boolean aFlag) {
+        super.setVisible(aFlag);;
         if (aFlag && isFirstRender) {
-            canvas.lock();
-
-            canvas.GetRenderer().GetActiveCamera().SetPosition(1.0, -1.0, -100.0);
-            canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 1.0, -1.0);
-
-            canvas.GetRenderer().ResetCamera();
-            canvas.RenderSecured();
-
-            canvas.unlock();
+//            canvas.lock();
+//
+//            canvas.GetRenderer().GetActiveCamera().SetPosition(1.0, -1.0, -100.0);
+//            canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 1.0, -1.0);
+//
+//            canvas.GetRenderer().ResetCamera();
+//            canvas.RenderSecured();
+//
+//            canvas.unlock();
 
             isFirstRender = false;
         }
@@ -141,10 +141,51 @@ public class Rhodamine3DPanel extends JPanel {
     public Canvas getCanvas() {
         return canvas;
     }
+
+    public void updatePointCloud(PointCloudRhodamine newPointcloud) {
+        if (newPointcloud == null)
+            return;
+        
+        if (pointcloud != null) {
+            canvas.GetRenderer().RemoveActor(pointcloud.getCloudLODActor());
+            canvas.GetRenderer().RemoveActor(scalarBar.getScalarBarActor());
+        }
+        
+        pointcloud = newPointcloud;
+        
+        pointcloud.createActorFromPoints();
+        pointcloud.generateHandler();
+        pointcloud.getPolyData().GetPointData().SetScalars(((PointCloudHandlerRhodamineDye) pointcloud.getColorHandler()).getColorsRhodamineDye());
+        canvas.GetRenderer().AddActor(pointcloud.getCloudLODActor());
+
+        scalarBar = new ScalarBar(I18n.text("Rhodamine Dye Color Map"));
+        scalarBar.setScalarBarHorizontalProperties();
+        scalarBar.setUpScalarBarLookupTable(((PointCloudHandlerRhodamineDye) pointcloud.getColorHandler()).getLutRhodamineDye());
+        scalarBar.getScalarBarActor().Modified();
+//      setScalarBar(scalarBar);
+        canvas.GetRenderer().AddActor(scalarBar.getScalarBarActor());
+
+        reloadCanvas();
+    }
+
+    /**
+     * 
+     */
+    private void reloadCanvas() {
+        canvas.lock();
+
+        canvas.GetRenderer().GetActiveCamera().SetPosition(1.0, -1.0, -100.0);
+        canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 1.0, -1.0);
+
+        canvas.GetRenderer().ResetCamera();
+        canvas.RenderSecured();
+
+        canvas.unlock();
+    }
     
     public static void main(String[] args) {
         Rhodamine3DPanel panel = new Rhodamine3DPanel();
         GuiUtils.testFrame(panel);
-        panel.setVisible(true);
+//        panel.setVisible(true);
     }
 }

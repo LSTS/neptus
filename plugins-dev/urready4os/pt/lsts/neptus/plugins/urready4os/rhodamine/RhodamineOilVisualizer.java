@@ -41,6 +41,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.io.File;
@@ -51,9 +53,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicSliderUI;
@@ -79,6 +84,9 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.urready4os.rhodamine.importers.CSVDataParser;
 import pt.lsts.neptus.plugins.urready4os.rhodamine.importers.MedslikDataParser;
+import pt.lsts.neptus.plugins.urready4os.vtk.PointCloudRhodamine;
+import pt.lsts.neptus.plugins.urready4os.vtk.Rhodamine3DPanel;
+import pt.lsts.neptus.plugins.urready4os.vtk.RhodaminePointCloudLoader;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.OffScreenLayerImageControl;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -233,6 +241,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private JLabel depthLabelValue;
     private JLabel depthLabelMinValue;
     private JLabel depthLabelMaxValue;
+    
+    // 3D GUI
+    private JButton button3D;
+    private Rhodamine3DPanel rhod3DPanel;
+    private JDialog dialog3D;
 
     public RhodamineOilVisualizer() {
     }
@@ -332,12 +345,18 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             }
         });
 
-        sliderPanel = new JPanel(new MigLayout("hidemode 3, wrap 5"));
+        // 3D
+        button3D = new JButton(I18n.text("3D"));
+        button3D.addActionListener(get3DAction());
+        
+        sliderPanel = new JPanel(new MigLayout("hidemode 3, wrap 6"));
         sliderPanel.add(predictionLabel);
         sliderPanel.add(predictionLabelValue, "gapleft 10, width :100:");
         sliderPanel.add(predictionLabelMinValue, "gapleft 10, , width :100:");
         sliderPanel.add(predictionSlider, "width :100%:");
         sliderPanel.add(predictionLabelMaxValue, "width :100:");
+        
+        sliderPanel.add(button3D, "spany 3");
         
         sliderPanel.add(timeLabel);
         sliderPanel.add(timeLabelValue, "gapleft 10, width :100:");
@@ -351,6 +370,43 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         sliderPanel.add(depthSlider, "width :100%:");
         sliderPanel.add(depthLabelMaxValue, "width :100:");
     }
+
+    /**
+     * @return
+     */
+    private ActionListener get3DAction() {
+        ActionListener al = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (rhod3DPanel == null) {
+                    rhod3DPanel = new Rhodamine3DPanel();
+                    dialog3D = new JDialog(SwingUtilities.getWindowAncestor(RhodamineOilVisualizer.this.getConsole()));
+                    dialog3D.setLayout(new BorderLayout());
+                    dialog3D.add(rhod3DPanel);
+                }
+
+                ArrayList<BaseData> to3D = new ArrayList<>();
+                for (BaseData point : dataList) {
+                    if (point.getTimeMillis() < oldestTimestampSelection
+                            || point.getTimeMillis() > newestTimestampSelection)
+                        continue;
+                    if (point.getDepth() < oldestDepthSelection
+                            || point.getDepth() > newestDepthSelection)
+                        continue;
+                    
+                    to3D.add(point);
+                }
+                
+                PointCloudRhodamine newPointCloudRhod = RhodaminePointCloudLoader.loadRhodamineData(to3D);
+                rhod3DPanel.updatePointCloud(newPointCloudRhod);
+                
+                dialog3D.setVisible(true);
+                dialog3D.requestFocus();
+            }
+        };
+        return al;
+    }
+
 
     private void dataPanelSetVisible(boolean b) {
         timeLabel.setVisible(b);

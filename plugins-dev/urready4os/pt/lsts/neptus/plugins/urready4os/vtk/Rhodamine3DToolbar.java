@@ -46,7 +46,6 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.vtk.ctd3d.CTD3DToolbar;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.vtk.pointcloud.DepthExaggeration;
@@ -57,6 +56,7 @@ import pt.lsts.neptus.vtk.visualization.ScalarBar;
  * @author pdias
  *
  */
+@SuppressWarnings("serial")
 public class Rhodamine3DToolbar extends JToolBar {
 
     private static final short ICON_SIZE = 18;
@@ -125,10 +125,9 @@ public class Rhodamine3DToolbar extends JToolBar {
     }
 
     ActionListener rhodamineDyeToggleAction = new ActionListener() {
-
         @Override
         public void actionPerformed(ActionEvent e) {
-            if(rhodToggle.isSelected()) {
+            if(rhodToggle.isSelected() && pointcloud != null) {
                 pointcloud.getPolyData().GetPointData().SetScalars(((PointCloudHandlerRhodamineDye) pointcloud.getColorHandler()).getColorsRhodamineDye());
 
                 scalarBar.setScalarBarTitle(I18n.text("Rhodamine Dye Color Map"));
@@ -143,7 +142,6 @@ public class Rhodamine3DToolbar extends JToolBar {
     };
 
     ActionListener zexaggerToggleAction = new ActionListener() {
-
         @Override
         public void actionPerformed(ActionEvent e) {
             if (zExaggerToggle.isSelected()) {
@@ -164,7 +162,6 @@ public class Rhodamine3DToolbar extends JToolBar {
     };
 
     ActionListener resetViewportAction = new ActionListener() {
-
         @Override
         public void actionPerformed(ActionEvent e) {
             try {

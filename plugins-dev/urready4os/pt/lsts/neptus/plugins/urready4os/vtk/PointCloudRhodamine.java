@@ -32,8 +32,6 @@
 package pt.lsts.neptus.plugins.urready4os.vtk;
 
 import pt.lsts.neptus.vtk.pointcloud.APointCloud;
-import pt.lsts.neptus.vtk.pointcloud.PointCloudHandlerCTD;
-import pt.lsts.neptus.vtk.pointtypes.PointXYZCTD;
 import vtk.vtkDoubleArray;
 import vtk.vtkPolyDataMapper;
 import vtk.vtkVertexGlyphFilter;
@@ -138,5 +136,12 @@ public class PointCloudRhodamine extends APointCloud<PointRhodamine> {
      */
     public vtkDoubleArray getRhodamineList() {
         return rhodamineDyeList;
+    }
+    
+    /**
+     * @param rhodamineDyeList the rhodamineDyeList to set
+     */
+    public void setRhodamineDyeList(vtkDoubleArray rhodamineDyeList) {
+        this.rhodamineDyeList = rhodamineDyeList;
     }
 }
