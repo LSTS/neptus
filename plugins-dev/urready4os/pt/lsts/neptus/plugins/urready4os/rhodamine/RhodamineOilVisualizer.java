@@ -383,6 +383,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                     dialog3D = new JDialog(SwingUtilities.getWindowAncestor(RhodamineOilVisualizer.this.getConsole()));
                     dialog3D.setLayout(new BorderLayout());
                     dialog3D.add(rhod3DPanel);
+                    dialog3D.setSize(600, 400);
                 }
 
                 ArrayList<BaseData> to3D = new ArrayList<>();
