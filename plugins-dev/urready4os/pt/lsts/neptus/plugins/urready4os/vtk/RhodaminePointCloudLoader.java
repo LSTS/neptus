@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.urready4os.vtk;
 import java.util.List;
 
 import pt.lsts.neptus.plugins.urready4os.rhodamine.BaseData;
+import pt.lsts.neptus.types.coord.LocationType;
 import vtk.vtkDoubleArray;
 import vtk.vtkPoints;
 
@@ -51,12 +52,29 @@ public class RhodaminePointCloudLoader {
         vtkPoints points = pointcloud.getXYZPoints();
         vtkDoubleArray rhodArray = new vtkDoubleArray();
         
+        LocationType firstPtLoc = null;
+        
         int count = 0;
         for (BaseData pt : dataLst) {
             if (pt == null || Double.isNaN(pt.getRhodamineDyePPB()))
                 continue;
             
-            points.InsertNextPoint(pt.getLat(), pt.getLon(), pt.getDepth());
+            double offsetN = 0;
+            double offsetE = 0;
+            if (firstPtLoc == null) {
+                firstPtLoc = new LocationType();
+                firstPtLoc.setLatitudeDegs(pt.getLat());
+                firstPtLoc.setLongitudeDegs(pt.getLon());
+            }
+            else {
+                LocationType ptLoc = new LocationType();
+                ptLoc.setLatitudeDegs(pt.getLat());
+                ptLoc.setLongitudeDegs(pt.getLon());
+                double[] offs = ptLoc.getOffsetFrom(firstPtLoc);
+                offsetN = offs[0];
+                offsetE = offs[1];
+            }
+            points.InsertNextPoint(offsetN, offsetE, pt.getDepth());
             rhodArray.InsertValue(count, pt.getRhodamineDyePPB());
             
             count++;

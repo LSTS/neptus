@@ -49,8 +49,6 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.vtk.pointcloud.DepthExaggeration;
-import pt.lsts.neptus.vtk.visualization.Canvas;
-import pt.lsts.neptus.vtk.visualization.ScalarBar;
 
 /**
  * @author pdias
@@ -74,19 +72,22 @@ public class Rhodamine3DToolbar extends JToolBar {
 
     private JButton resetViewportButton;
 
-    private final PointCloudRhodamine pointcloud;
-    private final ScalarBar scalarBar;
-
-    private final Canvas canvas;
+//    private final PointCloudRhodamine pointcloud;
+//    private final ScalarBar scalarBar;
+//
+//    private final Canvas canvas;
+    
+    private final Rhodamine3DPanel rhod3dInit;
 
     /**
      * 
      * @param rhod3dInit
      */
     public Rhodamine3DToolbar(Rhodamine3DPanel rhod3dInit) {
-        this.canvas = rhod3dInit.getCanvas();
-        this.pointcloud = rhod3dInit.pointcloud;
-        this.scalarBar = rhod3dInit.scalarBar;
+        this.rhod3dInit = rhod3dInit;
+//        this.canvas = rhod3dInit.getCanvas();
+//        this.pointcloud = rhod3dInit.pointcloud;
+//        this.scalarBar = rhod3dInit.scalarBar;
     }
 
     public void createtoolBar() {
@@ -127,16 +128,16 @@ public class Rhodamine3DToolbar extends JToolBar {
     ActionListener rhodamineDyeToggleAction = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if(rhodToggle.isSelected() && pointcloud != null) {
-                pointcloud.getPolyData().GetPointData().SetScalars(((PointCloudHandlerRhodamineDye) pointcloud.getColorHandler()).getColorsRhodamineDye());
+            if(rhodToggle.isSelected() && rhod3dInit.getPointcloud() != null) {
+                rhod3dInit.getPointcloud().getPolyData().GetPointData().SetScalars(((PointCloudHandlerRhodamineDye) rhod3dInit.getPointcloud().getColorHandler()).getColorsRhodamineDye());
 
-                scalarBar.setScalarBarTitle(I18n.text("Rhodamine Dye Color Map"));
-                scalarBar.setScalarBarHorizontalProperties();
-                scalarBar.setUpScalarBarLookupTable(((PointCloudHandlerRhodamineDye) pointcloud.getColorHandler()).getLutRhodamineDye());
+                rhod3dInit.getScalarBar().setScalarBarTitle(I18n.text("Rhodamine Dye Color Map"));
+                rhod3dInit.getScalarBar().setScalarBarHorizontalProperties();
+                rhod3dInit.getScalarBar().setUpScalarBarLookupTable(((PointCloudHandlerRhodamineDye) rhod3dInit.getPointcloud().getColorHandler()).getLutRhodamineDye());
 
-                canvas.lock();
-                canvas.Render();
-                canvas.unlock();
+                rhod3dInit.getCanvas().lock();
+                rhod3dInit.getCanvas().Render();
+                rhod3dInit.getCanvas().unlock();
             }
         }
     };
@@ -145,18 +146,18 @@ public class Rhodamine3DToolbar extends JToolBar {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (zExaggerToggle.isSelected()) {
-                canvas.lock();
-                DepthExaggeration.performDepthExaggeration(pointcloud.getPolyData(), 10);
-                canvas.GetRenderer().ResetCamera();
-                canvas.Render();
-                canvas.unlock();
+                rhod3dInit.getCanvas().lock();
+                DepthExaggeration.performDepthExaggeration(rhod3dInit.getPointcloud().getPolyData(), 10);
+                rhod3dInit.getCanvas().GetRenderer().ResetCamera();
+                rhod3dInit.getCanvas().Render();
+                rhod3dInit.getCanvas().unlock();
             }
             else if (!zExaggerToggle.isSelected()) {
-                canvas.lock();
-                DepthExaggeration.reverseDepthExaggeration(pointcloud.getPolyData(), 10);
-                canvas.GetRenderer().ResetCamera();
-                canvas.Render();
-                canvas.unlock();
+                rhod3dInit.getCanvas().lock();
+                DepthExaggeration.reverseDepthExaggeration(rhod3dInit.getPointcloud().getPolyData(), 10);
+                rhod3dInit.getCanvas().GetRenderer().ResetCamera();
+                rhod3dInit.getCanvas().Render();
+                rhod3dInit.getCanvas().unlock();
             }
         }
     };
@@ -165,11 +166,12 @@ public class Rhodamine3DToolbar extends JToolBar {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                canvas.lock();
-                canvas.GetRenderer().ResetCamera();
-                canvas.GetRenderer().GetActiveCamera().SetViewUp(0.0, 0.0, -1.0);
-                canvas.Render();
-                canvas.unlock();
+                rhod3dInit.getCanvas().lock();
+                rhod3dInit.getCanvas().GetRenderer().ResetCamera();
+                rhod3dInit.getCanvas().GetRenderer().GetActiveCamera().SetViewUp(0.0, 1.0, -1.0);
+//                rhod3dInit.getCanvas().GetRenderer().GetActiveCamera().Azimuth(45);
+                rhod3dInit.getCanvas().Render();
+                rhod3dInit.getCanvas().unlock();
             }
             catch (Exception e1) {
                 e1.printStackTrace();

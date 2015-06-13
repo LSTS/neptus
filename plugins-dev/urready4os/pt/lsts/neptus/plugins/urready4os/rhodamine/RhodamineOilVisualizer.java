@@ -388,14 +388,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
                 ArrayList<BaseData> to3D = new ArrayList<>();
                 for (BaseData point : dataList) {
-                    if (point.getTimeMillis() < oldestTimestampSelection
-                            || point.getTimeMillis() > newestTimestampSelection)
-                        continue;
-                    if (point.getDepth() < oldestDepthSelection
-                            || point.getDepth() > newestDepthSelection)
-                        continue;
-                    
-                    to3D.add(point);
+                    if (validPoint(point, true))
+                        to3D.add(point);
                 }
                 
                 PointCloudRhodamine newPointCloudRhod = RhodaminePointCloudLoader.loadRhodamineData(to3D);
@@ -984,25 +978,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             if (!isVisibleInRender(pt, renderer))
                 continue;
             
-            if (Double.isNaN(point.getRhodamineDyePPB()) || Double.isInfinite(point.getRhodamineDyePPB()))
+            boolean validPoint = validPoint(point, !prediction ? true : false);
+            if (!validPoint)
                 continue;
-            
-            if (point.getRhodamineDyePPB() < minValue)
-                continue;
-            
-            if (!prediction) {
-                if (point.getTimeMillis() < oldestTimestampSelection
-                        || point.getTimeMillis() > newestTimestampSelection)
-                    continue;
-                if (point.getDepth() < oldestDepthSelection
-                        || point.getDepth() > newestDepthSelection)
-                    continue;
-            }
-            else {
-                if (point.getDepthLower() < oldestDepthSelection
-                        || point.getDepth() > newestDepthSelection)
-                    continue;
-            }
             
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
@@ -1026,6 +1004,33 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             gt.dispose();
         }
     }
+
+    private boolean validPoint(BaseData point, boolean validateTime) {
+        if (Double.isNaN(point.getRhodamineDyePPB()) || Double.isInfinite(point.getRhodamineDyePPB()))
+            return false;
+        
+        if (point.getRhodamineDyePPB() < minValue)
+            return false;
+        
+        if (validateTime) {
+            if (point.getTimeMillis() < oldestTimestampSelection
+                    || point.getTimeMillis() > newestTimestampSelection)
+                return false;
+        }
+        if (Double.isNaN(point.getDepthLower())) {
+            if (point.getDepth() < oldestDepthSelection
+                    || point.getDepth() > newestDepthSelection)
+                return false;
+        }
+        else {
+            if (point.getDepthLower() < oldestDepthSelection
+                    || point.getDepth() > newestDepthSelection)
+                return false;
+        }
+        
+        return true;
+    }
+
 
     @Subscribe
     public void on(EstimatedState msg) {

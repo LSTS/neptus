@@ -55,6 +55,7 @@ public class PointCloudRhodamine extends APointCloud<PointRhodamine> {
      * 
      */
     public PointCloudRhodamine() {
+        super();
     }
 
     @Override

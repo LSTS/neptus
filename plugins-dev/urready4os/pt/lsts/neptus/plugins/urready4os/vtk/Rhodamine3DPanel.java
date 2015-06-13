@@ -142,6 +142,20 @@ public class Rhodamine3DPanel extends JPanel {
         return canvas;
     }
 
+    /**
+     * @return the pointcloud
+     */
+    public PointCloudRhodamine getPointcloud() {
+        return pointcloud;
+    }
+    
+    /**
+     * @return the scalarBar
+     */
+    public ScalarBar getScalarBar() {
+        return scalarBar;
+    }
+    
     public void updatePointCloud(PointCloudRhodamine newPointcloud) {
         if (newPointcloud == null)
             return;
