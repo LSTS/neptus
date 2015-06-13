@@ -59,12 +59,14 @@ public class Rhodamine3DPanel extends JPanel {
     private Rhodamine3DToolbar toolbar;
 
     public PointCloudRhodamine pointcloud;
+    private PointCloudRhodamine pointcloudPrediction;
 
     // private vtkScalarBarActor lutActor = new vtkScalarBarActor();
     public ScalarBar scalarBar;
 
     private boolean isFirstRender = true;
 
+    private double[] useRange = null;
     
     public Rhodamine3DPanel() {
         if (!Utils.hasTryedToLoadVtkLib) {
@@ -150,12 +152,32 @@ public class Rhodamine3DPanel extends JPanel {
     }
     
     /**
+     * @return the pointcloudPrediction
+     */
+    public PointCloudRhodamine getPointcloudPrediction() {
+        return pointcloudPrediction;
+    }
+    
+    /**
      * @return the scalarBar
      */
     public ScalarBar getScalarBar() {
         return scalarBar;
     }
     
+    /**
+     * @return the useRange
+     */
+    public double[] getUseRange() {
+        return useRange;
+    }
+
+    /**
+     * @param useRange the useRange to set
+     */
+    public void setUseRange(double[] useRange) {
+        this.useRange = useRange;
+    }
     public void updatePointCloud(PointCloudRhodamine newPointcloud) {
         if (newPointcloud == null)
             return;
@@ -168,6 +190,7 @@ public class Rhodamine3DPanel extends JPanel {
         pointcloud = newPointcloud;
         
         pointcloud.createActorFromPoints();
+        pointcloud.setUseRange(useRange); // FIXME
         pointcloud.generateHandler();
         pointcloud.getPolyData().GetPointData().SetScalars(((PointCloudHandlerRhodamineDye) pointcloud.getColorHandler()).getColorsRhodamineDye());
         canvas.GetRenderer().AddActor(pointcloud.getCloudLODActor());

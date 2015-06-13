@@ -39,7 +39,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JToggleButton;
@@ -59,24 +58,21 @@ public class Rhodamine3DToolbar extends JToolBar {
 
     private static final short ICON_SIZE = 18;
 
-    private static final ImageIcon ICON_TEMP = ImageUtils.getScaledIcon(
-            "pt/lsts/neptus/vtk/assets/temperature.png", ICON_SIZE, ICON_SIZE);
+    private static final ImageIcon ICON_RHOD = ImageUtils.getScaledIcon(
+            "pt/lsts/neptus/plugins/urready4os/vtk/rhodamine.png", ICON_SIZE, ICON_SIZE);
+    private static final ImageIcon ICON_PRED = ImageUtils.getScaledIcon(
+            "pt/lsts/neptus/plugins/urready4os/vtk/prediction.png", ICON_SIZE, ICON_SIZE);
     private static final ImageIcon ICON_Z = ImageUtils.getScaledIcon(
             "pt/lsts/neptus/vtk/assets/zexaggerate.png", ICON_SIZE, ICON_SIZE);
     private static final ImageIcon ICON_RESETVIEWPORT = ImageUtils.getScaledIcon(
             "images/menus/camera.png", ICON_SIZE, ICON_SIZE);
 
     private JToggleButton rhodToggle;
-
+    private JToggleButton predToggle;
     private JToggleButton zExaggerToggle;
 
     private JButton resetViewportButton;
 
-//    private final PointCloudRhodamine pointcloud;
-//    private final ScalarBar scalarBar;
-//
-//    private final Canvas canvas;
-    
     private final Rhodamine3DPanel rhod3dInit;
 
     /**
@@ -97,12 +93,18 @@ public class Rhodamine3DToolbar extends JToolBar {
 
         setRhodToggle(new JToggleButton());
         getRhodToggle().setToolTipText(I18n.text("See Rhodamine Dye data color map") + ".");
-        getRhodToggle().setIcon(ICON_TEMP);
+        getRhodToggle().setIcon(ICON_RHOD);
         getRhodToggle().addActionListener(rhodamineDyeToggleAction);
+        
+        setPredToggle(new JToggleButton());
+        getPredToggle().setToolTipText(I18n.text("See Prediction data color map") + ".");
+        getPredToggle().setIcon(ICON_PRED);
+        getPredToggle().addActionListener(predictionToggleAction);
 
 
-        ButtonGroup groupToggles = new ButtonGroup();
-        groupToggles.add(getRhodToggle());
+//        ButtonGroup groupToggles = new ButtonGroup();
+//        groupToggles.add(getRhodToggle());
+//        groupToggles.add(getPredToggle());
 
         setZexaggerToggle(new JToggleButton());
         getZexaggerToggle().setToolTipText(I18n.text("Enable/Disable Z Exaggeration") + ".");
@@ -115,6 +117,7 @@ public class Rhodamine3DToolbar extends JToolBar {
         resetViewportButton.addActionListener(resetViewportAction);
 
         add(getRhodToggle());
+        add(getPredToggle());
 
         addSeparator();
 
@@ -129,15 +132,54 @@ public class Rhodamine3DToolbar extends JToolBar {
         @Override
         public void actionPerformed(ActionEvent e) {
             if(rhodToggle.isSelected() && rhod3dInit.getPointcloud() != null) {
-                rhod3dInit.getPointcloud().getPolyData().GetPointData().SetScalars(((PointCloudHandlerRhodamineDye) rhod3dInit.getPointcloud().getColorHandler()).getColorsRhodamineDye());
+//                rhod3dInit.getPointcloud().getPolyData().GetPointData().SetScalars(((PointCloudHandlerRhodamineDye) rhod3dInit.getPointcloud().getColorHandler()).getColorsRhodamineDye());
+//
+//                rhod3dInit.getScalarBar().setScalarBarTitle(I18n.text("Rhodamine Dye Color Map"));
+//                rhod3dInit.getScalarBar().setScalarBarHorizontalProperties();
+//                rhod3dInit.getScalarBar().setUpScalarBarLookupTable(((PointCloudHandlerRhodamineDye) rhod3dInit.getPointcloud().getColorHandler()).getLutRhodamineDye());
+//
+//                rhod3dInit.getCanvas().lock();
+//                rhod3dInit.getCanvas().Render();
+//                rhod3dInit.getCanvas().unlock();
 
-                rhod3dInit.getScalarBar().setScalarBarTitle(I18n.text("Rhodamine Dye Color Map"));
-                rhod3dInit.getScalarBar().setScalarBarHorizontalProperties();
-                rhod3dInit.getScalarBar().setUpScalarBarLookupTable(((PointCloudHandlerRhodamineDye) rhod3dInit.getPointcloud().getColorHandler()).getLutRhodamineDye());
+                rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getPointcloud().getCloudLODActor());
+                rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getScalarBar().getScalarBarActor());
+                rhod3dInit.getCanvas().GetRenderer().AddActor(rhod3dInit.getPointcloud().getCloudLODActor());
+                rhod3dInit.getCanvas().GetRenderer().AddActor(rhod3dInit.getScalarBar().getScalarBarActor());
 
                 rhod3dInit.getCanvas().lock();
                 rhod3dInit.getCanvas().Render();
                 rhod3dInit.getCanvas().unlock();
+            }
+            else if(!rhodToggle.isSelected() && rhod3dInit.getPointcloud() != null) {
+                if (rhod3dInit.getPointcloud() != null) {
+                    rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getPointcloud().getCloudLODActor());
+                    rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getScalarBar().getScalarBarActor());
+
+                    rhod3dInit.getCanvas().lock();
+                    rhod3dInit.getCanvas().Render();
+                    rhod3dInit.getCanvas().unlock();
+                }
+            }
+        }
+    };
+
+    ActionListener predictionToggleAction = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(predToggle.isSelected() && rhod3dInit.getPointcloudPrediction() != null) {
+                rhod3dInit.getPointcloudPrediction().getPolyData().GetPointData().SetScalars(((PointCloudHandlerRhodamineDye) rhod3dInit.getPointcloudPrediction().getColorHandler()).getColorsRhodamineDye());
+
+                rhod3dInit.getScalarBar().setScalarBarTitle(I18n.text("Prediction Color Map"));
+                rhod3dInit.getScalarBar().setScalarBarHorizontalProperties();
+                rhod3dInit.getScalarBar().setUpScalarBarLookupTable(((PointCloudHandlerRhodamineDye) rhod3dInit.getPointcloudPrediction().getColorHandler()).getLutRhodamineDye());
+
+                rhod3dInit.getCanvas().lock();
+                rhod3dInit.getCanvas().Render();
+                rhod3dInit.getCanvas().unlock();
+            }
+            else if(predToggle.isSelected() && rhod3dInit.getPointcloudPrediction() != null) {
+                
             }
         }
     };
@@ -145,14 +187,14 @@ public class Rhodamine3DToolbar extends JToolBar {
     ActionListener zexaggerToggleAction = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (zExaggerToggle.isSelected()) {
+            if (zExaggerToggle.isSelected() && rhod3dInit.getPointcloud() != null) {
                 rhod3dInit.getCanvas().lock();
                 DepthExaggeration.performDepthExaggeration(rhod3dInit.getPointcloud().getPolyData(), 10);
                 rhod3dInit.getCanvas().GetRenderer().ResetCamera();
                 rhod3dInit.getCanvas().Render();
                 rhod3dInit.getCanvas().unlock();
             }
-            else if (!zExaggerToggle.isSelected()) {
+            else if (!zExaggerToggle.isSelected() && rhod3dInit.getPointcloud() != null) {
                 rhod3dInit.getCanvas().lock();
                 DepthExaggeration.reverseDepthExaggeration(rhod3dInit.getPointcloud().getPolyData(), 10);
                 rhod3dInit.getCanvas().GetRenderer().ResetCamera();
@@ -204,6 +246,20 @@ public class Rhodamine3DToolbar extends JToolBar {
         this.rhodToggle = tempToggle;
     }
 
+    /**
+     * @return the predToggle
+     */
+    public JToggleButton getPredToggle() {
+        return predToggle;
+    }
+    
+    /**
+     * @param predToggle the predToggle to set
+     */
+    public void setPredToggle(JToggleButton predToggle) {
+        this.predToggle = predToggle;
+    }
+    
     /**
      * @return the zexaggerToggle
      */

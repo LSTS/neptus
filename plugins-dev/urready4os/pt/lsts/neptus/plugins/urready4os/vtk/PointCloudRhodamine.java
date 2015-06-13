@@ -43,6 +43,7 @@ import vtk.vtkVertexGlyphFilter;
 public class PointCloudRhodamine extends APointCloud<PointRhodamine> {
 
     private vtkDoubleArray rhodamineDyeList;
+    private double[] useRange = null;
     
     /**
      * @param name
@@ -55,9 +56,29 @@ public class PointCloudRhodamine extends APointCloud<PointRhodamine> {
      * 
      */
     public PointCloudRhodamine() {
-        super();
     }
 
+    /**
+     * @return the useRange
+     */
+    public double[] getUseRange() {
+        if (useRange == null)
+            useRange = rhodamineDyeList.GetRange();
+        return useRange;
+    }
+
+    public double[] updateUseRange() {
+        useRange = rhodamineDyeList.GetRange();
+        return useRange;
+    }
+
+    /**
+     * @param useRange the useRange to set
+     */
+    public void setUseRange(double[] useRange) {
+        this.useRange = useRange;
+    }
+    
     @Override
     public PointRhodamine getPointAtIndex(int index) {
         if (getXYZPoints().GetNumberOfPoints() > index) {
@@ -129,6 +150,8 @@ public class PointCloudRhodamine extends APointCloud<PointRhodamine> {
     @Override
     public void generateHandler() {
         setColorHandler(new PointCloudHandlerRhodamineDye(this));
+        if (useRange != null)
+            ((PointCloudHandlerRhodamineDye) getColorHandler()).setUseRange(useRange);
         getColorHandler().generatePointCloudColors(true);
     }
 

@@ -392,6 +392,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                         to3D.add(point);
                 }
                 
+                rhod3DPanel.setUseRange(new double[] { minValue, maxValue });
+                
                 PointCloudRhodamine newPointCloudRhod = RhodaminePointCloudLoader.loadRhodamineData(to3D);
                 rhod3DPanel.updatePointCloud(newPointCloudRhod);
                 

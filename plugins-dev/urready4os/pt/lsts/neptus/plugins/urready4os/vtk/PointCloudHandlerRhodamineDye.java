@@ -45,6 +45,8 @@ public class PointCloudHandlerRhodamineDye implements IPointCloudHandler {
     private PointCloudRhodamine pointCloud;
     
     private final vtkDoubleArray rhodamineDyeArray;
+    
+    private double[] useRange = null;
 
     private vtkUnsignedCharArray colorsRhodamineDye;
 
@@ -61,13 +63,34 @@ public class PointCloudHandlerRhodamineDye implements IPointCloudHandler {
         setLutRhodamineDye(new vtkLookupTable());
     }
 
+    /**
+     * @return the useRange
+     */
+    public double[] getUseRange() {
+        if (useRange == null)
+            useRange = rhodamineDyeArray.GetRange();
+        return useRange;
+    }
+
+    public double[] updateUseRange() {
+        useRange = rhodamineDyeArray.GetRange();
+        return useRange;
+    }
+
+    /**
+     * @param useRange the useRange to set
+     */
+    public void setUseRange(double[] useRange) {
+        this.useRange = useRange;
+    }
+ 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.plugins.vtk.pointcloud.IPointCloudHandler#generatePointCloudColors(boolean)
      */
     @Override
     public void generatePointCloudColors(boolean isColorInverted) {
         if(!isColorInverted) {
-            getLutRhodamineDye().SetRange(rhodamineDyeArray.GetRange());
+            getLutRhodamineDye().SetRange(useRange == null ? rhodamineDyeArray.GetRange() : useRange);
             getLutRhodamineDye().SetScaleToLinear();
             getLutRhodamineDye().Build();
         }
@@ -101,11 +124,11 @@ public class PointCloudHandlerRhodamineDye implements IPointCloudHandler {
     @Override
     public void invertLUTTableColors() {
         vtkLookupTable look1 = new vtkLookupTable();
-        look1.SetRange(rhodamineDyeArray.GetRange());
+        look1.SetRange(useRange == null ? rhodamineDyeArray.GetRange() : useRange);
         look1.SetScaleToLinear();
         look1.Build();
 
-        lutRhodamineDye.SetRange(rhodamineDyeArray.GetRange());
+        lutRhodamineDye.SetRange(useRange == null ? rhodamineDyeArray.GetRange() : useRange);
         for (int i = 1; i <= 256 ; ++i) {
             lutRhodamineDye.SetTableValue(256 - i, look1.GetTableValue(i));
         }
