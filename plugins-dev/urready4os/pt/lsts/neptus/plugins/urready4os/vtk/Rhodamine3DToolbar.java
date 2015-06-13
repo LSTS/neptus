@@ -168,18 +168,22 @@ public class Rhodamine3DToolbar extends JToolBar {
         @Override
         public void actionPerformed(ActionEvent e) {
             if(predToggle.isSelected() && rhod3dInit.getPointcloudPrediction() != null) {
-                rhod3dInit.getPointcloudPrediction().getPolyData().GetPointData().SetScalars(((PointCloudHandlerRhodamineDye) rhod3dInit.getPointcloudPrediction().getColorHandler()).getColorsRhodamineDye());
-
-                rhod3dInit.getScalarBar().setScalarBarTitle(I18n.text("Prediction Color Map"));
-                rhod3dInit.getScalarBar().setScalarBarHorizontalProperties();
-                rhod3dInit.getScalarBar().setUpScalarBarLookupTable(((PointCloudHandlerRhodamineDye) rhod3dInit.getPointcloudPrediction().getColorHandler()).getLutRhodamineDye());
+                rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getPointcloudPrediction().getCloudLODActor());
+                rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getScalarBar().getScalarBarActor());
+                rhod3dInit.getCanvas().GetRenderer().AddActor(rhod3dInit.getPointcloudPrediction().getCloudLODActor());
+                rhod3dInit.getCanvas().GetRenderer().AddActor(rhod3dInit.getScalarBar().getScalarBarActor());
 
                 rhod3dInit.getCanvas().lock();
                 rhod3dInit.getCanvas().Render();
                 rhod3dInit.getCanvas().unlock();
             }
             else if(predToggle.isSelected() && rhod3dInit.getPointcloudPrediction() != null) {
-                
+                rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getPointcloudPrediction().getCloudLODActor());
+                rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getScalarBar().getScalarBarActor());
+
+                rhod3dInit.getCanvas().lock();
+                rhod3dInit.getCanvas().Render();
+                rhod3dInit.getCanvas().unlock();
             }
         }
     };
@@ -201,6 +205,22 @@ public class Rhodamine3DToolbar extends JToolBar {
                 rhod3dInit.getCanvas().Render();
                 rhod3dInit.getCanvas().unlock();
             }
+            
+            if (zExaggerToggle.isSelected() && rhod3dInit.getPointcloudPrediction() != null) {
+                rhod3dInit.getCanvas().lock();
+                DepthExaggeration.performDepthExaggeration(rhod3dInit.getPointcloudPrediction().getPolyData(), 10);
+                rhod3dInit.getCanvas().GetRenderer().ResetCamera();
+                rhod3dInit.getCanvas().Render();
+                rhod3dInit.getCanvas().unlock();
+            }
+            else if (!zExaggerToggle.isSelected() && rhod3dInit.getPointcloudPrediction() != null) {
+                rhod3dInit.getCanvas().lock();
+                DepthExaggeration.reverseDepthExaggeration(rhod3dInit.getPointcloudPrediction().getPolyData(), 10);
+                rhod3dInit.getCanvas().GetRenderer().ResetCamera();
+                rhod3dInit.getCanvas().Render();
+                rhod3dInit.getCanvas().unlock();
+            }
+
         }
     };
 

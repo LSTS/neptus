@@ -47,11 +47,15 @@ public class RhodaminePointCloudLoader {
     private RhodaminePointCloudLoader() {
     }
 
-    public static PointCloudRhodamine loadRhodamineData(List<BaseData> dataLst) {
+    public static PointCloudRhodamine[] loadRhodamineData(List<BaseData> dataLst, List<BaseData> prevLst) {
         PointCloudRhodamine pointcloud = new PointCloudRhodamine();
         vtkPoints points = pointcloud.getXYZPoints();
         vtkDoubleArray rhodArray = new vtkDoubleArray();
-        
+
+        PointCloudRhodamine pointcloudPrev = new PointCloudRhodamine();
+        vtkPoints pointsPrev = pointcloudPrev.getXYZPoints();
+        vtkDoubleArray prevArray = new vtkDoubleArray();
+
         LocationType firstPtLoc = null;
         
         int count = 0;
@@ -83,7 +87,37 @@ public class RhodaminePointCloudLoader {
         pointcloud.setNumberOfPoints(count);
         pointcloud.setXYZPoints(points);
         pointcloud.setRhodamineDyeList(rhodArray);
+
+        count = 0;
+        for (BaseData pt : prevLst) {
+            if (pt == null || Double.isNaN(pt.getRhodamineDyePPB()))
+                continue;
+            
+            double offsetN = 0;
+            double offsetE = 0;
+            if (firstPtLoc == null) {
+                firstPtLoc = new LocationType();
+                firstPtLoc.setLatitudeDegs(pt.getLat());
+                firstPtLoc.setLongitudeDegs(pt.getLon());
+            }
+            else {
+                LocationType ptLoc = new LocationType();
+                ptLoc.setLatitudeDegs(pt.getLat());
+                ptLoc.setLongitudeDegs(pt.getLon());
+                double[] offs = ptLoc.getOffsetFrom(firstPtLoc);
+                offsetN = offs[0];
+                offsetE = offs[1];
+            }
+            pointsPrev.InsertNextPoint(offsetN, offsetE, pt.getDepth());
+            prevArray.InsertValue(count, pt.getRhodamineDyePPB());
+            
+            count++;
+        }
         
-        return pointcloud;
+        pointcloudPrev.setNumberOfPoints(count);
+        pointcloudPrev.setXYZPoints(pointsPrev);
+        pointcloudPrev.setRhodamineDyeList(prevArray);
+
+        return new PointCloudRhodamine[] { pointcloud, pointcloudPrev };
     }
 }

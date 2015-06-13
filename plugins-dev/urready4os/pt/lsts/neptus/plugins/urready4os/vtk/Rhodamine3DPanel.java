@@ -178,8 +178,10 @@ public class Rhodamine3DPanel extends JPanel {
     public void setUseRange(double[] useRange) {
         this.useRange = useRange;
     }
-    public void updatePointCloud(PointCloudRhodamine newPointcloud) {
-        if (newPointcloud == null)
+    
+    public void updatePointCloud(PointCloudRhodamine newPointcloudRhodamine,
+            PointCloudRhodamine newPointcloudPrevision) {
+        if (newPointcloudRhodamine == null || newPointcloudPrevision == null)
             return;
         
         if (pointcloud != null) {
@@ -187,14 +189,20 @@ public class Rhodamine3DPanel extends JPanel {
             canvas.GetRenderer().RemoveActor(scalarBar.getScalarBarActor());
         }
         
-        pointcloud = newPointcloud;
-        
+        pointcloud = newPointcloudRhodamine;
         pointcloud.createActorFromPoints();
         pointcloud.setUseRange(useRange); // FIXME
         pointcloud.generateHandler();
         pointcloud.getPolyData().GetPointData().SetScalars(((PointCloudHandlerRhodamineDye) pointcloud.getColorHandler()).getColorsRhodamineDye());
         canvas.GetRenderer().AddActor(pointcloud.getCloudLODActor());
 
+        pointcloudPrediction = newPointcloudPrevision;
+        pointcloudPrediction.createActorFromPoints();
+        pointcloudPrediction.setUseRange(useRange); // FIXME
+        pointcloudPrediction.generateHandler();
+        pointcloudPrediction.getPolyData().GetPointData().SetScalars(((PointCloudHandlerRhodamineDye) pointcloudPrediction.getColorHandler()).getColorsRhodamineDye());
+        canvas.GetRenderer().AddActor(pointcloudPrediction.getCloudLODActor());
+        
         scalarBar = new ScalarBar(I18n.text("Rhodamine Dye Color Map"));
         scalarBar.setScalarBarHorizontalProperties();
         scalarBar.setUpScalarBarLookupTable(((PointCloudHandlerRhodamineDye) pointcloud.getColorHandler()).getLutRhodamineDye());

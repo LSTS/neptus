@@ -391,11 +391,18 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                     if (validPoint(point, true))
                         to3D.add(point);
                 }
-                
+
+                ArrayList<BaseData> to3DPrev = new ArrayList<>();
+                ArrayList<BaseData> tmpLst = filterPrevisionBySelTime();
+                for (BaseData point : tmpLst) {
+                    if (validPoint(point, false))
+                        to3DPrev.add(point);
+                }
+
                 rhod3DPanel.setUseRange(new double[] { minValue, maxValue });
                 
-                PointCloudRhodamine newPointCloudRhod = RhodaminePointCloudLoader.loadRhodamineData(to3D);
-                rhod3DPanel.updatePointCloud(newPointCloudRhod);
+                PointCloudRhodamine[] newPointCloudRhod = RhodaminePointCloudLoader.loadRhodamineData(to3D, to3DPrev);
+                rhod3DPanel.updatePointCloud(newPointCloudRhod[0], newPointCloudRhod[1]);
                 
                 dialog3D.setVisible(true);
                 dialog3D.requestFocus();
@@ -934,6 +941,14 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     }
 
     private void paintPredictionData(StateRenderer2D renderer, Graphics2D g2) {
+        ArrayList<BaseData> tmpLst = filterPrevisionBySelTime();
+        paintDataWorker(renderer, g2, true, tmpLst);
+    }
+
+    /**
+     * @return
+     */
+    private ArrayList<BaseData> filterPrevisionBySelTime() {
         ArrayList<BaseData> tmpLst = new ArrayList<>(dataPredictionList);
         List<Long> tmpValLst = new ArrayList<>(dataPredictionValues);
         //Collections.sort(tmpValLst);
@@ -957,7 +972,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             if (dpt.timeMillis != filterTime)
                 tmpLst.remove(dpt);
         }
-        paintDataWorker(renderer, g2, true, tmpLst);
+        return tmpLst;
     }
 
     private void paintDataWorker(StateRenderer2D renderer, Graphics2D g2, boolean prediction, ArrayList<BaseData> dList) {
