@@ -522,6 +522,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         lastRhodamineDyeList.clear();
 
         getConsole().removeMapLayer(previsionLayer);
+        
+        if (dialog3D != null) {
+            dialog3D.setVisible(false);
+            dialog3D.dispose();
+        }
     }
 
     /* (non-Javadoc)
