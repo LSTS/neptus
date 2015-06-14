@@ -986,10 +986,12 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         if (clearImgCachRqst) {
             offScreenImageControlData.triggerImageRebuild();
             offScreenImageControlPrediction.triggerImageRebuild();
+            clearImgCachRqst = false;
         }
         
         if (clearColorBarImgCachRqst) {
             offScreenImageControlColorBar.triggerImageRebuild();
+            clearColorBarImgCachRqst = false;
         }
     }
 
