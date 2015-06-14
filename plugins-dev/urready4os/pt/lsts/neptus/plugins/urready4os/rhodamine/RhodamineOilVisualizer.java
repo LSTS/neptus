@@ -690,6 +690,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         for (BaseData testPoint : points) {
             int counter = 0;
             boolean found = false;
+            
+            // Apply predictionScaleFactor to prediction values
+            if (!dataOrPrediction && !Double.isNaN(testPoint.getRhodamineDyePPB()))
+                testPoint.setRhodamineDyePPB(testPoint.getRhodamineDyePPB() * predictionScaleFactor);
+            
             for (BaseData toTestPoint : list.toArray(new BaseData[list.size()])) {
                 if (toTestPoint.equals(testPoint)) {
                     if (toTestPoint.getTimeMillis() < testPoint.getTimeMillis()) {
@@ -1003,7 +1008,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             Graphics2D gt = (Graphics2D) g2.create();
             gt.translate(pt.getX(), pt.getY());
-            Color color = colorMap.getColor((point.getRhodamineDyePPB() * (prediction ? predictionScaleFactor : 1) - minValue) / maxValue);
+            Color color = colorMap.getColor((point.getRhodamineDyePPB() /** (prediction ? predictionScaleFactor : 1)*/ - minValue) / maxValue);
             if (!prediction) {
                 if (curtime - point.getTimeMillis() > DateTimeUtil.MINUTE * 5)
                     color = ColorUtils.setTransparencyToColor(color, 150); // 128

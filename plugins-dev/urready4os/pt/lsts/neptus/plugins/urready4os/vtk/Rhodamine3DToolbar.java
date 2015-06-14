@@ -131,7 +131,7 @@ public class Rhodamine3DToolbar extends JToolBar {
     ActionListener rhodamineDyeToggleAction = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if(rhodToggle.isSelected() && rhod3dInit.getPointcloud() != null) {
+            if (rhodToggle.isSelected() && rhod3dInit.getPointcloud() != null) {
 //                rhod3dInit.getPointcloud().getPolyData().GetPointData().SetScalars(((PointCloudHandlerRhodamineDye) rhod3dInit.getPointcloud().getColorHandler()).getColorsRhodamineDye());
 //
 //                rhod3dInit.getScalarBar().setScalarBarTitle(I18n.text("Rhodamine Dye Color Map"));
@@ -151,10 +151,12 @@ public class Rhodamine3DToolbar extends JToolBar {
                 rhod3dInit.getCanvas().Render();
                 rhod3dInit.getCanvas().unlock();
             }
-            else if(!rhodToggle.isSelected() && rhod3dInit.getPointcloud() != null) {
+            else if (!rhodToggle.isSelected() && rhod3dInit.getPointcloud() != null) {
                 if (rhod3dInit.getPointcloud() != null) {
                     rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getPointcloud().getCloudLODActor());
-                    rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getScalarBar().getScalarBarActor());
+                    
+                    if (!predToggle.isSelected())
+                        rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getScalarBar().getScalarBarActor());
 
                     rhod3dInit.getCanvas().lock();
                     rhod3dInit.getCanvas().Render();
@@ -167,7 +169,7 @@ public class Rhodamine3DToolbar extends JToolBar {
     ActionListener predictionToggleAction = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if(predToggle.isSelected() && rhod3dInit.getPointcloudPrediction() != null) {
+            if (predToggle.isSelected() && rhod3dInit.getPointcloudPrediction() != null) {
                 rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getPointcloudPrediction().getCloudLODActor());
                 rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getScalarBar().getScalarBarActor());
                 rhod3dInit.getCanvas().GetRenderer().AddActor(rhod3dInit.getPointcloudPrediction().getCloudLODActor());
@@ -177,9 +179,11 @@ public class Rhodamine3DToolbar extends JToolBar {
                 rhod3dInit.getCanvas().Render();
                 rhod3dInit.getCanvas().unlock();
             }
-            else if(predToggle.isSelected() && rhod3dInit.getPointcloudPrediction() != null) {
+            else if (!predToggle.isSelected() && rhod3dInit.getPointcloudPrediction() != null) {
                 rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getPointcloudPrediction().getCloudLODActor());
-                rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getScalarBar().getScalarBarActor());
+                
+                if (!rhodToggle.isSelected())
+                    rhod3dInit.getCanvas().GetRenderer().RemoveActor(rhod3dInit.getScalarBar().getScalarBarActor());
 
                 rhod3dInit.getCanvas().lock();
                 rhod3dInit.getCanvas().Render();

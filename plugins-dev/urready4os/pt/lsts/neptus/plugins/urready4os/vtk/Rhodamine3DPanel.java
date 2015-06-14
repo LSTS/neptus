@@ -111,6 +111,7 @@ public class Rhodamine3DPanel extends JPanel {
         add(canvas);
 
         toolbar.getRhodToggle().setSelected(true);
+        toolbar.getPredToggle().setSelected(true);
 
         reloadCanvas();
 
@@ -184,11 +185,13 @@ public class Rhodamine3DPanel extends JPanel {
         if (newPointcloudRhodamine == null || newPointcloudPrevision == null)
             return;
         
-        if (pointcloud != null) {
+        if (pointcloud != null)
             canvas.GetRenderer().RemoveActor(pointcloud.getCloudLODActor());
+        if (pointcloudPrediction != null)
+            canvas.GetRenderer().RemoveActor(pointcloudPrediction.getCloudLODActor());
+        if (scalarBar != null)
             canvas.GetRenderer().RemoveActor(scalarBar.getScalarBarActor());
-        }
-        
+
         pointcloud = newPointcloudRhodamine;
         pointcloud.createActorFromPoints();
         pointcloud.setUseRange(useRange); // FIXME
@@ -209,6 +212,9 @@ public class Rhodamine3DPanel extends JPanel {
         scalarBar.getScalarBarActor().Modified();
 //      setScalarBar(scalarBar);
         canvas.GetRenderer().AddActor(scalarBar.getScalarBarActor());
+
+        toolbar.getRhodToggle().setSelected(true);
+        toolbar.getPredToggle().setSelected(true);
 
         reloadCanvas();
     }

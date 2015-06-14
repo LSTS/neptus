@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.plugins.urready4os.vtk;
 
+import java.util.Arrays;
+
 import pt.lsts.neptus.vtk.pointcloud.IPointCloudHandler;
 import vtk.vtkDoubleArray;
 import vtk.vtkLookupTable;
@@ -97,6 +99,9 @@ public class PointCloudHandlerRhodamineDye implements IPointCloudHandler {
         else {
             invertLUTTableColors();
         }
+
+        double[] rr = rhodamineDyeArray.GetRange();
+        System.out.println("kkkkkkkkkkkkkkkkkk " + Arrays.toString(rr));
 
         getColorsRhodamineDye().SetNumberOfComponents(3);
         getColorsRhodamineDye().SetName("colorsRhodamineDye");
