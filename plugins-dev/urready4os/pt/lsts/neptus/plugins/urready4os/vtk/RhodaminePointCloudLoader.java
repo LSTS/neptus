@@ -47,7 +47,8 @@ public class RhodaminePointCloudLoader {
     private RhodaminePointCloudLoader() {
     }
 
-    public static PointCloudRhodamine[] loadRhodamineData(List<BaseData> dataLst, List<BaseData> prevLst) {
+    public static PointCloudRhodamine[] loadRhodamineData(List<BaseData> dataLst, List<BaseData> prevLst,
+            double predictionScaleFactor) {
         PointCloudRhodamine pointcloud = new PointCloudRhodamine();
         vtkPoints points = pointcloud.getXYZPoints();
         vtkDoubleArray rhodArray = new vtkDoubleArray();
@@ -109,7 +110,7 @@ public class RhodaminePointCloudLoader {
                 offsetE = offs[1];
             }
             pointsPrev.InsertNextPoint(offsetN, offsetE, pt.getDepth());
-            prevArray.InsertValue(count, pt.getRhodamineDyePPB());
+            prevArray.InsertValue(count, pt.getRhodamineDyePPB() * predictionScaleFactor);
             
             count++;
         }
