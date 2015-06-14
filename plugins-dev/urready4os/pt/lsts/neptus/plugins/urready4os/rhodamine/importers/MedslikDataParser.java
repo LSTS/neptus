@@ -46,15 +46,21 @@ import pt.lsts.neptus.util.DateTimeUtil;
  */
 public class MedslikDataParser {
 
+    // xppm = xppb / 1000
+    // http://www.endmemo.com/convert/density.php
+    
 //gals of pollutant at level 5 between depths
+//cu.m of pollutant at level 5 between depths
 //    0.0  2000.0   metres below surface
 //  3     : Hours after start of spill
 //    48393.  gals of pollutant released so far
 // 43.517  16.383  : Lat & Long of spill location
 //  5.0    : Pixel size (m) for spill plotting
 //100.0 ppm         0.0   : Concentration & density of active pollutant
+//0.5 ppm         0.0   : Concentration & density of active pollutant
 // 7657     : Number of data points
 //   Lat      Lon      gals/sq km
+//   Lat      Lon      cu.m/sq km
     
     
     private File file;
