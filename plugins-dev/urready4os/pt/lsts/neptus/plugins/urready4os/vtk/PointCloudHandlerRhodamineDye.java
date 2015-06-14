@@ -101,7 +101,7 @@ public class PointCloudHandlerRhodamineDye implements IPointCloudHandler {
         }
 
         double[] rr = rhodamineDyeArray.GetRange();
-        System.out.println("kkkkkkkkkkkkkkkkkk " + Arrays.toString(rr));
+        System.out.println("Range for 3D: " + Arrays.toString(rr));
 
         getColorsRhodamineDye().SetNumberOfComponents(3);
         getColorsRhodamineDye().SetName("colorsRhodamineDye");
