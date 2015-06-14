@@ -122,7 +122,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private double minValue = 0;
 
     @NeptusProperty(name = "Maximum value", userLevel = LEVEL.REGULAR, category="Scale")
-    private double maxValue = 70;
+    private double maxValue = 100;
 
     @NeptusProperty(name = "Colormap", userLevel = LEVEL.REGULAR, category="Scale")
     private final ColorMap colorMap = ColorMapFactory.createJetColorMap();
@@ -139,7 +139,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private File baseFolderForCSVFiles = new File("log/rhodamine");
     
     @NeptusProperty(name = "Period seconds to update", userLevel = LEVEL.REGULAR, category = "Data Update")
-    private int periodSecondsToUpdate = 30;
+    private int periodSecondsToUpdate = 60;
     
     @NeptusProperty(userLevel = LEVEL.REGULAR, category = "Data Cleanup")
     private boolean autoCleanData = false;
@@ -170,11 +170,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private long lastPaintMillis = -1;
     private long lastPaintDataMillis = -1;
     private long lastPaintPredictonMillis = -1;
-    
-//    private EstimatedState lastEstimatedState = null;
-//    private RhodamineDye lastRhodamineDye = null;
-//    private CrudeOil lastCrudeOil = null;
-//    private FineOil lastFineOil = null;
     
     private HashMap<Integer, EstimatedState> lastEstimatedStateList = new HashMap<>();
     private HashMap<Integer, ArrayList<BaseData>> lastRhodamineDyeList = new HashMap<>();
