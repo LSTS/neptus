@@ -36,8 +36,8 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.vtk.ctd3d.InteractorStyleCTD3D;
-import pt.lsts.neptus.plugins.vtk.ctd3d.Window;
+import pt.lsts.neptus.plugins.urready4os.vtk.window.InteractorStyleRhod3D;
+import pt.lsts.neptus.plugins.urready4os.vtk.window.WindowRhod3D;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.vtk.utils.Utils;
 import pt.lsts.neptus.vtk.visualization.AxesWidget;
@@ -53,8 +53,8 @@ import pt.lsts.neptus.vtk.visualization.ScalarBar;
 public class Rhodamine3DPanel extends JPanel {
 
     private Canvas canvas;
-    private Window winCanvas;
-    protected InteractorStyleCTD3D interactorStyle;
+    private WindowRhod3D winCanvas;
+    protected InteractorStyleRhod3D interactorStyle;
 
     private Rhodamine3DToolbar toolbar;
 
@@ -84,7 +84,7 @@ public class Rhodamine3DPanel extends JPanel {
         canvas.GetRenderer().AutomaticLightCreationOn();
         canvas.setEnabled(true);
 
-        winCanvas = new Window(canvas, null /*source*/);
+        winCanvas = new WindowRhod3D(canvas, null /*source*/);
         interactorStyle = winCanvas.getInteractorStyle();
 
 //        loadData();
