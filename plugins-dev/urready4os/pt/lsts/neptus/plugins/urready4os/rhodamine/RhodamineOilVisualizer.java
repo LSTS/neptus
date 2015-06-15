@@ -815,7 +815,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     private void updateTimeAndDepthDataValues() {
         // Calc new values
-        for (BaseData pt : dataList) {
+        for (BaseData pt : dataList.toArray(new BaseData[dataList.size()])) {
             updateTimeValuesMinMax(pt);
             updateDepthValuesMinMax(pt);
             updateRhodamineValuesMinMax(pt);
@@ -824,7 +824,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 
     private void updateDepthPredictionValues() {
         // Calc new values
-        for (BaseData pt : dataPredictionList) {
+        for (BaseData pt : dataPredictionList.toArray(new BaseData[dataPredictionList.size()])) {
             updateDepthValuesMinMax(pt);
             updatePredictionValuesMinMax(pt);
         }
