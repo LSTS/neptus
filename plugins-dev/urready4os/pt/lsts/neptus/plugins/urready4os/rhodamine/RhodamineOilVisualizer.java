@@ -147,7 +147,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @NeptusProperty(userLevel = LEVEL.REGULAR, category = "Data Cleanup")
     private int dataAgeToCleanInMinutes = 120;
     
-    @NeptusProperty(name = "Prediction file", userLevel = LEVEL.REGULAR, category = "Prediction")
+    @NeptusProperty(name = "Prediction file or folder (tot or lv* files)", userLevel = LEVEL.REGULAR, category = "Prediction")
     private File predictionFile = new File("log/rhodamine-prediction");
 
 //    @NeptusProperty(name = "Show Prediction", userLevel = LEVEL.REGULAR, category = "Prediction")
@@ -175,8 +175,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private HashMap<Integer, ArrayList<BaseData>> lastRhodamineDyeList = new HashMap<>();
     
     private static final String csvFilePattern = ".\\.csv$";
-    private static final String totFilePattern = ".\\.tot$";
-//    private static final String[] totFileExt = { "tot", "lv1" };
+    private static final String totFilePattern = "(.\\.tot$)|(.\\.lv\\d$)";
 
     // Cache image
     private OffScreenLayerImageControl offScreenImageControlData = new OffScreenLayerImageControl();
@@ -785,7 +784,6 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         
         clearRhodPredMinMaxValues();
     }
-
 
     /**
      * 
