@@ -42,6 +42,7 @@ import pt.lsts.neptus.plugins.MapTileProvider;
 import pt.lsts.neptus.plugins.NeptusProperty;
 
 /**
+ * From http://webapp.navionics.com/
  * @author pdias
  *
  */
@@ -58,12 +59,12 @@ public class TileNVMaps extends TileHttpFetcher implements ConfigurationListener
 
     private static final int MAX_LEVEL_OF_DETAIL = 22;
     private static String BASE_URL = "http://d2hcl9zx8watk4.cloudfront.net/tile/";
-    private static String LAYERS_URL = "?LAYERS=config_1_1_0&TRANSPARENT=FALSE&navtoken=TmF2aW9uaWNzX2ludGVybmFscHVycG9zZV8wMDAwMSt3ZWJhcHAubmF2aW9uaWNzLmNvbQ==";
+    private static String LAYERS_URL = "?LAYERS=config_1_1_1&TRANSPARENT=FALSE&navtoken=TmF2aW9uaWNzX2ludGVybmFscHVycG9zZV8wMDAwMSt3ZWJhcHAubmF2aW9uaWNzLmNvbQ==";
     
     @NeptusProperty(name = "Base URL", description = "Default: http://d2hcl9zx8watk4.cloudfront.net/tile/")
     private static String baseUrl = BASE_URL;
 
-    @NeptusProperty(name = "Layers URL Part", description = "Default ?LAYERS=config_1_1_0&TRANSPARENT=FALSE&navtoken=TmF2aW9uaWNzX2ludGVybmFscHVycG9zZV8wMDAwMSt3ZWJhcHAubmF2aW9uaWNzLmNvbQ==")
+    @NeptusProperty(name = "Layers URL Part", description = "Default ?LAYERS=config_1_1_1&TRANSPARENT=FALSE&navtoken=TmF2aW9uaWNzX2ludGVybmFscHVycG9zZV8wMDAwMSt3ZWJhcHAubmF2aW9uaWNzLmNvbQ==")
     private static String layersUrl = LAYERS_URL;
 
     public TileNVMaps(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
