@@ -91,7 +91,8 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
         SQUARE("square"),
         BACK_FORTH("forth_and_back"),
         GO_TO("go_to"),
-        UPWARD("upward_transect");
+        UPWARD("upward_transect"),
+        SQUARE_TWICE("square_twice");
 
         public String name;
 
@@ -162,6 +163,32 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
                     
                     gp.moveTo(-halfSize, -halfSize);
                     for (int i = 1; i < 5; i++) {
+                        gp.lineTo(pts[i].getX(), pts[i].getY());
+                        System.out.println(pts[i]);
+                    }
+                    survey = gp;
+                }
+            case SQUARE_TWICE:
+                if (speed == 0) {
+                    firstPoint = new Point2D.Double(-halfSize,-halfSize);                
+                    survey = new Rectangle2D.Double(-halfSize, -halfSize, size, size);
+                }
+                else {
+                    firstPoint = new Point2D.Double(-halfSize,-halfSize);
+                    GeneralPath gp = new GeneralPath();
+                    Point2D.Double[] pts = new Point2D.Double[9];
+                    pts[0] = new Point2D.Double(-halfSize, -halfSize);
+                    pts[1] = new Point2D.Double(halfSize, -halfSize - (size / hspeed)*speed);
+                    pts[2] = new Point2D.Double(halfSize, halfSize - 2 *(size / hspeed)*speed);
+                    pts[3] = new Point2D.Double(-halfSize, halfSize - 3 * (size / hspeed)*speed);
+                    pts[4] = new Point2D.Double(-halfSize, -halfSize - 4 * (size / hspeed)*speed);                                        
+                    pts[5] = new Point2D.Double(halfSize, -halfSize - 5 * (size / hspeed)*speed);
+                    pts[6] = new Point2D.Double(halfSize, halfSize - 6 *(size / hspeed)*speed);
+                    pts[7] = new Point2D.Double(-halfSize, halfSize - 7 * (size / hspeed)*speed);
+                    pts[8] = new Point2D.Double(-halfSize, -halfSize - 8 * (size / hspeed)*speed);                    
+                    
+                    gp.moveTo(-halfSize, -halfSize);
+                    for (int i = 1; i < 9; i++) {
                         gp.lineTo(pts[i].getX(), pts[i].getY());
                         System.out.println(pts[i]);
                     }
