@@ -88,23 +88,20 @@ public class HyperspectralViewer extends ConsoleLayer {
             AlphaComposite.SRC_OVER, FRAME_OPACITY);
     
     private ConsoleLayout console;
-    
-    
-    
+      
     /* testing */
     private BufferedImage dataDisplay; /* image currently being displayed */
     private Queue<BufferedImage> frames;
     private boolean framesLoaded = false;
     private int selectedWavelength = 320; /* column to crop from test data */
     
-    BufferedImage i = null;
 
     public HyperspectralViewer() {
         this.console = getConsole();
         initDisplayedImage();
-                
         /* testing */
         frames = loadFrames(selectedWavelength + "/"); /* load bmps */
+        
     }
     
     private void initDisplayedImage() {
@@ -189,7 +186,7 @@ public class HyperspectralViewer extends ConsoleLayer {
 
     
     /* Simulate the reception of a frame */
-    @Periodic(millisBetweenUpdates = 500)
+    @Periodic(millisBetweenUpdates = 250)
     public void simReceivedFrame() {
         if(!framesLoaded)
             return;
