@@ -94,6 +94,14 @@ public class TileNVMaps extends TileHttpFetcher implements ConfigurationListener
         return MAX_LEVEL_OF_DETAIL;
     }
 
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.renderer2d.tiles.Tile#getTransparencyToApplyToImage()
+     */
+    @Override
+    protected float getTransparencyToApplyToImage() {
+        return 1;
+    }
+    
     /**
      * @return
      */
