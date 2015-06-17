@@ -38,7 +38,6 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Vector;
@@ -65,9 +64,9 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
     private double rotationRads;
     private static final double pitch = Math.toRadians(15); 
     private static final double hspeed = 1.3 * Math.cos(pitch); 
-            
-            
-    
+
+
+
     public enum Attributes {
         LATITUDE("center_lat", TrexAttribute.ATTR_TYPE.FLOAT),
         LONGITUDE("center_lon", TrexAttribute.ATTR_TYPE.FLOAT),
@@ -86,7 +85,7 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
             this.type = type;
         }
     }
-    
+
     public enum PathType {
         SQUARE("square"),
         BACK_FORTH("forth_and_back"),
@@ -100,7 +99,7 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
             this.name = name;
         }
     }
-    
+
     private final HashMap<Attributes, Object> attributes;
 
     /**
@@ -117,17 +116,17 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
         attributes.put(Attributes.LAGRANGIAN, lagrangian);
         attributes.put(Attributes.PATH, path);
         attributes.put(Attributes.HEADING, heading);
-        
+
         if (speed != 0 && lagrangian) {
             double speed_e = Math.sin(heading) * speed;
             double speed_n = Math.cos(heading) * speed;
             attributes.put(Attributes.SPEED_EAST, speed_e);
             attributes.put(Attributes.SPEED_NORTH, speed_n);
         }
-        
+
         buildShape(path, new LocationType(Math.toDegrees(latrad),Math.toDegrees(lonrad)), size, heading, speed);
     }
-    
+
     private void buildShape(PathType type, LocationType center, double size, double rotation, double speed) {
 
         double halfSize = size/2;
@@ -146,54 +145,45 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
                 firstPoint = new Point2D.Double(0,halfSize);                                
                 survey = new Line2D.Double(0, -halfSize, 0, halfSize);
                 break;
-            case SQUARE:
-                if (speed == 0) {
-                    firstPoint = new Point2D.Double(-halfSize,-halfSize);                
-                    survey = new Rectangle2D.Double(-halfSize, -halfSize, size, size);
+            case SQUARE: {
+                firstPoint = new Point2D.Double(-halfSize,-halfSize);
+                GeneralPath gp = new GeneralPath();
+                Point2D.Double[] pts = new Point2D.Double[5];
+                pts[0] = new Point2D.Double(-halfSize, -halfSize);
+                pts[1] = new Point2D.Double(halfSize, -halfSize - (size / hspeed)*speed);
+                pts[2] = new Point2D.Double(halfSize, halfSize - 2 *(size / hspeed)*speed);
+                pts[3] = new Point2D.Double(-halfSize, halfSize - 3 * (size / hspeed)*speed);
+                pts[4] = new Point2D.Double(-halfSize, -halfSize - 4 * (size / hspeed)*speed);                    
+
+                gp.moveTo(-halfSize, -halfSize);
+                for (int i = 1; i < 5; i++) {
+                    gp.lineTo(pts[i].getX(), pts[i].getY());
                 }
-                else {
-                    firstPoint = new Point2D.Double(-halfSize,-halfSize);
-                    GeneralPath gp = new GeneralPath();
-                    Point2D.Double[] pts = new Point2D.Double[5];
-                    pts[0] = new Point2D.Double(-halfSize, -halfSize);
-                    pts[1] = new Point2D.Double(halfSize, -halfSize - (size / hspeed)*speed);
-                    pts[2] = new Point2D.Double(halfSize, halfSize - 2 *(size / hspeed)*speed);
-                    pts[3] = new Point2D.Double(-halfSize, halfSize - 3 * (size / hspeed)*speed);
-                    pts[4] = new Point2D.Double(-halfSize, -halfSize - 4 * (size / hspeed)*speed);                    
-                    
-                    gp.moveTo(-halfSize, -halfSize);
-                    for (int i = 1; i < 5; i++) {
-                        gp.lineTo(pts[i].getX(), pts[i].getY());
-                        System.out.println(pts[i]);
-                    }
-                    survey = gp;
+                survey = gp;
+            }
+            break;
+            case SQUARE_TWICE: {         
+                firstPoint = new Point2D.Double(-halfSize,-halfSize);
+                GeneralPath gp = new GeneralPath();
+                Point2D.Double[] pts = new Point2D.Double[9];
+                pts[0] = new Point2D.Double(-halfSize, -halfSize);
+                pts[1] = new Point2D.Double(halfSize, -halfSize - (size / hspeed)*speed);
+                pts[2] = new Point2D.Double(halfSize, halfSize - 2 *(size / hspeed)*speed);
+                pts[3] = new Point2D.Double(-halfSize, halfSize - 3 * (size / hspeed)*speed);
+                pts[4] = new Point2D.Double(-halfSize, -halfSize - 4 * (size / hspeed)*speed);                                        
+                pts[5] = new Point2D.Double(halfSize, -halfSize - 5 * (size / hspeed)*speed);
+                pts[6] = new Point2D.Double(halfSize, halfSize - 6 *(size / hspeed)*speed);
+                pts[7] = new Point2D.Double(-halfSize, halfSize - 7 * (size / hspeed)*speed);
+                pts[8] = new Point2D.Double(-halfSize, -halfSize - 8 * (size / hspeed)*speed);                    
+
+                gp.moveTo(-halfSize, -halfSize);
+                for (int i = 1; i < 9; i++) {
+                    gp.lineTo(pts[i].getX(), pts[i].getY());
+                    System.out.println(pts[i]);
                 }
-            case SQUARE_TWICE:
-                if (speed == 0) {
-                    firstPoint = new Point2D.Double(-halfSize,-halfSize);                
-                    survey = new Rectangle2D.Double(-halfSize, -halfSize, size, size);
-                }
-                else {
-                    firstPoint = new Point2D.Double(-halfSize,-halfSize);
-                    GeneralPath gp = new GeneralPath();
-                    Point2D.Double[] pts = new Point2D.Double[9];
-                    pts[0] = new Point2D.Double(-halfSize, -halfSize);
-                    pts[1] = new Point2D.Double(halfSize, -halfSize - (size / hspeed)*speed);
-                    pts[2] = new Point2D.Double(halfSize, halfSize - 2 *(size / hspeed)*speed);
-                    pts[3] = new Point2D.Double(-halfSize, halfSize - 3 * (size / hspeed)*speed);
-                    pts[4] = new Point2D.Double(-halfSize, -halfSize - 4 * (size / hspeed)*speed);                                        
-                    pts[5] = new Point2D.Double(halfSize, -halfSize - 5 * (size / hspeed)*speed);
-                    pts[6] = new Point2D.Double(halfSize, halfSize - 6 *(size / hspeed)*speed);
-                    pts[7] = new Point2D.Double(-halfSize, halfSize - 7 * (size / hspeed)*speed);
-                    pts[8] = new Point2D.Double(-halfSize, -halfSize - 8 * (size / hspeed)*speed);                    
-                    
-                    gp.moveTo(-halfSize, -halfSize);
-                    for (int i = 1; i < 9; i++) {
-                        gp.lineTo(pts[i].getX(), pts[i].getY());
-                        System.out.println(pts[i]);
-                    }
-                    survey = gp;
-                }
+                survey = gp;
+            }
+            break;
             default:
                 break;
         }        
@@ -233,7 +223,7 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
         attrTemp.setAttrType(Attributes.PATH.type);
         attributes.add(attrTemp);
         attrTemp = new TrexAttribute();
-        
+
         if (this.attributes.get(Attributes.SPEED_EAST) != null && this.attributes.get(Attributes.SPEED_NORTH) != null) {
             attrTemp = new TrexAttribute();
             attrTemp.setName(Attributes.SPEED_EAST.name);
@@ -241,7 +231,7 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
             attrTemp.setMax(this.attributes.get(Attributes.SPEED_EAST) + "");
             attrTemp.setAttrType(Attributes.SPEED_EAST.type);
             attributes.add(attrTemp);                
-            
+
             attrTemp = new TrexAttribute();
             attrTemp.setName(Attributes.SPEED_NORTH.name);
             attrTemp.setMin(this.attributes.get(Attributes.SPEED_NORTH) + "");
@@ -256,7 +246,7 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
             attrTemp.setAttrType(Attributes.HEADING.type);
             attributes.add(attrTemp);
         }
-        
+
         return attributes;
     }
 
@@ -264,7 +254,7 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
     public void parseAttributes(Collection<TrexAttribute> attributes) {
         //TODO
     }
-    
+
     @Override
     public Collection<DefaultProperty> getSpecificProperties() {
 
@@ -293,11 +283,11 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
     }
 
     public LocationType getLocation() {
-        LocationType loc = new LocationType((Double)this.attributes.get(Attributes.LATITUDE),
-                (Double)this.attributes.get(Attributes.LONGITUDE));
+        LocationType loc = new LocationType(Math.toDegrees((Double)this.attributes.get(Attributes.LATITUDE)),
+                Math.toDegrees((Double)this.attributes.get(Attributes.LONGITUDE)));
         return loc;
     }
-    
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         g.setColor(Color.green.darker().darker());
@@ -326,6 +316,13 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
                 + "{\""+Attributes.PATH.type.toString().toLowerCase()+"\":{\"value\": \"" + this.attributes.get(Attributes.PATH) + "\"}, \"name\": \""+Attributes.PATH.name+"\"}"
                 + "{\""+Attributes.LAGRANGIAN.type.toString().toLowerCase()+"\":{\"value\": \"" + this.attributes.get(Attributes.LAGRANGIAN) + "\"}, \"name\": \""+Attributes.LAGRANGIAN.name+"\"}"
                 + "]}";
+    }
+
+    /**
+     * @return the survey
+     */
+    public Shape getShape() {
+        return survey;
     }
 
 }
