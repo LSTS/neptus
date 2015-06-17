@@ -104,8 +104,7 @@ public class HyperspectralViewer extends ConsoleLayer {
         this.console = getConsole();
         initDisplayedImage();
         /* testing */
-        frames = loadFrames(selectedWavelength + "/"); /* load bmps */
-        
+        frames = loadFrames(selectedWavelength + "/"); /* load bmps */       
     }
     
     private void initDisplayedImage() {
@@ -135,6 +134,8 @@ public class HyperspectralViewer extends ConsoleLayer {
         return newImage;
     }
     
+    /* for testing */
+    /* load the frames columns */
     private Queue<BufferedImage> loadFrames(String path) {
         File dir = new File("../hyperspec-data/" + path);
         File[] tmpFrames = dir.listFiles(new FilenameFilter() {
@@ -164,13 +165,26 @@ public class HyperspectralViewer extends ConsoleLayer {
         return framesList;
     }
     
-    /* Given some frames from the test data,
+    /* Given a path for the test data,
        remove everything but the column
-       correspondent to the selected wavelength */
-    private void cropFrames(int wave, BufferedImage[] frames) {       
+       correspondent to the selected wavelength 
+       and save them in a folder named after the wavelength
+    */
+    private void cropFrames(int wave, String path) {
+        File dir = new File("../hyperspec-data/" + path);
+        File[] imgFiles = dir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".bmp");
+            }            
+        });
+        
+        Arrays.sort(imgFiles, NameFileComparator.NAME_INSENSITIVE_COMPARATOR);
         try {
-            for(int i = 0; i < frames.length; i++) {
-                BufferedImage cropped = frames[i].getSubimage(wave - 1, 0, 1, 250);
+            for(int i = 0; i < imgFiles.length; i++) {
+                System.out.println("### " + imgFiles[i].getName());
+                BufferedImage frame = (BufferedImage) ImageIO.read(imgFiles[i]);
+                
+                BufferedImage cropped = frame.getSubimage(wave - 1, 0, 1, 250);
                 ImageIO.write(cropped, "bmp", new File("../hyperspec-data/" + wave + "/" + i + ".bmp"));   
             }
         }
