@@ -82,10 +82,13 @@ public class HyperspectralViewer extends ConsoleLayer {
     public static final int MAX_FREQ = 640; /* also frame's width */
     /* frames will be FRAME_WIDTH x MAX_FREQ px */
     public static final int FRAME_HEIGHT = 250;
+    
+    
     private static final float FRAME_OPACITY = 0.9f;
     /* draw frames with opacity */
-    private final AlphaComposite alcom = AlphaComposite.getInstance(
+    private final AlphaComposite composite = AlphaComposite.getInstance(
             AlphaComposite.SRC_OVER, FRAME_OPACITY);
+    private final AffineTransform transform = new AffineTransform();
     
     private ConsoleLayout console;
       
@@ -94,6 +97,7 @@ public class HyperspectralViewer extends ConsoleLayer {
     private Queue<BufferedImage> frames;
     private boolean framesLoaded = false;
     private int selectedWavelength = 320; /* column to crop from test data */
+    private boolean initDisplay = false;
     
 
     public HyperspectralViewer() {
@@ -175,15 +179,21 @@ public class HyperspectralViewer extends ConsoleLayer {
     
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        if(!framesLoaded)
-            return;
-        
-        int posY = (renderer.getHeight() - FRAME_HEIGHT) / 2;
-        
-        g.setComposite(alcom);
-        g.drawImage(dataDisplay, 0, posY, null);
+        if(!framesLoaded || !initDisplay) {
+            int newX = -((MAX_FREQ / 2)) + (FRAME_HEIGHT / 2);
+            int newY = (renderer.getHeight() - FRAME_HEIGHT) / 2;
+            
+            transform.translate(newX, newY);
+            transform.rotate(Math.toRadians(-90), dataDisplay.getWidth() / 2, dataDisplay.getHeight() / 2);
+                        
+            initDisplay = true;
+        }
+        else {
+            g.setTransform(transform);
+            g.setComposite(composite);
+            g.drawImage(dataDisplay, 0, 0, renderer);
+        }
     }
-
     
     /* Simulate the reception of a frame */
     @Periodic(millisBetweenUpdates = 250)
