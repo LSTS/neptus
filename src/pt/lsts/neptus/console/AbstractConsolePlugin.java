@@ -72,6 +72,7 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
     @Override
     public final void setProperties(Property[] properties) {
         PluginUtils.setPluginProperties(this, properties);
+        propertiesChanged();
     }
 
 
@@ -185,6 +186,10 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
             icon = ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass()));
         
         return icon;
+    }
+    
+    public void propertiesChanged() {
+        
     }
 
     /**
