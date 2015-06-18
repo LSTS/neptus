@@ -140,6 +140,7 @@ public class KmlImport extends ConsolePanel {
 
         fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+        fileChooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("KML files"), new String[] {"kml", "kmz", "KML", "KMZ"}));
 
         rightClickPopup = new JPopupMenu();
         rightClickAddItem = new JMenuItem(I18n.text("Add to map"));
