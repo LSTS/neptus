@@ -313,6 +313,9 @@ public class KmlImport extends ConsolePanel {
         kmlPoint.setId(idByUser);
         kmlPoint.setCenterLocation(kmlPointLoc);
         mapType.addObject(kmlPoint);
+        
+        MissionType mission = getConsole().getMission();
+        mission.save(false);
     }
     
     /* Add a LineString or Polygon as a Neptus PathElement */
@@ -338,11 +341,13 @@ public class KmlImport extends ConsolePanel {
         pathElem.setShape(isFilled);
         
         mapType.addObject(pathElem);
+        
+        MissionType mission = getConsole().getMission();
+        mission.save(false);
     }
     
     private void addLineStringAsPlan(Placemark lineString, String idByUser) {
         MissionType mission = getConsole().getMission();
-        mission.save(false);
         
         String mainVehicle = getConsole().getMainSystem();
         PlanType plan = new PlanType(mission);
