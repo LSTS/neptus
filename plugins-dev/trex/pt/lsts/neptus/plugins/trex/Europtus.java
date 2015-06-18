@@ -410,7 +410,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             pc.setDepth(max_depth/2);
             pc.addManeuver("YoYo", "amplitude", max_depth/2 - 1, "pitchAngle", Math.toRadians(15));
             pc.setDepth(0);
-            pc.addManeuver("Elevator");
+            pc.addManeuver("Elevator", "startFromCurrentPosition", true);
             pc.addManeuver("StationKeeping", "duration", 30);
             it.next();
         }
