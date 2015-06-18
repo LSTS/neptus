@@ -246,6 +246,12 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             try {
                 String planid = msg.getPlanId();
 
+                // T-REX plans are generated...
+                if (planid.equals("trex_plan")
+                        && getConsole().getMission().getIndividualPlansList()
+                                .containsKey("trex_" + msg.getSourceName()))
+                    planid = "trex_" + msg.getSourceName();
+                
                 PlanSimulator simulator = simulators.get(src);
 
                 if (simulator == null || simulator.isFinished() || !planid.equals(simulator.getPlan().getId())) {
@@ -259,7 +265,9 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                             simulator = new PlanSimulator(plan, new SystemPositionAndAttitude(last));
                         else
                             simulator = new PlanSimulator(plan, null);
-                        simulator.setManId(msg.getManId());
+                        if (plan.getGraph().getManeuver(msg.getManId()) != null)
+                            simulator.setManId(msg.getManId());
+                        
                         simulator.setVehicleId(src);
                         simulator.setTimestep(timestep);
                         if (activated)

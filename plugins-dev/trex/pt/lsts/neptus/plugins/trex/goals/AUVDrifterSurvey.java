@@ -325,4 +325,11 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
         return survey;
     }
 
+    /**
+     * @return the rotationRads
+     */
+    public final double getRotationRads() {
+        return rotationRads;
+    }
+
 }
