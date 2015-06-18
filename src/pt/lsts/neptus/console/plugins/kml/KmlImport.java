@@ -424,8 +424,10 @@ public class KmlImport extends ConsolePanel {
     }
     
     @Override
-    public void cleanSubPanel() {}
+    public void cleanSubPanel() {
+    }
 
     @Override
-    public void initSubPanel() {}
+    public void initSubPanel() {
+    }
 }
