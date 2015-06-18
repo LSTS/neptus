@@ -60,6 +60,7 @@ import javax.swing.SwingUtilities;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -124,9 +125,9 @@ public class KmlImport extends ConsolePanel {
         setLayout(new BorderLayout());
         
         menuBar  = new JMenuBar();
-        openMenu = new JMenu("Open");
-        kmlFile = new JMenuItem("Open from file");
-        kmlUrl = new JMenuItem("Open from Url");
+        openMenu = new JMenu(I18n.text("Open"));
+        kmlFile = new JMenuItem(I18n.text("Open from file"));
+        kmlUrl = new JMenuItem(I18n.text("Open from URL"));
         kmlFeatUrl = "";
 
         openMenu.add(kmlFile);
@@ -140,7 +141,7 @@ public class KmlImport extends ConsolePanel {
         fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 
         rightClickPopup = new JPopupMenu();
-        rightClickAddItem = new JMenuItem("Add to map");
+        rightClickAddItem = new JMenuItem(I18n.text("Add to map"));
         rightClickPopup.add(rightClickAddItem);
 
         rightClickAddItem.addActionListener(new ActionListener() {
@@ -148,20 +149,20 @@ public class KmlImport extends ConsolePanel {
             public void actionPerformed(ActionEvent e) {
                 int selectedFeatureIndex = listingPanel.getSelectedIndex();
                 String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
-                String idByUser = JOptionPane.showInputDialog("Element Id", featName);
+                String idByUser = JOptionPane.showInputDialog(I18n.text("Element ID"), featName);
                 
                 if(idByUser != null)
                   addFeatureToMap(featName, idByUser, false);
             }
         });
         
-        rightClickAddAsPlan = new JMenuItem("Add as plan");
+        rightClickAddAsPlan = new JMenuItem(I18n.text("Add as plan"));
         rightClickAddAsPlan.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int selectedFeatureIndex = listingPanel.getSelectedIndex();
                 String featName = ((JLabel) listModel.getElementAt(selectedFeatureIndex)).getText();
-                String idByUser = JOptionPane.showInputDialog("Plan Id", featName);
+                String idByUser = JOptionPane.showInputDialog(I18n.text("Plan ID"), featName);
                 
                 if(idByUser != null)
                   addFeatureToMap(featName, idByUser, true);
@@ -266,14 +267,14 @@ public class KmlImport extends ConsolePanel {
         kmlUrl.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {               
-                String urlStr = JOptionPane.showInputDialog("Enter a URL", kmlFeatUrl);
+                String urlStr = JOptionPane.showInputDialog(I18n.text("Enter a URL"), kmlFeatUrl);
                 if(urlStr != null && !urlStr.equals("")) {
                     try {
                         kmlFeatUrl = urlStr;
                         listKmlFeatures(new URL(urlStr), false);
                     }
                     catch(MalformedURLException e1) {
-                        showErrorMessage("URL not valid!");
+                        showErrorMessage(I18n.text("URL not valid!"));
                     }
                 }
             }
