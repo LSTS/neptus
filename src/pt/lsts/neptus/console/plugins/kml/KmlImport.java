@@ -74,6 +74,7 @@ import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
@@ -391,10 +392,7 @@ public class KmlImport extends ConsolePanel {
     }
     
     private void showErrorMessage(String msg) {
-        JOptionPane.showMessageDialog(this,
-                msg,
-                "Inane error",
-                JOptionPane.ERROR_MESSAGE);
+        GuiUtils.errorMessage(this, this.getName(), msg);
     }
 
 
