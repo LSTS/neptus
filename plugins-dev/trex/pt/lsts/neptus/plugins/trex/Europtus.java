@@ -34,6 +34,7 @@ package pt.lsts.neptus.plugins.trex;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
@@ -58,6 +59,7 @@ import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.comm.transports.DeliveryListener;
 import pt.lsts.neptus.comm.transports.udp.UDPTransport;
 import pt.lsts.neptus.console.ConsoleInteraction;
+import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.templates.PlanCreator;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -78,25 +80,37 @@ import com.google.common.eventbus.Subscribe;
 @PluginDescription(name="Europtus Interface")
 public class Europtus extends ConsoleInteraction implements MessageDeliveryListener, DeliveryListener {
 
-    @NeptusProperty(name="First AUV (smaller surveys)")
+    @NeptusProperty(category="Real Vehicles", name="First AUV (smaller surveys)")
     public String auv1 = "lauv-xplore-1";
 
-    @NeptusProperty(name="Second AUV (bigger surveys)")
+    @NeptusProperty(category="Real Vehicles", name="Second AUV (bigger surveys)")
     public String auv2 = "lauv-xplore-2";
 
-    @NeptusProperty(name="Host and Port for local europtus server")
+    @NeptusProperty(category="Europtus", name="Host and Port for local europtus server")
     public String europtus = "127.0.0.1:8800";
 
-    @NeptusProperty(name="Host and Port for First Simulator")
+    @NeptusProperty(category="Simulated Vehicles", name="Host and Port for First Simulator")
     public String sim_auv1 = "127.0.0.1:6002";
 
-    @NeptusProperty(name="Host and Port for Second Simulator")
+    @NeptusProperty(category="Simulated Vehicles",name="Host and Port for Second Simulator")
     public String sim_auv2 = "127.0.0.1:6003";
     
-    @NeptusProperty(name="Smaller survey side length, in meters")
+    @NeptusProperty(category="Survey Parameters", name="Smaller survey side length, in meters")
     public double survey_size = 300;
 
-    @NeptusProperty(description="Connection to be used to send Goals")
+    @NeptusProperty(category="Survey Parameters", name="Ground Speed, in meters")
+    public double ground_speed = 1.25;
+    
+    @NeptusProperty(category="Survey Parameters", name="Time spent at surface during popups, in seconds")
+    public int popup_secs = 30;
+    
+    @NeptusProperty(category="Survey Parameters", name="Path rotation, in degrees")
+    public double rotation = 0;
+    
+    @NeptusProperty(category="Survey Parameters", name="Maximum depth, in meters")
+    public double max_depth = 20;    
+    
+    @NeptusProperty(category="Real Vehicles", name="Connection to be used to send Goals")
     public Connection connection_type = Connection.IMC;
     
     private String europtus_host = null, auv1_host = null, auv2_host = null;
@@ -107,7 +121,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     private HubIridiumMessenger hubMessenger = null;
     private DuneIridiumMessenger duneMessenger = null;
     private UDPTransport imcTransport = null;
-
+    
     
     @Subscribe
     public void on(TrexToken token) {
@@ -290,8 +304,8 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
                 p.add(param);
                 setParams.setParams(p);
                 try {
-                    sendToVehicle1(setParams);
-                    sendToVehicle2(setParams);
+                    sendToVehicle1(setParams.cloneMessage());
+                    sendToVehicle2(setParams.cloneMessage());
                 }
                 catch (Exception ex) {
                     NeptusLog.pub().error(
@@ -314,8 +328,8 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
                 setParams.setParams(p);
                 
                 try {
-                    sendToVehicle1(setParams);
-                    sendToVehicle2(setParams);
+                    sendToVehicle1(setParams.cloneMessage());
+                    sendToVehicle2(setParams.cloneMessage());
                 }
                 catch (Exception ex) {
                     NeptusLog.pub().error(
@@ -331,12 +345,14 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             
             @Override
             public void actionPerformed(ActionEvent e) {
-                AUVDrifterSurvey survey1 = new AUVDrifterSurvey(loc.getLatitudeRads(), loc
-                        .getLongitudeRads(), (float )survey_size, 0f, false, AUVDrifterSurvey.PathType.SQUARE_TWICE, 0f);
-                
-                AUVDrifterSurvey survey2 = new AUVDrifterSurvey(loc.getLatitudeRads(), loc
-                        .getLongitudeRads(), (float)(survey_size * 2), 0f, false, AUVDrifterSurvey.PathType.SQUARE, 0f);
-                
+                AUVDrifterSurvey survey1 = new AUVDrifterSurvey(loc.getLatitudeRads(), loc.getLongitudeRads(),
+                        (float) survey_size, 0f, false, AUVDrifterSurvey.PathType.SQUARE_TWICE, (float) Math
+                                .toRadians(rotation));
+
+                AUVDrifterSurvey survey2 = new AUVDrifterSurvey(loc.getLatitudeRads(), loc.getLongitudeRads(),
+                        (float) (survey_size * 2), 0f, false, AUVDrifterSurvey.PathType.SQUARE, (float) Math
+                                .toRadians(rotation));
+
                 plan1 = asNeptusPlan(survey1);
                 plan1.setVehicle(auv1);
                 plan1.setId("trex_"+auv1);
@@ -376,23 +392,25 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     }
     
     private PlanType asNeptusPlan(AUVDrifterSurvey survey) {
+        
         PlanCreator pc = new PlanCreator(getConsole().getMission());
-        
+        pc.setSpeed(1.25, SPEED_UNITS.METERS_PS);
         pc.setLocation(survey.getLocation());
-        PathIterator it = survey.getShape().getPathIterator(null);
-        double[] coords = new double[6];
-        
+        AffineTransform transform = new AffineTransform();
+        transform.rotate(survey.getRotationRads());
+        PathIterator it = survey.getShape().getPathIterator(transform);
+        double[] coords = new double[6];        
         
         while(!it.isDone()) {
             it.currentSegment(coords);
             LocationType loc = new LocationType(survey.getLocation());
-            loc.translatePosition(coords[0], coords[1], 0);
+            loc.translatePosition(-coords[1], coords[0], 0);
             loc.convertToAbsoluteLatLonDepth();
             pc.setLocation(loc);
-            pc.setDepth(26);
-            pc.addManeuver("YoYo", "amplitude", 24, "pitchAngle", Math.toRadians(15));
+            pc.setDepth(max_depth/2);
+            pc.addManeuver("YoYo", "amplitude", max_depth/2 - 1, "pitchAngle", Math.toRadians(15));
             pc.setDepth(0);
-            pc.addManeuver("PopUp", "duration", 10);
+            pc.addManeuver("Elevator");
             pc.addManeuver("StationKeeping", "duration", 30);
             it.next();
         }
