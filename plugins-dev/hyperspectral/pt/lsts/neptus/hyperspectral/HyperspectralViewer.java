@@ -216,7 +216,7 @@ public class HyperspectralViewer extends ConsoleLayer {
     }
     
     /* Simulate the reception of a frame */
-    @Periodic(millisBetweenUpdates = 250)
+    @Periodic(millisBetweenUpdates = 1000)
     public void simReceivedFrame() {
         if(!framesLoaded)
             return;
