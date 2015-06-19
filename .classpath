@@ -60,6 +60,7 @@
 	<classpathentry kind="src" path="plugins-dev/drop"/>
 	<classpathentry kind="src" path="plugins-dev/shapefiles"/>
 	<classpathentry kind="src" path="plugins-dev/nvmaps"/>
+	<classpathentry kind="src" path="plugins-dev/preflight"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xml-apis.jar"/>
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
