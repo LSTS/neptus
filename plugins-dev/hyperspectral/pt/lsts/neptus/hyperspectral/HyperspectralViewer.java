@@ -79,6 +79,8 @@ import java.awt.image.DataBufferByte;
 @PluginDescription(name = "HyperSpectral Data Viewer", author = "tsmarques", version = "0.1")
 @LayerPriority(priority = 40)
 public class HyperspectralViewer extends ConsoleLayer {
+    private static final String TEST_DATA_DIR = "/plugins-dev/hyperspectral/pt/lsts/neptus/hyperspectral/test-data/";
+    
     public static final int MIN_FREQ = 0;
     public static final int MAX_FREQ = 640; /* also frame's width */
     /* frames will be FRAME_WIDTH x MAX_FREQ px */
@@ -143,7 +145,7 @@ public class HyperspectralViewer extends ConsoleLayer {
     /* for testing */
     /* load the frames columns */
     private Queue<byte[]> loadFrames(String path) {
-        File dir = new File("../hyperspec-data/" + path);
+        File dir = new File(TEST_DATA_DIR + path);
         File[] tmpFrames = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.toLowerCase().endsWith(".bmp");
@@ -177,7 +179,7 @@ public class HyperspectralViewer extends ConsoleLayer {
        and save them in a folder named after the wavelength
     */
     private void cropFrames(int wave, String path) {
-        File dir = new File("../hyperspec-data/" + path);
+        File dir = new File(path);
         File[] imgFiles = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.toLowerCase().endsWith(".bmp");
@@ -191,7 +193,7 @@ public class HyperspectralViewer extends ConsoleLayer {
                 BufferedImage frame = (BufferedImage) ImageIO.read(imgFiles[i]);
                 
                 BufferedImage cropped = frame.getSubimage(wave - 1, 0, 1, 250);
-                ImageIO.write(cropped, "bmp", new File("../hyperspec-data/" + wave + "/" + i + ".bmp"));   
+                ImageIO.write(cropped, "bmp", new File(TEST_DATA_DIR + wave + "/" + i + ".bmp"));   
             }
         }
         catch (IOException e) { e.printStackTrace(); }
