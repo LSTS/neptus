@@ -72,7 +72,7 @@ createLauncher()
   echo "Version=1.0" >> "$1.desktop"
   echo "Type=Application" >> "$1.desktop"
   echo "Terminal=false" >> "$1.desktop"
-  echo "Icon[en]=\"$fullPath/neptus.png\"" >> "$1.desktop"
+  echo "Icon[en]=$fullPath/neptus.png" >> "$1.desktop"
   echo "Name[en]=$1" >> "$1.desktop"
   echo "Exec=\"$fullPath/neptus.sh\" $2" >> "$1.desktop"
   echo "Name=$1" >> "$1.desktop"
