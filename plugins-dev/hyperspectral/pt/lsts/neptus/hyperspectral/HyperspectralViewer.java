@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -94,7 +95,7 @@ public class HyperspectralViewer extends ConsoleLayer {
       
     /* testing */
     private BufferedImage dataDisplay; /* image currently being displayed */
-    private Queue<BufferedImage> frames;
+    private Queue<byte[]> frames;
     private boolean framesLoaded = false;
     private int selectedWavelength = 320; /* column to crop from test data */
     private boolean initDisplay = false;
@@ -115,10 +116,15 @@ public class HyperspectralViewer extends ConsoleLayer {
         g.dispose();
     }
     
-    private void updateDisplay(BufferedImage newFrame) {       
-        /* remove oldest frame */
-        dataDisplay = dataDisplay.getSubimage(1, 0, MAX_FREQ - 1, FRAME_HEIGHT);
-        dataDisplay = joinBufferedImage(dataDisplay, newFrame);
+    private void updateDisplay(byte[] frameBytes) {
+        try {
+            BufferedImage newFrame = ImageIO.read(new ByteArrayInputStream(frameBytes));
+            
+            /* remove oldest frame */
+            dataDisplay = dataDisplay.getSubimage(1, 0, MAX_FREQ - 1, FRAME_HEIGHT);
+            dataDisplay = joinBufferedImage(dataDisplay, newFrame);
+        }
+        catch (IOException e) { e.printStackTrace(); }
     }
     
     private static BufferedImage joinBufferedImage(BufferedImage img1,BufferedImage img2) {
@@ -136,7 +142,7 @@ public class HyperspectralViewer extends ConsoleLayer {
     
     /* for testing */
     /* load the frames columns */
-    private Queue<BufferedImage> loadFrames(String path) {
+    private Queue<byte[]> loadFrames(String path) {
         File dir = new File("../hyperspec-data/" + path);
         File[] tmpFrames = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -152,11 +158,11 @@ public class HyperspectralViewer extends ConsoleLayer {
             frames[filepos] = tmpFrames[i];
         }
         
-        Queue<BufferedImage> framesList = new LinkedList<>();
+        Queue<byte[]> framesList = new LinkedList<>();
         
         for(int i = 0; i < frames.length; i++) {
             try {
-                framesList.add((BufferedImage) ImageIO.read(frames[i]));
+                framesList.add(Files.readAllBytes(frames[i].toPath()));
             }
             catch (IOException e) { e.printStackTrace(); }
         }
@@ -215,9 +221,9 @@ public class HyperspectralViewer extends ConsoleLayer {
         if(!framesLoaded)
             return;
         
-        BufferedImage newFrame = frames.poll();
-        updateDisplay(newFrame);
-        frames.offer(newFrame); /* keep a circular queue */
+        byte[] frameBytes= frames.poll();
+        updateDisplay(frameBytes);
+        frames.offer(frameBytes); /* keep a circular queue */
     }
     
     @Override
