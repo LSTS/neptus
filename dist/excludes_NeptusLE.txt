@@ -3,6 +3,7 @@ plugins/accu.jar
 plugins/blue-eye.jar
 plugins/caoAgent.jar
 plugins/envdisp*.jar
+plugins/europa.jar
 plugins/matlab*.jar
 plugins/matlab-planning.jar
 plugins/mavs.jar
@@ -14,7 +15,6 @@ plugins/sunfish.jar
 plugins/trex*.jar
 plugins/urready4os.jar
 plugins/vrp.jar
-plugins/vtk.jar
 plugins/waveglider.jar
 plugins/webupdate.jar
 
