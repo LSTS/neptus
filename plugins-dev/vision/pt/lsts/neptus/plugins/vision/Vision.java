@@ -89,6 +89,7 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 
 import com.google.common.eventbus.Subscribe;
+import pt.lsts.util.WGS84Utilities;
 
 
 /**
@@ -361,7 +362,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             @Override
             public void actionPerformed(ActionEvent e) {
                 out.printf("-4#123;\0");
-              }
+            }
         });
         config.add(buttonV,"width 160:180:200, h 40!, wrap");
         
@@ -624,13 +625,28 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 double lon = lonDeg + (180/Math.PI)*(offsetN/6378137)/Math.cos(latDeg);
                 //height of Vehicle 
                 double heightV = msg.getHeight();
+                //orienation
+                double orientationRad = msg.getPsi();
+
+                double camTiltDeg = 45.0f;//this value may be in configuration
+                calcTagPosition(lat, lon, heightV, Math.toDegrees(orientationRad), camTiltDeg);
                 info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, heightV);
+
                 txtData.setText(info);
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void calcTagPosition(double lat, double lon, double heightV, double orientationDegrees, double camTiltDeg){
+        double dist = Math.tan(camTiltDeg)*heightV;// hypotenuse
+        double x = Math.sin(orientationDegrees)*dist;//oposite side
+        double y = Math.cos(orientationDegrees)*dist;// adjacent side
+        double[] finalPointArray = WGS84Utilities.WGS84displace(lat,lon,0,x,y,0);// final central camera view point in lat and lon
+        System.out.println("lat: "+finalPointArray[0]+", lon: "+finalPointArray[1]+", depth: "+finalPointArray[2]);
+        //create a message with finalPointArray[0,1,2]
     }
     
     @Subscribe
