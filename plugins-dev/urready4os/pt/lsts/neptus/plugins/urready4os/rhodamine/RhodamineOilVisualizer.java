@@ -209,6 +209,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private double oldestPred = Double.MAX_VALUE;
     private double newestPred = 0;
     
+    private String rhodamineImcString = "";
+    private long rhodamineImcStringMillis = -1;
+    
     private long lastUpdatedValues = -1;
     
     private SimpleDateFormat dateTimeFmt = new SimpleDateFormat("MM-dd HH:mm");
@@ -967,7 +970,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         lastPaintDataMillis = lastPaintMillis;
 
         super.paint(g, renderer);
-
+        
         setupExtraGui(true, renderer);
         
         checkIfClearCache();
@@ -983,6 +986,28 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         paintColorBar(g, renderer);            
 
         paintLegend(g);
+        
+        if (rhodamineImcStringMillis - System.currentTimeMillis() < 5000) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setColor(Color.WHITE);
+            Font prev = g2.getFont();
+            g2.setFont(new Font("Helvetica", Font.BOLD, 18));
+            g2.setFont(prev);
+            g2.translate(15, 45);
+            
+            try {
+                g2.setColor(Color.BLACK);
+                g2.drawString(rhodamineImcString, 1, 120);
+                g2.setColor(Color.WHITE);
+                g2.drawString(rhodamineImcString, 2, 121);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+                e.printStackTrace();
+            }
+            g2.dispose();
+        }
+
     }
 
     private void checkIfClearCache() {
@@ -1208,6 +1233,13 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 data.add(pt);
                 updateValues(dataList, data, true);
             }
+        }
+        
+        double valueReceived = msg.getValue();
+        if (!Double.isNaN(valueReceived)) {
+            rhodamineImcString = "" + MathMiscUtils.round(valueReceived, 2) + "ppb @ " 
+                    + DateTimeUtil.timeFormaterUTC.format(new Date(rhodamineImcStringMillis));
+            rhodamineImcStringMillis = msg.getTimestampMillis();
         }
     }
 
