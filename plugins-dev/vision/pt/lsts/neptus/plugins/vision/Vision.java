@@ -74,6 +74,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
 import pt.lsts.imc.Announce;
@@ -113,6 +114,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     InputStream is = null;
     //Buffer for info of data image
     BufferedReader in = null;
+    //Struct Video Capture Opencv
+    VideoCapture capture;
     //Width size of image
     int widthImgRec;
     //Height size of image
@@ -137,6 +140,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     boolean state = false;
     //Flag - Show/hide Menu JFrame
     boolean show_menu = false;
+    //Flag state of IP CAM
+    boolean ipCam = false;
     //JLabel for image
     JLabel picLabel;
     //JPanel for Image
@@ -165,6 +170,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     Mat matResize;
     //Image receive
     Mat mat;
+    //Size of output frame
+    Size size = new Size(960, 720);
     //ID vehicle
     int idVehicle = 0;
 
@@ -195,9 +202,11 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 if (e.getButton() == MouseEvent.BUTTON1){
                     int mouseX = (int) ((e.getX() - 13)/xScale);  //shift window bar
                     int mouseY = (int) ((e.getY() - 10)/yScale) ; //shift window bar
-                    if (mouseX >= 0 && mouseY >= 0 && mouseX <= widthImgRec && mouseY <= heightImgRec ){
-                        out.printf("%d#%d;\0", mouseX,mouseY);
-                    }
+                    if(isRunning && !ipCam)
+                        if (mouseX >= 0 && mouseY >= 0 && mouseX <= widthImgRec && mouseY <= heightImgRec )
+                            out.printf("%d#%d;\0", mouseX,mouseY);
+                    
+                    //System.out.println("X = " +mouseX+ " Y = " +mouseY);
                 }
             }
             @Override
@@ -217,6 +226,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             isRunning = true;
+                            ipCam = false;
                         }
                     });
                     popup.add("Close Connection").addActionListener(new ActionListener() {
@@ -224,6 +234,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         public void actionPerformed(ActionEvent e) {
                             isRunning = false;
                             state = false;
+                            ipCam = false;
                         }
                     });
                     popup.add("Menu/Config").addActionListener(new ActionListener() {
@@ -231,6 +242,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         public void actionPerformed(ActionEvent e) {
                             //show_menu = !show_menu;
                             menu.setVisible(true);
+                        }
+                    });
+                    popup.add("Start IP-CAM").addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            ipCam = true;
+                            isRunning = false;
+                            state = false;
                         }
                     });
                     popup.show((Component) e.getSource(), e.getX(), e.getY());
@@ -450,7 +469,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             @Override
             public void run() {
                 while(true){
-                    if (isRunning ) {
+                    if (isRunning && !ipCam ) {
                         if (state == false){
                             //connection
                             tcpConnection();
@@ -474,6 +493,32 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                                 e1.printStackTrace();
                             }
                             out.close();
+                        }
+                    }
+                    else if (!isRunning && ipCam) {
+                        if (state == false){
+                            xScale = (float)960/240;
+                            yScale = (float)720/180;
+                            //Create Buffer (type MAT) for Image receive
+                            mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
+                            state = true;
+                            capture = new VideoCapture("rtsp://10.0.20.102:554/axis-media/media.amp?streamprofile=Mobile");
+                            if (capture.isOpened())
+                                System.out.println("Video is captured");
+                            else
+                                System.out.println("Video is not captured");
+                        }
+                        //TODO: Cap ip cam
+                        else if(!isRunning && ipCam && state) {
+                            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+                            capture.grab();
+                            capture.read(mat);
+                            Imgproc.resize(mat, matResize, size);       
+                            //Convert Mat to BufferedImage
+                            temp=matToBufferedImage(matResize);
+                            showImage(temp);
+                            
+                            
                         }
                     }
                     else
@@ -694,7 +739,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             mat.put(0, 0, decompressedData);
             //Resize image to 960x720 resolution
             //matResize = new Mat(960, 720, CvType.CV_8UC3);
-            Size size = new Size(960, 720);
             Imgproc.resize(mat, matResize, size);
                        
             //Convert Mat to BufferedImage
