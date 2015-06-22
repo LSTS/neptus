@@ -176,6 +176,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     Size size = new Size(960, 720);
     //ID vehicle
     int idVehicle = 0;
+    //Counter for image tag
+    int cntTag = 1;
 
     //*** TEST FOR SAVE VIDEO **/
     File outputfile;
@@ -208,7 +210,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         if (mouseX >= 0 && mouseY >= 0 && mouseX <= widthImgRec && mouseY <= heightImgRec )
                             out.printf("%d#%d;\0", mouseX,mouseY);
                     
-                    //System.out.println("X = " +mouseX+ " Y = " +mouseY);
+                    System.out.println(getMainVehicleId()+"X = " +mouseX+ " Y = " +mouseY);
                     captureFrame = true;
                 }
             }
@@ -388,7 +390,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         config.add(txtData, "cell 0 6 3 1, wrap");
         
         //Vehicle JComboBox
-        String[] vehicleStrings = { "Vehicle", "x8-03", "mariner-01","aero-01"};
+  /*      String[] vehicleStrings = { "Vehicle", "x8-03", "mariner-01","aero-01"};
         @SuppressWarnings({ "rawtypes", "unchecked" })
         final JComboBox vehicleList = new JComboBox(vehicleStrings);
         vehicleList.setSelectedIndex(0);
@@ -407,7 +409,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 }
               }
         });
-        config.add(vehicleList,"width 160:180:200, h 30!");
+        config.add(vehicleList,"width 160:180:200, h 30!");*/
         
         menu = new JFrame("Menu_Config");
         menu.setVisible(show_menu);
@@ -512,6 +514,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
                             state = true;
                             capture = new VideoCapture("rtsp://10.0.20.102:554/axis-media/media.amp?streamprofile=Mobile");
+                            cntTag = 1;
                             if (capture.isOpened())
                                 System.out.println("Video is captured");
                             else
@@ -528,7 +531,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             showImage(temp);
                             
                             if( captureFrame ) {
-                                String imageTag = String.format("%s/image_tag/%s.jpeg",logDir,info);
+                                String imageTag = String.format("%s/image_tag/(%d)_%s.jpeg",logDir,cntTag,info);
                                 outputfile = new File(imageTag);
                                 try {
                                     ImageIO.write(temp, "jpeg", outputfile);
@@ -537,6 +540,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                                     e.printStackTrace();
                                 }
                                 captureFrame = false;
+                                cntTag++;
                             }
                             
                             
@@ -602,7 +606,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //!IMC handle
     @Subscribe
     public void consume(EstimatedState msg) {   
-        if(msg.getSrc() == idVehicle){
+        System.out.println("Source Name "+msg.getSourceName()+"ID "+getMainVehicleId());
+        if(msg.getSourceName().equals(getMainVehicleId())){
             try {
                 //! update the position of target
                 //LAT and LON rad
