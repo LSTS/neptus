@@ -88,6 +88,9 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
 
     @NeptusProperty(category="Europtus", name="Host and Port for local europtus server")
     public String europtus = "127.0.0.1:8800";
+    
+    @NeptusProperty(category="Europtus", name="IMC ID of Europtus")
+    public int europtus_id = 65437;
 
     @NeptusProperty(category="Simulated Vehicles", name="Host and Port for First Simulator")
     public String sim_auv1 = "127.0.0.1:6002";
@@ -123,9 +126,34 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     private UDPTransport imcTransport = null;
     
     
+        
     @Subscribe
     public void on(TrexToken token) {
+        String src = token.getSourceName();
         
+        if (src.equals(auv1)) {
+            token.setTimeline("auv1."+token.getTimeline());
+            try {
+                sendToEuroptus(token);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+        }
+        else if (src.equals(auv2)) {
+            token.setTimeline("auv2."+token.getTimeline());
+            try {
+                sendToEuroptus(token);
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+        }
+        else if (token.getSrc() == europtus_id) {
+            System.out.println("Received a request from EUROPTUS: ");
+            //TODO
+            System.out.println(token);
+        }        
     }
     
     public enum Connection {
@@ -137,6 +165,14 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     
     // send to europtus server
     void sendToEuroptus(TrexToken msg) throws Exception {
+        
+        String auv = msg.getSourceName();
+        
+        if (auv.equals(auv1))
+            msg.setTimeline("auv1."+msg.getTimeline());
+        else if (auv.equals(auv2))
+            msg.setTimeline("auv2."+msg.getTimeline());
+        
         if (europtus_host == null)
             throw new Exception("Europtus host and port not correctly set.");
         sendUdp(msg, europtus_host, europtus_port);
@@ -299,7 +335,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             public void actionPerformed(ActionEvent e) {
                 SetEntityParameters setParams = new SetEntityParameters();
                 setParams.setName("TREX");
-                EntityParameter param = new EntityParameter("Active", "false");
+                EntityParameter param = new EntityParameter("Active", "true");
                 Vector<EntityParameter> p = new Vector<>();
                 p.add(param);
                 setParams.setParams(p);
@@ -322,7 +358,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             public void actionPerformed(ActionEvent e) {
                 SetEntityParameters setParams = new SetEntityParameters();
                 setParams.setName("TREX");
-                EntityParameter param = new EntityParameter("Active", "true");
+                EntityParameter param = new EntityParameter("Active", "false");
                 Vector<EntityParameter> p = new Vector<>();
                 p.add(param);
                 setParams.setParams(p);
