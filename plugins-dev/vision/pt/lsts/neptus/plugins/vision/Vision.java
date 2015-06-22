@@ -142,6 +142,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     boolean show_menu = false;
     //Flag state of IP CAM
     boolean ipCam = false;
+    //Save image tag flag
+    boolean captureFrame = false;
     //JLabel for image
     JLabel picLabel;
     //JPanel for Image
@@ -207,6 +209,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             out.printf("%d#%d;\0", mouseX,mouseY);
                     
                     //System.out.println("X = " +mouseX+ " Y = " +mouseY);
+                    captureFrame = true;
                 }
             }
             @Override
@@ -274,12 +277,18 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         
         //!Create folder to save image data
         //Create folder image in log if don't exist
-        logDir = String.format("log/image");
-        File dir = new File(logDir);
+        File dir = new File(String.format("log/image"));
+        dir.mkdir();
+        //Create folder Image to save data received
+        dir = new File(String.format("log/image/%s",date));
+        dir.mkdir();
+        //Create folder Image Tag
+        dir = new File(String.format("log/image/%s/image_tag",date));
+        dir.mkdir();
+        //Create folder Image Save
+        dir = new File(String.format("log/image/%s/image_save",date));
         dir.mkdir();
         logDir = String.format("log/image/%s",date);
-        dir = new File(logDir);
-        dir.mkdir();
         
         //JLabel for image
         picLabel = new JLabel();
@@ -517,6 +526,18 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             //Convert Mat to BufferedImage
                             temp=matToBufferedImage(matResize);
                             showImage(temp);
+                            
+                            if( captureFrame ) {
+                                String imageTag = String.format("%s/image_tag/%s.jpeg",logDir,info);
+                                outputfile = new File(imageTag);
+                                try {
+                                    ImageIO.write(temp, "jpeg", outputfile);
+                                }
+                                catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                captureFrame = false;
+                            }
                             
                             
                         }
