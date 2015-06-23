@@ -1266,7 +1266,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
                     items = extension.getApplicableItems(loc, this);
                 }
                 catch (Exception ex) {
-                    NeptusLog.pub().error(ex);
+                    NeptusLog.pub().error(ex, ex);
                 }
 
                 if (items != null && !items.isEmpty()) {

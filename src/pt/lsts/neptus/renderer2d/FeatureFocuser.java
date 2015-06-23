@@ -183,7 +183,7 @@ public class FeatureFocuser implements IEditorMenuExtension {
         for (ImcSystem sys : veh) {
             final LocationType l = sys.getLocation();
             final VehicleType vehS = VehiclesHolder.getVehicleById(sys.getName());
-            JMenuItem menuItem = veh != null ? new JMenuItem(vehS.getId(), vehS.getIcon()) : new JMenuItem(sys.getName());
+            JMenuItem menuItem = vehS != null ? new JMenuItem(vehS.getId(), vehS.getIcon()) : new JMenuItem(sys.getName());
             menuItem.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
