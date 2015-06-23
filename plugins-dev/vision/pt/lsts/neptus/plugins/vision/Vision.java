@@ -49,6 +49,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.*;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.concurrent.TimeUnit;
@@ -66,6 +68,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 
+import corejava.Format;
 import net.miginfocom.swing.MigLayout;
 
 import org.opencv.core.Core;
@@ -77,15 +80,10 @@ import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
 import pt.lsts.imc.*;
-import pt.lsts.imc.net.SimpleAgent;
-import pt.lsts.neptus.comm.IMCSendMessageUtils;
-import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
-import pt.lsts.neptus.comm.manager.imc.ImcSystem;
-import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.console.plugins.SystemsList;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -93,9 +91,15 @@ import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 
 import com.google.common.eventbus.Subscribe;
-import pt.lsts.neptus.systems.SystemsManager;
-import pt.lsts.neptus.util.NetworkInterfacesUtil;
-import pt.lsts.util.WGS84Utilities;
+import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.AbstractElement;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MapType;
+import pt.lsts.neptus.types.map.MarkElement;
+import pt.lsts.neptus.types.mission.MapMission;
+import pt.lsts.neptus.types.mission.MissionType;
+import pt.lsts.neptus.util.DateTimeUtil;
+import pt.lsts.neptus.util.GuiUtils;
 
 
 /**
@@ -186,9 +190,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //Counter for image tag
     int cntTag = 1;
 
-    //counter for whale tag ID
-    short whaleID =0;
-    //lat, lon: whale pos to be sent with FrameTag IMCMessage
+    //counter for frame tag ID
+    short frameTagID =0;
+    //lat, lon: frame Tag pos to be marked as POI
     double lat,lon;
 
     //*** TEST FOR SAVE VIDEO **/
@@ -224,7 +228,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     
                     System.out.println(getMainVehicleId()+"X = " +mouseX+ " Y = " +mouseY);
                     captureFrame = true;
-                    sendFrameTagMsg();
+
+                    //place mark on map as POI
+                    placeLocationOnMap();
                 }
             }
             @Override
@@ -277,23 +283,68 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         return;
     }
 
-    public void sendFrameTagMsg(){
-        //create a message with finalPointArray[0,1] 0=lat 1=lon
-        FrameTag frameTag = new FrameTag();
-        frameTag.setId(whaleID);
-        whaleID++;
-        frameTag.setLat(this.lat);
-        frameTag.setLon(this.lon);
-        System.out.println("before sending msg");
+    public String timestampToReadableHoursString(long timestamp){
+        Date date = new Date(timestamp);
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+        return format.format(date);
+    }
 
-        for (ImcSystem sys :ImcSystemsHolder.lookupSystemCCUs()){
-            System.out.println(sys.getHostAddress());
-            //boolean result = IMCUtils.sendMessage(frameTag,new InetSocketAddress(sys.getHostAddress(), 6002));
-            boolean result = ImcMsgManager.getManager().sendMessageToSystem(frameTag, sys.getName());
-            System.out.println("result= "+result);
-            //send(sys.getHostAddress(), new Heartbeat());
+    /**
+     * Adapted from ContactMarker.placeLocationOnMap()
+     */
+    private void placeLocationOnMap() {
+
+        if (getConsole().getMission() == null)
+            return;
+
+        double lat = this.lat;
+        double lon =this.lon;
+        long timestamp = System.currentTimeMillis();
+        String id = "FrameTag"+ frameTagID+" - "+timestampToReadableHoursString(timestamp);
+
+        boolean validId = false;
+        while (!validId) {
+            id = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter new mark name"), id);
+            if (id == null)
+                return;
+            AbstractElement elems[] = MapGroup.getMapGroupInstance(getConsole().getMission()).getMapObjectsByID(id);
+            if (elems.length > 0)
+                GuiUtils.errorMessage(getConsole(), I18n.text("Add mark"),
+                        I18n.text("The given ID already exists in the map. Please choose a different one"));
+            else
+                validId = true;
         }
+        frameTagID++;//increment ID
 
+        MissionType mission = getConsole().getMission();
+        LinkedHashMap<String, MapMission> mapList = mission.getMapsList();
+        if (mapList == null)
+            return;
+        if (mapList.size() == 0)
+            return;
+        // MapMission mapMission = mapList.values().iterator().next();
+        MapGroup.resetMissionInstance(getConsole().getMission());
+        MapType mapType = MapGroup.getMapGroupInstance(getConsole().getMission()).getMaps()[0];// mapMission.getMap();
+        // NeptusLog.pub().info("<###>MARKER --------------- " + mapType.getId());
+        MarkElement contact = new MarkElement(mapType.getMapGroup(), mapType);
+
+        contact.setId(id);
+        contact.setCenterLocation(new LocationType(lat,lon));
+        mapType.addObject(contact);
+        mission.save(false);
+        MapPoint point = new MapPoint();
+        point.setLat(lat);
+        point.setLon(lon);
+        point.setAlt(0);
+        MapFeature feature = new MapFeature();
+        feature.setFeatureType(MapFeature.FEATURE_TYPE.POI);
+        feature.setFeature(Arrays.asList(point));
+        CcuEvent event = new CcuEvent();
+        event.setType(CcuEvent.TYPE.MAP_FEATURE_ADDED);
+        event.setId(id);
+        event.setArg(feature);
+        ImcMsgManager.getManager().broadcastToCCUs(event);
+        System.out.println("placeLocationOnMap: "+id+"\nPos: lat: "+this.lat+" ;lon: "+this.lon);
     }
 
     //!Print Image to JPanel
@@ -638,31 +689,34 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //!IMC handle
     @Subscribe
     public void consume(EstimatedState msg) {   
-        System.out.println("Source Name "+msg.getSourceName()+"ID "+getMainVehicleId());
+        //System.out.println("Source Name "+msg.getSourceName()+"ID "+getMainVehicleId());
         if(msg.getSourceName().equals(getMainVehicleId())){
             try {
+
                 //! update the position of target
                 //LAT and LON rad
                 double latRad = msg.getLat();
                 double lonRad = msg.getLon();
                 //LAT and LON deg
-                double latDeg = latRad*(180/Math.PI);
-                double lonDeg = lonRad*(180/Math.PI);
+                double latDeg = Math.toDegrees(latRad);//latRad*(180/Math.PI);
+                double lonDeg = Math.toDegrees(lonRad);//lonRad*(180/Math.PI);
+
+                LocationType locationType = new LocationType(latDeg,lonDeg);
+
                 //Offset (m)
                 double offsetN = msg.getX();
                 double offsetE = msg.getY();
-                //Lat and Lon final
-                double lat = latDeg + (180/Math.PI)*(offsetE/6378137);
-                double lon = lonDeg + (180/Math.PI)*(offsetN/6378137)/Math.cos(latDeg);
-                //height of Vehicle 
-                double heightV = -(msg.getHeight());
-                //orienation
-                double orientationRad = msg.getPsi();
+
+                locationType.setOffsetNorth(offsetN);
+                locationType.setOffsetEast(offsetE);
+                locationType.setHeight(msg.getHeight());
 
                 double camTiltDeg = 45.0f;//this value may be in configuration
-                info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, heightV);
-                System.out.println("lat: "+lat+" lon: "+lon+"heightV: "+heightV);
-                calcTagPosition(lat, lon, heightV, Math.toDegrees(orientationRad), camTiltDeg);
+                //info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, heightV);
+                //System.out.println("lat: "+lat+" lon: "+lon+"heightV: "+heightV);
+                LocationType tagLocationType = calcTagPosition(locationType.convertToAbsoluteLatLonDepth(), Math.toDegrees(msg.getPsi()), camTiltDeg);
+                this.lat= tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs();
+                this.lon= tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs();
                 txtData.setText(info);
 
             }
@@ -674,59 +728,23 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
 
     /**
      *
-     * @param lat degrees North
-     * @param lon degrees East
-     * @param heightV Height in meters positive
-     * @param orientationDegrees Degrees: 0=North 90=East 180=South 270=West
-     * @param camTiltDeg Static camera tilt position in degrees
+     * @param locationType
+     * @param orientationDegrees
+     * @param camTiltDeg
+     * @return
      */
-    public void calcTagPosition(double lat, double lon, double heightV, double orientationDegrees, double camTiltDeg){
-        double dist = Math.tan(Math.toDegrees(camTiltDeg))*heightV;// hypotenuse
-        double x = Math.cos(Math.toDegrees(orientationDegrees))*dist;//oposite side
-        double y = Math.sin(Math.toDegrees(orientationDegrees))*dist;// adjacent side
-        double[] finalPointArray = translateCoordinates(lat,lon,x,y);// final central camera view point in lat and lon
-        System.out.println("lat: "+finalPointArray[0]+", lon: "+finalPointArray[1]+" orientationDeg: "+orientationDegrees);
-        System.out.println("x: "+x+" y: "+y+" dist: "+dist);
-        this.lat=finalPointArray[0];
-        this.lon=finalPointArray[1];
-    }
-
-    /**
-     *
-     * @param lat degrees North
-     * @param lon degrees East
-     * @param offsetN offset meters North
-     * @param offsetE offset meters East
-     * @return [0] Lat Degrees [1] Lon Degrees
-     */
-    public static double[] translateCoordinates(final double lat, double lon, final double offsetN, final double offsetE) {
-        /*
-        final double earthRadius = 6371000;
-        final double newLat = origpoint.latitude + (offsetX / earthRadius) * 180 / Math.PI;
-        final double newLon = origpoint.longitude + (offsetY / (earthRadius * Math.cos(newLat * 180 / Math.PI))) * 180 / Math.PI;
-        return new LatLng(newLat, newLon);
-        */
-        //Position, decimal degrees
-        //double lat = origpoint.latitude;
-        //double lon = origpoint.longitude;
-
-        //Earth’s radius, sphere
-        double R=6378137;
-
-        //offsets in meters
-        double dn = offsetN;
-        double de = offsetE;
-
-        //Coordinate offsets in radians
-        double dLat = dn/R;
-        double dLon = de/(R*Math.cos(Math.PI * lat / 180));
-
-        //OffsetPosition, decimal degrees
-        double latO = lat + dLat * 180/Math.PI;
-        double lonO = lon + dLon * 180/Math.PI;
-
-        double result[] = {latO, lonO};
-        return result;
+    public LocationType calcTagPosition(LocationType locationType, double orientationDegrees, double camTiltDeg){
+        //System.out.println("Before: lat:"+locationType.getLatitudeDegs()+" lon:"+locationType.getLongitudeDegs());
+        double dist = Math.tan(Math.toRadians(camTiltDeg))*(Math.abs(locationType.getHeight()));// hypotenuse
+        double offsetN = Math.cos(Math.toDegrees(orientationDegrees))*dist;//oposite side
+        double offsetE = -Math.sin(Math.toDegrees(orientationDegrees))*dist;// adjacent side
+        //System.out.println("dist="+dist+" loc.h="+locationType.getHeight());
+        //System.out.println("offsetN="+offsetN+" offsetE="+offsetE);
+        LocationType tagLocationType = locationType.convertToAbsoluteLatLonDepth();
+        tagLocationType.setOffsetNorth(offsetN);
+        tagLocationType.setOffsetEast(offsetE);
+        //System.out.println("After: lat:"+tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs()+" lon:"+tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs());
+        return tagLocationType.convertToAbsoluteLatLonDepth();
     }
 
     @Subscribe
