@@ -599,7 +599,13 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         clearImgCachRqst = true;
     }
 
-    public synchronized boolean updateValues() {
+    private boolean updatingFiles = false;
+    public boolean updateValues() {
+        if (updatingFiles)
+            return false;
+        
+        updatingFiles = true;
+        
         File[] fileList = FileUtil.getFilesFromDisk(baseFolderForCSVFiles, csvFilePattern);
         if (fileList != null && fileList.length > 0) {
             for (int i = (readAllOrLastOfOrderedFiles ? 0 : fileList.length -1); i < fileList.length; i++) {
@@ -641,6 +647,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             }
         }
         setDataPredictionMillisPassedFromSpillMax(dataPredictionMillisPassedFromSpillMax);
+        
+        updatingFiles = false;
         
         return true;
     }
