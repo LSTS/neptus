@@ -709,7 +709,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private boolean updateValues(ArrayList<BaseData> list, ArrayList<BaseData> points, boolean dataOrPrediction) {
         boolean dataUpdated = false;
         
-        if (autoCleanData) {
+        if (autoCleanData && dataOrPrediction) {
             boolean updateValues = false;
             long curTimeMillis = System.currentTimeMillis();
             for (BaseData bd : points.toArray(new BaseData[points.size()])) {
