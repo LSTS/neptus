@@ -192,6 +192,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private long dataPredictionMillisPassedFromSpillMax = 0;
     private ArrayList<Long> dataPredictionValues = new ArrayList<>();
     
+    private ArrayList<File> dataReadFiles = new ArrayList<File>();
+    private ArrayList<File> dataPredictionReadFiles = new ArrayList<File>();
+    
     private long timeStampSliderScale = 1000;
     private long oldestTimestamp = new Date().getTime();
     private long newestTimestamp = 0;
@@ -525,6 +528,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     @Override
     public void cleanLayer() {
         dataList.clear();
+        dataReadFiles.clear();
+        
         clearDataPredictionList();
         lastEstimatedStateList.clear();
         lastRhodamineDyeList.clear();
@@ -544,6 +549,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     public void propertiesChanged() {
         if (clearData) {
             dataList.clear();
+            dataReadFiles.clear();
             clearDataPredictionList();
             lastEstimatedStateList.clear();
             lastRhodamineDyeList.clear();
@@ -611,12 +617,14 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             return false;
         
         updatingFiles = true;
+        System.out.println("#########################");
         
         File[] fileList = FileUtil.getFilesFromDisk(baseFolderForCSVFiles, csvFilePattern);
         if (fileList != null && fileList.length > 0) {
             for (int i = (readAllOrLastOfOrderedFiles ? 0 : fileList.length -1); i < fileList.length; i++) {
                 File csvFx = fileList[i];
-                loadDataFile(csvFx);
+                if (isLastModifiedDifferent(csvFx, dataReadFiles))
+                    loadDataFile(csvFx);
             }
         }
         
@@ -627,7 +635,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 if (fileList != null && fileList.length > 0) {
                     for (int i = (readAllOrLastOfOrderedFiles ? 0 : fileList.length -1); i < fileList.length; i++) {
                         File csvFx = fileList[i];
-                        loadDataFile(csvFx);
+                        if (isLastModifiedDifferent(csvFx, dataReadFiles))
+                            loadDataFile(csvFx);
                     }
                 }
             }
@@ -635,20 +644,39 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         
         // Load prediction
         if (predictionFile.exists() && predictionFile.isFile()) {
-            dataPredictionMillisPassedFromSpillMax = -1;
-            dataPredictionList.clear();
-            dataPredictionValues.clear();
-            loadPredictionFile(predictionFile);
+            if (isLastModifiedDifferent(predictionFile, dataPredictionReadFiles)) {
+                dataPredictionMillisPassedFromSpillMax = -1;
+                dataPredictionList.clear();
+                dataPredictionValues.clear();
+                loadPredictionFile(predictionFile);
+            }
         }
         else if (predictionFile.exists() && predictionFile.isDirectory()) {
-            dataPredictionMillisPassedFromSpillMax = -1;
-            dataPredictionList.clear();
-            dataPredictionValues.clear();
+            boolean reload = false;
             fileList = FileUtil.getFilesFromDisk(predictionFile, totFilePattern);
+//            ArrayList<File> fileAListCopy = new ArrayList<File>(Arrays.asList(fileList));
             if (fileList != null && fileList.length > 0) {
                 for (int i = 0; i < fileList.length; i++) {
                     File totFx = fileList[i];
-                    loadPredictionFile(totFx);
+                    if (isLastModifiedDifferent(totFx, dataPredictionReadFiles)) {
+                        reload = true;
+                    }
+//                    else {
+//                        fileAListCopy.remove(totFx);
+//                    }
+                }
+            }
+            //fileList = fileAListCopy.toArray(new File[fileAListCopy.size()]);
+            
+            if (reload) {
+                dataPredictionMillisPassedFromSpillMax = -1;
+                dataPredictionList.clear();
+                dataPredictionValues.clear();
+                if (fileList != null && fileList.length > 0) {
+                    for (int i = 0; i < fileList.length; i++) {
+                        File totFx = fileList[i];
+                        loadPredictionFile(totFx);
+                    }
                 }
             }
         }
@@ -659,9 +687,28 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         return true;
     }
 
+    /**
+     * @param fx
+     */
+    private boolean isLastModifiedDifferent(File fx, ArrayList<File> fileList) {
+        if (fileList.contains(fx)) {
+            int idx = fileList.indexOf(fx);
+            File rFx = fileList.get(idx);
+            if (rFx.lastModified() != fx.lastModified())
+                return true;
+            else
+                return false;
+        }
+        else {
+            fileList.add(new File(fx.getPath()));
+            return true;
+        }
+    }
+
     private void clearDataPredictionList() {
         dataPredictionList.clear();
         dataPredictionValues.clear();
+        dataPredictionReadFiles.clear();
         setDataPredictionMillisPassedFromSpillMax(0);
 
         clearTimeAndDepthValues();
