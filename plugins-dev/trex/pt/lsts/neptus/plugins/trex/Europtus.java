@@ -37,17 +37,22 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.io.ByteArrayOutputStream;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.GregorianCalendar;
 import java.util.Vector;
 
 import javax.swing.JPopupMenu;
 
 import pt.lsts.imc.EntityParameter;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.imc.TrexToken;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.iridium.DuneIridiumMessenger;
 import pt.lsts.neptus.comm.iridium.HubIridiumMessenger;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
@@ -92,11 +97,11 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     @NeptusProperty(category="Europtus", name="IMC ID of Europtus")
     public int europtus_id = 65437;
 
-    @NeptusProperty(category="Simulated Vehicles", name="Host and Port for First Simulator")
-    public String sim_auv1 = "127.0.0.1:6002";
+    @NeptusProperty(category="Simulated Vehicles", name="First Simulator")
+    public String sim_auv1 = "trex-sim-1";
 
-    @NeptusProperty(category="Simulated Vehicles",name="Host and Port for Second Simulator")
-    public String sim_auv2 = "127.0.0.1:6003";
+    @NeptusProperty(category="Simulated Vehicles",name="Second Simulator")
+    public String sim_auv2 = "trex-sim-2";
     
     @NeptusProperty(category="Survey Parameters", name="Smaller survey side length, in meters")
     public double survey_size = 300;
@@ -127,6 +132,64 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     
     
         
+    private GpsFix asFix(EstimatedState state) {
+        LocationType loc = IMCUtils.getLocation(state);
+        loc.convertToAbsoluteLatLonDepth();
+        Calendar cal = GregorianCalendar.getInstance();
+
+        GpsFix fix = GpsFix.create( 
+                "validity", 0xFFFF, 
+                "type", "MANUAL_INPUT", 
+                "utc_year", cal.get(Calendar.YEAR),
+                "utc_month", cal.get(Calendar.MONTH)+1,
+                "utc_day", cal.get(Calendar.DATE),
+                "utc_time", cal.get(Calendar.HOUR_OF_DAY) * 3600 + cal.get(Calendar.MINUTE) * 60 + cal.get(Calendar.SECOND),
+                "lat", loc.getLatitudeRads(),
+                "lon", loc.getLongitudeRads(),
+                "height", 0,
+                "satellites", 4,
+                "cog", Math.toDegrees(state.getPsi()),
+                "sog", 0,
+                "hdop", 1,
+                "vdop", 1,
+                "hacc", 2,
+                "vacc", 2                                    
+                );
+        
+        return fix;
+    }
+    
+    long lastSentPosition1 = System.currentTimeMillis(), lastSentPosition2 = System.currentTimeMillis();
+    
+    @Subscribe
+    public void on(EstimatedState state) {
+        //if (state.getDepth() > 0.5)
+        //    return;
+        
+        if (state.getSourceName().equals(auv1) && System.currentTimeMillis() - lastSentPosition1 > 10000) {
+            lastSentPosition1 = System.currentTimeMillis();
+            try {
+                if (!ImcMsgManager.getManager().sendMessageToSystem(asFix(state), sim_auv1));
+                    throw new Exception("Not able to send gps fix to simulator 1"); 
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+            
+        }
+        else if (state.getSourceName().equals(auv2)&& System.currentTimeMillis() - lastSentPosition2 > 10000) {
+            lastSentPosition2 = System.currentTimeMillis();
+            try {
+                if (!ImcMsgManager.getManager().sendMessageToSystem(asFix(state), sim_auv2));
+                    throw new Exception("Not able to send gps fix to simulator 2");                     
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+        }
+        
+    }
+    
     @Subscribe
     public void on(TrexToken token) {
         String src = token.getSourceName();
@@ -222,16 +285,26 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
 
     void sendToVehicle1(IMCMessage msg) throws Exception {
         sendToVehicle(auv1, msg);
-
-        if (auv1_host != null)
-            sendUdp(msg, auv1_host, auv1_port);
+        try {
+            if (!ImcMsgManager.getManager().sendMessageToSystem(msg, sim_auv1));
+                throw new Exception("Not able to send message to simulator 1"); 
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
     }
 
     void sendToVehicle2(IMCMessage msg) throws Exception {
         sendToVehicle(auv2, msg);
 
-        if (auv2_host != null)
-            sendUdp(msg, auv2_host, auv2_port);        
+        try {
+            if (!ImcMsgManager.getManager().sendMessageToSystem(msg, sim_auv2));
+                throw new Exception("Not able to send message to simulator 1"); 
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+        }
+
     }
 
     @Override
@@ -264,7 +337,8 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
 
     @Override
     public void deliveryResult(ResultEnum result, Exception error) {
-        NeptusLog.pub().info("Delivery result: "+result, error);
+        
+        //NeptusLog.pub().info("Delivery result: "+result, error);
     }
 
     /**
@@ -301,26 +375,6 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             NeptusLog.pub().error("Error parsing Europtus host:port", e);
             europtus_host = null;
             europtus_port = -1;
-        }
-
-        try {
-            auv2_host = sim_auv2.split(":")[0];
-            auv2_port = Integer.parseInt(sim_auv2.split(":")[1]);
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error("Error parsing AUV2 simulator host:port", e);
-            auv2_host = null;
-            auv2_port = -1;
-        }
-
-        try {
-            auv1_host = sim_auv1.split(":")[0];
-            auv1_port = Integer.parseInt(sim_auv1.split(":")[1]);
-        }
-        catch (Exception e) {
-            NeptusLog.pub().error("Error parsing AUV1 simulator host:port", e);
-            auv1_host = null;
-            auv1_port = -1;
         }
     }
 
