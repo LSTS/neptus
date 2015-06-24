@@ -528,12 +528,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
      */
     @Override
     public void cleanLayer() {
-        dataList.clear();
-        dataReadFiles.clear();
-        
-        clearDataPredictionList();
-        lastEstimatedStateList.clear();
-        lastRhodamineDyeList.clear();
+        cleanData();
 
         getConsole().removeMapLayer(previsionLayer);
         
@@ -543,17 +538,26 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
     }
 
+
+    /**
+     * 
+     */
+    private void cleanData() {
+        dataList.clear();
+        dataReadFiles.clear();
+        
+        clearDataPredictionList();
+        lastEstimatedStateList.clear();
+        lastRhodamineDyeList.clear();
+    }
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.plugins.ConfigurationListener#propertiesChanged()
      */
     @Override
     public void propertiesChanged() {
         if (clearData) {
-            dataList.clear();
-            dataReadFiles.clear();
-            clearDataPredictionList();
-            lastEstimatedStateList.clear();
-            lastRhodamineDyeList.clear();
+            cleanData();
             clearData = false;
         }
         
@@ -570,6 +574,9 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             SwingWorker<Boolean, Void> sw = new SwingWorker<Boolean, Void>() {
                 @Override
                 protected Boolean doInBackground() throws Exception {
+//                    while (!updateValues()) {
+//                        Thread.yield();
+//                    }
                     updateValues();
                     return true;
                 }
@@ -618,13 +625,18 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     
     @Periodic(millisBetweenUpdates=1000)
     public void update() {
-        long curTime = System.currentTimeMillis();
-        if (curTime - lastUpdatedValues > periodSecondsToUpdate * 1000) {
-            lastUpdatedValues = curTime;
-            boolean ret = updateValues();
-            if (ret) {
-                invalidateCache();
+        try {
+            long curTime = System.currentTimeMillis();
+            if (curTime - lastUpdatedValues > periodSecondsToUpdate * 1000) {
+                lastUpdatedValues = curTime;
+                boolean ret = updateValues();
+                if (ret) {
+                    invalidateCache();
+                }
             }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -639,69 +651,75 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         
         updatingFiles = true;
         System.out.println("#########################");
-        
-        File[] fileList = FileUtil.getFilesFromDisk(baseFolderForCSVFiles, csvFilePattern);
-        if (fileList != null && fileList.length > 0) {
-            for (int i = (readAllOrLastOfOrderedFiles ? 0 : fileList.length -1); i < fileList.length; i++) {
-                File csvFx = fileList[i];
-                if (isLastModifiedDifferent(csvFx, dataReadFiles))
-                    loadDataFile(csvFx);
-            }
-        }
-        
-        File[] folders = FileUtil.getFoldersFromDisk(baseFolderForCSVFiles, null);
-        if (folders != null && folders.length > 0) {
-            for (File folder : folders) {
-                fileList = FileUtil.getFilesFromDisk(folder, csvFilePattern);
-                if (fileList != null && fileList.length > 0) {
-                    for (int i = (readAllOrLastOfOrderedFiles ? 0 : fileList.length -1); i < fileList.length; i++) {
-                        File csvFx = fileList[i];
-                        if (isLastModifiedDifferent(csvFx, dataReadFiles))
-                            loadDataFile(csvFx);
-                    }
-                }
-            }
-        }
-        
-        // Load prediction
-        if (predictionFile.exists() && predictionFile.isFile()) {
-            if (isLastModifiedDifferent(predictionFile, dataPredictionReadFiles)) {
-                dataPredictionMillisPassedFromSpillMax = -1;
-                dataPredictionList.clear();
-                dataPredictionValues.clear();
-                loadPredictionFile(predictionFile);
-            }
-        }
-        else if (predictionFile.exists() && predictionFile.isDirectory()) {
-            boolean reload = false;
-            fileList = FileUtil.getFilesFromDisk(predictionFile, totFilePattern);
-//            ArrayList<File> fileAListCopy = new ArrayList<File>(Arrays.asList(fileList));
-            if (fileList != null && fileList.length > 0) {
-                for (int i = 0; i < fileList.length; i++) {
-                    File totFx = fileList[i];
-                    if (isLastModifiedDifferent(totFx, dataPredictionReadFiles)) {
-                        reload = true;
-                    }
-//                    else {
-//                        fileAListCopy.remove(totFx);
-//                    }
-                }
-            }
-            //fileList = fileAListCopy.toArray(new File[fileAListCopy.size()]);
+
+        try {
             
-            if (reload) {
-                dataPredictionMillisPassedFromSpillMax = -1;
-                dataPredictionList.clear();
-                dataPredictionValues.clear();
+            File[] fileList = FileUtil.getFilesFromDisk(baseFolderForCSVFiles, csvFilePattern);
+            if (fileList != null && fileList.length > 0) {
+                for (int i = (readAllOrLastOfOrderedFiles ? 0 : fileList.length -1); i < fileList.length; i++) {
+                    File csvFx = fileList[i];
+                    if (isLastModifiedDifferent(csvFx, dataReadFiles))
+                        loadDataFile(csvFx);
+                }
+            }
+            
+            File[] folders = FileUtil.getFoldersFromDisk(baseFolderForCSVFiles, null);
+            if (folders != null && folders.length > 0) {
+                for (File folder : folders) {
+                    fileList = FileUtil.getFilesFromDisk(folder, csvFilePattern);
+                    if (fileList != null && fileList.length > 0) {
+                        for (int i = (readAllOrLastOfOrderedFiles ? 0 : fileList.length -1); i < fileList.length; i++) {
+                            File csvFx = fileList[i];
+                            if (isLastModifiedDifferent(csvFx, dataReadFiles))
+                                loadDataFile(csvFx);
+                        }
+                    }
+                }
+            }
+            
+            // Load prediction
+            if (predictionFile.exists() && predictionFile.isFile()) {
+                if (isLastModifiedDifferent(predictionFile, dataPredictionReadFiles)) {
+                    dataPredictionMillisPassedFromSpillMax = -1;
+                    dataPredictionList.clear();
+                    dataPredictionValues.clear();
+                    loadPredictionFile(predictionFile);
+                }
+            }
+            else if (predictionFile.exists() && predictionFile.isDirectory()) {
+                boolean reload = false;
+                fileList = FileUtil.getFilesFromDisk(predictionFile, totFilePattern);
+    //            ArrayList<File> fileAListCopy = new ArrayList<File>(Arrays.asList(fileList));
                 if (fileList != null && fileList.length > 0) {
                     for (int i = 0; i < fileList.length; i++) {
                         File totFx = fileList[i];
-                        loadPredictionFile(totFx);
+                        if (isLastModifiedDifferent(totFx, dataPredictionReadFiles)) {
+                            reload = true;
+                        }
+    //                    else {
+    //                        fileAListCopy.remove(totFx);
+    //                    }
+                    }
+                }
+                //fileList = fileAListCopy.toArray(new File[fileAListCopy.size()]);
+                
+                if (reload) {
+                    dataPredictionMillisPassedFromSpillMax = -1;
+                    dataPredictionList.clear();
+                    dataPredictionValues.clear();
+                    if (fileList != null && fileList.length > 0) {
+                        for (int i = 0; i < fileList.length; i++) {
+                            File totFx = fileList[i];
+                            loadPredictionFile(totFx);
+                        }
                     }
                 }
             }
+            setDataPredictionMillisPassedFromSpillMax(dataPredictionMillisPassedFromSpillMax);
         }
-        setDataPredictionMillisPassedFromSpillMax(dataPredictionMillisPassedFromSpillMax);
+        catch (Exception e) {
+            cleanData();
+        }
         
         updatingFiles = false;
         
