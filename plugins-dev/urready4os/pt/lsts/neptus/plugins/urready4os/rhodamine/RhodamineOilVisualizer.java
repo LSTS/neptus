@@ -1101,7 +1101,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         //Collections.sort(tmpValLst);
         long filterTime = calcPredictionFlterTime(tmpValLst);
         
-        for (BaseData dpt : tmpLst.toArray(new BaseData[tmpLst.size()])) {
+        BaseData[] arr = tmpLst.toArray(new BaseData[tmpLst.size()]);
+        for (BaseData dpt : arr) {
             if (dpt.timeMillis != filterTime)
                 tmpLst.remove(dpt);
         }
