@@ -314,9 +314,11 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         predictionSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                updatePredictionTimeSliderTime();
-                invalidateCache();
-                triggerRhodPredMinMaxValuesCalc();
+                if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
+                    updatePredictionTimeSliderTime();
+                    invalidateCache();
+                    triggerRhodPredMinMaxValuesCalc();
+                }
             }
         });
 
@@ -329,11 +331,13 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         timeSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                updateTimeSliderTime();
-                invalidateCache();
-                oldestTimestampSelection = timeSlider.getValue() * timeStampSliderScale;
-                newestTimestampSelection = (timeSlider.getValue() + timeSlider.getExtent()) * timeStampSliderScale;
-                triggerRhodPredMinMaxValuesCalc();
+                if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
+                    updateTimeSliderTime();
+                    invalidateCache();
+                    oldestTimestampSelection = timeSlider.getValue() * timeStampSliderScale;
+                    newestTimestampSelection = (timeSlider.getValue() + timeSlider.getExtent()) * timeStampSliderScale;
+                    triggerRhodPredMinMaxValuesCalc();
+                }
             }
         });
 
@@ -346,11 +350,13 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         depthSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                updateDepthSliderTime();
-                invalidateCache();
-                oldestDepthSelection = depthSlider.getValue() * depthSliderScale;
-                newestDepthSelection = (depthSlider.getValue() + depthSlider.getExtent()) * depthSliderScale;
-                triggerRhodPredMinMaxValuesCalc();
+                if (!((JSlider) e.getSource()).getValueIsAdjusting()) {
+                    updateDepthSliderTime();
+                    invalidateCache();
+                    oldestDepthSelection = depthSlider.getValue() * depthSliderScale;
+                    newestDepthSelection = (depthSlider.getValue() + depthSlider.getExtent()) * depthSliderScale;
+                    triggerRhodPredMinMaxValuesCalc();
+                }
             }
         });
 
