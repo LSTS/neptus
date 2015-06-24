@@ -59,6 +59,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicSliderUI;
@@ -564,11 +565,31 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         if (maxValue < minValue)
             maxValue = minValue;
 
-        if (sliderPanel != null)
-            updateValues();
-        
-        clearImgCachRqst = true;
-        clearColorBarImgCachRqst = true;
+        if (sliderPanel != null) {
+            @SuppressWarnings("unused")
+            SwingWorker<Boolean, Void> sw = new SwingWorker<Boolean, Void>() {
+                @Override
+                protected Boolean doInBackground() throws Exception {
+                    updateValues();
+                    return true;
+                }
+                @Override
+                protected void done() {
+                    try {
+                        get();
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    clearImgCachRqst = true;
+                    clearColorBarImgCachRqst = true;
+                }
+            };
+        }
+        else {
+            clearImgCachRqst = true;
+            clearColorBarImgCachRqst = true;
+        }
     }
 
     public String validatePixelSizeData(int value) {
@@ -686,6 +707,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         
         return true;
     }
+
 
     /**
      * @param fx
