@@ -134,13 +134,14 @@ public class S57Chart implements MapPainterProvider {
      * @return
      */
     public Collection<LocationType> getDepthSoundings(double latMinDegs, double latMaxDegs, double lonMinDegs, double lonMaxDegs) {
-        List<S57Object> objs = S57Query.forge(s57).findObjectsInside(latMaxDegs, lonMinDegs, latMinDegs,lonMaxDegs, new String[] { "SOUNDG" });
+        List<S57Object> objs = S57Query.forge(s57).findObjectsInside(latMaxDegs, lonMinDegs, latMinDegs,lonMaxDegs, new String[] { "SOUNDG"});
         ArrayList<LocationType> locs = new ArrayList<>();
         for (S57Object obj : objs) {
             LocationType loc = obj.getGeometry().getCenter();
             loc.setDepth(obj.getGeometry().getDepth());
             locs.add(loc);
         }
+        
         return locs;    
     }
     

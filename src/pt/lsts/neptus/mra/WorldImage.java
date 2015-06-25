@@ -83,6 +83,14 @@ public class WorldImage {
         return ne;
     }
     
+    public double getMaxValue() {
+        return maxVal == null ? dd.maxVal[0]*1.005 : maxVal;        
+    }
+    
+    public double getMinValue() {
+        return minVal == null ? dd.minVal[0]*0.995 : minVal;        
+    }
+    
     public BufferedImage processData() {
         double maxX = dd.maxX + 5;
         double maxY = dd.maxY + 5;
@@ -107,11 +115,11 @@ public class WorldImage {
 
         Rectangle2D bounds = new Rectangle2D.Double(cx-dx/2, cy-dy/2, dx, dy);
 
-        BufferedImage img = new BufferedImage(defaultWidth,defaultHeight,BufferedImage.TYPE_INT_ARGB);
+        BufferedImage img = new BufferedImage(1000,(int)(bounds.getHeight()/bounds.getWidth()*1000.0),BufferedImage.TYPE_INT_ARGB);
         
         try {
-            double max = maxVal == null ? dd.maxVal[0]*1.005 : maxVal;
-            double min = minVal == null ? dd.minVal[0]*0.995 : minVal;
+            double max = getMaxValue();
+            double min = getMinValue();
             ColorMapUtils.generateInterpolatedColorMap(bounds, dd.getDataPoints(), 0, img.createGraphics(), img.getWidth(), img.getHeight(), 255, cmap, min, max);
         }
         catch (NullPointerException e) {
