@@ -49,7 +49,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -838,7 +837,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
         
         for (BaseData testPoint : points) {
-            int counter = 0;
+//            int counter = 0;
             boolean found = false;
             
 //            for (BaseData toTestPoint : list.toArray(new BaseData[list.size()])) {
@@ -884,7 +883,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
 ////                }
 ////            }
             if (!found) {
-                counter++;
+//                counter++;
                 list.add(testPoint);
                 dataUpdated = true;
 
