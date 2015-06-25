@@ -48,7 +48,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -68,7 +69,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 
-import corejava.Format;
 import net.miginfocom.swing.MigLayout;
 
 import org.opencv.core.Core;
@@ -79,7 +79,11 @@ import org.opencv.core.Size;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.imgproc.Imgproc;
 
-import pt.lsts.imc.*;
+import pt.lsts.imc.Announce;
+import pt.lsts.imc.CcuEvent;
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.MapFeature;
+import pt.lsts.imc.MapPoint;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -89,8 +93,6 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.renderer2d.LayerPriority;
-
-import com.google.common.eventbus.Subscribe;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
 import pt.lsts.neptus.types.map.MapGroup;
@@ -98,12 +100,13 @@ import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.types.mission.MissionType;
-import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
+
+import com.google.common.eventbus.Subscribe;
 
 
 /**
- * Neptus Plugin for Video Stream 
+ * Neptus Plugin for Video Stream and tag frame/object
  * 
  * @author pedrog
  * @version 1.0
@@ -471,29 +474,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         info = String.format("\t\t\t\t  ");
         txtData.setText(info);
         config.add(txtData, "cell 0 6 3 1, wrap");
-        
-        //Vehicle JComboBox
-  /*      String[] vehicleStrings = { "Vehicle", "x8-03", "mariner-01","aero-01"};
-        @SuppressWarnings({ "rawtypes", "unchecked" })
-        final JComboBox vehicleList = new JComboBox(vehicleStrings);
-        vehicleList.setSelectedIndex(0);
-        vehicleList.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String stringValue = (String) vehicleList.getSelectedItem();
-                String check = "TPL Size";
-                if (stringValue != check ){
-                    if (stringValue == "x8-03")
-                        idVehicle = 3078;
-                    if (stringValue == "mariner-01")
-                        idVehicle = 3081;
-                    if (stringValue == "aero-01")
-                        idVehicle = 3080;
-                }
-              }
-        });
-        config.add(vehicleList,"width 160:180:200, h 30!");*/
-        
+                
         menu = new JFrame("Menu_Config");
         menu.setVisible(show_menu);
         menu.setResizable(false);
@@ -611,6 +592,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             Imgproc.resize(mat, matResize, size);       
                             //Convert Mat to BufferedImage
                             temp=matToBufferedImage(matResize);
+                            //Display image in JFrame
+                            info = String.format("X = %d - Y = %d   x %.2f", mat.cols(), mat.rows(),(float)960/mat.cols());
+                            txtText.setText(info);
                             showImage(temp);
                             
                             if( captureFrame ) {
@@ -625,8 +609,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                                 captureFrame = false;
                                 cntTag++;
                             }
-                            
-                            
                         }
                     }
                     else
@@ -677,9 +659,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-
                     }
-
                }
            }
         };
@@ -706,13 +686,16 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 //Offset (m)
                 double offsetN = msg.getX();
                 double offsetE = msg.getY();
-
+                
+                //Height of Vehicle
+                double heightV = msg.getHeight();
+                
                 locationType.setOffsetNorth(offsetN);
                 locationType.setOffsetEast(offsetE);
                 locationType.setHeight(msg.getHeight());
 
                 double camTiltDeg = 45.0f;//this value may be in configuration
-                //info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, heightV);
+                info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, heightV);
                 //System.out.println("lat: "+lat+" lon: "+lon+"heightV: "+heightV);
                 LocationType tagLocationType = calcTagPosition(locationType.convertToAbsoluteLatLonDepth(), Math.toDegrees(msg.getPsi()), camTiltDeg);
                 this.lat= tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs();
@@ -875,10 +858,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             //System.out.println("Original Size = " + decompressedData.length +" bytes");
             
             //Transform byte data to cv::Mat (for display image)
-            //mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
             mat.put(0, 0, decompressedData);
             //Resize image to 960x720 resolution
-            //matResize = new Mat(960, 720, CvType.CV_8UC3);
             Imgproc.resize(mat, matResize, size);
                        
             //Convert Mat to BufferedImage
