@@ -49,6 +49,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -188,7 +189,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     
     private Ellipse2D circle = new Ellipse2D.Double(-4, -4, 8, 8);
 
-    private ArrayList<BaseData> dataList = new ArrayList<>();
+    private ArrayList<BaseData> dataList = new ArrayList<>(); //Collections.synchronizedList(new ArrayList<>());
     private ArrayList<BaseData> dataPredictionList = new ArrayList<>();
     private long dataPredictionMillisPassedFromSpillMax = 0;
     private ArrayList<Long> dataPredictionValues = new ArrayList<>();
@@ -416,7 +417,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 }
 
                 ArrayList<BaseData> to3D = new ArrayList<>();
-                for (BaseData point : dataList) {
+                for (BaseData point : dataList.toArray(new BaseData[dataList.size()])) {
                     if (validPoint(point, true))
                         to3D.add(point);
                 }
@@ -650,7 +651,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             return false;
         
         updatingFiles = true;
-        System.out.println("#########################");
+        System.out.println("#########################S");
 
         try {
             
@@ -722,6 +723,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         }
         
         updatingFiles = false;
+        System.out.println("#########################E");
         
         return true;
     }
@@ -810,6 +812,8 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
     private boolean updateValues(ArrayList<BaseData> list, ArrayList<BaseData> points, boolean dataOrPrediction) {
         boolean dataUpdated = false;
         
+        long st = System.currentTimeMillis();
+        
         if (autoCleanData && dataOrPrediction) {
             boolean updateValues = false;
             long curTimeMillis = System.currentTimeMillis();
@@ -837,30 +841,50 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
             int counter = 0;
             boolean found = false;
             
-            for (BaseData toTestPoint : list.toArray(new BaseData[list.size()])) {
-                if (toTestPoint.equals(testPoint)) {
-                    if (toTestPoint.getTimeMillis() < testPoint.getTimeMillis()) {
-                        list.remove(counter);
-                        list.add(counter, testPoint);
-                        dataUpdated = true;
-                        
-                        if (dataOrPrediction) {
-                            updateTimeValuesMinMax(testPoint);
-                            updateRhodamineValuesMinMax(testPoint);
-                        }
-                        else {
-                            updatePredictionValuesMinMax(testPoint);
-                        }
-                        updateDepthValuesMinMax(testPoint);
-                    }
-//                    System.out.println("######### " + counter);
-                    found = true;
-                    break;
-                    
-                }
-                counter++;
-            }
+//            for (BaseData toTestPoint : list.toArray(new BaseData[list.size()])) {
+//                if (toTestPoint.equals(testPoint)) {
+//                    if (toTestPoint.getTimeMillis() < testPoint.getTimeMillis()) {
+//                        list.remove(counter);
+//                        list.add(counter, testPoint);
+//                        dataUpdated = true;
+//                        
+//                        if (dataOrPrediction) {
+//                            updateTimeValuesMinMax(testPoint);
+//                            updateRhodamineValuesMinMax(testPoint);
+//                        }
+//                        else {
+//                            updatePredictionValuesMinMax(testPoint);
+//                        }
+//                        updateDepthValuesMinMax(testPoint);
+//                    }
+////                    System.out.println("######### " + counter);
+//                    found = true;
+//                    break;
+//                }
+
+//            if (list.contains(testPoint))
+//                found = true;
+
+//            for (BaseData toTestPoint : list) {
+//                if (toTestPoint.equals(testPoint)) {
+//                    found = true;
+//                    break;
+//                }
+//
+////              counter++;
+//            }
+//            System.out.println("taking " +  (System.currentTimeMillis() - st) + "ms");
+            
+//            if (list.contains(testPoint))
+//                found = true;
+////            for (BaseData toTestPoint : list) {
+////                if (toTestPoint.equals(testPoint)) {
+////                    found = true;
+////                    break;
+////                }
+////            }
             if (!found) {
+                counter++;
                 list.add(testPoint);
                 dataUpdated = true;
 
@@ -874,7 +898,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
                 updateDepthValuesMinMax(testPoint);
             }
         }
-        System.out.println("List size: " + list.size());
+        System.out.println("List size: " + list.size() + " took: " + (System.currentTimeMillis() - st) + "ms" + (dataOrPrediction ? "" : " (prediction)"));
         return dataUpdated;
     }
 
