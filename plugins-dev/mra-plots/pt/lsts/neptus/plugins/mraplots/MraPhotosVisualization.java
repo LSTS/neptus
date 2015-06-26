@@ -403,8 +403,14 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
                         JOptionPane.QUESTION_MESSAGE);
                 if (resp == null)
                     return;
+                
+                String desc = JOptionPane.showInputDialog(panel, "Enter marker description", "Add marker",
+                        JOptionPane.QUESTION_MESSAGE);
+                if (desc == null)
+                    return;
+                
                 SystemPositionAndAttitude state = states.get(f);
-                LogMarker marker = new LogMarker(resp, timestampOf(f) * 1000, state.getPosition().getLatitudeRads(),
+                LogMarker marker = new LogMarker(resp, desc, timestampOf(f) * 1000, state.getPosition().getLatitudeRads(),
                         state.getPosition().getLongitudeRads());
                 panel.addMarker(marker);
             }

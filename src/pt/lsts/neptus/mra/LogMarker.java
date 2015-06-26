@@ -52,6 +52,7 @@ public class LogMarker implements Serializable, Comparable<LogMarker> {
     private static final long serialVersionUID = 1L;
 
     private String label;
+    private String description;
     
     /**
      * Time stamp in milliseconds
@@ -73,14 +74,29 @@ public class LogMarker implements Serializable, Comparable<LogMarker> {
      * @param lat Latitude, in radians of the marker. Use 0 if not available.
      * @param lon Longitude, in radians of the marker. Use 0 if not available.
      */
-    public LogMarker(String label, double timestamp, double lat, double lon) {
+    public LogMarker(String label, String description, double timestamp, double lat, double lon) {
         super();
         this.label = label;
+        this.description = description;
         this.timestamp = timestamp;
         this.lat = lat;
         this.lon = lon;
     }
     
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @param description the description to set
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     @Override
     public int compareTo(LogMarker o) {
         if (o.timestamp > timestamp)

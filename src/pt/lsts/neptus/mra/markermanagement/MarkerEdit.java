@@ -56,6 +56,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -546,8 +547,13 @@ public class MarkerEdit extends JFrame {
         nameLabelValue.setToolTipText(selectedMarker.getLabel());
         timeStampValue.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(selectedMarker.getTimestamp()));
         locationValue.setText(selectedMarker.getLocation().toString());
-        altitudeValue.setText(Double.toString(selectedMarker.getAltitude()));
-        depthValue.setText(Double.toString(selectedMarker.getDepth()));
+        String altitudeVal = selectedMarker.getAltitude() < 0 ? "-" : Double.toString(selectedMarker.getAltitude()) + " m";
+        altitudeValue.setText(altitudeVal);
+        
+        DecimalFormat df2 = new DecimalFormat("###.##");
+        double formatedDepth = Double.valueOf(df2.format(selectedMarker.getDepth()));
+                
+        depthValue.setText(Double.toString(formatedDepth) + " m");
         classifValue.setSelectedItem(selectedMarker.getClassification());
         annotationValue.setText(selectedMarker.getAnnotation());
         nameLabelValue.setSize(nameLabelValue.getPreferredSize() );

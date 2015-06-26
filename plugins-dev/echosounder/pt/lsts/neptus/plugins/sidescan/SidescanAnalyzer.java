@@ -33,7 +33,6 @@ package pt.lsts.neptus.plugins.sidescan;
 
 import java.awt.Component;
 import java.awt.Graphics;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;

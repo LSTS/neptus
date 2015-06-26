@@ -495,8 +495,8 @@ public class MarkerManagement {
         double alt = altAndHeight[0];
         double heightValue = altAndHeight[1];
         double depth = altAndHeight[2];
-
-        LogMarkerItem marker = new LogMarkerItem(index, ssLogMarker.getLabel(), ssLogMarker.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), null, "<Your annotation here.>", alt, depth, range, heightValue, Classification.UNDEFINED);
+        String description = ssLogMarker.getDescription().isEmpty() ? "<Your annotation here.>" : ssLogMarker.getDescription();
+        LogMarkerItem marker = new LogMarkerItem(index, ssLogMarker.getLabel(), ssLogMarker.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), null, description, alt, depth, range, heightValue, Classification.UNDEFINED);
 
         //format date timestamp
         String date = DateTimeUtil.dateFormaterXMLUTC.format(ssLogMarker.getTimestamp());
@@ -613,8 +613,8 @@ public class MarkerManagement {
             //get location
             bottomLocation = new LocationType(lines.get(0).state.getPosition());
             topLocation = new LocationType(lines.get(lines.size()-1).state.getPosition());
-            System.out.println("marker: "+ssLogMarker.getLabel()+"- bottom "+ bottomLocation.getLatitudeDegs() + " "+ bottomLocation.getLongitudeDegs() );
-            System.out.println("marker: "+ssLogMarker.getLabel()+"- top "+ topLocation.getLatitudeDegs() + " "+ topLocation.getLongitudeDegs() );
+          //  System.out.println("marker: "+ssLogMarker.getLabel()+"- bottom "+ bottomLocation.getLatitudeDegs() + " "+ bottomLocation.getLongitudeDegs() );
+          //  System.out.println("marker: "+ssLogMarker.getLabel()+"- top "+ topLocation.getLatitudeDegs() + " "+ topLocation.getLongitudeDegs() );
             //TODO for each line compare HEIGHT!!!
             
             
@@ -626,14 +626,13 @@ public class MarkerManagement {
         //calculate distance between two locations
         if (topLocation != null) {
             height = bottomLocation.getDistanceInMeters(topLocation) / 2; //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
-            hHeight = bottomLocation.getHorizontalDistanceInMeters(topLocation);
+            hHeight = bottomLocation.getHorizontalDistanceInMeters(topLocation); //FIXME :
+            System.out.println("Altura: " + height);
+            System.out.println("altura horiz: "+ hHeight);
         }
-        System.out.println("Altura: " + height);
-        System.out.println("altura horiz: "+ hHeight);
 
         
-        //store altitude in meters at pos 0
-        //store height   in meters at pos 1
+        // result[] = {altitude, height}
         double[] result = { ((double)Math.round(altitude * 100) / 100), height, depth };
 
         return result;
@@ -777,6 +776,10 @@ public class MarkerManagement {
             String pLabel = label.getTextContent();
             if (pLabel.equals(markLabel)) {
                 mark.getElementsByTagName("Annotation").item(0).setTextContent(mrkerToUpd.getAnnotation());
+                System.out.println(findLogMarker(markLabel).getDescription());
+                findLogMarker(markLabel).setDescription(mrkerToUpd.getAnnotation());
+                System.out.println(findLogMarker(markLabel).getDescription());
+                
                 mark.getElementsByTagName("Classification").item(0).setTextContent(mrkerToUpd.getClassification().name());
                 mark.getElementsByTagName("Draw").item(0).setTextContent(mrkerToUpd.getDrawImgPath().getPath());
             }

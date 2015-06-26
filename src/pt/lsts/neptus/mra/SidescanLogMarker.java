@@ -62,9 +62,9 @@ public class SidescanLogMarker extends LogMarker {
      * @param subSys
      * @param colorMap
      */
-    public SidescanLogMarker(String label, double timestamp, double lat, double lon, double x, double y, int w, int h,
+    public SidescanLogMarker(String label, String desc, double timestamp, double lat, double lon, double x, double y, int w, int h,
             int subSys, ColorMap colorMap) {
-        super(label, timestamp, lat, lon);
+        super(label, desc, timestamp, lat, lon);
         this.x = x;
         this.y = y;
         this.w = w;
@@ -86,9 +86,9 @@ public class SidescanLogMarker extends LogMarker {
      * @param subSys
      * @param colorMap
      */
-    public SidescanLogMarker(String label, double timestamp, double lat, double lon, double x, double y, int w, int h,
+    public SidescanLogMarker(String label, String desc, double timestamp, double lat, double lon, double x, double y, int w, int h,
             double wMeters, int subSys, ColorMap colorMap) {
-        super(label, timestamp, lat, lon);
+        super(label, desc, timestamp, lat, lon);
         this.x = x;
         this.y = y;
         this.w = w;
@@ -97,7 +97,7 @@ public class SidescanLogMarker extends LogMarker {
         this.subSys = subSys;
         this.colorMap = colorMap.toString();
     }
-
+    
     public void setDefaults(int subSys){//reset Defaults for N/A values
         if (this.subSys==0){
             this.subSys=subSys;

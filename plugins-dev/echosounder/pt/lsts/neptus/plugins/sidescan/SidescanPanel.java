@@ -934,9 +934,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         if (marking) {
             String res = JOptionPane.showInputDialog("Insert marker name");
-
+            String desc = JOptionPane.showInputDialog("Insert marker description");
+            
             // Check for a valid response
-            if (res != null) {
+            if (res != null && desc != null) {
 
                 if (initialX == mouseX && initialY == mouseY) {
                     SidescanLine sl = null;
@@ -954,7 +955,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     double distanceToNadir = sl.state.getPosition().getDistanceInMeters(point.location);
                     distanceToNadir *= (x > sl.xsize / 2 ? 1 : -1);
 
-                    parent.mraPanel.addMarker(new SidescanLogMarker(res, sl.timestampMillis, point.location
+                    parent.mraPanel.addMarker(new SidescanLogMarker(res, desc, sl.timestampMillis, point.location
                             .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, Math.abs(mouseX
                                     - initialX), Math.abs(mouseY - initialY), subsystem, config.colorMap));
                 }
@@ -1005,7 +1006,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     d2 += l.range;
                     double wMeters = d2 - d1;
 
-                    parent.mraPanel.addMarker(new SidescanLogMarker(res, l.timestampMillis, point.location
+                    parent.mraPanel.addMarker(new SidescanLogMarker(res, desc, l.timestampMillis, point.location
                             .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, Math.abs(mouseX
                                     - initialX), Math.abs(mouseY - initialY), wMeters, subsystem, config.colorMap));
                 }

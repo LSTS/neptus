@@ -890,8 +890,8 @@ public class LsfReport {
     }
 
     public static SidescanLogMarker adjustMark(SidescanLogMarker mark){
-        SidescanLogMarker newMark=new SidescanLogMarker(mark.getLabel(),mark.getTimestamp(),mark.getLat(),mark.getLon(),
-                mark.x,mark.y,mark.w,mark.h,mark.wMeters,mark.subSys,ColorMapFactory.getColorMapByName(mark.colorMap));
+        SidescanLogMarker newMark = new SidescanLogMarker(mark.getLabel(), mark.getDescription(), mark.getTimestamp(), mark.getLat(), mark.getLon(),
+                mark.x, mark.y, mark.w,mark.h, mark.wMeters, mark.subSys, ColorMapFactory.getColorMapByName(mark.colorMap));
         newMark.point=mark.point;
         int h = newMark.h;
         int w = newMark.w;

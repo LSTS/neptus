@@ -240,12 +240,12 @@ public class ScriptedPlot extends MRATimeSeriesPlot {
             this.lsfPos = curIndex;            
         }
 
-        public void mark(double time, String label) {
-            mraPanel.addMarker(new LogMarker(label, time * 1000,0,0));
+        public void mark(double time, String label, String description) {
+            mraPanel.addMarker(new LogMarker(label, description, time * 1000,0,0));
         }
 
-        public void mark(String label) {
-            mark(lsfIndex.timeOf(lsfPos), label);
+        public void mark(String label, String description) {
+            mark(lsfIndex.timeOf(lsfPos), label, description);
         }
 
         /**
