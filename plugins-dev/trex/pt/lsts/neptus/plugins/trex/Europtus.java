@@ -40,6 +40,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
+import java.util.LinkedHashMap;
 import java.util.Vector;
 
 import javax.swing.JPopupMenu;
@@ -51,6 +52,7 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.imc.TrexToken;
+import pt.lsts.imc.net.UDPTransport;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.iridium.DuneIridiumMessenger;
@@ -62,7 +64,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.MessageDeliveryListener;
 import pt.lsts.neptus.comm.transports.DeliveryListener;
-import pt.lsts.neptus.comm.transports.udp.UDPTransport;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.mp.Maneuver.SPEED_UNITS;
 import pt.lsts.neptus.mp.templates.PlanCreator;
@@ -70,6 +71,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.trex.goals.AUVDrifterSurvey;
+import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -121,17 +123,16 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     @NeptusProperty(category="Real Vehicles", name="Connection to be used to send Goals")
     public Connection connection_type = Connection.IMC;
     
-    private String europtus_host = null, auv1_host = null, auv2_host = null;
-    private int europtus_port = -1, auv1_port = -1, auv2_port = -1;
+    private String europtus_host = null;
+    private int europtus_port = -1;
 
     private PlanType plan1 = null, plan2 = null;
     
     private HubIridiumMessenger hubMessenger = null;
     private DuneIridiumMessenger duneMessenger = null;
     private UDPTransport imcTransport = null;
+    private LinkedHashMap<String, TrexToken> trex_state = new LinkedHashMap<String, TrexToken>();
     
-    
-        
     private GpsFix asFix(EstimatedState state) {
         LocationType loc = IMCUtils.getLocation(state);
         loc.convertToAbsoluteLatLonDepth();
@@ -186,37 +187,62 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             catch (Exception e) {
                 NeptusLog.pub().error(e);
             }
-        }
-        
+        }        
     }
+    
+    
+    
     
     @Subscribe
     public void on(TrexToken token) {
         String src = token.getSourceName();
-        
+        try {
         if (src.equals(auv1)) {
-            token.setTimeline("auv1."+token.getTimeline());
-            try {
-                sendToEuroptus(token);
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-            }
+            TrexToken copy = TrexToken.clone(token);
+            copy.setTimeline("auv1."+token.getTimeline());
+            trex_state.put("auv1."+token.getTimeline(), copy);            
         }
         else if (src.equals(auv2)) {
-            token.setTimeline("auv2."+token.getTimeline());
-            try {
-                sendToEuroptus(token);
-            }
-            catch (Exception e) {
-                NeptusLog.pub().error(e);
-            }
+            TrexToken copy = TrexToken.clone(token);
+            copy.setTimeline("auv2."+token.getTimeline());
+            trex_state.put("auv2."+token.getTimeline(), copy);               
         }
         else if (token.getSrc() == europtus_id) {
             System.out.println("Received a request from EUROPTUS: ");
             //TODO
             System.out.println(token);
-        }        
+        }      
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @Periodic(millisBetweenUpdates=10000)
+    public void sendStateToEuroptus() {
+        
+        for (String msg : new String[] {"auv1.drifter", "auv2.drifter", "auv1.estate", "auv2.estate"}) {
+            if (trex_state.containsKey(msg)) {
+                try {
+                    NeptusLog.pub().info("Sending "+msg+" to europtus ("+europtus_host+":"+europtus_port+")");         
+                    sendToEuroptus(trex_state.get(msg));
+
+                    trex_state.remove(msg);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
+        if (trex_state.containsKey("auv2.drifter")) {
+            try {
+                sendToEuroptus(trex_state.get("auv2.drifter"));
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
     
     public enum Connection {
@@ -238,14 +264,14 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
         
         if (europtus_host == null)
             throw new Exception("Europtus host and port not correctly set.");
+        
         sendUdp(msg, europtus_host, europtus_port);
     }
 
     // send to udp destination
     void sendUdp(IMCMessage msg, String host, int port) throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        msg.serialize(new IMCOutputStream(baos));
-        getUdpTransport().sendMessage(host, port, baos.toByteArray(), this);
+        if (!getUdpTransport().sendMessage(host, port, msg))
+            throw new Exception(host+":"+port+" is unreacheable.");
     }
 
     Collection<ImcIridiumMessage> wrap(IMCMessage msg) throws Exception {
@@ -380,6 +406,9 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
 
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
+        if (event.getButton() != MouseEvent.BUTTON3)
+            return;
+        
         JPopupMenu popup = new JPopupMenu();
         final LocationType loc = source.getRealWorldLocation(event.getPoint());
 
