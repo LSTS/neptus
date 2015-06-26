@@ -220,6 +220,7 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
         attrTemp.setName(Attributes.PATH.name);
         PathType pathObj = (PathType) this.attributes.get(Attributes.PATH);
         attrTemp.setMin(pathObj.name + "");
+        attrTemp.setMax(pathObj.name + "");
         attrTemp.setAttrType(Attributes.PATH.type);
         attributes.add(attrTemp);
         attrTemp = new TrexAttribute();

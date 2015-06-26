@@ -36,7 +36,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
-import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
@@ -49,8 +48,9 @@ import pt.lsts.imc.EntityParameter;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.IMCOutputStream;
 import pt.lsts.imc.SetEntityParameters;
+import pt.lsts.imc.TrexOperation;
+import pt.lsts.imc.TrexOperation.OP;
 import pt.lsts.imc.TrexToken;
 import pt.lsts.imc.net.UDPTransport;
 import pt.lsts.neptus.NeptusLog;
@@ -94,10 +94,10 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     public String auv2 = "lauv-xplore-2";
 
     @NeptusProperty(category="Europtus", name="Host and Port for local europtus server")
-    public String europtus = "127.0.0.1:8800";
+    public String europtus = "127.0.0.1:7030";
     
     @NeptusProperty(category="Europtus", name="IMC ID of Europtus")
-    public int europtus_id = 65437;
+    public int europtus_id = 65432;
 
     @NeptusProperty(category="Simulated Vehicles", name="First Simulator")
     public String sim_auv1 = "trex-sim-1";
@@ -122,6 +122,9 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     
     @NeptusProperty(category="Real Vehicles", name="Connection to be used to send Goals")
     public Connection connection_type = Connection.IMC;
+    
+    @NeptusProperty(category="Europtus", name="Forward goals to Europtus")
+    public boolean forwardToEuroptus = true;
     
     private String europtus_host = null;
     private int europtus_port = -1;
@@ -224,23 +227,17 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
         for (String msg : new String[] {"auv1.drifter", "auv2.drifter", "auv1.estate", "auv2.estate"}) {
             if (trex_state.containsKey(msg)) {
                 try {
-                    NeptusLog.pub().info("Sending "+msg+" to europtus ("+europtus_host+":"+europtus_port+")");         
-                    sendToEuroptus(trex_state.get(msg));
-
+                    TrexToken clone = new TrexToken(trex_state.get(msg));
+                    TrexOperation op = new TrexOperation();
+                    op.setToken(clone);
+                    op.setOp(OP.POST_TOKEN);
+                    NeptusLog.pub().info("Sending token '"+msg+"' to europtus ("+europtus_host+":"+europtus_port+")");         
+                    sendToEuroptus(op);
                     trex_state.remove(msg);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-        }
-        
-        if (trex_state.containsKey("auv2.drifter")) {
-            try {
-                sendToEuroptus(trex_state.get("auv2.drifter"));
-            }
-            catch (Exception e) {
-                e.printStackTrace();
             }
         }
     }
@@ -250,26 +247,26 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
         HubIridium,
         IMC
     }
+    
+    public enum GoalsDestination {
+        Vehicles,
+        Europtus
+    }
+    
 
     
     // send to europtus server
-    void sendToEuroptus(TrexToken msg) throws Exception {
-        
-        String auv = msg.getSourceName();
-        
-        if (auv.equals(auv1))
-            msg.setTimeline("auv1."+msg.getTimeline());
-        else if (auv.equals(auv2))
-            msg.setTimeline("auv2."+msg.getTimeline());
+    void sendToEuroptus(TrexOperation msg) throws Exception {
         
         if (europtus_host == null)
             throw new Exception("Europtus host and port not correctly set.");
-        
+        System.out.println(msg.asJSON(true));
         sendUdp(msg, europtus_host, europtus_port);
     }
 
     // send to udp destination
     void sendUdp(IMCMessage msg, String host, int port) throws Exception {
+        pt.lsts.neptus.comm.transports.udp.UDPTransport trans = new pt.lsts.neptus.comm.transports.udp.UDPTransport();
         if (!getUdpTransport().sendMessage(host, port, msg))
             throw new Exception(host+":"+port+" is unreacheable.");
     }
@@ -485,16 +482,36 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
                 getConsole().getMission().save(false);
                 getConsole().warnMissionListeners();
                 
-                try {
-                    sendToVehicle1(survey1.asIMCMsg());
-                    sendToVehicle2(survey2.asIMCMsg());                
+                if (forwardToEuroptus) {
+                    TrexOperation op1 = survey1.asIMCMsg();
+                    TrexOperation op2 = survey2.asIMCMsg();
+                    String timeline = op1.getToken().getTimeline();
+                    op1.getToken().setTimeline("auv1."+timeline);
+                    op2.getToken().setTimeline("auv2."+timeline);
+                    try {
+                        sendToEuroptus(op1);
+                        sendToEuroptus(op2);          
+                    }
+                    catch (Exception ex) {
+                        NeptusLog.pub().error(
+                                ex.getClass().getSimpleName() + " while sending survey command: " + ex.getMessage(), ex);
+                        GuiUtils.errorMessage(getConsole(), "Error sending survey command",
+                                ex.getClass().getSimpleName() + ": " + ex.getMessage());
+                    }   
+                    
                 }
-                catch (Exception ex) {
-                    NeptusLog.pub().error(
-                            ex.getClass().getSimpleName() + " while sending survey command: " + ex.getMessage(), ex);
-                    GuiUtils.errorMessage(getConsole(), "Error sending survey command",
-                            ex.getClass().getSimpleName() + ": " + ex.getMessage());
-                }   
+                else {
+                    try {
+                        sendToVehicle1(survey1.asIMCMsg());
+                        sendToVehicle2(survey2.asIMCMsg());                
+                    }
+                    catch (Exception ex) {
+                        NeptusLog.pub().error(
+                                ex.getClass().getSimpleName() + " while sending survey command: " + ex.getMessage(), ex);
+                        GuiUtils.errorMessage(getConsole(), "Error sending survey command",
+                                ex.getClass().getSimpleName() + ": " + ex.getMessage());
+                    }   
+                }                
             }
         });
         
@@ -541,7 +558,6 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
 
     @Override
     public void initInteraction() {
-        System.out.println("Props changed");
         propertiesChanged();
     }
 
