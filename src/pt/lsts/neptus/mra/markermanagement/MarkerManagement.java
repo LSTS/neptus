@@ -627,8 +627,8 @@ public class MarkerManagement {
         if (topLocation != null) {
             height = bottomLocation.getDistanceInMeters(topLocation) / 2; //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
             hHeight = bottomLocation.getHorizontalDistanceInMeters(topLocation); //FIXME :
-            System.out.println("Altura: " + height);
-            System.out.println("altura horiz: "+ hHeight);
+         //   System.out.println("Altura: " + height);
+         //   System.out.println("altura horiz: "+ hHeight);
         }
 
         
@@ -776,9 +776,7 @@ public class MarkerManagement {
             String pLabel = label.getTextContent();
             if (pLabel.equals(markLabel)) {
                 mark.getElementsByTagName("Annotation").item(0).setTextContent(mrkerToUpd.getAnnotation());
-                System.out.println(findLogMarker(markLabel).getDescription());
                 findLogMarker(markLabel).setDescription(mrkerToUpd.getAnnotation());
-                System.out.println(findLogMarker(markLabel).getDescription());
                 
                 mark.getElementsByTagName("Classification").item(0).setTextContent(mrkerToUpd.getClassification().name());
                 mark.getElementsByTagName("Draw").item(0).setTextContent(mrkerToUpd.getDrawImgPath().getPath());
