@@ -84,7 +84,7 @@ import com.google.common.eventbus.Subscribe;
 /**
  * @author zp
  */
-@PluginDescription(name="Europtus Interface")
+@PluginDescription(name="Europtus Interface", icon="pt/lsts/neptus/plugins/trex/hal9000.png")
 public class Europtus extends ConsoleInteraction implements MessageDeliveryListener, DeliveryListener {
 
     @NeptusProperty(category="Real Vehicles", name="First AUV (smaller surveys)")
