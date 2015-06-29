@@ -153,7 +153,7 @@ public class CSVBathymetryExporter implements MRAExporter {
                 if (previousTimeStamp == 0 || previousTimeStamp != timeInSeconds) {
 
                     // Timestamp
-                    recordMsg(timeInSeconds * 1000+",", processResultOutputWriterAllBeams);
+                    recordMsg(timeInSeconds * 1000 + ",", processResultOutputWriterAllBeams);
                     // Position in degrees
                     recordMsg(nextSwath.getPose().getPosition().getLatitudeDegs()+",", processResultOutputWriterAllBeams);
                     recordMsg(nextSwath.getPose().getPosition().getLongitudeDegs()+",", processResultOutputWriterAllBeams);
@@ -162,9 +162,9 @@ public class CSVBathymetryExporter implements MRAExporter {
                     recordMsg(nextSwath.getPose().getPitch()+",", processResultOutputWriterAllBeams);
                     recordMsg(nextSwath.getPose().getYaw()+",", processResultOutputWriterAllBeams);
                     
-                    
+   
                     // Timestamp
-                    recordMsg(timeInSeconds * 1000+",", processResultOutputWriterCenterBeam);
+                    recordMsg(timeInSeconds * 1000 + ",", processResultOutputWriterCenterBeam);
                     // Position in degrees
                     recordMsg(nextSwath.getPose().getPosition().getLatitudeDegs()+",", processResultOutputWriterCenterBeam);
                     recordMsg(nextSwath.getPose().getPosition().getLongitudeDegs()+",", processResultOutputWriterCenterBeam);
@@ -176,7 +176,7 @@ public class CSVBathymetryExporter implements MRAExporter {
                     // Number of beams
                     recordMsg("1,", processResultOutputWriterCenterBeam);
                     recordMsg(nextSwath.getData().length+",", processResultOutputWriterAllBeams);
-                    System.out.println("Size: "+nextSwath.getData().length);
+
                     for (int i = 0; i < nextSwath.getData().length; i++) {
                         if (nextSwath.getData()[i] != null) {
                             // Beam x offset
@@ -189,7 +189,7 @@ public class CSVBathymetryExporter implements MRAExporter {
                         else
                             recordMsg("NaN NaN NaN,", processResultOutputWriterAllBeams);
                         
-                        if (nextSwath.getData()[i] != null && i == 240) {
+                        if (nextSwath.getData()[i] != null && i == (nextSwath.getData().length / 2)) {
                             // Beam x offset
                             recordMsg(nextSwath.getData()[i].north+" ", processResultOutputWriterCenterBeam);
                             // Beam y offset
@@ -197,7 +197,7 @@ public class CSVBathymetryExporter implements MRAExporter {
                             // Beam Height
                             recordMsg(nextSwath.getData()[i].depth+",", processResultOutputWriterCenterBeam);
                         }
-                        else if (nextSwath.getData()[i] == null && i == 240)
+                        else if (nextSwath.getData()[i] == null && i == (nextSwath.getData().length / 2))
                             recordMsg("NaN NaN NaN,", processResultOutputWriterCenterBeam);
                     } 
                     recordMsgln("", processResultOutputWriterCenterBeam);
@@ -208,47 +208,7 @@ public class CSVBathymetryExporter implements MRAExporter {
                 }                          
 
                 nextSwath = deltaParser.nextSwath();
-        
-        /*BathymetrySwath nextSwath = null; 
-        recordMsg("%Time UTC,Latitude Degrees,Longitude Degrees,Roll Radians,Pitch Radians,Yaw Radians, Number of data elem, (X-Offset Y-Offset Height - meters) \n");
-        long previousTimeStamp = 0;
-        try {
-            nextSwath = deltaParser.nextSwath();
-            while (nextSwath != null) {
-            
-                long timeInSeconds = (long) (nextSwath.getTimestamp() / 1000);
-                // Only one beam array for second
-                if (previousTimeStamp == 0 || previousTimeStamp != timeInSeconds) {
-
-                    // Timestamp
-                    recordMsg(timeInSeconds * 1000+",");
-                    // Position in degrees
-                    recordMsg(nextSwath.getPose().getPosition().getLatitudeDegs()+",");
-                    recordMsg(nextSwath.getPose().getPosition().getLongitudeDegs()+",");
-                    // Attitude in radians
-                    recordMsg(nextSwath.getPose().getRoll()+",");
-                    recordMsg(nextSwath.getPose().getPitch()+",");
-                    recordMsg(nextSwath.getPose().getYaw()+",");
-                    // Number of beams
-                    recordMsg("1,");
-                    for (int i = 0; i < nextSwath.getData().length; i++) {
-                        if (nextSwath.getData()[i] != null && i == 240) {
-                            // Beam x offset
-                            recordMsg(nextSwath.getData()[i].north+" ");
-                            // Beam y offset
-                            recordMsg(nextSwath.getData()[i].east+" ");
-                            // Beam Height
-                            recordMsg(nextSwath.getData()[i].depth+",");
-                        }
-                        else if (nextSwath.getData()[i] == null && i == 240)
-                            recordMsg("NaN NaN NaN,");
-                    } 
-                    recordMsgln("");
-                    
-                    previousTimeStamp = timeInSeconds;
-                }                          
-
-                nextSwath = deltaParser.nextSwath();*/
+      
                 
                 if (pmonitor != null && pmonitor.isCanceled())
                     return "Export interrupted!";
@@ -270,19 +230,7 @@ public class CSVBathymetryExporter implements MRAExporter {
         if (processResultOutputWriter != null || new File(processResultOutputFileName).exists()) {
             return false;
         }
-        /*try {
-            try {
-                processResultOutputWriter = new OutputStreamWriter(new FileOutputStream(processResultOutputFileName), "UTF-8");
-            }
-            catch (UnsupportedEncodingException UEe) {
-                System.err.println("\n-- UnsupportedEncodingException\n");
-                System.err.flush();
-                processResultOutputWriter = new OutputStreamWriter(new FileOutputStream(processResultOutputFileName), "iso8859-1");
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }*/
+
         return true;
     }
     
