@@ -166,7 +166,9 @@ public class BaseData  implements Comparable<BaseData> {
      */
     @Override
     public int compareTo(BaseData o) {
-        if (Double.compare(lat, o.lat) == 0 && Double.compare(lon, o.lon) == 0)
+        if (o != null && Double.compare(lat, o.lat) == 0 && Double.compare(lon, o.lon) == 0
+                &&  Double.compare(timeMillis, o.timeMillis) == 0
+                &&  Double.compare(depth, o.depth) == 0)
             return 0;
         else
             return 1; 
