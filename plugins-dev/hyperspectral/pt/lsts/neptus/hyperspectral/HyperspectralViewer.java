@@ -37,6 +37,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
@@ -107,7 +108,8 @@ public class HyperspectralViewer extends ConsoleLayer {
     private Queue<byte[]> frames;
     private boolean framesLoaded = false;
     
-    private int selectedWavelength = 320; /* column to crop from test data */
+    @NeptusProperty(editable = true, name = "Hyperspectral wavelength", userLevel = LEVEL.REGULAR)
+    private int selectedWavelength = 320;
     private boolean initDisplay = false;
     
 
@@ -115,7 +117,7 @@ public class HyperspectralViewer extends ConsoleLayer {
         this.console = getConsole();
         initDisplayedImage();
         /* testing */
-        frames = loadFrames(selectedWavelength + "/"); /* load bmps */       
+        frames = loadFrames(selectedWavelength + "/"); /* load bmps */
     }
     
     private void initDisplayedImage() {
