@@ -717,16 +717,16 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
      * @return
      */
     public LocationType calcTagPosition(LocationType locationType, double orientationDegrees, double camTiltDeg){
-        //System.out.println("Before: lat:"+locationType.getLatitudeDegs()+" lon:"+locationType.getLongitudeDegs());
+        System.out.println("Before: lat:"+locationType.getLatitudeDegs()+" lon:"+locationType.getLongitudeDegs()+" orientationDegrees="+orientationDegrees);
         double dist = Math.tan(Math.toRadians(camTiltDeg))*(Math.abs(locationType.getHeight()));// hypotenuse
-        double offsetN = Math.cos(Math.toDegrees(orientationDegrees))*dist;//oposite side
-        double offsetE = -Math.sin(Math.toDegrees(orientationDegrees))*dist;// adjacent side
-        //System.out.println("dist="+dist+" loc.h="+locationType.getHeight());
-        //System.out.println("offsetN="+offsetN+" offsetE="+offsetE);
+        double offsetN = Math.cos(Math.toRadians(orientationDegrees))*dist;//oposite side
+        double offsetE = Math.sin(Math.toRadians(orientationDegrees))*dist;// adjacent side
+        System.out.println("dist="+dist+" loc.h="+locationType.getHeight());
+        System.out.println("offsetN="+offsetN+" offsetE="+offsetE);
         LocationType tagLocationType = locationType.convertToAbsoluteLatLonDepth();
         tagLocationType.setOffsetNorth(offsetN);
         tagLocationType.setOffsetEast(offsetE);
-        //System.out.println("After: lat:"+tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs()+" lon:"+tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs());
+        System.out.println("After: lat:"+tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs()+" lon:"+tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs());
         return tagLocationType.convertToAbsoluteLatLonDepth();
     }
 
