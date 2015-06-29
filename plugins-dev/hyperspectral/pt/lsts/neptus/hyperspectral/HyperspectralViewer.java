@@ -137,6 +137,9 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     
     @Override
     public void propertiesChanged() {
+        if(!(wavelengthProperty >= MIN_FREQ && wavelengthProperty <= MAX_FREQ))
+            return;
+        
         if(wavelengthProperty != selectedWavelength) {
             framesLoaded = false;
             selectedWavelength = wavelengthProperty;
