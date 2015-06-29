@@ -110,7 +110,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     private boolean framesLoaded = false;
     
     @NeptusProperty(editable = true, name = "Hyperspectral wavelength", userLevel = LEVEL.REGULAR)
-    private int wavelengthProperty = 320;
+    private int wavelengthProperty = 0;
     
     private int selectedWavelength = 320;
     private boolean initDisplay = false;
@@ -120,7 +120,6 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
         this.console = getConsole();
         initDisplayedImage();
         /* testing */
-        frames = loadFrames(selectedWavelength + "/"); /* load bmps */
     }
     
     private void initDisplayedImage() {
@@ -179,7 +178,10 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
                 return name.toLowerCase().endsWith(".bmp");
             }            
         });
-                
+        
+        if(!dir.exists())
+            return new LinkedList<byte[]>();
+        
         File frames[] = new File[tmpFrames.length];
        
         
@@ -252,6 +254,9 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
         if(!framesLoaded || !state.getSourceName().equals(mainSys))
             return;
 
+        if(frames.isEmpty())
+            return;
+        
         byte[] frameBytes= frames.poll();
         updateDisplay(frameBytes);
         frames.offer(frameBytes); /* keep a circular queue */
