@@ -141,9 +141,10 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
             return;
         
         if(wavelengthProperty != selectedWavelength) {
-            framesLoaded = false;
+            framesLoaded = false;            
             selectedWavelength = wavelengthProperty;
             
+            initDisplayedImage();
             requestWavelength();
         }
     }
@@ -233,7 +234,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        if(!framesLoaded || !initDisplay) {
+        if(!framesLoaded && !initDisplay) {
             int newX = -((MAX_FREQ / 2)) + (FRAME_HEIGHT / 2);
             int newY = (renderer.getHeight() - FRAME_HEIGHT) / 2;
             
