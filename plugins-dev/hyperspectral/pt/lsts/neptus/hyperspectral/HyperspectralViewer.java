@@ -29,6 +29,9 @@ import org.apache.commons.io.comparator.NameFileComparator;
 import org.apache.commons.lang.ArrayUtils;
 import org.jzy3d.maths.Array;
 
+import com.google.common.eventbus.Subscribe;
+
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -217,12 +220,12 @@ public class HyperspectralViewer extends ConsoleLayer {
         }
     }
     
-    /* Simulate the reception of a frame */
-    @Periodic(millisBetweenUpdates = 1000)
-    public void simReceivedFrame() {
+    
+    @Subscribe
+    public void on(EstimatedState state){
         if(!framesLoaded)
             return;
-        
+
         byte[] frameBytes= frames.poll();
         updateDisplay(frameBytes);
         frames.offer(frameBytes); /* keep a circular queue */
