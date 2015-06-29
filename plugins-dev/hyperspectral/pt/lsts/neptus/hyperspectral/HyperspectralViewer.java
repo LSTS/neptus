@@ -132,7 +132,7 @@ public class HyperspectralViewer extends ConsoleLayer {
         catch (IOException e) { e.printStackTrace(); }
     }
     
-    private static BufferedImage joinBufferedImage(BufferedImage img1,BufferedImage img2) {
+    private BufferedImage joinBufferedImage(BufferedImage img1,BufferedImage img2) {
 
         //create a new buffer and draw two image into the new image
         BufferedImage newImage = new BufferedImage(MAX_FREQ, FRAME_HEIGHT, BufferedImage.TYPE_INT_ARGB);
@@ -214,6 +214,8 @@ public class HyperspectralViewer extends ConsoleLayer {
             initDisplay = true;
         }
         else {
+            g.setColor(Color.red);
+            g.drawString(selectedWavelength + " nm", (FRAME_HEIGHT / 2) - 30, (FRAME_HEIGHT / 2) - 60);
             g.setTransform(transform);
             g.setComposite(composite);
             g.drawImage(dataDisplay, 0, 0, renderer);
