@@ -34,6 +34,9 @@ import com.google.common.eventbus.Subscribe;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
@@ -97,11 +100,13 @@ public class HyperspectralViewer extends ConsoleLayer {
     private final AffineTransform transform = new AffineTransform();
     
     private ConsoleLayout console;
+    private String mainSys = "";
       
     /* testing */
     private BufferedImage dataDisplay; /* image currently being displayed */
     private Queue<byte[]> frames;
     private boolean framesLoaded = false;
+    
     private int selectedWavelength = 320; /* column to crop from test data */
     private boolean initDisplay = false;
     
@@ -192,7 +197,6 @@ public class HyperspectralViewer extends ConsoleLayer {
         Arrays.sort(imgFiles, NameFileComparator.NAME_INSENSITIVE_COMPARATOR);
         try {
             for(int i = 0; i < imgFiles.length; i++) {
-                System.out.println("### " + imgFiles[i].getName());
                 BufferedImage frame = (BufferedImage) ImageIO.read(imgFiles[i]);
                 
                 BufferedImage cropped = frame.getSubimage(wave - 1, 0, 1, 250);
@@ -224,13 +228,19 @@ public class HyperspectralViewer extends ConsoleLayer {
     
     
     @Subscribe
-    public void on(EstimatedState state){
-        if(!framesLoaded)
+    public void on(EstimatedState state) {
+        if(!framesLoaded || !state.getSourceName().equals(mainSys))
             return;
 
         byte[] frameBytes= frames.poll();
         updateDisplay(frameBytes);
         frames.offer(frameBytes); /* keep a circular queue */
+    }
+    
+
+    @Subscribe
+    public void on(ConsoleEventMainSystemChange ev) {
+        mainSys = getConsole().getMainSystem();
     }
     
     @Override
