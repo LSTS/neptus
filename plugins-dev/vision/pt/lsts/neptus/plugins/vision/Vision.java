@@ -392,7 +392,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         
         //JPanel for info and config values      
         config = new JPanel(new MigLayout());
-
+/*
         //Tpl JComboBox
         String[] sizeStrings = { "TPL Size", "25", "50", "75", "100", "150"};
         @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -450,7 +450,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             }
         });
         config.add(buttonV,"width 160:180:200, h 40!, wrap");
-        
+        */
         //JText info Data received
         txtText = new JTextField();
         txtText.setEditable(false);
