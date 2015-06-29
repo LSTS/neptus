@@ -79,7 +79,7 @@ import java.awt.image.DataBufferByte;
 @PluginDescription(name = "HyperSpectral Data Viewer", author = "tsmarques", version = "0.1")
 @LayerPriority(priority = 40)
 public class HyperspectralViewer extends ConsoleLayer {
-    private static final String TEST_DATA_DIR = "/plugins-dev/hyperspectral/pt/lsts/neptus/hyperspectral/test-data/";
+    private static final String TEST_DATA_DIR = "./plugins-dev/hyperspectral/pt/lsts/neptus/hyperspectral/test-data/";
     
     public static final int MIN_FREQ = 0;
     public static final int MAX_FREQ = 640; /* also frame's width */
@@ -151,7 +151,7 @@ public class HyperspectralViewer extends ConsoleLayer {
                 return name.toLowerCase().endsWith(".bmp");
             }            
         });
-        
+                
         File frames[] = new File[tmpFrames.length];
        
         
