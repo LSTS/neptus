@@ -36,6 +36,7 @@ import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
+import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -85,7 +86,7 @@ import java.awt.image.DataBufferByte;
 @SuppressWarnings("serial")
 @PluginDescription(name = "HyperSpectral Data Viewer", author = "tsmarques", version = "0.1")
 @LayerPriority(priority = 40)
-public class HyperspectralViewer extends ConsoleLayer {
+public class HyperspectralViewer extends ConsoleLayer implements ConfigurationListener {
     private static final String TEST_DATA_DIR = "./plugins-dev/hyperspectral/pt/lsts/neptus/hyperspectral/test-data/";
     
     public static final int MIN_FREQ = 0;
@@ -109,6 +110,8 @@ public class HyperspectralViewer extends ConsoleLayer {
     private boolean framesLoaded = false;
     
     @NeptusProperty(editable = true, name = "Hyperspectral wavelength", userLevel = LEVEL.REGULAR)
+    private int wavelengthProperty = 320;
+    
     private int selectedWavelength = 320;
     private boolean initDisplay = false;
     
@@ -126,6 +129,21 @@ public class HyperspectralViewer extends ConsoleLayer {
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, MAX_FREQ, FRAME_HEIGHT);
         g.dispose();
+    }
+    
+    /* request data with new wavelength */
+    private void requestWavelength() {
+        frames = loadFrames(selectedWavelength + "/");
+    }
+    
+    @Override
+    public void propertiesChanged() {
+        if(wavelengthProperty != selectedWavelength) {
+            framesLoaded = false;
+            selectedWavelength = wavelengthProperty;
+            
+            requestWavelength();
+        }
     }
     
     private void updateDisplay(byte[] frameBytes) {
@@ -257,4 +275,5 @@ public class HyperspectralViewer extends ConsoleLayer {
 
     @Override
     public boolean userControlsOpacity() { return false; }
+
 }
