@@ -85,7 +85,7 @@ import java.awt.image.DataBufferByte;
  *
  */
 @SuppressWarnings("serial")
-@PluginDescription(name = "HyperSpectral Data Viewer", author = "tsmarques", version = "0.1")
+@PluginDescription(name = "Hyperspectral Layer", author = "tsmarques", version = "0.1")
 @LayerPriority(priority = 40)
 public class HyperspectralViewer extends ConsoleLayer implements ConfigurationListener {
     private static final String TEST_DATA_DIR = "./plugins-dev/hyperspectral/pt/lsts/neptus/hyperspectral/test-data/";
