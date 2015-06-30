@@ -77,6 +77,7 @@ import pt.lsts.imc.CcuEvent;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.MapFeature;
 import pt.lsts.imc.MapPoint;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -352,7 +353,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         event.setId(id);
         event.setArg(feature);
         ImcMsgManager.getManager().broadcastToCCUs(event);
-        System.out.println("placeLocationOnMap: "+id+"\nPos: lat: "+this.lat+" ;lon: "+this.lon);
+        NeptusLog.pub().info("placeLocationOnMap: "+id+" - Pos: lat: "+this.lat+" ; lon: "+this.lon);
     }
 
     //!Print Image to JPanel
@@ -361,7 +362,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         panelImage.add(picLabel);
         repaint();
     }
-        
+
     //!Config Layout
     public void layout_user(){
         //Create Buffer (type MAT) for Image resize
@@ -504,8 +505,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         Object source = e.getItemSelectable();
         //System.out.println("source: "+source);
         if (source == saveToDiskCheckBox) {
-            flagBuffImg = !flagBuffImg;
-            //System.out.println("Valor: "+flagBuffImg);
+            //System.out.println("isRunning="+isRunning+"ipCam"+ipCam+"saveToDiskCheckBox"+saveToDiskCheckBox.isSelected());
+            if((isRunning==true || ipCam==true) && saveToDiskCheckBox.isSelected()==true) {
+                flagBuffImg = true;
+                //System.out.println("Valor: "+flagBuffImg);
+            }
+            if ((isRunning==false && ipCam==false) || saveToDiskCheckBox.isSelected()==false){
+                flagBuffImg=false;
+            }
         }
     }
     /* (non-Javadoc)
@@ -600,9 +607,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             capture = new VideoCapture("rtsp://10.0.20.102:554/axis-media/media.amp?streamprofile=Mobile");
                             cntTag = 1;
                             if (capture.isOpened())
-                                System.out.println("Video is captured");
+                                NeptusLog.pub().info("Video is captured");
                             else
-                                System.out.println("Video is not captured");
+                                NeptusLog.pub().info("Video is not captured");
                         }
                         //TODO: Cap ip cam
                         else if(!isRunning && ipCam && state) {
