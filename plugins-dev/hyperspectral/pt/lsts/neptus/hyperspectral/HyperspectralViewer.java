@@ -134,6 +134,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     /* request data with new wavelength */
     private void requestWavelength() {
         frames = loadFrames(selectedWavelength + "/");
+        framesLoaded = true;
     }
     
     @Override
@@ -176,7 +177,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     
     /* for testing */
     /* load the frames columns */
-    private Queue<byte[]> loadFrames(String path) {
+    public static Queue<byte[]> loadFrames(String path) {
         File dir = new File(TEST_DATA_DIR + path);
         File[] tmpFrames = dir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -204,7 +205,6 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
             catch (IOException e) { e.printStackTrace(); }
         }
 
-        framesLoaded = true;
         return framesList;
     }
     
