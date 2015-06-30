@@ -59,15 +59,7 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -392,6 +384,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         
         //JPanel for info and config values      
         config = new JPanel(new MigLayout());
+
 /*
         //Tpl JComboBox
         String[] sizeStrings = { "TPL Size", "25", "50", "75", "100", "150"};
@@ -451,6 +444,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         });
         config.add(buttonV,"width 160:180:200, h 40!, wrap");
         */
+
+        //JCheckBox savetoDiskCheckBox = new JCheckBox();
         //JText info Data received
         txtText = new JTextField();
         txtText.setEditable(false);
@@ -688,14 +683,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 double offsetE = msg.getY();
                 
                 //Height of Vehicle
-                double heightV = msg.getHeight();
-                
+                double heightRelative = msg.getHeight()-msg.getZ();//absolute altitude - zero of that location
+                System.out.println("heightRelative: h="+msg.getHeight()+" z="+msg.getZ());
                 locationType.setOffsetNorth(offsetN);
                 locationType.setOffsetEast(offsetE);
-                locationType.setHeight(msg.getHeight());
+                locationType.setHeight(heightRelative);
 
                 double camTiltDeg = 45.0f;//this value may be in configuration
-                info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, heightV);
+                info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, heightRelative);
                 //System.out.println("lat: "+lat+" lon: "+lon+"heightV: "+heightV);
                 LocationType tagLocationType = calcTagPosition(locationType.convertToAbsoluteLatLonDepth(), Math.toDegrees(msg.getPsi()), camTiltDeg);
                 this.lat= tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs();
@@ -717,16 +712,18 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
      * @return
      */
     public LocationType calcTagPosition(LocationType locationType, double orientationDegrees, double camTiltDeg){
-        System.out.println("Before: lat:"+locationType.getLatitudeDegs()+" lon:"+locationType.getLongitudeDegs()+" orientationDegrees="+orientationDegrees);
-        double dist = Math.tan(Math.toRadians(camTiltDeg))*(Math.abs(locationType.getHeight()));// hypotenuse
+        //System.out.println("Before: lat:"+locationType.getLatitudeDegs()+" lon:"+locationType.getLongitudeDegs()+" orientationDegrees="+orientationDegrees);
+        double altitude = locationType.getHeight();
+        double dist = Math.tan(Math.toRadians(camTiltDeg))*(Math.abs(altitude));// hypotenuse
         double offsetN = Math.cos(Math.toRadians(orientationDegrees))*dist;//oposite side
         double offsetE = Math.sin(Math.toRadians(orientationDegrees))*dist;// adjacent side
-        System.out.println("dist="+dist+" loc.h="+locationType.getHeight());
-        System.out.println("offsetN="+offsetN+" offsetE="+offsetE);
+        //System.out.println("dist="+dist+" loc.h="+locationType.getHeight());
+        //System.out.println("offsetN="+offsetN+" offsetE="+offsetE);
+
         LocationType tagLocationType = locationType.convertToAbsoluteLatLonDepth();
         tagLocationType.setOffsetNorth(offsetN);
         tagLocationType.setOffsetEast(offsetE);
-        System.out.println("After: lat:"+tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs()+" lon:"+tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs());
+        //System.out.println("After: lat:"+tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs()+" lon:"+tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs());
         return tagLocationType.convertToAbsoluteLatLonDepth();
     }
 
