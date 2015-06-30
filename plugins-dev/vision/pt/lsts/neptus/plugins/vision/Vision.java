@@ -38,6 +38,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -126,10 +127,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     int widthImgRec;
     //Height size of image
     int heightImgRec;
-    //Scale factor of x
+    //Scale factor of x pixel
     float xScale;
-    //Scale factor of y
+    //Scale factor of y pixel
     float yScale;
+    //x pixel coord
+    int xPixel;
+    //y pixel coord
+    int yPixel;
     //read size of pack compress
     String line;
     //Buffer for data receive from DUNE over tcp
@@ -166,8 +171,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     JTextField txtDataTcp;
     //JFrame for menu options
     JFrame menu;
+    //CheckBox to save image to HD
+    JCheckBox saveToDiskCheckBox;
     //String for the info treatment 
     String info;
+    //String for the info of Image Size Stream
+    String infoSizeStream;
     //JPopup Menu
     JPopupMenu popup;
     //Data system
@@ -186,7 +195,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     int cntTag = 1;
 
     //counter for frame tag ID
-    short frameTagID =0;
+    short frameTagID =1;
     //lat, lon: frame Tag pos to be marked as POI
     double lat,lon;
 
@@ -215,17 +224,21 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1){
-                    int mouseX = (int) ((e.getX() - 13)/xScale);  //shift window bar
-                    int mouseY = (int) ((e.getY() - 10)/yScale) ; //shift window bar
-                    if(isRunning && !ipCam)
-                        if (mouseX >= 0 && mouseY >= 0 && mouseX <= widthImgRec && mouseY <= heightImgRec )
-                            out.printf("%d#%d;\0", mouseX,mouseY);
-                    
-                    System.out.println(getMainVehicleId()+"X = " +mouseX+ " Y = " +mouseY);
-                    captureFrame = true;
-
-                    //place mark on map as POI
-                    placeLocationOnMap();
+                    if(isRunning || ipCam){
+                        int mouseX = (int) ((e.getX() - 13)/xScale);  //shift window bar
+                        int mouseY = (int) ((e.getY() - 10)/yScale) ; //shift window bar
+                        xPixel = e.getX();
+                        yPixel = e.getY();
+                        if(isRunning && !ipCam)
+                            if (mouseX >= 0 && mouseY >= 0 && mouseX <= widthImgRec && mouseY <= heightImgRec )
+                                out.printf("%d#%d;\0", mouseX,mouseY);
+                        
+                        //System.out.println(getMainVehicleId()+"X = " +mouseX+ " Y = " +mouseY);
+                        captureFrame = true;
+    
+                        //place mark on map as POI
+                        placeLocationOnMap();
+                    }
                 }
             }
             @Override
@@ -348,7 +361,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         panelImage.add(picLabel);
         repaint();
     }
-    
+        
     //!Config Layout
     public void layout_user(){
         //Create Buffer (type MAT) for Image resize
@@ -363,10 +376,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         dir = new File(String.format("log/image/%s",date));
         dir.mkdir();
         //Create folder Image Tag
-        dir = new File(String.format("log/image/%s/image_tag",date));
+        dir = new File(String.format("log/image/%s/imageTag",date));
         dir.mkdir();
         //Create folder Image Save
-        dir = new File(String.format("log/image/%s/image_save",date));
+        dir = new File(String.format("log/image/%s/imageSave",date));
         dir.mkdir();
         logDir = String.format("log/image/%s",date);
         
@@ -445,7 +458,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         config.add(buttonV,"width 160:180:200, h 40!, wrap");
         */
 
-        //JCheckBox savetoDiskCheckBox = new JCheckBox();
+        saveToDiskCheckBox = new JCheckBox("Save Image to HD");
+        saveToDiskCheckBox.setMnemonic(KeyEvent.VK_C);
+        saveToDiskCheckBox.setSelected(false);
+        saveToDiskCheckBox.addItemListener(this);
+        config.add(saveToDiskCheckBox,"width 160:180:200, h 40!, wrap");
+        
         //JText info Data received
         txtText = new JTextField();
         txtText.setEditable(false);
@@ -482,6 +500,13 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
      */
     @Override
     public void itemStateChanged(ItemEvent e) {
+        //checkbox listener
+        Object source = e.getItemSelectable();
+        //System.out.println("source: "+source);
+        if (source == saveToDiskCheckBox) {
+            flagBuffImg = !flagBuffImg;
+            //System.out.println("Valor: "+flagBuffImg);
+        }
     }
     /* (non-Javadoc)
      * @see pt.lsts.neptus.plugins.ConfigurationListener#propertiesChanged()
@@ -588,12 +613,17 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             //Convert Mat to BufferedImage
                             temp=matToBufferedImage(matResize);
                             //Display image in JFrame
-                            info = String.format("X = %d - Y = %d   x %.2f", mat.cols(), mat.rows(),(float)960/mat.cols());
-                            txtText.setText(info);
+                            infoSizeStream = String.format("X = %d - Y = %d   x %.2f", mat.cols(), mat.rows(),(float)960/mat.cols());
+                            txtText.setText(infoSizeStream);
                             showImage(temp);
                             
                             if( captureFrame ) {
-                                String imageTag = String.format("%s/image_tag/(%d)_%s.jpeg",logDir,cntTag,info);
+                                xPixel = xPixel - 480;
+                                if(yPixel <= 360)
+                                    yPixel = -(yPixel - 360);
+                                else
+                                    yPixel = yPixel - 360;
+                                String imageTag = String.format("%s/imageTag/(%d)_%s_X=%d_Y=%d.jpeg",logDir,cntTag,info,xPixel,yPixel);
                                 outputfile = new File(imageTag);
                                 try {
                                     ImageIO.write(temp, "jpeg", outputfile);
@@ -620,11 +650,11 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             @Override
             public void run() {
                 while(true){
-                    if (isRunning ) {
+                    if (isRunning || ipCam) {
                         if(flagBuffImg == true){
-                            flagBuffImg = false;
+                            //flagBuffImg = false;
                             long startTime = System.currentTimeMillis();
-                            String imageJpeg = String.format("%s/%d.jpeg",logDir,cnt);
+                            String imageJpeg = String.format("%s/imageSave/%d.jpeg",logDir,cnt);
                             outputfile = new File(imageJpeg);
                             try {
                                 ImageIO.write(temp, "jpeg", outputfile);
@@ -684,7 +714,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 
                 //Height of Vehicle
                 double heightRelative = msg.getHeight()-msg.getZ();//absolute altitude - zero of that location
-                System.out.println("heightRelative: h="+msg.getHeight()+" z="+msg.getZ());
+                //System.out.println("heightRelative: h="+msg.getHeight()+" z="+msg.getZ());
                 locationType.setOffsetNorth(offsetN);
                 locationType.setOffsetEast(offsetE);
                 locationType.setHeight(heightRelative);
@@ -863,7 +893,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             temp=matToBufferedImage(matResize);
             
             //TODO: CHANGE TO TRUE FOR END DEBUG (SAVE IMAGE TO DISK)
-            flagBuffImg = false;      
+            //flagBuffImg = false;      
             
             //Display image in JFrame
             info = String.format("X = %d - Y = %d   x %.2f   %d bytes (KiB = %d)", widthImgRec, heightImgRec,xScale,lengthImage,lengthImage/1024);
