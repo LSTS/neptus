@@ -32,6 +32,7 @@ import org.jzy3d.maths.Array;
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.HyperSpecData;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -252,6 +253,13 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
         }
     }
     
+    
+    @Subscribe
+    public void on(HyperSpecData msg){
+        if(msg.getSourceName() != mainSys)
+            return;
+        updateDisplay(msg.getData());
+    }
     
     @Subscribe
     public void on(EstimatedState state) {
