@@ -227,8 +227,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     if(isRunning || ipCam){
                         int mouseX = (int) ((e.getX() - 13)/xScale);  //shift window bar
                         int mouseY = (int) ((e.getY() - 10)/yScale) ; //shift window bar
-                        xPixel = e.getX();
-                        yPixel = e.getY();
+                        xPixel = e.getX() - 13;
+                        yPixel = e.getY() - 10;
                         if(isRunning && !ipCam)
                             if (mouseX >= 0 && mouseY >= 0 && mouseX <= widthImgRec && mouseY <= heightImgRec )
                                 out.printf("%d#%d;\0", mouseX,mouseY);
@@ -619,10 +619,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             
                             if( captureFrame ) {
                                 xPixel = xPixel - 480;
-                                if(yPixel <= 360)
-                                    yPixel = -(yPixel - 360);
-                                else
-                                    yPixel = yPixel - 360;
+                                yPixel = -(yPixel - 360);
                                 String imageTag = String.format("%s/imageTag/(%d)_%s_X=%d_Y=%d.jpeg",logDir,cntTag,info,xPixel,yPixel);
                                 outputfile = new File(imageTag);
                                 try {
