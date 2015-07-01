@@ -181,6 +181,10 @@ public class PlanCreator {
                             }
                             else if (m.getParameterTypes()[0].isPrimitive()) {
                                 Class<?> c = m.getParameterTypes()[0];
+                                if (c == Boolean.TYPE) {
+                                    m.invoke(man, Boolean.parseBoolean(""+properties.get(key)));
+                                    continue;
+                                }
                                 Object obj = properties.get(key);
                                 Double d = (double) Double.valueOf(obj.toString());
 
@@ -193,8 +197,7 @@ public class PlanCreator {
                                 else if (c == Byte.TYPE)
                                     obj = d.byteValue();
                                 else if (c == Long.TYPE)
-                                    obj = d.longValue();
-
+                                    obj = d.longValue();                                
                                 m.invoke(man, obj);
                             }
 

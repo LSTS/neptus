@@ -53,6 +53,9 @@ public class ManPreviewFactory {
     protected static LinkedHashMap<Class<Maneuver>, Class<IManeuverPreview<Maneuver>>> registeredPreviews = new LinkedHashMap<Class<Maneuver>, Class<IManeuverPreview<Maneuver>>>();
 
     public static IManeuverPreview<?> getPreview(Maneuver maneuver, String vehicleId, SystemPositionAndAttitude state, Object manState) {
+        if (maneuver == null)
+            return null;
+        
         if (maneuver.getClass() == Goto.class) {
             GotoPreview prev = new GotoPreview();
             prev.init(vehicleId, (Goto)maneuver, state, manState);

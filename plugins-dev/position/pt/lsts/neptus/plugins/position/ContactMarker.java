@@ -242,6 +242,7 @@ SubPanelChangeListener, MainVehicleChangeListener {
             if (v != null)
                 avVehicles.add(v);
         }
+
         if (avVehicles.isEmpty() && getConsole().getMainSystem() != null)
             avVehicles.add(VehiclesHolder.getVehicleById(getConsole().getMainSystem()));
 
