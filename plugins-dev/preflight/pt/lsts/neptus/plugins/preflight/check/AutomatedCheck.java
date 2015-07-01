@@ -37,6 +37,7 @@ import pt.lsts.neptus.plugins.preflight.PreflightCheck;
  * @author tsmarques
  *
  */
+@SuppressWarnings("serial")
 public abstract class AutomatedCheck extends PreflightCheck {  
     public AutomatedCheck(String description, String category) {
         super(description, category, "Automated");

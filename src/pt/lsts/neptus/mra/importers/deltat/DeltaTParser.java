@@ -602,7 +602,7 @@ public class DeltaTParser implements BathymetryParser {
                 // c++;
                 // // kryo.writeObject(output, bs);
 
-                //System.out.println(Math.toDegrees(s.getPose().getYaw()));
+                System.out.println(Math.toDegrees(s.getPose().getYaw()));
 
             }
             NeptusLog.pub().info("<###> " + c);

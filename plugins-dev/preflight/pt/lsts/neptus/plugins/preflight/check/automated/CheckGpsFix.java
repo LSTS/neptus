@@ -34,17 +34,18 @@ package pt.lsts.neptus.plugins.preflight.check.automated;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import com.google.common.eventbus.Subscribe;
-
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.GpsFix.TYPE;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.preflight.check.AutomatedCheck;
 
+import com.google.common.eventbus.Subscribe;
+
 /**
  * @author tsmarques
  *
  */
+@SuppressWarnings("serial")
 public class CheckGpsFix extends AutomatedCheck {
     private static final String GPS_DIFF = I18n.textc("DIFF", "Use a single small word");
     private static final String GPS_3D = I18n.textc("3D", "Use a single small word");

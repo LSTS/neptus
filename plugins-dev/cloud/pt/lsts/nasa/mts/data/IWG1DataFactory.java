@@ -45,11 +45,6 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.bathymetry.TidePrediction;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
-import com.inovaworks.Observation;
-import com.inovaworks.ObservationFactory;
-import com.inovaworks.ObservedProperty;
-import com.inovaworks.Observation.Procedure.ObservationTypeEnum;
-
 /**
  * @author pdias
  *

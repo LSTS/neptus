@@ -45,6 +45,7 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
  * @author tsmarques
  *
  */
+@SuppressWarnings("serial")
 public class CheckHomeRef extends WithinRangeCheck {
     private HomeReference home;
     private double homeLat;

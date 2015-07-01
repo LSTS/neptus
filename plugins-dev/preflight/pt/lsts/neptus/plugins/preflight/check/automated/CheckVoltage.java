@@ -44,6 +44,7 @@ import pt.lsts.neptus.plugins.preflight.check.WithinRangeCheck;
  * @author tsmarques
  *
  */
+@SuppressWarnings("serial")
 public class CheckVoltage extends WithinRangeCheck {
     private double minVal = Double.MIN_VALUE;
     private double maxVal = Double.MAX_VALUE;

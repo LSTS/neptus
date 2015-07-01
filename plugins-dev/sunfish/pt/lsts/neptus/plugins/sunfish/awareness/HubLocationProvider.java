@@ -53,13 +53,10 @@ import com.google.gson.Gson;
  * @author zp
  *
  */
-@SuppressWarnings("deprecation")
 public class HubLocationProvider implements ILocationProvider {
 
     SituationAwareness parent;
     private String systemsUrl = "http://ripples.lsts.pt/api/v1/systems/active";
-    private String iridiumUrl = "http://ripples.lsts.pt/api/v1/iridium";    
-
     @Override
     public void onInit(SituationAwareness instance) {
         this.parent = instance;

@@ -266,7 +266,6 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
 
     // send to udp destination
     void sendUdp(IMCMessage msg, String host, int port) throws Exception {
-        pt.lsts.neptus.comm.transports.udp.UDPTransport trans = new pt.lsts.neptus.comm.transports.udp.UDPTransport();
         if (!getUdpTransport().sendMessage(host, port, msg))
             throw new Exception(host+":"+port+" is unreacheable.");
     }
