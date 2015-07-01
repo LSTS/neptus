@@ -237,9 +237,11 @@ SubPanelChangeListener, MainVehicleChangeListener {
         Vector<VehicleType> avVehicles = new Vector<VehicleType>();
 
         ImcSystem[] veh = ImcSystemsHolder.lookupActiveSystemVehicles();
-        for (int i = 0; i < veh.length; i++)
-            avVehicles.add(VehiclesHolder.getVehicleWithImc(veh[i].getId()));
-
+        for (int i = 0; i < veh.length; i++) {
+            VehicleType v = VehiclesHolder.getVehicleWithImc(veh[i].getId());
+            if (v != null)
+                avVehicles.add(v);
+        }
         if (avVehicles.isEmpty() && getConsole().getMainSystem() != null)
             avVehicles.add(VehiclesHolder.getVehicleById(getConsole().getMainSystem()));
 
