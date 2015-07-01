@@ -926,7 +926,6 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
-        System.err.format("canBeApplied\n");
         if (!Utils.hasTryedToLoadVtkLib) {
             Utils.loadVTKLibraries();
         }
