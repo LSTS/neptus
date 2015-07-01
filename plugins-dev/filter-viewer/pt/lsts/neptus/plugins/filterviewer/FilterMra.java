@@ -56,6 +56,7 @@ import pt.lsts.neptus.gui.TimelineChangeListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.MRAPanel;
 import pt.lsts.neptus.mra.MRAProperties;
+import pt.lsts.neptus.mra.NeptusMRA;
 import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryParserFactory;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
@@ -97,6 +98,7 @@ import vtk.vtkPolyDataMapper;
 import vtk.vtkTransform;
 import vtk.vtkTransformFilter;
 import vtk.vtkUnsignedCharArray;
+
 
 /**
  * @author Frédéric Leishman
@@ -201,11 +203,6 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
 
     public FilterMra(MRAPanel panel) {
         this.mraPanel = panel;
-
-        // Load Vtk libraries
-        if (!Utils.hasTryedToLoadVtkLib) {
-            Utils.loadVTKLibraries();
-        }
     }
 
     public void CreateTimeline() {
@@ -929,8 +926,12 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
 
     @Override
     public boolean canBeApplied(IMraLogGroup source) {
+        System.err.format("canBeApplied\n");
+        if (!Utils.hasTryedToLoadVtkLib) {
+            Utils.loadVTKLibraries();
+        }
 
-        return true;
+        return NeptusMRA.vtkEnabled;
     }
 
     @Override
