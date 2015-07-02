@@ -39,6 +39,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
@@ -223,7 +224,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //clears all the unused initializations of the standard ConsolePanel
         removeAll();
         //Mouse click
-        addMouseListener(new MouseListener() {
+        addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1){
@@ -244,15 +245,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         placeLocationOnMap();
                     }
                 }
-            }
-            @Override
-            public void mouseReleased(MouseEvent e) {
-            }
-            @Override
-            public void mouseEntered(MouseEvent e) {
-            }
-            @Override
-            public void mouseExited(MouseEvent e) {
             }
             @Override
             public void mouseClicked(MouseEvent e) {
