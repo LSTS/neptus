@@ -108,13 +108,14 @@ import com.google.common.eventbus.Subscribe;
  * @category Vision
  *
  */
+@SuppressWarnings("serial")
 @Popup( pos = POSITION.RIGHT, width=640, height=400)
 @LayerPriority(priority=0)
 @PluginDescription(name="Video Stream", version="1.0", author="Pedro Gonçalves", description="Plugin for View video Stream TCP-IP", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
 public class Vision extends ConsolePanel implements ConfigurationListener, ItemListener{
 
-    private static final long serialVersionUID = 1L;
-    
+    private static final String BASE_FOLDER_FOR_IMAGES = "log/images";
+
     private ServerSocket serverSocket = null;
     private Socket clientSocket = null;
     //Send data for sync 
@@ -265,14 +266,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             ipCam = false;
                         }
                     });
-                    popup.add("Menu/Config").addActionListener(new ActionListener() {
+                    popup.add(I18n.text("Config")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             //show_menu = !show_menu;
                             menu.setVisible(true);
                         }
                     });
-                    popup.add("Start IP-CAM").addActionListener(new ActionListener() {
+                    popup.add(I18n.text("Start IP-CAM")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             ipCam = true;
@@ -366,18 +367,18 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         
         //!Create folder to save image data
         //Create folder image in log if don't exist
-        File dir = new File(String.format("log/image"));
+        File dir = new File(String.format(BASE_FOLDER_FOR_IMAGES));
         dir.mkdir();
         //Create folder Image to save data received
-        dir = new File(String.format("log/image/%s", date));
+        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s", date));
         dir.mkdir();
         //Create folder Image Tag
-        dir = new File(String.format("log/image/%s/imageTag", date));
+        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s/imageTag", date));
         dir.mkdir();
         //Create folder Image Save
-        dir = new File(String.format("log/image/%s/imageSave", date));
+        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s/imageSave", date));
         dir.mkdir();
-        logDir = String.format("log/image/%s", date);
+        logDir = String.format(BASE_FOLDER_FOR_IMAGES + "/%s", date);
         
         //JLabel for image
         picLabel = new JLabel();
@@ -454,7 +455,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         config.add(buttonV,"width 160:180:200, h 40!, wrap");
         */
 
-        saveToDiskCheckBox = new JCheckBox("Save Image to HD");
+        saveToDiskCheckBox = new JCheckBox(I18n.text("Save Image to Disk"));
         saveToDiskCheckBox.setMnemonic(KeyEvent.VK_C);
         saveToDiskCheckBox.setSelected(false);
         saveToDiskCheckBox.addItemListener(this);
@@ -463,7 +464,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //JText info Data received
         txtText = new JTextField();
         txtText.setEditable(false);
-        txtText.setToolTipText("Info of Frame received from DUNE.");
+        txtText.setToolTipText(I18n.text("Info of Frame Received"));
         info = String.format("X = 0 - Y = 0   x 1   0 bytes (KiB = 0)\t\t  ");
         txtText.setText(info);
         config.add(txtText, "cell 0 4 3 1, wrap");
@@ -471,7 +472,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //JText info Data GPS received TCP
         txtDataTcp = new JTextField();
         txtDataTcp.setEditable(false);
-        txtDataTcp.setToolTipText("Info of GPS received from DUNE (TCP).");
+        txtDataTcp.setToolTipText(I18n.text("Info of GPS Received"));
         info = String.format("\t\t\t\t  ");
         txtDataTcp.setText(info);
         config.add(txtDataTcp, "cell 0 5 3 1, wrap");
@@ -479,12 +480,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //JText info
         txtData = new JTextField();
         txtData.setEditable(false);
-        txtData.setToolTipText("Info of Frame received from DUNE.");
+        txtData.setToolTipText(I18n.text("Info of Frame Received"));
         info = String.format("\t\t\t\t  ");
         txtData.setText(info);
         config.add(txtData, "cell 0 6 3 1, wrap");
                 
-        menu = new JFrame("Menu_Config");
+        menu = new JFrame(I18n.text("Menu Config"));
         menu.setVisible(show_menu);
         menu.setResizable(false);
         menu.setSize(400, 350);
@@ -510,18 +511,21 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             }
         }
     }
+    
     /* (non-Javadoc)
      * @see pt.lsts.neptus.plugins.ConfigurationListener#propertiesChanged()
      */
     @Override
     public void propertiesChanged() {
     }
+    
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
      */
     @Override
     public void cleanSubPanel() {
     }
+    
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsolePanel#initSubPanel()
      */
@@ -536,7 +540,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //Get size of image
-    public void initSizeImage(){
+    private void initSizeImage(){
         //Width size of image
         try {
             widthImgRec = Integer.parseInt(in.readLine());
@@ -554,8 +558,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         catch (IOException e) {
             e.printStackTrace();
         }
-        xScale = (float)960/widthImgRec;
-        yScale = (float)720/heightImgRec;
+        xScale = (float) 960 / widthImgRec;
+        yScale = (float) 720 / heightImgRec;
         //Create Buffer (type MAT) for Image receive
         mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
     }
