@@ -41,7 +41,6 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -61,7 +60,14 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -79,7 +85,6 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.MapFeature;
 import pt.lsts.imc.MapPoint;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
@@ -159,10 +164,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //Save image tag flag
     private boolean captureFrame = false;
     
+    private boolean closingPanel = false;
+    
     //JLabel for image
     private JLabel picLabel;
     //JPanel for Image
-    private JPanel frame;
+    private JPanel mainPanel;
     //JPanel for display image
     private JPanel panelImage;
     //JPanel for info and config values
@@ -348,7 +355,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         event.setType(CcuEvent.TYPE.MAP_FEATURE_ADDED);
         event.setId(id);
         event.setArg(feature);
-        ImcMsgManager.getManager().broadcastToCCUs(event);
+        this.getConsole().getImcMsgManager().broadcastToCCUs(event);
         NeptusLog.pub().info("placeLocationOnMap: " + id + " - Pos: lat: " + this.lat + " ; lon: " + this.lon);
     }
 
@@ -385,12 +392,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //JPanel for Image
         panelImage = new JPanel();
         panelImage.setBackground(Color.black);
-        frame = new JPanel();
-        frame.setLayout(new BorderLayout());
-        frame.add(panelImage, BorderLayout.WEST);
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.add(panelImage, BorderLayout.WEST);
         
         this.setLayout(new MigLayout());
-        this.add(frame);
+        this.add(mainPanel);
         
         //JPanel for info and config values      
         config = new JPanel(new MigLayout());
@@ -502,11 +509,11 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //System.out.println("source: "+source);
         if (source == saveToDiskCheckBox) {
             //System.out.println("isRunning="+isRunning+"ipCam"+ipCam+"saveToDiskCheckBox"+saveToDiskCheckBox.isSelected());
-            if((isRunning==true || ipCam==true) && saveToDiskCheckBox.isSelected()==true) {
+            if ((isRunning == true || ipCam == true) && saveToDiskCheckBox.isSelected() == true) {
                 flagBuffImg = true;
                 //System.out.println("Valor: "+flagBuffImg);
             }
-            if ((isRunning==false && ipCam==false) || saveToDiskCheckBox.isSelected()==false){
+            if ((isRunning == false && ipCam == false) || saveToDiskCheckBox.isSelected() == false) {
                 flagBuffImg=false;
             }
         }
@@ -524,6 +531,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
      */
     @Override
     public void cleanSubPanel() {
+        closingPanel = true;
     }
     
     /* (non-Javadoc)
@@ -531,7 +539,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
      */
     @Override
     public void initSubPanel() {
-        ImcMsgManager.getManager().addListener(this);
+        getConsole().getImcMsgManager().addListener(this);
         configLayout();
         updater = updaterThread();
         updater.start();
@@ -570,6 +578,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             @Override
             public void run() {
                 while(true){
+                    if (closingPanel) {
+                        isRunning = false;
+                        state = false;
+                        ipCam = false;
+                    }
+                    
                     if (isRunning && !ipCam ) {
                         if (state == false){
                             //connection
@@ -641,9 +655,13 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     }
                     else
                         inicImage();
+
+                    if (closingPanel)
+                        break;
                 }
             }
         };
+        ret.setDaemon(true);
         return ret;
     }
 
@@ -688,9 +706,13 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             e.printStackTrace();
                         }
                     }
+
+                    if (closingPanel)
+                        break;
                }
            }
         };
+        si.setDaemon(true);
         return si;
     }
     
@@ -787,7 +809,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         
         if (line == null){
             //custom title, error icon
-            JOptionPane.showMessageDialog(frame, "Lost connection with Vehicle...", "Connection error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mainPanel, I18n.text("Lost connection with vehicle"), I18n.text("Connection error"), JOptionPane.ERROR_MESSAGE);
             isRunning = false;
             state = false;
             try {
