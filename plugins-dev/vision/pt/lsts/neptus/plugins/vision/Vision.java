@@ -89,6 +89,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -120,6 +121,9 @@ import com.google.common.eventbus.Subscribe;
 public class Vision extends ConsolePanel implements ConfigurationListener, ItemListener{
 
     private static final String BASE_FOLDER_FOR_IMAGES = "log/images";
+
+    @NeptusProperty(name = "Axis Camera RTPS URI")
+    private String axisCamRtpsUri = "rtsp://10.0.20.102:554/axis-media/media.amp?streamprofile=Mobile";
 
     private ServerSocket serverSocket = null;
     private Socket clientSocket = null;
@@ -612,12 +616,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     }
                     else if (!isRunning && ipCam) {
                         if (state == false){
-                            xScale = (float)960/240;
-                            yScale = (float)720/180;
+                            xScale = (float) 960 / 240;
+                            yScale = (float) 720 / 180;
                             //Create Buffer (type MAT) for Image receive
                             mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
                             state = true;
-                            capture = new VideoCapture("rtsp://10.0.20.102:554/axis-media/media.amp?streamprofile=Mobile");
+                            capture = new VideoCapture(axisCamRtpsUri);
                             cntTag = 1;
                             if (capture.isOpened())
                                 NeptusLog.pub().info("Video is captured");
@@ -748,8 +752,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, heightRelative);
                 //System.out.println("lat: "+lat+" lon: "+lon+"heightV: "+heightV);
                 LocationType tagLocationType = calcTagPosition(locationType.convertToAbsoluteLatLonDepth(), Math.toDegrees(msg.getPsi()), camTiltDeg);
-                this.lat= tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs();
-                this.lon= tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs();
+                this.lat = tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs();
+                this.lon = tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs();
                 txtData.setText(info);
 
             }
@@ -831,6 +835,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 serverSocket = new ServerSocket(2424); 
             } 
             catch (IOException e){ 
+                e.printStackTrace();
             }    
         }
         else{        
@@ -888,7 +893,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             //Create an expandable byte array to hold the decompressed data
             ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length);
             // Decompress the data
-            byte[] buf = new byte[(widthImgRec*heightImgRec*3)];
+            byte[] buf = new byte[(widthImgRec * heightImgRec * 3)];
             while (!decompresser.finished()) 
             {
                 try {
