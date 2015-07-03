@@ -39,8 +39,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -60,7 +60,14 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -78,11 +85,11 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.MapFeature;
 import pt.lsts.imc.MapPoint;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -107,132 +114,141 @@ import com.google.common.eventbus.Subscribe;
  * @category Vision
  *
  */
+@SuppressWarnings("serial")
 @Popup( pos = POSITION.RIGHT, width=640, height=400)
 @LayerPriority(priority=0)
-@PluginDescription(name="Video Stream", version="1.0", author="Pedro Gonçalves", description="Neptus Plugin for View video Strem TCP-IP", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
+@PluginDescription(name="Video Stream", version="1.0", author="Pedro Gonçalves", description="Plugin for View video Stream TCP-IP", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
 public class Vision extends ConsolePanel implements ConfigurationListener, ItemListener{
 
-    private static final long serialVersionUID = 1L;
-    
-    ServerSocket serverSocket = null;
-    Socket clientSocket = null;
+    private static final String BASE_FOLDER_FOR_IMAGES = "log/images";
+
+    @NeptusProperty(name = "Axis Camera RTPS URI")
+    private String axisCamRtpsUri = "rtsp://10.0.20.102:554/axis-media/media.amp?streamprofile=Mobile";
+
+    private ServerSocket serverSocket = null;
+    private Socket clientSocket = null;
     //Send data for sync 
-    PrintWriter out = null; 
+    private PrintWriter out = null; 
     //Buffer for data image
-    InputStream is = null;
+    private InputStream is = null;
     //Buffer for info of data image
-    BufferedReader in = null;
+    private BufferedReader in = null;
     //Struct Video Capture Opencv
-    VideoCapture capture;
+    private VideoCapture capture;
     //Width size of image
-    int widthImgRec;
+    private int widthImgRec;
     //Height size of image
-    int heightImgRec;
+    private int heightImgRec;
     //Scale factor of x pixel
-    float xScale;
+    private float xScale;
     //Scale factor of y pixel
-    float yScale;
+    private float yScale;
     //x pixel coord
-    int xPixel;
+    private int xPixel;
     //y pixel coord
-    int yPixel;
+    private int yPixel;
     //read size of pack compress
-    String line;
+    private String line;
     //Buffer for data receive from DUNE over tcp
-    String duneGps;
+    private String duneGps;
     //Size of image received
-    int lengthImage;
+    private int lengthImage;
     //buffer for save data receive
-    byte[] data;
+    private byte[] data;
     //Buffer image for JFrame/showImage
-    BufferedImage temp;
+    private BufferedImage temp;
     //Flag - start acquired image
-    boolean isRunning = false;
+    private boolean isRunning = false;
     //Flag - Lost connection to the vehicle
-    boolean state = false;
+    private boolean state = false;
     //Flag - Show/hide Menu JFrame
-    boolean show_menu = false;
+    private boolean show_menu = false;
     //Flag state of IP CAM
-    boolean ipCam = false;
+    private boolean ipCam = false;
     //Save image tag flag
-    boolean captureFrame = false;
+    private boolean captureFrame = false;
+    
+    private boolean closingPanel = false;
+    
     //JLabel for image
-    JLabel picLabel;
+    private JLabel picLabel;
     //JPanel for Image
-    JPanel frame;
+    private JPanel mainPanel;
     //JPanel for display image
-    JPanel panelImage;
+    private JPanel panelImage;
     //JPanel for info and config values
-    JPanel config;
+    private JPanel config;
     //JText info of data receive
-    JTextField txtText;
+    private JTextField txtText;
     //JText of data receive over IMC message
-    JTextField txtData;
+    private JTextField txtData;
     //JText of data receive over DUNE TCP message
-    JTextField txtDataTcp;
+    private JTextField txtDataTcp;
     //JFrame for menu options
-    JFrame menu;
+    private JFrame menu;
     //CheckBox to save image to HD
-    JCheckBox saveToDiskCheckBox;
-    //String for the info treatment 
-    String info;
-    //String for the info of Image Size Stream
-    String infoSizeStream;
+    private JCheckBox saveToDiskCheckBox;
     //JPopup Menu
-    JPopupMenu popup;
+    private JPopupMenu popup;
+    
+    //String for the info treatment 
+    private String info;
+    //String for the info of Image Size Stream
+    private String infoSizeStream;
     //Data system
-    Date date = new Date();
+    private Date date = new Date();
     //Location of log folder
-    String logDir;
+    private String logDir;
     //Image resize
-    Mat matResize;
+    private Mat matResize;
     //Image receive
-    Mat mat;
+    private Mat mat;
     //Size of output frame
-    Size size = new Size(960, 720);
+    private Size size = new Size(960, 720);
     //ID vehicle
-    int idVehicle = 0;
+    private int idVehicle = 0;
     //Counter for image tag
-    int cntTag = 1;
+    private int cntTag = 1;
 
     //counter for frame tag ID
-    short frameTagID =1;
+    private short frameTagID =1;
     //lat, lon: frame Tag pos to be marked as POI
-    double lat,lon;
+    private double lat,lon;
 
     //*** TEST FOR SAVE VIDEO **/
-    File outputfile;
-    boolean flagBuffImg = false;
-    int cnt=0;
-    int FPS = 10;
+    private File outputfile;
+    private boolean flagBuffImg = false;
+    private int cnt = 0;
+    private int FPS = 10;
     //*************************/
     
     //IMC message
-    EstimatedState msg;
-    protected LinkedHashMap<String, EstimatedState> msgsSetLeds = new LinkedHashMap<>(); 
+    private EstimatedState msg;
+    private LinkedHashMap<String, EstimatedState> msgsSetLeds = new LinkedHashMap<>(); 
     
     //worker thread designed to acquire the data packet from DUNE
-    protected Thread updater = null; 
+    private Thread updater = null; 
     //worker thread designed to save image do HD
-    protected Thread saveImg = null;
+    private Thread saveImg = null;
     
     public Vision(ConsoleLayout console) {
         super(console);
         //clears all the unused initializations of the standard ConsolePanel
         removeAll();
         //Mouse click
-        addMouseListener(new MouseListener() {
+        addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1){
                     if(isRunning || ipCam){
-                        int mouseX = (int) ((e.getX() - 13)/xScale);  //shift window bar
-                        int mouseY = (int) ((e.getY() - 10)/yScale) ; //shift window bar
+                        int mouseX = (int) ((e.getX() - 13) / xScale);  //shift window bar
+                        int mouseY = (int) ((e.getY() - 10) / yScale) ; //shift window bar
                         xPixel = e.getX() - 13;
                         yPixel = e.getY() - 10;
-                        if(isRunning && !ipCam)
-                            if (mouseX >= 0 && mouseY >= 0 && mouseX <= widthImgRec && mouseY <= heightImgRec )
+                        if(isRunning && !ipCam) {
+                            if (mouseX >= 0 && mouseY >= 0 && mouseX <= widthImgRec && mouseY <= heightImgRec)
                                 out.printf("%d#%d;\0", mouseX,mouseY);
+                        }
                         
                         //System.out.println(getMainVehicleId()+"X = " +mouseX+ " Y = " +mouseY);
                         captureFrame = true;
@@ -243,26 +259,17 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 }
             }
             @Override
-            public void mouseReleased(MouseEvent e) {
-            }
-            @Override
-            public void mouseEntered(MouseEvent e) {
-            }
-            @Override
-            public void mouseExited(MouseEvent e) {
-            }
-            @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     popup = new JPopupMenu();
-                    popup.add("Start Connection").addActionListener(new ActionListener() {
+                    popup.add(I18n.text("Start Connection")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             isRunning = true;
                             ipCam = false;
                         }
                     });
-                    popup.add("Close Connection").addActionListener(new ActionListener() {
+                    popup.add(I18n.text("Close Connection")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             isRunning = false;
@@ -270,14 +277,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             ipCam = false;
                         }
                     });
-                    popup.add("Menu/Config").addActionListener(new ActionListener() {
+                    popup.add(I18n.text("Config")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             //show_menu = !show_menu;
                             menu.setVisible(true);
                         }
                     });
-                    popup.add("Start IP-CAM").addActionListener(new ActionListener() {
+                    popup.add(I18n.text("Start IP-CAM")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             ipCam = true;
@@ -307,9 +314,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             return;
 
         double lat = this.lat;
-        double lon =this.lon;
+        double lon = this.lon;
         long timestamp = System.currentTimeMillis();
-        String id = "FrameTag"+ frameTagID+" - "+timestampToReadableHoursString(timestamp);
+        String id = I18n.text("FrameTag") + "-" + frameTagID + "-" + timestampToReadableHoursString(timestamp);
 
         boolean validId = false;
         while (!validId) {
@@ -352,49 +359,49 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         event.setType(CcuEvent.TYPE.MAP_FEATURE_ADDED);
         event.setId(id);
         event.setArg(feature);
-        ImcMsgManager.getManager().broadcastToCCUs(event);
-        NeptusLog.pub().info("placeLocationOnMap: "+id+" - Pos: lat: "+this.lat+" ; lon: "+this.lon);
+        this.getConsole().getImcMsgManager().broadcastToCCUs(event);
+        NeptusLog.pub().info("placeLocationOnMap: " + id + " - Pos: lat: " + this.lat + " ; lon: " + this.lon);
     }
 
     //!Print Image to JPanel
-    public void showImage(BufferedImage image) {
+    private void showImage(BufferedImage image) {
         picLabel.setIcon(new ImageIcon(image));
         panelImage.add(picLabel);
         repaint();
     }
 
     //!Config Layout
-    public void layout_user(){
+    private void configLayout() {
         //Create Buffer (type MAT) for Image resize
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         matResize = new Mat(720, 960, CvType.CV_8UC3);
         
         //!Create folder to save image data
         //Create folder image in log if don't exist
-        File dir = new File(String.format("log/image"));
+        File dir = new File(String.format(BASE_FOLDER_FOR_IMAGES));
         dir.mkdir();
         //Create folder Image to save data received
-        dir = new File(String.format("log/image/%s",date));
+        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s", date));
         dir.mkdir();
         //Create folder Image Tag
-        dir = new File(String.format("log/image/%s/imageTag",date));
+        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s/imageTag", date));
         dir.mkdir();
         //Create folder Image Save
-        dir = new File(String.format("log/image/%s/imageSave",date));
+        dir = new File(String.format(BASE_FOLDER_FOR_IMAGES + "/%s/imageSave", date));
         dir.mkdir();
-        logDir = String.format("log/image/%s",date);
+        logDir = String.format(BASE_FOLDER_FOR_IMAGES + "/%s", date);
         
         //JLabel for image
         picLabel = new JLabel();
         //JPanel for Image
         panelImage = new JPanel();
         panelImage.setBackground(Color.black);
-        frame = new JPanel();
-        frame.setLayout(new BorderLayout());
-        frame.add(panelImage, BorderLayout.WEST);
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.add(panelImage, BorderLayout.WEST);
         
         this.setLayout(new MigLayout());
-        this.add(frame);
+        this.add(mainPanel);
         
         //JPanel for info and config values      
         config = new JPanel(new MigLayout());
@@ -459,7 +466,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         config.add(buttonV,"width 160:180:200, h 40!, wrap");
         */
 
-        saveToDiskCheckBox = new JCheckBox("Save Image to HD");
+        saveToDiskCheckBox = new JCheckBox(I18n.text("Save Image to Disk"));
         saveToDiskCheckBox.setMnemonic(KeyEvent.VK_C);
         saveToDiskCheckBox.setSelected(false);
         saveToDiskCheckBox.addItemListener(this);
@@ -468,7 +475,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //JText info Data received
         txtText = new JTextField();
         txtText.setEditable(false);
-        txtText.setToolTipText("Info of Frame received from DUNE.");
+        txtText.setToolTipText(I18n.text("Info of Frame Received"));
         info = String.format("X = 0 - Y = 0   x 1   0 bytes (KiB = 0)\t\t  ");
         txtText.setText(info);
         config.add(txtText, "cell 0 4 3 1, wrap");
@@ -476,7 +483,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //JText info Data GPS received TCP
         txtDataTcp = new JTextField();
         txtDataTcp.setEditable(false);
-        txtDataTcp.setToolTipText("Info of GPS received from DUNE (TCP).");
+        txtDataTcp.setToolTipText(I18n.text("Info of GPS Received"));
         info = String.format("\t\t\t\t  ");
         txtDataTcp.setText(info);
         config.add(txtDataTcp, "cell 0 5 3 1, wrap");
@@ -484,12 +491,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //JText info
         txtData = new JTextField();
         txtData.setEditable(false);
-        txtData.setToolTipText("Info of Frame received from DUNE.");
+        txtData.setToolTipText(I18n.text("Info of Frame Received"));
         info = String.format("\t\t\t\t  ");
         txtData.setText(info);
         config.add(txtData, "cell 0 6 3 1, wrap");
                 
-        menu = new JFrame("Menu_Config");
+        menu = new JFrame(I18n.text("Menu Config"));
         menu.setVisible(show_menu);
         menu.setResizable(false);
         menu.setSize(400, 350);
@@ -506,34 +513,38 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //System.out.println("source: "+source);
         if (source == saveToDiskCheckBox) {
             //System.out.println("isRunning="+isRunning+"ipCam"+ipCam+"saveToDiskCheckBox"+saveToDiskCheckBox.isSelected());
-            if((isRunning==true || ipCam==true) && saveToDiskCheckBox.isSelected()==true) {
+            if ((isRunning == true || ipCam == true) && saveToDiskCheckBox.isSelected() == true) {
                 flagBuffImg = true;
                 //System.out.println("Valor: "+flagBuffImg);
             }
-            if ((isRunning==false && ipCam==false) || saveToDiskCheckBox.isSelected()==false){
+            if ((isRunning == false && ipCam == false) || saveToDiskCheckBox.isSelected() == false) {
                 flagBuffImg=false;
             }
         }
     }
+    
     /* (non-Javadoc)
      * @see pt.lsts.neptus.plugins.ConfigurationListener#propertiesChanged()
      */
     @Override
     public void propertiesChanged() {
     }
+    
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsolePanel#cleanSubPanel()
      */
     @Override
     public void cleanSubPanel() {
+        closingPanel = true;
     }
+    
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.ConsolePanel#initSubPanel()
      */
     @Override
     public void initSubPanel() {
-        ImcMsgManager.getManager().addListener(this);
-        layout_user();
+        getConsole().getImcMsgManager().addListener(this);
+        configLayout();
         updater = updaterThread();
         updater.start();
         saveImg = updaterThreadSave();
@@ -541,7 +552,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //Get size of image
-    public void initSizeImage(){
+    private void initSizeImage(){
         //Width size of image
         try {
             widthImgRec = Integer.parseInt(in.readLine());
@@ -559,8 +570,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         catch (IOException e) {
             e.printStackTrace();
         }
-        xScale = (float)960/widthImgRec;
-        yScale = (float)720/heightImgRec;
+        xScale = (float) 960 / widthImgRec;
+        yScale = (float) 720 / heightImgRec;
         //Create Buffer (type MAT) for Image receive
         mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
     }
@@ -571,6 +582,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             @Override
             public void run() {
                 while(true){
+                    if (closingPanel) {
+                        isRunning = false;
+                        state = false;
+                        ipCam = false;
+                    }
+                    
                     if (isRunning && !ipCam ) {
                         if (state == false){
                             //connection
@@ -599,12 +616,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     }
                     else if (!isRunning && ipCam) {
                         if (state == false){
-                            xScale = (float)960/240;
-                            yScale = (float)720/180;
+                            xScale = (float) 960 / 240;
+                            yScale = (float) 720 / 180;
                             //Create Buffer (type MAT) for Image receive
                             mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
                             state = true;
-                            capture = new VideoCapture("rtsp://10.0.20.102:554/axis-media/media.amp?streamprofile=Mobile");
+                            capture = new VideoCapture(axisCamRtpsUri);
                             cntTag = 1;
                             if (capture.isOpened())
                                 NeptusLog.pub().info("Video is captured");
@@ -642,9 +659,13 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     }
                     else
                         inicImage();
+
+                    if (closingPanel)
+                        break;
                 }
             }
         };
+        ret.setDaemon(true);
         return ret;
     }
 
@@ -689,9 +710,13 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             e.printStackTrace();
                         }
                     }
+
+                    if (closingPanel)
+                        break;
                }
            }
         };
+        si.setDaemon(true);
         return si;
     }
     
@@ -727,8 +752,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, heightRelative);
                 //System.out.println("lat: "+lat+" lon: "+lon+"heightV: "+heightV);
                 LocationType tagLocationType = calcTagPosition(locationType.convertToAbsoluteLatLonDepth(), Math.toDegrees(msg.getPsi()), camTiltDeg);
-                this.lat= tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs();
-                this.lon= tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs();
+                this.lat = tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs();
+                this.lon = tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs();
                 txtData.setText(info);
 
             }
@@ -788,7 +813,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         
         if (line == null){
             //custom title, error icon
-            JOptionPane.showMessageDialog(frame, "Lost connection with Vehicle...", "Connection error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(mainPanel, I18n.text("Lost connection with vehicle"), I18n.text("Connection error"), JOptionPane.ERROR_MESSAGE);
             isRunning = false;
             state = false;
             try {
@@ -810,6 +835,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 serverSocket = new ServerSocket(2424); 
             } 
             catch (IOException e){ 
+                e.printStackTrace();
             }    
         }
         else{        
@@ -867,7 +893,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             //Create an expandable byte array to hold the decompressed data
             ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length);
             // Decompress the data
-            byte[] buf = new byte[(widthImgRec*heightImgRec*3)];
+            byte[] buf = new byte[(widthImgRec * heightImgRec * 3)];
             while (!decompresser.finished()) 
             {
                 try {
