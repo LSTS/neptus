@@ -67,30 +67,30 @@ import pt.lsts.neptus.types.coord.LocationType;
 @PluginDescription(icon="pt/lsts/neptus/mra/replay/globe.png")
 public class HyperspectralReplay implements LogReplayLayer {
     private final List<HyperspectralData> dataset = new ArrayList<HyperspectralData>();
-    
+
     public HyperspectralReplay() {
-        
+
     }
-    
+
     @Override
     public String getName() {
         return I18n.text("Hyperspectral Replay");
     }
-    
+
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if(dataset.isEmpty())
             return;
-        
+
         for(int i = 0; i < dataset.size(); i++) {
 //            System.out.println(dataset.size());
             HyperspectralData frame = dataset.get(i);
             Point2D dataPosition = renderer.getScreenPosition(frame.dataLocation);
-            
+
             /* draw data with its center in the EstimatedState position */
             int dataX = (int) dataPosition.getX()- (frame.data.getWidth() / 2);
             int dataY = (int) dataPosition.getY() - (frame.data.getHeight() / 2);
-            
+
             g.drawImage(frame.data, (int) dataPosition.getX(), dataY, null, renderer);
 //            g.drawImage(frame.data, 10 + i, renderer.getHeight() /2, null, renderer);
         }
@@ -109,16 +109,16 @@ public class HyperspectralReplay implements LogReplayLayer {
         Queue<byte[]> frames = HyperspectralViewer.loadFrames("320/");
         IMraLog esLog = source.getLog("EstimatedState");
         EstimatedState state = (EstimatedState) esLog.firstLogEntry();
-        
+
         while(state != null && !frames.isEmpty()) {
             HyperspectralData newData = new HyperspectralData(frames.poll(), state);
             dataset.add(newData);
-            
+
             state = (EstimatedState) esLog.nextLogEntry();
         }
     }
 
-    
+
     @Override
     public String[] getObservedMessages() {
         return null;
@@ -136,33 +136,33 @@ public class HyperspectralReplay implements LogReplayLayer {
 
     @Override
     public void cleanup() {
-        
+
     }
 
     private class HyperspectralData {
         private double rotationAngle;
         public BufferedImage data;
         public LocationType dataLocation;
-        
+
         private AffineTransform tx;
         private AffineTransformOp op;
-                
+
         public HyperspectralData(byte[] dataBytes, EstimatedState state) {
             try {
                 data = ImageIO.read(new ByteArrayInputStream(dataBytes));
                 dataLocation = IMCUtils.parseLocation(state);
                 rotationAngle = setRotationAngle(state.getPsi());
-                
+
                 /* Lay data horizontally and then rotate according to EstimatedState heading */
                 tx = AffineTransform.getRotateInstance(rotationAngle, data.getWidth() / 2, data.getHeight() / 2);
                 op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
-         
+
                 /* rotate data according to EstimatedState heading */
                 data = op.filter(data, null);
             }
             catch (IOException e) { e.printStackTrace(); }
         }
-        
+
         /* angle = 90 + (heading + 90) */
         private double setRotationAngle(double psi) {
             System.out.println(Math.abs(Math.toDegrees(psi)));
@@ -172,9 +172,9 @@ public class HyperspectralReplay implements LogReplayLayer {
                 angle = 360 + psi;
             else
                 angle = psi;
-            
+
             angle -= 90; /* make frame perpendicular to vehicles heading    */
-            
+
             return Math.toRadians(angle);
         }
     }
