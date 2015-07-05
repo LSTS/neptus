@@ -83,7 +83,6 @@ public class HyperspectralReplay implements LogReplayLayer {
             return;
 
         for(int i = 0; i < dataset.size(); i++) {
-//            System.out.println(dataset.size());
             HyperspectralData frame = dataset.get(i);
             Point2D dataPosition = renderer.getScreenPosition(frame.dataLocation);
 
@@ -91,8 +90,13 @@ public class HyperspectralReplay implements LogReplayLayer {
             int dataX = (int) dataPosition.getX()- (frame.data.getWidth() / 2);
             int dataY = (int) dataPosition.getY() - (frame.data.getHeight() / 2);
 
-            g.drawImage(frame.data, (int) dataPosition.getX(), dataY, null, renderer);
-//            g.drawImage(frame.data, 10 + i, renderer.getHeight() /2, null, renderer);
+            AffineTransform backup = g.getTransform();
+            AffineTransform tx = new AffineTransform();
+            tx.rotate(frame.rotationAngle, dataPosition.getX(), dataPosition.getY());
+
+            g.setTransform(tx);
+            g.drawImage(frame.data, dataX, dataY, null, renderer);
+            g.setTransform(backup);
         }
     }
 
@@ -151,29 +155,21 @@ public class HyperspectralReplay implements LogReplayLayer {
             try {
                 data = ImageIO.read(new ByteArrayInputStream(dataBytes));
                 dataLocation = IMCUtils.parseLocation(state);
+
                 rotationAngle = setRotationAngle(state.getPsi());
-
-                /* Lay data horizontally and then rotate according to EstimatedState heading */
-                tx = AffineTransform.getRotateInstance(rotationAngle, data.getWidth() / 2, data.getHeight() / 2);
-                op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
-
-                /* rotate data according to EstimatedState heading */
-                data = op.filter(data, null);
             }
             catch (IOException e) { e.printStackTrace(); }
         }
 
-        /* angle = 90 + (heading + 90) */
+        /* Get angle so that the frame is perpendicular to the vehicle's heading */
         private double setRotationAngle(double psi) {
-            System.out.println(Math.abs(Math.toDegrees(psi)));
             double angle;
-            psi = (Math.toDegrees(psi));
+
+            psi = (Math.toDegrees(psi)) - 90; /* -90 to make angle perpendicular */
             if(psi < 0)
                 angle = 360 + psi;
             else
                 angle = psi;
-
-            angle -= 90; /* make frame perpendicular to vehicles heading    */
 
             return Math.toRadians(angle);
         }
