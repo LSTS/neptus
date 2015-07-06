@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import javax.imageio.ImageIO;
@@ -110,12 +111,13 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     @NeptusProperty(editable = true, name = "Hyperspectral wavelength", userLevel = LEVEL.REGULAR)
     private double wavelengthProperty = 0;   
     private double selectedWavelength = -1;
+    private Queue<byte[]> dataSet;
     
 
     public HyperspectralViewer() {
         this.console = getConsole();
         initDisplayedImage();
-        /* testing */
+        dataSet = new LinkedList<byte[]>();
     }
     
     private void initDisplayedImage() {
@@ -146,9 +148,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     
     private void updateDisplay(byte[] frameBytes) {
         try {
-            System.out.println("UPDATE DISPLAY");
             BufferedImage newFrame = ImageIO.read(new ByteArrayInputStream(frameBytes));
-            System.out.println(newFrame.getWidth() + " " + newFrame.getHeight());
             
             /* remove oldest frame */
             dataDisplay = dataDisplay.getSubimage(1, 0, MAX_FREQ - 1, FRAME_HEIGHT);
@@ -182,11 +182,14 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
             firstPaint = false;
         }
         else {
-            g.setColor(Color.red);
-            g.drawString(selectedWavelength + " nm", (FRAME_HEIGHT / 2) - 30, (FRAME_HEIGHT / 2) - 60);
-            g.setTransform(transform);
-            g.setComposite(composite);
-            g.drawImage(dataDisplay, 0, 0, renderer);
+            if(!dataSet.isEmpty()) {
+                updateDisplay(dataSet.poll());
+                g.setColor(Color.red);
+                g.drawString(selectedWavelength + " nm", (FRAME_HEIGHT / 2) - 30, (FRAME_HEIGHT / 2) - 60);
+                g.setTransform(transform);
+                g.setComposite(composite);
+                g.drawImage(dataDisplay, 0, 0, renderer);
+            }
         }
     }
     
@@ -195,7 +198,8 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     public void on(HyperSpecData msg){
         if(!msg.getSourceName().equals(mainSys))
             return;
-        updateDisplay(msg.getData());
+        // updateDisplay(msg.getData());
+        dataSet.offer(msg.getData());
     }
     
 //    @Subscribe
