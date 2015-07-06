@@ -108,8 +108,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     private BufferedImage dataDisplay; /* image currently being displayed */
     
     @NeptusProperty(editable = true, name = "Hyperspectral wavelength", userLevel = LEVEL.REGULAR)
-    private double wavelengthProperty = 0;
-    
+    private double wavelengthProperty = 0;   
     private double selectedWavelength = -1;
     
 
@@ -147,7 +146,9 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     
     private void updateDisplay(byte[] frameBytes) {
         try {
+            System.out.println("UPDATE DISPLAY");
             BufferedImage newFrame = ImageIO.read(new ByteArrayInputStream(frameBytes));
+            System.out.println(newFrame.getWidth() + " " + newFrame.getHeight());
             
             /* remove oldest frame */
             dataDisplay = dataDisplay.getSubimage(1, 0, MAX_FREQ - 1, FRAME_HEIGHT);
@@ -192,17 +193,16 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     
     @Subscribe
     public void on(HyperSpecData msg){
-        if(msg.getSourceName() != mainSys)
+        if(!msg.getSourceName().equals(mainSys))
             return;
-        
         updateDisplay(msg.getData());
     }
     
-    @Subscribe
-    public void on(EstimatedState state) {
-        if(!state.getSourceName().equals(mainSys))
-            return;
-    }
+//    @Subscribe
+//    public void on(EstimatedState state) {
+//        if(!state.getSourceName().equals(mainSys))
+//            return;
+//    }
     
 
     @Subscribe
