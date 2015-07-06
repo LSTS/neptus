@@ -36,12 +36,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
+import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 
 import pt.lsts.imc.EntityParameter;
@@ -49,6 +51,7 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.SetEntityParameters;
+import pt.lsts.imc.TrexAttribute;
 import pt.lsts.imc.TrexOperation;
 import pt.lsts.imc.TrexOperation.OP;
 import pt.lsts.imc.TrexToken;
@@ -70,10 +73,13 @@ import pt.lsts.neptus.mp.templates.PlanCreator;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.europtus.TokenHistory;
 import pt.lsts.neptus.plugins.trex.goals.AUVDrifterSurvey;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.MapGroup;
+import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -95,7 +101,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
 
     @NeptusProperty(category="Europtus", name="Host and Port for local europtus server")
     public String europtus = "127.0.0.1:7030";
-    
+
     @NeptusProperty(category="Europtus", name="IMC ID of Europtus")
     public int europtus_id = 65432;
 
@@ -104,38 +110,39 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
 
     @NeptusProperty(category="Simulated Vehicles",name="Second Simulator")
     public String sim_auv2 = "trex-sim-2";
-    
+
     @NeptusProperty(category="Survey Parameters", name="Smaller survey side length, in meters")
     public double survey_size = 300;
 
     @NeptusProperty(category="Survey Parameters", name="Ground Speed, in meters")
     public double ground_speed = 1.25;
-    
+
     @NeptusProperty(category="Survey Parameters", name="Time spent at surface during popups, in seconds")
     public int popup_secs = 30;
-    
+
     @NeptusProperty(category="Survey Parameters", name="Path rotation, in degrees")
     public double rotation = 0;
-    
+
     @NeptusProperty(category="Survey Parameters", name="Maximum depth, in meters")
     public double max_depth = 20;    
-    
+
     @NeptusProperty(category="Real Vehicles", name="Connection to be used to send Goals")
     public Connection connection_type = Connection.IMC;
-    
+
     @NeptusProperty(category="Europtus", name="Forward goals to Europtus")
     public boolean forwardToEuroptus = true;
-    
+
     private String europtus_host = null;
     private int europtus_port = -1;
 
+    private TokenHistory history = new TokenHistory();
     private PlanType plan1 = null, plan2 = null;
-    
+
     private HubIridiumMessenger hubMessenger = null;
     private DuneIridiumMessenger duneMessenger = null;
     private UDPTransport imcTransport = null;
     private LinkedHashMap<String, TrexToken> trex_state = new LinkedHashMap<String, TrexToken>();
-    
+
     private GpsFix asFix(EstimatedState state) {
         LocationType loc = IMCUtils.getLocation(state);
         loc.convertToAbsoluteLatLonDepth();
@@ -159,71 +166,70 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
                 "hacc", 2,
                 "vacc", 2                                    
                 );
-        
+
         return fix;
     }
     
     long lastSentPosition1 = System.currentTimeMillis(), lastSentPosition2 = System.currentTimeMillis();
-    
+
     @Subscribe
     public void on(EstimatedState state) {
-        //if (state.getDepth() > 0.5)
-        //    return;
-        
+
         if (state.getSourceName().equals(auv1) && System.currentTimeMillis() - lastSentPosition1 > 10000) {
             lastSentPosition1 = System.currentTimeMillis();
             try {
                 if (!ImcMsgManager.getManager().sendMessageToSystem(asFix(state), sim_auv1));
-                    throw new Exception("Not able to send gps fix to simulator 1"); 
+                throw new Exception("Not able to send gps fix to simulator 1"); 
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
             }
-            
+
         }
         else if (state.getSourceName().equals(auv2)&& System.currentTimeMillis() - lastSentPosition2 > 10000) {
             lastSentPosition2 = System.currentTimeMillis();
             try {
                 if (!ImcMsgManager.getManager().sendMessageToSystem(asFix(state), sim_auv2));
-                    throw new Exception("Not able to send gps fix to simulator 2");                     
+                throw new Exception("Not able to send gps fix to simulator 2");                     
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
             }
         }        
     }
-    
-    
-    
+
+    public void on(TrexOperation op) {
+        history.store(op);
+        on(op.getToken());
+    }
     
     @Subscribe
     public void on(TrexToken token) {
         String src = token.getSourceName();
         try {
-        if (src.equals(auv1)) {
-            TrexToken copy = TrexToken.clone(token);
-            copy.setTimeline("auv1."+token.getTimeline());
-            trex_state.put("auv1."+token.getTimeline(), copy);            
-        }
-        else if (src.equals(auv2)) {
-            TrexToken copy = TrexToken.clone(token);
-            copy.setTimeline("auv2."+token.getTimeline());
-            trex_state.put("auv2."+token.getTimeline(), copy);               
-        }
-        else if (token.getSrc() == europtus_id) {
-            System.out.println("Received a request from EUROPTUS: ");
-            //TODO
-            System.out.println(token);
-        }      
+            if (src.equals(auv1)) {
+                TrexToken copy = TrexToken.clone(token);
+                copy.setTimeline("auv1."+token.getTimeline());
+                trex_state.put("auv1."+token.getTimeline(), copy);
+            }
+            else if (src.equals(auv2)) {
+                TrexToken copy = TrexToken.clone(token);
+                copy.setTimeline("auv2."+token.getTimeline());
+                trex_state.put("auv2."+token.getTimeline(), copy);               
+            }
+            else if (token.getSrc() == europtus_id) {
+                System.out.println("Received a request from EUROPTUS: ");
+                System.out.println(token);
+            }      
         }
         catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     @Periodic(millisBetweenUpdates=10000)
     public void sendStateToEuroptus() {
-        
+
         for (String msg : new String[] {"auv1.drifter", "auv2.drifter", "auv1.estate", "auv2.estate"}) {
             if (trex_state.containsKey(msg)) {
                 try {
@@ -233,7 +239,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
                     op.setOp(OP.POST_TOKEN);
                     NeptusLog.pub().info("Sending token '"+msg+"' to europtus ("+europtus_host+":"+europtus_port+")");         
                     sendToEuroptus(op);
-                    trex_state.remove(msg);
+                    trex_state.remove(msg);                    
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -241,27 +247,26 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             }
         }
     }
-    
+
     public enum Connection {
         MantaIridium,
         HubIridium,
         IMC
     }
-    
+
     public enum GoalsDestination {
         Vehicles,
         Europtus
     }
-    
 
-    
     // send to europtus server
     void sendToEuroptus(TrexOperation msg) throws Exception {
-        
+
         if (europtus_host == null)
             throw new Exception("Europtus host and port not correctly set.");
-        System.out.println(msg.asJSON(true));
         sendUdp(msg, europtus_host, europtus_port);
+        
+        history.store(msg);
     }
 
     // send to udp destination
@@ -286,7 +291,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             else
                 throw new Exception("Vehicle "+vehicle+" is unknown.");
         }
-        
+
         NeptusLog.pub().info("Send "+msg.getAbbrev()+" to "+vehicle+" ("+msg.getDst()+") using "+connection_type);
         switch (connection_type) {
             case IMC:
@@ -309,7 +314,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
         sendToVehicle(auv1, msg);
         try {
             if (!ImcMsgManager.getManager().sendMessageToSystem(msg, sim_auv1));
-                throw new Exception("Not able to send message to simulator 1"); 
+            throw new Exception("Not able to send message to simulator 1"); 
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -321,7 +326,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
 
         try {
             if (!ImcMsgManager.getManager().sendMessageToSystem(msg, sim_auv2));
-                throw new Exception("Not able to send message to simulator 1"); 
+            throw new Exception("Not able to send message to simulator 1"); 
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -359,7 +364,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
 
     @Override
     public void deliveryResult(ResultEnum result, Exception error) {
-        
+
         //NeptusLog.pub().info("Delivery result: "+result, error);
     }
 
@@ -400,11 +405,97 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
         }
     }
 
+    public void surveyLocation(final LocationType loc) {
+
+        Runnable r = new Runnable() {
+
+            @Override
+            public void run() {
+
+
+
+                AUVDrifterSurvey survey1 = new AUVDrifterSurvey(loc.getLatitudeRads(), loc.getLongitudeRads(),
+                        (float) survey_size, 0f, false, AUVDrifterSurvey.PathType.SQUARE_TWICE, (float) Math
+                        .toRadians(rotation));
+
+                AUVDrifterSurvey survey2 = new AUVDrifterSurvey(loc.getLatitudeRads(), loc.getLongitudeRads(),
+                        (float) (survey_size * 2), 0f, false, AUVDrifterSurvey.PathType.SQUARE, (float) Math
+                        .toRadians(rotation));
+
+                plan1 = asNeptusPlan(survey1);
+                plan1.setVehicle(auv1);
+                plan1.setId("trex_"+auv1);
+
+                plan2 = asNeptusPlan(survey2);
+                plan2.setVehicle(auv2);
+                plan2.setId("trex_"+auv2);
+
+                getConsole().getMission().addPlan(plan1);
+                getConsole().getMission().addPlan(plan2);
+                getConsole().getMission().save(false);
+                getConsole().warnMissionListeners();
+
+                if (forwardToEuroptus) {
+
+                    TrexOperation op = new TrexOperation();
+                    op.setOp(OP.POST_TOKEN);
+                    TrexToken token = new TrexToken();
+                    token.setTimeline("whale.estate");
+                    ArrayList<TrexAttribute> attrs = new ArrayList<TrexAttribute>();
+                    TrexAttribute lat = new TrexAttribute();
+                    lat.setName("latitude");
+                    lat.setMin(String.format("%.8f", loc.getLatitudeRads()));
+                    lat.setMax(String.format("%.8f", loc.getLongitudeRads()));
+                    attrs.add(lat);
+
+                    TrexAttribute lon = new TrexAttribute();
+                    lon.setName("longitude");
+                    lon.setMin(String.format("%.8f", loc.getLongitudeRads()));
+                    lon.setMax(String.format("%.8f", loc.getLongitudeRads()));
+                    attrs.add(lon);
+
+                    TrexAttribute depth = new TrexAttribute();
+                    depth.setName("depth");
+                    depth.setMin("0");
+                    depth.setMax("0");
+                    attrs.add(depth);
+                    token.setAttributes(attrs);
+
+                    try {
+                        sendToEuroptus(op);                                 
+                    }
+                    catch (Exception ex) {
+                        NeptusLog.pub().error(
+                                ex.getClass().getSimpleName() + " while sending whale position: " + ex.getMessage(), ex);
+                        GuiUtils.errorMessage(getConsole(), "Error sending whale position",
+                                ex.getClass().getSimpleName() + ": " + ex.getMessage());
+                    }   
+                }
+                else {
+                    try {
+                        sendToVehicle1(survey1.asIMCMsg());
+                        sendToVehicle2(survey2.asIMCMsg());                
+                    }
+                    catch (Exception ex) {
+                        NeptusLog.pub().error(
+                                ex.getClass().getSimpleName() + " while sending survey command: " + ex.getMessage(), ex);
+                        GuiUtils.errorMessage(getConsole(), "Error sending survey command",
+                                ex.getClass().getSimpleName() + ": " + ex.getMessage());
+                    }   
+                }                
+            }
+        };
+
+        Thread t = new Thread(r, "Europtus Survey Request");
+        t.setDaemon(true);
+        t.start();
+    }
+
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
         if (event.getButton() != MouseEvent.BUTTON3)
             return;
-        
+
         JPopupMenu popup = new JPopupMenu();
         final LocationType loc = source.getRealWorldLocation(event.getPoint());
 
@@ -441,7 +532,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
                 Vector<EntityParameter> p = new Vector<>();
                 p.add(param);
                 setParams.setParams(p);
-                
+
                 try {
                     sendToVehicle1(setParams.cloneMessage());
                     sendToVehicle2(setParams.cloneMessage());
@@ -454,80 +545,48 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
                 }
             }
         });
-        
-        popup.addSeparator();
-        popup.add("Survey around here").addActionListener(new ActionListener() {
-            
+
+        JMenu menu = new JMenu("Survey around...");
+        menu.add("this location").addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
-                AUVDrifterSurvey survey1 = new AUVDrifterSurvey(loc.getLatitudeRads(), loc.getLongitudeRads(),
-                        (float) survey_size, 0f, false, AUVDrifterSurvey.PathType.SQUARE_TWICE, (float) Math
-                                .toRadians(rotation));
-
-                AUVDrifterSurvey survey2 = new AUVDrifterSurvey(loc.getLatitudeRads(), loc.getLongitudeRads(),
-                        (float) (survey_size * 2), 0f, false, AUVDrifterSurvey.PathType.SQUARE, (float) Math
-                                .toRadians(rotation));
-
-                plan1 = asNeptusPlan(survey1);
-                plan1.setVehicle(auv1);
-                plan1.setId("trex_"+auv1);
-                
-                plan2 = asNeptusPlan(survey2);
-                plan2.setVehicle(auv2);
-                plan2.setId("trex_"+auv2);
-                
-                getConsole().getMission().addPlan(plan1);
-                getConsole().getMission().addPlan(plan2);
-                getConsole().getMission().save(false);
-                getConsole().warnMissionListeners();
-                
-                if (forwardToEuroptus) {
-                    TrexOperation op1 = survey1.asIMCMsg();
-                    TrexOperation op2 = survey2.asIMCMsg();
-                    String timeline = op1.getToken().getTimeline();
-                    op1.getToken().setTimeline("auv1."+timeline);
-                    op2.getToken().setTimeline("auv2."+timeline);
-                    try {
-                        sendToEuroptus(op1);
-                        sendToEuroptus(op2);          
-                    }
-                    catch (Exception ex) {
-                        NeptusLog.pub().error(
-                                ex.getClass().getSimpleName() + " while sending survey command: " + ex.getMessage(), ex);
-                        GuiUtils.errorMessage(getConsole(), "Error sending survey command",
-                                ex.getClass().getSimpleName() + ": " + ex.getMessage());
-                    }   
-                    
-                }
-                else {
-                    try {
-                        sendToVehicle1(survey1.asIMCMsg());
-                        sendToVehicle2(survey2.asIMCMsg());                
-                    }
-                    catch (Exception ex) {
-                        NeptusLog.pub().error(
-                                ex.getClass().getSimpleName() + " while sending survey command: " + ex.getMessage(), ex);
-                        GuiUtils.errorMessage(getConsole(), "Error sending survey command",
-                                ex.getClass().getSimpleName() + ": " + ex.getMessage());
-                    }   
-                }                
+                surveyLocation(loc);
             }
         });
-        
+
+        menu.addSeparator();
+
+        Vector<MarkElement> marks = MapGroup.getMapGroupInstance(getConsole().getMission()).getAllObjectsOfType(
+                MarkElement.class);
+
+        for (MarkElement elem : marks) {
+            menu.add(elem.getId()).addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    surveyLocation(new LocationType(elem.getCenterLocation().convertToAbsoluteLatLonDepth()));
+                }
+            });
+        }
+
+        popup.addSeparator();
+        popup.add(menu);
+
         popup.addSeparator();
         popup.add("Plug-in settings").addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 PluginUtils.editPluginProperties(Europtus.this, true);
             }
         });
-        
+
         popup.show(event.getComponent(), event.getX(), event.getY());
     }
-    
+
     private PlanType asNeptusPlan(AUVDrifterSurvey survey) {
-        
+
         PlanCreator pc = new PlanCreator(getConsole().getMission());
         pc.setSpeed(1.25, SPEED_UNITS.METERS_PS);
         pc.setLocation(survey.getLocation());
@@ -535,7 +594,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
         transform.rotate(survey.getRotationRads());
         PathIterator it = survey.getShape().getPathIterator(transform);
         double[] coords = new double[6];        
-        
+
         while(!it.isDone()) {
             it.currentSegment(coords);
             LocationType loc = new LocationType(survey.getLocation());
@@ -550,7 +609,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             it.next();
         }
         pc.addManeuver("StationKeeping", "duration", 0);
-        
+
         return pc.getPlan();
     }
 
