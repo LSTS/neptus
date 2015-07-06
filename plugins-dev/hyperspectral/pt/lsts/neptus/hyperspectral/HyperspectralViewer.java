@@ -87,9 +87,7 @@ import java.awt.image.DataBufferByte;
 @SuppressWarnings("serial")
 @PluginDescription(name = "Hyperspectral Layer", author = "tsmarques", version = "0.1")
 @LayerPriority(priority = 40)
-public class HyperspectralViewer extends ConsoleLayer implements ConfigurationListener {
-    private static final String TEST_DATA_DIR = "./plugins-dev/hyperspectral/pt/lsts/neptus/hyperspectral/test-data/";
-    
+public class HyperspectralViewer extends ConsoleLayer implements ConfigurationListener {   
     public static final int MIN_FREQ = 0;
     public static final int MAX_FREQ = 640; /* also frame's width */
     /* frames will be FRAME_WIDTH x MAX_FREQ px */
@@ -133,7 +131,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     
     /* request data with new wavelength */
     private void requestWavelength() {
-        frames = loadFrames(selectedWavelength + "/");
+        frames = TestDataUtils.loadFrames(selectedWavelength + "/");
         framesLoaded = true;
     }
     
@@ -174,65 +172,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
         
         return newImage;
     }
-    
-    /* for testing */
-    /* load the frames columns */
-    public static Queue<byte[]> loadFrames(String path) {
-        File dir = new File(TEST_DATA_DIR + path);
-        File[] tmpFrames = dir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".bmp");
-            }            
-        });
         
-        if(!dir.exists())
-            return new LinkedList<byte[]>();
-        
-        File frames[] = new File[tmpFrames.length];
-       
-        
-        for(int i = 0; i < frames.length ; i++) {
-            int filepos = Integer.parseInt(tmpFrames[i].getName().split(".bmp")[0]);
-            frames[filepos] = tmpFrames[i];
-        }
-        
-        Queue<byte[]> framesList = new LinkedList<>();
-        
-        for(int i = 0; i < frames.length; i++) {
-            try {
-                framesList.add(Files.readAllBytes(frames[i].toPath()));
-            }
-            catch (IOException e) { e.printStackTrace(); }
-        }
-
-        return framesList;
-    }
-    
-    /* Given a path for the test data,
-       remove everything but the column
-       correspondent to the selected wavelength 
-       and save them in a folder named after the wavelength
-    */
-    private void cropFrames(int wave, String path) {
-        File dir = new File(path);
-        File[] imgFiles = dir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith(".bmp");
-            }            
-        });
-        
-        Arrays.sort(imgFiles, NameFileComparator.NAME_INSENSITIVE_COMPARATOR);
-        try {
-            for(int i = 0; i < imgFiles.length; i++) {
-                BufferedImage frame = (BufferedImage) ImageIO.read(imgFiles[i]);
-                
-                BufferedImage cropped = frame.getSubimage(wave - 1, 0, 1, 250);
-                ImageIO.write(cropped, "bmp", new File(TEST_DATA_DIR + wave + "/" + i + ".bmp"));   
-            }
-        }
-        catch (IOException e) { e.printStackTrace(); }
-    }
-    
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if(!framesLoaded && !initDisplay) {

@@ -66,6 +66,9 @@ import pt.lsts.neptus.types.coord.LocationType;
 @LayerPriority(priority=-10)
 @PluginDescription(icon="pt/lsts/neptus/mra/replay/globe.png")
 public class HyperspectralReplay implements LogReplayLayer {
+    /* frames sent from a higher or lower altitude will be drawn on the map scaled up or down, respectively */
+    private static final int DEFAULT_ALTITUDE = 100; /* in meters */
+    
     private final List<HyperspectralData> dataset = new ArrayList<HyperspectralData>();
 
     public HyperspectralReplay() {
@@ -110,7 +113,7 @@ public class HyperspectralReplay implements LogReplayLayer {
     @Override
     public void parse(IMraLogGroup source) {
         //IMraLog hyperspecLog = source.getLog("hyperspecData");
-        Queue<byte[]> frames = HyperspectralViewer.loadFrames("320/");
+        Queue<byte[]> frames = TestDataUtils.loadFrames("320/");
         IMraLog esLog = source.getLog("EstimatedState");
         EstimatedState state = (EstimatedState) esLog.firstLogEntry();
 
@@ -155,7 +158,13 @@ public class HyperspectralReplay implements LogReplayLayer {
             try {
                 data = ImageIO.read(new ByteArrayInputStream(dataBytes));
                 dataLocation = IMCUtils.parseLocation(state);
-
+         
+                /* scale image down */
+                tx = new AffineTransform();
+                tx.scale(0.5, 0.5);
+                op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+                data = op.filter(data, null);
+                
                 rotationAngle = setRotationAngle(state.getPsi());
             }
             catch (IOException e) { e.printStackTrace(); }
