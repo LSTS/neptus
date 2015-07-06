@@ -138,7 +138,7 @@ public class HyperspectralReplay implements LogReplayLayer {
 
     @Override
     public boolean getVisibleByDefault() {
-        return true;
+        return false;
     }
 
     @Override
