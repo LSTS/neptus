@@ -103,16 +103,14 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     private ConsoleLayout console;
     private String mainSys = "";
       
-    /* testing */
+    
+    private boolean firstPaint = true;
     private BufferedImage dataDisplay; /* image currently being displayed */
-    private Queue<byte[]> frames;
-    private boolean framesLoaded = false;
     
     @NeptusProperty(editable = true, name = "Hyperspectral wavelength", userLevel = LEVEL.REGULAR)
-    private int wavelengthProperty = 0;
+    private double wavelengthProperty = 0;
     
-    private int selectedWavelength = 320;
-    private boolean initDisplay = false;
+    private double selectedWavelength = -1;
     
 
     public HyperspectralViewer() {
@@ -131,8 +129,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     
     /* request data with new wavelength */
     private void requestWavelength() {
-        frames = TestDataUtils.loadFrames(selectedWavelength + "/");
-        framesLoaded = true;
+        /* TODO: send request for specified wavelength data to the vehicle */
     }
     
     @Override
@@ -140,8 +137,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
         if(!(wavelengthProperty >= MIN_FREQ && wavelengthProperty <= MAX_FREQ))
             return;
         
-        if(wavelengthProperty != selectedWavelength) {
-            framesLoaded = false;            
+        if(wavelengthProperty != selectedWavelength) {          
             selectedWavelength = wavelengthProperty;
             
             initDisplayedImage();
@@ -175,14 +171,14 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
         
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        if(!framesLoaded && !initDisplay) {
+        if(firstPaint) {
             int newX = -((MAX_FREQ / 2)) + (FRAME_HEIGHT / 2);
             int newY = (renderer.getHeight() - FRAME_HEIGHT) / 2;
             
             transform.translate(newX, newY);
             transform.rotate(Math.toRadians(-90), dataDisplay.getWidth() / 2, dataDisplay.getHeight() / 2);
                         
-            initDisplay = true;
+            firstPaint = false;
         }
         else {
             g.setColor(Color.red);
@@ -198,20 +194,14 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     public void on(HyperSpecData msg){
         if(msg.getSourceName() != mainSys)
             return;
+        
         updateDisplay(msg.getData());
     }
     
     @Subscribe
     public void on(EstimatedState state) {
-        if(!framesLoaded || !state.getSourceName().equals(mainSys))
+        if(!state.getSourceName().equals(mainSys))
             return;
-
-        if(frames.isEmpty())
-            return;
-        
-        byte[] frameBytes= frames.poll();
-        updateDisplay(frameBytes);
-        frames.offer(frameBytes); /* keep a circular queue */
     }
     
 
