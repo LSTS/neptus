@@ -4,53 +4,25 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
-
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-
-import org.apache.commons.collections15.buffer.CircularFifoBuffer;
-import org.apache.commons.io.comparator.NameFileComparator;
-import org.apache.commons.lang.ArrayUtils;
-import org.jzy3d.maths.Array;
 
 import com.google.common.eventbus.Subscribe;
 
 import pt.lsts.neptus.colormap.ColorMapFactory;
-import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.HyperSpecData;
 import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
-import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.update.Periodic;
-import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.util.ImageUtils;
-
-import java.awt.image.DataBufferByte;
 
 /*
  * Copyright (c) 2004-2015 Universidade do Porto - Faculdade de Engenharia
