@@ -79,6 +79,17 @@ public class HyperspecUtils {
         return data;
     }
     
+    public static void saveFrame(BufferedImage frame, String path, String name, String extension) {
+        try {
+            System.out.println("WRITING TO DISK");
+            File f = new File(path + name + "." + extension);
+            ImageIO.write(frame, extension, f);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
     /* for testing */
     /* load the frames columns */
     public static Queue<byte[]> loadFrames(String path) {
