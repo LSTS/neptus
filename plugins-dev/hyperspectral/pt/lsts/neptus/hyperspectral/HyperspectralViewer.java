@@ -128,22 +128,9 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
         
         /* remove oldest frame */
         dataDisplay = dataDisplay.getSubimage(1, 0, MAX_FREQ - 1, FRAME_HEIGHT);
-        dataDisplay = joinBufferedImage(dataDisplay, newFrame);
+        dataDisplay = HyperspecUtils.joinBufferedImage(dataDisplay, newFrame, MAX_FREQ, FRAME_HEIGHT);
     }
     
-    
-    private BufferedImage joinBufferedImage(BufferedImage img1,BufferedImage img2) {
-
-        //create a new buffer and draw two image into the new image
-        BufferedImage newImage = new BufferedImage(MAX_FREQ, FRAME_HEIGHT, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = newImage.createGraphics();
-
-        g2.drawImage(img1, null, 0, 0);
-        g2.drawImage(img2, null, img1.getWidth(), 0);
-        g2.dispose();
-        
-        return newImage;
-    }
         
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
