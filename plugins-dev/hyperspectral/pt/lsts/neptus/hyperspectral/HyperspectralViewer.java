@@ -4,7 +4,7 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
+import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -32,8 +32,10 @@ import org.jzy3d.maths.Array;
 
 import com.google.common.eventbus.Subscribe;
 
+import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.HyperSpecData;
+import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -46,6 +48,7 @@ import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.util.ImageUtils;
 
 import java.awt.image.DataBufferByte;
 
@@ -146,19 +149,26 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
         }
     }
     
+    
     private void updateDisplay(byte[] frameBytes) {
-        try {
-            System.out.println(frameBytes.length);
-            BufferedImage newFrame = ImageIO.read(new ByteArrayInputStream(frameBytes));
-            if(newFrame == null)
-                return;
-            
-            System.out.println(newFrame.getWidth() + " " + newFrame.getHeight());            
-            /* remove oldest frame */
-            dataDisplay = dataDisplay.getSubimage(1, 0, MAX_FREQ - 1, FRAME_HEIGHT);
-            dataDisplay = joinBufferedImage(dataDisplay, newFrame);
-        }
-        catch (IOException e) { e.printStackTrace(); }
+        BufferedImage newFrame = rawToBuffImage(frameBytes);
+        
+        if(newFrame == null)
+            return;
+        
+        /* remove oldest frame */
+        dataDisplay = dataDisplay.getSubimage(1, 0, MAX_FREQ - 1, FRAME_HEIGHT);
+        dataDisplay = joinBufferedImage(dataDisplay, newFrame);
+    }
+    
+    private BufferedImage rawToBuffImage(byte[] raw) {
+        BufferedImage data = new BufferedImage(1, raw.length, BufferedImage.TYPE_BYTE_GRAY);
+        
+        ColorMap cp = ColorMapFactory.createGrayScaleColorMap();
+        for(int i = 0; i < raw.length; i++)
+            data.setRGB(0, i, cp.getColor((raw[i] & 0xFF) / 255.0).getRGB());
+        
+        return data;
     }
     
     private BufferedImage joinBufferedImage(BufferedImage img1,BufferedImage img2) {
