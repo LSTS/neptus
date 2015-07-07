@@ -56,7 +56,7 @@ public class HyperspecUtils {
     
     
     public static BufferedImage rawToBuffImage(byte[] raw) {
-        BufferedImage data = new BufferedImage(1, raw.length, BufferedImage.TYPE_BYTE_GRAY);
+        BufferedImage data = new BufferedImage(1, raw.length, BufferedImage.TYPE_3BYTE_BGR);
         
         ColorMap cp = ColorMapFactory.createGrayScaleColorMap();
         for(int i = 0; i < raw.length; i++)
