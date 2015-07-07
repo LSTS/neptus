@@ -11,9 +11,7 @@ import java.util.Queue;
 
 import com.google.common.eventbus.Subscribe;
 
-import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.imc.HyperSpecData;
-import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
@@ -123,7 +121,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     
     
     private void updateDisplay(byte[] frameBytes) {
-        BufferedImage newFrame = rawToBuffImage(frameBytes);
+        BufferedImage newFrame = HyperspecUtils.rawToBuffImage(frameBytes);
         
         if(newFrame == null)
             return;
@@ -133,15 +131,6 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
         dataDisplay = joinBufferedImage(dataDisplay, newFrame);
     }
     
-    private BufferedImage rawToBuffImage(byte[] raw) {
-        BufferedImage data = new BufferedImage(1, raw.length, BufferedImage.TYPE_BYTE_GRAY);
-        
-        ColorMap cp = ColorMapFactory.createGrayScaleColorMap();
-        for(int i = 0; i < raw.length; i++)
-            data.setRGB(0, i, cp.getColor((raw[i] & 0xFF) / 255.0).getRGB());
-        
-        return data;
-    }
     
     private BufferedImage joinBufferedImage(BufferedImage img1,BufferedImage img2) {
 

@@ -44,12 +44,26 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.io.comparator.NameFileComparator;
 
+import pt.lsts.neptus.colormap.ColorMap;
+import pt.lsts.neptus.colormap.ColorMapFactory;
+
 /**
  * @author coop
  *
  */
 public class HyperspecUtils {
     private static final String TEST_DATA_DIR = "./plugins-dev/hyperspectral/pt/lsts/neptus/hyperspectral/test-data/";
+    
+    
+    public static BufferedImage rawToBuffImage(byte[] raw) {
+        BufferedImage data = new BufferedImage(1, raw.length, BufferedImage.TYPE_BYTE_GRAY);
+        
+        ColorMap cp = ColorMapFactory.createGrayScaleColorMap();
+        for(int i = 0; i < raw.length; i++)
+            data.setRGB(0, i, cp.getColor((raw[i] & 0xFF) / 255.0).getRGB());
+        
+        return data;
+    }
     
     /* for testing */
     /* load the frames columns */
