@@ -48,7 +48,7 @@ import org.apache.commons.io.comparator.NameFileComparator;
  * @author coop
  *
  */
-public class TestDataUtils {
+public class HyperspecUtils {
     private static final String TEST_DATA_DIR = "./plugins-dev/hyperspectral/pt/lsts/neptus/hyperspectral/test-data/";
     
     /* for testing */

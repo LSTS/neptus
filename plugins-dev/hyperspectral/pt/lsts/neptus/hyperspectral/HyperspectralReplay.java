@@ -113,7 +113,7 @@ public class HyperspectralReplay implements LogReplayLayer {
     @Override
     public void parse(IMraLogGroup source) {
         //IMraLog hyperspecLog = source.getLog("hyperspecData");
-        Queue<byte[]> frames = TestDataUtils.loadFrames("320/");
+        Queue<byte[]> frames = HyperspecUtils.loadFrames("320/");
         IMraLog esLog = source.getLog("EstimatedState");
         EstimatedState state = (EstimatedState) esLog.firstLogEntry();
 
