@@ -157,15 +157,12 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
             firstPaint = false;
         }
         else {
-            synchronized(dataSet) {
-                if(!dataSet.isEmpty()) {
-                    updateDisplay(dataSet.poll());
-                    g.setColor(Color.red);
-                    g.drawString(selectedWavelength + " nm", (FRAME_HEIGHT / 2) - 30, (FRAME_HEIGHT / 2) - 60);
-                    g.setTransform(transform);
-                    g.setComposite(composite);
-                    g.drawImage(dataDisplay, 0, 0, renderer);
-                }
+            synchronized(dataDisplay) {
+                g.setColor(Color.red);
+                g.drawString(selectedWavelength + " nm", (FRAME_HEIGHT / 2) - 30, (FRAME_HEIGHT / 2) - 60);
+                g.setTransform(transform);
+                g.setComposite(composite);
+                g.drawImage(dataDisplay, 0, 0, renderer);
             }
         }
     }
@@ -175,9 +172,8 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     public void on(HyperSpecData msg){
         if(!msg.getSourceName().equals(mainSys))
             return;
-        // updateDisplay(msg.getData());
         
-        synchronized(dataSet) { dataSet.offer(msg.getData()); }
+        synchronized(dataDisplay) { updateDisplay(msg.getData()); }
     }
     
 //    @Subscribe
