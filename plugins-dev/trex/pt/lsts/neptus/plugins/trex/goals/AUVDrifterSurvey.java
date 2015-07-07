@@ -66,7 +66,6 @@ public class AUVDrifterSurvey extends TrexGoal implements Renderer2DPainter {
     private static final double hspeed = 1.3 * Math.cos(pitch); 
 
 
-
     public enum Attributes {
         LATITUDE("center_lat", TrexAttribute.ATTR_TYPE.FLOAT),
         LONGITUDE("center_lon", TrexAttribute.ATTR_TYPE.FLOAT),
