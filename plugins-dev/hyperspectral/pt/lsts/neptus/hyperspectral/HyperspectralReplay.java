@@ -42,6 +42,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
@@ -72,9 +74,10 @@ import pt.lsts.neptus.util.ImageUtils;
 @PluginDescription(icon="pt/lsts/neptus/mra/replay/globe.png")
 public class HyperspectralReplay implements LogReplayLayer {
     /* frames sent from a higher or lower altitude will be drawn on the map scaled up or down, respectively */
-    private static final int DEFAULT_ALTITUDE = 100; /* in meters */
+    private static final double DEFAULT_ALTITUDE = 100; /* in meters */
     
-    private final List<HyperspectralData> dataset = new ArrayList<HyperspectralData>();
+    public double selectedWavelength = 0;
+    private final HashMap<Double, List<HyperspectralData>> dataset = new HashMap<>();
 
     public HyperspectralReplay() {
 
@@ -90,25 +93,27 @@ public class HyperspectralReplay implements LogReplayLayer {
         if(dataset.isEmpty())
             return;
         
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        
-        for(int i = 0; i < dataset.size(); i++) {
-            HyperspectralData frame = dataset.get(i);
-            Point2D dataPosition = renderer.getScreenPosition(frame.dataLocation);
-            
-            BufferedImage scaledData = frame.getScaledData(1, renderer.getZoom());
+        if(dataset.containsKey(selectedWavelength)) {
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            /* draw data with its center in the EstimatedState position */
-            int dataX = (int) dataPosition.getX()- (scaledData.getWidth() / 2);
-            int dataY = (int) dataPosition.getY() - (scaledData.getHeight() / 2);
+            for(int i = 0; i < dataset.size(); i++) {
+                HyperspectralData frame = dataset.get(selectedWavelength).get(i);
+                Point2D dataPosition = renderer.getScreenPosition(frame.dataLocation);
 
-            AffineTransform backup = g.getTransform();
-            AffineTransform tx = new AffineTransform();
-            tx.rotate(frame.rotationAngle, dataPosition.getX(), dataPosition.getY());
-            
-            g.setTransform(tx);
-            g.drawImage(scaledData, dataX, dataY, null, renderer);
-            g.setTransform(backup);
+                BufferedImage scaledData = frame.getScaledData(1, renderer.getZoom());
+
+                /* draw data with its center in the EstimatedState position */
+                int dataX = (int) dataPosition.getX()- (scaledData.getWidth() / 2);
+                int dataY = (int) dataPosition.getY() - (scaledData.getHeight() / 2);
+
+                AffineTransform backup = g.getTransform();
+                AffineTransform tx = new AffineTransform();
+                tx.rotate(frame.rotationAngle, dataPosition.getX(), dataPosition.getY());
+
+                g.setTransform(tx);
+                g.drawImage(scaledData, dataX, dataY, null, renderer);
+                g.setTransform(backup);
+            }
         }
     }
 
@@ -131,8 +136,17 @@ public class HyperspectralReplay implements LogReplayLayer {
                 HyperSpecData msg = (HyperSpecData) hyperspecLog.firstLogEntry();
                 while(msg != null)  {
                     EstimatedState closestState = (EstimatedState)esLog.getEntryAtOrAfter(msg.getTimestampMillis());
-                    dataset.add(new HyperspectralData(msg.getData(), closestState));
-
+                    double dataWavelen = msg.getWavelen();
+                    
+                    List<HyperspectralData> dataList;
+                    if(dataset.containsKey(dataWavelen))
+                        dataList = dataset.get(dataWavelen);
+                    else {
+                        dataList = new LinkedList<>();
+                        dataset.put(dataWavelen, dataList);
+                    }
+                    
+                    dataList.add(new HyperspectralData(msg.getData(), closestState));
                     msg = (HyperSpecData) hyperspecLog.nextLogEntry();
                 }
             }
@@ -163,7 +177,7 @@ public class HyperspectralReplay implements LogReplayLayer {
     }
 
     private class HyperspectralData {
-        private double rotationAngle;
+        private double rotationAngle; 
         public BufferedImage data;
         public LocationType dataLocation;
 
@@ -174,6 +188,7 @@ public class HyperspectralReplay implements LogReplayLayer {
             data = HyperspecUtils.rawToBuffImage(dataBytes);
             dataLocation = IMCUtils.parseLocation(state);
             data = getScaledData(1, 0.25);
+            
 
             rotationAngle = setRotationAngle(state.getPsi());
         }
