@@ -56,6 +56,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
+import pt.lsts.neptus.mra.replay.MultibeamReplay;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -114,16 +115,25 @@ public class HyperspectralReplay implements LogReplayLayer {
 
     @Override
     public void parse(IMraLogGroup source) {
-        IMraLog hyperspecLog = source.getLog("HyperSpecData");
-        IMraLog esLog = source.getLog("EstimatedState");
-        
-        HyperSpecData msg = (HyperSpecData) hyperspecLog.firstLogEntry();
-        while(msg != null)  {
-            EstimatedState closestState = (EstimatedState)esLog.getEntryAtOrAfter(msg.getTimestampMillis());
-            dataset.add(new HyperspectralData(msg.getData(), closestState));
+        Thread t = new Thread(HyperspectralReplay.class.getSimpleName() + " " + source.getDir().getParent()) {
             
-            msg = (HyperSpecData) hyperspecLog.nextLogEntry();
-        }
+            @Override
+            public void run() {
+
+                IMraLog hyperspecLog = source.getLog("HyperSpecData");
+                IMraLog esLog = source.getLog("EstimatedState");
+
+                HyperSpecData msg = (HyperSpecData) hyperspecLog.firstLogEntry();
+                while(msg != null)  {
+                    EstimatedState closestState = (EstimatedState)esLog.getEntryAtOrAfter(msg.getTimestampMillis());
+                    dataset.add(new HyperspectralData(msg.getData(), closestState));
+
+                    msg = (HyperSpecData) hyperspecLog.nextLogEntry();
+                }
+            }
+        };
+        t.setDaemon(true);
+        t.start();
     }
 
 
