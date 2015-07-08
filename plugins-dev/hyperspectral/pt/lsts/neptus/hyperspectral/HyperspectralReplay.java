@@ -33,6 +33,7 @@ package pt.lsts.neptus.hyperspectral;
 
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.AffineTransformOp;
@@ -46,6 +47,7 @@ import java.util.Queue;
 import javax.imageio.ImageIO;
 import javax.vecmath.Point2d;
 
+import opendap.servlet.GetHTMLInterfaceHandler;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.HyperSpecData;
 import pt.lsts.imc.IMCMessage;
@@ -58,6 +60,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author tsmarques
@@ -96,7 +99,7 @@ public class HyperspectralReplay implements LogReplayLayer {
             AffineTransform backup = g.getTransform();
             AffineTransform tx = new AffineTransform();
             tx.rotate(frame.rotationAngle, dataPosition.getX(), dataPosition.getY());
-
+            
             g.setTransform(tx);
             g.drawImage(frame.data, dataX, dataY, null, renderer);
             g.setTransform(backup);
@@ -105,23 +108,21 @@ public class HyperspectralReplay implements LogReplayLayer {
 
     @Override
     public boolean canBeApplied(IMraLogGroup source, Context context) {
-        //return source.getLog("HyperSpecData") != null;
-        return true;
+        return source.getLog("HyperSpecData") != null;
     }
 
 
     @Override
     public void parse(IMraLogGroup source) {
-        //IMraLog hyperspecLog = source.getLog("hyperspecData");
-        Queue<byte[]> frames = HyperspecUtils.loadFrames("320/");
+        IMraLog hyperspecLog = source.getLog("HyperSpecData");
         IMraLog esLog = source.getLog("EstimatedState");
-        EstimatedState state = (EstimatedState) esLog.firstLogEntry();
-
-        while(state != null && !frames.isEmpty()) {
-            HyperspectralData newData = new HyperspectralData(frames.poll(), state);
-            dataset.add(newData);
-
-            state = (EstimatedState) esLog.nextLogEntry();
+        
+        HyperSpecData msg = (HyperSpecData) hyperspecLog.firstLogEntry();
+        while(msg != null)  {
+            EstimatedState closestState = (EstimatedState)esLog.getEntryAtOrAfter(msg.getTimestampMillis());
+            dataset.add(new HyperspectralData(msg.getData(), closestState));
+            
+            msg = (HyperSpecData) hyperspecLog.nextLogEntry();
         }
     }
 
@@ -155,19 +156,11 @@ public class HyperspectralReplay implements LogReplayLayer {
         private AffineTransformOp op;
 
         public HyperspectralData(byte[] dataBytes, EstimatedState state) {
-            try {
-                data = ImageIO.read(new ByteArrayInputStream(dataBytes));
-                dataLocation = IMCUtils.parseLocation(state);
-         
-                /* scale image down */
-                tx = new AffineTransform();
-                tx.scale(0.5, 0.5);
-                op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
-                data = op.filter(data, null);
-                
-                rotationAngle = setRotationAngle(state.getPsi());
-            }
-            catch (IOException e) { e.printStackTrace(); }
+            data = HyperspecUtils.rawToBuffImage(dataBytes);
+            dataLocation = IMCUtils.parseLocation(state);
+            data = (BufferedImage)ImageUtils.getFasterScaledInstance(data, data.getWidth(), (int)(0.25 * data.getHeight()));
+
+            rotationAngle = setRotationAngle(state.getPsi());
         }
 
         /* Get angle so that the frame is perpendicular to the vehicle's heading */
