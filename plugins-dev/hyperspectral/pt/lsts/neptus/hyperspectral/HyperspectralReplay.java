@@ -34,6 +34,7 @@ package pt.lsts.neptus.hyperspectral;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.AffineTransformOp;
@@ -88,7 +89,9 @@ public class HyperspectralReplay implements LogReplayLayer {
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         if(dataset.isEmpty())
             return;
-
+        
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
         for(int i = 0; i < dataset.size(); i++) {
             HyperspectralData frame = dataset.get(i);
             Point2D dataPosition = renderer.getScreenPosition(frame.dataLocation);
