@@ -95,17 +95,19 @@ public class HyperspectralReplay implements LogReplayLayer {
         for(int i = 0; i < dataset.size(); i++) {
             HyperspectralData frame = dataset.get(i);
             Point2D dataPosition = renderer.getScreenPosition(frame.dataLocation);
+            
+            BufferedImage scaledData = frame.getScaledData(1, renderer.getZoom());
 
             /* draw data with its center in the EstimatedState position */
-            int dataX = (int) dataPosition.getX()- (frame.data.getWidth() / 2);
-            int dataY = (int) dataPosition.getY() - (frame.data.getHeight() / 2);
+            int dataX = (int) dataPosition.getX()- (scaledData.getWidth() / 2);
+            int dataY = (int) dataPosition.getY() - (scaledData.getHeight() / 2);
 
             AffineTransform backup = g.getTransform();
             AffineTransform tx = new AffineTransform();
             tx.rotate(frame.rotationAngle, dataPosition.getX(), dataPosition.getY());
             
             g.setTransform(tx);
-            g.drawImage(frame.data, dataX, dataY, null, renderer);
+            g.drawImage(scaledData, dataX, dataY, null, renderer);
             g.setTransform(backup);
         }
     }
