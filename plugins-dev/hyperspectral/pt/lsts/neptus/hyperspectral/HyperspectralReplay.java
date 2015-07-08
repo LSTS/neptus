@@ -171,9 +171,14 @@ public class HyperspectralReplay implements LogReplayLayer {
         public HyperspectralData(byte[] dataBytes, EstimatedState state) {
             data = HyperspecUtils.rawToBuffImage(dataBytes);
             dataLocation = IMCUtils.parseLocation(state);
-            data = (BufferedImage)ImageUtils.getFasterScaledInstance(data, data.getWidth(), (int)(0.25 * data.getHeight()));
+            data = getScaledData(1, 0.25);
 
             rotationAngle = setRotationAngle(state.getPsi());
+        }
+        
+        private BufferedImage getScaledData(double scalex, double scaley) {
+            return (BufferedImage)ImageUtils.getFasterScaledInstance(data, 
+                    (int)(data.getWidth() * scalex), (int)(scaley * data.getHeight()));
         }
 
         /* Get angle so that the frame is perpendicular to the vehicle's heading */
