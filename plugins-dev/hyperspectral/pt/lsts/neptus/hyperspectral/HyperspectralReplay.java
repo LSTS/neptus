@@ -211,7 +211,7 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                         wavelengths.addItem(dataWavelen);
                     }
                     
-                    dataList.add(new HyperspectralData(msg.getData(), closestState));
+                    dataList.add(new HyperspectralData(msg, closestState));
                     msg = (HyperSpecData) hyperspecLog.nextLogEntry();
                 }
             }
@@ -252,8 +252,8 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
         private AffineTransform tx;
         private AffineTransformOp op;
 
-        public HyperspectralData(byte[] dataBytes, EstimatedState state) {
-            data = HyperspecUtils.rawToBuffImage(dataBytes);
+        public HyperspectralData(HyperSpecData msg, EstimatedState state) {
+            data = HyperspecUtils.rawToBuffImage(msg.getData());
             dataLocation = IMCUtils.parseLocation(state);
             data = getScaledData(1, 0.25);
             
