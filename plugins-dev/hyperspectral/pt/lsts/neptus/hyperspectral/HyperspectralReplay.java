@@ -32,9 +32,13 @@
 package pt.lsts.neptus.hyperspectral;
 
 import java.awt.AlphaComposite;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.AffineTransformOp;
@@ -48,6 +52,13 @@ import java.util.List;
 import java.util.Queue;
 
 import javax.imageio.ImageIO;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JWindow;
+import javax.swing.SwingConstants;
 import javax.vecmath.Point2d;
 
 import opendap.servlet.GetHTMLInterfaceHandler;
@@ -55,12 +66,14 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.HyperSpecData;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.gui.PropertiesTable;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
 import pt.lsts.neptus.mra.replay.MultibeamReplay;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -72,15 +85,59 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 @LayerPriority(priority=-10)
 @PluginDescription(icon="pt/lsts/neptus/mra/replay/globe.png")
-public class HyperspectralReplay implements LogReplayLayer {
+public class HyperspectralReplay extends JFrame implements LogReplayLayer {
     /* frames sent from a higher or lower altitude will be drawn on the map scaled up or down, respectively */
     private static final double DEFAULT_ALTITUDE = 100; /* in meters */
     
+    /* wavelength selection panel */
+    private JPanel mainPanel;
+    private JComboBox<Double> wavelengths;
+    private JButton selectButton;
+    
+    private boolean firstPaint = true;
+    private boolean dataParsed = false;
     public double selectedWavelength = 0;
     private final HashMap<Double, List<HyperspectralData>> dataset = new HashMap<>();
+    List<HyperspectralData> dataList;
 
     public HyperspectralReplay() {
-
+        super();
+        initWavelenSelectionPanel();
+        
+    }
+    
+    private void initWavelenSelectionPanel() {
+        this.setSize(new Dimension(300, 70));
+        this.setTitle("Select wavelength");
+        
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.setPreferredSize(this.getPreferredSize());
+        
+        wavelengths = new JComboBox<Double>();
+        wavelengths.setSize(new Dimension(100, 40));
+        ((JLabel)wavelengths.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
+        
+        selectButton = new JButton("Show data");
+        selectButton.setSize(new Dimension(100, 40));
+        selectButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               if(!dataParsed)
+                   return;
+               
+               Object selection = (double) wavelengths.getSelectedItem();
+               
+               if(selection != null) {
+                   selectedWavelength = (double) selection;
+                   dataList = dataset.get(selectedWavelength);
+               }
+            }
+        });
+        
+        this.add(mainPanel);
+        mainPanel.add(wavelengths, BorderLayout.NORTH);
+        mainPanel.add(selectButton, BorderLayout.SOUTH);
     }
 
     @Override
@@ -90,14 +147,20 @@ public class HyperspectralReplay implements LogReplayLayer {
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
+        if(firstPaint) {
+            this.setVisible(true);
+            firstPaint = false;
+        }
+        
         if(dataset.isEmpty())
             return;
-        
-        if(dataset.containsKey(selectedWavelength)) {
+
+        if(dataParsed && (dataList != null)) {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            for(int i = 0; i < dataset.size(); i++) {
-                HyperspectralData frame = dataset.get(selectedWavelength).get(i);
+            /* draw data along the vehicle's path */
+            for(int i = 0; i < dataList.size(); i++) {
+                HyperspectralData frame = dataList.get(i);
                 Point2D dataPosition = renderer.getScreenPosition(frame.dataLocation);
 
                 BufferedImage scaledData = frame.getScaledData(1, renderer.getZoom());
@@ -105,6 +168,7 @@ public class HyperspectralReplay implements LogReplayLayer {
                 /* draw data with its center in the EstimatedState position */
                 int dataX = (int) dataPosition.getX()- (scaledData.getWidth() / 2);
                 int dataY = (int) dataPosition.getY() - (scaledData.getHeight() / 2);
+
 
                 AffineTransform backup = g.getTransform();
                 AffineTransform tx = new AffineTransform();
@@ -129,7 +193,6 @@ public class HyperspectralReplay implements LogReplayLayer {
             
             @Override
             public void run() {
-
                 IMraLog hyperspecLog = source.getLog("HyperSpecData");
                 IMraLog esLog = source.getLog("EstimatedState");
 
@@ -144,6 +207,8 @@ public class HyperspectralReplay implements LogReplayLayer {
                     else {
                         dataList = new LinkedList<>();
                         dataset.put(dataWavelen, dataList);
+                        /* add to combo box */
+                        wavelengths.addItem(dataWavelen);
                     }
                     
                     dataList.add(new HyperspectralData(msg.getData(), closestState));
@@ -153,6 +218,9 @@ public class HyperspectralReplay implements LogReplayLayer {
         };
         t.setDaemon(true);
         t.start();
+        
+        if(t.isAlive())
+            dataParsed = true;
     }
 
 
