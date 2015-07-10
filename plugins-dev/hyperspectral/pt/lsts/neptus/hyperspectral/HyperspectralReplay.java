@@ -125,6 +125,7 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
         this.add(mainPanel);
         mainPanel.add(wavelengths, BorderLayout.NORTH);
         mainPanel.add(selectButton, BorderLayout.SOUTH);
+        this.setLocationRelativeTo(null);
     }
 
     @Override
