@@ -350,6 +350,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
                     op.setOp(OP.POST_TOKEN);
                     NeptusLog.pub().info("Sending token '"+msg+"' to europtus ("+europtus_host+":"+europtus_port+")");         
                     sendToEuroptus(op);
+                    System.out.println("SENDING POSITION TO EUROPTUS");
                     trex_state.remove(msg);                    
                 }
                 catch (Exception e) {
@@ -373,7 +374,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     // send to europtus server
     void sendToEuroptus(TrexOperation msg) throws Exception {
 
-        System.out.println("Sending to europtus: ");
+        System.out.println("Sending to europtus ("+europtus_host+": "+europtus_port+">>");
         System.out.println(msg.asJSON());
 
         if (europtus_host == null)
