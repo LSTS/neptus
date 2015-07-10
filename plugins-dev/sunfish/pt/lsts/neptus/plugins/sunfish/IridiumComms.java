@@ -137,6 +137,8 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                 }
             }
             
+            
+            
             NeptusLog.pub().info("Resulting message: "+m);
         }
         catch (Exception e) {
@@ -238,11 +240,11 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         msg.setMsg(entry);
         try {
             IridiumManager.getManager().send(msg);
+            getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), e);
         }
-        getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
     }
     
     private void sendIridiumCommand() {
@@ -264,11 +266,12 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         command.setSource(ImcMsgManager.getManager().getLocalId().intValue());
         try {
             IridiumManager.getManager().send(command);
+            getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), e);
         }
-        getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));        
+                
     }
 
     private void setWaveGliderTargetPosition(LocationType loc) {

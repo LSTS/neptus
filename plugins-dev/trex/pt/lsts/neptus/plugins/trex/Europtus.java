@@ -54,6 +54,7 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IMCUtil;
+import pt.lsts.imc.RemoteSensorInfo;
 import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.imc.TrexAttribute;
 import pt.lsts.imc.TrexAttribute.ATTR_TYPE;
@@ -320,6 +321,20 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
         }
         catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    @Subscribe
+    public void on(RemoteSensorInfo rsi) {
+        
+        if (rsi.getSourceName().equals(auv1) || rsi.getSourceName().equals(auv2)) {
+            EstimatedState state = new EstimatedState();
+            state.setLat(rsi.getLat());
+            state.setLon(rsi.getLon());
+            state.setAlt(rsi.getAlt());
+            state.setPsi(rsi.getHeading());
+            ImcMsgManager.getManager().postInternalMessage("Europtus", state);
+            on(state);            
         }
     }
 
