@@ -197,6 +197,7 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                 IMraLog esLog = source.getLog("EstimatedState");
 
                 HyperSpecData msg = (HyperSpecData) hyperspecLog.firstLogEntry();
+                EstimatedState previousState = null;
                 while(msg != null)  {
                     EstimatedState closestState = (EstimatedState)esLog.getEntryAtOrAfter(msg.getTimestampMillis());
                     double dataWavelen = msg.getWavelen();
@@ -211,8 +212,11 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                         wavelengths.addItem(dataWavelen);
                     }
                     
-                    dataList.add(new HyperspectralData(msg, closestState));
+                    boolean overlapped = isDataOverlapped(previousState, closestState);
+                    
+                    dataList.add(new HyperspectralData(msg, closestState, overlapped));
                     msg = (HyperSpecData) hyperspecLog.nextLogEntry();
+                    previousState = closestState;
                 }
             }
         };
@@ -221,6 +225,14 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
         
         if(t.isAlive())
             dataParsed = true;
+    }
+    
+    private boolean isDataOverlapped(EstimatedState previousState, EstimatedState currState) {
+        /* means that currState is the first state to be received, so no overlap is possible at this time */
+        if(previousState == null)
+            return false;
+        
+        return previousState.getTimestamp() == currState.getTimestamp();
     }
 
 
@@ -252,13 +264,38 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
         private AffineTransform tx;
         private AffineTransformOp op;
 
-        public HyperspectralData(HyperSpecData msg, EstimatedState state) {
+        public HyperspectralData(HyperSpecData msg, EstimatedState state, boolean overlapped) {
             data = HyperspecUtils.rawToBuffImage(msg.getData());
+            
             dataLocation = IMCUtils.parseLocation(state);
+            
+            if(overlapped)
+                translateDataPosition(msg, state);
+            
             data = getScaledData(1, 0.25);
             
 
             rotationAngle = setRotationAngle(state.getPsi());
+        }
+        
+        /* 
+           If some data is overlapped with another over an
+           Estimated State point, make an estimate of its position
+           using the vehicle's speed and difference between timestamps 
+           i.e., calculate how much the vehicle moved since the last 
+           EstimatedState, and draw it there, instead of in the position
+           given by getEntryAtOrAfter()
+         */
+        private void translateDataPosition(HyperSpecData data, EstimatedState state) {
+            double deltaTime = data.getTimestamp() - state.getTimestamp();
+            double speedX = state.getVx();
+            double speedY = state.getVy();
+
+            double deltaX = speedX * deltaTime;
+            double deltaY = speedY * deltaTime;
+
+            dataLocation.setOffsetNorth(deltaX);
+            dataLocation.setOffsetEast(deltaY);
         }
         
         private BufferedImage getScaledData(double scalex, double scaley) {
