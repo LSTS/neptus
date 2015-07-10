@@ -31,11 +31,9 @@
  */
 package pt.lsts.neptus.hyperspectral;
 
-import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -43,37 +41,26 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JWindow;
 import javax.swing.SwingConstants;
-import javax.vecmath.Point2d;
 
-import opendap.servlet.GetHTMLInterfaceHandler;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.HyperSpecData;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.IMCUtils;
-import pt.lsts.neptus.gui.PropertiesTable;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
-import pt.lsts.neptus.mra.replay.MultibeamReplay;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -260,9 +247,6 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
         private double rotationAngle; 
         public BufferedImage data;
         public LocationType dataLocation;
-
-        private AffineTransform tx;
-        private AffineTransformOp op;
 
         public HyperspectralData(HyperSpecData msg, EstimatedState state, boolean overlapped) {
             data = HyperspecUtils.rawToBuffImage(msg.getData());
