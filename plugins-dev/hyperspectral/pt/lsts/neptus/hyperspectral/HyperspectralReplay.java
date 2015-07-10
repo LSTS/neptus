@@ -159,13 +159,13 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                 int dataY = (int) dataPosition.getY() - (scaledData.getHeight() / 2);
 
 
-                AffineTransform backup = g.getTransform();
-                AffineTransform tx = new AffineTransform();
-                tx.rotate(frame.rotationAngle, dataPosition.getX(), dataPosition.getY());
-
-                g.setTransform(tx);
+//                AffineTransform backup = g.getTransform();
+//                AffineTransform tx = new AffineTransform();
+//                tx.rotate(frame.rotationAngle, dataPosition.getX(), dataPosition.getY());
+//
+//                g.setTransform(tx);
                 g.drawImage(scaledData, dataX, dataY, null, renderer);
-                g.setTransform(backup);
+//                g.setTransform(backup);
             }
         }
     }
@@ -260,8 +260,8 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
             
             data = getScaledData(1, 0.25);
             
-
             rotationAngle = setRotationAngle(state.getPsi());
+            data = rotateData();
         }
         
         /* 
@@ -282,6 +282,26 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
 
             dataLocation.setOffsetNorth(deltaX);
             dataLocation.setOffsetEast(deltaY);
+        }
+        
+        private BufferedImage rotateData() {
+            double sin = Math.abs(Math.sin(rotationAngle));
+            double cos = Math.abs(Math.cos(rotationAngle));
+            int w = data.getWidth();
+            double h = data.getHeight();
+            
+            int rw =(int) Math.floor(cos * w + sin * h);
+            int rh = (int) Math.floor(cos * h + sin * w);
+            
+            BufferedImage rotatedImage = new BufferedImage((int)rw, (int)rh, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = (Graphics2D) rotatedImage.getGraphics();
+            
+            g.translate((rw-w)/2, (rh-h)/2);
+            g.rotate(rotationAngle, w/2, h/2);
+            g.drawRenderedImage(data, null);
+            g.dispose();
+            
+            return rotatedImage;
         }
         
         private BufferedImage getScaledData(double scalex, double scaley) {
