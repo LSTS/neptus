@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.hyperspectral;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -54,6 +56,29 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
  */
 public class HyperspecUtils {
     private static final String TEST_DATA_DIR = "./plugins-dev/hyperspectral/pt/lsts/neptus/hyperspectral/test-data/";
+    
+    
+    public static BufferedImage initDisplayedImage(int width, int height) {
+        BufferedImage dataDisplay = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics g = dataDisplay.getGraphics();
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, width, height);
+        g.dispose();
+        
+        return dataDisplay;
+    }
+    
+    public static BufferedImage updateDisplay(BufferedImage dataDisplay, byte[] frameBytes, int width, int height) {
+        BufferedImage newFrame = HyperspecUtils.rawToBuffImage(frameBytes);
+        
+        if(newFrame == null)
+            return null;
+        
+        /* remove oldest frame */
+        dataDisplay = dataDisplay.getSubimage(1, 0, width - 1, height);
+        
+        return joinBufferedImage(dataDisplay, newFrame, width, height);
+    }
     
     
     public static BufferedImage joinBufferedImage(BufferedImage img1,BufferedImage img2, int newWidth, int newHeight) {

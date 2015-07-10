@@ -89,16 +89,12 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
 
     public HyperspectralViewer() {
         this.console = getConsole();
-        initDisplayedImage();
+        initDisplay();
         dataSet = new LinkedList<byte[]>();
     }
     
-    private void initDisplayedImage() {
-        dataDisplay = new BufferedImage(MAX_FREQ, FRAME_HEIGHT, BufferedImage.TYPE_INT_RGB);
-        Graphics g = dataDisplay.getGraphics();
-        g.setColor(Color.WHITE);
-        g.fillRect(0, 0, MAX_FREQ, FRAME_HEIGHT);
-        g.dispose();
+    private void initDisplay() {
+        dataDisplay = HyperspecUtils.initDisplayedImage(MAX_FREQ, FRAME_HEIGHT);
     }
     
     /* request data with new wavelength */
@@ -114,23 +110,10 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
         if(wavelengthProperty != selectedWavelength) {          
             selectedWavelength = wavelengthProperty;
             
-            initDisplayedImage();
+            initDisplay();
             requestWavelength();
         }
-    }
-    
-    
-    private void updateDisplay(byte[] frameBytes) {
-        BufferedImage newFrame = HyperspecUtils.rawToBuffImage(frameBytes);
-        
-        if(newFrame == null)
-            return;
-        
-        /* remove oldest frame */
-        dataDisplay = dataDisplay.getSubimage(1, 0, MAX_FREQ - 1, FRAME_HEIGHT);
-        dataDisplay = HyperspecUtils.joinBufferedImage(dataDisplay, newFrame, MAX_FREQ, FRAME_HEIGHT);
-    }
-    
+    }   
         
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
@@ -160,7 +143,9 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
         if(!msg.getSourceName().equals(mainSys))
             return;
         
-        synchronized(dataDisplay) { updateDisplay(msg.getData()); }
+        synchronized(dataDisplay) {
+            dataDisplay = HyperspecUtils.updateDisplay(dataDisplay, msg.getData(), MAX_FREQ, FRAME_HEIGHT);
+        }
     }
     
 //    @Subscribe
