@@ -58,7 +58,7 @@ public class HyperspecUtils {
     private static final String TEST_DATA_DIR = "./plugins-dev/hyperspectral/pt/lsts/neptus/hyperspectral/test-data/";
     
     
-    public static BufferedImage initDisplayedImage(int width, int height) {
+    public static BufferedImage initVerticalDisplay(int width, int height) {
         BufferedImage dataDisplay = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics g = dataDisplay.getGraphics();
         g.setColor(Color.WHITE);
@@ -68,7 +68,7 @@ public class HyperspecUtils {
         return dataDisplay;
     }
     
-    public static BufferedImage updateDisplay(BufferedImage dataDisplay, byte[] frameBytes, int width, int height) {
+    public static BufferedImage updateVerticalDisplay(BufferedImage dataDisplay, byte[] frameBytes, int width, int height) {
         BufferedImage newFrame = HyperspecUtils.rawToBuffImage(frameBytes);
         
         if(newFrame == null)

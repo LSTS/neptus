@@ -94,7 +94,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     }
     
     private void initDisplay() {
-        dataDisplay = HyperspecUtils.initDisplayedImage(MAX_FREQ, FRAME_HEIGHT);
+        dataDisplay = HyperspecUtils.initVerticalDisplay(MAX_FREQ, FRAME_HEIGHT);
     }
     
     /* request data with new wavelength */
@@ -144,7 +144,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
             return;
         
         synchronized(dataDisplay) {
-            dataDisplay = HyperspecUtils.updateDisplay(dataDisplay, msg.getData(), MAX_FREQ, FRAME_HEIGHT);
+            dataDisplay = HyperspecUtils.updateVerticalDisplay(dataDisplay, msg.getData(), MAX_FREQ, FRAME_HEIGHT);
         }
     }
     
