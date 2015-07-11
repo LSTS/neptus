@@ -430,7 +430,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
         sendToVehicle(auv1, msg);
         try {
             if (!ImcMsgManager.getManager().sendMessageToSystem(msg, sim_auv1));
-            throw new Exception("Not able to send message to simulator 1"); 
+            throw new Exception("Not able to send message to vehicle 1");
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
@@ -438,12 +438,12 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     }
 
     void sendToVehicle2(IMCMessage msg) throws Exception {
-        System.out.println("Sending to vehicle 2 ("+auv1+"): "+msg);
+        System.out.println("Sending to vehicle 2 ("+auv2+"): "+msg);
         sendToVehicle(auv2, msg);
 
         try {
             if (!ImcMsgManager.getManager().sendMessageToSystem(msg, sim_auv2));
-            throw new Exception("Not able to send message to simulator 1"); 
+            throw new Exception("Not able to send message to vehicle 2");
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
