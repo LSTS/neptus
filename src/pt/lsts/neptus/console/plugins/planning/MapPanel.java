@@ -265,8 +265,11 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
     @Override
     public void missionReplaced(MissionType mission) {
-        // editor.setMission(mission);
-        setMission(mission);
+        if (mission.equals(this.mission))
+            getRenderer().repaint();
+        else
+            setMission(mission);
+        
         if (addPlan != null)
             addPlan.setEnabled(mission != null);
     }
