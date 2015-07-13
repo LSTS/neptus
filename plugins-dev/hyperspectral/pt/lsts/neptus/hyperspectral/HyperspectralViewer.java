@@ -68,7 +68,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     public static final int FRAME_HEIGHT = 250;
     
     
-    private static final float FRAME_OPACITY = 0.9f;
+    static final float FRAME_OPACITY = 0.9f;
     /* draw frames with opacity */
     private final AlphaComposite composite = AlphaComposite.getInstance(
             AlphaComposite.SRC_OVER, FRAME_OPACITY);

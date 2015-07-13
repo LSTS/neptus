@@ -31,7 +31,9 @@
  */
 package pt.lsts.neptus.hyperspectral;
 
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -76,13 +78,18 @@ import pt.lsts.neptus.util.ImageUtils;
 public class HyperspectralReplay extends JFrame implements LogReplayLayer {
     /* frames sent from a higher or lower altitude will be drawn on the map scaled up or down, respectively */
     private static final double DEFAULT_ALTITUDE = 100; /* in meters */
-    
+
     /* wavelength selection panel */
     private JPanel mainPanel;
     private JComboBox<Double> wavelengths;
     private JButton selectButton;
-    
+
     private boolean firstPaint = true;
+    private BufferedImage verticalDisplay = HyperspecUtils.initVerticalDisplay(640, 250);
+    private final AlphaComposite composite = AlphaComposite.getInstance(
+            AlphaComposite.SRC_OVER, HyperspectralViewer.FRAME_OPACITY);
+    private final AffineTransform transform = new AffineTransform();
+
     private boolean dataParsed = false;
     public double selectedWavelength = 0;
     private final HashMap<Double, List<HyperspectralData>> dataset = new HashMap<>();
@@ -90,39 +97,40 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
 
     public HyperspectralReplay() {
         super();
-        initWavelenSelectionPanel();
-        
+        initWavelenSelectionPanel();        
     }
-    
+
     private void initWavelenSelectionPanel() {
         this.setSize(new Dimension(300, 70));
         this.setTitle("Select wavelength");
-        
+
         mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
         mainPanel.setPreferredSize(this.getPreferredSize());
-        
+
         wavelengths = new JComboBox<Double>();
         wavelengths.setSize(new Dimension(100, 40));
         ((JLabel)wavelengths.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
-        
+
         selectButton = new JButton("Show data");
         selectButton.setSize(new Dimension(100, 40));
         selectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               if(!dataParsed)
-                   return;
-               
-               Object selection = (double) wavelengths.getSelectedItem();
-               
-               if(selection != null) {
-                   selectedWavelength = (double) selection;
-                   dataList = dataset.get(selectedWavelength);
-               }
+                if(!dataParsed)
+                    return;
+                Object selection = (double) wavelengths.getSelectedItem();
+
+                if(selection != null) {
+                    synchronized(verticalDisplay) {
+                        selectedWavelength = (double) selection;
+                        dataList = dataset.get(selectedWavelength);
+                        verticalDisplay = HyperspecUtils.initVerticalDisplay(640, 250);
+                    }
+                }
             }
         });
-        
+
         this.add(mainPanel);
         mainPanel.add(wavelengths, BorderLayout.NORTH);
         mainPanel.add(selectButton, BorderLayout.SOUTH);
@@ -139,33 +147,20 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
         if(firstPaint) {
             this.setVisible(true);
             firstPaint = false;
+
+            int newX = -((HyperspectralViewer.MAX_FREQ / 2)) + (HyperspectralViewer.FRAME_HEIGHT / 2);
+            int newY = (renderer.getHeight() - HyperspectralViewer.FRAME_HEIGHT) / 2;
+
+            transform.translate(newX, newY);
+            transform.rotate(Math.toRadians(-90), verticalDisplay.getWidth() / 2, verticalDisplay.getHeight() / 2);
+
+            firstPaint = false;
         }
-        
-        if(dataset.isEmpty())
-            return;
-
-        if(dataParsed && (dataList != null)) {
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            /* draw data along the vehicle's path */
-            for(int i = 0; i < 5000; i++) {
-                HyperspectralData frame = dataList.get(i);
-                Point2D dataPosition = renderer.getScreenPosition(frame.dataLocation);
-
-                BufferedImage scaledData = frame.getScaledData(1, renderer.getZoom());
-
-                /* draw data with its center in the EstimatedState position */
-                int dataX = (int) dataPosition.getX()- (scaledData.getWidth() / 2);
-                int dataY = (int) dataPosition.getY() - (scaledData.getHeight() / 2);
-
-
-//                AffineTransform backup = g.getTransform();
-//                AffineTransform tx = new AffineTransform();
-//                tx.rotate(frame.rotationAngle, dataPosition.getX(), dataPosition.getY());
-//
-//                g.setTransform(tx);
-                g.drawImage(scaledData, dataX, dataY, null, renderer);
-//                g.setTransform(backup);
+        else {
+            synchronized(verticalDisplay) {
+                g.setTransform(transform);
+                g.setComposite(composite);
+                g.drawImage(verticalDisplay, 0, 0, renderer);
             }
         }
     }
@@ -179,18 +174,17 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
     @Override
     public void parse(IMraLogGroup source) {
         Thread t = new Thread(HyperspectralReplay.class.getSimpleName() + " " + source.getDir().getParent()) {
-            
+
             @Override
             public void run() {
                 IMraLog hyperspecLog = source.getLog("HyperSpecData");
                 IMraLog esLog = source.getLog("EstimatedState");
 
                 HyperSpecData msg = (HyperSpecData) hyperspecLog.firstLogEntry();
-                EstimatedState previousState = null;
                 while(msg != null)  {
                     EstimatedState closestState = (EstimatedState)esLog.getEntryAtOrAfter(msg.getTimestampMillis());
                     double dataWavelen = msg.getWavelen();
-                    
+
                     List<HyperspectralData> dataList;
                     if(dataset.containsKey(dataWavelen))
                         dataList = dataset.get(dataWavelen);
@@ -200,39 +194,30 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                         /* add to combo box */
                         wavelengths.addItem(dataWavelen);
                     }
-                    
-                    boolean overlapped = isDataOverlapped(previousState, closestState);
-                    
-                    dataList.add(new HyperspectralData(msg, closestState, overlapped));
+                    dataList.add(new HyperspectralData(msg, closestState, false));
                     msg = (HyperSpecData) hyperspecLog.nextLogEntry();
-                    previousState = closestState;
                 }
             }
         };
         t.setDaemon(true);
         t.start();
-        
+
         if(t.isAlive())
             dataParsed = true;
     }
-    
-    private boolean isDataOverlapped(EstimatedState previousState, EstimatedState currState) {
-        /* means that currState is the first state to be received, so no overlap is possible at this time */
-        if(previousState == null)
-            return false;
-        
-        return previousState.getTimestamp() == currState.getTimestamp();
-    }
-
 
     @Override
     public String[] getObservedMessages() {
-        return null;
+        return new String[] { "HyperSpecData" };
     }
 
     @Override
     public void onMessage(IMCMessage message) {
-
+        synchronized(verticalDisplay) {
+            verticalDisplay = HyperspecUtils.updateVerticalDisplay(verticalDisplay, message.getRawData("data"), 
+                    HyperspectralViewer.MAX_FREQ, 
+                    HyperspectralViewer.FRAME_HEIGHT);
+        }
     }
 
     @Override
