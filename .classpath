@@ -54,6 +54,7 @@
 	<classpathentry kind="src" path="plugins-dev/europa"/>
 	<classpathentry kind="src" path="plugins-dev/alliance"/>
 	<classpathentry kind="src" path="plugins-dev/urready4os"/>
+	<classpathentry kind="src" path="plugins-dev/filter-viewer"/>
 	<classpathentry kind="src" path="plugins-dev/bathymLayer"/>
 	<classpathentry kind="src" path="plugins-dev/cloud"/>
 	<classpathentry kind="src" path="plugins-dev/drop"/>

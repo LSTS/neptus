@@ -46,7 +46,7 @@ public class TidePredictionFactory {
     public static TidePredictionFinder create(IMraLogGroup source) {
         TidePredictionFinder finder = null;
         File f = source.getFile("mra/tides.txt");
-        if (f.canRead())
+        if (f != null && f.canRead())
             finder = new LocalData(f);
         else {
             CachedData data = new CachedData();

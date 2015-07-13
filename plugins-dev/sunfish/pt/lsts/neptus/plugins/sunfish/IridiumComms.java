@@ -44,6 +44,7 @@ import javax.swing.JPopupMenu;
 
 import org.apache.commons.codec.binary.Hex;
 
+import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.IridiumMsgRx;
@@ -60,6 +61,7 @@ import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.iridium.ActivateSubscription;
 import pt.lsts.neptus.comm.iridium.DeactivateSubscription;
 import pt.lsts.neptus.comm.iridium.DesiredAssetPosition;
+import pt.lsts.neptus.comm.iridium.DeviceUpdate;
 import pt.lsts.neptus.comm.iridium.ExtendedDeviceUpdate;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumCommand;
@@ -111,16 +113,19 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     public long millisBetweenUpdates() {
         return 60000;
     }
-    
+
     @Subscribe
     public void on(IridiumMsgRx msg) {
         try {
             byte[] data = msg.getData();
             NeptusLog.pub().info(msg.getSourceName()+" received iridium message with data "+new String(Hex.encodeHex(data)));
             IridiumMessage m = IridiumMessage.deserialize(data);
-            
+
             if (m instanceof ExtendedDeviceUpdate) {
                 ExtendedDeviceUpdate upd = (ExtendedDeviceUpdate) m;
+                getConsole().post(
+                        Notification.info("Iridium Communications", "Received " + upd.getPositions().size()
+                                + " position updates."));
                 for (Position p : upd.getPositions().values()) {
                     RemoteSensorInfo rsi = new RemoteSensorInfo();
                     rsi.setTimestamp(p.timestamp);
@@ -131,19 +136,43 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                         rsi.setId(IMCDefinition.getInstance().getResolver().resolve(p.id));
                     else
                         rsi.setId(String.format("Unknown (%X)" , p.id));
-                    
+
                     rsi.setSensorClass(IMCUtils.getSystemType(p.id));
                     ImcMsgManager.getManager().postInternalMessage("IridiumComms", rsi);
+                }                
+            }
+            else if (m instanceof DeviceUpdate) {
+                DeviceUpdate upd = (DeviceUpdate) m;
+                getConsole().post(
+                        Notification.info("Iridium Communications", "Received " + upd.getPositions().size()
+                                + " position updates."));
+                for (Position p : upd.getPositions().values()) {
+                    RemoteSensorInfo rsi = new RemoteSensorInfo();
+                    rsi.setTimestamp(p.timestamp);
+                    rsi.setLat(p.latRads);
+                    rsi.setLon(p.lonRads);
+                    String name = IMCDefinition.getInstance().getResolver().resolve(p.id);
+                    if (name != null)
+                        rsi.setId(IMCDefinition.getInstance().getResolver().resolve(p.id));
+                    else
+                        rsi.setId(String.format("Unknown (%X)" , p.id));
+
+                    EstimatedState state = new EstimatedState();
+                    state.setSrc(p.id);
+                    state.setLat(p.latRads);
+                    state.setLon(p.lonRads);
+                    state.setTimestamp(p.timestamp);
+                    
+                    ImcMsgManager.getManager().postInternalMessage("IridiumComms", state);
                 }
             }
-            
             NeptusLog.pub().info("Resulting message: "+m);
         }
         catch (Exception e) {
             NeptusLog.pub().error(e);
         }
     }
-    
+
     @Subscribe
     public void on(IridiumMsgTx msg) {
         try {
@@ -180,48 +209,48 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
     }
 
     private void commandPlanExecution() {
-       Collection<String> planNames = getConsole().getMission().getIndividualPlansList().keySet();
-       if (planNames.isEmpty())
-           return;
-       String selectedPlan = planNames.iterator().next();
-       if (getConsole().getPlan() != null) {
-           selectedPlan = getConsole().getPlan().getId();
-       }
-       
-       final Object selection = JOptionPane.showInputDialog(getConsole(), "Select plan to be commanded via Iridium", "Start plan", JOptionPane.QUESTION_MESSAGE, null, planNames.toArray(), selectedPlan);
-       if (selection == null)
-           return;
-       
-       Thread send = new Thread("Send plan via iridium") {
-           @Override
-        public void run() {
-               String selectedPlan = selection.toString();
-               PlanType toSend = getConsole().getMission().getIndividualPlansList().get(selectedPlan);
-               IMCMessage msg = toSend.asIMCPlan();
-               PlanControl pc = new PlanControl();
-               pc.setArg(msg);
-               pc.setOp(OP.START);
-               pc.setType(TYPE.REQUEST);
-               pc.setPlanId(selectedPlan);
-               sendViaIridium(getMainVehicleId(), pc);
-           };
-       };
-       send.setDaemon(true);
-       send.start();       
+        Collection<String> planNames = getConsole().getMission().getIndividualPlansList().keySet();
+        if (planNames.isEmpty())
+            return;
+        String selectedPlan = planNames.iterator().next();
+        if (getConsole().getPlan() != null) {
+            selectedPlan = getConsole().getPlan().getId();
+        }
+
+        final Object selection = JOptionPane.showInputDialog(getConsole(), "Select plan to be commanded via Iridium", "Start plan", JOptionPane.QUESTION_MESSAGE, null, planNames.toArray(), selectedPlan);
+        if (selection == null)
+            return;
+
+        Thread send = new Thread("Send plan via iridium") {
+            @Override
+            public void run() {
+                String selectedPlan = selection.toString();
+                PlanType toSend = getConsole().getMission().getIndividualPlansList().get(selectedPlan);
+                IMCMessage msg = toSend.asIMCPlan();
+                PlanControl pc = new PlanControl();
+                pc.setArg(msg);
+                pc.setOp(OP.START);
+                pc.setType(TYPE.REQUEST);
+                pc.setPlanId(selectedPlan);
+                sendViaIridium(getMainVehicleId(), pc);
+            };
+        };
+        send.setDaemon(true);
+        send.start();       
     }
-    
+
     private void sendTextNote() {
         String note = JOptionPane.showInputDialog(getConsole(),
                 I18n.text("Enter note to be published"));
-        
+
         if (note == null || note.isEmpty())
             return;
-        
+
         LogBookEntry entry = new LogBookEntry();
         entry.setText(note);
         entry.setTimestampMillis(System.currentTimeMillis());
         entry.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
-        
+
         //(Component parentComponent, Object message, String title, int messageType, Icon icon,  Object[] selectionValues, Object initialSelectionValue)
         Object selection = JOptionPane.showInputDialog(getConsole(), "Please enter destination of this message", "Send Text Note", JOptionPane.QUESTION_MESSAGE, null, iridiumDestinations, "manta-1");
         if (selection == null)
@@ -233,18 +262,18 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         entry.setContext("Iridium logbook");
         ImcIridiumMessage msg = new ImcIridiumMessage();
         msg.setSource(ImcMsgManager.getManager().getLocalId().intValue());
-        
+
         msg.setDestination(65535);
         msg.setMsg(entry);
         try {
             IridiumManager.getManager().send(msg);
+            getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), e);
         }
-        getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
     }
-    
+
     private void sendIridiumCommand() {
         String cmd = JOptionPane.showInputDialog(getConsole(),
                 I18n.textf("Enter command to be sent to %vehicle", getMainVehicleId()));
@@ -264,11 +293,12 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         command.setSource(ImcMsgManager.getManager().getLocalId().intValue());
         try {
             IridiumManager.getManager().send(command);
+            getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
         }
         catch (Exception e) {
             GuiUtils.errorMessage(getConsole(), e);
         }
-        getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));        
+
     }
 
     private void setWaveGliderTargetPosition(LocationType loc) {
@@ -344,7 +374,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                         sendIridiumCommand();
                     }
                 });
-        
+
         popup.add(I18n.textf("Command %vehicle a plan via Iridium", getMainVehicleId())).addActionListener(
                 new ActionListener() {
                     @Override
@@ -401,7 +431,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
         });
 
         popup.addSeparator();
-        
+
         popup.add(I18n.text("Send a text note")).addActionListener(
                 new ActionListener() {
                     @Override
@@ -409,7 +439,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
                         sendTextNote();
                     }
                 });
-        
+
 
         popup.add("Add virtual drifter").addActionListener(new ActionListener() {
 
@@ -464,7 +494,7 @@ public class IridiumComms extends SimpleRendererInteraction implements IPeriodic
 
     @Override
     public void initSubPanel() {
-        
+
     }
 
     @Override

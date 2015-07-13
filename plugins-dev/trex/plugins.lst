@@ -8,3 +8,5 @@
 pt.lsts.neptus.plugins.trex.TrexMapLayer
 pt.lsts.neptus.plugins.trex.TrexTimeline
 pt.lsts.neptus.plugins.trex.TrexTimelinePanel
+pt.lsts.neptus.plugins.trex.TrexStatePanel
+pt.lsts.neptus.plugins.trex.Europtus

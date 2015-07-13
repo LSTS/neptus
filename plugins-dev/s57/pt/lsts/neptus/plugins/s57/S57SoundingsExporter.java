@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.s57;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -40,9 +41,15 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
+
+import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
+import pt.lsts.neptus.mra.WorldImage;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -70,51 +77,155 @@ public class S57SoundingsExporter extends ConsolePanel {
 
     }
 
+
+    public static S57Chart getS57Chart(ConsoleLayout console) throws Exception {
+
+        Vector<MapPanel> maps = console.getSubPanelsOfClass(MapPanel.class);
+        if (maps.isEmpty())
+            throw new Exception("Cannot export soundings because there is no map in the console");
+
+        StateRenderer2D renderer = maps.firstElement().getRenderer();
+        Map<String, MapPainterProvider> painters = renderer.getWorldMapPainter().getMapPainters();
+
+        for (MapPainterProvider p : painters.values())
+            if (p instanceof S57Chart)
+                return (S57Chart) p;
+
+        throw new Exception("Cannot export soundings because there is S57 chart in the console");                
+    }
+
+    public static StateRenderer2D getRenderer(ConsoleLayout console) throws Exception {
+        Vector<MapPanel> maps = console.getSubPanelsOfClass(MapPanel.class);
+        if (maps.isEmpty())
+            throw new Exception("There is no map in the console");
+        return maps.firstElement().getRenderer();
+    }
+
     @Override
     public void initSubPanel() {
         addMenuItem("Tools>Export Depth soundings", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
                 new ActionListener() {
 
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<LocationType> soundings = new ArrayList<>();
+                File f = new File("soundings.csv");
+                try {
+                    S57Chart chart = getS57Chart(getConsole());
+                    StateRenderer2D renderer = getRenderer(getConsole());
+                    
+                    JFileChooser chooser = new JFileChooser();
+                    chooser.setAcceptAllFileFilterUsed(true);
+                    chooser.setFileFilter(GuiUtils.getCustomFileFilter("CSV Files", "csv"));
+                    int op = chooser.showSaveDialog(getConsole());
+                    if (op != JFileChooser.APPROVE_OPTION)
+                        return;
+                    f = chooser.getSelectedFile();
+                    
+                    LocationType topLeft = renderer.getTopLeftLocationType().convertToAbsoluteLatLonDepth();
+                    LocationType bottomRight = renderer.getBottomRightLocationType()
+                            .convertToAbsoluteLatLonDepth();
+                    soundings.addAll(chart.getDepthSoundings(bottomRight.getLatitudeDegs(),
+                            topLeft.getLatitudeDegs(), topLeft.getLongitudeDegs(),
+                            bottomRight.getLongitudeDegs()));    
+                    BufferedWriter w = new BufferedWriter(new FileWriter(f));
+                    w.write("Latitude,Longitude,Depth\n");
+                    
+                    for (LocationType loc : soundings) {
+                        w.write(String.format("%.8f,%.8f,%.2f\n",loc.getLatitudeDegs(),loc.getLongitudeDegs(),loc.getDepth()));
+                    }
+                    w.close();
+                    GuiUtils.infoMessage(getConsole(), "Export soundings", "Exported "+soundings.size()+" soundings to "+f.getAbsolutePath());
+                }
+                catch (Exception err) {
+                    GuiUtils.errorMessage(getConsole(), err);
+                    err.printStackTrace();                    
+                }                
+            }
+        });
+        
+        addMenuItem("Tools>Export Bathymetry Mesh", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
+                new ActionListener() {
 
-                        Vector<MapPanel> maps = getConsole().getSubPanelsOfClass(MapPanel.class);
-                        if (maps.isEmpty()) {
-                            GuiUtils.errorMessage(getConsole(), "Export soundings",
-                                    "Cannot export soundings because there is no map in the console");
-                            return;
-                        }
-
-                        StateRenderer2D renderer = maps.firstElement().getRenderer();
-                        Map<String, MapPainterProvider> painters = renderer.getWorldMapPainter().getMapPainters();
-
-                        ArrayList<LocationType> soundings = new ArrayList<>();
-                        for (MapPainterProvider p : painters.values()) {
-                            if (p instanceof S57Chart) {
-                                S57Chart chart = (S57Chart) p;
-                                LocationType topLeft = renderer.getTopLeftLocationType().convertToAbsoluteLatLonDepth();
-                                LocationType bottomRight = renderer.getBottomRightLocationType()
-                                        .convertToAbsoluteLatLonDepth();
-                                soundings.addAll(chart.getDepthSoundings(bottomRight.getLatitudeDegs(),
-                                        topLeft.getLatitudeDegs(), topLeft.getLongitudeDegs(),
-                                        bottomRight.getLongitudeDegs()));
-                            }
-                        }
-                        
-                        try {
-                            File f = new File("soundings.csv");
-                            BufferedWriter w = new BufferedWriter(new FileWriter(f));
-                            for (LocationType loc : soundings) {
-                                w.write(String.format("%.8f,%.8f,%.2f\n",loc.getLatitudeDegs(),loc.getLongitudeDegs(),loc.getDepth()));
-                            }
-                            w.close();
-                            GuiUtils.infoMessage(getConsole(), "Export soundings", "Exported "+soundings.size()+" soundings to "+f.getAbsolutePath());
-                        }
-                        catch (Exception ex) {
-                            GuiUtils.errorMessage(getConsole(), ex);
-                            ex.printStackTrace();
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<LocationType> soundings = new ArrayList<>();
+                try {
+                    S57Chart chart = getS57Chart(getConsole());
+                    StateRenderer2D renderer = getRenderer(getConsole());
+                    BathymetryMeshOptions options = new BathymetryMeshOptions();
+                    options.zero.setLocation(getConsole().getMission().getHomeRef());
+                    
+                    
+                    
+                    LocationType topLeft = renderer.getTopLeftLocationType().convertToAbsoluteLatLonDepth();
+                    LocationType bottomRight = renderer.getBottomRightLocationType()
+                            .convertToAbsoluteLatLonDepth();
+                    
+                    
+                    double dim[] = topLeft.getOffsetFrom(bottomRight);
+                    
+                    options.cellWidth = (int) Math.ceil( dim[0] / 500); 
+                    
+                    if (PluginUtils.editPluginProperties(options, true))
+                        return;
+                    
+                    soundings.addAll(chart.getDepthSoundings(bottomRight.getLatitudeDegs(),
+                            topLeft.getLatitudeDegs(), topLeft.getLongitudeDegs(),
+                            bottomRight.getLongitudeDegs()));
+                    
+                    WorldImage img = new WorldImage(options.cellWidth, ColorMapFactory.createGrayScaleColorMap());
+                    
+                    for (LocationType value : soundings) {
+                        img.addPoint(value, value.getDepth());
+                    }
+                    
+                    BufferedImage image = img.processData();
+                    //ImageIO.write(image, "PNG", new File(options.dest.getParentFile(), options.dest.getName()+".png"));
+                    
+                    double[] size = img.getNorthEast().getOffsetFrom(img.getSouthWest());
+                    
+                    BufferedImage scaled = new BufferedImage((int)(size[1]/options.cellWidth), (int)(-size[0]/options.cellWidth), BufferedImage.TYPE_INT_ARGB);
+                    scaled.getGraphics().drawImage(image, 0, 0, scaled.getWidth(), scaled.getHeight(), null);
+                    
+                    ImageIO.write(scaled, "PNG", new File(options.dest.getParentFile(), options.dest.getName()+".2.png"));
+                    BufferedWriter bw = new BufferedWriter(new FileWriter(options.dest));
+                    
+                    
+                    int x = 0, y;
+                    for (double east = 0; x < scaled.getWidth(); east += options.cellWidth, x++) {
+                        y = 0;
+                        for (double north = 0; y < scaled.getHeight(); north += options.cellWidth, y++) {
+                            LocationType loc = new LocationType(img.getSouthWest());
+                            loc.translatePosition(north, east, 0);
+                            double[] pos = loc.getOffsetFrom(options.zero);
+                            long rgb = scaled.getRGB(x, y);
+                            double depth = ((rgb & 0xFF) / 255.0) * img.getMaxValue();
+                            System.out.printf("%.2f %.2f %.2f\n", pos[1], -pos[0], -depth);
+                            bw.write(String.format("%.2f %.2f %.2f\n", pos[1], -pos[0], -depth));
                         }
                     }
-                });
+                    
+                    bw.close();
+                    
+                    GuiUtils.infoMessage(getConsole(), "Export bathymetry", "Exported mesh to "+options.dest.getAbsolutePath());
+                }
+                catch (Exception err) {
+                    GuiUtils.errorMessage(getConsole(), err);
+                    err.printStackTrace();                    
+                }                
+            }
+        });
+    }
+    
+    static class BathymetryMeshOptions {
+        @NeptusProperty(name="Mesh cell width, in meters")
+        int cellWidth = 10;
+        
+        @NeptusProperty(name="(0,0,0) Location")
+        LocationType zero = new LocationType();
+        
+        @NeptusProperty(name="Destination file")
+        File dest = new File("bathymetry.xyz");
     }
 }

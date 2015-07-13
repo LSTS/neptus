@@ -63,6 +63,8 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
@@ -688,6 +690,20 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             GuiUtils.errorMessage(getConsole(), e);
             return;
         }
+    }
+    
+    public boolean sendToOtherCCUs(IMCMessage message) {
+        ImcSystem[] ccus = ImcSystemsHolder.lookupSystemCCUs();
+        
+        boolean sent = false;
+        
+        for (ImcSystem s : ccus) {
+            boolean success = ImcMsgManager.getManager().sendMessageToSystem(message, s.getName());
+//            System.out.println("Sending "+message.getAbbrev()+" to "+s.getName()+": "+success);
+            sent |= success;
+        }
+        
+        return sent;
     }
 
     /**

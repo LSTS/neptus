@@ -101,6 +101,9 @@ public class SimulationEngine {
         
         Maneuver m = plan.getGraph().getManeuver(manId);
         
+        if (m == null)
+            return;
+        
         synchronized (this) {
             finished = false;
             this.manId = manId;

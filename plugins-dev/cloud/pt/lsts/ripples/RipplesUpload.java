@@ -102,9 +102,13 @@ public class RipplesUpload extends ConsolePanel {
     public void on(EstimatedState state) {
         if (!synch)
             return;
-        SystemPositionAndAttitude pose = new SystemPositionAndAttitude(IMCUtils.parseLocation(state)
+        SystemPositionAndAttitude pose = new SystemPositionAndAttitude(IMCUtils.parseLocationAlt(state)
                 .convertToAbsoluteLatLonDepth(), state.getPhi(), state.getTheta(), state.getPsi());
         pose.setTime(state.getTimestampMillis());
+        pose.setAltitude(state.getAlt());
+        pose.setDepth(state.getDepth());
+        pose.setVxyz(state.getVx(), state.getVy(), state.getVz());
+        
         synchronized (toSend) {
             toSend.put(state.getSourceName(), pose);
         }
@@ -116,8 +120,12 @@ public class RipplesUpload extends ConsolePanel {
             return;
 
         LocationType loc = new LocationType(Math.toDegrees(announce.getLat()), Math.toDegrees(announce.getLon()));
+        loc.setHeight(announce.getHeight());
         SystemPositionAndAttitude pose = new SystemPositionAndAttitude(loc, 0, 0, 0);
         pose.setTime(announce.getTimestampMillis());
+        pose.setAltitude(-1);
+        pose.setDepth(-1);
+        pose.setVxyz(Double.NaN, Double.NaN, Double.NaN);
 
         synchronized (toSend) {
             // avoid sending announce when there are estimated states to be sent
@@ -181,7 +189,7 @@ public class RipplesUpload extends ConsolePanel {
             toSend.clear();
         }
         
-        SystemPositionAndAttitude mine = new SystemPositionAndAttitude(MyState.getLocation(), 0, 0, 0);
+        SystemPositionAndAttitude mine = new SystemPositionAndAttitude(MyState.getLocation(), 0, 0, MyState.getHeadingInRadians());
         mine.setTime(System.currentTimeMillis());
         copy.put(GeneralPreferences.imcCcuName, mine);
         
@@ -190,10 +198,16 @@ public class RipplesUpload extends ConsolePanel {
             Map<String, Object> tmp = new LinkedHashMap<String, Object>();
             tmp.put("latitude", state.getValue().getPosition().getLatitudeDegs());
             tmp.put("longitude", state.getValue().getPosition().getLongitudeDegs());
+            tmp.put("height", state.getValue().getPosition().getHeight());
             tmp.put("heading", Math.toDegrees(state.getValue().getYaw()));
             tmp.put("altitude", state.getValue().getAltitude());
-            tmp.put("speed", state.getValue().getU());
-            tmp.put("depth", state.getValue().getV());
+            if (!Double.isNaN(state.getValue().getVx())) {
+                double speed = Math.sqrt(state.getValue().getVx() * state.getValue().getVx()
+                        + state.getValue().getVy() * state.getValue().getVy()
+                        + state.getValue().getVz() * state.getValue().getVz());
+                tmp.put("speed", speed);
+            }
+            tmp.put("depth", state.getValue().getDepth());
             assetState.put("position", tmp);
             assetState.put("updated_at", state.getValue().getTime());
             if (state.getKey().equals(GeneralPreferences.imcCcuName))
@@ -248,5 +262,4 @@ public class RipplesUpload extends ConsolePanel {
         Firebase.goOffline();
         synch = false;
     }
-
 }

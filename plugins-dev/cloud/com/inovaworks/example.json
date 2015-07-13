@@ -73,7 +73,7 @@
     }
   ],
   "procedure": {
-    "type": null,
+    "type": "reading",
     "sensor": "flightradar24",
     "sensorHumanName": "FlightRadar24 Public Feed"
   }

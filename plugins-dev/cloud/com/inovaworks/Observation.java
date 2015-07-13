@@ -65,7 +65,10 @@ public class Observation {
     }
     
     public static class Procedure {
-        public String type = null; 
+        // type: "reading" or type: "calculated" or type: "fusion"
+        public enum ObservationTypeEnum { reading, calculated, fusion };
+
+        public String type = ObservationTypeEnum.reading.toString();
         public String sensor = "";
         public String sensorHumanName = "";    
     }

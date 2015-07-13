@@ -930,6 +930,30 @@ public class IMCUtils {
         return loc;
     }
 
+    public static LocationType parseLocationAlt(IMCMessage imcEstimatedState) {
+        double lat = imcEstimatedState.getDouble("lat");
+        double lon = imcEstimatedState.getDouble("lon");
+        double height = imcEstimatedState.getDouble("height");
+        imcEstimatedState.getDouble("depth");
+        imcEstimatedState.getDouble("altitude");
+        double x = imcEstimatedState.getDouble("x");
+        double y = imcEstimatedState.getDouble("y");
+        double z = imcEstimatedState.getDouble("z");
+//        double phi = imcEstimatedState.getDouble("phi");
+//        double theta = imcEstimatedState.getDouble("theta");
+//        double psi = imcEstimatedState.getDouble("psi");
+
+        LocationType loc = new LocationType();
+        loc.setLatitudeRads(lat);
+        loc.setLongitudeRads(lon);
+        loc.setHeight(height);
+        loc.setOffsetNorth(x);
+        loc.setOffsetEast(y);
+        loc.setOffsetDown(z);
+
+        return loc;
+    }
+
     public static SystemPositionAndAttitude parseState(IMCMessage imcEstimatedState) {
         return new SystemPositionAndAttitude(IMCUtils.parseLocation(imcEstimatedState), imcEstimatedState.getDouble("phi"),
                 imcEstimatedState.getDouble("theta"), imcEstimatedState.getDouble("psi"));
