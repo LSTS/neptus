@@ -32,6 +32,7 @@
 package pt.lsts.neptus.hyperspectral;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -52,6 +53,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.vecmath.Point2d;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.HyperSpecData;
@@ -86,12 +88,18 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
     private boolean dataParsed = false;
     public double selectedWavelength = 0;
     private final HashMap<Double, List<HyperspectralData>> dataset = new HashMap<>();
-    List<HyperspectralData> dataList;
+    private List<HyperspectralData> currentData;
+    
+    private OnPathLayer dataLayer;
+    private boolean layerGenerated = false;
+    /* used to compute dataLayer's size */
+    private LocationType topleft;
+    private LocationType botright;
+    private LocationType layerCenter;
 
     public HyperspectralReplay() {
         super();
         initWavelenSelectionPanel();
-        
     }
     
     private void initWavelenSelectionPanel() {
@@ -117,8 +125,11 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                Object selection = (double) wavelengths.getSelectedItem();
                
                if(selection != null) {
+                   layerGenerated = false;
                    selectedWavelength = (double) selection;
-                   dataList = dataset.get(selectedWavelength);
+                   synchronized(dataset) {
+                       currentData = dataset.get(selectedWavelength);
+                   }
                }
             }
         });
@@ -139,34 +150,56 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
         if(firstPaint) {
             this.setVisible(true);
             firstPaint = false;
+           
+            return;
         }
         
-        if(dataset.isEmpty())
+        if(currentData == null)
             return;
+       
+        if(dataParsed) {            
+            if(layerGenerated == false) {
+                System.out.println("GENERATED LAYER");              
+                
+                dataLayer = new OnPathLayer();
+                dataLayer.dataset = currentData;
+                dataLayer.generateLayer(renderer, topleft, botright);               
+                layerGenerated = true;
+            }
+            int scalex = (int)(dataLayer.getLayer().getWidth() * renderer.getZoom());
+            int scaley = (int)(dataLayer.getLayer().getHeight() * renderer.getZoom());
+            BufferedImage scaledLayer = (BufferedImage)ImageUtils.getFasterScaledInstance(dataLayer.getLayer(), scalex, scaley);
 
-        if(dataParsed && (dataList != null)) {
+
+            //                Point2D center = renderer.getScreenPosition(layerCenter);
+            //                
+            //                g.translate(center.getX(), center.getY());
+            //                g.drawImage(scaledLayer, (int)(-scaledLayer.getWidth()/2), (int)(-scaledLayer.getHeight()/2), null, renderer);
+            //                g.translate(-center.getX(), -center.getY());
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            /* draw data along the vehicle's path */
-            for(int i = 0; i < 5000; i++) {
-                HyperspectralData frame = dataList.get(i);
-                Point2D dataPosition = renderer.getScreenPosition(frame.dataLocation);
+            Point2D center = renderer.getScreenPosition(dataLayer.getCenter());
 
-                BufferedImage scaledData = frame.getScaledData(1, renderer.getZoom());
-
-                /* draw data with its center in the EstimatedState position */
-                int dataX = (int) dataPosition.getX()- (scaledData.getWidth() / 2);
-                int dataY = (int) dataPosition.getY() - (scaledData.getHeight() / 2);
+//            BufferedImage img = new BufferedImage(dataLayer.getLayer().getWidth(), dataLayer.getLayer().getHeight(), BufferedImage.TYPE_INT_ARGB);
+//            Graphics2D gimg = (Graphics2D) img.getGraphics();
+//            gimg.setColor(Color.white);
+//            gimg.fillRect(0, 0, img.getWidth(), img.getHeight());
+//            gimg.dispose();
 
 
-//                AffineTransform backup = g.getTransform();
-//                AffineTransform tx = new AffineTransform();
-//                tx.rotate(frame.rotationAngle, dataPosition.getX(), dataPosition.getY());
-//
-//                g.setTransform(tx);
-                g.drawImage(scaledData, dataX, dataY, null, renderer);
-//                g.setTransform(backup);
-            }
+//            g.translate(center.getX(), center.getY());
+//            //                g.drawImage(img, (int)(-img.getWidth()/2), (int)(-img.getHeight()/2), null, renderer);
+//            g.drawImage(img, (int)(-img.getWidth()/2), (int)(-img.getHeight()/2), null, renderer);
+//            g.translate(-center.getX(), -center.getY());
+
+
+//            Graphics2D g2 = (Graphics2D) g.create();
+            g.translate(center.getX(), center.getY());
+            g.drawImage(dataLayer.getLayer(), (int)(-dataLayer.getLayer().getWidth()/2), (int)(-dataLayer.getLayer().getHeight()/2), null, renderer);
+            g.translate(-center.getX(), -center.getY());
+            g.dispose();
+
+            renderer.repaint();
         }
     }
 
@@ -187,26 +220,69 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
 
                 HyperSpecData msg = (HyperSpecData) hyperspecLog.firstLogEntry();
                 EstimatedState previousState = null;
-                while(msg != null)  {
-                    EstimatedState closestState = (EstimatedState)esLog.getEntryAtOrAfter(msg.getTimestampMillis());
+                
+                LocationType loc = new LocationType();
+                LocationType tempLoc;
+                
+                double minLat = 180;
+                double maxLat = -180;
+                double minLon = 360;
+                double maxLon = -360;
+                
+                int count = 0;
+                while(count < 2000)  {
+                    EstimatedState closestState = (EstimatedState)esLog.getEntryAtOrAfter(msg.getTimestampMillis());                   
                     double dataWavelen = msg.getWavelen();
                     
-                    List<HyperspectralData> dataList;
+                    /* parse data according to its wavelength */
+                    List<HyperspectralData> data;
                     if(dataset.containsKey(dataWavelen))
-                        dataList = dataset.get(dataWavelen);
+                        data = dataset.get(dataWavelen);
                     else {
-                        dataList = new LinkedList<>();
-                        dataset.put(dataWavelen, dataList);
+                        data = new LinkedList<>();
+                        dataset.put(dataWavelen, data);
                         /* add to combo box */
                         wavelengths.addItem(dataWavelen);
                     }
                     
-                    boolean overlapped = isDataOverlapped(previousState, closestState);
+                    boolean overlapped = isDataOverlapped(previousState, closestState);   
+                    data.add(new HyperspectralData(msg, closestState, overlapped));
+                   
                     
-                    dataList.add(new HyperspectralData(msg, closestState, overlapped));
+                    /* compute OnPathLayer area */
+                    loc.setLatitudeDegs(Math.toDegrees(closestState.getDouble("lat")));
+                    loc.setLongitudeDegs(Math.toDegrees(closestState.getDouble("lon")));
+                    loc.setOffsetNorth(closestState.getDouble("x"));
+                    loc.setOffsetEast(closestState.getDouble("y"));
+                    tempLoc = loc.getNewAbsoluteLatLonDepth();
+                    
+                    if (tempLoc.getLatitudeDegs() < minLat)
+                        minLat = tempLoc.getLatitudeDegs();
+                    if (tempLoc.getLatitudeDegs() > maxLat)
+                        maxLat = tempLoc.getLatitudeDegs();
+                    if (tempLoc.getLongitudeDegs() < minLon)
+                        minLon = tempLoc.getLongitudeDegs();
+                    if (tempLoc.getLongitudeDegs() > maxLon)
+                        maxLon = tempLoc.getLongitudeDegs();
+
+                    
                     msg = (HyperSpecData) hyperspecLog.nextLogEntry();
                     previousState = closestState;
+                    
+                    count++;
                 }
+                topleft = new LocationType(maxLat, minLon);
+                botright = new LocationType(minLat, maxLon);
+                
+                double padding = 65;
+                                
+                topleft.setOffsetNorth(padding);
+                topleft.setOffsetWest(padding);
+                botright.setOffsetSouth(padding);
+                botright.setOffsetEast(padding);
+                
+                topleft = topleft.getNewAbsoluteLatLonDepth();
+                botright = botright.getNewAbsoluteLatLonDepth();
             }
         };
         t.setDaemon(true);

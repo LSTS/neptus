@@ -58,7 +58,7 @@ public class HyperspectralData {
         if(overlapped)
             translateDataPosition(msg, state);
         
-        data = getScaledData(1, 0.25);
+        data = getScaledData(1, 0.15);
         
         rotationAngle = setRotationAngle(state.getPsi());
         data = rotateData();
