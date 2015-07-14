@@ -50,6 +50,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.events.ConsoleEventPositionEstimation;
+import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.preview.PlanSimulationOverlay;
@@ -60,6 +61,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -74,7 +76,7 @@ import com.l2fprod.common.propertysheet.Property;
  */
 @PluginDescription(name = "Plan Simulation Preview", author = "zp", icon="images/planning/robot.png")
 @LayerPriority(priority = 60)
-public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPainter, ConfigurationListener {
+public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPainter, ConfigurationListener, MissionChangeListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -211,6 +213,16 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
 
         simulators.clear();
         mainSimulator = null;
+    }
+    
+    @Override
+    public void missionReplaced(MissionType mission) {
+        stopSimulator();
+    }
+    
+    @Override
+    public void missionUpdated(MissionType mission) {
+        stopSimulator();        
     }
 
     @Override
