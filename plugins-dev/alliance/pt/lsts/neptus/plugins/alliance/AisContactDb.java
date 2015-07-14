@@ -109,6 +109,25 @@ public class AisContactDb implements AISObserver {
     public void processGGA(String sentence) {
         lastGGA = sentence;
         //System.err.println(lastGGA);
+        LocationType myLoc = NMEAUtils.processGGASentence(lastGGA);
+        if (ExternalSystemsHolder.lookupSystem("Ship") == null) {
+            ExternalSystem es = new ExternalSystem("Ship");
+            ExternalSystemsHolder.registerSystem(es);
+        }
+        ExternalSystem extSys = ExternalSystemsHolder.lookupSystem("Ship");
+        extSys.setLocation(myLoc, System.currentTimeMillis());
+    }
+    
+    private String lastGPHDT = null;
+    public void processGPHDT(String sentence) {
+        lastGPHDT = sentence;
+        double myHeadingDegs = NMEAUtils.processGPHDTSentence(lastGPHDT);
+        if (ExternalSystemsHolder.lookupSystem("Ship") == null) {
+            ExternalSystem es = new ExternalSystem("Ship");
+            ExternalSystemsHolder.registerSystem(es);
+        }
+        ExternalSystem extSys = ExternalSystemsHolder.lookupSystem("Ship");
+        extSys.setAttitudeDegrees(myHeadingDegs, System.currentTimeMillis());
     }
     
     public void processRattm(String sentence) {

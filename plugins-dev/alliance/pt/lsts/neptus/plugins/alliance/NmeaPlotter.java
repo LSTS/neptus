@@ -169,6 +169,7 @@ public class NmeaPlotter extends ConsoleLayer {
         if (!opened)
             throw new Exception("Unable to open port "+uartDevice);
 
+        serialPort.setParams(uartBaudRate, dataBits, stopBits, parity);
         serialPort.addEventListener(new SerialPortEventListener() {
 
             private String currentString = "";
@@ -177,8 +178,9 @@ public class NmeaPlotter extends ConsoleLayer {
             public void serialEvent(SerialPortEvent arg0) {
                 try {
                     String s = serialPort.readString();
-                    if (s.contains("\n")) {
-                        currentString += s.substring(0, s.indexOf('\n'));
+                    if (s.contains("$")) {
+                        currentString += s.substring(0, s.indexOf('$'));
+//                        System.out.println(currentString);
                         if (!currentString.trim().isEmpty()) {
                             for (NmeaListener l :listeners)
                                 l.nmeaSentence(currentString.trim());
@@ -188,8 +190,21 @@ public class NmeaPlotter extends ConsoleLayer {
                             if (logReceivedData)
                                 LsfMessageLogger.log(new DevDataText(currentString));
                         }
-                        currentString = s.substring(s.indexOf('\n')+1);                        
+                        currentString = s.substring(s.indexOf('$'));
                     }
+//                    if (s.contains("\n")) {
+//                        currentString += s.substring(0, s.indexOf('\n'));
+//                        if (!currentString.trim().isEmpty()) {
+//                            for (NmeaListener l :listeners)
+//                                l.nmeaSentence(currentString.trim());
+//                            parseSentence(currentString);
+//                            if (retransmitToNeptus)
+//                                retransmit(currentString);
+//                            if (logReceivedData)
+//                                LsfMessageLogger.log(new DevDataText(currentString));
+//                        }
+//                        currentString = s.substring(s.indexOf('\n')+1);                        
+//                    }
                     else {
                         currentString += s;
                     }
@@ -199,7 +214,7 @@ public class NmeaPlotter extends ConsoleLayer {
                 }
             }
         });
-        serialPort.setParams(uartBaudRate, dataBits, stopBits, parity);
+//        serialPort.setParams(uartBaudRate, dataBits, stopBits, parity);
     }
     
     private void retransmit(String sentence) {
@@ -223,6 +238,8 @@ public class NmeaPlotter extends ConsoleLayer {
             contactDb.processGGA(s);
         else if (nmeaType.equals("$RATTM"))
             contactDb.processRattm(s);
+        else if (nmeaType.equals("$GPHDT"))
+            contactDb.processGPHDT(s);
         else {
             synchronized (parser) {
                 parser.process(s);    
