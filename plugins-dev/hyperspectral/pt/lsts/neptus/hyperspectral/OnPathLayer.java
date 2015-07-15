@@ -31,7 +31,6 @@
  */
 package pt.lsts.neptus.hyperspectral;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
@@ -40,11 +39,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import opendap.servlet.GetDirHandler;
-import pt.lsts.imc.HyperSpecData;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
  * Layer where all the Hyperspectral data will be drawn.
@@ -69,11 +65,7 @@ public class OnPathLayer {
     public boolean contains(double wavelength) {
         return dataset.containsKey(wavelength);
     }
-    
-    public boolean noData() {
-        return dataset.isEmpty() || currentData == null;
-    }
-    
+        
     public void addData(double wavelength, HyperspectralData data) {
         List<HyperspectralData> dataList;
         if(dataset.containsKey(wavelength))
@@ -153,6 +145,7 @@ public class OnPathLayer {
         if(!dataset.containsKey(dataWavelength))
             return;
         
+        /* get layer's 'area' */
         LocationType[] locs = initLayerArea(dataWavelength);
         LocationType topleft = locs[0];
         LocationType botright = locs[1];

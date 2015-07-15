@@ -32,20 +32,14 @@
 package pt.lsts.neptus.hyperspectral;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -54,12 +48,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.vecmath.Point2d;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.HyperSpecData;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -92,8 +84,6 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
     private final OnPathLayer dataLayer = new OnPathLayer();
     private boolean layerGenerated = false;
     /* used to compute dataLayer's size */
-    private LocationType topleft;
-    private LocationType botright;
     private double zoom;
 
     public HyperspectralReplay() {
