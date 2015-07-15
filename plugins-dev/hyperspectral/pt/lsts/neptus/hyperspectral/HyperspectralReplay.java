@@ -87,7 +87,7 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
     
     private boolean firstPaint = true;
     private boolean dataParsed = false;
-    public double selectedWavelength = 0;
+    public double selectedWavelength = -1;
     
     private final OnPathLayer dataLayer = new OnPathLayer();
     private boolean layerGenerated = false;
@@ -154,16 +154,16 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
             return;
         }
        
-        if(dataParsed) {            
+        if(dataParsed) {
+            if(selectedWavelength == -1)
+                return;
+            
             if(layerGenerated == false) {
                 System.out.println("GENERATED LAYER");              
                 
                 dataLayer.generateLayer(selectedWavelength, renderer);               
                 layerGenerated = true;
             }
-            
-            if(dataLayer.noData())
-                return;
             
             g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
