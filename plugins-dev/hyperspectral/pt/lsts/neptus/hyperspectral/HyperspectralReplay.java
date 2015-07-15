@@ -167,6 +167,7 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                 dataLayer.generateLayer(renderer, topleft, botright);               
                 layerGenerated = true;
             }
+            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             
             double currZoom = renderer.getZoom();
