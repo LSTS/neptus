@@ -64,6 +64,8 @@ import pt.lsts.imc.TrexToken;
 import pt.lsts.imc.net.UDPTransport;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.iridium.ActivateSubscription;
+import pt.lsts.neptus.comm.iridium.DeactivateSubscription;
 import pt.lsts.neptus.comm.iridium.DuneIridiumMessenger;
 import pt.lsts.neptus.comm.iridium.HubIridiumMessenger;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
@@ -111,7 +113,7 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     public String europtus = "127.0.0.1:7030";
 
     @NeptusProperty(category="Europtus", name="IMC ID of Europtus")
-    public int europtus_id = 65432;
+    public int europtus_id = 24575;
 
     @NeptusProperty(category="Simulated Vehicles", name="First Simulator")
     public String sim_auv1 = "trex-sim-1";
@@ -180,9 +182,11 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
 
     long lastSentPosition1 = System.currentTimeMillis(), lastSentPosition2 = System.currentTimeMillis();
 
+    LinkedHashMap<String, Long> lastSentTimes = new LinkedHashMap<String, Long>();
+    
     @Subscribe
     public void on(EstimatedState state) {
-
+        
         if (state.getSourceName().equals(auv1) && System.currentTimeMillis() - lastSentPosition1 > 10000) {
             lastSentPosition1 = System.currentTimeMillis();
             try {
@@ -191,6 +195,13 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
+            }
+            
+            try {
+                sendToEuroptus(translate("auv1.estate", state));
+            }
+            catch (Exception e) {
+                e.printStackTrace();
             }
         }
         else if (state.getSourceName().equals(auv2)&& System.currentTimeMillis() - lastSentPosition2 > 10000) {
@@ -201,6 +212,13 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             }
             catch (Exception e) {
                 NeptusLog.pub().error(e);
+            }
+            
+            try {
+                sendToEuroptus(translate("auv2.estate", state));
+            }
+            catch (Exception e) {
+                e.printStackTrace();
             }
         }        
     }
@@ -288,14 +306,17 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
                 if (op.getToken().getTimeline().startsWith("auv1.")) {
                     op.getToken().setTimeline(op.getToken().getTimeline().substring(5));
                     sendToVehicle1(op);
+                    getConsole().post(Notification.info("Europtus", "Forwarded goal of type "+op.getToken().getTimeline()+" to "+auv1));
                 }
 
                 else if (op.getToken().getTimeline().startsWith("auv2.")) {
                     op.getToken().setTimeline(op.getToken().getTimeline().substring(5));
                     sendToVehicle2(op);
+                    getConsole().post(Notification.info("Europtus", "Forwarded goal of type "+op.getToken().getTimeline()+" to "+auv2));
                 }
             }
             catch (Exception e) {
+                getConsole().post(Notification.warning("Europtus", e.getClass().getSimpleName()+": "+e.getMessage()));
                 e.printStackTrace();
             }
 
@@ -328,20 +349,67 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     public void on(RemoteSensorInfo rsi) {
         
         if (rsi.getSourceName().equals(auv1) || rsi.getSourceName().equals(auv2)) {
+            getConsole().post(Notification.info("AUV update", "Received update from "+rsi.getSourceName()));
             EstimatedState state = new EstimatedState();
             state.setLat(rsi.getLat());
             state.setLon(rsi.getLon());
             state.setAlt(rsi.getAlt());
             state.setPsi(rsi.getHeading());
+            state.setTimestamp(rsi.getTimestamp());
             ImcMsgManager.getManager().postInternalMessage("Europtus", state);
             on(state);            
         }
+    }
+    
+    private TrexOperation translate(String timeline, EstimatedState state) {
+        TrexToken token = new TrexToken();
+        TrexOperation op = new TrexOperation();
+        
+        token.setTimeline(timeline);
+        token.setPredicate("Position");
+        Vector<TrexAttribute> attrs = new Vector<TrexAttribute>();
+        TrexAttribute lat = new TrexAttribute();
+        lat.setName("latitude");
+        LocationType loc = IMCUtils.getLocation(state);
+        lat.setMin(""+loc.getLatitudeRads());
+        lat.setMax(""+loc.getLatitudeRads());
+        lat.setAttrType(ATTR_TYPE.FLOAT);        
+        TrexAttribute lon = new TrexAttribute();
+        lon.setName("longitude");
+        lon.setMin(""+loc.getLongitudeRads());
+        lon.setMax(""+loc.getLongitudeRads());
+        lon.setAttrType(ATTR_TYPE.FLOAT);
+        TrexAttribute depth = new TrexAttribute();
+        depth.setName("depth");
+        depth.setMin(""+state.getDepth());
+        depth.setMax(""+state.getDepth());
+        depth.setAttrType(ATTR_TYPE.FLOAT);
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss");
+        
+        TrexAttribute start = new TrexAttribute();
+        start.setName("start");
+        start.setMin(sdf.format(new Date(state.getTimestampMillis())));
+        start.setMax(sdf.format(new Date(state.getTimestampMillis())));        
+        start.setAttrType(ATTR_TYPE.STRING);
+        
+        
+        attrs.add(depth);
+        attrs.add(lon);
+        attrs.add(lat);
+        attrs.add(start);
+        token.setAttributes(attrs);
+        
+        op.setToken(token);
+        op.setOp(OP.POST_TOKEN);
+        return op;
     }
 
     @Periodic(millisBetweenUpdates=10000)
     public void sendStateToEuroptus() {
 
-        for (String msg : new String[] {"auv1.drifter", "auv2.drifter", "auv1.estate", "auv2.estate"}) {
+        //for (String msg : new String[] {"auv1.drifter", "auv2.drifter", "auv1.estate", "auv2.estate"}) {
+        for (String msg : new String[] {"auv1.drifter", "auv2.drifter"}) {
             if (trex_state.containsKey(msg)) {
                 try {
                     TrexToken clone = new TrexToken(trex_state.get(msg));
@@ -358,6 +426,26 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
                 }
             }
         }
+        EstimatedState s1 = ImcMsgManager.getManager().getState(auv1).last(EstimatedState.class);
+        EstimatedState s2 = ImcMsgManager.getManager().getState(auv2).last(EstimatedState.class);
+                
+        try {
+            if (s1 != null)
+                sendToEuroptus(translate("auv1.estate", s1));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        try {
+            if (s2 != null)
+                sendToEuroptus(translate("auv2.estate", s2));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        
     }
 
     public enum Connection {
@@ -733,6 +821,36 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             }
         });
 
+        popup.add("Subscribe Iridium Updates").addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ActivateSubscription activate = new ActivateSubscription();
+                activate.setDestination(0xFF);
+                activate.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+                try {
+                    IridiumManager.getManager().send(activate);
+                    getConsole().post(Notification.success("Iridium message sent", "1 Iridium messages were sent using "+IridiumManager.getManager().getCurrentMessenger().getName()));
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                }                
+            }
+        });
+        
+        popup.add("Unsubscribe Iridium Updates").addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DeactivateSubscription deactivate = new DeactivateSubscription();
+                deactivate.setDestination(0xFF);
+                deactivate.setSource(ImcMsgManager.getManager().getLocalId().intValue());
+                try {
+                    IridiumManager.getManager().send(deactivate);
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                }             
+            }
+        });
         popup.addSeparator();
         popup.add("Plug-in settings").addActionListener(new ActionListener() {
 
