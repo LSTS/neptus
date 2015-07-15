@@ -321,21 +321,55 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             }
 
         }
-        else
-            on(op.getToken());
+        else {
+            TrexToken token = op.getToken();
+            token.setTimestamp(op.getTimestamp());
+            token.setSrc(op.getSrc());
+            System.out.println("Posting "+token);
+            on(token);
+        }
     }
 
     @Subscribe
     public void on(TrexToken token) {
         String src = token.getSourceName();
+        
+        /*
+         * SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss.SSS");
+                TrexOperation inactive1 = new TrexOperation();
+                inactive1.setOp(OP.POST_TOKEN);
+                TrexToken tok = new TrexToken();
+                tok.setTimeline("auv1.drifter");
+                tok.setPredicate("Inactive");
+                TrexAttribute attr = new TrexAttribute();
+                attr.setName("start");
+                attr.setMax(sdf.format(new Date()));          
+                attr.setMin("");
+                tok.setAttributes(Arrays.asList(attr));
+                inactive1.setToken(tok);
+         */
+        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss");
+        
+        TrexAttribute start = new TrexAttribute();
+        start.setName("start");
+        start.setMin(sdf.format(new Date(token.getTimestampMillis())));
+        start.setMax(sdf.format(new Date(token.getTimestampMillis())));        
+        start.setAttrType(ATTR_TYPE.STRING);
+        
         try {
             if (src.equals(auv1)) {
                 TrexToken copy = TrexToken.clone(token);
+                Vector<TrexAttribute> attrs = copy.getAttributes();
+                attrs.add(start);
+                copy.setAttributes(attrs);
                 copy.setTimeline("auv1."+token.getTimeline());
                 trex_state.put("auv1."+token.getTimeline(), copy);
             }
             else if (src.equals(auv2)) {
                 TrexToken copy = TrexToken.clone(token);
+                Vector<TrexAttribute> attrs = copy.getAttributes();
+                attrs.add(start);
+                copy.setAttributes(attrs);                
                 copy.setTimeline("auv2."+token.getTimeline());
                 trex_state.put("auv2."+token.getTimeline(), copy);               
             }            
@@ -343,6 +377,11 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    public String getTrexTime(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss");
+        return sdf.format(date);
     }
     
     @Subscribe
@@ -385,15 +424,12 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
         depth.setMax(""+state.getDepth());
         depth.setAttrType(ATTR_TYPE.FLOAT);
         
-        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd'T'HH:mm:ss");
-        
         TrexAttribute start = new TrexAttribute();
         start.setName("start");
-        start.setMin(sdf.format(new Date(state.getTimestampMillis())));
-        start.setMax(sdf.format(new Date(state.getTimestampMillis())));        
+        start.setMin(getTrexTime(new Date(state.getTimestampMillis())));
+        start.setMax(getTrexTime(new Date(state.getTimestampMillis())));        
         start.setAttrType(ATTR_TYPE.STRING);
-        
-        
+                
         attrs.add(depth);
         attrs.add(lon);
         attrs.add(lat);
@@ -659,7 +695,15 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
                     lon.setMax(String.format("%.8f", loc.getLongitudeRads()));
                     lon.setAttrType(ATTR_TYPE.FLOAT);
                     attrs.add(lon);
+                    
+                    TrexAttribute start = new TrexAttribute();
+                    start.setName("start");
+                    start.setMin(getTrexTime(new Date()));
+                    start.setMax(getTrexTime(new Date()));        
+                    start.setAttrType(ATTR_TYPE.STRING);
 
+                    attrs.add(start);
+                    
                     token.setAttributes(attrs);
                     op.setToken(token);
                     System.out.println(IMCUtil.getAsHtml(op));
