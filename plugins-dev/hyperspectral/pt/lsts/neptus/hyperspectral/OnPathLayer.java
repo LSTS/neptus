@@ -37,8 +37,10 @@ import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
+import opendap.servlet.GetDirHandler;
 import pt.lsts.imc.HyperSpecData;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -52,12 +54,34 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
 public class OnPathLayer {
     private BufferedImage layer;
     private LocationType center;
-    public List<HyperspectralData> dataset;
+    
+    private final HashMap<Double, List<HyperspectralData>> dataset = new HashMap<>();
+    private List<HyperspectralData> currentData = null;
     
     public boolean isInitialized = false;
     
     public OnPathLayer() {
     }
+    
+    public boolean contains(double wavelength) {
+        return dataset.containsKey(wavelength);
+    }
+    
+    public boolean noData() {
+        return dataset.isEmpty() || currentData == null;
+    }
+    
+    public void addData(double wavelength, HyperspectralData data) {
+        List<HyperspectralData> dataList;
+        if(dataset.containsKey(wavelength))
+            dataList = dataset.get(wavelength);
+        else {
+            dataList = new LinkedList<>();
+            dataset.put(wavelength, dataList);
+        }
+        dataList.add(data);
+    }
+   
     
     public BufferedImage getLayer() {
         return layer;
@@ -71,7 +95,12 @@ public class OnPathLayer {
         /* TODO */
     }
             
-    public void generateLayer(StateRenderer2D renderer, LocationType topleft , LocationType botright) {
+    public void generateLayer(double dataWavelength, StateRenderer2D renderer, LocationType topleft , LocationType botright) {
+        if(!dataset.containsKey(dataWavelength))
+            return;
+        
+        currentData = dataset.get(dataWavelength);
+        
         Point2D p1 = renderer.getScreenPosition(topleft);
         Point2D p2 = renderer.getScreenPosition(botright);
         
@@ -92,7 +121,7 @@ public class OnPathLayer {
         Graphics2D g = (Graphics2D) layer.getGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
-        for(HyperspectralData hyperspec : dataset)
+        for(HyperspectralData hyperspec : currentData)
             addDataToLayer(hyperspec, g, renderer);
     }
     

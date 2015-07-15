@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -87,10 +88,8 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
     private boolean firstPaint = true;
     private boolean dataParsed = false;
     public double selectedWavelength = 0;
-    private final HashMap<Double, List<HyperspectralData>> dataset = new HashMap<>();
-    private List<HyperspectralData> currentData;
     
-    private OnPathLayer dataLayer;
+    private final OnPathLayer dataLayer = new OnPathLayer();
     private boolean layerGenerated = false;
     /* used to compute dataLayer's size */
     private LocationType topleft;
@@ -127,9 +126,9 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                if(selection != null) {
                    layerGenerated = false;
                    selectedWavelength = (double) selection;
-                   synchronized(dataset) {
-                       currentData = dataset.get(selectedWavelength);
-                   }
+//                   synchronized(dataset) {
+//                       currentData = dataset.get(selectedWavelength);
+//                   }
                }
             }
         });
@@ -154,19 +153,18 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
            
             return;
         }
-        
-        if(currentData == null)
-            return;
        
         if(dataParsed) {            
             if(layerGenerated == false) {
                 System.out.println("GENERATED LAYER");              
                 
-                dataLayer = new OnPathLayer();
-                dataLayer.dataset = currentData;
-                dataLayer.generateLayer(renderer, topleft, botright);               
+                dataLayer.generateLayer(selectedWavelength, renderer, topleft, botright);               
                 layerGenerated = true;
             }
+            
+            if(dataLayer.noData())
+                return;
+            
             g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             
@@ -226,23 +224,15 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                 int count = 0;
                 while(count < 2000)  {
                     EstimatedState closestState = (EstimatedState)esLog.getEntryAtOrAfter(msg.getTimestampMillis());                   
-                    double dataWavelen = msg.getWavelen();
-                    
-                    /* parse data according to its wavelength */
-                    List<HyperspectralData> data;
-                    if(dataset.containsKey(dataWavelen))
-                        data = dataset.get(dataWavelen);
-                    else {
-                        data = new LinkedList<>();
-                        dataset.put(dataWavelen, data);
-                        /* add to combo box */
-                        wavelengths.addItem(dataWavelen);
-                    }
+                    double dataWavelen = msg.getWavelen();                    
                     
                     boolean overlapped = isDataOverlapped(previousState, closestState);   
-                    data.add(new HyperspectralData(msg, closestState, overlapped));
-                   
+                    dataLayer.addData(dataWavelen, new HyperspectralData(msg, closestState, overlapped));
                     
+                    /* check if combobox already contains this wavelength, if not, add it */
+                    if(((DefaultComboBoxModel<Double>)wavelengths.getModel()).getIndexOf(dataWavelen) == -1 )
+                        wavelengths.addItem(dataWavelen);
+                   
                     /* compute OnPathLayer area */
                     loc.setLatitudeDegs(Math.toDegrees(closestState.getDouble("lat")));
                     loc.setLongitudeDegs(Math.toDegrees(closestState.getDouble("lon")));
