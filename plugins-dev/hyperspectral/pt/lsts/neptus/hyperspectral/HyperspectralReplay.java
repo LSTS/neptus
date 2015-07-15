@@ -95,7 +95,7 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
     /* used to compute dataLayer's size */
     private LocationType topleft;
     private LocationType botright;
-    private LocationType layerCenter;
+    private double zoom;
 
     public HyperspectralReplay() {
         super();
@@ -150,6 +150,7 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
         if(firstPaint) {
             this.setVisible(true);
             firstPaint = false;
+            zoom = renderer.getZoom();
            
             return;
         }
@@ -166,36 +167,28 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                 dataLayer.generateLayer(renderer, topleft, botright);               
                 layerGenerated = true;
             }
-            int scalex = (int)(dataLayer.getLayer().getWidth() * renderer.getZoom());
-            int scaley = (int)(dataLayer.getLayer().getHeight() * renderer.getZoom());
-            BufferedImage scaledLayer = (BufferedImage)ImageUtils.getFasterScaledInstance(dataLayer.getLayer(), scalex, scaley);
-
-
-            //                Point2D center = renderer.getScreenPosition(layerCenter);
-            //                
-            //                g.translate(center.getX(), center.getY());
-            //                g.drawImage(scaledLayer, (int)(-scaledLayer.getWidth()/2), (int)(-scaledLayer.getHeight()/2), null, renderer);
-            //                g.translate(-center.getX(), -center.getY());
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            
+            double currZoom = renderer.getZoom();
+            BufferedImage layerToDisplay;
+            
+            if(zoom != currZoom) {
+                double scale = currZoom / zoom;
+                
+                int scalex = (int)(dataLayer.getLayer().getWidth() * scale);
+                int scaley = (int)(dataLayer.getLayer().getHeight() * scale);
+                BufferedImage scaledLayer = (BufferedImage)ImageUtils.getFasterScaledInstance(dataLayer.getLayer(), scalex, scaley);
+                
+                layerToDisplay = scaledLayer;
+            }
+            else
+                layerToDisplay = dataLayer.getLayer();
+
 
             Point2D center = renderer.getScreenPosition(dataLayer.getCenter());
 
-//            BufferedImage img = new BufferedImage(dataLayer.getLayer().getWidth(), dataLayer.getLayer().getHeight(), BufferedImage.TYPE_INT_ARGB);
-//            Graphics2D gimg = (Graphics2D) img.getGraphics();
-//            gimg.setColor(Color.white);
-//            gimg.fillRect(0, 0, img.getWidth(), img.getHeight());
-//            gimg.dispose();
-
-
-//            g.translate(center.getX(), center.getY());
-//            //                g.drawImage(img, (int)(-img.getWidth()/2), (int)(-img.getHeight()/2), null, renderer);
-//            g.drawImage(img, (int)(-img.getWidth()/2), (int)(-img.getHeight()/2), null, renderer);
-//            g.translate(-center.getX(), -center.getY());
-
-
-//            Graphics2D g2 = (Graphics2D) g.create();
             g.translate(center.getX(), center.getY());
-            g.drawImage(dataLayer.getLayer(), (int)(-dataLayer.getLayer().getWidth()/2), (int)(-dataLayer.getLayer().getHeight()/2), null, renderer);
+            g.drawImage(layerToDisplay, (int)(-layerToDisplay.getWidth()/2), (int)(-layerToDisplay.getHeight()/2), null, renderer);
             g.translate(-center.getX(), -center.getY());
             g.dispose();
 
