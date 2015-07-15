@@ -57,6 +57,9 @@ public class OnPathLayer {
     
     private final HashMap<Double, List<HyperspectralData>> dataset = new HashMap<>();
     private List<HyperspectralData> currentData = null;
+    /* Contains the top left(maxLat and minLon) and bottom(minLat and maxLon) locations
+       for each wavelength of the dataset  */
+    private final HashMap<Double, LocationType[]> datasetMaxMinLocs = new HashMap<>();
     
     public boolean isInitialized = false;
     
@@ -81,7 +84,38 @@ public class OnPathLayer {
         }
         dataList.add(data);
     }
-   
+    
+    public void updateMinMaxLocations(double wavelength, LocationType newDataLocation) {
+        double minLat = 180;
+        double maxLat = -180;
+        double minLon = 360;
+        double maxLon = -360;
+        
+        
+        if(datasetMaxMinLocs.containsKey(wavelength)) {
+            LocationType[] currentMinMaxLoc = datasetMaxMinLocs.get(wavelength);
+                        
+            maxLat = currentMinMaxLoc[0].getLatitudeDegs();
+            maxLon = currentMinMaxLoc[1].getLongitudeDegs();
+            minLat = currentMinMaxLoc[1].getLatitudeDegs();
+            minLon = currentMinMaxLoc[0].getLongitudeDegs();
+        }
+        
+        if(newDataLocation.getLatitudeDegs() < minLat)
+            minLat = newDataLocation.getLatitudeDegs();
+        if(newDataLocation.getLatitudeDegs() > maxLat)
+            maxLat = newDataLocation.getLatitudeDegs();
+        if(newDataLocation.getLongitudeDegs() < minLon)
+            minLon = newDataLocation.getLongitudeDegs();
+        if(newDataLocation.getLongitudeDegs() > maxLon)
+            maxLon = newDataLocation.getLongitudeDegs();
+        
+        LocationType topleft = new LocationType(maxLat, minLon);
+        LocationType botright = new LocationType(minLat, maxLon);
+        LocationType[] minMaxLoc = {topleft, botright};        
+        
+        datasetMaxMinLocs.put(wavelength, minMaxLoc);
+    }  
     
     public BufferedImage getLayer() {
         return layer;
@@ -94,10 +128,34 @@ public class OnPathLayer {
     private void resizeLayer(int newWidth, int newHeight) {
         /* TODO */
     }
-            
-    public void generateLayer(double dataWavelength, StateRenderer2D renderer, LocationType topleft , LocationType botright) {
+    
+    private LocationType[] initLayerArea(double wavelength) {
+        LocationType[] locs = datasetMaxMinLocs.get(wavelength);
+        LocationType topleft = locs[0];
+        LocationType botright = locs[1];
+        
+        double padding = 65; /* TODO: best value? */
+        
+        topleft.setOffsetNorth(padding);
+        topleft.setOffsetWest(padding);
+        botright.setOffsetSouth(padding);
+        botright.setOffsetEast(padding);
+        
+        topleft = topleft.getNewAbsoluteLatLonDepth();
+        botright = botright.getNewAbsoluteLatLonDepth();
+        
+        LocationType[] updatedLocs = {topleft, botright};
+        
+        return updatedLocs;
+    }
+    
+    public void generateLayer(double dataWavelength, StateRenderer2D renderer) {
         if(!dataset.containsKey(dataWavelength))
             return;
+        
+        LocationType[] locs = initLayerArea(dataWavelength);
+        LocationType topleft = locs[0];
+        LocationType botright = locs[1];
         
         currentData = dataset.get(dataWavelength);
         

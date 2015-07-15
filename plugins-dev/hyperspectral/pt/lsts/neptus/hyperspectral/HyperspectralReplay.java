@@ -158,7 +158,7 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
             if(layerGenerated == false) {
                 System.out.println("GENERATED LAYER");              
                 
-                dataLayer.generateLayer(selectedWavelength, renderer, topleft, botright);               
+                dataLayer.generateLayer(selectedWavelength, renderer);               
                 layerGenerated = true;
             }
             
@@ -215,12 +215,7 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                 
                 LocationType loc = new LocationType();
                 LocationType tempLoc;
-                
-                double minLat = 180;
-                double maxLat = -180;
-                double minLon = 360;
-                double maxLon = -360;
-                
+                                
                 int count = 0;
                 while(count < 2000)  {
                     EstimatedState closestState = (EstimatedState)esLog.getEntryAtOrAfter(msg.getTimestampMillis());                   
@@ -240,14 +235,7 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                     loc.setOffsetEast(closestState.getDouble("y"));
                     tempLoc = loc.getNewAbsoluteLatLonDepth();
                     
-                    if (tempLoc.getLatitudeDegs() < minLat)
-                        minLat = tempLoc.getLatitudeDegs();
-                    if (tempLoc.getLatitudeDegs() > maxLat)
-                        maxLat = tempLoc.getLatitudeDegs();
-                    if (tempLoc.getLongitudeDegs() < minLon)
-                        minLon = tempLoc.getLongitudeDegs();
-                    if (tempLoc.getLongitudeDegs() > maxLon)
-                        maxLon = tempLoc.getLongitudeDegs();
+                    dataLayer.updateMinMaxLocations(dataWavelen, tempLoc);
 
                     
                     msg = (HyperSpecData) hyperspecLog.nextLogEntry();
@@ -255,18 +243,6 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                     
                     count++;
                 }
-                topleft = new LocationType(maxLat, minLon);
-                botright = new LocationType(minLat, maxLon);
-                
-                double padding = 65;
-                                
-                topleft.setOffsetNorth(padding);
-                topleft.setOffsetWest(padding);
-                botright.setOffsetSouth(padding);
-                botright.setOffsetEast(padding);
-                
-                topleft = topleft.getNewAbsoluteLatLonDepth();
-                botright = botright.getNewAbsoluteLatLonDepth();
             }
         };
         t.setDaemon(true);
