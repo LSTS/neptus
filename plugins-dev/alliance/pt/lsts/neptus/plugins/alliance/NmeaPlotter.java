@@ -38,8 +38,12 @@ import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -56,6 +60,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
@@ -105,13 +110,19 @@ public class NmeaPlotter extends ConsoleLayer {
 
     @NeptusProperty(name = "Listen for incoming UDP packets")
     public boolean udpListen = true;
+    
+    @NeptusProperty(name = "Connect via TCP")
+    public boolean tcpConnect = false;
+    
+    @NeptusProperty(name = "TCP Host")
+    public String tcpHost = "127.0.0.1";
+    
+    @NeptusProperty(name = "TCP Port")
+    public int tcpPort = 13000;    
 
     @NeptusProperty(name = "Maximum age in for AIS contacts (seconds)")
     public int maximumAisAge = 600;
 
-    @NeptusProperty(name = "Use Neptus external systems API", userLevel=LEVEL.ADVANCED)
-    public boolean useExternalSystemsApi = true;
-    
     @NeptusProperty(name = "Retransmit to other Neptus consoles", userLevel=LEVEL.ADVANCED)
     public boolean retransmitToNeptus = true;
     
@@ -263,7 +274,12 @@ public class NmeaPlotter extends ConsoleLayer {
                             socket.receive(dp);
                             String sentence = new String(dp.getData());
                             sentence = sentence.substring(0, sentence.indexOf(0));
-                            parseSentence(sentence);    
+                            try {
+                                parseSentence(sentence);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             if (retransmitToNeptus)
                                 retransmit(sentence);
                             if (logReceivedData)
@@ -276,6 +292,57 @@ public class NmeaPlotter extends ConsoleLayer {
                     }
                     NeptusLog.pub().info("UDP Socket closed.");
                     socket.close();
+                };
+            };
+            listener.setDaemon(true);
+            listener.start();
+        }
+        
+        if (tcpConnect) {
+            final Socket socket = new Socket();
+            Thread listener = new Thread("TCP Nmea Listener") {
+                
+                public void run() {
+                    connected = false;
+                    BufferedReader reader = null;
+                    try {
+                        socket.connect(new InetSocketAddress(tcpHost, tcpPort));
+                        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        connected = true;
+                    }
+                    catch (Exception e) {
+                        NeptusLog.pub().error(e);
+                        getConsole().post(Notification.error("NMEA Plotter", "Error connecting via TCP to "+tcpHost+":"+tcpPort));
+                        return;
+                    }
+                    NeptusLog.pub().info("Listening to NMEA messages over TCP.");
+                    getConsole().post(Notification.success("NMEA Plotter", "Connected via TCP to "+tcpHost+":"+tcpPort));
+                    while(connected) {
+                        try {
+                            String sentence = reader.readLine();
+                            try {
+                                parseSentence(sentence);
+                            }
+                            catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            if (retransmitToNeptus)
+                                retransmit(sentence);
+                            if (logReceivedData)
+                                LsfMessageLogger.log(new DevDataText(sentence));
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();   
+                            break;
+                        }
+                    }
+                    NeptusLog.pub().info("TCP Socket closed.");
+                    try {
+                        socket.close();
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 };
             };
             listener.setDaemon(true);
