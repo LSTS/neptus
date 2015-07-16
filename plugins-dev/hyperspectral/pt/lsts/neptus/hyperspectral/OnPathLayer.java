@@ -41,6 +41,7 @@ import java.util.List;
 
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
  * Layer where all the Hyperspectral data will be drawn.
@@ -161,7 +162,7 @@ public class OnPathLayer {
         double bottom = p2.getY();
         
         layer = new BufferedImage((int)(right - left), (int)(bottom - top), BufferedImage.TYPE_INT_ARGB);
-        
+                
         /* compute layer's center */
         double centerX = left + ((right - left) / 2);
         double centerY = top + ((bottom - top) / 2);
@@ -180,15 +181,27 @@ public class OnPathLayer {
     private void addDataToLayer(HyperspectralData hyperspec, Graphics2D g, StateRenderer2D renderer) {
         Graphics2D g2 = (Graphics2D) g.create();
         Point2D dataPosition = renderer.getScreenPosition(hyperspec.dataLocation);
+
+        Point2D range = (renderer.getBottomRightLocationType()).getPointInPixel(renderer.getLevelOfDetail());
+        double rangeX = range.getX();
+        double rangeY = range.getY();
         
-        double posX = (dataPosition.getX() * (layer.getWidth()/(double) renderer.getWidth()));
-        double posY = (dataPosition.getY() * (layer.getHeight()/(double) renderer.getHeight()));
-
-        int dataX = (int)(posX - (hyperspec.data.getWidth() / 2));
-        int dataY = (int)(posY - (hyperspec.data.getHeight() / 2));
-
-        g2.drawImage(hyperspec.data, dataX, dataY, null);
+        Point2D newRange = (renderer.getRealWorldLocation(new Point2D.Double(layer.getWidth(), layer.getHeight())))
+                .getPointInPixel(renderer.getLevelOfDetail());
+        double newRangeX = newRange.getX();
+        double newRangeY = newRange.getY();
+        
+        int x = (int)(dataPosition.getX() - (hyperspec.data.getWidth() / 2.0));
+        int y = (int)(dataPosition.getY() - (hyperspec.data.getHeight() / 2.0));
+        
+        double newX = x * (newRangeX/ rangeX);
+        double newY = y * (newRangeY/ rangeY);
+        
+//        g2.translate(- 1000 * imageScale, -1000 * imageScale);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.drawImage(hyperspec.data, (int)(newX), (int)(newY - 65), null);
+//        g2.translate(1000 * imageScale, 1000 * imageScale);
 //        renderer.repaint();
-        g2.dispose();
+//        g.dispose();
     }
 }

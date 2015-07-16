@@ -32,6 +32,7 @@
 package pt.lsts.neptus.hyperspectral;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -175,7 +176,17 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
 
 
             Point2D center = renderer.getScreenPosition(dataLayer.getCenter());
-
+            
+//            BufferedImage reference = new BufferedImage(layerToDisplay.getWidth(), layerToDisplay.getHeight(), BufferedImage.TYPE_INT_ARGB);
+//            Graphics2D refg =(Graphics2D) reference.getGraphics();
+//            refg.setColor(Color.WHITE);
+//            refg.fillRect(0, 0, reference.getWidth(), reference.getHeight());
+//            refg.dispose();
+//            g.translate(center.getX(), center.getY());
+//            g.drawImage(reference, (int)(-reference.getWidth()/2), (int)(-reference.getHeight()/2), null, renderer);
+//            g.translate(-center.getX(), -center.getY());
+                        
+            
             g.translate(center.getX(), center.getY());
             g.drawImage(layerToDisplay, (int)(-layerToDisplay.getWidth()/2), (int)(-layerToDisplay.getHeight()/2), null, renderer);
             g.translate(-center.getX(), -center.getY());
