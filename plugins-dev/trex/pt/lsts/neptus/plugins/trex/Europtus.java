@@ -653,27 +653,6 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             @Override
             public void run() {
 
-                AUVDrifterSurvey survey1 = new AUVDrifterSurvey(loc.getLatitudeRads(), loc.getLongitudeRads(),
-                        (float) survey_size, 0f, false, AUVDrifterSurvey.PathType.SQUARE_TWICE, (float) Math
-                        .toRadians(rotation));
-
-                AUVDrifterSurvey survey2 = new AUVDrifterSurvey(loc.getLatitudeRads(), loc.getLongitudeRads(),
-                        (float) (survey_size * 2), 0f, false, AUVDrifterSurvey.PathType.SQUARE, (float) Math
-                        .toRadians(rotation));
-
-                plan1 = asNeptusPlan(survey1);
-                plan1.setVehicle(auv1);
-                plan1.setId("trex_"+auv1);
-
-                plan2 = asNeptusPlan(survey2);
-                plan2.setVehicle(auv2);
-                plan2.setId("trex_"+auv2);
-
-                getConsole().getMission().addPlan(plan1);
-                getConsole().getMission().addPlan(plan2);
-                getConsole().getMission().save(false);
-                getConsole().warnMissionListeners();
-
                 if (forwardToEuroptus) {
 
                     TrexOperation op = new TrexOperation();
@@ -718,6 +697,28 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
                     }   
                 }
                 else {
+
+                    AUVDrifterSurvey survey1 = new AUVDrifterSurvey(loc.getLatitudeRads(), loc.getLongitudeRads(),
+                            (float) survey_size, 0f, false, AUVDrifterSurvey.PathType.SQUARE_TWICE, (float) Math
+                            .toRadians(rotation));
+
+                    AUVDrifterSurvey survey2 = new AUVDrifterSurvey(loc.getLatitudeRads(), loc.getLongitudeRads(),
+                            (float) (survey_size * 2), 0f, false, AUVDrifterSurvey.PathType.SQUARE, (float) Math
+                            .toRadians(rotation));
+
+                    plan1 = asNeptusPlan(survey1);
+                    plan1.setVehicle(auv1);
+                    plan1.setId("trex_"+auv1);
+
+                    plan2 = asNeptusPlan(survey2);
+                    plan2.setVehicle(auv2);
+                    plan2.setId("trex_"+auv2);
+
+                    getConsole().getMission().addPlan(plan1);
+                    getConsole().getMission().addPlan(plan2);
+                    getConsole().getMission().save(false);
+                    getConsole().warnMissionListeners();
+                    
                     try {
                         sendToVehicle1(survey1.asIMCMsg());
                         sendToVehicle2(survey2.asIMCMsg());                
@@ -945,5 +946,9 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
     @Override
     public void cleanInteraction() {
 
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(new Date(1437150669000l));
     }
 }
