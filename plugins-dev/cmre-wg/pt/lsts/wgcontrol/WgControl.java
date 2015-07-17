@@ -31,6 +31,7 @@
  */
 package pt.lsts.wgcontrol;
 
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -49,11 +50,15 @@ import javax.swing.JToggleButton;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.FuelLevel;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -111,7 +116,7 @@ public class WgControl extends ConsolePanel implements ActionListener, Configura
     private DatagramSocket telemetryListener, replyListener;
     private Thread telemetryThread, replyThread;
 
-    @NeptusProperty
+    @NeptusProperty(userLevel=LEVEL.REGULAR, name="Wave Glider Host Name")
     public String wg_hostname = "";
 
     @NeptusProperty
@@ -264,6 +269,27 @@ public class WgControl extends ConsolePanel implements ActionListener, Configura
         Document doc = DocumentHelper.parseText(reply);
         System.out.println("GOT Reply: "+doc.asXML());
 
+        int light_state = Integer.parseInt(doc.selectSingleNode("cmre/nav/requested/light").getText());
+        
+        for (String toggleName : payloads.keySet()) {
+            String payload_name = payloads.get(toggleName);
+            int state = Integer.parseInt(doc.selectSingleNode("cmre/nav/requested/"+payload_name).getText());
+            if (state == 1)
+                toggleButtons.get(toggleName).setForeground(Color.green);
+            else if (state == 2)
+                toggleButtons.get(toggleName).setForeground(Color.red);
+            else {
+                toggleButtons.get(toggleName).setForeground(Color.gray);
+                System.out.println("State for "+toggleName+" is "+state);
+            }
+            
+            
+        }
+        
+        
+        System.out.println(light_state);
+        
+        
         /*
         int light_state = Integer.parseInt(doc.selectSingleNode("cmre/nav/VehicleRequest/@waveglider_light").getText());
         int ais_state = Integer.parseInt(doc.selectSingleNode("cmre/nav/VehicleRequest/@waveglider_ais").getText());
@@ -303,6 +329,8 @@ public class WgControl extends ConsolePanel implements ActionListener, Configura
             double value = Double.parseDouble(doc.selectSingleNode("nav/VehicleNavigation/@parameters_"+param).getText());
             nav_parameters.put(param, value);
         }
+        
+       
 
         ExternalSystem s = ExternalSystemsHolder.lookupSystem(vehicle_name);
         if (s == null) {
@@ -312,6 +340,23 @@ public class WgControl extends ConsolePanel implements ActionListener, Configura
 
         LocationType loc = new LocationType(nav_parameters.get("latitude"), nav_parameters.get("longitude"));
         s.setLocation(loc, (long) (nav_parameters.get("time_fix") * 1000));
+        
+        EstimatedState state = new EstimatedState();
+        state.setLat(loc.getLatitudeRads());
+        state.setLon(loc.getLongitudeRads());
+        state.setPsi(Math.toRadians(nav_parameters.get("heading")));
+        state.setU(nav_parameters.get("speed"));
+        state.setTimestamp(nav_parameters.get("time_fix"));
+        state.setSrc(655535); // FIXME set correct id
+        ImcMsgManager.getManager().postInternalMessage("lisa", state);
+        
+        FuelLevel fl = new FuelLevel();
+        fl.setValue(0); //  battery state, percent
+        state.setTimestamp(nav_parameters.get("time_fix"));
+        state.setSrc(655535); // FIXME set correct id
+        
+        
+        
     }
 
 
