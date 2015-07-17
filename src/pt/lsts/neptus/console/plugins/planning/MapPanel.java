@@ -75,6 +75,7 @@ import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.renderer2d.StateRendererInteraction;
 import pt.lsts.neptus.renderer2d.VehicleStateListener;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.PlanElement;
@@ -202,6 +203,14 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
 
         setToolbarPlacement();
 
+    }
+    
+    public void focusLocation(LocationType loc) {
+        renderer.focusLocation(loc);        
+    }
+    
+    public void setRotation(double rotationRads) {
+        renderer.setRotation(rotationRads);        
     }
 
     @Override
