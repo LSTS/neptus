@@ -41,6 +41,7 @@ import java.util.List;
 
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
@@ -162,7 +163,6 @@ public class OnPathLayer {
         double bottom = p2.getY();
         
         layer = new BufferedImage((int)(right - left), (int)(bottom - top), BufferedImage.TYPE_INT_ARGB);
-                
         /* compute layer's center */
         double centerX = left + ((right - left) / 2);
         double centerY = top + ((bottom - top) / 2);
@@ -171,37 +171,22 @@ public class OnPathLayer {
         center = renderer.getRealWorldLocation(p);
         
         Graphics2D g = (Graphics2D) layer.getGraphics();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        double startX = -left;
+        double startY = -top;
+        g.translate(startX, startY);
         
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         for(HyperspectralData hyperspec : currentData)
             addDataToLayer(hyperspec, g, renderer);
     }
     
     /* TODO: check if current layer contains the given data. If not, resize accordingly */
     private void addDataToLayer(HyperspectralData hyperspec, Graphics2D g, StateRenderer2D renderer) {
-        Graphics2D g2 = (Graphics2D) g.create();
         Point2D dataPosition = renderer.getScreenPosition(hyperspec.dataLocation);
-
-        Point2D range = (renderer.getBottomRightLocationType()).getPointInPixel(renderer.getLevelOfDetail());
-        double rangeX = range.getX();
-        double rangeY = range.getY();
-        
-        Point2D newRange = (renderer.getRealWorldLocation(new Point2D.Double(layer.getWidth(), layer.getHeight())))
-                .getPointInPixel(renderer.getLevelOfDetail());
-        double newRangeX = newRange.getX();
-        double newRangeY = newRange.getY();
         
         int x = (int)(dataPosition.getX() - (hyperspec.data.getWidth() / 2.0));
         int y = (int)(dataPosition.getY() - (hyperspec.data.getHeight() / 2.0));
         
-        double newX = x * (newRangeX/ rangeX);
-        double newY = y * (newRangeY/ rangeY);
-        
-//        g2.translate(- 1000 * imageScale, -1000 * imageScale);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.drawImage(hyperspec.data, (int)(newX), (int)(newY - 65), null);
-//        g2.translate(1000 * imageScale, 1000 * imageScale);
-//        renderer.repaint();
-//        g.dispose();
+        g.drawImage(hyperspec.data, x, y, null);
     }
 }
