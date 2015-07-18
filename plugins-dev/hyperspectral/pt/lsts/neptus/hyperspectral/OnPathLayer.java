@@ -176,6 +176,7 @@ public class OnPathLayer {
         g.translate(startX, startY);
         
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         for(HyperspectralData hyperspec : currentData)
             addDataToLayer(hyperspec, g, renderer);
     }

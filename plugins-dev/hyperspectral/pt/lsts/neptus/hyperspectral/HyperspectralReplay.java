@@ -187,6 +187,7 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
 //            g.translate(-center.getX(), -center.getY());
                         
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g.translate(center.getX(), center.getY());
             g.drawImage(layerToDisplay, (int)(-layerToDisplay.getWidth()/2), (int)(-layerToDisplay.getHeight()/2), null, renderer);
             g.translate(-center.getX(), -center.getY());
