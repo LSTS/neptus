@@ -61,7 +61,7 @@ public class HyperspectralData {
         data = getScaledData(1, 0.25);
         
         rotationAngle = setRotationAngle(state.getPsi());
-        data = rotateData();
+//        data = rotateData();
     }
     
     /* 
@@ -82,6 +82,10 @@ public class HyperspectralData {
 
         dataLocation.setOffsetNorth(deltaX);
         dataLocation.setOffsetEast(deltaY);
+    }
+    
+    public double getVehicleHeading() {
+        return rotationAngle;
     }
     
     private BufferedImage rotateData() {

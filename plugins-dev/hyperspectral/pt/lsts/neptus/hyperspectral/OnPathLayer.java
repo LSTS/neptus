@@ -188,6 +188,8 @@ public class OnPathLayer {
         int x = (int)(dataPosition.getX() - (hyperspec.data.getWidth() / 2.0));
         int y = (int)(dataPosition.getY() - (hyperspec.data.getHeight() / 2.0));
         
+        g.rotate(hyperspec.getVehicleHeading(), dataPosition.getX(), dataPosition.getY());
         g.drawImage(hyperspec.data, x, y, null);
+        g.rotate(-hyperspec.getVehicleHeading(), dataPosition.getX(), dataPosition.getY());
     }
 }
