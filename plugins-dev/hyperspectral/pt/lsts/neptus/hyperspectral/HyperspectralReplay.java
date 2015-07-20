@@ -211,8 +211,8 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                     EstimatedState closestState = (EstimatedState)esLog.getEntryAtOrAfter(msg.getTimestampMillis());                   
                     double dataWavelen = msg.getWavelen();                    
                     
-                    boolean overlapped = isDataOverlapped(previousState, closestState);   
-                    dataLayer.addData(dataWavelen, new HyperspectralData(msg, closestState, overlapped));
+                    boolean isOverlapped = isDataOverlapped(previousState, closestState);   
+                    dataLayer.addData(dataWavelen, msg, closestState, isOverlapped);
                     
                     /* check if combobox already contains this wavelength, if not, add it */
                     if(((DefaultComboBoxModel<Double>)wavelengths.getModel()).getIndexOf(dataWavelen) == -1 )

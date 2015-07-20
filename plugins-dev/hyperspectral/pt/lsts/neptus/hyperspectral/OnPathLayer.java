@@ -39,6 +39,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import pt.lsts.imc.EstimatedState;
+import pt.lsts.imc.HyperSpecData;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
@@ -68,7 +70,9 @@ public class OnPathLayer {
         return dataset.containsKey(wavelength);
     }
         
-    public void addData(double wavelength, HyperspectralData data) {
+    public void addData(double wavelength, HyperSpecData msg, EstimatedState closestState, boolean isOverlapped) {
+        HyperspectralData data = new HyperspectralData(msg, closestState, isOverlapped);
+        
         List<HyperspectralData> dataList;
         if(dataset.containsKey(wavelength))
             dataList = dataset.get(wavelength);
