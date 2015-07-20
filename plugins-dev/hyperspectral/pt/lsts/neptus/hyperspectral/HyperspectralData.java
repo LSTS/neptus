@@ -58,7 +58,7 @@ public class HyperspectralData {
         if(overlapped)
             translateDataPosition(msg, state);
         
-        data = getScaledData(1, 0.25);
+        data = HyperspecUtils.getScaledImage(data, 1, 0.25);
         
         rotationAngle = setRotationAngle(state.getPsi());
 //        data = rotateData();
@@ -108,11 +108,6 @@ public class HyperspectralData {
         return rotatedImage;
     }
     
-    public BufferedImage getScaledData(double scalex, double scaley) {
-        return (BufferedImage)ImageUtils.getFasterScaledInstance(data, 
-                (int)(data.getWidth() * scalex), (int)(scaley * data.getHeight()));
-    }
-
     /* Get angle so that the frame is perpendicular to the vehicle's heading */
     private double setRotationAngle(double psi) {
         double angle;
