@@ -41,6 +41,7 @@ import java.util.List;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.HyperSpecData;
+import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.ImageUtils;
@@ -61,13 +62,23 @@ public class OnPathLayer {
        for each wavelength of the dataset  */
     private final HashMap<Double, LocationType[]> datasetMaxMinLocs = new HashMap<>();
     
-    public boolean isInitialized = false;
+    /* Data and corresponding EstimatedState */
+    private HashMap<HyperspectralData, EstimatedState> dataState;
+    /* All EstimatedStates */
+    private IMraLog estimatedStatesLog;
     
     public OnPathLayer() {
+        estimatedStatesLog = null;
+        dataState = new HashMap<>();
     }
     
     public boolean contains(double wavelength) {
         return dataset.containsKey(wavelength);
+    }
+    
+    public void saveEstimatedStatesLog(IMraLog log) {
+        if(estimatedStatesLog == null)
+            estimatedStatesLog = log;
     }
         
     public void addData(double wavelength, HyperSpecData msg, EstimatedState closestState, boolean isOverlapped) {
@@ -81,6 +92,8 @@ public class OnPathLayer {
             dataset.put(wavelength, dataList);
         }
         dataList.add(data);
+        
+        dataState.put(data, closestState);
     }
     
     public void updateMinMaxLocations(double wavelength, LocationType newDataLocation) {

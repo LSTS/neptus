@@ -233,6 +233,7 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                     
                     count++;
                 }
+                dataLayer.saveEstimatedStatesLog(esLog);
             }
         };
         t.setDaemon(true);
