@@ -167,9 +167,8 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
                 
                 int scalex = (int)(dataLayer.getLayer().getWidth() * scale);
                 int scaley = (int)(dataLayer.getLayer().getHeight() * scale);
-                BufferedImage scaledLayer = (BufferedImage)ImageUtils.getFasterScaledInstance(dataLayer.getLayer(), scalex, scaley);
-                
-                layerToDisplay = scaledLayer;
+//                BufferedImage scaledLayer = (BufferedImage)ImageUtils.getFasterScaledInstance(dataLayer.getLayer(), scalex, scaley);
+                layerToDisplay = HyperspecUtils.getScaledImage(dataLayer.getLayer(), scale, scale);
             }
             else
                 layerToDisplay = dataLayer.getLayer();
