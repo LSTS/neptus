@@ -57,6 +57,18 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 public class HyperspecUtils {
     private static final String TEST_DATA_DIR = "./plugins-dev/hyperspectral/pt/lsts/neptus/hyperspectral/test-data/";
     
+    public static BufferedImage getScaledImage(BufferedImage image, double scalex, double scaley) {
+        double newW = scalex * image.getWidth();
+        double newH = scaley * image.getHeight();
+        BufferedImage scaledImage = new BufferedImage((int)newW, (int)newH, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = (Graphics2D) scaledImage.createGraphics();
+        
+        g2d.drawImage(image, 0, 0, (int)newW, (int)newH, null);
+        g2d.dispose();
+        
+        return scaledImage;
+    }
+    
     
     public static BufferedImage initVerticalDisplay(int width, int height) {
         BufferedImage dataDisplay = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
