@@ -41,6 +41,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -164,10 +166,6 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
             
             if(zoom != currZoom) {
                 double scale = currZoom / zoom;
-                
-                int scalex = (int)(dataLayer.getLayer().getWidth() * scale);
-                int scaley = (int)(dataLayer.getLayer().getHeight() * scale);
-//                BufferedImage scaledLayer = (BufferedImage)ImageUtils.getFasterScaledInstance(dataLayer.getLayer(), scalex, scaley);
                 layerToDisplay = HyperspecUtils.getScaledImage(dataLayer.getLayer(), scale, scale);
             }
             else
@@ -175,15 +173,6 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
 
 
             Point2D center = renderer.getScreenPosition(dataLayer.getCenter());
-            
-//            BufferedImage reference = new BufferedImage(layerToDisplay.getWidth(), layerToDisplay.getHeight(), BufferedImage.TYPE_INT_ARGB);
-//            Graphics2D refg =(Graphics2D) reference.getGraphics();
-//            refg.setColor(Color.WHITE);
-//            refg.fillRect(0, 0, reference.getWidth(), reference.getHeight());
-//            refg.dispose();
-//            g.translate(center.getX(), center.getY());
-//            g.drawImage(reference, (int)(-reference.getWidth()/2), (int)(-reference.getHeight()/2), null, renderer);
-//            g.translate(-center.getX(), -center.getY());
                         
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
