@@ -47,10 +47,12 @@ import pt.lsts.neptus.util.ImageUtils;
  */
 public class HyperspectralData {
     private double rotationAngle; 
+    private EstimatedState state;
     public BufferedImage data;
     public LocationType dataLocation;
 
     public HyperspectralData(HyperSpecData msg, EstimatedState state, boolean overlapped) {
+        this.state = state;
         data = HyperspecUtils.rawToBuffImage(msg.getData());
         
         dataLocation = IMCUtils.parseLocation(state);
@@ -62,6 +64,10 @@ public class HyperspectralData {
         
         rotationAngle = setRotationAngle(state.getPsi());
 //        data = rotateData();
+    }
+    
+    public EstimatedState getEstimatedState() {
+        return state;
     }
     
     /* 
