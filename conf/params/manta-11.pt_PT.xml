@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.1 (HEAD,0c854de)" system="manta-11" i18n="pt_PT">
+<config format="1" version="2.6.x (mission/rep15-with-launch,975b96d,dirty)" system="manta-11" i18n="pt_PT">
   <section name="Clock" name-i18n="Relógio">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -87,6 +87,15 @@
       <units/>
       <desc>System command to execute everytime the clock is synchronized</desc>
     </param>
+    <param name="Change Log">
+      <name-i18n>Change Log</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Change log file after synchronization</desc>
+    </param>
   </section>
   <section name="Navigation" name-i18n="Navegação">
     <param name="Entity Label">
@@ -162,6 +171,15 @@
       <default>GPS</default>
       <units/>
       <desc>Entity label of 'EulerAngles' messages (field 'psi')</desc>
+    </param>
+    <param name="Convert Height to Geoid Height">
+      <name-i18n>Convert Height to Geoid Height</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Convert WGS84 height to geoid height (mean sea level) height</desc>
     </param>
   </section>
   <section name="Power Supply" name-i18n="Fonte de Energia">
@@ -709,7 +727,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>LCD Backlight</default>
+      <default>N/C</default>
       <units/>
       <desc/>
     </param>
@@ -1540,6 +1558,42 @@
       <units>s</units>
       <desc>Keep-alive timeout</desc>
     </param>
+    <param name="Source Level - Control">
+      <name-i18n>Source Level - Control</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable/disable source level control based on medium</desc>
+    </param>
+    <param name="Source Level - Unknown">
+      <name-i18n>Source Level - Unknown</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3</default>
+      <units/>
+      <desc>Source level when medium is unknown</desc>
+    </param>
+    <param name="Source Level - Water">
+      <name-i18n>Source Level - Water</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2</default>
+      <units/>
+      <desc>Source level when medium is water</desc>
+    </param>
+    <param name="Source Level - Underwater">
+      <name-i18n>Source Level - Underwater</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc>Source level when medium is underwater</desc>
+    </param>
   </section>
   <section name="FTP Server" name-i18n="Servidor FTP">
     <param name="Entity Label">
@@ -1751,127 +1805,6 @@
       <desc>List of messages to transport</desc>
     </param>
   </section>
-  <section name="Iridium Modem" name-i18n="Modem Iridium">
-    <param name="Entity Label">
-      <name-i18n>Nome da Entidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Iridium Modem</default>
-      <units/>
-      <desc>Nome principal da entidade</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Prioridade de Execução</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Prioridade de execução</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Tempo de Ativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Tempo de Desativação</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Nível de Depuração</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>Spew</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="Active - Scope">
-      <name-i18n>Ativa - Escopo</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>global</default>
-      <units/>
-      <desc>Escopo do parâmetro 'Ativa'</desc>
-    </param>
-    <param name="Active - Visibility">
-      <name-i18n>Ativa - Visibilidade</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>user</default>
-      <units/>
-      <desc>Visibilidade do parâmetro 'Ativa'</desc>
-    </param>
-    <param name="Active">
-      <name-i18n>Ativa</name-i18n>
-      <type>boolean</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc>Verdadeiro para ativar tarefa, falso caso contrário</desc>
-    </param>
-    <param name="Serial Port - Device">
-      <name-i18n>Serial Port - Device</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>/dev/ttyACM1</default>
-      <units/>
-      <desc>Serial port device used to communicate with the modem</desc>
-    </param>
-    <param name="Serial Port - Baud Rate">
-      <name-i18n>Serial Port - Baud Rate</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>19200</default>
-      <units/>
-      <desc>Serial port baud rate</desc>
-    </param>
-    <param name="Power Channel - Name">
-      <name-i18n>Power Channel - Name</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>LC2M</default>
-      <units/>
-      <desc>Name of the power channel that supplies the modem</desc>
-    </param>
-    <param name="Mailbox Check - Periodicity">
-      <name-i18n>Mailbox Check - Periodicity</name-i18n>
-      <type>real</type>
-      <visibility>user</visibility>
-      <scope>global</scope>
-      <default>720</default>
-      <units>s</units>
-      <desc>Amount of time without alert rings or MT SBDs before doing a mailbox check</desc>
-    </param>
-    <param name="Maximum Transmission Rate">
-      <name-i18n>Maximum Transmission Rate</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units>s</units>
-      <desc/>
-    </param>
-  </section>
   <section name="Log Book" name-i18n="Diário de Bordo">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -2010,7 +1943,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Announce, AcousticOperation, CpuUsage, Current, Depth, EntityList, EntityState, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LogBookEntry, PlanControl, RSSI, StorageUsage, Temperature, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, Voltage</default>
+      <default>Abort, Announce, AcousticOperation, CpuUsage, Current, Depth, EntityList, EntityState, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LogBookEntry, PlanControl, RemoteSensorInfo, RSSI, StorageUsage, Temperature, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, Voltage</default>
       <units/>
       <desc/>
     </param>
@@ -2163,13 +2096,13 @@
       <desc>PPP Interface</desc>
     </param>
   </section>
-  <section name="UAN" name-i18n="UAN">
+  <section name="Acoustic Access Controller" name-i18n="Controlador de Acesso Acústico">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>UAN</default>
+      <default>Acoustic Access Controller</default>
       <units/>
       <desc>Nome principal da entidade</desc>
     </param>
@@ -2411,7 +2344,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, NavigationUncertainty, PlanControl, PlanControlState, RSSI, StorageUsage, Temperature, Voltage</default>
+      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, NavigationUncertainty, PlanControl, PlanControlState, RemoteSensorInfo, RSSI, StorageUsage, Temperature, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
