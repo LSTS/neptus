@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.1 (HEAD,0c854de)" system="lauv-noptilus-1" i18n="en_US">
+<config format="1" version="2.6.x (mission/rep15-with-launch,975b96d,dirty)" system="lauv-noptilus-1" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -450,6 +450,15 @@
       <default>false</default>
       <units/>
       <desc>Bypass heading rate controller and use reference directly on torques</desc>
+    </param>
+    <param name="Altitude Timeout">
+      <name-i18n>Altitude Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60.0f</default>
+      <units>m</units>
+      <desc>Timeout for ignoring invalid altitude</desc>
     </param>
     <param name="Roll PID Gains">
       <name-i18n>Roll PID Gains</name-i18n>
@@ -1829,6 +1838,15 @@
       <units/>
       <desc>Goto maneuver's entity label</desc>
     </param>
+    <param name="Entity Label -- Launch">
+      <name-i18n>Entity Label -- Launch</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Launch Maneuver</default>
+      <units/>
+      <desc>Launch maneuver's entity label</desc>
+    </param>
     <param name="Entity Label -- Loiter">
       <name-i18n>Entity Label -- Loiter</name-i18n>
       <type>string</type>
@@ -2305,6 +2323,15 @@
       <default>hwclock -w</default>
       <units/>
       <desc>System command to execute everytime the clock is synchronized</desc>
+    </param>
+    <param name="Change Log">
+      <name-i18n>Change Log</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Change log file after synchronization</desc>
     </param>
   </section>
   <section name="Collisions" name-i18n="Collisions">
@@ -5937,8 +5964,8 @@
     <param name="Range">
       <name-i18n>Range</name-i18n>
       <type>integer</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
+      <visibility>developer</visibility>
+      <scope>global</scope>
       <default>30</default>
       <units>m</units>
       <desc>Default range</desc>
@@ -6900,6 +6927,15 @@
       <units/>
       <desc>Command to execute when the power down sequence is aborted</desc>
     </param>
+    <param name="Slave System Names">
+      <name-i18n>Slave System Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Name of the slave systems</desc>
+    </param>
   </section>
   <section name="Vehicle Supervisor" name-i18n="Vehicle Supervisor">
     <param name="Entity Label">
@@ -7438,6 +7474,42 @@
       <units>s</units>
       <desc>Keep-alive timeout</desc>
     </param>
+    <param name="Source Level - Control">
+      <name-i18n>Source Level - Control</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Enable/disable source level control based on medium</desc>
+    </param>
+    <param name="Source Level - Unknown">
+      <name-i18n>Source Level - Unknown</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>3</default>
+      <units/>
+      <desc>Source level when medium is unknown</desc>
+    </param>
+    <param name="Source Level - Water">
+      <name-i18n>Source Level - Water</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>2</default>
+      <units/>
+      <desc>Source level when medium is water</desc>
+    </param>
+    <param name="Source Level - Underwater">
+      <name-i18n>Source Level - Underwater</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>1</default>
+      <units/>
+      <desc>Source level when medium is underwater</desc>
+    </param>
   </section>
   <section name="FTP Server" name-i18n="FTP Server">
     <param name="Entity Label">
@@ -7899,18 +7971,18 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, AllocatedControlTorques, AlignmentState, AngularVelocity, Announce, Brake, CompassCalibration, Collision, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, Elevator, EmergencyControl, EmergencyControlState, EntityActivationState, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, Loiter, ManeuverControlState, MagneticField, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PopUp, PowerChannelControl, PowerChannelState, PushEntityParameters, Pressure, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, Rpm, RSSI, Salinity, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SimulatedState, Sms, SoundSpeed, StationKeeping, StopManeuver, Teleoperation, TeleoperationDone, Temperature, TextMessage, TrexObservation, TrexOperation, TrexPlan, TrexToken, TransportBindings, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterDensity, WaterVelocity, YoYo</default>
+      <default>Abort, Acceleration, AllocatedControlTorques, AlignmentState, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, Elevator, EmergencyControl, EmergencyControlState, EntityActivationState, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, Loiter, ManeuverControlState, MagneticField, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PopUp, PowerChannelControl, PowerChannelState, Pulse, PushEntityParameters, Pressure, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, Rpm, RSSI, Salinity, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SimulatedState, Sms, SoundSpeed, StationKeeping, StopManeuver, Teleoperation, TeleoperationDone, Temperature, TextMessage, TrexObservation, TrexOperation, TrexPlan, TrexToken, TransportBindings, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterDensity, WaterVelocity, YoYo</default>
       <units/>
       <desc/>
     </param>
   </section>
-  <section name="UAN" name-i18n="UAN">
+  <section name="Acoustic Access Controller" name-i18n="Acoustic Access Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>UAN</default>
+      <default>Acoustic Access Controller</default>
       <units/>
       <desc>Main entity label</desc>
     </param>
@@ -7993,7 +8065,7 @@
       <type>real</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>30</default>
+      <default>180</default>
       <units>s</units>
       <desc>Reports periodicity</desc>
       <min>30</min>
@@ -8152,7 +8224,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, RemoteActions, RemoteActionsRequest, Rpm, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexToken, TrexPlan, VehicleMedium, VehicleState, Voltage</default>
+      <default>AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, RemoteActions, RemoteActionsRequest, Rpm, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexOperation, TrexToken, TrexPlan, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>
