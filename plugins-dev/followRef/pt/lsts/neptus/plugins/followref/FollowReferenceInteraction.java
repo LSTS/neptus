@@ -46,9 +46,14 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.AcousticOperation;
+import pt.lsts.imc.DesiredSpeed;
+import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.FollowRefState;
 import pt.lsts.imc.FollowReference;
@@ -59,6 +64,8 @@ import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanManeuver;
 import pt.lsts.imc.PlanSpecification;
 import pt.lsts.imc.Reference;
+import pt.lsts.imc.DesiredSpeed.SPEED_UNITS;
+import pt.lsts.imc.DesiredZ.Z_UNITS;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -68,6 +75,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -82,8 +90,6 @@ import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -114,6 +120,11 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     @NeptusProperty(name = "Control timeout", description = "Ammount of seconds after which the controlled vehicle will timeout if no new reference updates are received")
     public long referenceTimeout = 30;
 
+    @NeptusProperty(name = "Follow another system", description = "Setting to true will make this system follow another active one", category="System follow")
+    public boolean followAnotherSystem = false;  
+    
+    private ImcSystem refFollowSystem = null;
+    
     public FollowReferenceInteraction(ConsoleLayout cl) {
         super(cl);
         setHelpMsg();
@@ -126,7 +137,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
     @Override
     public void propertiesChanged() {
-
+        
     }
 
     @Override
@@ -194,7 +205,8 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                     }
                 }
                 else {
-                    send(v, plans.get(v).currentWaypoint().getReference());
+                    if (!followAnotherSystem)
+                        send(v, plans.get(v).currentWaypoint().getReference());
                 }
             }
         }
@@ -204,6 +216,39 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     @Subscribe
     public void on(EstimatedState state) {
         states.put(state.getSourceName(), state);
+        
+        boolean isMoving = true;
+        if (state.getVx()>0.2
+                || state.getVy()>0.2){
+            isMoving = true;
+        }
+        
+        ImcSystem veh = ImcSystemsHolder.getSystemWithName(state.getSourceName());
+        //System.out.println("SYS: "+state.getSourceName() + " location " + veh.getLocation().toString() + " Lat: "+ state.getLat() + " Lon: "+state.getLon());
+        if (isMoving && followAnotherSystem && 
+               refFollowSystem.getName().equals(state.getSourceName())){
+            //System.out.println("Follow Ref Sys choosen: "+refFollowSystem.getName() + " location " + refFollowSystem.getLocation().toString() + " Lat: "+ state.getLat() + " Lon: "+state.getLon());
+            
+            LocationType sysLocation = refFollowSystem.getLocation();
+
+            ManeuverLocation man = new ManeuverLocation();
+            
+            Reference ref = new Reference();
+            ref.setLat(state.getLat());
+            ref.setLon(state.getLon());
+            ref.setZ(new DesiredZ((float)sysLocation.getAllZ(), Z_UNITS.DEPTH));
+            ref.setSpeed(new DesiredSpeed(3, SPEED_UNITS.METERS_PS));
+            ref.setFlags((short)(Reference.FLAG_LOCATION | Reference.FLAG_SPEED | Reference.FLAG_Z));
+    
+            System.out.println("refFollowSystem ["+refFollowSystem+"] "+ state.getLat() + " " + state.getLon() );
+
+            
+            //TODO : if man.getLocation.distanceInMeters(state.location) >= 5 { send ... }
+            if (send(getMainVehicleId(), ref))
+                System.out.println("sending new ref "+ ref.getLat() + " " + ref.getLon() );
+           
+            //TODO: Update waypoint with refFollowSystem location !
+        }
     }
 
     @Subscribe
@@ -485,7 +530,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
         super.mouseClicked(event, source);
 
         final ReferenceWaypoint wpt = waypointUnder(event.getPoint(), source);
-
+        
         if (wpt != null && event.getButton() == MouseEvent.BUTTON1 && event.getClickCount() >= 2) {
             PluginUtils.editPluginProperties(wpt, true);
             if (focusedWaypoint.equals(wpt))
@@ -576,6 +621,26 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
                 }
             });
             popup.addSeparator();
+            popup.add("Follow Reference System").addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    ImcSystem[] list = ImcSystemsHolder.lookupActiveSystemVehicles();
+                    String[] listString = new String[list.length];
+                    
+                    for (int i=0;i<list.length;i++){
+                        listString[i] = list[i].getName();
+                    }
+                    
+                    String refSysName = (String) JOptionPane.showInputDialog(null,
+                            I18n.text("Choose one of the available Vehicles"), I18n.text("Select Vehicle"),
+                            JOptionPane.QUESTION_MESSAGE, null, listString, (refFollowSystem == null ? null : refFollowSystem.getName()));
+                    refFollowSystem = ImcSystemsHolder.getSystemWithName(refSysName);
+                    
+                    //System.out.println("\n\n\n\nFollow Ref Sys choosen: "+refFollowSystem.getName()+"\n\n\n\n");
+                    
+                }
+            });
+            popup.addSeparator();
             popup.add("Follow Reference Interaction Helper").addActionListener(new ActionListener() {
 
                 @Override
@@ -589,7 +654,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
             popup.show((Component) event.getSource(), event.getX(), event.getY());
         }
     }
-
+    
     @Override
     public boolean isExclusive() {
         return true;
