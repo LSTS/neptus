@@ -36,6 +36,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
@@ -115,9 +117,9 @@ import com.google.common.eventbus.Subscribe;
  *
  */
 @SuppressWarnings("serial")
-@Popup( pos = POSITION.RIGHT, width=640, height=400)
+@Popup( pos = POSITION.RIGHT, width=660, height=500)
 @LayerPriority(priority=0)
-@PluginDescription(name="Video Stream", version="1.0", author="Pedro Gonçalves", description="Plugin for View video Stream TCP-Ip/Ip-Cam", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
+@PluginDescription(name="Video Stream", version="1.1", author="Pedro Gonçalves", description="Plugin for View video Stream TCP-Ip/Ip-Cam", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
 public class Vision extends ConsolePanel implements ConfigurationListener, ItemListener{
 
     private static final String BASE_FOLDER_FOR_IMAGES = "log/images";
@@ -138,6 +140,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private int widthImgRec;
     //Height size of image
     private int heightImgRec;
+    //Width size of Console
+    private int widhtConsole = 640;
+    //Height size of Console
+    private int heightConsole = 480;
     //Scale factor of x pixel
     private float xScale;
     //Scale factor of y pixel
@@ -173,8 +179,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     //JLabel for image
     private JLabel picLabel;
-    //JPanel for Image
-    private JPanel mainPanel;
     //JPanel for display image
     private JPanel panelImage;
     //JPanel for info and config values
@@ -205,7 +209,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //Image receive
     private Mat mat;
     //Size of output frame
-    private Size size = new Size(960, 720);
+    private Size size = null;
     //Counter for image tag
     private int cntTag = 1;
 
@@ -230,35 +234,42 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         super(console);
         //clears all the unused initializations of the standard ConsolePanel
         removeAll();
+        //Resize Console
+        this.addComponentListener(new ComponentAdapter() {  
+            public void componentResized(ComponentEvent evt) {
+                Component c = evt.getComponent();
+                widhtConsole = c.getSize().width;
+                heightConsole = c.getSize().height;
+                widhtConsole = widhtConsole - 22;
+                heightConsole = heightConsole - 22;          
+                xScale = (float)widhtConsole/widthImgRec;
+                yScale = (float)heightConsole/heightImgRec;
+                size = new Size(widhtConsole, heightConsole);
+                matResize = new Mat(heightConsole, widhtConsole, CvType.CV_8UC3);
+                if(!raspiCam && !ipCam)
+                    inicImage();
+            }
+        });
         //Mouse click
         addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
+            public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1){
                     if(raspiCam || ipCam){
-                        int mouseX = (int) ((e.getX() - 13) / xScale);  //shift window bar
-                        int mouseY = (int) ((e.getY() - 10) / yScale) ; //shift window bar
-                        xPixel = e.getX() - 13;
-                        yPixel = e.getY() - 10;
+                        xPixel = (int) ((e.getX() - 11) / xScale);  //shift window bar
+                        yPixel = (int) ((e.getY() - 11) / yScale) ; //shift window bar
                         if(raspiCam && !ipCam) {
-                            if (mouseX >= 0 && mouseY >= 0 && mouseX <= widthImgRec && mouseY <= heightImgRec)
-                                out.printf("%d#%d;\0", mouseX,mouseY);
+                            if (xPixel >= 0 && yPixel >= 0 && xPixel <= widthImgRec && yPixel <= heightImgRec)
+                                out.printf("%d#%d;\0", xPixel,yPixel);
                         }
-                        
-                        //System.out.println(getMainVehicleId()+"X = " +mouseX+ " Y = " +mouseY);
+                       // System.out.println(getMainVehicleId()+"X = " +e.getX()+ " Y = " +e.getY());
                         captureFrame = true;
-    
                         //place mark on map as POI
                         placeLocationOnMap();
                     }
                 }
-            }
-            @Override
-            public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     popup = new JPopupMenu();
                     popup.add(I18n.text("Start RasPiCam")).addActionListener(new ActionListener() {
-                        @Override
                         public void actionPerformed(ActionEvent e) {
                             if(!ipCam){
                                 raspiCam = true;
@@ -276,7 +287,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         }
                     });
                     popup.add(I18n.text("Close all connection")).addActionListener(new ActionListener() {
-                        @Override
                         public void actionPerformed(ActionEvent e) {
                             NeptusLog.pub().info("Clossing all Video Stream...");
                             raspiCam = false;
@@ -285,7 +295,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         }
                     });
                     popup.add(I18n.text("Start Ip-Cam")).addActionListener(new ActionListener() {
-                        @Override
                         public void actionPerformed(ActionEvent e) {
                             if(!raspiCam){
                                 ipCam = true;
@@ -382,7 +391,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //!Print Image to JPanel
     private void showImage(BufferedImage image) {
         picLabel.setIcon(new ImageIcon(image));
-        panelImage.add(picLabel);
+        panelImage.revalidate();
+        panelImage.add(picLabel, BorderLayout.CENTER);
         repaint();
     }
 
@@ -390,7 +400,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private void configLayout() {
         //Create Buffer (type MAT) for Image resize
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        matResize = new Mat(720, 960, CvType.CV_8UC3);
+        matResize = new Mat(heightConsole, widhtConsole, CvType.CV_8UC3);
         
         //!Create folder to save image data
         //Create folder image in log if don't exist
@@ -411,13 +421,11 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         picLabel = new JLabel();
         //JPanel for Image
         panelImage = new JPanel();
-        panelImage.setBackground(Color.black);
-        mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
-        mainPanel.add(panelImage, BorderLayout.WEST);
+        panelImage.setBackground(Color.LIGHT_GRAY);
+        panelImage.setSize(this.getWidth(), this.getHeight());
         
         this.setLayout(new MigLayout());
-        this.add(mainPanel);
+        this.add(panelImage, BorderLayout.CENTER);
         
         //JPanel for info and config values      
         config = new JPanel(new MigLayout());
@@ -456,7 +464,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         menu = new JFrame(I18n.text("Menu Config"));
         menu.setVisible(show_menu);
         menu.setResizable(false);
-        menu.setSize(400, 350);
+        menu.setSize(450, 350);
         menu.add(config);
     }
     
@@ -527,8 +535,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         catch (IOException e) {
             e.printStackTrace();
         }
-        xScale = (float) 960 / widthImgRec;
-        yScale = (float) 720 / heightImgRec;
+        xScale = (float) widhtConsole / widthImgRec;
+        yScale = (float) heightConsole / heightImgRec;
         //Create Buffer (type MAT) for Image receive
         mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
     }
@@ -538,6 +546,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         Thread ret = new Thread("Video Stream Thread") {
             @Override
             public void run() {
+                inicImage();
                 while(true){
                     if (closingPanel) {
                         raspiCam = false;
@@ -563,8 +572,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     }
                     else if (!raspiCam && ipCam) {
                         if (state == false){
-                            xScale = (float) 960 / 240;
-                            yScale = (float) 720 / 180;
                             //Create Buffer (type MAT) for Image receive
                             mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
                             state = true;
@@ -577,20 +584,23 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         }
                         //TODO: Cap ip cam
                         else if(!raspiCam && ipCam && state) {
-                            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+                            long startTime = System.currentTimeMillis();
                             capture.grab();
                             capture.read(mat);
+                            xScale = (float) widhtConsole / mat.cols();
+                            yScale = (float) heightConsole / mat.rows();
                             Imgproc.resize(mat, matResize, size);       
                             //Convert Mat to BufferedImage
                             temp=matToBufferedImage(matResize);
                             //Display image in JFrame
-                            infoSizeStream = String.format("X = %d - Y = %d   x %.2f", mat.cols(), mat.rows(),(float)960/mat.cols());
+                            long stopTime = System.currentTimeMillis();
+                            infoSizeStream = String.format("Size(%d x %d) | Scale(%.2f x %.2f) | FPS:%d |\t\t\t", mat.cols(), mat.rows(),(float)widhtConsole/mat.cols(),(float)heightConsole/mat.rows(),(int) 1000/(stopTime - startTime));
                             txtText.setText(infoSizeStream);
                             showImage(temp);
                             
                             if( captureFrame ) {
-                                xPixel = xPixel - 480;
-                                yPixel = -(yPixel - 360);
+                                xPixel = xPixel - widhtConsole/2;
+                                yPixel = -(yPixel - heightConsole/2);
                                 String imageTag = String.format("%s/imageTag/(%d)_%s_X=%d_Y=%d.jpeg",logDir,cntTag,info,xPixel,yPixel);
                                 outputfile = new File(imageTag);
                                 try {
@@ -657,7 +667,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             e.printStackTrace();
                         }
                     }
-
                     if (closingPanel)
                         break;
                }
@@ -673,7 +682,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //System.out.println("Source Name "+msg.getSourceName()+"ID "+getMainVehicleId());
         if(msg.getSourceName().equals(getMainVehicleId())){
             try {
-
                 //! update the position of target
                 //LAT and LON rad
                 double latRad = msg.getLat();
@@ -702,7 +710,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 this.lat = tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs();
                 this.lon = tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs();
                 txtData.setText(info);
-
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -737,7 +744,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     //!Fill cv::Mat image with zeros
     public void inicImage(){
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         Scalar black = new Scalar(0);
         matResize.setTo(black);
         temp=matToBufferedImage(matResize);
@@ -746,17 +752,16 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     //!Received data Image
     public void receivedDataImage(){
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        long startTime = System.currentTimeMillis();
         try {
             line = in.readLine();
         }
         catch (IOException e1) {
             e1.printStackTrace();
         }
-        
         if (line == null){
             //custom title, error icon
-            JOptionPane.showMessageDialog(mainPanel, I18n.text("Lost connection with vehicle"), I18n.text("Connection error"), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(panelImage, I18n.text("Lost connection with vehicle"), I18n.text("Connection error"), JOptionPane.ERROR_MESSAGE);
             raspiCam = false;
             state = false;
             closeTcpCom();
@@ -784,7 +789,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 }
                 read += readBytes;
             }           
-            
             //Receive data GPS over tcp DUNE
             try {
                 duneGps = in.readLine();
@@ -792,7 +796,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             catch (IOException e1) {
                 e1.printStackTrace();
             }
-            
             //Decompress data received 
             Inflater decompresser = new Inflater(false);
             decompresser.setInput(data,0,lengthImage);
@@ -815,24 +818,24 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             } 
             catch (IOException e) {
             }
-            
             // Get the decompressed data
             byte[] decompressedData = bos.toByteArray();
-            //System.out.println("Original Size = " + decompressedData.length +" bytes");
             
             //Transform byte data to cv::Mat (for display image)
             mat.put(0, 0, decompressedData);
-            //Resize image to 960x720 resolution
+            //Resize image to console size
             Imgproc.resize(mat, matResize, size);
                        
             //Convert Mat to BufferedImage
-            temp=matToBufferedImage(matResize);
+            temp=matToBufferedImage(matResize);    
             
-            //TODO: CHANGE TO TRUE FOR END DEBUG (SAVE IMAGE TO DISK)
-            //flagBuffImg = false;      
-            
+            xScale = (float) widhtConsole / widthImgRec;
+            yScale = (float) heightConsole / heightImgRec;
+            long stopTime = System.currentTimeMillis();
+            while((stopTime - startTime) < (1000/FPS))
+                stopTime = System.currentTimeMillis();
             //Display image in JFrame
-            info = String.format("X = %d - Y = %d   x %.2f   %d bytes (KiB = %d)", widthImgRec, heightImgRec,xScale,lengthImage,lengthImage/1024);
+            info = String.format("Size(%d x %d) | Scale(%.2f x %.2f) | FPS:%d | Pak:%d (KiB:%d)", widthImgRec, heightImgRec,xScale,yScale,(int) 1000/(stopTime - startTime),lengthImage,lengthImage/1024);
             txtText.setText(info);
             txtDataTcp.setText(duneGps);
             showImage(temp);
