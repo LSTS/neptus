@@ -110,23 +110,22 @@ import com.google.common.eventbus.Subscribe;
  * Neptus Plugin for Video Stream and tag frame/object
  * 
  * @author pedrog
- * @version 1.0
+ * @version 1.1
  * @category Vision
  *
  */
 @SuppressWarnings("serial")
 @Popup( pos = POSITION.RIGHT, width=640, height=400)
 @LayerPriority(priority=0)
-@PluginDescription(name="Video Stream", version="1.0", author="Pedro Gonçalves", description="Plugin for View video Stream TCP-IP", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
+@PluginDescription(name="Video Stream", version="1.0", author="Pedro Gonçalves", description="Plugin for View video Stream TCP-Ip/Ip-Cam", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
 public class Vision extends ConsolePanel implements ConfigurationListener, ItemListener{
 
     private static final String BASE_FOLDER_FOR_IMAGES = "log/images";
 
     @NeptusProperty(name = "Axis Camera RTPS URI")
-    private String axisCamRtpsUri = "rtsp://10.0.20.102:554/axis-media/media.amp?streamprofile=Mobile";
+    private String camRtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";//"rtsp://10.0.20.102:554/axis-media/media.amp?streamprofile=Mobile";
 
     private ServerSocket serverSocket = null;
-    private Socket clientSocket = null;
     //Send data for sync 
     private PrintWriter out = null; 
     //Buffer for data image
@@ -158,7 +157,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //Buffer image for JFrame/showImage
     private BufferedImage temp;
     //Flag - start acquired image
-    private boolean isRunning = false;
+    private boolean raspiCam = false;
     //Flag - Lost connection to the vehicle
     private boolean state = false;
     //Flag - Show/hide Menu JFrame
@@ -167,6 +166,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private boolean ipCam = false;
     //Save image tag flag
     private boolean captureFrame = false;
+    //Close comTCP state
+    private boolean closeComState = false;
     
     private boolean closingPanel = false;
     
@@ -205,8 +206,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private Mat mat;
     //Size of output frame
     private Size size = new Size(960, 720);
-    //ID vehicle
-    private int idVehicle = 0;
     //Counter for image tag
     private int cntTag = 1;
 
@@ -222,10 +221,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private int FPS = 10;
     //*************************/
     
-    //IMC message
-    private EstimatedState msg;
-    private LinkedHashMap<String, EstimatedState> msgsSetLeds = new LinkedHashMap<>(); 
-    
     //worker thread designed to acquire the data packet from DUNE
     private Thread updater = null; 
     //worker thread designed to save image do HD
@@ -240,12 +235,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             @Override
             public void mousePressed(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1){
-                    if(isRunning || ipCam){
+                    if(raspiCam || ipCam){
                         int mouseX = (int) ((e.getX() - 13) / xScale);  //shift window bar
                         int mouseY = (int) ((e.getY() - 10) / yScale) ; //shift window bar
                         xPixel = e.getX() - 13;
                         yPixel = e.getY() - 10;
-                        if(isRunning && !ipCam) {
+                        if(raspiCam && !ipCam) {
                             if (mouseX >= 0 && mouseY >= 0 && mouseX <= widthImgRec && mouseY <= heightImgRec)
                                 out.printf("%d#%d;\0", mouseX,mouseY);
                         }
@@ -262,19 +257,48 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     popup = new JPopupMenu();
-                    popup.add(I18n.text("Start Connection")).addActionListener(new ActionListener() {
+                    popup.add(I18n.text("Start RasPiCam")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            isRunning = true;
+                            if(!ipCam){
+                                raspiCam = true;
+                                ipCam = false;
+                                closeComState = false;
+                            }
+                            else{
+                                NeptusLog.pub().info("Clossing IpCam Stream...");
+                                closeComState = false;
+                                raspiCam = true;
+                                state = false;
+                                ipCam = false;
+                            }
+                                 
+                        }
+                    });
+                    popup.add(I18n.text("Close all connection")).addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            NeptusLog.pub().info("Clossing all Video Stream...");
+                            raspiCam = false;
+                            state = false;
                             ipCam = false;
                         }
                     });
-                    popup.add(I18n.text("Close Connection")).addActionListener(new ActionListener() {
+                    popup.add(I18n.text("Start Ip-Cam")).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            isRunning = false;
-                            state = false;
-                            ipCam = false;
+                            if(!raspiCam){
+                                ipCam = true;
+                                raspiCam = false;
+                                state = false;
+                            }
+                            else{
+                                NeptusLog.pub().info("Clossing RasPiCam Stream...");
+                                ipCam = true;
+                                raspiCam = false;
+                                state = false;
+                                closeComState = true;
+                            }
                         }
                     });
                     popup.add(I18n.text("Config")).addActionListener(new ActionListener() {
@@ -282,14 +306,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         public void actionPerformed(ActionEvent e) {
                             //show_menu = !show_menu;
                             menu.setVisible(true);
-                        }
-                    });
-                    popup.add(I18n.text("Start IP-CAM")).addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            ipCam = true;
-                            isRunning = false;
-                            state = false;
                         }
                     });
                     popup.show((Component) e.getSource(), e.getX(), e.getY());
@@ -405,67 +421,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         
         //JPanel for info and config values      
         config = new JPanel(new MigLayout());
-
-/*
-        //Tpl JComboBox
-        String[] sizeStrings = { "TPL Size", "25", "50", "75", "100", "150"};
-        @SuppressWarnings({ "rawtypes", "unchecked" })
-        final JComboBox tplList = new JComboBox(sizeStrings);
-        tplList.setSelectedIndex(0);
-        tplList.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String stringValue = (String) tplList.getSelectedItem();
-                String check = "TPL Size";
-                if (stringValue != check ){
-                int value = Integer.parseInt(stringValue);
-                out.printf("-1#%d;\0", value);
-                }
-              }
-        });
-        config.add(tplList,"width 160:180:200, h 30!");
-                
-        //Window JComboBox
-        String[] sizeStrings2 = { "Window Size", "30", "55", "80", "105", "155"};
-        @SuppressWarnings({ "rawtypes", "unchecked" })
-        final JComboBox windowList = new JComboBox(sizeStrings2);
-        windowList.setSelectedIndex(0);
-        windowList.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String stringValue = (String) windowList.getSelectedItem();
-                String check = "Window Size";
-                if (stringValue != check ){
-                int value = Integer.parseInt(stringValue);
-                out.printf("-2#%d;\0", value);
-                }
-              }
-        });
-        config.add(windowList,"width 160:180:200, h 30!, wrap");
-            
-        //JButton Save snapshot
-        JButton buttonS = new JButton();
-        buttonS.setText("Snapshot");
-        buttonS.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                out.printf("-3#123;\0");
-              }
-        });
-        config.add(buttonS, "width 160:180:200, h 40!");
-                
-        //JButton Save Video
-        JButton buttonV = new JButton();
-        buttonV.setText("Save/Stop video");
-        buttonV.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                out.printf("-4#123;\0");
-            }
-        });
-        config.add(buttonV,"width 160:180:200, h 40!, wrap");
-        */
-
+        
+        //JCheckBox save to hd
         saveToDiskCheckBox = new JCheckBox(I18n.text("Save Image to Disk"));
         saveToDiskCheckBox.setMnemonic(KeyEvent.VK_C);
         saveToDiskCheckBox.setSelected(false);
@@ -512,12 +469,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         Object source = e.getItemSelectable();
         //System.out.println("source: "+source);
         if (source == saveToDiskCheckBox) {
-            //System.out.println("isRunning="+isRunning+"ipCam"+ipCam+"saveToDiskCheckBox"+saveToDiskCheckBox.isSelected());
-            if ((isRunning == true || ipCam == true) && saveToDiskCheckBox.isSelected() == true) {
+            //System.out.println("raspiCam="+raspiCam+"ipCam"+ipCam+"saveToDiskCheckBox"+saveToDiskCheckBox.isSelected());
+            if ((raspiCam == true || ipCam == true) && saveToDiskCheckBox.isSelected() == true) {
                 flagBuffImg = true;
                 //System.out.println("Valor: "+flagBuffImg);
             }
-            if ((isRunning == false && ipCam == false) || saveToDiskCheckBox.isSelected() == false) {
+            if ((raspiCam == false && ipCam == false) || saveToDiskCheckBox.isSelected() == false) {
                 flagBuffImg=false;
             }
         }
@@ -578,17 +535,17 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     //!Thread to handle data receive
     private Thread updaterThread() {
-        Thread ret = new Thread("Vision Thread") {
+        Thread ret = new Thread("Video Stream Thread") {
             @Override
             public void run() {
                 while(true){
                     if (closingPanel) {
-                        isRunning = false;
+                        raspiCam = false;
                         state = false;
                         ipCam = false;
                     }
                     
-                    if (isRunning && !ipCam ) {
+                    if (raspiCam && !ipCam ) {
                         if (state == false){
                             //connection
                             tcpConnection();
@@ -597,39 +554,29 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             state = true;
                         }
                         //receive data image
-                        receivedDataImage();
-                        if(!isRunning && !state){
-                            try {
-                                is.close();
-                            }
-                            catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                            try {
-                                in.close();
-                            }
-                            catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                            out.close();
-                        }
+                        if(!closeComState)
+                            receivedDataImage();
+                        else
+                            closeTcpCom();
+                        if(!raspiCam && !state)
+                            closeTcpCom();
                     }
-                    else if (!isRunning && ipCam) {
+                    else if (!raspiCam && ipCam) {
                         if (state == false){
                             xScale = (float) 960 / 240;
                             yScale = (float) 720 / 180;
                             //Create Buffer (type MAT) for Image receive
                             mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
                             state = true;
-                            capture = new VideoCapture(axisCamRtpsUri);
+                            capture = new VideoCapture(camRtpsUrl);
                             cntTag = 1;
                             if (capture.isOpened())
-                                NeptusLog.pub().info("Video is captured");
+                                NeptusLog.pub().info("Video Strem from IpCam is captured");
                             else
-                                NeptusLog.pub().info("Video is not captured");
+                                NeptusLog.pub().info("Video Strem from IpCam is not captured");
                         }
                         //TODO: Cap ip cam
-                        else if(!isRunning && ipCam && state) {
+                        else if(!raspiCam && ipCam && state) {
                             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
                             capture.grab();
                             capture.read(mat);
@@ -659,7 +606,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     }
                     else
                         inicImage();
-
+                    
                     if (closingPanel)
                         break;
                 }
@@ -675,7 +622,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             @Override
             public void run() {
                 while(true){
-                    if (isRunning || ipCam) {
+                    if (raspiCam || ipCam) {
                         if(flagBuffImg == true){
                             //flagBuffImg = false;
                             long startTime = System.currentTimeMillis();
@@ -771,18 +718,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
      * @return
      */
     public LocationType calcTagPosition(LocationType locationType, double orientationDegrees, double camTiltDeg){
-        //System.out.println("Before: lat:"+locationType.getLatitudeDegs()+" lon:"+locationType.getLongitudeDegs()+" orientationDegrees="+orientationDegrees);
         double altitude = locationType.getHeight();
         double dist = Math.tan(Math.toRadians(camTiltDeg))*(Math.abs(altitude));// hypotenuse
         double offsetN = Math.cos(Math.toRadians(orientationDegrees))*dist;//oposite side
         double offsetE = Math.sin(Math.toRadians(orientationDegrees))*dist;// adjacent side
-        //System.out.println("dist="+dist+" loc.h="+locationType.getHeight());
-        //System.out.println("offsetN="+offsetN+" offsetE="+offsetE);
 
         LocationType tagLocationType = locationType.convertToAbsoluteLatLonDepth();
         tagLocationType.setOffsetNorth(offsetN);
         tagLocationType.setOffsetEast(offsetE);
-        //System.out.println("After: lat:"+tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs()+" lon:"+tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs());
         return tagLocationType.convertToAbsoluteLatLonDepth();
     }
 
@@ -814,29 +757,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         if (line == null){
             //custom title, error icon
             JOptionPane.showMessageDialog(mainPanel, I18n.text("Lost connection with vehicle"), I18n.text("Connection error"), JOptionPane.ERROR_MESSAGE);
-            isRunning = false;
+            raspiCam = false;
             state = false;
-            try {
-                is.close();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                in.close();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            out.close();
-            @SuppressWarnings("unused")
-            ServerSocket serverSocket = null;    
-            try { 
-                serverSocket = new ServerSocket(2424); 
-            } 
-            catch (IOException e){ 
-                e.printStackTrace();
-            }    
+            closeTcpCom();
         }
         else{        
             lengthImage = Integer.parseInt(line);
@@ -856,24 +779,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 }
                 if (readBytes < 0) {
                     System.err.println("stream ended");
-                    try {
-                        is.close();
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    } 
-                    try {
-                        clientSocket.close();
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    } 
-                    try {
-                        serverSocket.close();
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    } 
+                    closeTcpCom();
                     return;
                 }
                 read += readBytes;
@@ -933,10 +839,32 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         }
     }
     
+    //!Close TCP COM
+    public void closeTcpCom(){
+        try {
+            is.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            in.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        out.close();
+        try {
+            serverSocket.close();
+        } catch (IOException e2) {
+            // TODO Auto-generated catch block
+            e2.printStackTrace();
+        }
+    }
+    
     //!Create Socket service
     public void tcpConnection(){
-        //Socket Config
-        ServerSocket serverSocket = null;    
+        //Socket Config  
         try { 
             serverSocket = new ServerSocket(2424); 
         } 
@@ -946,7 +874,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             System.exit(1); 
         } 
         Socket clientSocket = null; 
-        System.out.println ("Waiting for connection.....");
+        NeptusLog.pub().info("Waiting for connection from RasPiCam...");
         try { 
             clientSocket = serverSocket.accept(); 
         } 
@@ -955,8 +883,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             System.err.println("Accept failed."); 
             System.exit(1); 
         } 
-        System.out.println ("Connection successful from Server: "+clientSocket.getInetAddress()+":"+serverSocket.getLocalPort());
-        System.out.println ("Receiving data image.....");
+        NeptusLog.pub().info("Connection successful from Server: "+clientSocket.getInetAddress()+":"+serverSocket.getLocalPort());
+        NeptusLog.pub().info("Receiving data image from RasPiCam...");
         
         //Send data for sync 
         try {
