@@ -318,7 +318,7 @@ SubPanelChangeListener, MainVehicleChangeListener {
                             event.setType(TYPE.MAP_FEATURE_ADDED);
                             event.setId(markId);
                             event.setArg(new DevDataBinary(elem.asXML().getBytes()));
-//                            System.out.println(sendToOtherCCUs(event));
+                           sendToOtherCCUs(event);
                         }                        
                     };
                     dissem.add(rem);

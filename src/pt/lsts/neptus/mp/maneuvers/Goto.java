@@ -70,7 +70,7 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
     ManeuverLocation destination = new ManeuverLocation();
     protected static final String DEFAULT_ROOT_ELEMENT = "Goto";
 	
-	private GotoParameters params = new GotoParameters();
+	protected GotoParameters params = new GotoParameters();
 	
 	private final int ANGLE_CALCULATION = -1 ;
 	private final int FIRST_ROTATE = 0 ;
@@ -78,8 +78,8 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	
 	int current_state = ANGLE_CALCULATION;
 	
-	private double targetAngle, rotateIncrement;
-	private double roll, pitch, yaw;
+	protected double targetAngle, rotateIncrement;
+	protected double roll, pitch, yaw;
 	
 	public String id = NameNormalizer.getRandomID();
 	LinkedHashMap<String, String> custom = new LinkedHashMap<>();
@@ -118,14 +118,14 @@ public class Goto extends Maneuver implements IMCSerialization, LocatedManeuver 
 	public void loadFromXML(String xml) {  
 	    try {
 	        Document doc = DocumentHelper.parseText(xml);
-	        Node node = doc.selectSingleNode("Goto/finalPoint/point");
+	        Node node = doc.selectSingleNode(getType()+"/finalPoint/point");
 	        ManeuverLocation loc = new ManeuverLocation();
 	        loc.load(node.asXML());
 	        setManeuverLocation(loc);
-	        setRadiusTolerance(Double.parseDouble(doc.selectSingleNode("Goto/finalPoint/radiusTolerance").getText()));
-	        Node speedNode = doc.selectSingleNode("Goto/speed");
+	        setRadiusTolerance(Double.parseDouble(doc.selectSingleNode(getType()+"/finalPoint/radiusTolerance").getText()));
+	        Node speedNode = doc.selectSingleNode(getType()+"/speed");
 	        if (speedNode == null) 
-	        	speedNode = doc.selectSingleNode("Goto/velocity");
+	        	speedNode = doc.selectSingleNode(getType()+"/velocity");
 	        setSpeed(Double.parseDouble(speedNode.getText()));
 	        String speedUnit = speedNode.valueOf("@unit");
 	        setSpeedUnits(speedUnit);

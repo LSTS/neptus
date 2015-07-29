@@ -23,4 +23,5 @@ pt.lsts.neptus.plugins.position.StreamSpeedOverlay
 pt.lsts.neptus.plugins.position.DistancesPanel
 pt.lsts.neptus.plugins.position.AttitudeReplayPanel
 pt.lsts.neptus.plugins.position.FindMainSystemLayer
+pt.lsts.neptus.plugins.position.FollowMyLocation
 pt.lsts.neptus.plugins.position.painter.DistancesRadar
