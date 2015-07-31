@@ -66,6 +66,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -107,7 +108,6 @@ import pt.lsts.neptus.util.GuiUtils;
 
 import com.google.common.eventbus.Subscribe;
 
-
 /**
  * Neptus Plugin for Video Stream and tag frame/object
  * 
@@ -123,6 +123,7 @@ import com.google.common.eventbus.Subscribe;
 public class Vision extends ConsolePanel implements ConfigurationListener, ItemListener{
 
     private static final String BASE_FOLDER_FOR_IMAGES = "log/images";
+    private static final String BASE_FOLDER_FOR_ICON_IMAGES = "plugins-dev/vision/iconImages";
 
     @NeptusProperty(name = "Axis Camera RTPS URI")
     private String camRtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";//"rtsp://10.0.20.102:554/axis-media/media.amp?streamprofile=Mobile";
@@ -269,7 +270,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 }
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     popup = new JPopupMenu();
-                    popup.add(I18n.text("Start RasPiCam")).addActionListener(new ActionListener() {
+                    @SuppressWarnings("unused")
+                    JMenuItem item1;
+                    popup.add(item1 = new JMenuItem("Start RasPiCam", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/raspicam.jpg")))).addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             if(!ipCam){
                                 raspiCam = true;
@@ -282,11 +285,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                                 raspiCam = true;
                                 state = false;
                                 ipCam = false;
-                            }
-                                 
+                            }  
                         }
                     });
-                    popup.add(I18n.text("Close all connection")).addActionListener(new ActionListener() {
+                    @SuppressWarnings("unused")
+                    JMenuItem item2;
+                    popup.add(item2 = new JMenuItem("Close all connection", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/close.gif")))).addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             NeptusLog.pub().info("Clossing all Video Stream...");
                             raspiCam = false;
@@ -294,7 +298,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             ipCam = false;
                         }
                     });
-                    popup.add(I18n.text("Start Ip-Cam")).addActionListener(new ActionListener() {
+                    @SuppressWarnings("unused")
+                    JMenuItem item3;
+                    popup.add(item3 = new JMenuItem("Start Ip-Cam", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png")))).addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             if(!raspiCam){
                                 ipCam = true;
@@ -310,7 +316,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             }
                         }
                     });
-                    popup.add(I18n.text("Config")).addActionListener(new ActionListener() {
+                    @SuppressWarnings("unused")
+                    JMenuItem item4;
+                    popup.add(item4 = new JMenuItem("Config", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg")))).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             //show_menu = !show_menu;
@@ -465,6 +473,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         menu.setVisible(show_menu);
         menu.setResizable(false);
         menu.setSize(450, 350);
+        ImageIcon imgMenu = new ImageIcon("plugins-dev/vision/iconImages/config.jpeg");
+        menu.setIconImage(imgMenu.getImage());
         menu.add(config);
     }
     
