@@ -74,7 +74,6 @@ import pt.lsts.imc.TrexToken;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.fileeditor.SyntaxDocument;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.mp.Maneuver;
@@ -732,12 +731,12 @@ public class TrexMapLayer extends SimpleRendererInteraction implements Renderer2
             case POST_TOKEN:
                 pred = token.getPredicate();
                 timeline = token.getTimeline();
-                post(Notification.success("T-REX Observation", timeline+"."+pred));
+                NeptusLog.pub().info("T-REX Observation: "+timeline+"."+pred);
                 break;
             case POST_GOAL:
                 pred = token.getPredicate();
                 timeline = token.getTimeline();
-                post(Notification.success("T-REX Goal", timeline+"."+pred));
+                NeptusLog.pub().info("T-REX Goal: "+timeline+"."+pred);
                 break;
             default:
                 break;
