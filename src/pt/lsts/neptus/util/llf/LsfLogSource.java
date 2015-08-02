@@ -41,14 +41,14 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Vector;
 
-import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.mra.importers.IMraLog;
-import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.mra.importers.lsf.LsfMraLog;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.gz.MultiMemberGZIPInputStream;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.imc.lsf.LsfIndexListener;
+import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.mra.importers.lsf.LsfMraLog;
 
 /**
  * @author jqcorreia
@@ -104,11 +104,15 @@ public class LsfLogSource implements IMraLogGroup {
                     }
                 }
                 f = outFile;
+                outStream.close();
+                mmgis.close();
             }
             catch (IOException e) {
                 e.printStackTrace();
             }
         }
+        
+        
 
         lsfFile = f;
         File defsFile1 = new File(f.getParent()+"/IMC.xml");

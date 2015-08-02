@@ -35,7 +35,6 @@ import java.awt.event.MouseEvent;
 
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author zp
@@ -56,9 +55,6 @@ public class WgCommander extends ConsoleInteraction {
     @Override
     public void mouseClicked(MouseEvent event, StateRenderer2D source) {
         super.mouseClicked(event, source);
-        
-        LocationType clicked = source.getRealWorldLocation(event.getPoint());
-        
     }
 
 }

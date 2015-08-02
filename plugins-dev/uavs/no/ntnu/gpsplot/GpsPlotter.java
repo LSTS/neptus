@@ -35,13 +35,9 @@ import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import com.google.common.eventbus.Subscribe;
-
-import pt.lsts.imc.GpsFix;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;

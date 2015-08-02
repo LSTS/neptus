@@ -205,8 +205,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private Mat mat;
     //Size of output frame
     private Size size = new Size(960, 720);
-    //ID vehicle
-    private int idVehicle = 0;
     //Counter for image tag
     private int cntTag = 1;
 
@@ -221,10 +219,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private int cnt = 0;
     private int FPS = 10;
     //*************************/
-    
-    //IMC message
-    private EstimatedState msg;
-    private LinkedHashMap<String, EstimatedState> msgsSetLeds = new LinkedHashMap<>(); 
     
     //worker thread designed to acquire the data packet from DUNE
     private Thread updater = null; 

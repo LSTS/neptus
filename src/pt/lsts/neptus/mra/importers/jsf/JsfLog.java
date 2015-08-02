@@ -50,12 +50,14 @@ import pt.lsts.imc.IMCMessageType;
  */
 public class JsfLog implements IMraLog {
 
-    MappedByteBuffer buffer;
+    private MappedByteBuffer buffer;
+    private FileInputStream fis;
     
     public JsfLog(String fileName) {
         File f = new File(fileName);
         try {
-            buffer = new FileInputStream(f).getChannel().map(MapMode.READ_ONLY, 0, f.length());
+            fis = new FileInputStream(f);
+            buffer = fis.getChannel().map(MapMode.READ_ONLY, 0, f.length());
             buffer.order(ByteOrder.LITTLE_ENDIAN);
         }
         catch (IOException e) {
@@ -135,4 +137,12 @@ public class JsfLog implements IMraLog {
         return 0;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#finalize()
+     */
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        fis.close();        
+    }
 }

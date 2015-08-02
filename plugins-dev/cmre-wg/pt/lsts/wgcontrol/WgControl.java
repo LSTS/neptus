@@ -381,8 +381,9 @@ public class WgControl extends ConsolePanel implements ActionListener, Configura
 
         System.out.println(doc.asXML());
 
+        @SuppressWarnings("unused")
         String vehicle_name = doc.selectSingleNode("nav/ns").getText().substring(2);
 
-
+        r.close();
     }
 }
