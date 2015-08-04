@@ -47,12 +47,15 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -63,7 +66,9 @@ import java.util.zip.Inflater;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -112,21 +117,22 @@ import com.google.common.eventbus.Subscribe;
  * Neptus Plugin for Video Stream and tag frame/object
  * 
  * @author pedrog
- * @version 1.1
+ * @version 1.2
  * @category Vision
  *
  */
 @SuppressWarnings("serial")
 @Popup( pos = POSITION.RIGHT, width=660, height=500)
 @LayerPriority(priority=0)
-@PluginDescription(name="Video Stream", version="1.1", author="Pedro Gonçalves", description="Plugin for View video Stream TCP-Ip/Ip-Cam", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
+@PluginDescription(name="Video Stream", version="1.2", author="Pedro Gonçalves", description="Plugin for View video Stream TCP-Ip/Ip-Cam", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
 public class Vision extends ConsolePanel implements ConfigurationListener, ItemListener{
 
     private static final String BASE_FOLDER_FOR_IMAGES = "log/images";
     private static final String BASE_FOLDER_FOR_ICON_IMAGES = "plugins-dev/vision/iconImages";
+    private static final String BASE_FOLDER_FOR_URLINI = "plugins-dev/vision/ipUrl.ini";
 
-    @NeptusProperty(name = "Axis Camera RTPS URI")
-    private String camRtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";//"rtsp://10.0.20.102:554/axis-media/media.amp?streamprofile=Mobile";
+    @NeptusProperty(name = "Axis Camera RTPS URL")
+    private String camRtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";
 
     private ServerSocket serverSocket = null;
     //Send data for sync 
@@ -219,6 +225,22 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //lat, lon: frame Tag pos to be marked as POI
     private double lat,lon;
 
+    //Flag for IpCam Ip Check
+    boolean statePingOk = false;
+    //JPanel for color state of ping to host ipcam
+    JPanel colorStateIpCam;
+    //JFrame for IpCam Select
+    JFrame ipCamPing = new JFrame("Select IpCam");
+    //JPanel for IpCam Select (MigLayout)
+    JPanel ipCamCheck = new JPanel(new MigLayout());
+    //JButton to confirm ipcam
+    JButton selectIpCam;
+    //JComboBox por list of ipcam in ipUrl.ini
+    @SuppressWarnings("rawtypes")
+    JComboBox ipCamList;
+    //row select from string matrix of IpCam List
+    int rowSelect;
+    
     //*** TEST FOR SAVE VIDEO **/
     private File outputfile;
     private boolean flagBuffImg = false;
@@ -262,7 +284,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             if (xPixel >= 0 && yPixel >= 0 && xPixel <= widthImgRec && yPixel <= heightImgRec)
                                 out.printf("%d#%d;\0", xPixel,yPixel);
                         }
-                       // System.out.println(getMainVehicleId()+"X = " +e.getX()+ " Y = " +e.getY());
                         captureFrame = true;
                         //place mark on map as POI
                         placeLocationOnMap();
@@ -299,21 +320,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         }
                     });
                     @SuppressWarnings("unused")
-                    JMenuItem item3;
+                    JMenuItem item3;  
                     popup.add(item3 = new JMenuItem("Start Ip-Cam", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png")))).addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
-                            if(!raspiCam){
-                                ipCam = true;
-                                raspiCam = false;
-                                state = false;
-                            }
-                            else{
-                                NeptusLog.pub().info("Clossing RasPiCam Stream...");
-                                ipCam = true;
-                                raspiCam = false;
-                                state = false;
-                                closeComState = true;
-                            }
+                            checkIpCam();        
                         }
                     });
                     @SuppressWarnings("unused")
@@ -321,7 +331,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     popup.add(item4 = new JMenuItem("Config", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg")))).addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            //show_menu = !show_menu;
                             menu.setVisible(true);
                         }
                     });
@@ -331,7 +340,142 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         });
         return;
     }
+    
+    //!Read ipUrl.ini to find IpCam ON
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private void checkIpCam(){
+        String dataUrlIni[][];
+        dataUrlIni = readIpUrl();
+        int sizeDataUrl = dataUrlIni.length;
+        String nameIpCam[] = new String[sizeDataUrl];
+        for (int i=0; i < sizeDataUrl; i++)
+            nameIpCam[i] = dataUrlIni[i][0];
+        
+        ipCamPing = new JFrame("Select IpCam");
+        ipCamCheck = new JPanel(new MigLayout());
+        ImageIcon imgIpCam = new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png"));
+        ipCamPing.setIconImage(imgIpCam.getImage());
+        ipCamPing.setSize(340, 80);
+        ipCamPing.setResizable(false);
+        ipCamPing.setBackground(Color.GRAY);          
+                
+        ipCamList = new JComboBox(nameIpCam);
+        ipCamList.setSelectedIndex(0);
+        ipCamList.addActionListener(new ActionListener(){
 
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cb = (JComboBox)e.getSource();
+                rowSelect = cb.getSelectedIndex();
+                if(rowSelect != 0){
+                    if(pingIpCam(rowSelect,dataUrlIni[rowSelect][1])){
+                        camRtpsUrl = dataUrlIni[rowSelect][2];
+                        colorStateIpCam.setBackground(Color.GREEN);
+                    }
+                    else
+                        colorStateIpCam.setBackground(Color.RED);
+                }
+                else{
+                    statePingOk = false;
+                    colorStateIpCam.setBackground(Color.RED);
+                }
+            }
+        });
+        ipCamCheck.add(ipCamList,"span, split 3, center");
+        
+        colorStateIpCam = new JPanel();
+        colorStateIpCam.setBackground(Color.RED);
+        ipCamCheck.add(colorStateIpCam,"h 30!, w 30!");
+        
+        selectIpCam = new JButton("Select IpCam", imgIpCam);
+        selectIpCam.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if(statePingOk){
+                    NeptusLog.pub().info("IpCam Select: "+dataUrlIni[rowSelect][0]);
+                    ipCamPing.setVisible(false);
+                    if(!raspiCam){
+                        ipCam = true;
+                        raspiCam = false;
+                        state = false;
+                    }
+                    else{
+                        NeptusLog.pub().info("Clossing RasPiCam Stream...");
+                        ipCam = true;
+                        raspiCam = false;
+                        state = false;
+                        closeComState = true;
+                    }
+                }
+            }
+        });
+        ipCamCheck.add(selectIpCam,"h 30!");
+        
+        ipCamPing.add(ipCamCheck);
+        ipCamPing.setVisible(true);
+             
+    }
+    
+    //!Ping CamIp
+    private boolean pingIpCam (int id, String dataUrlIni){
+        boolean ping = false;
+        try {
+            if (InetAddress.getByName(dataUrlIni).isReachable(500)==true)
+                ping = true; //Ping works 
+            else
+                ping = false;
+        }
+        catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        } //Ping doesnt work 
+        
+        statePingOk = ping;
+        return ping;
+    }
+    
+    //!Read file
+    private String[][] readIpUrl(){
+        //Open the file for reading and split (#)
+        BufferedReader br = null;
+        String lineFile;
+        String[] splits;
+        String[][] dataSplit = null;
+        int cntReader = 0;
+        try {
+            br = new BufferedReader(new FileReader(BASE_FOLDER_FOR_URLINI));
+            while ((lineFile = br.readLine()) != null)
+                cntReader++;
+            
+            br.close();
+            br = new BufferedReader(new FileReader(BASE_FOLDER_FOR_URLINI));
+            
+            dataSplit = new String[cntReader+1][3];
+            cntReader = 1;
+            dataSplit[0][0] = "IpCam Select";
+            while ((lineFile = br.readLine()) != null) {
+                splits = lineFile.split("#");
+                dataSplit[cntReader][0] = splits[0];
+                dataSplit[cntReader][1] = splits[1];
+                dataSplit[cntReader][2] = splits[2];
+                cntReader++;
+            }
+        }
+        catch (IOException e) {
+           System.err.println("Error: " + e);
+        }
+        try {
+            br.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return dataSplit;
+    }
+    
     public String timestampToReadableHoursString(long timestamp){
         Date date = new Date(timestamp);
         SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
@@ -473,7 +617,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         menu.setVisible(show_menu);
         menu.setResizable(false);
         menu.setSize(450, 350);
-        ImageIcon imgMenu = new ImageIcon("plugins-dev/vision/iconImages/config.jpeg");
+        ImageIcon imgMenu = new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg"));
         menu.setIconImage(imgMenu.getImage());
         menu.add(config);
     }
@@ -592,7 +736,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             else
                                 NeptusLog.pub().info("Video Strem from IpCam is not captured");
                         }
-                        //TODO: Cap ip cam
+                        //IpCam Capture
                         else if(!raspiCam && ipCam && state) {
                             long startTime = System.currentTimeMillis();
                             capture.grab();
@@ -697,8 +841,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 double latRad = msg.getLat();
                 double lonRad = msg.getLon();
                 //LAT and LON deg
-                double latDeg = Math.toDegrees(latRad);//latRad*(180/Math.PI);
-                double lonDeg = Math.toDegrees(lonRad);//lonRad*(180/Math.PI);
+                double latDeg = Math.toDegrees(latRad);
+                double lonDeg = Math.toDegrees(lonRad);
 
                 LocationType locationType = new LocationType(latDeg,lonDeg);
 
@@ -708,14 +852,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 
                 //Height of Vehicle
                 double heightRelative = msg.getHeight()-msg.getZ();//absolute altitude - zero of that location
-                //System.out.println("heightRelative: h="+msg.getHeight()+" z="+msg.getZ());
                 locationType.setOffsetNorth(offsetN);
                 locationType.setOffsetEast(offsetE);
                 locationType.setHeight(heightRelative);
 
                 double camTiltDeg = 45.0f;//this value may be in configuration
                 info = String.format("(IMC) LAT: %f # LON: %f # ALT: %.2f m", lat, lon, heightRelative);
-                //System.out.println("lat: "+lat+" lon: "+lon+"heightV: "+heightV);
                 LocationType tagLocationType = calcTagPosition(locationType.convertToAbsoluteLatLonDepth(), Math.toDegrees(msg.getPsi()), camTiltDeg);
                 this.lat = tagLocationType.convertToAbsoluteLatLonDepth().getLatitudeDegs();
                 this.lon = tagLocationType.convertToAbsoluteLatLonDepth().getLongitudeDegs();
@@ -748,8 +890,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
 
     @Subscribe
     public void consume(Announce announce) {
-        //System.out.println("Announce: "+announce.getSysName()+"  ID: "+announce.getSrc());
-        //System.out.println("RECEIVED ANNOUNCE"+announce);
     }
     
     //!Fill cv::Mat image with zeros
@@ -770,7 +910,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             e1.printStackTrace();
         }
         if (line == null){
-            //custom title, error icon
             JOptionPane.showMessageDialog(panelImage, I18n.text("Lost connection with vehicle"), I18n.text("Connection error"), JOptionPane.ERROR_MESSAGE);
             raspiCam = false;
             state = false;
@@ -811,7 +950,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             decompresser.setInput(data,0,lengthImage);
             //Create an expandable byte array to hold the decompressed data
             ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length);
-            // Decompress the data
+            //Decompress the data
             byte[] buf = new byte[(widthImgRec * heightImgRec * 3)];
             while (!decompresser.finished()) 
             {
@@ -870,7 +1009,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         try {
             serverSocket.close();
         } catch (IOException e2) {
-            // TODO Auto-generated catch block
             e2.printStackTrace();
         }
     }
