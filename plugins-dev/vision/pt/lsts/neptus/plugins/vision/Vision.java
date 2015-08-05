@@ -34,6 +34,9 @@ package pt.lsts.neptus.plugins.vision;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -191,11 +194,11 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //JPanel for info and config values
     private JPanel config;
     //JText info of data receive
-    private JTextField txtText;
+    private JLabel txtText;
     //JText of data receive over IMC message
-    private JTextField txtData;
+    private JLabel txtData;
     //JText of data receive over DUNE TCP message
-    private JTextField txtDataTcp;
+    private JLabel txtDataTcp;
     //JFrame for menu options
     private JFrame menu;
     //CheckBox to save image to HD
@@ -240,6 +243,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     JComboBox ipCamList;
     //row select from string matrix of IpCam List
     int rowSelect;
+    //JLabel for text ipCam Ping
+    JLabel jlabel;
+    //Dimension of Desktop Screen
+    Dimension dim;
     
     //*** TEST FOR SAVE VIDEO **/
     private File outputfile;
@@ -352,13 +359,13 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             nameIpCam[i] = dataUrlIni[i][0];
         
         ipCamPing = new JFrame("Select IpCam");
+        ipCamPing.setSize(340, 80);
+        ipCamPing.setLocation(dim.width/2-ipCamPing.getSize().width/2, dim.height/2-ipCamPing.getSize().height/2);
         ipCamCheck = new JPanel(new MigLayout());
         ImageIcon imgIpCam = new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png"));
         ipCamPing.setIconImage(imgIpCam.getImage());
-        ipCamPing.setSize(340, 80);
         ipCamPing.setResizable(false);
-        ipCamPing.setBackground(Color.GRAY);          
-                
+        ipCamPing.setBackground(Color.GRAY);                  
         ipCamList = new JComboBox(nameIpCam);
         ipCamList.setSelectedIndex(0);
         ipCamList.addActionListener(new ActionListener(){
@@ -371,20 +378,27 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     if(pingIpCam(rowSelect,dataUrlIni[rowSelect][1])){
                         camRtpsUrl = dataUrlIni[rowSelect][2];
                         colorStateIpCam.setBackground(Color.GREEN);
+                        jlabel.setText("ON");
                     }
-                    else
+                    else{
                         colorStateIpCam.setBackground(Color.RED);
+                        jlabel.setText("OFF");
+                    }   
                 }
                 else{
                     statePingOk = false;
                     colorStateIpCam.setBackground(Color.RED);
+                    jlabel.setText("OFF");
                 }
             }
         });
         ipCamCheck.add(ipCamList,"span, split 3, center");
         
         colorStateIpCam = new JPanel();
+        jlabel = new JLabel("OFF");
+        jlabel.setFont(new Font("Verdana",1,14));
         colorStateIpCam.setBackground(Color.RED);
+        colorStateIpCam.add(jlabel);
         ipCamCheck.add(colorStateIpCam,"h 30!, w 30!");
         
         selectIpCam = new JButton("Select IpCam", imgIpCam);
@@ -550,6 +564,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
 
     //!Config Layout
     private void configLayout() {
+        dim = Toolkit.getDefaultToolkit().getScreenSize();
         //Create Buffer (type MAT) for Image resize
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         matResize = new Mat(heightConsole, widhtConsole, CvType.CV_8UC3);
@@ -589,34 +604,32 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         saveToDiskCheckBox.addItemListener(this);
         config.add(saveToDiskCheckBox,"width 160:180:200, h 40!, wrap");
         
-        //JText info Data received
-        txtText = new JTextField();
-        txtText.setEditable(false);
+        //JLabel info Data received
+        txtText = new JLabel();
         txtText.setToolTipText(I18n.text("Info of Frame Received"));
-        info = String.format("X = 0 - Y = 0   x 1   0 bytes (KiB = 0)\t\t  ");
+        info = String.format("Img info");
         txtText.setText(info);
         config.add(txtText, "cell 0 4 3 1, wrap");
         
-        //JText info Data GPS received TCP
-        txtDataTcp = new JTextField();
-        txtDataTcp.setEditable(false);
-        txtDataTcp.setToolTipText(I18n.text("Info of GPS Received"));
-        info = String.format("\t\t\t\t  ");
+        //JLabel info Data GPS received TCP
+        txtDataTcp = new JLabel();
+        txtDataTcp.setToolTipText(I18n.text("Info of GPS Received over TCP (Raspi)"));
+        info = String.format("GPS TCP");
         txtDataTcp.setText(info);
         config.add(txtDataTcp, "cell 0 5 3 1, wrap");
         
-        //JText info
-        txtData = new JTextField();
-        txtData.setEditable(false);
-        txtData.setToolTipText(I18n.text("Info of Frame Received"));
-        info = String.format("\t\t\t\t  ");
+        //JLabel info
+        txtData = new JLabel();
+        txtData.setToolTipText(I18n.text("Info of GPS Received over IMC"));
+        info = String.format("GPS IMC");
         txtData.setText(info);
         config.add(txtData, "cell 0 6 3 1, wrap");
                 
         menu = new JFrame(I18n.text("Menu Config"));
-        menu.setVisible(show_menu);
         menu.setResizable(false);
         menu.setSize(450, 350);
+        menu.setLocation(dim.width/2-menu.getSize().width/2, dim.height/2-menu.getSize().height/2);
+        menu.setVisible(show_menu);
         ImageIcon imgMenu = new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg"));
         menu.setIconImage(imgMenu.getImage());
         menu.add(config);
