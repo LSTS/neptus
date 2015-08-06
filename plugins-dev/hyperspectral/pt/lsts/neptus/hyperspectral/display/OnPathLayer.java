@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: coop
+ * Author: tsmarques
  * 11 Jul 2015
  */
 package pt.lsts.neptus.hyperspectral.display;
@@ -46,8 +46,6 @@ import pt.lsts.neptus.hyperspectral.utils.HyperspectralData;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.coord.MapTileUtil;
 
 /**
  * Layer where all the Hyperspectral data will be drawn.

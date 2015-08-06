@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: coop
+ * Author: tsmarques
  * 11 Jul 2015
  */
 package pt.lsts.neptus.hyperspectral.utils;

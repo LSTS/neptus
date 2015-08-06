@@ -26,13 +26,11 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: coop
+ * Author: tsmarques
  * 6 Jul 2015
  */
 package pt.lsts.neptus.hyperspectral.utils;
 
-import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
