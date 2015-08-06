@@ -14,6 +14,7 @@ import pt.lsts.imc.HyperSpecData;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.events.ConsoleEventMainSystemChange;
+import pt.lsts.neptus.hyperspectral.display.VerticalLayer;
 import pt.lsts.neptus.hyperspectral.utils.HyperspecUtils;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -67,18 +68,11 @@ public class HyperspectralRealTime extends ConsoleLayer implements Configuration
     /* frames will be FRAME_WIDTH x MAX_FREQ px */
     public static final int FRAME_HEIGHT = 250;
     
-    
-    private static final float FRAME_OPACITY = 0.9f;
-    /* draw frames with opacity */
-    private final AlphaComposite composite = AlphaComposite.getInstance(
-            AlphaComposite.SRC_OVER, FRAME_OPACITY);
-    private final AffineTransform transform = new AffineTransform();
-    
     private ConsoleLayout console;
     private String mainSys = "";
 
     private boolean firstPaint = true;
-    private BufferedImage dataDisplay; /* image currently being displayed */
+    private VerticalLayer dataDisplay; /* image currently being displayed */
     
     @NeptusProperty(editable = true, name = "Hyperspectral wavelength", userLevel = LEVEL.REGULAR)
     private double wavelengthProperty = 0;   
@@ -93,7 +87,7 @@ public class HyperspectralRealTime extends ConsoleLayer implements Configuration
     }
     
     private void initDisplay() {
-        dataDisplay = HyperspecUtils.initVerticalDisplay(MAX_FREQ, FRAME_HEIGHT);
+        dataDisplay = new VerticalLayer(MAX_FREQ, FRAME_HEIGHT);
     }
     
     /* request data with new wavelength */
@@ -116,34 +110,28 @@ public class HyperspectralRealTime extends ConsoleLayer implements Configuration
         
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
-        if(firstPaint) {
-            int newX = -((MAX_FREQ / 2)) + (FRAME_HEIGHT / 2);
-            int newY = (renderer.getHeight() - FRAME_HEIGHT) / 2;
-            
-            transform.translate(newX, newY);
-            transform.rotate(Math.toRadians(-90), dataDisplay.getWidth() / 2, dataDisplay.getHeight() / 2);
-                        
-            firstPaint = false;
-        }
-        else {
-            synchronized(dataDisplay) {
-                g.setColor(Color.red);
-                g.drawString(selectedWavelength + " nm", (FRAME_HEIGHT / 2) - 30, (FRAME_HEIGHT / 2) - 60);
-                g.setTransform(transform);
-                g.setComposite(composite);
-                g.drawImage(dataDisplay, 0, 0, renderer);
+        synchronized(dataDisplay) {
+            if(firstPaint) {
+                System.out.println("FIRST PAINT");
+                int posX = -((MAX_FREQ / 2)) + (FRAME_HEIGHT / 2);
+                int posY = (renderer.getHeight() - FRAME_HEIGHT) / 2;
+
+                dataDisplay.positionLayer(posX, posY);
+                firstPaint = false;
             }
+            else
+                dataDisplay.display(g, renderer);
         }
     }
     
     
     @Subscribe
-    public void on(HyperSpecData msg){
+    public void on(HyperSpecData msg) {
         if(!msg.getSourceName().equals(mainSys))
             return;
         
         synchronized(dataDisplay) {
-            dataDisplay = HyperspecUtils.updateVerticalDisplay(dataDisplay, msg.getData(), MAX_FREQ, FRAME_HEIGHT);
+            dataDisplay.update(msg.getData());
         }
     }
     
