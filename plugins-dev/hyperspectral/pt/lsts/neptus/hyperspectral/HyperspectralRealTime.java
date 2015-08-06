@@ -61,7 +61,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 @SuppressWarnings("serial")
 @PluginDescription(name = "Hyperspectral Layer", author = "tsmarques", version = "0.1")
 @LayerPriority(priority = 40)
-public class HyperspectralViewer extends ConsoleLayer implements ConfigurationListener {   
+public class HyperspectralRealTime extends ConsoleLayer implements ConfigurationListener {   
     public static final int MIN_FREQ = 0;
     public static final int MAX_FREQ = 640; /* also frame's width */
     /* frames will be FRAME_WIDTH x MAX_FREQ px */
@@ -76,8 +76,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     
     private ConsoleLayout console;
     private String mainSys = "";
-      
-    
+
     private boolean firstPaint = true;
     private BufferedImage dataDisplay; /* image currently being displayed */
     
@@ -87,7 +86,7 @@ public class HyperspectralViewer extends ConsoleLayer implements ConfigurationLi
     private Queue<byte[]> dataSet;
     
 
-    public HyperspectralViewer() {
+    public HyperspectralRealTime() {
         this.console = getConsole();
         initDisplay();
         dataSet = new LinkedList<byte[]>();
