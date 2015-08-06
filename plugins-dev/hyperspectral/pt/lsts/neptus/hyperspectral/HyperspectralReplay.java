@@ -55,6 +55,7 @@ import javax.swing.SwingConstants;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.HyperSpecData;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.neptus.hyperspectral.display.OnPathLayer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;

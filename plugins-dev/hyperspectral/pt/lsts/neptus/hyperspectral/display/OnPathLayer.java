@@ -55,37 +55,35 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
 public class OnPathLayer {
     private BufferedImage layer;
     private LocationType center;
-    private double startX;
-    private double startY;
-    
+
     private final HashMap<Double, List<HyperspectralData>> dataset = new HashMap<>();
     private List<HyperspectralData> currentData = null;
     /* Contains the top left(maxLat and minLon) and bottom(minLat and maxLon) locations
        for each wavelength of the dataset  */
     private final HashMap<Double, LocationType[]> datasetMaxMinLocs = new HashMap<>();
-    
+
     /* Data and corresponding EstimatedState */
     private HashMap<HyperspectralData, EstimatedState> dataState;
     /* All EstimatedStates */
     private IMraLog estimatedStatesLog;
-    
+
     public OnPathLayer() {
         estimatedStatesLog = null;
         dataState = new HashMap<>();
     }
-    
+
     public boolean contains(double wavelength) {
         return dataset.containsKey(wavelength);
     }
-    
+
     public void saveEstimatedStatesLog(IMraLog log) {
         if(estimatedStatesLog == null)
             estimatedStatesLog = log;
     }
-        
+
     public void addData(double wavelength, HyperSpecData msg, EstimatedState closestState, boolean isOverlapped) {
         HyperspectralData data = new HyperspectralData(msg, closestState, isOverlapped);
-        
+
         List<HyperspectralData> dataList;
         if(dataset.containsKey(wavelength))
             dataList = dataset.get(wavelength);
@@ -94,26 +92,26 @@ public class OnPathLayer {
             dataset.put(wavelength, dataList);
         }
         dataList.add(data);
-        
+
         dataState.put(data, closestState);
     }
-    
+
     public void updateMinMaxLocations(double wavelength, LocationType newDataLocation) {
         double minLat = 180;
         double maxLat = -180;
         double minLon = 360;
         double maxLon = -360;
-        
-        
+
+
         if(datasetMaxMinLocs.containsKey(wavelength)) {
             LocationType[] currentMinMaxLoc = datasetMaxMinLocs.get(wavelength);
-                        
+
             maxLat = currentMinMaxLoc[0].getLatitudeDegs();
             maxLon = currentMinMaxLoc[1].getLongitudeDegs();
             minLat = currentMinMaxLoc[1].getLatitudeDegs();
             minLon = currentMinMaxLoc[0].getLongitudeDegs();
         }
-        
+
         if(newDataLocation.getLatitudeDegs() < minLat)
             minLat = newDataLocation.getLatitudeDegs();
         if(newDataLocation.getLatitudeDegs() > maxLat)
@@ -122,101 +120,91 @@ public class OnPathLayer {
             minLon = newDataLocation.getLongitudeDegs();
         if(newDataLocation.getLongitudeDegs() > maxLon)
             maxLon = newDataLocation.getLongitudeDegs();
-        
+
         LocationType topleft = new LocationType(maxLat, minLon);
         LocationType botright = new LocationType(minLat, maxLon);
-        LocationType[] minMaxLoc = {topleft, botright};        
-        
+        LocationType[] minMaxLoc = {topleft, botright};
+
         datasetMaxMinLocs.put(wavelength, minMaxLoc);
-    }  
-    
+    }
+
     public BufferedImage getLayer() {
         return layer;
     }
-    
+
     public LocationType getCenter() {
         return center;
     }
-    
+
     private void resizeLayer(int newWidth, int newHeight) {
         /* TODO */
     }
-    
-    private void initLayer(double dataWavelength, StateRenderer2D renderer) {
-        /* get layer's 'area' */
-        LocationType[] locs = initLayerArea(dataWavelength);
-        LocationType topleft = locs[0];
-        LocationType botright = locs[1];
-    
-        /* retrieve all data with the selected wavelength */
-        currentData = dataset.get(dataWavelength);
-        
-        /* layer boundaries */
-        Point2D p1 = renderer.getScreenPosition(topleft);
-        Point2D p2 = renderer.getScreenPosition(botright);
-        
-        double top = p1.getY();
-        double left = p1.getX();
-        double right = p2.getX();
-        double bottom = p2.getY();
-        
-        /* compute layer's center */
-        double centerX = left + ((right - left) / 2);
-        double centerY = top + ((bottom - top) / 2);
-                
-        Point2D p = new Point2D.Double(centerX, centerY);
-        center = renderer.getRealWorldLocation(p);
-        
-        /* origin point of layer's graphics object */
-        startX = -left;
-        startY = -top;
-        
-        layer = new BufferedImage((int)(right - left), (int)(bottom - top), BufferedImage.TYPE_INT_ARGB);
-    }
-    
+
     private LocationType[] initLayerArea(double wavelength) {
         LocationType[] locs = datasetMaxMinLocs.get(wavelength);
         LocationType topleft = locs[0];
         LocationType botright = locs[1];
-        
+
         double padding = 65; /* TODO: best value? */
-        
+
         topleft.setOffsetNorth(padding);
         topleft.setOffsetWest(padding);
         botright.setOffsetSouth(padding);
         botright.setOffsetEast(padding);
-        
+
         topleft = topleft.getNewAbsoluteLatLonDepth();
         botright = botright.getNewAbsoluteLatLonDepth();
-        
+
         LocationType[] updatedLocs = {topleft, botright};
-        
+
         return updatedLocs;
     }
-        
+
     public void generateLayer(double dataWavelength, StateRenderer2D renderer) {
         if(!dataset.containsKey(dataWavelength))
             return;
-        
-        initLayer(dataWavelength, renderer);
-        
+
+        /* get layer's 'area' */
+        LocationType[] locs = initLayerArea(dataWavelength);
+        LocationType topleft = locs[0];
+        LocationType botright = locs[1];
+
+        currentData = dataset.get(dataWavelength);
+
+        Point2D p1 = renderer.getScreenPosition(topleft);
+        Point2D p2 = renderer.getScreenPosition(botright);
+
+        double top = p1.getY();
+        double left = p1.getX();
+        double right = p2.getX();
+        double bottom = p2.getY();
+
+        layer = new BufferedImage((int)(right - left), (int)(bottom - top), BufferedImage.TYPE_INT_ARGB);
+        /* compute layer's center */
+        double centerX = left + ((right - left) / 2);
+        double centerY = top + ((bottom - top) / 2);
+
+        Point2D p = new Point2D.Double(centerX, centerY);
+        center = renderer.getRealWorldLocation(p);
+
         Graphics2D g = (Graphics2D) layer.getGraphics();
+        double startX = -left;
+        double startY = -top;
         g.translate(startX, startY);
-        
+
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        
         for(HyperspectralData hyperspec : currentData)
             addDataToLayer(hyperspec, g, renderer);
     }
-    
+
     /* TODO: check if current layer contains the given data. If not, resize accordingly */
     private void addDataToLayer(HyperspectralData hyperspec, Graphics2D g, StateRenderer2D renderer) {
         Point2D dataPosition = renderer.getScreenPosition(hyperspec.dataLocation);
-        
+
         int x = (int)(dataPosition.getX() - (hyperspec.data.getWidth() / 2.0));
         int y = (int)(dataPosition.getY() - (hyperspec.data.getHeight() / 2.0));
-        
+
         g.rotate(hyperspec.getVehicleHeading(), dataPosition.getX(), dataPosition.getY());
         g.drawImage(hyperspec.data, x, y, null);
         g.rotate(-hyperspec.getVehicleHeading(), dataPosition.getX(), dataPosition.getY());
