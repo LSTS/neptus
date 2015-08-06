@@ -29,7 +29,7 @@
  * Author: coop
  * 11 Jul 2015
  */
-package pt.lsts.neptus.hyperspectral;
+package pt.lsts.neptus.hyperspectral.display;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -41,6 +41,7 @@ import java.util.List;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.HyperSpecData;
+import pt.lsts.neptus.hyperspectral.utils.HyperspectralData;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;

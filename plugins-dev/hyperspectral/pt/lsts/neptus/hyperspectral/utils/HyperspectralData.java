@@ -29,7 +29,7 @@
  * Author: coop
  * 11 Jul 2015
  */
-package pt.lsts.neptus.hyperspectral;
+package pt.lsts.neptus.hyperspectral.utils;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
