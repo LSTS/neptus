@@ -46,7 +46,7 @@ import pt.lsts.neptus.util.ImageUtils;
  *
  */
 public class HyperspectralData {
-    private double rotationAngle; 
+    private double rotationAngle;
     private EstimatedState state;
     public BufferedImage data;
     public LocationType dataLocation;
@@ -54,27 +54,27 @@ public class HyperspectralData {
     public HyperspectralData(HyperSpecData msg, EstimatedState state, boolean overlapped) {
         this.state = state;
         data = HyperspecUtils.rawToBuffImage(msg.getData());
-        
+
         dataLocation = IMCUtils.parseLocation(state);
-        
+
         if(overlapped)
             translateDataPosition(msg, state);
-        
+
         data = HyperspecUtils.getScaledImage(data, 1, 0.25);
-        
+
         rotationAngle = setRotationAngle(state.getPsi());
 //        data = rotateData();
     }
-    
+
     public EstimatedState getEstimatedState() {
         return state;
     }
-    
-    /* 
+
+    /*
        If some data is overlapped with another over an
        Estimated State point, make an estimate of its position
-       using the vehicle's speed and difference between timestamps 
-       i.e., calculate how much the vehicle moved since the last 
+       using the vehicle's speed and difference between timestamps
+       i.e., calculate how much the vehicle moved since the last
        EstimatedState, and draw it there, instead of in the position
        given by getEntryAtOrAfter()
      */
@@ -89,31 +89,31 @@ public class HyperspectralData {
         dataLocation.setOffsetNorth(deltaX);
         dataLocation.setOffsetEast(deltaY);
     }
-    
+
     public double getVehicleHeading() {
         return rotationAngle;
     }
-    
+
     private BufferedImage rotateData() {
         double sin = Math.abs(Math.sin(rotationAngle));
         double cos = Math.abs(Math.cos(rotationAngle));
         int w = data.getWidth();
         double h = data.getHeight();
-        
+
         int rw =(int) Math.floor(cos * w + sin * h);
         int rh = (int) Math.floor(cos * h + sin * w);
-        
+
         BufferedImage rotatedImage = new BufferedImage((int)rw, (int)rh, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) rotatedImage.getGraphics();
-        
+
         g.translate((rw-w)/2, (rh-h)/2);
         g.rotate(rotationAngle, w/2, h/2);
         g.drawRenderedImage(data, null);
         g.dispose();
-        
+
         return rotatedImage;
     }
-    
+
     /* Get angle so that the frame is perpendicular to the vehicle's heading */
     private double setRotationAngle(double psi) {
         double angle;
@@ -127,4 +127,3 @@ public class HyperspectralData {
         return Math.toRadians(angle);
     }
 }
-
