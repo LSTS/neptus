@@ -112,7 +112,6 @@ public class HyperspectralRealTime extends ConsoleLayer implements Configuration
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         synchronized(dataDisplay) {
             if(firstPaint) {
-                System.out.println("FIRST PAINT");
                 int posX = -((MAX_FREQ / 2)) + (FRAME_HEIGHT / 2);
                 int posY = (renderer.getHeight() - FRAME_HEIGHT) / 2;
 
@@ -149,7 +148,7 @@ public class HyperspectralRealTime extends ConsoleLayer implements Configuration
     
     @Override
     public void initLayer() {
-
+        mainSys = getConsole().getMainSystem();
     }
     
     @Override
