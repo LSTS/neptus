@@ -41,6 +41,7 @@ import java.util.List;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.HyperSpecData;
+import pt.lsts.neptus.hyperspectral.utils.HyperspecUtils;
 import pt.lsts.neptus.hyperspectral.utils.HyperspectralData;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -71,6 +72,30 @@ public class OnPathLayer {
     public OnPathLayer() {
         estimatedStatesLog = null;
         dataState = new HashMap<>();
+    }
+    
+    public void displayData(Graphics2D g, StateRenderer2D renderer, double scale) {
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        BufferedImage layerToDisplay;
+        
+        if(scale != 1)
+            layerToDisplay = HyperspecUtils.getScaledImage(layer, scale, scale);
+        else
+            layerToDisplay = layer;
+
+
+        Point2D center = renderer.getScreenPosition(this.center);
+                    
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g.translate(center.getX(), center.getY());
+        g.drawImage(layerToDisplay, (int)(-layerToDisplay.getWidth()/2), (int)(-layerToDisplay.getHeight()/2), null, renderer);
+        g.translate(-center.getX(), -center.getY());
+        g.dispose();
+
+        renderer.repaint();
     }
 
     public boolean contains(double wavelength) {

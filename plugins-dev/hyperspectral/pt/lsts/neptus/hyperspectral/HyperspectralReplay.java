@@ -153,37 +153,13 @@ public class HyperspectralReplay extends JFrame implements LogReplayLayer {
             if(selectedWavelength == -1)
                 return;
             
-            if(layerGenerated == false) {
-                System.out.println("GENERATED LAYER");              
-                
+            if(layerGenerated == false) {   
                 dataLayer.generateLayer(selectedWavelength, renderer);               
                 layerGenerated = true;
             }
             
-            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            
-            double currZoom = renderer.getZoom();
-            BufferedImage layerToDisplay;
-            
-            if(zoom != currZoom) {
-                double scale = currZoom / zoom;
-                layerToDisplay = HyperspecUtils.getScaledImage(dataLayer.getLayer(), scale, scale);
-            }
-            else
-                layerToDisplay = dataLayer.getLayer();
-
-
-            Point2D center = renderer.getScreenPosition(dataLayer.getCenter());
-                        
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g.translate(center.getX(), center.getY());
-            g.drawImage(layerToDisplay, (int)(-layerToDisplay.getWidth()/2), (int)(-layerToDisplay.getHeight()/2), null, renderer);
-            g.translate(-center.getX(), -center.getY());
-            g.dispose();
-
-            renderer.repaint();
+            double scale = renderer.getZoom() / zoom;
+            dataLayer.displayData(g, renderer, scale);
         }
     }
 
