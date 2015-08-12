@@ -230,12 +230,19 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
     }
 
+    /**
+     * Create a new Reference for Follow Reference to be sent to Follower vehicle from EstimatedState of the Following vehicle.
+     * @param state The IMCMessage with the position of the Following vehicle.
+     * @return The Reference IMCMessage to be sent to Follower.
+     */
     public Reference createReference(EstimatedState state){
         Reference ref = new Reference();
+
         LocationType locationTypeFollowRefSys = new LocationType(Math.toDegrees(state.getLat()), Math.toDegrees(state.getLon()));
         locationTypeFollowRefSys.setOffsetNorth(state.getX());
         locationTypeFollowRefSys.setOffsetEast(state.getY());
         LocationType locationTypeFollowRefSysAbsolute = locationTypeFollowRefSys.convertToAbsoluteLatLonDepth();
+
         ref.setLat(locationTypeFollowRefSysAbsolute.getLatitudeRads());
         ref.setLon(locationTypeFollowRefSysAbsolute.getLongitudeRads());
         ref.setZ(new DesiredZ((float) state.getZ(), Z_UNITS.DEPTH));
@@ -243,6 +250,10 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
         return ref;
     }
 
+    /**
+     * Check if the Follower has active plan. If not send it.
+     * @param follower The System to check for active plan.
+     */
     public void checkPlan(String follower){
         ImcSystem followerSys = ImcSystemsHolder.getSystemWithName(follower);
         if (followerSys.getActivePlan()==null){
@@ -250,6 +261,11 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
         }
     }
 
+    /**
+     * Create and send a new plan to the Follower Sys with name "follow_X" where X is the Following Vehicle to be followed.
+     * @param follower The Follower Vehicle name.
+     * @return true if message sent, false otherwise.
+     */
     public boolean sendPlan(String follower){
         PlanControl startPlan = new PlanControl();
         startPlan.setType(TYPE.REQUEST);
@@ -275,6 +291,12 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
         return send(follower, startPlan);
     }
 
+    /**
+     * Check if Follower and Following vehicles are too close. The Distance is defined in meters on the Follow Ref Settings.
+     * @param follower The Follower's name.
+     * @param following The Following's name.
+     * @return true if vehicles are too close together, false otherwise.
+     */
     public boolean isBellowSafetyDistance(String follower, String following ){
         LocationType followerLocationType = ImcSystemsHolder.getSystemWithName(follower).getLocation();
         LocationType followingLocationType = ImcSystemsHolder.getSystemWithName(following).getLocation();
