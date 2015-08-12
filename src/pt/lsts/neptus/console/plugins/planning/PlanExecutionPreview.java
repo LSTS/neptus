@@ -322,6 +322,8 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
                 g.translate(pt.getX(), pt.getY());
                 g.rotate(Math.PI + simulatedState.getYaw() - renderer.getRotation());
                 VehicleType type = VehiclesHolder.getVehicleById(sim.getVehicleId());
+                if (type==null)
+                    return;
                 Color c = type.getIconColor();
                 g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), 150));
                 g.fill(arrow);
