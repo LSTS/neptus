@@ -121,7 +121,7 @@ public class MarkerEdit extends JFrame {
     private boolean enableZoom = false;
     private boolean mouseDown = false;
     private boolean toDeleteDraw = false;
-    private BufferedImage layer,  rulerLayer, image, drawImageOverlay;
+    private BufferedImage layer,  rulerLayer, image, drawImageOverlay, zoomLayer;
     private ArrayList<Point> pointsList = new ArrayList<>();
 
     public MarkerEdit(MarkerManagement parent) {
@@ -145,12 +145,10 @@ public class MarkerEdit extends JFrame {
 
             @Override
             public void focusLost(FocusEvent e) {
-                System.out.println("focus lost");
             }
 
             @Override
             public void focusGained(FocusEvent e) {
-                System.out.println("focus gained");                
             }
         };
         panel.addFocusListener(l);
@@ -169,6 +167,10 @@ public class MarkerEdit extends JFrame {
                     Graphics2D rg2d = (Graphics2D) rulerLayer.getGraphics();
                     rg2d.setBackground(new Color(100, 100, 255, 0));
                     rg2d.clearRect(0, 0, rulerLayer.getWidth(), rulerLayer.getHeight());
+                    
+                    Graphics2D zg2d = (Graphics2D) zoomLayer.getGraphics();
+                    zg2d.setBackground(new Color(100, 100, 255, 0));
+                    zg2d.clearRect(0, 0, zoomLayer.getWidth(), zoomLayer.getHeight());
 
                     g.drawImage(image, RULER_SIZE+1, RULER_SIZE+1, null);
 
@@ -187,12 +189,13 @@ public class MarkerEdit extends JFrame {
                     if (enableCircleDraw)
                         drawCircle(layer.getGraphics(), 0, 0);
 
-                    if (enableZoom && mouseDown) //FIXME create new layer for zoom (grid is being draw on top of zoom :| )
-                        zoom(layer.getGraphics());
+                    if (enableZoom && mouseDown)
+                        zoom(layer.getGraphics(), zoomLayer.getGraphics());
 
 
                     g.drawImage(layer, RULER_SIZE+1, RULER_SIZE+1, null);
 
+                    
                     if (drawImageOverlay != null)
                         g.drawImage(drawImageOverlay, RULER_SIZE+1, RULER_SIZE+1, null);
 
@@ -201,6 +204,8 @@ public class MarkerEdit extends JFrame {
                         drawRuler(rg2d);
                         g.drawImage(rulerLayer, 0, 0, null);
                     }
+                    
+                    g.drawImage(zoomLayer, RULER_SIZE+1, RULER_SIZE+1, null);
                 }
             }
         };
@@ -211,12 +216,12 @@ public class MarkerEdit extends JFrame {
             @Override
             public void mouseReleased(MouseEvent e) {
                 //before ((JPanel) e.getSource()).repaint();
-                markerImage.repaint();
                 if (SwingUtilities.isLeftMouseButton(e)) {
                     mouseDown = false;
                     lastMouseX = mouseX;
                     lastMouseY = mouseY;
                 }
+                markerImage.repaint();
             }
 
             @Override
@@ -266,20 +271,20 @@ public class MarkerEdit extends JFrame {
 
         panel.add(markerImage, "cell 0 0 7 7,alignx left,aligny top");
 
-        JLabel nameLabel = new JLabel("Label:");
+        JLabel nameLabel = new JLabel(I18n.text("Label:"));
         nameLabelValue = new JLabel();
-        JLabel timeStampLabel = new JLabel("Timestamp:");
+        JLabel timeStampLabel = new JLabel(I18n.text("Timestamp:"));
         timeStampValue = new JLabel("TS");
-        JLabel locationLabel = new JLabel("Location:");
+        JLabel locationLabel = new JLabel(I18n.text("Location:"));
         locationValue = new JLabel("LOCATION");
-        JLabel altitudeLabel = new JLabel("Altitude:");
+        JLabel altitudeLabel = new JLabel(I18n.text("Altitude:"));
         altitudeValue = new JLabel("ALTITUDE");
-        JLabel classifLabel = new JLabel("Classification:");
+        JLabel classifLabel = new JLabel(I18n.text("Classification:"));
         classifValue = new JComboBox<>();
-        JLabel annotationLabel = new JLabel("Annotation:");
+        JLabel annotationLabel = new JLabel(I18n.text("Annotation:"));
         JScrollPane scrollPane = new JScrollPane();
         annotationValue = new JTextArea();
-        JLabel depthLabel = new JLabel(" / Depth:");
+        JLabel depthLabel = new JLabel(I18n.text(" / Depth:"));
         depthValue = new JLabel("DEPTH");
 
         nameLabelValue.setBackground(Color.WHITE);
@@ -299,7 +304,7 @@ public class MarkerEdit extends JFrame {
         panel.add(annotationLabel, "cell 7 5");
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         panel.add(scrollPane, "cell 7 6 2 1,grow");
-        annotationValue.setText("<Your annotations here>");
+        annotationValue.setText(I18n.text("<Your annotations here>"));
         annotationValue.setLineWrap(true); //Auto down line if the line is too long
         annotationValue.setWrapStyleWord(true); //Auto set up the style of words
         annotationValue.setRows(8);
@@ -335,10 +340,11 @@ public class MarkerEdit extends JFrame {
         g2.drawRect(x, y, w, h);
     }
 
-    private void zoom(Graphics g) {
+    private void zoom(Graphics img, Graphics zoom) {
         if (mouseX == -1 && lastMouseX == -1) 
             return;
-        Graphics2D g2 = (Graphics2D) g;
+        Graphics2D g2 = (Graphics2D) img;
+        Graphics2D gZoom = (Graphics2D) zoom;
 
         g2.setColor(Color.WHITE);
         g2.drawRect(mouseX - RULER_SIZE -1 -25, mouseY - RULER_SIZE -1 -25, 50, 50);
@@ -355,8 +361,8 @@ public class MarkerEdit extends JFrame {
         int w = zoomImage.getWidth();
         int h = zoomImage.getHeight();
 
-        g2.drawRect(image.getWidth()-RULER_SIZE-(w*zoomScale)-1, image.getHeight()-RULER_SIZE-(h*zoomScale)-1, w*zoomScale+1, h*zoomScale+1);
-        g2.drawImage(ImageUtils.getFasterScaledInstance(zoomImage, w*zoomScale, h*zoomScale), image.getWidth()-RULER_SIZE-(w*zoomScale), image.getHeight()-RULER_SIZE-(h*zoomScale), null);
+        gZoom.drawRect(image.getWidth()-RULER_SIZE-(w*zoomScale)-1, image.getHeight()-RULER_SIZE-(h*zoomScale)-1, w*zoomScale+1, h*zoomScale+1);
+        gZoom.drawImage(ImageUtils.getFasterScaledInstance(zoomImage, w*zoomScale, h*zoomScale), image.getWidth()-RULER_SIZE-(w*zoomScale), image.getHeight()-RULER_SIZE-(h*zoomScale), null);
     }
 
     private void drawFree(Graphics g) {
@@ -515,9 +521,11 @@ public class MarkerEdit extends JFrame {
                         image.getHeight(), Transparency.TRANSLUCENT);
                 rulerLayer = ImageUtils.createCompatibleImage(markerImage.getPreferredSize().width, 
                         markerImage.getPreferredSize().height, Transparency.TRANSLUCENT);
+                zoomLayer = ImageUtils.createCompatibleImage(image.getWidth(), 
+                        image.getHeight(), Transparency.TRANSLUCENT);
                 clearLayer();
             } catch (IOException e) {
-                NeptusLog.pub().error("Error reading image file for maker: "+ selectedMarker.getLabel() + " ...");
+                NeptusLog.pub().error(I18n.text("Error reading image file for maker: ")+ selectedMarker.getLabel() + " ...");
                 image = null;
                 markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource("/images/unknown.png")));
                 markerImage.setPreferredSize(new Dimension(markerImage.getIcon().getIconWidth(), markerImage.getIcon().getIconHeight()));
@@ -558,14 +566,14 @@ public class MarkerEdit extends JFrame {
         annotationValue.setText(selectedMarker.getAnnotation());
         nameLabelValue.setSize(nameLabelValue.getPreferredSize() );
 
-        setTitle("Marker: " + nameLabelValue.getText() + " - " + timeStampValue.getText());
+        setTitle(I18n.text("Marker: ") + nameLabelValue.getText() + " - " + timeStampValue.getText());
     }
 
     private void showSuccessDlg(String path) {
         if (!path.endsWith(".png"))
             path = path + ".png";
 
-        JOptionPane.showMessageDialog(this, "Image exported to: "+path, "Success", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, I18n.text("Image exported to: ")+path, "Success", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private String chooseSaveFile(BufferedImage image, String path) {
@@ -676,20 +684,20 @@ public class MarkerEdit extends JFrame {
         toolBar.setFloatable(false);
         toolBar.setRollover(true);
 
-        JButton saveBtn = createBtn("images/menus/save.png", "Save");
-        JButton delBtn = createBtn("images/menus/editdelete.png", "Delete");
-        rectDrawBtn = createBtn("images/menus/rectdraw.png", "Draw rectangle");
-        circleDrawBtn = createBtn("images/menus/circledraw.png", "Draw circle");
-        freeDrawBtn = createBtn("images/menus/freedraw.png", "Draw");
-        JButton clearDrawBtn = createBtn("images/menus/clear.png", "Clear all");
-        JButton showGridBtn = createBtn("images/menus/grid.png", "Show grid");
-        JButton showRulerBtn = createBtn("images/menus/ruler.png", "Show ruler");
-        exportImgBtn = createBtn("images/menus/export.png", "Export");
+        JButton saveBtn = createBtn("images/menus/save.png", I18n.text("Save"));
+        JButton delBtn = createBtn("images/menus/editdelete.png", I18n.text("Delete"));
+        rectDrawBtn = createBtn("images/menus/rectdraw.png", I18n.text("Draw rectangle"));
+        circleDrawBtn = createBtn("images/menus/circledraw.png", I18n.text("Draw circle"));
+        freeDrawBtn = createBtn("images/menus/freedraw.png", I18n.text("Draw"));
+        JButton clearDrawBtn = createBtn("images/menus/clear.png", I18n.text("Clear all"));
+        JButton showGridBtn = createBtn("images/menus/grid.png", I18n.text("Show grid"));
+        JButton showRulerBtn = createBtn("images/menus/ruler.png", I18n.text("Show ruler"));
+        exportImgBtn = createBtn("images/menus/export.png", I18n.text("Export"));
 
-        JButton previousMarkBtn = createBtn("images/menus/previous.png", "Previous Mark");
-        JButton nextMarkBtn = createBtn("images/menus/next.png", "Next Mark");
+        JButton previousMarkBtn = createBtn("images/menus/previous.png", I18n.text("Previous Mark"));
+        JButton nextMarkBtn = createBtn("images/menus/next.png", I18n.text("Next Mark"));
 
-        JButton zoomBtn = createBtn("images/menus/zoom_btn.png", "Zoom");
+        JButton zoomBtn = createBtn("images/menus/zoom_btn.png", I18n.text("Zoom"));
 
         save = new AbstractAction(I18n.text("Save"), ImageUtils.getIcon("images/menus/save.png")) {
 
@@ -721,7 +729,7 @@ public class MarkerEdit extends JFrame {
                 try {
                     ImageIO.write(img, "PNG", drawFile);
                 } catch (IOException ie) {
-                    NeptusLog.pub().error("Error writing image to file...");
+                    NeptusLog.pub().error(I18n.text("Error writing image to file..."));
                 }
 
                 g2d.dispose();
@@ -1038,7 +1046,7 @@ public class MarkerEdit extends JFrame {
 
 
     private int showDelDialog() {
-        int ans = GuiUtils.confirmDialog(this, "Confirm delete", "Are you sure you want to delete this marker?");
+        int ans = GuiUtils.confirmDialog(this, I18n.text("Confirm delete"), I18n.text("Are you sure you want to delete this marker?"));
         return ans;
     }
 

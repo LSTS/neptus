@@ -32,6 +32,7 @@
 
 package pt.lsts.neptus.mra.markermanagement;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -145,7 +146,7 @@ public class MarkerManagement {
 
         frmMarkerManagement = new JFrame();
         frmMarkerManagement.setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerManagement.class.getResource("/images/menus/marker.png")));
-        frmMarkerManagement.setTitle("Marker Management");
+        frmMarkerManagement.setTitle(I18n.text("Marker Management"));
         frmMarkerManagement.setBounds(100, 100, 687, 426);
         frmMarkerManagement.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frmMarkerManagement.getContentPane().setLayout(new MigLayout("", "[grow]", "[grow]"));
@@ -253,13 +254,11 @@ public class MarkerManagement {
                     }
                 }
             };
+
             del.putValue(Action.SHORT_DESCRIPTION, I18n.text("Delete this marker."));
             popupMenu.add(del);
-
             table.setComponentPopupMenu(popupMenu);
-
             panel.add(scrollPane, "cell 0 2 3 1,grow");
-
             table.updateUI();
             panel.updateUI();
 
@@ -281,7 +280,7 @@ public class MarkerManagement {
         if (!new File(markerFilePath).exists() && !logMarkers.isEmpty()) {
             File markerImgPath = new File(mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/");
             FileUtils.deleteQuietly(markerImgPath);
-            NeptusLog.pub().info("Creating markers...");
+            NeptusLog.pub().info(I18n.text("Creating markers..."));
             loader.setText(I18n.text("Creating markers file"));
             createMarkers();
         }
@@ -290,19 +289,19 @@ public class MarkerManagement {
                 deleteMarkersFiles();
                 markerList = new ArrayList<>();
 
-                NeptusLog.pub().info("Updating markers...");
+                NeptusLog.pub().info(I18n.text("Updating markers..."));
                 loader.setText(I18n.text("Updating markers file"));
                 createMarkers();
             }
             else {
 
                 //XML markers file exists, load markers from it
-                NeptusLog.pub().info("Loading markers...");
+                NeptusLog.pub().info(I18n.text("Loading markers..."));
                 loader.setText(I18n.text("Loading markers"));
 
                 if(!loadMarkers()) {
                     loader.setText(I18n.text("Creating markers"));
-                    NeptusLog.pub().error("Corrupted markers file. Trying to create new markers file.");
+                    NeptusLog.pub().error(I18n.text("Corrupted markers file. Trying to create new markers file."));
                     createMarkers();
                 }
             }
@@ -429,7 +428,7 @@ public class MarkerManagement {
                 }
             }
             else {// no image to display
-                NeptusLog.pub().info("Oops, no image available for mark "+ssLogMarker.getLabel()+ " ...");
+                NeptusLog.pub().info(I18n.text("Oops, no image available for mark ")+ssLogMarker.getLabel()+ " ...");
             }
         }
     }
@@ -825,7 +824,7 @@ public class MarkerManagement {
             transformer.transform(source, result);
 
             if (!markerList.isEmpty()) {
-                NeptusLog.pub().info("Markers XML file saved - " + markerFilePath);
+                NeptusLog.pub().info(I18n.text("Markers XML file saved - ") + markerFilePath);
             }
         }
         catch (TransformerException e) {
@@ -926,7 +925,7 @@ public class MarkerManagement {
         }
         catch (NullPointerException e) {
             e.printStackTrace();
-            NeptusLog.pub().error("Error parsing marker values from XML file");
+            NeptusLog.pub().error(I18n.text("Error parsing marker values from XML file"));
         }
 
         //Create new LogMarkerItem with the value read from xml
@@ -960,7 +959,14 @@ public class MarkerManagement {
     }
 
     public Point getwindowLocation() {
-        Point p = new Point(frmMarkerManagement.getLocation().x + frmMarkerManagement.getSize().width, frmMarkerManagement.getLocation().y);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        double width = screenSize.getWidth();
+        int locationX = frmMarkerManagement.getLocation().x + frmMarkerManagement.getSize().width;
+        int locationY = frmMarkerManagement.getLocation().y;
+        if (frmMarkerManagement.getLocation().x + frmMarkerManagement.getWidth() + (markerEditFrame.getWidth())> width ) {
+            locationX = new Double(width).intValue() - frmMarkerManagement.getWidth() - frmMarkerManagement.getLocation().x;
+        }
+        Point p = new Point(locationX, locationY);
 
         return p;
     }
@@ -999,7 +1005,7 @@ public class MarkerManagement {
     public void openMarker(LogMarker marker) {
         int row = findMarker(marker);
         if (row == -1) {
-            NeptusLog.pub().error("Cannot open selected marker...");
+            NeptusLog.pub().error(I18n.text("Cannot open selected marker..."));
             return;
         }
         table.setRowSelectionInterval(row, row);
