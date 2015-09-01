@@ -36,6 +36,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.MouseInfo;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,6 +47,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -78,7 +82,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -184,7 +187,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private boolean captureFrame = false;
     //Close comTCP state
     private boolean closeComState = false;
-    
+
     private boolean closingPanel = false;
     
     //JLabel for image
@@ -205,6 +208,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private JCheckBox saveToDiskCheckBox;
     //JPopup Menu
     private JPopupMenu popup;
+    //Flag to enable/disable zoom 
+    private boolean zoomMask = false;
     
     //String for the info treatment 
     private String info;
@@ -231,22 +236,38 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //Flag for IpCam Ip Check
     boolean statePingOk = false;
     //JPanel for color state of ping to host ipcam
-    JPanel colorStateIpCam;
+    private JPanel colorStateIpCam;
     //JFrame for IpCam Select
-    JFrame ipCamPing = new JFrame("Select IpCam");
+    private JFrame ipCamPing = new JFrame("Select IpCam");
     //JPanel for IpCam Select (MigLayout)
-    JPanel ipCamCheck = new JPanel(new MigLayout());
+    private JPanel ipCamCheck = new JPanel(new MigLayout());
     //JButton to confirm ipcam
-    JButton selectIpCam;
+    private JButton selectIpCam;
     //JComboBox por list of ipcam in ipUrl.ini
     @SuppressWarnings("rawtypes")
-    JComboBox ipCamList;
+    private JComboBox ipCamList;
     //row select from string matrix of IpCam List
-    int rowSelect;
+    private int rowSelect;
     //JLabel for text ipCam Ping
-    JLabel jlabel;
+    private JLabel jlabel;
     //Dimension of Desktop Screen
-    Dimension dim;
+    private Dimension dim;
+    //JPanel for zoom point
+    private JPanel zoomImg = new JPanel();
+    //Buffer image for zoom Img crop
+    private BufferedImage zoomImgCrop;
+    //JLabel to show zoom image
+    private JLabel zoomLabel = new JLabel();
+    //Graphics2D for zoom image scaling
+    private Graphics2D graphics2D;
+    //BufferedImage for zoom image scaling
+    private BufferedImage scaledCropImage;
+    //PopPup zoom Image
+    private JPopupMenu popupzoom;
+    //coord x for zoom
+    private int zoomX = 100;
+    //coord y for zoom
+    private int zoomY = 100;
     
     //*** TEST FOR SAVE VIDEO **/
     private File outputfile;
@@ -345,6 +366,53 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 }
             }
         });
+        //!Detect key-pressed
+        this.addKeyListener(new KeyListener() {            
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if(e.getKeyChar() == 'z' && zoomMask){
+                    zoomMask = false;
+                    //TODO
+                    popupzoom.setVisible(false);
+                }
+            }
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyChar() == 'z' && !zoomMask){
+                    zoomMask = true;
+                    popupzoom = new JPopupMenu();
+                    popupzoom.setSize(300, 300);
+                    popupzoom.setVisible(true);
+                    popupzoom.add(zoomImg);
+                }
+                else if(e.getKeyChar() == 'i')
+                    checkIpCam();
+                else if(e.getKeyChar() == 'c')
+                    menu.setVisible(true);
+                if(zoomMask){
+                    int xLocMouse = MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x - 11;
+                    int yLocMouse = MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y - 11;
+                    if(xLocMouse < 0)
+                        xLocMouse = 0;
+                    if(yLocMouse < 0)
+                        yLocMouse = 0;
+                    
+                    if(xLocMouse + 52 < panelImage.getSize().getWidth() && xLocMouse - 52 > 0 && yLocMouse + 60 < panelImage.getSize().getHeight() && yLocMouse - 60 > 0){
+                        zoomX = xLocMouse;
+                        zoomY = yLocMouse;
+                        popupzoom.setLocation(MouseInfo.getPointerInfo().getLocation().x - 150, MouseInfo.getPointerInfo().getLocation().y - 150);
+                        getCropImage(temp, zoomX, zoomY);
+                    }
+                    else
+                        popupzoom.setVisible(false);
+                }
+            }
+            @Override
+            public void keyTyped(KeyEvent e) {
+                
+            }
+        });
+        this.setFocusable(true);
         return;
     }
     
@@ -561,7 +629,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         panelImage.add(picLabel, BorderLayout.CENTER);
         repaint();
     }
-
+        
     //!Config Layout
     private void configLayout() {
         dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -569,6 +637,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         matResize = new Mat(heightConsole, widhtConsole, CvType.CV_8UC3);
         
+        //Config JFrame zoom img
+        zoomImg.setSize(300, 300);
         //!Create folder to save image data
         //Create folder image in log if don't exist
         File dir = new File(String.format(BASE_FOLDER_FOR_IMAGES));
@@ -590,7 +660,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         panelImage = new JPanel();
         panelImage.setBackground(Color.LIGHT_GRAY);
         panelImage.setSize(this.getWidth(), this.getHeight());
-        
         this.setLayout(new MigLayout());
         this.add(panelImage, BorderLayout.CENTER);
         
@@ -763,6 +832,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             long stopTime = System.currentTimeMillis();
                             infoSizeStream = String.format("Size(%d x %d) | Scale(%.2f x %.2f) | FPS:%d |\t\t\t", mat.cols(), mat.rows(),(float)widhtConsole/mat.cols(),(float)heightConsole/mat.rows(),(int) 1000/(stopTime - startTime));
                             txtText.setText(infoSizeStream);
+                         //   if(zoomMask)
+                         //       getCropImage(temp, zoomX, zoomY);
                             showImage(temp);
                             
                             if( captureFrame ) {
@@ -1000,8 +1071,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             info = String.format("Size(%d x %d) | Scale(%.2f x %.2f) | FPS:%d | Pak:%d (KiB:%d)", widthImgRec, heightImgRec,xScale,yScale,(int) 1000/(stopTime - startTime),lengthImage,lengthImage/1024);
             txtText.setText(info);
             txtDataTcp.setText(duneGps);
+         //   if(zoomMask)
+          //      getCropImage(temp, zoomX, zoomY);
             showImage(temp);
-        }
+        }     
     }
     
     //!Close TCP COM
@@ -1101,5 +1174,27 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         BufferedImage image2 = new BufferedImage(cols, rows, type);  
         image2.getRaster().setDataElements(0, 0, cols, rows, data);  
         return image2;
+    }
+    
+    //!Zoom in
+    public void getCropImage(BufferedImage imageToCrop, int w, int h){
+        zoomImgCrop = new BufferedImage (100, 100, BufferedImage.TYPE_3BYTE_BGR);
+        for( int i = -50; i < 50; i++ )
+            for( int j = -50; j < 50; j++ )
+                zoomImgCrop.setRGB(i + 50, j + 50, imageToCrop.getRGB( w+i, h+j));
+
+        // Create new (blank) image of required (scaled) size
+        scaledCropImage = new BufferedImage(300, 300, BufferedImage.TYPE_INT_ARGB);
+        // Paint scaled version of image to new image
+        graphics2D = scaledCropImage.createGraphics();
+        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        graphics2D.drawImage(zoomImgCrop, 0, 0, 300, 300, null);
+        // clean up
+        graphics2D.dispose();
+        //draw image
+        zoomLabel.setIcon(new ImageIcon(scaledCropImage));
+        zoomImg.revalidate();
+        zoomImg.add(zoomLabel);
+        repaint();
     }
 }
