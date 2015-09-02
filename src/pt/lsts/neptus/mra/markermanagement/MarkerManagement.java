@@ -502,7 +502,7 @@ public class MarkerManagement {
             description = "<Your annotation here.>";
        
         LogMarkerItem marker = new LogMarkerItem(index, ssLogMarker.getLabel(), ssLogMarker.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), null, description, alt, depth, range, heightValue, Classification.UNDEFINED);
-
+        System.out.println("DEBUG: "+marker.toString());
         //format date timestamp
         String date = DateTimeUtil.dateFormaterXMLUTC.format(ssLogMarker.getTimestamp());
 
@@ -615,12 +615,20 @@ public class MarkerManagement {
         ArrayList<SidescanLine> lines = LsfReport.getLines(ssParser, subsys, sidescanParams, ssLogMarker);
 
         if (lines != null && !lines.isEmpty()) {
+            System.out.println(lines.size());
+            /**/
+              for (SidescanLine sl : lines ){
+                //TODO for each line compare HEIGHT!!!
+              }
+            
+            /**/
+            
+            
             //get location
-            bottomLocation = new LocationType(lines.get(0).state.getPosition());
-            topLocation = new LocationType(lines.get(lines.size()-1).state.getPosition());
+            bottomLocation = new LocationType(lines.get(5).state.getPosition());
+            topLocation = new LocationType(lines.get(lines.size()-5).state.getPosition());
           //  System.out.println("marker: "+ssLogMarker.getLabel()+"- bottom "+ bottomLocation.getLatitudeDegs() + " "+ bottomLocation.getLongitudeDegs() );
           //  System.out.println("marker: "+ssLogMarker.getLabel()+"- top "+ topLocation.getLatitudeDegs() + " "+ topLocation.getLongitudeDegs() );
-            //TODO for each line compare HEIGHT!!!
             
             
             //get altitude from the line in the middle of the list
@@ -632,8 +640,8 @@ public class MarkerManagement {
         if (topLocation != null) {
             height = bottomLocation.getDistanceInMeters(topLocation) / 2; //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
             hHeight = bottomLocation.getHorizontalDistanceInMeters(topLocation); //FIXME :
-         //   System.out.println("Altura: " + height);
-         //   System.out.println("altura horiz: "+ hHeight);
+           //System.out.println("Altura: " + height);
+           //System.out.println("altura horiz: "+ hHeight);
         }
 
         
@@ -886,7 +894,8 @@ public class MarkerManagement {
                 LogMarkerItem e = getLogMarkerItem(el);
 
                 //add it to list
-                markerList.add(e);
+                if (e != null)
+                    markerList.add(e);
             }
         }
     }

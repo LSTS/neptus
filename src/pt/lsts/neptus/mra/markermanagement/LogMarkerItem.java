@@ -167,7 +167,7 @@ public class LogMarkerItem extends LogMarker {
     }
 
     public LocationType getLocation() {
-        return new LocationType(Math.toDegrees(getLat()), Math.toDegrees(getLon()));
+        return new LocationType(getLat(), getLon());
     }
 
     public String toString(){
