@@ -490,11 +490,17 @@ public class MarkerManagement {
         LocationType loc = ssLogMarker.getLocation();
         double[] altAndHeight = getAltAndHeight(ssLogMarker, ssParser);
         double range = ssLogMarker.wMeters;
-
+  
         double alt = altAndHeight[0];
         double heightValue = altAndHeight[1];
         double depth = altAndHeight[2];
-        String description = ssLogMarker.getDescription().isEmpty() ? "<Your annotation here.>" : ssLogMarker.getDescription();
+        
+        String description;
+        if (ssLogMarker.getDescription() != null && !ssLogMarker.getDescription().isEmpty())
+            description = ssLogMarker.getDescription();
+        else
+            description = "<Your annotation here.>";
+       
         LogMarkerItem marker = new LogMarkerItem(index, ssLogMarker.getLabel(), ssLogMarker.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), null, description, alt, depth, range, heightValue, Classification.UNDEFINED);
 
         //format date timestamp
@@ -926,6 +932,7 @@ public class MarkerManagement {
         catch (NullPointerException e) {
             e.printStackTrace();
             NeptusLog.pub().error(I18n.text("Error parsing marker values from XML file"));
+            return null;
         }
 
         //Create new LogMarkerItem with the value read from xml
