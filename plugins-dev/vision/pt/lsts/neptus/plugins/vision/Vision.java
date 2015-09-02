@@ -82,6 +82,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.KeyStroke;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -254,14 +255,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private Dimension dim;
     //JPanel for zoom point
     private JPanel zoomImg = new JPanel();
-    //Buffer image for zoom Img crop
-    private BufferedImage zoomImgCrop;
+    //Buffer image for zoom Img Cut
+    private BufferedImage zoomImgCut;
     //JLabel to show zoom image
     private JLabel zoomLabel = new JLabel();
     //Graphics2D for zoom image scaling
     private Graphics2D graphics2D;
     //BufferedImage for zoom image scaling
-    private BufferedImage scaledCropImage;
+    private BufferedImage scaledCutImage;
     //PopPup zoom Image
     private JPopupMenu popupzoom;
     //coord x for zoom
@@ -319,7 +320,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 }
                 if (e.getButton() == MouseEvent.BUTTON3) {
                     popup = new JPopupMenu();
-                    @SuppressWarnings("unused")
                     JMenuItem item1;
                     popup.add(item1 = new JMenuItem("Start RasPiCam", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/raspicam.jpg")))).addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
@@ -337,7 +337,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             }  
                         }
                     });
-                    @SuppressWarnings("unused")
+                    item1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
                     JMenuItem item2;
                     popup.add(item2 = new JMenuItem("Close all connection", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/close.gif")))).addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
@@ -347,14 +347,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             ipCam = false;
                         }
                     });
-                    @SuppressWarnings("unused")
+                    item2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
                     JMenuItem item3;  
                     popup.add(item3 = new JMenuItem("Start Ip-Cam", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png")))).addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             checkIpCam();        
                         }
                     });
-                    @SuppressWarnings("unused")
+                    item3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
                     JMenuItem item4;
                     popup.add(item4 = new JMenuItem("Config", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg")))).addActionListener(new ActionListener() {
                         @Override
@@ -362,6 +362,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             menu.setVisible(true);
                         }
                     });
+                    item4.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
                     popup.show((Component) e.getSource(), e.getX(), e.getY());
                 }
             }
@@ -370,7 +371,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         this.addKeyListener(new KeyListener() {            
             @Override
             public void keyReleased(KeyEvent e) {
-                if(e.getKeyChar() == 'z' && zoomMask){
+                if(e.getKeyCode() == KeyEvent.VK_Z && zoomMask){
                     zoomMask = false;
                     //TODO
                     popupzoom.setVisible(false);
@@ -378,18 +379,23 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             }
             @Override
             public void keyPressed(KeyEvent e) {
-                if(e.getKeyChar() == 'z' && !zoomMask){
-                    zoomMask = true;
-                    popupzoom = new JPopupMenu();
-                    popupzoom.setSize(300, 300);
-                    popupzoom.setVisible(true);
-                    popupzoom.add(zoomImg);
+                if((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0) && !zoomMask){
+                    if(raspiCam || ipCam){
+                        zoomMask = true;
+                        popupzoom.add(zoomImg);
+                    }
                 }
-                else if(e.getKeyChar() == 'i')
+                else if((e.getKeyCode() == KeyEvent.VK_I) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
                     checkIpCam();
-                else if(e.getKeyChar() == 'c')
+                else if((e.getKeyCode() == KeyEvent.VK_X) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)){
+                    NeptusLog.pub().info("Clossing all Video Stream...");
+                    raspiCam = false;
+                    state = false;
+                    ipCam = false;
+                }
+                else if((e.getKeyCode() == KeyEvent.VK_C) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
                     menu.setVisible(true);
-                if(zoomMask){
+                else if(e.getKeyChar() == 'z' && zoomMask){
                     int xLocMouse = MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x - 11;
                     int yLocMouse = MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y - 11;
                     if(xLocMouse < 0)
@@ -401,7 +407,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         zoomX = xLocMouse;
                         zoomY = yLocMouse;
                         popupzoom.setLocation(MouseInfo.getPointerInfo().getLocation().x - 150, MouseInfo.getPointerInfo().getLocation().y - 150);
-                        getCropImage(temp, zoomX, zoomY);
+                        getCutImage(temp, zoomX, zoomY);
+                        popupzoom.setVisible(true);
                     }
                     else
                         popupzoom.setVisible(false);
@@ -437,7 +444,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         ipCamList = new JComboBox(nameIpCam);
         ipCamList.setSelectedIndex(0);
         ipCamList.addActionListener(new ActionListener(){
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 JComboBox cb = (JComboBox)e.getSource();
@@ -493,10 +499,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             }
         });
         ipCamCheck.add(selectIpCam,"h 30!");
-        
         ipCamPing.add(ipCamCheck);
         ipCamPing.setVisible(true);
-             
     }
     
     //!Ping CamIp
@@ -639,6 +643,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         
         //Config JFrame zoom img
         zoomImg.setSize(300, 300);
+        popupzoom = new JPopupMenu();
+        popupzoom.setSize(300, 300);
         //!Create folder to save image data
         //Create folder image in log if don't exist
         File dir = new File(String.format(BASE_FOLDER_FOR_IMAGES));
@@ -832,8 +838,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             long stopTime = System.currentTimeMillis();
                             infoSizeStream = String.format("Size(%d x %d) | Scale(%.2f x %.2f) | FPS:%d |\t\t\t", mat.cols(), mat.rows(),(float)widhtConsole/mat.cols(),(float)heightConsole/mat.rows(),(int) 1000/(stopTime - startTime));
                             txtText.setText(infoSizeStream);
-                         //   if(zoomMask)
-                         //       getCropImage(temp, zoomX, zoomY);
                             showImage(temp);
                             
                             if( captureFrame ) {
@@ -1067,12 +1071,11 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             long stopTime = System.currentTimeMillis();
             while((stopTime - startTime) < (1000/FPS))
                 stopTime = System.currentTimeMillis();
-            //Display image in JFrame
+            
             info = String.format("Size(%d x %d) | Scale(%.2f x %.2f) | FPS:%d | Pak:%d (KiB:%d)", widthImgRec, heightImgRec,xScale,yScale,(int) 1000/(stopTime - startTime),lengthImage,lengthImage/1024);
             txtText.setText(info);
             txtDataTcp.setText(duneGps);
-         //   if(zoomMask)
-          //      getCropImage(temp, zoomX, zoomY);
+            //Display image in JFrame
             showImage(temp);
         }     
     }
@@ -1177,24 +1180,23 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //!Zoom in
-    public void getCropImage(BufferedImage imageToCrop, int w, int h){
-        zoomImgCrop = new BufferedImage (100, 100, BufferedImage.TYPE_3BYTE_BGR);
+    public void getCutImage(BufferedImage imageToCut, int w, int h){
+        zoomImgCut = new BufferedImage (100, 100, BufferedImage.TYPE_3BYTE_BGR);
         for( int i = -50; i < 50; i++ )
             for( int j = -50; j < 50; j++ )
-                zoomImgCrop.setRGB(i + 50, j + 50, imageToCrop.getRGB( w+i, h+j));
+                zoomImgCut.setRGB(i + 50, j + 50, imageToCut.getRGB( w+i, h+j));
 
         // Create new (blank) image of required (scaled) size
-        scaledCropImage = new BufferedImage(300, 300, BufferedImage.TYPE_INT_ARGB);
+        scaledCutImage = new BufferedImage(300, 300, BufferedImage.TYPE_INT_ARGB);
         // Paint scaled version of image to new image
-        graphics2D = scaledCropImage.createGraphics();
+        graphics2D = scaledCutImage.createGraphics();
         graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        graphics2D.drawImage(zoomImgCrop, 0, 0, 300, 300, null);
+        graphics2D.drawImage(zoomImgCut, 0, 0, 300, 300, null);
         // clean up
         graphics2D.dispose();
         //draw image
-        zoomLabel.setIcon(new ImageIcon(scaledCropImage));
+        zoomLabel.setIcon(new ImageIcon(scaledCutImage));
         zoomImg.revalidate();
         zoomImg.add(zoomLabel);
-        repaint();
     }
 }
