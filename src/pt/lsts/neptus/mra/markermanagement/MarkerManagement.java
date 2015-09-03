@@ -502,7 +502,7 @@ public class MarkerManagement {
             description = "<Your annotation here.>";
        
         LogMarkerItem marker = new LogMarkerItem(index, ssLogMarker.getLabel(), ssLogMarker.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), null, description, alt, depth, range, heightValue, Classification.UNDEFINED);
-        System.out.println("DEBUG: "+marker.toString());
+
         //format date timestamp
         String date = DateTimeUtil.dateFormaterXMLUTC.format(ssLogMarker.getTimestamp());
 
@@ -605,44 +605,29 @@ public class MarkerManagement {
         SidescanConfig config = new SidescanConfig();
         SidescanParameters sidescanParams = setupSscanParam(config);
         double altitude = 0;
-        double height = 0;
-        double hHeight = 0;
+        double height = 0; //FIXME : Calculate box height somehow
         double depth = 0;
-        LocationType bottomLocation = null;
-        LocationType topLocation = null;
         int subsys = ssLogMarker.subSys;
 
         ArrayList<SidescanLine> lines = LsfReport.getLines(ssParser, subsys, sidescanParams, ssLogMarker);
 
         if (lines != null && !lines.isEmpty()) {
-            System.out.println(lines.size());
-            /**/
-              for (SidescanLine sl : lines ){
-                //TODO for each line compare HEIGHT!!!
-              }
-            
-            /**/
-            
-            
-            //get location
-            bottomLocation = new LocationType(lines.get(5).state.getPosition());
-            topLocation = new LocationType(lines.get(lines.size()-5).state.getPosition());
-          //  System.out.println("marker: "+ssLogMarker.getLabel()+"- bottom "+ bottomLocation.getLatitudeDegs() + " "+ bottomLocation.getLongitudeDegs() );
-          //  System.out.println("marker: "+ssLogMarker.getLabel()+"- top "+ topLocation.getLatitudeDegs() + " "+ topLocation.getLongitudeDegs() );
-            
             
             //get altitude from the line in the middle of the list
             altitude = lines.get(lines.size()/2).state.getAltitude(); 
             depth = depth(lines.get(lines.size()/2).timestampMillis);
         }
 
-        //calculate distance between two locations
-        if (topLocation != null) {
-            height = bottomLocation.getDistanceInMeters(topLocation) / 2; //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
-            hHeight = bottomLocation.getHorizontalDistanceInMeters(topLocation); //FIXME :
-           //System.out.println("Altura: " + height);
-           //System.out.println("altura horiz: "+ hHeight);
-        }
+        //        calculate distance between two locations
+        //        if (topLocation != null) {
+        //            height = bottomLocation.getDistanceInMeters(topLocation) / 2; //FIXME : is returning 2x compared to http://www.movable-type.co.uk/scripts/latlong.html
+        //            hHeight = bottomLocation.getHorizontalDistanceInMeters(topLocation); //FIXME :
+        //            
+        //            System.out.println(topLocation.getLatitudeDegs());
+        //            System.out.println(bottomLocation.getLongitudeDegs());
+        //            System.out.println("Altura: " + height);
+        //            System.out.println("altura horiz: "+ hHeight);
+        //        }
 
         
         // result[] = {altitude, height}
