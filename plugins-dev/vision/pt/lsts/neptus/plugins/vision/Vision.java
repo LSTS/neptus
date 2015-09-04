@@ -129,7 +129,7 @@ import com.google.common.eventbus.Subscribe;
  *
  */
 @SuppressWarnings("serial")
-@Popup( pos = POSITION.RIGHT, width=660, height=500)
+@Popup( pos = POSITION.RIGHT, width=640, height=480)
 @LayerPriority(priority=0)
 @PluginDescription(name="Video Stream", version="1.2", author="Pedro Gonçalves", description="Plugin for View video Stream TCP-Ip/Ip-Cam", icon="pt/lsts/neptus/plugins/ipcam/camera.png")
 public class Vision extends ConsolePanel implements ConfigurationListener, ItemListener{
@@ -373,7 +373,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             public void keyReleased(KeyEvent e) {
                 if(e.getKeyCode() == KeyEvent.VK_Z && zoomMask){
                     zoomMask = false;
-                    //TODO
                     popupzoom.setVisible(false);
                 }
             }
@@ -742,6 +741,10 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
      */
     @Override
     public void cleanSubPanel() {
+        if(raspiCam){
+            NeptusLog.pub().info("Closing TCP connection to RaspiCam ");
+            closeTcpCom();
+        }
         closingPanel = true;
     }
     
@@ -799,7 +802,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     if (raspiCam && !ipCam ) {
                         if (state == false){
                             //connection
-                            tcpConnection();
+                            while(!tcpConnection());
                             //receive info of image size
                             initSizeImage();
                             state = true;
@@ -1018,6 +1021,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 }
                 catch (IOException e) {
                     e.printStackTrace();
+                    break;
                 }
                 if (readBytes < 0) {
                     System.err.println("stream ended");
@@ -1103,16 +1107,23 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //!Create Socket service
-    public void tcpConnection(){
+    public boolean tcpConnection(){
         //Socket Config  
         try { 
             serverSocket = new ServerSocket(2424); 
         } 
         catch (IOException e) 
         { 
-            System.err.println("Could not listen on port: "+ serverSocket); 
-            System.exit(1); 
-        } 
+            NeptusLog.pub().error("Could not listen on port: "+ serverSocket);
+            try {
+                serverSocket.close();
+            }
+            catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            return false; 
+        }
         Socket clientSocket = null; 
         NeptusLog.pub().info("Waiting for connection from RasPiCam...");
         try { 
@@ -1120,8 +1131,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         } 
         catch (IOException e) 
         { 
-            System.err.println("Accept failed."); 
-            System.exit(1); 
+            NeptusLog.pub().error("Accept failed...");
+            closeTcpCom();
+            return false; 
         } 
         NeptusLog.pub().info("Connection successful from Server: "+clientSocket.getInetAddress()+":"+serverSocket.getLocalPort());
         NeptusLog.pub().info("Receiving data image from RasPiCam...");
@@ -1143,6 +1155,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         }
         //Buffer for info of data image
         in = new BufferedReader( new InputStreamReader( is ));
+        
+        
+        return true;
     }
     
     /**  
