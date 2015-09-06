@@ -859,9 +859,16 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             }
                         }
                     }
-                    else
+                    else{
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(1000);
+                        }
+                        catch (InterruptedException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
                         inicImage();
-                    
+                    }
                     if (closingPanel)
                         break;
                 }
@@ -906,7 +913,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     }
                     else{
                         try {
-                            TimeUnit.MILLISECONDS.sleep(100);
+                            TimeUnit.MILLISECONDS.sleep(1000);
                         }
                         catch (InterruptedException e) {
                             e.printStackTrace();
