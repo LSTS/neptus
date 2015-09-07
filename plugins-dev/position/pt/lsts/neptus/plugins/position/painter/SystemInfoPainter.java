@@ -107,7 +107,7 @@ public class SystemInfoPainter extends ConsoleLayer {
     private long lastMessageMillis = 0;
 
     private int cpuUsage = 0, fixQuality = 0;
-    private double batteryVoltage, current;
+    private double batteryVoltage, current, fixHdop;
     private float fuelLevel, confidenceLevel;
     private int storageUsage;
     private GpsFix.TYPE fixType;
@@ -256,22 +256,24 @@ public class SystemInfoPainter extends ConsoleLayer {
             return;
         fixType = msg.getType();
         fixValidity = msg.getValidity();
+        fixHdop = msg.getHdop();
+        fixHdop = Math.round(fixHdop*100.0)/100.0;
 
         if (fixType == TYPE.DEAD_RECKONING) {
             fixQuality = 0;
-            strGPSFix = GPS_NO_FIX;
+            strGPSFix = GPS_NO_FIX.concat(" ("+fixHdop+")");
         }
         else if (fixType == TYPE.STANDALONE) {
             fixQuality = 70;
             strGPSFix = GPS_2D;
             if ((fixValidity & GpsFix.GFV_VALID_VDOP) != 0) {
                 fixQuality = 90;
-                strGPSFix = GPS_3D;
+                strGPSFix = GPS_3D.concat(" ("+fixHdop+")");
             }
         }
         else if (fixType == TYPE.DIFFERENTIAL) {
             fixQuality = 100;
-            strGPSFix = GPS_DIFF;
+            strGPSFix = GPS_DIFF.concat(" ("+fixHdop+")");
         }
     }
 
@@ -295,6 +297,7 @@ public class SystemInfoPainter extends ConsoleLayer {
         hbCount = 0;
         strGPSFix = GPS_NO_FIX;
         fixQuality = 0;
+        fixHdop = 0.0;
         mainSysName = ev.getCurrent();
 
         ImcSystemState state = getState();
