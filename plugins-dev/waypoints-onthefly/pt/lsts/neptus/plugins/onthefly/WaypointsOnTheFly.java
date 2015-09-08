@@ -79,7 +79,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     public void mousePressed(MouseEvent event, StateRenderer2D renderer) {
         if(planElem != null) {
             selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());
-            if(selectedManeuver != null) {
+            if(event.getButton() == MouseEvent.BUTTON3 && selectedManeuver != null){
                 
             }
             else
