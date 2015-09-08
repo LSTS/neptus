@@ -113,6 +113,9 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     @NeptusProperty(name = "Follow another system Safety distance", description = "Set the safe distance in meters between vehicles under which no new position will be sent", category="System follow")
     public double followAnotherSystemSafetyDistance = 50.0;
 
+    @NeptusProperty(name = "Follow another system Safety distance Second Radius", description = "Set the Second Radius for safe distance in meters over which the vehicle resumes following", category="System follow")
+    public double followAnotherSystemSafetyDistanceSecondRadius = followAnotherSystemSafetyDistance + 20.0;
+
 
     private ImcSystem refFollowSys = null;
     private LinkedHashMap<String, String> refFollowingSystemsMap = new LinkedHashMap<>();
@@ -214,17 +217,25 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
             if (refFollowingSystemsMap.get(follower).equals(following)) {
                 //someone is following the source of this EstimatedState msg
 
-                Reference ref = createReference(state);//create new reference to resend it.
-
                 checkPlan(follower);//if plan==null, resend it.
 
-                if (isBellowSafetyDistance(follower, following)==true){
-                    ref.setSpeed(new DesiredSpeed(0, SPEED_UNITS.METERS_PS));
-                } else{
-                    ref.setSpeed(new DesiredSpeed(3, SPEED_UNITS.METERS_PS));
+                Reference ref = createReference(state);//create new reference (lat,lon)
+                ImcSystem followerSys = ImcSystemsHolder.getSystemWithName(follower);
+                if (followerSys.getTypeVehicle()== VehicleType.VehicleTypeEnum.UUV) {
+                    ref.setZ(new DesiredZ(0,Z_UNITS.DEPTH));
+                    if (isOverSecondRadiusSafetyDistance(follower, following) == true) {
+                        ref.setSpeed(new DesiredSpeed(3, SPEED_UNITS.METERS_PS));
+                    }
+                    if (isBellowSafetyDistance(follower, following) == true) {
+                        ref.setSpeed(new DesiredSpeed(0, SPEED_UNITS.METERS_PS));
+                    }
+                    send(follower, ref);//send new ref
+                }
+                if (followerSys.getTypeVehicle() == VehicleType.VehicleTypeEnum.UAV){
+                    ref.setRadius(100);
+                    send(follower, ref);//send new ref
                 }
 
-                send(follower, ref);//send new ref
             }
         }
 
@@ -245,8 +256,7 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
 
         ref.setLat(locationTypeFollowRefSysAbsolute.getLatitudeRads());
         ref.setLon(locationTypeFollowRefSysAbsolute.getLongitudeRads());
-        ref.setZ(new DesiredZ((float) state.getZ(), Z_UNITS.DEPTH));
-        ref.setFlags((short) (Reference.FLAG_LOCATION | Reference.FLAG_SPEED | Reference.FLAG_Z));
+        //ref.setFlags((short) (Reference.FLAG_LOCATION | Reference.FLAG_SPEED | Reference.FLAG_Z));
         return ref;
     }
 
@@ -292,7 +302,10 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
     }
 
     /**
-     * Check if Follower and Following vehicles are too close. The Distance is defined in meters on the Follow Ref Settings.
+     * Check if Follower and Following vehicles are too close.
+     * The Distance is defined in meters on the Follow Ref Settings.
+     * If they are too close, follower stops.
+     *
      * @param follower The Follower's name.
      * @param following The Following's name.
      * @return true if vehicles are too close together, false otherwise.
@@ -301,6 +314,21 @@ public class FollowReferenceInteraction extends SimpleRendererInteraction implem
         LocationType followerLocationType = ImcSystemsHolder.getSystemWithName(follower).getLocation();
         LocationType followingLocationType = ImcSystemsHolder.getSystemWithName(following).getLocation();
         return (followerLocationType.getDistanceInMeters(followingLocationType) < followAnotherSystemSafetyDistance);
+    }
+
+    /**
+     * Check if Follower vehicle is over second radius Safety Distance from Following vehicle.
+     * The Distance is defined in meters on the Follow Ref Settings.
+     * If it is, resuming following.
+     *
+     * @param follower The Follower's name.
+     * @param following The Following's name.
+     * @return true if vehicles are too close together, false otherwise.
+     */
+    public boolean isOverSecondRadiusSafetyDistance(String follower, String following){
+        LocationType followerLocationType = ImcSystemsHolder.getSystemWithName(follower).getLocation();
+        LocationType followingLocationType = ImcSystemsHolder.getSystemWithName(following).getLocation();
+        return (followerLocationType.getDistanceInMeters(followingLocationType) > followAnotherSystemSafetyDistanceSecondRadius);
     }
 
     @Subscribe
