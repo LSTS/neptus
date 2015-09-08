@@ -56,6 +56,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     private PlanType currPlan;
     StateRenderer2D renderer;
     
+    private Maneuver selectedManeuver;
     private Point2D dragPoint;
     
     public WaypointsOnTheFly(ConsoleLayout console) {
@@ -77,7 +78,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     @Override
     public void mousePressed(MouseEvent event, StateRenderer2D renderer) {
         if(planElem != null) {
-            Maneuver selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());
+            selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());
             if(selectedManeuver != null) {
                 
             }
