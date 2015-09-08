@@ -31,8 +31,11 @@
  */
 package pt.lsts.neptus.plugins.onthefly;
 
+import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+
+import javax.swing.SwingWorker;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
@@ -43,6 +46,8 @@ import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.mp.Maneuver;
+import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 
 /**
  * @author tsmarques
@@ -79,8 +84,10 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     public void mousePressed(MouseEvent event, StateRenderer2D renderer) {
         if(planElem != null) {
             selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());
+            dragPoint = event.getPoint();
+            
             if(event.getButton() == MouseEvent.BUTTON3 && selectedManeuver != null){
-                
+
             }
             else
                 super.mousePressed(event, renderer);
@@ -92,15 +99,36 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     @Override
     public void mouseDragged(MouseEvent e, StateRenderer2D renderer) {
         if(planElem != null)
-            dragPoint = e.getPoint();
+            if(selectedManeuver != null) {
+                double diffX = e.getPoint().getX() - dragPoint.getX();
+                double diffY = e.getPoint().getY() - dragPoint.getY();
+                Point2D newManPos = planElem.translateManeuverPosition(selectedManeuver.getId(), diffX, diffY);
+
+                ManeuverLocation loc = ((LocatedManeuver) selectedManeuver).getManeuverLocation();
+                loc.setLocation(renderer.getRealWorldLocation(newManPos));
+                ((LocatedManeuver) selectedManeuver).setManeuverLocation(loc);
+
+                dragPoint = e.getPoint();
+                updatePlan();
+            }
+            else
+                super.mouseDragged(e, renderer);
         else
             super.mouseDragged(e, renderer);
     }
     
+    private void updatePlan() {
+        planElem.recalculateManeuverPositions(renderer);
+        planElem.paint((Graphics2D)renderer.getGraphics().create(), renderer);
+        renderer.repaint();
+    }
+    
     @Override
     public void mouseReleased(MouseEvent e, StateRenderer2D renderer) {
-        if(planElem != null)
+        if(planElem != null) {
             planElem.recalculateManeuverPositions(renderer);
+            selectedManeuver = null;
+        }
         else
             super.mouseReleased(e, renderer);
     }
