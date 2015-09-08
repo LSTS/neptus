@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.onthefly;
 
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
@@ -55,6 +56,8 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     private PlanType currPlan;
     StateRenderer2D renderer;
     
+    private Point2D dragPoint;
+    
     public WaypointsOnTheFly(ConsoleLayout console) {
         super(console);
         this.console = console;
@@ -70,27 +73,35 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         }
     }
     
-    @Override
-    public void mouseDragged(MouseEvent e, StateRenderer2D renderer) {
-        super.mouseDragged(e, renderer);
-    }
     
     @Override
     public void mousePressed(MouseEvent event, StateRenderer2D renderer) {
         if(planElem != null) {
             Maneuver selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());
-            
             if(selectedManeuver != null) {
                 
             }
+            else
+                super.mousePressed(event, renderer);
         }
         else
             super.mousePressed(event, renderer);
     }
     
     @Override
+    public void mouseDragged(MouseEvent e, StateRenderer2D renderer) {
+        if(planElem != null)
+            dragPoint = e.getPoint();
+        else
+            super.mouseDragged(e, renderer);
+    }
+    
+    @Override
     public void mouseReleased(MouseEvent e, StateRenderer2D renderer) {
-        super.mouseReleased(e, renderer);
+        if(planElem != null)
+            planElem.recalculateManeuverPositions(renderer);
+        else
+            super.mouseReleased(e, renderer);
     }
     
     @Override
