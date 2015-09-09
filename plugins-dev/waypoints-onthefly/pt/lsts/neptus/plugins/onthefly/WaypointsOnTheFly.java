@@ -41,6 +41,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
+import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.PlanElement;
@@ -54,7 +55,7 @@ import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
  *
  */
 @PluginDescription(author = "tsmarques", name = "Waypoints On-The-Fly", version = "0.1", description = "Edit waypoints on the map, and update the plan automatically")
-public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeListener {
+public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeListener, Renderer2DPainter {
     private ConsoleLayout console;
     
     private PlanElement planElem;
@@ -63,10 +64,12 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     
     private Maneuver selectedManeuver;
     private Point2D dragPoint;
+    private boolean waypointBeingDragged;
     
     public WaypointsOnTheFly(ConsoleLayout console) {
         super(console);
         this.console = console;
+        waypointBeingDragged = false;
     }
     
     private void setPlan() {
@@ -100,6 +103,8 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     public void mouseDragged(MouseEvent e, StateRenderer2D renderer) {
         if(planElem != null)
             if(selectedManeuver != null) {
+                waypointBeingDragged = true;
+                
                 double diffX = e.getPoint().getX() - dragPoint.getX();
                 double diffY = e.getPoint().getY() - dragPoint.getY();
                 Point2D newManPos = planElem.translateManeuverPosition(selectedManeuver.getId(), diffX, diffY);
@@ -119,7 +124,6 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     
     private void updatePlan() {
         planElem.recalculateManeuverPositions(renderer);
-        planElem.paint((Graphics2D)renderer.getGraphics().create(), renderer);
         renderer.repaint();
     }
     
@@ -128,6 +132,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         if(planElem != null) {
             planElem.recalculateManeuverPositions(renderer);
             selectedManeuver = null;
+            waypointBeingDragged = false;
         }
         else
             super.mouseReleased(e, renderer);
@@ -144,5 +149,15 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     @Override
     public void planChange(PlanType plan) {
         setPlan();
+    }
+
+    @Override
+    public void paint(Graphics2D g, StateRenderer2D renderer) {
+        this.renderer = renderer;
+        
+        if(planElem != null && waypointBeingDragged) {
+            planElem.setRenderer(renderer);
+            planElem.paint((Graphics2D)(g.create()), renderer);
+        }
     }
 }
