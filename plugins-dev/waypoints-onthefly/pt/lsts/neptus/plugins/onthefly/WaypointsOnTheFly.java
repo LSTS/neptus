@@ -86,9 +86,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     @Override
     public void mousePressed(MouseEvent event, StateRenderer2D renderer) {
         if(planElem != null) {
-            selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());
-            dragPoint = event.getPoint();
-            
+            selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());           
             if(event.getButton() == MouseEvent.BUTTON3 && selectedManeuver != null){
 
             }
@@ -103,18 +101,22 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     public void mouseDragged(MouseEvent e, StateRenderer2D renderer) {
         if(planElem != null)
             if(selectedManeuver != null) {
-                waypointBeingDragged = true;
-                
-                double diffX = e.getPoint().getX() - dragPoint.getX();
-                double diffY = e.getPoint().getY() - dragPoint.getY();
-                Point2D newManPos = planElem.translateManeuverPosition(selectedManeuver.getId(), diffX, diffY);
+                if(dragPoint != null) {
+                    waypointBeingDragged = true;
 
-                ManeuverLocation loc = ((LocatedManeuver) selectedManeuver).getManeuverLocation();
-                loc.setLocation(renderer.getRealWorldLocation(newManPos));
-                ((LocatedManeuver) selectedManeuver).setManeuverLocation(loc);
+                    double diffX = e.getPoint().getX() - dragPoint.getX();
+                    double diffY = e.getPoint().getY() - dragPoint.getY();
+                    Point2D newManPos = planElem.translateManeuverPosition(selectedManeuver.getId(), diffX, diffY);
 
-                dragPoint = e.getPoint();
-                updatePlan();
+                    ManeuverLocation loc = ((LocatedManeuver) selectedManeuver).getManeuverLocation();
+                    loc.setLocation(renderer.getRealWorldLocation(newManPos));
+                    ((LocatedManeuver) selectedManeuver).setManeuverLocation(loc);
+
+                    dragPoint = newManPos;
+                    updatePlan();
+                }
+                else
+                    dragPoint = e.getPoint();
             }
             else
                 super.mouseDragged(e, renderer);
@@ -133,6 +135,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             planElem.recalculateManeuverPositions(renderer);
             selectedManeuver = null;
             waypointBeingDragged = false;
+            dragPoint = null;
         }
         else
             super.mouseReleased(e, renderer);
