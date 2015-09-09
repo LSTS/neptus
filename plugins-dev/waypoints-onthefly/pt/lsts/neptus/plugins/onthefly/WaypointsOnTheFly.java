@@ -72,8 +72,8 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         waypointBeingDragged = false;
     }
     
-    private void setPlan() {
-        currPlan = console.getPlan();
+    private void setPlan(PlanType plan) {
+        currPlan = plan;
         if(currPlan != null) {
             planElem = new PlanElement(currPlan.getMapGroup(), new MapType());
             planElem.setRenderer(this.renderer);
@@ -144,14 +144,14 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     @Override
     public void setActive(boolean mode, StateRenderer2D source) {
         renderer = source;
-        setPlan();
+        setPlan(console.getPlan());
         super.setActive(mode, source);
     }
 
 
     @Override
     public void planChange(PlanType plan) {
-        setPlan();
+        setPlan(plan);
     }
 
     @Override
