@@ -103,17 +103,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             if(selectedManeuver != null) {
                 if(dragPoint != null) {
                     waypointBeingDragged = true;
-
-                    double diffX = e.getPoint().getX() - dragPoint.getX();
-                    double diffY = e.getPoint().getY() - dragPoint.getY();
-                    Point2D newManPos = planElem.translateManeuverPosition(selectedManeuver.getId(), diffX, diffY);
-
-                    ManeuverLocation loc = ((LocatedManeuver) selectedManeuver).getManeuverLocation();
-                    loc.setLocation(renderer.getRealWorldLocation(newManPos));
-                    ((LocatedManeuver) selectedManeuver).setManeuverLocation(loc);
-
-                    dragPoint = newManPos;
-                    updatePlan();
+                    updateWaypointPosition(e.getPoint().getX(), e.getPoint().getY());
                 }
                 else
                     dragPoint = e.getPoint();
@@ -124,9 +114,19 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             super.mouseDragged(e, renderer);
     }
     
-    private void updatePlan() {
+    /* Updates de position of the waypoint to current the position of the mouse */
+    private void updateWaypointPosition(double mouseX, double mouseY) {
+        double diffX = mouseX - dragPoint.getX();
+        double diffY = mouseY - dragPoint.getY();
+        Point2D newManPos = planElem.translateManeuverPosition(selectedManeuver.getId(), diffX, diffY);
+
+        ManeuverLocation loc = ((LocatedManeuver) selectedManeuver).getManeuverLocation();
+        loc.setLocation(renderer.getRealWorldLocation(newManPos));
+        ((LocatedManeuver) selectedManeuver).setManeuverLocation(loc);
+        
         planElem.recalculateManeuverPositions(renderer);
-        //renderer.repaint();
+        
+        dragPoint = newManPos;
     }
     
     @Override
