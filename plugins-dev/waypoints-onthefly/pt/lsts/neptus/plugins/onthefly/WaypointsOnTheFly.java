@@ -126,7 +126,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     
     private void updatePlan() {
         planElem.recalculateManeuverPositions(renderer);
-        renderer.repaint();
+        //renderer.repaint();
     }
     
     @Override
