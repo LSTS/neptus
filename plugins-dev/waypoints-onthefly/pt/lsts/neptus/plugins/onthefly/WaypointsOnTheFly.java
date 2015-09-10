@@ -35,6 +35,7 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
@@ -66,13 +67,11 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     private Maneuver selectedManeuver;
     private Point2D dragPoint;
     private boolean waypointBeingDragged;
-    private boolean waypointWasMoved;
     
     public WaypointsOnTheFly(ConsoleLayout console) {
         super(console);
         this.console = console;
         waypointBeingDragged = false;
-        waypointWasMoved = false;
     }
     
     private void setPlan(PlanType plan) {
@@ -90,8 +89,9 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         if(planElem != null) {
             planElem.setBeingEdited(true);
             selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());           
-            if(event.getButton() == MouseEvent.BUTTON3 && selectedManeuver != null){
-
+            if(SwingUtilities.isRightMouseButton(event) && selectedManeuver != null) {
+                editWaypointZ(selectedManeuver, event.getPoint().getX(), event.getPoint().getY());
+                savePlan();
             }
             else
                 super.mousePressed(event, renderer);
@@ -165,6 +165,18 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         };
         worker.execute();
         console.updateMissionListeners();
+    }
+    
+    private void editWaypointZ(Maneuver waypoint, double screenX, double screenY) {
+        String value= JOptionPane.showInputDialog(console, waypoint.getId() + " Z value:");
+        if(value != null) {
+            double waypointZ = Double.parseDouble(value);
+            ManeuverLocation waypointLoc = ((LocatedManeuver) waypoint).getManeuverLocation();
+            waypointLoc.setZ(waypointZ);
+            ((LocatedManeuver) waypoint).setManeuverLocation(waypointLoc);
+            
+            planElem.recalculateManeuverPositions(renderer);
+        }
     }
     
     @Override
