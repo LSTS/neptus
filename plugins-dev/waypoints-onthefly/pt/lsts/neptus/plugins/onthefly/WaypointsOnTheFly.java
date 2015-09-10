@@ -35,6 +35,7 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -101,8 +102,8 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     
     @Override
     public void mouseDragged(MouseEvent e, StateRenderer2D renderer) {
-        if(planElem != null)
-            if(selectedManeuver != null) {
+        if(planElem != null) {
+            if(selectedManeuver != null && SwingUtilities.isLeftMouseButton(e)) {
                 if(dragPoint != null) {
                     waypointBeingDragged = true;
                     updateWaypointPosition(e.getPoint().getX(), e.getPoint().getY());
@@ -114,6 +115,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             }
             else
                 super.mouseDragged(e, renderer);
+        }
         else
             super.mouseDragged(e, renderer);
     }
@@ -162,7 +164,6 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             }
         };
         worker.execute();
-        
         console.updateMissionListeners();
     }
     
@@ -187,5 +188,6 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             planElem.setRenderer(renderer);
             planElem.paint((Graphics2D)(g.create()), renderer);
         }
+        renderer.repaint();
     }
 }
