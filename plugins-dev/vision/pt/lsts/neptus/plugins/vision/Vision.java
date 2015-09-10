@@ -60,7 +60,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -140,14 +139,23 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
 
     @NeptusProperty(name = "Axis Camera RTPS URL")
     private String camRtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";
+    
+    @NeptusProperty(name = "HOST IP for TCP-RasPiCam")
+    private String ipHost = "10.0.20.130";
 
-    private ServerSocket serverSocket = null;
+    @NeptusProperty(name = "Port Number for TCP-RasPiCam")
+    private int portNumber = 2424;
+        
+    //private ServerSocket serverSocket = null;
+    private Socket clientSocket = null;
     //Send data for sync 
     private PrintWriter out = null; 
     //Buffer for data image
     private InputStream is = null;
     //Buffer for info of data image
     private BufferedReader in = null;
+    //Flag state of TCP connection
+    private boolean tcpOK = false;
     //Struct Video Capture Opencv
     private VideoCapture capture;
     //Width size of image
@@ -345,6 +353,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             raspiCam = false;
                             state = false;
                             ipCam = false;
+                            try {
+                                clientSocket.close();
+                            }
+                            catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
                         }
                     });
                     item2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
@@ -798,22 +812,24 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         state = false;
                         ipCam = false;
                     }
-                    
-                    if (raspiCam && !ipCam ) {
-                        if (state == false){
+                    else if (raspiCam && !ipCam ) {
+                        if(state == false){
                             //connection
-                            while(!tcpConnection());
-                            //receive info of image size
-                            initSizeImage();
-                            state = true;
+                            if(tcpConnection()){
+                                //receive info of image size
+                                initSizeImage();
+                                state = true;
+                            }
                         }
-                        //receive data image
-                        if(!closeComState)
-                            receivedDataImage();
-                        else
-                            closeTcpCom();
-                        if(!raspiCam && !state)
-                            closeTcpCom();
+                        else{
+                            //receive data image
+                            if(!closeComState)
+                                receivedDataImage();
+                            else
+                                closeTcpCom();
+                            if(!raspiCam && !state)
+                                closeTcpCom();
+                        }
                     }
                     else if (!raspiCam && ipCam) {
                         if (state == false){
@@ -864,7 +880,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             TimeUnit.MILLISECONDS.sleep(1000);
                         }
                         catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
                         inicImage();
@@ -1011,7 +1026,13 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             JOptionPane.showMessageDialog(panelImage, I18n.text("Lost connection with vehicle"), I18n.text("Connection error"), JOptionPane.ERROR_MESSAGE);
             raspiCam = false;
             state = false;
-            closeTcpCom();
+            //closeTcpCom();
+            try {
+                clientSocket.close();
+            }
+            catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
         else{        
             lengthImage = Integer.parseInt(line);
@@ -1107,64 +1128,59 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         }
         out.close();
         try {
-            serverSocket.close();
-        } catch (IOException e2) {
-            e2.printStackTrace();
+            clientSocket.close();
+        }
+        catch (IOException e1) {
+            e1.printStackTrace();
         }
     }
     
     //!Create Socket service
     public boolean tcpConnection(){
-        //Socket Config  
-        try { 
-            serverSocket = new ServerSocket(2424); 
-        } 
-        catch (IOException e) 
-        { 
-            NeptusLog.pub().error("Could not listen on port: "+ serverSocket);
-            try {
-                serverSocket.close();
-            }
-            catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
-            return false; 
-        }
-        Socket clientSocket = null; 
+        //Socket Config    
         NeptusLog.pub().info("Waiting for connection from RasPiCam...");
         try { 
-            clientSocket = serverSocket.accept(); 
+            clientSocket = new Socket(ipHost, portNumber);
+            if(clientSocket.isConnected());
+                tcpOK=true;
         } 
         catch (IOException e) 
         { 
-            NeptusLog.pub().error("Accept failed...");
-            closeTcpCom();
-            return false; 
-        } 
-        NeptusLog.pub().info("Connection successful from Server: "+clientSocket.getInetAddress()+":"+serverSocket.getLocalPort());
-        NeptusLog.pub().info("Receiving data image from RasPiCam...");
-        
-        //Send data for sync 
-        try {
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            //NeptusLog.pub().error("Accept failed...");
+            try {
+                TimeUnit.MILLISECONDS.sleep(1000);
+            }
+            catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+            tcpOK = false; 
         }
-        catch (IOException e1) {
-            e1.printStackTrace();
-        }
+        if(tcpOK){
+            NeptusLog.pub().info("Connection successful from Server: "+clientSocket.getInetAddress()+":"+clientSocket.getLocalPort());
+            NeptusLog.pub().info("Receiving data image from RasPiCam...");
+                
+            //Send data for sync 
+            try {
+                out = new PrintWriter(clientSocket.getOutputStream(), true);
+            }
+            catch (IOException e1) {
+                e1.printStackTrace();
+            }
 
-        //Buffer for data image
-        try {
-            is = clientSocket.getInputStream();
+            //Buffer for data image
+            try{
+                is = clientSocket.getInputStream();
+            }
+            catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            //Buffer for info of data image
+            in = new BufferedReader( new InputStreamReader( is ));
+
+            return true;
         }
-        catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        //Buffer for info of data image
-        in = new BufferedReader( new InputStreamReader( is ));
-        
-        
-        return true;
+        else
+            return false;
     }
     
     /**  
