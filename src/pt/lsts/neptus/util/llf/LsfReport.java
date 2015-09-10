@@ -83,6 +83,7 @@ import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
@@ -595,8 +596,7 @@ public class LsfReport {
     }
 
     public static void createPdfMarksRows(PdfPTable table, LogMarker m){
-        String dateAsText = new SimpleDateFormat("HH:mm:ss.ms").format(m.getTimestamp());
-        table.addCell(dateAsText);
+        table.addCell(DateTimeUtil.formatTime((long)m.getTimestamp()));
         table.addCell(m.getLabel());
         String lat = CoordinateUtil.latitudeAsPrettyString(Math.toDegrees(m.getLat()), false);
         String lon = CoordinateUtil.longitudeAsPrettyString(Math.toDegrees(m.getLon()), false);
