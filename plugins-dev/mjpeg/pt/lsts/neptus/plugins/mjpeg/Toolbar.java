@@ -75,7 +75,7 @@ public class Toolbar extends JPanel {
         showTrackButton.setIcon(new ImageIcon(ImageUtils.getImage("pt/lsts/neptus/plugins/mjpeg/icons/track.png")));
         showTrackButton.setToolTipText(I18n.text("Show track"));
 
-        saveButton.setIcon(new ImageIcon(ImageUtils.getImage("pt/lsts/neptus/plugins/mjpeg/icons/save2.png")));
+        saveButton.setIcon(new ImageIcon(ImageUtils.getImage("pt/lsts/neptus/plugins/mjpeg/icons/save.png")));
         saveButton.setToolTipText(I18n.text("Save current photo"));
 
         markerButton.setIcon(new ImageIcon(ImageUtils.getImage("images/buttons/mark.png")));
