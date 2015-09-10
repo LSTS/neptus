@@ -77,7 +77,6 @@ public class FrameDecoderMotionJPEG implements FrameDecoder {
 
     @Override
     public VideoFrame getCurrentFrame() {
-        System.err.format("current frame %d | %d | %d\n", cursor.fileNumber, cursor.frameNumber, cursor.globalFrameNumber);
         return createVideoFrame(cursor.fileNumber, cursor.frameNumber, cursor.globalFrameNumber);
     }
 
