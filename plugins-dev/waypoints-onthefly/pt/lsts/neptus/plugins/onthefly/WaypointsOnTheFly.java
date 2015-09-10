@@ -65,11 +65,13 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     private Maneuver selectedManeuver;
     private Point2D dragPoint;
     private boolean waypointBeingDragged;
+    private boolean waypointWasMoved;
     
     public WaypointsOnTheFly(ConsoleLayout console) {
         super(console);
         this.console = console;
         waypointBeingDragged = false;
+        waypointWasMoved = false;
     }
     
     private void setPlan(PlanType plan) {
@@ -78,7 +80,6 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             planElem = new PlanElement(currPlan.getMapGroup(), new MapType());
             planElem.setRenderer(this.renderer);
             planElem.setPlan(currPlan);
-            planElem.setBeingEdited(true);
         }
     }
     
@@ -86,6 +87,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     @Override
     public void mousePressed(MouseEvent event, StateRenderer2D renderer) {
         if(planElem != null) {
+            planElem.setBeingEdited(true);
             selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());           
             if(event.getButton() == MouseEvent.BUTTON3 && selectedManeuver != null){
 
@@ -107,6 +109,8 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
                 }
                 else
                     dragPoint = e.getPoint();
+                
+                renderer.repaint();
             }
             else
                 super.mouseDragged(e, renderer);
@@ -114,7 +118,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             super.mouseDragged(e, renderer);
     }
     
-    /* Updates de position of the waypoint to current the position of the mouse */
+    /* Updates the position of a waypoint to the current the position of the mouse */
     private void updateWaypointPosition(double mouseX, double mouseY) {
         double diffX = mouseX - dragPoint.getX();
         double diffY = mouseY - dragPoint.getY();
@@ -132,10 +136,13 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     @Override
     public void mouseReleased(MouseEvent e, StateRenderer2D renderer) {
         if(planElem != null) {
-            planElem.recalculateManeuverPositions(renderer);
-            selectedManeuver = null;
-            waypointBeingDragged = false;
-            dragPoint = null;
+            if(waypointBeingDragged) {
+                updateWaypointPosition(e.getPoint().getX(), e.getPoint().getY());
+                selectedManeuver = null;
+                dragPoint = null;
+                waypointBeingDragged = false;
+            }
+            planElem.setBeingEdited(false);
         }
         else
             super.mouseReleased(e, renderer);
@@ -158,7 +165,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     public void paint(Graphics2D g, StateRenderer2D renderer) {
         this.renderer = renderer;
         
-        if(planElem != null && waypointBeingDragged) {
+        if(planElem != null /*&& waypointBeingDragged*/) {
             planElem.setRenderer(renderer);
             planElem.paint((Graphics2D)(g.create()), renderer);
         }
