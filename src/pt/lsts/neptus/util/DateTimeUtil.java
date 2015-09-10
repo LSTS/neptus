@@ -32,12 +32,17 @@
 package pt.lsts.neptus.util;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
+
 
 /**
  * @author pdias
@@ -51,6 +56,7 @@ public class DateTimeUtil {
     public static final long MINUTE = 1000 * 60;
     public static final long SECOND = 1000;
     
+       
     public static final int DAYS_SINCE_YEAR_0_TILL_1970 = 719530;
     
     public static final SimpleDateFormat dateFormaterXMLUTC = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'.0Z'") {{setTimeZone(TimeZone.getTimeZone("UTC"));}}; // This one should be UTC (Zulu)
@@ -82,20 +88,32 @@ public class DateTimeUtil {
     public static final SimpleDateFormat dateTimeFormaterISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", new Locale("en")) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
     public static final SimpleDateFormat dateTimeFormaterISO8601_1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", new Locale("en")) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
     public static final SimpleDateFormat dateTimeFormaterISO8601_2 = new SimpleDateFormat("yyyyMMdd'T'HHmmss.SSS", new Locale("en")) {{setTimeZone(TimeZone.getTimeZone("UTC"));}};
-    
-    
-//    static {
-//        dateFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-//        dateFormaterXMLUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-//        dateTimeFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-//        dateTimeFormater2UTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-//        dateFormaterXMLNoMillisUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-//        
-//        timeUTCFormaterNoSegs2.setTimeZone(TimeZone.getTimeZone("UTC"));
-//        timeUTCFormaterNoSegs3.setTimeZone(TimeZone.getTimeZone("UTC"));
-//        timeFormaterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-//        timeFormaterNoMillis2UTC.setTimeZone(TimeZone.getTimeZone("UTC"));
-//    }
+
+    /** Default time format. */
+    private static final DateTimeFormatter defaultTimeFormat = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+    /** Currently configured timezone. */
+    private static final ZoneId currentZoneId = ZoneId.of("UTC");
+
+    /**
+     * Formats a timestamp in a format suitable to be presented to the user using the current timezone.
+     *
+     * @param milliSeconds milliseconds since the Unix Epoch.
+     * @return formatted time.
+     */
+    public static String formatTime(long milliSeconds) {
+        return formatTime(milliSeconds, currentZoneId);
+    }
+
+    /**
+     * Formats a timestamp in a format suitable to be presented to the user using a given timezone.
+     *
+     * @param milliSeconds milliseconds since the Unix Epoch.
+     * @param zoneId timezone identifier.
+     * @return formatted time.
+     */
+    public static String formatTime(long milliSeconds, ZoneId zoneId) {
+        return Instant.ofEpochMilli(milliSeconds).atZone(zoneId).format(defaultTimeFormat);
+    }
 
     private static long initialTimeMillis;
     private static long initialTimeNanos;
@@ -103,42 +121,6 @@ public class DateTimeUtil {
     static {
         initialTimeMillis = System.currentTimeMillis();
         initialTimeNanos = System.nanoTime();
-    }
-    
-    public static long formatedStringToMillis(String formatedTime) {
-        String time = formatedTime.replaceAll(" ", "");
-        String val = "";
-        long total = 0;
-        for (int i = 0; i < time.length(); i++) {
-            char c = time.charAt(i);
-            if (Character.isDigit(c)) {
-                val += c;
-            }
-            else {
-                switch (c) {
-                    case 's':
-                        total += Integer.parseInt(val) * 1000;
-                        val = "";
-                        break;
-                    case 'm':
-                        total += Integer.parseInt(val) * 1000 * 60;
-                        val = "";
-                        break;
-                    case 'h':
-                        total += Integer.parseInt(val) * 1000 * 60 * 60;
-                        val = "";
-                        break;
-                    case 'd':
-                        total += Integer.parseInt(val) * 1000 * 60 * 60 * 24;
-                        val = "";
-                        break;
-                    default:
-                        val = "";
-                        break;
-                }
-            }
-        }
-        return total;        
     }
     
 	public static final String milliSecondsToFormatedString(long timeMillis) {
