@@ -141,11 +141,29 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
                 selectedManeuver = null;
                 dragPoint = null;
                 waypointBeingDragged = false;
+                
+                savePlan();
             }
             planElem.setBeingEdited(false);
         }
         else
             super.mouseReleased(e, renderer);
+    }
+    
+    private void savePlan() {
+        currPlan.setMissionType(getConsole().getMission());
+        console.getMission().addPlan(currPlan);
+        
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                getConsole().getMission().save(true);
+                return null;
+            }
+        };
+        worker.execute();
+        
+        console.updateMissionListeners();
     }
     
     @Override
