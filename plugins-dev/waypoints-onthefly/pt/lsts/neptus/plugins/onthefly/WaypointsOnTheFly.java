@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.onthefly;
 
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
@@ -68,10 +69,13 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     private Point2D dragPoint;
     private boolean waypointBeingDragged;
     
+    private boolean ctrlKeyPressed;
+    
     public WaypointsOnTheFly(ConsoleLayout console) {
         super(console);
         this.console = console;
         waypointBeingDragged = false;
+        ctrlKeyPressed = false;
     }
     
     private void setPlan(PlanType plan) {
@@ -190,6 +194,30 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     @Override
     public void planChange(PlanType plan) {
         setPlan(plan);
+    }
+    
+    @Override
+    public void keyPressed(KeyEvent event, StateRenderer2D source) {
+        if(planElem != null) {
+            if(event.isControlDown())
+                ctrlKeyPressed = true;
+            else
+                super.keyPressed(event, source);
+        }
+        else
+            super.keyPressed(event, source);
+    }
+    
+    @Override
+    public void keyReleased(KeyEvent event, StateRenderer2D source) {
+        if(planElem != null) {
+            if(event.getKeyCode() == KeyEvent.VK_CONTROL)
+                ctrlKeyPressed = false;
+            else
+                super.keyReleased(event, source);
+        }
+        else
+            super.keyReleased(event, source);        
     }
 
     @Override
