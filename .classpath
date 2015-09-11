@@ -69,7 +69,6 @@
 	<classpathentry kind="lib" path="lib/xerces-2.7.1/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="lib/dom4j/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/dom4j/jaxen-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/xalan-2.7.0/xalan.jar"/>
 	<classpathentry kind="lib" path="lib/StarfireExt.jar"/>
 	<classpathentry kind="lib" path="lib/soap/activation.jar"/>
 	<classpathentry kind="lib" path="lib/soap/mail.jar"/>
