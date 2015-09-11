@@ -150,20 +150,17 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     @Override
     public void mouseReleased(MouseEvent e, StateRenderer2D renderer) {
         if(planElem != null) {
-            if(waypointBeingDragged) {
+            if(waypointBeingDragged)
                 updateWaypointPosition(e.getPoint().getX(), e.getPoint().getY());
-                selectedManeuver = null;
-                dragPoint = null;
-                waypointBeingDragged = false;
-                
-                savePlan();
-            }
-            else if(planBeingDragged) {
+            else if(planBeingDragged)
                 dragPlan(e.getPoint());
-                planBeingDragged = false;
-                dragPoint = null;
-                savePlan();
-            }
+            
+            selectedManeuver = null;
+            dragPoint = null;
+            waypointBeingDragged = false;
+            planBeingDragged = false;
+            
+            savePlan();
             planElem.setBeingEdited(false);
         }
         else
