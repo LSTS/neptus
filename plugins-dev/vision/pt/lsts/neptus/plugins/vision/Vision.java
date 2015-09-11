@@ -51,6 +51,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -75,6 +77,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -278,6 +281,16 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //coord y for zoom
     private int zoomY = 100;
     
+    //!check ip for Host - TCP
+    //JFormattedTextField for host ip
+    private JFormattedTextField hostIp;
+    //JFrame to check host connection
+    private JFrame ipHostPing;
+    //JPanel for host ip check
+    private JPanel ipHostCheck;
+    //Flag of ping state to host
+    private boolean pingHostOk = false;
+    
     //*** TEST FOR SAVE VIDEO **/
     private File outputfile;
     private boolean flagBuffImg = false;
@@ -317,7 +330,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     if(raspiCam || ipCam){
                         xPixel = (int) ((e.getX() - 11) / xScale);  //shift window bar
                         yPixel = (int) ((e.getY() - 11) / yScale) ; //shift window bar
-                        if(raspiCam && !ipCam) {
+                        if(raspiCam && !ipCam && tcpOK) {
                             if (xPixel >= 0 && yPixel >= 0 && xPixel <= widthImgRec && yPixel <= heightImgRec)
                                 out.printf("%d#%d;\0", xPixel,yPixel);
                         }
@@ -331,18 +344,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     JMenuItem item1;
                     popup.add(item1 = new JMenuItem("Start RasPiCam", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/raspicam.jpg")))).addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
-                            if(!ipCam){
-                                raspiCam = true;
-                                ipCam = false;
-                                closeComState = false;
-                            }
-                            else{
-                                NeptusLog.pub().info("Clossing IpCam Stream...");
-                                closeComState = false;
-                                raspiCam = true;
-                                state = false;
-                                ipCam = false;
-                            }  
+                            checkHostIp();
                         }
                     });
                     item1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
@@ -350,15 +352,17 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     popup.add(item2 = new JMenuItem("Close all connection", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/close.gif")))).addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             NeptusLog.pub().info("Clossing all Video Stream...");
+                            if(raspiCam && tcpOK){
+                                try {
+                                    clientSocket.close();
+                                }
+                                catch (IOException e1) {
+                                    e1.printStackTrace();
+                                }
+                            }
                             raspiCam = false;
                             state = false;
                             ipCam = false;
-                            try {
-                                clientSocket.close();
-                            }
-                            catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
                         }
                     });
                     item2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
@@ -400,6 +404,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 }
                 else if((e.getKeyCode() == KeyEvent.VK_I) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
                     checkIpCam();
+                else if((e.getKeyCode() == KeyEvent.VK_R) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
+                    checkHostIp();
                 else if((e.getKeyCode() == KeyEvent.VK_X) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)){
                     NeptusLog.pub().info("Clossing all Video Stream...");
                     raspiCam = false;
@@ -436,6 +442,80 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         return;
     }
     
+    //!Check ip given by user
+    private void checkHostIp(){
+        ipHostPing = new JFrame("Host IP - RasPiCam");
+        ipHostPing.setSize(340, 80);
+        ipHostPing.setLocation(dim.width/2-ipCamPing.getSize().width/2, dim.height/2-ipCamPing.getSize().height/2);
+        ipHostCheck = new JPanel(new MigLayout());
+        ImageIcon imgIpCam = new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/raspicam.jpg"));
+        ipHostPing.setIconImage(imgIpCam.getImage());
+        ipHostPing.setResizable(false);
+        ipHostPing.setBackground(Color.GRAY);
+        JLabel infoHost = new JLabel(I18n.text("Host Ip: "));
+        ipHostCheck.add(infoHost, "cell 0 4 3 1");
+        hostIp = new JFormattedTextField();
+        hostIp.setValue(new String());
+        hostIp.setColumns(8);
+        hostIp.setValue(ipHost);
+        hostIp.addPropertyChangeListener("value", new PropertyChangeListener(){
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                ipHost = new String((String) evt.getNewValue());
+            }
+        });
+        ipHostCheck.add(hostIp);
+        colorStateIpCam = new JPanel();
+        jlabel = new JLabel("OFF");
+        jlabel.setFont(new Font("Verdana",1,14));
+        colorStateIpCam.setBackground(Color.RED);
+        colorStateIpCam.add(jlabel);
+        ipHostCheck.add(colorStateIpCam,"h 30!, w 30!");
+        selectIpCam = new JButton("Check");
+        selectIpCam.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if(pingIpCam(ipHost)){
+                    colorStateIpCam.setBackground(Color.GREEN);
+                    jlabel.setText("ON");
+                    pingHostOk = true;
+                }
+                else{
+                    colorStateIpCam.setBackground(Color.RED);
+                    jlabel.setText("OFF");
+                    pingHostOk = false;
+                }
+            }
+        });
+        ipHostCheck.add(selectIpCam,"h 30!");
+        selectIpCam = new JButton("OK");
+        selectIpCam.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                if(pingHostOk){
+                    ipHostPing.setVisible(false);
+                    if(!ipCam){
+                        raspiCam = true;
+                        ipCam = false;
+                        closeComState = false;
+                    }
+                    else{
+                        NeptusLog.pub().info("Clossing IpCam Stream...");
+                        closeComState = false;
+                        raspiCam = true;
+                        state = false;
+                        ipCam = false;
+                    }
+                }
+            }
+        });
+        ipHostCheck.add(selectIpCam,"h 30!");
+        ipHostPing.add(ipHostCheck);
+        ipHostPing.setVisible(true);
+    }
+    
     //!Read ipUrl.ini to find IpCam ON
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void checkIpCam(){
@@ -462,7 +542,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 JComboBox cb = (JComboBox)e.getSource();
                 rowSelect = cb.getSelectedIndex();
                 if(rowSelect != 0){
-                    if(pingIpCam(rowSelect,dataUrlIni[rowSelect][1])){
+                    if(pingIpCam(dataUrlIni[rowSelect][1])){
                         camRtpsUrl = dataUrlIni[rowSelect][2];
                         colorStateIpCam.setBackground(Color.GREEN);
                         jlabel.setText("ON");
@@ -517,7 +597,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //!Ping CamIp
-    private boolean pingIpCam (int id, String dataUrlIni){
+    private boolean pingIpCam (String dataUrlIni){
         boolean ping = false;
         try {
             if (InetAddress.getByName(dataUrlIni).isReachable(500)==true)
@@ -684,7 +764,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         
         //JPanel for info and config values      
         config = new JPanel(new MigLayout());
-        
+
         //JCheckBox save to hd
         saveToDiskCheckBox = new JCheckBox(I18n.text("Save Image to Disk"));
         saveToDiskCheckBox.setMnemonic(KeyEvent.VK_C);
