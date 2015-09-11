@@ -46,6 +46,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -70,12 +71,14 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     private boolean waypointBeingDragged;
     
     private boolean ctrlKeyPressed;
+    private boolean planBeingDragged;
     
     public WaypointsOnTheFly(ConsoleLayout console) {
         super(console);
         this.console = console;
         waypointBeingDragged = false;
         ctrlKeyPressed = false;
+        planBeingDragged = false;
     }
     
     private void setPlan(PlanType plan) {
@@ -109,8 +112,13 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         if(planElem != null) {
             if(selectedManeuver != null && SwingUtilities.isLeftMouseButton(e)) {
                 if(dragPoint != null) {
-                    waypointBeingDragged = true;
-                    updateWaypointPosition(e.getPoint().getX(), e.getPoint().getY());
+                    if(ctrlKeyPressed) /* whole plan is being moved */
+                        dragPlan(e.getPoint());
+                    
+                    else { /* dragging just one waypoint */
+                        waypointBeingDragged = true;
+                        updateWaypointPosition(e.getPoint().getX(), e.getPoint().getY());
+                    }
                 }
                 else
                     dragPoint = e.getPoint();
@@ -150,10 +158,27 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
                 
                 savePlan();
             }
+            else if(planBeingDragged) {
+                dragPlan(e.getPoint());
+                planBeingDragged = false;
+                dragPoint = null;
+                savePlan();
+            }
             planElem.setBeingEdited(false);
         }
         else
             super.mouseReleased(e, renderer);
+    }
+    
+    private void dragPlan(Point2D newPos) {
+        LocationType oldLoc = renderer.getRealWorldLocation(dragPoint);
+        LocationType newLoc= renderer.getRealWorldLocation(newPos);
+
+        double[] offsets = newLoc.getOffsetFrom(oldLoc);
+
+        planElem.translatePlan(offsets[0], offsets[1], 0);
+        dragPoint = newPos;
+        planBeingDragged = true;
     }
     
     private void savePlan() {
