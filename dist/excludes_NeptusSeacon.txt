@@ -4,5 +4,6 @@ plugins/s57-client.jar
 plugins/trex*.jar
 plugins/urready4os.jar
 plugins/waveglider.jar
+plugins/cmre*.jar
 
 
