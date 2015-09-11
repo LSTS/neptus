@@ -147,6 +147,18 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         dragPoint = newManPos;
     }
     
+    private void editWaypointZ(Maneuver waypoint, double screenX, double screenY) {
+        String value= JOptionPane.showInputDialog(console, waypoint.getId() + " Z value:");
+        if(value != null) {
+            double waypointZ = Double.parseDouble(value);
+            ManeuverLocation waypointLoc = ((LocatedManeuver) waypoint).getManeuverLocation();
+            waypointLoc.setZ(waypointZ);
+            ((LocatedManeuver) waypoint).setManeuverLocation(waypointLoc);
+            
+            planElem.recalculateManeuverPositions(renderer);
+        }
+    }
+    
     @Override
     public void mouseReleased(MouseEvent e, StateRenderer2D renderer) {
         if(planElem != null) {
@@ -191,18 +203,6 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         };
         worker.execute();
         console.updateMissionListeners();
-    }
-    
-    private void editWaypointZ(Maneuver waypoint, double screenX, double screenY) {
-        String value= JOptionPane.showInputDialog(console, waypoint.getId() + " Z value:");
-        if(value != null) {
-            double waypointZ = Double.parseDouble(value);
-            ManeuverLocation waypointLoc = ((LocatedManeuver) waypoint).getManeuverLocation();
-            waypointLoc.setZ(waypointZ);
-            ((LocatedManeuver) waypoint).setManeuverLocation(waypointLoc);
-            
-            planElem.recalculateManeuverPositions(renderer);
-        }
     }
     
     @Override
