@@ -36,7 +36,7 @@ Authors:
 Copyright:
   (c) FEUP-LSTS, Neptus Team.
 ==================================================================== -->
-<?xml-stylesheet type="text/xsl" href="ant2html.xsl"?>
+
 <project name="Neptus" default="default" basedir=".">
 
 	<description>
