@@ -231,7 +231,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/zxing-bin.jar"/>
 	<classpathentry kind="lib" path="plugins-dev/shapefiles/lib/shapefilereader-1.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/opencv-2.4.9"/>
 	<classpathentry kind="lib" path="plugins-dev/vision/lib/opencv-2.4.9.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
