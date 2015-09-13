@@ -120,7 +120,6 @@ public class MjpegFile extends RiffFile {
 
     private void readRecordIDX1(int number, int offset) {
         IndexRecord record = new IndexRecord();
-        int id = memory.getInt(offset);
         record.setFlags(memory.getInt(offset + 4));
         record.setOffset(memory.getInt(offset + 8));
         record.setSize(memory.getInt(offset + 12));
