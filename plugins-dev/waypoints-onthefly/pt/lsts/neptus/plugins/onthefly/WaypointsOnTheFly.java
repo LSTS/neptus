@@ -95,7 +95,8 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     public void mousePressed(MouseEvent event, StateRenderer2D renderer) {
         if(planElem != null) {
             planElem.setBeingEdited(true);
-            currSelectedManeuver = planElem.iterateManeuverUnder(event.getPoint());           
+            
+            selectManeuver(event.getPoint());
             if(SwingUtilities.isRightMouseButton(event) && currSelectedManeuver != null) {
                 editWaypointZ(currSelectedManeuver, event.getPoint().getX(), event.getPoint().getY());
                 savePlan();
@@ -105,6 +106,11 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         }
         else
             super.mousePressed(event, renderer);
+    }
+    
+    /* Handle maneuver selection */
+    private void selectManeuver(Point2D position) {
+        currSelectedManeuver = planElem.iterateManeuverUnder(position);
     }
     
     @Override
