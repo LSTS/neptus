@@ -204,7 +204,6 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             else if(planBeingDragged)
                 dragPlan(e.getPoint());
             
-            currSelectedManeuver = null;
             dragPoint = null;
             waypointBeingDragged = false;
             planBeingDragged = false;
