@@ -105,7 +105,9 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         if(planElem != null) {
             planElem.setBeingEdited(true);
             
-            selectManeuver(event.getPoint());
+            if(SwingUtilities.isLeftMouseButton(event))
+                selectManeuver(event.getPoint());
+            
             if(SwingUtilities.isRightMouseButton(event) && currSelectedManeuver != null) {
                 editWaypointZ(currSelectedManeuver, event.getPoint().getX(), event.getPoint().getY());
                 savePlan();
