@@ -35,6 +35,7 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -67,18 +68,24 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     StateRenderer2D renderer;
     
     private Maneuver currSelectedManeuver;
+    private HashMap<String, Maneuver> selectedManeuvers;
     private Point2D dragPoint;
     private boolean waypointBeingDragged;
     
     private boolean ctrlKeyPressed;
+    private boolean shiftKeyPressed;
     private boolean planBeingDragged;
+    //private boolean multipleManeuversSelected;
     
     public WaypointsOnTheFly(ConsoleLayout console) {
         super(console);
         this.console = console;
         waypointBeingDragged = false;
         ctrlKeyPressed = false;
+        shiftKeyPressed = false;
         planBeingDragged = false;
+        
+        selectedManeuvers = new HashMap<>();
     }
     
     private void setPlan(PlanType plan) {
@@ -87,6 +94,8 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             planElem = new PlanElement(currPlan.getMapGroup(), new MapType());
             planElem.setRenderer(this.renderer);
             planElem.setPlan(currPlan);
+
+            selectedManeuvers.clear();
         }
     }
     
@@ -108,11 +117,31 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             super.mousePressed(event, renderer);
     }
     
-    /* Handle maneuver selection */
+    /* 
+       Handle maneuver selection. 
+       If on 'multiple selection mode' store the selected maneuver,
+       but if it was already selected, unselect it.
+     */
     private void selectManeuver(Point2D position) {
         currSelectedManeuver = planElem.iterateManeuverUnder(position);
+        
+        if(currSelectedManeuver != null) {
+            String maneuverId = currSelectedManeuver.getId();
+            if(shiftKeyPressed) { /* multiple maneveuvers selection */
+                if(selectedManeuvers.containsKey(maneuverId)) /* unselect */
+                    selectedManeuvers.remove(maneuverId);
+                else
+                    selectedManeuvers.put(maneuverId, (Maneuver)(currSelectedManeuver.clone()));
+            }
+            else { /* single maneuver selection */
+                selectedManeuvers.clear();
+                selectedManeuvers.put(maneuverId, (Maneuver)(currSelectedManeuver.clone()));
+            }
+        }
+        else /* 'forget' all selected maneuvers */
+            selectedManeuvers.clear();
     }
-    
+        
     @Override
     public void mouseDragged(MouseEvent e, StateRenderer2D renderer) {
         if(planElem != null) {
@@ -229,6 +258,8 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         if(planElem != null) {
             if(event.isControlDown())
                 ctrlKeyPressed = true;
+            else if(event.isShiftDown())
+                shiftKeyPressed = true;
             else
                 super.keyPressed(event, source);
         }
@@ -241,6 +272,8 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         if(planElem != null) {
             if(event.getKeyCode() == KeyEvent.VK_CONTROL)
                 ctrlKeyPressed = false;
+            else if(event.getKeyCode() == KeyEvent.VK_SHIFT)
+                shiftKeyPressed = false;
             else
                 super.keyReleased(event, source);
         }
