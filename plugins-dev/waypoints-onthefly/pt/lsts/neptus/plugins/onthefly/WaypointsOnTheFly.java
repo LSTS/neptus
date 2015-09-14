@@ -66,7 +66,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     private PlanType currPlan;
     StateRenderer2D renderer;
     
-    private Maneuver selectedManeuver;
+    private Maneuver currSelectedManeuver;
     private Point2D dragPoint;
     private boolean waypointBeingDragged;
     
@@ -95,9 +95,9 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     public void mousePressed(MouseEvent event, StateRenderer2D renderer) {
         if(planElem != null) {
             planElem.setBeingEdited(true);
-            selectedManeuver = planElem.iterateManeuverUnder(event.getPoint());           
-            if(SwingUtilities.isRightMouseButton(event) && selectedManeuver != null) {
-                editWaypointZ(selectedManeuver, event.getPoint().getX(), event.getPoint().getY());
+            currSelectedManeuver = planElem.iterateManeuverUnder(event.getPoint());           
+            if(SwingUtilities.isRightMouseButton(event) && currSelectedManeuver != null) {
+                editWaypointZ(currSelectedManeuver, event.getPoint().getX(), event.getPoint().getY());
                 savePlan();
             }
             else
@@ -110,7 +110,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     @Override
     public void mouseDragged(MouseEvent e, StateRenderer2D renderer) {
         if(planElem != null) {
-            if(selectedManeuver != null && SwingUtilities.isLeftMouseButton(e)) {
+            if(currSelectedManeuver != null && SwingUtilities.isLeftMouseButton(e)) {
                 if(dragPoint != null) {
                     if(ctrlKeyPressed) /* whole plan is being moved */
                         dragPlan(e.getPoint());
@@ -136,11 +136,11 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     private void updateWaypointPosition(double mouseX, double mouseY) {
         double diffX = mouseX - dragPoint.getX();
         double diffY = mouseY - dragPoint.getY();
-        Point2D newManPos = planElem.translateManeuverPosition(selectedManeuver.getId(), diffX, diffY);
+        Point2D newManPos = planElem.translateManeuverPosition(currSelectedManeuver.getId(), diffX, diffY);
 
-        ManeuverLocation loc = ((LocatedManeuver) selectedManeuver).getManeuverLocation();
+        ManeuverLocation loc = ((LocatedManeuver) currSelectedManeuver).getManeuverLocation();
         loc.setLocation(renderer.getRealWorldLocation(newManPos));
-        ((LocatedManeuver) selectedManeuver).setManeuverLocation(loc);
+        ((LocatedManeuver) currSelectedManeuver).setManeuverLocation(loc);
         
         planElem.recalculateManeuverPositions(renderer);
         
@@ -167,7 +167,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             else if(planBeingDragged)
                 dragPlan(e.getPoint());
             
-            selectedManeuver = null;
+            currSelectedManeuver = null;
             dragPoint = null;
             waypointBeingDragged = false;
             planBeingDragged = false;
