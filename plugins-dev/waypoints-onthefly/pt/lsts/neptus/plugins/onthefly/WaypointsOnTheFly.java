@@ -67,7 +67,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     private PlanType currPlan;
     StateRenderer2D renderer;
     
-    private Maneuver currSelectedManeuver;
+    private Maneuver lastSelectedManeuver;
     //private HashMap<String, Maneuver> selectedManeuvers;
     private Point2D dragPoint;
     private boolean waypointBeingDragged;
@@ -105,8 +105,8 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             if(SwingUtilities.isLeftMouseButton(event))
                 selectManeuver(event.getPoint());
             
-            if(SwingUtilities.isRightMouseButton(event) && currSelectedManeuver != null) {
-                editWaypointZ(currSelectedManeuver, event.getPoint().getX(), event.getPoint().getY());
+            if(SwingUtilities.isRightMouseButton(event) && lastSelectedManeuver != null) {
+                editWaypointZ(lastSelectedManeuver, event.getPoint().getX(), event.getPoint().getY());
                 savePlan();
             }
             else
@@ -122,10 +122,10 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
        but if it was already selected, unselect it.
      */
     private void selectManeuver(Point2D position) {
-        currSelectedManeuver = planElem.iterateManeuverUnder(position);
+        lastSelectedManeuver = planElem.iterateManeuverUnder(position);
         
-        if(currSelectedManeuver != null) {
-            String maneuverId = currSelectedManeuver.getId();
+        if(lastSelectedManeuver != null) {
+            String maneuverId = lastSelectedManeuver.getId();
             if(shiftKeyPressed) { /* multiple maneveuvers selection */
                 if(planElem.isSelectedManeuver(maneuverId)) /* unselect */
                     planElem.removeSelectedManeuver(maneuverId);
@@ -139,12 +139,16 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         }
         else /* 'forget' all selected maneuvers */
             planElem.clearSelectedManeuvers();
+        
+        for(String manId : planElem.getSelectedManeuvers())
+            System.out.println(manId);
+        System.out.println("\n");
     }
         
     @Override
     public void mouseDragged(MouseEvent e, StateRenderer2D renderer) {
         if(planElem != null) {
-            if(currSelectedManeuver != null && SwingUtilities.isLeftMouseButton(e)) {
+            if(lastSelectedManeuver != null && SwingUtilities.isLeftMouseButton(e)) {
                 if(dragPoint != null) {
                     if(ctrlKeyPressed) /* whole plan is being moved */
                         dragPlan(e.getPoint());
@@ -170,11 +174,11 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     private void updateWaypointPosition(double mouseX, double mouseY) {
         double diffX = mouseX - dragPoint.getX();
         double diffY = mouseY - dragPoint.getY();
-        Point2D newManPos = planElem.translateManeuverPosition(currSelectedManeuver.getId(), diffX, diffY);
+        Point2D newManPos = planElem.translateManeuverPosition(lastSelectedManeuver.getId(), diffX, diffY);
 
-        ManeuverLocation loc = ((LocatedManeuver) currSelectedManeuver).getManeuverLocation();
+        ManeuverLocation loc = ((LocatedManeuver) lastSelectedManeuver).getManeuverLocation();
         loc.setLocation(renderer.getRealWorldLocation(newManPos));
-        ((LocatedManeuver) currSelectedManeuver).setManeuverLocation(loc);
+        ((LocatedManeuver) lastSelectedManeuver).setManeuverLocation(loc);
         
         planElem.recalculateManeuverPositions(renderer);
         
