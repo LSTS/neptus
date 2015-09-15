@@ -43,6 +43,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -91,6 +92,10 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
     private LinkedHashMap<String, Point2D> endManeuverLocations = new LinkedHashMap<String, Point2D>();
     private Color color = GeneralPreferences.rendererPlanColor;
     private String selectedManeuver = null;
+    
+    /* Both, added because of plugin waypoints-onthefly/WaypointsOnTheFly (tsmarques, 15/09/2015)*/
+    private boolean multipleManeuversSelection = false;
+    private LinkedList<String> manIDs;
 
     private String activeManeuver = null;
 
@@ -621,7 +626,20 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
 //                g.translate(loc.getX(), loc.getY());
 //            }
             g.translate(loc.getX(), loc.getY());
-            man.paintOnMap(g, this, renderer);
+            
+            /* Added because of plugin waypoints-onthefly/WaypointsOnTheFly (tsmarques, 15/09/2015) */
+            if(multipleManeuversSelection) {
+                String tmp = getSelectedManeuver();
+                String manId = man.getId();
+                if(manIDs.contains(manId))
+                    this.setSelectedManeuver(manId);
+                
+                man.paintOnMap(g, this, renderer);
+                /* restore planElem */
+                this.setSelectedManeuver(tmp);
+            }
+            else
+                man.paintOnMap(g, this, renderer);
         }
 
         g.setTransform(oldTransform);
@@ -805,6 +823,94 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
 
     public void setSelectedManeuver(String selectedManeuver) {
         this.selectedManeuver = selectedManeuver;
+    }
+    
+    /**
+     * Enable/Disable multiple maneuvers selection
+     * Added because of plugin waypoints-onthefly/WaypointsOnTheFly (tsmarques, 15/09/2015)
+     * 
+     * @param value Enable or disable multiple maneuvers selection
+     * 
+     */
+    public void allowMultipleSelectedManeuvers(boolean value) {
+        multipleManeuversSelection = value;
+        
+        clearSelectedManeuvers();
+    }
+    
+    /**
+     * Returns the ids of all selected maneuvers. If multiple maneuver selection is
+     * disabled, returns null.
+     * Added because of plugin waypoints-onthefly/WaypointsOnTheFly (tsmarques, 15/09/2015)
+     * 
+     * @param value Enable or disable multiple maneuvers selection.
+     * @return A list with the ids of the selected maneuvers or 'null' 
+     * if multiple maneuver selection is not enabled.
+     */
+    public List<String> getSelectedManeuvers() {
+        if(multipleManeuversSelection)
+            return manIDs;
+        else
+            return null;
+    }
+    
+    /**
+     * Add a new selected maneuver. In case multiple maneuver selection is
+     * disabled, this acts as 'setSelectedManeuver()' method.
+     * Added because of plugin waypoints-onthefly/WaypointsOnTheFly (tsmarques, 15/09/2015)
+     * 
+     * @param selectedManeuver Maneuver to set as selected
+     * 
+     */
+    public void addSelectedManeuver(String selectedManeuver) {
+        if(multipleManeuversSelection)
+            manIDs.add(selectedManeuver);
+        else
+            setSelectedManeuver(selectedManeuver);
+    }
+    
+    /**
+     * Unselect maneuver. In case multiple maneuver selection is disabled
+     * this method does nothing.
+     * Added because of plugin waypoints-onthefly/WaypointsOnTheFly (tsmarques, 15/09/2015)
+     * 
+     * @param selectedManeuver Maneuver to set as selected
+     * 
+     */
+    public void removeSelectedManeuver(String selectedManeuver) {
+        if(multipleManeuversSelection)
+            manIDs.remove(selectedManeuver);
+    }
+    
+    /**
+     * Checks if the given maneuver is selected. In case multiple maneuver selection
+     * is disabled, this acts as 'getSelectedManeuver() == maneuver'
+     * Added because of plugin waypoints-onthefly/WaypointsOnTheFly (tsmarques, 15/09/2015)
+     * 
+     * @param maneuver
+     * 
+     */
+    public boolean isSelectedManeuver(String maneuver) {
+        if(manIDs != null && !manIDs.isEmpty())
+            return manIDs.contains(maneuver);
+        else
+            return false;
+    }
+    
+    /**
+     * 'Forget' all selected maneuvers. In case multiple maneuver selection is
+     * disabled, this does nothing.
+     * Added because of plugin waypoints-onthefly/WaypointsOnTheFly (tsmarques, 15/09/2015)
+     * 
+     */
+    public void clearSelectedManeuvers() {
+        if(!multipleManeuversSelection)
+            return;
+        
+        if(manIDs == null)
+            manIDs = new LinkedList<String>();
+        else
+            manIDs.clear();
     }
 
     public int getSnapPixels() {
