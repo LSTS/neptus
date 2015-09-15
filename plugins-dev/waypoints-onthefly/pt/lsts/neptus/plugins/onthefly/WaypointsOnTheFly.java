@@ -68,14 +68,13 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     StateRenderer2D renderer;
     
     private Maneuver currSelectedManeuver;
-    private HashMap<String, Maneuver> selectedManeuvers;
+    //private HashMap<String, Maneuver> selectedManeuvers;
     private Point2D dragPoint;
     private boolean waypointBeingDragged;
     
     private boolean ctrlKeyPressed;
     private boolean shiftKeyPressed;
     private boolean planBeingDragged;
-    //private boolean multipleManeuversSelected;
     
     public WaypointsOnTheFly(ConsoleLayout console) {
         super(console);
@@ -84,8 +83,6 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         ctrlKeyPressed = false;
         shiftKeyPressed = false;
         planBeingDragged = false;
-        
-        selectedManeuvers = new HashMap<>();
     }
     
     private void setPlan(PlanType plan) {
@@ -94,12 +91,12 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             planElem = new PlanElement(currPlan.getMapGroup(), new MapType());
             planElem.setRenderer(this.renderer);
             planElem.setPlan(currPlan);
-
-            selectedManeuvers.clear();
+            planElem.allowMultipleSelectedManeuvers(true);
+            
+            planElem.clearSelectedManeuvers();
         }
     }
-    
-    
+       
     @Override
     public void mousePressed(MouseEvent event, StateRenderer2D renderer) {
         if(planElem != null) {
@@ -130,18 +127,18 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         if(currSelectedManeuver != null) {
             String maneuverId = currSelectedManeuver.getId();
             if(shiftKeyPressed) { /* multiple maneveuvers selection */
-                if(selectedManeuvers.containsKey(maneuverId)) /* unselect */
-                    selectedManeuvers.remove(maneuverId);
+                if(planElem.isSelectedManeuver(maneuverId)) /* unselect */
+                    planElem.removeSelectedManeuver(maneuverId);
                 else
-                    selectedManeuvers.put(maneuverId, (Maneuver)(currSelectedManeuver.clone()));
+                    planElem.addSelectedManeuver(maneuverId);
             }
             else { /* single maneuver selection */
-                selectedManeuvers.clear();
-                selectedManeuvers.put(maneuverId, (Maneuver)(currSelectedManeuver.clone()));
+                planElem.clearSelectedManeuvers();
+                planElem.addSelectedManeuver(maneuverId);
             }
         }
         else /* 'forget' all selected maneuvers */
-            selectedManeuvers.clear();
+            planElem.clearSelectedManeuvers();
     }
         
     @Override
