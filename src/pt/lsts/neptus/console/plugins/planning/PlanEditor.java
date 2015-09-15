@@ -634,6 +634,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     if (option == JOptionPane.NO_OPTION)
                         return;
                 }
+                getPropertiesPanel().setManeuver(null);
                 setPlan(null);
                 manager.discardAllEdits();
                 updateUndoRedo();
