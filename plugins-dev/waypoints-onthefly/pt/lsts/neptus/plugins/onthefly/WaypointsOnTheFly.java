@@ -36,8 +36,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
+import java.util.Map;
 
+import javax.swing.Box;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
@@ -106,7 +111,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
                 selectManeuver(event.getPoint());
             
             if(SwingUtilities.isRightMouseButton(event) && lastSelectedManeuver != null) {
-                editWaypointZ(lastSelectedManeuver, event.getPoint().getX(), event.getPoint().getY());
+                editWaypointsZ();
                 savePlan();
             }
             else
@@ -181,15 +186,40 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         dragPoint = newManPos;
     }
     
-    private void editWaypointZ(Maneuver waypoint, double screenX, double screenY) {
-        String value= JOptionPane.showInputDialog(console, waypoint.getId() + " Z value:");
-        if(value != null) {
-            double waypointZ = Double.parseDouble(value);
-            ManeuverLocation waypointLoc = ((LocatedManeuver) waypoint).getManeuverLocation();
-            waypointLoc.setZ(waypointZ);
-            ((LocatedManeuver) waypoint).setManeuverLocation(waypointLoc);
+    private void editWaypointsZ() {
+        JPanel editionPanel = new JPanel();
+        HashMap<String, JTextField> manTextField = new HashMap<>();
+        
+        /* build edition panel */
+        for(String manId : planElem.getSelectedManeuvers()) {
+            JTextField textField = new JTextField(3);
+            manTextField.put(manId, textField);
             
-            planElem.recalculateManeuverPositions(renderer);
+            editionPanel.add(new JLabel(manId + ": "));
+            editionPanel.add(textField);
+            editionPanel.add(Box.createHorizontalStrut(10));
+        }
+        
+        int result = JOptionPane.showConfirmDialog(null, editionPanel, 
+                "Change the Z value of the waypoint(s):", JOptionPane.OK_CANCEL_OPTION);
+        
+        /* parse and update Z values */
+        if(result == JOptionPane.OK_OPTION) {
+            for(Map.Entry<String, JTextField> entry : manTextField.entrySet()) {
+                String manId = entry.getKey();
+                String textValue = entry.getValue().getText();
+                
+                if(textValue != null) {
+                    Maneuver man = currPlan.getGraph().getManeuver(manId);
+                    double zValue = Double.parseDouble(textValue);
+                    
+                    ManeuverLocation maneuverLoc = ((LocatedManeuver) man).getManeuverLocation();
+                    maneuverLoc.setZ(zValue);
+                    ((LocatedManeuver) man).setManeuverLocation(maneuverLoc);
+                    
+                    planElem.recalculateManeuverPositions(renderer);
+                }
+            }
         }
     }
     
