@@ -139,10 +139,6 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         }
         else /* 'forget' all selected maneuvers */
             planElem.clearSelectedManeuvers();
-        
-        for(String manId : planElem.getSelectedManeuvers())
-            System.out.println(manId);
-        System.out.println("\n");
     }
         
     @Override
