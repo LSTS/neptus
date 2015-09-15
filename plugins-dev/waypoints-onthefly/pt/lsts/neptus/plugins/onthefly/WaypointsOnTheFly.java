@@ -128,7 +128,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             String maneuverId = lastSelectedManeuver.getId();
             if(shiftKeyPressed) { /* multiple maneveuvers selection */
                 if(planElem.isSelectedManeuver(maneuverId)) /* unselect */
-                    planElem.removeSelectedManeuver(maneuverId);
+                    lastSelectedManeuver = planElem.removeSelectedManeuver(maneuverId);
                 else
                     planElem.addSelectedManeuver(maneuverId);
             }

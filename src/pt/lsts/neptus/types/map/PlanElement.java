@@ -870,16 +870,28 @@ public class PlanElement extends AbstractElement implements Renderer2DPainter, P
     }
     
     /**
-     * Unselect maneuver. In case multiple maneuver selection is disabled
-     * this method does nothing.
+     * Unselect maneuver and return previous selected one, or 'null' if there's none.
+     * In case multiple maneuver selection is disabled this method returns null.
      * Added because of plugin waypoints-onthefly/WaypointsOnTheFly (tsmarques, 15/09/2015)
      * 
      * @param selectedManeuver Maneuver to set as selected
-     * 
+     * @return Previous selected maneuver(before selectedManeuver) or null
      */
-    public void removeSelectedManeuver(String selectedManeuver) {
-        if(multipleManeuversSelection)
+    public Maneuver removeSelectedManeuver(String selectedManeuver) {
+        if(multipleManeuversSelection && manIDs.contains(selectedManeuver)) {
             manIDs.remove(selectedManeuver);
+            
+            if(!manIDs.isEmpty()) {
+                String prevSelecManId = manIDs.getLast();
+                this.selectedManeuver = prevSelecManId;
+                
+                return plan.getGraph().getManeuver(prevSelecManId);
+            }
+            else
+                this.selectedManeuver = null;
+        }
+        
+        return null;
     }
     
     /**
