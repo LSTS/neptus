@@ -110,10 +110,8 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             if(SwingUtilities.isLeftMouseButton(event))
                 selectManeuver(event.getPoint());
             
-            if(SwingUtilities.isRightMouseButton(event) && lastSelectedManeuver != null) {
+            if(SwingUtilities.isRightMouseButton(event) && lastSelectedManeuver != null)
                 editWaypointsZ();
-                savePlan();
-            }
             else
                 super.mousePressed(event, renderer);
         }
@@ -220,26 +218,33 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
                     planElem.recalculateManeuverPositions(renderer);
                 }
             }
+            savePlan();
         }
     }
     
     @Override
     public void mouseReleased(MouseEvent e, StateRenderer2D renderer) {
         if(planElem != null) {
-            if(waypointBeingDragged)
-                updateWaypointPosition(e.getPoint().getX(), e.getPoint().getY());
-            else if(planBeingDragged)
-                dragPlan(e.getPoint());
-            
-            dragPoint = null;
-            waypointBeingDragged = false;
-            planBeingDragged = false;
-            
-            savePlan();
+            if(planHasChanged()) {
+                if(waypointBeingDragged)
+                    updateWaypointPosition(e.getPoint().getX(), e.getPoint().getY());
+                else if(planBeingDragged)
+                    dragPlan(e.getPoint());
+
+                dragPoint = null;
+                waypointBeingDragged = false;
+                planBeingDragged = false;
+
+                savePlan();
+            }
             planElem.setBeingEdited(false);
         }
         else
             super.mouseReleased(e, renderer);
+    }
+    
+    private boolean planHasChanged() {
+        return waypointBeingDragged || planBeingDragged;
     }
     
     private void dragPlan(Point2D newPos) {
@@ -265,6 +270,9 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             }
         };
         worker.execute();
+        
+        if (getConsole().getPlan() == null || getConsole().getPlan().getId().equalsIgnoreCase(currPlan.getId()))
+            getConsole().setPlan(currPlan);
         console.updateMissionListeners();
     }
     
