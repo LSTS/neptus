@@ -188,35 +188,29 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     
     private void editWaypointsZ() {
         JPanel editionPanel = new JPanel();
-        HashMap<String, JTextField> manTextField = new HashMap<>();
+        JTextField zvalueField = new JTextField(3);
         
         /* build edition panel */
-        for(String manId : planElem.getSelectedManeuvers()) {
-            JTextField textField = new JTextField(3);
-            manTextField.put(manId, textField);
-            
-            editionPanel.add(new JLabel(manId + ": "));
-            editionPanel.add(textField);
-            editionPanel.add(Box.createHorizontalStrut(10));
-        }
+        editionPanel.add(new JLabel("Z Value: "));
+        editionPanel.add(zvalueField);
         
         int result = JOptionPane.showConfirmDialog(null, editionPanel, 
                 "Change the Z value of the waypoint(s):", JOptionPane.OK_CANCEL_OPTION);
         
         /* parse and update Z values */
         if(result == JOptionPane.OK_OPTION) {
-            for(Map.Entry<String, JTextField> entry : manTextField.entrySet()) {
-                String manId = entry.getKey();
-                String textValue = entry.getValue().getText();
+            String textValue = zvalueField.getText();
+            
+            if(textValue != null) {
+                double zValue = Double.parseDouble(textValue);
                 
-                if(textValue != null) {
-                    Maneuver man = currPlan.getGraph().getManeuver(manId);
-                    double zValue = Double.parseDouble(textValue);
-                    
+                for(String maneuverId : planElem.getSelectedManeuvers()) {
+                    Maneuver man = currPlan.getGraph().getManeuver(maneuverId);
+
                     ManeuverLocation maneuverLoc = ((LocatedManeuver) man).getManeuverLocation();
                     maneuverLoc.setZ(zValue);
                     ((LocatedManeuver) man).setManeuverLocation(maneuverLoc);
-                    
+
                     planElem.recalculateManeuverPositions(renderer);
                 }
             }
