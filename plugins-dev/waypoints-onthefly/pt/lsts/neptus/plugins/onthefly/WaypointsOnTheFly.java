@@ -61,8 +61,10 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
 
 /**
+ * Plugin that allows for a plan to be changed without entering in 'Plan Editor'.
+ * Allows waypoint and whole plan dragging, and changing a single or multiple waypoints Z value.
+ * 
  * @author tsmarques
- *
  */
 @PluginDescription(author = "tsmarques", name = "Waypoints On-The-Fly", version = "0.1", description = "Edit waypoints on the map, and update the plan automatically")
 public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeListener, Renderer2DPainter {
