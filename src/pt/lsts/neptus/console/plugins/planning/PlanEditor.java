@@ -1296,7 +1296,14 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
     }
 
     protected AbstractAction getPasteAction(final Point mousePoint) {
-        Transferable contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+        Transferable contents = null;
+        try {
+            contents = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+        }
+        catch (Exception e1) {
+            NeptusLog.pub().warn(e1);
+        }
+        
         boolean enabled = false;
 
         boolean hasTransferableText = (contents != null) && contents.isDataFlavorSupported(DataFlavor.stringFlavor);
