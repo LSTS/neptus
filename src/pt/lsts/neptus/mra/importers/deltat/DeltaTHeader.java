@@ -83,6 +83,14 @@ public class DeltaTHeader {
 
     public short numberOfPingsAveraged;
 
+    public String gnssShipPosLat = "";
+    public String gnssShipPosLon = "";
+    public double gnssShipCourse;
+    
+    public float sonarXOffset = Float.NaN;
+    public float sonarYOffset = Float.NaN;
+    public float sonarZOffset = Float.NaN;
+    
     private static Calendar cal;
     private static Pattern pTimeStamp;
     {
@@ -123,6 +131,20 @@ public class DeltaTHeader {
         rangeResolution = b.getShort(85);
         
         speed = convertKnotsToMetersPerSecond((b.get(61) / 10.0));
+        
+        gnssShipCourse = b.getShort(62) / 10.0;
+        
+        byte shipLatLonBuf[] = new byte[14];
+        b.position(33);
+        b.get(shipLatLonBuf, 0, 14);
+        gnssShipPosLat = new String(shipLatLonBuf);;
+        b.position(47);
+        b.get(shipLatLonBuf, 0, 14);
+        gnssShipPosLon = new String(shipLatLonBuf);;
+        
+        sonarXOffset = b.getFloat(100);
+        sonarYOffset = b.getFloat(104);
+        sonarZOffset = b.getFloat(108);
         
         byte hasInt = b.get(117);
         hasIntensity = (hasInt == 1) ? true : false;
