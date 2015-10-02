@@ -738,7 +738,7 @@ public class KMLExporter implements MRAExporter {
             File out = new File(source.getFile("mra"), "kml");
             out.mkdirs();
 
-            out = new File(out, "data.kml");
+            out = new File(out, "Data.kml");
             BufferedWriter bw = new BufferedWriter(new FileWriter(out));
             File f = source.getFile(".");
             String name = f.getCanonicalFile().getName();
@@ -879,14 +879,14 @@ public class KMLExporter implements MRAExporter {
             if (compressOutput) {
                 pmonitor.setNote("Compressing output");
                 
-                System.out.println(new File(source.getFile("mra"), "data.kmz"));
+                System.out.println(new File(source.getFile("mra"), "Data.kmz"));
                 System.out.println(new File(source.getFile("mra"), "kml"));
-                ZipUtils.zipDir(new File(source.getFile("mra"), "data.kmz").getAbsolutePath(), new File(source.getFile("mra"), "kml").getAbsolutePath());            
+                ZipUtils.zipDir(new File(source.getFile("mra"), "Data.kmz").getAbsolutePath(), new File(source.getFile("mra"), "kml").getAbsolutePath());            
                 
                 pmonitor.setNote("Deleting old directory");
                 FileUtil.deltree(out.getAbsolutePath());
                 pmonitor.close();
-                return "Log exported to " + new File(source.getFile("mra"), "data.kmz").getAbsolutePath();
+                return "Log exported to " + new File(source.getFile("mra"), "Data.kmz").getAbsolutePath();
             }
             else
                 return "Log exported to " + out.getAbsolutePath();
