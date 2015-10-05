@@ -56,7 +56,7 @@ public class PhotoToolbar extends JPanel {
     private static final long serialVersionUID = 1L;
     protected MraPhotosVisualization display;
     protected JToggleButton grayToggle, sharpenToggle, wbalanceToggle,
-    contrastToggle, brightToggle, legendToggle;
+    contrastToggle, brightToggle, legendToggle, histGrayFilter, histColorFilter;
 
     protected JButton nextButton, prevButton;
     protected File[] allFiles;
@@ -194,7 +194,41 @@ public class PhotoToolbar extends JPanel {
         legendToggle.setSelected(true);
         legendToggle.setToolTipText(I18n.text("Show legend"));
         add(legendToggle);
+        
+        //TODO
+        histGrayFilter = new JToggleButton("H/G");
+        histGrayFilter.addActionListener(new ActionListener() {
 
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (histGrayFilter.isSelected())
+                    display.grayHist = true;
+                else
+                    display.grayHist = false;
+
+                display.setCurFile(display.getCurFile());
+            }
+        });
+        histGrayFilter.setToolTipText(I18n.text("Histogram Equalization Gray Filter"));
+        
+        add(histGrayFilter);
+        
+        histColorFilter = new JToggleButton("H/C");
+        histColorFilter.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (histColorFilter.isSelected())
+                    display.colorHist = true;
+                else
+                    display.colorHist = false;
+
+                display.setCurFile(display.getCurFile());
+            }
+        });
+        histColorFilter.setToolTipText(I18n.text("Histogram Equalization Color Filter"));
+        
+        add(histColorFilter);
         add(prevButton);
         add(nextButton);
     }
