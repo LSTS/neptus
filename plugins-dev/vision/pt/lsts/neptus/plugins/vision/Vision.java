@@ -837,7 +837,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     public void cleanSubPanel() {
         if(raspiCam){
             NeptusLog.pub().info("Closing TCP connection to RaspiCam ");
-            closeTcpCom();
+            if(raspiCam && tcpOK)
+                closeTcpCom();
         }
         closingPanel = true;
     }
