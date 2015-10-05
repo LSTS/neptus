@@ -44,6 +44,8 @@ import javax.swing.JColorChooser;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
+import org.opencv.core.Core;
+
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -195,7 +197,18 @@ public class PhotoToolbar extends JPanel {
         legendToggle.setToolTipText(I18n.text("Show legend"));
         add(legendToggle);
         
-        //TODO
+        boolean has_ocv = false;
+        try {
+            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+            has_ocv = true;
+        }
+        catch (Exception e) {
+            
+        }
+        catch (Error e) {
+            
+        }
+        
         histGrayFilter = new JToggleButton("H/G");
         histGrayFilter.addActionListener(new ActionListener() {
 
@@ -209,7 +222,12 @@ public class PhotoToolbar extends JPanel {
                 display.setCurFile(display.getCurFile());
             }
         });
-        histGrayFilter.setToolTipText(I18n.text("Histogram Equalization Gray Filter"));
+        if (has_ocv)
+            histGrayFilter.setToolTipText(I18n.text("Histogram Equalization Gray Filter"));
+        else {
+            histGrayFilter.setEnabled(false);
+            histGrayFilter.setToolTipText(I18n.text("OpenCV was not detected."));
+        }
         
         add(histGrayFilter);
         
@@ -226,7 +244,13 @@ public class PhotoToolbar extends JPanel {
                 display.setCurFile(display.getCurFile());
             }
         });
-        histColorFilter.setToolTipText(I18n.text("Histogram Equalization Color Filter"));
+        if (has_ocv) {
+            histColorFilter.setToolTipText(I18n.text("Histogram Equalization Color Filter"));
+        }
+        else {
+            histColorFilter.setEnabled(false);
+            histColorFilter.setToolTipText(I18n.text("OpenCV was not detected."));
+        }        
         
         add(histColorFilter);
         add(prevButton);

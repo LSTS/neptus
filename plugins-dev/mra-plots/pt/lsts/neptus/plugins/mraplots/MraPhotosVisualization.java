@@ -136,6 +136,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
     protected Point2D zoomPoint = null;
     protected boolean fullRes = false;
     protected Vector<LogMarker> markers = new Vector<>();
+    
     private File[] allFiles;
     long startTime;
     long endTime;
@@ -582,45 +583,52 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         if (grayscale)
             ops.add(grayscaleOp);
 
-        final BufferedImageOp[] operations = ops.toArray(new BufferedImageOp[0]);
+        BufferedImageOp[] operations = ops.toArray(new BufferedImageOp[0]);
 
         BufferedImage original = ImageIO.read(f);
         if (fullRes || useFullResolution) {
-            if (!ops.isEmpty())
-                original = Scalr.apply(original, operations);
+            if (ops.isEmpty()) {
+                operations = new BufferedImageOp[] {ImageUtils.identityOp()};
+            }
+            original = Scalr.apply(original, operations);
         }
         else {
             original = Scalr.resize(original, getWidth(), getHeight(), operations);
         }
         
-        if(grayHist)
-        {
-            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-            matGrayTemp = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC1);
-            matGray = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC3);
-            Imgproc.cvtColor(bufferedImageToMat(original), matGrayTemp, Imgproc.COLOR_RGB2GRAY);
-            Imgproc.equalizeHist(matGrayTemp, matGrayTemp);
-            Imgproc.cvtColor(matGrayTemp, matGray, Imgproc.COLOR_GRAY2RGB);
-            original = matToBufferedImage(matGray);
+        try {
+            if(grayHist && !colorHist)
+            {
+                
+                matGrayTemp = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC1);
+                matGray = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC3);
+                Imgproc.cvtColor(bufferedImageToMat(original), matGrayTemp, Imgproc.COLOR_RGB2GRAY);
+                Imgproc.equalizeHist(matGrayTemp, matGrayTemp);
+                Imgproc.cvtColor(matGrayTemp, matGray, Imgproc.COLOR_GRAY2RGB);
+                original = matToBufferedImage(matGray);
+            }
+            
+            if(colorHist && !grayHist)
+            {
+                System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+                matColor = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC3);
+                lRgb = new ArrayList<Mat>(3);
+                Core.split(bufferedImageToMat(original), lRgb);
+                Mat mR = lRgb.get(0);
+                Imgproc.equalizeHist(mR, mR);
+                lRgb.set(0, mR);
+                Mat mG = lRgb.get(1);
+                Imgproc.equalizeHist(mG, mG);
+                lRgb.set(1, mG);
+                Mat mB = lRgb.get(2);
+                Imgproc.equalizeHist(mB, mB);
+                lRgb.set(2, mB);
+                Core.merge(lRgb, matColor);
+                original = matToBufferedImage(matColor);
+            }
         }
-        
-        if(colorHist)
-        {
-            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-            matColor = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC3);
-            lRgb = new ArrayList<Mat>(3);
-            Core.split(bufferedImageToMat(original), lRgb);
-            Mat mR = lRgb.get(0);
-            Imgproc.equalizeHist(mR, mR);
-            lRgb.set(0, mR);
-            Mat mG = lRgb.get(1);
-            Imgproc.equalizeHist(mG, mG);
-            lRgb.set(1, mG);
-            Mat mB = lRgb.get(2);
-            Imgproc.equalizeHist(mB, mB);
-            lRgb.set(2, mB);
-            Core.merge(lRgb, matColor);
-            original = matToBufferedImage(matColor);
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
         }
         return original;
     }
