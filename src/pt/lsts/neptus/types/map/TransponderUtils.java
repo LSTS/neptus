@@ -114,23 +114,25 @@ public class TransponderUtils {
     }
     
     static public PropertiesLoader getMatchingConf(LblBeacon beacon) {
-        int countMatching;
-        for (PropertiesLoader propConf : transpondersConfList.values().toArray(new PropertiesLoader[transpondersConfList.size()])) {
-            countMatching = 0;
-            short prop = Short.parseShort(propConf.getProperty("interrogation channel"));
-            if (prop == beacon.getQueryChannel())
-                countMatching++;
-            prop = Short.parseShort(propConf.getProperty("reply channel"));
-            if (prop == beacon.getReplyChannel())
-                countMatching++;
-            prop = Short.parseShort(propConf.getProperty("transponder delay (msecs.)"));
-            if (prop == beacon.getTransponderDelay())
-                countMatching++;
-            if (countMatching == 3) {
-                return propConf;
-            }
-        }
-        return null;
+        String filename = beacon.getBeacon()+".conf";
+        return transpondersConfList.get(filename);
+//        
+//        for (PropertiesLoader propConf : transpondersConfList.values().toArray(new PropertiesLoader[transpondersConfList.size()])) {
+//            countMatching = 0;
+//            short prop = Short.parseShort(propConf.getProperty("interrogation channel"));
+//            if (prop == beacon.getQueryChannel())
+//                countMatching++;
+//            prop = Short.parseShort(propConf.getProperty("reply channel"));
+//            if (prop == beacon.getReplyChannel())
+//                countMatching++;
+//            prop = Short.parseShort(propConf.getProperty("transponder delay (msecs.)"));
+//            if (prop == beacon.getTransponderDelay())
+//                countMatching++;
+//            if (countMatching == 3) {
+//                return propConf;
+//            }
+//        }
+//        return null;
     }
 
     
@@ -148,29 +150,6 @@ public class TransponderUtils {
         msgLBLBeaconSetup.setLon(absLoc.getLongitudeRads());
         msgLBLBeaconSetup.setDepth(absLoc.getDepth());
 
-        short queryChannel = 0;
-        short replyChannel = 0;
-        short transponderDelay = 0;
-        // int id = 0;
-        PropertiesLoader propCong = transp.getPropConf();
-        if (propCong == null) {
-            return null;
-        }
-        String prop1 = propCong.getProperty("interrogation channel");
-        String prop2 = propCong.getProperty("reply channel");
-        String prop3 = propCong.getProperty("transponder delay (msecs.)");
-        try {
-            queryChannel = (short) Double.parseDouble(prop1);
-            replyChannel = (short) Double.parseDouble(prop2);
-            transponderDelay = (short) Double.parseDouble(prop3);
-        }
-        catch (NumberFormatException e2) {
-            return null;
-        }
-
-        msgLBLBeaconSetup.setQueryChannel(queryChannel);
-        msgLBLBeaconSetup.setReplyChannel(replyChannel);
-        msgLBLBeaconSetup.setTransponderDelay(transponderDelay);
         return msgLBLBeaconSetup;
     }
     
