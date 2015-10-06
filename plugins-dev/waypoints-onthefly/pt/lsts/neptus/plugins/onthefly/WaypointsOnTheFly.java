@@ -35,10 +35,7 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.util.HashMap;
-import java.util.Map;
 
-import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -46,8 +43,11 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import pt.lsts.neptus.comm.manager.imc.ImcSystem;
+import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
+import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -86,6 +86,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     public WaypointsOnTheFly(ConsoleLayout console) {
         super(console);
         this.console = console;
+        
         waypointBeingDragged = false;
         ctrlKeyPressed = false;
         shiftKeyPressed = false;
@@ -232,6 +233,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
                 planBeingDragged = false;
 
                 savePlan();
+//              sendVehicleResumePlan();
             }
             planElem.setBeingEdited(false);
         }
@@ -271,6 +273,31 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             getConsole().setPlan(currPlan);
         console.updateMissionListeners();
     }
+    /*
+     * TODO: Check if the plan that is selected in the console
+     * and being changed is the vehicle's active plan
+     * 
+     * FIXME: doesn't seem to be working
+     * */
+    private boolean isVehicleActivePlan(String changedPlanId) {
+        ImcSystem sys = ImcSystemsHolder.getSystemWithName(console.getMainSystem());
+        
+        if(sys == null)
+            return false;
+        
+        PlanType sysActivePlan = sys.getActivePlan();
+        return sysActivePlan != null && changedPlanId.equals(sysActivePlan.getId());
+    }
+    
+    
+    /* TODO:
+     * After checking that the plan being changed
+     * is the vehicle's active plan(method isVehicleActivePlan),
+     * and is/was in sync, synchronize(new changes) and send the plan
+     * to the vehicle and make it so that it resumes execution in 
+     * the currently active maneuver instead of in the first one.
+     * */
+    private void sendVehicleResumePlan() { }
     
     @Override
     public void setActive(boolean mode, StateRenderer2D source) {
