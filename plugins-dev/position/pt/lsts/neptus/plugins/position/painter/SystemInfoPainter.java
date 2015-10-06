@@ -38,11 +38,12 @@ import java.awt.geom.Ellipse2D;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.CpuUsage;
 import pt.lsts.imc.Current;
 import pt.lsts.imc.FuelLevel;
 import pt.lsts.imc.GpsFix;
-import pt.lsts.imc.GpsFix.TYPE;
 import pt.lsts.imc.Heartbeat;
 import pt.lsts.imc.StorageUsage;
 import pt.lsts.imc.Voltage;
@@ -62,22 +63,22 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.util.MathMiscUtils;
 
-import com.google.common.eventbus.Subscribe;
-
 /**
  * @author jqcorreia
- *
+ * @author pdias
  */
 @PluginDescription(name = "System Information On Map", icon = "pt/lsts/neptus/plugins/position/painter/sysinfo.png", description = "System Information display on map", documentation = "system-info/system-info.html", category = CATEGORY.INTERFACE)
 @LayerPriority(priority = 70)
 public class SystemInfoPainter extends ConsoleLayer {
 
-    private static final String GPS_DIFF = I18n.textc("DIFF", "Use a single small word");
+    private static final String GPS_DIFF = I18n.textc("DIFF", "Differencial GPS. Use a single small word");
     private static final String GPS_3D = I18n.textc("3D", "Use a single small word");
     private static final String GPS_2D = I18n.textc("2D", "Use a single small word");
     private static final String GPS_NO_FIX = I18n.textc("NoFix", "Use a single small word");
+    private static final String GPS_MAN = I18n.textc("MAN", "Manual input.Use a single small word");
+    private static final String GPS_SIM = I18n.textc("SIM", "Simulated. Use a single small word");
 
-    private static final int RECT_WIDTH = 200;
+    private static final int RECT_WIDTH = 228;
     private static final int RECT_HEIGHT = 70;
     private static final int MARGIN = 5;
 
@@ -107,7 +108,7 @@ public class SystemInfoPainter extends ConsoleLayer {
     private long lastMessageMillis = 0;
 
     private int cpuUsage = 0, fixQuality = 0;
-    private double batteryVoltage, current;
+    private double batteryVoltage, current, fixHdop;
     private float fuelLevel, confidenceLevel;
     private int storageUsage;
     private GpsFix.TYPE fixType;
@@ -168,11 +169,11 @@ public class SystemInfoPainter extends ConsoleLayer {
             txt += "<b>" + strCpu + ":</b> <font color=" + getColor(cpuUsage, true, commsDead) + ">" + cpuUsage
                     + "%</font><br/>";
             txt += "<b>" + strFuel + ":</b> <font color=" + getColor(fuelLevel, false, commsDead) + ">"
-                    + (int) fuelLevel + "%</font> <font color=#cccccc>(" + (int) (batteryVoltage * 100) / 100f + "V";
+                    + (int) fuelLevel + "%</font> <font color=#cccccc>(" + (int) (batteryVoltage * 10) / 10f + "V";
             if (showCurrent)
-                txt += "@" + (int) (current * 100) / 100f + "A";
+                txt += "@" + (int) (current * 10) / 10f + "A";
             if (showConfidence)
-                txt += ", ~" + MathMiscUtils.round(confidenceLevel, 2) + "%";
+                txt += ", ~" + (long) MathMiscUtils.round(confidenceLevel, 0) + "%";
             txt += "</font>)<br/>";
             txt += "<b>" + strDisk + ":</b> <font color=" + getColor(storageUsage, false, commsDead) + ">"
                     + storageUsage + "%</font><br/>";
@@ -256,22 +257,38 @@ public class SystemInfoPainter extends ConsoleLayer {
             return;
         fixType = msg.getType();
         fixValidity = msg.getValidity();
+        fixHdop = msg.getHdop();
+        fixHdop = Math.round(fixHdop*100.0)/100.0;
 
-        if (fixType == TYPE.DEAD_RECKONING) {
-            fixQuality = 0;
-            strGPSFix = GPS_NO_FIX;
-        }
-        else if (fixType == TYPE.STANDALONE) {
-            fixQuality = 70;
-            strGPSFix = GPS_2D;
-            if ((fixValidity & GpsFix.GFV_VALID_VDOP) != 0) {
-                fixQuality = 90;
-                strGPSFix = GPS_3D;
-            }
-        }
-        else if (fixType == TYPE.DIFFERENTIAL) {
-            fixQuality = 100;
-            strGPSFix = GPS_DIFF;
+        switch (fixType) {
+            case DEAD_RECKONING:
+                fixQuality = 0;
+                strGPSFix = GPS_NO_FIX; //.concat(" ("+fixHdop+")");
+                break;
+            case STANDALONE:
+                fixQuality = 70;
+                strGPSFix = GPS_2D;
+                if ((fixValidity & GpsFix.GFV_VALID_VDOP) != 0) {
+                    fixQuality = 90;
+                    strGPSFix = GPS_3D.concat(" ("+fixHdop+")");
+                }
+                break;
+            case DIFFERENTIAL:
+                fixQuality = 100;
+                strGPSFix = GPS_DIFF.concat(" ("+fixHdop+")");
+                break;
+            case MANUAL_INPUT:
+                fixQuality = 100;
+                strGPSFix = GPS_MAN;
+                break;
+            case SIMULATION:
+                fixQuality = 100;
+                strGPSFix = GPS_SIM.concat(" ("+fixHdop+")");
+                break;
+            default:
+                fixQuality = 0;
+                strGPSFix = "-";
+                break;
         }
     }
 
@@ -295,6 +312,7 @@ public class SystemInfoPainter extends ConsoleLayer {
         hbCount = 0;
         strGPSFix = GPS_NO_FIX;
         fixQuality = 0;
+        fixHdop = 0.0;
         mainSysName = ev.getCurrent();
 
         ImcSystemState state = getState();
