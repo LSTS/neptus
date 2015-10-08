@@ -43,9 +43,16 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PlanDB;
+import pt.lsts.imc.PlanDB.OP;
+import pt.lsts.neptus.comm.IMCSendMessageUtils;
+import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -56,6 +63,8 @@ import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.maneuvers.LocatedManeuver;
@@ -233,6 +242,7 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
                 planBeingDragged = false;
 
                 savePlan();
+                syncPlan(currPlan);
 //              sendVehicleResumePlan();
             }
             planElem.setBeingEdited(false);
@@ -272,6 +282,42 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         if (getConsole().getPlan() == null || getConsole().getPlan().getId().equalsIgnoreCase(currPlan.getId()))
             getConsole().setPlan(currPlan);
         console.updateMissionListeners();
+    }
+    
+    /* TODO: check
+     */
+    private void syncPlan(PlanType plan) {
+        try {
+            plan.validatePlan();
+        }
+        catch (Exception e) {
+            post(Notification.error(I18n.text("Send Plan"), e.getMessage()));
+            return;
+        }
+        
+        
+        IMCMessage planSpecificationMessage = IMCUtils.generatePlanSpecification(currPlan);
+        if (planSpecificationMessage == null) {
+            // GuiUtils.errorMessage(this, I18n.text("Send Plan"),
+            // I18n.text("Error sending plan message!\nNo plan spec. valid!"));
+            post(Notification.error(I18n.text("Send Plan"),
+                    I18n.text("Error sending plan message!\nNo plan spec. valid!")));
+        }
+        int reqId = IMCSendMessageUtils.getNextRequestId();
+        PlanDB pdb = new PlanDB();
+        pdb.setType(PlanDB.TYPE.REQUEST);
+        pdb.setOp(OP.SET);
+        pdb.setRequestId(reqId);
+        pdb.setPlanId(plan.getId());
+        pdb.setArg(planSpecificationMessage);
+        
+        pdb.setInfo("Plan sent by Neptus version " + ConfigFetch.getNeptusVersion());
+
+//        boolean ret = IMCSendMessageUtils.sendMessage(pdb, (useTcpToSendMessages ? ImcMsgManager.TRANSPORT_TCP
+//                : null), createDefaultMessageDeliveryListener(), this, I18n.text("Error sending plan"),
+//                DONT_USE_ACOUSTICS, acousticOpServiceName, acousticOpUseOnlyActive, true, systems);
+                
+        IMCSendMessageUtils.sendMessage(pdb, I18n.text("Error sending plan"), getConsole().getMainSystem());
     }
     
     /* Check if the plan that is selected in the console
