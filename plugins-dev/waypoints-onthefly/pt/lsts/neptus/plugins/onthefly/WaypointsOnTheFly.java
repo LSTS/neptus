@@ -273,20 +273,18 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
             getConsole().setPlan(currPlan);
         console.updateMissionListeners();
     }
-    /*
-     * TODO: Check if the plan that is selected in the console
-     * and being changed is the vehicle's active plan
-     * 
-     * FIXME: doesn't seem to be working
-     * */
+    
+    /* Check if the plan that is selected in the console
+     * and being changed is the vehicle's active plan */
     private boolean isVehicleActivePlan(String changedPlanId) {
         ImcSystem sys = ImcSystemsHolder.getSystemWithName(console.getMainSystem());
         
         if(sys == null)
             return false;
         
-        PlanType sysActivePlan = sys.getActivePlan();
-        return sysActivePlan != null && changedPlanId.equals(sysActivePlan.getId());
+        /* Active plan id is of the form <plan id> |<active maneuver id> */
+        String sysActivePlan = sys.getActivePlan().getId().split("\\|")[0];
+        return sysActivePlan != null && changedPlanId.equals(sysActivePlan);
     }
     
     
