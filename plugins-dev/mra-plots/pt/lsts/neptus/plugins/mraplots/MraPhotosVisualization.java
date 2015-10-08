@@ -610,7 +610,6 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
             
             if(colorHist && !grayHist)
             {
-                System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
                 matColor = new Mat(original.getHeight(), original.getWidth(), CvType.CV_8UC3);
                 lRgb = new ArrayList<Mat>(3);
                 Core.split(bufferedImageToMat(original), lRgb);

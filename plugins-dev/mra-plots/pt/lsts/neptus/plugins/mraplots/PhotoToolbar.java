@@ -44,8 +44,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-import org.opencv.core.Core;
-
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.ImageUtils;
 
@@ -197,16 +196,55 @@ public class PhotoToolbar extends JPanel {
         legendToggle.setToolTipText(I18n.text("Show legend"));
         add(legendToggle);
         
+        //!Find OPENCV JNI
         boolean has_ocv = false;
+        String libOpencv = new String();
+        File dir = new File("/usr/lib/jni");
+        String[] children = dir.list();
+        if (children == null) {
+            NeptusLog.pub().error("/usr/lib/jni not exist to search Opencv jni");
+        }
+        else {
+           for (int i = 0; i < children.length; i++) {
+              String filename = children[i];
+              if(filename.equalsIgnoreCase("libopencv_java240.so"))
+                  libOpencv = "opencv_java240";
+              else if(filename.equalsIgnoreCase("libopencv_java241.so"))
+                  libOpencv = "opencv_java241";
+              else if(filename.equalsIgnoreCase("libopencv_java242.so"))
+                  libOpencv = "opencv_java242";
+              else if(filename.equalsIgnoreCase("libopencv_java243.so"))
+                  libOpencv = "opencv_java243";
+              else if(filename.equalsIgnoreCase("libopencv_java244.so"))
+                  libOpencv = "opencv_java244";
+              else if(filename.equalsIgnoreCase("libopencv_java245.so"))
+                  libOpencv = "opencv_java245";
+              else if(filename.equalsIgnoreCase("libopencv_java246.so"))
+                  libOpencv = "opencv_java246";
+              else if(filename.equalsIgnoreCase("libopencv_java247.so"))
+                  libOpencv = "opencv_java247";
+              else if(filename.equalsIgnoreCase("libopencv_java248.so"))
+                  libOpencv = "opencv_java248";
+              else if(filename.equalsIgnoreCase("libopencv_java249.so"))
+                  libOpencv = "opencv_java249";
+              else if(filename.equalsIgnoreCase("libopencv_java2410.so"))
+                  libOpencv = "opencv_java2410";
+              else if(filename.equalsIgnoreCase("libopencv_java2411.so"))
+                  libOpencv = "opencv_java2411";
+              else if(filename.equalsIgnoreCase("libopencv_java2412.so"))
+                  libOpencv = "opencv_java2412";
+           }
+        }
+        
         try {
-            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+            System.loadLibrary(libOpencv);
             has_ocv = true;
         }
         catch (Exception e) {
-            
+            NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
         }
         catch (Error e) {
-            
+            NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
         }
         
         histGrayFilter = new JToggleButton("H/G");
