@@ -364,7 +364,6 @@ For simple use the main targets are:
 		<property name="dist.installer.name.seacon" value="${dist.installer.basename.seacon}-${scm.last.changed.date.short}"/><!--${time.date}-->
 
 		<echo message="-------------------------------------------------------------------" />
-		<!--echo level="info" message="SVN r${svn.revision.range} @ ${svn.repository.path}" /-->
 		<echo level="info" message="Git ${scm.revision}" />
 		<echo level="info" message="    g${scm.revision.uid}" />
 		<echo level="info" message="    ${scm.repository.path}" />
