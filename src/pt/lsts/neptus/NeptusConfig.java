@@ -136,25 +136,10 @@ public class NeptusConfig {
         SimpleDateFormat dateFormater = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.0Z'");
         String ret = "Data saved on " + dateFormater.format(trialTime) + " with Neptus version "
                 + versionInfo.getProperty("VERSION", "") + " (compiled on " + versionInfo.getProperty("DATE", "")
-                + ", r" + versionInfo.getProperty("SVN_REV", "?") + ").";
+                + ".";
         return " " + ret + " ";
     }
     
-    /**
-     * Version info as string for general purposes 
-     * @return may have empty values in dev environment
-     */
-    public String versionAsString(){
-        String versionString = " ";
-        versionString += versionInfo.getProperty("VERSION", "");
-        versionString += " (";
-        versionString += versionInfo.getProperty("DATE", "");
-        versionString += ", r";
-        versionString += versionInfo.getProperty("SVN_REV", "?");
-        versionString += ")";
-        return versionString;
-    }
-
     public void shutdown() {
         try {
             FileUtils.deleteDirectory(tempDir);
