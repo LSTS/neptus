@@ -304,140 +304,149 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     public Vision(ConsoleLayout console) {
         super(console);
-        //clears all the unused initializations of the standard ConsolePanel
-        removeAll();
-        //Resize Console
-        this.addComponentListener(new ComponentAdapter() {  
-            public void componentResized(ComponentEvent evt) {
-                Component c = evt.getComponent();
-                widhtConsole = c.getSize().width;
-                heightConsole = c.getSize().height;
-                widhtConsole = widhtConsole - 22;
-                heightConsole = heightConsole - 22;          
-                xScale = (float)widhtConsole/widthImgRec;
-                yScale = (float)heightConsole/heightImgRec;
-                size = new Size(widhtConsole, heightConsole);
-                matResize = new Mat(heightConsole, widhtConsole, CvType.CV_8UC3);
-                if(!raspiCam && !ipCam)
-                    inicImage();
-            }
-        });
-        //Mouse click
-        addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1){
-                    if(raspiCam || ipCam){
-                        xPixel = (int) ((e.getX() - 11) / xScale);  //shift window bar
-                        yPixel = (int) ((e.getY() - 11) / yScale) ; //shift window bar
-                        if(raspiCam && !ipCam && tcpOK) {
-                            if (xPixel >= 0 && yPixel >= 0 && xPixel <= widthImgRec && yPixel <= heightImgRec)
-                                out.printf("%d#%d;\0", xPixel,yPixel);
-                        }
-                        captureFrame = true;
-                        //place mark on map as POI
-                        placeLocationOnMap();
-                    }
+        if(findOpenCV()){
+            //clears all the unused initializations of the standard ConsolePanel
+            removeAll();
+            //Resize Console
+            this.addComponentListener(new ComponentAdapter() {  
+                public void componentResized(ComponentEvent evt) {
+                    Component c = evt.getComponent();
+                    widhtConsole = c.getSize().width;
+                    heightConsole = c.getSize().height;
+                    widhtConsole = widhtConsole - 22;
+                    heightConsole = heightConsole - 22;          
+                    xScale = (float)widhtConsole/widthImgRec;
+                    yScale = (float)heightConsole/heightImgRec;
+                    size = new Size(widhtConsole, heightConsole);
+                    matResize = new Mat(heightConsole, widhtConsole, CvType.CV_8UC3);
+                    if(!raspiCam && !ipCam)
+                        inicImage();
                 }
-                if (e.getButton() == MouseEvent.BUTTON3) {
-                    popup = new JPopupMenu();
-                    JMenuItem item1;
-                    popup.add(item1 = new JMenuItem("Start RasPiCam", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/raspicam.jpg")))).addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            checkHostIp();
-                        }
-                    });
-                    item1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
-                    JMenuItem item2;
-                    popup.add(item2 = new JMenuItem("Close all connection", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/close.gif")))).addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            NeptusLog.pub().info("Clossing all Video Stream...");
-                            if(raspiCam && tcpOK){
-                                try {
-                                    clientSocket.close();
-                                }
-                                catch (IOException e1) {
-                                    e1.printStackTrace();
-                                }
+            });
+            //Mouse click
+            addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getButton() == MouseEvent.BUTTON1){
+                        if(raspiCam || ipCam){
+                            xPixel = (int) ((e.getX() - 11) / xScale);  //shift window bar
+                            yPixel = (int) ((e.getY() - 11) / yScale) ; //shift window bar
+                            if(raspiCam && !ipCam && tcpOK) {
+                                if (xPixel >= 0 && yPixel >= 0 && xPixel <= widthImgRec && yPixel <= heightImgRec)
+                                    out.printf("%d#%d;\0", xPixel,yPixel);
                             }
-                            raspiCam = false;
-                            state = false;
-                            ipCam = false;
+                            captureFrame = true;
+                            //place mark on map as POI
+                            placeLocationOnMap();
                         }
-                    });
-                    item2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
-                    JMenuItem item3;  
-                    popup.add(item3 = new JMenuItem("Start Ip-Cam", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png")))).addActionListener(new ActionListener() {
-                        public void actionPerformed(ActionEvent e) {
-                            checkIpCam();        
-                        }
-                    });
-                    item3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
-                    JMenuItem item4;
-                    popup.add(item4 = new JMenuItem("Config", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg")))).addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            menu.setVisible(true);
-                        }
-                    });
-                    item4.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
-                    popup.show((Component) e.getSource(), e.getX(), e.getY());
-                }
-            }
-        });
-        //!Detect key-pressed
-        this.addKeyListener(new KeyListener() {            
-            @Override
-            public void keyReleased(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_Z && zoomMask){
-                    zoomMask = false;
-                    popupzoom.setVisible(false);
-                }
-            }
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0) && !zoomMask){
-                    if(raspiCam || ipCam){
-                        zoomMask = true;
-                        popupzoom.add(zoomImg);
+                    }
+                    if (e.getButton() == MouseEvent.BUTTON3) {
+                        popup = new JPopupMenu();
+                        JMenuItem item1;
+                        popup.add(item1 = new JMenuItem("Start RasPiCam", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/raspicam.jpg")))).addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) {
+                                checkHostIp();
+                            }
+                        });
+                        item1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
+                        JMenuItem item2;
+                        popup.add(item2 = new JMenuItem("Close all connection", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/close.gif")))).addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) {
+                                NeptusLog.pub().info("Clossing all Video Stream...");
+                                if(raspiCam && tcpOK){
+                                    try {
+                                        clientSocket.close();
+                                    }
+                                    catch (IOException e1) {
+                                        e1.printStackTrace();
+                                    }
+                                }
+                                raspiCam = false;
+                                state = false;
+                                ipCam = false;
+                            }
+                        });
+                        item2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
+                        JMenuItem item3;  
+                        popup.add(item3 = new JMenuItem("Start Ip-Cam", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png")))).addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) {
+                                checkIpCam();        
+                            }
+                        });
+                        item3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
+                        JMenuItem item4;
+                        popup.add(item4 = new JMenuItem("Config", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg")))).addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                menu.setVisible(true);
+                            }
+                        });
+                        item4.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
+                        popup.show((Component) e.getSource(), e.getX(), e.getY());
                     }
                 }
-                else if((e.getKeyCode() == KeyEvent.VK_I) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
-                    checkIpCam();
-                else if((e.getKeyCode() == KeyEvent.VK_R) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
-                    checkHostIp();
-                else if((e.getKeyCode() == KeyEvent.VK_X) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)){
-                    NeptusLog.pub().info("Clossing all Video Stream...");
-                    raspiCam = false;
-                    state = false;
-                    ipCam = false;
-                }
-                else if((e.getKeyCode() == KeyEvent.VK_C) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
-                    menu.setVisible(true);
-                else if(e.getKeyChar() == 'z' && zoomMask){
-                    int xLocMouse = MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x - 11;
-                    int yLocMouse = MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y - 11;
-                    if(xLocMouse < 0)
-                        xLocMouse = 0;
-                    if(yLocMouse < 0)
-                        yLocMouse = 0;
-                    
-                    if(xLocMouse + 52 < panelImage.getSize().getWidth() && xLocMouse - 52 > 0 && yLocMouse + 60 < panelImage.getSize().getHeight() && yLocMouse - 60 > 0){
-                        zoomX = xLocMouse;
-                        zoomY = yLocMouse;
-                        popupzoom.setLocation(MouseInfo.getPointerInfo().getLocation().x - 150, MouseInfo.getPointerInfo().getLocation().y - 150);
-                        getCutImage(temp, zoomX, zoomY);
-                        popupzoom.setVisible(true);
-                    }
-                    else
+            });
+            //!Detect key-pressed
+            this.addKeyListener(new KeyListener() {            
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    if(e.getKeyCode() == KeyEvent.VK_Z && zoomMask){
+                        zoomMask = false;
                         popupzoom.setVisible(false);
+                    }
                 }
-            }
-            @Override
-            public void keyTyped(KeyEvent e) {
-                
-            }
-        });
-        this.setFocusable(true);
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    if((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0) && !zoomMask){
+                        if(raspiCam || ipCam){
+                            zoomMask = true;
+                            popupzoom.add(zoomImg);
+                        }
+                    }
+                    else if((e.getKeyCode() == KeyEvent.VK_I) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
+                        checkIpCam();
+                    else if((e.getKeyCode() == KeyEvent.VK_R) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
+                        checkHostIp();
+                    else if((e.getKeyCode() == KeyEvent.VK_X) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)){
+                        NeptusLog.pub().info("Clossing all Video Stream...");
+                        raspiCam = false;
+                        state = false;
+                        ipCam = false;
+                    }
+                    else if((e.getKeyCode() == KeyEvent.VK_C) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
+                        menu.setVisible(true);
+                    else if(e.getKeyChar() == 'z' && zoomMask){
+                        int xLocMouse = MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x - 11;
+                        int yLocMouse = MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y - 11;
+                        if(xLocMouse < 0)
+                            xLocMouse = 0;
+                        if(yLocMouse < 0)
+                            yLocMouse = 0;
+                        
+                        if(xLocMouse + 52 < panelImage.getSize().getWidth() && xLocMouse - 52 > 0 && yLocMouse + 60 < panelImage.getSize().getHeight() && yLocMouse - 60 > 0){
+                            zoomX = xLocMouse;
+                            zoomY = yLocMouse;
+                            popupzoom.setLocation(MouseInfo.getPointerInfo().getLocation().x - 150, MouseInfo.getPointerInfo().getLocation().y - 150);
+                            getCutImage(temp, zoomX, zoomY);
+                            popupzoom.setVisible(true);
+                        }
+                        else
+                            popupzoom.setVisible(false);
+                    }
+                }
+                @Override
+                public void keyTyped(KeyEvent e) {
+                    
+                }
+            });
+            this.setFocusable(true);
+        }
+        else
+        {
+            NeptusLog.pub().error("Opencv not found.");
+            closingPanel = true;
+            return;
+            //while(true);
+        }
         return;
     }
     
@@ -859,6 +868,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         {
             NeptusLog.pub().error("Opencv not found.");
             closingPanel = true;
+            return;
         }
     }
     
@@ -1118,7 +1128,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 txtData.setText(info);
             }
             catch (Exception e) {
-                e.printStackTrace();
             }
         }
     }
