@@ -123,11 +123,39 @@ public class DateTimeUtil {
     }
     
 	public static final String milliSecondsToFormatedString(long timeMillis) {
+	    return timeInFormatedString(timeMillis, true);
+	}
+
+	public static final String secondsToFormatedString(long timeMillis) {
+	    return timeInFormatedString(timeMillis, false);
+	}
+
+	public static double timeStampSeconds () {
+		//long nanos = System.nanoTime();
+		//long millis = System.currentTimeMillis();
+		//double ret = (initialTimeMillis) * 1E-3 + (nanos - initialTimeNanos) * 1E-9;
+		//initialTimeMillis = millis;
+		//initialTimeNanos = nanos;
+		//return ret;
+		//return (initialTimeMillis) * 1E-3 +
+		//	(System.nanoTime() - initialTimeNanos) * 1E-9;
+		return System.currentTimeMillis() * 1E-3;
+	}
+
+        public static String getUID() {//0xF423F
+		return ""+(initialTimeMillis * 1000000 + (initialTimeNanos % 1000000));
+	}
+
+        private static final String timeInFormatedString(long timeMillis, Boolean millis) {
 		double time = timeMillis / 1000.0;
 		//time = 3*60*60 + 2*60;
 		String tt = "";
-		if (time < 60)
+		if (time < 60) {
+		    if (millis)
 			tt = new Double(time).doubleValue() + " s";
+		    else
+			tt = new Double(time).intValue() + " s";
+		}
 		else if ((time/60.0) < 60) {
 			long mi  = (long) (time/60.0);
 			long sec = (long) (time%60.0);
@@ -147,23 +175,6 @@ public class DateTimeUtil {
 		return tt;
 	}
 
-
-	public static double timeStampSeconds () {
-		//long nanos = System.nanoTime();
-		//long millis = System.currentTimeMillis();
-		//double ret = (initialTimeMillis) * 1E-3 + (nanos - initialTimeNanos) * 1E-9;
-		//initialTimeMillis = millis;
-		//initialTimeNanos = nanos;
-		//return ret;
-		//return (initialTimeMillis) * 1E-3 +
-		//	(System.nanoTime() - initialTimeNanos) * 1E-9;
-		return System.currentTimeMillis() * 1E-3;
-	}
-	
-	public static String getUID() {//0xF423F
-		return ""+(initialTimeMillis * 1000000 + (initialTimeNanos % 1000000));
-	}
-	
 	/**
 	 * @param args
 	 */
