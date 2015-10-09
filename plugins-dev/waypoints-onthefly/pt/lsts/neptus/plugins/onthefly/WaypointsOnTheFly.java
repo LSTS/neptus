@@ -43,7 +43,10 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.PlanControlState;
 import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.PlanDB.OP;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
@@ -331,6 +334,14 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
         /* Active plan id is of the form <plan id> |<active maneuver id> */
         String sysActivePlan = sys.getActivePlan().getId().split("\\|")[0];
         return sysActivePlan != null && changedPlanId.equals(sysActivePlan);
+    }
+    
+    @Subscribe
+    public void on(PlanControlState pcState) {
+        String statePlanId = pcState.getPlanId();
+        
+        if(statePlanId.equals(currPlan.getId()))
+            planElem.setActiveManeuver(pcState.getManId());
     }
     
     
