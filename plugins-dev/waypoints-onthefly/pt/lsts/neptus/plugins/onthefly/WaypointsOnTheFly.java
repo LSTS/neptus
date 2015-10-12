@@ -58,7 +58,9 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
 import pt.lsts.neptus.console.plugins.planning.plandb.PlanDBState;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -94,6 +96,9 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
     private boolean ctrlKeyPressed;
     private boolean shiftKeyPressed;
     private boolean planBeingDragged;
+    
+    @NeptusProperty(name = "Automatic Synchronization", userLevel = LEVEL.REGULAR, description = "After the plan being changed, synchronize automatically with the vehicle")
+    public boolean automaticSynch = true;
     
     public WaypointsOnTheFly(ConsoleLayout console) {
         super(console);
@@ -245,7 +250,9 @@ public class WaypointsOnTheFly extends InteractionAdapter implements PlanChangeL
                 planBeingDragged = false;
 
                 savePlan();
-                syncPlan(currPlan);
+                
+                if(automaticSynch)
+                    syncPlan(currPlan);
 //              sendVehicleResumePlan();
             }
             planElem.setBeingEdited(false);
