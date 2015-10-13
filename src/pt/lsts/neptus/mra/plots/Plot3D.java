@@ -116,18 +116,33 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
         path = new LineStrip();
         Coord3d lastCoord = new Coord3d();
 
+        // Do not plot state from other entities.
+        Boolean uav;
+        int eStateId;
+        if (source.getLsfIndex().containsMessagesOfType("AutopilotMode")) {
+            eStateId = source.getLsfIndex().getEntityId("Autopilot");
+            uav = true;
+        } else {
+            eStateId = source.getLsfIndex().getEntityId("Navigation");
+            uav = false;
+        }
+
         for (IMCMessage m : source.getLsfIndex().getIterator("EstimatedState", 0, 1000)) {
+	    if (m.getSrcEnt() != eStateId)
+		continue;
             LocationType loc = IMCUtils.getLocation(m);
             double offsets[] = loc.getOffsetFrom(ref);
             double phi = Math.min(Math.toDegrees(m.getDouble("theta")), 10);
             phi = Math.max(phi, -10);
             int sb = phi <= 0 ? 0 : (int) ((phi / 10) * 255);
             int bb = phi >= 0 ? 0 : (int) ((phi / -10) * 255);
-            double depth = -loc.getDepth();
+            double z = -loc.getDepth();
             if (m.getTypeOf("ref") != null)
-                depth = -m.getDouble("z");
+                z = -m.getDouble("z");
+            if (uav)
+                z = m.getDouble("height") - m.getDouble("z");
 
-            lastCoord = new Coord3d(-offsets[0], offsets[1], depth);
+            lastCoord = new Coord3d(-offsets[0], offsets[1], z);
             path.add(new Point(lastCoord, new Color(bb, sb, 0), 1f));
         }
 
@@ -173,7 +188,6 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
                     }
                 }
                 else {
-
                     for (IMCMessage state : source.getLsfIndex().getIterator("EstimatedState", 0, 100)) {
                         if (state.getTypeOf("alt") != null) {
                             double alt = state.getDouble("alt");
