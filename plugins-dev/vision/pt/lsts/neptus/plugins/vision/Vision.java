@@ -148,7 +148,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
 
     @NeptusProperty(name = "Port Number for TCP-RasPiCam")
     private int portNumber = 2424;
-        
+    
+    //Opencv library name
+    private String libOpencvName = "libopencv2.4-jni";
     //private ServerSocket serverSocket = null;
     private Socket clientSocket = null;
     //Send data for sync 
@@ -250,7 +252,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //JPanel for color state of ping to host ipcam
     private JPanel colorStateIpCam;
     //JFrame for IpCam Select
-    private JFrame ipCamPing = new JFrame("Select IpCam");
+    private JFrame ipCamPing = new JFrame(I18n.text("Select IpCam"));
     //JPanel for IpCam Select (MigLayout)
     private JPanel ipCamCheck = new JPanel(new MigLayout());
     //JButton to confirm ipcam
@@ -343,14 +345,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     if (e.getButton() == MouseEvent.BUTTON3) {
                         popup = new JPopupMenu();
                         JMenuItem item1;
-                        popup.add(item1 = new JMenuItem("Start RasPiCam", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/raspicam.jpg")))).addActionListener(new ActionListener() {
+                        popup.add(item1 = new JMenuItem(I18n.text("Start RasPiCam"), new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/raspicam.jpg")))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 checkHostIp();
                             }
                         });
                         item1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
                         JMenuItem item2;
-                        popup.add(item2 = new JMenuItem("Close all connection", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/close.gif")))).addActionListener(new ActionListener() {
+                        popup.add(item2 = new JMenuItem(I18n.text("Close all connection"), new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/close.gif")))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 NeptusLog.pub().info("Clossing all Video Stream...");
                                 if(raspiCam && tcpOK){
@@ -368,14 +370,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         });
                         item2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
                         JMenuItem item3;  
-                        popup.add(item3 = new JMenuItem("Start Ip-Cam", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png")))).addActionListener(new ActionListener() {
+                        popup.add(item3 = new JMenuItem(I18n.text("Start Ip-Cam"), new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/ipcam.png")))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 checkIpCam();        
                             }
                         });
                         item3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
                         JMenuItem item4;
-                        popup.add(item4 = new JMenuItem("Config", new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg")))).addActionListener(new ActionListener() {
+                        popup.add(item4 = new JMenuItem(I18n.text("Config"), new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg")))).addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 menu.setVisible(true);
@@ -453,7 +455,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             panelImage.setBackground(Color.LIGHT_GRAY);
             panelImage.setSize(this.getWidth(), this.getHeight());
             this.setLayout(new MigLayout());
-            this.add(panelImage, BorderLayout.CENTER);
+            this.add(panelImage, BorderLayout.NORTH);
             BufferedImage errorImg = null;
             try {
                 errorImg = ImageIO.read(new File("plugins-dev/vision/images/errorOpencv.png"));
@@ -462,7 +464,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
-            showImage(resize(errorImg, 640, 480));
+            showImage(resize(errorImg, 320, 240));
+            //JLabel info
+            txtData = new JLabel(I18n.textf("  Please install %libopencv and its dependencies.  ", libOpencvName));
+            txtData.setForeground(Color.RED);
+            txtData.setFont(new Font("Courier New", Font.ITALIC, 18));
+            txtData.setBackground(Color.yellow);
+            txtData.setOpaque(true);
+            this.add(txtData, BorderLayout.SOUTH); 
             return;
         }
         return;
@@ -470,7 +479,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     //!Check ip given by user
     private void checkHostIp(){
-        ipHostPing = new JFrame("Host IP - RasPiCam");
+        ipHostPing = new JFrame(I18n.text("Host IP - RasPiCam"));
         ipHostPing.setSize(340, 80);
         ipHostPing.setLocation(dim.width/2-ipCamPing.getSize().width/2, dim.height/2-ipCamPing.getSize().height/2);
         ipHostCheck = new JPanel(new MigLayout());
@@ -492,7 +501,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         });
         ipHostCheck.add(hostIp);
         colorStateIpCam = new JPanel();
-        jlabel = new JLabel("OFF");
+        jlabel = new JLabel(I18n.text("OFF"));
         jlabel.setFont(new Font("Verdana",1,14));
         colorStateIpCam.setBackground(Color.RED);
         colorStateIpCam.add(jlabel);
@@ -515,7 +524,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             }
         });
         ipHostCheck.add(selectIpCam,"h 30!");
-        selectIpCam = new JButton("OK");
+        selectIpCam = new JButton(I18n.text("OK"));
         selectIpCam.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -552,7 +561,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         for (int i=0; i < sizeDataUrl; i++)
             nameIpCam[i] = dataUrlIni[i][0];
         
-        ipCamPing = new JFrame("Select IpCam");
+        ipCamPing = new JFrame(I18n.text("Select IpCam"));
         ipCamPing.setSize(340, 80);
         ipCamPing.setLocation(dim.width/2-ipCamPing.getSize().width/2, dim.height/2-ipCamPing.getSize().height/2);
         ipCamCheck = new JPanel(new MigLayout());
@@ -588,13 +597,13 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         ipCamCheck.add(ipCamList,"span, split 3, center");
         
         colorStateIpCam = new JPanel();
-        jlabel = new JLabel("OFF");
+        jlabel = new JLabel(I18n.text("OFF"));
         jlabel.setFont(new Font("Verdana",1,14));
         colorStateIpCam.setBackground(Color.RED);
         colorStateIpCam.add(jlabel);
         ipCamCheck.add(colorStateIpCam,"h 30!, w 30!");
         
-        selectIpCam = new JButton("Select IpCam", imgIpCam);
+        selectIpCam = new JButton(I18n.text("Select IpCam"), imgIpCam);
         selectIpCam.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
