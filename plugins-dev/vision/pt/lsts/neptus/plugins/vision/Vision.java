@@ -37,6 +37,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
@@ -444,8 +445,25 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         {
             NeptusLog.pub().error("Opencv not found.");
             closingPanel = true;
+            
+            //JLabel for image
+            picLabel = new JLabel();
+            //JPanel for Image
+            panelImage = new JPanel();
+            panelImage.setBackground(Color.LIGHT_GRAY);
+            panelImage.setSize(this.getWidth(), this.getHeight());
+            this.setLayout(new MigLayout());
+            this.add(panelImage, BorderLayout.CENTER);
+            BufferedImage errorImg = null;
+            try {
+                errorImg = ImageIO.read(new File("plugins-dev/vision/images/errorOpencv.png"));
+            }
+            catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            showImage(resize(errorImg, 640, 480));
             return;
-            //while(true);
         }
         return;
     }
@@ -1260,6 +1278,18 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             //Display image in JFrame
             showImage(temp);
         }     
+    }
+    
+    //!Resize Buffered Image
+    public static BufferedImage resize(BufferedImage img, int newW, int newH) { 
+        Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
+        BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2d = dimg.createGraphics();
+        g2d.drawImage(tmp, 0, 0, null);
+        g2d.dispose();
+
+        return dimg;
     }
     
     //!Close TCP COM
