@@ -117,19 +117,20 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
         Coord3d lastCoord = new Coord3d();
 
         // Do not plot state from other entities.
-        Boolean uav;
-        int eStateId;
+        boolean uav;
+        int eStateId = -1; // Case if not found any of entities
         if (source.getLsfIndex().containsMessagesOfType("AutopilotMode")) {
             eStateId = source.getLsfIndex().getEntityId("Autopilot");
             uav = true;
-        } else {
+        }
+        else {
             eStateId = source.getLsfIndex().getEntityId("Navigation");
             uav = false;
         }
 
         for (IMCMessage m : source.getLsfIndex().getIterator("EstimatedState", 0, 1000)) {
-	    if (m.getSrcEnt() != eStateId)
-		continue;
+            if (eStateId != -1 && m.getSrcEnt() != eStateId)
+                continue;
             LocationType loc = IMCUtils.getLocation(m);
             double offsets[] = loc.getOffsetFrom(ref);
             double phi = Math.min(Math.toDegrees(m.getDouble("theta")), 10);
