@@ -73,13 +73,10 @@ import pt.lsts.neptus.types.coord.LocationType;
 /**
  * @author zp
  */
+@SuppressWarnings("serial")
 @PluginDescription(name = "3D Plot", icon = "pt/lsts/neptus/mra/plots/3d.png", active=false)
 public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
     protected boolean inited = false;
     protected Chart chart = null;
     protected JToggleButton zExaggerationToggle, bathymetryToggle, pathToggle, markersToggle; 
@@ -159,7 +156,6 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
 
             @Override
             public void run() {
-
                 // legacy code...
                 if (source.getLog("BottomDistance") != null) {
                     int dvlId = source.getLsfIndex().getEntityId("DVL");
@@ -185,7 +181,6 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
                         double offsets[] = l.getOffsetFrom(ref);
                         lastStateIndex = stateIndex;
                         dd.addPoint(-offsets[0], offsets[1], -state.getDouble("z") - bDistance.getDouble("value"));
-
                     }
                 }
                 else {
@@ -201,7 +196,6 @@ public class Plot3D extends SimpleMRAVisualization implements LogMarkerListener 
                                 dd.addPoint(-offsets[0], offsets[1], -alt - depth);
 
                             }
-
                         }                       
                     }
                 }
