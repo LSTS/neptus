@@ -123,11 +123,11 @@ public class DateTimeUtil {
     }
     
 	public static final String milliSecondsToFormatedString(long timeMillis) {
-	    return timeInFormatedString(timeMillis, true);
+	    return timeInFormatedString(timeMillis, false);
 	}
 
-	public static final String secondsToFormatedString(long timeMillis) {
-	    return timeInFormatedString(timeMillis, false);
+	public static final String milliSecondsToFormatedString(long timeMillis, boolean alwaysRoundSeconds) {
+	    return timeInFormatedString(timeMillis, alwaysRoundSeconds);
 	}
 
 	public static double timeStampSeconds () {
@@ -142,19 +142,19 @@ public class DateTimeUtil {
 		return System.currentTimeMillis() * 1E-3;
 	}
 
-        public static String getUID() {//0xF423F
-		return ""+(initialTimeMillis * 1000000 + (initialTimeNanos % 1000000));
+	public static String getUID() {//0xF423F
+	    return ""+(initialTimeMillis * 1000000 + (initialTimeNanos % 1000000));
 	}
 
-        private static final String timeInFormatedString(long timeMillis, Boolean millis) {
+	private static final String timeInFormatedString(long timeMillis, boolean alwaysRoundSeconds) {
 		double time = timeMillis / 1000.0;
 		//time = 3*60*60 + 2*60;
 		String tt = "";
 		if (time < 60) {
-		    if (millis)
-			tt = new Double(time).doubleValue() + " s";
+		    if (!alwaysRoundSeconds)
+		        tt = new Double(time).doubleValue() + "s";
 		    else
-			tt = new Double(time).intValue() + " s";
+		        tt = Math.round(new Double(time)) + "s";
 		}
 		else if ((time/60.0) < 60) {
 			long mi  = (long) (time/60.0);
@@ -203,5 +203,14 @@ public class DateTimeUtil {
 		String clockStr = DateTimeUtil.timeUTCFormaterNoSegs3.format(new Date(System.currentTimeMillis()))
                 + " " + I18n.text("UTC");
 		System.out.println(clockStr);
+		
+		System.out.println();
+		System.out.println(timeInFormatedString(3533, true));
+        System.out.println(timeInFormatedString(3533, false));
+        System.out.println(timeInFormatedString(103533, true));
+        System.out.println(timeInFormatedString(103533, false));
+
+        System.out.println(milliSecondsToFormatedString(3533));
+        System.out.println(milliSecondsToFormatedString(3533, true));
 	}
 }

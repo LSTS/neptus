@@ -319,7 +319,7 @@ public class PlanExecutionPreview extends ConsolePanel implements Renderer2DPain
             long simTime = System.currentTimeMillis() - lastTime;
             if (simTime > 1000) {
                 strs.add("[" + I18n.textf("Simulating %vehicle for %time", vehicle,
-                        DateTimeUtil.secondsToFormatedString(simTime)) + "]");                
+                        DateTimeUtil.milliSecondsToFormatedString(simTime, true)) + "]");                
             }
 
             long lastStateTime = lastStateTimes.containsKey(vehicle)? lastStateTimes.get(vehicle) : 0;
