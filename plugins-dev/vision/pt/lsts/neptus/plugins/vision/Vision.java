@@ -940,6 +940,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         
         try {
             System.loadLibrary(libOpencv);
+			//System.loadLibrary("opencv_java246");
             return true;
         }
         catch (Exception e) {
