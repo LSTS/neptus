@@ -232,7 +232,8 @@ public class GEOJSONExporter implements MRAExporter {
             }
             if (plan != null) {
                 pmonitor.setNote("Writing plan");
-                bw.write(",");
+                //NeptusLog.pub().info("plan: "+plan);
+                if(!plan.planPath().isEmpty()){bw.write(",");}
                 bw.write(path(plan.planPath(), "Planned waypoints", "plan"));
                 pmonitor.setProgress(90);
             }
