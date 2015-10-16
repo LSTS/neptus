@@ -900,11 +900,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     //!Find OPENCV JNI in host PC
     private boolean findOpenCV(){
+        boolean result = false;
         String libOpencv = new String();
         File dir = new File("/usr/lib/jni");
         String[] children = dir.list();
         if (children == null) {
-            NeptusLog.pub().error("/usr/lib/jni not exist to search Opencv jni");
+            //NeptusLog.pub().error("/usr/lib/jni not exist to search Opencv jni");
         }
         else {
            for (int i = 0; i < children.length; i++) {
@@ -937,19 +938,32 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                   libOpencv = "opencv_java2412";
            }
         }
-        
+                
         try {
             System.loadLibrary(libOpencv);
-			//System.loadLibrary("opencv_java246");
             return true;
         }
         catch (Exception e) {
-            NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
-            return false;
+            try {
+                System.loadLibrary("opencv_java246");
+                result = true;
+            }
+            catch (Exception e1) {
+                NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
+                result = false;
+            }
+            return result;
         }
         catch (Error e) {
-            NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
-            return false;
+            try {
+                System.loadLibrary("opencv_java246");
+                result = true;
+            }
+            catch (Error e1) {
+                NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
+                result = false;
+            }
+            return result;
         }
     }
     
