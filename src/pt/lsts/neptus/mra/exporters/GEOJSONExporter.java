@@ -31,30 +31,19 @@
  */
 package pt.lsts.neptus.mra.exporters;
 
-//import java.awt.Color;
-//import java.awt.Font;
-//import java.awt.Graphics2D;
-//import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.util.ArrayList;
-//import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.imageio.ImageIO;
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
-//import pt.lsts.neptus.colormap.ColorBar;
-//import pt.lsts.neptus.colormap.ColorMap;
-//import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
-//import pt.lsts.neptus.mra.MRAProperties;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -62,9 +51,7 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.ZipUtils;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.util.WGS84Utilities;
 
@@ -83,9 +70,6 @@ public class GEOJSONExporter implements MRAExporter {
     @NeptusProperty (name = "Seconds Gap in EstimatedState for Path Break")
     public int secondsGapInEstimatedStateForPathBreak = 30;
     
-    @NeptusProperty(category = "Visibility")
-    public boolean visibilityForLegends = false;
-
     public GEOJSONExporter(IMraLogGroup source) {
         this.source = source;
     }
@@ -131,9 +115,6 @@ public class GEOJSONExporter implements MRAExporter {
             retAll += ret;
         }
         NeptusLog.pub().info("name: "+name);
-        //NeptusLog.pub().info("pathNumber: "+pathNumber);
-        //NeptusLog.pub().info("idx: "+idx);
-        //NeptusLog.pub().info("coords.size(): "+coords.size());
         return retAll;
     }
 
@@ -157,8 +138,6 @@ public class GEOJSONExporter implements MRAExporter {
 
             out = new File(out, "map.geojson");
             BufferedWriter bw = new BufferedWriter(new FileWriter(out));
-            //File f = source.getFile(".");
-            //String name = f.getCanonicalFile().getName();
             bw.write(GeoJsonHeader());
 
             // To account for multiple systems paths
