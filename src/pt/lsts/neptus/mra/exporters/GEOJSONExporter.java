@@ -34,6 +34,7 @@ package pt.lsts.neptus.mra.exporters;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -67,7 +68,7 @@ public class GEOJSONExporter implements MRAExporter {
     private IMraLogGroup source;
     private ProgressMonitor pmonitor;
 
-    @NeptusProperty (name = "Seconds Gap in EstimatedState for Path Break")
+    //@NeptusProperty (name = "Seconds Gap in EstimatedState for Path Break")
     public int secondsGapInEstimatedStateForPathBreak = 30;
     
     public GEOJSONExporter(IMraLogGroup source) {
@@ -95,7 +96,7 @@ public class GEOJSONExporter implements MRAExporter {
         int idx = 0;
         int pathNumber = 0;
         while (idx < coords.size()) {
-            String ret = "{\"type\": \"Feature\",\"geometry\": {\"type\": \"LineString\",\"coordinates\": [";
+            String ret = "{\"type\": \"Feature\",\"geometry\": {\"type\": \"LineString\",\"coordinates\": [\n";
             
             LocationType l;
             
@@ -108,9 +109,13 @@ public class GEOJSONExporter implements MRAExporter {
             }
             ret += "]},\n";
             ret +="\"properties\": {";
-            ret +="\"name\": \""+ name + " " + pathNumber++ +"\",";
-            ret +="\"styleUrl\": \"#"+style+"\",";
-            ret +="\"styleHash\": \"99ff0000\"}";
+            ret +="\"name\": \""+ name +"\",";
+            //ret +="\"name\": \""+ name + " " + pathNumber++ +"\",";
+            /*ret +="\"styleUrl\": \"#"+style+"\",";
+            ret +="\"styleHash\": \"99ff0000\"}";*/
+            Date d = new Date((long) (1000 * source.getLsfIndex().getStartTime()));
+            ret +="\"description\": \"Plan executed on "+d+"\"";
+            ret +="}";
             ret +="}";
             retAll += ret;
         }
@@ -127,9 +132,9 @@ public class GEOJSONExporter implements MRAExporter {
 
         this.pmonitor = pmonitor;
         pmonitor.setMinimum(0);
-        pmonitor.setMaximum(320);
+        pmonitor.setMaximum(100);
 
-        PluginUtils.editPluginProperties(this, true);
+        //PluginUtils.editPluginProperties(this, true);
 
         try {
             pmonitor.setNote("Generating output dirs");
@@ -145,7 +150,7 @@ public class GEOJSONExporter implements MRAExporter {
             Hashtable<String, IMCMessage> lastEstimatedStateForSystems = new Hashtable<>();
             
             LocationType bottomRight = null, topLeft = null;
-
+            pmonitor.setProgress(50);
             // Path
             Iterable<IMCMessage> it = source.getLsfIndex().getIterator("EstimatedState", 0, 3000);
             pmonitor.setProgress(1);
@@ -194,10 +199,11 @@ public class GEOJSONExporter implements MRAExporter {
                 bw.close();
                 throw new Exception("This log doesn't have required data (EstimatedState)");
             }*/
+            pmonitor.setProgress(60);
             pmonitor.setNote("Writing path to file");
             for (String sys : pathsForSystems.keySet()) {
                 Vector<LocationType> st = pathsForSystems.get(sys);
-                bw.write(path(st, "Estimated State " + sys, "estate"));
+                bw.write(path(st,sys, "estate"));
             }
             pmonitor.setProgress(70);
             PlanType plan = null;
@@ -209,6 +215,7 @@ public class GEOJSONExporter implements MRAExporter {
             catch (Exception e) {
                 NeptusLog.pub().error(e);
             }
+            pmonitor.setProgress(80);
             if (plan != null) {
                 pmonitor.setNote("Writing plan");
                 //NeptusLog.pub().info("plan: "+plan);
@@ -216,17 +223,17 @@ public class GEOJSONExporter implements MRAExporter {
                 bw.write(path(plan.planPath(), "Planned waypoints", "plan"));
                 pmonitor.setProgress(90);
             }
-
+            
             topLeft.translatePosition(50, -50, 0);
             bottomRight.translatePosition(-50, 50, 0);
             topLeft.convertToAbsoluteLatLonDepth();
             bottomRight.convertToAbsoluteLatLonDepth();
-
-
+            
+            pmonitor.setProgress(90);
             bw.write(GeoJsonFooter());
-
             bw.close();
-
+            pmonitor.setProgress(100);
+            
             if (pmonitor.isCanceled()){
                 return "Cancelled by the user";
             }
