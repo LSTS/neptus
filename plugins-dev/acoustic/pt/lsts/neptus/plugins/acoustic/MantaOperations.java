@@ -240,7 +240,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         html.append("</html>");
         return html.toString();
     }
-    /*Revised by: Mauro Brandão*/
+
     @Override
     public void initSubPanel() {
         if (initialized)
@@ -275,31 +275,15 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                         .getVehicleById(defaultVehicle), null);
                 if (choice == null)
                     return;
-                String[] ops = filtered.toArray(new String[0]);
-                /*int option = JOptionPane.showOptionDialog(getConsole(),
-                        I18n.text("Please select plan to start"), I18n.text("Start plan"),
-                        JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, ops, null);*/
-                
-                Object option = JOptionPane.showInputDialog(getConsole(), I18n.text("Please select plan to start"),
-                        I18n.text("Start plan"), JOptionPane.QUESTION_MESSAGE, null, ops,null);
 
-                /*if (option == -1)
-                    return;*/
+                String[] ops = filtered.toArray(new String[0]);
+                Object option = JOptionPane.showInputDialog(getConsole(), I18n.text("Please select plan to start"),
+                        I18n.text("Start plan"), JOptionPane.QUESTION_MESSAGE, null, ops, null);
+
                 if (option == null)
                     return;
-                //NeptusLog.pub().warn("Start plan " + ops[option]);
                 NeptusLog.pub().warn("Start plan " + option.toString());
                 
-                int opsIndex;
-                opsIndex=0;
-                for(int opsPos = 0; opsPos < ops.length; opsPos++) {
-                    if(ops[opsPos].equals(option.toString())) {
-                        opsIndex = opsPos;
-                      break;
-                    }
-                  }
-                NeptusLog.pub().warn("setPlanId: " + ops[opsIndex]);
-
                 ImcSystem[] sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
                         SystemTypeEnum.ALL, true);
 
@@ -313,7 +297,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                 PlanControl pc = new PlanControl();
                 pc.setType(PlanControl.TYPE.REQUEST);
                 pc.setOp(PlanControl.OP.START);
-                pc.setPlanId(ops[opsIndex]);
+                pc.setPlanId(option.toString());
                 int req = IMCSendMessageUtils.getNextRequestId();
                 pc.setRequestId(req);
 
