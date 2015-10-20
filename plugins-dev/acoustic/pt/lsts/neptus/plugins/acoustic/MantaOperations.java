@@ -43,6 +43,8 @@ import java.awt.event.KeyEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -61,9 +63,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
-
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Arrays;
-import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticSystems;
@@ -159,7 +158,6 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     }
 
     protected ActionListener systemActionListener = new ActionListener() {
-
         @Override
         public void actionPerformed(ActionEvent e) {
             selectedSystem = e.getActionCommand();
@@ -199,7 +197,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         }
     }
     
-    @Periodic(millisBetweenUpdates=1500) 
+    @Periodic(millisBetweenUpdates = 1500)
     public void updateStateLabel() {
         if (!lblState.isVisible())
             return;
@@ -334,7 +332,6 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
         btn.addActionListener(new ActionListener() {
             @Override
-            @SuppressWarnings("unchecked")
             public void actionPerformed(ActionEvent event) {
                 Vector<Object> systems = new Vector<>();
                 systems.add(I18n.text("any"));
@@ -349,12 +346,12 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                     return;
                 }
 
-                Object gw = JOptionPane.showInputDialog(getConsole(), I18n.text("Select Gateway"), 
+                Object gw = JOptionPane.showInputDialog(getConsole(), I18n.text("Select gateway"), 
                         I18n.text("Select acoustic gateway to use"),
                         JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
 
                 if (gw != null)
-                    gateway = ""+gw;
+                    gateway = "" + gw;
                 
                 ((JButton) event.getSource()).setText(I18n.textf("GW: %gateway", gateway));
                 lblState.setText(buildState());
@@ -425,8 +422,10 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                     rangeDistances.clear();
                     rangeSources.clear();
                     toggle.setText(rangesShow);
-                }else
+                }
+                else {
                     toggle.setText(rangesHidden);
+                }
             }
         });
         toggle.setSelected(showRanges);
@@ -463,9 +462,10 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
             public void actionPerformed(ActionEvent event) {
                 ImcSystem[] sysLst;
 
-                if (gateway.equals(I18n.text("any")))
+                if (gateway.equals(I18n.text("any"))){
                     sysLst = ImcSystemsHolder.lookupSystemByService("acoustic/operation",
                             SystemTypeEnum.ALL, true);
+                }
                 else {
                     ImcSystem sys = ImcSystemsHolder.lookupSystemByName(gateway);
                     if (sys != null)
