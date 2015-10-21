@@ -36,7 +36,15 @@ import java.io.ByteArrayOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import java.net.Socket;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import org.apache.commons.lang3.concurrent.ConcurrentUtils;
 
 import info.necsave.msgs.ActionStop;
 import info.necsave.msgs.PlatformInfo;
@@ -61,6 +69,10 @@ public class NecsaveTransport {
     boolean stopped = false;
     private ConsoleLayout console;
     private byte[] receiveData = new byte[64 * 1024];
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private LinkedHashMap<Integer, String> platformNames = new LinkedHashMap<>();
+    private LinkedHashMap<Integer, InetSocketAddress> platformAddrs = new LinkedHashMap<>();
+    
     
     public NecsaveTransport(ConsoleLayout console) throws Exception {
         this.console = console;
@@ -77,8 +89,9 @@ public class NecsaveTransport {
             while (!stopped) {
                 try {
                     Message msg = readMessage();
+                    
                     if (console != null)
-                        console.post(msg);
+                        console.post(msg);                    
                 }
                 catch (Exception e) {
                     NeptusLog.pub().error(e);
@@ -86,6 +99,11 @@ public class NecsaveTransport {
             }
         };
     };
+    
+    private void process(PlatformInfo msg, String host, int port) {
+        platformNames.put(msg.getSrc(), msg.getPlatformName());
+        platformAddrs.put(msg.getSrc(), new InetSocketAddress(host, msg.getPort()));
+    }
 
     private Message readMessage() throws Exception {
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
@@ -97,22 +115,59 @@ public class NecsaveTransport {
         Message msg = ProtoDefinition.getInstance().nextMessage(pis);
         
         if (msg instanceof PlatformInfo)
-            processPlatformInfo(receivePacket.getSocketAddress(), (PlatformInfo) msg);
+            process((PlatformInfo)msg, receivePacket.getAddress().getHostAddress(), receivePacket.getPort());        
         
         return msg;
-    }
-    
-    private void processPlatformInfo(SocketAddress sender, PlatformInfo info) {
-        
-    }
+    }   
 
     public void broadcast(Message msg) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ProtoOutputStream pos = new ProtoOutputStream(baos);
         int length = msg.serialize(pos);
         DatagramPacket packet = new DatagramPacket(baos.toByteArray(), length);
-        packet.setAddress(new InetSocketAddress(broadcastPort).getAddress());
+        packet.setSocketAddress(new InetSocketAddress("255.255.255.255", broadcastPort));
         serverSocket.send(packet);
+    }
+    
+    public Future<Boolean> sendMessage(final Message msg, final int platf) {
+        
+        if (platformAddrs.containsKey(platf)) {
+            InetSocketAddress addr = platformAddrs.get(platf);
+            return sendMessage(msg, addr.getHostName(), addr.getPort());
+        }
+        else
+            return ConcurrentUtils.constantFuture(Boolean.FALSE);        
+    }
+    
+    public Future<Boolean> sendMessage(final Message msg, final String platform) {
+        int platf = -1;
+        if (platformNames.containsValue(platform)) {
+            for (Entry<Integer, String> e : platformNames.entrySet()) {
+                if (e.getValue().equals(platform)) {
+                    platf = e.getKey();
+                    break;
+                }
+            }
+        }
+        return sendMessage(msg, platf);   
+    }
+    
+    public Future<Boolean> sendMessage(final Message msg, final String host, final int port) {
+        return executor.submit(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                try {
+                    Socket socket = new Socket(host, port);
+                    msg.serialize(new ProtoOutputStream(socket.getOutputStream()));
+                    socket.close();
+                    return true;
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                    return false;
+                }
+            } 
+        });
     }
     
     public void stop() {

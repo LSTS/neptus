@@ -33,9 +33,10 @@ package org.necsave;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ByteArrayOutputStream;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 import java.util.Vector;
+import java.util.concurrent.Future;
 
 import javax.swing.JOptionPane;
 
@@ -50,15 +51,13 @@ import info.necsave.msgs.MissionReadyToStart;
 import info.necsave.msgs.PlatformInfo;
 import info.necsave.msgs.PlatformPlanProgress;
 import info.necsave.proto.Message;
-import info.necsave.proto.ProtoDefinition;
 import pt.lsts.imc.JsonObject;
 import pt.lsts.imc.lsf.LsfMessageLogger;
-import pt.lsts.imc.net.UDPTransport;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
@@ -77,6 +76,9 @@ import pt.lsts.neptus.util.GuiUtils;
 @PluginDescription(name = "NECSAVE UI")
 public class NecsaveUI extends ConsoleInteraction {
 
+    @NeptusProperty(description="Select if the commands should be sent using TCP communications")
+    public boolean sendCommandsReliably = true;
+    
     private NecsaveTransport transport = null;
     private LinkedHashMap<Integer, String> platformNames = new LinkedHashMap<>();
     private LinkedHashMap<Integer, PlatformPlanProgress> planProgresses = new LinkedHashMap<>();
@@ -143,7 +145,7 @@ public class NecsaveUI extends ConsoleInteraction {
                 area.setLength(elem.getLength());
 
                 try {
-                    sendMessage(new MissionArea(area));
+                    sendMessage(new MissionArea(area));                    
                 }
                 catch (Exception ex) {
                     GuiUtils.errorMessage(getConsole(), ex);
@@ -167,8 +169,30 @@ public class NecsaveUI extends ConsoleInteraction {
             }
         });
     }
-
-    private void sendMessage(Message msg) throws Exception {
+    
+    private void sendMessageReliably(Message msg) throws Exception {
+        LinkedHashMap<String, Future<Boolean>> results = new LinkedHashMap<>();
+        
+        for (String platf : platformNames.values())
+            results.put(platf,transport.sendMessage(msg, platf));                    
+                
+        int successful = 0;
+        for (Entry<String, Future<Boolean> > f : results.entrySet()) {
+            try {
+                if (f.getValue().get())
+                    successful++;      
+                else
+                    getConsole().post(Notification.error("NECSAVE", "Could not deliver the message to "+f.getKey()));
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e);
+            }
+        }
+        if (successful == results.size())
+            getConsole().post(Notification.success("NECSAVE", "Message delivered to "+results.size()+" platforms."));            
+    }
+    
+    private void sendMessageUnreliable(Message msg) throws Exception {
         try {
             transport.broadcast(msg);
             getConsole().post(
@@ -180,6 +204,27 @@ public class NecsaveUI extends ConsoleInteraction {
                     I18n.textf("Could not send " + msg.getAbbrev() + " to NECSAVE: %error", ex.getMessage())));
             NeptusLog.pub().error(ex);
         }
+    }
+
+    private void sendMessage(Message msg) {
+        Runnable send = new Runnable() {            
+            @Override
+            public void run() {
+                try {
+                    if (sendCommandsReliably)
+                        sendMessageReliably(msg);
+                    else
+                        sendMessageUnreliable(msg);
+                }
+                catch (Exception e) {
+                    NeptusLog.pub().error(e);
+                }
+            }
+        };
+        
+        Thread t = new Thread(send, "NECSAVE send");
+        t.setDaemon(true);
+        t.start();        
     }
     
     @Subscribe
