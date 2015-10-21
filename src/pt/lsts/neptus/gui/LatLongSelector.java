@@ -31,20 +31,31 @@
  */
 package pt.lsts.neptus.gui;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Rectangle;
+import java.awt.event.ItemEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.text.NumberFormat;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.TitledBorder;
+
 import pt.lsts.neptus.gui.objparams.ParametersPanel;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
-
-import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.text.NumberFormat;
 /**
  * @author Ze Carlos
  * @author Paulo Dias
@@ -582,27 +593,27 @@ public class LatLongSelector extends ParametersPanel implements KeyListener {
 		loc.setLatitudeStr(getLatitude());
 		loc.setLongitudeStr(getLongitude());
 		switch (type) {
-		case DECIMAL_DEGREES_DISPLAY:
-			this.setLatitude(new double[] {MathMiscUtils.round(loc.getLatitudeDegs(), 6), 0, 0});
-			this.setLongitude(new double[] {MathMiscUtils.round(loc.getLongitudeDegs(), 6), 0, 0});
-			break;
-
-		case DM_DISPLAY:
-			double[] dmLat = CoordinateUtil.decimalDegreesToDM(loc.getLatitudeDegs());
-			double[] dmLon = CoordinateUtil.decimalDegreesToDM(loc.getLongitudeDegs());
-			this.setLatitude(new double[] {dmLat[0], MathMiscUtils.round(dmLat[1], 4), 0});
-			this.setLongitude(new double[] {dmLon[0], MathMiscUtils.round(dmLon[1], 4), 0});
-			break;
-
-		case DMS_DISPLAY:
-			double[] dmsLat = CoordinateUtil.decimalDegreesToDMS(loc.getLatitudeDegs());
-			double[] dmsLon = CoordinateUtil.decimalDegreesToDMS(loc.getLongitudeDegs());
-			this.setLatitude(new double[] {dmsLat[0], dmsLat[1], MathMiscUtils.round(dmsLat[2], 2)});
-			this.setLongitude(new double[] {dmsLon[0], dmsLon[1], MathMiscUtils.round(dmsLon[2], 2)});
-			break;
-
-		default:
-			break;
+    		case DECIMAL_DEGREES_DISPLAY:
+    			this.setLatitude(new double[] {MathMiscUtils.round(loc.getLatitudeDegs(), 6), 0, 0});
+    			this.setLongitude(new double[] {MathMiscUtils.round(loc.getLongitudeDegs(), 6), 0, 0});
+    			break;
+    
+    		case DM_DISPLAY:
+    			double[] dmLat = CoordinateUtil.decimalDegreesToDM(loc.getLatitudeDegs());
+    			double[] dmLon = CoordinateUtil.decimalDegreesToDM(loc.getLongitudeDegs());
+    			this.setLatitude(new double[] {dmLat[0], MathMiscUtils.round(dmLat[1], 4), 0});
+    			this.setLongitude(new double[] {dmLon[0], MathMiscUtils.round(dmLon[1], 4), 0});
+    			break;
+    
+    		case DMS_DISPLAY:
+    			double[] dmsLat = CoordinateUtil.decimalDegreesToDMS(loc.getLatitudeDegs());
+    			double[] dmsLon = CoordinateUtil.decimalDegreesToDMS(loc.getLongitudeDegs());
+    			this.setLatitude(new double[] {dmsLat[0], dmsLat[1], MathMiscUtils.round(dmsLat[2], 2)});
+    			this.setLongitude(new double[] {dmsLon[0], dmsLon[1], MathMiscUtils.round(dmsLon[2], 2)});
+    			break;
+    
+    		default:
+    			break;
 		}
 
 		return true;
