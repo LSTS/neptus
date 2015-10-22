@@ -76,10 +76,10 @@ public class NecsaveTransport {
     
     public NecsaveTransport(ConsoleLayout console) throws Exception {
         this.console = console;
-        serverSocket = new DatagramSocket(broadcastPort);
+        serverSocket = new DatagramSocket();
         serverSocket.setReuseAddress(true);
         serverSocket.setBroadcast(true);
-        
+        serverSocket.bind(new InetSocketAddress(broadcastPort));
         receiverThread.setDaemon(true);
         receiverThread.start();        
     }
@@ -125,7 +125,8 @@ public class NecsaveTransport {
         ProtoOutputStream pos = new ProtoOutputStream(baos);
         int length = msg.serialize(pos);
         DatagramPacket packet = new DatagramPacket(baos.toByteArray(), length);
-        packet.setSocketAddress(new InetSocketAddress("255.255.255.255", broadcastPort));
+        for (int i = 0; i < 3; i++)
+            packet.setSocketAddress(new InetSocketAddress("255.255.255.255", broadcastPort+i));
         serverSocket.send(packet);
     }
     
