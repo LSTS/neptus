@@ -229,22 +229,32 @@ public class NecsaveUI extends ConsoleInteraction {
     
     @Subscribe
     public void on(Kinematics msg) {
-        if (!platformNames.containsKey(msg.getSrc()))
-            return;
-
-        String name = platformNames.get(msg.getSrc());
-
-        if (ExternalSystemsHolder.lookupSystem(name) == null) {
-            ExternalSystem es = new ExternalSystem(name);
-            ExternalSystemsHolder.registerSystem(es);
-            es.setActive(true);
-            es.setType(SystemTypeEnum.UNKNOWN);
+        try {
+            if (!platformNames.containsKey(msg.getSrc()))
+                return;
+    
+            String name = platformNames.get(msg.getSrc());
+    
+            if (ExternalSystemsHolder.lookupSystem(name) == null) {
+                ExternalSystem es = new ExternalSystem(name);
+                ExternalSystemsHolder.registerSystem(es);
+                es.setActive(true);
+                es.setType(SystemTypeEnum.UNKNOWN);
+            }
+            ExternalSystem extSys = ExternalSystemsHolder.lookupSystem(name);
+            if (msg.getWaypoint() != null) {
+                LocationType loc = new LocationType(Math.toDegrees(msg.getWaypoint().getLatitude()),
+                        Math.toDegrees(msg.getWaypoint().getLongitude()));
+                loc.setDepth(msg.getWaypoint().getDepth());
+                extSys.setLocation(loc, System.currentTimeMillis());
+            }
+            else {
+                NeptusLog.pub().error(I18n.textf("Kinematics message from %platform is not valid.", name));
+            }
         }
-        ExternalSystem extSys = ExternalSystemsHolder.lookupSystem(name);
-        LocationType loc = new LocationType(Math.toDegrees(msg.getWaypoint().getLatitude()),
-                Math.toDegrees(msg.getWaypoint().getLongitude()));
-        loc.setDepth(msg.getWaypoint().getDepth());
-        extSys.setLocation(loc, System.currentTimeMillis());
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Subscribe

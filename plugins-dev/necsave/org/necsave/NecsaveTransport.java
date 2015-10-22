@@ -77,22 +77,26 @@ public class NecsaveTransport {
 
     public NecsaveTransport(ConsoleLayout console) throws Exception {
         this.console = console;
-        serverSocket = new DatagramSocket();
-        serverSocket.setReuseAddress(true);
-        serverSocket.setBroadcast(true);
         boolean bound = false;
-        for (int i = 0; i < 3; i++) {
+        for (int port = broadcastPort; port < broadcastPort+3; port++) {
             try {
-                serverSocket.bind(new InetSocketAddress(broadcastPort+i));
+                serverSocket = new DatagramSocket(null);
+                serverSocket.setReuseAddress(true);
+                serverSocket.setBroadcast(true);
+                serverSocket.bind(new InetSocketAddress(port));
+                NeptusLog.pub().info(I18n.textf("Bound to port %d", port));
                 bound = true;
+                break;
             }
             catch (Exception e) {
+                e.printStackTrace();
                 NeptusLog.pub()
-                .error(I18n.textf("Unable to bind to port %port: %error", broadcastPort + i, e.getMessage()));
+                .error(I18n.textf("Unable to bind to port %port: %error",  port, e.getMessage()));
             }
         }
         if (!bound)
-            throw new RuntimeException("Unable to bind to broadcast port.");
+            throw new RuntimeException("Unable to bind to any broadcast port.");
+            
         receiverThread.setDaemon(true);
         receiverThread.start();        
     }
