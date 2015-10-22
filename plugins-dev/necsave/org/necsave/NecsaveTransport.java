@@ -54,6 +54,7 @@ import info.necsave.proto.ProtoInputStream;
 import info.necsave.proto.ProtoOutputStream;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 
 /**
@@ -64,7 +65,7 @@ public class NecsaveTransport {
 
     @NeptusProperty(description="Port where platforms broadcast their state")
     public int broadcastPort = 17650;
-    
+
     private DatagramSocket serverSocket = null;
     boolean stopped = false;
     private ConsoleLayout console;
@@ -72,14 +73,26 @@ public class NecsaveTransport {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private LinkedHashMap<Integer, String> platformNames = new LinkedHashMap<>();
     private LinkedHashMap<Integer, InetSocketAddress> platformAddrs = new LinkedHashMap<>();
-    
-    
+
+
     public NecsaveTransport(ConsoleLayout console) throws Exception {
         this.console = console;
         serverSocket = new DatagramSocket();
         serverSocket.setReuseAddress(true);
         serverSocket.setBroadcast(true);
-        serverSocket.bind(new InetSocketAddress(broadcastPort));
+        boolean bound = false;
+        for (int i = 0; i < 3; i++) {
+            try {
+                serverSocket.bind(new InetSocketAddress(broadcastPort+i));
+                bound = true;
+            }
+            catch (Exception e) {
+                NeptusLog.pub()
+                .error(I18n.textf("Unable to bind to port %port: %error", broadcastPort + i, e.getMessage()));
+            }
+        }
+        if (!bound)
+            throw new RuntimeException("Unable to bind to broadcast port.");
         receiverThread.setDaemon(true);
         receiverThread.start();        
     }
@@ -89,7 +102,7 @@ public class NecsaveTransport {
             while (!stopped) {
                 try {
                     Message msg = readMessage();
-                    
+
                     if (console != null)
                         console.post(msg);                    
                 }
@@ -99,7 +112,7 @@ public class NecsaveTransport {
             }
         };
     };
-    
+
     private void process(PlatformInfo msg, String host, int port) {
         platformNames.put(msg.getSrc(), msg.getPlatformName());
         platformAddrs.put(msg.getSrc(), new InetSocketAddress(host, msg.getPort()));
@@ -108,15 +121,15 @@ public class NecsaveTransport {
     private Message readMessage() throws Exception {
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
         serverSocket.receive(receivePacket);
-        
+
         ProtoInputStream pis = new ProtoInputStream(new ByteArrayInputStream(receiveData),
                 ProtoDefinition.getInstance());
-        
+
         Message msg = ProtoDefinition.getInstance().nextMessage(pis);
-        
+
         if (msg instanceof PlatformInfo)
             process((PlatformInfo)msg, receivePacket.getAddress().getHostAddress(), receivePacket.getPort());        
-        
+
         return msg;
     }   
 
@@ -129,9 +142,9 @@ public class NecsaveTransport {
             packet.setSocketAddress(new InetSocketAddress("255.255.255.255", broadcastPort+i));
         serverSocket.send(packet);
     }
-    
+
     public Future<Boolean> sendMessage(final Message msg, final int platf) {
-        
+
         if (platformAddrs.containsKey(platf)) {
             InetSocketAddress addr = platformAddrs.get(platf);
             return sendMessage(msg, addr.getHostName(), addr.getPort());
@@ -139,7 +152,7 @@ public class NecsaveTransport {
         else
             return ConcurrentUtils.constantFuture(Boolean.FALSE);        
     }
-    
+
     public Future<Boolean> sendMessage(final Message msg, final String platform) {
         int platf = -1;
         if (platformNames.containsValue(platform)) {
@@ -152,7 +165,7 @@ public class NecsaveTransport {
         }
         return sendMessage(msg, platf);   
     }
-    
+
     public Future<Boolean> sendMessage(final Message msg, final String host, final int port) {
         return executor.submit(new Callable<Boolean>() {
             @Override
@@ -170,16 +183,15 @@ public class NecsaveTransport {
             } 
         });
     }
-    
+
     public void stop() {
         stopped = true;
         receiverThread.interrupt();
     }
-    
+
     public static void main(String[] args) throws Exception {
         NecsaveTransport transport = new NecsaveTransport(null);
         transport.broadcast(new ActionStop());
-        Thread.sleep(100000);
-        
+        Thread.sleep(100000);        
     }
 }
