@@ -310,7 +310,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         if(findOpenCV()){
             //clears all the unused initializations of the standard ConsolePanel
             removeAll();
-            //Resize Console
+            //!Resize Console
             this.addComponentListener(new ComponentAdapter() {  
                 public void componentResized(ComponentEvent evt) {
                     Component c = evt.getComponent();
@@ -326,7 +326,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         inicImage();
                 }
             });
-            //Mouse click
+            //!Mouse click
             addMouseListener(new MouseAdapter() {
                 public void mouseClicked(MouseEvent e) {
                     if (e.getButton() == MouseEvent.BUTTON1){
@@ -375,6 +375,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                                 checkIpCam();        
                             }
                         });
+                        popup.addSeparator();
                         item3.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
                         JMenuItem item4;
                         popup.add(item4 = new JMenuItem(I18n.text("Config"), new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/config.jpeg")))).addActionListener(new ActionListener() {
@@ -505,7 +506,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         colorStateIpCam.setBackground(Color.RED);
         colorStateIpCam.add(jlabel);
         ipHostCheck.add(colorStateIpCam,"h 30!, w 30!");
-        selectIpCam = new JButton("Check");
+        selectIpCam = new JButton(I18n.text("Check"));
         selectIpCam.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -799,7 +800,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         //JPanel for info and config values      
         config = new JPanel(new MigLayout());
 
-        //JCheckBox save to hd
+        //JCheckBox save to HD
         saveToDiskCheckBox = new JCheckBox(I18n.text("Save Image to Disk"));
         saveToDiskCheckBox.setMnemonic(KeyEvent.VK_C);
         saveToDiskCheckBox.setSelected(false);
