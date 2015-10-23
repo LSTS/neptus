@@ -632,11 +632,25 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //!Ping CamIp
-    private boolean pingIpCam (String dataUrlIni){
+    private boolean pingIpCam (String host){
         boolean ping = false;
         try {
-            if (InetAddress.getByName(dataUrlIni).isReachable(500)==true)
-                ping = true; //Ping works 
+            String cmd = "";
+            if(System.getProperty("os.name").startsWith("Windows")) {   
+                    // For Windows
+                    cmd = "ping -n 1 " + host;
+            } else {
+                    // For Linux and OSX
+                    cmd = "ping -c 1 " + host;
+            }
+            Process myProcess = Runtime.getRuntime().exec(cmd);
+            try {
+                myProcess.waitFor();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if(myProcess.exitValue() == 0)
+                ping = true;
             else
                 ping = false;
         }
