@@ -62,7 +62,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
@@ -214,6 +213,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private JLabel txtText;
     //JText of data receive over IMC message
     private JLabel txtData;
+    //JText of data warning message
+    private JLabel warningText;
     //JText of data receive over DUNE TCP message
     private JLabel txtDataTcp;
     //JFrame for menu options
@@ -466,12 +467,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             }
             showImage(resize(errorImg, 320, 240));
             //JLabel info
-            txtData = new JLabel("  " +I18n.textf("Please install %libopencv and its dependencies.", libOpencvName)+ "  ");
-            txtData.setForeground(Color.RED);
-            txtData.setFont(new Font("Courier New", Font.ITALIC, 18));
-            txtData.setBackground(Color.yellow);
-            txtData.setOpaque(true);
-            this.add(txtData, BorderLayout.SOUTH); 
+            warningText = new JLabel("  " +I18n.textf("Please install %libopencv and its dependencies.", libOpencvName)+ "  ");
+            warningText.setForeground(Color.RED);
+            warningText.setFont(new Font("Courier New", Font.ITALIC, 18));
+            warningText.setBackground(Color.yellow);
+            warningText.setOpaque(true);
+            this.add(warningText, BorderLayout.SOUTH); 
             return;
         }
         return;
