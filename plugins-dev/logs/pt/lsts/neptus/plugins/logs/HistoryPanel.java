@@ -44,6 +44,7 @@ import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -53,7 +54,6 @@ import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.ToolbarButton;
-import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.logs.HistoryMessage.msg_type;
 import pt.lsts.neptus.util.ImageUtils;
@@ -70,8 +70,15 @@ public class HistoryPanel extends JPanel {
     protected JScrollPane scroll = new JScrollPane(mainPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     protected ConsoleLayout console = null;
+
     protected boolean showInfo = true;
+    protected boolean showWarn = true;
+    protected boolean showError = true;
+    protected boolean showCritical = true;
+    protected boolean showDebug = true;
+
     protected boolean showReload = true;
+    private String imgsPath = "pt/lsts/neptus/plugins/logs/";
 
     protected LinkedHashMap<msg_type, Color> bgColors = new LinkedHashMap<HistoryMessage.msg_type, Color>();
     {
@@ -92,11 +99,74 @@ public class HistoryPanel extends JPanel {
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         add(scroll, BorderLayout.CENTER);
 
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        JCheckBox check_info = new JCheckBox(new AbstractAction(I18n.text("Information")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (HistoryPanel.this.console == null)
+                    return;
+
+                showInfo = ((JCheckBox) e.getSource()).isSelected();
+                refreshHistoryMessages();
+
+            }
+        });
+        check_info.setSelected(true);
+        JCheckBox check_warn = new JCheckBox(new AbstractAction(I18n.text("Warning")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (HistoryPanel.this.console == null)
+                    return;
+
+                showWarn = ((JCheckBox) e.getSource()).isSelected();
+                refreshHistoryMessages();
+            }
+        });
+        check_warn.setSelected(true);
+        JCheckBox check_error = new JCheckBox(new AbstractAction(I18n.text("Error")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (HistoryPanel.this.console == null)
+                    return;
+
+                showError = ((JCheckBox) e.getSource()).isSelected();
+                refreshHistoryMessages();
+            }
+        });
+        check_error.setSelected(true);
+        JCheckBox check_critical = new JCheckBox(new AbstractAction(I18n.text("Critical")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (HistoryPanel.this.console == null)
+                    return;
+
+                showCritical = ((JCheckBox) e.getSource()).isSelected();
+                refreshHistoryMessages();
+            }
+        });
+        check_critical.setSelected(true);
+        JCheckBox check_debug = new JCheckBox(new AbstractAction(I18n.text("Debug")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (HistoryPanel.this.console == null)
+                    return;
+
+                showDebug = ((JCheckBox) e.getSource()).isSelected();
+                refreshHistoryMessages();
+            }
+        });
+        check_debug.setSelected(true);
+
+        bottom.add(check_info);
+        bottom.add(check_warn);
+        bottom.add(check_error);
+        bottom.add(check_critical);
+        bottom.add(check_debug);
 
         if (showReload) {
-            ToolbarButton btn = new ToolbarButton(new AbstractAction(I18n.text("Reload"),
-                    ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/reload.png")) {
+            ToolbarButton btn = new ToolbarButton(new AbstractAction(I18n.text("Reload"), ImageUtils.getIcon(imgsPath
+                    + "reload.png")) {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -114,32 +184,20 @@ public class HistoryPanel extends JPanel {
             bottom.add(btn);
         }
 
-        ToolbarSwitch sw = new ToolbarSwitch(new AbstractAction(I18n.text("Show all"),
-                ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/info.png")) {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (HistoryPanel.this.console == null)
-                    return;
-
-                showInfo = ((ToolbarSwitch) e.getSource()).isSelected();
-
-                Vector<HistoryMessage> tmp = new Vector<HistoryMessage>();
-                tmp.addAll(myMessages);
-                myMessages.clear();
-                mainPanel.removeAll();
-                setMessages(tmp);
-            }
-        });
-        sw.setText(I18n.text("Show info"));
-        bottom.add(sw);
-
         // if (HistoryPanel.this.console != null)
         add(bottom, BorderLayout.SOUTH);
     }
 
     public HistoryPanel() {
         this(null, true);
+    }
+    
+    public void refreshHistoryMessages(){
+        Vector<HistoryMessage> tmp = new Vector<HistoryMessage>();
+        tmp.addAll(myMessages);
+        myMessages.clear();
+        mainPanel.removeAll();
+        setMessages(tmp);
     }
 
     public void setMessages(Vector<HistoryMessage> messages) {
@@ -148,6 +206,14 @@ public class HistoryPanel extends JPanel {
                 myMessages.add(m);
 
                 if (m.type == msg_type.info && !showInfo)
+                    continue;
+                if (m.type == msg_type.warning && !showWarn)
+                    continue;
+                if (m.type == msg_type.error && !showError)
+                    continue;
+                if (m.type == msg_type.critical && !showCritical)
+                    continue;
+                if (m.type == msg_type.debug && !showDebug)
                     continue;
 
                 JLabel l = new JLabel(m.toString(), getIcon(m.type), JLabel.LEFT);
@@ -170,17 +236,17 @@ public class HistoryPanel extends JPanel {
     public ImageIcon getIcon(msg_type type) {
         switch (type) {
             case info:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/info.png");
+                return ImageUtils.getIcon(imgsPath + "info.png");
             case warning:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/warning.png");
+                return ImageUtils.getIcon(imgsPath + "warning.png");
             case error:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/error.png");
+                return ImageUtils.getIcon(imgsPath + "error.png");
             case critical:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/queue2.png");
+                return ImageUtils.getIcon(imgsPath + "queue2.png");
             case debug:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/unknown.png");
+                return ImageUtils.getIcon(imgsPath + "unknown.png");
             default:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/queue.png");
+                return ImageUtils.getIcon(imgsPath + "queue.png");
         }
     }
 }
