@@ -950,8 +950,21 @@ public class IMCUtils {
     }
 
     public static SystemPositionAndAttitude parseState(IMCMessage imcEstimatedState) {
-        return new SystemPositionAndAttitude(IMCUtils.parseLocation(imcEstimatedState), imcEstimatedState.getDouble("phi"),
+        SystemPositionAndAttitude state = new SystemPositionAndAttitude(IMCUtils.parseLocation(imcEstimatedState), imcEstimatedState.getDouble("phi"),
                 imcEstimatedState.getDouble("theta"), imcEstimatedState.getDouble("psi"));
+        state.setAltitude(imcEstimatedState.getDouble("alt"));
+        state.setDepth(imcEstimatedState.getDouble("depth"));
+        state.setTime(imcEstimatedState.getTimestampMillis());
+        
+        state.setP(imcEstimatedState.getDouble("p"));
+        state.setQ(imcEstimatedState.getDouble("q"));
+        state.setR(imcEstimatedState.getDouble("r"));
+        
+        state.setU(imcEstimatedState.getDouble("u"));
+        state.setV(imcEstimatedState.getDouble("v"));
+        state.setW(imcEstimatedState.getDouble("w"));
+
+        return state;        
     }
 
     public static IMCMessage getLblConfig(MissionType mt) {
