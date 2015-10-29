@@ -67,7 +67,8 @@ public class HistoryPanel extends JPanel {
 
     protected JPanel mainPanel = new JPanel();
     protected Vector<HistoryMessage> myMessages = new Vector<HistoryMessage>();
-    protected JScrollPane scroll = new JScrollPane(mainPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    protected JScrollPane scroll = new JScrollPane(mainPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     protected ConsoleLayout console = null;
     protected boolean showInfo = true;
     protected boolean showReload = true;
@@ -75,25 +76,25 @@ public class HistoryPanel extends JPanel {
     protected LinkedHashMap<msg_type, Color> bgColors = new LinkedHashMap<HistoryMessage.msg_type, Color>();
     {
         bgColors.put(msg_type.critical, Color.black);
-        bgColors.put(msg_type.error, new Color(255,128,128));
-        bgColors.put(msg_type.warning, new Color(255,255,128));
-        bgColors.put(msg_type.info, new Color(200,255,200));
-        bgColors.put(msg_type.debug, new Color(217,217,217));
+        bgColors.put(msg_type.error, new Color(255, 128, 128));
+        bgColors.put(msg_type.warning, new Color(255, 255, 128));
+        bgColors.put(msg_type.info, new Color(200, 255, 200));
+        bgColors.put(msg_type.debug, new Color(217, 217, 217));
     }
 
     public HistoryPanel(ConsoleLayout console, boolean showReload) {
         this.console = console;
         this.showReload = showReload;
-        
+
         setLayout(new BorderLayout());
-        mainPanel.setLayout(new GridLayout(0,1));
+        mainPanel.setLayout(new GridLayout(0, 1));
         mainPanel.setBackground(Color.white);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         add(scroll, BorderLayout.CENTER);
-        
+
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        
-        if(showReload) {
+
+        if (showReload) {
             ToolbarButton btn = new ToolbarButton(new AbstractAction(I18n.text("Reload"),
                     ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/reload.png")) {
 
@@ -102,28 +103,27 @@ public class HistoryPanel extends JPanel {
                     if (HistoryPanel.this.console == null)
                         return;
                     IMCMessage m = IMCDefinition.getInstance().create("LogBookControl", "command", "GET");
-                    ImcMsgManager.getManager().sendMessageToVehicle(m, HistoryPanel.this.console.getMainSystem(),
-                            null);
+                    ImcMsgManager.getManager().sendMessageToVehicle(m, HistoryPanel.this.console.getMainSystem(), null);
 
                     m = IMCDefinition.getInstance().create("LogBookControl", "command", "GET_ERR");
-                    ImcMsgManager.getManager().sendMessageToVehicle(m, HistoryPanel.this.console.getMainSystem(),
-                            null);
+                    ImcMsgManager.getManager().sendMessageToVehicle(m, HistoryPanel.this.console.getMainSystem(), null);
                 }
             });
             btn.setText(I18n.text("Reload"));
 
-            bottom.add(btn);    
+            bottom.add(btn);
         }
-        
-        ToolbarSwitch sw =  new ToolbarSwitch(new AbstractAction(I18n.text("Show all"), ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/info.png")) {
+
+        ToolbarSwitch sw = new ToolbarSwitch(new AbstractAction(I18n.text("Show all"),
+                ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/info.png")) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (HistoryPanel.this.console == null)
                     return;
-                
-                showInfo = ((ToolbarSwitch)e.getSource()).isSelected();
-                
+
+                showInfo = ((ToolbarSwitch) e.getSource()).isSelected();
+
                 Vector<HistoryMessage> tmp = new Vector<HistoryMessage>();
                 tmp.addAll(myMessages);
                 myMessages.clear();
@@ -133,23 +133,23 @@ public class HistoryPanel extends JPanel {
         });
         sw.setText(I18n.text("Show info"));
         bottom.add(sw);
-        
-        //if (HistoryPanel.this.console != null)
-            add(bottom, BorderLayout.SOUTH);
+
+        // if (HistoryPanel.this.console != null)
+        add(bottom, BorderLayout.SOUTH);
     }
 
     public HistoryPanel() {
-        this(null,true);
+        this(null, true);
     }
 
     public void setMessages(Vector<HistoryMessage> messages) {
         for (HistoryMessage m : messages) {
             if (!myMessages.contains(m)) {
                 myMessages.add(m);
-                
+
                 if (m.type == msg_type.info && !showInfo)
                     continue;
-                
+
                 JLabel l = new JLabel(m.toString(), getIcon(m.type), JLabel.LEFT);
                 l.setToolTipText(I18n.textf("Received on %timeStamp (%context)", new Date(m.timestamp), m.context));
                 l.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 3));
@@ -157,16 +157,16 @@ public class HistoryPanel extends JPanel {
                 l.setBackground(bgColors.get(m.type));
                 if (m.type == msg_type.critical)
                     l.setForeground(Color.yellow);
-                mainPanel.add(l);                
+                mainPanel.add(l);
             }
         }
-        
+
         invalidate();
         validate();
-        mainPanel.scrollRectToVisible(new Rectangle(0, mainPanel.getHeight()+22, 1, 1) );
+        mainPanel.scrollRectToVisible(new Rectangle(0, mainPanel.getHeight() + 22, 1, 1));
         repaint();
     }
-    
+
     public ImageIcon getIcon(msg_type type) {
         switch (type) {
             case info:
@@ -174,12 +174,13 @@ public class HistoryPanel extends JPanel {
             case warning:
                 return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/warning.png");
             case error:
-            case critical:
                 return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/error.png");
-	    case debug:
+            case critical:
+                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/queue2.png");
+            case debug:
                 return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/unknown.png");
             default:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/queue2.png");
+                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/queue.png");
         }
     }
 }
