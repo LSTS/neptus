@@ -75,7 +75,7 @@ public class HistoryPanel extends JPanel {
     protected boolean showInfo = true;
     protected boolean showWarn = true;
     protected boolean showError = true;
-    protected boolean showCritical = true;
+    //protected boolean showCritical = true;
     protected boolean showDebug = true;
 
     protected boolean showReload = true;
@@ -136,7 +136,7 @@ public class HistoryPanel extends JPanel {
             }
         });
         check_error.setSelected(true);
-        JCheckBox check_critical = new JCheckBox(new AbstractAction(I18n.text("Critical")) {
+        /*JCheckBox check_critical = new JCheckBox(new AbstractAction(I18n.text("Critical")) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (HistoryPanel.this.console == null)
@@ -146,7 +146,7 @@ public class HistoryPanel extends JPanel {
                 refreshHistoryMessages();
             }
         });
-        check_critical.setSelected(true);
+        check_critical.setSelected(true);*/
         JCheckBox check_debug = new JCheckBox(new AbstractAction(I18n.text("Debug")) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -162,7 +162,7 @@ public class HistoryPanel extends JPanel {
         bottom.add(check_info);
         bottom.add(check_warn);
         bottom.add(check_error);
-        bottom.add(check_critical);
+        //bottom.add(check_critical);
         bottom.add(check_debug);
 
         if (showReload) {
@@ -228,8 +228,8 @@ public class HistoryPanel extends JPanel {
                     continue;
                 if (m.type == msg_type.error && !showError)
                     continue;
-                if (m.type == msg_type.critical && !showCritical)
-                    continue;
+                /*if (m.type == msg_type.critical && !showCritical)
+                    continue;*/
                 if (m.type == msg_type.debug && !showDebug)
                     continue;
 
