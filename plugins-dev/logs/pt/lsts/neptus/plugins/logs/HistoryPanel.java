@@ -44,6 +44,7 @@ import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -67,7 +68,7 @@ public class HistoryPanel extends JPanel {
 
     protected JPanel mainPanel = new JPanel();
     protected Vector<HistoryMessage> myMessages = new Vector<HistoryMessage>();
-    protected JScrollPane scroll = new JScrollPane(mainPanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+    protected JScrollPane scroll = new JScrollPane(mainPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
     protected ConsoleLayout console = null;
 
@@ -183,6 +184,15 @@ public class HistoryPanel extends JPanel {
 
             bottom.add(btn);
         }
+        
+        JButton clear = new JButton(new AbstractAction(I18n.text("Clear")) {
+            private static final long serialVersionUID = 1L;
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                clear();
+            }
+        });
+        bottom.add(clear);
 
         // if (HistoryPanel.this.console != null)
         add(bottom, BorderLayout.SOUTH);
@@ -198,6 +208,13 @@ public class HistoryPanel extends JPanel {
         myMessages.clear();
         mainPanel.removeAll();
         setMessages(tmp);
+    }
+    
+    public void clear() {
+        myMessages.clear();
+        mainPanel.removeAll();
+        mainPanel.repaint();
+        scroll.revalidate();
     }
 
     public void setMessages(Vector<HistoryMessage> messages) {
