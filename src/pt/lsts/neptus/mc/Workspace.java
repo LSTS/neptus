@@ -1777,16 +1777,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        ConsoleLayout empCon = new ConsoleLayout();
-                        
-                        // load core plugins
-                        PluginManager manager = new PluginManager(empCon);
-                        manager.init();
-                        SettingsWindow settings = new SettingsWindow(empCon);
-                        settings.init();
-                        
-                        empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                        empCon.setVisible(true);
+                        createEmptyConsole();
                         return null;
                     }
 
@@ -2008,9 +1999,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                     SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                         @Override
                         protected Void doInBackground() throws Exception {
-                            ConsoleLayout empCon = new ConsoleLayout();
-                            empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                            empCon.setVisible(true);
+                            createEmptyConsole();
                             return null;
                         }
 
@@ -2030,6 +2019,19 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             });
         }
         return newConsoleMenuItem;
+    }
+    
+    private void createEmptyConsole(){
+        ConsoleLayout empCon = new ConsoleLayout();
+        
+        // load core plugins
+        PluginManager manager = new PluginManager(empCon);
+        manager.init();
+        SettingsWindow settings = new SettingsWindow(empCon);
+        settings.init();
+        
+        empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        empCon.setVisible(true);
     }
 
     private void addDesktopIcons() {
