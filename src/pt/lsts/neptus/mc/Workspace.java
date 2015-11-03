@@ -1777,7 +1777,8 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                     @Override
                     protected Void doInBackground() throws Exception {
-                        createEmptyConsole();
+                        ConsoleLayout empCon = new ConsoleLayout();
+                        createEmptyConsole(empCon);
                         return null;
                     }
 
@@ -1999,7 +2000,8 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                     SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
                         @Override
                         protected Void doInBackground() throws Exception {
-                            createEmptyConsole();
+                            ConsoleLayout empCon = new ConsoleLayout();
+                            createEmptyConsole(empCon);
                             return null;
                         }
 
@@ -2021,9 +2023,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         return newConsoleMenuItem;
     }
     
-    private void createEmptyConsole(){
-        ConsoleLayout empCon = new ConsoleLayout();
-        
+    private void createEmptyConsole(ConsoleLayout empCon){
         // load core plugins
         PluginManager manager = new PluginManager(empCon);
         manager.init();
