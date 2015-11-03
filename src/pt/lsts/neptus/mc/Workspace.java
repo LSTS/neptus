@@ -87,6 +87,8 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.MonitorIMCComms;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.actions.ExitAction;
+import pt.lsts.neptus.console.plugins.PluginManager;
+import pt.lsts.neptus.console.plugins.SettingsWindow;
 import pt.lsts.neptus.events.NeptusEventHiddenMenus;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.gui.AboutPanel;
@@ -1776,6 +1778,13 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                     @Override
                     protected Void doInBackground() throws Exception {
                         ConsoleLayout empCon = new ConsoleLayout();
+                        
+                        // load core plugins
+                        PluginManager manager = new PluginManager(empCon);
+                        manager.init();
+                        SettingsWindow settings = new SettingsWindow(empCon);
+                        settings.init();
+                        
                         empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                         empCon.setVisible(true);
                         return null;
