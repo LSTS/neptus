@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.1 (release/dune-2.6.2,5a78f8c)" system="manta-22" i18n="en_US">
+<config format="1" version="2.6.x (master,8797653)" system="manta-22" i18n="en_US">
   <section name="Clock" name-i18n="Clock">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -87,6 +87,15 @@
       <units/>
       <desc>System command to execute everytime the clock is synchronized</desc>
     </param>
+    <param name="Change Log">
+      <name-i18n>Change Log</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Change log file after synchronization</desc>
+    </param>
   </section>
   <section name="Navigation" name-i18n="Navigation">
     <param name="Entity Label">
@@ -162,6 +171,15 @@
       <default>GPS</default>
       <units/>
       <desc>Entity label of 'EulerAngles' messages (field 'psi')</desc>
+    </param>
+    <param name="Convert Height to Geoid Height">
+      <name-i18n>Convert Height to Geoid Height</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Convert WGS84 height to geoid height (mean sea level) height</desc>
     </param>
   </section>
   <section name="Power Supply" name-i18n="Power Supply">
@@ -709,7 +727,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>LCD Backlight</default>
+      <default>N/C</default>
       <units/>
       <desc/>
     </param>
@@ -1184,6 +1202,16 @@
       <desc>Water sound speed</desc>
       <min>1375</min>
       <max>1900</max>
+    </param>
+    <param name="Turn Around Time">
+      <name-i18n>Turn Around Time</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>20</default>
+      <units>ms</units>
+      <desc/>
+      <min>0</min>
     </param>
     <param name="Timeout - Micro-Modem Ping">
       <name-i18n>Timeout - Micro-Modem Ping</name-i18n>
@@ -1892,7 +1920,7 @@
       <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>internet.vodafone.pt</default>
+      <default>net2.vodafone.pt</default>
       <units/>
       <desc>GSM/GPRS Access Point Name (APN)</desc>
     </param>
@@ -2076,7 +2104,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, NavigationUncertainty, PlanControl, PlanControlState, RSSI, StorageUsage, Temperature, Voltage</default>
+      <default>Abort, AcousticOperation, AcousticSystemsQuery, AcousticSystems, CpuUsage, Current, Depth, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FuelLevel, GpsFix, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblRange, LblRangeAcceptance, LogBookControl, LoggingControl, NavigationUncertainty, PlanControl, PlanControlState, RemoteSensorInfo, RSSI, StorageUsage, Temperature, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

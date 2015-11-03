@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (mission/rep15-with-launch,975b96d,dirty)" system="x8-03" i18n="en_US">
+<config format="1" version="2.6.x (master,8797653)" system="x8-03" i18n="en_US">
   <section name="Height Control" name-i18n="Height Control">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -284,7 +284,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1932</default>
+      <default>1869</default>
       <units>us</units>
       <desc>Max PWM value for Roll channel</desc>
     </param>
@@ -311,7 +311,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1106</default>
+      <default>1087</default>
       <units>us</units>
       <desc>Min PWM value for Climb Rate channel</desc>
     </param>
@@ -320,7 +320,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1929</default>
+      <default>1905</default>
       <units>us</units>
       <desc>Max PWM value for Climb Rate channel</desc>
     </param>
@@ -347,7 +347,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1003</default>
+      <default>1189</default>
       <units>us</units>
       <desc>Min PWM value for Air Speed channel</desc>
     </param>
