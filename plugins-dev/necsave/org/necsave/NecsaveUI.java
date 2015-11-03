@@ -31,8 +31,23 @@
  */
 package org.necsave;
 
+import info.necsave.msgs.AbortMission;
+import info.necsave.msgs.AbortMission.TYPE;
+import info.necsave.msgs.MissionGoal;
+import info.necsave.msgs.Area;
+import info.necsave.msgs.Contact;
+import info.necsave.msgs.ContactList;
+import info.necsave.msgs.Kinematics;
+import info.necsave.msgs.MissionArea;
+import info.necsave.msgs.MissionGoal.GOAL_TYPE;
+import info.necsave.msgs.MissionReadyToStart;
+import info.necsave.msgs.PlatformInfo;
+import info.necsave.msgs.PlatformPlanProgress;
+import info.necsave.proto.Message;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -40,17 +55,6 @@ import java.util.concurrent.Future;
 
 import javax.swing.JOptionPane;
 
-import com.google.common.eventbus.Subscribe;
-
-import info.necsave.msgs.Area;
-import info.necsave.msgs.Contact;
-import info.necsave.msgs.ContactList;
-import info.necsave.msgs.Kinematics;
-import info.necsave.msgs.MissionArea;
-import info.necsave.msgs.MissionReadyToStart;
-import info.necsave.msgs.PlatformInfo;
-import info.necsave.msgs.PlatformPlanProgress;
-import info.necsave.proto.Message;
 import pt.lsts.imc.JsonObject;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
@@ -66,6 +70,8 @@ import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
+
+import com.google.common.eventbus.Subscribe;
 
 /**
  * This class will show the states of NECSAVE platforms and allows interactions with them
@@ -100,7 +106,7 @@ public class NecsaveUI extends ConsoleInteraction {
     }
 
     public void addActions() {
-        getConsole().addMenuItem("Advanced>NECSAVE>Set Mission Area", null, new ActionListener() {
+        getConsole().addMenuItem("Advanced>NECSAVE>Set Mission", null, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -151,16 +157,52 @@ public class NecsaveUI extends ConsoleInteraction {
                     GuiUtils.errorMessage(getConsole(), ex);
                     ex.printStackTrace();
                 }
+
+                String[] goals = getNames(GOAL_TYPE.class);
+                
+                Object goal_ret = JOptionPane.showInputDialog(getConsole(), I18n.text("Select goal"),
+                        I18n.text("Select goal"), JOptionPane.QUESTION_MESSAGE, null,
+                        goals, goals[0]);
+                if (goal_ret == null)
+                    return;
+                
+                GOAL_TYPE goal = GOAL_TYPE.valueOf((String) goal_ret);
+                MissionGoal m_goal = new MissionGoal(goal);
+                
+                try {
+                    sendMessage(m_goal);
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                    ex.printStackTrace();
+                }
+                
+                int reply = JOptionPane.showConfirmDialog(getConsole(), I18n.text("Start Mission"), 
+                        I18n.text("Start Mission"), JOptionPane.YES_NO_OPTION);
+                if (reply == JOptionPane.YES_OPTION) {
+                    MissionReadyToStart start = new MissionReadyToStart();
+                    try {
+                        sendMessage(start);
+                    }
+                    catch (Exception ex) {
+                        GuiUtils.errorMessage(getConsole(), ex);
+                        ex.printStackTrace();
+                    }
+                }
+                else
+                    return;
+
             }
         });
 
-        getConsole().addMenuItem("Advanced>NECSAVE>Start Mission", null, new ActionListener() {
+        getConsole().addMenuItem("Advanced>NECSAVE>Abort Mission", null, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                MissionReadyToStart start = new MissionReadyToStart();
+                AbortMission abort = new AbortMission();
+                abort.setType(TYPE.SYSTEM_WIDE);
                 try {
-                    sendMessage(start);
+                    sendMessage(abort);
                 }
                 catch (Exception ex) {
                     GuiUtils.errorMessage(getConsole(), ex);
@@ -168,6 +210,10 @@ public class NecsaveUI extends ConsoleInteraction {
                 }
             }
         });
+    }
+    
+    private static String[] getNames(Class<? extends Enum<?>> e) {
+        return Arrays.stream(e.getEnumConstants()).map(Enum::name).toArray(String[]::new);
     }
     
     private void sendMessageReliably(Message msg) throws Exception {
