@@ -31,20 +31,8 @@
  */
 package org.necsave;
 
-import info.necsave.msgs.AbortMission;
-import info.necsave.msgs.AbortMission.TYPE;
-import info.necsave.msgs.MissionGoal;
-import info.necsave.msgs.Area;
-import info.necsave.msgs.Contact;
-import info.necsave.msgs.ContactList;
-import info.necsave.msgs.Kinematics;
-import info.necsave.msgs.MissionArea;
-import info.necsave.msgs.MissionGoal.GOAL_TYPE;
-import info.necsave.msgs.MissionReadyToStart;
-import info.necsave.msgs.PlatformInfo;
-import info.necsave.msgs.PlatformPlanProgress;
-import info.necsave.proto.Message;
-
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
@@ -55,6 +43,21 @@ import java.util.concurrent.Future;
 
 import javax.swing.JOptionPane;
 
+import com.google.common.eventbus.Subscribe;
+
+import info.necsave.msgs.AbortMission;
+import info.necsave.msgs.AbortMission.TYPE;
+import info.necsave.msgs.Area;
+import info.necsave.msgs.Contact;
+import info.necsave.msgs.ContactList;
+import info.necsave.msgs.Kinematics;
+import info.necsave.msgs.MissionArea;
+import info.necsave.msgs.MissionGoal;
+import info.necsave.msgs.MissionGoal.GOAL_TYPE;
+import info.necsave.msgs.MissionReadyToStart;
+import info.necsave.msgs.PlatformInfo;
+import info.necsave.msgs.PlatformPlanProgress;
+import info.necsave.proto.Message;
 import pt.lsts.imc.JsonObject;
 import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
@@ -63,6 +66,7 @@ import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -70,8 +74,6 @@ import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.ParallelepipedElement;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.util.GuiUtils;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * This class will show the states of NECSAVE platforms and allows interactions with them
@@ -210,6 +212,14 @@ public class NecsaveUI extends ConsoleInteraction {
                 }
             }
         });
+        
+        getConsole().addMenuItem("Advanced>NECSAVE>Clear Platforms", null, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                platformNames.clear();
+            }
+        });
     }
     
     private static String[] getNames(Class<? extends Enum<?>> e) {
@@ -334,6 +344,17 @@ public class NecsaveUI extends ConsoleInteraction {
         JsonObject json = new JsonObject();
         json.setJson(msg.asJSON(false));
         LsfMessageLogger.log(json);
+    }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        super.paintInteraction(g, source);
+        g.setColor(Color.black);
+        int x = 50;
+        for (int id : platformNames.keySet()) {
+            g.drawString(platformNames.get(id)+": "+transport.addressOf(id), 50, x);
+            x += 20;
+        }
     }
 
     @Override
