@@ -128,7 +128,7 @@ SubPanelChangeListener, MainVehicleChangeListener {
         if (getConsole().getMission() == null)
             return;
 
-        String id = markerName + "_" + DateTimeUtil.timeFormaterNoMillis.format(new Date(tstamp));
+        String id = markerName + "_" + DateTimeUtil.timeFormatterNoMillis.format(new Date(tstamp));
         boolean validId = false;
         while (!validId) {
             id = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter new mark name"), id);

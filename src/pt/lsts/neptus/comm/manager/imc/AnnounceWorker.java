@@ -554,7 +554,7 @@ public class AnnounceWorker {
                 Date timeStampDate = new Date(message.getTimestampMillis());
                 return "Sent result for system " + systemId
                         + (extraInfo != null && !extraInfo.isEmpty() ? " (" + extraInfo + ") " : "") 
-                        + " @" + DateTimeUtil.timeFormaterUTC.format(timeStampDate) + " UTC, of message "
+                        + " @" + DateTimeUtil.timeFormatterUTC.format(timeStampDate) + " UTC, of message "
                         + message.getAbbrev() + " was: " + result;
             }
 

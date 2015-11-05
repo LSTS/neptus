@@ -302,7 +302,7 @@ public class PropertiesLoader extends Properties {
     
     public synchronized Object setProperty(String key, String value) {
         Object obj = super.setProperty(key, value);
-        GeneralPreferences.warnPreferencesListeneres();
+        GeneralPreferences.warnPreferencesListeners();
         return obj;
     }
 }

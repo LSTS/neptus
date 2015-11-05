@@ -529,7 +529,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                         MapType mapType = mapMission.getMap();
                         MarkElement contact = new MarkElement();
                         contact.setCenterLocation(locContact);
-                        String id = I18n.textc("MyLoc", "String prefix for a marker") + "_" + DateTimeUtil.dateTimeFileNameFormaterMillis.format(new Date(tstamp));
+                        String id = I18n.textc("MyLoc", "String prefix for a marker") + "_" + DateTimeUtil.dateTimeFileNameFormatterMillis.format(new Date(tstamp));
                         contact.setId(id);
                         contact.setParentMap(mapType);
                         contact.setMapGroup(mapType.getMapGroup());

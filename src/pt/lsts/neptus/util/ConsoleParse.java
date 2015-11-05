@@ -165,27 +165,19 @@ public class ConsoleParse implements FileHandler {
             if ("mainpanel".equals(element.getName())) {
                 Attribute attribute = (Attribute) element.selectSingleNode("@name");
                 if ("console main panel".equals(attribute.getValue())) {
-                    ConfigFetch.mark("main panel");
                     parseConsoleMainPanel(element, console);
-                    ConfigFetch.benchmark("main panel");
                 }
             }
             else if ("layers".equals(element.getName())) {
-                ConfigFetch.mark("load layers");
                 layers = parseConsoleLayers(element, console);
-                ConfigFetch.benchmark("load layers");
             }
             else if ("interactions".equals(element.getName())) {
-                ConfigFetch.mark("load interactions");
                 interactions = parseConsoleInteractions(element, console);
-                ConfigFetch.benchmark("load interactions");
             }
                 
         }
-        ConfigFetch.mark("reinit");
+
         console.initSubPanels();
-        ConfigFetch.benchmark("reinit");
-        
         
         // Add map layers and interactions
         Vector<MapPanel> maps = console.getSubPanelsOfClass(MapPanel.class);
@@ -291,7 +283,6 @@ public class ConsoleParse implements FileHandler {
     private static Vector<ConsolePanel> parseConsoleMainPanel(Node node, ConsoleLayout console) {
         List<?> list = node.selectNodes("*");
         Vector<ConsolePanel> panels = new Vector<>();
-        ConfigFetch.mark("construct container");
         for (Iterator<?> iter = list.iterator(); iter.hasNext();) {
             Element element = (Element) iter.next();
             ConsolePanel subpanel = null;
@@ -308,10 +299,7 @@ public class ConsoleParse implements FileHandler {
                             subpanel = (ConsolePanel) clazz.getConstructor(ConsoleLayout.class).newInstance(console);
                             console.getMainPanel().addSubPanel(subpanel);
                             panels.add(subpanel);
-                            ConfigFetch.benchmark("construct container");
-                            ConfigFetch.mark("in element of container");
                             subpanel.inElement(element);
-                            ConfigFetch.benchmark("in element of container");
                         }
                         catch (Exception e) {
                             NeptusLog.pub().error("creating subpanel new instance ", e);

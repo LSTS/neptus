@@ -617,7 +617,7 @@ public class MraPhotosVisualization extends JComponent implements MRAVisualizati
         Vector<String> details = new Vector<>();
         details.add(lat);
         details.add(lon);
-        details.add(I18n.text("Time") + ": " + DateTimeUtil.timeFormaterUTC.format(new Date(timeUTC)));
+        details.add(I18n.text("Time") + ": " + DateTimeUtil.timeFormatterUTC.format(new Date(timeUTC)));
         details.add(I18n.text("Depth") + ": " + depth);
         details.add(I18n.text("Altitude") + ": " + alt);
         details.add(I18n.text("Roll") + ": " + roll);

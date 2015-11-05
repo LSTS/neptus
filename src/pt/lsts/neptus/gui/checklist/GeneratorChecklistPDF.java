@@ -162,7 +162,7 @@ public class GeneratorChecklistPDF {
             String text = clist.getName()
                     + " | " + I18n.textf("Version: %version", clist.getVersion()) 
                     + " | " + I18n.textf("By: %info", System.getProperty("user.name") + " | " + "@" 
-                    + DateTimeUtil.dateTimeFormater.format(new Date(System
+                    + DateTimeUtil.dateTimeFormatter.format(new Date(System
                             .currentTimeMillis())) + " | "
                             + ConfigFetch.getVersionSimpleString());
             BufferedImage imgB = BarCodesUtil.createQRCodeImage(text, 50, 50);
@@ -429,7 +429,7 @@ class PageEvents extends PdfPageEventHelper {
         cb.endText();                                       
         cb.addTemplate(total, document.left() + textSize, textBase);   
 
-        text = "" + DateTimeUtil.dateTimeFormaterNoSegs.format(new Date());
+        text = "" + DateTimeUtil.dateTimeFormatterNoSegs.format(new Date());
         textBase = document.top() + 20;
         textSize = helv.getWidthPoint(text, 8);
         cb.beginText();

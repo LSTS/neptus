@@ -356,7 +356,7 @@ public class GeneralPreferences implements PropertiesProvider {
         Thread t = new Thread("Properties Change Warner") {
             @Override
             public void run() {
-                warnPreferencesListeneres();
+                warnPreferencesListeners();
             }
         };
         t.setDaemon(true);
@@ -403,7 +403,7 @@ public class GeneralPreferences implements PropertiesProvider {
     /**
      * @param propertyChanged
      */
-    public static void warnPreferencesListeneres() {
+    public static void warnPreferencesListeners() {
         for (PreferencesListener pl : pListeners) {
             try {
                 pl.preferencesUpdated();

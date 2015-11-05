@@ -158,7 +158,7 @@ public class StatusBar extends JPanel {
             @Override
             public void run() {
                 /// Universal Time Coordinated
-                String clockStr = DateTimeUtil.timeUTCFormaterNoSegs3.format(new Date(System.currentTimeMillis()))
+                String clockStr = DateTimeUtil.timeUTCFormatterNoSegs3.format(new Date(System.currentTimeMillis()))
                         + " " + I18n.text("UTC");
                 clock.setText(clockStr);
             }

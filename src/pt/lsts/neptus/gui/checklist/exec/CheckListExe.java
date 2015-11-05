@@ -635,7 +635,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
 
                     chronometer.stop();
 
-                    String saux = DateTimeUtil.dateTimeFileNameFormater.format(new Date(System.currentTimeMillis()));
+                    String saux = DateTimeUtil.dateTimeFileNameFormatter.format(new Date(System.currentTimeMillis()));
                     String aux2 = checklist.getName().replace('.', '\0');
                     aux2 = aux2.replace('<', '_');
                     aux2 = aux2.replace('>', '_');
@@ -681,7 +681,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
                      * else ret = saveFile();
                      */
 
-                    String saux = DateTimeUtil.dateTimeFileNameFormater.format(new Date(System.currentTimeMillis()));
+                    String saux = DateTimeUtil.dateTimeFileNameFormatter.format(new Date(System.currentTimeMillis()));
                     String aux2 = checklist.getName().replace('.', '\0');
                     aux2 = aux2.replace('<', '_');
                     aux2 = aux2.replace('>', '_');
