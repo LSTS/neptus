@@ -303,6 +303,7 @@ public class NecsaveUI extends ConsoleInteraction {
                         Math.toDegrees(msg.getWaypoint().getLongitude()));
                 loc.setDepth(msg.getWaypoint().getDepth());
                 extSys.setLocation(loc, System.currentTimeMillis());
+                extSys.setAttitudeDegrees(Math.toDegrees(msg.getHeading()));
             }
             else {
                 NeptusLog.pub().error(I18n.textf("Kinematics message from %platform is not valid.", name));
