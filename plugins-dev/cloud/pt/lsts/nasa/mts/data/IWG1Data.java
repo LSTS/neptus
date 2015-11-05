@@ -892,10 +892,10 @@ public class IWG1Data {
     private static void parseTimeStamp(IWG1Data ret, String tk) {
         Date dateTime = null;
         try {
-            int dpt = DateTimeUtil.dateTimeFormaterISO8601.toPattern().replace("'", "").length();
+            int dpt = DateTimeUtil.dateTimeFormatterISO8601.toPattern().replace("'", "").length();
             String st = tk.substring(0, dpt);
-            dateTime = DateTimeUtil.dateTimeFormaterISO8601.parse(st);
-            String st1 = DateTimeUtil.dateTimeFormaterISO8601.format(dateTime);
+            dateTime = DateTimeUtil.dateTimeFormatterISO8601.parse(st);
+            String st1 = DateTimeUtil.dateTimeFormatterISO8601.format(dateTime);
             if (!st.equalsIgnoreCase(st1)) {
                 dateTime = null;
                 throw new ParseException("Not possible to revert parse!", 0);
@@ -903,10 +903,10 @@ public class IWG1Data {
         }
         catch (ParseException e) {
             try {
-                int dpt = DateTimeUtil.dateTimeFormaterISO8601_1.toPattern().replace("'", "").length();
+                int dpt = DateTimeUtil.dateTimeFormatterISO8601_1.toPattern().replace("'", "").length();
                 String st = tk.substring(0, dpt);
-                dateTime = DateTimeUtil.dateTimeFormaterISO8601_1.parse(st);
-                String st1 = DateTimeUtil.dateTimeFormaterISO8601_1.format(dateTime);
+                dateTime = DateTimeUtil.dateTimeFormatterISO8601_1.parse(st);
+                String st1 = DateTimeUtil.dateTimeFormatterISO8601_1.format(dateTime);
                 if (!st.equalsIgnoreCase(st1)) {
                     dateTime = null;
                     throw new ParseException("Not possible to revert parse!", 0);
@@ -914,10 +914,10 @@ public class IWG1Data {
             }
             catch (ParseException e1) {
                 try {
-                    int dpt = DateTimeUtil.dateTimeFormaterISO8601_2.toPattern().replace("'", "").length();
+                    int dpt = DateTimeUtil.dateTimeFormatterISO8601_2.toPattern().replace("'", "").length();
                     String st = tk.substring(0, dpt);
-                    dateTime = DateTimeUtil.dateTimeFormaterISO8601_2.parse(st);
-                    String st1 = DateTimeUtil.dateTimeFormaterISO8601_2.format(dateTime);
+                    dateTime = DateTimeUtil.dateTimeFormatterISO8601_2.parse(st);
+                    String st1 = DateTimeUtil.dateTimeFormatterISO8601_2.format(dateTime);
                     if (!st.equalsIgnoreCase(st1)) {
                         dateTime = null;
                         throw new ParseException("Not possible to revert parse!", 0);
@@ -958,7 +958,7 @@ public class IWG1Data {
             
             sb.append(",");
             if (timeStampMillis >= 0) {
-                sb.append(DateTimeUtil.dateTimeFormaterISO8601.format(new Date(new Double(timeStampMillis).longValue())));
+                sb.append(DateTimeUtil.dateTimeFormatterISO8601.format(new Date(new Double(timeStampMillis).longValue())));
             }
             sb.append(",");
             if (!Double.isNaN(latitudeDegs)) {
