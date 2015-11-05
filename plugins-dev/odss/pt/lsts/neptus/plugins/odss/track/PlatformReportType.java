@@ -68,7 +68,7 @@ public class PlatformReportType implements Cloneable{
         this.latitude = latitude;
         this.longitude = longitude;
         this.epochSeconds = epoch_seconds;
-        this.isoDatetime = DateTimeUtil.dateFormaterXMLNoMillisUTC.format(new Date(Math.round(epoch_seconds * 1000d)));
+        this.isoDatetime = DateTimeUtil.dateFormatterXMLNoMillisUTC.format(new Date(Math.round(epoch_seconds * 1000d)));
     }
     
     /**
