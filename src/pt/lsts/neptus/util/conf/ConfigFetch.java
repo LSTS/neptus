@@ -297,53 +297,7 @@ public class ConfigFetch {
 
         // IMC Local ID
         try {
-            String hostadr;
-            try {
-                InetAddress addr = InetAddress.getLocalHost();
-                hostadr = addr.getHostAddress();
-            }
-            catch (Exception e1) { // UnknownHostException
-                e1.printStackTrace();
-                hostadr = "127.0.0.1";
-            }
-            NeptusLog.pub().debug("Using initial option for IMC ID is '" + hostadr + "'");
-            String osName = System.getProperty("os.name");
-            if (osName.toLowerCase().contains("linux")) {
-                try {
-                    Enumeration<NetworkInterface> netInt = NetworkInterface.getNetworkInterfaces();
-                    while (netInt.hasMoreElements()) {
-                        NetworkInterface ni = netInt.nextElement();
-                        Enumeration<InetAddress> iAddress = ni.getInetAddresses();
-                        while (iAddress.hasMoreElements()) {
-                            InetAddress ia = iAddress.nextElement();
-                            if (!ia.isLoopbackAddress()) {
-                                if (ia instanceof Inet4Address) {
-                                    String msg = "Changing initial option for IMC ID from '" + hostadr + "' to '";
-                                    hostadr = ia.getHostAddress();
-                                    msg += hostadr + "'";
-                                    NeptusLog.pub().debug(msg);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception e) {
-                    NeptusLog.pub().error(e.getStackTrace());
-                }
-            }
-            String[] sl2 = hostadr.split("\\.");
-
-            // IMC
-            long idd = (Integer.parseInt(sl2[2]) << 8) + (Integer.parseInt(sl2[3]));
-            ImcId16 newCcuId = new ImcId16((idd & 0x1FFF) | 0x4000); // 010????? CCU IDs
-            GeneralPreferences.imcCcuId = newCcuId;
-
-            GeneralPreferences.imcCcuName = "CCU " + System.getProperty("user.name") + " " + sl2[2] + "_" + sl2[3];
-
-            NeptusLog.pub().debug(
-                    "Using IMC ID " + newCcuId.toPrettyString() + " with name '" + GeneralPreferences.imcCcuName + "'");
-
+            initializeLocalImcId();
             GeneralPreferences.saveProperties();
         }
         catch (NumberFormatException e) {
@@ -355,6 +309,51 @@ public class ConfigFetch {
         return true;
     }
 
+    private void initializeLocalImcId() {
+        String hostadr;
+        try {
+            InetAddress addr = InetAddress.getLocalHost();
+            hostadr = addr.getHostAddress();
+        }
+        catch (Exception e1) {
+            e1.printStackTrace();
+            hostadr = "127.0.0.1";
+        }
+        NeptusLog.pub().debug("Using initial option for IMC ID is '" + hostadr + "'");
+        String osName = System.getProperty("os.name");
+        if (osName.toLowerCase().contains("linux")) {
+            try {
+                Enumeration<NetworkInterface> netInt = NetworkInterface.getNetworkInterfaces();
+                while (netInt.hasMoreElements()) {
+                    NetworkInterface ni = netInt.nextElement();
+                    Enumeration<InetAddress> iAddress = ni.getInetAddresses();
+                    while (iAddress.hasMoreElements()) {
+                        InetAddress ia = iAddress.nextElement();
+                        if (!ia.isLoopbackAddress()) {
+                            if (ia instanceof Inet4Address) {
+                                String msg = "Changing initial option for IMC ID from '" + hostadr + "' to '";
+                                hostadr = ia.getHostAddress();
+                                msg += hostadr + "'";
+                                NeptusLog.pub().debug(msg);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e) {
+                NeptusLog.pub().error(e.getStackTrace());
+            }
+        }
+        String[] sl2 = hostadr.split("\\.");
+
+        long idd = (Integer.parseInt(sl2[2]) << 8) + (Integer.parseInt(sl2[3]));
+        ImcId16 newCcuId = new ImcId16((idd & 0x1FFF) | 0x4000); // 010????? CCU IDs
+        GeneralPreferences.imcCcuId = newCcuId;
+        GeneralPreferences.imcCcuName = "CCU " + System.getProperty("user.name") + " " + sl2[2] + "_" + sl2[3];
+        NeptusLog.pub().debug("Using IMC ID " + newCcuId.toPrettyString() + " with name '" + GeneralPreferences.imcCcuName + "'");
+    }
+    
     /**
      * Loads the configuration file. Also configures the log4j.
      * 
