@@ -377,7 +377,7 @@ public class DeltaTParser implements BathymetryParser {
 
             recordMsgln("");
             recordMsgln("% Swath type & version : " + header.fileType + ", " + header.fileVersion);
-            recordMsgln("% Swath time           : " + DateTimeUtil.dateTimeFileNameFormaterMillis.format(new Date(timestamp)));
+            recordMsgln("% Swath time           : " + DateTimeUtil.dateTimeFileNameFormatterMillis.format(new Date(timestamp)));
             recordMsgln("% Swath position       : " + pose.getPosition().toString().replaceAll("\n", " ") + 
                     "m depth  :: " + MathMiscUtils.round(pose.getAltitude(), 2) + "m altitude");
             recordMsgln("% Swath attitude       : R" + MathMiscUtils.round(Math.toDegrees(pose.getRoll()), 1) +
