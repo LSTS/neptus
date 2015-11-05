@@ -68,6 +68,7 @@ import pt.lsts.neptus.gui.checklist.UserActionItem;
 import pt.lsts.neptus.gui.checklist.UserCommentItem;
 import pt.lsts.neptus.gui.checklist.VariableIntervalItem;
 import pt.lsts.neptus.gui.swing.JRoundButton;
+import pt.lsts.neptus.platform.OsInfo;
 import pt.lsts.neptus.types.checklist.CheckAutoSubItem;
 import pt.lsts.neptus.types.checklist.CheckAutoUserActionItem;
 import pt.lsts.neptus.types.checklist.CheckAutoUserLogItem;
@@ -78,7 +79,6 @@ import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.conf.ConfigFetch;
 
 public class CheckListExe extends JDialog implements CheckSubItemProvider {
 
@@ -718,7 +718,7 @@ public class CheckListExe extends JDialog implements CheckSubItemProvider {
                                 + "\".");
 
                         try {
-                            if (ConfigFetch.getOS() == ConfigFetch.OS_WINDOWS)
+                            if (OsInfo.getName() == OsInfo.Name.WINDOWS)
                                 Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + pdf);
                             else {
                                 String[] readers = { "acroread", "xpdf" };

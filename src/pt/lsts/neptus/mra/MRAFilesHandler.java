@@ -55,6 +55,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.loader.FileHandler;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.platform.OsInfo;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
@@ -446,7 +447,7 @@ public class MRAFilesHandler implements FileHandler {
      */
     private void openPDFInExternalViewer(String pdf) {
         try {
-            if (ConfigFetch.getOS() == ConfigFetch.OS_WINDOWS) {
+            if (OsInfo.getName() == OsInfo.Name.WINDOWS) {
                 Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + pdf);
             }
             else {
