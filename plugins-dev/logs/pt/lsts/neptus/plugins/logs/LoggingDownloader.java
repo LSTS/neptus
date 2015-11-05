@@ -467,7 +467,7 @@ public class LoggingDownloader extends ConsolePanel implements MainVehicleChange
                 return false;
         }
 
-        String dateStr = DateTimeUtil.dateFormaterNoSpaces.format(new Date(System.currentTimeMillis()));
+        String dateStr = DateTimeUtil.dateFormatterNoSpaces.format(new Date(System.currentTimeMillis()));
         if (logStr.startsWith(dateStr + "/"))
             return true;
         else
