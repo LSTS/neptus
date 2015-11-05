@@ -35,6 +35,7 @@ import org.dom4j.*;
 import org.dom4j.io.SAXReader;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.platform.OsInfo;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.util.*;
@@ -317,8 +318,7 @@ public class ConfigFetch {
             hostadr = "127.0.0.1";
         }
         NeptusLog.pub().debug("Using initial option for IMC ID is '" + hostadr + "'");
-        String osName = System.getProperty("os.name");
-        if (osName.toLowerCase().contains("linux")) {
+        if (OsInfo.getName() == OsInfo.Name.LINUX) {
             try {
                 Enumeration<NetworkInterface> netInt = NetworkInterface.getNetworkInterfaces();
                 while (netInt.hasMoreElements()) {
