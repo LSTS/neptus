@@ -1093,7 +1093,11 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             temp=matToBufferedImage(matResize);
                             //Display image in JFrame
                             long stopTime = System.currentTimeMillis();
-                            infoSizeStream = String.format("Size(%d x %d) | Scale(%.2f x %.2f) | FPS:%d |\t\t\t", mat.cols(), mat.rows(),(float)widhtConsole/mat.cols(),(float)heightConsole/mat.rows(),(int) 1000/(stopTime - startTime));
+                            try{
+                                infoSizeStream = String.format("Size(%d x %d) | Scale(%.2f x %.2f) | FPS:%d |\t\t\t", mat.cols(), mat.rows(),xScale,yScale,(int) 1000/(stopTime - startTime));
+                            }
+                            catch (Error e){
+                            }
                             txtText.setText(infoSizeStream);
                             showImage(temp);
                             
