@@ -35,6 +35,7 @@ import org.dom4j.*;
 import org.dom4j.io.SAXReader;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
+import pt.lsts.neptus.platform.OsInfo;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.util.*;
@@ -57,10 +58,6 @@ import java.util.List;
  */
 public class ConfigFetch {
     private static boolean onLockedMode = false;
-
-    public static final short OS_WINDOWS = 0;
-    public static final short OS_LINUX = 1;
-    private static final short OS_OTHER = 9;
     public static final String DS = System.getProperty("file.separator", "/");
     public static long mark = System.currentTimeMillis();
     private static final Hashtable<String, String> listOfSchemas = new Hashtable<>();
@@ -236,6 +233,7 @@ public class ConfigFetch {
                     + System.getProperty("java.version");
             String strOSVersion = "On OS: " + System.getProperty("os.name") + " | Version: "
                     + System.getProperty("os.version") + " | Arch.: " + System.getProperty("os.arch");
+
             NeptusLog.pub().info(strNeptusVersion);
             NeptusLog.pub().info(strJavaVersion);
             NeptusLog.pub().info(strOSVersion);
@@ -320,8 +318,7 @@ public class ConfigFetch {
             hostadr = "127.0.0.1";
         }
         NeptusLog.pub().debug("Using initial option for IMC ID is '" + hostadr + "'");
-        String osName = System.getProperty("os.name");
-        if (osName.toLowerCase().contains("linux")) {
+        if (OsInfo.getName() == OsInfo.Name.LINUX) {
             try {
                 Enumeration<NetworkInterface> netInt = NetworkInterface.getNetworkInterfaces();
                 while (netInt.hasMoreElements()) {
@@ -779,31 +776,6 @@ public class ConfigFetch {
      */
     public static void setSuperParentFrameForced(Component superParentFrame) {
         ConfigFetch.superParentFrame = superParentFrame;
-    }
-
-    /**
-     * @return The short corresponding to the OS found.
-     */
-    static public short getOS() {
-        String osName = System.getProperty("os.name");
-
-        short os;
-        if (osName.toLowerCase().contains("windows"))
-            os = OS_WINDOWS;
-        else if (osName.toLowerCase().contains("linux"))
-            os = OS_LINUX;
-        else
-            os = OS_OTHER;
-
-        return os;
-    }
-
-    /**
-     * @param os The shor representing the OS to test.
-     * @return The result of the test.
-     */
-    static public boolean isOSEqual(short os) {
-        return (getOS() == os);
     }
 
     /**
