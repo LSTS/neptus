@@ -991,6 +991,14 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
 
         Element mainpanel = root.addElement("mainpanel");
         mainpanel.addAttribute("name", "console main panel");
+        
+        Element subpanel = mainpanel.addElement("subpanel");
+        subpanel.addAttribute("class", "pt.lsts.neptus.console.plugins.containers.MigLayoutContainer");
+        subpanel.addAttribute("x", "0");
+        subpanel.addAttribute("y", "0");
+        subpanel.addAttribute("width", "1916");
+        subpanel.addAttribute("height", "931");
+        
         for (Component c : getMainPanel().getComponents()) {
             if (c instanceof XmlOutputMethods) {
                 try {
