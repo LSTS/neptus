@@ -961,7 +961,18 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         }
         catch (Exception e) {
             try {
-                System.loadLibrary("opencv_java246");
+                System.loadLibrary("opencv_java2411");
+                System.loadLibrary("libopencv_core2411");
+                System.loadLibrary("libopencv_highgui2411");
+                try {
+                    System.loadLibrary("opencv_ffmpeg2411_64");
+                    }
+                catch (Exception e1) {
+                    System.loadLibrary("opencv_ffmpeg2411");
+                }
+                catch (Error e1) {
+                    System.loadLibrary("opencv_ffmpeg2411");
+                }
                 result = true;
             }
             catch (Exception e1) {
@@ -972,7 +983,18 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         }
         catch (Error e) {
             try {
-                System.loadLibrary("opencv_java246");
+                System.loadLibrary("opencv_java2411");
+                System.loadLibrary("libopencv_core2411");
+                System.loadLibrary("libopencv_highgui2411");
+                try {
+                    System.loadLibrary("opencv_ffmpeg2411_64");
+                    }
+                catch (Exception e1) {
+                    System.loadLibrary("opencv_ffmpeg2411");
+                }
+                catch (Error e1) {
+                    System.loadLibrary("opencv_ffmpeg2411");
+                }
                 result = true;
             }
             catch (Error e1) {
@@ -1043,19 +1065,27 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         if (state == false){
                             //Create Buffer (type MAT) for Image receive
                             mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
-                            state = true;
-                            capture = new VideoCapture(camRtpsUrl);
-                            cntTag = 1;
-                            if (capture.isOpened())
+                            capture = new VideoCapture();
+                            capture.open(camRtpsUrl);
+                            if (capture.isOpened()){
+                                state = true;
+                                cntTag = 1;
                                 NeptusLog.pub().info("Video Strem from IpCam is captured");
-                            else
+                            }
+                            else{
+                                ipCam = false;
                                 NeptusLog.pub().info("Video Strem from IpCam is not captured");
+                            }
                         }
                         //IpCam Capture
                         else if(!raspiCam && ipCam && state) {
                             long startTime = System.currentTimeMillis();
                             capture.grab();
                             capture.read(mat);
+                            while(mat.empty()){
+                                System.out.println("ERRO");
+                                capture.read(mat);
+                            }
                             xScale = (float) widhtConsole / mat.cols();
                             yScale = (float) heightConsole / mat.rows();
                             Imgproc.resize(mat, matResize, size);       
