@@ -241,10 +241,44 @@ public class PhotoToolbar extends JPanel {
             has_ocv = true;
         }
         catch (Exception e) {
-            NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
+            try {
+                System.loadLibrary("opencv_java2411");
+                System.loadLibrary("libopencv_core2411");
+                System.loadLibrary("libopencv_highgui2411");
+                try {
+                    System.loadLibrary("opencv_ffmpeg2411_64");
+                    }
+                catch (Exception e1) {
+                    System.loadLibrary("opencv_ffmpeg2411");
+                }
+                catch (Error e1) {
+                    System.loadLibrary("opencv_ffmpeg2411");
+                }
+                has_ocv = true;
+            }
+            catch (Exception e1) {
+                NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
+            }
         }
         catch (Error e) {
-            NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
+            try {
+                System.loadLibrary("opencv_java2411");
+                System.loadLibrary("libopencv_core2411");
+                System.loadLibrary("libopencv_highgui2411");
+                try {
+                    System.loadLibrary("opencv_ffmpeg2411_64");
+                    }
+                catch (Exception e1) {
+                    System.loadLibrary("opencv_ffmpeg2411");
+                }
+                catch (Error e1) {
+                    System.loadLibrary("opencv_ffmpeg2411");
+                }
+                has_ocv = true;
+            }
+            catch (Error e1) {
+                NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
+            }
         }
         
         histGrayFilter = new JToggleButton("H/G");
