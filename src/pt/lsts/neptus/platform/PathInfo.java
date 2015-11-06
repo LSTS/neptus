@@ -35,23 +35,23 @@ import java.util.List;
  * Neptus Filesystem Paths.
  * <p>
  * This class provides information about the filesystem paths used by Neptus. On initialization this class will try to
- * find the neptusRoot folder of the Neptus distribution based on some heuristics. If this procedure fails a
- * RuntimeException will be thrown and this class will be rendered useless.
+ * find the root folder of the Neptus distribution based on some heuristics. If this procedure fails a RuntimeException
+ * will be thrown and this class will be rendered useless.
  *
  * @author Ricardo Martins
  */
 public final class PathInfo {
-    /** Name of the native libraries neptusRoot folder. */
+    /** Name of the native libraries root folder. */
     private final static String JNI_FOLDER = "libJNI";
-    /** Configuration neptusRoot folder. */
+    /** Name of the configuration root folder. */
     private final static String CFG_FOLDER = "conf";
-    /** Byte-compiled binaries folder. */
+    /** Name of the byte-compiled binaries root folder. */
     private final static String BIN_FOLDER = "bin";
-    /** Bundle Java libraries neptusRoot folder. */
+    /** Name of the bundled Java libraries root folder. */
     private final static String LIB_FOLDER = "lib";
-    /** List of canonical folders that must always exist in a Neptus distribution. */
+    /** List of canonical folder names that must always exist in a Neptus distribution. */
     private final static String[] CANONICAL_FOLDERS = {JNI_FOLDER, CFG_FOLDER, BIN_FOLDER, LIB_FOLDER};
-    /** Neptus neptusRoot folder. */
+    /** Neptus distribution root folder. */
     private static final File neptusRoot = findRootFolder();
     /** Neptus folder containing native libraries. */
     private static final File neptusJniFolder = new File(neptusRoot, JNI_FOLDER);
@@ -64,6 +64,9 @@ public final class PathInfo {
     /** List of folders containing platform specific libraries. */
     private static final List<File> platformJniFolders = findPlatformJniFolders();
 
+    /**
+     * Private constructor to prevent instantiation.
+     */
     private PathInfo() {
     }
 
@@ -121,6 +124,13 @@ public final class PathInfo {
         return neptusLibFolder;
     }
 
+    /**
+     * Retrieves a Neptus configuration file.
+     *
+     * @param first the path string or initial part of the path string.
+     * @param more  additional strings to be joined to form the path string.
+     * @return folder containing Java libraries.
+     */
     public static File getNeptusConfigFile(String first, String... more) {
         String base = new File(neptusCfgFolder, first).getAbsolutePath();
         return Paths.get(base, more).toFile();
@@ -160,10 +170,10 @@ public final class PathInfo {
     }
 
     /**
-     * Finds the neptusRoot folder of the Neptus distribution.
+     * Finds the root folder of the Neptus distribution.
      *
-     * @return Neptus neptusRoot folder.
-     * @throws RuntimeException if the neptusRoot folder cannot be found.
+     * @return Neptus root folder.
+     * @throws RuntimeException if the root folder cannot be found.
      */
     private static File findRootFolder() {
         String[] paths = System.getProperties().getProperty("java.class.path")
@@ -179,7 +189,7 @@ public final class PathInfo {
     }
 
     /**
-     * Tests if a given path is a Neptus neptusRoot folder.
+     * Tests if a given path is a Neptus root folder.
      *
      * @param folder folder to test.
      * @return true if the folder is a Neptus neptusRoot folder, false otherwise.
@@ -191,13 +201,5 @@ public final class PathInfo {
         }
 
         return true;
-    }
-
-    public static void main(String[] args) {
-        System.out.format("%-20s: %s\n", "Neptus Path - Root", getNeptusRoot());
-        System.out.format("%-20s: %s\n", "Neptus Path - Config", getNeptusConfigFolder());
-        System.out.format("%-20s: %s\n", "Neptus Path - Bin", getNeptusBinFolder());
-        System.out.format("%-20s: %s\n", "Neptus Path - Lib", getNeptusLibFolder());
-        System.out.format("%-20s: %s\n", "Neptus Path - JNI", getNeptusJniFolder());
     }
 }

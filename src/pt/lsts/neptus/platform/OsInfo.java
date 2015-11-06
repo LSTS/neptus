@@ -24,12 +24,14 @@
 
 package pt.lsts.neptus.platform;
 
+import java.util.Locale;
+
 /**
- * Unified Operating System Information.
+ * Operating System Information.
  * <p>
  * This class provides information about the current Operating System in a unified format. The information about the
- * Operating System is collected and stored upon static initialization, therefore if the Operating System is not
- * recognized a RuntimeError exception will be thrown and this class will be rendered useless.
+ * Operating System is retrieved during static initialization, therefore if the Operating System is not recognized a
+ * RuntimeException exception will be thrown and this class will be rendered useless.
  *
  * @author Ricardo Martins
  */
@@ -72,28 +74,31 @@ public final class OsInfo {
 
     /** Operating system name. */
     private final static Name name;
-    /** Operating system name. */
+    /** Operating system name as a string. */
     private final static String nameString;
-    /** Operating system version. */
+    /** Operating system version as a string. */
     private final static String versionString;
     /** Operating system family. */
     private final static Family family;
-    /** Operating system family. */
+    /** Operating system family as a string. */
     private final static String familyString;
     /** Operating system architecture. */
     private final static Architecture arch;
-    /** Operating system architecture. */
+    /** Operating system architecture as a string. */
     private final static String archString;
     /** Operating system data model. */
     private final static DataModel dataModel;
-    /** Operating system data model. */
+    /** Operating system data model as a string. */
     private final static String dataModelString;
 
+    /**
+     * Private constructor to prevent instantiation.
+     */
     private OsInfo() {
     }
 
     /**
-     * Retrieves the name of the operating system.
+     * Retrieves the name of the operating system. Use this method to perform comparisons.
      *
      * @return name of the operating system.
      */
@@ -102,7 +107,8 @@ public final class OsInfo {
     }
 
     /**
-     * Retrieves the name of the operating system as a string.
+     * Retrieves the name of the operating system as a string. Use this method exclusively to present information to the
+     * user and never to perform comparisons.
      *
      * @return name of the operating system as a string.
      */
@@ -111,7 +117,8 @@ public final class OsInfo {
     }
 
     /**
-     * Retrieves the version of the operating system as a string.
+     * Retrieves the version of the operating system as a string. The format of this information is implementation
+     * dependent.
      *
      * @return version of the operating system as a string.
      */
@@ -120,7 +127,7 @@ public final class OsInfo {
     }
 
     /**
-     * Retrieves the family of the operating system.
+     * Retrieves the family of the operating system. Use this method to perform comparisons.
      *
      * @return family of the operating system.
      */
@@ -129,7 +136,8 @@ public final class OsInfo {
     }
 
     /**
-     * Retrieves the family of the operating system as a string.
+     * Retrieves the family of the operating system as a string. Use this method exclusively to present information to
+     * the user and never to perform comparisons.
      *
      * @return family of the operating system as a string.
      */
@@ -138,7 +146,7 @@ public final class OsInfo {
     }
 
     /**
-     * Retrieves the architecture of the operating system.
+     * Retrieves the architecture of the operating system. Use this method to perform comparisons.
      *
      * @return architecture of the operating system.
      */
@@ -147,7 +155,8 @@ public final class OsInfo {
     }
 
     /**
-     * Retrieves the architecture of the operating system as a string.
+     * Retrieves the architecture of the operating system as a string. Use this method exclusively to present
+     * information to the user and never to perform comparisons.
      *
      * @return architecture of the operating system as a string.
      */
@@ -156,7 +165,7 @@ public final class OsInfo {
     }
 
     /**
-     * Retrieves the data model of the operating system.
+     * Retrieves the data model of the operating system. Use this method to perform comparisons.
      *
      * @return data model of the operating system.
      */
@@ -165,7 +174,8 @@ public final class OsInfo {
     }
 
     /**
-     * Retrieves the data model of the operating system as a string.
+     * Retrieves the data model of the operating system as a string. Use this method exclusively to present information
+     * to the user and never to perform comparisons.
      *
      * @return data model of the operating system as a string.
      */
@@ -173,8 +183,22 @@ public final class OsInfo {
         return dataModelString;
     }
 
+    /**
+     * Retrieves a summary of the operating system information as a string. Use this method exclusively to present
+     * information to the user and never to perform comparisons.
+     *
+     * @return summary of operating system information.
+     */
+    public static String getSummaryString() {
+        return String.format("%s-%s-%s-%s-%s", getFamilyString(),
+                getNameString(),
+                getArchString(),
+                getDataModelString(),
+                getVersionString());
+    }
+
     static {
-        String osName = System.getProperty("os.name").toLowerCase().replaceAll(" ", "");
+        String osName = System.getProperty("os.name").toLowerCase(Locale.US).replaceAll(" ", "");
         if (osName.startsWith("win")) {
             name = Name.WINDOWS;
             family = Family.WINDOWS;
@@ -191,13 +215,13 @@ public final class OsInfo {
             throw new RuntimeException("unknown operating system");
         }
 
-        versionString = System.getProperty("os.version").toLowerCase();
-        nameString = name.toString().toLowerCase();
-        familyString = family.toString().toLowerCase();
+        versionString = System.getProperty("os.version").toLowerCase(Locale.US);
+        nameString = name.toString().toLowerCase(Locale.US);
+        familyString = family.toString().toLowerCase(Locale.US);
     }
 
     static {
-        String osArch = System.getProperty("os.arch").toLowerCase();
+        String osArch = System.getProperty("os.arch").toLowerCase(Locale.US);
 
         if (osArch.contains("x86-64") || osArch.contains("amd64") || osArch.contains("em64t")
                 || osArch.contains("x86_64")) {
@@ -214,15 +238,7 @@ public final class OsInfo {
             throw new RuntimeException("unknown architecture");
         }
 
-        archString = arch.toString().toLowerCase();
-        dataModelString = dataModel.toString().toLowerCase();
-    }
-
-    public static void main(String[] args) {
-        System.out.format("%-20s: %s\n", "OS - Name", getNameString());
-        System.out.format("%-20s: %s\n", "OS - Version", getVersionString());
-        System.out.format("%-20s: %s\n", "OS - Family", getFamilyString());
-        System.out.format("%-20s: %s\n", "OS - Architecture", getArchString());
-        System.out.format("%-20s: %s\n", "OS - Data Model", getDataModelString());
+        archString = arch.toString().toLowerCase(Locale.US);
+        dataModelString = dataModel.toString().toLowerCase(Locale.US);
     }
 }

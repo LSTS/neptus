@@ -26,15 +26,17 @@
 
 package pt.lsts.neptus.platform;
 
-/** 
- * Unified Java Virtual Machine Information.
- * 
- * This class provides information about the current Java Virtual Machine in a unified format. The
- * information about the Java Virtual Machine is collected and stored upon static initialization,
- * therefore if the Java Virtual Machine is not recognized a RuntimeError exception will be thrown
- * and this class will be rendered useless.
- * 
- * @author Ricardo Martins */
+import java.util.Locale;
+
+/**
+ * Java Virtual Machine Information.
+ * <p>
+ * This class provides information about the current Java Virtual Machine in a unified format. The information about the
+ * Java Virtual Machine is retrieved during static initialization, therefore if the Java Virtual Machine is not
+ * recognized a RuntimeException exception will be thrown and this class will be rendered useless.
+ *
+ * @author Ricardo Martins
+ */
 public final class JvmInfo {
     /** Enumeration of Java Virtual Machine vendors. */
     public enum Vendor {
@@ -54,7 +56,7 @@ public final class JvmInfo {
         J9
     }
 
-    /** Machine data model (i.e., number of bits). */
+    /** Java Virtual Machine data model (i.e., number of bits). */
     public enum DataModel {
         /** Data model is 32-bit. */
         B32,
@@ -64,76 +66,110 @@ public final class JvmInfo {
 
     /** Java Virtual Machine name. */
     private final static Name name = identifyJvmName();
-    /** Java Virtual Machine name. */
-    private final static String nameString = name.toString().toLowerCase();
+    /** Java Virtual Machine name as a string. */
+    private final static String nameString = name.toString().toLowerCase(Locale.US);
     /** Java Virtual Machine vendor. */
     private final static Vendor vendor = identifyJvmVendor();
-    /** Java Virtual Machine vendor. */
-    private final static String vendorString = vendor.toString().toLowerCase();
+    /** Java Virtual Machine vendor as a string. */
+    private final static String vendorString = vendor.toString().toLowerCase(Locale.US);
     /** Java Virtual Machine data model. */
     private final static DataModel dataModel = identifyJvmDataModel();
-    /** Java Virtual Machine data model. */
-    private final static String dataModelString = dataModel.toString().toLowerCase();
+    /** Java Virtual Machine data model as a string. */
+    private final static String dataModelString = dataModel.toString().toLowerCase(Locale.US);
     /** Java Virtual Machine version. */
-    private final static String versionString = System.getProperty("java.version").toLowerCase();
+    private final static String versionString = System.getProperty("java.version").toLowerCase(Locale.US);
 
+    /**
+     * Private constructor to prevent instantiation.
+     */
     private JvmInfo() {
     }
 
-    /** Retrieves the name of the Java Virtual Machine.
-     * 
-     * @return name of the Java Virtual Machine. */
+    /**
+     * Retrieves the name of the Java Virtual Machine. Use this method to perform comparisons.
+     *
+     * @return name of the Java Virtual Machine.
+     */
     public static Name getName() {
         return name;
     }
 
-    /** Retrieves the name of the Java Virtual Machine as a string.
-     * 
-     * @return name of the Java Virtual Machine as a string. */
+    /**
+     * Retrieves the name of the Java Virtual Machine as a string. Use this method exclusively to present information to
+     * the user and never to perform comparisons.
+     *
+     * @return name of the Java Virtual Machine as a string.
+     */
     public static String getNameString() {
         return nameString;
     }
 
-    /** Retrieves the vendor of the Java Virtual Machine.
-     * 
-     * @return vendor of the Java Virtual Machine. */
+    /**
+     * Retrieves the vendor of the Java Virtual Machine. Use this method to perform comparisons.
+     *
+     * @return vendor of the Java Virtual Machine.
+     */
     public static Vendor getVendor() {
         return vendor;
     }
 
-    /** Retrieves the vendor of the Java Virtual Machine as a string.
-     * 
-     * @return vendor of the Java Virtual Machine as a string. */
+    /**
+     * Retrieves the vendor of the Java Virtual Machine as a string. Use this method exclusively to present information
+     * to the user and never to perform comparisons.
+     *
+     * @return vendor of the Java Virtual Machine as a string.
+     */
     public static String getVendorString() {
         return vendorString;
     }
 
-    /** Retrieves the data model of the Java Virtual Machine.
-     * 
-     * @return data model of the Java Virtual Machine. */
+    /**
+     * Retrieves the data model of the Java Virtual Machine. Use this method to perform comparisons.
+     *
+     * @return data model of the Java Virtual Machine.
+     */
     public static DataModel getDataModel() {
         return dataModel;
     }
 
-    /** Retrieves the data model of the Java Virtual Machine as a string.
-     * 
-     * @return data model of the Java Virtual Machine as a string. */
+    /**
+     * Retrieves the data model of the Java Virtual Machine as a string. Use this method exclusively to present
+     * information to the user and never to perform comparisons.
+     *
+     * @return data model of the Java Virtual Machine as a string.
+     */
     public static String getDataModelString() {
         return dataModelString;
     }
 
-    /** Retrieves the version of the Java Virtual Machine.
-     * 
-     * @return version of the Java Virtual Machine. */
+    /**
+     * Retrieves the version of the Java Virtual Machine. The format of this information is implementation dependent.
+     *
+     * @return version of the Java Virtual Machine.
+     */
     public static String getVersionString() {
         return versionString;
     }
 
-    /** Identifies the name of the Java Virtual Machine.
-     * 
+    /**
+     * Retrieves a summary of the Java Virtual Machine information as a string. Use this method exclusively to present
+     * information to the user and never to perform comparisons.
+     *
+     * @return summary of the Java Virtual Machine information.
+     */
+    public static String getSummaryString() {
+        return String.format("%s-%s-%s-%s", getVendorString(),
+                getNameString(),
+                getDataModelString(),
+                getVersionString());
+    }
+
+    /**
+     * Identifies the name of the Java Virtual Machine.
+     *
      * @return name of the Java Virtual Machine.
-     * @throws RuntimeException
-     *             if the name of the Java Virtual Machine is not known. */
+     * @throws RuntimeException if the name of the Java Virtual Machine is not known.
+     */
     private static Name identifyJvmName() {
         final String name = System.getProperty("java.vm.name").toLowerCase();
 
@@ -144,14 +180,15 @@ public final class JvmInfo {
         else if (name.startsWith("ibm j9"))
             return Name.J9;
 
-        throw new RuntimeException("unknown Java Virtual Machine: " + name);
+        throw new RuntimeException("unknown Java Virtual Machine: '" + name + "'");
     }
 
-    /** Identifies the vendor of the Java Virtual Machine.
-     * 
+    /**
+     * Identifies the vendor of the Java Virtual Machine.
+     *
      * @return vendor of the Java Virtual Machine.
-     * @throws RuntimeException
-     *             if the vendor of the Java Virtual Machine is not known. */
+     * @throws RuntimeException if the vendor of the Java Virtual Machine is not known.
+     */
     private static Vendor identifyJvmVendor() {
         String vendor = System.getProperty("java.vendor").toLowerCase();
         if (vendor.startsWith("oracle"))
@@ -159,14 +196,15 @@ public final class JvmInfo {
         else if (vendor.startsWith("ibm"))
             return Vendor.IBM;
 
-        throw new RuntimeException("unknown Java Virtual Machine vendor: " + vendor);
+        throw new RuntimeException("unknown Java Virtual Machine vendor: '" + vendor + "'");
     }
 
-    /** Identifies the data model of the Java Virtual Machine.
-     * 
+    /**
+     * Identifies the data model of the Java Virtual Machine.
+     *
      * @return data model of the Java Virtual Machine.
-     * @throws RuntimeException
-     *             if the data model of the Java Virtual Machine is not known. */
+     * @throws RuntimeException if the data model of the Java Virtual Machine is not known.
+     */
     private static DataModel identifyJvmDataModel() {
         final String model = System.getProperty("sun.arch.data.model").toLowerCase();
 
@@ -175,13 +213,6 @@ public final class JvmInfo {
         else if (model.startsWith("64"))
             return DataModel.B64;
 
-        throw new RuntimeException("unknown Java Virtual Machine data model: " + model);
-    }
-
-    public static void main(String[] args) {
-        System.out.format("%-20s: %s\n", "JVM - Name", getNameString());
-        System.out.format("%-20s: %s\n", "JVM - Vendor", getVendorString());
-        System.out.format("%-20s: %s\n", "JVM - Version", getVersionString());
-        System.out.format("%-20s: %s\n", "JVM - Data Model", getDataModelString());
+        throw new RuntimeException("unknown Java Virtual Machine data model: '" + model + "'");
     }
 }
