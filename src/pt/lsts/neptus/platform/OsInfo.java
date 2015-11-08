@@ -21,7 +21,6 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  */
-
 package pt.lsts.neptus.platform;
 
 import java.util.Locale;
@@ -202,17 +201,21 @@ public final class OsInfo {
         if (osName.startsWith("win")) {
             name = Name.WINDOWS;
             family = Family.WINDOWS;
-        } else if (osName.equals("linux")) {
+        }
+        else if (osName.equals("linux")) {
             name = Name.LINUX;
             family = Family.UNIX;
-        } else if (osName.startsWith("mac") && osName.endsWith("x")) {
+        }
+        else if (osName.startsWith("mac") && osName.endsWith("x")) {
             name = Name.MACOSX;
             family = Family.UNIX;
-        } else if (osName.equals("solaris") || osName.equals("sunos")) {
+        }
+        else if (osName.equals("solaris") || osName.equals("sunos")) {
             name = Name.SOLARIS;
             family = Family.UNIX;
-        } else {
-            throw new RuntimeException("unknown operating system");
+        }
+        else {
+            throw new RuntimeException("Unknown operating system");
         }
 
         versionString = System.getProperty("os.version").toLowerCase(Locale.US);
@@ -227,15 +230,18 @@ public final class OsInfo {
                 || osArch.contains("x86_64")) {
             arch = Architecture.X86;
             dataModel = DataModel.B64;
-        } else if (osArch.equals("x86") || osArch.contains("pentium") || osArch.contains("i386")
+        }
+        else if (osArch.equals("x86") || osArch.contains("pentium") || osArch.contains("i386")
                 || osArch.contains("i486") || osArch.contains("i586") || osArch.contains("i686")) {
             arch = Architecture.X86;
             dataModel = DataModel.B32;
-        } else if (osArch.startsWith("arm")) {
+        }
+        else if (osArch.startsWith("arm")) {
             arch = Architecture.ARM;
             dataModel = DataModel.B32;
-        } else {
-            throw new RuntimeException("unknown architecture");
+        }
+        else {
+            throw new RuntimeException("Unknown architecture");
         }
 
         archString = arch.toString().toLowerCase(Locale.US);

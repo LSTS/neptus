@@ -23,7 +23,6 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  */
-
 package pt.lsts.neptus.platform;
 
 import java.util.Locale;
@@ -180,7 +179,7 @@ public final class JvmInfo {
         else if (name.startsWith("ibm j9"))
             return Name.J9;
 
-        throw new RuntimeException("unknown Java Virtual Machine: '" + name + "'");
+        throw new RuntimeException("Unknown Java Virtual Machine: '" + name + "'");
     }
 
     /**
@@ -196,7 +195,7 @@ public final class JvmInfo {
         else if (vendor.startsWith("ibm"))
             return Vendor.IBM;
 
-        throw new RuntimeException("unknown Java Virtual Machine vendor: '" + vendor + "'");
+        throw new RuntimeException("Unknown Java Virtual Machine vendor: '" + vendor + "'");
     }
 
     /**
@@ -213,6 +212,6 @@ public final class JvmInfo {
         else if (model.startsWith("64"))
             return DataModel.B64;
 
-        throw new RuntimeException("unknown Java Virtual Machine data model: '" + model + "'");
+        throw new RuntimeException("Unknown Java Virtual Machine data model: '" + model + "'");
     }
 }

@@ -23,7 +23,6 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  */
-
 package pt.lsts.neptus.platform;
 
 import java.io.File;
