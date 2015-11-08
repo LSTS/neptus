@@ -52,6 +52,7 @@ import info.necsave.msgs.Contact;
 import info.necsave.msgs.ContactList;
 import info.necsave.msgs.Kinematics;
 import info.necsave.msgs.MissionArea;
+import info.necsave.msgs.MissionCompleted;
 import info.necsave.msgs.MissionGoal;
 import info.necsave.msgs.MissionGoal.GOAL_TYPE;
 import info.necsave.msgs.MissionReadyToStart;
@@ -205,6 +206,21 @@ public class NecsaveUI extends ConsoleInteraction {
                 abort.setType(TYPE.SYSTEM_WIDE);
                 try {
                     sendMessage(abort);
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                    ex.printStackTrace();
+                }
+            }
+        });
+        
+        getConsole().addMenuItem("Advanced>NECSAVE>Send MissionCompleted", null, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MissionCompleted msg = new MissionCompleted();
+                try {
+                    sendMessage(msg);
                 }
                 catch (Exception ex) {
                     GuiUtils.errorMessage(getConsole(), ex);
