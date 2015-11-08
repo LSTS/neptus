@@ -82,7 +82,7 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	
 	private double targetAngle, rotateIncrement;
 	private boolean currPos = false;
-	private boolean waitAtSurface = true, stationKeep = true; // To become deprecated
+	private boolean waitAtSurface = false, stationKeep = false;
 	
 	public String id = NameNormalizer.getRandomID();
 	
@@ -115,8 +115,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    
 	    Element flags = root.addElement("flags");
 	    flags.addAttribute("CurrPos", ""+isCurrPos());
-	    // flags.addAttribute("StationKeep", ""+isStationKeep());
-	    // flags.addAttribute("WaitAtSurface", ""+isWaitAtSurface());        
+	    flags.addAttribute("StationKeep", ""+isStationKeep());
+	    flags.addAttribute("WaitAtSurface", ""+isWaitAtSurface());        
 	    
 	    return document;
     }
@@ -142,8 +142,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	        
 	        Node flagsNode = doc.selectSingleNode("PopUp/flags");
 	        setCurrPos(Boolean.parseBoolean(flagsNode.valueOf("@CurrPos")));
-	        // setWaitAtSurface(Boolean.parseBoolean(flagsNode.valueOf("@WaitAtSurface")));
-	        // setStationKeep(Boolean.parseBoolean(flagsNode.valueOf("@StationKeep")));
+	        setWaitAtSurface(Boolean.parseBoolean(flagsNode.valueOf("@WaitAtSurface")));
+	        setStationKeep(Boolean.parseBoolean(flagsNode.valueOf("@StationKeep")));
 	    }
 	    catch (Exception e) {
 	        NeptusLog.pub().error(this, e);
@@ -232,8 +232,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
 	    clone.setSpeed(getSpeed());
 	    clone.setSpeedTolerance(getSpeedTolerance());
 	    clone.setCurrPos(isCurrPos());
-//	    clone.setStationKeep(isStationKeep());
-//	    clone.setWaitAtSurface(isWaitAtSurface());
+	    clone.setStationKeep(isStationKeep());
+	    clone.setWaitAtSurface(isWaitAtSurface());
 	    return clone;
 	}
 
@@ -314,11 +314,21 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
     	
     	//properties.add(PropertiesEditor.getPropertyInstance("Speed tolerance", Double.class, getSpeedTolerance(), true));
 
-    	properties.add(PropertiesEditor.getPropertyInstance("Duration", Integer.class, getDuration(), true));
+    	properties.add(PropertiesEditor.getPropertyInstance("Duration", "Behavior", Integer.class, getDuration(), true, 
+    	        "The duration of this maneuver at surface level. Only used if flag WAIT_AT_SURFACE is on."));
     	
-    	properties.add(PropertiesEditor.getPropertyInstance("CURR_POS", "Flags", Boolean.class, isCurrPos(), true));
-    	properties.add(PropertiesEditor.getPropertyInstance("STATION_KEEP", "Flags", Boolean.class, isStationKeep(), false)); // To become deprecated
-    	properties.add(PropertiesEditor.getPropertyInstance("WAIT_AT_SURFACE", "Flags", Boolean.class, isWaitAtSurface(), false)); // To become deprecated
+        properties.add(PropertiesEditor.getPropertyInstance("CURR_POS", "Behavior", Boolean.class, isCurrPos(), true,
+                " If this flag is set, lat/lon/start_z fields should be ignored and current vehicle position should be "
+                + "considered as starting point for ascent/descent."));
+        
+        properties.add(PropertiesEditor.getPropertyInstance("STATION_KEEP", "Behavior", Boolean.class, isStationKeep(),
+                true,
+                "If this flag is set, duration field is used to hold position at surface for that amount of time"));
+    	
+        properties.add(PropertiesEditor.getPropertyInstance("WAIT_AT_SURFACE", "Behavior", Boolean.class,
+                isWaitAtSurface(), true,
+                "This flag will only make sense if WAIT_AT_SURFACE is also set. While holding position at surface the "
+                + "vehicle will assume a station keeping behavior."));
     	
     	return properties;
     }
@@ -351,12 +361,12 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
     		if (p.getName().equals("CURR_POS")) {
     		    setCurrPos((Boolean)p.getValue());
     		}
-//            if (p.getName().equals("STATION_KEEP")) {
-//                setStationKeep((Boolean)p.getValue());
-//            }
-//            if (p.getName().equals("WAIT_AT_SURFACE")) {
-//                setWaitAtSurface((Boolean)p.getValue());
-//            }
+            if (p.getName().equals("STATION_KEEP")) {
+                setStationKeep((Boolean)p.getValue());
+            }
+            if (p.getName().equals("WAIT_AT_SURFACE")) {
+                setWaitAtSurface((Boolean)p.getValue());
+            }
     	}
     }
     
@@ -404,12 +414,12 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
         return waitAtSurface;
     }
 
-//    /**
-//     * @param waitAtSurface the waitAtSurface to set
-//     */
-//    public void setWaitAtSurface(boolean waitAtSurface) {
-//        this.waitAtSurface = waitAtSurface;
-//    }
+    /**
+     * @param waitAtSurface the waitAtSurface to set
+     */
+    public void setWaitAtSurface(boolean waitAtSurface) {
+        this.waitAtSurface = waitAtSurface;
+    }
 
     /**
      * @return the stationKeep
@@ -418,12 +428,12 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
         return stationKeep;
     }
 
-//    /**
-//     * @param stationKeep the stationKeep to set
-//     */
-//    public void setStationKeep(boolean stationKeep) {
-//        this.stationKeep = stationKeep;
-//    }
+    /**
+     * @param stationKeep the stationKeep to set
+     */
+    public void setStationKeep(boolean stationKeep) {
+        this.stationKeep = stationKeep;
+    }
 
     @Override
 	public String getTooltipText() {
@@ -491,8 +501,8 @@ public class PopUp extends Maneuver implements LocatedManeuver, IMCSerialization
         
         // flags
         setCurrPos((msgPopup.getFlags() & pt.lsts.imc.PopUp.FLG_CURR_POS) == pt.lsts.imc.PopUp.FLG_CURR_POS);
-//        setWaitAtSurface((msgPopup.getFlags() & pt.lsts.imc.PopUp.FLG_WAIT_AT_SURFACE) == pt.lsts.imc.PopUp.FLG_WAIT_AT_SURFACE);
-//        setStationKeep((msgPopup.getFlags() & pt.lsts.imc.PopUp.FLG_STATION_KEEP) == pt.lsts.imc.PopUp.FLG_STATION_KEEP);
+        setWaitAtSurface((msgPopup.getFlags() & pt.lsts.imc.PopUp.FLG_WAIT_AT_SURFACE) == pt.lsts.imc.PopUp.FLG_WAIT_AT_SURFACE);
+        setStationKeep((msgPopup.getFlags() & pt.lsts.imc.PopUp.FLG_STATION_KEEP) == pt.lsts.imc.PopUp.FLG_STATION_KEEP);
         
 	}
 	
