@@ -454,6 +454,13 @@ public class ImageUtils {
         filter.setBrightness(1.0f);
         return filter;
     }
+    
+    public static ContrastFilter identityOp() {
+        ContrastFilter filter = new ContrastFilter();
+        filter.setContrast(1.0f);
+        filter.setBrightness(1.0f);
+        return filter;
+    }
 
     public static LookupOp invertOp() {
         byte[] invertArray = new byte[256];
