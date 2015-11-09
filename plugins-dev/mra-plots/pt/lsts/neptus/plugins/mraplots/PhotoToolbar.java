@@ -202,7 +202,7 @@ public class PhotoToolbar extends JPanel {
         File dir = new File("/usr/lib/jni");
         String[] children = dir.list();
         if (children == null) {
-            NeptusLog.pub().error("/usr/lib/jni not exist to search Opencv jni");
+            //NeptusLog.pub().error("/usr/lib/jni not exist to search Opencv jni");
         }
         else {
            for (int i = 0; i < children.length; i++) {
