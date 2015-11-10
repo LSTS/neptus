@@ -282,6 +282,7 @@ public class PluginManager extends ConsolePanel {
                     return;
                 if (pluginsMap.get(activeSelected) instanceof PropertiesProvider) {
                     PropertiesEditor.editProperties((PropertiesProvider) pluginsMap.get(activeSelected), true);
+                    getConsole().setConsoleChanged(true);
                 }
             }
         });
