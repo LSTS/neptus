@@ -204,6 +204,7 @@ public class PluginManager extends ConsolePanel {
                     NeptusLog.pub().warn(
                             "Added new console panel: " + sp.getName() + " Class name : "
                                     + sp.getClass().getCanonicalName());
+                    getConsole().setConsoleChanged(true);
                 }
 
                 if (ConsoleLayer.class.isAssignableFrom(clazz)) {
@@ -213,6 +214,7 @@ public class PluginManager extends ConsolePanel {
                     NeptusLog.pub().warn(
                             "Added new console layer: " + sp.getName() + " Class name : "
                                     + sp.getClass().getCanonicalName());
+                    getConsole().setConsoleChanged(true);
                 }
 
                 if (ConsoleInteraction.class.isAssignableFrom(clazz)) {
@@ -222,6 +224,7 @@ public class PluginManager extends ConsolePanel {
                     NeptusLog.pub().warn(
                             "Added new console interaction: " + sp.getName() + " Class name : "
                                     + sp.getClass().getCanonicalName());
+                    getConsole().setConsoleChanged(true);
                 }
             }
         });
@@ -244,6 +247,7 @@ public class PluginManager extends ConsolePanel {
                     NeptusLog.pub().warn(
                             "Removed console panel: " + sp.getName() + " Class name : "
                                     + sp.getClass().getCanonicalName());
+                    getConsole().setConsoleChanged(true);
                 }
 
                 if (ConsoleLayer.class.isAssignableFrom(clazz)) {
@@ -252,6 +256,7 @@ public class PluginManager extends ConsolePanel {
                     refreshActivePlugins();
                     NeptusLog.pub().warn(
                             "Removed layer: " + sp.getName() + " Class name : " + sp.getClass().getCanonicalName());
+                    getConsole().setConsoleChanged(true);
                 }
 
                 if (ConsoleInteraction.class.isAssignableFrom(clazz)) {
@@ -261,6 +266,7 @@ public class PluginManager extends ConsolePanel {
                     NeptusLog.pub().warn(
                             "Removed console interaction: " + sp.getName() + " Class name : "
                                     + sp.getClass().getCanonicalName());
+                    getConsole().setConsoleChanged(true);
                 }
 
             }
