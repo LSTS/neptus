@@ -322,7 +322,7 @@ public class OperationLimitsSubPanel extends ConsolePanel implements Configurati
                     synchronized (OperationLimitsSubPanel.this) {
                         if (lastMD5 != null) {
                             if (!Arrays.equals(msg.payloadMD5(), lastMD5)) {
-                                post(Notification.success(I18n.text("Operation Limits"), I18n.text("Not Syncronized")).src(
+                                post(Notification.warning(I18n.text("Operation Limits"), I18n.text("Not Syncronized")).src(
                                         getConsole().getMainSystem()));
                             }
                             else {
