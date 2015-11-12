@@ -61,10 +61,10 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
  * Contains all the buttons.
  * 
  * @author Margarida Faria
- * 
+ * @author pdias
  */
 @Popup(icon = "images/menus/settings.png", name = "Console Settings", pos = POSITION.CENTER, accelerator = KeyEvent.VK_F3, height = 400, width = 600)
-public class SettingsWindow extends ConsolePanel {
+public class SettingsWindow extends ConsolePanel implements SubPanelChangeListener {
 
     private static final long serialVersionUID = 1L;
     private FunctionalitiesSettings settingsPanel;
@@ -82,6 +82,13 @@ public class SettingsWindow extends ConsolePanel {
 
         this.removeAll();
 
+        initPropertiesProvidersList(console);
+    }
+
+    /**
+     * @param console
+     */
+    private void initPropertiesProvidersList(ConsoleLayout console) {
         List<PropertiesProvider> consolePlugins = console.getAllPropertiesProviders();
         for (PropertiesProvider propertiesProvider : consolePlugins) {
             if (propertiesProvider == null)
@@ -150,14 +157,50 @@ public class SettingsWindow extends ConsolePanel {
         this.settingsPanel = new FunctionalitiesSettings(ConfigFetch.getDistributionType().equals(
                 DistributionEnum.CLIENT), subPanels);
         this.add(settingsPanel, "w 100%!, h 100%, wrap");
+        
+//        initPropertiesProvidersList(getConsole());
+
         addButtons();
         // this is done after the level normal/advanced is set by creating the checkbox
         settingsPanel.reset();
+        
+        getConsole().addSubPanelListener(this);
+        
         dialog.setModalityType(ModalityType.DOCUMENT_MODAL);
     }
 
     @Override
     public void cleanSubPanel() {
+        getConsole().removeSubPanelListener(this);
         settingsPanel = null;
+        subPanels.clear();
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.console.plugins.SubPanelChangeListener#subPanelChanged(pt.lsts.neptus.console.plugins.SubPanelChangeEvent)
+     */
+    @Override
+    public void subPanelChanged(SubPanelChangeEvent panelChange) {
+        ConsolePanel panel = panelChange.getPanel();
+        switch (panelChange.getAction()) {
+            case ADDED:
+                if (!subPanels.contains(panel)) {
+                    if (panel instanceof PropertiesProvider) {
+                        subPanels.add((PropertiesProvider) panel);
+                        settingsPanel.setupNewProviders(subPanels);
+                        settingsPanel.reset();
+                    }
+                }
+                break;
+            case REMOVED:
+                if (subPanels.contains(panel)) {
+                    subPanels.remove((PropertiesProvider) panel);
+                    settingsPanel.setupNewProviders(subPanels);
+                    settingsPanel.reset();
+                }
+                break;
+            default:
+                break;
+        }
     }
 }
