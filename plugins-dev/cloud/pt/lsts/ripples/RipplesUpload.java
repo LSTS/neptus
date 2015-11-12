@@ -52,6 +52,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mystate.MyState;
@@ -78,6 +79,7 @@ public class RipplesUpload extends ConsolePanel {
 
     private JCheckBoxMenuItem menuItem;
     private ImageIcon onIcon, offIcon;
+    private String checkMenuTxt = I18n.text("Advanced") + ">Ripples";
 
     private Firebase firebase = null;
     private LinkedHashMap<String, SystemPositionAndAttitude> toSend = new LinkedHashMap<String, SystemPositionAndAttitude>();
@@ -230,18 +232,18 @@ public class RipplesUpload extends ConsolePanel {
     public void initSubPanel() {
         onIcon = ImageUtils.getScaledIcon("pt/lsts/ripples/ripples_on.png", 16, 16);
         offIcon = ImageUtils.getScaledIcon("pt/lsts/ripples/ripples_off.png", 16, 16);
-        menuItem = addCheckMenuItem("Advanced>Ripples>Start synch", offIcon, new CheckMenuChangeListener() {
+        menuItem = addCheckMenuItem(checkMenuTxt + ">" + I18n.text("Start synch"), offIcon, new CheckMenuChangeListener() {
 
             @Override
             public void menuUnchecked(ActionEvent e) {
-                menuItem.setText("Start synch");
+                menuItem.setText(I18n.text("Start synch"));
                 menuItem.setIcon(offIcon);
                 stopSynch();
             }
 
             @Override
             public void menuChecked(ActionEvent e) {
-                menuItem.setText("Stop synch");
+                menuItem.setText(I18n.text("Stop synch"));
                 menuItem.setIcon(onIcon);
                 startSynch();
             }
