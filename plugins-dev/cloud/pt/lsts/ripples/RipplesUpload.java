@@ -99,6 +99,12 @@ public class RipplesUpload extends ConsolePanel {
     public void cleanSubPanel() {
         if (synch)
             stopSynch();
+        
+        if (menuItem != null) {
+            removeCheckMenuItem(checkMenuTxt);
+        }
+    }
+    
     }
     
     @Subscribe
