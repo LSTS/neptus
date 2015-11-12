@@ -90,6 +90,14 @@ public class DateTimeUtil {
     /** Currently configured timezone. */
     private static final ZoneId currentZoneId = ZoneId.of("UTC");
 
+    private static long initialTimeMillis;
+    private static long initialTimeNanos;
+
+    static {
+        initialTimeMillis = System.currentTimeMillis();
+        initialTimeNanos = System.nanoTime();
+    }
+    
     /**
      * Formats a timestamp in a format suitable to be presented to the user using the current timezone.
      *
@@ -111,14 +119,6 @@ public class DateTimeUtil {
         return Instant.ofEpochMilli(milliSeconds).atZone(zoneId).format(defaultTimeFormat);
     }
 
-    private static long initialTimeMillis;
-    private static long initialTimeNanos;
-
-    static {
-        initialTimeMillis = System.currentTimeMillis();
-        initialTimeNanos = System.nanoTime();
-    }
-    
 	public static final String milliSecondsToFormatedString(long timeMillis) {
 	    return timeInFormatedString(timeMillis, false);
 	}
