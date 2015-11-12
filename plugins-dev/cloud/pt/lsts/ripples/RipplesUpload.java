@@ -57,6 +57,7 @@ import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.plugins.CheckMenuChangeListener;
+import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.update.Periodic;
@@ -71,7 +72,7 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
  *
  */
 @PluginDescription(name = "Ripples Uploader", icon = "pt/lsts/ripples/ripples_on.png")
-public class RipplesUpload extends ConsolePanel {
+public class RipplesUpload extends ConsolePanel implements ConfigurationListener {
 
     private static final long serialVersionUID = -8036937519999303108L;
     
@@ -105,6 +106,15 @@ public class RipplesUpload extends ConsolePanel {
         }
     }
     
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.ConfigurationListener#propertiesChanged()
+     */
+    @Override
+    public void propertiesChanged() {
+        if (synch && !menuItem.isSelected())
+            menuItem.doClick();
+        else if (!synch && menuItem.isSelected())
+            menuItem.doClick();
     }
     
     @Subscribe
