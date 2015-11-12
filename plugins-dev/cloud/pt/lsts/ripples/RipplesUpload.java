@@ -40,6 +40,9 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 
+import com.firebase.client.Firebase;
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCDefinition;
@@ -62,9 +65,6 @@ import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
-import com.firebase.client.Firebase;
-import com.google.common.eventbus.Subscribe;
-
 /**
  * @author zp
  *
@@ -72,13 +72,16 @@ import com.google.common.eventbus.Subscribe;
 @PluginDescription(name = "Ripples Uploader", icon = "pt/lsts/ripples/ripples_on.png")
 public class RipplesUpload extends ConsolePanel {
 
+    private static final long serialVersionUID = -8036937519999303108L;
+    
+    private final String firebasePath = "https://neptus.firebaseio-demo.com/";
+
     private JCheckBoxMenuItem menuItem;
     private ImageIcon onIcon, offIcon;
-    private final String firebasePath = "https://neptus.firebaseio-demo.com/";
-    private Firebase firebase = null;
-    private LinkedHashMap<String, PlanControlState> planStates = new LinkedHashMap<String, PlanControlState>();
 
-    private static final long serialVersionUID = -8036937519999303108L;
+    private Firebase firebase = null;
+    private LinkedHashMap<String, SystemPositionAndAttitude> toSend = new LinkedHashMap<String, SystemPositionAndAttitude>();
+    private LinkedHashMap<String, PlanControlState> planStates = new LinkedHashMap<String, PlanControlState>();
 
     @NeptusProperty
     private boolean synch = false;
@@ -95,13 +98,12 @@ public class RipplesUpload extends ConsolePanel {
         if (synch)
             stopSynch();
     }
-
-    private LinkedHashMap<String, SystemPositionAndAttitude> toSend = new LinkedHashMap<String, SystemPositionAndAttitude>();
-
+    
     @Subscribe
     public void on(EstimatedState state) {
         if (!synch)
             return;
+        
         SystemPositionAndAttitude pose = new SystemPositionAndAttitude(IMCUtils.parseLocationAlt(state)
                 .convertToAbsoluteLatLonDepth(), state.getPhi(), state.getTheta(), state.getPsi());
         pose.setTime(state.getTimestampMillis());
