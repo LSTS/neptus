@@ -176,6 +176,28 @@ public class SettingsWindow extends ConsolePanel implements SubPanelChangeListen
         subPanels.clear();
     }
 
+    public void addPropertiesProvider(PropertiesProvider propProvider) {
+        if (propProvider == null)
+            return;
+        
+        if (!subPanels.contains(propProvider)) {
+            subPanels.add(propProvider);
+            settingsPanel.setupNewProviders(subPanels);
+            settingsPanel.reset();
+        }
+    }
+
+    public void removePropertiesProvider(PropertiesProvider propProvider) {
+        if (propProvider == null)
+            return;
+        
+        if (subPanels.contains(propProvider)) {
+            subPanels.remove(propProvider);
+            settingsPanel.setupNewProviders(subPanels);
+            settingsPanel.reset();
+        }
+    }
+
     /* (non-Javadoc)
      * @see pt.lsts.neptus.console.plugins.SubPanelChangeListener#subPanelChanged(pt.lsts.neptus.console.plugins.SubPanelChangeEvent)
      */
@@ -184,20 +206,12 @@ public class SettingsWindow extends ConsolePanel implements SubPanelChangeListen
         ConsolePanel panel = panelChange.getPanel();
         switch (panelChange.getAction()) {
             case ADDED:
-                if (!subPanels.contains(panel)) {
-                    if (panel instanceof PropertiesProvider) {
-                        subPanels.add((PropertiesProvider) panel);
-                        settingsPanel.setupNewProviders(subPanels);
-                        settingsPanel.reset();
-                    }
+                if (panel instanceof PropertiesProvider) {
+                    addPropertiesProvider((PropertiesProvider) panel);
                 }
                 break;
             case REMOVED:
-                if (subPanels.contains(panel)) {
-                    subPanels.remove((PropertiesProvider) panel);
-                    settingsPanel.setupNewProviders(subPanels);
-                    settingsPanel.reset();
-                }
+                removePropertiesProvider((PropertiesProvider) panel);
                 break;
             default:
                 break;
