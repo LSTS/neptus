@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.mra.plots;
 
+import org.jfree.data.xy.XYSeries;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.Temperature;
 import pt.lsts.imc.lsf.LsfIndex;
@@ -99,23 +101,18 @@ public class TemperatureVsDepthPlot extends XYPlot {
         }
     }
 
+    @Override
     public void addLogMarker(LogMarker marker) {
-/*
+
         XYSeries markerSeries = getMarkerSeries();
 
-        String depthEntity = MRAProperties.depthEntity.toString().replaceAll("_", " ");
-        int ctdId = mraPanel.getSource().getLsfIndex().getEntityId(depthEntity);
-
-        IMCMessage es = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
-        IMCMessage temp = mraPanel.getSource().getLog("Temperature").getEntryAtOrAfter(new Double(marker.timestamp).longValue());
+        IMCMessage es = mraPanel.getSource().getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
+        IMCMessage temp = mraPanel.getSource().getLog("Temperature").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
 
         if(markerSeries != null) {
-            while (temp.getSrcEnt() != ctdId) {
-                temp = mraPanel.getSource().getLog("Temperature").getEntryAtOrAfter(temp.getTimestampMillis());
-            }
-            markerSeries.add(new TimedXYDataItem(-es.getDouble("depth"), ((Temperature) temp).getValue(), temp.getTimestampMillis(), marker.label));
+            markerSeries.add(new TimedXYDataItem(-es.getDouble("depth"), ((Temperature) temp).getValue(), temp.getTimestampMillis(), marker.getLabel()));
         }
-*/
+
     };
 
     public boolean canBeApplied(pt.lsts.imc.lsf.LsfIndex index) {
