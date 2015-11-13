@@ -238,6 +238,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         manager.init();
         SettingsWindow settings = new SettingsWindow(instance);
         settings.init();
+        manager.setSettingsWindow(settings);
 
         instance.setConsoleChanged(false);
 

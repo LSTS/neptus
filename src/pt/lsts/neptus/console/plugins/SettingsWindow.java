@@ -181,9 +181,11 @@ public class SettingsWindow extends ConsolePanel implements SubPanelChangeListen
             return;
         
         if (!subPanels.contains(propProvider)) {
-            subPanels.add(propProvider);
-            settingsPanel.setupNewProviders(subPanels);
-            settingsPanel.reset();
+            boolean ret = subPanels.add(propProvider);
+            if (ret) {
+                settingsPanel.setupNewProviders(subPanels);
+                settingsPanel.reset();
+            }
         }
     }
 
@@ -192,9 +194,11 @@ public class SettingsWindow extends ConsolePanel implements SubPanelChangeListen
             return;
         
         if (subPanels.contains(propProvider)) {
-            subPanels.remove(propProvider);
-            settingsPanel.setupNewProviders(subPanels);
-            settingsPanel.reset();
+            boolean ret = subPanels.remove(propProvider);
+            if (ret) {
+                settingsPanel.setupNewProviders(subPanels);
+                settingsPanel.reset();
+            }
         }
     }
 
