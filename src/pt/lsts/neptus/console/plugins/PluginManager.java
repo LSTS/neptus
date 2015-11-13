@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Hugo
+ * Author: Hugo Dias
  * 14 de Mai de 2013
  */
 package pt.lsts.neptus.console.plugins;
@@ -60,6 +60,7 @@ import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.console.AbstractConsolePlugin;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.ConsoleLayer;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -80,7 +81,8 @@ import com.l2fprod.common.swing.StatusBar;
 import com.sun.java.swing.plaf.windows.WindowsButtonUI;
 
 /**
- * @author Hugo
+ * @author Hugo Dias
+ * @author pdias
  * 
  */
 @Popup(name = "Plugin Manager", icon = "images/buttons/events.png", pos = POSITION.CENTER, width = 500, height = 500, accelerator = 'P')
@@ -106,6 +108,8 @@ public class PluginManager extends ConsolePanel {
     private JButton btnSettings;
 
     private KeyListener keyboardListener;
+    
+    private SettingsWindow settingsWindow = null;
 
     /**
      * Constructor
@@ -201,6 +205,7 @@ public class PluginManager extends ConsolePanel {
                     sp.init();
                     getConsole().informSubPanelListener(sp, SubPanelChangeAction.ADDED);
                     refreshActivePlugins();
+                    warnSettingsWindowAdd(sp);
                     NeptusLog.pub().warn(
                             "Added new console panel: " + sp.getName() + " Class name : "
                                     + sp.getClass().getCanonicalName());
@@ -210,6 +215,7 @@ public class PluginManager extends ConsolePanel {
                     ConsoleLayer sp = PluginsRepository.getConsoleLayer(availableSelected);
                     getConsole().addMapLayer(sp);
                     refreshActivePlugins();
+                    warnSettingsWindowAdd(sp);
                     NeptusLog.pub().warn(
                             "Added new console layer: " + sp.getName() + " Class name : "
                                     + sp.getClass().getCanonicalName());
@@ -219,6 +225,7 @@ public class PluginManager extends ConsolePanel {
                     ConsoleInteraction sp = PluginsRepository.getConsoleInteraction(availableSelected);
                     getConsole().addInteraction(sp);
                     refreshActivePlugins();
+                    warnSettingsWindowAdd(sp);
                     NeptusLog.pub().warn(
                             "Added new console interaction: " + sp.getName() + " Class name : "
                                     + sp.getClass().getCanonicalName());
@@ -241,6 +248,7 @@ public class PluginManager extends ConsolePanel {
                     container.removeSubPanel(activeSelected);
                     getConsole().informSubPanelListener(sp, SubPanelChangeAction.REMOVED);
                     refreshActivePlugins();
+                    warnSettingsWindowRemove(sp);
                     NeptusLog.pub().warn(
                             "Removed console panel: " + sp.getName() + " Class name : "
                                     + sp.getClass().getCanonicalName());
@@ -250,6 +258,7 @@ public class PluginManager extends ConsolePanel {
                     ConsoleLayer sp = (ConsoleLayer) pluginsMap.get(activeSelected);
                     getConsole().removeMapLayer(sp);
                     refreshActivePlugins();
+                    warnSettingsWindowRemove(sp);
                     NeptusLog.pub().warn(
                             "Removed layer: " + sp.getName() + " Class name : " + sp.getClass().getCanonicalName());
                 }
@@ -258,6 +267,7 @@ public class PluginManager extends ConsolePanel {
                     ConsoleInteraction sp = (ConsoleInteraction) pluginsMap.get(activeSelected);
                     getConsole().removeInteraction(sp);
                     refreshActivePlugins();
+                    warnSettingsWindowRemove(sp);
                     NeptusLog.pub().warn(
                             "Removed console interaction: " + sp.getName() + " Class name : "
                                     + sp.getClass().getCanonicalName());
@@ -424,5 +434,32 @@ public class PluginManager extends ConsolePanel {
 
     @Override
     public void cleanSubPanel() {
+    }
+    
+    /**
+     * @param settingsWindow the settingsWindow to set
+     */
+    public void setSettingsWindow(SettingsWindow settingsWindow) {
+        this.settingsWindow = settingsWindow;
+    }
+    
+    private void warnSettingsWindowAdd(ConsolePanel sp) {
+        if(this.settingsWindow != null && sp instanceof PropertiesProvider)
+            this.settingsWindow.addPropertiesProvider((PropertiesProvider) sp);
+    }
+
+    private void warnSettingsWindowAdd(AbstractConsolePlugin sp) {
+        if(this.settingsWindow != null && sp instanceof PropertiesProvider)
+            this.settingsWindow.addPropertiesProvider((PropertiesProvider) sp);
+    }
+
+    private void warnSettingsWindowRemove(ConsolePanel sp) {
+        if(this.settingsWindow != null && sp instanceof PropertiesProvider)
+            this.settingsWindow.removePropertiesProvider((PropertiesProvider) sp);
+    }
+
+    private void warnSettingsWindowRemove(AbstractConsolePlugin sp) {
+        if(this.settingsWindow != null && sp instanceof PropertiesProvider)
+            this.settingsWindow.removePropertiesProvider((PropertiesProvider) sp);
     }
 }
