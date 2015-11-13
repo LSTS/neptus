@@ -183,8 +183,8 @@ public class AboutPanel extends JFrame {
                 + "<b>" + I18n.text("Main Developers:") + "</b>"+ "<br/>&nbsp;&nbsp;&nbsp;"
                 + mainDevelopers 
                 + "<br><br>"
-                + "<b>" + I18n.text("Contributers:") + "</b>"  + "<br/>&nbsp;&nbsp;&nbsp;" 
-                + contributersDevelopers + "<br/><br/>"
+                + "<b>" + I18n.text("Contributors:") + "</b>"  + "<br/>&nbsp;&nbsp;&nbsp;" 
+                + contributorsDevelopers + "<br/><br/>"
                 + "<b>" + I18n.text("Past Developers:") + "</b><br/>" 
                 + "&nbsp;&nbsp;&nbsp;" + pastDevelopers + "<br/><br/>" 
                 + "<b>" + I18n.text("Contact info:") + "</b>" 
