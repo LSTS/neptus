@@ -85,6 +85,11 @@ import javax.swing.undo.UndoManager;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.PropertySheet;
+import com.l2fprod.common.propertysheet.PropertySheetDialog;
+import com.l2fprod.common.propertysheet.PropertySheetPanel;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -138,11 +143,6 @@ import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.PropertySheet;
-import com.l2fprod.common.propertysheet.PropertySheetDialog;
-import com.l2fprod.common.propertysheet.PropertySheetPanel;
 
 /**
  * 
@@ -575,36 +575,20 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 String planId = lastPlanId;
                 while (true) {
                     try {
-                        for (Maneuver man : plan.getGraph().getAllManeuvers()) {
-                            if (man instanceof LocatedManeuver) {
-                                ManeuverLocation ml = ((LocatedManeuver) man).getManeuverLocation();
-                                if (ml.getZUnits() == Z_UNITS.NONE) {
-                                    int option_z_units = JOptionPane.showConfirmDialog(getConsole(), 
-                                            I18n.text("Z_UNITS is set to none, are you sure you want to save the plan?"), 
-                                            "Z_UNITS Validation", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-                                    if (option_z_units == JOptionPane.NO_OPTION)
-                                        return;
-                                    else if (option_z_units == JOptionPane.YES_OPTION) {
-                                        break;
-                                    }
-                                }
-                                if (ml.getZUnits() == Z_UNITS.ALTITUDE && ml.getZ() == 0) {
-                                    int option_z_units = JOptionPane.showConfirmDialog(getConsole(),
-                                            I18n.text("Z_UNITS is set to ALTITUDE and value 0, are you sure you want to save the plan?"), 
-                                            "Z_UNITS Validation", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-                                    if (option_z_units == JOptionPane.NO_OPTION)
-                                        return;
-                                    else if (option_z_units == JOptionPane.YES_OPTION) {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                        plan.validatePlan();
                     }
-                        catch (Exception e1) {
-                            e1.printStackTrace();
+                    catch (Exception ex) {
+                        int option = GuiUtils.confirmDialog(getConsole(), I18n.text("Plan Validation"), 
+                                "Are you sure you want to save the plan?\nThe following errors where found:\n - " 
+                                        + ex.getMessage().replaceAll("\n", "\n - "));
+                        if (option == JOptionPane.YES_OPTION)
+                            break;
+                        else
+                            return;
                     }
+                    
                     planId = JOptionPane.showInputDialog(getConsole(), I18n.text("Enter the plan ID"), lastPlanId);
+                    
                     if (planId == null)
                         return;
                     if (getConsole().getMission().getIndividualPlansList().get(planId) != null) {
@@ -612,9 +596,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                                 I18n.text("Do you wish to replace the existing plan with same name?"));
                         if (option == JOptionPane.CANCEL_OPTION)
                             return;
-                        else if (option == JOptionPane.YES_OPTION) {
+                        else if (option == JOptionPane.YES_OPTION)
                             break;
-                        }
                         lastPlanId = planId;
                     }
                     else
