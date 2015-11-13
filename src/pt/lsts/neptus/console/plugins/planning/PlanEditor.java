@@ -574,14 +574,13 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                 String lastPlanId = plan.getId();
                 String planId = lastPlanId;
                 while (true) {
-                    planId = JOptionPane.showInputDialog(getConsole(), I18n.text("Enter the plan ID"), lastPlanId);
                     try {
                         for (Maneuver man : plan.getGraph().getAllManeuvers()) {
                             if (man instanceof LocatedManeuver) {
                                 ManeuverLocation ml = ((LocatedManeuver) man).getManeuverLocation();
                                 if (ml.getZUnits() == Z_UNITS.NONE) {
                                     int option_z_units = JOptionPane.showConfirmDialog(getConsole(), 
-                                            I18n.text("Z_UNITS is set to none, are you sure you want to send the plan?"), 
+                                            I18n.text("Z_UNITS is set to none, are you sure you want to save the plan?"), 
                                             "Z_UNITS Validation", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
                                     if (option_z_units == JOptionPane.NO_OPTION)
                                         return;
@@ -591,7 +590,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                                 }
                                 if (ml.getZUnits() == Z_UNITS.ALTITUDE && ml.getZ() == 0) {
                                     int option_z_units = JOptionPane.showConfirmDialog(getConsole(),
-                                            I18n.text("Z_UNITS is set to ALTITUDE and value 0, are you sure you want to send the plan?"), 
+                                            I18n.text("Z_UNITS is set to ALTITUDE and value 0, are you sure you want to save the plan?"), 
                                             "Z_UNITS Validation", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
                                     if (option_z_units == JOptionPane.NO_OPTION)
                                         return;
@@ -605,6 +604,7 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                         catch (Exception e1) {
                             e1.printStackTrace();
                     }
+                    planId = JOptionPane.showInputDialog(getConsole(), I18n.text("Enter the plan ID"), lastPlanId);
                     if (planId == null)
                         return;
                     if (getConsole().getMission().getIndividualPlansList().get(planId) != null) {
