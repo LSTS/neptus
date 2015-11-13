@@ -579,8 +579,8 @@ public class PlanEditor extends InteractionAdapter implements Renderer2DPainter,
                     }
                     catch (Exception ex) {
                         int option = GuiUtils.confirmDialog(getConsole(), I18n.text("Plan Validation"), 
-                                "Are you sure you want to save the plan?\nThe following errors where found:\n - " 
-                                        + ex.getMessage().replaceAll("\n", "\n - "));
+                                I18n.text("Are you sure you want to save the plan?\nThe following errors where found:")
+                                        +"\n - " + ex.getMessage().replaceAll("\n", "\n - "));
                         if (option == JOptionPane.YES_OPTION)
                             break;
                         else
