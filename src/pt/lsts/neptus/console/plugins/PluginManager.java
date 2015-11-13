@@ -26,7 +26,7 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Hugo
+ * Author: Hugo Dias
  * 14 de Mai de 2013
  */
 package pt.lsts.neptus.console.plugins;
@@ -81,7 +81,8 @@ import com.l2fprod.common.swing.StatusBar;
 import com.sun.java.swing.plaf.windows.WindowsButtonUI;
 
 /**
- * @author Hugo
+ * @author Hugo Dias
+ * @author pdias
  * 
  */
 @Popup(name = "Plugin Manager", icon = "images/buttons/events.png", pos = POSITION.CENTER, width = 500, height = 500, accelerator = 'P')

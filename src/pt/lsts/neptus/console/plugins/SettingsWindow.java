@@ -37,6 +37,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -176,29 +177,52 @@ public class SettingsWindow extends ConsolePanel implements SubPanelChangeListen
         subPanels.clear();
     }
 
-    public void addPropertiesProvider(PropertiesProvider propProvider) {
-        if (propProvider == null)
-            return;
-        
-        if (!subPanels.contains(propProvider)) {
-            boolean ret = subPanels.add(propProvider);
-            if (ret) {
-                settingsPanel.setupNewProviders(subPanels);
-                settingsPanel.reset();
-            }
-        }
+    public void addPropertiesProvider(PropertiesProvider... propProvider) {
+        addRemovePropertiesProviderWorker(propProvider, null);
     }
 
-    public void removePropertiesProvider(PropertiesProvider propProvider) {
-        if (propProvider == null)
-            return;
-        
-        if (subPanels.contains(propProvider)) {
-            boolean ret = subPanels.remove(propProvider);
-            if (ret) {
-                settingsPanel.setupNewProviders(subPanels);
-                settingsPanel.reset();
+    public void removePropertiesProvider(PropertiesProvider... propProvider) {
+        addRemovePropertiesProviderWorker(null, propProvider);
+    }
+
+    public void addRemovePropertiesProvider(ArrayList<PropertiesProvider> propProviderAddList,
+            ArrayList<PropertiesProvider> propProviderRemoveList) {
+        addRemovePropertiesProviderWorker(
+                propProviderAddList == null ? null
+                        : propProviderAddList.toArray(new PropertiesProvider[propProviderAddList.size()]),
+                propProviderRemoveList == null ? null
+                        : propProviderRemoveList.toArray(new PropertiesProvider[propProviderRemoveList.size()]));
+    }
+
+    private void addRemovePropertiesProviderWorker(PropertiesProvider[] propProviderAdd, 
+            PropertiesProvider[] propProviderRemove) {
+        boolean change = false;
+
+        if (propProviderAdd != null) {
+            for (PropertiesProvider pp : propProviderAdd) {
+                if (!subPanels.contains(pp)) {
+                    boolean ret = subPanels.add(pp);
+                    if (ret) {
+                        change = true;
+                    }
+                }
             }
+        }
+
+        if (propProviderRemove != null) {
+            for (PropertiesProvider pp : propProviderRemove) {
+                if (subPanels.contains(pp)) {
+                    boolean ret = subPanels.remove(pp);
+                    if (ret) {
+                        change = true;
+                    }
+                }
+            }
+        }
+        
+        if (change) {
+            settingsPanel.setupNewProviders(subPanels);
+            settingsPanel.reset();
         }
     }
 
