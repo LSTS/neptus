@@ -125,15 +125,17 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
      * @throws Exception If some maneuver has no incoming transitions (unreacheable)
      */
     public boolean validatePlan() throws Exception {
+        ArrayList<String> errors = new ArrayList<>();
         for (Maneuver man : getGraph().getAllManeuvers()) {
             if (man instanceof LocatedManeuver) {
                 ManeuverLocation ml = ((LocatedManeuver) man).getManeuverLocation();
                 if (ml.getZUnits() == Z_UNITS.NONE) {
-                    throw new Exception(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to NONE", man.getId()));
+                    // throw new Exception(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to NONE", man.getId()));
+                    errors.add(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to NONE", man.getId()));
                 }
                 if (ml.getZUnits() == Z_UNITS.ALTITUDE && ml.getZ() == 0) {
-                    throw new Exception(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to ALTITUDE and value 0!",
-                            man.getId()));
+                    // throw new Exception(I18n.textf("The maneuver '%maneuver' has Z_UNITS set to ALTITUDE and value 0!", man.getId()));
+                    errors.add((I18n.textf("The maneuver '%maneuver' has Z_UNITS set to ALTITUDE and value 0!", man.getId())));
                 }
             }
         }
@@ -141,11 +143,27 @@ public class PlanType implements XmlOutputMethods, PropertiesProvider, NameId {
         for (Maneuver man : getGraph().getAllManeuvers()) {
             if (getGraph().getIncomingTransitions(man).isEmpty()
                     && !man.getId().equals(getGraph().getInitialManeuverId())) {
-                throw new Exception(I18n.textf(
+//                throw new Exception(I18n.textf(
+//                        "The maneuver '%maneuver' has no incoming transitions and is not the initial maneuver!",
+//                        man.getId()));
+                errors.add((I18n.textf(
                         "The maneuver '%maneuver' has no incoming transitions and is not the initial maneuver!",
-                        man.getId()));
+                        man.getId())));
             }
         }
+        
+        if (!errors.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            int count = 0;
+            for (String err : errors) {
+                if (count > 0)
+                    sb.append("\n");
+                sb.append(err);
+                count++;
+            }
+            throw new Exception(sb.toString());
+        }
+        
         return true;
     }
 
