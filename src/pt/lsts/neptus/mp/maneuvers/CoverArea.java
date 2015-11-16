@@ -282,7 +282,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         CoverArea compc = new CoverArea();
         String ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
         System.out.println(ccmanXML);
-        CompassCalibration compc1 = new CompassCalibration();
+        CoverArea compc1 = new CoverArea();
         compc1.loadFromXML(ccmanXML);
         ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
         System.out.println(ccmanXML);
