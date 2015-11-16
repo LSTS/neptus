@@ -160,6 +160,7 @@ public class TileMercadorSVG extends Tile {
         if (prm == null) {
             setState(TileState.FATAL_ERROR);
             lasErrorMessage = "Not able to load SVG Map painter!";
+            return;
         }
         setState(TileState.LOADING);
         new Thread(this.getClass().getSimpleName() + " [" + Integer.toHexString(this.hashCode()) + "]") {
