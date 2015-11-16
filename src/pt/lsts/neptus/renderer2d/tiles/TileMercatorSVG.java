@@ -60,15 +60,16 @@ import pt.lsts.neptus.util.coord.MapTileUtil;
  *
  */
 @MapTileProvider(name = "Mercator SVG (Local)")
-public class TileMercadorSVG extends Tile {
+public class TileMercatorSVG extends Tile {
 
     private static final long serialVersionUID = -6947456498157990203L;
 
-    protected static String tileClassId = TileMercadorSVG.class.getSimpleName();
+    protected static String tileClassId = TileMercatorSVG.class.getSimpleName();
     
-    private static Map<String, TileMercadorSVG> tilesMap = Collections.synchronizedMap(new HashMap<String, TileMercadorSVG>());
+    private static Map<String, TileMercatorSVG> tilesMap = Collections.synchronizedMap(new HashMap<String, TileMercatorSVG>());
     
     private static final Object lock = new Object();
+    private static Boolean docLoaded = false;
 
     protected static final String fxWM = "/images/World_Blank_Map_Mercator_projection.svg";
 
@@ -90,15 +91,22 @@ public class TileMercadorSVG extends Tile {
     private static PageFormat page;
 
     {
-        prm = loadWorld(fxWM, w, h);
-        Paper paper = new Paper();
-        paper.setSize(w, h);
-        paper.setImageableArea(0, 0, w, h);
-        page = new PageFormat();
-        page.setPaper(paper);
+        if (!docLoaded) {
+            synchronized (docLoaded) {
+                if (!docLoaded) {
+                    prm = loadWorld(fxWM, w, h);
+                    Paper paper = new Paper();
+                    paper.setSize(w, h);
+                    paper.setImageableArea(0, 0, w, h);
+                    page = new PageFormat();
+                    page.setPaper(paper);
+                    docLoaded = true;
+                }
+            }
+        }
     }
 
-    public TileMercadorSVG(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
+    public TileMercatorSVG(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
         super(levelOfDetail, tileX, tileY, image);
     }
     
@@ -106,7 +114,7 @@ public class TileMercadorSVG extends Tile {
      * @param id
      * @throws Exception
      */
-    public TileMercadorSVG(String id) throws Exception {
+    public TileMercatorSVG(String id) throws Exception {
         super(id);
     }
 
@@ -160,6 +168,7 @@ public class TileMercadorSVG extends Tile {
         if (prm == null) {
             setState(TileState.FATAL_ERROR);
             lasErrorMessage = "Not able to load SVG Map painter!";
+            return;
         }
         setState(TileState.LOADING);
         new Thread(this.getClass().getSimpleName() + " [" + Integer.toHexString(this.hashCode()) + "]") {
@@ -186,13 +195,13 @@ public class TileMercadorSVG extends Tile {
                 g2.scale(zt, zt);
                 g2.translate(offsetX, offsetY);
                 synchronized (lock) {
-                    if (TileMercadorSVG.this.getState() != TileState.DISPOSING) {
+                    if (TileMercatorSVG.this.getState() != TileState.DISPOSING) {
                         if (gg != null)
                             prm.print(gg, page, 0);
                     }
                     else
                         return;
-                    if (TileMercadorSVG.this.getState() != TileState.DISPOSING)
+                    if (TileMercatorSVG.this.getState() != TileState.DISPOSING)
                         prm.print(g2, page, 0);
                     else
                         return;
@@ -206,7 +215,7 @@ public class TileMercadorSVG extends Tile {
                 
 //                loadTransformedImage();
                 
-                TileMercadorSVG.this.setState(TileState.LOADED);
+                TileMercatorSVG.this.setState(TileState.LOADED);
                 saveTile();
                 //NeptusLog.pub().info("<###> "+image);
             }
@@ -252,7 +261,7 @@ public class TileMercadorSVG extends Tile {
      * @return 
      * 
      */
-    public static Vector<TileMercadorSVG> loadCache() {
+    public static Vector<TileMercatorSVG> loadCache() {
         return loadCache(tileClassId);
     }
 
