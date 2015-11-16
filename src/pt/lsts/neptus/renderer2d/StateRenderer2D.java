@@ -90,7 +90,7 @@ import pt.lsts.neptus.mp.MapChangeListener;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.planeditor.IEditorMenuExtension;
 import pt.lsts.neptus.planeditor.IMapPopup;
-import pt.lsts.neptus.renderer2d.tiles.TileMercadorSVG;
+import pt.lsts.neptus.renderer2d.tiles.TileMercatorSVG;
 import pt.lsts.neptus.types.coord.CoordinateSystem;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -195,7 +195,7 @@ CustomInteractionSupport, IMapPopup, FocusListener {
     protected HashSet<String> vehiclesTailOn = new HashSet<String>();
 
     protected boolean worldMapShown = true, worldBondariesShown = false;
-    protected String worldMapStyle = TileMercadorSVG.getTileStyleID();
+    protected String worldMapStyle = TileMercatorSVG.getTileStyleID();
 
     protected boolean gridShown = false, showDots = false, legendShown = false;
     // protected boolean vehicleSymbolShown = true;
