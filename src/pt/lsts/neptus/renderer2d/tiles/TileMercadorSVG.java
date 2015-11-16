@@ -69,6 +69,7 @@ public class TileMercadorSVG extends Tile {
     private static Map<String, TileMercadorSVG> tilesMap = Collections.synchronizedMap(new HashMap<String, TileMercadorSVG>());
     
     private static final Object lock = new Object();
+    private static Boolean docLoaded = false;
 
     protected static final String fxWM = "/images/World_Blank_Map_Mercator_projection.svg";
 
@@ -90,12 +91,19 @@ public class TileMercadorSVG extends Tile {
     private static PageFormat page;
 
     {
-        prm = loadWorld(fxWM, w, h);
-        Paper paper = new Paper();
-        paper.setSize(w, h);
-        paper.setImageableArea(0, 0, w, h);
-        page = new PageFormat();
-        page.setPaper(paper);
+        if (!docLoaded) {
+            synchronized (docLoaded) {
+                if (!docLoaded) {
+                    prm = loadWorld(fxWM, w, h);
+                    Paper paper = new Paper();
+                    paper.setSize(w, h);
+                    paper.setImageableArea(0, 0, w, h);
+                    page = new PageFormat();
+                    page.setPaper(paper);
+                    docLoaded = true;
+                }
+            }
+        }
     }
 
     public TileMercadorSVG(Integer levelOfDetail, Integer tileX, Integer tileY, BufferedImage image) throws Exception {
