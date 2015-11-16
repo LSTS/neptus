@@ -51,10 +51,13 @@ import java.util.Vector;
 
 import javax.swing.JPopupMenu;
 
+import org.dom4j.Document;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PolygonVertex;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
@@ -67,9 +70,11 @@ import pt.lsts.neptus.types.map.PlanElement;
  * @author zp
  * 
  */
-public class CoverArea extends AbstractImcManeuver<pt.lsts.imc.CoverArea> implements StateRendererInteraction, IMCSerialization {
+public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerialization, StateRendererInteraction{
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
+    
+    public ManeuverLocation location = new ManeuverLocation();
 
     @NeptusProperty(name = "polygon", editable = false)
     public String polygonPoints = "";
@@ -77,21 +82,22 @@ public class CoverArea extends AbstractImcManeuver<pt.lsts.imc.CoverArea> implem
     protected Vector<LocationType> points = new Vector<LocationType>();
 
     public CoverArea() {
-        super(new pt.lsts.imc.CoverArea());
+        
     }
 
     @Override
-    public void parseIMCMessage(IMCMessage msg) {
-        super.parseIMCMessage(msg);
-        
+    public void parseIMCMessage(IMCMessage message) {
+        //super.parseIMCMessage(msg);
+        pt.lsts.imc.CoverArea area = null;
         try {
+            area = pt.lsts.imc.CoverArea.clone(message);
             points.clear();
             Vector<PolygonVertex> vertices = message.getMessageList("polygon", PolygonVertex.class);
             for (PolygonVertex v : vertices)
                 points.add(new LocationType(Math.toDegrees(v.getLat()), Math.toDegrees(v.getLon())));            
         }        
         catch (Exception e) {
-            NeptusLog.pub().error("Error parsing message of type "+message.getAbbrev(), e);
+            e.printStackTrace();
             return;
         }
     }
@@ -103,10 +109,10 @@ public class CoverArea extends AbstractImcManeuver<pt.lsts.imc.CoverArea> implem
         
         for (LocationType pt : points )
             vertices.add(PolygonVertex.create("lat", pt.getLatitudeRads(), "lon", pt.getLongitudeRads()));
+        pt.lsts.imc.CoverArea coverArea = new pt.lsts.imc.CoverArea();
+        coverArea.setMessageList(vertices, "polygon");
         
-        message.setMessageList(vertices, "polygon");
-        
-        return super.serializeToIMC();
+        return coverArea;
     }
 
     @Override
@@ -272,21 +278,73 @@ public class CoverArea extends AbstractImcManeuver<pt.lsts.imc.CoverArea> implem
     }
 
     public static void main(String[] args) {
-        CoverArea area = new CoverArea();
-
-        NeptusLog.pub().info("<###> "+area.asXML());
         
         CoverArea compc = new CoverArea();
         String ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
         System.out.println(ccmanXML);
-        CoverArea compc1 = new CoverArea();
+        CompassCalibration compc1 = new CompassCalibration();
         compc1.loadFromXML(ccmanXML);
         ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
         System.out.println(ccmanXML);
+        
     }
     
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
         
+    }
+
+    @Override
+    public ManeuverLocation getManeuverLocation() {
+        return location.clone();
+    }
+
+    @Override
+    public ManeuverLocation getEndLocation() {
+        return getManeuverLocation();
+    }
+
+    @Override
+    public ManeuverLocation getStartLocation() {
+        return getManeuverLocation();
+    }
+
+    @Override
+    public void setManeuverLocation(ManeuverLocation loc) {
+        location = loc.clone();
+    }
+
+    @Override
+    public void translate(double offsetNorth, double offsetEast, double offsetDown) {
+        getManeuverLocation().translatePosition(offsetNorth, offsetEast, offsetDown);
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.Maneuver#loadFromXML(java.lang.String)
+     */
+    @Override
+    public void loadFromXML(String xml) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Object clone() {
+        CoverArea clone = new CoverArea();
+        super.clone(clone);
+        clone.setManeuverLocation(getManeuverLocation());
+        clone.id = id;
+        clone.location = location;
+        clone.polygonPoints = polygonPoints;
+        return clone;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mp.Maneuver#getManeuverAsDocument(java.lang.String)
+     */
+    @Override
+    public Document getManeuverAsDocument(String rootElementName) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
