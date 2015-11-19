@@ -64,7 +64,7 @@ public class PhotoToolbar extends JPanel {
     protected double startTime, endTime;
     protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
     
-    static boolean has_ocv = false;
+    protected static boolean hasOcv = false;
     
     public PhotoToolbar(MraPhotosVisualization display) {
         this.display = display;
@@ -199,7 +199,7 @@ public class PhotoToolbar extends JPanel {
         add(legendToggle);
         
         //!Find OPENCV JNI
-        has_ocv = SearchOpenCv.SearchJni();
+        hasOcv = SearchOpenCv.SearchJni();
         
         histGrayFilter = new JToggleButton("H/G");
         histGrayFilter.addActionListener(new ActionListener() {
@@ -214,7 +214,7 @@ public class PhotoToolbar extends JPanel {
                 display.setCurFile(display.getCurFile());
             }
         });
-        if (has_ocv)
+        if (hasOcv)
             histGrayFilter.setToolTipText(I18n.text("Histogram Equalization Gray Filter"));
         else {
             histGrayFilter.setEnabled(false);
@@ -236,7 +236,7 @@ public class PhotoToolbar extends JPanel {
                 display.setCurFile(display.getCurFile());
             }
         });
-        if (has_ocv) {
+        if (hasOcv) {
             histColorFilter.setToolTipText(I18n.text("Histogram Equalization Color Filter"));
         }
         else {
