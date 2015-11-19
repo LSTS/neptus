@@ -308,7 +308,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     public Vision(ConsoleLayout console) {
         super(console);
-        if(findOpenCV()){
+        if(findOpenCV()) {
             //clears all the unused initializations of the standard ConsolePanel
             removeAll();
             //!Resize Console
@@ -331,7 +331,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             addMouseListener(new MouseAdapter() {
                 public void mouseClicked(MouseEvent e) {
                     if (e.getButton() == MouseEvent.BUTTON1){
-                        if(raspiCam || ipCam){
+                        if(raspiCam || ipCam) {
                             xPixel = (int) ((e.getX() - 11) / xScale);  //shift window bar
                             yPixel = (int) ((e.getY() - 11) / yScale) ; //shift window bar
                             if(raspiCam && !ipCam && tcpOK) {
@@ -356,7 +356,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         popup.add(item2 = new JMenuItem(I18n.text("Close all connections"), new ImageIcon(String.format(BASE_FOLDER_FOR_ICON_IMAGES + "/close.gif")))).addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent e) {
                                 NeptusLog.pub().info("Clossing all Video Stream...");
-                                if(raspiCam && tcpOK){
+                                if(raspiCam && tcpOK) {
                                     try {
                                         clientSocket.close();
                                     }
@@ -394,15 +394,15 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             this.addKeyListener(new KeyListener() {            
                 @Override
                 public void keyReleased(KeyEvent e) {
-                    if(e.getKeyCode() == KeyEvent.VK_Z && zoomMask){
+                    if(e.getKeyCode() == KeyEvent.VK_Z && zoomMask) {
                         zoomMask = false;
                         popupzoom.setVisible(false);
                     }
                 }
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    if((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0) && !zoomMask){
-                        if(raspiCam || ipCam){
+                    if((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0) && !zoomMask) {
+                        if(raspiCam || ipCam) {
                             zoomMask = true;
                             popupzoom.add(zoomImg);
                         }
@@ -411,7 +411,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                         checkIpCam();
                     else if((e.getKeyCode() == KeyEvent.VK_R) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
                         checkHostIp();
-                    else if((e.getKeyCode() == KeyEvent.VK_X) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)){
+                    else if((e.getKeyCode() == KeyEvent.VK_X) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
                         NeptusLog.pub().info("Clossing all Video Stream...");
                         raspiCam = false;
                         state = false;
@@ -419,7 +419,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                     }
                     else if((e.getKeyCode() == KeyEvent.VK_C) && ((e.getModifiers() & KeyEvent.ALT_MASK) != 0))
                         menu.setVisible(true);
-                    else if(e.getKeyChar() == 'z' && zoomMask){
+                    else if(e.getKeyChar() == 'z' && zoomMask) {
                         int xLocMouse = MouseInfo.getPointerInfo().getLocation().x - getLocationOnScreen().x - 11;
                         int yLocMouse = MouseInfo.getPointerInfo().getLocation().y - getLocationOnScreen().y - 11;
                         if(xLocMouse < 0)
@@ -445,8 +445,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             });
             this.setFocusable(true);
         }
-        else
-        {
+        else {
             NeptusLog.pub().error("Opencv not found.");
             closingPanel = true;
             
@@ -479,7 +478,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //!Check ip given by user
-    private void checkHostIp(){
+    private void checkHostIp() {
         ipHostPing = new JFrame(I18n.text("Host IP")+" - RasPiCam");
         ipHostPing.setSize(340, 80);
         ipHostPing.setLocation(dim.width/2-ipCamPing.getSize().width/2, dim.height/2-ipCamPing.getSize().height/2);
@@ -494,7 +493,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         hostIp.setValue(new String());
         hostIp.setColumns(8);
         hostIp.setValue(ipHost);
-        hostIp.addPropertyChangeListener("value", new PropertyChangeListener(){
+        hostIp.addPropertyChangeListener("value", new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 ipHost = new String((String) evt.getNewValue());
@@ -508,16 +507,14 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         colorStateIpCam.add(jlabel);
         ipHostCheck.add(colorStateIpCam,"h 30!, w 30!");
         selectIpCam = new JButton(I18n.text("Check"));
-        selectIpCam.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                if(pingIpCam(ipHost)){
+        selectIpCam.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if(pingIpCam(ipHost)) {
                     colorStateIpCam.setBackground(Color.GREEN);
                     jlabel.setText("ON");
                     pingHostOk = true;
                 }
-                else{
+                else {
                     colorStateIpCam.setBackground(Color.RED);
                     jlabel.setText("OFF");
                     pingHostOk = false;
@@ -526,18 +523,16 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         });
         ipHostCheck.add(selectIpCam,"h 30!");
         selectIpCam = new JButton(I18n.text("OK"));
-        selectIpCam.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                if(pingHostOk){
+        selectIpCam.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if(pingHostOk) {
                     ipHostPing.setVisible(false);
-                    if(!ipCam){
+                    if(!ipCam) {
                         raspiCam = true;
                         ipCam = false;
                         closeComState = false;
                     }
-                    else{
+                    else {
                         NeptusLog.pub().info("Clossing IpCam Stream...");
                         closeComState = false;
                         raspiCam = true;
@@ -554,7 +549,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     //!Read ipUrl.ini to find IpCam ON
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void checkIpCam(){
+    private void checkIpCam() {
         String dataUrlIni[][];
         dataUrlIni = readIpUrl();
         int sizeDataUrl = dataUrlIni.length;
@@ -572,23 +567,23 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         ipCamPing.setBackground(Color.GRAY);                  
         ipCamList = new JComboBox(nameIpCam);
         ipCamList.setSelectedIndex(0);
-        ipCamList.addActionListener(new ActionListener(){
+        ipCamList.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JComboBox cb = (JComboBox)e.getSource();
                 rowSelect = cb.getSelectedIndex();
-                if(rowSelect != 0){
-                    if(pingIpCam(dataUrlIni[rowSelect][1])){
+                if(rowSelect != 0) {
+                    if(pingIpCam(dataUrlIni[rowSelect][1])) {
                         camRtpsUrl = dataUrlIni[rowSelect][2];
                         colorStateIpCam.setBackground(Color.GREEN);
                         jlabel.setText("ON");
                     }
-                    else{
+                    else {
                         colorStateIpCam.setBackground(Color.RED);
                         jlabel.setText("OFF");
                     }   
                 }
-                else{
+                else {
                     statePingOk = false;
                     colorStateIpCam.setBackground(Color.RED);
                     jlabel.setText("OFF");
@@ -605,19 +600,17 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         ipCamCheck.add(colorStateIpCam,"h 30!, w 30!");
         
         selectIpCam = new JButton(I18n.text("Select IpCam"), imgIpCam);
-        selectIpCam.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                if(statePingOk){
+        selectIpCam.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if(statePingOk) {
                     NeptusLog.pub().info("IpCam Select: "+dataUrlIni[rowSelect][0]);
                     ipCamPing.setVisible(false);
-                    if(!raspiCam){
+                    if(!raspiCam) {
                         ipCam = true;
                         raspiCam = false;
                         state = false;
                     }
-                    else{
+                    else {
                         NeptusLog.pub().info("Clossing RasPiCam Stream...");
                         ipCam = true;
                         raspiCam = false;
@@ -633,21 +626,23 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //!Ping CamIp
-    private boolean pingIpCam (String host){
+    private boolean pingIpCam (String host) {
         boolean ping = false;
         try {
             String cmd = "";
             if(System.getProperty("os.name").startsWith("Windows")) {   
                     // For Windows
                     cmd = "ping -n 1 " + host;
-            } else {
+            }
+            else {
                     // For Linux and OSX
                     cmd = "ping -c 1 " + host;
             }
             Process myProcess = Runtime.getRuntime().exec(cmd);
             try {
                 myProcess.waitFor();
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 e.printStackTrace();
             }
             if(myProcess.exitValue() == 0)
@@ -667,7 +662,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //!Read file
-    private String[][] readIpUrl(){
+    private String[][] readIpUrl() {
         //Open the file for reading and split (#)
         BufferedReader br = null;
         String lineFile;
@@ -915,98 +910,15 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //!Find OPENCV JNI in host PC
-    private boolean findOpenCV(){
-        boolean result = false;
-        String libOpencv = new String();
+    private boolean findOpenCV() {
+        
         File dir = new File("/usr/lib/jni");
-        String[] children = dir.list();
-        if (children == null) {
-            //NeptusLog.pub().error("/usr/lib/jni not exist to search Opencv jni");
-        }
-        else {
-           for (int i = 0; i < children.length; i++) {
-              String filename = children[i];
-              if(filename.equalsIgnoreCase("libopencv_java240.so"))
-                  libOpencv = "opencv_java240";
-              else if(filename.equalsIgnoreCase("libopencv_java241.so"))
-                  libOpencv = "opencv_java241";
-              else if(filename.equalsIgnoreCase("libopencv_java242.so"))
-                  libOpencv = "opencv_java242";
-              else if(filename.equalsIgnoreCase("libopencv_java243.so"))
-                  libOpencv = "opencv_java243";
-              else if(filename.equalsIgnoreCase("libopencv_java244.so"))
-                  libOpencv = "opencv_java244";
-              else if(filename.equalsIgnoreCase("libopencv_java245.so"))
-                  libOpencv = "opencv_java245";
-              else if(filename.equalsIgnoreCase("libopencv_java246.so"))
-                  libOpencv = "opencv_java246";
-              else if(filename.equalsIgnoreCase("libopencv_java247.so"))
-                  libOpencv = "opencv_java247";
-              else if(filename.equalsIgnoreCase("libopencv_java248.so"))
-                  libOpencv = "opencv_java248";
-              else if(filename.equalsIgnoreCase("libopencv_java249.so"))
-                  libOpencv = "opencv_java249";
-              else if(filename.equalsIgnoreCase("libopencv_java2410.so"))
-                  libOpencv = "opencv_java2410";
-              else if(filename.equalsIgnoreCase("libopencv_java2411.so"))
-                  libOpencv = "opencv_java2411";
-              else if(filename.equalsIgnoreCase("libopencv_java2412.so"))
-                  libOpencv = "opencv_java2412";
-           }
-        }
-                
-        try {
-            System.loadLibrary(libOpencv);
-            return true;
-        }
-        catch (Exception e) {
-            try {
-                System.loadLibrary("opencv_java2411");
-                System.loadLibrary("libopencv_core2411");
-                System.loadLibrary("libopencv_highgui2411");
-                try {
-                    System.loadLibrary("opencv_ffmpeg2411_64");
-                    }
-                catch (Exception e1) {
-                    System.loadLibrary("opencv_ffmpeg2411");
-                }
-                catch (Error e1) {
-                    System.loadLibrary("opencv_ffmpeg2411");
-                }
-                result = true;
-            }
-            catch (Exception e1) {
-                NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
-                result = false;
-            }
-            return result;
-        }
-        catch (Error e) {
-            try {
-                System.loadLibrary("opencv_java2411");
-                System.loadLibrary("libopencv_core2411");
-                System.loadLibrary("libopencv_highgui2411");
-                try {
-                    System.loadLibrary("opencv_ffmpeg2411_64");
-                    }
-                catch (Exception e1) {
-                    System.loadLibrary("opencv_ffmpeg2411");
-                }
-                catch (Error e1) {
-                    System.loadLibrary("opencv_ffmpeg2411");
-                }
-                result = true;
-            }
-            catch (Error e1) {
-                NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
-                result = false;
-            }
-            return result;
-        }
+        SearchOpenCv opencvJni = new SearchOpenCv();
+        return opencvJni.SearchJni(dir);
     }
     
     //Get size of image
-    private void initSizeImage(){
+    private void initSizeImage() {
         //Width size of image
         try {
             widthImgRec = Integer.parseInt(in.readLine());
@@ -1036,22 +948,22 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             @Override
             public void run() {
                 inicImage();
-                while(true){
+                while(true) {
                     if (closingPanel) {
                         raspiCam = false;
                         state = false;
                         ipCam = false;
                     }
                     else if (raspiCam && !ipCam ) {
-                        if(state == false){
+                        if(state == false) {
                             //connection
-                            if(tcpConnection()){
+                            if(tcpConnection()) {
                                 //receive info of image size
                                 initSizeImage();
                                 state = true;
                             }
                         }
-                        else{
+                        else {
                             //receive data image
                             if(!closeComState)
                                 receivedDataImage();
@@ -1067,12 +979,12 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             mat = new Mat(heightImgRec, widthImgRec, CvType.CV_8UC3);
                             capture = new VideoCapture();
                             capture.open(camRtpsUrl);
-                            if (capture.isOpened()){
+                            if (capture.isOpened()) {
                                 state = true;
                                 cntTag = 1;
                                 NeptusLog.pub().info("Video Strem from IpCam is captured");
                             }
-                            else{
+                            else {
                                 ipCam = false;
                                 NeptusLog.pub().info("Video Strem from IpCam is not captured");
                             }
@@ -1082,7 +994,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             long startTime = System.currentTimeMillis();
                             capture.grab();
                             capture.read(mat);
-                            while(mat.empty()){
+                            while(mat.empty()) {
                                 System.out.println("ERRO");
                                 capture.read(mat);
                             }
@@ -1139,9 +1051,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         Thread si = new Thread("Save Image") {
             @Override
             public void run() {
-                while(true){
+                while(true) {
                     if (raspiCam || ipCam) {
-                        if(flagBuffImg == true){
+                        if(flagBuffImg == true) {
                             //flagBuffImg = false;
                             long startTime = System.currentTimeMillis();
                             String imageJpeg = String.format("%s/imageSave/%d.jpeg",logDir,cnt);
@@ -1158,7 +1070,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                                 stopTime = System.currentTimeMillis();
                             }
                         }
-                        else{
+                        else {
                             try {
                                 TimeUnit.MILLISECONDS.sleep(100);
                             }
@@ -1167,7 +1079,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                             }
                         }     
                     }
-                    else{
+                    else {
                         try {
                             TimeUnit.MILLISECONDS.sleep(1000);
                         }
@@ -1188,7 +1100,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     @Subscribe
     public void consume(EstimatedState msg) {   
         //System.out.println("Source Name "+msg.getSourceName()+"ID "+getMainVehicleId());
-        if(msg.getSourceName().equals(getMainVehicleId())){
+        if(msg.getSourceName().equals(getMainVehicleId())) {
             try {
                 //! update the position of target
                 //LAT and LON rad
@@ -1229,7 +1141,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
      * @param camTiltDeg
      * @return
      */
-    public LocationType calcTagPosition(LocationType locationType, double orientationDegrees, double camTiltDeg){
+    public LocationType calcTagPosition(LocationType locationType, double orientationDegrees, double camTiltDeg) {
         double altitude = locationType.getHeight();
         double dist = Math.tan(Math.toRadians(camTiltDeg))*(Math.abs(altitude));// hypotenuse
         double offsetN = Math.cos(Math.toRadians(orientationDegrees))*dist;//oposite side
@@ -1246,7 +1158,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //!Fill cv::Mat image with zeros
-    public void inicImage(){
+    public void inicImage() {
         Scalar black = new Scalar(0);
         matResize.setTo(black);
         temp=matToBufferedImage(matResize);
@@ -1254,7 +1166,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //!Received data Image
-    public void receivedDataImage(){
+    public void receivedDataImage() {
         long startTime = System.currentTimeMillis();
         try {
             line = in.readLine();
@@ -1274,7 +1186,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 e1.printStackTrace();
             }
         }
-        else{        
+        else {        
             lengthImage = Integer.parseInt(line);
             //buffer for save data receive
             data = new byte[lengthImage];
@@ -1365,7 +1277,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //!Close TCP COM
-    public void closeTcpCom(){
+    public void closeTcpCom() {
         try {
             is.close();
         }
@@ -1388,7 +1300,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //!Create Socket service
-    public boolean tcpConnection(){
+    public boolean tcpConnection() {
         //Socket Config    
         NeptusLog.pub().info("Waiting for connection from RasPiCam...");
         try { 
@@ -1470,7 +1382,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     }
     
     //!Zoom in
-    public void getCutImage(BufferedImage imageToCut, int w, int h){
+    public void getCutImage(BufferedImage imageToCut, int w, int h) {
         zoomImgCut = new BufferedImage (100, 100, BufferedImage.TYPE_3BYTE_BGR);
         for( int i = -50; i < 50; i++ )
             for( int j = -50; j < 50; j++ )
