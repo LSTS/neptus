@@ -43,7 +43,7 @@ import pt.lsts.neptus.NeptusLog;
  */
 public class SearchOpenCv {
     
-    public boolean SearchJni(File path) {
+    public static boolean SearchJni(File path) {
         boolean result = false;
         String libOpencv = new String();
         String[] children = path.list();

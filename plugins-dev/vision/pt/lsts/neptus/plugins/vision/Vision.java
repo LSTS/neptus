@@ -913,8 +913,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private boolean findOpenCV() {
         
         File dir = new File("/usr/lib/jni");
-        SearchOpenCv opencvJni = new SearchOpenCv();
-        return opencvJni.SearchJni(dir);
+        return SearchOpenCv.SearchJni(dir);
     }
     
     //Get size of image

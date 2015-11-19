@@ -44,7 +44,6 @@ import javax.swing.JColorChooser;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.vision.SearchOpenCv;
 import pt.lsts.neptus.util.ImageUtils;
@@ -200,8 +199,7 @@ public class PhotoToolbar extends JPanel {
         //!Find OPENCV JNI
         boolean has_ocv = false;
         File dir = new File("/usr/lib/jni");
-        SearchOpenCv opencvJni = new SearchOpenCv();
-        has_ocv = opencvJni.SearchJni(dir);
+        has_ocv = SearchOpenCv.SearchJni(dir);
         
         histGrayFilter = new JToggleButton("H/G");
         histGrayFilter.addActionListener(new ActionListener() {
