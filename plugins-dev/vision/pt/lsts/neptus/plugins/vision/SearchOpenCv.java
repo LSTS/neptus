@@ -43,15 +43,13 @@ import pt.lsts.neptus.NeptusLog;
  */
 public class SearchOpenCv {
     
-    public static boolean SearchJni(File path) {
+    public static boolean SearchJni() {
+        File path = new File("/usr/lib/jni");
         boolean result = false;
         String libOpencv = new String();
         String[] children = path.list();
-        if (children == null) {
-            //NeptusLog.pub().error("/usr/lib/jni not exist to search Opencv jni");
-        }
-        else {
-           for (int i = 0; i < children.length; i++) {
+        if (children != null) {
+            for (int i = 0; i < children.length; i++) {
               String filename = children[i];
               if(filename.equalsIgnoreCase("libopencv_java240.so"))
                   libOpencv = "opencv_java240";

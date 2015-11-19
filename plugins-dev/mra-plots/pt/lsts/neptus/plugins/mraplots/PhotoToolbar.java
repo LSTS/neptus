@@ -63,7 +63,9 @@ public class PhotoToolbar extends JPanel {
     protected File[] allFiles;
     protected double startTime, endTime;
     protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
-
+    
+    static boolean has_ocv = false;
+    
     public PhotoToolbar(MraPhotosVisualization display) {
         this.display = display;
         allFiles = MraPhotosVisualization.listPhotos(display.getPhotosDir()); 
@@ -197,9 +199,7 @@ public class PhotoToolbar extends JPanel {
         add(legendToggle);
         
         //!Find OPENCV JNI
-        boolean has_ocv = false;
-        File dir = new File("/usr/lib/jni");
-        has_ocv = SearchOpenCv.SearchJni(dir);
+        has_ocv = SearchOpenCv.SearchJni();
         
         histGrayFilter = new JToggleButton("H/G");
         histGrayFilter.addActionListener(new ActionListener() {
