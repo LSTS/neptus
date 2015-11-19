@@ -911,7 +911,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     
     //!Find OPENCV JNI in host PC
     private boolean findOpenCV() {
-        return SearchOpenCv.SearchJni();
+        return SearchOpenCv.searchJni();
     }
     
     //Get size of image

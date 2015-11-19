@@ -199,7 +199,7 @@ public class PhotoToolbar extends JPanel {
         add(legendToggle);
         
         //!Find OPENCV JNI
-        hasOcv = SearchOpenCv.SearchJni();
+        hasOcv = SearchOpenCv.searchJni();
         
         histGrayFilter = new JToggleButton("H/G");
         histGrayFilter.addActionListener(new ActionListener() {

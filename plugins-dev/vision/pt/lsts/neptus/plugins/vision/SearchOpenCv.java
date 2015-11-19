@@ -45,9 +45,11 @@ public class SearchOpenCv {
     
     private static Boolean resultState = null;
     
-    public static boolean SearchJni() {
+    private SearchOpenCv() {
+    }
+    
+    public synchronized static boolean searchJni() {
         File path = new File("/usr/lib/jni");
-        boolean result = false;
         if(resultState == null) {
             resultState = false;
             String libOpencv = new String();
@@ -72,22 +74,20 @@ public class SearchOpenCv {
                     System.loadLibrary("libopencv_highgui2411");
                     try {
                         System.loadLibrary("opencv_ffmpeg2411_64");
-                        }
+                    }
                     catch (Exception e1) {
                         System.loadLibrary("opencv_ffmpeg2411");
                     }
                     catch (Error e1) {
                         System.loadLibrary("opencv_ffmpeg2411");
                     }
-                    result = true;
                     resultState = true;
                 }
                 catch (Exception e1) {
                     NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
-                    result = false;
                     resultState = false;
                 }
-                return result;
+                return resultState;
             }
             catch (Error e) {
                 try {
@@ -103,22 +103,15 @@ public class SearchOpenCv {
                     catch (Error e1) {
                         System.loadLibrary("opencv_ffmpeg2411");
                     }
-                    result = true;
                     resultState = true;
                 }
                 catch (Error e1) {
                     NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
-                    result = false;
                     resultState = false;
                 }
             }
         }
-        else
-            if(resultState == false)
-                result = false;
-            else
-                result = true;
         
-        return result;
+        return resultState;
     }
 }
