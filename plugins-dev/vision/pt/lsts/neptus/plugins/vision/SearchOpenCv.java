@@ -43,90 +43,106 @@ import pt.lsts.neptus.NeptusLog;
  */
 public class SearchOpenCv {
     
+    private static Boolean checkState = null;
+    private static Boolean resultState = null;
+    
     public static boolean SearchJni() {
         File path = new File("/usr/lib/jni");
         boolean result = false;
-        String libOpencv = new String();
-        String[] children = path.list();
-        if (children != null) {
-            for (int i = 0; i < children.length; i++) {
-              String filename = children[i];
-              if(filename.equalsIgnoreCase("libopencv_java240.so"))
-                  libOpencv = "opencv_java240";
-              else if(filename.equalsIgnoreCase("libopencv_java241.so"))
-                  libOpencv = "opencv_java241";
-              else if(filename.equalsIgnoreCase("libopencv_java242.so"))
-                  libOpencv = "opencv_java242";
-              else if(filename.equalsIgnoreCase("libopencv_java243.so"))
-                  libOpencv = "opencv_java243";
-              else if(filename.equalsIgnoreCase("libopencv_java244.so"))
-                  libOpencv = "opencv_java244";
-              else if(filename.equalsIgnoreCase("libopencv_java245.so"))
-                  libOpencv = "opencv_java245";
-              else if(filename.equalsIgnoreCase("libopencv_java246.so"))
-                  libOpencv = "opencv_java246";
-              else if(filename.equalsIgnoreCase("libopencv_java247.so"))
-                  libOpencv = "opencv_java247";
-              else if(filename.equalsIgnoreCase("libopencv_java248.so"))
-                  libOpencv = "opencv_java248";
-              else if(filename.equalsIgnoreCase("libopencv_java249.so"))
-                  libOpencv = "opencv_java249";
-              else if(filename.equalsIgnoreCase("libopencv_java2410.so"))
-                  libOpencv = "opencv_java2410";
-              else if(filename.equalsIgnoreCase("libopencv_java2411.so"))
-                  libOpencv = "opencv_java2411";
-              else if(filename.equalsIgnoreCase("libopencv_java2412.so"))
-                  libOpencv = "opencv_java2412";
-           }
-        }
-                
-        try {
-            System.loadLibrary(libOpencv);
-            return true;
-        }
-        catch (Exception e) {
+        if(checkState == null) {
+            checkState = true;
+            String libOpencv = new String();
+            String[] children = path.list();
+            if (children != null) {
+                for (int i = 0; i < children.length; i++) {
+                    String filename = children[i];
+                    if(filename.equalsIgnoreCase("libopencv_java240.so"))
+                        libOpencv = "opencv_java240";
+                    else if(filename.equalsIgnoreCase("libopencv_java241.so"))
+                        libOpencv = "opencv_java241";
+                    else if(filename.equalsIgnoreCase("libopencv_java242.so"))
+                        libOpencv = "opencv_java242";
+                    else if(filename.equalsIgnoreCase("libopencv_java243.so"))
+                        libOpencv = "opencv_java243";
+                    else if(filename.equalsIgnoreCase("libopencv_java244.so"))
+                        libOpencv = "opencv_java244";
+                    else if(filename.equalsIgnoreCase("libopencv_java245.so"))
+                        libOpencv = "opencv_java245";
+                    else if(filename.equalsIgnoreCase("libopencv_java246.so"))
+                        libOpencv = "opencv_java246";
+                    else if(filename.equalsIgnoreCase("libopencv_java247.so"))
+                        libOpencv = "opencv_java247";
+                    else if(filename.equalsIgnoreCase("libopencv_java248.so"))
+                        libOpencv = "opencv_java248";
+                    else if(filename.equalsIgnoreCase("libopencv_java249.so"))
+                        libOpencv = "opencv_java249";
+                    else if(filename.equalsIgnoreCase("libopencv_java2410.so"))
+                        libOpencv = "opencv_java2410";
+                    else if(filename.equalsIgnoreCase("libopencv_java2411.so"))
+                        libOpencv = "opencv_java2411";
+                    else if(filename.equalsIgnoreCase("libopencv_java2412.so"))
+                        libOpencv = "opencv_java2412";
+                }
+            } 
             try {
-                System.loadLibrary("opencv_java2411");
-                System.loadLibrary("libopencv_core2411");
-                System.loadLibrary("libopencv_highgui2411");
+                System.loadLibrary(libOpencv);
+                resultState = true;
+                return true;
+            }
+            catch (Exception e) {
                 try {
-                    System.loadLibrary("opencv_ffmpeg2411_64");
+                    System.loadLibrary("opencv_java2411");
+                    System.loadLibrary("libopencv_core2411");
+                    System.loadLibrary("libopencv_highgui2411");
+                    try {
+                        System.loadLibrary("opencv_ffmpeg2411_64");
+                        }
+                    catch (Exception e1) {
+                        System.loadLibrary("opencv_ffmpeg2411");
                     }
+                    catch (Error e1) {
+                        System.loadLibrary("opencv_ffmpeg2411");
+                    }
+                    result = true;
+                    resultState = true;
+                }
                 catch (Exception e1) {
-                    System.loadLibrary("opencv_ffmpeg2411");
+                    NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
+                    result = false;
+                    resultState = false;
+                }
+                return result;
+            }
+            catch (Error e) {
+                try {
+                    System.loadLibrary("opencv_java2411");
+                    System.loadLibrary("libopencv_core2411");
+                    System.loadLibrary("libopencv_highgui2411");
+                    try {
+                        System.loadLibrary("opencv_ffmpeg2411_64");
+                    }
+                    catch (Exception e1) {
+                        System.loadLibrary("opencv_ffmpeg2411");
+                    }
+                    catch (Error e1) {
+                        System.loadLibrary("opencv_ffmpeg2411");
+                    }
+                    result = true;
+                    resultState = true;
                 }
                 catch (Error e1) {
-                    System.loadLibrary("opencv_ffmpeg2411");
+                    NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
+                    result = false;
+                    resultState = false;
                 }
-                result = true;
             }
-            catch (Exception e1) {
-                NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
-                result = false;
-            }
-            return result;
         }
-        catch (Error e) {
-            try {
-                System.loadLibrary("opencv_java2411");
-                System.loadLibrary("libopencv_core2411");
-                System.loadLibrary("libopencv_highgui2411");
-                try {
-                    System.loadLibrary("opencv_ffmpeg2411_64");
-                    }
-                catch (Exception e1) {
-                    System.loadLibrary("opencv_ffmpeg2411");
-                }
-                catch (Error e1) {
-                    System.loadLibrary("opencv_ffmpeg2411");
-                }
-                result = true;
-            }
-            catch (Error e1) {
-                NeptusLog.pub().error("Opencv not found - please install libopencv2.4-jni and dependencies");
+        else
+            if(resultState == false)
                 result = false;
-            }
-            return result;
-        }
+            else
+                result = true;
+        
+        return result;
     }
 }
