@@ -29,7 +29,7 @@
  * Author: Pedro Gonçalves
  * Nov 19, 2015
  */
-package pt.lsts.neptus.plugins.vision;
+package pt.lsts.neptus.util;
 
 import java.io.File;
 

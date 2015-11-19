@@ -45,8 +45,8 @@ import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.vision.SearchOpenCv;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.SearchOpenCv;
 
 /**
  * @author zp
