@@ -62,6 +62,36 @@
             </Loiter>
         </maneuver>
         <maneuver>
+            <Drop kind="automatic">
+                <basePoint type="pointType">
+                    <point>
+                        <id>DropLoc</id>
+                        <name>DropLoc</name>
+                        <coordinate>
+                            <latitude>0N</latitude>
+                            <longitude>0E</longitude>
+                            <depth>-100</depth>
+                        </coordinate>
+                    </point>
+                    <radiusTolerance>5</radiusTolerance>
+                </basePoint>
+                <duration>30</duration>
+                <trajectory>
+                    <radius type="float">100</radius>
+                    <radiusTolerance type="float">5</radiusTolerance>
+                    <type>Circular</type>
+                    <length type="float">1</length>
+                    <bearing type="float">0</bearing>
+                    <direction>Clockwise</direction>
+                </trajectory>
+                <velocity type="float" unit="m/s" tolerance="5">20</velocity>
+                <annotation>
+                    <documentation>Drop object over a point</documentation>
+                    <implementation-class>pt.lsts.neptus.mp.maneuvers.Drop</implementation-class>
+                </annotation>
+            </Drop>
+        </maneuver>
+        <maneuver>
             <Goto kind="automatic">
                 <finalPoint type="pointType">
                     <point>

@@ -35,6 +35,7 @@ import java.util.LinkedHashMap;
 
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
+import pt.lsts.neptus.mp.maneuvers.Drop;
 import pt.lsts.neptus.mp.maneuvers.Elevator;
 import pt.lsts.neptus.mp.maneuvers.FollowTrajectory;
 import pt.lsts.neptus.mp.maneuvers.Goto;
@@ -94,6 +95,11 @@ public class ManPreviewFactory {
         else if (YoYo.class.isAssignableFrom(maneuver.getClass())) {
             YoYoPreview prev = new YoYoPreview();
             prev.init(vehicleId, (YoYo)maneuver, state, manState);
+            return prev;
+        }
+        else if (Drop.class.isAssignableFrom(maneuver.getClass())) {
+            LoiterPreview prev = new LoiterPreview();
+            prev.init(vehicleId, (Loiter)maneuver, state, manState);
             return prev;
         }
         
