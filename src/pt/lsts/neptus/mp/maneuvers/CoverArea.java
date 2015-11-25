@@ -59,7 +59,6 @@ import org.dom4j.Node;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PolygonVertex;
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
@@ -88,20 +87,39 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
 
     protected Vector<LocationType> points = new Vector<LocationType>();
 
-    public CoverArea() {
-        
+    public String getType() {
+        return "CoverArea";
     }
-
+    
     @Override
     public void parseIMCMessage(IMCMessage message) {
-        //super.parseIMCMessage(msg);
-        pt.lsts.imc.CoverArea area = null;
         try {
-            area = pt.lsts.imc.CoverArea.clone(message);
+            pt.lsts.imc.CoverArea area = pt.lsts.imc.CoverArea.clone(message);
+            
+            setSpeed(area.getSpeed());
+            switch (area.getSpeedUnits()) {
+                case METERS_PS:
+                    setSpeedUnits("m/s");
+                    break;
+                case PERCENTAGE:
+                    setSpeedUnits("%");
+                    break;
+                case RPM:
+                    setSpeedUnits("RPM");
+                    break;
+            }
+            ManeuverLocation pos = new ManeuverLocation();
+            pos.setLatitudeRads(area.getLat());
+            pos.setLongitudeRads(area.getLon());
+            pos.setZ(area.getZ());
+            pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(area.getZUnits().toString()));
+            setManeuverLocation(pos);
+            
             points.clear();
             Vector<PolygonVertex> vertices = message.getMessageList("polygon", PolygonVertex.class);
             for (PolygonVertex v : vertices)
-                points.add(new LocationType(Math.toDegrees(v.getLat()), Math.toDegrees(v.getLon())));            
+                points.add(new LocationType(Math.toDegrees(v.getLat()), Math.toDegrees(v.getLon())));
+            setCustomSettings(area.getCustom());
         }        
         catch (Exception e) {
             e.printStackTrace();
@@ -111,13 +129,39 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
 
     @Override
     public IMCMessage serializeToIMC() {
+        pt.lsts.imc.CoverArea coverArea = new pt.lsts.imc.CoverArea();
+        
+        LocationType l = getManeuverLocation();
+        l.convertToAbsoluteLatLonDepth();
+        
+        coverArea.setLat(l.getLatitudeRads());
+        coverArea.setLon(l.getLongitudeRads());
+        coverArea.setZ(getManeuverLocation().getZ());
+        coverArea.setZUnits(pt.lsts.imc.CoverArea.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
+        coverArea.setSpeed(this.getSpeed());
+       
+        switch (this.getUnits()) {
+            case "m/s":
+                coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.METERS_PS);
+                break;
+            case "RPM":
+                coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.RPM);
+                break;
+            case "%":
+                coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.PERCENTAGE);
+                break;
+            default:
+                coverArea.setSpeedUnits(pt.lsts.imc.CoverArea.SPEED_UNITS.RPM);
+                break;
+        }
         
         Vector<PolygonVertex> vertices = new Vector<PolygonVertex>();
         
         for (LocationType pt : points )
             vertices.add(PolygonVertex.create("lat", pt.getLatitudeRads(), "lon", pt.getLongitudeRads()));
-        pt.lsts.imc.CoverArea coverArea = new pt.lsts.imc.CoverArea();
+        
         coverArea.setMessageList(vertices, "polygon");
+        coverArea.setCustom(getCustomSettings());
         
         return coverArea;
     }
