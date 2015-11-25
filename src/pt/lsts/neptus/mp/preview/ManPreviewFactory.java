@@ -98,8 +98,8 @@ public class ManPreviewFactory {
             return prev;
         }
         else if (Drop.class.isAssignableFrom(maneuver.getClass())) {
-            LoiterPreview prev = new LoiterPreview();
-            prev.init(vehicleId, (Loiter)maneuver, state, manState);
+            GotoPreview prev = new GotoPreview();
+            prev.init(vehicleId, (Goto)maneuver, state, manState);
             return prev;
         }
         

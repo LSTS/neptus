@@ -31,14 +31,7 @@
  */
 package pt.lsts.neptus.mp.maneuvers;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Node;
-
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.imc.Drop.DIRECTION;
-import pt.lsts.imc.Drop.TYPE;
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.types.coord.LocationType;
 
@@ -46,7 +39,7 @@ import pt.lsts.neptus.types.coord.LocationType;
  * @author Manuel Ribeiro
  *
  */
-public class Drop extends Loiter {
+public class Drop extends Goto {
 
     protected static final String DEFAULT_ROOT_ELEMENT = "Drop";
 
@@ -56,137 +49,81 @@ public class Drop extends Loiter {
     }
 
     @Override
-    public Object clone() {
-        Drop l = new Drop();
-        super.clone(l);
-        l.setBearing(getBearing());
-        l.setDirection(getDirection());
-        l.setLength(getLength());
-        l.setLoiterDuration(getLoiterDuration());
-        l.setLoiterType(getLoiterType());
-        l.setManeuverLocation(getManeuverLocation());
-        l.setRadius(getRadius());
-        l.setRadiusTolerance(getRadiusTolerance());
-        l.setSpeed(getSpeed());
-        l.setSpeedTolerance(getSpeedTolerance());
-        l.setSpeedUnits(getSpeedUnits());
-        return l;       
+    public Object clone() {  
+        Drop clone = new Drop();
+        super.clone(clone);
+        clone.params = params;
+        clone.setManeuverLocation(getManeuverLocation());
+        clone.setRadiusTolerance(getRadiusTolerance());
+        clone.setSpeedUnits(getUnits());
+        clone.setSpeed(getSpeed());
+        clone.setSpeedTolerance(getSpeedTolerance());
+        
+        return clone;
     }
-
+    
     @Override
-    public void loadFromXML(String XML) {
+    public void parseIMCMessage(IMCMessage message) {
         try {
-            Document doc = DocumentHelper.parseText(XML);
-
-            // basePoint
-            Node node = doc.selectSingleNode("Drop/basePoint/point");
-            ManeuverLocation loc = new ManeuverLocation();
-            loc.load(node.asXML());
-            setManeuverLocation(loc);
-            setRadiusTolerance(Double.parseDouble(doc.selectSingleNode("Drop/basePoint/radiusTolerance").getText()));
-
-            // Velocity
-            Node speedNode = doc.selectSingleNode("Drop/speed");
-            if (speedNode == null)
-                speedNode = doc.selectSingleNode("Drop/velocity");
-            setSpeed(Double.parseDouble(speedNode.getText()));
-            setSpeedUnits(speedNode.valueOf("@unit"));
-            setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
-
-            // Duration
-            setLoiterDuration(Integer.parseInt(doc.selectSingleNode("Drop/duration").getText()));
-
-            // Trajectory
-            setRadius(Double.parseDouble(doc.selectSingleNode("Drop/trajectory/radius").getText()));
-            setRadiusTolerance(Double.parseDouble(doc.selectSingleNode("Drop/trajectory/radiusTolerance").getText()));
-            setLoiterType(doc.selectSingleNode("Drop/trajectory/type").getText());
-            setDirection(doc.selectSingleNode("Drop/trajectory/direction").getText());            
-            setBearing(Double.parseDouble(doc.selectSingleNode("Drop/trajectory/bearing").getText()));                        
-
-            if (doc.selectSingleNode("Drop/trajectory/length") != null)           
-                setLength(Double.parseDouble(doc.selectSingleNode("Drop/trajectory/length").getText()));
-
-            if (doc.selectSingleNode("Drop/trajectory/lenght") != null)           
-                setLength(Double.parseDouble(doc.selectSingleNode("Drop/trajectory/lenght").getText()));
-
+            pt.lsts.imc.Drop msg = pt.lsts.imc.Drop.clone(message);
+            
+            setMaxTime(msg.getTimeout());
+            setSpeed(msg.getSpeed());
+            switch (msg.getSpeedUnits()) {
+                case METERS_PS:
+                    setSpeedUnits("m/s");
+                    break;
+                case PERCENTAGE:
+                    setSpeedUnits("%");
+                    break;
+                case RPM:
+                    setSpeedUnits("RPM");
+                    break;
+            }
+            ManeuverLocation pos = new ManeuverLocation();
+            pos.setLatitudeRads(msg.getLat());
+            pos.setLongitudeRads(msg.getLon());
+            pos.setZ(msg.getZ());
+            pos.setZUnits(ManeuverLocation.Z_UNITS.valueOf(msg.getZUnits().toString()));
+            setManeuverLocation(pos);
+            setCustomSettings(msg.getCustom());
+            
         }
         catch (Exception e) {
-
-            NeptusLog.pub().error(this, e);
+            e.printStackTrace();
             return;
         }
     }
-
-    @Override
+    
     public IMCMessage serializeToIMC() {
-
-        pt.lsts.imc.Drop drop = new pt.lsts.imc.Drop();
-        drop.setTimeout(this.getMaxTime());
-
-        LocationType loc = getManeuverLocation();
-        loc.convertToAbsoluteLatLonDepth();
-
-        drop.setLat(loc.getLatitudeRads());
-        drop.setLon(loc.getLongitudeRads());
-        drop.setZ(getManeuverLocation().getZ());
-        drop.setZUnits(pt.lsts.imc.Drop.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
-        drop.setSpeed(this.getSpeed());
-        drop.setDuration(getLoiterDuration());
-
-        switch (this.getSpeedUnits()) {
+        pt.lsts.imc.Drop dropManeuver = new pt.lsts.imc.Drop();
+        dropManeuver.setTimeout(this.getMaxTime());
+        LocationType l = getManeuverLocation();
+        l.convertToAbsoluteLatLonDepth();
+        
+        dropManeuver.setLat(l.getLatitudeRads());
+        dropManeuver.setLon(l.getLongitudeRads());
+        dropManeuver.setZ(getManeuverLocation().getZ());
+        dropManeuver.setZUnits(pt.lsts.imc.Drop.Z_UNITS.valueOf(getManeuverLocation().getZUnits().name()));
+        dropManeuver.setSpeed(this.getSpeed());
+       
+        switch (this.getUnits()) {
             case "m/s":
-                drop.setSpeedUnits(pt.lsts.imc.Drop.SPEED_UNITS.METERS_PS);
+                dropManeuver.setSpeedUnits(pt.lsts.imc.Drop.SPEED_UNITS.METERS_PS);
                 break;
             case "RPM":
-                drop.setSpeedUnits(pt.lsts.imc.Drop.SPEED_UNITS.RPM);
+                dropManeuver.setSpeedUnits(pt.lsts.imc.Drop.SPEED_UNITS.RPM);
                 break;
-            case "PERCENTAGE":
-                drop.setSpeedUnits(pt.lsts.imc.Drop.SPEED_UNITS.PERCENTAGE);
+            case "%":
+                dropManeuver.setSpeedUnits(pt.lsts.imc.Drop.SPEED_UNITS.PERCENTAGE);
                 break;
             default:
+                dropManeuver.setSpeedUnits(pt.lsts.imc.Drop.SPEED_UNITS.RPM);
                 break;
         }
+        
+        dropManeuver.setCustom(getCustomSettings());
 
-
-        String loiterType = this.getLoiterType();
-        try {
-            if ("Default".equalsIgnoreCase(loiterType))
-                drop.setType(TYPE.DEFAULT);
-            else if ("Circular".equalsIgnoreCase(loiterType))
-                drop.setType(TYPE.CIRCULAR);
-            else if ("Racetrack".equalsIgnoreCase(loiterType))
-                drop.setType(TYPE.RACETRACK);
-            else if ("Figure 8".equalsIgnoreCase(loiterType))
-                drop.setType(TYPE.EIGHT);
-            else if ("Hover".equalsIgnoreCase(loiterType))
-                drop.setType(TYPE.HOVER);
-        } catch (Exception ex) {
-            NeptusLog.pub().error(this, ex);
-        }
-
-        drop.setRadius(getRadius());
-        drop.setLength(getLength());
-        drop.setBearing(getBearing());
-
-        String lDirection = this.getDirection();
-
-        try {
-            if ("Vehicle Dependent".equalsIgnoreCase(lDirection))
-                drop.setDirection(DIRECTION.VDEP);
-            else if ("Clockwise".equalsIgnoreCase(lDirection))
-                drop.setDirection(DIRECTION.CLOCKW);
-            else if ("Counter Clockwise".equalsIgnoreCase(lDirection))
-                drop.setDirection(DIRECTION.CCLOCKW);
-            else if ("Counter-Clockwise".equalsIgnoreCase(lDirection))
-                drop.setDirection(DIRECTION.CCLOCKW);
-            else if (lDirection.startsWith("Into the wind"))
-                drop.setDirection(DIRECTION.IWINDCURR);
-        } catch (Exception ex) {
-            NeptusLog.pub().error(this, ex);
-        }
-
-        drop.setCustom(getCustomSettings());
-
-        return drop;
-    }
+        return dropManeuver;
+    }   
 }
