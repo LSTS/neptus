@@ -79,8 +79,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
     protected InteractionAdapter adapter = new InteractionAdapter(null);
     double speed = 1000, speedTolerance = 0, radiusTolerance = 2;
     String units = "RPM";
-    ManeuverLocation destination = new ManeuverLocation();
-    public ManeuverLocation location = new ManeuverLocation();
+    ManeuverLocation location = new ManeuverLocation();
 
     @NeptusProperty(name = "polygon", editable = false)
     public String polygonPoints = "";
@@ -451,7 +450,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         root.addAttribute("kind", "automatic");
         Element finalPoint = root.addElement("finalPoint");
         finalPoint.addAttribute("type", "pointType");
-        Element point = destination.asElement("point");
+        Element point = location.asElement("point");
         finalPoint.add(point);
 
         Element radTolerance = finalPoint.addElement("radiusTolerance");
