@@ -63,6 +63,7 @@ import pt.lsts.neptus.gui.ToolbarSwitch;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.renderer2d.InteractionAdapter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
@@ -81,6 +82,14 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
     String units = "RPM";
     ManeuverLocation location = new ManeuverLocation();
 
+    private final int ANGLE_CALCULATION = -1 ;
+    private final int FIRST_ROTATE = 0 ;
+    private final int HORIZONTAL_MOVE = 1 ;
+    
+    int current_state = ANGLE_CALCULATION;
+    
+    protected double targetAngle, rotateIncrement;
+    
     @NeptusProperty(name = "polygon", editable = false)
     public String polygonPoints = "";
 
@@ -163,6 +172,75 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         coverArea.setCustom(getCustomSettings());
         
         return coverArea;
+    }
+    
+    private int count = 0;
+    
+    public SystemPositionAndAttitude ManeuverFunction(SystemPositionAndAttitude lastVehicleState) {
+        
+     SystemPositionAndAttitude nextVehicleState = (SystemPositionAndAttitude) lastVehicleState.clone();
+     
+     
+        switch (current_state) {
+        
+            case(ANGLE_CALCULATION):
+                targetAngle = lastVehicleState.getPosition().getXYAngle(location);
+                
+                double angleDiff = (targetAngle - lastVehicleState.getYaw());
+                
+                while (angleDiff < 0)
+                    angleDiff += Math.PI*2; //360º
+                
+                while (angleDiff > Math.PI*2)
+                    angleDiff -= Math.PI*2;
+                
+                if (angleDiff > Math.PI)
+                    angleDiff = angleDiff - Math.PI*2;
+                
+                rotateIncrement = angleDiff/3;//(-25.0f / 180.0f) * (float) Math.PI;
+                count = 0;
+                this.current_state = FIRST_ROTATE;
+                nextVehicleState = ManeuverFunction(lastVehicleState);
+            break;
+        
+            // Initial rotation towards the target point
+            case FIRST_ROTATE:
+                if (count++<3)
+                    nextVehicleState.rotateXY(rotateIncrement);
+                else {
+                    nextVehicleState.setYaw(targetAngle);       
+                    current_state = HORIZONTAL_MOVE;
+                }           
+                break;
+        
+            // The movement between the initial and final point, in the plane xy (horizontal)
+            case HORIZONTAL_MOVE:
+                double calculatedSpeed = 1;
+                
+                if (units.equals("m/s"))
+                    calculatedSpeed = speed;
+                else if (units.equals("RPM"))
+                    calculatedSpeed = speed/500.0;
+                double dist = nextVehicleState.getPosition().getHorizontalDistanceInMeters(location);
+                if (dist <= calculatedSpeed) {
+                    nextVehicleState.setPosition(location);
+                    endManeuver();
+                }
+                else {                  
+                        nextVehicleState.moveForward(calculatedSpeed);
+                        double depthDiff = location.getDepth()-nextVehicleState.getPosition().getDepth();
+                        
+                        double depthIncr = depthDiff / (dist/calculatedSpeed);
+                        double curDepth = nextVehicleState.getPosition().getDepth();
+                        nextVehicleState.getPosition().setDepth(curDepth+depthIncr);
+                }
+                break;
+            
+            default:
+                endManeuver();
+        }
+        
+        return nextVehicleState;
     }
 
     @Override
@@ -339,12 +417,12 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
 
     @Override
     public ManeuverLocation getEndLocation() {
-        return getManeuverLocation();
+        return location.clone();
     }
 
     @Override
     public ManeuverLocation getStartLocation() {
-        return getManeuverLocation();
+        return location.clone();
     }
 
     @Override
