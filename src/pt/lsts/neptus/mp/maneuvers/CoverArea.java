@@ -312,12 +312,6 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
                 }
             });
 
-            popup.add("Finish editing").addActionListener(new ActionListener() {                
-                public void actionPerformed(ActionEvent e) {
-                    //TODO
-                }
-            });
-
             popup.show(source, event.getX(), event.getY());
         }
         else {
