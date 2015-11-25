@@ -52,11 +52,16 @@ import java.util.Vector;
 import javax.swing.JPopupMenu;
 
 import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.Node;
 
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PolygonVertex;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
 import pt.lsts.neptus.plugins.NeptusProperty;
@@ -73,7 +78,9 @@ import pt.lsts.neptus.types.map.PlanElement;
 public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerialization, StateRendererInteraction{
 
     protected InteractionAdapter adapter = new InteractionAdapter(null);
-    
+    double speed = 1000, speedTolerance = 0, radiusTolerance = 2;
+    String units = "RPM";
+    ManeuverLocation destination = new ManeuverLocation();
     public ManeuverLocation location = new ManeuverLocation();
 
     @NeptusProperty(name = "polygon", editable = false)
@@ -276,18 +283,6 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
     public Collection<ManeuverLocation> getWaypoints() {
         return Collections.singleton(getStartLocation());
     }
-
-    public static void main(String[] args) {
-        
-        CoverArea compc = new CoverArea();
-        String ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
-        System.out.println(ccmanXML);
-        CoverArea compc1 = new CoverArea();
-        compc1.loadFromXML(ccmanXML);
-        ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
-        System.out.println(ccmanXML);
-        
-    }
     
     @Override
     public void paintInteraction(Graphics2D g, StateRenderer2D source) {
@@ -324,8 +319,71 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
      */
     @Override
     public void loadFromXML(String xml) {
-        // TODO Auto-generated method stub
-        
+        try {
+            Document doc = DocumentHelper.parseText(xml);
+            Node node = doc.selectSingleNode(getType()+"/finalPoint/point");
+            ManeuverLocation loc = new ManeuverLocation();
+            loc.load(node.asXML());
+            setManeuverLocation(loc);
+            setRadiusTolerance(Double.parseDouble(doc.selectSingleNode(getType()+"/finalPoint/radiusTolerance").getText()));
+            Node speedNode = doc.selectSingleNode(getType()+"/speed");
+            if (speedNode == null) 
+                speedNode = doc.selectSingleNode(getType()+"/velocity");
+            setSpeed(Double.parseDouble(speedNode.getText()));
+            String speedUnit = speedNode.valueOf("@unit");
+            setSpeedUnits(speedUnit);
+            setSpeedTolerance(Double.parseDouble(speedNode.valueOf("@tolerance")));
+            
+        }
+        catch (Exception e) {
+            NeptusLog.pub().info("<###> "+I18n.text("Error while loading the XML:")+"{" + xml + "}");
+            NeptusLog.pub().error(this, e);
+            return;
+        }
+    }
+
+    /**
+     * @param parseDouble
+     */
+    private void setSpeedTolerance(double speedTolerance) {
+        this.speedTolerance = speedTolerance;
+    }
+    
+    public double getSpeedTolerance() {
+        return speedTolerance;
+    }
+
+    /**
+     * @param parseDouble
+     */
+    private void setSpeed(double speed) {
+        this.speed = speed;
+    }
+    
+    public double getSpeed() {
+        return speed;
+    }
+
+    /**
+     * @param speedUnit
+     */
+    private void setSpeedUnits(String units) {
+        this.units = units;
+    }
+    
+    public String getUnits() {
+        return units;
+    }
+
+    /**
+     * @param parseDouble
+     */
+    private void setRadiusTolerance(double radiusTolerance) {
+        this.radiusTolerance = radiusTolerance;
+    }
+    
+    public double getRadiusTolerance() {
+        return radiusTolerance;
     }
 
     @Override
@@ -344,7 +402,38 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
      */
     @Override
     public Document getManeuverAsDocument(String rootElementName) {
-        // TODO Auto-generated method stub
-        return null;
+        Document document = DocumentHelper.createDocument();
+        Element root = document.addElement( rootElementName );
+        root.addAttribute("kind", "automatic");
+        Element finalPoint = root.addElement("finalPoint");
+        finalPoint.addAttribute("type", "pointType");
+        Element point = destination.asElement("point");
+        finalPoint.add(point);
+
+        Element radTolerance = finalPoint.addElement("radiusTolerance");
+        radTolerance.setText(String.valueOf(getRadiusTolerance()));
+       
+        Element velocity = root.addElement("speed");
+        velocity.addAttribute("tolerance", String.valueOf(getSpeedTolerance()));
+        velocity.addAttribute("type", "float");
+        velocity.addAttribute("unit", getUnits());
+        velocity.setText(String.valueOf(getSpeed()));
+        
+        Element trajectoryTolerance = root.addElement("trajectoryTolerance");
+        Element radiusTolerance = trajectoryTolerance.addElement("radiusTolerance");
+        radiusTolerance.setText(String.valueOf(getRadiusTolerance()));
+
+        return document;
+    }
+    
+    public static void main(String[] args) {
+        
+        CoverArea compc = new CoverArea();
+        String ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
+        System.out.println(ccmanXML);
+        CoverArea compc1 = new CoverArea();
+        compc1.loadFromXML(ccmanXML);
+        ccmanXML = compc.getManeuverAsDocument("CoverArea").asXML();
+        System.out.println(ccmanXML);
     }
 }
