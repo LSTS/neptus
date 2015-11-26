@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config format="1" version="2.6.x (master,8797653)" system="maridan-seacat-1" i18n="en_US">
+  <section name="Payload" name-i18n="Payload">
+    <param name="Profile">
+      <name-i18n>Profile</name-i18n>
+      <type>string</type>
+      <visibility>user</visibility>
+      <scope>maneuver</scope>
+      <default>No payload</default>
+      <units/>
+      <desc/>
+      <values>No payload, SSS+SBP, Camera</values>
+      <values-i18n>No payload, SSS+SBP, Camera</values-i18n>
+    </param>
+  </section>
+</config>
