@@ -563,6 +563,13 @@ IMCSerialization, StatisticsProvider, PathProvider {
     public boolean isSquareCurve() {
         return squareCurve;
     }
+    
+    /**
+     * @return <b>true</b> if the first curve is to the right or <b>false</b> otherwise.
+     */
+    public boolean isFirstCurveRight() {
+        return firstCurveRight;
+    }
 
     /**
      * @return the crossAngleRadians
