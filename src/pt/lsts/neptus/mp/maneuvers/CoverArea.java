@@ -127,6 +127,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
             Vector<PolygonVertex> vertices = message.getMessageList("polygon", PolygonVertex.class);
             for (PolygonVertex v : vertices)
                 points.add(new LocationType(Math.toDegrees(v.getLat()), Math.toDegrees(v.getLon())));
+            NeptusLog.pub().info("vertices: "+vertices.size());
             setCustomSettings(area.getCustom());
         }        
         catch (Exception e) {
@@ -167,7 +168,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         
         for (LocationType pt : points )
             vertices.add(PolygonVertex.create("lat", pt.getLatitudeRads(), "lon", pt.getLongitudeRads()));
-        
+        NeptusLog.pub().info("vertices: "+vertices.size());
         coverArea.setMessageList(vertices, "polygon");
         coverArea.setCustom(getCustomSettings());
         
@@ -504,11 +505,19 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
     @Override
     public Object clone() {
         CoverArea clone = new CoverArea();
+        try {
+            clone = this.getClass().newInstance();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         super.clone(clone);
-        clone.setManeuverLocation(getManeuverLocation());
-        clone.id = id;
-        clone.location = location;
-        clone.polygonPoints = polygonPoints;
+        clone.speed = speed;
+        clone.units = units;
+        clone.setManeuverLocation(location);
+        for (LocationType pt : points )
+            clone.points.add(points.size(), pt);
+        NeptusLog.pub().info("points: "+clone.points.size());
         return clone;
     }
 
