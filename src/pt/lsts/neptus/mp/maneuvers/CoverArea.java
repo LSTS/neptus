@@ -56,10 +56,16 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.PolygonVertex;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.ToolbarSwitch;
+import pt.lsts.neptus.gui.editor.SpeedUnitsEditor;
+import pt.lsts.neptus.gui.editor.renderer.I18nCellRenderer;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.ManeuverLocation;
@@ -548,6 +554,56 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         radiusTolerance.setText(String.valueOf(getRadiusTolerance()));
 
         return document;
+    }
+    
+    @Override
+    protected Vector<DefaultProperty> additionalProperties() {
+        Vector<DefaultProperty> properties = new Vector<DefaultProperty>();
+
+        DefaultProperty units = PropertiesEditor.getPropertyInstance("Speed units", String.class, getUnits(), true);
+        units.setDisplayName(I18n.text("Speed units"));
+        units.setShortDescription(I18n.text("The speed units"));
+        PropertiesEditor.getPropertyEditorRegistry().registerEditor(units, new SpeedUnitsEditor());
+        PropertiesEditor.getPropertyRendererRegistry().registerRenderer(units, new I18nCellRenderer());
+    
+        DefaultProperty propertySpeed = PropertiesEditor.getPropertyInstance("Speed", Double.class, getSpeed(), true);
+        propertySpeed.setDisplayName(I18n.text("Speed"));
+        properties.add(propertySpeed);
+        properties.add(units);
+
+        return properties;
+    }
+    
+    
+    public String getPropertiesDialogTitle() {    
+        return getId()+" parameters";
+    }
+    
+    public void setProperties(Property[] properties) {
+        
+        super.setProperties(properties);
+        
+        for (Property p : properties) {
+            if (p.getName().equals("Speed units")) {
+                setSpeedUnits((String)p.getValue());
+            }
+            else if (p.getName().equals("Speed tolerance")) {
+                setSpeedTolerance((Double)p.getValue());
+            }
+            else if (p.getName().equals("Speed")) {
+                setSpeed((Double)p.getValue());
+            }
+            else if (p.getName().equals("Radius tolerance")) {
+                setRadiusTolerance((Double)p.getValue());
+            }
+            else {
+                NeptusLog.pub().debug("Property "+p.getName()+" ignored.");
+            }
+        }
+    }
+    
+    public String[] getPropertiesErrors(Property[] properties) {
+        return super.getPropertiesErrors(properties);
     }
     
     public static void main(String[] args) {
