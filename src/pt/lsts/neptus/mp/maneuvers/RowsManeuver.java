@@ -530,6 +530,13 @@ IMCSerialization, StatisticsProvider, PathProvider {
     }
 
     /**
+     * @return the length
+     */
+    public double getLength() {
+        return length;
+    }
+
+    /**
      * @return the width
      */
     public double getWidth() {
