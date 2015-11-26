@@ -133,9 +133,7 @@ public class MaridanPlanExporter implements IPlanFileExporter {
                         site.setSpacingMeters((float) -rows.getHstep());
                     site.setLegCount((int) Math.floor(rows.getWidth() / rows.getHstep()) + 1);
                     site.setDirectionDegs((float) Math.toDegrees(rows.getBearingRad()));
-
-                    System.out.println(rows.getCompletionTime(previousPos));
-
+                    site.setLength((float)rows.getLength());
                     if (previousPos == null)
                         site.setTimeoutSecs(1000f);
                     else
