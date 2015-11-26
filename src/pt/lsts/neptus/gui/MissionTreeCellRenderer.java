@@ -31,11 +31,8 @@
  */
 package pt.lsts.neptus.gui;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.util.HashMap;
 
@@ -62,7 +59,6 @@ import pt.lsts.neptus.types.mission.HomeReference;
 import pt.lsts.neptus.types.mission.MapMission;
 import pt.lsts.neptus.types.mission.VehicleMission;
 import pt.lsts.neptus.types.mission.plan.PlanType;
-import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
