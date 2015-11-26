@@ -175,21 +175,6 @@ public class CommUtil {
      */
     public static boolean testCommMeanForActivity(CommMean cm) {
         // FIXME Test CommMean for activity!!!
-        /*
-         * boolean ret = PingSend.ping(cm.getHostAddress()); if (ret) {
-         * NeptusLog.pub().info("CommUtil::testCommMeanForActivity:: " + "CommMean " + cm.getName() + " for host " +
-         * cm.getHostAddress() + " is active."); return true; } else { if (PingSend.activityTest(cm)) {
-         * NeptusLog.pub().info("CommUtil::testCommMeanForActivity:: " + "CommMean " + cm.getName() + " for host " +
-         * cm.getHostAddress() + " is active."); return true; } else {
-         * NeptusLog.pub().info("CommUtil::testCommMeanForActivity:: " + "CommMean " + cm.getName() + " for host " +
-         * cm.getHostAddress() + " is inactive."); return false; } }
-         */
-        /*
-         * if (PingSend.activityTest(cm)) { NeptusLog.pub().info("CommUtil::testCommMeanForActivity:: " + "CommMean " +
-         * cm.getName() + " for host " + cm.getHostAddress() + " is active."); return true; } else {
-         * NeptusLog.pub().info("CommUtil::testCommMeanForActivity:: " + "CommMean " + cm.getName() + " for host " +
-         * cm.getHostAddress() + " is inactive."); return false; }
-         */
         return true;
     }
 

@@ -69,12 +69,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.dom4j.Document;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.comm.CommUtil;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.renderer3d.Object3DCreationHelper;
 import pt.lsts.neptus.types.comm.CommMean;
-import pt.lsts.neptus.types.comm.protocol.AdjustTimeShellArgs;
 import pt.lsts.neptus.types.comm.protocol.FTPArgs;
 import pt.lsts.neptus.types.comm.protocol.IMCArgs;
 import pt.lsts.neptus.types.comm.protocol.ProtocolArgs;
@@ -1065,12 +1063,7 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
         comP = PropertiesEditor.getPropertyInstance("protocols suported", categoryBase, String.class,
                 protocolsStringBase, false);
         propertiesList.add(comP);
-        if (CommUtil.isProtocolSupported(vehicle.getId(), "ssh")
-                || CommUtil.isProtocolSupported(vehicle.getId(), "telnet")) {
-            if (!vehicle.getProtocolsArgs().containsKey("time-shell")) {
-                vehicle.getProtocolsArgs().put(AdjustTimeShellArgs.DEFAULT_ROOT_ELEMENT, new AdjustTimeShellArgs());
-            }
-        }
+
         for (ProtocolArgs pArgs : vehicle.getProtocolsArgs().values()) {
             if (pArgs instanceof IMCArgs) {
                 IMCArgs nArgs = (IMCArgs) pArgs;
@@ -1088,21 +1081,6 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                 propertiesList.add(comP);
                 comP = PropertiesEditor.getPropertyInstance("imc.imc3-id", categoryBase, ImcId16.class,
                         (nArgs.getImc3Id() == null) ? ImcId16.NULL_ID : nArgs.getImc3Id(), true);
-                propertiesList.add(comP);
-            }
-            else if (pArgs instanceof AdjustTimeShellArgs) {
-                AdjustTimeShellArgs tArgs = (AdjustTimeShellArgs) pArgs;
-                comP = PropertiesEditor.getPropertyInstance("time-shell.set-seconds", categoryBase, Boolean.class,
-                        new Boolean(tArgs.isSetSeconds()), true);
-                propertiesList.add(comP);
-                comP = PropertiesEditor.getPropertyInstance("time-shell.set-year", categoryBase, Boolean.class,
-                        new Boolean(tArgs.isSetYear()), true);
-                propertiesList.add(comP);
-                comP = PropertiesEditor.getPropertyInstance("time-shell.use-2-digit-year", categoryBase, Boolean.class,
-                        new Boolean(tArgs.isUse2DigitYear()), true);
-                propertiesList.add(comP);
-                comP = PropertiesEditor.getPropertyInstance("time-shell.use-hwclock", categoryBase, Boolean.class,
-                        new Boolean(tArgs.isUseHwClock()), true);
                 propertiesList.add(comP);
             }
             else if (pArgs instanceof FTPArgs) {
@@ -1127,14 +1105,6 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
             String category = cm.getName();
             comP = PropertiesEditor.getPropertyInstance("host name", category, String.class,
                     new String(cm.getHostAddress()), true);
-            propertiesList.add(comP);
-
-            comP = PropertiesEditor.getPropertyInstance("user name", category, String.class,
-                    new String(cm.getUserName()), true);
-            propertiesList.add(comP);
-
-            comP = PropertiesEditor.getPropertyInstance("is password saved", category, Boolean.class,
-                    new Boolean(cm.isPasswordSaved()), true);
             propertiesList.add(comP);
 
             String protocolsString = "";
@@ -1165,21 +1135,6 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                     propertiesList.add(comP);
                     comP = PropertiesEditor.getPropertyInstance("imc.imc3-id", category, ImcId16.class,
                             (nArgs.getImc3Id() == null) ? ImcId16.NULL_ID : nArgs.getImc3Id(), true);
-                    propertiesList.add(comP);
-                }
-                else if (pArgs instanceof AdjustTimeShellArgs) {
-                    AdjustTimeShellArgs tArgs = (AdjustTimeShellArgs) pArgs;
-                    comP = PropertiesEditor.getPropertyInstance("time-shell.set-seconds", categoryBase, Boolean.class,
-                            new Boolean(tArgs.isSetSeconds()), true);
-                    propertiesList.add(comP);
-                    comP = PropertiesEditor.getPropertyInstance("time-shell.set-year", categoryBase, Boolean.class,
-                            new Boolean(tArgs.isSetYear()), true);
-                    propertiesList.add(comP);
-                    comP = PropertiesEditor.getPropertyInstance("time-shell.use-2-digit-year", categoryBase,
-                            Boolean.class, new Boolean(tArgs.isUse2DigitYear()), true);
-                    propertiesList.add(comP);
-                    comP = PropertiesEditor.getPropertyInstance("time-shell.set-year", categoryBase, Boolean.class,
-                            new Boolean(tArgs.isUseHwClock()), true);
                     propertiesList.add(comP);
                 }
                 else if (pArgs instanceof FTPArgs) {
@@ -1253,19 +1208,6 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                                     ((IMCArgs) protoArgs).setImc3Id((ImcId16) prop.getValue());
                             }
                         }
-                        else if (protocol.equalsIgnoreCase("time-shell")) {
-                            ProtocolArgs protoArgs = vehicle.getProtocolsArgs().get(protocol);
-                            if (protoArgs != null) {
-                                if (prop.getName().equals("time-shell.set-seconds"))
-                                    ((AdjustTimeShellArgs) protoArgs).setSetSeconds((Boolean) prop.getValue());
-                                else if (prop.getName().equals("time-shell.set-year"))
-                                    ((AdjustTimeShellArgs) protoArgs).setSetYear((Boolean) prop.getValue());
-                                else if (prop.getName().equals("time-shell.use-2-digit-year"))
-                                    ((AdjustTimeShellArgs) protoArgs).setUse2DigitYear((Boolean) prop.getValue());
-                                else if (prop.getName().equals("time-shell.use-hwclock"))
-                                    ((AdjustTimeShellArgs) protoArgs).setUseHwClock((Boolean) prop.getValue());
-                            }
-                        }
                     }
                 }
 
@@ -1275,12 +1217,6 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
             if (cm != null) {
                 if (prop.getName().equals("host name")) {
                     cm.setHostAddress((String) prop.getValue());
-                }
-                else if (prop.getName().equals("user name")) {
-                    cm.setUserName((String) prop.getValue());
-                }
-                else if (prop.getName().equals("is password saved")) {
-                    cm.setPasswordSaved((Boolean) prop.getValue());
                 }
                 else {
                     // for (String protocol : cm.getProtocols())
@@ -1299,19 +1235,6 @@ public class VehicleInfo extends JPanel implements PropertiesProvider {
                                         ((IMCArgs) protoArgs).setTcpOn((Boolean) prop.getValue());
                                     else if (prop.getName().equals("imc.imc3-id"))
                                         ((IMCArgs) protoArgs).setImc3Id((ImcId16) prop.getValue());
-                                }
-                            }
-                            else if (protocol.equalsIgnoreCase("time-shell")) {
-                                ProtocolArgs protoArgs = cm.getProtocolsArgs().get(protocol);
-                                if (protoArgs != null) {
-                                    if (prop.getName().equals("time-shell.set-seconds"))
-                                        ((AdjustTimeShellArgs) protoArgs).setSetSeconds((Boolean) prop.getValue());
-                                    else if (prop.getName().equals("time-shell.set-year"))
-                                        ((AdjustTimeShellArgs) protoArgs).setSetYear((Boolean) prop.getValue());
-                                    else if (prop.getName().equals("time-shell.use-2-digit-year"))
-                                        ((AdjustTimeShellArgs) protoArgs).setUse2DigitYear((Boolean) prop.getValue());
-                                    else if (prop.getName().equals("time-shell.use-hwclock"))
-                                        ((AdjustTimeShellArgs) protoArgs).setUseHwClock((Boolean) prop.getValue());
                                 }
                             }
                         }

@@ -99,7 +99,6 @@
             <name>ethernet</name>
             <type>ethernet</type>
             <host-address>192.168.0.121</host-address>
-            <credentials username="root"/>
             <protocols>imc</protocols>
             <latency value="10M" unit="bps"/>
             <protocols-args>
