@@ -460,4 +460,31 @@ public class PlanUtil {
 
         return ret;
     }
+    
+    public static double getExecutionTimeSecs(LocationType previousPos, Maneuver m) {
+        double speed = speedRpmRatioSpeed;
+        
+        if (m instanceof LocatedManeuver && previousPos == null)
+            previousPos = ((LocatedManeuver)m).getStartLocation();
+        
+        if (m instanceof StatisticsProvider)
+            return((StatisticsProvider)m).getCompletionTime(previousPos);
+        else if (m instanceof LocatedManeuver) {
+            try {
+                speed = (Double) m.getClass().getMethod("getSpeed").invoke(m);
+                String units = (String) m.getClass().getMethod("getUnits").invoke(m);
+                if (units.equalsIgnoreCase("%"))
+                    speed = speed/100 * speedRpmRatioSpeed;
+                else if (units.equalsIgnoreCase("rpm"))
+                    speed = (speed / speedRpmRatioRpms) * speedRpmRatioSpeed;
+            }
+            catch (Exception e) {
+                //e.printStackTrace();
+            }
+            double dist = ((LocatedManeuver)m).getManeuverLocation().getDistanceInMeters(previousPos);
+            return dist / speed;
+        }
+        else
+            return Double.NaN;
+    }
 }

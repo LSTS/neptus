@@ -40,10 +40,12 @@ import javax.swing.ProgressMonitor;
 import javax.xml.bind.JAXB;
 
 import dk.maridan.SurveyPlan.Manoeuvre;
+import dk.maridan.SurveyPlan.Site;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.map.PlanUtil;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.IPlanFileExporter;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -70,13 +72,13 @@ public class MaridanPlanExporter implements IPlanFileExporter {
     public String[] validExtensions() {
         return new String[] {"xml"};
     }
-    
+
     public static String translate(PlanType plan, LocationType vehicleLocation) throws Exception {
-        
+
         SurveyPlan out = new SurveyPlan();
-        
+        LocationType previousPos = vehicleLocation;
         for (Maneuver m : plan.getGraph().getManeuversSequence()) {
-            
+
             Manoeuvre man = null;
             switch (m.getType()) {
                 case "Goto": {
@@ -94,23 +96,28 @@ public class MaridanPlanExporter implements IPlanFileExporter {
                         default:
                             throw new Exception("Invalid Z units for maneuver "+m.getId());
                     }
-                    
                     tmp.setLatDegs(g.getManeuverLocation().getLatitudeDegs());
                     tmp.setLonDegs(g.getManeuverLocation().getLongitudeDegs());
                     tmp.setSpeedMps((float)g.getSpeed());
-                    //FIXME set timeout appropriately
-                    tmp.setTimeoutSecs(3600);
+                    double timeout = PlanUtil.getExecutionTimeSecs(previousPos, g);
+                    if (timeout == 0)
+                        timeout = 1000;
+                    tmp.setTimeoutSecs((float)(timeout * 1.5));
+                    previousPos = g.getEndLocation();
                     break;
                 }
-                case "Rows":                    
+                case "Rows": {
+                    SurveyPlan.Site site = new Site();
+                    man = site;
+                    //TODO set fields
                     break;
+                }
                 default:
                     break;
             }
             if (man != null) {
                 //FIXME set man.payload
                 man.payload.set("1");
-                
                 out.addManoeuvre(man);
             }
         }
@@ -122,7 +129,7 @@ public class MaridanPlanExporter implements IPlanFileExporter {
     public static void main(String[] args) throws Exception {
         MissionType mt = new MissionType("/home/zp/workspace/neptus/missions/APDL/missao-apdl.nmisz");
         PlanType plan = mt.getIndividualPlansList().get("plan1");
-        
+
         System.out.println(MaridanPlanExporter.translate(plan, null));
     }
 }
