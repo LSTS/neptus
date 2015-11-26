@@ -376,7 +376,8 @@ public class DeltaTParser implements BathymetryParser {
             boolean doSpeedCorrection = MRAProperties.soundSpeedCorrection;
 
             recordMsgln("");
-            recordMsgln("% Swath time           : " + DateTimeUtil.dateTimeFileNameFormaterMillis.format(new Date(timestamp)));
+            recordMsgln("% Swath type & version : " + header.fileType + ", " + header.fileVersion);
+            recordMsgln("% Swath time           : " + DateTimeUtil.dateTimeFileNameFormatterMillis.format(new Date(timestamp)));
             recordMsgln("% Swath position       : " + pose.getPosition().toString().replaceAll("\n", " ") + 
                     "m depth  :: " + MathMiscUtils.round(pose.getAltitude(), 2) + "m altitude");
             recordMsgln("% Swath attitude       : R" + MathMiscUtils.round(Math.toDegrees(pose.getRoll()), 1) +
@@ -385,6 +386,11 @@ public class DeltaTParser implements BathymetryParser {
             recordMsgln("% Orient. module       : R" + MathMiscUtils.round(Math.toDegrees(header.rollAngleDegreesOrientModule), 1) +
                     "\u00B0 P" + MathMiscUtils.round(Math.toDegrees(header.pitchAngleDegreesOrientModule), 1) +
                     "\u00B0 H" + MathMiscUtils.round(Math.toDegrees(header.headingAngleDegreesOrientModule), 1) + "\u00B0");
+
+            recordMsgln("% Ship Course          : " + header.gnssShipCourse + "\u00B0");
+            recordMsgln("% Ship Lat/Lon         : " + header.gnssShipPosLat + "  " + header.gnssShipPosLon);
+            recordMsgln("% Sonar XYZ offsets    : " + header.sonarXOffset + "m, " + header.sonarYOffset + "m, " + header.sonarZOffset + "m");
+
             recordMsgln("% Angle start/increment: " + header.startAngle + "\u00B0" + ", " + header.angleIncrement + "\u00B0");
             recordMsgln("% Beams                : " + header.numBeams);
             recordMsgln("% Samples per beam     : " + header.samplesPerBeam);
@@ -602,7 +608,7 @@ public class DeltaTParser implements BathymetryParser {
                 // c++;
                 // // kryo.writeObject(output, bs);
 
-                //System.out.println(Math.toDegrees(s.getPose().getYaw()));
+                System.out.println(Math.toDegrees(s.getPose().getYaw()));
 
             }
             NeptusLog.pub().info("<###> " + c);

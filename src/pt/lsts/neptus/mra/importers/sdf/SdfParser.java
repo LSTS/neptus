@@ -50,7 +50,8 @@ import java.util.Map.Entry;
 import pt.lsts.neptus.NeptusLog;
 
 public class SdfParser {
-
+    // Minimum valid timestamp (2000-01-01 00:00:00).
+    private static final long minimumValidTimestamp = 946684800000L;
     private File file;
     private FileInputStream fis;
     private FileChannel channel;
@@ -232,8 +233,11 @@ public class SdfParser {
                     else {
                         l.add(pos);
                     }
-                    minTimestampLow = Math.min(minTimestampLow, t);
-                    maxTimestampLow = Math.max(maxTimestampLow, t);
+                    
+                    if (t > minimumValidTimestamp) {
+                        minTimestampLow = Math.min(minTimestampLow, t);
+                        maxTimestampLow = Math.max(maxTimestampLow, t);
+                    }
                 }
 
                 if(subsystem == SUBSYS_HIGH) {
@@ -249,8 +253,11 @@ public class SdfParser {
 
                         l.add(pos);
                     }
-                    minTimestampHigh = Math.min(minTimestampHigh, t);
-                    maxTimestampHigh = Math.max(maxTimestampHigh, t);
+                    
+                    if (t > minimumValidTimestamp) {
+                        minTimestampHigh = Math.min(minTimestampHigh, t);
+                        maxTimestampHigh = Math.max(maxTimestampHigh, t);
+                    }
                 }
 
                 //end processing data

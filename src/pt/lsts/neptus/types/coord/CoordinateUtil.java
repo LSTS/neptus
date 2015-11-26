@@ -101,7 +101,7 @@ public class CoordinateUtil {
 
         strt = new StringTokenizer(coord, DELIM);
         // NeptusLog.pub().info(strt.countTokens());
-        if ((strt.countTokens() < 1) | (strt.countTokens() > 3))
+        if ((strt.countTokens() < 1) || (strt.countTokens() > 3))
             return null;
         for (int i = 1; strt.hasMoreTokens(); i++) {
             // NeptusLog.pub().info(strt.nextToken());

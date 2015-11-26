@@ -76,7 +76,9 @@ import pt.lsts.neptus.util.AngleCalc;
  */
 public class OffScreenLayerImageControl {
 
-    private static int offScreenBufferPixel = 400;
+    private static int offScreenBufferPixelDefault = 400;
+    
+    private int offScreenBufferPixel = offScreenBufferPixelDefault;
 
     // Cache image
     private BufferedImage cacheImg = null;
@@ -104,6 +106,21 @@ public class OffScreenLayerImageControl {
 
     public void triggerImageRebuild() {
         clearImgCacheRqst = true;
+    }
+    
+    /**
+     * @return the offScreenBufferPixel
+     */
+    public int getOffScreenBufferPixel() {
+        return offScreenBufferPixel;
+    }
+    
+    /**
+     * @param offScreenBufferPixel the offScreenBufferPixel to set
+     */
+    public void setOffScreenBufferPixel(int offScreenBufferPixel) {
+        this.offScreenBufferPixel = offScreenBufferPixel;
+        triggerImageRebuild();
     }
     
     /**

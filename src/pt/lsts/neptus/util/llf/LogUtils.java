@@ -50,6 +50,7 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.LblBeacon;
+import pt.lsts.imc.PathControlState;
 import pt.lsts.imc.SonarData;
 import pt.lsts.imc.VehicleCommand;
 import pt.lsts.imc.VehicleCommand.COMMAND;
@@ -741,12 +742,10 @@ public class LogUtils {
                     double y = entry.getDouble("y");
                     double z = entry.getDouble("z");
 
-                    // if (lat != tmp.getLatitudeAsDoubleValue() && lon != tmp.getLongitudeAsDoubleValue()
-                    // && depth != tmp.getDepth()) {
                     tmp.setLatitudeDegs(Math.toDegrees(lat));
                     tmp.setLongitudeDegs(Math.toDegrees(lon));
                     tmp.setDepth(depth);
-                    // }
+
                     double[] offs = tmp.getOffsetFrom(mission.getStartLocation());
                     // if (!(xVals.contains(offs[0]+x) && yVals.contains(offs[1]+y))) {
                     // xVals.add(offs[0]+x);
@@ -953,6 +952,23 @@ public class LogUtils {
             return new ArrayList<>();
         }
     }
+    
+    public static Vector<Double> lineSegments(IMraLogGroup source) {
+        
+        Vector<Double> result = new Vector<Double>();
+        
+        LsfIndex index = source.getLsfIndex();
+        PathControlState lastState = index.getFirst(PathControlState.class);
+        
+        for (PathControlState pcs : index.getIterator(PathControlState.class)) {
+            if (pcs.getEndLat() != lastState.getEndLat() || pcs.getEndLon() != pcs.getEndLon()) {
+                result.add(pcs.getTimestamp());
+                lastState = pcs;
+            }
+        }
+        return result;
+    }
+    
    
     public static boolean hasIMCSidescan(IMraLogGroup source) {
         LsfIndex index = source.getLsfIndex();
@@ -970,8 +986,8 @@ public class LogUtils {
         return false;
     }
 
-    public static void main(String[] args) {
-        NeptusLog.pub().info("<###> "+parseInlineName("%INLINE{Goto}"));
-        NeptusLog.pub().info("<###> "+parseInlineName("%INLINE{Popup}"));
+    public static void main(String[] args) throws Exception {
+        IMraLogGroup source = new LsfLogSource(new File("/home/zp/workspace/logs/160736_mvplanner_lauv-noptilus-1/Data.lsf"), null);
+        System.out.println(LogUtils.lineSegments(source));
     }
 }

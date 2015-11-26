@@ -77,7 +77,6 @@ public class FetcherWMS {
 			double latLon2[] = getTopLeft().getAbsoluteLatLonDepth();
 			double latLon1[] = getBottomRight().getAbsoluteLatLonDepth();
 			
-			//BoundingBox bbox = new BoundingBox("EPSG:4326", (float)topLeft.getLongitudeAsDoubleValue(),(float)topLeft.getLatitudeAsDoubleValue(),(float)bottomRight.getLongitudeAsDoubleValue(),(float)bottomRight.getLatitudeAsDoubleValue());
 			BoundingBox bbox = new BoundingBox("EPSG:4326", (float) latLon2[1], (float) latLon1[0], (float) latLon1[1], (float) latLon2[0]);
 			NeptusLog.pub().info("<###>minX:"+bbox.getMinX()+", minY:"+bbox.getMinY()+", maxX:"+bbox.getMaxX()+", maxY:"+bbox.getMaxY());
 			request.setBoundingBox(bbox);

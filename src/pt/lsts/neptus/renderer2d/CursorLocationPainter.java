@@ -98,9 +98,7 @@ public class CursorLocationPainter implements Renderer2DPainter {
         
 		if (curLoc != null) {
 			curLocation = r2d.getRealWorldLocation(curLoc);
-//			if (r2d.getMapGroup().getCoordinateSystem().getLatitudeAsDoubleValue()==0)
-//				return;
-			lbl.setText(getPrettyLocation());					
+			lbl.setText(getPrettyLocation());
 		}
 		else {
 			lbl.setText("");

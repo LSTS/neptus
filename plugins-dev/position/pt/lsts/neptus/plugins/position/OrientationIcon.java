@@ -94,7 +94,7 @@ public class OrientationIcon implements Icon {
 		g.fill(circle);
         g.setColor(foregroundColor);
 		g.draw(circle);
-		if (angleRadians != Double.NaN) {
+		if (!Double.isNaN(angleRadians)) {
 			g.rotate(angleRadians);
 			g.scale(diam/100,diam/100);
 			g.fill(arrow);

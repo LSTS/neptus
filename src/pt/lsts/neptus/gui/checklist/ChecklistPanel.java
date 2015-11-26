@@ -107,6 +107,7 @@ import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
 import pt.lsts.neptus.gui.BlockingGlassPane;
 import pt.lsts.neptus.gui.checklist.exec.CheckListExe;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.platform.OsInfo;
 import pt.lsts.neptus.types.checklist.CheckItem;
 import pt.lsts.neptus.types.checklist.ChecklistType;
 import pt.lsts.neptus.util.FileUtil;
@@ -551,7 +552,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
                 @Override
                 public void mouseClicked(java.awt.event.MouseEvent e) {
                     // NeptusLog.pub().info("<###>mouseClicked()");
-                    if (e.getButton() == MouseEvent.BUTTON3 & e.getClickCount() == 1) {
+                    if (e.getButton() == MouseEvent.BUTTON3 && e.getClickCount() == 1) {
                         getChecklistPopupMenu().show((Component) e.getSource(), e.getX(), e.getY());
                     }
                 }
@@ -1443,7 +1444,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
      */
     protected void openPDFInExternalViewer(String pdf) {
         try {
-            if (ConfigFetch.getOS() == ConfigFetch.OS_WINDOWS) {
+            if (OsInfo.getName() == OsInfo.Name.WINDOWS) {
                 Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + pdf);
             }
             else {
@@ -2543,7 +2544,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
             // BasicConfigurator.resetConfiguration();
             // NeptusLog.INSTANCE.logWaste.setLevel(Level.OFF);
             // NeptusLog.setLevel(Level.FATAL);
-            if (ConfigFetch.isOSEqual(ConfigFetch.OS_LINUX))
+            if (OsInfo.getName() == OsInfo.Name.LINUX)
                 GuiUtils.setLookAndFeel();
             else
                 GuiUtils.setSystemLookAndFeel();

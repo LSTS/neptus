@@ -53,8 +53,7 @@ public abstract class ConsoleInteraction extends AbstractConsolePlugin implement
     private InteractionAdapter adapter = null;
     
     @Override
-    public final void init(ConsoleLayout console) {
-        super.init(console);
+    protected final void initPlugin(ConsoleLayout console) {
         adapter = new InteractionAdapter(console);
         initInteraction();
     }
@@ -63,7 +62,6 @@ public abstract class ConsoleInteraction extends AbstractConsolePlugin implement
      * This method is called to subclasses after init() is called 
      */
     public abstract void initInteraction();
-    
     
     @Override
     public void clean() {

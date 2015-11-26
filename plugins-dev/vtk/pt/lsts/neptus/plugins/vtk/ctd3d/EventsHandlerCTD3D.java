@@ -33,7 +33,7 @@ package pt.lsts.neptus.plugins.vtk.ctd3d;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.vtk.events.AEventsHandler;
+import pt.lsts.neptus.vtk.events.AEventsHandler;
 
 /**
  * @author hfq

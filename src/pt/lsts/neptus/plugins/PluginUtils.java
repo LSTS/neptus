@@ -301,7 +301,7 @@ public class PluginUtils {
         return null;
     }
     
-    public static void editPluginProperties(final Object obj, boolean editable) {
+    public static boolean editPluginProperties(final Object obj, boolean editable) {
         PropertiesProvider provider = new PropertiesProvider() {
             
             @Override
@@ -325,7 +325,7 @@ public class PluginUtils {
             }
         };
         
-        PropertiesEditor.editProperties(provider, editable);
+        return PropertiesEditor.editProperties(provider, editable);
     }
 
     /**

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.1 (HEAD,0c854de)" system="lauv-noptilus-3-aux" i18n="ru_RU">
+<config format="1" version="2.6.x (master,8797653)" system="lauv-noptilus-3-aux" i18n="ru_RU">
   <section name="Power Supervisor" name-i18n="Power Supervisor">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -74,6 +74,15 @@
       <default>mount -o remount,rw /opt/lsts/dune/log &amp;&amp; mount -o remount,rw /opt &amp;&amp; services syslog restart</default>
       <units/>
       <desc>Command to execute when the power down sequence is aborted</desc>
+    </param>
+    <param name="Slave System Names">
+      <name-i18n>Slave System Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Name of the slave systems</desc>
     </param>
   </section>
   <section name="FTP Server" name-i18n="FTP Server">
@@ -216,7 +225,16 @@
       <scope>global</scope>
       <default/>
       <units/>
-      <desc>Rate limiters (message name/frequency pairs)</desc>
+      <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
+    </param>
+    <param name="Filtered Entities">
+      <name-i18n>Filtered Entities</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>
     <param name="Trace - Incoming Messages">
       <name-i18n>Trace - Incoming Messages</name-i18n>
@@ -492,14 +510,16 @@
       <units/>
       <desc>White Balance Gain Blue</desc>
     </param>
-    <param name="Strobe">
-      <name-i18n>Strobe</name-i18n>
-      <type>boolean</type>
+    <param name="LED Type">
+      <name-i18n>LED Type</name-i18n>
+      <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>ON</default>
       <units/>
-      <desc>Enable Strobe</desc>
+      <desc>LED type</desc>
+      <values>OFF, ON, STROBE</values>
+      <values-i18n>OFF, ON, STROBE</values-i18n>
     </param>
     <param name="Power Channel - Strobe">
       <name-i18n>Power Channel - Strobe</name-i18n>
@@ -510,14 +530,23 @@
       <units/>
       <desc>Power channel of the strobe</desc>
     </param>
-    <param name="Volume Size">
-      <name-i18n>Volume Size</name-i18n>
+    <param name="Maximum Log Size">
+      <name-i18n>Maximum Log Size</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1000</default>
+      <default>524288000</default>
+      <units>B</units>
+      <desc>Maximum size of a log file</desc>
+    </param>
+    <param name="Log Prefix">
+      <name-i18n>Log Prefix</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
       <units/>
-      <desc>Number of photos per volume</desc>
+      <desc>Log folder prefix</desc>
     </param>
     <param name="Enable Camera Configuration">
       <name-i18n>Enable Camera Configuration</name-i18n>

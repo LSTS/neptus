@@ -1,9 +1,7 @@
 # DATE=@DATE@
 # TIME=@TIME@
-# COMPILED BY=@COMPILED BY@ 
+# COMPILED BY=@COMPILED BY@
 # LEGAL_COPY=@LEGAL_COPY@
-# SVN_REV=@SVN_REV@
-# SVN_PATH=@SVN_PATH@
 
 #Simple Plugin:
 pt.lsts.neptus.plugins.position.AbsLatLonDepth
@@ -23,4 +21,5 @@ pt.lsts.neptus.plugins.position.StreamSpeedOverlay
 pt.lsts.neptus.plugins.position.DistancesPanel
 pt.lsts.neptus.plugins.position.AttitudeReplayPanel
 pt.lsts.neptus.plugins.position.FindMainSystemLayer
+pt.lsts.neptus.plugins.position.FollowMyLocation
 pt.lsts.neptus.plugins.position.painter.DistancesRadar

@@ -46,6 +46,7 @@ public class SystemPositionAndAttitude implements Cloneable, Comparable<SystemPo
     private double pitch = 0; 
     private double yaw = 0;
     private double altitude = 0;
+    private double depth = -1;
 
     private Vector3Dimension pqr = new Vector3Dimension();
     private Vector3Dimension uvw = new Vector3Dimension();
@@ -187,6 +188,8 @@ public class SystemPositionAndAttitude implements Cloneable, Comparable<SystemPo
         cloneState.setPitch(getPitch());
         cloneState.setRoll(getRoll());
         cloneState.setYaw(getYaw());
+        cloneState.setAltitude(getAltitude());
+        cloneState.setDepth(getDepth());
 
         return cloneState;
     }
@@ -230,6 +233,20 @@ public class SystemPositionAndAttitude implements Cloneable, Comparable<SystemPo
         this.altitude = altitude;
     }
 
+    /**
+     * @return the depth
+     */
+    public double getDepth() {
+        return depth;
+    }
+    
+    /**
+     * @param depth the depth to set
+     */
+    public void setDepth(double depth) {
+        this.depth = depth;
+    }
+    
     public double getRoll() {
         return roll;
     }

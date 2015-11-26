@@ -577,8 +577,8 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
                 }
 
                 Date date = new Date(sys.getLocationTimeMillis());
-                vs.addAttribute("time", DateTimeUtil.timeFormaterUTC.format(date));
-                vs.addAttribute("date", DateTimeUtil.dateFormaterUTC.format(date));
+                vs.addAttribute("time", DateTimeUtil.timeFormatterUTC.format(date));
+                vs.addAttribute("date", DateTimeUtil.dateFormatterUTC.format(date));
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -674,8 +674,8 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
                 }
 
                 Date date = new Date(sys.getLocationTimeMillis());
-                vs.addAttribute("time", DateTimeUtil.timeFormaterUTC.format(date));
-                vs.addAttribute("date", DateTimeUtil.dateFormaterUTC.format(date));
+                vs.addAttribute("time", DateTimeUtil.timeFormatterUTC.format(date));
+                vs.addAttribute("date", DateTimeUtil.dateFormatterUTC.format(date));
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -711,8 +711,8 @@ public class RemotePositionPublisherUpdater extends ConsolePanel implements IPer
                         }
 
                         Date date = new Date(System.currentTimeMillis());
-                        vs.addAttribute("time", DateTimeUtil.timeFormaterUTC.format(date));
-                        vs.addAttribute("date", DateTimeUtil.dateFormaterUTC.format(date));
+                        vs.addAttribute("time", DateTimeUtil.timeFormatterUTC.format(date));
+                        vs.addAttribute("date", DateTimeUtil.dateFormatterUTC.format(date));
                     }
                     catch (Exception e) {
                         e.printStackTrace();

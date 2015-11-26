@@ -294,8 +294,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                 newHeadingDegrees = headingDegrees + followHeadingOfAngleOffset;
             }
         }
-
-        if (!useConfiguredMyHeading && isSystemToDeriveHeadingFilled()) {
+        else if (!useConfiguredMyHeading && isSystemToDeriveHeadingFilled()) {
             ImcSystem sys = ImcSystemsHolder.lookupSystemByName(useSystemToDeriveHeading);
             LocationType loc = null;
             // long locTime = -1;
@@ -391,10 +390,10 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
 
                 gt.translate(centerPos.getX(), centerPos.getY());
                 gt.rotate(Math.PI + Math.toRadians(headingDegrees) - renderer.getRotation());
-                if (isSystemToDeriveHeadingFilled()) {
+                if (!useConfiguredMyHeading && isSystemToDeriveHeadingFilled()) {
                     gt.rotate(Math.toRadians(-angleOffsetFromFrontToWhereTheOperatorIsLooking));
                 }
-                else if (isFollowingHeadingOfFilled()) {
+                else if (!useConfiguredMyHeading && isFollowingHeadingOfFilled()) {
                     gt.rotate(Math.toRadians(-followHeadingOfAngleOffset));
                 }
 
@@ -530,7 +529,7 @@ public class MyLocationDisplay extends ConsolePanel implements IPeriodicUpdates,
                         MapType mapType = mapMission.getMap();
                         MarkElement contact = new MarkElement();
                         contact.setCenterLocation(locContact);
-                        String id = I18n.textc("MyLoc", "String prefix for a marker") + "_" + DateTimeUtil.dateTimeFileNameFormaterMillis.format(new Date(tstamp));
+                        String id = I18n.textc("MyLoc", "String prefix for a marker") + "_" + DateTimeUtil.dateTimeFileNameFormatterMillis.format(new Date(tstamp));
                         contact.setId(id);
                         contact.setParentMap(mapType);
                         contact.setMapGroup(mapType.getMapGroup());

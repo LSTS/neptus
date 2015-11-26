@@ -185,7 +185,7 @@ public class LastErrorPanel extends ConsolePanel implements MainVehicleChangeLis
 
                 String dateStr = "";
                 if (sys.getLastErrorStateReceived() != -1) {
-                    dateStr = DateTimeUtil.timeFormaterNoMillis2.format(new Date(sys.getLastErrorStateReceived()));
+                    dateStr = DateTimeUtil.timeFormatterNoMillis2.format(new Date(sys.getLastErrorStateReceived()));
                     if ((System.currentTimeMillis() - sys.getLastErrorStateReceived()) > 5000)
                         entitiesInErrorLabel.setEnabled(false);
                     else
@@ -213,7 +213,7 @@ public class LastErrorPanel extends ConsolePanel implements MainVehicleChangeLis
         if (lastError != null && !"".equalsIgnoreCase(lastError)) {
             String dateStr = "";
             if (lastErrorTime != -1) {
-                dateStr = DateTimeUtil.timeFormaterNoMillis2.format(new Date(lastErrorTime * 1000));
+                dateStr = DateTimeUtil.timeFormatterNoMillis2.format(new Date(lastErrorTime * 1000));
                 if ((System.currentTimeMillis() - (lastErrorTime * 1000)) > 5000)
                     lastErrorLabel.setEnabled((entitiesInErrorLabel.isEnabled() && !""
                             .equalsIgnoreCase(entitiesInErrorLabel.getText())) ? true : false);

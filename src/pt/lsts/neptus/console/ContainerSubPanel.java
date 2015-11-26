@@ -48,7 +48,6 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.DistributionEnum;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author ZP
@@ -176,14 +175,12 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
             // process childs 
             if ("child".equals(element.getName())) {
                 Attribute attribute = element.attribute("class");
-                ConfigFetch.mark(attribute.getValue());
                 try {
                     Class<?> clazz = Class.forName(attribute.getValue());
                     try {
                         subpanel = (ConsolePanel) clazz.getConstructor(ConsoleLayout.class).newInstance(getConsole());
                         addSubPanel(subpanel);
                         subpanel.inElement(element);
-                        ConfigFetch.benchmark(attribute.getValue());
                     }
                     catch (Exception e) {
                         NeptusLog.pub().error("creating subpanel new instance " + clazz.getName(), e);

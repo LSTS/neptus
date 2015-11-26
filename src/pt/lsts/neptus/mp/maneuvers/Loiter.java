@@ -79,8 +79,8 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
     
 	static {
 	    wpLoiterTypeConstantsMap.put(1l, I18n.textmark("Circular"));
-	    wpLoiterTypeConstantsMap.put(2l, I18n.textmark("Racetrack"));
-	    wpLoiterTypeConstantsMap.put(3l, I18n.textmark("Figure 8"));
+	    // wpLoiterTypeConstantsMap.put(2l, I18n.textmark("Racetrack"));
+	    wpLoiterTypeConstantsMap.put(2l, I18n.textmark("Figure 8"));
 	    // wpLoiterTypeConstantsMap.put(4l, "Hover");
 	    
 	    loiterDirectionConstantsMap.put(0l, I18n.textmark("Vehicle Dependent"));
@@ -260,7 +260,7 @@ public class Loiter extends Maneuver implements LocatedManeuver, StatisticsProvi
 		props.add(radius);
 		
 		DefaultProperty length = PropertiesEditor.getPropertyInstance("Length", Double.class, this.length, true);
-		length.setShortDescription("If its a 'racetrack' or 'figure8' loiter, sets the distance between the focuses");
+		length.setShortDescription("If it is 'figure8' loiter, sets the distance between the focuses");
 		props.add(length);
 		
 		DefaultProperty bearing = PropertiesEditor.getPropertyInstance("Bearing", Double.class, this.bearing, true);

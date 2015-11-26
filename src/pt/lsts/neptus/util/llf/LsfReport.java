@@ -43,7 +43,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -75,7 +74,7 @@ import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanParserFactory;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
-import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.types.map.MapType;
 import pt.lsts.neptus.types.map.PathElement;
@@ -83,6 +82,7 @@ import pt.lsts.neptus.types.map.PlanElement;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
@@ -595,12 +595,11 @@ public class LsfReport {
     }
 
     public static void createPdfMarksRows(PdfPTable table, LogMarker m){
-        String dateAsText = new SimpleDateFormat("HH:mm:ss.ms").format(m.getTimestamp());
-        table.addCell(dateAsText);
+        table.addCell(DateTimeUtil.formatTime((long)m.getTimestamp()));
         table.addCell(m.getLabel());
-        LocationType loc = new LocationType(Math.toDegrees(m.getLat()), Math.toDegrees(m.getLon()));
-        String locString = loc.toString();
-        table.addCell(locString);
+        String lat = CoordinateUtil.latitudeAsPrettyString(Math.toDegrees(m.getLat()), false);
+        String lon = CoordinateUtil.longitudeAsPrettyString(Math.toDegrees(m.getLon()), false);
+        table.addCell(lat + " " + lon);
     }
 
     public static void setRowsWidth(PdfPTable table, int nSubsys){

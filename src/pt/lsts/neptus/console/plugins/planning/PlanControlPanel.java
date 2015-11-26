@@ -417,7 +417,10 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                         NeptusLog.action().info(action);
 
                         sendStartButton.setEnabled(false);
-                        sendStartPlan(getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
+                        boolean ignoreErrors = ((ev.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK);
+                        if (ignoreErrors)
+                            System.out.println("Control pressed, ignoring errors");
+                        sendStartPlan(ignoreErrors, getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
 
                         return null;
                     }
@@ -447,7 +450,7 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                         NeptusLog.action().info(action);
 
                         sendStopButton.setEnabled(false);
-                        sendStopPlan(getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
+                        sendStopPlan(false, getSystemsToSendTo(SystemsSelectionAction.getClearSelectionOption(ev)));
 
                         return null;
                     }
@@ -935,15 +938,15 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         return ret;
     }
 
-    private boolean sendStartPlan(String... systems) {
-        return sendStartStop(PlanControl.OP.START, systems);
+    private boolean sendStartPlan(boolean ignoreErrors, String... systems) {
+        return sendStartStop(ignoreErrors, PlanControl.OP.START, systems);
     }
 
-    private boolean sendStopPlan(String... systems) {
-        return sendStartStop(PlanControl.OP.STOP, systems);
+    private boolean sendStopPlan(boolean ignoreErrors, String... systems) {
+        return sendStartStop(ignoreErrors, PlanControl.OP.STOP, systems);
     }
 
-    private boolean sendStartStop(PlanControl.OP cmd, String... systems) {
+    private boolean sendStartStop(boolean ignoreErrors, PlanControl.OP cmd, String... systems) {
         if (!checkConditionToRun(this, cmd == PlanControl.OP.START ? false : true, cmd == PlanControl.OP.STOP ? false
                 : true))
             return false;
@@ -954,6 +957,9 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         PlanControl pc = new PlanControl();
         pc.setType(PlanControl.TYPE.REQUEST);
         pc.setRequestId(reqId);
+        
+        
+        
         String cmdStrMsg = "";
         try {
             switch (cmd) {
@@ -987,6 +993,10 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
         }
         pc.setOp(cmd);
 
+        if(ignoreErrors) {
+            pc.setFlags(pc.getFlags() | PlanControl.FLG_IGNORE_ERRORS);
+            post(Notification.warning(I18n.text("Send Plan"), "Ignoring any errors during execution of this plan"));
+        }
         boolean dontSendByAcoustics = DONT_USE_ACOUSTICS;
         if (cmd == PlanControl.OP.START) {
             String planId = pc.getPlanId();
@@ -1175,9 +1185,9 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                                 double deltaTime = (msg.getTimestampMillis() - requestTimeMillis) / 1E3;
                                 post(Notification.error(I18n.text("Plan Control Error"),
                                         I18n.textf("The following error arrived at @%timeArrived for a request @%timeRequested (\u2206t %deltaTime): %msg",
-                                                DateTimeUtil.timeFormaterNoMillis2UTC.format(msg.getDate())
+                                                DateTimeUtil.timeFormatterNoMillis2UTC.format(msg.getDate())
                                                 + utcStr,
-                                                DateTimeUtil.timeFormaterNoMillis2UTC.format(new Date(
+                                                DateTimeUtil.timeFormatterNoMillis2UTC.format(new Date(
                                                         requestTimeMillis)) + utcStr, deltaTime < 0 ? "-"
                                                                 : convertTimeSecondsToFormatedStringMillis(deltaTime),
                                                                 msg.getInfo())).src(
@@ -1234,9 +1244,9 @@ LockableSubPanel, IPeriodicUpdates, NeptusMessageListener {
                                 double deltaTime = (planDb.getTimestampMillis() - requestTimeMillis) / 1E3;
                                 post(Notification.error(I18n.text("Plan DB Error"),
                                         I18n.textf("The following error arrived at @%timeArrived for a request @%timeRequested (\u2206t %deltaTime): %msg",
-                                                DateTimeUtil.timeFormaterNoMillis2UTC.format(planDb.getDate())
+                                                DateTimeUtil.timeFormatterNoMillis2UTC.format(planDb.getDate())
                                                 + utcStr,
-                                                DateTimeUtil.timeFormaterNoMillis2UTC.format(new Date(
+                                                DateTimeUtil.timeFormatterNoMillis2UTC.format(new Date(
                                                         requestTimeMillis)) + utcStr, deltaTime < 0 ? "-"
                                                                 : convertTimeSecondsToFormatedStringMillis(deltaTime),
                                                                 planDb.getInfo())).src(

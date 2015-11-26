@@ -35,10 +35,6 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -230,6 +226,12 @@ public class GeneralPreferences implements PropertiesProvider {
     public static int maximumSizePlanNameForAcoustics = 31;
     
     // -------------------------------------------------------------------------
+
+    @NeptusProperty(name = "Place Main Vehicle Combobox On Menu Or Status Bar", category="Console", userLevel = LEVEL.REGULAR,
+       description = "Place the console vehicle combobox on the menu bar or status bar (overcomes Utity hidding menus).")
+    public static boolean placeMainVehicleComboOnMenuOrStatusBar = true;
+        
+    // -------------------------------------------------------------------------
     // Constructor and initialize
 
     public GeneralPreferences() {
@@ -350,7 +352,7 @@ public class GeneralPreferences implements PropertiesProvider {
         Thread t = new Thread("Properties Change Warner") {
             @Override
             public void run() {
-                warnPreferencesListeneres();
+                warnPreferencesListeners();
             }
         };
         t.setDaemon(true);
@@ -397,7 +399,7 @@ public class GeneralPreferences implements PropertiesProvider {
     /**
      * @param propertyChanged
      */
-    public static void warnPreferencesListeneres() {
+    public static void warnPreferencesListeners() {
         for (PreferencesListener pl : pListeners) {
             try {
                 pl.preferencesUpdated();
@@ -468,65 +470,6 @@ public class GeneralPreferences implements PropertiesProvider {
         }
         catch (IOException e) {
             NeptusLog.pub().error("saveProperties", e);
-        }
-    }
-
-    /**
-     * Generate IMC ID
-     */
-    public static void generateImcId() {
-        // IMC Local ID
-        try {
-            String hostadr;
-            try {
-                InetAddress addr = InetAddress.getLocalHost();
-                hostadr = addr.getHostAddress();
-            }
-            catch (Exception e1) { // UnknownHostException
-                e1.printStackTrace();
-                hostadr = "127.0.0.1";
-            }
-            String osName = System.getProperty("os.name");
-            if (osName.toLowerCase().indexOf("linux") != -1) {
-                try {
-                    Enumeration<NetworkInterface> netInt = NetworkInterface.getNetworkInterfaces();
-                    while (netInt.hasMoreElements()) {
-                        NetworkInterface ni = netInt.nextElement();
-                        Enumeration<InetAddress> iAddress = ni.getInetAddresses();
-                        while (iAddress.hasMoreElements()) {
-                            InetAddress ia = iAddress.nextElement();
-                            if (!ia.isLoopbackAddress()) {
-                                if (ia instanceof Inet4Address) {
-                                    hostadr = ia.getHostAddress();
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            String[] sl2 = hostadr.split("\\.");
-
-            // IMC
-            long idd = (Integer.parseInt(sl2[2]) << 8) + (Integer.parseInt(sl2[3]));
-            ImcId16 newCcuId = new ImcId16((idd & 0x1FFF) | 0x4000);
-
-//            GeneralPreferences.setProperty(GeneralPreferences.IMC_CCU_ID, newCcuId.toPrettyString());
-//
-//            GeneralPreferences.setProperty(GeneralPreferences.IMC_CCU_NAME, "CCU " + System.getProperty("user.name")
-//                    + " " + sl2[2] + "_" + sl2[3]);
-//            GeneralPreferences.saveProperties();
-
-            GeneralPreferences.imcCcuId = newCcuId;
-            GeneralPreferences.imcCcuName = "CCU " + System.getProperty("user.name") + " " + sl2[2] + "_" + sl2[3];
-            GeneralPreferences.saveProperties();
-
-        }
-        catch (NumberFormatException e) {
-            NeptusLog.pub().error(e.getMessage());
         }
     }
 

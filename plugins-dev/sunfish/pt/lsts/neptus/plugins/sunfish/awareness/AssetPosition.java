@@ -56,6 +56,14 @@ public class AssetPosition implements Comparable<AssetPosition> {
         this.timestamp = System.currentTimeMillis();
         this.assetName = asset;
         this.loc = new LocationType(latDegrees, lonDegrees);
+        this.loc.setHeight(0);
+    }
+
+    public AssetPosition(String asset, double latDegrees, double lonDegrees, double height) {
+        this.timestamp = System.currentTimeMillis();
+        this.assetName = asset;
+        this.loc = new LocationType(latDegrees, lonDegrees);
+        this.loc.setHeight(height);
     }
 
     @Override

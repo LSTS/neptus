@@ -32,8 +32,8 @@
 package pt.lsts.neptus.plugins.vtk.ctd3d;
 
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.vtk.visualization.AWindow;
-import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
+import pt.lsts.neptus.vtk.visualization.AWindow;
+import pt.lsts.neptus.vtk.visualization.Canvas;
 
 /**
  * @author hfq

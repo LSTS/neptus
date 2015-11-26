@@ -129,9 +129,10 @@ public class FollowReferenceControl extends SimpleRendererInteraction implements
             units = Z_UNITS.ALTITUDE;
             z = -z;
         }
-
-        ref.setZ(new DesiredZ((float)z, units));
-        ref.setSpeed(new DesiredSpeed(speed, DesiredSpeed.SPEED_UNITS.METERS_PS));
+        if (ref != null) {
+            ref.setZ(new DesiredZ((float)z, units));
+            ref.setSpeed(new DesiredSpeed(speed, DesiredSpeed.SPEED_UNITS.METERS_PS));
+        }
     }
 
     @Subscribe

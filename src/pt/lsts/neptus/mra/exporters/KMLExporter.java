@@ -80,7 +80,9 @@ import pt.lsts.neptus.renderer2d.ImageLayer;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.ZipUtils;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 import pt.lsts.neptus.util.llf.LogUtils;
@@ -125,7 +127,13 @@ public class KMLExporter implements MRAExporter {
     public boolean separateTransducers = false;
 
     @NeptusProperty(category = "SideScan")
+    public boolean separateLineSegments = false;
+
+    @NeptusProperty(category = "SideScan")
     public boolean filterOutNadir = true;
+    
+    @NeptusProperty(category = "Output")
+    public boolean compressOutput = true;
 
 //    @NeptusProperty
 //    public boolean removeInfiniteShadows = true;
@@ -160,7 +168,7 @@ public class KMLExporter implements MRAExporter {
     }
 
     public String kmlHeader(String title) {
-        String ret = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<kml xmlns=\"http://earth.google.com/kml/2.1\">\n";
+        String ret = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<kml xmlns=\"http://earth.google.com/kml/2.1\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\">\n";
         ret += "\t<Document>\n";
         ret += "\t\t<name>" + title + "</name>\n";
 
@@ -193,9 +201,9 @@ public class KMLExporter implements MRAExporter {
             ret += "\t\t\t<visibility>" + (visibility ? 1 : 0) + "</visibility>\n";
             ret += "\t\t\t<description></description>\n";
             ret += "\t\t\t<Icon>\n";
-
             ret += "\t\t\t\t<href>" + imageFile.getName() + "</href>\n";
             ret += "\t\t\t</Icon>\n";
+            ret += "\t\t\t<gx:altitudeMode>clampToSeaFloor</gx:altitudeMode>\n";
             ret += "\t\t\t<LatLonBox>\n";
             ret += "\t\t\t\t<north>" + ne.getLatitudeDegs() + "</north>\n";
             ret += "\t\t\t\t<south>" + sw.getLatitudeDegs() + "</south>\n";
@@ -222,19 +230,16 @@ public class KMLExporter implements MRAExporter {
             ret += "\t\t\t<name>" + name + " " + pathNumber++ + "</name>\n";
             ret += "\t\t\t<styleUrl>#" + style + "</styleUrl>\n";
             ret += "\t\t\t<LineString>\n";
-            ret += "\t\t\t\t<altitudeMode>relative</altitudeMode>\n";
+            ret += "\t\t\t\t<gx:altitudeMode>clampToSeaFloor</gx:altitudeMode>\n";
             ret += "\t\t\t\t<coordinates> ";
-            
-//            for (LocationType l : coords) {
-//                l.convertToAbsoluteLatLonDepth();
-//                ret += l.getLongitudeDegs() + "," + l.getLatitudeDegs() + ",0\n";// -" + l.getDepth()+"\n";
-//            }
+
             LocationType l;
+            
             for (l = coords.get(idx); idx < coords.size(); l = coords.get(idx), idx++) {
                 if (l == null)
                     break;
                 l.convertToAbsoluteLatLonDepth();
-                ret += l.getLongitudeDegs() + "," + l.getLatitudeDegs() + ",0\n";// -" + l.getDepth()+"\n";
+                ret += l.getLongitudeDegs() + "," + l.getLatitudeDegs() + ","+(-l.getDepth())+"\n";// -" + l.getDepth()+"\n";
             }
             ret += "\t\t\t\t</coordinates>\n";
             ret += "\t\t\t</LineString>\n";
@@ -303,7 +308,7 @@ public class KMLExporter implements MRAExporter {
     }
 
     public String sidescanOverlay(File dir, double resolution, LocationType topLeft, LocationType bottomRight,
-            Ducer ducer) {
+            String fname, long startTime, long endTime, Ducer ducer) {
         SidescanParser ssParser = SidescanParserFactory.build(source);
 
         double totalProg = 100;
@@ -339,11 +344,13 @@ public class KMLExporter implements MRAExporter {
         frm.setSize(800, 600);
         GuiUtils.centerOnScreen(frm);
         Graphics2D g = (Graphics2D) img.getGraphics();
-        long start = ssParser.firstPingTimestamp();
-        long end = ssParser.lastPingTimestamp();
+        long start = Math.max(ssParser.firstPingTimestamp(), startTime);
+        long end = Math.min(ssParser.lastPingTimestamp(), endTime);
+        
+        
         int sys = ssParser.getSubsystemList().get(0);
         SidescanParameters params = new SidescanParameters(normalization, timeVariableGain);
-        String filename = "sidescan";
+        String filename = fname;
 
         BufferedImage swath = null;
         ColorMap cmap = ColorMapFactory.createBronzeColormap();
@@ -394,17 +401,17 @@ public class KMLExporter implements MRAExporter {
                     case board:
                         startPixel = 0;
                         endPixel = sl.data.length / 2;
-                        filename = "sidescan_board";
+                        filename = fname+"_board";
                         break;
                     case starboard:
                         startPixel = sl.data.length / 2;
                         endPixel = sl.data.length;
-                        filename = "sidescan_starboard";
+                        filename = fname+"_starboard";
                         break;
                     default:
                         startPixel = 0;
                         endPixel = sl.data.length;
-                        filename = "sidescan";
+                        filename = fname;
                         break;
                 }
 
@@ -496,6 +503,11 @@ public class KMLExporter implements MRAExporter {
             e.printStackTrace();
             return "";
         }
+    }
+    
+    public String sidescanOverlay(File dir, double resolution, LocationType topLeft, LocationType bottomRight,
+            Ducer ducer) {
+       return sidescanOverlay(dir, resolution, topLeft, bottomRight, "sidescan", 0, System.currentTimeMillis(), ducer);
     }
 
     public String multibeamLegend(File dir) {
@@ -726,7 +738,7 @@ public class KMLExporter implements MRAExporter {
             File out = new File(source.getFile("mra"), "kml");
             out.mkdirs();
 
-            out = new File(out, "data.kml");
+            out = new File(out, "Data.kml");
             BufferedWriter bw = new BufferedWriter(new FileWriter(out));
             File f = source.getFile(".");
             String name = f.getCanonicalFile().getName();
@@ -817,10 +829,23 @@ public class KMLExporter implements MRAExporter {
             bottomRight.convertToAbsoluteLatLonDepth();
 
             pmonitor.setNote("Generating sidescan overlay");
-            bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.both));
-            if (separateTransducers) {
-                bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.board));
-                bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.starboard));
+            
+            if (separateLineSegments) {
+                double lastTime = 0;
+                int count = 1;
+                for (Double seg : LogUtils.lineSegments(source)) {
+                    bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, "sss" + count,
+                            (long) (lastTime * 1000), (long) (seg * 1000), Ducer.both));
+                    lastTime = seg;
+                    count++;
+                }
+            }
+            else {
+                bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.both));
+                if (separateTransducers) {
+                    bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.board));
+                    bw.write(sidescanOverlay(out.getParentFile(), 6, topLeft, bottomRight, Ducer.starboard));
+                }
             }
             pmonitor.setNote("Generating bathymetry overlay");
             String mb = multibeamOverlay(out.getParentFile());
@@ -851,8 +876,20 @@ public class KMLExporter implements MRAExporter {
 
             if (pmonitor.isCanceled())
                 return "Cancelled by the user";
-            pmonitor.close();
-            return "Log exported to " + out.getAbsolutePath();
+            if (compressOutput) {
+                pmonitor.setNote("Compressing output");
+                
+                System.out.println(new File(source.getFile("mra"), "Data.kmz"));
+                System.out.println(new File(source.getFile("mra"), "kml"));
+                ZipUtils.zipDir(new File(source.getFile("mra"), "Data.kmz").getAbsolutePath(), new File(source.getFile("mra"), "kml").getAbsolutePath());            
+                
+                pmonitor.setNote("Deleting old directory");
+                FileUtil.deltree(out.getAbsolutePath());
+                pmonitor.close();
+                return "Log exported to " + new File(source.getFile("mra"), "Data.kmz").getAbsolutePath();
+            }
+            else
+                return "Log exported to " + out.getAbsolutePath();
         }
         catch (Exception e) {
             GuiUtils.errorMessage("Error while exporting to KML", "Exception of type " + e.getClass().getSimpleName()
