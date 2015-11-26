@@ -54,7 +54,7 @@ public class SurveyPlan {
     static class SafetyArea {
     }
     
-    @XmlElements({@XmlElement(type=Goto.class), @XmlElement(type=Site.class)})
+    @XmlElements({@XmlElement(type=GotoMan.class), @XmlElement(type=SiteMan.class)})
     private List<Manoeuvre> Manoeuvre = new ArrayList<>();
     
     public void addManoeuvre(Manoeuvre man) {
@@ -85,7 +85,7 @@ public class SurveyPlan {
     }
     
     @XmlRootElement(name="Manoeuvre")
-    static class Goto extends Manoeuvre {
+    static class GotoMan extends Manoeuvre {
         @XmlElement(name="Point")
         private Point point = new Point();
         
@@ -116,8 +116,45 @@ public class SurveyPlan {
     }
     
     @XmlRootElement(name="Manoeuvre")
-    static class Site extends Manoeuvre {
+    static class SiteMan extends Manoeuvre {
+        @XmlElement(name="Site")
+        private Site site = new Site(); 
         
+        public void setDirectionDegs(float direction) {
+            site.direction = direction;
+        }
+        
+        public void setLegCount(int count) {
+            site.legCount = count;
+        }
+        
+        public void setSpacingMeters(float spacing) {
+            site.spacing = spacing;
+        }
+        
+        public void setLatDegs(double lat) {
+            site.latitude = lat;
+        }
+        
+        public void setLonDegs(double lon) {
+            site.longitude = lon;
+        }
+        
+        public void setDepth(float depth) {
+            site.height = -depth;
+        }
+        
+        public void setAltitude(float altitude) {
+            site.height = altitude;
+        }
+        
+        public void setSpeedMps(float speed) {
+            site.speed = speed;
+        }
+        
+        public void setTimeoutSecs(float timeout) {
+            site.timeout = timeout;
+        }
     }
     
     
@@ -134,16 +171,25 @@ public class SurveyPlan {
         float timeout = 0;
     }
     
+    static class Site extends Point{
+        @XmlAttribute(name="LegCnt")
+        int legCount = 8;
+        @XmlAttribute(name="Spacing")
+        float spacing = 20;
+        @XmlAttribute(name="Direction")
+        float direction = 45;
+    }
+    
     public static void main(String[] args) {
         SurveyPlan plan = new SurveyPlan();
-        Goto g = new Goto();
+        GotoMan g = new GotoMan();
         g.setLatDegs(41);
         g.setLonDegs(-8);
         g.setSpeedMps(1.4f);
         g.setTimeoutSecs(1000);
         g.payload.set("1");
         plan.addManoeuvre(g);
-        plan.addManoeuvre(new Site());
+        plan.addManoeuvre(new SiteMan());
         JAXB.marshal(plan, System.out);
     }
 }

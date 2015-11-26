@@ -40,9 +40,11 @@ import javax.swing.ProgressMonitor;
 import javax.xml.bind.JAXB;
 
 import dk.maridan.SurveyPlan.Manoeuvre;
-import dk.maridan.SurveyPlan.Site;
+import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.SetEntityParameters;
 import pt.lsts.neptus.mp.Maneuver;
 import pt.lsts.neptus.mp.maneuvers.Goto;
+import pt.lsts.neptus.mp.maneuvers.RowsManeuver;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.PlanUtil;
@@ -70,7 +72,7 @@ public class MaridanPlanExporter implements IPlanFileExporter {
 
     @Override
     public String[] validExtensions() {
-        return new String[] {"xml"};
+        return new String[] { "xml" };
     }
 
     public static String translate(PlanType plan, LocationType vehicleLocation) throws Exception {
@@ -83,41 +85,88 @@ public class MaridanPlanExporter implements IPlanFileExporter {
             switch (m.getType()) {
                 case "Goto": {
                     Goto g = (Goto) m;
-                    SurveyPlan.Goto tmp = new SurveyPlan.Goto();
+                    SurveyPlan.GotoMan tmp = new SurveyPlan.GotoMan();
                     man = tmp;
                     switch (g.getManeuverLocation().getZUnits()) {
                         case DEPTH:
-                            tmp.setDepth((float)g.getManeuverLocation().getZ());
+                            tmp.setDepth((float) g.getManeuverLocation().getZ());
                             break;
                         case ALTITUDE:
                         case HEIGHT:
-                            tmp.setAltitude((float)g.getManeuverLocation().getZ());
-                            break;                            
+                            tmp.setAltitude((float) g.getManeuverLocation().getZ());
+                            break;
                         default:
-                            throw new Exception("Invalid Z units for maneuver "+m.getId());
+                            throw new Exception("Invalid Z units for maneuver " + m.getId());
                     }
                     tmp.setLatDegs(g.getManeuverLocation().getLatitudeDegs());
                     tmp.setLonDegs(g.getManeuverLocation().getLongitudeDegs());
-                    tmp.setSpeedMps((float)g.getSpeed());
-                    double timeout = PlanUtil.getExecutionTimeSecs(previousPos, g);
-                    if (timeout == 0)
-                        timeout = 1000;
-                    tmp.setTimeoutSecs((float)(timeout * 1.5));
+                    tmp.setSpeedMps((float) g.getSpeed());
+
+                    if (previousPos == null)
+                        tmp.setTimeoutSecs(1000f);
+                    else
+                        tmp.setTimeoutSecs((float) PlanUtil.getExecutionTimeSecs(previousPos, g) * 1.5f);
+
                     previousPos = g.getEndLocation();
                     break;
                 }
-                case "Rows": {
-                    SurveyPlan.Site site = new Site();
+                case "RowsManeuver": {
+                    RowsManeuver rows = (RowsManeuver) m;
+                    SurveyPlan.SiteMan site = new SurveyPlan.SiteMan();
                     man = site;
-                    //TODO set fields
+                    switch (rows.getManeuverLocation().getZUnits()) {
+                        case DEPTH:
+                            site.setDepth((float) rows.getManeuverLocation().getZ());
+                            break;
+                        case ALTITUDE:
+                        case HEIGHT:
+                            site.setAltitude((float) rows.getManeuverLocation().getZ());
+                            break;
+                        default:
+                            throw new Exception("Invalid Z units for maneuver " + m.getId());
+                    }
+                    site.setLatDegs(rows.getManeuverLocation().getLatitudeDegs());
+                    site.setLonDegs(rows.getManeuverLocation().getLongitudeDegs());
+                    site.setSpeedMps((float) rows.getSpeed());
+                    site.setSpacingMeters((float) rows.getHstep());
+                    if (!rows.isFirstCurveRight())
+                        site.setSpacingMeters((float) -rows.getHstep());
+                    site.setLegCount((int) Math.floor(rows.getWidth() / rows.getHstep()) + 1);
+                    site.setDirectionDegs((float) Math.toDegrees(rows.getBearingRad()));
+
+                    System.out.println(rows.getCompletionTime(previousPos));
+
+                    if (previousPos == null)
+                        site.setTimeoutSecs(1000f);
+                    else
+                        site.setTimeoutSecs((float) PlanUtil.getExecutionTimeSecs(previousPos, rows) * 1.5f);
+
+                    previousPos = rows.getEndLocation();
                     break;
                 }
                 default:
                     break;
             }
             if (man != null) {
-                //FIXME set man.payload
-                man.payload.set("1");
+
+                for (IMCMessage imc : m.getStartActions().getAllMessages()) {
+                    if (imc instanceof SetEntityParameters) {
+                        String entityName = ((SetEntityParameters) imc).getName();
+                        if (entityName.equals("Payload")) {
+                            String profile = ((SetEntityParameters) imc).getParams().firstElement().getValue();
+                            switch (profile) {
+                                case "SSS+SBP":
+                                    man.payload.set("1");
+                                    break;
+                                case "Camera":
+                                    man.payload.set("2");
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
                 out.addManoeuvre(man);
             }
         }
@@ -129,7 +178,7 @@ public class MaridanPlanExporter implements IPlanFileExporter {
     public static void main(String[] args) throws Exception {
         MissionType mt = new MissionType("/home/zp/workspace/neptus/missions/APDL/missao-apdl.nmisz");
         PlanType plan = mt.getIndividualPlansList().get("plan1");
-
-        System.out.println(MaridanPlanExporter.translate(plan, null));
+        String planXml = MaridanPlanExporter.translate(plan, null);
+        System.out.println(planXml);
     }
 }
