@@ -90,8 +90,6 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	protected String emergencyPlanId = "";
 	protected String emergencyStatusStr = "";
 	
-	private InetSocketAddress inetSocketAddress = null;
-	
 	private String servicesProvided = "";
 	
 	protected boolean onErrorState = false;
@@ -114,7 +112,6 @@ public class ImcSystem implements Comparable<ImcSystem> {
     // FIXME add description to each one of the states
     public enum IMCAuthorityState { OFF, NONE, PAYLOAD_MONITOR, PAYLOAD, SYSTEM_MONITOR, SYSTEM_FULL };
     protected IMCAuthorityState authorityState = IMCAuthorityState.NONE;
-//    protected IMCAuthorityState authorityRequested = IMCAuthorityState.NONE;
     
 	/**
 	 * @param vehicle
@@ -475,7 +472,6 @@ public class ImcSystem implements Comparable<ImcSystem> {
         }
     }
 
-	
 	/**
 	 * @return the UDP remote port or if some error occur return '0'
 	 */
@@ -552,22 +548,6 @@ public class ImcSystem implements Comparable<ImcSystem> {
         }
     }
 
-	
-	public InetSocketAddress getInetSocketAddress() {
-		if (getHostAddress() == null || getRemoteUDPPort() == 0)
-			return null;
-		else {
-			if (getHostAddress().equals(inetSocketAddress.getHostName()) || 
-					getHostAddress().equals(inetSocketAddress.getAddress())) {
-				if (getRemoteUDPPort() == inetSocketAddress.getPort()) {
-					return inetSocketAddress;
-				}
-			}
-			return new InetSocketAddress(getHostAddress(), getRemoteUDPPort());
-		}
-	}
-	
-	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -625,17 +605,6 @@ public class ImcSystem implements Comparable<ImcSystem> {
 	public int compareTo(ImcSystem o) {
 		return getName().compareTo(o.getName());
 	}
-	
-	
-//	/* (non-Javadoc)
-//	 * @see java.lang.Object#equals(java.lang.Object)
-//	 */
-//	@Override
-//	public boolean equals(Object obj) {
-//		L
-//		return super.equals(obj);
-//	}
-
 	
 	/**
 	 * @return the active
