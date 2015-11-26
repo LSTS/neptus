@@ -170,7 +170,7 @@ public class MaridanPlanControl extends ConsolePanel implements ActionListener {
                             send(req);
                         }
                         catch (Exception ex) {
-                            getConsole().post(Notification.error(startPlanStr, I18n.textf("Error sending the plan: %", ex.getMessage())));
+                            getConsole().post(Notification.error(startPlanStr, I18n.textf("Error sending the plan: %error", ex.getMessage())));
                             ex.printStackTrace();
                         }                        
                         btnStart.setEnabled(true);
