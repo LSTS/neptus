@@ -38,7 +38,7 @@
                     </point>
                     <radiusTolerance>5</radiusTolerance>
                 </finalPoint>
-                <velocity tolerance="10" type="float" unit="m/s">2.0</velocity>
+                <velocity tolerance="10" type="float" unit="m/s">1.5</velocity>
                 <trajectoryTolerance>
                     <radiusTolerance type="float">1</radiusTolerance>
                 </trajectoryTolerance>
@@ -66,7 +66,7 @@
                 <height>0.0</height>
                 <hstep>27.0</hstep>
                 <bearing>0.0</bearing>
-                <speed unit="m/s">2.0</speed>
+                <speed unit="m/s">1.5</speed>
                 <annotation>
                     <documentation>No documentation available</documentation>
                     <implementation-class>pt.lsts.neptus.mp.maneuvers.RowsManeuver</implementation-class>
@@ -83,7 +83,7 @@
         <comm-mean>
             <name>ethernet</name>
             <type>ethernet</type>
-            <host-address>10.0.10.60</host-address>
+            <host-address>10.0.2.99</host-address>
             <credentials username="root"/>
             <protocols>imc</protocols>
             <latency value="100M" unit="bps"/>

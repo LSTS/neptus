@@ -33,9 +33,12 @@ package dk.maridan;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -54,39 +57,47 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 
 /**
  * @author zp
  *
  */
-@PluginDescription(name="Maridan Plan Control")
+@PluginDescription(name = "Maridan Plan Control")
 public class MaridanPlanControl extends ConsolePanel implements ActionListener {
 
     private static final long serialVersionUID = -4175142087926209760L;
+    private final ImageIcon ICON_UP = ImageUtils.getIcon("images/planning/up.png");
     private final ImageIcon ICON_START = ImageUtils.getIcon("images/planning/start.png");
     private final ImageIcon ICON_STOP = ImageUtils.getIcon("images/planning/stop.png");
     private final String startPlanStr = I18n.text("Start Plan");
     private final String stopPlanStr = I18n.text("Stop Plan");
+    private final String sendPlanStr = I18n.text("Send Plan");
+    private ToolbarButton btnUpload = new ToolbarButton(ICON_UP, sendPlanStr, "upload");
     private ToolbarButton btnStart = new ToolbarButton(ICON_START, startPlanStr, "start");
     private ToolbarButton btnStop = new ToolbarButton(ICON_STOP, stopPlanStr, "stop");
+    
     private int requestId = IMCSendMessageUtils.getNextRequestId();
-    
-    @NeptusProperty(name="FTP Hostname")
+
+    @NeptusProperty(name = "FTP Hostname")
     String ftp_host = "localhost";
-    
-    @NeptusProperty(name="FTP Port")
+
+    @NeptusProperty(name = "FTP Port")
     int ftp_port = 21;
-    
-    @NeptusProperty(name="Username")
+
+    @NeptusProperty(name = "Username")
     String ftp_username = "";
-    
-    @NeptusProperty(name="Password")
+
+    @NeptusProperty(name = "Password")
     String ftp_password = "";
-    
-    @NeptusProperty(name="File Path")
+
+    @NeptusProperty(name = "File Path")
     String ftp_filepath = "/osv/Plan001.xml";
-    
+
+    @NeptusProperty(name = "Save to local file", description = "Save to a local file instead of uploading to FTP server.")
+    boolean saveToFile = false;
+
     /**
      * @param console
      */
@@ -94,8 +105,9 @@ public class MaridanPlanControl extends ConsolePanel implements ActionListener {
         super(console);
         btnStart.addActionListener(this);
         btnStop.addActionListener(this);
+        btnUpload.addActionListener(this);
     }
-    
+
     @Override
     public void cleanSubPanel() {
 
@@ -103,24 +115,25 @@ public class MaridanPlanControl extends ConsolePanel implements ActionListener {
 
     @Override
     public void initSubPanel() {
-        setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));      
+        setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+        add(btnUpload);
         add(btnStart);
         add(btnStop);
     }
-    
+
     @Subscribe
     public void on(PlanControl msg) {
         if (msg.getRequestId() == requestId) {
-            
+
             String title;
-            
+
             if (msg.getOp() == OP.START)
                 title = startPlanStr;
             else if (msg.getOp() == OP.STOP)
                 title = stopPlanStr;
             else
                 return;
-            
+
             if (msg.getType() == TYPE.SUCCESS) {
                 getConsole().post(Notification.success(title,
                         I18n.textf("Command was received by %vehicle", msg.getSourceName())));                
@@ -133,53 +146,74 @@ public class MaridanPlanControl extends ConsolePanel implements ActionListener {
                 return;
         }
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
-            case "start":
+            case "upload": {
+                PlanType plan = getConsole().getPlan();
+                
+                if (plan == null) {
+                    getConsole().post(Notification.error(sendPlanStr, I18n.text("Please select a plan to send")));
+                    return;
+                }
+                
+                btnUpload.setEnabled(false);
+                
+                Thread worker = new Thread("Upload plan") {
+                    public void run() {
+                        try {
+                            LocationType loc = null;
+                            ImcSystem system = ImcSystemsHolder.getSystemWithName(getConsole().getMainSystem());
+                            if (system != null)
+                                loc = system.getLocation();
+                            String planStr = MaridanPlanExporter.translate(plan, loc);
+
+                            if (saveToFile) {
+                                JFileChooser chooser = new JFileChooser();
+                                chooser.setFileFilter(GuiUtils.getCustomFileFilter("XML Plan files", "xml"));
+                                chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                                int op = chooser.showSaveDialog(getConsole());
+                                if (op == JFileChooser.APPROVE_OPTION) {
+                                    Files.write(chooser.getSelectedFile().toPath(), planStr.getBytes(), StandardOpenOption.CREATE);
+                                    getConsole().post(Notification.success(sendPlanStr, I18n.textf(
+                                            "Plan stored to %filename", chooser.getSelectedFile().getAbsolutePath())));
+                                }                                
+                            }
+                            else {
+                                FtpUploader uploader = new FtpUploader(ftp_host, ftp_port);
+                                if (!ftp_username.isEmpty() && !ftp_password.isEmpty())
+                                    uploader.login(ftp_username, ftp_password);
+                                uploader.setRemoteFile(ftp_filepath).upload(planStr).disconnect();
+                                getConsole().post(Notification.info(sendPlanStr, I18n.textf("Plan stored in remote folder %folder", ftp_filepath)));
+                            }
+                        }
+                        catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                        btnUpload.setEnabled(true);
+                    }
+                };
+                worker.setDaemon(true);
+                worker.start();
+                break;
+            }
+            case "start": {
                 PlanType plan = getConsole().getPlan();
                 if (plan == null) {
                     getConsole().post(Notification.error(startPlanStr, I18n.text("Please select a plan to execute")));
                     return;
                 }
-                btnStart.setEnabled(false);
-                Thread worker = new Thread() {
-                    public void run() {
-                        try {
-                            
-                            ImcSystem system = ImcSystemsHolder.getSystemWithName(getConsole().getMainSystem());
-                            LocationType loc = null;
-                            
-                            if (system != null)
-                                loc = system.getLocation();
-                                
-                            String planStr = MaridanPlanExporter.translate(plan, loc);
-                            FtpUploader uploader = new FtpUploader(ftp_host, ftp_port);
-                            if (!ftp_username.isEmpty() && !ftp_password.isEmpty())
-                                uploader.login(ftp_username, ftp_password);
-                            uploader.setRemoteFile(ftp_filepath).upload(planStr).disconnect();
-                            getConsole().post(Notification.info(startPlanStr, I18n.textf("Plan stored in %folder", ftp_filepath)));
-                            
-                            PlanControl req = new PlanControl();
-                            requestId = IMCSendMessageUtils.getNextRequestId();
-                            req.setRequestId(requestId);
-                            req.setType(TYPE.REQUEST);
-                            req.setOp(OP.START);
-                            req.setPlanId(plan.getId());
-                            send(req);
-                        }
-                        catch (Exception ex) {
-                            getConsole().post(Notification.error(startPlanStr, I18n.textf("Error sending the plan: %error", ex.getMessage())));
-                            ex.printStackTrace();
-                        }                        
-                        btnStart.setEnabled(true);
-                    };                    
-                };
-                worker.setDaemon(true);
-                worker.start();                
+                PlanControl req = new PlanControl();
+                requestId = IMCSendMessageUtils.getNextRequestId();
+                req.setRequestId(requestId);
+                req.setType(TYPE.REQUEST);
+                req.setOp(OP.START);
+                req.setPlanId(plan.getId());
+                send(req);
                 break;
-            case "stop":
+            }
+            case "stop": {
                 PlanControl req = new PlanControl();
                 req.setType(TYPE.REQUEST);
                 req.setOp(OP.STOP);
@@ -187,6 +221,7 @@ public class MaridanPlanControl extends ConsolePanel implements ActionListener {
                 req.setRequestId(requestId);
                 send(req);                
                 break;
+            }
             default:
                 break;
         }
