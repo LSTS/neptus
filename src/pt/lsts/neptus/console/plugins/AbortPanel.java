@@ -86,6 +86,9 @@ public class AbortPanel extends ConsolePanel implements MainVehicleChangeListene
     @NeptusProperty (name = "Button Shape", userLevel = LEVEL.ADVANCED, distribution = DistributionEnum.DEVELOPER)
     public AbortButtonShapeEnum buttonShape = AbortButtonShapeEnum.ROUND;
     
+    @NeptusProperty(name = "Fallback to Acoustic Communications", description = "Send abort using acoustic modem if the system is not visible over Wi-Fi")
+    public boolean useAcousticComms = true;
+    
     private PanicButton abortButton = null;
     private JXButton abortButtonRectangular = null;
     
@@ -250,14 +253,14 @@ public class AbortPanel extends ConsolePanel implements MainVehicleChangeListene
                         protected Void doInBackground() throws Exception {
                             send(new IMCMessage("Abort"));
 
-                            boolean sentToAll = false;
+                            boolean sendToAll = false;
                             if ((e.getModifiers() & ActionEvent.CTRL_MASK) != 0) {
-                                sentToAll = true;
+                                sendToAll = true;
                             }
 
                             Vector<String> systemsToAbort = new Vector<String>();
                             //systemsToAbort.add(getMainVehicleId());
-                            if (sentToAll) {
+                            if (sendToAll) {
                                 ImcSystem[] allSys = ImcSystemsHolder.lookupSystemByType(SystemTypeEnum.VEHICLE);
                                 for (ImcSystem imcSystem : allSys) {
                                     if (!getMainVehicleId().equalsIgnoreCase(imcSystem.getName())) {
@@ -266,6 +269,9 @@ public class AbortPanel extends ConsolePanel implements MainVehicleChangeListene
                                     }
                                 }
                             }
+                            
+                            if (!useAcousticComms)
+                                return null;
 
                             boolean aSent = true;
                             try {
