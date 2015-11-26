@@ -155,6 +155,10 @@ public class SurveyPlan {
         public void setTimeoutSecs(float timeout) {
             site.timeout = timeout;
         }
+        
+        public void setLength(float length) {
+            site.length = length;
+        }
     }
     
     
@@ -178,6 +182,8 @@ public class SurveyPlan {
         float spacing = 20;
         @XmlAttribute(name="Direction")
         float direction = 45;
+        @XmlAttribute(name="Length")
+        float length = 200;
     }
     
     public static void main(String[] args) {
