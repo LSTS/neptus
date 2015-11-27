@@ -35,7 +35,9 @@ import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 /**
@@ -151,7 +153,9 @@ public class MathMiscUtils {
 	 */
 	public static String parseToEngineeringNotation(double val,
 			int decimalHouses) {
-		DecimalFormat engNot = new DecimalFormat("##0.###E0");
+	    Locale locale  = new Locale("en", "US");
+	    DecimalFormat engNot = (DecimalFormat) NumberFormat.getNumberInstance(locale);
+		engNot.applyPattern("##0.###E0");
 		String pl = engNot.format(val);
 		String[] pl2 = pl.split("E");
 		double vl = Double.parseDouble(pl2[0].replace(',', '.'));
