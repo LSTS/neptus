@@ -43,6 +43,7 @@ import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayout;
@@ -59,6 +60,7 @@ import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.bathymetry.TidePrediction;
 
 /**
  * @author zp
@@ -75,10 +77,10 @@ public class S57SoundingsExporter extends ConsolePanel {
 
     @Override
     public void cleanSubPanel() {
-        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Simulation") + ">"
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("S57") + ">"
                 + I18n.text("Use S57 Bathymetry for Simulation"));
-        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Export Depth Soundings"));
-        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Export Bathymetry Mesh"));
+        removeMenuItem(I18n.text("Tools") + I18n.text("S57") + ">" + I18n.text("Export Depth Soundings"));
+        removeMenuItem(I18n.text("Tools") + I18n.text("S57") + ">" + I18n.text("Export Bathymetry Mesh"));
     }
 
     public static S57Chart getS57Chart(ConsoleLayout console) throws Exception {
@@ -107,12 +109,25 @@ public class S57SoundingsExporter extends ConsolePanel {
     @Override
     public void initSubPanel() {
         
-        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Simulation") + ">"
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("S57") + ">"
                 + I18n.text("Use S57 Bathymetry for Simulation"), 
                 ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
                 new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                
+                float tide = (float)TidePrediction.getTideLevel(System.currentTimeMillis());
+                String depthStr = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter tide level (meters)"), tide);
+                if (depthStr == null)
+                    return;
+                try {
+                    tide = Float.parseFloat(depthStr);
+                    SimulatedBathymetry.getInstance().setDefaultDepth(tide);                   
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), I18n.text("S57 bathymetry"), I18n.textf("Wrong tide value: %error", ex.getMessage()));
+                }   
+                
                 try {
                     S57Chart chart = getS57Chart(getConsole());
                     StateRenderer2D renderer = getRenderer(getConsole());
@@ -126,7 +141,7 @@ public class S57SoundingsExporter extends ConsolePanel {
                             bottomRight.getLongitudeDegs()));
                     SimulatedBathymetry.getInstance().getSoundings().clear();
                     for (LocationType loc : soundings)
-                        SimulatedBathymetry.getInstance().addSounding(loc, loc.getDepth());    
+                        SimulatedBathymetry.getInstance().addSounding(loc, loc.getDepth()+tide);    
                 }
                 catch (Exception ex) {
                     GuiUtils.errorMessage(getConsole(), ex);
@@ -136,7 +151,7 @@ public class S57SoundingsExporter extends ConsolePanel {
 
         });
         
-        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Export Depth Soundings"), 
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("S57") + ">" + I18n.text("Export Depth Soundings"), 
                 ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
                 new ActionListener() {
 
@@ -179,7 +194,7 @@ public class S57SoundingsExporter extends ConsolePanel {
             }
         });
         
-        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Export Bathymetry Mesh"), 
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("S57") + ">" + I18n.text("Export Bathymetry Mesh"), 
                 ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
                 new ActionListener() {
 
