@@ -262,17 +262,7 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
                 g2.setColor(swath.getValue());
                 g2.fill(swath.getKey());
             }
-//          String man = simStates.get(i).getCurrentManeuver();
-//            for (PayloadFingerprint pf : payloads.get(man)) {
-//                SystemPositionAndAttitude state = states.get(i);
-//                state.setAltitude(SimulationEngine.simBathym.getSimulatedDepth(state.getPosition()));
-//                Area a = pf.getFingerprint(states.get(i));
-//                g2.setColor(pf.getColor());
-//                g2.fill(a);                
-//            }
         }
-        
-        //g.drawString("Plan takes aproximately "+time+" "+timeUnits, 10, renderer.getHeight()-40);
         g.translate(center.getX(), center.getY());
         g.rotate(-renderer.getRotation());
         for (int i = 0; i < states.size(); i++) {
