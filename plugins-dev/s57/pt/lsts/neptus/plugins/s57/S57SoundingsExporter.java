@@ -38,6 +38,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Vector;
 
@@ -139,9 +140,15 @@ public class S57SoundingsExporter extends ConsolePanel {
                     soundings.addAll(chart.getDepthSoundings(bottomRight.getLatitudeDegs(),
                             topLeft.getLatitudeDegs(), topLeft.getLongitudeDegs(),
                             bottomRight.getLongitudeDegs()));
-                    SimulatedBathymetry.getInstance().getSoundings().clear();
+                    SimulatedBathymetry.getInstance().clearSoundings();
+                    
+                    
+                    LinkedHashMap<LocationType, Double> data = new LinkedHashMap<>();
+                    
                     for (LocationType loc : soundings)
-                        SimulatedBathymetry.getInstance().addSounding(loc, loc.getDepth()+tide);    
+                       data.put(loc, loc.getDepth()+tide);
+                    
+                    SimulatedBathymetry.getInstance().addSoundings(data);
                 }
                 catch (Exception ex) {
                     GuiUtils.errorMessage(getConsole(), ex);
