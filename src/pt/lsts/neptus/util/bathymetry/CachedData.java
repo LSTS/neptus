@@ -44,6 +44,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
+import javax.swing.ProgressMonitor;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
@@ -234,10 +235,13 @@ public class CachedData extends TidePredictionFinder {
 
         if (harbor == null)
             return;
+        
 
         Date start = null, end = null;
+        ProgressMonitor progress = new ProgressMonitor(parent, "Fetching tides", "Starting", 0, 100);
+
         while (start == null) {
-            String startStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the past"), 365);
+            String startStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the past"), 30);
             try {
                 if (startStr == null)
                     return;
@@ -253,7 +257,7 @@ public class CachedData extends TidePredictionFinder {
         }
 
         while (end == null) {
-            String endStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the future"), 365);
+            String endStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the future"), 30);
             try {
                 if (endStr == null)
                     return;
@@ -270,8 +274,13 @@ public class CachedData extends TidePredictionFinder {
         CachedData data = new CachedData(new File("conf/tides/"+harbor+".txt"));
 
         Date current = new Date(start.getTime());
+        double delta = end.getTime() - start.getTime();
+        
 
         while (current.getTime() < end.getTime()) {
+            if (progress.isCanceled())
+                return;
+            double done = current.getTime()-start.getTime();
             try {
                 Date d = data.fetchData(harbor, current);
                 if (d != null)
@@ -281,9 +290,14 @@ public class CachedData extends TidePredictionFinder {
                 e.printStackTrace();
             }
             System.out.println(current);
+            progress.setProgress((int)(done*100.0/delta));
+            progress.setNote(current.toString());
         }
         try {
+            progress.setNote("Storing data to disk");
             data.saveFile(harbor, new File("conf/tides/"+harbor+".txt"));
+            progress.setProgress(100);
+            progress.close();            
         }
         catch (Exception e) {
             e.printStackTrace();

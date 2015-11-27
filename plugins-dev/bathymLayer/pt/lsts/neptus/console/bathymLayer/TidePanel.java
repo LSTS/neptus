@@ -32,6 +32,8 @@
 package pt.lsts.neptus.console.bathymLayer;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Date;
 
 import org.jfree.chart.ChartFactory;
@@ -48,6 +50,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.util.bathymetry.CachedData;
 import pt.lsts.neptus.util.bathymetry.TidePrediction;
 
 /**
@@ -88,6 +91,20 @@ public class TidePanel extends ConsolePanel {
 
     @Override
     public void initSubPanel() {
+        
+        addMenuItem("Tools>Tides>Update Tide Predictions", null, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Thread t = new Thread("Tide fetcher") {
+                    public void run() {
+                        CachedData.fetchData(getConsole());
+                    };
+                };
+                t.setDaemon(true);
+                t.start();                
+            }
+        });  
+        
         TimeSeries ts = new TimeSeries("Tide level");
         tsc.addSeries(ts);
         
