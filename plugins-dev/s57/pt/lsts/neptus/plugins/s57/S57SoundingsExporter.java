@@ -48,6 +48,7 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
+import pt.lsts.neptus.console.plugins.planning.SimulatedBathymetry;
 import pt.lsts.neptus.mra.WorldImage;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -62,7 +63,7 @@ import pt.lsts.neptus.util.ImageUtils;
  * @author zp
  * 
  */
-@PluginDescription
+@PluginDescription(name="S57 Tools")
 public class S57SoundingsExporter extends ConsolePanel {
 
     private static final long serialVersionUID = 1653621815781506755L;
@@ -103,6 +104,33 @@ public class S57SoundingsExporter extends ConsolePanel {
 
     @Override
     public void initSubPanel() {
+        
+        addMenuItem("Tools>Simulation>Use S57 bathymetry for simulation", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
+                new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    S57Chart chart = getS57Chart(getConsole());
+                    StateRenderer2D renderer = getRenderer(getConsole());
+                    
+                    LocationType topLeft = renderer.getTopLeftLocationType().convertToAbsoluteLatLonDepth();
+                    LocationType bottomRight = renderer.getBottomRightLocationType()
+                            .convertToAbsoluteLatLonDepth();
+                    ArrayList<LocationType> soundings = new ArrayList<>();
+                    soundings.addAll(chart.getDepthSoundings(bottomRight.getLatitudeDegs(),
+                            topLeft.getLatitudeDegs(), topLeft.getLongitudeDegs(),
+                            bottomRight.getLongitudeDegs()));
+                    SimulatedBathymetry.getInstance().getSoundings().clear();
+                    for (LocationType loc : soundings)
+                        SimulatedBathymetry.getInstance().addSounding(loc, loc.getDepth());    
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                    ex.printStackTrace();
+                }
+            }
+
+        });
         addMenuItem("Tools>Export Depth soundings", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
                 new ActionListener() {
 
