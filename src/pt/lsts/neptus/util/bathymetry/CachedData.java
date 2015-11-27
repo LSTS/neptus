@@ -103,6 +103,9 @@ public class CachedData extends TidePredictionFinder {
     }
 
     public void saveFile(String port, File f) throws Exception {
+        if (!f.getParentFile().exists())
+            f.getParentFile().mkdirs();
+        
         BufferedWriter writer = new BufferedWriter(new FileWriter(f));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         for (TidePeak tp : cachedData) {

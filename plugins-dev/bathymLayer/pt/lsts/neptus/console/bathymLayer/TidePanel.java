@@ -38,6 +38,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Date;
 
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import org.jfree.chart.ChartFactory;
@@ -59,6 +60,7 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.bathymetry.CachedData;
 import pt.lsts.neptus.util.bathymetry.TidePrediction;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
+import pt.lsts.neptus.util.conf.PreferencesListener;
 
 /**
  * @author zp
@@ -66,21 +68,23 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
  */
 @PluginDescription(name="Tide panel")
 @Popup(accelerator='6',pos=POSITION.CENTER,height=300,width=300)
-public class TidePanel extends ConsolePanel {
+public class TidePanel extends ConsolePanel implements PreferencesListener {
     private static final long serialVersionUID = 6517658675736342089L;
 
     private JFreeChart timeSeriesChart = null;
     private TimeSeriesCollection tsc = new TimeSeriesCollection();
     private ValueMarker marker = new ValueMarker(System.currentTimeMillis());
-    private ValueMarker levelMarker = new ValueMarker(0); 
-
+    private ValueMarker levelMarker = new ValueMarker(0);
+    private JMenuItem tidesItem = null;
+    private String storedMenuPath;
+    
     @Periodic(millisBetweenUpdates=60000)
     public void updateMarker() {
         marker.setValue(System.currentTimeMillis());
         levelMarker.setValue(TidePrediction.getTideLevel(new Date()));
     }
 
-
+    
     /**
      * @param console
      */
@@ -89,17 +93,21 @@ public class TidePanel extends ConsolePanel {
         setLayout(new BorderLayout());
         timeSeriesChart = ChartFactory.createTimeSeriesChart(null, null, null, tsc, true, true, true);
         add (new ChartPanel(timeSeriesChart), BorderLayout.CENTER);
+        GeneralPreferences.addPreferencesListener(this);
     }
 
     @Override
     public void cleanSubPanel() {
-        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Tides") + ">" + I18n.text("Select Location"));
         removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Tides") + ">" + I18n.text("Update Predictions"));
-
+        removeMenuItem(storedMenuPath);
     }
 
     @Override
     public void initSubPanel() {
+        storedMenuPath = I18n.text("Tools") + ">" + I18n.text("Tides") + ">"+I18n.textf("Using '%file'",  GeneralPreferences.tidesFile.getName());
+        tidesItem = addMenuItem(storedMenuPath, null, null);
+        tidesItem.setEnabled(false);
+        
         addMenuItem(I18n.text("Tools") + ">" + I18n.text("Tides") + ">" + I18n.text("Update Predictions"), null,
                 new ActionListener() {
             @Override
@@ -119,18 +127,16 @@ public class TidePanel extends ConsolePanel {
                             if (resp == JOptionPane.YES_OPTION) {
                                 GeneralPreferences.tidesFile = f;
                                 GeneralPreferences.saveProperties();
+                                preferencesUpdated();
                                 TidePrediction.getTideLevel(System.currentTimeMillis());
                             }
                         }
-
                     };
                 };
                 t.setDaemon(true);
                 t.start();                
             }
         });  
-
-
 
         TimeSeries ts = new TimeSeries(I18n.text("Tide level"));
         tsc.addSeries(ts);
@@ -142,5 +148,12 @@ public class TidePanel extends ConsolePanel {
         timeSeriesChart.getXYPlot().addDomainMarker(marker);
         levelMarker.setValue(TidePrediction.getTideLevel(new Date()));
         timeSeriesChart.getXYPlot().addRangeMarker(levelMarker);
+    }
+
+    // general preferences was updated
+    public void preferencesUpdated() {
+        storedMenuPath = I18n.text("Tools") + ">" + I18n.text("Tides") + ">"+I18n.textf("Using '%file'",  GeneralPreferences.tidesFile.getName());
+        tidesItem.setText(I18n.textf("Using '%file'",  GeneralPreferences.tidesFile.getName()));
+        tidesItem.setEnabled(false);
     }
 }
