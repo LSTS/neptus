@@ -223,7 +223,7 @@ public class CachedData extends TidePredictionFinder {
         return null;
     }
 
-    public static void fetchData(Component parent) {
+    public static String fetchData(Component parent) {
         Vector<String> harbors = new Vector<>();
         for (TideDataFetcher.Harbor h : TideDataFetcher.Harbor.values()) {
             harbors.add(h.toString());
@@ -234,7 +234,7 @@ public class CachedData extends TidePredictionFinder {
                 JOptionPane.QUESTION_MESSAGE, null, harbors.toArray(new String[0]), I18n.text(harbors.get(0)));
 
         if (harbor == null)
-            return;
+            return null;
         
 
         Date start = null, end = null;
@@ -244,7 +244,7 @@ public class CachedData extends TidePredictionFinder {
             String startStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the past"), 30);
             try {
                 if (startStr == null)
-                    return;
+                    return null;
                 long days = Integer.parseInt(startStr);
                 if (days < 0)
                     continue;
@@ -260,7 +260,7 @@ public class CachedData extends TidePredictionFinder {
             String endStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the future"), 30);
             try {
                 if (endStr == null)
-                    return;
+                    return null;
                 long days = Integer.parseInt(endStr);
                 if (days < 0)
                     continue;
@@ -279,7 +279,7 @@ public class CachedData extends TidePredictionFinder {
 
         while (current.getTime() < end.getTime()) {
             if (progress.isCanceled())
-                return;
+                return harbor;
             double done = current.getTime()-start.getTime();
             try {
                 Date d = data.fetchData(harbor, current);
@@ -297,12 +297,12 @@ public class CachedData extends TidePredictionFinder {
             progress.setNote("Storing data to disk");
             data.saveFile(harbor, new File("conf/tides/"+harbor+".txt"));
             progress.setProgress(100);
-            progress.close();            
+            progress.close();                
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-
+        return harbor;
     }
 
     public static void main(String[] args) throws Exception {

@@ -32,9 +32,13 @@
 package pt.lsts.neptus.console.bathymLayer;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.Date;
+
+import javax.swing.JOptionPane;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -51,8 +55,10 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.bathymetry.CachedData;
 import pt.lsts.neptus.util.bathymetry.TidePrediction;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -67,14 +73,14 @@ public class TidePanel extends ConsolePanel {
     private TimeSeriesCollection tsc = new TimeSeriesCollection();
     private ValueMarker marker = new ValueMarker(System.currentTimeMillis());
     private ValueMarker levelMarker = new ValueMarker(0); 
-    
+
     @Periodic(millisBetweenUpdates=60000)
     public void updateMarker() {
         marker.setValue(System.currentTimeMillis());
         levelMarker.setValue(TidePrediction.getTideLevel(new Date()));
     }
-    
-    
+
+
     /**
      * @param console
      */
@@ -87,28 +93,48 @@ public class TidePanel extends ConsolePanel {
 
     @Override
     public void cleanSubPanel() {
-        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Tides") + ">" + I18n.text("Update Tide Predictions"));
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Tides") + ">" + I18n.text("Select Location"));
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Tides") + ">" + I18n.text("Update Predictions"));
+
     }
 
     @Override
     public void initSubPanel() {
-        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Tides") + ">" + I18n.text("Update Tide Predictions"), null,
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Tides") + ">" + I18n.text("Update Predictions"), null,
                 new ActionListener() {
-                    @Override
+            @Override
             public void actionPerformed(ActionEvent e) {
                 Thread t = new Thread("Tide fetcher") {
                     public void run() {
-                        CachedData.fetchData(getConsole());
+                        String harbor = CachedData.fetchData(getConsole());
+                        File used = GeneralPreferences.tidesFile;
+                        File f = new File("conf/tides/"+harbor+".txt");
+                        if (!f.getAbsolutePath().equals(used.getAbsolutePath())) {
+                            int resp = GuiUtils.confirmDialog(getConsole(), I18n.text("Tide Predictions"),
+                                    I18n.textf(
+                                            "The selected location does not match the current location in use (%harbor). Do you wish to set the current location as %selection?",
+                                            used.getName(), harbor + ".txt"),
+                                    ModalityType.DOCUMENT_MODAL);
+
+                            if (resp == JOptionPane.YES_OPTION) {
+                                GeneralPreferences.tidesFile = f;
+                                GeneralPreferences.saveProperties();
+                                TidePrediction.getTideLevel(System.currentTimeMillis());
+                            }
+                        }
+
                     };
                 };
                 t.setDaemon(true);
                 t.start();                
             }
         });  
-        
-        TimeSeries ts = new TimeSeries("Tide level");
+
+
+
+        TimeSeries ts = new TimeSeries(I18n.text("Tide level"));
         tsc.addSeries(ts);
-        
+
         for (double i = -12; i < 12; i+= 0.25) {
             Date d = new Date(System.currentTimeMillis() + (long)(i * 1000 * 3600));
             ts.addOrUpdate(new Millisecond(d), TidePrediction.getTideLevel(d));
