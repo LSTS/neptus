@@ -51,9 +51,21 @@ public class SimulatedBathymetry implements Renderer2DPainter {
     protected double defaultDepth = 10;
     protected double minDistToSounding = 200;
     
+    private SimulatedBathymetry() {
+        
+    }
+    
+    private static SimulatedBathymetry instance = null;
+    
+    public static SimulatedBathymetry getInstance() {
+        if (instance == null)
+            instance = new SimulatedBathymetry();
+        return instance;
+    }
+    
     protected LinkedHashMap<LocationType, Double> soundings = new LinkedHashMap<>();
     
-    protected void addSounding(LocationType loc, double depth) {
+    public void addSounding(LocationType loc, double depth) {
         soundings.put(loc, depth);
     }
     
@@ -65,6 +77,20 @@ public class SimulatedBathymetry implements Renderer2DPainter {
         return soundings;
     }
     
+    /**
+     * @return the defaultDepth
+     */
+    public double getDefaultDepth() {
+        return defaultDepth;
+    }
+
+    /**
+     * @param defaultDepth the defaultDepth to set
+     */
+    public void setDefaultDepth(double defaultDepth) {
+        this.defaultDepth = defaultDepth;
+    }
+
     public double getSimulatedDepth(LocationType loc) {
         if (soundings.size() == 0)
             return defaultDepth;

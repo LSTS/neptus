@@ -52,24 +52,7 @@ public class MultibeamFingerprint extends PayloadFingerprint {
     }
     
     public Area getFingerprint(SystemPositionAndAttitude pose) {
-        // no bottom echo...
-        if (pose.getAltitude() > range)
-            return new Area (new Rectangle2D.Double(0,0,0,0));
-        double hyp = pose.getAltitude() / Math.cos(amplitude);
-        
-        // full bottom echo
-        if (hyp >= range) { 
-            double mbRange = (pose.getAltitude() * Math.tan(amplitude)) / 2;
-            return new Area (new Rectangle2D.Double(-mbRange, -1.3, mbRange * 2, 1.6));
-        }
-        
-        //partial bottom echo
-        else {
-            //System.out.println(hyp);
-            double visibleAngle = Math.acos(pose.getAltitude() / range);
-            double mbRange = (pose.getAltitude() * Math.tan(visibleAngle)) / 2;
-            //System.out.println(mbRange);
-            return new Area (new Rectangle2D.Double(-mbRange, -1.3, mbRange * 2, 1.6));
-        }
+        double mbRange = pose.getAltitude() * (Math.tan(amplitude/2.));
+        return new Area (new Rectangle2D.Double(-mbRange, -1.3, mbRange * 2, 1.6));
     };
 }

@@ -61,7 +61,7 @@ public class SimulationEngine {
     protected SystemPositionAndAttitude state;
     protected boolean finished = false;
     protected IManeuverPreview<?> curPreview = null;
-    public static SimulatedBathymetry simBathym = new SimulatedBathymetry();
+    public static SimulatedBathymetry simBathym = SimulatedBathymetry.getInstance();
     
     public SimulationEngine(final PlanType plan) {
         this.plan = plan;
