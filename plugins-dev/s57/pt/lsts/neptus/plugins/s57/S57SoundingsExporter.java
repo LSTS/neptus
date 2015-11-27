@@ -49,6 +49,7 @@ import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.planning.MapPanel;
 import pt.lsts.neptus.console.plugins.planning.SimulatedBathymetry;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.WorldImage;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -74,10 +75,11 @@ public class S57SoundingsExporter extends ConsolePanel {
 
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Simulation") + ">"
+                + I18n.text("Use S57 Bathymetry for Simulation"));
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Export Depth Soundings"));
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Export Bathymetry Mesh"));
     }
-
 
     public static S57Chart getS57Chart(ConsoleLayout console) throws Exception {
 
@@ -105,7 +107,9 @@ public class S57SoundingsExporter extends ConsolePanel {
     @Override
     public void initSubPanel() {
         
-        addMenuItem("Tools>Simulation>Use S57 bathymetry for simulation", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Simulation") + ">"
+                + I18n.text("Use S57 Bathymetry for Simulation"), 
+                ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
                 new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -131,7 +135,9 @@ public class S57SoundingsExporter extends ConsolePanel {
             }
 
         });
-        addMenuItem("Tools>Export Depth soundings", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
+        
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Export Depth Soundings"), 
+                ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
                 new ActionListener() {
 
             @Override
@@ -163,7 +169,8 @@ public class S57SoundingsExporter extends ConsolePanel {
                         w.write(String.format("%.8f,%.8f,%.2f\n",loc.getLatitudeDegs(),loc.getLongitudeDegs(),loc.getDepth()));
                     }
                     w.close();
-                    GuiUtils.infoMessage(getConsole(), "Export soundings", "Exported "+soundings.size()+" soundings to "+f.getAbsolutePath());
+                    GuiUtils.infoMessage(getConsole(), I18n.text("Export soundings"), 
+                            I18n.textf("Exported %points soundings to %file", soundings.size(), f.getAbsolutePath()));
                 }
                 catch (Exception err) {
                     GuiUtils.errorMessage(getConsole(), err);
@@ -172,7 +179,8 @@ public class S57SoundingsExporter extends ConsolePanel {
             }
         });
         
-        addMenuItem("Tools>Export Bathymetry Mesh", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Export Bathymetry Mesh"), 
+                ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())),
                 new ActionListener() {
 
             @Override
@@ -219,7 +227,6 @@ public class S57SoundingsExporter extends ConsolePanel {
                     ImageIO.write(scaled, "PNG", new File(options.dest.getParentFile(), options.dest.getName()+".2.png"));
                     BufferedWriter bw = new BufferedWriter(new FileWriter(options.dest));
                     
-                    
                     int x = 0, y;
                     for (double east = 0; x < scaled.getWidth(); east += options.cellWidth, x++) {
                         y = 0;
@@ -236,7 +243,8 @@ public class S57SoundingsExporter extends ConsolePanel {
                     
                     bw.close();
                     
-                    GuiUtils.infoMessage(getConsole(), "Export bathymetry", "Exported mesh to "+options.dest.getAbsolutePath());
+                    GuiUtils.infoMessage(getConsole(), I18n.text("Export Bathymetry"), 
+                            I18n.textf("Exported mesh to %file.", options.dest.getAbsolutePath()));
                 }
                 catch (Exception err) {
                     GuiUtils.errorMessage(getConsole(), err);
