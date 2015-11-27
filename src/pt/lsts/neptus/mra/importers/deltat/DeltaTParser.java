@@ -146,13 +146,16 @@ public class DeltaTParser implements BathymetryParser {
             }
         }
     }
-    
+
+    private void recordMsgln() {
+        recordMsg("\r\n");
+    }
+
     private void recordMsgln(String string) {
         recordMsg(string + "\r\n");
     }
 
     private void recordMsg(String string) {
-//        System.out.println(string);
         if (generateProcessReport && processResultOutputWriter != null) {
             try {
                 processResultOutputWriter.write(string);
@@ -375,7 +378,7 @@ public class DeltaTParser implements BathymetryParser {
 
             boolean doSpeedCorrection = MRAProperties.soundSpeedCorrection;
 
-            recordMsgln("");
+            recordMsgln();
             recordMsgln("% Swath type & version : " + header.fileType + ", " + header.fileVersion);
             recordMsgln("% Swath time           : " + DateTimeUtil.dateTimeFileNameFormatterMillis.format(new Date(timestamp)));
             recordMsgln("% Swath position       : " + pose.getPosition().toString().replaceAll("\n", " ") + 
@@ -395,20 +398,21 @@ public class DeltaTParser implements BathymetryParser {
             recordMsgln("% Beams                : " + header.numBeams);
             recordMsgln("% Samples per beam     : " + header.samplesPerBeam);
             recordMsgln("% Number of pings avg  : " + header.numberOfPingsAveraged);
-            recordMsgln("% Sample rate high/std : " + (header.sampleRateHigh?"high":"std") + " [std(1 in 500)/high (1 in 5000)]");
+            recordMsgln("% Sample rate high/std : " + (header.sampleRateHigh ? "high" : "std") + " [std(1 in 500)/high (1 in 5000)]");
             recordMsgln("% Range                : " + header.range + "m");
             recordMsgln("% Range resolution     : " + header.rangeResolution + "mm");
             recordMsgln("% Sonar Freq.          : " + header.sonarFreqKHz + "kHz");
-            recordMsgln("% Pulse lenght         : " + header.pulseLenght + "\u03BCs");
-            recordMsgln("% 1/PRF                : " + header.pulseRepetingRate + "ms (" + MathMiscUtils.parseToEngineeringNotation(1./(header.pulseRepetingRate / 1E3), 1) + "Hz)");
+            recordMsgln("% Pulse length         : " + header.pulseLength + "\u03BCs");
+            recordMsg(  "% 1/PRF                : " + header.pulseRepetingRate + "ms");
+            recordMsgln(" (" + MathMiscUtils.parseToEngineeringNotation(1. / (header.pulseRepetingRate / 1E3), 1) + "Hz)");
             recordMsgln("% Ping number          : " + header.pingNumber);
             recordMsgln("% Sector size          : " + header.sectorSize + "\u00B0 :: " +
                     (header.angleIncrement * header.numBeams) + "\u00B0 calculated");
             recordMsgln("% Speed                : " + MathMiscUtils.round(header.speed, 1) + "m/s");
-            recordMsgln("% Sound speed          : " + header.soundVelocity + "m/s" + (doSpeedCorrection?"":" (used for calculation 1500m/s)"));
-            recordMsgln("% Roll correction      : " + (header.dataIsCorrectedForRoll?"yes":"no"));
-            recordMsgln("% RayBending correction: " + (header.dataIsCorrectedForRayBending?"yes":"no"));
-            recordMsgln("% Op overlap mode      : " + (header.sonarIsOperatingInOverlappedMode?"yes":"no"));
+            recordMsgln("% Sound speed          : " + header.soundVelocity + "m/s" + (doSpeedCorrection ? "" : " (1500m/s used for calculation)"));
+            recordMsgln("% Roll correction      : " + (header.dataIsCorrectedForRoll ? "yes" : "no"));
+            recordMsgln("% RayBending correction: " + (header.dataIsCorrectedForRayBending ? "yes" : "no"));
+            recordMsgln("% Op overlap mode      : " + (header.sonarIsOperatingInOverlappedMode ? "yes" : "no"));
             recordMsgln("% ---------------------");
             
             StringBuilder rangesStr = new StringBuilder();
