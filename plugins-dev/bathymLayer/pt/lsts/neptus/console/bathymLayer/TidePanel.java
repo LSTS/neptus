@@ -46,6 +46,7 @@ import org.jfree.data.time.TimeSeriesCollection;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
@@ -86,14 +87,14 @@ public class TidePanel extends ConsolePanel {
 
     @Override
     public void cleanSubPanel() {
-        
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Tides") + ">" + I18n.text("Update Tide Predictions"));
     }
 
     @Override
     public void initSubPanel() {
-        
-        addMenuItem("Tools>Tides>Update Tide Predictions", null, new ActionListener() {
-            @Override
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Tides") + ">" + I18n.text("Update Tide Predictions"), null,
+                new ActionListener() {
+                    @Override
             public void actionPerformed(ActionEvent e) {
                 Thread t = new Thread("Tide fetcher") {
                     public void run() {
