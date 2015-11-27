@@ -128,7 +128,7 @@ public class DepthSoundingsInteraction extends ConsoleInteraction {
             popup.add(I18n.text("Clear depth soundings")).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    SimulatedBathymetry.getInstance().getSoundings().clear();
+                    SimulatedBathymetry.getInstance().clearSoundings();
                 }
             });
             
