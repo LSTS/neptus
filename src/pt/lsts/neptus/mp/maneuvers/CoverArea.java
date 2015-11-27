@@ -519,8 +519,7 @@ public class CoverArea extends Maneuver implements LocatedManeuver, IMCSerializa
         clone.speed = speed;
         clone.units = units;
         clone.setManeuverLocation(location);
-        for (LocationType pt : points )
-            clone.points.add(points.size(), pt);
+        
         return clone;
     }
 
