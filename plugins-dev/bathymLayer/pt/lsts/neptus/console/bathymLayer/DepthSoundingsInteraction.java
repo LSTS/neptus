@@ -53,7 +53,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * @author zp
  *
  */
-@PluginDescription(name="Depth Soundings Interaction")
+@PluginDescription(name="Depth Soundings Interaction", icon="pt/lsts/neptus/console/bathymLayer/echo.png")
 public class DepthSoundingsInteraction extends ConsoleInteraction {
 
     @NeptusProperty(name="Default depth")
