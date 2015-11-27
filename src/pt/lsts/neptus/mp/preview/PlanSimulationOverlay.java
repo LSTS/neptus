@@ -79,7 +79,6 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         this.plan = plan;
         final SimulationEngine engine = new SimulationEngine(plan);
         payloads = PayloadFactory.getPayloads(plan);
-        //System.out.println(payloads.entrySet().iterator().next().getValue());
         if (start == null) {
             start = new SystemPositionAndAttitude(plan.getMissionType().getHomeRef(), 0, 0, 0);
             Vector<LocatedManeuver> manLocs = PlanUtil.getLocationsAsSequence(plan);
@@ -103,9 +102,10 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
                     engine.simulationStep();
                     if (ellapsedTime - lastPoint > 1) {
                         Color c = cmap.getColor(1 - ((ellapsedTime + usedBatt) / totalBattTime));
-                        addPoint(engine.getState(), c,
+                        SystemPositionAndAttitude state = engine.getState();
+                        addPoint(state, c,
                                 new SimulationState(engine.getManId(), engine.getCurPreview() == null ? null : engine
-                                        .getCurPreview().getState(), engine.getState()));
+                                        .getCurPreview().getState(), state));
                         
                         lastPoint = ellapsedTime;
                     }
@@ -157,11 +157,17 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
         String man = simState.getCurrentManeuver();
         LinkedHashMap<Area, Color> swath = new LinkedHashMap<>();
         for (PayloadFingerprint pf : payloads.get(man)) {
-            state.setAltitude(SimulationEngine.simBathym.getSimulatedDepth(state.getPosition()));
+            double altitude = SimulationEngine.simBathym.getSimulatedDepth(state.getPosition());
+           if (state.getDepth() == -1)
+               new Exception().printStackTrace();
+            altitude -= state.getDepth();
+            state.setAltitude(altitude);
             Area a = pf.getFingerprint(state);
             swath.put(a, pf.getColor());
         }
-        swaths.add(swath);
+        synchronized (swaths) {
+            swaths.add(swath);    
+        }        
     }
 
     public void addPoint(LocationType loc, Color color, SimulationState simState) {
@@ -257,11 +263,16 @@ public class PlanSimulationOverlay implements Renderer2DPainter {
             g2.translate(pt.getX(), pt.getY());
             g2.scale(renderer.getZoom(), renderer.getZoom());
             g2.rotate(-renderer.getRotation()+states.get(i).getYaw());
-            
-            for (Entry<Area, Color> swath : swaths.get(i).entrySet()) {
-                g2.setColor(swath.getValue());
-                g2.fill(swath.getKey());
+            try {
+                for (Entry<Area, Color> swath : swaths.get(i).entrySet()) {
+                    g2.setColor(swath.getValue());
+                    g2.fill(swath.getKey());
+                }   
             }
+            catch (ArrayIndexOutOfBoundsException e) {
+                // still being generated...
+            }
+            
         }
         g.translate(center.getX(), center.getY());
         g.rotate(-renderer.getRotation());
