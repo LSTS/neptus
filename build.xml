@@ -1497,7 +1497,7 @@ For simple use the main targets are:
 		</antcall>
 	</target>
 	
-	<target name="test-worker" depends="default, junit, distribution-full-all-os, distribution-full-windows">
+	<target name="test-worker" depends="default, junit">
 	</target>
 	
 	<!-- =================================================================== -->
