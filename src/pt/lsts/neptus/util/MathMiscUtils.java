@@ -209,7 +209,7 @@ public class MathMiscUtils {
     			mulStr = "y";
     			break;
     		default:
-    			mulStr = "";
+    			mulStr = "E" + mul;
     			break;
 		}
 
@@ -518,7 +518,7 @@ public class MathMiscUtils {
     			mulStr = "yi";
     			break;
     		default:
-    			mulStr = "";
+    			mulStr = "E" + mul;
     			break;
 		}
 		if ("".equalsIgnoreCase(mulStr) && vl < 1024) {
@@ -763,5 +763,7 @@ public class MathMiscUtils {
         System.out.println(round(Math.PI, 1));
         System.out.println(round(Math.PI, 0));
         System.out.println(clamp(41, 50, 100));
+        
+        System.out.println(parseToEngineeringNotation(0.0000484746447, 1));
 	}
 }
