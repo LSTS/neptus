@@ -272,7 +272,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         if (cAction.accelerator() != KeyEvent.VK_UNDEFINED) {
             int key = cAction.accelerator();
             if (key == KeyEvent.VK_C || key == KeyEvent.VK_V || key == KeyEvent.VK_X) {
-                NeptusLog.pub().error("Cant assign CTRL-X, CTRL-C or CTRL-V to popups.");
+                NeptusLog.pub().error("Can't assign CTRL-X, CTRL-C or CTRL-V to popups.");
             }
             else {
                 accelerator = KeyStroke.getKeyStroke(cAction.accelerator(), KeyEvent.CTRL_DOWN_MASK);
