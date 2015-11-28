@@ -317,9 +317,10 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         }
         else {
             Container prt = ConsolePanel.this.getParent();
-            NeptusLog.pub().debug("Parent: " + prt + "  isAssignableFrom ContainerSubPanel=" + ContainerSubPanel.class.isAssignableFrom(prt.getClass())
+            NeptusLog.pub().debug(prt.getClass().getSimpleName() + "  isAssignableFrom ContainerSubPanel=" + ContainerSubPanel.class.isAssignableFrom(prt.getClass())
                     + "  isDescendingFrom Dialog=" + SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)
-                    + "  isVisible=" + ConsolePanel.this.isVisible() + "  isShowing=" + ConsolePanel.this.isShowing());
+                    + "  isVisible=" + ConsolePanel.this.isVisible() + "  isShowing=" + ConsolePanel.this.isShowing()
+                    + "  Parent: " + prt);
             if (prt == null || (!ConsolePanel.this.isShowing()
                     && !SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)))
                 dialog.add(ConsolePanel.this);
