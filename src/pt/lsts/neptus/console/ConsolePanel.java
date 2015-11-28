@@ -59,13 +59,16 @@ import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import com.google.common.eventbus.Subscribe;
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.iridium.ImcIridiumMessage;
 import pt.lsts.neptus.comm.iridium.IridiumManager;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -93,10 +96,6 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.ListenerManager;
 import pt.lsts.neptus.util.ReflectionUtil;
-
-import com.google.common.eventbus.Subscribe;
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author Rui Gonçalves, ZP
@@ -377,7 +376,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             }
         }
 
-        ImcMsgManager.unregisterBusListener(this);
+        getConsole().getImcMsgManager().unregisterBusListener(this);
 
         for (String menuPath : addedMenus) {
             JMenu parent = getConsole().removeMenuItem(menuPath.split(">"));
@@ -533,7 +532,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         
         PeriodicUpdatesService.registerPojo(this);
         
-        ImcMsgManager.registerBusListener(this);
+        getConsole().getImcMsgManager().registerBusListener(this);
 
         if (this instanceof NeptusMessageListener) {
             getConsole().addMainVehicleListener((MainVehicleChangeListener) this);

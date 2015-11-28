@@ -119,7 +119,7 @@ public abstract class PreflightCheck extends JPanel {
     }
     
     public void registerToEventbus() {
-        ImcMsgManager.registerBusListener(this);
+        ImcMsgManager.getManager().registerBusListener(this);
         isRegistered = true;
     }
     
@@ -139,7 +139,7 @@ public abstract class PreflightCheck extends JPanel {
     
     protected void unregister() {
         if(isRegistered)
-            ImcMsgManager.unregisterBusListener(this);
+            ImcMsgManager.getManager().unregisterBusListener(this);
     }
         
     public void setState(int newState) {
