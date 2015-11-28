@@ -325,7 +325,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
                     && !SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)))
                 dialog.add(ConsolePanel.this);
             
-            if (SwingUtilities.isDescendingFrom(prt, dialog)) {
+            if (SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)) {
                 dialog.setVisible(!dialog.isVisible());
                 setPopupPosition(popupPosition);
             }
