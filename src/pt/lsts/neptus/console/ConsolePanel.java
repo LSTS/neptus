@@ -33,6 +33,7 @@ package pt.lsts.neptus.console;
 
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -332,6 +333,18 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         }
     }
 
+    /* (non-Javadoc)
+     * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+     */
+    @Override
+    protected void paintComponent(Graphics g) {
+        if (dialog != null && dialog.isVisible()
+                && !SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog))
+            dialog.setVisible(false);
+
+        super.paintComponent(g);
+    }
+    
     /**
      * Empty implementation. This is called when the console wants to remove the panel from the console (override it if
      * needed to properly disposal of the component).
