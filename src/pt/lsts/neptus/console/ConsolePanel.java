@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.console;
 
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -49,6 +50,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import org.dom4j.Document;
@@ -97,7 +99,7 @@ import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author Rui Gonçalves, ZP
- * 
+ * @author pdias
  */
 public abstract class ConsolePanel extends JPanel implements PropertiesProvider, XmlInOutMethods,
         MessageListener<MessageInfo, IMCMessage>, MainVehicleChangeListener {
@@ -299,12 +301,34 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    dialog.setVisible(!dialog.isVisible());
-                    setPopupPosition(popupPosition);
+                    decideToShowPopupDialog(popupPosition);
                 }
             });
         }
         dialog.add(this);
+    }
+
+    /**
+     * @param popupPosition
+     */
+    private void decideToShowPopupDialog(final POSITION popupPosition) {
+        if (dialog.isVisible()) {
+            dialog.setVisible(false);
+        }
+        else {
+            Container prt = ConsolePanel.this.getParent();
+            NeptusLog.pub().debug("Parent: " + prt + "  isAssignableFrom ContainerSubPanel=" + ContainerSubPanel.class.isAssignableFrom(prt.getClass())
+                    + "  isDescendingFrom Dialog=" + SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)
+                    + "  isVisible=" + ConsolePanel.this.isVisible() + "  isShowing=" + ConsolePanel.this.isShowing());
+            if (prt == null || (!ConsolePanel.this.isShowing()
+                    && !SwingUtilities.isDescendingFrom(ConsolePanel.this.getParent(), dialog)))
+                dialog.add(ConsolePanel.this);
+            
+            if (SwingUtilities.isDescendingFrom(prt, dialog)) {
+                dialog.setVisible(!dialog.isVisible());
+                setPopupPosition(popupPosition);
+            }
+        }
     }
 
     /**
@@ -374,10 +398,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                dialog.setVisible(!dialog.isVisible());
-                setPopupPosition(popupPosition);
+                decideToShowPopupDialog(popupPosition);;
             }
-
         });
         return menuItem;
     }
@@ -486,11 +508,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             setVisible(false);
         }
 
-        // for miglayout parent will be null if the subpanel isnt in the layout
-        if (this.getParent() == null) {
-            this.buildPopup();
-        }
-
+        this.buildPopup();
+        
         initSubPanel();
 
         // After all setup let us register the IPeriodicUpdates and Message callbacks
