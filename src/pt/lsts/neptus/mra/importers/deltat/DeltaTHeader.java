@@ -60,7 +60,7 @@ public class DeltaTHeader {
     
     public int pingNumber;
     
-    public double pulseLenght; // Pulse Length (in microseconds)
+    public double pulseLength; // Pulse Length (in microseconds)
     public double pulseRepetingRate;// Repeting Rate (in miliseconds) - time between pings
     
     public double speed;
@@ -123,7 +123,7 @@ public class DeltaTHeader {
         
         sonarFreqKHz = b.getShort(81);
         
-        pulseLenght = b.getShort(87);
+        pulseLength = b.getShort(87);
         pulseRepetingRate = b.getShort(91);
         
         soundVelocity = parseSoundVelocity(b);

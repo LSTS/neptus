@@ -5,3 +5,5 @@
 
 pt.lsts.neptus.console.bathymLayer.BathymetryLayer
 pt.lsts.neptus.console.bathymLayer.TidePanel
+pt.lsts.neptus.console.bathymLayer.DepthSoundingsInteraction
+

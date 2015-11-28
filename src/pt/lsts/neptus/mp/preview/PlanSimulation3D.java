@@ -36,7 +36,7 @@ import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 
@@ -166,7 +166,7 @@ public class PlanSimulation3D extends JPanel {
 //        loc.translatePosition(bounds.getYmax(), bounds.getXmin(), 0);
 //        relevantLocations.add(loc);
         
-        LinkedHashMap<LocationType, Double> soundings = SimulationEngine.simBathym.getSoundings();
+        Map<LocationType, Double> soundings = SimulationEngine.simBathym.getSoundings();
         
         
         if (!soundings.isEmpty()) {

@@ -34,7 +34,6 @@ package pt.lsts.neptus.plugins.sunfish.awareness;
 import pt.lsts.imc.Announce;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.RemoteSensorInfo;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -49,12 +48,12 @@ public class ImcLocationProvider implements ILocationProvider {
     @Override
     public void onInit(SituationAwareness instance) {
         this.instance = instance;
-        ImcMsgManager.registerBusListener(this);
+        instance.getConsole().getImcMsgManager().registerBusListener(this);
     }
 
     @Override
     public void onCleanup() {
-        ImcMsgManager.unregisterBusListener(this);
+        instance.getConsole().getImcMsgManager().unregisterBusListener(this);
     }
     
     @Override

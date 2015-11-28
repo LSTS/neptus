@@ -141,7 +141,7 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
         }
         
         NeptusEvents.register(this, console);
-        ImcMsgManager.registerBusListener(this);
+        getConsole().getImcMsgManager().registerBusListener(this);
     }
     
     /**
@@ -174,11 +174,11 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
             periodicMethods.clear();
         }
         
-        ImcMsgManager.unregisterBusListener(this);        
+        getConsole().getImcMsgManager().unregisterBusListener(this);        
     }
     
     protected final ImcSystemState getState() {
-        return ImcMsgManager.getManager().getState(getConsole().getMainSystem());
+        return getConsole().getImcMsgManager().getState(getConsole().getMainSystem());
     }
     
     public final ImageIcon getIcon() {
