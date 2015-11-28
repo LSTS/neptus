@@ -359,7 +359,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         if (this instanceof NeptusMessageListener) {
             if (getConsole() != null) {
                 messagesToListen.clear();
-                ImcMsgManager.getManager().removeListener(this, getConsole().getMainSystem());
+                getConsole().getImcMsgManager().removeListener(this, getConsole().getMainSystem());
             }
         }
 
@@ -460,7 +460,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     }
 
     protected final ImcSystemState getState() {
-        return ImcMsgManager.getManager().getState(getConsole().getMainSystem());
+        return getConsole().getImcMsgManager().getState(getConsole().getMainSystem());
     }
 
     public boolean getVisibility() {
@@ -541,7 +541,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             }
 
             if (getConsole() != null && !messagesToListen.isEmpty())
-                ImcMsgManager.getManager().addListener(this, getConsole().getMainSystem());
+                getConsole().getImcMsgManager().addListener(this, getConsole().getMainSystem());
             else {
                 NeptusLog.pub().info("<###>Console is null..." + this.getName());
             }
@@ -585,13 +585,13 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
     @Override
     public final void mainVehicleChange(String id) {
         if (messagesToListen != null && !messagesToListen.isEmpty()) {
-            ImcMsgManager.getManager().removeListener(this, mainVehicleId);
+            getConsole().getImcMsgManager().removeListener(this, mainVehicleId);
         }
 
         mainVehicleId = id;
 
         if (messagesToListen != null && !messagesToListen.isEmpty()) {
-            ImcMsgManager.getManager().addListener(this, id);
+            getConsole().getImcMsgManager().addListener(this, id);
         }
 
         if (this instanceof NeptusMessageListener) {
@@ -688,7 +688,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
             GuiUtils.errorMessage(getConsole(), e);
             return;
         }
-        int src = ImcMsgManager.getManager().getLocalId().intValue();
+        int src = getConsole().getImcMsgManager().getLocalId().intValue();
         int dst = IMCDefinition.getInstance().getResolver().resolve(destination);
         int count = 0;
         try {
@@ -717,7 +717,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         boolean sent = false;
         
         for (ImcSystem s : ccus) {
-            boolean success = ImcMsgManager.getManager().sendMessageToSystem(message, s.getName());
+            boolean success = getConsole().getImcMsgManager().sendMessageToSystem(message, s.getName());
 //            System.out.println("Sending "+message.getAbbrev()+" to "+s.getName()+": "+success);
             sent |= success;
         }
@@ -739,7 +739,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         }
 
         try {
-            if (!ImcMsgManager.getManager().sendMessageToSystem(message, destination)) {
+            if (!getConsole().getImcMsgManager().sendMessageToSystem(message, destination)) {
                 NeptusLog.pub().error(
                         ReflectionUtil.getCallerStamp() + ": " + "Error while communicating with " + destination + ".");
                 return false;
@@ -826,6 +826,8 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
         this.visibility = visibility;
     }
 
+    
+    
     public void XML_ChildsRead(Element e) {
 
     }
