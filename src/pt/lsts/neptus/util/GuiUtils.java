@@ -940,7 +940,7 @@ public class GuiUtils {
      * @return
      */
     public static JFileChooser getFileChooser(String currentDirectoryPath) {
-        return getFileChooser(currentDirectoryPath);
+        return getFileChooser(currentDirectoryPath, null, new String[0]);
     }
 
     /**
@@ -949,7 +949,7 @@ public class GuiUtils {
      * @return
      */
     public static JFileChooser getFileChooser(File currentDirectory) {
-        return getFileChooser(currentDirectory);
+        return getFileChooser(currentDirectory, null, new String[0]);
     }
 
     /**
