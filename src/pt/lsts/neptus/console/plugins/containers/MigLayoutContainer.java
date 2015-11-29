@@ -79,10 +79,10 @@ import com.google.common.eventbus.Subscribe;
 public class MigLayoutContainer extends ContainerSubPanel implements ConfigurationListener, LayoutProfileProvider {
 
     @NeptusProperty(name = "XML Definitions", description = "XML layout definition", editorClass = MiGLayoutXmlPropertyEditor.class, distribution = DistributionEnum.DEVELOPER)
-    public String xmlDef = "";
+    public String xmlDef = "<profiles>\n  <profile name=\"Normal\">\n    <container layoutparam=\"ins 0\" param=\"w 100%, h 100%\">\n      <child name=\"Map Panel\" param=\"w 100%, h 100%\"/>\n    </container>\n  </profile>\n</profiles>";
 
     @NeptusProperty(name = "Current Profile", description = "Name of the current active profile", distribution = DistributionEnum.DEVELOPER)
-    public String currentProfile = "";
+    public String currentProfile = "Normal";
 
     private final ArrayList<String> profileList = new ArrayList<String>();
 
