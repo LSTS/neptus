@@ -91,6 +91,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -109,6 +110,7 @@ import javax.swing.filechooser.FileFilter;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.gui.ErrorMessageBox;
+import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.gui.tablelayout.TableLayout;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.conf.ConfigFetch;
@@ -915,6 +917,67 @@ public class GuiUtils {
                 return d;
             }
         };
+    }
+
+    /**
+     * Creates a file chooser with a {@link NeptusFileView}.
+     * @return
+     */
+    public static JFileChooser getFileChooser() {
+        return getFileChooser((String) null);
+    }
+
+    /**
+     * Creates a file chooser with a {@link NeptusFileView}.
+     * @param currentDirectoryPath
+     * @return
+     */
+    public static JFileChooser getFileChooser(String currentDirectoryPath) {
+        return getFileChooser(currentDirectoryPath);
+    }
+
+    /**
+     * Creates a file chooser with a {@link NeptusFileView}.
+     * @param currentDirectory
+     * @return
+     */
+    public static JFileChooser getFileChooser(File currentDirectory) {
+        return getFileChooser(currentDirectory);
+    }
+
+    /**
+     * Creates a file chooser with a {@link NeptusFileView}.
+     * @param currentDirectoryPath
+     * @param fileFilterDescription
+     * @param validExtensions They should be lower case. 
+     * @return
+     */
+    public static JFileChooser getFileChooser(String currentDirectoryPath, String fileFilterDescription,
+            String... validExtensions) {
+        File currentDirectory = null;
+        if (currentDirectoryPath != null && !currentDirectoryPath.isEmpty())
+            currentDirectory = new File(currentDirectoryPath);
+        return getFileChooser(currentDirectory, fileFilterDescription, validExtensions);
+    }
+
+    /**
+     * Creates a file chooser with a {@link NeptusFileView}.
+     * @param currentDirectory
+     * @param fileFilterDescription
+     * @param validExtensions They should be lower case. 
+     * @return
+     */
+    public static JFileChooser getFileChooser(File currentDirectory, String fileFilterDescription,
+            String... validExtensions) {
+        JFileChooser chooser = currentDirectory == null ? new JFileChooser() : new JFileChooser(currentDirectory);
+        chooser.setFileView(new NeptusFileView());
+        if (fileFilterDescription != null && !fileFilterDescription.isEmpty())
+            chooser.setDialogTitle(fileFilterDescription);
+        if (fileFilterDescription != null && !fileFilterDescription.isEmpty()
+                && validExtensions != null && validExtensions.length > 0)
+            chooser.setFileFilter(GuiUtils.getCustomFileFilter(fileFilterDescription, validExtensions));
+        
+        return chooser;
     }
 
     public static void reactEnterKeyPress(JButton btn) {

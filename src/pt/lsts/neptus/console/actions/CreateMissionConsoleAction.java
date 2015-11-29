@@ -82,10 +82,8 @@ public class CreateMissionConsoleAction extends ConsoleAction{
         if (lt == null)
             return;
 
-        JFileChooser chooser = new JFileChooser(ConfigFetch.getConfigFile());
-        chooser.setFileView(new NeptusFileView());
-        chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("Mission Files ('nmisz')"),
-                new String[] { "nmisz" }));
+        JFileChooser chooser = GuiUtils.getFileChooser(ConfigFetch.getMissionsFolder(),
+                I18n.text("Mission Files ('nmisz')"), "nmisz");
         int resp = chooser.showDialog(console, I18n.text("Save"));
         if (resp == JFileChooser.APPROVE_OPTION) {
             if (chooser.getSelectedFile().exists()) {

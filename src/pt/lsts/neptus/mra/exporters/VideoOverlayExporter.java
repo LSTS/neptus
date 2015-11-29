@@ -45,9 +45,11 @@ import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.Temperature;
 import pt.lsts.imc.lsf.IndexScanner;
 import pt.lsts.neptus.comm.IMCUtils;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.replay.MraVehiclePosHud;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.GuiUtils;
 
 import com.xuggle.mediatool.IMediaReader;
 import com.xuggle.mediatool.IMediaTool;
@@ -78,7 +80,8 @@ public class VideoOverlayExporter implements MRAExporter {
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
 
-        JFileChooser chooser = new JFileChooser();
+        JFileChooser chooser = GuiUtils.getFileChooser(source.getDir());
+        chooser.setDialogTitle(I18n.text("Video file"));
         int op = chooser.showOpenDialog(null);
         if (op == JFileChooser.APPROVE_OPTION) {
             videoIn = chooser.getSelectedFile();

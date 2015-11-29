@@ -51,6 +51,7 @@ import org.alternativevision.gpx.beans.Waypoint;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.map.AbstractElement;
@@ -60,6 +61,7 @@ import pt.lsts.neptus.types.map.MarkElement;
 import pt.lsts.neptus.types.map.PathElement;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp
@@ -150,9 +152,8 @@ public class GpxImportExport extends ConsolePanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 
-                JFileChooser chooser = new JFileChooser();
-                chooser.setDialogTitle("Select GPX file to import");
-                chooser.setFileFilter(GuiUtils.getCustomFileFilter("GPX files", "gpx"));
+                JFileChooser chooser = GuiUtils.getFileChooser(ConfigFetch.getUserHomeFolder(), I18n.text("GPX files"), "gpx");
+                chooser.setDialogTitle(I18n.text("Select GPX file to import"));
                 int op = chooser.showOpenDialog(getConsole());
                 if (op != JFileChooser.APPROVE_OPTION)
                     return;

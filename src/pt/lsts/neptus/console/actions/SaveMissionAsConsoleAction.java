@@ -41,7 +41,6 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import pt.lsts.neptus.console.ConsoleLayout;
-import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.types.map.MapGroup;
 import pt.lsts.neptus.util.GuiUtils;
@@ -67,14 +66,14 @@ public class SaveMissionAsConsoleAction extends ConsoleAction{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        JFileChooser chooser;
+        File chooserBaseFolder;
         if (console.getMission() != null && console.getMission().getMissionFile() != null)
-            chooser = new JFileChooser(console.getMission().getMissionFile());
+            chooserBaseFolder = console.getMission().getMissionFile();
         else
-            chooser = new JFileChooser(ConfigFetch.getMissionsFolder());
+            chooserBaseFolder = new File(ConfigFetch.getMissionsFolder());
         
-        chooser.setFileView(new NeptusFileView());
-        chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("Mission Files ") + "('nmisz')", new String[] { "nmisz" }));
+        JFileChooser chooser = GuiUtils.getFileChooser(chooserBaseFolder, I18n.text("Mission Files ('nmisz')"), "nmisz");
+
         int resp = chooser.showDialog(console, I18n.text("Save"));
         if (resp == JFileChooser.APPROVE_OPTION) {
             if (chooser.getSelectedFile().exists()) {

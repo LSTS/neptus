@@ -39,12 +39,14 @@ import javax.swing.JFileChooser;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
  * @author zp
@@ -72,7 +74,7 @@ public class QGCExporter extends ConsolePanel {
                     if (plan == null)
                         throw new Exception("Please choose a main plan first");
                     String wptList = WaypointUtils.getAsQGCFormat(plan);
-                    JFileChooser fchooser = new JFileChooser();
+                    JFileChooser fchooser = GuiUtils.getFileChooser(ConfigFetch.getUserHomeFolder());
                     fchooser.setAcceptAllFileFilterUsed(true);
                     fchooser.setMultiSelectionEnabled(false);
                     int option = fchooser.showSaveDialog(getConsole());

@@ -533,8 +533,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
      */
     private JFileChooser getFileDialog() {
         if (fileDialog == null) {
-            fileDialog = new JFileChooser();
-            fileDialog.setFileView(new NeptusFileView());
+            fileDialog = GuiUtils.getFileChooser((String) null);
         }
         return fileDialog;
     }

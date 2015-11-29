@@ -121,12 +121,9 @@ public class MRAExporterFilter implements MRAExporter {
 
     private File chooseSaveFile(String path) {
 
-        JFileChooser fileChooser = new JFileChooser();
+        JFileChooser fileChooser = GuiUtils.getFileChooser(path, I18n.text("LSF logs"), 
+                FileUtil.FILE_TYPE_LSF, FileUtil.FILE_TYPE_LSF_COMPRESSED, FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
         fileChooser.setSelectedFile(new File(path.concat("/Data_filtered.lsf")));
-        fileChooser.setFileView(new NeptusFileView());
-        fileChooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("Log files"),
-                new String[] { FileUtil.FILE_TYPE_LSF, FileUtil.FILE_TYPE_LSF_COMPRESSED }));
-
         fileChooser.setAcceptAllFileFilterUsed(false);
 
         int status = fileChooser.showSaveDialog(null);
