@@ -66,17 +66,12 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 public class ConsoleParse implements FileHandler {
 
     public static ConsoleLayout consoleLayoutLoader(String consoleURL) {
-        ConsoleLayout console = new ConsoleLayout();
-        parseFile(consoleURL, console);
-
-        console.setConsoleChanged(false);
+        ConsoleLayout console = ConsoleLayout.forge(consoleURL);
 
         Rectangle screen = MouseInfo.getPointerInfo().getDevice().getDefaultConfiguration().getBounds();
         console.setLocation(screen.x, screen.y);
-        
-        console.imcOn();
-        console.setVisible(true);
 
+        console.setVisible(true);
         return console;
     }
     
@@ -392,7 +387,7 @@ public class ConsoleParse implements FileHandler {
         ConfigFetch.initialize();
         GuiUtils.setLookAndFeel();
 
-        ConsoleLayout cl = new ConsoleLayout();
+        ConsoleLayout cl = ConsoleLayout.forge();
         cl.setVisible(true);
         cl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         if (plan != null) {
@@ -407,6 +402,7 @@ public class ConsoleParse implements FileHandler {
             panel.setBounds(10, 10, (int) panel.getPreferredSize().getWidth(), (int) panel.getPreferredSize()
                     .getHeight());
 
+            cl.getMainPanel().removeAll();
             cl.getMainPanel().addSubPanel(panel, 10, 10);
             return cl;
         }
@@ -419,7 +415,7 @@ public class ConsoleParse implements FileHandler {
     // From GuiUtils 7/12/2008
     public static ConsoleLayout dummyConsole(ConsolePanel... panelsToTest) {
         ConfigFetch.initialize();
-        ConsoleLayout layout = new ConsoleLayout();
+        ConsoleLayout layout = ConsoleLayout.forge();
 
         layout.setSize(800, 600);
         layout.setMainSystem("lauv-seacon-1");

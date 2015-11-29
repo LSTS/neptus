@@ -54,6 +54,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 /**
@@ -98,7 +99,6 @@ public class ChecklistFileChooser extends JFileChooser {
      * Shows
      */
     private static File showOpenDialog(Component parent, String title, File basedir) {
-        JFileChooser jfc = new JFileChooser();
         File fx;
         if (basedir != null && basedir.exists()) {
             fx = basedir;
@@ -113,35 +113,10 @@ public class ChecklistFileChooser extends JFileChooser {
                 }
             }
         }
-        jfc.setCurrentDirectory(fx);
+
+        JFileChooser jfc = GuiUtils.getFileChooser(fx, I18n.text("Checklist files"), FileUtil.FILE_TYPE_CHECKLIST,
+                FileUtil.FILE_TYPE_XML);
         jfc.setAccessory(new ChecklistPreview(jfc));
-        jfc.setFileView(new NeptusFileView());
-        jfc.setFileFilter(new FileFilter() {
-            public boolean accept(File f) {
-                if (f.isDirectory()) {
-                    return true;
-                }
-
-                String extension = FileUtil.getFileExtension(f);
-                if (extension != null) {
-                    if (FileUtil.FILE_TYPE_CHECKLIST.equalsIgnoreCase(extension)
-                            || FileUtil.FILE_TYPE_XML.equalsIgnoreCase(extension)) {
-                        // return ChecklistType.validate(f);
-                        return true;
-                    }
-                    else {
-                        return false;
-                    }
-                }
-                return false;
-            }
-
-            public String getDescription() {
-                return I18n.text("Checklist files") +
-                		" ('" + FileUtil.FILE_TYPE_CHECKLIST + "', '"
-                        + FileUtil.FILE_TYPE_XML + "')";
-            }
-        });
 
         int result = jfc.showDialog((parent == null) ? new JFrame() : parent, title);
         if (result == JFileChooser.CANCEL_OPTION)

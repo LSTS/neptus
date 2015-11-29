@@ -533,8 +533,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
      */
     private JFileChooser getFileDialog() {
         if (fileDialog == null) {
-            fileDialog = new JFileChooser();
-            fileDialog.setFileView(new NeptusFileView());
+            fileDialog = GuiUtils.getFileChooser((String) null);
         }
         return fileDialog;
     }
@@ -1773,11 +1772,10 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             public void actionPerformed(ActionEvent e) {
                 startActivity(I18n.text("Opening Empty Console..."));
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                    ConsoleLayout empCon;;
                     @Override
                     protected Void doInBackground() throws Exception {
-                        ConsoleLayout empCon = new ConsoleLayout();
-                        empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                        empCon.setVisible(true);
+                        empCon = ConsoleLayout.forge();
                         return null;
                     }
 
@@ -1785,6 +1783,8 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                     protected void done() {
                         try {
                             get();
+                            empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                            empCon.setVisible(true);
                         }
                         catch (Exception e) {
                             e.printStackTrace();
@@ -1997,11 +1997,10 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 public void actionPerformed(ActionEvent e) {
                     startActivity(I18n.text("Opening Empty Console..."));
                     SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                        ConsoleLayout empCon;
                         @Override
                         protected Void doInBackground() throws Exception {
-                            ConsoleLayout empCon = new ConsoleLayout();
-                            empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                            empCon.setVisible(true);
+                            empCon = ConsoleLayout.forge();
                             return null;
                         }
 
@@ -2009,6 +2008,8 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                         protected void done() {
                             try {
                                 get();
+                                empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                                empCon.setVisible(true);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -2022,7 +2023,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         }
         return newConsoleMenuItem;
     }
-
+    
     private void addDesktopIcons() {
         int iconSize = 48, iconSepSize = Math.min(iconSize + iconSize * 2 / 3, iconSize + 18);
         int posY = 30;

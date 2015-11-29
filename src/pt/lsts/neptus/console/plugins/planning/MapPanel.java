@@ -129,7 +129,7 @@ CustomInteractionSupport, VehicleStateListener, ConsoleVehicleChangeListener {
     }
 
     @NeptusProperty(name = "Toolbar placement", description = "Where to place the toolbar")
-    public PlacementEnum toolbarPlacement = PlacementEnum.Bottom;
+    public PlacementEnum toolbarPlacement = PlacementEnum.Left;
 
     protected StateRenderer2D renderer = new StateRenderer2D();
     protected String planId = null;

@@ -58,6 +58,8 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.ProgressMonitor;
 
+import foxtrot.AsyncTask;
+import foxtrot.AsyncWorker;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcId16;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
@@ -68,7 +70,6 @@ import pt.lsts.neptus.gui.AboutPanel;
 import pt.lsts.neptus.gui.MissionFileChooser;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.WaitPanel;
-import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.exporters.MRAExporter;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -86,8 +87,6 @@ import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LogUtils.LogValidity;
 import pt.lsts.neptus.util.llf.LsfReport;
 import pt.lsts.neptus.util.logdownload.LogsDownloaderWorker;
-import foxtrot.AsyncTask;
-import foxtrot.AsyncWorker;
 
 /**
  * MRA MenuBar
@@ -172,10 +171,7 @@ public class MRAMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser;
-
                 File lastFile = null;
-
                 try {
                     lastFile = miscFilesOpened.size() == 0 ? null : miscFilesOpened.values().iterator().next();
                     if (lastFile != null && !lastFile.isDirectory())
@@ -184,18 +180,17 @@ public class MRAMenuBar {
                     ex.printStackTrace();
                 }
 
+                File currentDirectory;
                 if(lastFile != null && lastFile.isDirectory() && lastFile.canRead()) {
-                    fileChooser = new JFileChooser(lastFile);
+                    currentDirectory = lastFile;
                 }
-                else if (!new File("./log/downloaded/").canRead())
-                    fileChooser = new JFileChooser(ConfigFetch.getConfigFile());
+                else if (!new File(ConfigFetch.getLogsDownloadedFolder()).canRead())
+                    currentDirectory = new File(ConfigFetch.getConfigFile());
                 else
-                    fileChooser = new JFileChooser(new File("./log/downloaded/"));
+                    currentDirectory = new File(ConfigFetch.getLogsDownloadedFolder());
 
-                fileChooser.setFileView(new NeptusFileView());
-                fileChooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("LSF log files"),
-                        new String[] { "lsf", FileUtil.FILE_TYPE_LSF_COMPRESSED, 
-                    FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2 }));
+                JFileChooser fileChooser = GuiUtils.getFileChooser(currentDirectory, I18n.text("LSF log files"), 
+                        FileUtil.FILE_TYPE_LSF, FileUtil.FILE_TYPE_LSF_COMPRESSED, FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
 
                 if (fileChooser.showOpenDialog(mra) == JFileChooser.APPROVE_OPTION) {
                     final File log = fileChooser.getSelectedFile();
@@ -309,7 +304,7 @@ public class MRAMenuBar {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                JFileChooser chooser = new JFileChooser(new File("."));
+                JFileChooser chooser = GuiUtils.getFileChooser(ConfigFetch.getLogsDownloadedFolder());
                 chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                 int res = chooser.showOpenDialog(mra);
 
@@ -533,7 +528,7 @@ public class MRAMenuBar {
                 File[] folders = ConcatenateLsfLog.chooseFolders(mra, new File(".").getAbsolutePath());
 
                 if (folders != null) {
-                    JFileChooser chooser = new JFileChooser(new File("."));
+                    JFileChooser chooser = GuiUtils.getFileChooser(ConfigFetch.getConfigFile());
                     chooser.setDialogTitle(I18n.text("Select folder where to save concatenated log"));
                     chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                     int op = chooser.showOpenDialog(mra);

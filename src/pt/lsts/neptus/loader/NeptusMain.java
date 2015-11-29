@@ -188,7 +188,7 @@ public class NeptusMain {
         // Empty Console
         else if (app.equalsIgnoreCase("cl")) {
             ConfigFetch.initialize();
-            ConsoleLayout appC = new ConsoleLayout();
+            ConsoleLayout appC = ConsoleLayout.forge();
             appC.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             appC.setVisible(true);
             wrapMainApplicationWindowWithCloseActionWindowAdapter(appC);

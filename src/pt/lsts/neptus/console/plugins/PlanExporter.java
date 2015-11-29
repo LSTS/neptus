@@ -42,7 +42,6 @@ import javax.swing.ProgressMonitor;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
-import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginsRepository;
@@ -90,10 +89,10 @@ public class PlanExporter extends ConsolePanel {
                         }
                         PlanType plan = getConsole().getPlan();
                         
-                        JFileChooser chooser = new JFileChooser(lastExportFolder);
-                        chooser.setFileView(new NeptusFileView());
+                        JFileChooser chooser = GuiUtils.getFileChooser(lastExportFolder,
+                                I18n.textf("%exporterName files", exp.getExporterName()),
+                                exp.validExtensions());
                         chooser.setSelectedFile(new File(plan.getDisplayName()));
-                        chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.textf("%exporterName files", exp.getExporterName()), exp.validExtensions()));
                         chooser.setDialogTitle(I18n.text("Select destination file"));
                         int op = chooser.showSaveDialog(getConsole());
                         if (op != JFileChooser.APPROVE_OPTION)

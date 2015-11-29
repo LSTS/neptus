@@ -58,7 +58,7 @@ public class ContainerSubPanel extends ConsolePanel implements LockableSubPanel 
     private static final long serialVersionUID = 1L;
     @NeptusProperty(name = "Maximize Panel", description = "Use this to indicate that this panel "
             + "should be maximized on load. (Only works for top level panels.)", distribution = DistributionEnum.DEVELOPER)
-    public boolean maximizePanel = false;
+    public boolean maximizePanel = true;
     
     protected List<ConsolePanel> panels = new ArrayList<>();
 

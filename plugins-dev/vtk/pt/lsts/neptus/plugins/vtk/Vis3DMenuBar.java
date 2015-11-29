@@ -164,16 +164,7 @@ public class Vis3DMenuBar extends JMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser chooser = new JFileChooser(vtkInit.getLog().getFile("Data.lsf").getParentFile());
-
-                // FileFilter filefilter = GuiUtils.getCustomFileFilter(I18n.text("3D files ") + "*.vtk" + ", *.stl"
-                // + ", *.ply" + ", *.obj" + ", *.wrl" + " *.x3d", new String[] { "X3D", "VTK", "STL", "PLY", "OBJ",
-                // "WRL" });
-
-                FileFilter filefilter = GuiUtils.getCustomFileFilter(I18n.text("3D files ") + "*.vtk" + ", *.stl"
-                        + ", *.ply" + ", *.obj" + ", *.wrl" + " *.x3d", File3DUtils.TYPES_3D_FILES);
-
-                chooser.setFileFilter(filefilter);
+                JFileChooser chooser = GuiUtils.getFileChooser(vtkInit.getLog().getDir(), I18n.text("3D files"), File3DUtils.TYPES_3D_FILES); 
 
                 int ans = chooser.showDialog(vtkInit, I18n.text("Save as") + "...");
                 if (ans == JFileChooser.APPROVE_OPTION) {

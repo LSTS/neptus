@@ -407,9 +407,8 @@ public class MVProblemSpecification {
      * Unitary test used to generate a series of initial states to feed and test the planner...
      */
     public static void main(String[] args) {
-
         MVPlannerInteraction inter = new MVPlannerInteraction();
-        inter.init(new ConsoleLayout());
+        inter.init(ConsoleLayout.forge());
 
         for (int i = 1; i <= 10; i++) {
             MVProblemSpecification spec = MVProblemSpecification.generateTest(i, i, "lauv-seacon-1", "lauv-xplore-1", "lauv-noptilus-3", "lauv-xtreme-2");
@@ -419,8 +418,5 @@ public class MVProblemSpecification {
                 System.out.println("Created "+"state"+i+".pddl");
             }
         }
-
-
     }
-
 }

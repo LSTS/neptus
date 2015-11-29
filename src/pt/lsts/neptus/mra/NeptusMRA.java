@@ -82,11 +82,11 @@ public class NeptusMRA extends JFrame {
     public NeptusMRA() {
         super(MRA_TITLE);
         try {
-            PluginUtils.loadProperties("conf/mra.properties", getMraProperties());
+            PluginUtils.loadProperties(ConfigFetch.getConfFolder() + "/mra.properties", getMraProperties());
         }
         catch (Exception e) {
             NeptusLog.pub().error(I18n.text("Not possible to open")
-                    + " \"conf/mra.properties\"");
+                    + " \"" + ConfigFetch.getConfFolder() + "/mra.properties\"");
         }
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
         ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
