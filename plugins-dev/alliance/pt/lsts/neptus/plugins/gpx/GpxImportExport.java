@@ -81,7 +81,8 @@ public class GpxImportExport extends ConsolePanel {
 
     @Override
     public void cleanSubPanel() {
-        
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("GPX") + ">" + I18n.text("Import"));
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("GPX") + ">" + I18n.text("Export"));
     }
     
     private MapType getMap(MissionType mt) {

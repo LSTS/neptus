@@ -87,7 +87,6 @@ public class QGCExporter extends ConsolePanel {
                 catch (Exception ex) {
                     GuiUtils.errorMessage(getConsole(), ex);
                 }
-                
             }
         });
     }
@@ -97,7 +96,6 @@ public class QGCExporter extends ConsolePanel {
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-        
+        removeMenuItem("Tools" + ">" + "QGC" + ">" + "Export Waypoint List");
     }
 }
