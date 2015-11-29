@@ -148,7 +148,7 @@ public class GpxImportExport extends ConsolePanel {
     
     @Override
     public void initSubPanel() {
-        addMenuItem("Tools>GPX>Import", null, new ActionListener() {
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("GPX") + ">" + I18n.text("Import"), null, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 
@@ -167,7 +167,6 @@ public class GpxImportExport extends ConsolePanel {
                         addMark(loc, wpt.getName());
                     }
                     
-                    
                     for (Track t : gpx.getTracks()) {
                         Vector<LocationType> locs = new Vector<>();
                         for (Waypoint wpt : t.getTrackPoints()) {
@@ -185,7 +184,7 @@ public class GpxImportExport extends ConsolePanel {
             }
         });
         
-        addMenuItem("Tools>GPX>Export", null, new ActionListener() {
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("GPX") + ">" + I18n.text("Export"), null, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {

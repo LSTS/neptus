@@ -55,6 +55,8 @@ import pt.lsts.neptus.util.conf.ConfigFetch;
 @PluginDescription(name="QGroundControl interface")
 public class QGCExporter extends ConsolePanel {
 
+    private static final long serialVersionUID = 1L;
+    
     /**
      * @param console
      */
@@ -62,11 +64,9 @@ public class QGCExporter extends ConsolePanel {
         super(console);
     }
 
-    private static final long serialVersionUID = 1L;
-
     @Override
     public void initSubPanel() {
-        addMenuItem("Tools>QGC>Export Waypoint List", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {            
+        addMenuItem("Tools" + ">" + "QGC" + ">" + "Export Waypoint List", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {            
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -82,7 +82,7 @@ public class QGCExporter extends ConsolePanel {
                         return;
                     File f = fchooser.getSelectedFile();
                     FileUtil.saveToFile(f.getAbsolutePath(), wptList);
-                    GuiUtils.infoMessage(getConsole(), "Export Waypoint List", "Waypoint list successfully exported to '"+f.getName()+"'");
+                    GuiUtils.infoMessage(getConsole(), I18n.text("Export Waypoint List"), I18n.textf("Waypoint list successfully exported to '%file'", f.getName()));
                 }
                 catch (Exception ex) {
                     GuiUtils.errorMessage(getConsole(), ex);

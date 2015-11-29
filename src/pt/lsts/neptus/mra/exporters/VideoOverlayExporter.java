@@ -86,18 +86,18 @@ public class VideoOverlayExporter implements MRAExporter {
         if (op == JFileChooser.APPROVE_OPTION) {
             videoIn = chooser.getSelectedFile();
 
-            videoOut = new File(chooser.getSelectedFile().getAbsolutePath()+".out.avi");
+            videoOut = new File(chooser.getSelectedFile().getAbsolutePath() + ".out.avi");
         }
         else
-            return "User cancelled the operation";
-        String time = JOptionPane.showInputDialog("Enter the log time, in seconds when the video starts");
+            return I18n.text("User cancelled the operation");
+        String time = JOptionPane.showInputDialog(I18n.text("Enter the log time, in seconds when the video starts"));
         double startTime = 0;
         try {
             startTime = Double.parseDouble(time);
         }
         catch (Exception e) {
             e.printStackTrace();
-            return "Given time was not understood";
+            return I18n.text("Given time was not understood");
         }
 
         IMediaReader reader = ToolFactory.makeReader(videoIn.toString());
@@ -114,18 +114,15 @@ public class VideoOverlayExporter implements MRAExporter {
 
         }
 
-
         return "done";
     }
 
     @Override
     public String getName() {
-        // TODO Auto-generated method stub
         return "Video Overlay";
     }
 
-    static class TimeStampTool extends MediaToolAdapter
-    {
+    static class TimeStampTool extends MediaToolAdapter {
         private final ProgressMonitor pmonitor;
         private final double timeOffset;
         private final IndexScanner scanner;
@@ -143,8 +140,7 @@ public class VideoOverlayExporter implements MRAExporter {
         }
 
         @Override
-        public void onVideoPicture(IVideoPictureEvent event)
-        {
+        public void onVideoPicture(IVideoPictureEvent event) {
             Graphics2D g = event.getImage().createGraphics();
 
             pmonitor.setProgress((int)(event.getPicture().getTimeStamp()/1000000));
@@ -183,5 +179,4 @@ public class VideoOverlayExporter implements MRAExporter {
             super.onVideoPicture(event);
         }
     }
-
 }
