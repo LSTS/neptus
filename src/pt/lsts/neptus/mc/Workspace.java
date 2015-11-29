@@ -87,9 +87,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.MonitorIMCComms;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.actions.ExitAction;
-import pt.lsts.neptus.console.plugins.PluginManager;
-import pt.lsts.neptus.console.plugins.SettingsWindow;
-import pt.lsts.neptus.console.plugins.containers.MigLayoutContainer;
 import pt.lsts.neptus.events.NeptusEventHiddenMenus;
 import pt.lsts.neptus.events.NeptusEvents;
 import pt.lsts.neptus.gui.AboutPanel;
@@ -1776,10 +1773,10 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             public void actionPerformed(ActionEvent e) {
                 startActivity(I18n.text("Opening Empty Console..."));
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                    ConsoleLayout empCon;;
                     @Override
                     protected Void doInBackground() throws Exception {
-                        ConsoleLayout empCon = new ConsoleLayout();
-                        createEmptyConsole(empCon);
+                        empCon = ConsoleLayout.forge();
                         return null;
                     }
 
@@ -1787,6 +1784,8 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                     protected void done() {
                         try {
                             get();
+                            empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                            empCon.setVisible(true);
                         }
                         catch (Exception e) {
                             e.printStackTrace();
@@ -1999,10 +1998,10 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 public void actionPerformed(ActionEvent e) {
                     startActivity(I18n.text("Opening Empty Console..."));
                     SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+                        ConsoleLayout empCon;
                         @Override
                         protected Void doInBackground() throws Exception {
-                            ConsoleLayout empCon = new ConsoleLayout();
-                            createEmptyConsole(empCon);
+                            empCon = ConsoleLayout.forge();
                             return null;
                         }
 
@@ -2010,6 +2009,8 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                         protected void done() {
                             try {
                                 get();
+                                empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                                empCon.setVisible(true);
                             }
                             catch (Exception e) {
                                 e.printStackTrace();
@@ -2024,19 +2025,6 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
         return newConsoleMenuItem;
     }
     
-    private void createEmptyConsole(ConsoleLayout empCon){
-        // load core plugins
-        MigLayoutContainer migCont = new MigLayoutContainer(empCon);
-        empCon.getMainPanel().addSubPanel(migCont, 0, 0);
-        migCont.init();
-        PluginManager manager = new PluginManager(empCon);
-        manager.init();
-        SettingsWindow settings = new SettingsWindow(empCon);
-        settings.init();
-        empCon.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        empCon.setVisible(true);
-    }
-
     private void addDesktopIcons() {
         int iconSize = 48, iconSepSize = Math.min(iconSize + iconSize * 2 / 3, iconSize + 18);
         int posY = 30;

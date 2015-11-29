@@ -353,7 +353,7 @@ public class MVPlannerInteraction extends ConsoleInteraction {
     public static void main(String[] args) {
         StateRenderer2D renderer = new StateRenderer2D();
         MVPlannerInteraction inter = new MVPlannerInteraction();
-        inter.init(new ConsoleLayout());
+        inter.init(ConsoleLayout.forge());
         renderer.setActiveInteraction(inter);
         GuiUtils.testFrame(renderer);
     }
