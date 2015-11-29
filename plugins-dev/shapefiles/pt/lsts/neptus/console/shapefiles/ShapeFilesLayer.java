@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import javax.swing.JFileChooser;
 
 import pt.lsts.neptus.console.ConsoleLayer;
+import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.ConfigurationListener;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -88,6 +89,7 @@ public class ShapeFilesLayer extends ConsoleLayer implements ConfigurationListen
             @Override
             public void actionPerformed(ActionEvent e) {
                 JFileChooser chooser = new JFileChooser();
+                chooser.setFileView(new NeptusFileView());
                 chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("Shape File"),
                         new String[] { "shp" }));
                 chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);

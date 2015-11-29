@@ -97,6 +97,9 @@ public class ConfigFetch {
     private static final String MISSION_BASE_FOLDER = "missions";
     private static final String CONF_BASE_FOLDER = "conf";
     private static final String CONSOLES_BASE_FOLDER = CONF_BASE_FOLDER + "/" + "consoles";
+    private static final String LOG_BASE_FOLDER = "log";
+    private static final String MAP_BASE_FOLDER = "maps";
+    private static final String VEHICLES_BASE_FOLDER = "vehicles-defs";
 
     private static Document confDoc = DocumentHelper.createDocument();
     private static String configFile = CONFIG_FILE_NAME;
@@ -504,6 +507,18 @@ public class ConfigFetch {
 
     public static String getConsolesFolder() {
         return resolvePathBasedOnConfigFile(CONSOLES_BASE_FOLDER);
+    }
+
+    public static String getLogsFolder() {
+        return resolvePathBasedOnConfigFile(LOG_BASE_FOLDER);
+    }
+
+    public static String getMapsFolder() {
+        return resolvePathBasedOnConfigFile(MAP_BASE_FOLDER);
+    }
+
+    public static String getVehiclesDefsFolder() {
+        return resolvePathBasedOnConfigFile(VEHICLES_BASE_FOLDER);
     }
 
     /**
