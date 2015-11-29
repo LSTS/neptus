@@ -1710,7 +1710,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         return item;
     }
 
-    public JMenu removeMenuItem(String[] menuPath) {
+    public JMenu removeMenuItem(String... menuPath) {
         JMenu parent = null;
         for (int i = 0; i < this.menuBar.getMenuCount(); i++) {
             JMenu menu = getConsole().getJMenuBar().getMenu(i);
