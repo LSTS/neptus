@@ -108,14 +108,14 @@ public class BathymetryLayer extends ConsoleLayer {
     @Override
     public void initLayer() {
         
-        getConsole().addMenuItem("Tools>Bathymetry Layer>Reset", null, new ActionListener() {
+        getConsole().addMenuItem(I18n.text("Tools") + ">" + I18n.text("Bathymetry Layer") + ">" + I18n.text("Reset"), null, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 reset();                
             }
         });
         
-        getConsole().addMenuItem("Tools>Bathymetry Layer>Import from LSF", null, new ActionListener() {
+        getConsole().addMenuItem(I18n.text("Tools") + ">" + I18n.text("Bathymetry Layer") + ">" + I18n.text("Import from LSF"), null, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final JFileChooser chooser = new JFileChooser();
@@ -146,7 +146,7 @@ public class BathymetryLayer extends ConsoleLayer {
             }
         });
         
-        getConsole().addMenuItem("Tools>Bathymetry Layer>Export Image", null, new ActionListener() {
+        getConsole().addMenuItem(I18n.text("Tools") + ">" + I18n.text("Bathymetry Layer") + ">" + I18n.text("Export Image"), null, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final JFileChooser chooser = new JFileChooser();
@@ -173,7 +173,7 @@ public class BathymetryLayer extends ConsoleLayer {
             }
         });
         
-        getConsole().addMenuItem("Tools>Bathymetry Layer>Import Image", null, new ActionListener() {
+        getConsole().addMenuItem(I18n.text("Tools") + ">" + I18n.text("Bathymetry Layer") + ">" + I18n.text("Import Image"), null, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final JFileChooser chooser = new JFileChooser();
@@ -213,6 +213,8 @@ public class BathymetryLayer extends ConsoleLayer {
     
     @Override
     public void cleanLayer() {
+        getConsole().removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Bathymetry Layer"));
+        
         try {
             ImageIO.write(img, "PNG", new File(ConfigFetch.getLogsFolder() + "/bathym.png"));
         }
