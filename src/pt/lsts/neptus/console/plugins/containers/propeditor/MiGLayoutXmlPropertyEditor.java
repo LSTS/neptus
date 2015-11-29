@@ -65,31 +65,31 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
         title = I18n.text("Layout for: MiGLayout Layout XML");
         smallMsg = I18n.text("This follows the MiGLayout");
         contentType = "text/html";
-        helpText = "Container using MigLayout<br/>";
-        helpText += "(see 'http://www.migcalendar.com/miglayout/mavensite/docs/cheatsheet.html')<br/>";
+        helpText = I18n.text("Container using MigLayout") + "<br/>";
+        helpText += I18n.textf("(see %url)", "'http://www.migcalendar.com/miglayout/mavensite/docs/cheatsheet.html'") + "<br/>";
         helpText += "<br/>";
-        helpText += "Example of a basic profile:<br/>";
+        helpText += I18n.text("Example of a basic profile:") + "<br/>";
         helpText += "================<br/>";
         helpText += "<br/>";
         helpText += "&lt;profiles&gt;<br/>";
-        helpText += "&lt;profile name=\"Normal\"&gt;<br/>";
-        helpText += "&lt;container layoutparam=\"ins 0\" param=\"w 100%, h 100%\"&gt;<br/>";
-        helpText += "&lt;child name=\"Map Panel\" param=\"w 100%, h 100%\"/&gt;<br/>";
-        helpText += "&lt;/container&gt;<br/>";
-        helpText += "&lt;container layoutparam=\"ins 3\" param=\"w 300px!, h 100%\"&gt;<br/>";
-        helpText += "&lt;container layoutparam=\"ins 0, filly\" param=\"w 100%, h 100%\"&gt;<br/>";
-        helpText += "&lt;child name=\"Plan Control\" param=\"w 80%, h 50px!\"/&gt;<br/>";
-        helpText += "&lt;child name=\"Abort Button\" param=\"w 20%, h 50px!, wrap\"/&gt;<br/>";
-        helpText += "&lt;child name=\"Plan Control State\" param=\"w 100%!, h 100px!, span, wrap\"/&gt;<br/>";
-        helpText += "&lt;child name=\"Mission Tree\" param=\"w 100%, h 100%, span\"/&gt;<br/>";
-        helpText += "&lt;/container&gt;<br/>";
-        helpText += "&lt;/container&gt;<br/>";
-        helpText += "&lt;/profile&gt;<br/>";
-        helpText += "&lt;profile name=\"Map\"&gt;<br/>";
-        helpText += "&lt;container layoutparam=\"ins 0\" param=\"w 100%, h 100%\"&gt;<br/>";
-        helpText += "&lt;child name=\"Map Panel\" param=\"w 100%, h 100%\"/&gt;<br/>";
-        helpText += "&lt;/container&gt;<br/>";
-        helpText += "&lt;/profile&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&lt;profile name=\"Normal\"&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&lt;container layoutparam=\"ins 0\" param=\"w 100%, h 100%\"&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;child name=\"Map Panel\" param=\"w 100%, h 100%\"/&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&lt;/container&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&lt;container layoutparam=\"ins 3\" param=\"w 300px!, h 100%\"&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;container layoutparam=\"ins 0, filly\" param=\"w 100%, h 100%\"&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;child name=\"Plan Control\" param=\"w 80%, h 50px!\"/&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;child name=\"Abort Button\" param=\"w 20%, h 50px!, wrap\"/&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;child name=\"Plan Control State\" param=\"w 100%!, h 100px!, span, wrap\"/&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;child name=\"Mission Tree\" param=\"w 100%, h 100%, span\"/&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/container&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&lt;/container&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&lt;/profile&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&lt;profile name=\"Map\"&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&lt;container layoutparam=\"ins 0\" param=\"w 100%, h 100%\"&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;child name=\"Map Panel\" param=\"w 100%, h 100%\"/&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&nbsp;&nbsp;&lt;/container&gt;<br/>";
+        helpText += "&nbsp;&nbsp;&lt;/profile&gt;<br/>";
         helpText += "&lt;/profiles&gt;<br/>";
     }
 
@@ -180,5 +180,4 @@ public class MiGLayoutXmlPropertyEditor extends XMLPropertyEditor {
         toolbar.add(buttons, BorderLayout.EAST);
         dialog.add(toolbar, BorderLayout.SOUTH);
     }
-
 }
