@@ -896,17 +896,24 @@ public class GuiUtils {
     }
 
     public static FileFilter getCustomFileFilter(String desc, String... validExtensions) {
-        final String d = desc;
+        String extStr = "";
+        for (String e : validExtensions) {
+            if (!extStr.isEmpty())
+                extStr += ", ";
+            extStr += e;
+        }
+        if (!extStr.isEmpty())
+            extStr = " (" + extStr + ")";
+            
+        final String d = desc + extStr;
         final String[] ext = validExtensions;
         return new FileFilter() {
             @Override
             public boolean accept(File f) {
                 if (f.isDirectory())
                     return true;
-                // String extension = FileUtil.getFileExtension(f);
                 for (String e : ext) {
-                    if (/* e.equalsIgnoreCase(extension) */f.getName().toLowerCase().endsWith("." + e.toLowerCase())
-                            || e.equals("*"))
+                    if (f.getName().toLowerCase().endsWith("." + e.toLowerCase()) || e.equals("*"))
                         return true;
                 }
                 return false;
