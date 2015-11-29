@@ -36,9 +36,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
+import javax.swing.ProgressMonitor;
+
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.SonarData;
+import pt.lsts.imc.SonarData.TYPE;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.mra.importers.IMraLog;
+import pt.lsts.neptus.mra.importers.IMraLogGroup;
+import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.llf.LsfLogSource;
 
 /**
@@ -46,27 +53,61 @@ import pt.lsts.neptus.util.llf.LsfLogSource;
  * @author jqcorreia
  *
  */
-public class ImcTo872 {
-    DataOutputStream os;
-    IMraLog pingLog;
-    int multiBeamEntityId;
-    LsfLogSource log;
+@PluginDescription(name="IMC to Imagenex YellowFin Sidescan Sonar 872")
+public class ImcTo872 implements MRAExporter {
+    private DataOutputStream os;
+    private IMraLog pingLog;
+    private int multiBeamEntityId;
+    private IMraLogGroup log;
+    private ProgressMonitor pmonitor;
     
-    public ImcTo872(LsfLogSource log) {
+    public ImcTo872(IMraLogGroup log) {
+        this.log = log;
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mra.exporters.MRAExporter#getName()
+     */
+    @Override
+    public String getName() {
+        return PluginUtils.getPluginName(getClass());
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mra.exporters.MRAExporter#canBeApplied(pt.lsts.neptus.mra.importers.IMraLogGroup)
+     */
+    @Override
+    public boolean canBeApplied(IMraLogGroup source) {
+        return source.getLsfIndex().containsMessagesOfType("SidescanPing");        
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.mra.exporters.MRAExporter#process(pt.lsts.neptus.mra.importers.IMraLogGroup, javax.swing.ProgressMonitor)
+     */
+    @Override
+    public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
+        pmonitor.setMaximum(100);
+
+        this.pmonitor = pmonitor;
+
         try {
-            File outFile = new File(log.getFile("Data.lsf").getParentFile() + "/sidescan.872");
+            File outFile = new File(log.getFile("Data.lsf").getParentFile() + "/Data.872");
             os = new DataOutputStream(new FileOutputStream(outFile));
             this.log = log;
-            pingLog = log.getLog("SidescanPing");
+            pingLog = log.getLog("SonarData");
             convert();
         }
         catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        return null;
     }
 
-    void convert() {
+    private void convert() {
+        pmonitor.setMaximum(pingLog.getNumberOfEntries());
+        int counter = 0;
+        
         IMCMessage pingMsg = pingLog.firstLogEntry();
         int c = 0;
         byte[] buffer;
@@ -78,9 +119,11 @@ public class ImcTo872 {
         }
         
         try {
+            int srcMain = log.getVehicleSources().iterator().next();
             while (pingMsg != null) {
                 // Check for Sidescan message and multibeam entity 
-//                if(log.getEntityName(pingMsg.getInteger("src"), pingMsg.getInteger("src_ent")).equals("Sidescan")) {
+                //if(log.getEntityName(pingMsg.getInteger("src"), pingMsg.getInteger("src_ent")).equals("Sidescan")) {
+                if(pingMsg.getSrc() == srcMain && ((SonarData) pingMsg).getType() == TYPE.SIDESCAN) {
                     buffer = new byte[pingMsg.getRawData("data").length];
                     System.arraycopy(pingMsg.getRawData("data"), 0, buffer, 0, buffer.length);
                     
@@ -114,13 +157,15 @@ public class ImcTo872 {
                     for(int z = 0; z < fill.length; z++)
                         fill[z] = 0;
                     
-                    
                     // Writing stream data
                     os.write(fill); // First zero fill
                     os.write(buffer); // 2000 data points regarding Port and starboard channels
                     os.write(zeroFill); // Second zero fill
                     os.writeShort(8192); // Bytes to previous ping
-//                } 
+                } 
+
+                pmonitor.setProgress(counter);
+
                 pingMsg = pingLog.nextLogEntry();
             }
         }
