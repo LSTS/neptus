@@ -60,6 +60,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.bathymetry.TidePrediction;
 import pt.lsts.neptus.util.conf.ConfigFetch;
@@ -121,7 +122,8 @@ public class BathymetryLayer extends ConsoleLayer {
                 final JFileChooser chooser = new JFileChooser();
                 chooser.setFileView(new NeptusFileView());
                 chooser.setCurrentDirectory(new File(ConfigFetch.getLogsFolder()));
-                chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("LSF log files"), new String[] {"lsf", "lsf.gz"}));
+                chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("LSF log files"), FileUtil.FILE_TYPE_LSF,
+                        FileUtil.FILE_TYPE_LSF_COMPRESSED, FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2));
                 chooser.setApproveButtonText(I18n.text("Open Log"));
                 chooser.showOpenDialog(getConsole());
                 if (chooser.getSelectedFile() == null)
