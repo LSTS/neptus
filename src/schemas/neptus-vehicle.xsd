@@ -140,27 +140,6 @@ Author: Paulo Dias, José Pinto
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
-			<xs:element name="time-shell" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>
-						shell command in the format: 'date
-						MMddHHmm[[[CC]yy][.ss]] &amp;&amp; hwclock
-						--systohc'
-					</xs:documentation>
-				</xs:annotation>
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="set-seconds" type="xs:boolean"
-							default="true" minOccurs="0" />
-						<xs:element name="set-year" type="xs:boolean"
-							default="true" minOccurs="0" />
-						<xs:element name="use-2-digit-year"
-							type="xs:boolean" default="false" minOccurs="0" />
-						<xs:element name="use-hwclock" type="xs:boolean"
-							default="true" minOccurs="0" />
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
 			<xs:element name="gsm" type="gsmType" maxOccurs="1"
 				minOccurs="0">
 			</xs:element>
@@ -287,20 +266,6 @@ Author: Paulo Dias, José Pinto
 										</xs:simpleType>
 									</xs:element>
 									<xs:element name="host-address" type="xs:string"/>
-									<xs:element name="credentials">
-										<xs:complexType>
-											<xs:attribute name="username" use="required">
-												<xs:simpleType>
-													<xs:restriction base="xs:string"/>
-												</xs:simpleType>
-											</xs:attribute>
-											<xs:attribute name="password" use="optional">
-												<xs:simpleType>
-													<xs:restriction base="xs:string"/>
-												</xs:simpleType>
-											</xs:attribute>
-										</xs:complexType>
-									</xs:element>
 									<xs:element name="protocols" type="xs:NMTOKENS"/>
 									<xs:element name="latency">
 										<xs:complexType>

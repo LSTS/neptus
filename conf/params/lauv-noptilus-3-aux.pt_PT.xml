@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (mission/rep15-with-launch,975b96d,dirty)" system="lauv-noptilus-3-aux" i18n="pt_PT">
+<config format="1" version="2.6.x (master,8797653)" system="lauv-noptilus-3-aux" i18n="pt_PT">
   <section name="Power Supervisor" name-i18n="Supervisor de Energia">
     <param name="Entity Label">
       <name-i18n>Nome da Entidade</name-i18n>
@@ -530,14 +530,14 @@
       <units/>
       <desc>Power channel of the strobe</desc>
     </param>
-    <param name="Volume Size">
-      <name-i18n>Volume Size</name-i18n>
+    <param name="Maximum Log Size">
+      <name-i18n>Maximum Log Size</name-i18n>
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1000</default>
-      <units/>
-      <desc>Number of photos per volume</desc>
+      <default>524288000</default>
+      <units>B</units>
+      <desc>Maximum size of a log file</desc>
     </param>
     <param name="Log Prefix">
       <name-i18n>Log Prefix</name-i18n>

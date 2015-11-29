@@ -17,7 +17,6 @@ conf/controllers/
 conf/i18n/
 conf/neptus-coordinateSystems.xml
 conf/neptus-misc-systems.xml
-conf/gsm_aliases.tsv
 conf/params/manta*.xml
 vehicles-defs/*-lauv-simulator-*.nvcl
 conf/params/lauv-simulator*.xml

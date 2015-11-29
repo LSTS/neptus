@@ -120,19 +120,14 @@ public class MissionBrowser extends JPanel implements PlanChangeListener {
      * @param mission The MissionType whose elements are to be displayed
      */
     public MissionBrowser() {
-        ConfigFetch.mark("MissionBrowser");
-
         elementTree = new JTree();
-        ConfigFetch.mark("MissionTreeCellRenderer");
         cellRenderer = new MissionTreeCellRenderer();
         elementTree.setCellRenderer(cellRenderer);
         elementTree.setRootVisible(false);
         elementTree.setShowsRootHandles(true);
-        ConfigFetch.benchmark("MissionTreeCellRenderer");
 
         this.setLayout(new BorderLayout());
         this.add(new JScrollPane(elementTree), BorderLayout.CENTER);
-        ConfigFetch.benchmark("MissionBrowser");
 
         treeModel = new MissionTreeModel();
         elementTree.setModel(treeModel);

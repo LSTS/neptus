@@ -168,7 +168,7 @@ public class IridiumManager {
         if (service != null)
             stop();
         
-        ImcMsgManager.registerBusListener(this);        
+        ImcMsgManager.getManager().registerBusListener(this);        
         service = Executors.newScheduledThreadPool(1);
         service.scheduleAtFixedRate(pollMessages, 0, 5, TimeUnit.MINUTES);
     }
@@ -178,7 +178,7 @@ public class IridiumManager {
             service.shutdownNow();           
             service = null;
         }
-        ImcMsgManager.unregisterBusListener(this);        
+        ImcMsgManager.getManager().unregisterBusListener(this);        
     }
 
     public static IridiumManager getManager() {

@@ -100,7 +100,7 @@ public class PayloadFactory {
                 }
             }
             if (active) {
-                pf.add(new MultibeamFingerprint(range, Math.toRadians(60)));
+                pf.add(new MultibeamFingerprint(range, Math.toRadians(120)));
             }
         }
         return pf;

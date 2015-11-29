@@ -64,8 +64,8 @@ public class AboutPanel extends JFrame {
     private static final String COPY_YEARS = "2004-2015";
 
     private String mainDevelopers = "Paulo Dias, José Pinto";
-    private String contributersDevelopers = "Ricardo Martins, Sérgio Ferreira, José Loureiro";
-    private String pastDevelopers = "Hugo Queirós, Margarida Faria,José Correia, Hugo Dias, Rui Gonçalves, Eduardo Marques";
+    private String contributorsDevelopers = "Ricardo Martins, Sérgio Ferreira, Manuel Ribeiro";
+    private String pastDevelopers = "José Loureiro, Hugo Queirós, Margarida Faria, José Correia, Hugo Dias, Rui Gonçalves, Eduardo Marques";
 
     private JPanel contentPanel = null;
     private ImagePanel imagePanel = null;
@@ -183,8 +183,8 @@ public class AboutPanel extends JFrame {
                 + "<b>" + I18n.text("Main Developers:") + "</b>"+ "<br/>&nbsp;&nbsp;&nbsp;"
                 + mainDevelopers 
                 + "<br><br>"
-                + "<b>" + I18n.text("Contributers:") + "</b>"  + "<br/>&nbsp;&nbsp;&nbsp;" 
-                + contributersDevelopers + "<br/><br/>"
+                + "<b>" + I18n.text("Contributors:") + "</b>"  + "<br/>&nbsp;&nbsp;&nbsp;" 
+                + contributorsDevelopers + "<br/><br/>"
                 + "<b>" + I18n.text("Past Developers:") + "</b><br/>" 
                 + "&nbsp;&nbsp;&nbsp;" + pastDevelopers + "<br/><br/>" 
                 + "<b>" + I18n.text("Contact info:") + "</b>" 

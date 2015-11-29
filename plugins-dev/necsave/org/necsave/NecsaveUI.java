@@ -31,8 +31,11 @@
  */
 package org.necsave;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -42,11 +45,16 @@ import javax.swing.JOptionPane;
 
 import com.google.common.eventbus.Subscribe;
 
+import info.necsave.msgs.AbortMission;
+import info.necsave.msgs.AbortMission.TYPE;
 import info.necsave.msgs.Area;
 import info.necsave.msgs.Contact;
 import info.necsave.msgs.ContactList;
 import info.necsave.msgs.Kinematics;
 import info.necsave.msgs.MissionArea;
+import info.necsave.msgs.MissionCompleted;
+import info.necsave.msgs.MissionGoal;
+import info.necsave.msgs.MissionGoal.GOAL_TYPE;
 import info.necsave.msgs.MissionReadyToStart;
 import info.necsave.msgs.PlatformInfo;
 import info.necsave.msgs.PlatformPlanProgress;
@@ -59,6 +67,7 @@ import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.systems.external.ExternalSystem;
 import pt.lsts.neptus.systems.external.ExternalSystemsHolder;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -100,7 +109,7 @@ public class NecsaveUI extends ConsoleInteraction {
     }
 
     public void addActions() {
-        getConsole().addMenuItem("Advanced>NECSAVE>Set Mission Area", null, new ActionListener() {
+        getConsole().addMenuItem("Advanced>NECSAVE>Set Mission", null, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -151,16 +160,52 @@ public class NecsaveUI extends ConsoleInteraction {
                     GuiUtils.errorMessage(getConsole(), ex);
                     ex.printStackTrace();
                 }
+
+                String[] goals = getNames(GOAL_TYPE.class);
+                
+                Object goal_ret = JOptionPane.showInputDialog(getConsole(), I18n.text("Select goal"),
+                        I18n.text("Select goal"), JOptionPane.QUESTION_MESSAGE, null,
+                        goals, goals[0]);
+                if (goal_ret == null)
+                    return;
+                
+                GOAL_TYPE goal = GOAL_TYPE.valueOf((String) goal_ret);
+                MissionGoal m_goal = new MissionGoal(goal);
+                
+                try {
+                    sendMessage(m_goal);
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                    ex.printStackTrace();
+                }
+                
+                int reply = JOptionPane.showConfirmDialog(getConsole(), I18n.text("Start Mission"), 
+                        I18n.text("Start Mission"), JOptionPane.YES_NO_OPTION);
+                if (reply == JOptionPane.YES_OPTION) {
+                    MissionReadyToStart start = new MissionReadyToStart();
+                    try {
+                        sendMessage(start);
+                    }
+                    catch (Exception ex) {
+                        GuiUtils.errorMessage(getConsole(), ex);
+                        ex.printStackTrace();
+                    }
+                }
+                else
+                    return;
+
             }
         });
 
-        getConsole().addMenuItem("Advanced>NECSAVE>Start Mission", null, new ActionListener() {
+        getConsole().addMenuItem("Advanced>NECSAVE>Abort Mission", null, new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                MissionReadyToStart start = new MissionReadyToStart();
+                AbortMission abort = new AbortMission();
+                abort.setType(TYPE.SYSTEM_WIDE);
                 try {
-                    sendMessage(start);
+                    sendMessage(abort);
                 }
                 catch (Exception ex) {
                     GuiUtils.errorMessage(getConsole(), ex);
@@ -168,6 +213,33 @@ public class NecsaveUI extends ConsoleInteraction {
                 }
             }
         });
+        
+        getConsole().addMenuItem("Advanced>NECSAVE>Send MissionCompleted", null, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MissionCompleted msg = new MissionCompleted();
+                try {
+                    sendMessage(msg);
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                    ex.printStackTrace();
+                }
+            }
+        });
+        
+        getConsole().addMenuItem("Advanced>NECSAVE>Clear Platforms", null, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                platformNames.clear();
+            }
+        });
+    }
+    
+    private static String[] getNames(Class<? extends Enum<?>> e) {
+        return Arrays.stream(e.getEnumConstants()).map(Enum::name).toArray(String[]::new);
     }
     
     private void sendMessageReliably(Message msg) throws Exception {
@@ -247,6 +319,7 @@ public class NecsaveUI extends ConsoleInteraction {
                         Math.toDegrees(msg.getWaypoint().getLongitude()));
                 loc.setDepth(msg.getWaypoint().getDepth());
                 extSys.setLocation(loc, System.currentTimeMillis());
+                extSys.setAttitudeDegrees(Math.toDegrees(msg.getHeading()));
             }
             else {
                 NeptusLog.pub().error(I18n.textf("Kinematics message from %platform is not valid.", name));
@@ -288,6 +361,17 @@ public class NecsaveUI extends ConsoleInteraction {
         JsonObject json = new JsonObject();
         json.setJson(msg.asJSON(false));
         LsfMessageLogger.log(json);
+    }
+    
+    @Override
+    public void paintInteraction(Graphics2D g, StateRenderer2D source) {
+        super.paintInteraction(g, source);
+        g.setColor(Color.black);
+        int x = 50;
+        for (int id : platformNames.keySet()) {
+            g.drawString(platformNames.get(id)+": "+transport.addressOf(id), 50, x);
+            x += 20;
+        }
     }
 
     @Override

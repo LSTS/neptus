@@ -3,17 +3,3 @@ language: java
 jdk:
  - oraclejdk8
 
-install:
- - sudo apt-get install sshpass -qq
- - sudo apt-get install nsis -qq
-
-env:
-  global:
-    secure: DtUWKzELlEvNm9MojN8I+wFGY8QSwnbAFBGNXQeFWsxZBOUO7Y7p5d5rEKEYqaPEi0r5pOpfq75ErSmgRz922GD4IjRYuGqhprOzNwRhFMbkBrSkAwZT15dJq+v3RJmBvHi8NNCTaLCNQXvoHgq+mUSIeUMYomMxTSezcTfKWYA=
-
-before_script:
-  - echo -e "Host zpserver.info\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-  - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-after_script:
-  - sshpass -p "$pass" scp -v Neptus-* lsts@zpserver.info:~/public_html/neptus/
-

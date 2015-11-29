@@ -59,7 +59,6 @@ import pt.lsts.neptus.types.XmlInputMethods;
 import pt.lsts.neptus.types.XmlInputMethodsFromFile;
 import pt.lsts.neptus.types.XmlOutputMethods;
 import pt.lsts.neptus.types.comm.CommMean;
-import pt.lsts.neptus.types.comm.protocol.AdjustTimeShellArgs;
 import pt.lsts.neptus.types.comm.protocol.FTPArgs;
 import pt.lsts.neptus.types.comm.protocol.IMCArgs;
 import pt.lsts.neptus.types.comm.protocol.GsmArgs;
@@ -358,10 +357,6 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
                 else if (nodeName.equalsIgnoreCase(CommMean.IMC)) {
                     IMCArgs imcA = new IMCArgs(ndP.asXML());
                     protocolsArgs.put(CommMean.IMC, imcA);
-                }
-                else if (nodeName.equalsIgnoreCase(AdjustTimeShellArgs.DEFAULT_ROOT_ELEMENT)) {
-                    AdjustTimeShellArgs adjTimeParam = new AdjustTimeShellArgs(ndP.asXML());
-                    protocolsArgs.put(AdjustTimeShellArgs.DEFAULT_ROOT_ELEMENT, adjTimeParam);
                 }
                 else if (nodeName.equalsIgnoreCase("gsm")) {
                     GsmArgs gsmArgs = new GsmArgs();

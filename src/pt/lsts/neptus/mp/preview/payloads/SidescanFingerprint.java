@@ -52,12 +52,8 @@ public class SidescanFingerprint extends PayloadFingerprint {
     
     public Area getFingerprint(SystemPositionAndAttitude pose) {
         double sssRange = range;
-        
-        Rectangle2D r1 = new Rectangle2D.Double(-sssRange, -1, sssRange-pose.getAltitude(), 1.3);
-        Rectangle2D r2 = new Rectangle2D.Double(pose.getAltitude(), -1, sssRange-pose.getAltitude(), 1.3);
-        
-        Area a = new Area(r1);
-        a.add(new Area(r2));
+        Rectangle2D r2 = new Rectangle2D.Double(-sssRange, -1, sssRange*2, 1.3);
+        Area a = new Area(r2);
         return a;        
     };
 }

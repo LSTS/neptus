@@ -1363,7 +1363,7 @@ public class RhodamineOilVisualizer extends ConsoleLayer implements Configuratio
         double valueReceived = msg.getValue();
         if (!Double.isNaN(valueReceived)) {
             rhodamineImcString = "" + MathMiscUtils.round(valueReceived, 2) + "ppb @ " 
-                    + DateTimeUtil.timeFormaterUTC.format(new Date(rhodamineImcStringMillis));
+                    + DateTimeUtil.timeFormatterUTC.format(new Date(rhodamineImcStringMillis));
             rhodamineImcStringMillis = msg.getTimestampMillis();
         }
     }

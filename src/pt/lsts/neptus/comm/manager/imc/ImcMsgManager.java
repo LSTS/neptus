@@ -208,18 +208,18 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
         ignoredClasses.add(IMCSendMessageUtils.class.getName());
     }
 
-    public static void registerBusListener(Object listener) {
-        if (!getManager().busListeners.contains(listener)) {
-            getManager().getMessageBus().register(listener);
+    public void registerBusListener(Object listener) {
+        if (!busListeners.contains(listener)) {
+            getMessageBus().register(listener);
         }
-        getManager().busListeners.add(listener);
+        busListeners.add(listener);
     }
 
-    public static void unregisterBusListener(Object listener) {
-        if (getManager().busListeners.contains(listener)) {
-            getManager().getMessageBus().unregister(listener);
+    public void unregisterBusListener(Object listener) {
+        if (busListeners.contains(listener)) {
+            getMessageBus().unregister(listener);
         }
-        getManager().busListeners.remove(listener);
+        busListeners.remove(listener);
     }
 
     /**

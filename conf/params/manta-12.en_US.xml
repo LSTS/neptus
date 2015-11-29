@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (mission/rep15-with-launch,975b96d,dirty)" system="manta-12" i18n="en_US">
+<config format="1" version="2.6.x (master,8797653)" system="manta-12" i18n="en_US">
   <section name="Clock" name-i18n="Clock">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -547,7 +547,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Micromodem</default>
+      <default>Acoustic Modem</default>
       <units/>
       <desc/>
     </param>
@@ -565,7 +565,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Evologics</default>
+      <default>N/C (Bat_Out)</default>
       <units/>
       <desc/>
     </param>
@@ -574,7 +574,7 @@
       <type>integer</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1</default>
+      <default>0</default>
       <units/>
       <desc/>
     </param>

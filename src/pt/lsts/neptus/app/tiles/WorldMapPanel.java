@@ -103,6 +103,7 @@ import org.w3c.dom.NodeList;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
+import pt.lsts.neptus.platform.OsInfo;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
@@ -1134,7 +1135,7 @@ public class WorldMapPanel extends JPanel {
             NeptusLog.wasteRoot().setLevel(Level.OFF);
             NeptusLog.pubRoot().setLevel(Level.FATAL);
             
-            if (ConfigFetch.isOSEqual(ConfigFetch.OS_LINUX))
+            if (OsInfo.getName() == OsInfo.Name.LINUX)
                 GuiUtils.setLookAndFeel();
             else
                 GuiUtils.setSystemLookAndFeel();

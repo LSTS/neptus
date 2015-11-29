@@ -99,12 +99,6 @@ public class VehicleIpPortEditor implements PropertiesProvider {
                 if (prop.getName().equals("host name")) {
                     cm.setHostAddress((String) prop.getValue());
                 }
-                else if (prop.getName().equals("user name")) {
-                    cm.setUserName((String) prop.getValue());
-                }
-                else if (prop.getName().equals("is password saved")) {
-                    cm.setPasswordSaved((Boolean) prop.getValue());
-                }
                 else {
                     for (String protocol : cm.getProtocols()) {
                         if (prop.getName().startsWith(protocol)) {

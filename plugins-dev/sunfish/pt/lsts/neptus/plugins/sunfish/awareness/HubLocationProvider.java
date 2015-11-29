@@ -41,7 +41,6 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.comm.iridium.HubIridiumMessenger;
 import pt.lsts.neptus.comm.iridium.HubIridiumMessenger.HubSystemMsg;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.notifications.Notification;
 import pt.lsts.neptus.plugins.update.Periodic;
 
@@ -60,7 +59,7 @@ public class HubLocationProvider implements ILocationProvider {
     @Override
     public void onInit(SituationAwareness instance) {
         this.parent = instance;
-        ImcMsgManager.registerBusListener(this);   
+        instance.getConsole().getImcMsgManager().registerBusListener(this);   
     }
     
     LinkedHashMap<Integer, AssetPosition> positionsToSend = new LinkedHashMap<Integer, AssetPosition>();  
@@ -166,7 +165,7 @@ public class HubLocationProvider implements ILocationProvider {
 
     @Override
     public void onCleanup() {        
-        ImcMsgManager.unregisterBusListener(this);
+        parent.getConsole().getImcMsgManager().unregisterBusListener(this);
     }
 
     private boolean enabled = false;

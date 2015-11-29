@@ -142,13 +142,12 @@ public class UnicycleModel {
         speedMPS = speed;
 
         if (altitude != null) {
-            
             double curBathym = SimulationEngine.simBathym.getSimulatedDepth(getCurrentPosition());
             double curAltitude = curBathym-depth;
             if (curAltitude > altitude)
-                pitchRad = Math.toRadians(12);
+                pitchRad = Math.toRadians(15);
             else if (curAltitude < altitude)
-                pitchRad = -Math.toRadians(12);
+                pitchRad = -Math.toRadians(15);
             else {
                 depth = (SimulationEngine.simBathym.getSimulatedDepth(getCurrentPosition())-altitude);
             }
