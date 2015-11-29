@@ -2031,7 +2031,7 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
     // MAIN FOR TESTING ONLY
     public static void main(String[] args) {
         GuiUtils.setLookAndFeel();
-        File[] consoles = new File("conf/consoles").listFiles();
+        File[] consoles = new File(ConfigFetch.getConsolesFolder()).listFiles();
         Vector<String> options = new Vector<>();
         for (File f : consoles) {
             if (FileUtil.getFileExtension(f).equalsIgnoreCase("ncon")) {
@@ -2053,6 +2053,6 @@ public class ConsoleLayout extends JFrame implements XmlInOutMethods, ComponentL
         if (op.equals("null")) {
             return;
         }
-        NeptusMain.main(new String[] { "-f", new File(new File("conf/consoles"), op + ".ncon").getAbsolutePath() });
+        NeptusMain.main(new String[] { "-f", new File(new File(ConfigFetch.getConsolesFolder()), op + ".ncon").getAbsolutePath() });
     }
 }

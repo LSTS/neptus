@@ -107,8 +107,7 @@ public class ConsoleFileChooser extends JFileChooser {
             fx = basedir;
         }
         else {
-            fx = new File(ConfigFetch.getConfigFile());
-            fx = new File(fx.getParentFile(), "conf/consoles");
+            fx = new File(ConfigFetch.getConsolesFolder());
             if (!fx.exists()) {
                 fx = new File(ConfigFetch.resolvePath("."));
                 if (!fx.exists()) {

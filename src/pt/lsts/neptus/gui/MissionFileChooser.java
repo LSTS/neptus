@@ -84,7 +84,7 @@ public class MissionFileChooser extends JFileChooser {
      */
     public static File showOpenMissionDialog(String[] possibleExtensions) {
         JFileChooser jfc = new JFileChooser();
-        jfc.setCurrentDirectory(new File(ConfigFetch.getConfigFile()));
+        jfc.setCurrentDirectory(new File(ConfigFetch.getMissionsFolder()));
         jfc.setAccessory(new MissionPreview(jfc));
         jfc.setFileView(new NeptusFileView());
         final String[] exts = possibleExtensions;
