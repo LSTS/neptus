@@ -97,7 +97,7 @@ public class MRAProperties implements PropertiesProvider {
     public static boolean generateDeltaTProcessReport = false;
 
     @NeptusProperty(name = "Maximum depth for bathymetry plots", description = "Maximum depth to be used in bathymetry plots.")
-    public static double maxBathymDepth = 15;
+    public static double maxBathymDepth = 110;
 
     @NeptusProperty(name = "Print page number in generated reports")
     public static boolean printPageNumbers = true;
