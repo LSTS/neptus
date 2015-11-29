@@ -92,7 +92,7 @@ public class LAUVConsole extends ConsoleLayout {
         NeptusLog.pub().info("Loading " + LAUVConsole.class.getSimpleName() + ".");
 
         final LAUVConsole cls = new LAUVConsole();
-        ConsoleLayout.forge(cls, consoleURL, false, false, loader);
+        ConsoleLayout.forge(cls, consoleURL, editEnabled, false, loader);
         
         GuiUtils.leftTopScreen(cls);
 
