@@ -967,6 +967,7 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/util/*.class"/>
 			<include name="pt/lsts/neptus/vartree/*.class"/>
 			<include name="pt/lsts/vartree/*.class"/>
+			<include name="pt/lsts/neptus/platform/**/*.class"/>
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
@@ -1098,6 +1099,8 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/util/conf/*.class" />
 			<include name="pt/lsts/neptus/util/output/*.class"/>
 			<include name="pt/lsts/neptus/planeditor/I*.class" />
+			<include name="pt/lsts/neptus/platform/**/*.class"/>
+			<include name="pt/lsts/neptus/gui/swing/NeptusFileView*.class"/>
 		</jar>
 		<mkdir dir="${tmp.bundle.dir}"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/dom4j/dom4j-1.6.1.jar"/>
