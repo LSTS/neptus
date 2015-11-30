@@ -128,7 +128,7 @@ public class SystemDisplay extends JXPanel implements Comparable<SystemDisplay>,
 	private boolean active = false;
 	private boolean selected = false;
 	private boolean enableSelection = true;
-	private ImcSystem.IMCAuthorityState withAuthority = IMCAuthorityState.NONE;;
+	private ImcSystem.IMCAuthorityState withAuthority = IMCAuthorityState.NONE;
 	private boolean taskAlocated = false;
 	private boolean emergencyTaskAlocated = false;
 	private boolean attentionAlert = false;

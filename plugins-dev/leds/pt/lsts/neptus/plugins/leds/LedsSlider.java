@@ -62,7 +62,7 @@ public class LedsSlider extends JPanel implements ChangeListener {
     private LedsControlPanel parent;
 
     private JSlider slider;
-    private int sliderNumber = 0;;
+    private int sliderNumber = 0;
     private int sliderValue = 0;
     private JTextField sliderTextField;
     private Border loweredetched;

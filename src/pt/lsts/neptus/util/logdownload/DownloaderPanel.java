@@ -824,7 +824,7 @@ public class DownloaderPanel extends JXPanel implements ActionListener {
             threadScheduledPool.schedule(new Runnable() {
                 @Override
                 public void run() {
-                    new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();;
+                    new Thread(command, DownloaderPanel.class.getSimpleName() +  " :: On Timeout Retry Launcher for '" + name + "'").start();
                 }
             }, DELAY_START_ON_TIMEOUT, TimeUnit.MILLISECONDS);
         }

@@ -1772,7 +1772,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
             public void actionPerformed(ActionEvent e) {
                 startActivity(I18n.text("Opening Empty Console..."));
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-                    ConsoleLayout empCon;;
+                    ConsoleLayout empCon;
                     @Override
                     protected Void doInBackground() throws Exception {
                         empCon = ConsoleLayout.forge();

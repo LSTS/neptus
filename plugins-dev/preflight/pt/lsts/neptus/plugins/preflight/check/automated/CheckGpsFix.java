@@ -70,7 +70,7 @@ public class CheckGpsFix extends AutomatedCheck {
         BigDecimal bd = new BigDecimal(vdop);
         bd = bd.setScale(1, RoundingMode.HALF_UP);
         
-        String strMsg = "(" + nSat + ")" + " | Vdop: " + bd.doubleValue();;
+        String strMsg = "(" + nSat + ")" + " | Vdop: " + bd.doubleValue();
 
         if (fixType == TYPE.DEAD_RECKONING) {
             setState(NOT_VALIDATED);

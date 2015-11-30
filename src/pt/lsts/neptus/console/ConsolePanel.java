@@ -411,7 +411,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                decideToShowPopupDialog(popupPosition);;
+                decideToShowPopupDialog(popupPosition);
             }
         });
         return menuItem;

@@ -140,7 +140,7 @@ public class ChecklistPanel extends JPanel implements PropertyChangeListener {
     public static Icon ICON_CANCEL = new ImageIcon(ImageUtils.getImage("images/checklists/cancel.png"));
     public static Icon ICON_RUN = new ImageIcon(ImageUtils.getImage("images/checklists/run.png"));
 
-    public static String FLAT_TITLE;;
+    public static String FLAT_TITLE;
     public static String NOT_FLAT_TITLE;
 
     private static final int MAX_NUMBER_OF_SHOWN_CHARS = 20;

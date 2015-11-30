@@ -122,7 +122,7 @@ public class Rhodamine3DPanel extends JPanel {
      */
     @Override
     public void setVisible(boolean aFlag) {
-        super.setVisible(aFlag);;
+        super.setVisible(aFlag);
         if (aFlag && isFirstRender) {
 //            canvas.lock();
 //

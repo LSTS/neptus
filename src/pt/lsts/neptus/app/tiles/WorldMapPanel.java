@@ -884,7 +884,7 @@ public class WorldMapPanel extends JPanel {
         if (lastSuccessKMLDir != null && lastSuccessKMLDir.exists()) {
             last = lastSuccessKMLDir.isDirectory() ? lastSuccessKMLDir : lastSuccessKMLDir.getParentFile();
         }
-        JFileChooser fc = GuiUtils.getFileChooser(last, "KML File", "kml");;
+        JFileChooser fc = GuiUtils.getFileChooser(last, "KML File", "kml");
         fc.setName(name);
         fc.setMultiSelectionEnabled(false);
         return fc;

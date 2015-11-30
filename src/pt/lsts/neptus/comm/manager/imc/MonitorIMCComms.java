@@ -312,7 +312,7 @@ public class MonitorIMCComms extends
         ret += "<b>" + I18n.text("Name:") + "</b> " + imcCCUName + "<br>";
         ret += "<b>" + I18n.text("ID:") + "</b> " + idImc.toPrettyString();
         if (getCommManager().is2IdErrorMode())
-            ret += " <b color='red'>" + I18n.text("Another node with this ID detected!") + "</b>";;
+            ret += " <b color='red'>" + I18n.text("Another node with this ID detected!") + "</b>";
         ret += "<br>";
         ret += "<b>" + I18n.text("Services:") + "</b> "
                 + getCommManager().getAllServicesString().replaceAll(";", ";<br>") + "<br><br>";

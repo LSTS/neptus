@@ -105,7 +105,7 @@ public class MRAMenuBar {
     private JMenu recentlyOpenFilesMenu = null;
     private JMenu exporters;
 
-    private boolean isExportersAdded = false;;
+    private boolean isExportersAdded = false;
 
     private AbstractAction openLsf, exit;
     protected AbstractAction genReport;

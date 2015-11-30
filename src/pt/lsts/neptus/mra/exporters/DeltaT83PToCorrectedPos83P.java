@@ -128,7 +128,7 @@ public class DeltaT83PToCorrectedPos83P implements MRAExporter {
                 // 47-60    -   GNSS Ships Postion Longitude (14 byes) "ddd.mm.xxxxx_E" ddd= degrees, mm = minutes, xxxxx = decimal minutes, E = East or W = West
                 
                 buf = channel.map(MapMode.READ_WRITE, curPos, 256);
-                DeltaTHeader header = deltaParser.getCurrentHeader();;
+                DeltaTHeader header = deltaParser.getCurrentHeader();
                 curPos = deltaParser.getCurrentPosition() - header.numBytes;
                 
                 long nextSwathTimeStamp = nextSwath.getTimestamp();

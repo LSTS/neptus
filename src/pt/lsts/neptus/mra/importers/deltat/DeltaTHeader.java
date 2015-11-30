@@ -137,10 +137,10 @@ public class DeltaTHeader {
         byte shipLatLonBuf[] = new byte[14];
         b.position(33);
         b.get(shipLatLonBuf, 0, 14);
-        gnssShipPosLat = new String(shipLatLonBuf);;
+        gnssShipPosLat = new String(shipLatLonBuf);
         b.position(47);
         b.get(shipLatLonBuf, 0, 14);
-        gnssShipPosLon = new String(shipLatLonBuf);;
+        gnssShipPosLon = new String(shipLatLonBuf);
         
         sonarXOffset = b.getFloat(100);
         sonarYOffset = b.getFloat(104);
