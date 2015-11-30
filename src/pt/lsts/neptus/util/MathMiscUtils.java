@@ -213,7 +213,7 @@ public class MathMiscUtils {
     			mulStr = "y";
     			break;
     		default:
-    			mulStr = "E" + mul;
+    			mulStr = mul == 0 ? "" : "E" + mul;
     			break;
 		}
 
@@ -522,7 +522,7 @@ public class MathMiscUtils {
     			mulStr = "yi";
     			break;
     		default:
-    			mulStr = "E" + mul;
+    			mulStr =  mul == 0 ? "" : "E" + mul;
     			break;
 		}
 		if ("".equalsIgnoreCase(mulStr) && vl < 1024) {
