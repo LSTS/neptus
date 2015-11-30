@@ -43,7 +43,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.filechooser.FileFilter;
 
 import org.dom4j.Element;
 import org.dom4j.ElementHandler;
@@ -51,7 +50,6 @@ import org.dom4j.ElementPath;
 import org.dom4j.io.SAXReader;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;

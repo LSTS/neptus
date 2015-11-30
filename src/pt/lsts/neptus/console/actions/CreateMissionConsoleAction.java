@@ -41,7 +41,6 @@ import javax.swing.KeyStroke;
 
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.gui.LocationPanel;
-import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mystate.MyState;
 import pt.lsts.neptus.types.coord.LocationType;
