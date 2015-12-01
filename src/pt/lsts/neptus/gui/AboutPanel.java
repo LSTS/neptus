@@ -89,7 +89,7 @@ public class AboutPanel extends JFrame {
         this.setResizable(false);
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.setBackground(Color.WHITE);
-        this.setSize(506, 552);
+        this.setSize(506, 565);
         this.setContentPane(getContentPanel());
         this.setTitle(I18n.text("About"));
         this.addMouseListener(new MouseAdapter() {
