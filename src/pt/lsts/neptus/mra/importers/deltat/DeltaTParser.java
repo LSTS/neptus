@@ -267,6 +267,8 @@ public class DeltaTParser implements BathymetryParser {
             try {
                 File mainFx = new File(processResultOutputFileName);
                 File bkpFx = new File(processResultOutputFileName + ".bak");
+                if (bkpFx.exists())
+                    bkpFx.delete();
                 FileUtils.moveFile(mainFx, bkpFx);
                 FileUtil.saveToFile(processResultOutputFileName, dataToSave.toString());
                 FileUtil.concatFiles(mainFx, bkpFx);
