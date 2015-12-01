@@ -495,7 +495,15 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
     @SuppressWarnings("serial")
     private JDesktopPane getJDesktopPane() {
         if (jDesktopPane == null) {
-            jDesktopPane = new JDesktopPane();
+            jDesktopPane = new JDesktopPane() {
+                @Override
+                public Component add(Component comp) {
+                    if(getComponentCount() == 0)
+                        return super.add(comp);
+                    else
+                        return super.add(comp, getComponentCount() - 1);
+                }
+            };
             jDesktopPane.setBackground(new Color(24, 58, 83));
 
             final ImageIcon icon = new ImageIcon(ImageUtils.getImage("images/lsts.png"));
@@ -520,7 +528,7 @@ public class Workspace extends JFrame implements IFrameOpener, FileHandler {
                 }
             });
 
-            jDesktopPane.add(lbl, Integer.MIN_VALUE);
+            jDesktopPane.add(lbl);
         }
 
         return jDesktopPane;
