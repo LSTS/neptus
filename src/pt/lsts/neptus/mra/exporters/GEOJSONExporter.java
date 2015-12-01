@@ -64,7 +64,6 @@ public class GEOJSONExporter implements MRAExporter {
 
     private IMraLogGroup source;
 
-    //@NeptusProperty (name = "Seconds Gap in EstimatedState for Path Break")
     public int secondsGapInEstimatedStateForPathBreak = 30;
     
     public GEOJSONExporter(IMraLogGroup source) {
@@ -105,9 +104,6 @@ public class GEOJSONExporter implements MRAExporter {
             ret += "]},\n";
             ret +="\"properties\": {";
             ret +="\"name\": \""+ name +"\",";
-            //ret +="\"name\": \""+ name + " " + pathNumber++ +"\",";
-            /*ret +="\"styleUrl\": \"#"+style+"\",";
-            ret +="\"styleHash\": \"99ff0000\"}";*/
             Date d = new Date((long) (1000 * source.getLsfIndex().getStartTime()));
             ret +="\"description\": \"Plan executed on "+d+"\"";
             ret +="}";
@@ -184,10 +180,6 @@ public class GEOJSONExporter implements MRAExporter {
                     bottomRight.setLongitudeDegs(loc.getLongitudeDegs());
             }
 
-            /*if (topLeft == null) {
-                bw.close();
-                throw new Exception("This log doesn't have required data (EstimatedState)");
-            }*/
             pmonitor.setProgress(60);
             pmonitor.setNote("Writing path to file");
             for (String sys : pathsForSystems.keySet()) {
@@ -207,7 +199,6 @@ public class GEOJSONExporter implements MRAExporter {
             pmonitor.setProgress(80);
             if (plan != null) {
                 pmonitor.setNote("Writing plan");
-                //NeptusLog.pub().info("plan: "+plan);
                 if(!plan.planPath().isEmpty()){bw.write(",");}
                 bw.write(path(plan.planPath(), "Planned waypoints", "plan"));
                 pmonitor.setProgress(90);
