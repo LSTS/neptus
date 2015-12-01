@@ -40,15 +40,12 @@ import java.util.Vector;
 
 import javax.swing.ProgressMonitor;
 
-import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.mission.plan.PlanType;
@@ -66,7 +63,6 @@ public class GEOJSONExporter implements MRAExporter {
     public double maxHeight = -1;
 
     private IMraLogGroup source;
-    private ProgressMonitor pmonitor;
 
     //@NeptusProperty (name = "Seconds Gap in EstimatedState for Path Break")
     public int secondsGapInEstimatedStateForPathBreak = 30;
@@ -94,7 +90,6 @@ public class GEOJSONExporter implements MRAExporter {
     public String path(Vector<LocationType> coords, String name, String style) {
         String retAll = "";
         int idx = 0;
-        int pathNumber = 0;
         while (idx < coords.size()) {
             String ret = "{\"type\": \"Feature\",\"geometry\": {\"type\": \"LineString\",\"coordinates\": [\n";
             
@@ -129,12 +124,6 @@ public class GEOJSONExporter implements MRAExporter {
 
     @Override
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
-
-        this.pmonitor = pmonitor;
-        pmonitor.setMinimum(0);
-        pmonitor.setMaximum(100);
-
-        //PluginUtils.editPluginProperties(this, true);
 
         try {
             pmonitor.setNote("Generating output dirs");
