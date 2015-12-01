@@ -305,7 +305,7 @@ public abstract class ConsolePanel extends JPanel implements PropertiesProvider,
                 }
             });
         }
-        dialog.add(this);
+        // dialog.add(this); This cannot be done here, because if the component is on the initial layout it will not show
     }
 
     /**
