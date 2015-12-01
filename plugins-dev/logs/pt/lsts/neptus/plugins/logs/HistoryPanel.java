@@ -45,7 +45,6 @@ import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -77,7 +76,7 @@ public class HistoryPanel extends JPanel {
     protected boolean showInfo = true;
     protected boolean showWarn = true;
     protected boolean showError = true;
-    protected boolean showDebug = true;
+    protected boolean showDebug = false;
 
     protected boolean showReload = true;
 
@@ -120,7 +119,7 @@ public class HistoryPanel extends JPanel {
 
             }
         });
-        check_info.setSelected(true);
+        check_info.setSelected(showInfo);
         JCheckBox check_warn = new JCheckBox(new AbstractAction(I18n.text("Warning")) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -131,7 +130,7 @@ public class HistoryPanel extends JPanel {
                 refreshHistoryMessages();
             }
         });
-        check_warn.setSelected(true);
+        check_warn.setSelected(showWarn);
         JCheckBox check_error = new JCheckBox(new AbstractAction(I18n.text("Error")) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -142,7 +141,7 @@ public class HistoryPanel extends JPanel {
                 refreshHistoryMessages();
             }
         });
-        check_error.setSelected(true);
+        check_error.setSelected(showError);
 
         JCheckBox check_debug = new JCheckBox(new AbstractAction(I18n.text("Debug")) {
             @Override
@@ -154,7 +153,7 @@ public class HistoryPanel extends JPanel {
                 refreshHistoryMessages();
             }
         });
-        check_debug.setSelected(true);
+        check_debug.setSelected(showDebug);
 
         bottom.add(check_info);
         bottom.add(check_warn);
@@ -169,11 +168,7 @@ public class HistoryPanel extends JPanel {
                 public void actionPerformed(ActionEvent e) {
                     if (HistoryPanel.this.console == null)
                         return;
-                    IMCMessage m = IMCDefinition.getInstance().create("LogBookControl", "command", "GET");
-                    ImcMsgManager.getManager().sendMessageToVehicle(m, HistoryPanel.this.console.getMainSystem(), null);
-
-                    m = IMCDefinition.getInstance().create("LogBookControl", "command", "GET_ERR");
-                    ImcMsgManager.getManager().sendMessageToVehicle(m, HistoryPanel.this.console.getMainSystem(), null);
+                    reloadMessages();
                 }
             });
             btn.setText(I18n.text("Reload"));
@@ -181,7 +176,8 @@ public class HistoryPanel extends JPanel {
             bottom.add(btn);
         }
 
-        JButton clear = new JButton(new AbstractAction(I18n.text("Clear")) {
+        ToolbarButton clear = new ToolbarButton(
+                new AbstractAction(I18n.text("Clear"), ImageUtils.getIcon(imgsPath + "eraser.png")) {
             private static final long serialVersionUID = 1L;
 
             @Override
@@ -189,6 +185,7 @@ public class HistoryPanel extends JPanel {
                 clear();
             }
         });
+        clear.setText(I18n.text("Clear"));
         bottom.add(clear);
 
         sw.setText(I18n.text("Auto-scroll"));
@@ -200,6 +197,14 @@ public class HistoryPanel extends JPanel {
 
     public HistoryPanel() {
         this(null, true);
+    }
+    
+    public void reloadMessages() {
+        IMCMessage m = IMCDefinition.getInstance().create("LogBookControl", "command", "GET");
+        ImcMsgManager.getManager().sendMessageToVehicle(m, HistoryPanel.this.console.getMainSystem(), null);
+
+        m = IMCDefinition.getInstance().create("LogBookControl", "command", "GET_ERR");
+        ImcMsgManager.getManager().sendMessageToVehicle(m, HistoryPanel.this.console.getMainSystem(), null);
     }
 
     public void refreshHistoryMessages() {

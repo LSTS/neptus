@@ -117,8 +117,10 @@ public class RemoteHistory extends ConsolePanel implements MainVehicleChangeList
     @Subscribe
     public void mainVehicleChangeNotification(ConsoleEventMainSystemChange e) {
         clearHistory();
+        p.revalidate();
+        p.reloadMessages();        
     }
-
+    
     protected HistoryMessage getMessage(IMCMessage logBookEntry) {
         HistoryMessage msg = new HistoryMessage();
         msg.timestamp = (logBookEntry.getTimestampMillis());
