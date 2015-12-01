@@ -59,8 +59,8 @@ public class PayloadManagePanel extends ConsolePanel implements MainVehicleChang
 
     private static final long serialVersionUID = 1L;
 
-    private static final double SERVO_OPEN = 90;
-    private static final double SERVO_CLOSE = 0;
+    private static final double SERVO_OPEN = (Math.PI/2);
+    private static final double SERVO_CLOSE = Math.PI;
     private boolean isOpenState = true;
    
     // GUI
