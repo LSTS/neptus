@@ -26,8 +26,8 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: José Correia
- * Jan 8, 2013
+ * Author: Mauro Brandão
+ * Oct 15, 2015
  */
 package pt.lsts.neptus.mra.exporters;
 
