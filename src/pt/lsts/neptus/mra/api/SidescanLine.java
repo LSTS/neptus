@@ -84,8 +84,14 @@ public class SidescanLine {
         // Set the System lat/lon as the center point
         location.setLatitudeStr(state.getPosition().getLatitudeStr());
         location.setLongitudeStr(state.getPosition().getLongitudeStr());
-
+        double alt = state.getAltitude();
+        alt = Math.max(alt, 0);
+        
         double distance = x * (range * 2 / xsize) - (range);
+        double distanceG = Math.signum(distance) * Math.sqrt(distance * distance - alt * alt);
+        System.out.println(alt + "   " + distance + "   " + distanceG + "    " + (distance - distanceG));
+        System.out.println("   " + x + "    " + range + "   " + xsize);
+        distance = Double.isNaN(distanceG) ? 0 : distanceG;
         // double distance2 = (x - xsize / 2 ) * range;
         double angle = -state.getYaw() + (x < (xsize / 2) ? Math.PI : 0);
         double offsetNorth = Math.abs(distance) * Math.sin(angle);
