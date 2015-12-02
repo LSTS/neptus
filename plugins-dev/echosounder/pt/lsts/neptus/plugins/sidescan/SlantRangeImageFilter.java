@@ -56,7 +56,7 @@ public class SlantRangeImageFilter extends TransformFilter {
     
     public SlantRangeImageFilter(double height, double range, int imgWidth) {
         this.imgWidth = imgWidth;
-        this.height = height * 2;
+        this.height = height;
         this.range = range;
         
     }
