@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Dec 19, 2012
  */
-package pt.lsts.neptus.plugins.sidescan;
+package pt.lsts.neptus.util.sidescan;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

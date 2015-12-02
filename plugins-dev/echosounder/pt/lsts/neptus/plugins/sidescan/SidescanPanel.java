@@ -78,6 +78,7 @@ import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.VideoCreator;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
+import pt.lsts.neptus.util.sidescan.SlantRangeImageFilter;
 
 /**
  * MRA sidescan panel
