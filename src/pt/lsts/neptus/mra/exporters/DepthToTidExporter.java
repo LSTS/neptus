@@ -34,11 +34,7 @@ package pt.lsts.neptus.mra.exporters;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import javax.swing.ProgressMonitor;
 
@@ -48,6 +44,7 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.util.tid.TidWriter;
 
 /**
  * @author Paulo Dias
@@ -64,10 +61,8 @@ public class DepthToTidExporter implements MRAExporter {
        2014/08/27 07:53:33.057 0.006612 
      */
     
-    @SuppressWarnings("serial")
-    public static final SimpleDateFormat dateFormatterUTC = new SimpleDateFormat("yyyy/MM/dd") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};;
-    @SuppressWarnings("serial")
-    public static final SimpleDateFormat timeFormatterUTC = new SimpleDateFormat("HH:mm:ss.SSS") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};;
+
+    private TidWriter tidWriter;
     
     public DepthToTidExporter(IMraLogGroup source) {
     }
@@ -99,14 +94,17 @@ public class DepthToTidExporter implements MRAExporter {
         
         try {
             BufferedWriter outFile = new BufferedWriter(new FileWriter(new File(outputDir, "Data.tid")));
-            writeHeader(outFile);
-                    
+            tidWriter = new TidWriter(outFile);
+            tidWriter.writeHeader();
+
             for (EstimatedState state: index.getIterator(EstimatedState.class)) {
                 if (state.getSrc() != srcId)
                     continue;
                 
                 try {
-                    writeData(outFile, state);
+                    long timeMillis = state.getTimestampMillis();
+                    double depth = state.getDepth();
+                    tidWriter.writeData(timeMillis, depth);        
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -126,20 +124,5 @@ public class DepthToTidExporter implements MRAExporter {
         
         return I18n.textf("Generated TID file for %system at %file.", 
                 source.getSystemName(srcId), outputDir.getAbsolutePath());
-    }
-    
-    private void writeHeader(BufferedWriter writer) throws Exception {
-        writer.write("--------\r\n");
-    }
-    
-    private void writeData(BufferedWriter writer, EstimatedState estState) throws Exception {
-        long timeMillis = estState.getTimestampMillis();
-        double depth = estState.getDepth();
-        Date date = new Date(timeMillis);
-
-        String dateStr = dateFormatterUTC.format(date);
-        String timeStr = timeFormatterUTC.format(date);
-        
-        writer.write(dateStr + " " + timeStr + " " + String.format(Locale.US, "%.6f\r\n", depth));        
     }
 }
