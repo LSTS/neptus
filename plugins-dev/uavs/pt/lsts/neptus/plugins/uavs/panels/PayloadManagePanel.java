@@ -36,13 +36,15 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 
+import com.google.common.eventbus.Subscribe;
+
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.imc.ServoPosition;
 import pt.lsts.imc.SetServoPosition;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
@@ -62,11 +64,15 @@ public class PayloadManagePanel extends ConsolePanel implements MainVehicleChang
     private static final double SERVO_OPEN = (Math.PI/2);
     private static final double SERVO_CLOSE = Math.PI;
     private boolean isOpenState = true;
-   
+    private final String lockTxt = I18n.text("Lock");
+    private final String releaseTxt = I18n.text("Release");
+    private final String unknownTxt = I18n.text("UNKOWN STATE");
+    
     // GUI
     private JPanel titlePanel = null;
     private JPanel buttonPanel = null;
-
+    private JLabel stateLabel;
+    private JToggleButton dropButton;
     /**
      * @param console
      */
@@ -96,17 +102,15 @@ public class PayloadManagePanel extends ConsolePanel implements MainVehicleChang
 
     private void buttonPanelSetup() {
         buttonPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
-        final String lockTxt = I18n.text("Lock");
-        final String releaseTxt = I18n.text("Release");
         
-        JLabel stateLabel = new JLabel(I18n.text("OPEN"), SwingConstants.CENTER);
-        stateLabel.setBackground(Color.green);
+        stateLabel = new JLabel(unknownTxt, SwingConstants.CENTER);
+        stateLabel.setBackground(Color.yellow);
         stateLabel.setForeground(Color.black);
         stateLabel.setFont(new Font("Arial", Font.BOLD, 15));
         stateLabel.setOpaque(true);
 
         // Attach Payload
-        JToggleButton dropButton = new JToggleButton(releaseTxt);
+        dropButton = new JToggleButton(releaseTxt);
         dropButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -120,6 +124,7 @@ public class PayloadManagePanel extends ConsolePanel implements MainVehicleChang
                     stateLabel.setText(I18n.text("OPEN"));
                     dropButton.setSelected(false);
                     stateLabel.setBackground(Color.green);
+
                 } 
                 else {
                     SetServoPosition servo = new SetServoPosition();
@@ -130,8 +135,8 @@ public class PayloadManagePanel extends ConsolePanel implements MainVehicleChang
                     isOpenState = true;
                     stateLabel.setText(I18n.text("LOCKED"));
                     dropButton.setSelected(true);
-                    stateLabel.setBackground(new Color(255,128,0));
-                    stateLabel.setOpaque(true);
+                    stateLabel.setBackground(new Color(255, 128, 0));
+                   
                 }
 
             }
@@ -139,7 +144,29 @@ public class PayloadManagePanel extends ConsolePanel implements MainVehicleChang
         buttonPanel.add(dropButton, "w 34%, h 100%");
         buttonPanel.add(stateLabel, "w 66%, h 100%");
     }
-
+    
+    @Subscribe
+    public void consume(ServoPosition servo) {
+        System.out.println("RECEIVED STATE");
+        if (servo.getValue() == SERVO_CLOSE) {
+            dropButton.setText(releaseTxt);
+            isOpenState = true;
+            stateLabel.setText(I18n.text("LOCKED"));
+            dropButton.setSelected(true);
+            stateLabel.setBackground(new Color(255, 128, 0));
+        }
+        else if (servo.getValue() == SERVO_OPEN) {
+            dropButton.setText(lockTxt);
+            isOpenState = false;
+            stateLabel.setText(I18n.text("OPEN"));
+            dropButton.setSelected(false);
+            stateLabel.setBackground(Color.green);
+        }
+        else
+            stateLabel.setText(unknownTxt);
+            stateLabel.setBackground(Color.YELLOW);
+    }
+    
     @Override
     public void cleanSubPanel() {
 
