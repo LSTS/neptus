@@ -35,14 +35,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.EstimatedState;
-import pt.lsts.imc.IMCMessage;
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -53,8 +53,8 @@ import pt.lsts.neptus.plugins.PluginUtils;
  * @author Paulo Dias
  *
  */
-@PluginDescription(name="Pos Z to TID Exporter")
-public class PosZToTidExporter implements MRAExporter {
+@PluginDescription(name="Depth to TID Exporter")
+public class DepthToTidExporter implements MRAExporter {
 
     /* Format:
        --------
@@ -69,7 +69,7 @@ public class PosZToTidExporter implements MRAExporter {
     @SuppressWarnings("serial")
     public static final SimpleDateFormat timeFormatterUTC = new SimpleDateFormat("HH:mm:ss.SSS") {{setTimeZone(TimeZone.getTimeZone("UTC"));}};;
     
-    public PosZToTidExporter(IMraLogGroup source) {
+    public DepthToTidExporter(IMraLogGroup source) {
     }
 
     /* (non-Javadoc)
@@ -91,16 +91,20 @@ public class PosZToTidExporter implements MRAExporter {
         File outputDir = new File(source.getDir(), "mra");
         
         LsfIndex index = source.getLsfIndex();
-        LinkedHashMap<String, Double> lastTimestamps = new LinkedHashMap<>();
-        LinkedHashMap<String, BufferedWriter> writers = new LinkedHashMap<>();
+        // LinkedHashMap<String, Double> lastTimestamps = new LinkedHashMap<>();
+        // LinkedHashMap<String, BufferedWriter> writers = new LinkedHashMap<>();
         
-        IMCMessage firstMessage = index.getMessage(0);
+        Collection<Integer> vehs = source.getVehicleSources();
+        int srcId = vehs.iterator().next(); 
         
         try {
             BufferedWriter outFile = new BufferedWriter(new FileWriter(new File(outputDir, "Data.tid")));
             writeHeader(outFile);
                     
             for (EstimatedState state: index.getIterator(EstimatedState.class)) {
+                if (state.getSrc() != srcId)
+                    continue;
+                
                 try {
                     writeData(outFile, state);
                 }
@@ -120,21 +124,22 @@ public class PosZToTidExporter implements MRAExporter {
             e.printStackTrace();
         }
         
-        return I18n.textf("Generated TID file for %system at %file.", firstMessage.getSourceName(), outputDir.getAbsolutePath());
+        return I18n.textf("Generated TID file for %system at %file.", 
+                source.getSystemName(srcId), outputDir.getAbsolutePath());
     }
     
     private void writeHeader(BufferedWriter writer) throws Exception {
-        writer.write("--------\n");
+        writer.write("--------\r\n");
     }
     
     private void writeData(BufferedWriter writer, EstimatedState estState) throws Exception {
         long timeMillis = estState.getTimestampMillis();
-        double depth = - estState.getDepth();
+        double depth = estState.getDepth();
         Date date = new Date(timeMillis);
 
         String dateStr = dateFormatterUTC.format(date);
         String timeStr = timeFormatterUTC.format(date);
         
-        writer.write(dateStr + " " + timeStr + " " + String.format("%.6f\n", depth));        
+        writer.write(dateStr + " " + timeStr + " " + String.format(Locale.US, "%.6f\r\n", depth));        
     }
 }
