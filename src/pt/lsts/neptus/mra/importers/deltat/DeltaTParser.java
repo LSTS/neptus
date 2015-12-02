@@ -415,6 +415,7 @@ public class DeltaTParser implements BathymetryParser {
             recordMsgln("% Roll correction      : " + (header.dataIsCorrectedForRoll ? "yes" : "no"));
             recordMsgln("% RayBending correction: " + (header.dataIsCorrectedForRayBending ? "yes" : "no"));
             recordMsgln("% Op overlap mode      : " + (header.sonarIsOperatingInOverlappedMode ? "yes" : "no"));
+            recordMsgln("% Altitude             : " + header.altitude + "m");
             recordMsgln("% ---------------------");
             
             StringBuilder rangesStr = new StringBuilder();
@@ -468,11 +469,14 @@ public class DeltaTParser implements BathymetryParser {
 
                 if (header.hasIntensity) {
                     short intensity = buf.getShort(480 + (c * 2) - 1); // sometimes there's a return = 0
-                    data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height, intensity);
-                    intensityStr.append(" " + intensity);
+                    int intensityInt = 0xffff & intensity;
+                    data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height, intensityInt);
+                    data[realNumberOfBeams].intensityMaxValue = 65535;
+                    intensityStr.append(" " + intensityInt);
                 }
                 else {
                     data[realNumberOfBeams] = new BathymetryPoint(ox, oy, height);
+                    data[realNumberOfBeams].intensityMaxValue = 65535;
                     intensityStr.append(" " + Double.NaN);
                 }
                 realNumberOfBeams++;
