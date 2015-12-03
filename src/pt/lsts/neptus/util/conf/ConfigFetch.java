@@ -104,11 +104,6 @@ public class ConfigFetch {
     /** The resource path for the extended version info (inside main jar. */
     private static final String VERSION__EXTENDED_FILE_NAME = "/info";
 
-    /** Hold this class package name */
-    private static final String classPackage = "pt/lsts/neptus/util/conf";
-    /** Hold this class name */
-    private static final String className = "ConfigFetch.class";
-
     /** A list of base file paths */
     private static final String CONFIG_FILE_NAME = "neptus-config.xml";
     private static final String MISSION_BASE_FOLDER = "missions";
@@ -261,7 +256,10 @@ public class ConfigFetch {
         fxTmpDir.deleteOnExit();
 
         try {
-            String inFileName = ConfigFetch.class.getResource("/" + classPackage + "/" + className).getFile();
+            String classPackageFilePath = ConfigFetch.class.getPackage().getName().replace('.', '/');
+            String classNameFilePath = ConfigFetch.class.getTypeName().replace('.', '/') + ".class";
+            
+            String inFileName = ConfigFetch.class.getResource("/" + classNameFilePath).getFile();
 
             String strNeptusVersion = "Starting Neptus " + getVersionSimpleString() + " ...";
             String strJavaVersion = "Using Java from: " + System.getProperty("java.vendor") + " | Version: "
@@ -286,7 +284,7 @@ public class ConfigFetch {
             if (lind != -1)
                 inFileName = inFileName.substring(0, lind);
 
-            lind = inFileName.lastIndexOf(classPackage + "/");
+            lind = inFileName.lastIndexOf(classPackageFilePath + "/");
             if (lind != -1)
                 inFileName = inFileName.substring(0, lind);
             lind = inFileName.lastIndexOf("/");
