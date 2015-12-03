@@ -74,6 +74,30 @@ public class SidescanLine {
     }
 
     /**
+     * This method calculates the real world location of a pixel in this line
+     * @param x The position of the pixel to transform into real world coordinates
+     * @return The real world location for the given x coordinate
+     */
+    public LocationType realWorldLocation(int x) {
+        LocationType location = new LocationType();
+        // Set the System lat/lon as the center point
+        location.setLatitudeStr(state.getPosition().getLatitudeStr());
+        location.setLongitudeStr(state.getPosition().getLongitudeStr());
+        double alt = state.getAltitude();
+        alt = Math.max(alt, 0);
+        double distance = x * (range * 2 / xsize) - (range);
+        double distanceG = Math.signum(distance) * Math.sqrt(distance * distance - alt * alt);
+        distance = Double.isNaN(distanceG) ? 0 : distanceG;
+        double angle = -state.getYaw() + (x < (xsize / 2) ? Math.PI : 0);
+        double offsetNorth = Math.abs(distance) * Math.sin(angle);
+        double offsetEast = Math.abs(distance) * Math.cos(angle);
+        // Add the original vehicle offset to the calculated offset
+        location.setOffsetNorth(state.getPosition().getOffsetNorth() + offsetNorth);
+        location.setOffsetEast(state.getPosition().getOffsetEast() + offsetEast);
+        return location.getNewAbsoluteLatLonDepth();
+    }
+    
+    /**
      *  Based on a 'x' position within a scan line calculate the proper location
      * @param x the x position
      * @return a LocationType object containing the absolute GPS location of the point
@@ -89,8 +113,6 @@ public class SidescanLine {
         
         double distance = x * (range * 2 / xsize) - (range);
         double distanceG = Math.signum(distance) * Math.sqrt(distance * distance - alt * alt);
-        System.out.println(alt + "   " + distance + "   " + distanceG + "    " + (distance - distanceG));
-        System.out.println("   " + x + "    " + range + "   " + xsize);
         distance = Double.isNaN(distanceG) ? 0 : distanceG;
         // double distance2 = (x - xsize / 2 ) * range;
         double angle = -state.getYaw() + (x < (xsize / 2) ? Math.PI : 0);

@@ -29,7 +29,7 @@
  * Author: José Correia
  * May 22, 2012
  */
-package pt.lsts.neptus.mra.replay;
+package pt.lsts.neptus.util.sidescan;
 
 import java.awt.Composite;
 import java.awt.CompositeContext;
@@ -44,9 +44,22 @@ import java.awt.image.WritableRaster;
  */
 public class SideScanComposite implements Composite {
 
-    /* (non-Javadoc)
-     * @see java.awt.Composite#createContext(java.awt.image.ColorModel, java.awt.image.ColorModel, java.awt.RenderingHints)
-     */
+    public enum MODE {
+        NONE,
+        ADD,
+        MAX,
+        AVERAGE        
+    }
+    
+    private MODE mode = MODE.AVERAGE;
+    
+    public SideScanComposite() {
+    }
+    
+    public SideScanComposite(MODE mode) {
+        this.mode = mode;
+    }
+    
     @Override
     public CompositeContext createContext(ColorModel srcColorModel, ColorModel dstColorModel, RenderingHints hints) {
         return new CompositeContext() {
@@ -84,23 +97,40 @@ public class SideScanComposite implements Composite {
                         dstPixel[2] = (pixel      ) & 0xFF;
                         dstPixel[3] = (pixel >> 24) & 0xFF;
 
-                        if(srcPixel[0]>dstPixel[0]) {
-                            System.arraycopy(srcPixel, 0, dstPixel, 0, 4); 
-                        }
-                        dstPixels[x] = (dstPixel[3] << 24) + (dstPixel[0] << 16) + (dstPixel[1] << 8) + (dstPixel[2]); 
-                        //                        // mixes the result with the opacity
-                        //                        dstPixels[x] = ((int) (dstPixel[3] + (result[3] - dstPixel[3]) * alpha) & 0xFF) << 24 |
-                        //                                       ((int) (dstPixel[0] + (result[0] - dstPixel[0]) * alpha) & 0xFF) << 16 |
-                        //                                       ((int) (dstPixel[1] + (result[1] - dstPixel[1]) * alpha) & 0xFF) <<  8 |
-                        //                                        (int) (dstPixel[2] + (result[2] - dstPixel[2]) * alpha) & 0xFF;
+                        switch (mode) {
+                            case ADD:
+                                if(srcPixel[0]>dstPixel[0]) {
+                                    System.arraycopy(srcPixel, 0, dstPixel, 0, 4); 
+                                }
+                                dstPixels[x] = (dstPixel[3] << 24) + (dstPixel[0] << 16) + (dstPixel[1] << 8) + (dstPixel[2]);
+                                break;
+                            case MAX:
+                                if (dstPixels[x] == 0)
+                                    System.arraycopy(srcPixel, 0, dstPixel, 0, 4);
+                                else {
+                                    for (int i = 0; i < 4; i++)
+                                        dstPixel[i] = Math.max(srcPixel[i], dstPixel[i]);
+                                }
+                                dstPixels[x] = (dstPixel[3] << 24) + (dstPixel[0] << 16) + (dstPixel[1] << 8) + (dstPixel[2]);
+                                break;
+                            case AVERAGE:
+                                if (dstPixels[x] == 0)
+                                    System.arraycopy(srcPixel, 0, dstPixel, 0, 4);
+                                else {
+                                    for (int i = 0; i < 3; i++)
+                                        dstPixel[i] = Math.max(dstPixel[i], (srcPixel[i] + dstPixel[i]) / 2);
+                                    dstPixel[3] = Math.max(srcPixel[3], dstPixel[3]);
+                                }
+                                dstPixels[x] = (dstPixel[3] << 24) + (dstPixel[0] << 16) + (dstPixel[1] << 8) + (dstPixel[2]);
+                                break;
+                            default:
+                                // NONE
+                                break;
+                        }                       
                     }
                     dstOut.setDataElements(0, y, width, 1, dstPixels);
                 }
             }
         };
     }
-
-    //    int pixelIntensity(int[] pixel) {
-    //        return (pixel[0]+pixel[1]+pixel[2])/2;
-    //    }
 }

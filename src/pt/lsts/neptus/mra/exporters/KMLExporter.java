@@ -88,6 +88,7 @@ import pt.lsts.neptus.util.ZipUtils;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 import pt.lsts.neptus.util.llf.LogUtils;
+import pt.lsts.neptus.util.sidescan.SideScanComposite;
 import pt.lsts.neptus.util.sidescan.SlantRangeImageFilter;
 import pt.lsts.util.WGS84Utilities;
 
@@ -121,6 +122,9 @@ public class KMLExporter implements MRAExporter {
 
     @NeptusProperty(category = "SideScan", name="Slant Range Correction")
     public boolean slantRangeCorrection = true;
+    
+    @NeptusProperty(category = "SideScan", name="Pixel blending mode", description="How to blend multiple measurements on same location")
+    public SideScanComposite.MODE blendMode = SideScanComposite.MODE.MAX;
     
     @NeptusProperty(category = "Output", name="Compress Output")
     public boolean compressOutput = true;
@@ -421,6 +425,7 @@ public class KMLExporter implements MRAExporter {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                g2.setComposite(new SideScanComposite(blendMode));
                 double[] pos = sl.state.getPosition().getOffsetFrom(topLeft);
                 g2.translate(pos[1] * resolution, -pos[0] * resolution);
                 if (makeAbs && sl.state.getYaw() < 0)
