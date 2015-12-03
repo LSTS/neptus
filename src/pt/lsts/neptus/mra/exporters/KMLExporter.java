@@ -88,6 +88,7 @@ import pt.lsts.neptus.util.ZipUtils;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 import pt.lsts.neptus.util.llf.LogUtils;
+import pt.lsts.neptus.util.sidescan.AcousticCommsFilter;
 import pt.lsts.neptus.util.sidescan.SideScanComposite;
 import pt.lsts.neptus.util.sidescan.SlantRangeImageFilter;
 import pt.lsts.util.WGS84Utilities;
@@ -142,7 +143,10 @@ public class KMLExporter implements MRAExporter {
     
     @NeptusProperty(category = "Default Visibility", name="Show Legend")
     public boolean visibilityForLegends = true;
-
+    
+    @NeptusProperty(category = "SideScan", name="Acoustic Communications Filter")
+    public boolean filterMicromodem = false;
+    
     public KMLExporter(IMraLogGroup source) {
         this.source = source;
     }
@@ -296,7 +300,7 @@ public class KMLExporter implements MRAExporter {
         board,
         both
     }
-
+    
     public String sidescanOverlay(File dir, double resolution, LocationType topLeft, LocationType bottomRight,
             String fname, long startTime, long endTime, Ducer ducer) {
         SidescanParser ssParser = SidescanParserFactory.build(source);
@@ -343,6 +347,11 @@ public class KMLExporter implements MRAExporter {
         String filename = fname;
 
         BufferedImage swath = null;
+        
+        AcousticCommsFilter filter = null;
+        if (filterMicromodem)
+            filter = new AcousticCommsFilter(source);
+        
         ColorMap cmap = ColorMapFactory.createBronzeColormap();
         for (long time = start; time < end - 1000; time += 1000) {
             if (pmonitor.isCanceled()) {
@@ -366,6 +375,9 @@ public class KMLExporter implements MRAExporter {
             BufferedImage previous = new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB);
             for (SidescanLine sl : lines) {
 
+                if (filter != null && !filter.isDataValid(new Date(sl.timestampMillis)))
+                    continue;
+                
                 int widthPixels = (int) (sl.range * resolution * 2);
 
                 if (swath == null || swath.getWidth() != widthPixels)
