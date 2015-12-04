@@ -90,7 +90,15 @@ public class TidWriter {
     public void writeHeader() throws Exception {
         writer.write("--------\r\n");
     }
-    
+
+    /**
+     * Writes a header.
+     * @throws Exception
+     */
+    public void writeHeader(String title) throws Exception {
+        writer.write("# " + (title != null ? title : "") + "\r\n");
+    }
+
     /**
      * Writes the date, time and each value passed into a line entry.
      * @param timeMillis
