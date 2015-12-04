@@ -938,6 +938,19 @@ public class FileUtil {
         }
     }
 
+    public static String getPackageAsPath(Object obj) {
+        if (obj == null)
+            return "";
+        return getPackageAsPath(obj.getClass());
+    }
+
+    public static String getPackageAsPath(Class<?> clazz) {
+        if (clazz == null)
+            return "";
+        String path = clazz.getPackage().getName().replace('.', '/');
+        return path;
+    }
+
     public static void main(String[] args) throws IOException {
         ConfigFetch.initialize();
         NeptusLog.pub().info("<###> "+relativizeFilePath("D:\\FEUP\\NeptusProj\\neptus_ini\\testemission.xml",

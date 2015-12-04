@@ -48,9 +48,9 @@ import javax.swing.JPanel;
 import javax.swing.plaf.basic.BasicSliderUI;
 
 import net.miginfocom.swing.MigLayout;
+import pt.lsts.colormap.ColorMap;
 import pt.lsts.colormap.ColorMapFactory;
 import pt.lsts.imc.IMCMessage;
-import pt.lsts.colormap.ColorMap;
 import pt.lsts.neptus.gui.Timeline;
 import pt.lsts.neptus.gui.TimelineChangeListener;
 import pt.lsts.neptus.i18n.I18n;
@@ -63,18 +63,19 @@ import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLog;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.mra.importers.lsf.DVLBathymetryParser;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
+import pt.lsts.neptus.mra.importers.lsf.DVLBathymetryParser;
 import pt.lsts.neptus.mra.visualizations.MRAVisualization;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.vtk.mravisualizer.EventsHandler;
+import pt.lsts.neptus.vtk.mravisualizer.EventsHandler.SensorTypeInteraction;
 import pt.lsts.neptus.vtk.mravisualizer.InteractorStyleVis3D;
 import pt.lsts.neptus.vtk.mravisualizer.Window;
-import pt.lsts.neptus.vtk.mravisualizer.EventsHandler.SensorTypeInteraction;
 import pt.lsts.neptus.vtk.pointcloud.APointCloud;
 import pt.lsts.neptus.vtk.pointcloud.PointCloudHandlerXYZ;
 import pt.lsts.neptus.vtk.pointcloud.PointCloudXYZ;
@@ -261,8 +262,10 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         
         // Read the map file (list NED format)
         try {
-            InputStream ips = new FileInputStream(
-                    "./plugins-dev/filter-viewer/pt/lsts/neptus/plugins/filterviewer/Maps/carte_mbp.txt");
+//            InputStream ips = new FileInputStream("./plugins-dev/filter-viewer/pt/lsts/neptus/plugins/filterviewer/Maps/carte_mbp.txt");
+            String mapFile = FileUtil.getResourceAsFileKeepName(FileUtil.getPackageAsPath(FilterMra.this) + "/Maps/carte_mbp.txt");
+            InputStream ips = new FileInputStream(mapFile);
+
             InputStreamReader ipsr = new InputStreamReader(ips);
             BufferedReader br = new BufferedReader(ipsr);
             String ligne;
@@ -493,11 +496,11 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
     }
     
     public void LoadLauvModel() {
-
         // Load the LAUV 3D model (vtk file)
         vtkGenericDataObjectReader vtk_generic_reader = new vtkGenericDataObjectReader();
-        vtk_generic_reader
-                .SetFileName("./plugins-dev/filter-viewer/pt/lsts/neptus/plugins/filterviewer/Models/noptilus.vtk");
+        String nopModelFile = FileUtil.getResourceAsFileKeepName(FileUtil.getPackageAsPath(FilterMra.this) + "/Models/noptilus.vtk");
+        //vtk_generic_reader.SetFileName("./plugins-dev/filter-viewer/pt/lsts/neptus/plugins/filterviewer/Models/noptilus.vtk");
+        vtk_generic_reader.SetFileName(nopModelFile);
         vtk_generic_reader.ReadAllNormalsOn();
         vtk_generic_reader.ReadAllScalarsOn();
         vtk_generic_reader.ReadAllVectorsOn();
