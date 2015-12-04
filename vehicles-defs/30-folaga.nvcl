@@ -67,7 +67,7 @@
                     <port-tcp>8889</port-tcp>
                     <udp-on>true</udp-on>
                     <tcp-on>false</tcp-on>
-                    <imc3-id>00:5D</imc3-id>
+                    <imc-id>00:5D</imc-id>
                 </imc>
             </protocols-args>
         </comm-mean>

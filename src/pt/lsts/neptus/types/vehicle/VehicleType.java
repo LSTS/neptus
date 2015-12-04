@@ -1054,7 +1054,7 @@ public class VehicleType implements XmlOutputMethods, XmlInputMethods, XmlInputM
             ProtocolArgs args = cm.getProtocolsArgs().get(CommMean.IMC);
             if (args != null) {
                 IMCArgs imcArgs = (IMCArgs) args;
-                return (imcArgs.getImc3Id() == null) ? ImcId16.NULL_ID : imcArgs.getImc3Id();
+                return (imcArgs.getImcId() == null) ? ImcId16.NULL_ID : imcArgs.getImcId();
             }
         }
         return ImcId16.NULL_ID;
