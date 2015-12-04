@@ -1,4 +1,4 @@
-package pt.lsts.neptus.plugins.messages;
+package pt.lsts.neptus.util.gui;
 import java.util.List;
 
 import javax.swing.JTextField;

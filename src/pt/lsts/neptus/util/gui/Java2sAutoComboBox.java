@@ -29,7 +29,7 @@
  * Author: José Correia
  * Jan 5, 2012
  */
-package pt.lsts.neptus.plugins.messages;
+package pt.lsts.neptus.util.gui;
 
 /**
  * @author jqcorreia
