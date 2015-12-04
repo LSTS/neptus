@@ -40,6 +40,8 @@ import pt.lsts.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
 public abstract class TidePredictionFinder {
     protected ArrayList<TidePrediction> predictions;
 
+    public abstract String getName();
+    
     protected void logError(Exception e) {
         NeptusLog.pub().info("<###>[ERROR] There was a problem finding the tide prediction.", e);
     }
@@ -95,7 +97,6 @@ public abstract class TidePredictionFinder {
         float waterHeight = ((hHT + hLT) / 2 + ((hLT - hHT) / 2)
                 * (((float) Math.cos((((float) Math.PI) * timeUntilNow) / lowToHighT))));
 
-
         return waterHeight;
     }
 
@@ -131,5 +132,4 @@ public abstract class TidePredictionFinder {
     public ArrayList<TidePrediction> getPredictionsMarks() {
         return predictions;
     }
-
 }

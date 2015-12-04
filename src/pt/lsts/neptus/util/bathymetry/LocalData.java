@@ -40,6 +40,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.bathymetry.TidePrediction.TIDE_TYPE;
 
 /**
@@ -64,6 +65,12 @@ public class LocalData extends TidePredictionFinder {
         }
     }
 
+    @Override
+    public String getName() {
+        String name = tides != null && !tides.getName().isEmpty() ? FileUtil.getFileNameWithoutExtension(tides) : "?";
+        return name;
+    }
+    
     @Override
     public Float getTidePrediction(Date date, boolean print) throws Exception {
         // Are there enough tide predictions?
@@ -96,8 +103,6 @@ public class LocalData extends TidePredictionFinder {
 
         return findPrediction(date, first);
     }
-
-
 
     protected void buildKnowledge() throws IOException {
         BufferedReader br = new BufferedReader(new FileReader(tides.toString()));

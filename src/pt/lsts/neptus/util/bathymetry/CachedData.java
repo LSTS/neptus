@@ -50,7 +50,6 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
@@ -62,7 +61,7 @@ public class CachedData extends TidePredictionFinder {
 
     private boolean loading = true;
     private SortedSet<TidePeak> cachedData = null;
-
+    private String name = "?";
 
     public CachedData(File f) {
         try {
@@ -79,12 +78,20 @@ public class CachedData extends TidePredictionFinder {
         this(GeneralPreferences.tidesFile);
     }
 
+    @Override
+    public String getName() {
+        return name;
+    }
+    
     public void loadFile(File f) throws Exception {
         cachedData = new TreeSet<>();
         if (f == null || ! f.canRead()) {
             NeptusLog.pub().error(new Exception("Tides file is not valid: "+f));
             return;
         }
+        
+        boolean nameRead = false;
+        
         BufferedReader br = new BufferedReader(new FileReader(f));
         String line = br.readLine();
 
@@ -92,6 +99,10 @@ public class CachedData extends TidePredictionFinder {
             if (line.startsWith("#"))
                 continue;
             String parts[] = line.split(",");
+            if (!nameRead) {
+                name = parts[0];
+                nameRead = true;
+            }
             long unixTimeSecs = Long.parseLong(parts[2]);
             double height = Double.parseDouble(parts[3]);
             Date d = new Date(unixTimeSecs * 1000);
@@ -151,16 +162,6 @@ public class CachedData extends TidePredictionFinder {
             return false;
 
         return true;
-    }
-
-    public void showSettings() {
-        PluginUtils.editPluginProperties(this, true);
-        try {
-            PluginUtils.saveProperties("conf/conf/cachedData.properties", this);
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
