@@ -437,7 +437,8 @@ public class KMLExporter implements MRAExporter {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-                g2.setComposite(new SideScanComposite(blendMode));
+                if (blendMode != SideScanComposite.MODE.NONE)
+                    g2.setComposite(new SideScanComposite(blendMode));
                 double[] pos = sl.state.getPosition().getOffsetFrom(topLeft);
                 g2.translate(pos[1] * resolution, -pos[0] * resolution);
                 if (makeAbs && sl.state.getYaw() < 0)

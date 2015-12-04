@@ -48,10 +48,11 @@ public class SideScanComposite implements Composite {
         NONE,
         ADD,
         MAX,
-        AVERAGE        
+        AVERAGE,
+        AGE
     }
     
-    private MODE mode = MODE.AVERAGE;
+    private MODE mode = MODE.MAX;
     
     public SideScanComposite() {
     }
@@ -121,6 +122,11 @@ public class SideScanComposite implements Composite {
                                         dstPixel[i] = Math.max(dstPixel[i], (srcPixel[i] + dstPixel[i]) / 2);
                                     dstPixel[3] = Math.max(srcPixel[3], dstPixel[3]);
                                 }
+                                dstPixels[x] = (dstPixel[3] << 24) + (dstPixel[0] << 16) + (dstPixel[1] << 8) + (dstPixel[2]);
+                                break;
+                            case AGE:
+                                if (srcPixel[3]>dstPixel[3])
+                                    System.arraycopy(srcPixel, 0, dstPixel, 0, 4);
                                 dstPixels[x] = (dstPixel[3] << 24) + (dstPixel[0] << 16) + (dstPixel[1] << 8) + (dstPixel[2]);
                                 break;
                             default:
