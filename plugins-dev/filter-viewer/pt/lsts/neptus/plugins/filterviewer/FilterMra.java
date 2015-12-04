@@ -206,7 +206,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         this.mraPanel = panel;
     }
 
-    public void CreateTimeline() {
+    public void createTimeline() {
         estimated_state = new CEstimatedState();
         estimated_state.parser = source.getLog("EstimatedState");
 
@@ -237,7 +237,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         add(timeline, "w 100%, h 30px, dock south");
     }
 
-    public void CreateVtkWindow() {
+    public void createVtkWindow() {
         // Vtk Canvas extended
         canvas = new Canvas();
         canvas.LightFollowCameraOn();
@@ -258,7 +258,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         add(canvas, "w 100%, dock center");
     }
 
-    public void LoadMapToPointCloud() {
+    public void loadMapToPointCloud() {
         
         // Read the map file (list NED format)
         try {
@@ -369,7 +369,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         }
     }
 
-    public void LoadDVLPointCloud() {
+    public void loadDVLPointCloud() {
         
         vtkPoints pts = new vtkPoints();
         int num_dvl_point = 0;
@@ -432,7 +432,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         id_actor_list.AddActor("DVL_Cloud");
     }
     
-    public void LoadMBSPointCloud() {
+    public void loadMBSPointCloud() {
         
         vtkPoints pts = new vtkPoints();
         int num_mbs_point = 0;
@@ -495,7 +495,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         id_actor_list.AddActor("MBS_Cloud");
     }
     
-    public void LoadLauvModel() {
+    public void loadLauvModel() {
         // Load the LAUV 3D model (vtk file)
         vtkGenericDataObjectReader vtk_generic_reader = new vtkGenericDataObjectReader();
         String nopModelFile = FileUtil.getResourceAsFileKeepName(FileUtil.getPackageAsPath(FilterMra.this) + "/Models/noptilus.vtk");
@@ -536,7 +536,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         id_actor_list.AddActor("NoptilusModel");
     }
     
-    public void LoadEstimatedState() {
+    public void loadEstimatedState() {
         
         vtkPoints pts_trajectory = new vtkPoints();
         estimated_state.trajectory = new ArrayList<vtkLineSource>();
@@ -599,7 +599,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         }
     }
     
-    public void LoadCorrectedState() {
+    public void loadCorrectedState() {
 
         IMraLog estimated_state_parser = source.getLog("EstimatedState");
         long last_timestamp = estimated_state_parser.getLastEntry().getTimestampMillis();
@@ -667,7 +667,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         }
     }
     
-    public void LoadParticles() {
+    private void loadParticles() {
     
         IMraLog estimated_state_parser = source.getLog("EstimatedState");
         long last_timestamp = estimated_state_parser.getLastEntry().getTimestampMillis();
@@ -819,7 +819,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
     }
     
     
-    public void LoadReferenceTrajectory() {
+    private void loadReferenceTrajectory() {
 
         IMraLog estimated_state_parser = source.getLog("EstimatedState");
         long last_timestamp = estimated_state_parser.getLastEntry().getTimestampMillis();
@@ -876,7 +876,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
     }
     
 
-    public void SceneScaleAxesExageration(double Sx, double Sy, double Sz) {
+    private void sceneScaleAxesExageration(double Sx, double Sy, double Sz) {
         vtkActorCollection actor_list = canvas.GetRenderer().GetActors();
         actor_list.InitTraversal();
 
@@ -901,19 +901,19 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             id_actor_list = new C3DListElement();
 
             // Create and configure the MRA panel (timeline and vtk window)
-            CreateTimeline();
-            CreateVtkWindow();
+            createTimeline();
+            createVtkWindow();
 
             // Load all 3D object in the vtk 3d buffer
-            LoadMapToPointCloud();           
-            LoadDVLPointCloud();
-            LoadMBSPointCloud();
-            LoadEstimatedState();
-            LoadLauvModel();    
-            LoadCorrectedState();
-            LoadParticles();
+            loadMapToPointCloud();           
+            loadDVLPointCloud();
+            loadMBSPointCloud();
+            loadEstimatedState();
+            loadLauvModel();    
+            loadCorrectedState();
+            loadParticles();
             
-            LoadReferenceTrajectory();
+            loadReferenceTrajectory();
 
             // Control adequacy between actor present inside the scene and our list of actor
             vtkActorCollection vtk_actor_list = canvas.GetRenderer().GetActors();
@@ -922,7 +922,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             }
 
             // For all object of the 3D scene (warning all must be load)
-            SceneScaleAxesExageration(1.0, 1.0, MRAProperties.zExaggeration);
+            sceneScaleAxesExageration(1.0, 1.0, MRAProperties.zExaggeration);
         }
         return this;
     }
@@ -989,7 +989,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         removeAll();
     }
 
-    public void ComputeCameraView(int kt, double height, double distance) {
+    private void computeCameraView(int kt, double height, double distance) {
         // Delta position (distance in the robot axes and height)
         double dx = distance * Math.cos(Math.toRadians(estimated_state.orientation.get(kt)[2]));
         double dy = distance * Math.sin(Math.toRadians(estimated_state.orientation.get(kt)[2]));
@@ -1191,5 +1191,4 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             e.printStackTrace();
         }
     }
-
 }
