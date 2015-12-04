@@ -54,6 +54,9 @@ public class TidWriter {
 
     /** The default decimal houses to use */
     private static final int DEFAULT_DECIMAL_HOUSES = 6;
+
+    /** Harbor txt for location search */
+    public static final String HARBOR_STR = "Harbor";
     
     /** Data formatter */
     @SuppressWarnings("serial")
@@ -97,6 +100,15 @@ public class TidWriter {
      */
     public void writeHeader(String title) throws Exception {
         writer.write("# " + (title != null ? title : "") + "\r\n");
+    }
+
+    /**
+     * Writes a header.
+     * @throws Exception
+     */
+    public void writeHeader(String title, String placeIndicator) throws Exception {
+        writeHeader(title);
+        writeHeader(HARBOR_STR + ": " + placeIndicator);
     }
 
     /**

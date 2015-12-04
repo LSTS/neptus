@@ -84,7 +84,7 @@ public class TideTidExporter implements MRAExporter {
         try {
             writer = new BufferedWriter(new FileWriter(new File(outputDir, "Tide.tid")));
             tidWriter = new TidWriter(writer, decimalHouses);
-            tidWriter.writeHeader("Tide data for " + finder.getName());
+            tidWriter.writeHeader("Tide Data", finder.getName());
             
             pmonitor.setMaximum(100);
             double firstTime = source.getLsfIndex().getStartTime();
