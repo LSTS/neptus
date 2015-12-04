@@ -984,6 +984,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         removeAll();
     }
 
+    @SuppressWarnings("unused")
     private void computeCameraView(int kt, double height, double distance) {
         // Delta position (distance in the robot axes and height)
         double dx = distance * Math.cos(Math.toRadians(estimated_state.orientation.get(kt)[2]));
@@ -1066,11 +1067,11 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             }
             
             // Update the dynamic 3D mesh state
-            vtkActorCollection vtk_actor_list = canvas.GetRenderer().GetActors();
-            vtk_actor_list.InitTraversal();
+            vtkActorCollection vtkActorList = canvas.GetRenderer().GetActors();
+            vtkActorList.InitTraversal();
 
-            for (int n = 0; n < vtk_actor_list.GetNumberOfItems(); n++) {
-                vtkActor actor = vtk_actor_list.GetNextItem();
+            for (int n = 0; n < vtkActorList.GetNumberOfItems(); n++) {
+                vtkActor actor = vtkActorList.GetNextItem();
                 if (idActorList.GetDescription(n) == "NoptilusModel") {
                     actor.SetPosition(estimated_state.position.get(kTActual));
                     actor.SetOrientation(estimated_state.orientation.get(kTActual));
@@ -1084,15 +1085,15 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             if ((kTActual - kTPreview) >= 1) {
 
                 // Visible only until time position
-                vtk_actor_list = canvas.GetRenderer().GetActors();
-                vtk_actor_list.InitTraversal();
+                vtkActorList = canvas.GetRenderer().GetActors();
+                vtkActorList.InitTraversal();
 
                 int k_particle = 0;
                 int k_corrected = 0;
                 int k_estimated = 0;
 
-                for (int n = 0; n < vtk_actor_list.GetNumberOfItems(); n++) {
-                    vtkActor actor = vtk_actor_list.GetNextItem();
+                for (int n = 0; n < vtkActorList.GetNumberOfItems(); n++) {
+                    vtkActor actor = vtkActorList.GetNextItem();
                     
                     if (idActorList.GetDescription(n) == "Particle") {
                         if ( (particles.timestamp.get(k_particle)<=estimated_state.timestamp.get(kTActual))
@@ -1129,15 +1130,15 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             else {
                 if ((kTActual - kTPreview) < 0) {
                     // Visible only until time position
-                    vtk_actor_list = canvas.GetRenderer().GetActors();
-                    vtk_actor_list.InitTraversal();
+                    vtkActorList = canvas.GetRenderer().GetActors();
+                    vtkActorList.InitTraversal();
 
                     int k_particle = 0;
                     int k_corrected = 0;
                     int k_estimated = 0;
                     
-                    for (int n = 0; n < vtk_actor_list.GetNumberOfItems(); n++) {
-                        vtkActor actor = vtk_actor_list.GetNextItem();
+                    for (int n = 0; n < vtkActorList.GetNumberOfItems(); n++) {
+                        vtkActor actor = vtkActorList.GetNextItem();
 
                         // Display only the current cloud particle
                         if (idActorList.GetDescription(n) == "Particle") {
