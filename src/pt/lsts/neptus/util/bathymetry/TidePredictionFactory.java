@@ -47,7 +47,7 @@ public class TidePredictionFactory {
         TidePredictionFinder finder = null;
         File f = source.getFile("mra/tides.txt");
         if (f != null && f.canRead())
-            finder = new LocalData(f);
+            finder = new CachedData(f);
         else {
             CachedData data = new CachedData();
             if (data.contains(new Date((long)(source.getLsfIndex().getStartTime())* 1000)))
@@ -62,7 +62,7 @@ public class TidePredictionFactory {
         TidePredictionFinder finder = null;
         File f = new File(source.getLsfFile().getParentFile(), ("mra/tides.txt"));
         if (f.canRead())
-            finder = new LocalData(f);
+            finder = new CachedData(f);
         else {
             CachedData data = new CachedData();
             if (data.contains(new Date((long)(source.getStartTime())* 1000)))
