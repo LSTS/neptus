@@ -42,6 +42,7 @@ import java.util.Date;
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
@@ -59,7 +60,7 @@ import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 
 /**
  * @author zp
- *
+ * @author pdias
  */
 @PluginDescription(name="XYZ Exporter")
 public class XyzExporter implements MRAExporter {
@@ -73,7 +74,10 @@ public class XyzExporter implements MRAExporter {
     @NeptusProperty(name="Export Multibeam Sonar points")
     public boolean exportMultibeam = true;
 
-    @NeptusProperty(name="Filename to write to")
+    @NeptusProperty(name="Tide Correction")
+    public boolean tideCorrection = true;
+    
+    @NeptusProperty(name="Filename to write to", editable = false)
     public File file = new File(".");
 
     private TidePredictionFinder finder = null;
@@ -100,21 +104,21 @@ public class XyzExporter implements MRAExporter {
         }
         catch (Exception e) {
             e.printStackTrace();
-            return e.getClass().getSimpleName()+" while trying to write to file: "+e.getMessage(); 
+            return I18n.textf("%name while trying to write to file: %message.", e.getClass().getSimpleName(), e.getMessage()); 
         }
 
         if (exportEstimatedState) {
-            pmonitor.setNote("Processing EstimatedState data");
+            pmonitor.setNote(I18n.text("Processing EstimatedState data"));
             processEstimatedStates(source);
         }
         
         if (exportMultibeam) {
-            pmonitor.setNote("Processing Multibeam data");
+            pmonitor.setNote(I18n.text("Processing Multibeam data"));
             processMultibeam(source);
         }
         
         if (exportEstimatedState) {
-            pmonitor.setNote("Processing DVL data");
+            pmonitor.setNote(I18n.text("Processing DVL data"));
             processDvl(source);
         }
         
@@ -125,7 +129,7 @@ public class XyzExporter implements MRAExporter {
             e.printStackTrace(); 
         }
         
-        return "File written to "+file.getAbsolutePath();
+        return I18n.textf("File written to %file.", file.getAbsolutePath());
     }
 
     private void processEstimatedStates(IMraLogGroup source) {
@@ -193,10 +197,12 @@ public class XyzExporter implements MRAExporter {
 
     private void addSample(Date date, LocationType loc, double depth) {
         double tide = 0;
-        try {
-            tide = finder.getTidePrediction(date, false);            
-        }
-        catch (Exception e) {           
+        if (tideCorrection) {
+            try {
+                tide = finder.getTidePrediction(date, false);            
+            }
+            catch (Exception e) {           
+            }
         }
 
         loc.convertToAbsoluteLatLonDepth();
