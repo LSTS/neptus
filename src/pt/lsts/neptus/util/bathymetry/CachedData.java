@@ -51,6 +51,7 @@ import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
@@ -59,9 +60,9 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
  */
 public class CachedData extends TidePredictionFinder {
 
-    private boolean loading = true;
-    private SortedSet<TidePeak> cachedData = null;
-    private String name = "?";
+    protected boolean loading = true;
+    protected SortedSet<TidePeak> cachedData = null;
+    protected String name = "?";
 
     public CachedData(File f) {
         try {
@@ -96,18 +97,24 @@ public class CachedData extends TidePredictionFinder {
         String line = br.readLine();
 
         while (line != null) {
-            if (line.startsWith("#"))
+            if (line.startsWith("#")) {
+                line = br.readLine();
                 continue;
-            String parts[] = line.split(",");
-            if (!nameRead) {
-                name = parts[0];
-                nameRead = true;
             }
-            long unixTimeSecs = Long.parseLong(parts[2]);
-            double height = Double.parseDouble(parts[3]);
-            Date d = new Date(unixTimeSecs * 1000);
-            //System.out.println(d);
-            cachedData.add(new TidePeak(d, height));
+            try {
+                String parts[] = line.split(",");
+                if (!nameRead) {
+                    name = parts[0];
+                    nameRead = true;
+                }
+                long unixTimeSecs = Long.parseLong(parts[2]);
+                double height = Double.parseDouble(parts[3]);
+                Date d = new Date(unixTimeSecs * 1000);
+                //System.out.println(d);
+                cachedData.add(new TidePeak(d, height));
+            }
+            catch (Exception e) {
+            }
             line = br.readLine();
         }
         br.close();
@@ -209,6 +216,14 @@ public class CachedData extends TidePredictionFinder {
         }
     }
 
+    /**
+     * @param portName
+     * @return
+     */
+    protected File getFileToSave(String portName) {
+        return new File(ConfigFetch.getConfFolder() + "/tides/" + portName + ".txt");
+    }
+
     public Date fetchData(String portName, Date aroundDate) throws Exception {
         try {
             Vector<TidePeak> newData = TideDataFetcher.fetchData(portName, aroundDate);
@@ -218,7 +233,7 @@ public class CachedData extends TidePredictionFinder {
                 return null;
             }
             update(newData);
-            saveFile(portName, new File(GeneralPreferences.tidesFile.getParentFile(), portName+".txt"));
+            saveFile(portName, getFileToSave(portName));
             return newData.lastElement().date;
         }
         catch (Exception e) {
@@ -240,9 +255,8 @@ public class CachedData extends TidePredictionFinder {
         if (harbor == null)
             return null;
         
-
         Date start = null, end = null;
-        ProgressMonitor progress = new ProgressMonitor(parent, "Fetching tides", "Starting", 0, 100);
+        ProgressMonitor progress = new ProgressMonitor(parent, I18n.text("Fetching tides"), "Starting", 0, 100);
 
         while (start == null) {
             String startStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the past"), 30);
@@ -275,7 +289,21 @@ public class CachedData extends TidePredictionFinder {
             }
         }
 
-        CachedData data = new CachedData(new File("conf/tides/"+harbor+".txt"));
+//        int opt = JOptionPane.showOptionDialog(parent, I18n.text("Choose Format"), I18n.text("Tides"), 
+//                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, new String[] { "txt", "tid" }, "txt");
+        int opt = 0;
+        CachedData data;
+        String path = ConfigFetch.getConfFolder() + "/tides/" + harbor;
+        switch (opt) {
+            case 1:
+                path += ".tid";
+                data = new TidCachedData(new File(path)); 
+                break;
+            default:
+                path += ".txt";
+                data = new CachedData(new File(path));
+                break;
+        }
 
         Date current = new Date(start.getTime());
         double delta = end.getTime() - start.getTime();
@@ -299,7 +327,7 @@ public class CachedData extends TidePredictionFinder {
         }
         try {
             progress.setNote("Storing data to disk");
-            data.saveFile(harbor, new File("conf/tides/"+harbor+".txt"));
+            data.saveFile(harbor, data.getFileToSave(harbor));
             progress.setProgress(100);
             progress.close();                
         }
