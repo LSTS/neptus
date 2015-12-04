@@ -102,7 +102,7 @@ import vtk.vtkUnsignedCharArray;
 
 
 /**
- * @author Frédéric Leishman
+ * @author Frédéric Leishman (www.georgiatech-metz.fr)
  * 
  */
 @PluginDescription(author = "fl", name = "3D Filter", icon = "images/menus/view.png")
@@ -135,8 +135,8 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
 
     protected SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss.SSS");
 
-    int kT_actual = 0;
-    int kT_preview = 0;
+    private int kTActual = 0;
+    private int kTPreview = 0;
 
     // Map visualization variables
     class CMaps {
@@ -147,7 +147,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         public double offset_checked;
     }
 
-    CMaps map_ref;
+    private CMaps map_ref;
     
     // Estimated state variables
     class CEstimatedState {
@@ -161,7 +161,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         public double north, east, down;
     }
 
-    CEstimatedState estimated_state;
+    private CEstimatedState estimated_state;
     
     // Corrected state
     class CCorrectedState {
@@ -171,7 +171,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         public List<Long> timestamp = new ArrayList<Long>();
     }
 
-    CCorrectedState corrected_state;
+    private CCorrectedState corrected_state;
     
     // Particles
     class CParticles {
@@ -181,7 +181,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         long iteration_time = 0;
     } 
     
-    CParticles particles;
+    private CParticles particles;
     
     // Identifier of actors used
     class C3DListElement {
@@ -200,7 +200,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         }
     }
 
-    C3DListElement id_actor_list;
+    private C3DListElement idActorList;
 
     public FilterMra(MRAPanel panel) {
         this.mraPanel = panel;
@@ -356,7 +356,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                 canvas.GetRenderer().AddActor(mesh.getMeshCloudLODActor());
 
                 // Add the map to the list
-                id_actor_list.AddActor("Map");
+                idActorList.AddActor("Map");
 
                 // Add and display the color scalar bar (winCanvas is used (UI canvas))
                 interactorStyle.getScalarBar().setUpScalarBarLookupTable(
@@ -429,11 +429,10 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         canvas.GetRenderer().AddActor(pointcloud_dvl.getCloudLODActor());
 
         // Add the particles blocs to the list
-        id_actor_list.AddActor("DVL_Cloud");
+        idActorList.AddActor("DVL_Cloud");
     }
     
-    public void loadMBSPointCloud() {
-        
+    private void loadMBSPointCloud() {
         vtkPoints pts = new vtkPoints();
         int num_mbs_point = 0;
         
@@ -492,10 +491,10 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         canvas.GetRenderer().AddActor(pointcloud_mbs.getCloudLODActor());
 
         // Add the particles blocs to the list
-        id_actor_list.AddActor("MBS_Cloud");
+        idActorList.AddActor("MBS_Cloud");
     }
     
-    public void loadLauvModel() {
+    private void loadLauvModel() {
         // Load the LAUV 3D model (vtk file)
         vtkGenericDataObjectReader vtk_generic_reader = new vtkGenericDataObjectReader();
         String nopModelFile = FileUtil.getResourceAsFileKeepName(FileUtil.getPackageAsPath(FilterMra.this) + "/Models/noptilus.vtk");
@@ -533,10 +532,10 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
 
         // Add each line to the scene
         canvas.GetRenderer().AddActor(actor);
-        id_actor_list.AddActor("NoptilusModel");
+        idActorList.AddActor("NoptilusModel");
     }
     
-    public void loadEstimatedState() {
+    private void loadEstimatedState() {
         
         vtkPoints pts_trajectory = new vtkPoints();
         estimated_state.trajectory = new ArrayList<vtkLineSource>();
@@ -595,11 +594,11 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             canvas.GetRenderer().AddActor(actor);
 
             // Add the estimated trajectory to the list
-            id_actor_list.AddActor("PathEstimated");
+            idActorList.AddActor("PathEstimated");
         }
     }
     
-    public void loadCorrectedState() {
+    private void loadCorrectedState() {
 
         IMraLog estimated_state_parser = source.getLog("EstimatedState");
         long last_timestamp = estimated_state_parser.getLastEntry().getTimestampMillis();
@@ -663,12 +662,11 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             canvas.GetRenderer().AddActor(actor);
 
             // Add the corrected trajectory to the list
-            id_actor_list.AddActor("PathCorrected");
+            idActorList.AddActor("PathCorrected");
         }
     }
     
     private void loadParticles() {
-    
         IMraLog estimated_state_parser = source.getLog("EstimatedState");
         long last_timestamp = estimated_state_parser.getLastEntry().getTimestampMillis();
         
@@ -801,7 +799,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                 canvas.GetRenderer().AddActor(actor);
         
                 // Add the particles blocs to the list
-                id_actor_list.AddActor("Particle");
+                idActorList.AddActor("Particle");
                 k++;
             }
         }
@@ -820,7 +818,6 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
     
     
     private void loadReferenceTrajectory() {
-
         IMraLog estimated_state_parser = source.getLog("EstimatedState");
         long last_timestamp = estimated_state_parser.getLastEntry().getTimestampMillis();
         
@@ -852,7 +849,6 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
         }
 
         for (int i = 1; i < k; i++) {
-            
             // Create each line of the trajectory
             vtkLineSource line_temp = new vtkLineSource();
             line_temp.SetPoint1(pts_trajectory.GetPoint(i - 1));
@@ -871,11 +867,10 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             canvas.GetRenderer().AddActor(actor);
 
             // Add the corrected trajectory to the list
-            id_actor_list.AddActor("Reference_trajectory");
+            idActorList.AddActor("Reference_trajectory");
         }
     }
     
-
     private void sceneScaleAxesExageration(double Sx, double Sy, double Sz) {
         vtkActorCollection actor_list = canvas.GetRenderer().GetActors();
         actor_list.InitTraversal();
@@ -898,7 +893,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             setLayout(new MigLayout());
 
             // 3D Scene Actor identifier
-            id_actor_list = new C3DListElement();
+            idActorList = new C3DListElement();
 
             // Create and configure the MRA panel (timeline and vtk window)
             createTimeline();
@@ -917,7 +912,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
 
             // Control adequacy between actor present inside the scene and our list of actor
             vtkActorCollection vtk_actor_list = canvas.GetRenderer().GetActors();
-            if (id_actor_list.num_actor != vtk_actor_list.GetNumberOfItems()) {
+            if (idActorList.num_actor != vtk_actor_list.GetNumberOfItems()) {
                 return null;
             }
 
@@ -1064,10 +1059,10 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             timeline.setTime(firstPingTime + currentTime);
 
             // Id Iteration
-            kT_actual = (int) ((double) (estimated_state.kt) * (double) (currentTime) / (double) (lastPingTime - firstPingTime));
+            kTActual = (int) ((double) (estimated_state.kt) * (double) (currentTime) / (double) (lastPingTime - firstPingTime));
             
-            if(kT_actual > estimated_state.kt - 1) {
-                kT_actual =estimated_state.kt - 1; 
+            if(kTActual > estimated_state.kt - 1) {
+                kTActual =estimated_state.kt - 1; 
             }
             
             // Update the dynamic 3D mesh state
@@ -1076,9 +1071,9 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
 
             for (int n = 0; n < vtk_actor_list.GetNumberOfItems(); n++) {
                 vtkActor actor = vtk_actor_list.GetNextItem();
-                if (id_actor_list.GetDescription(n) == "NoptilusModel") {
-                    actor.SetPosition(estimated_state.position.get(kT_actual));
-                    actor.SetOrientation(estimated_state.orientation.get(kT_actual));
+                if (idActorList.GetDescription(n) == "NoptilusModel") {
+                    actor.SetPosition(estimated_state.position.get(kTActual));
+                    actor.SetOrientation(estimated_state.orientation.get(kTActual));
                 }
             }
             
@@ -1086,7 +1081,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
             //if((kT_actual-kT_preview)==1) { ComputeCameraView(kT_actual, 40.0, 70.0); }
             
             // Update the static 3D mesh preprocessed
-            if ((kT_actual - kT_preview) >= 1) {
+            if ((kTActual - kTPreview) >= 1) {
 
                 // Visible only until time position
                 vtk_actor_list = canvas.GetRenderer().GetActors();
@@ -1099,9 +1094,9 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                 for (int n = 0; n < vtk_actor_list.GetNumberOfItems(); n++) {
                     vtkActor actor = vtk_actor_list.GetNextItem();
                     
-                    if (id_actor_list.GetDescription(n) == "Particle") {
-                        if ( (particles.timestamp.get(k_particle)<=estimated_state.timestamp.get(kT_actual))
-                                &&(estimated_state.timestamp.get(kT_actual)-particles.timestamp.get(k_particle)<particles.iteration_time)){
+                    if (idActorList.GetDescription(n) == "Particle") {
+                        if ( (particles.timestamp.get(k_particle)<=estimated_state.timestamp.get(kTActual))
+                                &&(estimated_state.timestamp.get(kTActual)-particles.timestamp.get(k_particle)<particles.iteration_time)){
                             actor.VisibilityOn();
                         }
                         else {
@@ -1110,8 +1105,8 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                         k_particle++;
                     }
 
-                    if (id_actor_list.GetDescription(n) == "PathCorrected") {
-                        if (corrected_state.timestamp.get(k_corrected) < estimated_state.timestamp.get(kT_actual)) {
+                    if (idActorList.GetDescription(n) == "PathCorrected") {
+                        if (corrected_state.timestamp.get(k_corrected) < estimated_state.timestamp.get(kTActual)) {
                             actor.VisibilityOn();
                         }
                         else {
@@ -1120,8 +1115,8 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                         k_corrected++;
                     }
 
-                    if (id_actor_list.GetDescription(n) == "PathEstimated") {
-                        if (k_estimated < kT_actual) {
+                    if (idActorList.GetDescription(n) == "PathEstimated") {
+                        if (k_estimated < kTActual) {
                             actor.VisibilityOn();
                         }
                         else {
@@ -1132,7 +1127,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                 }
             }
             else {
-                if ((kT_actual - kT_preview) < 0) {
+                if ((kTActual - kTPreview) < 0) {
                     // Visible only until time position
                     vtk_actor_list = canvas.GetRenderer().GetActors();
                     vtk_actor_list.InitTraversal();
@@ -1145,10 +1140,10 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                         vtkActor actor = vtk_actor_list.GetNextItem();
 
                         // Display only the current cloud particle
-                        if (id_actor_list.GetDescription(n) == "Particle") {
+                        if (idActorList.GetDescription(n) == "Particle") {
 
-                                if (   (particles.timestamp.get(k_particle)<=estimated_state.timestamp.get(kT_actual))
-                                     &&(estimated_state.timestamp.get(kT_actual)-particles.timestamp.get(k_particle)<particles.iteration_time) ) {
+                                if (   (particles.timestamp.get(k_particle)<=estimated_state.timestamp.get(kTActual))
+                                     &&(estimated_state.timestamp.get(kTActual)-particles.timestamp.get(k_particle)<particles.iteration_time) ) {
                                     actor.VisibilityOn();
                                 }
                                 else {
@@ -1158,8 +1153,8 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                         }
 
                         // Display all corrected trajectories before kT actual
-                        if (id_actor_list.GetDescription(n) == "PathCorrected") {
-                            if (corrected_state.timestamp.get(k_corrected) < estimated_state.timestamp.get(kT_actual)) {
+                        if (idActorList.GetDescription(n) == "PathCorrected") {
+                            if (corrected_state.timestamp.get(k_corrected) < estimated_state.timestamp.get(kTActual)) {
                                 actor.VisibilityOn();
                             }
                             else {
@@ -1169,8 +1164,8 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                         }
 
                         // Display all estimated trajectories before kT actual
-                        if (id_actor_list.GetDescription(n) == "PathEstimated") {
-                            if (k_estimated < kT_actual) {
+                        if (idActorList.GetDescription(n) == "PathEstimated") {
+                            if (k_estimated < kTActual) {
                                 actor.VisibilityOn();
                             }
                             else {
@@ -1182,7 +1177,7 @@ public class FilterMra extends JPanel implements MRAVisualization, TimelineChang
                 }
             }
 
-            kT_preview = kT_actual;
+            kTPreview = kTActual;
 
             // Frame Refresh
             canvas.RenderSecured();
