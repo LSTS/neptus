@@ -217,7 +217,7 @@ public class TidReader {
         TidWriter tidWriter = new TidWriter(writer, 2);
         tidWriter.writeHeader("Title", "harbor");
         Random rand = new Random(28091893);
-        Date date = new GregorianCalendar(1893, 9, 28).getTime();
+        Date date = new GregorianCalendar(1993, 9, 28).getTime();
         for (int i = 0; i < 10; i++) {
             tidWriter.writeData(new Double(date.getTime() + i * 1E3 * 60).longValue(), rand.nextDouble());
         }

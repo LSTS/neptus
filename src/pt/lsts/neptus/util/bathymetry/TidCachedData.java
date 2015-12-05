@@ -31,15 +31,29 @@
  */
 package pt.lsts.neptus.util.bathymetry;
 
+import java.awt.BorderLayout;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.TreeSet;
 
+import javax.swing.JPanel;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.ValueMarker;
+import org.jfree.data.time.Millisecond;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
+
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.tid.TidReader;
 import pt.lsts.neptus.util.tid.TidReader.Data;
@@ -119,5 +133,38 @@ public class TidCachedData extends CachedData {
     @Override
     public Date fetchData(String portName, Date aroundDate) throws Exception {
         return super.fetchData(portName, aroundDate);
+    }
+    
+    public static void main(String[] args) throws Exception {
+        TidReader.main(args);
+
+        JFreeChart timeSeriesChart = null;
+        TimeSeriesCollection tsc = new TimeSeriesCollection();
+        ValueMarker marker = new ValueMarker(System.currentTimeMillis());
+        ValueMarker levelMarker = new ValueMarker(0);
+
+        String tmpFolder = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator", "/");
+        File tidFx = new File(tmpFolder + "tmp.tid");
+        
+        TidCachedData tide = new TidCachedData(tidFx);
+
+        TimeSeries ts = new TimeSeries(I18n.text("Tide level"));
+        tsc.addSeries(ts);
+
+        Date sDate = new GregorianCalendar(1993, 9, 28).getTime();
+        for (double i = -12; i < 12; i+= 0.25) {
+            Date d = new Date((long) (sDate.getTime() + (i * 1E3 * 60)));
+            ts.addOrUpdate(new Millisecond(d), tide.getTidePrediction(d, false));
+        }
+
+        JPanel panel = new JPanel(new BorderLayout());
+        timeSeriesChart = ChartFactory.createTimeSeriesChart(null, null, null, tsc, true, true, true);
+        panel.add(new ChartPanel(timeSeriesChart), BorderLayout.CENTER);
+
+        timeSeriesChart.getXYPlot().addDomainMarker(marker);
+        levelMarker.setValue(TidePrediction.getTideLevel(new Date()));
+        timeSeriesChart.getXYPlot().addRangeMarker(levelMarker);
+        
+        GuiUtils.testFrame(panel);
     }
 }
