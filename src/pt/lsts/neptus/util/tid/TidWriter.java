@@ -52,11 +52,16 @@ public class TidWriter {
     2014/08/27 07:53:33.057 0.006612 
     */
 
+    /** Line ending to use */
+    private static final String LINE_ENDING = "\r\n";
+
     /** The default decimal houses to use */
     private static final int DEFAULT_DECIMAL_HOUSES = 6;
 
     /** Harbor txt for location search */
     public static final String HARBOR_STR = "Harbor";
+    /** Time zone txt for search */
+    public static final String TIMEZONE_STR = "Time Zone";
     
     /** Data formatter */
     @SuppressWarnings("serial")
@@ -69,6 +74,9 @@ public class TidWriter {
     private BufferedWriter writer;
     /** The decimal houses to use in the output */
     private int decimalHouses;
+    
+    /** Time Zone indicator control */
+    private boolean alreadyWroteTimeZoneWithHeader = false;
     
     /**
      * @param writer The writer to be used.
@@ -87,23 +95,21 @@ public class TidWriter {
     }
 
     /**
-     * Writes a header. (Empty for now.)
-     * @throws Exception
-     */
-    public void writeHeader() throws Exception {
-        writer.write("--------\r\n");
-    }
-
-    /**
      * Writes a header.
+     * It will write the time zone used (only once, safe for multiple calls) which is UTC.
      * @throws Exception
      */
     public void writeHeader(String title) throws Exception {
-        writer.write("# " + (title != null ? title : "") + "\r\n");
+        writer.write("# " + (title != null ? title : "") + LINE_ENDING);
+        if (!alreadyWroteTimeZoneWithHeader) {
+            alreadyWroteTimeZoneWithHeader = true;
+            writer.write("# " + TIMEZONE_STR + ": " + TimeZone.getTimeZone("UTC").getID() + LINE_ENDING);
+        }
     }
 
     /**
      * Writes a header.
+     * It will write the time zone used (only once, safe for multiple calls) which is UTC.
      * @throws Exception
      */
     public void writeHeader(String title, String placeIndicator) throws Exception {
@@ -125,6 +131,6 @@ public class TidWriter {
         writer.write(dateStr + " " + timeStr);
         for (double d : vals)
             writer.write(String.format(Locale.US, " %." + decimalHouses + "f", d));
-        writer.write("\r\n");
+        writer.write(LINE_ENDING);
     }
 }

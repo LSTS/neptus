@@ -46,6 +46,7 @@ import java.util.TimeZone;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.util.FileUtil;
 
 /**
@@ -77,6 +78,8 @@ public class TidReader {
     private String harbor = "?";
     /** Indicates if the harbor data has already been found */
     private boolean asReadTheHarborInfo = false;
+    /** Indicates if the time zone data has already been found */
+    private boolean asReadTheTimeZoneInfo = false;
     
     /**
      * @param reader The reader to be used.
@@ -102,30 +105,64 @@ public class TidReader {
     }
     
     /**
-     * Parses the comment lines for harbor info.
+     * Parses the comment lines for harbor info and time zone.
      * @param line
      */
-    private void readHarbor(String line) {
-        if (asReadTheHarborInfo)
+    private void processComment(String line) {
+        if (asReadTheHarborInfo && asReadTheTimeZoneInfo)
             return;
         if (isCommentLine(line)) {
-            int idx = line.indexOf(TidWriter.HARBOR_STR);
-            if (idx < 0)
-                return;
-            
-            String ss = line.substring(idx + TidWriter.HARBOR_STR.length());
+            if (!asReadTheHarborInfo) {
+                String val = extractValueWithHeader(line, TidWriter.HARBOR_STR);
+                if (val != null && !val.isEmpty()) {
+                    harbor = val;
+                    asReadTheHarborInfo = true;
+                    return;
+                }
+            }
+            if (!asReadTheTimeZoneInfo) {
+                String val = extractValueWithHeader(line, TidWriter.TIMEZONE_STR);
+                if (val != null && !val.isEmpty()) {
+                    TimeZone tz = TimeZone.getTimeZone(val);
+                    if (tz.getID().equalsIgnoreCase(val)) {
+                        dateTimeFormatterUTC.setTimeZone(tz);
+                        dateTimeFormatterUTC2.setTimeZone(tz);
+                    }
+                    else {
+                        NeptusLog.pub().error("Error processing time zone, using UTC.");
+                    }
+                    asReadTheTimeZoneInfo = true;
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * Extract value from a line in the form: "header: value" or "header= value". 
+     * @param line
+     * @param header
+     * @return
+     */
+    private String extractValueWithHeader(String line, String header) {
+        if (line == null || line.isEmpty() || header == null || header.isEmpty())
+            return null;
+        
+        int idx = line.indexOf(header);
+        if (idx >= 0) {
+            String ss = line.substring(idx + header.length());
             ss = ss.trim();
             if (ss.startsWith(":"))
                 ss = ss.replaceFirst(":", "");
             else if (ss.startsWith("="))
                 ss = ss.replaceFirst(":", "");
             ss = ss.trim();
-            harbor = ss;
-            asReadTheHarborInfo = true;
-            return;
+            return ss;
         }
+        
+        return null;
     }
-
+    
     /**
      * Writes the date, time and each value passed into a line entry.
      * @param timeMillis
@@ -137,7 +174,7 @@ public class TidReader {
             while (true) {
                 String line = reader.readLine();
                 if (isCommentLine(line)) {
-                    readHarbor(line);
+                    processComment(line);
                     continue;
                 }
                 
