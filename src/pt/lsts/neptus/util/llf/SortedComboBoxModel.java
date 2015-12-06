@@ -37,98 +37,89 @@ import java.util.Vector;
 import javax.swing.DefaultComboBoxModel;
 
 @SuppressWarnings("rawtypes")
-public class SortedComboBoxModel<E> extends DefaultComboBoxModel<E>
-{
+public class SortedComboBoxModel<E> extends DefaultComboBoxModel<E> {
     private static final long serialVersionUID = 1L;
     private Comparator comparator;
 
-    /*
-     *  Create an empty model that will use the natural sort order of the item
+    /**
+     * Create an empty model that will use the natural sort order of the item
      */
-    public SortedComboBoxModel()
-    {
+    public SortedComboBoxModel() {
         super();
     }
 
-    /*
-     *  Create an empty model that will use the specified Comparator
+    /**
+     * Create an empty model that will use the specified Comparator
+     * @param comparator
      */
-
-    public SortedComboBoxModel(Comparator comparator)
-    {
+    public SortedComboBoxModel(Comparator comparator) {
         super();
         this.comparator = comparator;
     }
 
-    /*
-     *  Create a model with data and use the nature sort order of the items
+    /**
+     * Create a model with data and use the nature sort order of the items
+     * @param items
      */
-    public SortedComboBoxModel(E items[])
-    {
-        this( items, null );
+    public SortedComboBoxModel(E items[]) {
+        this(items, null);
     }
 
-    /*
-     *  Create a model with data and use the specified Comparator
+    /**
+     * Create a model with data and use the specified Comparator
+     * @param items
+     * @param comparator
      */
-    public SortedComboBoxModel(E items[], Comparator comparator)
-    {
+    public SortedComboBoxModel(E items[], Comparator comparator) {
         this.comparator = comparator;
 
-        for (E item : items)
-        {
-            addElement( item );
+        for (E item : items) {
+            addElement(item);
         }
     }
 
-    /*
-     *  Create a model with data and use the nature sort order of the items
+    /**
+     * Create a model with data and use the nature sort order of the items
+     * @param items
      */
-    public SortedComboBoxModel(Vector<E> items)
-    {
-        this( items, null );
+    public SortedComboBoxModel(Vector<E> items) {
+        this(items, null);
     }
 
-    /*
-     *  Create a model with data and use the specified Comparator
+    /**
+     * Create a model with data and use the specified Comparator
+     * @param items
+     * @param comparator
      */
-
-    public SortedComboBoxModel(Vector<E> items, Comparator comparator)
-    {
+    public SortedComboBoxModel(Vector<E> items, Comparator comparator) {
         this.comparator = comparator;
 
-        for (E item : items)
-        {
-            addElement( item );
+        for (E item : items) {
+            addElement(item);
         }
     }
 
     @Override
-    public void addElement(E element)
-    {
+    public void addElement(E element) {
         insertElementAt(element, 0);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void insertElementAt(E element, int index)
-    {
+    public void insertElementAt(E element, int index) {
         int size = getSize();
 
-        //  Determine where to insert element to keep model in sorted order
+        // Determine where to insert element to keep model in sorted order
 
-        for (index = 0; index < size; index++)
-        {
-            if (comparator != null)
-            {
-                E o = getElementAt( index );
+        for (index = 0; index < size; index++) {
+            if (comparator != null) {
+                E o = getElementAt(index);
 
                 if (comparator.compare(o, element) > 0)
                     break;
             }
-            else
-            {
-                Comparable c = (Comparable)getElementAt( index );
+            else {
+                Comparable c = (Comparable) getElementAt(index);
 
                 if (c.compareTo(element) > 0)
                     break;
@@ -137,11 +128,10 @@ public class SortedComboBoxModel<E> extends DefaultComboBoxModel<E>
 
         super.insertElementAt(element, index);
 
-        //  Select an element when it is added to the beginning of the model
+        // Select an element when it is added to the beginning of the model
 
-        if (index == 0 && element != null)
-        {
-            setSelectedItem( element );
+        if (index == 0 && element != null) {
+            setSelectedItem(element);
         }
     }
 }

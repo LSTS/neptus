@@ -26,8 +26,8 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: zp, Manuel Ribeiro
- * Dec 2, 2015
+ * Author: zp
+ * Jan 30, 2014
  */
 package pt.lsts.neptus.mra.visualizations;
 
@@ -80,7 +80,6 @@ import pt.lsts.neptus.util.llf.SortedComboBoxModel;
  * @author Manuel Ribeiro
  */
 @PluginDescription(icon = "pt/lsts/neptus/mra/visualizations/doc-search.png")
-
 public class MraRawMessages extends SimpleMRAVisualization {
 
     private static final long serialVersionUID = 1L;
@@ -152,16 +151,14 @@ public class MraRawMessages extends SimpleMRAVisualization {
         contentPane.add(panel, BorderLayout.NORTH);
         panel.setLayout(new BorderLayout());
 
-        JPanel panel_1 = new JPanel();
-        panel.add(panel_1, BorderLayout.EAST);
-        panel_1.setLayout(new BorderLayout(2, 0));
+        JPanel panel1 = new JPanel();
+        panel.add(panel1, BorderLayout.EAST);
+        panel1.setLayout(new BorderLayout(2, 0));
 
         JButton highlightBtn = new JButton();
-
         highlightBtn.setHorizontalTextPosition(SwingConstants.CENTER);
         highlightBtn.setVerticalTextPosition(SwingConstants.BOTTOM);
         highlightBtn.setIcon(ImageUtils.getIcon("images/buttons/lights.png"));
-
         highlightBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -169,13 +166,12 @@ public class MraRawMessages extends SimpleMRAVisualization {
             }
         });
 
-        panel_1.add(highlightBtn, BorderLayout.EAST);
+        panel1.add(highlightBtn, BorderLayout.EAST);
 
         JButton findBtn = new JButton();
         findBtn.setHorizontalTextPosition(SwingConstants.CENTER);
         findBtn.setVerticalTextPosition(SwingConstants.BOTTOM);
         findBtn.setIcon(ImageUtils.getIcon("images/buttons/show.png"));
-
         findBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -185,9 +181,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
                     find.setVisible(false);
             }
         });
-        panel_1.add(findBtn, BorderLayout.WEST);
 
-
+        panel1.add(findBtn, BorderLayout.WEST);
 
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -208,7 +203,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
         return contentPane;
     }
     
-    /* Validates if a time (HH:mm) is within a specified limit (start and end)
+    /**
+     * Validates if a time (HH:mm) is within a specified limit (start and end)
      * @param target, time to be check against lower and upper bounds 
      * @return true if time is within limits, false otherwise
      */
@@ -222,7 +218,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
         return false;
     }
 
-    /* Checks if there are messages in the list that have a specific type, source, source_entity, 
+    /**
+     * Checks if there are messages in the list that have a specific type, source, source_entity, 
      * destination and are within specified time limits 
      * @param src, TYPE of the message
      * @param srcEnt, SOURCE_ENTITY of the message
@@ -232,8 +229,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
         if (!resultList.isEmpty()) {
             hasNext();
             return true;
-        } else {
-
+        } 
+        else {
             table.setRowSelectionAllowed(true);
             table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
@@ -276,7 +273,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
         }
     }
 
-    /* Checks if there's a previous element to be show 
+    /**
+     * Checks if there's a previous element to be show 
      * @return true if there is, false otherwise
      */
     private boolean hasPrev() {
@@ -299,7 +297,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
         return true;
     }
     
-    /* Checks if there's a next element to be show 
+    /**
+     * Checks if there's a next element to be show 
      * @return true if there is, false otherwise
      */
     private boolean hasNext() {
@@ -325,8 +324,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
         return false;
     }
     
-    /* Clears every result found and table selection 
-     * 
+    /** 
+     * Clears every result found and table selection 
      */
     private void clearSelection() {
         currFinderIndex = -1;
@@ -337,7 +336,6 @@ public class MraRawMessages extends SimpleMRAVisualization {
     }
 
     private FinderFrame setupFinder(){
-
         FinderFrame find = new FinderFrame();
         ArrayList<String> typeList = new ArrayList<>();
 
@@ -377,17 +375,17 @@ public class MraRawMessages extends SimpleMRAVisualization {
             initComponents();
         }
 
-        /* Checks if string has valid time in format HH:mm
+        /**
+         * Checks if string has valid time in format HH:mm
          * @param time, string to be validate
          * @returns true, if valid time, false otherwise
          */
         private boolean isValidTime(String time) {
-
             return (time.matches("^([0-1][0-9]|2[0-3]):([0-5][0-9])$") || time.isEmpty());
         }
 
-        /* Highlights found rows or clears every highlighted one
-         * 
+        /**
+         * Highlights found rows or clears every highlighted one
          */
         public void toggleHighlight() {
             if (!hightlighted) {
@@ -406,10 +404,9 @@ public class MraRawMessages extends SimpleMRAVisualization {
             }
         }
         
-        /* Turn this frame invisible and dispose
-         * 
+        /**
+         * Turn this frame invisible and dispose
          */
-
         public void close() {
             setVisible(false); //you can't see me!
             dispose();
@@ -490,12 +487,10 @@ public class MraRawMessages extends SimpleMRAVisualization {
             });
 
             prevBtn.addActionListener(new ActionListener() {
-
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     hasPrev();
                     updateStatus();
-
                 }
             });
 
@@ -548,20 +543,19 @@ public class MraRawMessages extends SimpleMRAVisualization {
                     }
                     toValidateT2 = false;
                 }
-
             });
-
         }
 
-        /* Updates status label with number of found elements 
-         * 
+        /**
+         *  Updates status label with number of found elements 
          */
         private void updateStatus() {
             setSize(290, 210);
             statusLbl.setText(finderNextIndex+1 + " of "+resultList.size());
         }
         
-        /* Setup a special JTextField (called Java2sAutoTextField) that has autocomplete feature
+        /**
+         *  Setup a special JTextField (called Java2sAutoTextField) that has autocomplete feature
          * @param items, list of items that will be suggested in the autocomplete feature
          */
         public void initTypeField(ArrayList<String> items) {
@@ -580,7 +574,8 @@ public class MraRawMessages extends SimpleMRAVisualization {
             getContentPane().add(typeTxt, "cell 1 0,growx");
         }
 
-        /* Adds items to a combobox validating them first
+        /**
+         *  Adds items to a combobox validating them first
          * @param box, box to be populated
          * @param item, item to be added to box contents.
          */
