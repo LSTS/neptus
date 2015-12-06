@@ -153,7 +153,7 @@ public class TidCachedData extends CachedData {
 
         Date sDate = new GregorianCalendar(1993, 9, 28).getTime();
         for (double i = -12; i < 12; i+= 0.25) {
-            Date d = new Date((long) (sDate.getTime() + (i * 1E3 * 60)));
+            Date d = new Date((long) (sDate.getTime() + (i * 6.45 * 1E3 * 60 * 60)));
             ts.addOrUpdate(new Millisecond(d), tide.getTidePrediction(d, false));
         }
 

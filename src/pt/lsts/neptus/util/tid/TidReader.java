@@ -219,7 +219,7 @@ public class TidReader {
         Random rand = new Random(28091893);
         Date date = new GregorianCalendar(1993, 9, 28).getTime();
         for (int i = 0; i < 10; i++) {
-            tidWriter.writeData(new Double(date.getTime() + i * 1E3 * 60).longValue(), rand.nextDouble());
+            tidWriter.writeData(new Double(date.getTime() + i * 6.45 * 1E3 * 60 * 60).longValue(), 2.0 * rand.nextDouble());
         }
         tidFx.deleteOnExit();
         writer.close();
