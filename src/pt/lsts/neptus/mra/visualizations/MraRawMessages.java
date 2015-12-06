@@ -359,7 +359,7 @@ public class MraRawMessages extends SimpleMRAVisualization {
     }
 
     private FinderDialog setupFinder(){
-        FinderDialog find = new FinderDialog(SwingUtilities.windowForComponent(MraRawMessages.this));
+        FinderDialog find = new FinderDialog(SwingUtilities.windowForComponent(this.mraPanel));
         ArrayList<String> typeList = new ArrayList<>();
 
         for (int row = 0; row < table.getRowCount(); row++) {
