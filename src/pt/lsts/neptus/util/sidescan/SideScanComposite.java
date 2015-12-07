@@ -109,8 +109,9 @@ public class SideScanComposite implements Composite {
                                 if (dstPixels[x] == 0)
                                     System.arraycopy(srcPixel, 0, dstPixel, 0, 4);
                                 else {
-                                    for (int i = 0; i < 4; i++)
+                                    for (int i = 0; i < 3; i++)
                                         dstPixel[i] = Math.max(srcPixel[i], dstPixel[i]);
+                                    dstPixel[3] = 255;
                                 }
                                 dstPixels[x] = (dstPixel[3] << 24) + (dstPixel[0] << 16) + (dstPixel[1] << 8) + (dstPixel[2]);
                                 break;
@@ -120,13 +121,15 @@ public class SideScanComposite implements Composite {
                                 else {
                                     for (int i = 0; i < 3; i++)
                                         dstPixel[i] = Math.max(dstPixel[i], (srcPixel[i] + dstPixel[i]) / 2);
-                                    dstPixel[3] = Math.max(srcPixel[3], dstPixel[3]);
+                                    dstPixel[3] = 255;
                                 }
                                 dstPixels[x] = (dstPixel[3] << 24) + (dstPixel[0] << 16) + (dstPixel[1] << 8) + (dstPixel[2]);
                                 break;
                             case AGE:
-                                if (srcPixel[3]>dstPixel[3])
-                                    System.arraycopy(srcPixel, 0, dstPixel, 0, 4);
+                                if (srcPixel[3]>dstPixel[3]) {
+                                    System.arraycopy(srcPixel, 0, dstPixel, 0, 3);
+                                    dstPixel[3] = 255;
+                                }                                    
                                 dstPixels[x] = (dstPixel[3] << 24) + (dstPixel[0] << 16) + (dstPixel[1] << 8) + (dstPixel[2]);
                                 break;
                             default:
