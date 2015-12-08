@@ -505,20 +505,32 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     int endIndex = 0;
                     int leftMousePos = mouseX - ZOOM_BOX_SIZE / 2;
                     int rightMousePos = mouseX + ZOOM_BOX_SIZE / 2;
-
+                    
                     if (leftMousePos < 0) {
                         beginIndex = 0;
                         rightMousePos = ZOOM_BOX_SIZE;
                         endIndex = (rightMousePos * e.data.length ) / image.getWidth() ;
+                        if (config.slantRangeCorrection) {
+                            beginIndex = convertImagePointXToSidescanLinePointX(0, e);
+                            endIndex = convertImagePointXToSidescanLinePointX(rightMousePos, e);
+                        }
                     }
                     else if (rightMousePos > image.getWidth()) {
                         leftMousePos = image.getWidth() - ZOOM_BOX_SIZE;
                         beginIndex = (leftMousePos * e.data.length ) / image.getWidth() ;
                         endIndex = (image.getWidth() * e.data.length ) / image.getWidth() ;
+                        if (config.slantRangeCorrection) {
+                            beginIndex = convertImagePointXToSidescanLinePointX(leftMousePos, e);
+                            endIndex = convertImagePointXToSidescanLinePointX(image.getWidth(), e);
+                        }
                     }
                     else {
                         beginIndex = (leftMousePos * e.data.length ) / image.getWidth() ;
                         endIndex = (rightMousePos * e.data.length ) / image.getWidth() ;
+                        if (config.slantRangeCorrection) {
+                            beginIndex = convertImagePointXToSidescanLinePointX(leftMousePos, e);
+                            endIndex = convertImagePointXToSidescanLinePointX(rightMousePos, e);
+                        }
                     }
 
                     e.image = new BufferedImage(endIndex-beginIndex, 1, BufferedImage.TYPE_INT_RGB);
