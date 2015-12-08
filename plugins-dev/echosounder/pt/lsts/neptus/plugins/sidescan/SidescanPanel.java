@@ -526,7 +526,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     // Apply colormap to data
                     for (int c = beginIndex; c < endIndex; c++) {
                         if (c >= e.data.length || c < 0)
-                            break;
+                            continue;
 
                         e.image.setRGB(c - beginIndex , 0, config.colorMap.getColor(e.data[c]).getRGB());
                     }
