@@ -465,13 +465,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         removeList.clear();
     }
 
-    private void drawZoom(Graphics g) {
-
+    private void drawZoom(Graphics g2) {
         if (mouseX == -1 && mouseY == -1)  {
             isShowingZoomedImage = false;
             return;
         }
 
+        Graphics g = g2.create();
+        
         isShowingZoomedImage = true;
         int X = (int) MathMiscUtils.clamp(mouseX, ZOOM_BOX_SIZE / 2, image.getWidth() - ZOOM_BOX_SIZE / 2);
         int Y = (int) MathMiscUtils.clamp(mouseY, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
@@ -537,6 +538,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 }
             }
         }
+
+        // Mouse center indicator
+        g.setColor(Color.CYAN);
+        g.drawRect(image.getWidth() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3, image.getHeight() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3, 6, 6);
+        
+        g.dispose();
     }
 
     private void drawInfo(Graphics g) {
