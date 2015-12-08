@@ -64,17 +64,22 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 
+import com.google.common.eventbus.Subscribe;
+
 import pt.lsts.imc.AcousticOperation;
 import pt.lsts.imc.AcousticSystems;
 import pt.lsts.imc.AcousticSystemsQuery;
 import pt.lsts.imc.GpsFix;
 import pt.lsts.imc.IMCDefinition;
 import pt.lsts.imc.IMCMessage;
+import pt.lsts.imc.MessagePart;
 import pt.lsts.imc.PlanControl;
+import pt.lsts.imc.PlanDB;
 import pt.lsts.imc.RSSI;
 import pt.lsts.imc.StorageUsage;
 import pt.lsts.imc.TextMessage;
 import pt.lsts.imc.Voltage;
+import pt.lsts.imc.net.IMCFragmentHandler;
 import pt.lsts.imc.state.ImcSystemState;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.IMCSendMessageUtils;
@@ -99,6 +104,7 @@ import pt.lsts.neptus.renderer2d.LayerPriority;
 import pt.lsts.neptus.renderer2d.Renderer2DPainter;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehicleType.SystemTypeEnum;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
@@ -106,8 +112,6 @@ import pt.lsts.neptus.util.ConsoleParse;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
-
-import com.google.common.eventbus.Subscribe;
 
 /**
  * @author zp
@@ -166,8 +170,10 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
     protected boolean initialized = false;
 
-    private boolean sendAcoustically(IMCMessage msg) {
+    private boolean sendAcoustically(String destination, IMCMessage msg) {
         ImcSystem[] sysLst = gateways();
+        AcousticOperation op = new AcousticOperation(AcousticOperation.OP.MSG, destination, 0, msg);
+        System.out.println(op.asJSON());
 
         if (sysLst.length == 0) {
             post(Notification.error(I18n.text("Send message"),
@@ -176,8 +182,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
             return false;
         }
         
-        AcousticOperation op = new AcousticOperation(AcousticOperation.OP.MSG, selectedSystem, 0, msg);
-
+                
         int successCount = 0;
         for (ImcSystem sys : sysLst)
             if (ImcMsgManager.getManager().sendMessage(op, sys.getId(), null))
@@ -187,7 +192,6 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
             bottomPane.setText(I18n.textf(
                     "Message sent to %systemName via %systemCount acoustic gateways", selectedSystem,
                     successCount));
-            
             return true;
         }
         else {
@@ -249,8 +253,43 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         for (ILayerPainter str2d : renderers) {
             str2d.addPostRenderPainter(this, this.getClass().getSimpleName());
         }
+        
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Send Plan via Acoustic Modem"),
+        ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                PlanType plan = getConsole().getPlan();
+                if (plan == null) {
+                    GuiUtils.errorMessage(getConsole(), I18n.text("Send Plan acoustically"),
+                            I18n.text("Please select a plan in the console."));
+                    return;
+                }
+                PlanDB pdb = new PlanDB();
+                pdb.setRequestId(IMCSendMessageUtils.getNextRequestId());
+                pdb.setArg(getConsole().getPlan().asIMCPlan());
+                pdb.setOp(PlanDB.OP.SET);
+                pdb.setPlanId(getConsole().getPlan().getId());
+               
+                if(pdb.getPayloadSize() > 1020) {
+                    IMCFragmentHandler handler = new IMCFragmentHandler(IMCDefinition.getInstance());
+                    try {
+                        MessagePart[] parts = handler.fragment(pdb, 1020);    
+                        for (MessagePart part : parts)
+                            sendAcoustically(getConsole().getMainSystem(), part);
+                        NeptusLog.pub().info("PlanDB message resulted in "+parts.length+" fragments");
+                    }
+                    catch (Exception ex) {
+                        NeptusLog.pub().error(ex);
+                        ex.printStackTrace();
+                    }
+                }
+                else {
+                    sendAcoustically(getConsole().getMainSystem(), pdb);
+                }
+            }
+        });
 
-        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Start Plan By Acoustic Modem"),
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Start Plan via Acoustic Modem"),
                 ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -447,7 +486,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
                     return;
                 }
                 TextMessage msg = new TextMessage("", cmd);
-                sendAcoustically(msg);
+                sendAcoustically(selectedSystem, msg);
             }
         });
         ctrlPanel.add(btn);
@@ -516,7 +555,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
         add(split2, BorderLayout.CENTER);
         propertiesChanged();
     }
-
+    
     @Override
     public void propertiesChanged() {
         for (JRadioButton r : radioButtons.values()) {
@@ -714,6 +753,8 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     @Override
     public void cleanSubPanel() {
         ImcMsgManager.getManager().removeListener(this);
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Send Plan via Acoustic Modem"));
+        removeMenuItem(I18n.text("Tools") + ">" + I18n.text("Start Plan via Acoustic Modem"));
     }
 
     public static void main(String[] args) {
