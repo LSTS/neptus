@@ -74,6 +74,21 @@ public class SidescanLine {
         this.frequency = frequency;
     }
 
+    public double getDistanceForCoord(int x, boolean slantRangeCorrection) {
+        double distance = x * (range * 2 / xsize) - (range);
+        if (slantRangeCorrection) {
+            double alt = state.getAltitude();
+            alt = Math.max(alt, 0);
+            double distanceG = Math.signum(distance) * Math.sqrt(distance * distance - alt * alt);
+            distance = Double.isNaN(distanceG) ? 0 : distanceG;
+        }
+        return distance;
+    }
+
+    public double getRangeSlantedCorrected() {
+        return getDistanceForCoord(xsize, true);
+    }
+
     /**
      * Based on a 'x' position within a scan line calculate the proper location
      * @param x the x position
@@ -85,14 +100,7 @@ public class SidescanLine {
         location.setLatitudeStr(state.getPosition().getLatitudeStr());
         location.setLongitudeStr(state.getPosition().getLongitudeStr());
         
-        double distance = x * (range * 2 / xsize) - (range);
-        
-        if (slantRangeCorrection) {
-            double alt = state.getAltitude();
-            alt = Math.max(alt, 0);
-            double distanceG = Math.signum(distance) * Math.sqrt(distance * distance - alt * alt);
-            distance = Double.isNaN(distanceG) ? 0 : distanceG;
-        }
+        double distance = getDistanceForCoord(x, slantRangeCorrection);
         
         double angle = -state.getYaw() + (x < (xsize / 2) ? Math.PI : 0);
         double offsetNorth = Math.abs(distance) * Math.sin(angle);

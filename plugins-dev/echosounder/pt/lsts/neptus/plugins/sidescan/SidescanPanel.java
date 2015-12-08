@@ -185,7 +185,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     private long prevPingTime;
 
-    private float range = 0;
+    private float rangeForRuler = 0;
 
     // Misc
     private BufferedImage bufferedCache;
@@ -231,7 +231,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private String sRangeStr = I18n.text("S Range");
     private String hRangeStr = I18n.text("H Range");
 
-    private int rangeStep;
+    private int rangeForRulerStep;
 
     // private SlantRangeImageFilter filter;
 
@@ -321,10 +321,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         drawList.addAll(list);
 
         for (SidescanLine l : drawList) {
-            if (l.range != getRange()) {
-                setRange(l.range);
-            }
-
             // Deal with speed correction here, because this would be repeated code in the various parsers
             if (config.speedCorrection) {
                 double horizontalScale = image.getWidth() / (l.range * 2f);
@@ -348,7 +344,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
             prevPingTime = l.timestampMillis;
             yref += l.ysize;
-
         }
 
         // This check is to prevent negative array indexes (from dragging too much)
@@ -381,6 +376,15 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             g2d.drawImage(ImageUtils.getScaledImage(sidescanLine.image, image.getWidth(), sidescanLine.ysize, true), 0,
                     sidescanLine.ypos, null);
             // g2d.drawImage(sidescanLine.image, 0, sidescanLine.ypos, null);
+
+            // Update the rangeMax to the ruler
+            if (!sidescanLine.imageWithSlantRangeCorrection && (sidescanLine.range != getRangeForRuler())) {
+                setRangeForRuler(sidescanLine.range);
+            }
+            else if (sidescanLine.imageWithSlantRangeCorrection
+                    && ((float) sidescanLine.getRangeSlantedCorrected() != getRangeForRuler())) {
+                setRangeForRuler((float) sidescanLine.getRangeSlantedCorrected());
+            }
         }
         synchronized (lineList) {
             SidescanLine sidescanLine;
@@ -692,7 +696,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g2d.drawLine(x, y, x , y-MAX_RULER_SIZE);
         // g2d.drawString("0", x+5, y-3);
 
-        float zoomRange  = (ZOOM_BOX_SIZE * (range*2f)) / layer.getWidth();
+        float zoomRange  = (ZOOM_BOX_SIZE * (rangeForRuler*2f)) / layer.getWidth();
         float zoomRangeStep = 1;
 
         double step = ((zoomRangeStep * ZOOM_LAYER_BOX_SIZE) / zoomRange);
@@ -730,18 +734,18 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         // Draw the axes
         g2d.drawLine(0, 0, 0, 15);
-        g2d.drawString("" + (int) range, 2, 11);
+        g2d.drawString("" + (int) rangeForRuler, 2, 11);
 
         g2d.drawLine(layer.getWidth() - 1, 0, layer.getWidth() - 1, MAX_RULER_SIZE);
-        g2d.drawString("" + (int) range, layer.getWidth() - 20, fontSize);
+        g2d.drawString("" + (int) rangeForRuler, layer.getWidth() - 20, fontSize);
 
-        double step = (layer.getWidth() / ((range * 2) / rangeStep));
-        double r = rangeStep;
+        double step = (layer.getWidth() / ((rangeForRuler * 2) / rangeForRulerStep));
+        double r = rangeForRulerStep;
 
         int c1 = (int) (layer.getWidth() / 2 - step);
         int c2 = (int) (layer.getWidth() / 2 + step);
 
-        for (; c1 > 0; c1 -= step, c2 += step, r += rangeStep) {
+        for (; c1 > 0; c1 -= step, c2 += step, r += rangeForRulerStep) {
             g2d.drawLine(c1, 0, c1, MAX_RULER_SIZE);
             g2d.drawLine(c2, 0, c2, MAX_RULER_SIZE);
             g2d.drawString("" + (int) r, c1 + 5, fontSize);
@@ -825,18 +829,18 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     }
 
     /**
-     * @return the range
+     * @return the rangeForRuler
      */
-    public float getRange() {
-        return range;
+    private float getRangeForRuler() {
+        return rangeForRuler;
     }
 
     /**
-     * @param range the range to set
+     * @param rangeForRuler the rangeForRuler to set
      */
-    public void setRange(float range) {
-        this.range = range;
-        rangeStep = 10;
+    private void setRangeForRuler(float rangeForRuler) {
+        this.rangeForRuler = rangeForRuler;
+        rangeForRulerStep = this.rangeForRuler < 10 ? 1 : 10;
     }
 
     public BufferedImage getImage() {
