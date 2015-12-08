@@ -58,8 +58,8 @@ public class SidescanToolbar extends JToolBar {
 
     ButtonGroup bgroup = new ButtonGroup();
 
-    JToggleButton btnMeasure = new JToggleButton(I18n.text("Measure"));
-    JToggleButton btnMeasureHeight = new JToggleButton(I18n.text("Meas. Height"));
+    JToggleButton btnMeasure = new JToggleButton(I18n.text("Length"));
+    JToggleButton btnMeasureHeight = new JToggleButton(I18n.text("Height"));
     JToggleButton btnInfo = new JToggleButton(I18n.text("Info"));
     JToggleButton btnZoom = new JToggleButton(I18n.text("Zoom"));
     JToggleButton btnMark = new JToggleButton(I18n.text("Mark"));
