@@ -59,6 +59,7 @@ public class SidescanToolbar extends JToolBar {
     ButtonGroup bgroup = new ButtonGroup();
 
     JToggleButton btnMeasure = new JToggleButton(I18n.text("Measure"));
+    JToggleButton btnMeasureHeight = new JToggleButton(I18n.text("Meas. Height"));
     JToggleButton btnInfo = new JToggleButton(I18n.text("Info"));
     JToggleButton btnZoom = new JToggleButton(I18n.text("Zoom"));
     JToggleButton btnMark = new JToggleButton(I18n.text("Mark"));
@@ -93,6 +94,8 @@ public class SidescanToolbar extends JToolBar {
                 imode = InteractionMode.MARK;
             if(btnMeasure.isSelected())
                 imode = InteractionMode.MEASURE;
+            if(btnMeasureHeight.isSelected())
+                imode = InteractionMode.MEASURE_HEIGHT;
 
             panel.setInteractionMode(imode);
             panel.setZoom(btnZoom.isSelected());
@@ -120,9 +123,11 @@ public class SidescanToolbar extends JToolBar {
         btnInfo.setSelected(true);
         bgroup.add(btnInfo);
         bgroup.add(btnMeasure);
+        bgroup.add(btnMeasureHeight);
         bgroup.add(btnMark);
         add(btnInfo);
         add(btnMeasure);
+        add(btnMeasureHeight);
         add(btnMark);
         add(btnZoom);
 
@@ -140,6 +145,7 @@ public class SidescanToolbar extends JToolBar {
         btnInfo.addActionListener(alMode);
         btnZoom.addActionListener(alMode);
         btnMeasure.addActionListener(alMode);
+        btnMeasureHeight.addActionListener(alMode);
         btnMark.addActionListener(alMode);
         btnRecord.addActionListener(alGains);
 

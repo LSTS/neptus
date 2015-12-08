@@ -111,7 +111,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         NONE,
         INFO,
         MARK,
-        MEASURE;
+        MEASURE,
+        MEASURE_HEIGHT;
     }
 
     private InteractionMode imode = InteractionMode.INFO;
@@ -132,11 +133,21 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     lg2d.setBackground(new Color(255, 255, 255, 0));
                     lg2d.clearRect(0, 0, layer.getWidth(), layer.getHeight()); // Clear layer image
 
+                    drawMarks(layer.getGraphics());
+
                     if (measure && !parent.getTimeline().isRunning()) {
                         drawMeasure(layer.getGraphics());
                     }
                     else if (parent.getTimeline().isRunning()) { // clear points list if sidescan is running
                         pointList.clear();
+                    }
+
+                    if (measureHeight && !parent.getTimeline().isRunning()) {
+                        drawMeasureHeight(layer.getGraphics());
+                    }
+                    else if (parent.getTimeline().isRunning()) { // clear points list if sidescan is running
+                        measureHeightP = null;
+                        measureHeightMouseX = Double.NaN;
                     }
 
                     if (zoom) {
@@ -152,7 +163,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     if (info)
                         drawInfo(layer.getGraphics()); // update layer with location information
 
-                    drawMarks(layer.getGraphics());
                     drawRuler(layer.getGraphics());
 
                     g.drawImage(layer, 0, 0, null);
@@ -197,10 +207,15 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     // Measure
     private boolean measure = false;
+    private ArrayList<SidescanPoint> pointList = new ArrayList<SidescanPoint>();
+
+    // Measure Height
+    private boolean measureHeight = false;
+    private SidescanPoint measureHeightP = null;
+    private double measureHeightMouseX = Double.NaN;
 
     // Info
     private boolean info = false;
-    private ArrayList<SidescanPoint> pointList = new ArrayList<SidescanPoint>();
 
     // Marking
     private boolean marking = false;
@@ -596,6 +611,38 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
     }
 
+    private void drawMeasureHeight(Graphics g2) {
+        Graphics g = g2.create();
+        g.setColor(Color.GREEN);
+        
+        if (measureHeightP != null) {
+            int pointX = convertSidescanLinePointXToImagePointX(measureHeightP.x, measureHeightP.line);
+            g.drawRect(pointX - 3, measureHeightP.y - 3, 6, 6);
+            
+            if (!Double.isNaN(measureHeightMouseX)) {
+                int ssP = convertImagePointXToSidescanLinePointX((int) measureHeightMouseX, measureHeightP.line);
+                g.drawRect((int) (measureHeightMouseX - 3), measureHeightP.y - 3, 6, 6);
+                
+                double p1 = measureHeightP.line.getDistanceForCoord(measureHeightP.x, false);
+                double p2 = measureHeightP.line.getDistanceForCoord(ssP, false);
+                
+                double l = Math.abs(p2 - p1);
+                double a = measureHeightP.line.state.getAltitude();
+                double r = Math.abs(Math.max(p1, p2));
+                double h = l * a / r;
+                h = (int) (h * 1000) / 1000.0;
+
+                g.drawLine((int) measureHeightMouseX, measureHeightP.y, pointX, measureHeightP.y);
+                g.drawRect(pointX - 3, measureHeightP.y - 3, 6, 6);
+                g.setColor(Color.BLACK);
+                g.drawString(h + "m", ((int) measureHeightMouseX + pointX) / 2 + 3, measureHeightP.y - 5);
+                g.setColor(Color.GREEN);
+                g.drawString(h + "m", ((int) measureHeightMouseX + pointX) / 2 + 4, measureHeightP.y - 4);
+            }
+        }
+        g.dispose();
+    }
+
     private void drawMarks(Graphics g2) {
         if (marking) {
             int x = Math.min(initialX, mouseX);
@@ -850,6 +897,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         // For now clear Measure Interaction Mode structures here //FIXME
         measure = false;
         pointList.clear();
+        measureHeight = false;
+        measureHeightP = null;
+        measureHeightMouseX = Double.NaN;
+        
         this.imode = imode;
     }
 
@@ -970,6 +1021,20 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     pointList.clear();
                 }
             }
+            else if (imode == InteractionMode.MEASURE_HEIGHT && !parent.getTimeline().isRunning()) {
+                measureHeight = true;
+                if (measureHeightP != null && !Double.isNaN(measureHeightMouseX)) {
+                    measureHeightP = null;
+                    measureHeightMouseX = Double.NaN;
+                }
+                if (measureHeightP == null) {
+                    int x = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
+                    measureHeightP = mouseSidescanLine.calcPointForCoord(x, mouseSidescanLine.imageWithSlantRangeCorrection);
+                }
+                else {
+                    measureHeightMouseX = mouseX;
+                }
+            }
             else if (imode == InteractionMode.INFO) {
                 info = true;
             }
@@ -1040,6 +1105,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         if (imode != InteractionMode.MEASURE) {
             measure = false;
             pointList.clear();
+        }
+        if (imode != InteractionMode.MEASURE_HEIGHT) {
+            measureHeight = false;
+            measureHeightP = null;
+            measureHeightMouseX = Double.NaN;
         }
 
         ((JPanel) e.getSource()).repaint();
