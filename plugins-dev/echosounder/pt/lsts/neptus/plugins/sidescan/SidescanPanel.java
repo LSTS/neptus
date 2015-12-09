@@ -383,6 +383,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         drawList.addAll(list);
 
         for (SidescanLine l : drawList) {
+            // Update the rangeMax to the ruler
+            if (l.range != getRangeForRuler()) {
+                setRangeForRuler(l.range);
+            }
+            
             // Deal with speed correction here, because this would be repeated code in the various parsers
             if (config.speedCorrection) {
                 double horizontalScale = image.getWidth() / (l.range * 2f);
@@ -438,15 +443,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             g2d.drawImage(ImageUtils.getScaledImage(sidescanLine.image, image.getWidth(), sidescanLine.ysize, true), 0,
                     sidescanLine.ypos, null);
             // g2d.drawImage(sidescanLine.image, 0, sidescanLine.ypos, null);
-
-            // Update the rangeMax to the ruler
-            if (!sidescanLine.imageWithSlantRangeCorrection && (sidescanLine.range != getRangeForRuler())) {
-                setRangeForRuler(sidescanLine.range);
-            }
-            else if (sidescanLine.imageWithSlantRangeCorrection
-                    && ((float) sidescanLine.getRangeSlantedCorrected() != getRangeForRuler())) {
-                setRangeForRuler((float) sidescanLine.getRangeSlantedCorrected());
-            }
         }
         synchronized (lineList) {
             SidescanLine sidescanLine;
