@@ -510,7 +510,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         beginIndex = 0;
                         rightMousePos = ZOOM_BOX_SIZE;
                         endIndex = (rightMousePos * e.data.length ) / image.getWidth() ;
-                        if (config.slantRangeCorrection) {
+                        if (e.imageWithSlantRangeCorrection) {
                             beginIndex = convertImagePointXToSidescanLinePointX(0, e);
                             endIndex = convertImagePointXToSidescanLinePointX(rightMousePos, e);
                         }
@@ -519,7 +519,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         leftMousePos = image.getWidth() - ZOOM_BOX_SIZE;
                         beginIndex = (leftMousePos * e.data.length ) / image.getWidth() ;
                         endIndex = (image.getWidth() * e.data.length ) / image.getWidth() ;
-                        if (config.slantRangeCorrection) {
+                        if (e.imageWithSlantRangeCorrection) {
                             beginIndex = convertImagePointXToSidescanLinePointX(leftMousePos, e);
                             endIndex = convertImagePointXToSidescanLinePointX(image.getWidth(), e);
                         }
@@ -527,7 +527,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     else {
                         beginIndex = (leftMousePos * e.data.length ) / image.getWidth() ;
                         endIndex = (rightMousePos * e.data.length ) / image.getWidth() ;
-                        if (config.slantRangeCorrection) {
+                        if (e.imageWithSlantRangeCorrection) {
                             beginIndex = convertImagePointXToSidescanLinePointX(leftMousePos, e);
                             endIndex = convertImagePointXToSidescanLinePointX(rightMousePos, e);
                         }
