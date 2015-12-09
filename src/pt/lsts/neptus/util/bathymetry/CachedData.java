@@ -143,6 +143,14 @@ public class CachedData extends TidePredictionFinder {
         cachedData.addAll(newData);
     }
 
+    public Vector<TidePeak> getTidePeaks() {
+        Vector<TidePeak> td = new Vector<>(cachedData.size());
+        for (TidePeak tidePeak : cachedData) {
+            td.addElement(tidePeak);
+        }
+        return td;
+    }
+    
     public boolean contains(Date d) {
         while (loading) {
             try {

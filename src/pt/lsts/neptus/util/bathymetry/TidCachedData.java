@@ -37,6 +37,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TreeSet;
@@ -53,6 +54,7 @@ import org.jfree.data.time.TimeSeriesCollection;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.tid.TidReader;
@@ -135,7 +137,33 @@ public class TidCachedData extends CachedData {
         return super.fetchData(portName, aroundDate);
     }
     
-    public static void main(String[] args) throws Exception {
+    public static void convertTideTxtIntoTid() {
+        String path = ConfigFetch.getConfFolder() + "/tides";
+        File tidesFolder = new File(path);
+        File[] txtFiles = tidesFolder.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return FileUtil.checkFileForExtensions(name, "txt") != null;
+            }
+        });
+        
+        for (File txtFx : txtFiles) {
+            CachedData txtData = new CachedData(txtFx);
+
+            String tidFP = FileUtil.replaceFileExtension(txtFx.getAbsolutePath(), "tid");
+            File tidFx = new File(tidFP);
+            TidCachedData tidData = new TidCachedData(tidFx);
+            tidData.update(txtData.getTidePeaks());
+            try {
+                tidData.saveFile(txtData.getName(), tidFx);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    public static void test(String[] args) throws Exception {
         TidReader.main(args);
 
         JFreeChart timeSeriesChart = null;
@@ -166,5 +194,11 @@ public class TidCachedData extends CachedData {
         timeSeriesChart.getXYPlot().addRangeMarker(levelMarker);
         
         GuiUtils.testFrame(panel);
+    }
+    
+    public static void main(String[] args) throws Exception {
+        convertTideTxtIntoTid();
+
+        //test(args);
     }
 }
