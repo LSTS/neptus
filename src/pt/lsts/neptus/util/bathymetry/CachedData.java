@@ -58,7 +58,7 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
  * @author zp
  * 
  */
-public class CachedData extends TidePredictionFinder {
+class CachedData extends TidePredictionFinder {
 
     protected boolean loading = true;
     protected SortedSet<TidePeak> cachedData = null;
@@ -250,103 +250,8 @@ public class CachedData extends TidePredictionFinder {
         return null;
     }
 
-    public static String fetchData(Component parent) {
-        Vector<String> harbors = new Vector<>();
-        for (TideDataFetcher.Harbor h : TideDataFetcher.Harbor.values()) {
-            harbors.add(h.toString());
-        }
-
-        String harbor = (String) JOptionPane.showInputDialog(parent,
-                I18n.text("Please select harbor"), I18n.text("Fetch data"),
-                JOptionPane.QUESTION_MESSAGE, null, harbors.toArray(new String[0]), I18n.text(harbors.get(0)));
-
-        if (harbor == null)
-            return null;
-        
-        Date start = null, end = null;
-        ProgressMonitor progress = new ProgressMonitor(parent, I18n.text("Fetching tides"), "Starting", 0, 100);
-
-        while (start == null) {
-            String startStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the past"), 30);
-            try {
-                if (startStr == null)
-                    return null;
-                long days = Integer.parseInt(startStr);
-                if (days < 0)
-                    continue;
-                start = new Date(System.currentTimeMillis() - days * 24l * 3600l * 1000l);
-                System.out.println(start);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        while (end == null) {
-            String endStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the future"), 30);
-            try {
-                if (endStr == null)
-                    return null;
-                long days = Integer.parseInt(endStr);
-                if (days < 0)
-                    continue;
-                end = new Date(System.currentTimeMillis() + days * 24l * 3600l * 1000l);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-//        int opt = JOptionPane.showOptionDialog(parent, I18n.text("Choose Format"), I18n.text("Tides"), 
-//                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, new String[] { "txt", "tid" }, "txt");
-        int opt = 0;
-        CachedData data;
-        String path = ConfigFetch.getConfFolder() + "/tides/" + harbor;
-        switch (opt) {
-            case 1:
-                path += ".tid";
-                data = new TidCachedData(new File(path)); 
-                break;
-            default:
-                path += ".txt";
-                data = new CachedData(new File(path));
-                break;
-        }
-
-        Date current = new Date(start.getTime());
-        double delta = end.getTime() - start.getTime();
-        
-
-        while (current.getTime() < end.getTime()) {
-            if (progress.isCanceled())
-                return harbor;
-            double done = current.getTime()-start.getTime();
-            try {
-                Date d = data.fetchData(harbor, current);
-                if (d != null)
-                    current = new Date(current.getTime() + 1000 * 3600 * 24 * 5);                
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-            System.out.println(current);
-            progress.setProgress((int)(done*100.0/delta));
-            progress.setNote(current.toString());
-        }
-        try {
-            progress.setNote("Storing data to disk");
-            data.saveFile(harbor, data.getFileToSave(harbor));
-            progress.setProgress(100);
-            progress.close();                
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return harbor;
-    }
-
     public static void main(String[] args) throws Exception {
         GuiUtils.setLookAndFeel();
-        fetchData(null);
+        TidePredictionFactory.fetchData(null);
     }
 }

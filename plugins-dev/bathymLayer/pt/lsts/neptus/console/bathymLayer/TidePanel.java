@@ -57,8 +57,8 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.bathymetry.CachedData;
 import pt.lsts.neptus.util.bathymetry.TidePrediction;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
 
@@ -114,9 +114,9 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
             public void actionPerformed(ActionEvent e) {
                 Thread t = new Thread("Tide fetcher") {
                     public void run() {
-                        String harbor = CachedData.fetchData(getConsole());
+                        String harbor = TidePredictionFactory.fetchData(getConsole());
                         File used = GeneralPreferences.tidesFile;
-                        File f = new File("conf/tides/"+harbor+".txt");
+                        File f = new File("conf/tides/"+harbor+"." + TidePredictionFactory.defaultTideFormat);
                         if (!f.getAbsolutePath().equals(used.getAbsolutePath())) {
                             int resp = GuiUtils.confirmDialog(getConsole(), I18n.text("Tide Predictions"),
                                     I18n.textf(
