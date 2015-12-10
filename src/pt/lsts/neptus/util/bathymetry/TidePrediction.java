@@ -64,7 +64,7 @@ public class TidePrediction {
     }
     
     private static File fileInUse = GeneralPreferences.tidesFile;
-    private static CachedData cached = new CachedData();
+    private static CachedData cached = new CachedData(fileInUse);
     
     public static double currentTideLevel() {
         return getTideLevel(new Date());
@@ -76,8 +76,10 @@ public class TidePrediction {
     
     public static double getTideLevel(Date date) {
         
-        if (fileInUse != GeneralPreferences.tidesFile)
-            cached = new CachedData();
+        if (fileInUse != GeneralPreferences.tidesFile) {
+            cached = new CachedData(fileInUse);
+            fileInUse = GeneralPreferences.tidesFile;
+        }
         
         try {
             return cached.getTidePrediction(date, false);

@@ -75,8 +75,7 @@ class CachedData implements TidePredictionFinder {
         loading = false;
     }
 
-    public CachedData() {
-        this(GeneralPreferences.tidesFile);
+    protected CachedData() {
     }
 
     @Override
