@@ -93,8 +93,9 @@ public class DepthToTidExporter implements MRAExporter {
         int srcId = vehs.iterator().next(); 
         
         try {
+            int decimalHouses = 2;
             BufferedWriter outFile = new BufferedWriter(new FileWriter(new File(outputDir, "Depths.tid")));
-            tidWriter = new TidWriter(outFile);
+            tidWriter = new TidWriter(outFile, decimalHouses);
             tidWriter.writeHeader("Vehicle's Depths (m)");
 
             for (EstimatedState state: index.getIterator(EstimatedState.class)) {
