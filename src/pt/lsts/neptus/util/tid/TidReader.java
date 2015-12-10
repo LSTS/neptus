@@ -50,7 +50,8 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.util.FileUtil;
 
 /**
- * This is a TID file reader
+ * This is a TID file reader.
+ * See {@link TidWriter} for format information.
  * @author Paulo Dias
  *
  */

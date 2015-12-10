@@ -39,6 +39,32 @@ import java.util.TimeZone;
 
 /**
  * This is a TID file writer
+ * 
+ * The format is the following:
+ * <code><br>
+ * # Tides Data<br>
+ * # Time Zone: UTC<br>
+ * # Harbor: Leixoes<br>
+ * 2007/12/31 20:42:00.000 2.60<br>
+ * 2008/01/01 02:40:00.000 1.38<br>
+ * ...<br>
+ * </code>
+ * 
+ * <p>
+ * The first line is simply a comment.
+ * The time zone line is optional but if not there {@link TimeZone} UTC is assumed.
+ * The time zones ids to use should adhere to {@link TimeZone}.
+ * </p>
+ * <p>
+ * The harbor line informs of the harbor location for the data. If not there "?" 
+ * will appear, so use it.
+ * </p>
+ * <p>
+ * The header lines should appear at the beginning of the file. If the time zone 
+ * appear in the middle only the first will be used (but all previous dates will 
+ * be loaded as UTC).
+ * If additional columns are set, they will be loaded as doubles.
+ * </p>
  * @author Paulo Dias
  *
  */
