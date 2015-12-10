@@ -38,6 +38,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import javax.swing.ProgressMonitor;
 
@@ -208,7 +209,8 @@ public class XyzExporter implements MRAExporter {
         loc.convertToAbsoluteLatLonDepth();
 
         try {
-            writer.write(String.format("%.8f %.8f %.2f\n", loc.getLongitudeDegs(), loc.getLatitudeDegs(), Math.abs(depth) - tide));
+            writer.write(String.format(Locale.US, "%.8f %.8f %.2f\n", loc.getLongitudeDegs(), loc.getLatitudeDegs(),
+                    Math.abs(depth) - tide));
         }
         catch (Exception e) {
             e.printStackTrace();
