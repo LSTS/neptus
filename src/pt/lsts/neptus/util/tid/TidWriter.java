@@ -56,7 +56,7 @@ public class TidWriter {
     private static final String LINE_ENDING = "\r\n";
 
     /** The default decimal houses to use */
-    private static final int DEFAULT_DECIMAL_HOUSES = 6;
+    private static final int DEFAULT_DECIMAL_HOUSES = 2;
 
     /** Harbor txt for location search */
     public static final String HARBOR_STR = "Harbor";
