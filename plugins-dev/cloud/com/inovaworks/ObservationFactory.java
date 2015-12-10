@@ -32,6 +32,7 @@
 package com.inovaworks;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import com.inovaworks.Observation.Procedure.ObservationTypeEnum;
 
@@ -76,7 +77,7 @@ public class ObservationFactory {
         if (state.getDepth() != -1 && state.getAlt() != -1) {
             double tide = TidePrediction.getTideLevel(state.getTimestampMillis());
             double bathym = state.getDepth() + state.getAlt() - tide;
-            o.addProperty(new ObservedProperty("bathymetry", String.format("%.3f", bathym), "meters"));
+            o.addProperty(new ObservedProperty("bathymetry", String.format(Locale.US, "%.3f", bathym), "meters"));
         }
         
         return o;        
@@ -125,17 +126,17 @@ public class ObservationFactory {
                 scanner.setTime(state.getTimestamp());
                 Temperature t = scanner.next(Temperature.class, "CTD");
                 if (t != null) {
-                    o.addProperty(new ObservedProperty("temperature", String.format("%.4f", t.getValue()), "Cel"));
+                    o.addProperty(new ObservedProperty("temperature", String.format(Locale.US, "%.4f", t.getValue()), "Cel"));
                 }
                 
                 Salinity s = scanner.next(Salinity.class, "CTD");
                 if (s != null && s.getValue() > 0) {
-                    o.addProperty(new ObservedProperty("salinity", String.format("%.4f", s.getValue()), "psu"));
+                    o.addProperty(new ObservedProperty("salinity", String.format(Locale.US, "%.4f", s.getValue()), "psu"));
                 } 
                 
                 Conductivity c = scanner.next(Conductivity.class, "CTD");
                 if (c != null && c.getValue() > 0) {
-                    o.addProperty(new ObservedProperty("conductivity", String.format("%.4f", s.getValue()), "s/m"));
+                    o.addProperty(new ObservedProperty("conductivity", String.format(Locale.US, "%.4f", s.getValue()), "s/m"));
                 } 
             }
             observations.add(o);

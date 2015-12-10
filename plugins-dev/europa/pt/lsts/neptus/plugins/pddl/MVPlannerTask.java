@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.pddl;
 
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
@@ -52,7 +53,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 public abstract class MVPlannerTask implements Renderer2DPainter, PropertiesProvider {
 
     protected static int count = 1;
-    protected String name = String.format("t%02d", count++);
+    protected String name = String.format(Locale.US, "t%02d", count++);
     protected HashSet<PayloadRequirement> requiredPayloads = new HashSet<PayloadRequirement>();
     
     public abstract boolean containsPoint(LocationType lt, StateRenderer2D renderer);

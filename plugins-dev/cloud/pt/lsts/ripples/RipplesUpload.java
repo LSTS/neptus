@@ -33,6 +33,7 @@ package pt.lsts.ripples;
 
 import java.awt.event.ActionEvent;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -184,7 +185,7 @@ public class RipplesUpload extends ConsolePanel implements ConfigurationListener
             }
             else if (!pcs.getPlanId().isEmpty()) {
                 planRef.child("id").setValue(pcs.getPlanId());
-                planRef.child("progress").setValue(String.format("%.1f", pcs.getPlanProgress()));
+                planRef.child("progress").setValue(String.format(Locale.US, "%.1f", pcs.getPlanProgress()));
 
                 if (getConsole().getMission().getIndividualPlansList().containsKey(pcs.getPlanId())) {
                     PlanType pt = getConsole().getMission().getIndividualPlansList().get(pcs.getPlanId());

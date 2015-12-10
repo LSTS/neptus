@@ -44,6 +44,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Vector;
 
 import javax.swing.JMenu;
@@ -654,7 +655,6 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
             public void run() {
 
                 if (forwardToEuroptus) {
-
                     TrexOperation op = new TrexOperation();
                     op.setOp(OP.POST_TOKEN);
                     TrexToken token = new TrexToken();
@@ -663,15 +663,15 @@ public class Europtus extends ConsoleInteraction implements MessageDeliveryListe
                     ArrayList<TrexAttribute> attrs = new ArrayList<TrexAttribute>();
                     TrexAttribute lat = new TrexAttribute();
                     lat.setName("latitude");
-                    lat.setMin(String.format("%.8f", loc.getLatitudeRads()));
-                    lat.setMax(String.format("%.8f", loc.getLatitudeRads()));
+                    lat.setMin(String.format(Locale.US, "%.8f", loc.getLatitudeRads()));
+                    lat.setMax(String.format(Locale.US, "%.8f", loc.getLatitudeRads()));
                     lat.setAttrType(ATTR_TYPE.FLOAT);
                     attrs.add(lat);
 
                     TrexAttribute lon = new TrexAttribute();
                     lon.setName("longitude");
-                    lon.setMin(String.format("%.8f", loc.getLongitudeRads()));
-                    lon.setMax(String.format("%.8f", loc.getLongitudeRads()));
+                    lon.setMin(String.format(Locale.US, "%.8f", loc.getLongitudeRads()));
+                    lon.setMax(String.format(Locale.US, "%.8f", loc.getLongitudeRads()));
                     lon.setAttrType(ATTR_TYPE.FLOAT);
                     attrs.add(lon);
                     

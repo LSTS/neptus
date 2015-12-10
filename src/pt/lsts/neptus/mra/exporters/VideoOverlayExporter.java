@@ -35,6 +35,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Locale;
 
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -150,11 +151,11 @@ public class VideoOverlayExporter implements MRAExporter {
                 tempScanner.setTime(timeOffset+event.getPicture().getTimeStamp()/1000000.0);
                 Temperature temp = tempScanner.next(Temperature.class, "CTD");
                 if (state != null) {
-                    String depth = String.format("%.2f", state.getDepth());
-                    String roll = String.format ("%.1f", Math.toDegrees(state.getPhi()));
-                    String pitch = String.format("%.1f", Math.toDegrees(state.getTheta()));
-                    String yaw = String.format  ("%.1f", Math.toDegrees(state.getPsi()));
-                    String t = String.format("%.2f", temp.getValue());
+                    String depth = String.format(Locale.US, "%.2f", state.getDepth());
+                    String roll = String.format(Locale.US, "%.1f", Math.toDegrees(state.getPhi()));
+                    String pitch = String.format(Locale.US, "%.1f", Math.toDegrees(state.getTheta()));
+                    String yaw = String.format(Locale.US, "%.1f", Math.toDegrees(state.getPsi()));
+                    String t = String.format(Locale.US, "%.2f", temp.getValue());
                     LocationType loc = IMCUtils.parseLocation(state);
                     loc.convertToAbsoluteLatLonDepth();
                     lbl.setText("<html><h3>"+loc.getLatitudeAsPrettyString()+"<br>"+loc.getLongitudeAsPrettyString()+"</h3>"+

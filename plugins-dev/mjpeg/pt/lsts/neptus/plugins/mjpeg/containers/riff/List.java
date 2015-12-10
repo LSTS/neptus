@@ -28,6 +28,7 @@
 package pt.lsts.neptus.plugins.mjpeg.containers.riff;
 
 import java.nio.MappedByteBuffer;
+import java.util.Locale;
 
 /**
  * Class representing an AVI chunk list.
@@ -65,6 +66,6 @@ public class List extends Chunk {
     }
 
     public String toString() {
-        return String.format("LIST [%s:%s] (%d:%d)", getId(), getName(), getOffset(), getSize());
+        return String.format(Locale.US, "LIST [%s:%s] (%d:%d)", getId(), getName(), getOffset(), getSize());
     }
 }

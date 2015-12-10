@@ -33,6 +33,7 @@ package pt.lsts.neptus.plugins.sunfish.awareness;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -236,10 +237,9 @@ public class DecisionSupportTable extends AbstractTableModel {
         @Override
         public String toString() {
             if (distanceMeters < 1000)
-                return String.format("%.2f m", distanceMeters);
+                return String.format(Locale.US, "%.2f m", distanceMeters);
             else
-                return String.format("%.2f km", distanceMeters/1000);
+                return String.format(Locale.US, "%.2f km", distanceMeters/1000);
         }
     }
-
 }

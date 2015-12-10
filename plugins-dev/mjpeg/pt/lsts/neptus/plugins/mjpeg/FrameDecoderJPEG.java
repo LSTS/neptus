@@ -152,7 +152,7 @@ public class FrameDecoderJPEG implements FrameDecoder {
         NeptusLog.pub().info("loading frames from " + folder.getAbsolutePath());
         fileList.addAll(FileUtils.listFiles(getBaseFolder(folder), validExtensions, true));
         Collections.sort(fileList);
-        NeptusLog.pub().info(String.format("loaded %d frames", fileList.size()));
+        NeptusLog.pub().info(String.format(Locale.US, "loaded %d frames", fileList.size()));
     }
 
     private void computeFrameRate() {
@@ -172,7 +172,7 @@ public class FrameDecoderJPEG implements FrameDecoder {
 
         double averageFrameRate = 1000.0 / (deltaAccumulator / (getFrameCount() - 1));
         frameRate = (int)Math.round(averageFrameRate);
-        NeptusLog.pub().info(String.format("average frame rate %d (%.1f)", frameRate, averageFrameRate));
+        NeptusLog.pub().info(String.format(Locale.US, "average frame rate %d (%.1f)", frameRate, averageFrameRate));
     }
 
     private int findFrameByTime(long timeStamp) {

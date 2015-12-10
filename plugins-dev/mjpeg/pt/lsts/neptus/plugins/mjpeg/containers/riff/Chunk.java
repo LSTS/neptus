@@ -29,6 +29,7 @@ package pt.lsts.neptus.plugins.mjpeg.containers.riff;
 
 import java.nio.MappedByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Locale;
 
 /**
  * Class representing an AVI chunk.
@@ -98,6 +99,6 @@ public class Chunk {
     }
 
     public String toString() {
-        return String.format("CHUNK [%s] (%d:%d)", getId(), getOffset(), getSize());
+        return String.format(Locale.US, "CHUNK [%s] (%d:%d)", getId(), getOffset(), getSize());
     }
 }

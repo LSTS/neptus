@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
@@ -117,7 +118,7 @@ public class S57SoundingsExporter extends ConsolePanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 
-                float tide = (float)TidePrediction.getTideLevel(System.currentTimeMillis());
+                float tide = (float) TidePrediction.getTideLevel(System.currentTimeMillis());
                 String depthStr = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter tide level (meters)"), tide);
                 if (depthStr == null)
                     return;
@@ -188,7 +189,7 @@ public class S57SoundingsExporter extends ConsolePanel {
                     w.write("Latitude,Longitude,Depth\n");
                     
                     for (LocationType loc : soundings) {
-                        w.write(String.format("%.8f,%.8f,%.2f\n",loc.getLatitudeDegs(),loc.getLongitudeDegs(),loc.getDepth()));
+                        w.write(String.format(Locale.US, "%.8f,%.8f,%.2f\n",loc.getLatitudeDegs(),loc.getLongitudeDegs(),loc.getDepth()));
                     }
                     w.close();
                     GuiUtils.infoMessage(getConsole(), I18n.text("Export soundings"), 
@@ -259,7 +260,7 @@ public class S57SoundingsExporter extends ConsolePanel {
                             long rgb = scaled.getRGB(x, y);
                             double depth = ((rgb & 0xFF) / 255.0) * img.getMaxValue();
                             System.out.printf("%.2f %.2f %.2f\n", pos[1], -pos[0], -depth);
-                            bw.write(String.format("%.2f %.2f %.2f\n", pos[1], -pos[0], -depth));
+                            bw.write(String.format(Locale.US, "%.2f %.2f %.2f\n", pos[1], -pos[0], -depth));
                         }
                     }
                     

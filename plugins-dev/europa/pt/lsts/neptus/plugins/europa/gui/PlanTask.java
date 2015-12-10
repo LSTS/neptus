@@ -31,6 +31,8 @@
  */
 package pt.lsts.neptus.plugins.europa.gui;
 
+import java.util.Locale;
+
 import pt.lsts.neptus.types.mission.plan.PlanType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
 
@@ -52,6 +54,6 @@ public class PlanTask {
     
     @Override
     public String toString() {
-        return String.format("%s (%s, %.1f m/s)", vehicle, plan, speed);
+        return String.format(Locale.US, "%s (%s, %.1f m/s)", vehicle, plan, speed);
     }
 }

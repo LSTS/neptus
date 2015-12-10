@@ -29,6 +29,7 @@ package pt.lsts.neptus.plugins.mjpeg;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 
 import org.apache.commons.io.FileUtils;
 
@@ -143,7 +144,7 @@ public class FrameDecoderMotionJPEG implements FrameDecoder {
         for (File file : validFiles) {
             try {
                 MjpegFile mjpegFile = new MjpegFile(file.getAbsoluteFile());
-                NeptusLog.pub().info(String.format("added '%s' with %d frames", file.getName(), mjpegFile.getFrameCount()));
+                NeptusLog.pub().info(String.format(Locale.US, "added '%s' with %d frames", file.getName(), mjpegFile.getFrameCount()));
                 frameCount += mjpegFile.getFrameCount();
                 fileList.add(mjpegFile);
                 frameRateAccumulator += mjpegFile.getFrameRate();

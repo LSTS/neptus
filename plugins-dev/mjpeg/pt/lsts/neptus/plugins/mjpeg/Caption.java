@@ -163,6 +163,6 @@ public class Caption {
     }
 
     private static String formatNumber(double number) {
-        return Double.isNaN(number) ? "N/A" : String.format("%.1f", number);
+        return Double.isNaN(number) ? "N/A" : String.format(Locale.US, "%.1f", number);
     }
 }
