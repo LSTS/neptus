@@ -58,7 +58,7 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
  * @author zp
  * 
  */
-class CachedData extends TidePredictionFinder {
+class CachedData implements TidePredictionFinder {
 
     protected boolean loading = true;
     protected SortedSet<TidePeak> cachedData = null;
@@ -151,6 +151,7 @@ class CachedData extends TidePredictionFinder {
         return td;
     }
     
+    @Override
     public boolean contains(Date d) {
         while (loading) {
             try {

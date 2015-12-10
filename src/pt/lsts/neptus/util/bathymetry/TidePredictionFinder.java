@@ -33,8 +33,12 @@ package pt.lsts.neptus.util.bathymetry;
 
 import java.util.Date;
 
-public abstract class TidePredictionFinder {
+public interface TidePredictionFinder {
 
+    /**
+     * The harbor/location name.
+     * @return
+     */
     public abstract String getName();
     
     /**
@@ -47,4 +51,11 @@ public abstract class TidePredictionFinder {
      */
     public abstract Float getTidePrediction(Date date, boolean print) throws Exception;
 
+    
+    /**
+     * Tests if the date is within data.
+     * @param date
+     * @return
+     */
+    public abstract boolean contains(Date date);
 }
