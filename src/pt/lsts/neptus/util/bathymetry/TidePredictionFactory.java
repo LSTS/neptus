@@ -40,10 +40,12 @@ import javax.swing.JOptionPane;
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.lsf.LsfIndex;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -55,6 +57,52 @@ public class TidePredictionFactory {
     
     public static String defaultTideFormat = "txt";
     
+    private static File tideFileInUse = GeneralPreferences.tidesFile;
+    private static TidePredictionFinder cached = null;
+
+    /** Avoid instantiation. */
+    private TidePredictionFactory() {
+    }
+    
+    /**
+     * Return the current tide level for the loaded tide {@link #tideFileInUse}.
+     * @return
+     */
+    public static double currentTideLevel() {
+        return getTideLevel(System.currentTimeMillis());
+    }
+    
+    /**
+     * Return the tide level for the loaded tide {@link #tideFileInUse}
+     * at time provided.
+     * @return
+     */
+    public static double getTideLevel(long timestampMillis) {
+        return getTideLevel(new Date(timestampMillis));
+    }
+    
+    /**
+     * Return the tide level for the loaded tide {@link #tideFileInUse}
+     * at time provided.
+     * Loads or reloads the tides according with {@link GeneralPreferences#tidesFile}.
+     * @return
+     */
+    public static double getTideLevel(Date date) {
+        if (tideFileInUse != GeneralPreferences.tidesFile || cached == null) {
+            File fxToLoad = GeneralPreferences.tidesFile;
+            cached = createWorker(fxToLoad, null);
+            tideFileInUse = fxToLoad;
+        }
+        
+        try {
+            return cached.getTidePrediction(date, false);
+        }
+        catch (Exception e) {
+            NeptusLog.pub().error(e);
+            return 0;
+        }
+    }
+
     public static TidePredictionFinder create(IMraLogGroup source) {
         File dir = source.getDir();
         dir = new File(dir, "mra");
@@ -97,9 +145,10 @@ public class TidePredictionFactory {
             }
         }
         
-        if (finder == null) {
-            CachedData data = new CachedData();
-            if (data.contains(date))
+        File defaultFx = GeneralPreferences.tidesFile;
+        if (finder == null && fx != null && defaultFx != null && fx.compareTo(defaultFx) != 0) {
+            TidePredictionFinder data = createWorker(defaultFx, null);
+            if (date == null || data.contains(date))
                 finder = data;
             else
                 finder = null;
