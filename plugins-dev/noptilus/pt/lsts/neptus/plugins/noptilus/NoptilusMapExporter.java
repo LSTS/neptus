@@ -62,7 +62,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 import com.l2fprod.common.propertysheet.DefaultProperty;
 import com.l2fprod.common.propertysheet.Property;
 
-import convcao.com.caoAgent.NoptilusCoords;
+import convcao.com.caoagent.NoptilusCoords;
 
 /**
  * @author zp

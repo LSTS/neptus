@@ -29,7 +29,7 @@
  * Author: zp
  * Oct 6, 2013
  */
-package convcao.com.caoAgent;
+package convcao.com.caoagent;
 
 import pt.lsts.neptus.gui.PropertiesProvider;
 import pt.lsts.neptus.plugins.NeptusProperty;

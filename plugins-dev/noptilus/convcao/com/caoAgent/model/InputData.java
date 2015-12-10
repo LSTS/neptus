@@ -29,7 +29,7 @@
  * Author: zp
  * Apr 1, 2015
  */
-package convcao.com.caoAgent.model;
+package convcao.com.caoagent.model;
 
 /**
  * @author zp
