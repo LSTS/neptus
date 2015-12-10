@@ -29,7 +29,7 @@
  * Author: zp
  * Apr 1, 2015
  */
-package convcao.com.caoagent.test;
+package convcao.com.agent.test;
 
 import java.io.File;
 import java.text.DateFormat;

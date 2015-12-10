@@ -29,7 +29,7 @@
  * Author: Thanasis
  * Sep 17, 2013
  */
-package convcao.com.caoagent;
+package convcao.com.agent;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -88,8 +88,8 @@ import org.apache.commons.net.ftp.FTPClient;
 import com.google.common.eventbus.Subscribe;
 import com.google.gson.Gson;
 
-import convcao.com.caoagent.model.InputData;
-import convcao.com.caoagent.model.TransferData;
+import convcao.com.agent.model.InputData;
+import convcao.com.agent.model.TransferData;
 import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.DesiredZ.Z_UNITS;
 import pt.lsts.imc.Distance;
