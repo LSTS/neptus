@@ -31,7 +31,6 @@
  */
 package pt.lsts.neptus.util.bathymetry;
 
-import java.awt.Component;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -43,16 +42,11 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import javax.swing.JOptionPane;
-import javax.swing.ProgressMonitor;
-
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
 import pt.lsts.neptus.NeptusLog;
-import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author zp
@@ -235,7 +229,7 @@ class CachedData implements TidePredictionFinder {
     public Date fetchData(String portName, Date aroundDate) throws Exception {
         try {
             Vector<TidePeak> newData = TideDataFetcher.fetchData(portName, aroundDate);
-            System.out.println("Retrieved "+newData.size()+" new tide points.");
+            System.out.println("Retrieved " + newData.size() + " new tide points.");
             if (newData.size() == 0) {
                 Thread.sleep(3000);
                 return null;
