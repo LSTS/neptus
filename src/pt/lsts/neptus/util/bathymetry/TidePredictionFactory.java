@@ -173,9 +173,9 @@ public class TidePredictionFactory {
                     break;
             }
         }
-        
+
         File defaultFx = GeneralPreferences.tidesFile;
-        if (finder == null && fx != null && defaultFx != null && fx.compareTo(defaultFx) != 0) {
+        if (finder == null || (fx != null && defaultFx != null && fx.compareTo(defaultFx) != 0)) {
             TidePredictionFinder data = createWorker(defaultFx, null);
             if (date == null || data.contains(date))
                 finder = data;
