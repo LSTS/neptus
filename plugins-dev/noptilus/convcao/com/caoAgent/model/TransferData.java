@@ -29,18 +29,16 @@
  * Author: zp
  * Apr 1, 2015
  */
-package convcao.com.caoAgent.model;
+package convcao.com.caoagent.model;
 
 /**
  * @author zp
  *
  */
-public class TransferData
-{
+public class TransferData {
     public String SessionID = "";
     public int timeStep = 0;
 
-    
     // 1 row per auv, 1 coordinates (depth)         
     public double[] Bathymeter;
     
@@ -52,5 +50,4 @@ public class TransferData
     
     // 1 row per beam (position where beam intercepts with ocean floor)
     public double[][] SampleLocations;
-    
 };

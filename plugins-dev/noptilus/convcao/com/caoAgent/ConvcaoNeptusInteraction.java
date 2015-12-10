@@ -29,16 +29,20 @@
  * Author: Thanasis
  * Sep 17, 2013
  */
-package convcao.com.caoAgent;
+package convcao.com.caoagent;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -52,6 +56,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -63,12 +68,28 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Vector;
 
+import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.LayoutStyle;
+import javax.swing.SwingConstants;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 
+import com.google.common.eventbus.Subscribe;
+import com.google.gson.Gson;
+
+import convcao.com.caoagent.model.InputData;
+import convcao.com.caoagent.model.TransferData;
 import pt.lsts.imc.DesiredZ;
 import pt.lsts.imc.DesiredZ.Z_UNITS;
 import pt.lsts.imc.Distance;
@@ -97,12 +118,6 @@ import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.bathymetry.TidePrediction;
 
-import com.google.common.eventbus.Subscribe;
-import com.google.gson.Gson;
-
-import convcao.com.caoAgent.model.InputData;
-import convcao.com.caoAgent.model.TransferData;
-
 
 /**
  * @author Thanasis, ZP
@@ -115,58 +130,6 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
     private static final long serialVersionUID = -1330079540844029305L;
     private static final double DVL_ANGLE = Math.toRadians(22.5);
     
-    // Variables declaration - do not modify
-    protected int AUVS ;
-    protected String SessionID = "";
-    protected boolean cancel = false;
-    protected String Report = "";
-
-    //GUI
-    protected javax.swing.JButton jButton1;
-    protected javax.swing.JButton jButton2;
-    protected javax.swing.JLabel jLabel1;
-    protected javax.swing.JLabel jLabel2;
-    protected javax.swing.JLabel jLabel3;
-    protected javax.swing.JLabel jLabel4;
-    protected javax.swing.JLabel jLabel5;
-    protected javax.swing.JLabel jLabel7;
-    protected javax.swing.JLabel jLabel8;
-    protected javax.swing.JLabel jLabel9;
-    protected javax.swing.JLabel jLabel10;
-    protected javax.swing.JLabel jLabel11;
-    protected javax.swing.JLabel jLabel12;
-    protected javax.swing.JLabel jLabel6;
-    protected javax.swing.JPanel jPanel1;
-    protected javax.swing.JPanel jPanel2;
-    protected javax.swing.JPanel jPanelMain;
-    protected javax.swing.JPasswordField jPasswordField1;
-    protected javax.swing.JScrollPane jScrollPane1;
-    protected javax.swing.JScrollPane jScrollPane2;
-    protected javax.swing.JTextArea jTextArea1;
-    protected javax.swing.JTextField jTextField1;
-    protected javax.swing.JTextPane jTextPane1;
-    protected javax.swing.JButton renewButton;
-    protected javax.swing.JButton connectButton;
-    // End of variables declaration
-
-    private boolean active = false;
-
-    protected ImageIcon runIcon = ImageUtils.getIcon("images/checklists/run.png");
-    protected ImageIcon appLogo = ImageUtils.getIcon("images/control-mode/externalApp.png");
-    protected ImageIcon noptilusLogo = ImageUtils.getIcon("images/control-mode/noptilus.png");
-    protected ControllerManager manager = new ControllerManager();
-
-    // ICONTROLLER METHODS //    
-    protected LinkedHashMap<String, LocationType> positions = new LinkedHashMap<>();
-    protected LinkedHashMap<String, LocationType> destinations = new LinkedHashMap<>();
-    protected LinkedHashMap<String, Double> bathymetry = new LinkedHashMap<>();    
-    protected LinkedHashMap<String, Boolean> arrived = new LinkedHashMap<>();
-    protected LinkedHashMap<Integer, String> nameTable = new LinkedHashMap<>();
-    protected LinkedHashMap<String, Double> depths = new LinkedHashMap<>();
-    protected LinkedHashMap<EstimatedState, ArrayList<Distance>> dvlMeasurements = new LinkedHashMap<>();
-
-
-
     @NeptusProperty(name="Used vehicles", description="Identifiers of the vehicles to be used, separated by commas")
     public String controlledVehicles = "lauv-noptilus-1,lauv-noptilus-2";
 
@@ -191,16 +154,75 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
     @NeptusProperty(name="Subtract Tide Level", description="Subtract the tide height when communicating bathymetry data do CONVCAO.")
     public boolean subtractTide = true;
 
+    // Variables declaration - do not modify
+    protected int auvs ;
+    protected String sessionID = "";
+    protected boolean cancel = false;
+    protected String report = "";
+
+    //GUI
+    protected JButton jButton1;
+    protected JButton jButton2;
+    protected JLabel jLabel1;
+    protected JLabel jLabel2;
+    protected JLabel jLabel3;
+    protected JLabel jLabel4;
+    protected JLabel jLabel5;
+    protected JLabel jLabel7;
+    protected JLabel jLabel8;
+    protected JLabel jLabel9;
+    protected JLabel jLabel10;
+    protected JLabel jLabel11;
+    protected JLabel jLabel12;
+    protected JLabel jLabel6;
+    protected JPanel jPanel1;
+    protected JPanel jPanel2;
+    protected JPanel jPanelMain;
+    protected JPasswordField jPasswordField1;
+    protected JScrollPane jScrollPane1;
+    protected JScrollPane jScrollPane2;
+    protected JTextArea jTextArea1;
+    protected JTextField jTextField1;
+    protected JTextPane jTextPane1;
+    protected JButton renewButton;
+    protected JButton connectButton;
+    // End of variables declaration
+
+    private boolean active = false;
+
+    protected ImageIcon runIcon = ImageUtils.getIcon("images/checklists/run.png");
+    protected ImageIcon appLogo = ImageUtils.getIcon("images/control-mode/externalApp.png");
+    protected ImageIcon noptilusLogo = ImageUtils.getIcon("images/control-mode/noptilus.png");
+    protected ControllerManager manager = new ControllerManager();
+
+    // ICONTROLLER METHODS //    
+    protected LinkedHashMap<String, LocationType> positions = new LinkedHashMap<>();
+    protected LinkedHashMap<String, LocationType> destinations = new LinkedHashMap<>();
+    protected LinkedHashMap<String, Double> bathymetry = new LinkedHashMap<>();    
+    protected LinkedHashMap<String, Boolean> arrived = new LinkedHashMap<>();
+    protected LinkedHashMap<Integer, String> nameTable = new LinkedHashMap<>();
+    protected LinkedHashMap<String, Double> depths = new LinkedHashMap<>();
+    protected LinkedHashMap<EstimatedState, ArrayList<Distance>> dvlMeasurements = new LinkedHashMap<>();
+
     protected Thread controlThread = null;
 
-    int timestep = 1;
+    private int timestep = 1;
+
+    protected NoptilusCoords coords = new NoptilusCoords();
+
+    /**
+     * @param console
+     */
+    public ConvcaoNeptusInteraction(ConsoleLayout console) {
+        super(console);
+    }
 
     protected void showText(String text) {
-        jTextArea1.append("["+timestep+"] "+text+"\n");
+        jTextArea1.append("[" + timestep + "] " + text + "\n");
         while (jTextArea1.getRows() > 50 && jTextArea1.getText().contains("\n"))
-            jTextArea1.setText(jTextArea1.getText().substring(jTextArea1.getText().indexOf('\n')+1));
+            jTextArea1.setText(jTextArea1.getText().substring(jTextArea1.getText().indexOf('\n') + 1));
         jTextArea1.repaint();
-        jTextArea1.scrollRectToVisible(new Rectangle(0, jTextArea1.getHeight()+22, 1, 1) );
+        jTextArea1.scrollRectToVisible(new Rectangle(0, jTextArea1.getHeight() + 22, 1, 1));
     }
 
     @Override
@@ -217,10 +239,10 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         depths = newDepths;
     }
 
-    protected NoptilusCoords coords = new NoptilusCoords();
-
     @Override
-    public void paint(Graphics2D g, StateRenderer2D renderer) {
+    public void paint(Graphics2D g2, StateRenderer2D renderer) {
+        Graphics2D g = (Graphics2D) g2.create();
+        
         Point2D center = renderer.getScreenPosition(coords.squareCenter);
         double width = renderer.getZoom() * coords.cellWidth * coords.numCols;
         double height = renderer.getZoom() * coords.cellWidth * coords.numRows;
@@ -231,8 +253,10 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         g.rotate(renderer.getRotation());
         g.translate(-center.getX(), -center.getY());
 
-        if (!active)
+        if (!active) {
+            g.dispose();
             return;
+        }
 
         g.setColor(Color.orange);
         int pos = 50;
@@ -263,16 +287,18 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
 
             g.fill(new Ellipse2D.Double(dstPt.getX()-4, dstPt.getY()-4, 8, 8));
         }
+        
+        g.dispose();
     }
 
     public TransferData localState() {
         TransferData data = new TransferData();
         data.timeStep = this.timestep;
-        data.SessionID = SessionID;
-        data.Bathymeter = new double[AUVS];
-        data.Location = new double[AUVS][3];
+        data.SessionID = sessionID;
+        data.Bathymeter = new double[auvs];
+        data.Location = new double[auvs][3];
 
-        for (int AUV = 0; AUV < AUVS; AUV++) {
+        for (int AUV = 0; AUV < auvs; AUV++) {
             String auvName = nameTable.get(AUV);
             double noptDepth = coords.convertWgsDepthToNoptilusDepth(positions.get(auvName).getDepth());
             data.Bathymeter[AUV] = noptDepth-bathymetry.get(auvName);
@@ -320,9 +346,9 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         double[] ret = new double[4];
         
         // H² = Ca² + Cb²
-        double H = d.getValue();
-        double Ca = Math.cos(DVL_ANGLE) * H;
-        double Cb = Math.sin(DVL_ANGLE) * H;
+        double varH = d.getValue();
+        double varCa = Math.cos(DVL_ANGLE) * varH;
+        double varCb = Math.sin(DVL_ANGLE) * varH;
         
         String beamId = d.getEntityName();
         
@@ -354,8 +380,8 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         switch (beamId) {
             // pointing down
             case "DVL Filtered":
-                Cb = 0;
-                Ca = H;
+                varCb = 0;
+                varCa = varH;
                 break;
             case "DVL Beam 1":
                 heading += Math.toRadians(90);
@@ -371,7 +397,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         }
         
         LocationType ground = IMCUtils.getLocation(state);
-        ground.setOffsetDistance(Cb);
+        ground.setOffsetDistance(varCb);
         ground.setAzimuth(Math.toDegrees(heading));
         ground.convertToAbsoluteLatLonDepth();
         
@@ -379,7 +405,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         ret[0] = c[0];
         ret[1] = c[1];
         ret[2] = state.getDepth();
-        ret[3] = Ca + depth - tide;
+        ret[3] = varCa + depth - tide;
         
         return ret;
     }
@@ -390,14 +416,13 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
      * @throws Exception If there is a problem communicating with the server.
      */
     public void controlLoop() throws Exception {
-
         TransferData send = localState();
         if (send == null)
             throw new Exception("Unable to compute local state");
 
         TransferData receive = new TransferData();
 
-        for (int AUV = 0; AUV < AUVS; AUV++) {
+        for (int AUV = 0; AUV < auvs; AUV++) {
             showText(nameTable.get(AUV)+" is at "+send.Location[AUV][0]+", "+send.Location[AUV][1]+", "+send.Location[AUV][2]);
         }
 
@@ -405,12 +430,13 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         String json = gson.toJson(send);
 
         PrintWriter writer = null;
-        writer = new PrintWriter(SessionID + "_Data.txt", "UTF-8");
+        writer = new PrintWriter(sessionID + "_Data.txt", "UTF-8");
         writer.write(json);
         writer.close();
 
-        NeptusLog.pub().info("uploading to convcao..."+json.toString());
-        Upload("www.convcao.com","NEPTUS","",jTextField1.getText(),new String(jPasswordField1.getPassword()),SessionID + "_Data.txt");
+        NeptusLog.pub().info("uploading to convcao..." + json.toString());
+        upload("www.convcao.com", "NEPTUS", "", jTextField1.getText(), new String(jPasswordField1.getPassword()),
+                sessionID + "_Data.txt");
 
         showText("Upload complete, downloading new AUV destinations");
 
@@ -419,7 +445,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             Thread.sleep(100);
 
             try {
-                URL url = new URL("http://www.convcao.com/caoagile/FilesFromAgent/NEPTUS/" + SessionID + "_NewActions.txt");
+                URL url = new URL("http://www.convcao.com/caoagile/FilesFromAgent/NEPTUS/" + sessionID + "_NewActions.txt");
                 URLConnection conn = url.openConnection();
                 conn.setUseCaches(false);
                 conn.connect();
@@ -449,7 +475,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             arrived.put(auvName, false);
         }
 
-        myDeleteFile(SessionID + "_Data.txt");
+        myDeleteFile(sessionID + "_Data.txt");
     }
 
     public Thread auvMonitor() {
@@ -482,7 +508,8 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
                         else {
                             Thread.sleep(1000);
                         }
-                    } catch (InterruptedException e) {
+                    }
+                    catch (InterruptedException e) {
                         showText("Control thread interrupted");
                         manager.stop();
                         return;
@@ -490,47 +517,37 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
                 }                
             };
         };
+        auvMon.setDaemon(true);
+        
         return auvMon;
     }
 
-    /**
-     * @param console
-     */
-    public ConvcaoNeptusInteraction(ConsoleLayout console) {
-        super(console);
-
-    }
-
-    private String GenerateID()
-    {
+    private String generateID() {
         Random rnd = new Random(System.currentTimeMillis());
-        String ID= "Neptus_User_" + Integer.toString(rnd.nextInt(10000));
+        String ID = "Neptus_User_" + Integer.toString(rnd.nextInt(10000));
         return ID;
     }
 
-
-    private void renewButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        SessionID = GenerateID();
+    private void renewButtonActionPerformed(ActionEvent evt) {
+        sessionID = generateID();
 
         jTextField1.setEditable(true);
         jPasswordField1.setEditable(true);
-
 
         jLabel1.setVisible(true);
         jButton1.setEnabled(false);
         jButton2.setEnabled(false);
 
-        jTextPane1.setText(SessionID);
+        jTextPane1.setText(sessionID);
         connectButton.setEnabled(true);
         jLabel6.setVisible(true);
     }
 
-
-    private void StopButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void stopButtonActionPerformed(ActionEvent evt) {
         jLabel10.setText("Please Wait...");
-        Report = "Canceled";
+        report = "Canceled";
 
-        cancel=true;
+        cancel = true;
         if (controlThread != null)
             controlThread.interrupt();
 
@@ -540,7 +557,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         jButton2.setEnabled(false);
         connectButton.setEnabled(false);
         renewButton.setEnabled(true);
-        Report = "";
+        report = "";
         jLabel1.setVisible(false);
         jTextArea1.setText("");
         jLabel10.setText("");
@@ -551,7 +568,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
     }
 
 
-    private void StartButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void startButtonActionPerformed(ActionEvent evt) {
         cancel = false;
 
         jLabel9.setVisible(true);
@@ -628,8 +645,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         }
     }
 
-
-    private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) throws SocketException, IOException {
+    private void connectButtonActionPerformed(ActionEvent evt) throws SocketException, IOException {
         String[] vehicles = controlledVehicles.split(",");
         jTextArea1.setText("");
         jTextArea1.repaint();
@@ -643,7 +659,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             return;
         }
 
-        AUVS = positions.keySet().size();
+        auvs = positions.keySet().size();
 
         showText("Initializing server connection");
 
@@ -651,12 +667,13 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
 
         boolean PathNameCreated=false;
         try {
-            client.connect("www.convcao.com",21);
+            client.connect("www.convcao.com", 21);
             client.login(jTextField1.getText(), new String(jPasswordField1.getPassword()));
-            PathNameCreated = client.makeDirectory("/NEPTUS/" + SessionID);
+            PathNameCreated = client.makeDirectory("/NEPTUS/" + sessionID);
             client.logout();
 
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             jLabel6.setText("Connection Error");
             throw e;
         }
@@ -664,10 +681,10 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         showText("Sending session data");
         InputData initialState = new InputData();
         initialState.DateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date());
-        initialState.SessionID = SessionID;
+        initialState.SessionID = sessionID;
         initialState.DemoMode = "1";
         initialState.AUVs = ""+positions.keySet().size();
-        String fileName = SessionID + ".txt";
+        String fileName = sessionID + ".txt";
 
         Gson gson = new Gson();
         String json = gson.toJson(initialState);
@@ -676,16 +693,13 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         writer.write(json);
         writer.close();
 
-
-
-        if (PathNameCreated)
-        {
+        if (PathNameCreated) {
             jLabel6.setText("Connection Established");
             jLabel1.setVisible(true);
             System.out.println("Uploading first file");
-            Upload("www.convcao.com","NEPTUS","",jTextField1.getText(),new String(jPasswordField1.getPassword()),fileName); //send first file
+            upload("www.convcao.com","NEPTUS","",jTextField1.getText(),new String(jPasswordField1.getPassword()),fileName); //send first file
             System.out.println("Uploading second file");
-            Upload("www.convcao.com","NEPTUS/" + SessionID,"plugins-dev/noptilus/convcao/com/caoAgent/",jTextField1.getText(),new String(jPasswordField1.getPassword()),"mapPortoSparse.txt"); //send sparse map
+            upload("www.convcao.com","NEPTUS/" + sessionID,"plugins-dev/noptilus/convcao/com/caoAgent/",jTextField1.getText(),new String(jPasswordField1.getPassword()),"mapPortoSparse.txt"); //send sparse map
             System.out.println("Both files uploaded");
             jButton1.setEnabled(true);
             jButton2.setEnabled(true);
@@ -695,8 +709,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             connectButton.setEnabled(false);
             renewButton.setEnabled(false);            
         }
-        else
-        {
+        else {
             jLabel6.setText(client.getReplyString());
             jLabel1.setVisible(false);
         }
@@ -704,11 +717,9 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         myDeleteFile(fileName);      
 
         showText("ConvCAO control has started");
-
     }
 
-    private void myDeleteFile(String fileName)
-    {
+    private void myDeleteFile(String fileName) {
         File f = new File(fileName);
         //delete File with safety
 
@@ -738,14 +749,11 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         //end of deleting
     }
 
-
-    private void Upload(String ftpServer, String pathDirectory, String SourcePathDirectory, String userName, String password, String filename)
-    {
+    private void upload(String ftpServer, String pathDirectory, String SourcePathDirectory, String userName,
+            String password, String filename) {
 
         FTPClient client = new FTPClient();
         FileInputStream fis = null;
-
-
 
         try {
             client.connect(ftpServer);
@@ -763,95 +771,92 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
 
             //Report = "File: " + filename + " Uploaded Successfully ";
         }
-        catch (Exception exp)
-        {
+        catch (Exception exp) {
             exp.printStackTrace();
-            Report = "Server Error";
-            jLabel6.setText(Report);
-        }finally {
+            report = "Server Error";
+            jLabel6.setText(report);
+        }
+        finally {
             try {
                 if (fis != null) {
                     fis.close();
                 }
                 client.disconnect();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
     }
 
+    private void jLabel1MouseClicked(MouseEvent evt) throws URISyntaxException, IOException {
+        if(Desktop.isDesktopSupported() ) {
+            Desktop desktop = Desktop.getDesktop();
 
-    private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) throws URISyntaxException, IOException {
-        if(java.awt.Desktop.isDesktopSupported() ) {
-            java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
-
-            if(desktop.isSupported(java.awt.Desktop.Action.BROWSE) ) {
-                java.net.URI uri = new java.net.URI("http://www.noptilus-fp7.eu/default.asp?node=page&id=321&lng=2");
+            if(desktop.isSupported(Desktop.Action.BROWSE) ) {
+                URI uri = new URI("http://www.noptilus-fp7.eu/default.asp?node=page&id=321&lng=2");
                 desktop.browse(uri);
             }
         }
     }
-
 
     /* (non-Javadoc)
      * @see pt.lsts.neptus.plugins.SimpleSubPanel#initSubPanel()
      */
     @Override
     public void initSubPanel() {
-
-        jPanelMain = new javax.swing.JPanel();    
-        jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextPane1 = new javax.swing.JTextPane();
-        renewButton = new javax.swing.JButton();
-        jLabel4 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
-        jPasswordField1 = new javax.swing.JPasswordField();
-        connectButton = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        jPanelMain = new JPanel();    
+        jPanel1 = new JPanel();
+        jPanel2 = new JPanel();
+        jLabel2 = new JLabel();
+        jScrollPane1 = new JScrollPane();
+        jTextPane1 = new JTextPane();
+        renewButton = new JButton();
+        jLabel4 = new JLabel();
+        jTextField1 = new JTextField();
+        jLabel5 = new JLabel();
+        jPasswordField1 = new JPasswordField();
+        connectButton = new JButton();
+        jScrollPane2 = new JScrollPane();
+        jTextArea1 = new JTextArea();
+        jLabel7 = new JLabel();
+        jLabel8 = new JLabel();
+        jButton1 = new JButton();
+        jButton2 = new JButton();
+        jLabel1 = new JLabel();
+        jLabel9 = new JLabel();
+        jLabel10 = new JLabel();
+        jLabel11 = new JLabel();
+        jLabel12 = new JLabel();
+        jLabel6 = new JLabel();
+        jLabel3 = new JLabel();
 
         jLabel11.setIcon(noptilusLogo);
 
-        jLabel12.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabel12.setHorizontalAlignment(SwingConstants.LEFT);
         jLabel12.setText("<html>www.convcao.com<br>version 0.01</html>");
         jLabel12.setToolTipText("");
-        jLabel12.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
+        jLabel12.setHorizontalTextPosition(SwingConstants.RIGHT);
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        GroupLayout jPanel1Layout = new GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                jPanel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addComponent(jLabel11, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGap(0, 19, Short.MAX_VALUE)
-                        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jLabel12, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                 );
         jPanel1Layout.setVerticalGroup(
-                jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                jPanel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel11, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel12, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
                 );
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        jLabel2.setFont(new Font("Tahoma", 0, 10)); // NOI18N
         jLabel2.setText("Unique ID");
 
         jTextPane1.setEditable(true);
@@ -859,18 +864,18 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         //jTextPane1.getAccessibleContext().setAccessibleName("");
 
         renewButton.setText("RENEW");
-        renewButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        renewButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 renewButtonActionPerformed(evt);
             }
         });
 
-        jLabel4.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel4.setFont(new Font("Tahoma", 0, 12)); // NOI18N
         jLabel4.setText("Username");
 
         jTextField1.setText("FTPUser");
 
-        jLabel5.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel5.setFont(new Font("Tahoma", 0, 12)); // NOI18N
         jLabel5.setText("Password");
 
         jPasswordField1.setText("FTPUser123");
@@ -878,21 +883,18 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         connectButton.setText("Connect");
         connectButton.setEnabled(false);
         connectButton.setActionCommand("connect");
-        connectButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        connectButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 try {
                     connectButtonActionPerformed(evt);
                 }
                 catch (FileNotFoundException | UnsupportedEncodingException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 catch (SocketException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -903,38 +905,37 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         jTextArea1.setRows(5);
         jScrollPane2.setViewportView(jTextArea1);
 
-        jLabel7.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel7.setFont(new Font("Tahoma", 0, 12)); // NOI18N
         jLabel7.setText("Command Monitor");
 
-        jButton1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jButton1.setFont(new Font("Tahoma", 1, 12)); // NOI18N
         jButton1.setText("START");
         jButton1.setEnabled(false);
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                StartButtonActionPerformed(evt);
+        jButton1.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                startButtonActionPerformed(evt);
             }
         });
 
-        jButton2.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jButton2.setFont(new Font("Tahoma", 1, 12)); // NOI18N
         jButton2.setText("STOP");
         jButton2.setEnabled(false);
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                StopButtonActionPerformed(evt);
+        jButton2.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                stopButtonActionPerformed(evt);
             }
         });
 
-        jLabel1.setForeground(new java.awt.Color(255, 0, 0));
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setForeground(new Color(255, 0, 0));
+        jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
         jLabel1.setText("<html>Click HERE to activate the web service using your ID<br>When the web application is ready, press Start </html>");
         jLabel1.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+        jLabel1.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent evt) {
                 try {
                     jLabel1MouseClicked(evt);
                 }
                 catch (URISyntaxException | IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }   
@@ -946,55 +947,55 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
 
         jLabel10.setText("---");
 
-        jLabel6.setForeground(new java.awt.Color(0, 204, 0));
-        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel6.setForeground(new Color(0, 204, 0));
+        jLabel6.setHorizontalAlignment(SwingConstants.CENTER);
         jLabel6.setText("---");
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        GroupLayout jPanel2Layout = new GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
-                jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                .addGroup(GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
                                 .addGroup(jPanel2Layout.createSequentialGroup()
                                         .addContainerGap()
-                                        .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
-                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabel6, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addGroup(GroupLayout.Alignment.LEADING, jPanel2Layout.createSequentialGroup()
+                                                .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                                         .addGroup(jPanel2Layout.createSequentialGroup()
                                                                 .addGap(126, 126, 126)
-                                                                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                                .addComponent(jLabel7, GroupLayout.PREFERRED_SIZE, 110, GroupLayout.PREFERRED_SIZE))
                                                                 .addGroup(jPanel2Layout.createSequentialGroup()
                                                                         .addGap(23, 23, 23)
-                                                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                                                                                .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 56, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                                                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                        .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                                                                                .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                                                                        .addGroup(GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                                                                                .addComponent(jLabel9, GroupLayout.PREFERRED_SIZE, 56, GroupLayout.PREFERRED_SIZE)
+                                                                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                                .addComponent(jButton1, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
                                                                                                 .addGap(29, 29, 29)
-                                                                                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                                                                .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                                                                .addComponent(jLabel10, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                                                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 299, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                                                                                .addComponent(jButton2, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE))
+                                                                                                .addComponent(jScrollPane2, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 308, GroupLayout.PREFERRED_SIZE))
+                                                                                                .addComponent(jLabel10, GroupLayout.Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 103, GroupLayout.PREFERRED_SIZE)
+                                                                                                .addComponent(jLabel1, GroupLayout.PREFERRED_SIZE, 299, GroupLayout.PREFERRED_SIZE))))
                                                                                                 .addGap(0, 0, Short.MAX_VALUE))
                                                                                                 .addGroup(jPanel2Layout.createSequentialGroup()
                                                                                                         .addGap(0, 0, Short.MAX_VALUE)
-                                                                                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                                                                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                                                                                                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                        .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                                                                                                .addGroup(GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                                                                                                        .addComponent(jLabel2, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
                                                                                                                         .addGap(18, 18, 18)
-                                                                                                                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                                        .addComponent(jScrollPane1, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE)
                                                                                                                         .addGap(18, 18, 18)
                                                                                                                         .addComponent(renewButton))
-                                                                                                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                                                                                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                                                                                        .addGroup(GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                                                                                                                                .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
                                                                                                                                         .addGroup(jPanel2Layout.createSequentialGroup()
-                                                                                                                                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                                                                .addComponent(jLabel4, GroupLayout.PREFERRED_SIZE, 64, GroupLayout.PREFERRED_SIZE)
                                                                                                                                                 .addGap(18, 18, 18)
-                                                                                                                                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                                                                                                                .addComponent(jTextField1, GroupLayout.PREFERRED_SIZE, 130, GroupLayout.PREFERRED_SIZE))
                                                                                                                                                 .addGroup(jPanel2Layout.createSequentialGroup()
-                                                                                                                                                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                                                                        .addComponent(jLabel5, GroupLayout.PREFERRED_SIZE, 64, GroupLayout.PREFERRED_SIZE)
                                                                                                                                                         .addGap(18, 18, 18)
                                                                                                                                                         .addComponent(jPasswordField1)))
                                                                                                                                                         .addGap(14, 14, 14)
@@ -1002,73 +1003,73 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
                                                                                                                                                         .addContainerGap())
                 );
         jPanel2Layout.setVerticalGroup(
-                jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(renewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                .addComponent(renewButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jScrollPane1)
-                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(jLabel2, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE))
                                 .addGap(18, 18, 18)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                                .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(connectButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel4, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jTextField1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                                .addComponent(jLabel5, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(jPasswordField1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(connectButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addComponent(jLabel6, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                                 .addComponent(jLabel1)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                                        .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                        .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                        .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                        .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jLabel7, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jScrollPane2, GroupLayout.PREFERRED_SIZE, 113, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGroup(jPanel2Layout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
+                                                        .addComponent(jButton2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                        .addComponent(jButton1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                        .addComponent(jLabel9, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE))
+                                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                                        .addComponent(jLabel10, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
                                                         .addGap(5, 5, 5))
                 );
 
         jLabel1.getAccessibleContext().setAccessibleName("jLabel1");
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 22)); // NOI18N
+        jLabel3.setFont(new Font("Tahoma", 1, 22)); // NOI18N
         jLabel3.setText("Real Time Navigation");
 
         jLabel8.setIcon(appLogo);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(jPanelMain);
+        GroupLayout layout = new GroupLayout(jPanelMain);
         jPanelMain.setLayout(layout);
         layout.setHorizontalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel3)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 331, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addComponent(jPanel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(jLabel8, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jPanel2, GroupLayout.PREFERRED_SIZE, 331, GroupLayout.PREFERRED_SIZE)
                                         .addContainerGap())
                 );
         layout.setVerticalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                 .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addComponent(jLabel8, GroupLayout.PREFERRED_SIZE, 110, GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jPanel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addComponent(jPanel2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                         .addContainerGap())
                 );
 
@@ -1117,7 +1118,6 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         add(jPanelMain);
 
         renewButtonActionPerformed(null);
-
     }
 
     /* (non-Javadoc)
@@ -1125,14 +1125,9 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
-    }
-
-
-
-    void updateConvCaoService() {
-
+        removeMenuItem("Settings>Noptilus>Coordinate Settings");
+        removeMenuItem("Settings>Noptilus>ConvCAO Settings");
+        removeMenuItem("Settings>Noptilus>Force vehicle depth");
     }
 
     @Override

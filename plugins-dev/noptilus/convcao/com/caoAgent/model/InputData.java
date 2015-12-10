@@ -29,14 +29,13 @@
  * Author: zp
  * Apr 1, 2015
  */
-package convcao.com.caoAgent.model;
+package convcao.com.caoagent.model;
 
 /**
  * @author zp
  *
  */
-public class InputData
-{
+public class InputData {
     public String DateTime = "";
     public String SessionID = "";
     public String DemoMode = "1";

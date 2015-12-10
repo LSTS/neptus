@@ -29,7 +29,7 @@
  * Author: zp
  * Apr 1, 2015
  */
-package convcao.com.caoAgent.test;
+package convcao.com.caoagent.test;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -56,7 +56,6 @@ import com.google.common.eventbus.Subscribe;
  *
  */
 public class AcousticReplay {
-
     
     private int destPort = 6001;
     private String destHost = "localhost";
@@ -114,9 +113,6 @@ public class AcousticReplay {
 //        System.out.println(el);
 //        
 //    }
-    
-    
-    
     
     @Subscribe
     public void on(EstimatedState state) {
@@ -186,5 +182,4 @@ public class AcousticReplay {
         replay(index, replay);
         PeriodicUpdatesService.unregisterPojo(replay);
     }
-
 }
