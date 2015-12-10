@@ -35,8 +35,7 @@ package convcao.com.caoagent.model;
  * @author zp
  *
  */
-public class InputData
-{
+public class InputData {
     public String DateTime = "";
     public String SessionID = "";
     public String DemoMode = "1";

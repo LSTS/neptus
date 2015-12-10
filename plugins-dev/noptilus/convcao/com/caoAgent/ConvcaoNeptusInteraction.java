@@ -35,6 +35,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -217,11 +218,11 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
     }
 
     protected void showText(String text) {
-        jTextArea1.append("["+timestep+"] "+text+"\n");
+        jTextArea1.append("[" + timestep + "] " + text + "\n");
         while (jTextArea1.getRows() > 50 && jTextArea1.getText().contains("\n"))
-            jTextArea1.setText(jTextArea1.getText().substring(jTextArea1.getText().indexOf('\n')+1));
+            jTextArea1.setText(jTextArea1.getText().substring(jTextArea1.getText().indexOf('\n') + 1));
         jTextArea1.repaint();
-        jTextArea1.scrollRectToVisible(new Rectangle(0, jTextArea1.getHeight()+22, 1, 1) );
+        jTextArea1.scrollRectToVisible(new Rectangle(0, jTextArea1.getHeight() + 22, 1, 1));
     }
 
     @Override
@@ -239,7 +240,9 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
     }
 
     @Override
-    public void paint(Graphics2D g, StateRenderer2D renderer) {
+    public void paint(Graphics2D g2, StateRenderer2D renderer) {
+        Graphics2D g = (Graphics2D) g2.create();
+        
         Point2D center = renderer.getScreenPosition(coords.squareCenter);
         double width = renderer.getZoom() * coords.cellWidth * coords.numCols;
         double height = renderer.getZoom() * coords.cellWidth * coords.numRows;
@@ -250,8 +253,10 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         g.rotate(renderer.getRotation());
         g.translate(-center.getX(), -center.getY());
 
-        if (!active)
+        if (!active) {
+            g.dispose();
             return;
+        }
 
         g.setColor(Color.orange);
         int pos = 50;
@@ -282,6 +287,8 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
 
             g.fill(new Ellipse2D.Double(dstPt.getX()-4, dstPt.getY()-4, 8, 8));
         }
+        
+        g.dispose();
     }
 
     public TransferData localState() {
@@ -536,12 +543,11 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         jLabel6.setVisible(true);
     }
 
-
     private void stopButtonActionPerformed(ActionEvent evt) {
         jLabel10.setText("Please Wait...");
         report = "Canceled";
 
-        cancel=true;
+        cancel = true;
         if (controlThread != null)
             controlThread.interrupt();
 
@@ -850,7 +856,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
                         .addGap(0, 0, Short.MAX_VALUE))
                 );
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        jLabel2.setFont(new Font("Tahoma", 0, 10)); // NOI18N
         jLabel2.setText("Unique ID");
 
         jTextPane1.setEditable(true);
@@ -864,12 +870,12 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             }
         });
 
-        jLabel4.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel4.setFont(new Font("Tahoma", 0, 12)); // NOI18N
         jLabel4.setText("Username");
 
         jTextField1.setText("FTPUser");
 
-        jLabel5.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel5.setFont(new Font("Tahoma", 0, 12)); // NOI18N
         jLabel5.setText("Password");
 
         jPasswordField1.setText("FTPUser123");
@@ -899,10 +905,10 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         jTextArea1.setRows(5);
         jScrollPane2.setViewportView(jTextArea1);
 
-        jLabel7.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel7.setFont(new Font("Tahoma", 0, 12)); // NOI18N
         jLabel7.setText("Command Monitor");
 
-        jButton1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jButton1.setFont(new Font("Tahoma", 1, 12)); // NOI18N
         jButton1.setText("START");
         jButton1.setEnabled(false);
         jButton1.addActionListener(new ActionListener() {
@@ -911,7 +917,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             }
         });
 
-        jButton2.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jButton2.setFont(new Font("Tahoma", 1, 12)); // NOI18N
         jButton2.setText("STOP");
         jButton2.setEnabled(false);
         jButton2.addActionListener(new ActionListener() {
@@ -920,7 +926,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             }
         });
 
-        jLabel1.setForeground(new java.awt.Color(255, 0, 0));
+        jLabel1.setForeground(new Color(255, 0, 0));
         jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
         jLabel1.setText("<html>Click HERE to activate the web service using your ID<br>When the web application is ready, press Start </html>");
         jLabel1.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -941,7 +947,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
 
         jLabel10.setText("---");
 
-        jLabel6.setForeground(new java.awt.Color(0, 204, 0));
+        jLabel6.setForeground(new Color(0, 204, 0));
         jLabel6.setHorizontalAlignment(SwingConstants.CENTER);
         jLabel6.setText("---");
 
@@ -1032,7 +1038,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
 
         jLabel1.getAccessibleContext().setAccessibleName("jLabel1");
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 22)); // NOI18N
+        jLabel3.setFont(new Font("Tahoma", 1, 22)); // NOI18N
         jLabel3.setText("Real Time Navigation");
 
         jLabel8.setIcon(appLogo);
@@ -1119,10 +1125,9 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-    }
-
-    void updateConvCaoService() {
+        removeMenuItem("Settings>Noptilus>Coordinate Settings");
+        removeMenuItem("Settings>Noptilus>ConvCAO Settings");
+        removeMenuItem("Settings>Noptilus>Force vehicle depth");
     }
 
     @Override

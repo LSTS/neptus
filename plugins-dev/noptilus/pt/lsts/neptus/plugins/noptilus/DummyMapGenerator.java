@@ -97,7 +97,6 @@ public class DummyMapGenerator {
         for (Point3d pt : noiseData)
             dd.addPoint(pt.x, pt.y, pt.z);
         
-        
         BufferedImage img = new BufferedImage(rows, cols, BufferedImage.TYPE_INT_ARGB);
         ColorMapUtils.generateColorMap(dd.getDataPoints(), img.createGraphics(), rows, cols, 0, ColorMapFactory.createGrayScaleColorMap());
         JLabel lbl = new JLabel(new ImageIcon(img));
@@ -116,13 +115,11 @@ public class DummyMapGenerator {
         for (Point3d pt : highResData)
             dd.addPoint(pt.x, pt.y, pt.z);
         
-        
         BufferedImage img2 = new BufferedImage(rows, cols, BufferedImage.TYPE_INT_ARGB);
         ColorMapUtils.generateColorMap(dd.getDataPoints(), img2.createGraphics(), rows, cols, 0, ColorMapFactory.createGrayScaleColorMap());
         JLabel lbl2 = new JLabel(new ImageIcon(img2));
         
         GuiUtils.testFrame(lbl2);
-        
 
         try {
             PathToFile(lowResData, new File("path_lowres.txt"));
@@ -136,8 +133,6 @@ public class DummyMapGenerator {
         catch (Exception e) {
             e.printStackTrace();
         }
-        
-
     }
     
     public void PathToFile(Vector<Point3d> points, File out) throws Exception {
@@ -186,15 +181,6 @@ public class DummyMapGenerator {
     }
     
     public static void main(String[] args) {
-        
         new DummyMapGenerator().firstPhase();
-        
- 
     }
-    
-    
-    
-    
-    
-    
 }
