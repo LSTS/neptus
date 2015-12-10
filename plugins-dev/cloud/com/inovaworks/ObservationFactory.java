@@ -44,7 +44,7 @@ import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.comm.IMCUtils;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.bathymetry.TidePrediction;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 
 /**
  * @author zp
@@ -74,7 +74,7 @@ public class ObservationFactory {
         o.addProperty(ObservedProperty.heading(Math.toDegrees(state.getPsi())));
         
         if (state.getDepth() != -1 && state.getAlt() != -1) {
-            double tide = TidePrediction.getTideLevel(state.getTimestampMillis());
+            double tide = TidePredictionFactory.getTideLevel(state.getTimestampMillis());
             double bathym = state.getDepth() + state.getAlt() - tide;
             o.addProperty(new ObservedProperty("bathymetry", String.format("%.3f", bathym), "meters"));
         }

@@ -299,7 +299,7 @@ public class TidePredictionFactory {
     public static void main(String[] args) {
         for (int i = -10; i < 10; i++) {
             Date d = new Date(System.currentTimeMillis() + 1000 * 3600 * i);
-            System.out.println(d+": "+TidePrediction.getTideLevel(d));
+            System.out.println(d + ": " + TidePredictionFactory.getTideLevel(d));
         }
     }
 }

@@ -62,7 +62,7 @@ import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.bathymetry.TidePrediction;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 
 import com.google.common.eventbus.Subscribe;
@@ -269,7 +269,7 @@ public class BathymetryLayer extends ConsoleLayer {
             double width = 0;
             double alt = 0;
             if (state.getAlt() != -1) {
-                alt = state.getAlt() + state.getDepth() - TidePrediction.getTideLevel(state.getTimestampMillis());
+                alt = state.getAlt() + state.getDepth() - TidePredictionFactory.getTideLevel(state.getTimestampMillis());
                 width += state.getAlt();
             }
             alt = Math.max(0, alt);

@@ -57,7 +57,6 @@ import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.Periodic;
 import pt.lsts.neptus.util.GuiUtils;
-import pt.lsts.neptus.util.bathymetry.TidePrediction;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 import pt.lsts.neptus.util.conf.PreferencesListener;
@@ -81,7 +80,7 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
     @Periodic(millisBetweenUpdates=60000)
     public void updateMarker() {
         marker.setValue(System.currentTimeMillis());
-        levelMarker.setValue(TidePrediction.getTideLevel(new Date()));
+        levelMarker.setValue(TidePredictionFactory.getTideLevel(new Date()));
     }
 
     
@@ -116,7 +115,7 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
                     public void run() {
                         String harbor = TidePredictionFactory.fetchData(getConsole());
                         File used = GeneralPreferences.tidesFile;
-                        File f = new File("conf/tides/"+harbor+"." + TidePredictionFactory.defaultTideFormat);
+                        File f = new File("conf/tides/" + harbor + "." + TidePredictionFactory.defaultTideFormat);
                         if (!f.getAbsolutePath().equals(used.getAbsolutePath())) {
                             int resp = GuiUtils.confirmDialog(getConsole(), I18n.text("Tide Predictions"),
                                     I18n.textf(
@@ -128,7 +127,8 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
                                 GeneralPreferences.tidesFile = f;
                                 GeneralPreferences.saveProperties();
                                 preferencesUpdated();
-                                TidePrediction.getTideLevel(System.currentTimeMillis());
+                                // Force the tide file reload
+                                TidePredictionFactory.getTideLevel(System.currentTimeMillis());
                             }
                         }
                     };
@@ -143,10 +143,10 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
 
         for (double i = -12; i < 12; i+= 0.25) {
             Date d = new Date(System.currentTimeMillis() + (long)(i * 1000 * 3600));
-            ts.addOrUpdate(new Millisecond(d), TidePrediction.getTideLevel(d));
+            ts.addOrUpdate(new Millisecond(d), TidePredictionFactory.getTideLevel(d));
         }
         timeSeriesChart.getXYPlot().addDomainMarker(marker);
-        levelMarker.setValue(TidePrediction.getTideLevel(new Date()));
+        levelMarker.setValue(TidePredictionFactory.getTideLevel(new Date()));
         timeSeriesChart.getXYPlot().addRangeMarker(levelMarker);
     }
 

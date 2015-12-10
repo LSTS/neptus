@@ -191,7 +191,7 @@ public class TidCachedData extends CachedData {
         panel.add(new ChartPanel(timeSeriesChart), BorderLayout.CENTER);
 
         timeSeriesChart.getXYPlot().addDomainMarker(marker);
-        levelMarker.setValue(TidePrediction.getTideLevel(new Date()));
+        levelMarker.setValue(TidePredictionFactory.getTideLevel(new Date()));
         timeSeriesChart.getXYPlot().addRangeMarker(levelMarker);
         
         GuiUtils.testFrame(panel);
