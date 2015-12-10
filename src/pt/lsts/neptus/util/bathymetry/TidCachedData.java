@@ -68,11 +68,12 @@ import pt.lsts.neptus.util.tid.TidWriter;
 public class TidCachedData extends CachedData {
 
     /**
-     * @param f
+     * Loads the Tide file.
+     * @param file
      */
-    public TidCachedData(File f) {
+    public TidCachedData(File file) {
         try {
-            loadFile(f);
+            loadFile(file);
         }
         catch (Exception e) {
             e.printStackTrace();

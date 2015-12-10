@@ -103,6 +103,13 @@ public class TidePredictionFactory {
         }
     }
 
+    /**
+     * Creates a tide finder with either data in log ({@link logFolderTidesFileOptions})
+     * or from {@link GeneralPreferences#tidesFile}.
+     * If none found loads the tides according with {@link GeneralPreferences#tidesFile}.
+     * @param source
+     * @return
+     */
     public static TidePredictionFinder create(IMraLogGroup source) {
         File dir = source.getDir();
         dir = new File(dir, "mra");
@@ -110,6 +117,13 @@ public class TidePredictionFactory {
         return createWorker(dir, date, logFolderTidesFileOptions);
     }
     
+    /**
+     * Creates a tide finder with either data in log ({@link logFolderTidesFileOptions})
+     * or from {@link GeneralPreferences#tidesFile}.
+     * If none found loads the tides according with {@link GeneralPreferences#tidesFile}.
+     * @param source
+     * @return
+     */
     public static TidePredictionFinder create(LsfIndex source) {
         File dir = source.getLsfFile().getParentFile();
         dir = new File(dir, "mra");
@@ -117,6 +131,14 @@ public class TidePredictionFactory {
         return createWorker(dir, date, logFolderTidesFileOptions);
     }
 
+    /**
+     * Worker to load tide file (extension indicates the format)
+     * If none found loads the tides according with {@link GeneralPreferences#tidesFile}.
+     * @param baseDir The base folder to look for the fileNames.
+     * @param date The date we want to be in the data. Can be null.
+     * @param fileNames Alternative file names for the tide data.
+     * @return
+     */
     private static TidePredictionFinder createWorker(File baseDir, Date date, String... fileNames) {
         TidePredictionFinder finder = null;
         for (String nm : fileNames) {
@@ -130,6 +152,13 @@ public class TidePredictionFactory {
         return finder;
     }
 
+    /**
+     * Worker to load tide file (extension indicates the format)
+     * If none found loads the tides according with {@link GeneralPreferences#tidesFile}.
+     * @param fx The tide file to load.
+     * @param date The date we want to be in the data. Can be null.
+     * @return
+     */
     private static TidePredictionFinder createWorker(File fx, Date date) {
         TidePredictionFinder finder = null;
         if (fx != null && fx.canRead()) {
@@ -157,6 +186,11 @@ public class TidePredictionFactory {
         return finder;
     }
     
+    /**
+     * Visual helper to get tide data.
+     * @param parent The parent component for the dialogs opened.
+     * @return
+     */
     public static String fetchData(Component parent) {
         Vector<String> harbors = new Vector<>();
         for (TideDataFetcher.Harbor h : TideDataFetcher.Harbor.values()) {
@@ -237,7 +271,7 @@ public class TidePredictionFactory {
         while (current.getTime() < end.getTime()) {
             if (progress.isCanceled())
                 return harbor;
-            double done = current.getTime()-start.getTime();
+            double done = current.getTime() - start.getTime();
             try {
                 Date d = data.fetchData(harbor, current);
                 if (d != null)
@@ -247,7 +281,7 @@ public class TidePredictionFactory {
                 e.printStackTrace();
             }
             System.out.println(current);
-            progress.setProgress((int)(done*100.0/delta));
+            progress.setProgress((int) (done * 100.0 / delta));
             progress.setNote(current.toString());
         }
         try {
