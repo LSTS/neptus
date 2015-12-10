@@ -110,7 +110,7 @@ import convcao.com.caoAgent.model.TransferData;
  */
 @PluginDescription(author="thanasis", category=CATEGORY.UNSORTED, name="convcao Neptus Interaction")
 @Popup(accelerator=KeyEvent.VK_N, pos=Popup.POSITION.CENTER, height=500, width=510, name="convcao Neptus Interaction")
-public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2DPainter, IController, ConfigurationListener {
+public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2DPainter, IController, ConfigurationListener {
 
     private static final long serialVersionUID = -1330079540844029305L;
     private static final double DVL_ANGLE = Math.toRadians(22.5);
@@ -496,7 +496,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
     /**
      * @param console
      */
-    public convcaoNeptusInteraction(ConsoleLayout console) {
+    public ConvcaoNeptusInteraction(ConsoleLayout console) {
         super(console);
 
     }
@@ -1084,7 +1084,7 @@ public class convcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         addMenuItem("Settings>Noptilus>ConvCAO Settings", ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass())), new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                PluginUtils.editPluginProperties(convcaoNeptusInteraction.this, true);                               
+                PluginUtils.editPluginProperties(ConvcaoNeptusInteraction.this, true);                               
             }
         });
 
