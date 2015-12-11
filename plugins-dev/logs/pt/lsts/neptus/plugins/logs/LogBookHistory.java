@@ -62,6 +62,7 @@ public class LogBookHistory extends AbstractListModel<HistoryMessage> implements
 
     private static final long serialVersionUID = 2382030731540409061L;
     protected LinkedList<HistoryMessage> messages = new LinkedList<>();
+    protected LinkedList<HistoryMessage> filteredMessages = new LinkedList<>();
     protected String sysname;
     protected int maxSize = 250;
     
@@ -149,6 +150,7 @@ public class LogBookHistory extends AbstractListModel<HistoryMessage> implements
         l.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 3));
         l.setOpaque(true);
         l.setBackground(bgColors.get(value.type));
+        l.setIcon(getIcon(value.type));
         if (value.type == msg_type.critical)
             l.setForeground(Color.yellow);
 
