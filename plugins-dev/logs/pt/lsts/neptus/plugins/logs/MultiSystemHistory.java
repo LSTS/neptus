@@ -86,6 +86,7 @@ public class MultiSystemHistory extends JPanel {
 
             public void actionPerformed(ActionEvent e) {
                 showInfo = ((JCheckBox) e.getSource()).isSelected();
+                updateMessages();
                 //NeptusLog.pub().info("showInfo[MultiSystemHistory]: "+showInfo);
             }
         });
@@ -94,6 +95,7 @@ public class MultiSystemHistory extends JPanel {
             private static final long serialVersionUID = 1L;
             public void actionPerformed(ActionEvent e) {
                 showWarn = ((JCheckBox) e.getSource()).isSelected();
+                updateMessages();
                 //NeptusLog.pub().info("showWarn[MultiSystemHistory]: "+showWarn);
             }
         });
@@ -102,6 +104,7 @@ public class MultiSystemHistory extends JPanel {
             private static final long serialVersionUID = 1L;
             public void actionPerformed(ActionEvent e) {
                 showError = ((JCheckBox) e.getSource()).isSelected();
+                updateMessages();
                 //NeptusLog.pub().info("showError[MultiSystemHistory]: "+showError);
             }
         });
@@ -111,6 +114,7 @@ public class MultiSystemHistory extends JPanel {
             private static final long serialVersionUID = 1L;
             public void actionPerformed(ActionEvent e) {
                 showDebug = ((JCheckBox) e.getSource()).isSelected();
+                updateMessages();
                 //NeptusLog.pub().info("showDebug[MultiSystemHistory]: "+showDebug);
             }
         });
@@ -125,6 +129,20 @@ public class MultiSystemHistory extends JPanel {
         
     }
 
+    private void updateMessages() {
+        LogBookControl ctrl = new LogBookControl();
+        ctrl.setCommand(LogBookControl.COMMAND.GET);
+        for (String sys : histories.keySet()) {
+            ImcMsgManager.getManager().sendMessageToSystem(ctrl, sys);
+            LogBookHistory lb = histories.get(sys);
+            lb.showInfo = this.showInfo;
+            lb.showWarn = this.showWarn;
+            lb.showError = this.showError;
+            lb.showDebug = this.showDebug;
+            lb.updateFilter();
+        } 
+    }
+    
     public Collection<HistoryMessage> add(Collection<HistoryMessage> msgs, String src) {
         if (!histories.containsKey(src)) {
             createHistory(src);
@@ -151,7 +169,7 @@ public class MultiSystemHistory extends JPanel {
     }
 
     public JList<HistoryMessage> createHistory(String src) {
-        final LogBookHistory hist = new LogBookHistory(src);
+        final LogBookHistory hist = new LogBookHistory(src, showInfo, showWarn, showError, showDebug);
         histories.put(src, hist);
         final JList<HistoryMessage> list = new JList<>(hist);
         list.setCellRenderer(hist);
@@ -175,9 +193,7 @@ public class MultiSystemHistory extends JPanel {
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            LogBookControl ctrl = new LogBookControl();
-                            ctrl.setCommand(LogBookControl.COMMAND.GET);
-                            ImcMsgManager.getManager().sendMessageToSystem(ctrl, hist.sysname);
+                            updateMessages();
                         }
                     });
 
