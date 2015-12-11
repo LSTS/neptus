@@ -92,6 +92,9 @@ public class DeltaTParser implements BathymetryParser {
     private String processResultOutputFileName;
     private Writer processResultOutputWriter;
     
+    private long firstTimestamp = 0;
+    private long lastTimestamp = 0;
+    
     public DeltaTParser(IMraLogGroup source) {
         this.source = source;
         file = findDataSource(source);
@@ -195,6 +198,7 @@ public class DeltaTParser implements BathymetryParser {
 
             BathymetrySwath bs;
 
+            boolean firstTimestampSet = false;
             while ((bs = nextSwath()) != null) {
                 LocationType loc = bs.getPose().getPosition().convertToAbsoluteLatLonDepth();
                 double lat = loc.getLatitudeDegs();
@@ -204,6 +208,12 @@ public class DeltaTParser implements BathymetryParser {
                 maxLon = Math.max(lon, maxLon);
                 minLat = Math.min(lat, minLat);
                 minLon = Math.min(lon, minLon);
+                
+                if (!firstTimestampSet) {
+                    firstTimestamp = bs.getTimestamp();
+                    firstTimestampSet = true;
+                }
+                lastTimestamp = bs.getTimestamp();
 
                 for (int c = 0; c < bs.getNumBeams(); c++) {
                     BathymetryPoint p = bs.getData()[c];
@@ -278,7 +288,18 @@ public class DeltaTParser implements BathymetryParser {
                 e.printStackTrace();
             }
         }
-        
+        else {
+            BathymetrySwath bs;
+            boolean firstTimestampSet = false;
+            while ((bs = nextSwath()) != null) {
+                if (!firstTimestampSet) {
+                    firstTimestamp = bs.getTimestamp();
+                    firstTimestampSet = true;
+                }
+                lastTimestamp = bs.getTimestamp();
+            }
+            curPos = 0;
+        }
     }
 
     public static boolean canBeApplied(IMraLogGroup source) {
@@ -318,12 +339,12 @@ public class DeltaTParser implements BathymetryParser {
     
     @Override
     public long getFirstTimestamp() {
-        return 0;
+        return firstTimestamp;
     }
 
     @Override
     public long getLastTimestamp() {
-        return 0;
+        return lastTimestamp;
     }
 
     @Override
