@@ -118,7 +118,7 @@ public class XyzExporter implements MRAExporter {
             processMultibeam(source);
         }
         
-        if (exportEstimatedState) {
+        if (exportDistance) {
             pmonitor.setNote(I18n.text("Processing DVL data"));
             processDvl(source);
         }
