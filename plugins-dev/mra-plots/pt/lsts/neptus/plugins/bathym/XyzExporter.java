@@ -163,11 +163,8 @@ public class XyzExporter implements MRAExporter {
             writer.write(COMMENT_STRING + "Data source: " + dataSource + LINE_ENDING);
             writer.write(COMMENT_STRING + LINE_ENDING);
 
-            writer.write(COMMENT_STRING + "Longitude" + spacer.getText() + "Latitude" 
-                    + spacer.getText() + "Depth" + LINE_ENDING);
-            writer.write(COMMENT_STRING + "(decimal degrees"
-                    + spacer.getText() + "decimal degrees"
-                    + spacer.getText() + "meters)" + LINE_ENDING);
+            writer.write(COMMENT_STRING + "Longitude, Latitude, Depth" + LINE_ENDING);
+            writer.write(COMMENT_STRING + "(decimal degrees, decimal degrees, meters)" + LINE_ENDING);
         }
         catch (Exception e) {
             e.printStackTrace();
