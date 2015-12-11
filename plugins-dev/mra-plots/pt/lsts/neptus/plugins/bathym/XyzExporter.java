@@ -107,7 +107,7 @@ public class XyzExporter implements MRAExporter {
     public File file = new File(".");
 
     @NeptusProperty(name = "Data spacer")
-    public SeparatorChar spacer = SeparatorChar.SPACE;
+    public SeparatorChar spacer = SeparatorChar.COMMA;
 
     private TidePredictionFinder finder = null;
     private BufferedWriter writer = null;
