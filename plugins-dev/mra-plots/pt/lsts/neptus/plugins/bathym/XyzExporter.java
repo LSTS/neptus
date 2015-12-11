@@ -56,6 +56,7 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 
@@ -66,7 +67,30 @@ import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 @PluginDescription(name="XYZ Exporter")
 public class XyzExporter implements MRAExporter {
 
-    @NeptusProperty(name="Export EstimatedState-derived points")
+    /** Line ending to use */
+    private static final String LINE_ENDING = "\r\n";
+    /** Comment char to use */
+    private static final String COMMENT_CHAR = "#";
+    /** Comment string to use */
+    private static final String COMMENT_STRING = COMMENT_CHAR + " ";
+    
+    /** The data spacer chooser */
+    public enum SeparatorChar {
+        SPACE(" "),
+        COMMA(", ");
+
+        private String txt = " ";
+
+        private SeparatorChar(String txt) {
+            this.txt = txt;
+        }
+
+        /** Return the spacer text */
+        public String getText() {
+            return txt;
+        }
+    };
+
     @NeptusProperty(name = "Export EstimatedState-derived points")
     public boolean exportEstimatedState = false;
 
@@ -82,6 +106,9 @@ public class XyzExporter implements MRAExporter {
     @NeptusProperty(name = "Filename to write to", editable = false)
     public File file = new File(".");
 
+    @NeptusProperty(name = "Data spacer")
+    public SeparatorChar spacer = SeparatorChar.SPACE;
+
     private TidePredictionFinder finder = null;
     private BufferedWriter writer = null;
     private ProgressMonitor pmonitor;
@@ -89,6 +116,11 @@ public class XyzExporter implements MRAExporter {
     public XyzExporter(IMraLogGroup source) {
         file = new File(source.getDir(), "mra/bathymetry.xyz");
         finder = TidePredictionFactory.create(source);
+    }
+
+    @Override
+    public String getName() {
+        return PluginUtils.getLocalizedPluginName(this.getClass());
     }
 
     @Override
@@ -101,35 +133,75 @@ public class XyzExporter implements MRAExporter {
         pmonitor.setMaximum(100);
         PluginUtils.editPluginProperties(this, true);
         this.pmonitor = pmonitor;
+        this.pmonitor.setMillisToDecideToPopup(0);
+        
+        this.pmonitor.setProgress(0);
+        
+        if (finder == null)
+            tideCorrection = false;
+        
         try {
             writer = new BufferedWriter(new FileWriter(file));
+
+            // Writing header
+            writer.write(COMMENT_STRING + "XYZ Data" + LINE_ENDING);
+            double startTimeSeconds = source.getLsfIndex().getStartTime();
+            writer.write(COMMENT_STRING + "Date of data: " 
+                    + DateTimeUtil.dateFormatterUTC.format(new Date((long) (startTimeSeconds * 1E3))) 
+                    + LINE_ENDING);
+            writer.write(COMMENT_STRING + "Tide corrected: " + (tideCorrection ? "yes (" 
+                    + finder.getName() + ")" : "no") + LINE_ENDING);
+            
+            // Data source info
+            String dataSource = "";
+            if (exportEstimatedState)
+                dataSource = "navigation";
+            if (exportMultibeam)
+                dataSource += (dataSource.isEmpty() ? "" : ", ") + "multibeam";
+            if (exportDistance)
+                dataSource += (dataSource.isEmpty() ? "" : ", ") + "dvl";
+            writer.write(COMMENT_STRING + "Data source: " + dataSource + LINE_ENDING);
+            writer.write(COMMENT_STRING + LINE_ENDING);
+
+            writer.write(COMMENT_STRING + "Longitude" + spacer.getText() + "Latitude" 
+                    + spacer.getText() + "Depth" + LINE_ENDING);
+            writer.write(COMMENT_STRING + "(decimal degrees"
+                    + spacer.getText() + "decimal degrees"
+                    + spacer.getText() + "meters)" + LINE_ENDING);
         }
         catch (Exception e) {
             e.printStackTrace();
             return I18n.textf("%name while trying to write to file: %message.", e.getClass().getSimpleName(), e.getMessage()); 
         }
 
+        this.pmonitor.setProgress(10);
+        
         if (exportEstimatedState) {
             pmonitor.setNote(I18n.text("Processing EstimatedState data"));
             processEstimatedStates(source);
         }
         
+        this.pmonitor.setProgress(30);
         if (exportMultibeam) {
             pmonitor.setNote(I18n.text("Processing Multibeam data"));
             processMultibeam(source);
         }
         
+        this.pmonitor.setProgress(60);
         if (exportDistance) {
             pmonitor.setNote(I18n.text("Processing DVL data"));
             processDvl(source);
         }
         
+        this.pmonitor.setProgress(80);
         try {
             writer.close();
         }
         catch (Exception e) {
             e.printStackTrace(); 
         }
+        
+        this.pmonitor.setProgress(100);
         
         return I18n.textf("File written to %file.", file.getAbsolutePath());
     }
@@ -195,7 +267,6 @@ public class XyzExporter implements MRAExporter {
         processPoints(new DVLBathymetryParser(source));
     }
 
-
     private void addSample(Date date, LocationType loc, double depth) {
         double tide = 0;
         if (tideCorrection) {
@@ -209,17 +280,13 @@ public class XyzExporter implements MRAExporter {
         loc.convertToAbsoluteLatLonDepth();
 
         try {
-            writer.write(String.format(Locale.US, "%.8f %.8f %.2f\n", loc.getLongitudeDegs(), loc.getLatitudeDegs(),
-                    Math.abs(depth) - tide));
+            writer.write(String.format(Locale.US, "%.8f" + spacer.getText() + "%.8f" 
+                    + spacer.getText() + "%.2f" + LINE_ENDING, loc.getLongitudeDegs(), 
+                    loc.getLatitudeDegs(), Math.abs(depth) - tide));
         }
         catch (Exception e) {
             e.printStackTrace();
         }        
-    }
-
-    @Override
-    public String getName() {
-        return "Export as .xyz";
     }
 
     /**
