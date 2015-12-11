@@ -50,6 +50,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.ProgressMonitor;
 
+import org.imgscalr.Scalr;
+
 import pt.lsts.imc.EstimatedState;
 import pt.lsts.imc.IMCMessage;
 import pt.lsts.neptus.NeptusLog;
@@ -86,6 +88,9 @@ import pt.lsts.neptus.util.ZipUtils;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 import pt.lsts.neptus.util.llf.LogUtils;
+import pt.lsts.neptus.util.sidescan.AcousticCommsFilter;
+import pt.lsts.neptus.util.sidescan.SideScanComposite;
+import pt.lsts.neptus.util.sidescan.SlantRangeImageFilter;
 import pt.lsts.util.WGS84Utilities;
 
 /**
@@ -93,66 +98,55 @@ import pt.lsts.util.WGS84Utilities;
  */
 @PluginDescription
 public class KMLExporter implements MRAExporter {
-//    private double minLat = 180;
-//    private double maxLat = -180;
-//    private double minLon = 360;
-//    private double maxLon = -360;
-
     public double minHeight = 1000;
     public double maxHeight = -1;
-
-//    private LocationType topLeftLT;
-//    private LocationType bottomRightLT;
-
-//    private File f, output;
     private IMraLogGroup source;
     private ProgressMonitor pmonitor;
 
-    @NeptusProperty(category = "SideScan")
+    @NeptusProperty(category = "SideScan", name="Time Variable Gain")
     public double timeVariableGain = 300;
 
-    @NeptusProperty(category = "SideScan")
+    @NeptusProperty(category = "SideScan", name="Normalization")
     public double normalization = 0.1;
-
-    @NeptusProperty(category = "SideScan")
-    public double swathLength = 1.0;
-
-    @NeptusProperty(category = "SideScan")
+    
+    @NeptusProperty(category = "SideScan", name="Swath transparency")
     public double swathTransparency = 0.25;
 
-    @NeptusProperty
+    @NeptusProperty(category="Output", name="Generated layers transparency")
     public double layerTransparency = 0.5;
 
-    @NeptusProperty(category = "SideScan")
+    @NeptusProperty(category = "SideScan", name="Separate transducers")
     public boolean separateTransducers = false;
 
-    @NeptusProperty(category = "SideScan")
+    @NeptusProperty(category = "SideScan", name="Separate line segments")
     public boolean separateLineSegments = false;
 
-    @NeptusProperty(category = "SideScan")
-    public boolean filterOutNadir = true;
+    @NeptusProperty(category = "SideScan", name="Slant Range Correction")
+    public boolean slantRangeCorrection = true;
     
-    @NeptusProperty(category = "Output")
+    @NeptusProperty(category = "SideScan", name="Pixel blending mode", description="How to blend multiple measurements on same location")
+    public SideScanComposite.MODE blendMode = SideScanComposite.MODE.MAX;
+    
+    @NeptusProperty(category = "Output", name="Compress Output")
     public boolean compressOutput = true;
 
-//    @NeptusProperty
-//    public boolean removeInfiniteShadows = true;
-
-    @NeptusProperty(category = "SideScan")
     public double maximumSidescanRange = 50;
 
-    @NeptusProperty (name = "Seconds Gap in EstimatedState for Path Break")
+    @NeptusProperty(name = "Interval (seconds) for path separation", description = "If two vehicle states have a further time separation they will originate two separate paths")
     public int secondsGapInEstimatedStateForPathBreak = 30;
 
-    @NeptusProperty(category = "Visibility")
+    @NeptusProperty(category = "Default Visibility", name="Show Bathymetry")
     public boolean visibilityForBathymetry = true;
 
-    @NeptusProperty(category = "Visibility")
+    @NeptusProperty(category = "Default Visibility", name="Show Sidescan")
     public boolean visibilityForSideScan = true;
     
-    @NeptusProperty(category = "Visibility")
+    @NeptusProperty(category = "Default Visibility", name="Show Legend")
     public boolean visibilityForLegends = true;
-
+    
+    @NeptusProperty(category = "SideScan", name="Acoustic Communications Filter")
+    public boolean filterMicromodem = false;
+    
     public KMLExporter(IMraLogGroup source) {
         this.source = source;
     }
@@ -306,7 +300,7 @@ public class KMLExporter implements MRAExporter {
         board,
         both
     }
-
+    
     public String sidescanOverlay(File dir, double resolution, LocationType topLeft, LocationType bottomRight,
             String fname, long startTime, long endTime, Ducer ducer) {
         SidescanParser ssParser = SidescanParserFactory.build(source);
@@ -353,6 +347,11 @@ public class KMLExporter implements MRAExporter {
         String filename = fname;
 
         BufferedImage swath = null;
+        
+        AcousticCommsFilter filter = null;
+        if (filterMicromodem)
+            filter = new AcousticCommsFilter(source);
+        
         ColorMap cmap = ColorMapFactory.createBronzeColormap();
         for (long time = start; time < end - 1000; time += 1000) {
             if (pmonitor.isCanceled()) {
@@ -376,11 +375,10 @@ public class KMLExporter implements MRAExporter {
             BufferedImage previous = new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB);
             for (SidescanLine sl : lines) {
 
+                if (filter != null && !filter.isDataValid(new Date(sl.timestampMillis)))
+                    continue;
+                
                 int widthPixels = (int) (sl.range * resolution * 2);
-
-                // Calculate nadir pixel range to be zero-alpha (transparent)
-                int nadirStartPixel = (int) ((widthPixels / 2) - (sl.state.getAltitude() * resolution * 1.25));
-                int nadirFinalPixel = (int) ((widthPixels / 2) + (sl.state.getAltitude() * resolution * 1.25));
 
                 if (swath == null || swath.getWidth() != widthPixels)
                     swath = new BufferedImage(widthPixels, 3, BufferedImage.TYPE_INT_ARGB);
@@ -423,51 +421,35 @@ public class KMLExporter implements MRAExporter {
 
                         int pixelInImgToWrite = (i / samplesPerPixel - 1) + pixelOffset;
 
-//                        if (filterOutNadir && (double) i / samplesPerPixel >= nadirStartPixel
-//                                && (double) i / samplesPerPixel <= nadirFinalPixel) {
-                        if (filterOutNadir && pixelInImgToWrite >= nadirStartPixel
-                                && pixelInImgToWrite <= nadirFinalPixel) {
-                            if (Double.isNaN(val) || Double.isInfinite(val))
-                                alpha = 255;
-                            else
-                                alpha = (int) ((1.0 - val) * (1.0 - val) * 255);
-                        }
-
                         if (Double.isNaN(val) || Double.isInfinite(val))
                             alpha = 255;
-//                        if ((i / samplesPerPixel - 1) < widthPixels)
-//                            swath.setRGB(i / samplesPerPixel - 1, 0, cmap.getColor(val).getRGB()
-//                                    ^ ((alpha & 0xFF) << 24));
                         if (pixelInImgToWrite >= 0 && pixelInImgToWrite < widthPixels)
                             swath.setRGB(pixelInImgToWrite, 0, cmap.getColor(val).getRGB()
                                     ^ ((alpha & 0xFF) << 24));
-//                        else
-//                            System.out.println(pixelInImgToWrite);
-                        
                         sum = 0;
                         count = 0;
                     }
-//                    else {
-                        if (!Double.isNaN(sl.data[i]) && !Double.isInfinite(sl.data[i])) { 
-                            count++;
-                            sum += sl.data[i];
-                        }
-//                    }
+                    if (!Double.isNaN(sl.data[i]) && !Double.isInfinite(sl.data[i])) { 
+                        count++;
+                        sum += sl.data[i];
+                    }
                 }
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                if (blendMode != SideScanComposite.MODE.NONE)
+                    g2.setComposite(new SideScanComposite(blendMode));
                 double[] pos = sl.state.getPosition().getOffsetFrom(topLeft);
                 g2.translate(pos[1] * resolution, -pos[0] * resolution);
-                // System.out.print(Math.toDegrees(sl.state.getYaw())+" --> ");
                 if (makeAbs && sl.state.getYaw() < 0)
                     g2.rotate(Math.toRadians(300) + sl.state.getYaw());
                 else
                     g2.rotate(sl.state.getYaw());
-                // System.out.println(Math.toDegrees(Math.abs(sl.state.getYaw())));
-                // System.out.println(Math.toDegrees(sl.state.getYaw()));
                 g2.setColor(Color.black);
-                g2.scale(1, swathLength * resolution);
+                g2.scale(1, resolution);
+
+                if (slantRangeCorrection)
+                    swath = Scalr.apply(swath, new SlantRangeImageFilter(sl.state.getAltitude(), sl.range, swath.getWidth()));
 
                 g2.drawImage(swath, -swath.getWidth() / 2, 0, null);
                 g2.dispose();

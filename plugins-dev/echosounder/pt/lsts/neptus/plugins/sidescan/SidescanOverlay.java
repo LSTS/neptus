@@ -54,6 +54,7 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.replay.LogReplayLayer;
 import pt.lsts.neptus.renderer2d.StateRenderer2D;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.sidescan.SlantRangeImageFilter;
 
 /**
  * @author zp

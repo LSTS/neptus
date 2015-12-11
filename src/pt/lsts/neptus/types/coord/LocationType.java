@@ -109,7 +109,7 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         ONE_LAT_DEGREE = lt.getDistanceInMeters(ABSOLUTE_ZERO);
     }
 
-    private static NumberFormat nf6 = GuiUtils.getNeptusDecimalFormat(6);
+    private static NumberFormat nf8 = GuiUtils.getNeptusDecimalFormat(8);
     private static NumberFormat nf2 = GuiUtils.getNeptusDecimalFormat(2);
 
     protected String id = NameNormalizer.getRandomID();
@@ -705,8 +705,8 @@ public class LocationType implements XmlOutputMethods, Serializable, Comparable<
         }
 
         // Any change to this reflects #valurOf method!!
-        return latStr + nf6.format(lat) + CoordinateUtil.CHAR_DEGREE + ", " + lonStr
-                + nf6.format(lon) + CoordinateUtil.CHAR_DEGREE + (getHeight() != 0 ? (", " +  nf2.format(getHeight())) : "");
+        return latStr + nf8.format(lat) + CoordinateUtil.CHAR_DEGREE + ", " + lonStr
+                + nf8.format(lon) + CoordinateUtil.CHAR_DEGREE + (getHeight() != 0 ? (", " +  nf2.format(getHeight())) : "");
     }
 
     public static LocationType valueOf(String value) {

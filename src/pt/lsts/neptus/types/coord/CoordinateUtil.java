@@ -68,6 +68,8 @@ public class CoordinateUtil {
     
     public final static NumberFormat heading3DigitsFormat = new DecimalFormat("000");
 
+    private static final int DEFAULT_DHOUSES_FOR_DMS = 2;
+    private static final int DEFAULT_DHOUSES_FOR_DM  = 4;
 
     /**
      * @param coord Is expeted to be in the form of:
@@ -447,7 +449,7 @@ public class CoordinateUtil {
      * @return
      */
     public static String dmsToLatString(double[] dms) {
-        return dmsToLatLonString(dms, true, -1);
+        return dmsToLatLonString(dms, true, DEFAULT_DHOUSES_FOR_DMS);
     }
 
     /**
@@ -464,7 +466,7 @@ public class CoordinateUtil {
      * @return
      */
     public static String dmToLatString(double[] dm) {
-        return dmToLatLonString(dm, true, -1);
+        return dmToLatLonString(dm, true, DEFAULT_DHOUSES_FOR_DM);
     }
 
     /**
@@ -484,7 +486,7 @@ public class CoordinateUtil {
      */
     public static String dmsToLatString(double d, double m, double s) {
         double[] dms = { d, m, s };
-        return dmsToLatLonString(dms, true, -1);
+        return dmsToLatLonString(dms, true, DEFAULT_DHOUSES_FOR_DMS);
     }
 
     /**
@@ -506,7 +508,7 @@ public class CoordinateUtil {
      */
     public static String dmToLatString(double d, double m) {
         double[] dm = { d, m };
-        return dmToLatLonString(dm, true, -1);
+        return dmToLatLonString(dm, true, DEFAULT_DHOUSES_FOR_DM);
     }
 
     /**
@@ -525,7 +527,7 @@ public class CoordinateUtil {
      * @return
      */
     public static String dmsToLonString(double[] dms) {
-        return dmsToLatLonString(dms, false, -1);
+        return dmsToLatLonString(dms, false, DEFAULT_DHOUSES_FOR_DMS);
     }
 
     /**
@@ -542,7 +544,7 @@ public class CoordinateUtil {
      * @return
      */
     public static String dmToLonString(double[] dm) {
-        return dmToLatLonString(dm, false, -1);
+        return dmToLatLonString(dm, false, DEFAULT_DHOUSES_FOR_DM);
     }
 
     /**
@@ -562,7 +564,7 @@ public class CoordinateUtil {
      */
     public static String dmsToLonString(double d, double m, double s) {
         double[] dms = { d, m, s };
-        return dmsToLatLonString(dms, false, -1);
+        return dmsToLatLonString(dms, false, DEFAULT_DHOUSES_FOR_DMS);
     }
 
     /**
@@ -584,7 +586,7 @@ public class CoordinateUtil {
      */
     public static String dmToLonString(double d, double m) {
         double[] dm = { d, m };
-        return dmToLatLonString(dm, false, -1);
+        return dmToLatLonString(dm, false, DEFAULT_DHOUSES_FOR_DM);
     }
 
     /**

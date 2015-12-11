@@ -29,7 +29,7 @@
  * Author: José Pinto
  * Dec 19, 2012
  */
-package pt.lsts.neptus.plugins.sidescan;
+package pt.lsts.neptus.util.sidescan;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -56,7 +56,7 @@ public class SlantRangeImageFilter extends TransformFilter {
     
     public SlantRangeImageFilter(double height, double range, int imgWidth) {
         this.imgWidth = imgWidth;
-        this.height = height * 2;
+        this.height = height;
         this.range = range;
         
     }

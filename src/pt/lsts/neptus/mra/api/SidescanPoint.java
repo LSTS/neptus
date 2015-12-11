@@ -42,16 +42,19 @@ public class SidescanPoint {
     public int x,y;
     public int xsize;
     
+    public SidescanLine line;
+    
     /**
      * @param location
      * @param x
      * @param y
      */
-    public SidescanPoint(int x, int y, int xsize, LocationType location) {
+    public SidescanPoint(int x, int y, int xsize, LocationType location, SidescanLine line) {
         super();
         this.location = location;
         this.x = x;
         this.y = y;
         this.xsize = xsize;
+        this.line = line;
     }
 }
