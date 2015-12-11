@@ -67,18 +67,19 @@ import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 public class XyzExporter implements MRAExporter {
 
     @NeptusProperty(name="Export EstimatedState-derived points")
+    @NeptusProperty(name = "Export EstimatedState-derived points")
     public boolean exportEstimatedState = false;
 
-    @NeptusProperty(name="Export DVL's Distance-derived points")
+    @NeptusProperty(name = "Export DVL's Distance-derived points")
     public boolean exportDistance = false;
 
-    @NeptusProperty(name="Export Multibeam Sonar points")
+    @NeptusProperty(name = "Export Multibeam Sonar points")
     public boolean exportMultibeam = true;
 
-    @NeptusProperty(name="Tide Correction")
+    @NeptusProperty(name = "Tide Correction")
     public boolean tideCorrection = true;
     
-    @NeptusProperty(name="Filename to write to", editable = false)
+    @NeptusProperty(name = "Filename to write to", editable = false)
     public File file = new File(".");
 
     private TidePredictionFinder finder = null;
@@ -166,7 +167,6 @@ public class XyzExporter implements MRAExporter {
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd hh:mm");
         
         while ((swath = parser.nextSwath()) != null) {
-            
             if (pmonitor.isCanceled())
                 break;
             /*
