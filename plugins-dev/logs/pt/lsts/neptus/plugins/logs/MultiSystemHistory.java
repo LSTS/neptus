@@ -32,6 +32,7 @@
 package pt.lsts.neptus.plugins.logs;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -45,6 +46,8 @@ import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
+import javax.swing.AbstractAction;
+import javax.swing.JCheckBox;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -67,12 +70,59 @@ public class MultiSystemHistory extends JPanel {
     protected LinkedHashMap<String, LogBookHistory> histories = new LinkedHashMap<>();
     protected LinkedHashMap<String, JList<HistoryMessage>> lists = new LinkedHashMap<>();
 
-    /**
-     * 
-     */
+    protected boolean showInfo = true;
+    protected boolean showWarn = true;
+    protected boolean showError = true;
+    protected boolean showDebug = false;
+    
     public MultiSystemHistory() {
         setLayout(new BorderLayout());
         add(tabs, BorderLayout.CENTER);
+        
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
+
+        JCheckBox check_info = new JCheckBox(new AbstractAction(I18n.text("Information")) {
+            private static final long serialVersionUID = 1L;
+
+            public void actionPerformed(ActionEvent e) {
+                showInfo = ((JCheckBox) e.getSource()).isSelected();
+                //NeptusLog.pub().info("showInfo[MultiSystemHistory]: "+showInfo);
+            }
+        });
+        check_info.setSelected(showInfo);
+        JCheckBox check_warn = new JCheckBox(new AbstractAction(I18n.text("Warning")) {
+            private static final long serialVersionUID = 1L;
+            public void actionPerformed(ActionEvent e) {
+                showWarn = ((JCheckBox) e.getSource()).isSelected();
+                //NeptusLog.pub().info("showWarn[MultiSystemHistory]: "+showWarn);
+            }
+        });
+        check_warn.setSelected(showWarn);
+        JCheckBox check_error = new JCheckBox(new AbstractAction(I18n.text("Error")) {
+            private static final long serialVersionUID = 1L;
+            public void actionPerformed(ActionEvent e) {
+                showError = ((JCheckBox) e.getSource()).isSelected();
+                //NeptusLog.pub().info("showError[MultiSystemHistory]: "+showError);
+            }
+        });
+        check_error.setSelected(showError);
+
+        JCheckBox check_debug = new JCheckBox(new AbstractAction(I18n.text("Debug")) {
+            private static final long serialVersionUID = 1L;
+            public void actionPerformed(ActionEvent e) {
+                showDebug = ((JCheckBox) e.getSource()).isSelected();
+                //NeptusLog.pub().info("showDebug[MultiSystemHistory]: "+showDebug);
+            }
+        });
+        check_debug.setSelected(showDebug);
+
+        bottom.add(check_info);
+        bottom.add(check_warn);
+        bottom.add(check_error);
+        bottom.add(check_debug);
+        
+        add(bottom, BorderLayout.SOUTH);
+        
     }
 
     public Collection<HistoryMessage> add(Collection<HistoryMessage> msgs, String src) {
