@@ -230,22 +230,24 @@ public class XyzExporter implements MRAExporter {
 
         BathymetrySwath swath;
         
-        /*long firstTime = parser.getFirstTimestamp();
-        long lastTime = parser.getLastTimestamp();
-        long total = lastTime - firstTime;
-        */
-        System.out.println(parser.getLastTimestamp());
-        System.out.println(parser.getFirstTimestamp());
+        double firstTime = parser.getFirstTimestamp();
+        double lastTime = parser.getLastTimestamp();
+        double timeSpan = lastTime - firstTime;
+        if (timeSpan == 0)
+            timeSpan = 1;
+        
+//        System.out.println(parser.getLastTimestamp());
+//        System.out.println(parser.getFirstTimestamp());
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd hh:mm");
         
         while ((swath = parser.nextSwath()) != null) {
             if (pmonitor.isCanceled())
                 break;
-            /*
-            long pos = ((swath.getTimestamp() - firstTime)*100) / total;
-            pmonitor.setProgress((int)pos);
-            */
+
             LocationType loc = swath.getPose().getPosition();
+            
+            int prog = (int) (100 * ((swath.getTimestamp() - firstTime) / timeSpan));
+            pmonitor.setProgress(prog);
 
             for (BathymetryPoint bp : swath.getData()) {
                 LocationType loc2 = new LocationType(loc);
@@ -280,9 +282,10 @@ public class XyzExporter implements MRAExporter {
         loc.convertToAbsoluteLatLonDepth();
 
         try {
-            writer.write(String.format(Locale.US, "%.8f" + spacer.getText() + "%.8f" 
+            String outStr = String.format(Locale.US, "%.8f" + spacer.getText() + "%.8f" 
                     + spacer.getText() + "%.2f" + LINE_ENDING, loc.getLongitudeDegs(), 
-                    loc.getLatitudeDegs(), Math.abs(depth) - tide));
+                    loc.getLatitudeDegs(), Math.abs(depth) - tide);
+            writer.write(outStr);
         }
         catch (Exception e) {
             e.printStackTrace();
