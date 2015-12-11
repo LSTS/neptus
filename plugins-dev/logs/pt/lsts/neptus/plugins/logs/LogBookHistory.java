@@ -66,6 +66,8 @@ public class LogBookHistory extends AbstractListModel<HistoryMessage> implements
     protected String sysname;
     protected int maxSize = 250;
     
+    protected boolean showInfo, showWarn, showError, showDebug;
+    
     protected LinkedHashMap<msg_type, Color> bgColors = new LinkedHashMap<HistoryMessage.msg_type, Color>();
     {
         bgColors.put(msg_type.critical, Color.black);
@@ -78,7 +80,17 @@ public class LogBookHistory extends AbstractListModel<HistoryMessage> implements
     public LogBookHistory(String sysname) {
         this.sysname = sysname;
     }
+    
+    public LogBookHistory(String sysname, boolean showInfo, boolean showWarn, boolean showError, boolean showDebug) {
+        this.sysname = sysname;
+        
+        this.showInfo = showInfo;
+        this.showWarn = showWarn;
+        this.showError = showError;
+        this.showDebug = showDebug;
+    }
 
+    @SuppressWarnings("static-access")
     public void add(HistoryMessage msg) {
         if (!messages.contains(msg)) {
             messages.add(msg);
@@ -86,8 +98,38 @@ public class LogBookHistory extends AbstractListModel<HistoryMessage> implements
             int idx = Collections.binarySearch(messages, msg);
             fireIntervalAdded(this, idx, idx);
         }
+        if (!filteredMessages.contains(msg)) {
+            if(msg.type.info != null && showInfo) {
+                filteredMessages.add(msg);
+                System.out.println("msg type info: "+filteredMessages.add(msg));
+                Collections.sort(filteredMessages);
+                int idy = Collections.binarySearch(filteredMessages, msg);
+                fireIntervalAdded(this, idy, idy);
+            }
+            if(msg.type.error != null && showError) {
+                filteredMessages.add(msg);
+                System.out.println("msg type error: "+filteredMessages.add(msg));
+                Collections.sort(filteredMessages);
+                int idy = Collections.binarySearch(filteredMessages, msg);
+                fireIntervalAdded(this, idy, idy);
+            }
+            if(msg.type.warning != null && showWarn) {
+                filteredMessages.add(msg);
+                System.out.println("msg type warning: "+filteredMessages.add(msg));
+                Collections.sort(filteredMessages);
+                int idy = Collections.binarySearch(filteredMessages, msg);
+                fireIntervalAdded(this, idy, idy);
+            }
+            if(msg.type.debug != null && showDebug) {
+                filteredMessages.add(msg);
+                System.out.println("msg type debug: "+filteredMessages.add(msg));
+                Collections.sort(filteredMessages);
+                int idy = Collections.binarySearch(filteredMessages, msg);
+                fireIntervalAdded(this, idy, idy);
+            }
+        }
         if (getSize() > maxSize) {
-            messages.removeFirst();
+            filteredMessages.removeFirst();
             fireIntervalRemoved(this, 0, 0);
         }
     }
@@ -95,9 +137,17 @@ public class LogBookHistory extends AbstractListModel<HistoryMessage> implements
     public void clear() {
         int size = getSize();
         messages.clear();
+        filteredMessages.clear();
         fireIntervalRemoved(this, 0, size);
     }
     
+    public void updateFilter() {
+        System.out.println("updateFilter");
+        System.out.println("messages.size: "+messages.size());
+        System.out.println("filteredMessages.size: "+filteredMessages.size());
+    }
+    
+    @SuppressWarnings("static-access")
     public Collection<HistoryMessage> add(Collection<HistoryMessage> msgs) {
         
         Vector<HistoryMessage> notExisting = new Vector<>();
@@ -107,15 +157,37 @@ public class LogBookHistory extends AbstractListModel<HistoryMessage> implements
                 messages.add(msg);
                 notExisting.add(msg);
             }
+            if (!filteredMessages.contains(msg)) {
+                if(msg.type.info != null && showInfo) {
+                    filteredMessages.add(msg);
+                    System.out.println("msg type info: "+filteredMessages.add(msg));
+                }
+                if(msg.type.error != null && showError) {
+                    filteredMessages.add(msg);
+                    System.out.println("msg type error: "+filteredMessages.add(msg));
+                }
+                if(msg.type.warning != null && showWarn) {
+                    filteredMessages.add(msg);
+                    System.out.println("msg type warning: "+filteredMessages.add(msg));
+                }
+                if(msg.type.debug != null && showDebug) {
+                    filteredMessages.add(msg);
+                    System.out.println("msg type debug: "+filteredMessages.add(msg));
+                }
+                notExisting.add(msg);
+            }
         }
         
         if (notExisting.isEmpty())
             return notExisting;
         
+        if(!messages.isEmpty())
         Collections.sort(messages);
+        if(!filteredMessages.isEmpty())
+            Collections.sort(filteredMessages);
         
         while (getSize() > maxSize) {
-            messages.removeFirst();
+            filteredMessages.removeFirst();
         }
         
         fireContentsChanged(this, 0, getSize());
@@ -123,29 +195,28 @@ public class LogBookHistory extends AbstractListModel<HistoryMessage> implements
         return notExisting;
         
     }
-
+    
     public long lastMessageTimestamp() {
-        return messages.getLast().timestamp;
+        return filteredMessages.getLast().timestamp;
     }
 
     @Override
     public HistoryMessage getElementAt(int index) {
-        return messages.get(index);
+        if(index!=-1)
+            return filteredMessages.get(index);
+        return null;
     }
 
     @Override
     public int getSize() {
-        return messages.size();
+        return filteredMessages.size();
     }
 
     JLabel l = new JLabel("", JLabel.LEFT);
     @Override
     public Component getListCellRendererComponent(JList<? extends HistoryMessage> list, HistoryMessage value,
             int index, boolean isSelected, boolean cellHasFocus) {
-
-        l.setText(value.toString());
-        
-        //JLabel l = new JLabel(value.toString(), JLabel.LEFT);
+        l.setText("value type:" + value.type.toString() + " " + value.toString());
         l.setToolTipText(I18n.textf("Received on %timeStamp (%context)", new Date(value.timestamp), value.context));
         l.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 3));
         l.setOpaque(true);
