@@ -55,9 +55,11 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -84,6 +86,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import org.opencv.core.CvType;
@@ -203,7 +206,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private boolean captureFrame = false;
     //Close comTCP state
     private boolean closeComState = false;
-
+    //Url of IpCam
+    private String dataUrlIni[][];
+    
     private boolean closingPanel = false;
     
     //JLabel for image
@@ -553,7 +558,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     //!Read ipUrl.ini to find IpCam ON
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void checkIpCam() {
-        String dataUrlIni[][];
         dataUrlIni = readIpUrl();
         int sizeDataUrl = dataUrlIni.length;
         String nameIpCam[] = new String[sizeDataUrl];
@@ -561,7 +565,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             nameIpCam[i] = dataUrlIni[i][0];
         
         ipCamPing = new JFrame(I18n.text("Select IpCam"));
-        ipCamPing.setSize(340, 80);
+        ipCamPing.setSize(340, 200);
         ipCamPing.setLocation(dim.width / 2 - ipCamPing.getSize().width / 2,
                 dim.height / 2 - ipCamPing.getSize().height / 2);
         ipCamCheck = new JPanel(new MigLayout());
@@ -625,8 +629,65 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             }
         });
         ipCamCheck.add(selectIpCam,"h 30!");
+        
+        JTextField fieldName = new JTextField(I18n.text("Name"));
+        JTextField fieldIp = new JTextField(I18n.text("Ip"));
+        JTextField fieldUrl = new JTextField(I18n.text("Url"));
+        JButton addNewIpCam = new JButton(I18n.text("Add New IpCam"));
+        addNewIpCam.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                //Execute when button is pressed
+                writeToFile(String.format("%s (%s)#%s#%s\n", fieldName.getText(), fieldIp.getText(), fieldIp.getText(), fieldUrl.getText()));
+                dataUrlIni = readIpUrl();
+                int sizeDataUrl = dataUrlIni.length;
+                String nameIpCam[] = new String[sizeDataUrl];
+                for (int i=0; i < sizeDataUrl; i++)
+                    nameIpCam[i] = dataUrlIni[i][0];
+                
+                ipCamList.removeAllItems();
+                for (int i = 0; i < nameIpCam.length; i++) {
+                    String sample = nameIpCam[i];
+                    ipCamList.addItem(sample);
+                }
+            }
+        });
+        
+        ipCamCheck.add(fieldName, "w 320!, wrap");
+        ipCamCheck.add(fieldIp, "w 320!, wrap");
+        ipCamCheck.add(fieldUrl, "w 320!, wrap");
+        ipCamCheck.add(addNewIpCam, "w 120!, center");
+        
+        
         ipCamPing.add(ipCamCheck);
         ipCamPing.setVisible(true);
+    }
+    
+  //Write to file
+    private void writeToFile(String textString){
+        BufferedWriter brf = null;
+        String iniRsrcPath = FileUtil.getResourceAsFileKeepName(BASE_FOLDER_FOR_URLINI);
+        File confIni = new File(ConfigFetch.getConfFolder() + "/" + BASE_FOLDER_FOR_URLINI);
+        if (!confIni.exists()) {
+            FileUtil.copyFileToDir(iniRsrcPath, ConfigFetch.getConfFolder());
+        }
+        try {
+            brf = new BufferedWriter(new FileWriter(confIni, true));
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            brf.write(textString);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            brf.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
     //!Ping CamIp
@@ -685,6 +746,8 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             
             br.close();
             br = new BufferedReader(new FileReader(confIni));
+            
+            System.out.println("Valor: "+cntReader);
             
             dataSplit = new String[cntReader+1][3];
             cntReader = 1;
