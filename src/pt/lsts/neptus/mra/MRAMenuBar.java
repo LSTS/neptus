@@ -635,6 +635,7 @@ public class MRAMenuBar {
                             @Override
                             public void run() {
                                 ProgressMonitor monitor = new ProgressMonitor(mra.getMraPanel(), exp.getName(), "", 0, 100);
+                                monitor.setProgress(0);
                                 String res = exp.process(source, monitor);
                                 if (res != null)
                                     GuiUtils.infoMessage(mra.getMraPanel(), exp.getName(), res);
