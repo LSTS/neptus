@@ -76,8 +76,9 @@ public class MessagesPerSystemPlot extends MRATimeSeriesPlot {
         for (Entry<Integer, Integer> entry : msgCount.entrySet()) {
             String name = source.getDefinitions().getResolver().resolve(entry.getKey());
             addValue(second * 1000, name, entry.getValue() / (double) timestepSecs);
+            msgCount.put(entry.getKey(), 0);
         }
-        msgCount.clear();
+        
     }
 
     @Override
