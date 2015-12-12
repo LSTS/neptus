@@ -578,7 +578,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     private void drawMeasure(Graphics g) {
         int c = 0;
-        double distance;
         SidescanPoint prevPoint = null;
         g.setColor(Color.GREEN);
 
