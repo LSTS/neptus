@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.sidescan;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -38,6 +39,8 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Shape;
+import java.awt.Stroke;
 import java.awt.Transparency;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -73,6 +76,7 @@ import pt.lsts.neptus.mra.api.SidescanPoint;
 import pt.lsts.neptus.mra.replay.MraVehiclePosHud;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.AngleCalc;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
@@ -658,14 +662,29 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g.dispose();
     }
 
-    private void drawMarks(Graphics g2) {
+    private void drawMarks(Graphics g0) {
+        Graphics2D g1 = (Graphics2D) g0.create();
         if (marking) {
-            int x = Math.min(initialX, mouseX);
-            int y = Math.min(initialY, mouseY);
-            int w = Math.max(initialX, mouseX) - Math.min(initialX, mouseX);
-            int h = Math.max(initialY, mouseY) - Math.min(initialY, mouseY);
-            g2.drawRect(x, y, w, h);
+//            int x = Math.min(initialX, mouseX);
+//            int y = Math.min(initialY, mouseY);
+//            int w = Math.max(initialX, mouseX) - Math.min(initialX, mouseX);
+//            int h = Math.max(initialY, mouseY) - Math.min(initialY, mouseY);
+//            g1.drawRect(x, y, w, h);
+            
+            int x = initialX - Math.abs(mouseX - initialX);
+            int y = initialY - Math.abs(mouseY - initialY);
+            int w = Math.abs(mouseX - initialX) * 2;
+            int h = Math.abs(mouseY - initialY) * 2;
+            Stroke oStroke = g1.getStroke();
+            Stroke nStroke = new BasicStroke(3);
+            g1.setStroke(nStroke);
+            g1.setColor(Color.BLACK);
+            g1.drawRect(x, y, w, h);
+            g1.setStroke(oStroke);
+            g1.setColor(Color.YELLOW);
+            g1.drawRect(x, y, w, h);
         }
+        g1.dispose();
 
         SidescanLine old = null;
         Graphics2D g = (Graphics2D) g0.create();
@@ -1078,10 +1097,15 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         break;
                     }
                 }
-                int initialPointXSidescan = convertImagePointXToSidescanLinePointX(initialX, lInit);
-                int mousePointXSidescan = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
-                int x = (mousePointXSidescan + initialPointXSidescan) / 2;
-                int y = (mouseY + initialY) / 2;
+//                int initialPointXSidescan = convertImagePointXToSidescanLinePointX(initialX, lInit);
+//                int mousePointXSidescan = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
+//                int x = (mousePointXSidescan + initialPointXSidescan) / 2;
+//                int y = (mouseY + initialY) / 2;
+
+                int x = convertImagePointXToSidescanLinePointX(initialX, lInit);
+                int y = initialY;
+                int w = Math.abs(mouseX - initialX) * 2;
+                int h = Math.abs(mouseY - initialY) * 2;
 
                 // Find the corresponding SidescanLine object
                 SidescanLine l = null;
@@ -1098,8 +1122,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 double distanceToNadir = l.state.getPosition().getHorizontalDistanceInMeters(point.location);
                 distanceToNadir *= (x > l.xsize / 2 ? 1 : -1);
 
-                int x1 = Math.min(mousePointXSidescan, initialPointXSidescan);
-                int x2 = Math.max(mousePointXSidescan, initialPointXSidescan);
+//                int x1 = Math.min(mousePointXSidescan, initialPointXSidescan);
+//                int x2 = Math.max(mousePointXSidescan, initialPointXSidescan);
+                int x1 = x - w / 2;
+                int x2 = x + w / 2;
 
                 SidescanPoint p1 = l.calcPointForCoord(x1, l.imageWithSlantRangeCorrection);
                 SidescanPoint p2 = l.calcPointForCoord(x2, l.imageWithSlantRangeCorrection);
@@ -1114,9 +1140,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 d2 += l.range;
                 double wMeters = d2 - d1;
 
+//                parent.mraPanel.addMarker(new SidescanLogMarker(res+"_old", l.timestampMillis, point.location
+//                        .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, Math.abs(mouseX
+//                                - initialX), Math.abs(mouseY - initialY), wMeters, subsystem, config.colorMap));
                 parent.mraPanel.addMarker(new SidescanLogMarker(res, l.timestampMillis, point.location
-                        .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, Math.abs(mouseX
-                                - initialX), Math.abs(mouseY - initialY), wMeters, subsystem, config.colorMap));
+                        .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, w,
+                                h, wMeters, subsystem, config.colorMap));
             }
             marking = false;
         }
