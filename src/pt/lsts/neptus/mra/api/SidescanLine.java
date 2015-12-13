@@ -38,31 +38,42 @@ import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * @author jqcorreia
- *
+ * @author pdias
  */
 public class SidescanLine {
+    /** The sonar data timestamp (milliseconds) */
     public long timestampMillis;
 
+    /** The sonar data size (size of {@link #data}) */
     public int xsize;
+    /** The sonar y data size (1 for normal and >1 for speed correction, which means line data extends more then one line) */
     public int ysize;
 
+    /** The sonar y pos in relation to an external list (for the next line pos one can add to this the {@link #ysize}) */
     public int ypos;
 
+    /** The sonar range */
     public float range;
+    /** The state of the sensor */
     public SystemPositionAndAttitude state;
 
+    /** The image created from data */
     public BufferedImage image;
+    /** Holds information if the image has slant correction */
     public boolean imageWithSlantRangeCorrection = false;
+    /** The sonar data */
     public double data[];
 
+    /** The sonar frequency */
     public float frequency;
 
     /**
-     * @param xsize
-     * @param ysize
-     * @param ypos
-     * @param ping
-     * @param state
+     * Initializes the sidescan line
+     * @param timestamp The timestamp.
+     * @param range The range.
+     * @param state the sensor state (see {@link SystemPositionAndAttitude}).
+     * @param frequency The sonar frequency.
+     * @param data The array with collected data.
      */
     public SidescanLine(long timestamp, float range, SystemPositionAndAttitude state, float frequency, double data[]) {
         super();
@@ -74,6 +85,12 @@ public class SidescanLine {
         this.frequency = frequency;
     }
 
+    /**
+     * Calculates the distance (horizontal (true) or slant (false)) from nadir.
+     * @param x The sidescan x index (nadir is the half of total points {@link #xsize}).
+     * @param slantRangeCorrection Indicates if distance is horizontal (true) or slant (false).
+     * @return Distance from nadir (negative means port-side).
+     */
     public double getDistanceForCoord(int x, boolean slantRangeCorrection) {
         double distance = x * (range * 2 / xsize) - (range);
         if (slantRangeCorrection) {
@@ -87,7 +104,7 @@ public class SidescanLine {
 
     /**
      * Get the sidescan x from the distance in meters from nadir.
-     * @param distance Distance from nadir (negative means port-side.
+     * @param distance Distance from nadir (negative means port-side).
      * @param slantRangeCorrection Indicates if distance is horizontal (true) or slant (false).
      * @return The sidescan x index (nadir is the half of total points {@link #xsize}).
      */
@@ -104,14 +121,12 @@ public class SidescanLine {
         return x;
     }
     
-    public double getRangeSlantedCorrected() {
-        return getDistanceForCoord(xsize, true);
-    }
-
     /**
      * Based on a 'x' position within a scan line calculate the proper location
-     * @param x the x position
-     * @return a LocationType object containing the absolute GPS location of the point
+     * @param x The sidescan x index (nadir is the half of total points {@link #xsize}).
+     * @param slantRangeCorrection Indicates if distance is horizontal (true) or slant (false).
+     * @return a LocationType object containing the absolute GPS location of the 
+     * point (wrapped into {@link SidescanPoint}.
      */
     public SidescanPoint calcPointForCoord(int x, boolean slantRangeCorrection) {
         LocationType location = new LocationType();
@@ -191,6 +206,5 @@ public class SidescanLine {
         double x1 = d1 + imgWidth / 2;
         double valCalcSSpx = x1 * sspoints / imgWidth;
         System.out.println(d1 + "   " + x1 + "   " + valCalcSSpx);
-        
     }
 }
