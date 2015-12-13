@@ -668,7 +668,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
 
         SidescanLine old = null;
-        Graphics2D g = (Graphics2D) g2.create();
+        Graphics2D g = (Graphics2D) g0.create();
         for (LogMarker m : parent.getMarkerList()) {
             long timestamp = new Double(m.getTimestamp()).longValue();
 
@@ -688,7 +688,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                                 SidescanLogMarker slm = (SidescanLogMarker) m;
                                 double scale = (image.getWidth() / 2) / line.range;
 
+                                double distanceToNadir = slm.x;
                                 int x = (int) ((image.getWidth() / 2) + (slm.x * scale));
+                                int ssX = line.getCoordFromRange(distanceToNadir, false);
+                                x = convertSidescanLinePointXToImagePointX((int) ssX, line);
+                                
                                 g.setColor(color);
                                 g.drawRect(x - (slm.w / 2), line.ypos - (slm.h / 2), slm.w, slm.h);
                                 g.setColor(colorConstrast);

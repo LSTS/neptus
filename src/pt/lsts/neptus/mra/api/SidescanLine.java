@@ -85,6 +85,25 @@ public class SidescanLine {
         return distance;
     }
 
+    /**
+     * Get the sidescan x from the distance in meters from nadir.
+     * @param distance Distance from nadir (negative means port-side.
+     * @param slantRangeCorrection Indicates if distance is horizontal (true) or slant (false).
+     * @return The sidescan x index (nadir is the half of total points {@link #xsize}).
+     */
+    public int getCoordFromRange(double distance, boolean slantRangeCorrection) {
+        double r = distance;
+        if (slantRangeCorrection) {
+            if (Double.isNaN(distance))
+                return xsize / 2;
+            double alt = state.getAltitude();
+            double rG = Math.signum(distance) * Math.sqrt(distance * distance + alt * alt);
+            r = rG;
+        }
+        int x =  (int) ((r + range) / (range * 2 / xsize));
+        return x;
+    }
+    
     public double getRangeSlantedCorrected() {
         return getDistanceForCoord(xsize, true);
     }
