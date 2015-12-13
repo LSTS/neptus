@@ -1187,7 +1187,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             JMenuItem menuItem = new JMenuItem(I18n.text("Fix old marks"));
             menuItem.addActionListener(fixSidescanMarkAction(popup));
             popup.add(menuItem);
-//            popup.show(e.getComponent(), e.getX(), e.getY());
+            popup.show(e.getComponent(), e.getX(), e.getY());
         }
     }
 
