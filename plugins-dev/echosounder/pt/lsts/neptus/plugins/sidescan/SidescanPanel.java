@@ -730,10 +730,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         if (timestamp >= old.getTimestampMillis() && timestamp <= line.getTimestampMillis()) {
                             if (m instanceof SidescanLogMarker) {
                                 SidescanLogMarker slm = (SidescanLogMarker) m;
-//                                double scale = (image.getWidth() / 2) / line.getRange();
 
                                 double distanceToNadir = slm.x;
-//                                int x = (int) ((image.getWidth() / 2) + (slm.x * scale));
                                 // This should be always slant corrected (old marks will be wrong, must be corrected)
                                 int ssX = line.getIndexFromDistance(distanceToNadir, true);
                                 int x = convertSidescanLinePointXToImagePointX(ssX, line);
@@ -754,7 +752,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                                 g.setColor(color);
                                 g.drawString(m.getLabel(), 0, line.getYPos() - 10);
                             }
-                            break; // ??
+                            break;
                         }
                     }
                     old = line;
