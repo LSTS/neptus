@@ -110,4 +110,8 @@ public class SidescanLogMarker extends LogMarker {
         }
     }
 
+    public void fixLocation(double latRads, double lonRads) {
+        this.latRads = latRads;
+        this.lonRads = lonRads;
+    }
 }
