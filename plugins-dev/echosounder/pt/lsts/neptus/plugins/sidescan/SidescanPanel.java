@@ -1123,24 +1123,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         break;
                     }
                 }
-//                int initialPointXSidescan = convertImagePointXToSidescanLinePointX(initialX, lInit);
-//                int mousePointXSidescan = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
-//                int x = (mousePointXSidescan + initialPointXSidescan) / 2;
-//                int y = (mouseY + initialY) / 2;
 
                 int xSS = convertImagePointXToSidescanLinePointX(initialX, lInit);
                 int y = initialY;
                 int wImg = Math.abs(mouseX - initialX) * 2;
                 int hImg = Math.abs(mouseY - initialY) * 2;
-
-//                // Find the corresponding SidescanLine object
-//                SidescanLine l = null;
-//                for (SidescanLine line : lineList) {
-//                    if (y >= line.getYPos() && y <= (line.getYPos() + line.getYSize())) {
-//                        l = line;
-//                        break;
-//                    }
-//                }
 
                 // Force slant correction
                 SidescanPoint point = lInit.calcPointFromIndex(xSS, true);
@@ -1149,10 +1136,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 double distanceToNadir = lInit.getState().getPosition().getHorizontalDistanceInMeters(point.location);
                 distanceToNadir *= (xSS > lInit.getXSize() / 2 ? 1 : -1);
 
-//                int x1 = Math.min(mousePointXSidescan, initialPointXSidescan);
-//                int x2 = Math.max(mousePointXSidescan, initialPointXSidescan);
-                int x1Img = initialX - w / 2;
-                int x2Img = initialX + w / 2;
+                int x1Img = initialX - wImg / 2;
+                int x2Img = initialX + wImg / 2;
 
                 int x1 = convertImagePointXToSidescanLinePointX(x1Img, lInit);
                 int x2 = convertImagePointXToSidescanLinePointX(x2Img, lInit);
@@ -1177,10 +1162,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 //                double distanceStarbord = l.getDistanceFromIndex(dStarbord, true);
 //                double wMetersHoriz = distanceStarbord - distancePort;
 
-
-//                parent.mraPanel.addMarker(new SidescanLogMarker(res+"_old", l.timestampMillis, point.location
-//                        .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, Math.abs(mouseX
-//                                - initialX), Math.abs(mouseY - initialY), wMeters, subsystem, config.colorMap));
                 parent.mraPanel.addMarker(new SidescanLogMarker(res, lInit.getTimestampMillis(), point.location
                         .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, wImg,
                                 hImg, wMeters, subsystem, config.colorMap));
