@@ -607,7 +607,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     private void drawMeasure(Graphics g) {
         int c = 0;
-        double distance;
+//        double distance;
         SidescanPoint prevPoint = null;
         g.setColor(Color.GREEN);
 
@@ -730,12 +730,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         if (timestamp >= old.getTimestampMillis() && timestamp <= line.getTimestampMillis()) {
                             if (m instanceof SidescanLogMarker) {
                                 SidescanLogMarker slm = (SidescanLogMarker) m;
-                                double scale = (image.getWidth() / 2) / line.getRange();
+//                                double scale = (image.getWidth() / 2) / line.getRange();
 
                                 double distanceToNadir = slm.x;
-                                int x = (int) ((image.getWidth() / 2) + (slm.x * scale));
-                                int ssX = line.getIndexFromDistance(distanceToNadir, false);
-                                x = convertSidescanLinePointXToImagePointX((int) ssX, line);
+//                                int x = (int) ((image.getWidth() / 2) + (slm.x * scale));
+                                // This should be always slant corrected (old marks will be wrong, must be corrected)
+                                int ssX = line.getIndexFromDistance(distanceToNadir, true);
+                                int x = convertSidescanLinePointXToImagePointX(ssX, line);
                                 
                                 g.setColor(color);
                                 g.drawRect(x - (slm.w / 2), line.getYPos() - (slm.h / 2), slm.w, slm.h);
@@ -1141,7 +1142,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     }
                 }
 
-                SidescanPoint point = l.calcPointFromIndex(x, l.isImageWithSlantCorrection());
+                // Force slant correction
+                SidescanPoint point = l.calcPointFromIndex(x, true);
 
                 // Distance to line center point, negative values mean portboard
                 double distanceToNadir = l.getState().getPosition().getHorizontalDistanceInMeters(point.location);
@@ -1152,6 +1154,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 int x1 = x - w / 2;
                 int x2 = x + w / 2;
 
+                // Force slant correction
                 SidescanPoint p1 = l.calcPointFromIndex(x1, l.isImageWithSlantCorrection());
                 SidescanPoint p2 = l.calcPointFromIndex(x2, l.isImageWithSlantCorrection());
 
@@ -1164,6 +1167,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 d1 += l.getRange();
                 d2 += l.getRange();
                 double wMeters = d2 - d1;
+                
+//                int dPort = convertImagePointXToSidescanLinePointX(initialX, lInit);;
+//                double distancePort = l.getDistanceFromIndex(dPort, true);
+//                int dStarbord = l.getIndexFromDistance(distanceToNadir + m.wMeters / 2, false);
+//                double distanceStarbord = l.getDistanceFromIndex(dStarbord, true);
+//                double wMetersHoriz = distanceStarbord - distancePort;
+
 
 //                parent.mraPanel.addMarker(new SidescanLogMarker(res+"_old", l.timestampMillis, point.location
 //                        .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, Math.abs(mouseX
