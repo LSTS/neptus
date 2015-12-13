@@ -147,12 +147,12 @@ public class SidescanImageExporter implements MRAExporter {
                 continue;
 
             if (img == null) {
-                width = Math.min(imageWidth, lines.get(0).xsize);
+                width = Math.min(imageWidth, lines.get(0).getXSize());
                 height = imageHeight;
                 img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
                 img.getGraphics().clearRect(0, 0, img.getWidth(), img.getHeight());
             }
-            BufferedImage tmp = new BufferedImage(lines.get(0).data.length, 1, BufferedImage.TYPE_INT_RGB);
+            BufferedImage tmp = new BufferedImage(lines.get(0).getData().length, 1, BufferedImage.TYPE_INT_RGB);
             for (SidescanLine l : lines) {
                 pmonitor.setNote(I18n.textf("Generating image %num",image_num));
                 pmonitor.setProgress((int)((time - start)/1000));
@@ -184,8 +184,8 @@ public class SidescanImageExporter implements MRAExporter {
                 }
 
                 // Apply colormap to data
-                for (int c = 0; c < l.data.length; c++)
-                    tmp.setRGB(c, 0, cmap.getColor(l.data[c]).getRGB());
+                for (int c = 0; c < l.getData().length; c++)
+                    tmp.setRGB(c, 0, cmap.getColor(l.getData()[c]).getRGB());
 
                 img.getGraphics().drawImage(tmp, 0, ypos, width-1, ypos+1, 0, 0, tmp.getWidth(), tmp.getHeight(), null);
                 ypos++;

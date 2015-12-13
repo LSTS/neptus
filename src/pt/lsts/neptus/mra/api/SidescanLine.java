@@ -42,29 +42,29 @@ import pt.lsts.neptus.types.coord.LocationType;
  */
 public class SidescanLine {
     /** The sonar data timestamp (milliseconds) */
-    public long timestampMillis;
+    private long timestampMillis;
 
     /** The sonar data size (size of {@link #data}) */
-    public int xsize;
+    private int xSize;
     /** The sonar y data size (1 for normal and >1 for speed correction, which means line data extends more then one line) */
-    public int ysize;
+    private int ySize;
 
-    /** The sonar y pos in relation to an external list (for the next line pos one can add to this the {@link #ysize}) */
-    public int ypos;
+    /** The sonar y pos in relation to an external list (for the next line pos one can add to this the {@link #ySize}) */
+    private int yPos;
 
     /** The sonar frequency */
-    public float frequency;
+    private float frequency;
     /** The sonar range */
-    public float range;
+    private float range;
     /** The state of the sensor */
-    public SystemPositionAndAttitude state;
+    private SystemPositionAndAttitude state;
 
     /** The image created from data */
-    public BufferedImage image;
+    private BufferedImage image;
     /** Holds information if the image has slant correction */
-    public boolean imageWithSlantCorrection = false;
+    private boolean imageWithSlantCorrection = false;
     /** The sonar data */
-    public double data[];
+    private double data[];
 
     /**
      * Initializes the sidescan line
@@ -77,21 +77,113 @@ public class SidescanLine {
     public SidescanLine(long timestamp, float range, SystemPositionAndAttitude state, float frequency, double data[]) {
         super();
         this.timestampMillis = timestamp;
-        this.xsize = data.length;
+        this.xSize = data.length;
         this.range = range;
         this.state = state;
         this.data = data;
         this.frequency = frequency;
     }
+    
+    /**
+     * @return the timestampMillis
+     */
+    public long getTimestampMillis() {
+        return timestampMillis;
+    }
+    
+    /**
+     * @return the frequency
+     */
+    public float getFrequency() {
+        return frequency;
+    }
+    
+    /**
+     * @return the range
+     */
+    public float getRange() {
+        return range;
+    }
+    
+    /**
+     * @return the state
+     */
+    public SystemPositionAndAttitude getState() {
+        return state;
+    }
+    
+    /**
+     * @return the xSize
+     */
+    public int getXSize() {
+        return xSize;
+    }
+    
+    /**
+     * @return the ySize
+     */
+    public int getYSize() {
+        return ySize;
+    }
+    
+    /**
+     * @param ySize the ySize to set
+     */
+    public void setYSize(int ySize) {
+        this.ySize = ySize;
+    }
+    
+    /**
+     * @return the yPos
+     */
+    public int getYPos() {
+        return yPos;
+    }
+    
+    /**
+     * @param yPos the yPos to set
+     */
+    public void setYPos(int yPos) {
+        this.yPos = yPos;
+    }
 
     /**
+     * @return the image
+     */
+    public BufferedImage getImage() {
+        return image;
+    }
+    
+    /**
+     * @param image the image to set
+     */
+    public void setImage(BufferedImage image, boolean slantCorrected) {
+        this.image = image;
+        this.imageWithSlantCorrection = slantCorrected;
+    }
+    
+    /**
+     * @return the imageWithSlantCorrection
+     */
+    public boolean isImageWithSlantCorrection() {
+        return imageWithSlantCorrection;
+    }
+    
+    /**
+     * @return the data
+     */
+    public double[] getData() {
+        return data;
+    }
+    
+    /**
      * Calculates the distance (horizontal (true) or slant (false)) from nadir.
-     * @param x The sidescan x index (nadir is the half of total points {@link #xsize}).
+     * @param x The sidescan x index (nadir is the half of total points {@link #xSize}).
      * @param slantCorrection Indicates if distance is horizontal (true) or slant (false).
      * @return Distance from nadir (negative means port-side).
      */
     public double getDistanceFromIndex(int x, boolean slantCorrection) {
-        double distance = x * (range * 2 / xsize) - (range);
+        double distance = x * (range * 2 / xSize) - (range);
         if (slantCorrection) {
             double alt = state.getAltitude();
             alt = Math.max(alt, 0);
@@ -105,24 +197,24 @@ public class SidescanLine {
      * Get the sidescan x from the distance in meters from nadir.
      * @param distance Distance from nadir (negative means port-side).
      * @param slantCorrection Indicates if distance is horizontal (true) or slant (false).
-     * @return The sidescan x index (nadir is the half of total points {@link #xsize}).
+     * @return The sidescan x index (nadir is the half of total points {@link #xSize}).
      */
     public int getIndexFromDistance(double distance, boolean slantCorrection) {
         double r = distance;
         if (slantCorrection) {
             if (Double.isNaN(distance))
-                return xsize / 2;
+                return xSize / 2;
             double alt = state.getAltitude();
             double rG = Math.signum(distance) * Math.sqrt(distance * distance + alt * alt);
             r = rG;
         }
-        int x =  (int) ((r + range) / (range * 2 / xsize));
+        int x =  (int) ((r + range) / (range * 2 / xSize));
         return x;
     }
     
     /**
      * Based on a 'x' position within a scan line calculate the proper location
-     * @param x The sidescan x index (nadir is the half of total points {@link #xsize}).
+     * @param x The sidescan x index (nadir is the half of total points {@link #xSize}).
      * @param slantCorrection Indicates if distance is horizontal (true) or slant (false).
      * @return a LocationType object containing the absolute GPS location of the 
      * point (wrapped into {@link SidescanPoint}.
@@ -135,7 +227,7 @@ public class SidescanLine {
         
         double distance = getDistanceFromIndex(x, slantCorrection);
         
-        double angle = -state.getYaw() + (x < (xsize / 2) ? Math.PI : 0);
+        double angle = -state.getYaw() + (x < (xSize / 2) ? Math.PI : 0);
         double offsetNorth = Math.abs(distance) * Math.sin(angle);
         double offsetEast = Math.abs(distance) * Math.cos(angle);
         // Add the original vehicle offset to the calculated offset
@@ -147,7 +239,7 @@ public class SidescanLine {
 //                + CoordinateUtil.longitudeAsString(location.getNewAbsoluteLatLonDepth().getLongitudeDegs(), true, 4));
         
         // Return new absolute location        
-        return new SidescanPoint(x, ypos, xsize, location.getNewAbsoluteLatLonDepth(), this);
+        return new SidescanPoint(x, yPos, xSize, location.getNewAbsoluteLatLonDepth(), this);
     }
     
     public static void main(String[] args) {

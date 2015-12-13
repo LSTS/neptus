@@ -662,9 +662,9 @@ public class LsfReport {
 
         list = adjustLines(list,adjustedMark);
 
-        float range = list.get(list.size() / 2).range;
+        float range = list.get(list.size() / 2).getRange();
         if (wMeters == -1)
-            wMeters = (list.get(list.size() / 2).range / 5);
+            wMeters = (list.get(list.size() / 2).getRange() / 5);
 
         double x, x1, x2;
         x = adjustedMark.x;
@@ -685,7 +685,7 @@ public class LsfReport {
         if (x1 > x2)
             throw new DocumentException("x1>x2");
 
-        int size = list.get(list.size() / 2).data.length;
+        int size = list.get(list.size() / 2).getData().length;
         int i1 = convertMtoIndex(x1, range, size);
         int i2 = convertMtoIndex(x2, range, size);
 
@@ -725,9 +725,9 @@ public class LsfReport {
             list2 = ssParser.getLinesBetween(t - d, t + d, mark.subSys, sidescanParams);
         }
         SidescanLine l = list2.get(list2.size() / 2);
-        int index = convertMtoIndex(mark.x + l.range, l.range, l.data.length);
+        int index = convertMtoIndex(mark.x + l.getRange(), l.getRange(), l.getData().length);
 
-        color = config.colorMap.getColor(l.data[index]);
+        color = config.colorMap.getColor(l.getData()[index]);
         return color;
     }
 
@@ -742,7 +742,7 @@ public class LsfReport {
             list2 = ssParser.getLinesBetween(t - d, t + d, mark.subSys, sidescanParams);
         }
         SidescanLine l = list2.get(list2.size() / 2);
-        int index = convertMtoIndex(mark.x + l.range, l.range, l.data.length);
+        int index = convertMtoIndex(mark.x + l.getRange(), l.getRange(), l.getData().length);
         if (border == true) {
             if (index > (i2 - i1)) {
                 index = index - i1;
@@ -761,7 +761,7 @@ public class LsfReport {
         double t = mark.getTimestamp();
         for (int i = 0; i < list.size(); i++) {
             SidescanLine l = list.get(i);
-            if (l.timestampMillis == t)
+            if (l.getTimestampMillis() == t)
                 return i;
         }
         return -1;
@@ -812,7 +812,7 @@ public class LsfReport {
 
             BufferedImage imgLine = new BufferedImage(i2 - i1, 1, BufferedImage.TYPE_INT_RGB);
             for (int c = 0; c < i2 - i1; c++) {
-                int rgb = config.colorMap.getColor(l.data[c + i1]).getRGB();
+                int rgb = config.colorMap.getColor(l.getData()[c + i1]).getRGB();
                 imgLine.setRGB(c, 0, rgb);
             }
             int vZoomScale = 3;
@@ -832,8 +832,8 @@ public class LsfReport {
 
         int yref = list.size();
         while (yref > h) {
-            long tFirst = list.get(0).timestampMillis;
-            long tLast = list.get(list.size() - 1).timestampMillis;
+            long tFirst = list.get(0).getTimestampMillis();
+            long tLast = list.get(list.size() - 1).getTimestampMillis();
             if (tFirst == t) {
                 list.remove(list.size() - 1);
                 yref--;
