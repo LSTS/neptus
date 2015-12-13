@@ -74,6 +74,7 @@ import pt.lsts.neptus.mra.api.SidescanPoint;
 import pt.lsts.neptus.mra.replay.MraVehiclePosHud;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
@@ -691,8 +692,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         for (LogMarker m : parent.getMarkerList()) {
             long timestamp = new Double(m.getTimestamp()).longValue();
 
-            Color color = Color.WHITE;
-            Color colorConstrast = Color.BLACK;
+            Color color = ColorUtils.setTransparencyToColor(Color.WHITE, 200);
+            Color colorConstrast = ColorUtils.setTransparencyToColor(Color.BLACK, 200);
 
             SidescanLine line;
 
