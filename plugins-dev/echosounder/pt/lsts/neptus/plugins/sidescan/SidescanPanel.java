@@ -1151,8 +1151,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
 //                int x1 = Math.min(mousePointXSidescan, initialPointXSidescan);
 //                int x2 = Math.max(mousePointXSidescan, initialPointXSidescan);
-                int x1 = x - w / 2;
-                int x2 = x + w / 2;
+                int x1Img = initialX - w / 2;
+                int x2Img = initialX + w / 2;
+
+                int x1 = convertImagePointXToSidescanLinePointX(x1Img, lInit);
+                int x2 = convertImagePointXToSidescanLinePointX(x2Img, lInit);
 
                 // Force slant correction
                 SidescanPoint p1 = l.calcPointFromIndex(x1, l.isImageWithSlantCorrection());
