@@ -41,6 +41,8 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.Transparency;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
@@ -56,8 +58,11 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingWorker;
 
 import org.imgscalr.Scalr;
 
@@ -120,6 +125,25 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private InteractionMode imode = InteractionMode.INFO;
     private MraVehiclePosHud posHud;
 
+    /** Fix old marks related enum */ 
+    private enum Operation { EXIT_CHANGE, EXIT_CANCEL, TEST_CHANGE, TEST_ORIG };
+    /** Fix old marks related class */ 
+    private class SSCorrection {
+        public SidescanLogMarker marker;
+
+        public double latRadsSlant;
+        public double latRadsHorizontal;
+
+        public double lonRadsSlant;
+        public double lonRadsHorizontal;
+
+        public double distanceToNadirSlant = Double.NaN;
+        public double distanceToNadirHorizontal = Double.NaN;
+        
+        public double wMetersSlant = Double.NaN;
+        public double wMetersHorizontal = Double.NaN;
+    }
+    
     private JPanel view = new JPanel() {
         private static final long serialVersionUID = 1L;
 
@@ -1166,6 +1190,215 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON3 && e.isControlDown()) {
+            JPopupMenu popup = new JPopupMenu();
+            JMenuItem menuItem = new JMenuItem(I18n.text("Fix old marks"));
+            menuItem.addActionListener(fixSidescanMarkAction(popup));
+            popup.add(menuItem);
+//            popup.show(e.getComponent(), e.getX(), e.getY());
+        }
+    }
+
+    /**
+     * Action for the popup to fix old marks.
+     * @param popup
+     * @return
+     */
+    protected ActionListener fixSidescanMarkAction(JPopupMenu popup) {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<LogMarker> allMarks = parent.getMarkerList();
+                ArrayList<SidescanLogMarker> ssMarks = new ArrayList<>();
+                for (LogMarker m : allMarks) {
+                    if (m instanceof SidescanLogMarker)
+                        ssMarks.add((SidescanLogMarker) m);
+                }
+                Object ret = JOptionPane.showInputDialog(popup.getComponent(), I18n.text("Select mark"),
+                        I18n.text("Select mark"), JOptionPane.QUESTION_MESSAGE, null, 
+                        ssMarks.toArray(new SidescanLogMarker[ssMarks.size()]), null);
+                
+                if (ret == null)
+                    return;
+
+                SidescanLogMarker ssMk = (SidescanLogMarker) ret;
+
+                SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                    private ArrayList<SSCorrection> corrections;
+                    private Operation op = Operation.TEST_CHANGE;
+                    
+                    @Override
+                    protected Boolean doInBackground() throws Exception {
+                        corrections = fixSidescanMark(ssMk);
+                        op = Operation.TEST_CHANGE;
+                        boolean changed = false;
+                        boolean exit = false;
+                        while (!exit) {
+                            switch (op) {
+                                case EXIT_CANCEL:
+                                    if (changed)
+                                        op = Operation.TEST_ORIG;
+                                    exit = true;
+                                    break;
+                                case EXIT_CHANGE:
+                                    if (!changed)
+                                        op = Operation.TEST_CHANGE;
+                                    exit = true;
+                                default:
+                                    break;
+                            }
+                            switch (op) {
+                                case TEST_CHANGE:
+                                case TEST_ORIG:
+                                    for (SSCorrection c : corrections) {
+                                        SidescanLogMarker m = c.marker;
+                                        if (op == Operation.TEST_ORIG) {
+                                            m.fixLocation(c.latRadsSlant, c.lonRadsSlant);
+                                            m.x = c.distanceToNadirSlant;
+                                            m.wMeters = c.wMetersSlant;
+                                            changed = false;
+                                        }
+                                        else if (op == Operation.TEST_CHANGE) {
+                                            m.fixLocation(c.latRadsHorizontal, c.lonRadsHorizontal);
+                                            m.x = c.distanceToNadirHorizontal;
+                                            m.wMeters = c.wMetersHorizontal;
+                                            changed = true;
+                                        } 
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                            if (!exit)
+                                process(null);
+                        }
+                        if (changed)
+                            parent.mraPanel.saveMarkers();
+                        
+                        return changed;
+                    }
+                    
+                    @Override
+                    protected void process(List<Void> chunks) {
+                        SidescanPanel.this.repaint(0);
+                        
+                        String testStr = I18n.text("Test");
+                        switch (op) {
+                            case TEST_CHANGE:
+                                testStr = I18n.text("Revert test");
+                            case TEST_ORIG:
+                                
+                                int retQ = JOptionPane.showOptionDialog(SidescanPanel.this,
+                                        I18n.text("Change the marks?"), I18n.text("Fix old marks"),
+                                        JOptionPane.YES_OPTION,
+                                        JOptionPane.QUESTION_MESSAGE, null, 
+                                        new String[] { I18n.text("Change"), I18n.text("Cancel"), testStr }, testStr);
+                                switch (retQ) {
+                                    case 0:
+                                        op = Operation.EXIT_CHANGE;
+                                        break;
+                                    case 2:
+                                        if (I18n.text("Test").equalsIgnoreCase(testStr))
+                                            op = Operation.TEST_CHANGE;
+                                        else if (I18n.text("Revert test").equalsIgnoreCase(testStr))
+                                            op = Operation.TEST_ORIG;
+                                        break;
+                                    case 1:
+                                    default:
+                                        op = Operation.EXIT_CANCEL;
+                                        break;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    
+                    @Override
+                    protected void done() {
+                        try {
+                            boolean res = get();
+                            if (res) {
+                                GuiUtils.infoMessage(SidescanPanel.this, I18n.text("Fix old marks"),
+                                        I18n.text("Marks fixed and saved"));
+                            }
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                worker.execute();
+            }
+        };
+    }
+
+    /**
+     * Worker to fix old marks. 
+     * @param ssMk
+     * @return
+     */
+    private ArrayList<SSCorrection> fixSidescanMark(SidescanLogMarker... ssMk) {
+        ArrayList<SSCorrection> corrections = new ArrayList<>();
+        
+        for (SidescanLogMarker m : ssMk) {
+            synchronized (lineList) {
+                Iterator<SidescanLine> i = lineList.iterator();
+                SidescanLine old = null;
+                SidescanLine line;
+                boolean found = false;
+                while (i.hasNext()) {
+                    line = i.next();
+                    if (old != null) {
+                        long timestamp = new Double(m.getTimestamp()).longValue();
+                        if (timestamp >= old.getTimestampMillis() && timestamp <= line.getTimestampMillis()) {
+                            double distanceToNadirSlant = m.x;
+                            int ssX = line.getIndexFromDistance(distanceToNadirSlant, false);
+                            double distanceToNadirHoriz = line.getDistanceFromIndex(ssX, true);
+                            
+                            int dPort = line.getIndexFromDistance(distanceToNadirSlant - m.wMeters / 2, false);
+                            double distancePort = line.getDistanceFromIndex(dPort, true);
+                            int dStarbord = line.getIndexFromDistance(distanceToNadirSlant + m.wMeters / 2, false);
+                            double distanceStarbord = line.getDistanceFromIndex(dStarbord, true);
+                            double wMetersHoriz = distanceStarbord - distancePort;
+
+                            SidescanPoint point = line.calcPointFromIndex(ssX, true);
+
+                            SSCorrection coor = new SSCorrection();
+                            coor.marker = m;
+                            coor.latRadsSlant = m.getLat();
+                            coor.lonRadsSlant = m.getLon();
+                            coor.latRadsHorizontal = point.location.getLatitudeRads();
+                            coor.lonRadsHorizontal = point.location.getLongitudeRads();
+                            coor.distanceToNadirSlant = distanceToNadirSlant;
+                            coor.distanceToNadirHorizontal = distanceToNadirHoriz;
+                            coor.wMetersSlant = m.wMeters;
+                            coor.wMetersHorizontal = wMetersHoriz;
+                            corrections.add(coor);
+
+                            found = true;
+                            break;
+                        }
+                    }
+                    old = line;
+                }
+                if (!found) {
+                    SSCorrection coor = new SSCorrection();
+                    coor.marker = m;
+                    coor.latRadsSlant = m.getLat();
+                    coor.lonRadsSlant = m.getLon();
+                    coor.latRadsHorizontal = m.getLat();
+                    coor.lonRadsHorizontal = m.getLon();
+                    coor.distanceToNadirSlant = m.x;
+                    coor.distanceToNadirHorizontal = m.x;
+                    coor.wMetersSlant = m.wMeters;
+                    coor.wMetersHorizontal = m.wMeters;
+                    corrections.add(coor);
+                }
+            }
+        }
+        
+        return corrections;
     }
 
     @Override
