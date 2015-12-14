@@ -690,12 +690,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private void drawMarks(Graphics g0) {
         Graphics2D g1 = (Graphics2D) g0.create();
         if (marking) {
-//            int x = Math.min(initialX, mouseX);
-//            int y = Math.min(initialY, mouseY);
-//            int w = Math.max(initialX, mouseX) - Math.min(initialX, mouseX);
-//            int h = Math.max(initialY, mouseY) - Math.min(initialY, mouseY);
-//            g1.drawRect(x, y, w, h);
-            
             int x = initialX - Math.abs(mouseX - initialX);
             int y = initialY - Math.abs(mouseY - initialY);
             int w = Math.abs(mouseX - initialX) * 2;
@@ -852,11 +846,14 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g2d.dispose();
     }
 
+    /**
+     * Method to convert from sidescan x point to mouse click x point in the image.
+     * @param sidescanLineX
+     * @param sidescanLine
+     * @return
+     */
     private int convertSidescanLinePointXToImagePointX(int sidescanLineX, SidescanLine sidescanLine) {
-//        return convertSidescanLinePointXToImagePointX(sidescanLineX, sidescanLine.xsize,
-//                slantRangeCorrection);
         int sidescanLineXSize = sidescanLine.getXSize();
-        // sidescanLineX = 212;
         if (!sidescanLine.isImageWithSlantCorrection()) {
             return (int) (sidescanLineX / (sidescanLineXSize / (float) image.getWidth()));
         }
@@ -873,43 +870,30 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
     }
 
-//    private int convertSidescanLinePointXToImagePointX(int sidescanLineX, int sidescanLineXSize,
-//            boolean slantRangeCorrection) {
-//        return (int) (sidescanLineX / (sidescanLineXSize / (float) image.getWidth()));
-//    }
-
+    /**
+     * Method to convert from mouse click x point in the image to sidescan x point.
+     * @param imageMouseX
+     * @param sidescanLine
+     * @return
+     */
     private int convertImagePointXToSidescanLinePointX(int imageMouseX, SidescanLine sidescanLine) {
-//        return convertImagePointXToSidescanLinePointX(imageMouseX, sidescanLine.xsize, slantRangeCorrection);
         int sidescanLineXSize = sidescanLine.getXSize();
         if (!sidescanLine.isImageWithSlantCorrection()) {
             return (int) (imageMouseX * (sidescanLineXSize / (float) image.getWidth()));
         }
         else {
-            // imageMouseX = 111;
             int imgWidth = image.getWidth();
             int sspoints = sidescanLine.getData().length;
             double hInImg = sidescanLine.getState().getAltitude() * (imgWidth / (sidescanLine.getRange() * 2));
             double d1 =  Math.signum(imageMouseX - imgWidth / 2) * Math.sqrt(Math.pow(imageMouseX - imgWidth / 2, 2) + hInImg * hInImg);
             double x1 = d1 + imgWidth / 2;
             double valCalcSSpx = x1 * sspoints / imgWidth;
-//            System.out.println("imgW " + imgWidth + "  ssW " + sspoints + "  range " + sidescanLine.getRange());
-//            System.out.println("img2ss " + imageMouseX + ">>" + x1 + ">>" + valCalcSSpx+ " vs " + (int) (imageMouseX * (sidescanLineXSize / (float) image.getWidth())));
             return (int) valCalcSSpx;
         }
     }
 
-//    private int convertImagePointXToSidescanLinePointX(int imageMouseX, int sidescanLineXSize,
-//            boolean slantRangeCorrection) {
-//        if (!slantRangeCorrection) {
-//            return (int) (imageMouseX * (sidescanLineXSize / (float) image.getWidth()));
-//        }
-//        else {
-//        }
-//    }
-
     /**
      * Method to convert from mouse click x point in the image to sidescan x point.
-     * 
      * @param imageMouseX
      * @param sidescanLine
      * @return
@@ -921,6 +905,13 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 slantRangeCorrection);
     }
 
+    /**
+     * Method to convert from mouse click x point in the image to sidescan x point.
+     * @param imageMouseX
+     * @param sidescanLine
+     * @param slantRangeCorrection To overwrite what is on sidescanLine
+     * @return
+     */
     private LocationType convertImagePointXToLocation(int imageMouseX, SidescanLine sidescanLine,
             boolean slantRangeCorrection) {
         return convertImagePointXToSidescanPoint(imageMouseX, sidescanLine, slantRangeCorrection).location;
