@@ -45,6 +45,7 @@ import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.types.coord.LocationType;
 
 /**
+ * This will be serializable, so no name changes of the fields!
  * @author jqcorreia
  *
  */
@@ -61,11 +62,11 @@ public class LogMarker implements Serializable, Comparable<LogMarker> {
     /**
      * Latitude in radians
      */
-    protected double latRads;
+    protected double lat;
     /**
      * Longitude in radians
      */
-    protected double lonRads;
+    protected double lon;
     
     /**
      * @param label Text to associate with the marker
@@ -77,8 +78,8 @@ public class LogMarker implements Serializable, Comparable<LogMarker> {
         super();
         this.label = label;
         this.timestamp = timestamp;
-        this.latRads = latRads;
-        this.lonRads = lonRads;
+        this.lat = latRads;
+        this.lon = lonRads;
     }
     
     @Override
@@ -123,7 +124,7 @@ public class LogMarker implements Serializable, Comparable<LogMarker> {
    
     
     public LocationType getLocation() {
-        return new LocationType(Math.toDegrees(latRads), Math.toDegrees(lonRads));
+        return new LocationType(Math.toDegrees(lat), Math.toDegrees(lon));
     }
 
     /**
@@ -143,29 +144,29 @@ public class LogMarker implements Serializable, Comparable<LogMarker> {
     /**
      * @return the lat
      */
-    public double getLat() {
-        return latRads;
+    public double getLatRads() {
+        return lat;
     }
 
     /**
-     * @param lat the lat to set
+     * @param latRads the lat to set
      */
-    public void setLat(double lat) {
-        this.latRads = lat;
+    public void setLatRads(double latRads) {
+        this.lat = latRads;
     }
 
     /**
      * @return the lon
      */
-    public double getLon() {
-        return lonRads;
+    public double getLonRads() {
+        return lon;
     }
 
     /**
-     * @param lon the lon to set
+     * @param lonRads the lon to set
      */
-    public void setLon(double lon) {
-        this.lonRads = lon;
+    public void setLonRads(double lonRads) {
+        this.lon = lonRads;
     }
     
     public Date getDate() {

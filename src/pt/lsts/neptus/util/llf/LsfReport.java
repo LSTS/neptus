@@ -597,8 +597,8 @@ public class LsfReport {
     public static void createPdfMarksRows(PdfPTable table, LogMarker m){
         table.addCell(DateTimeUtil.formatTime((long)m.getTimestamp()));
         table.addCell(m.getLabel());
-        String lat = CoordinateUtil.latitudeAsPrettyString(Math.toDegrees(m.getLat()), false);
-        String lon = CoordinateUtil.longitudeAsPrettyString(Math.toDegrees(m.getLon()), false);
+        String lat = CoordinateUtil.latitudeAsPrettyString(Math.toDegrees(m.getLatRads()), false);
+        String lon = CoordinateUtil.longitudeAsPrettyString(Math.toDegrees(m.getLonRads()), false);
         table.addCell(lat + " " + lon);
     }
 
@@ -889,9 +889,9 @@ public class LsfReport {
     }
 
     public static SidescanLogMarker adjustMark(SidescanLogMarker mark){
-        SidescanLogMarker newMark=new SidescanLogMarker(mark.getLabel(),mark.getTimestamp(),mark.getLat(),mark.getLon(),
+        SidescanLogMarker newMark = new SidescanLogMarker(mark.getLabel(),mark.getTimestamp(),mark.getLatRads(),mark.getLonRads(),
                 mark.x,mark.y,mark.w,mark.h,mark.wMeters,mark.subSys,ColorMapFactory.getColorMapByName(mark.colorMap));
-        newMark.point=mark.point;
+        newMark.point = mark.point;
         int h = newMark.h;
         int w = newMark.w;
         double wMeters = newMark.wMeters;
@@ -928,9 +928,9 @@ public class LsfReport {
                 h *= 1.1;
         }
 
-        newMark.h=h;
-        newMark.w=w;
-        newMark.wMeters=wMeters;
+        newMark.h = h;
+        newMark.w = w;
+        newMark.wMeters = wMeters;
 
         return newMark;
     }

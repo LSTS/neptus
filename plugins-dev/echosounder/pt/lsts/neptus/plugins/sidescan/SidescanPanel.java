@@ -1358,8 +1358,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                             SSCorrection coor = new SSCorrection();
                             coor.marker = m;
-                            coor.latRadsSlant = m.getLat();
-                            coor.lonRadsSlant = m.getLon();
+                            coor.latRadsSlant = m.getLatRads();
+                            coor.lonRadsSlant = m.getLonRads();
                             coor.latRadsHorizontal = point.location.getLatitudeRads();
                             coor.lonRadsHorizontal = point.location.getLongitudeRads();
                             coor.distanceToNadirSlant = distanceToNadirSlant;
@@ -1377,10 +1377,10 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 if (!found) {
                     SSCorrection coor = new SSCorrection();
                     coor.marker = m;
-                    coor.latRadsSlant = m.getLat();
-                    coor.lonRadsSlant = m.getLon();
-                    coor.latRadsHorizontal = m.getLat();
-                    coor.lonRadsHorizontal = m.getLon();
+                    coor.latRadsSlant = m.getLatRads();
+                    coor.lonRadsSlant = m.getLonRads();
+                    coor.latRadsHorizontal = m.getLatRads();
+                    coor.lonRadsHorizontal = m.getLonRads();
                     coor.distanceToNadirSlant = m.x;
                     coor.distanceToNadirHorizontal = m.x;
                     coor.wMetersSlant = m.wMeters;

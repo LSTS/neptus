@@ -35,6 +35,7 @@ import pt.lsts.neptus.colormap.ColorMap;
 import pt.lsts.neptus.colormap.ColorMapFactory;
 
 /**
+ * This will be serializable, so no name changes of the fields!
  * @author jqcorreia
  * 
  */
@@ -50,6 +51,9 @@ public class SidescanLogMarker extends LogMarker {
     public String colorMap;
     public boolean point;
 
+    /** Added version info. For the loaded old marks this value will be 0. */
+    private int sidescanMarkVersion = 1;
+    
     /**
      * @param label
      * @param timestamp
@@ -111,7 +115,14 @@ public class SidescanLogMarker extends LogMarker {
     }
 
     public void fixLocation(double latRads, double lonRads) {
-        this.latRads = latRads;
-        this.lonRads = lonRads;
+        this.lat = latRads;
+        this.lon = lonRads;
+    }
+    
+    /**
+     * @return the SidescanMarkVersion
+     */
+    public int getSidescanMarkVersion() {
+        return sidescanMarkVersion;
     }
 }

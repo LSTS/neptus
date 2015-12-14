@@ -387,12 +387,12 @@ public class MRAPanel extends JPanel {
             return;
 
         // Calculate marker location
-        if (marker.getLat() == 0 && marker.getLon() == 0) {
+        if (marker.getLatRads() == 0 && marker.getLonRads() == 0) {
             IMCMessage m = source.getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
             LocationType loc = LogUtils.getLocation(m);
 
-            marker.setLat(loc.getLatitudeRads());
-            marker.setLon(loc.getLongitudeRads());
+            marker.setLatRads(loc.getLatitudeRads());
+            marker.setLonRads(loc.getLongitudeRads());
         }
         logTree.addMarker(marker);
         logMarkers.add(marker);
