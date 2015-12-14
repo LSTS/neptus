@@ -730,12 +730,15 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                                 int ssX = line.getIndexFromDistance(distanceToNadir, true);
                                 int x = convertSidescanLinePointXToImagePointX(ssX, line);
                                 
+                                int wBox = Math.max(slm.w, 3);
+                                int hBox = Math.max(slm.h, 3);
+                                
                                 g.setColor(color);
-                                g.drawRect(x - (slm.w / 2), line.getYPos() - (slm.h / 2), slm.w, slm.h);
+                                g.drawRect(x - (wBox / 2), line.getYPos() - (hBox / 2), wBox, hBox);
                                 g.setColor(colorConstrast);
-                                g.drawString(m.getLabel(), x - (slm.w / 2) - 1, line.getYPos() - (slm.h / 2) - 10 - 1);
+                                g.drawString(m.getLabel(), x - (wBox / 2) - 1, line.getYPos() - (hBox / 2) - 10 - 1);
                                 g.setColor(color);
-                                g.drawString(m.getLabel(), x - (slm.w / 2), line.getYPos() - (slm.h / 2) - 10);
+                                g.drawString(m.getLabel(), x - (wBox / 2), line.getYPos() - (hBox / 2) - 10);
                             }
                             else {
                                 g.setColor(color);
