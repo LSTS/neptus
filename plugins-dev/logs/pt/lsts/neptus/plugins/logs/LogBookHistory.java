@@ -68,6 +68,8 @@ public class LogBookHistory extends AbstractListModel<HistoryMessage> implements
     
     protected boolean showInfo, showWarn, showError, showDebug;
     
+    private String imgsPath = "pt/lsts/neptus/plugins/logs/";
+    
     protected LinkedHashMap<msg_type, Color> bgColors = new LinkedHashMap<HistoryMessage.msg_type, Color>();
     {
         bgColors.put(msg_type.critical, Color.black);
@@ -231,16 +233,17 @@ public class LogBookHistory extends AbstractListModel<HistoryMessage> implements
     public ImageIcon getIcon(msg_type type) {
         switch (type) {
             case info:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/info.png");
+                return ImageUtils.getIcon(imgsPath + "info.png");
             case warning:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/warning.png");
+                return ImageUtils.getIcon(imgsPath + "warning.png");
             case error:
+                return ImageUtils.getIcon(imgsPath + "error.png");
             case critical:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/error.png");
-	    case debug:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/unknown.png");
+                return ImageUtils.getIcon(imgsPath + "queue2.png");
+            case debug:
+                return ImageUtils.getIcon(imgsPath + "unknown.png");
             default:
-                return ImageUtils.getIcon("pt/lsts/neptus/plugins/logs/queue2.png");
+                return ImageUtils.getIcon(imgsPath + "queue.png");
         }
     }
 
