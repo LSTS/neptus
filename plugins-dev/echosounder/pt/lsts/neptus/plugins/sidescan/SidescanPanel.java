@@ -1192,11 +1192,21 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             @Override
             public void actionPerformed(ActionEvent e) {
                 ArrayList<LogMarker> allMarks = parent.getMarkerList();
+                // Let us collect the possible marks (sidescan marks version < 1)
                 ArrayList<SidescanLogMarker> ssMarks = new ArrayList<>();
                 for (LogMarker m : allMarks) {
-                    if (m instanceof SidescanLogMarker)
-                        ssMarks.add((SidescanLogMarker) m);
+                    if (m instanceof SidescanLogMarker) {
+                        if (((SidescanLogMarker) m).getSidescanMarkVersion() < 1)
+                            ssMarks.add((SidescanLogMarker) m);
+                    }
                 }
+                
+                if (ssMarks.isEmpty()) {
+                    GuiUtils.infoMessage(popup.getComponent(), I18n.text("Select mark"),
+                            I18n.text("No marks to adjust"));
+                    return;
+                }
+                
                 Object ret = JOptionPane.showInputDialog(popup.getComponent(), I18n.text("Select mark"),
                         I18n.text("Select mark"), JOptionPane.QUESTION_MESSAGE, null, 
                         ssMarks.toArray(new SidescanLogMarker[ssMarks.size()]), null);
@@ -1206,6 +1216,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                 SidescanLogMarker ssMk = (SidescanLogMarker) ret;
 
+                // Let us fix the marks
                 SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
                     private ArrayList<SSCorrection> corrections;
                     private Operation op = Operation.TEST_CHANGE;
