@@ -1139,38 +1139,19 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 SidescanPoint point = lInit.calcPointFromIndex(xSS, true);
 
                 // Distance to line center point, negative values mean portboard
-//                double distanceToNadir = lInit.getState().getPosition().getHorizontalDistanceInMeters(point.location);
-//                distanceToNadir *= (xSS > lInit.getXSize() / 2 ? 1 : -1);
                 double distanceToNadir = lInit.getDistanceFromIndex(xSS, true);
 
-                int x1Img = initialX - wImg / 2;
-                int x2Img = initialX + wImg / 2;
+                int xPortImg = initialX - wImg / 2;
+                int xStarboardImg = initialX + wImg / 2;
 
-                int x1 = convertImagePointXToSidescanLinePointX(x1Img, lInit);
-                int x2 = convertImagePointXToSidescanLinePointX(x2Img, lInit);
+                int xPort = convertImagePointXToSidescanLinePointX(xPortImg, lInit);
+                int xStarboard = convertImagePointXToSidescanLinePointX(xStarboardImg, lInit);
 
                 // Force slant correction
-//                SidescanPoint p1 = lInit.calcPointFromIndex(x1, true);
-//                SidescanPoint p2 = lInit.calcPointFromIndex(x2, true);
-
-//                double d1 = lInit.getState().getPosition().getHorizontalDistanceInMeters(p1.location);
-//                d1 *= (x1 > lInit.getXSize() / 2 ? 1 : -1);
-                double d1 = lInit.getDistanceFromIndex(x1, true);
-
-//                double d2 = lInit.getState().getPosition().getHorizontalDistanceInMeters(p2.location);
-//                d2 *= (x2 > lInit.getXSize() / 2 ? 1 : -1);
-                double d2 = lInit.getDistanceFromIndex(x2, true);
-
-//                d1 += lInit.getRange();
-//                d2 += lInit.getRange();
-                double wMeters = d2 - d1;
+                double dHPort = lInit.getDistanceFromIndex(xPort, true);
+                double dHStarboard = lInit.getDistanceFromIndex(xStarboard, true);
+                double wMeters = dHStarboard - dHPort;
                 
-//                int dPort = convertImagePointXToSidescanLinePointX(initialX, lInit);;
-//                double distancePort = l.getDistanceFromIndex(dPort, true);
-//                int dStarbord = l.getIndexFromDistance(distanceToNadir + m.wMeters / 2, false);
-//                double distanceStarbord = l.getDistanceFromIndex(dStarbord, true);
-//                double wMetersHoriz = distanceStarbord - distancePort;
-
                 parent.mraPanel.addMarker(new SidescanLogMarker(res, lInit.getTimestampMillis(), point.location
                         .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, wImg,
                                 hImg, wMeters, subsystem, config.colorMap));
