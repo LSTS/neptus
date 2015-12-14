@@ -503,8 +503,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         int zY = (int) MathMiscUtils.clamp(mouseY, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
 
         // Understand what we are zooming in.
+        Color origColor = g.getColor();
+        g.setColor(Color.CYAN);
         g.drawRect(zX - ZOOM_BOX_SIZE / 2, zY - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
-
+        g.setColor(origColor);
+        
         if (parent.getTimeline().isRunning()) {
 
             BufferedImage zoomImage = image.getSubimage(zX - ZOOM_BOX_SIZE / 2, zY - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
@@ -577,7 +580,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
 
         // Mouse center indicator
-        g.setColor(Color.CYAN);
+        g.setColor(ColorUtils.setTransparencyToColor(Color.CYAN, 180));
         g.drawRect(image.getWidth() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3, image.getHeight() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3, 6, 6);
         
         g.dispose();
