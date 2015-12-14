@@ -41,6 +41,8 @@ import pt.lsts.neptus.colormap.ColorMapFactory;
  */
 public class SidescanLogMarker extends LogMarker {
     private static final long serialVersionUID = 1L;
+    
+    private static final int CURRENT_VERSION = 1;
 
     public double x;
     public double y;
@@ -52,7 +54,7 @@ public class SidescanLogMarker extends LogMarker {
     public boolean point;
 
     /** Added version info. For the loaded old marks this value will be 0. */
-    private int sidescanMarkVersion = 1;
+    private int sidescanMarkVersion = CURRENT_VERSION;
     
     /**
      * @param label
@@ -124,5 +126,12 @@ public class SidescanLogMarker extends LogMarker {
      */
     public int getSidescanMarkVersion() {
         return sidescanMarkVersion;
+    }
+    
+    /**
+     * This will set the version to {@link #CURRENT_VERSION} (currently {@value #CURRENT_VERSION})
+     */
+    public void resetSidescanMarkVersion() {
+        this.sidescanMarkVersion = CURRENT_VERSION;
     }
 }

@@ -1277,8 +1277,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                             if (!exit)
                                 process(null);
                         }
-                        if (changed)
+                        if (changed) {
+                            for (SSCorrection c : corrections) {
+                                c.marker.resetSidescanMarkVersion();
+                            }
                             parent.mraPanel.saveMarkers();
+                        }
                         
                         return changed;
                     }
