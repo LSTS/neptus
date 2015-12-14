@@ -145,13 +145,13 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
     private static final String BASE_FOLDER_FOR_ICON_IMAGES = "iconImages";
     private static final String BASE_FOLDER_FOR_URLINI = "ipUrl.ini";
 
-    @NeptusProperty(name = "Axis Camera RTPS URL")
+    @NeptusProperty(name = "Axis Camera RTPS URL", editable = false)
     private String camRtpsUrl = "rtsp://10.0.20.207:554/live/ch01_0";
     
-    @NeptusProperty(name = "HOST IP for TCP-RasPiCam")
+    @NeptusProperty(name = "HOST IP for TCP-RasPiCam", editable = false)
     private String ipHost = "10.0.20.130";
 
-    @NeptusProperty(name = "Port Number for TCP-RasPiCam")
+    @NeptusProperty(name = "Port Number for TCP-RasPiCam", editable = false)
     private int portNumber = 2424;
     
     //Opencv library name
@@ -565,7 +565,9 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             nameIpCam[i] = dataUrlIni[i][0];
         
         ipCamPing = new JFrame(I18n.text("Select IpCam"));
-        ipCamPing.setSize(340, 200);
+        ipCamPing.setResizable(true);
+        ipCamPing.setSize(440, 200);
+
         ipCamPing.setLocation(dim.width / 2 - ipCamPing.getSize().width / 2,
                 dim.height / 2 - ipCamPing.getSize().height / 2);
         ipCamCheck = new JPanel(new MigLayout());
@@ -580,7 +582,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             public void actionPerformed(ActionEvent e) {
                 JComboBox cb = (JComboBox)e.getSource();
                 rowSelect = cb.getSelectedIndex();
-                if(rowSelect != 0) {
+                if(rowSelect >= 0) {
                     if(pingIpCam(dataUrlIni[rowSelect][1])) {
                         camRtpsUrl = dataUrlIni[rowSelect][2];
                         colorStateIpCam.setBackground(Color.GREEN);
@@ -598,7 +600,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 }
             }
         });
-        ipCamCheck.add(ipCamList,"span, split 3, center");
+        ipCamCheck.add(ipCamList,"split 3, width 50:250:250, center");
         
         colorStateIpCam = new JPanel();
         jlabel = new JLabel(I18n.text("OFF"));
@@ -628,7 +630,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
                 }
             }
         });
-        ipCamCheck.add(selectIpCam,"h 30!");
+        ipCamCheck.add(selectIpCam,"h 30!, wrap");
         
         JTextField fieldName = new JTextField(I18n.text("Name"));
         JTextField fieldIp = new JTextField(I18n.text("Ip"));
@@ -652,17 +654,17 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             }
         });
         
-        ipCamCheck.add(fieldName, "w 320!, wrap");
-        ipCamCheck.add(fieldIp, "w 320!, wrap");
-        ipCamCheck.add(fieldUrl, "w 320!, wrap");
+        ipCamCheck.add(fieldName, "w 410!, wrap");
+        ipCamCheck.add(fieldIp, "w 410!, wrap");
+        ipCamCheck.add(fieldUrl, "w 410!, wrap");
         ipCamCheck.add(addNewIpCam, "w 120!, center");
         
-        
         ipCamPing.add(ipCamCheck);
+        ipCamPing.pack();
         ipCamPing.setVisible(true);
     }
     
-  //Write to file
+    //!Write to file
     private void writeToFile(String textString){
         BufferedWriter brf = null;
         String iniRsrcPath = FileUtil.getResourceAsFileKeepName(BASE_FOLDER_FOR_URLINI);
@@ -746,8 +748,6 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
             
             br.close();
             br = new BufferedReader(new FileReader(confIni));
-            
-            System.out.println("Valor: "+cntReader);
             
             dataSplit = new String[cntReader+1][3];
             cntReader = 1;
@@ -986,7 +986,7 @@ public class Vision extends ConsolePanel implements ConfigurationListener, ItemL
         return SearchOpenCv.searchJni();
     }
     
-    //Get size of image
+    //!Get size of image over TCP
     private void initSizeImage() {
         //Width size of image
         try {
