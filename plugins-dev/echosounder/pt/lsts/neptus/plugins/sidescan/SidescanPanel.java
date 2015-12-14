@@ -736,6 +736,17 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                                 int wBox = Math.max(slm.w, 3);
                                 int hBox = Math.max(slm.h, 3);
                                 
+                                if (slm.w > 0 && slm.wMeters > 0) {
+                                    // We have a box mark
+                                    double wMeters = slm.wMeters;
+                                    double distanceToNadirH = slm.x;
+                                    int dSSPort = line.getIndexFromDistance(distanceToNadirH - wMeters / 2, true);
+                                    int dSSStarbord = line.getIndexFromDistance(distanceToNadirH + wMeters / 2, true);
+                                    int dImgPort = convertSidescanLinePointXToImagePointX(dSSPort, line);
+                                    int dImgStarbord = convertSidescanLinePointXToImagePointX(dSSStarbord, line);
+                                    wBox = dImgStarbord - dImgPort;
+                                }
+                                
                                 g.setColor(color);
                                 g.drawRect(x - (wBox / 2), line.getYPos() - (hBox / 2), wBox, hBox);
                                 g.setColor(colorConstrast);
