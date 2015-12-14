@@ -35,6 +35,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -67,7 +69,7 @@ public class PayloadManagePanel extends ConsolePanel implements MainVehicleChang
     private final String lockTxt = I18n.text("Lock");
     private final String releaseTxt = I18n.text("Release");
     private final String unknownTxt = I18n.text("UNKOWN STATE");
-    
+
     // GUI
     private JPanel titlePanel = null;
     private JPanel buttonPanel = null;
@@ -102,7 +104,6 @@ public class PayloadManagePanel extends ConsolePanel implements MainVehicleChang
 
     private void buttonPanelSetup() {
         buttonPanel = new JPanel(new MigLayout("gap 0 0, ins 0"));
-        
         stateLabel = new JLabel(unknownTxt, SwingConstants.CENTER);
         stateLabel.setBackground(Color.yellow);
         stateLabel.setForeground(Color.black);
@@ -117,58 +118,54 @@ public class PayloadManagePanel extends ConsolePanel implements MainVehicleChang
                 if (isOpenState) { // is open
                     SetServoPosition servo = new SetServoPosition();
                     servo.setValue(SERVO_CLOSE);
-
                     send(servo);
-                    dropButton.setText(lockTxt);
                     isOpenState = false;
-                    stateLabel.setText(I18n.text("OPEN"));
-                    dropButton.setSelected(false);
-                    stateLabel.setBackground(Color.green);
-
                 } 
                 else {
                     SetServoPosition servo = new SetServoPosition();
                     servo.setValue(SERVO_OPEN);
-
                     send(servo);
-                    dropButton.setText(releaseTxt);
                     isOpenState = true;
-                    stateLabel.setText(I18n.text("LOCKED"));
-                    dropButton.setSelected(true);
-                    stateLabel.setBackground(new Color(255, 128, 0));
-                   
                 }
 
+                stateLabel.setText(unknownTxt);
+                stateLabel.setBackground(Color.YELLOW);
             }
         });
         buttonPanel.add(dropButton, "w 34%, h 100%");
         buttonPanel.add(stateLabel, "w 66%, h 100%");
     }
-    
+
     @Subscribe
     public void consume(ServoPosition servo) {
-        System.out.println("RECEIVED STATE");
-        if (servo.getValue() == SERVO_CLOSE) {
+
+        if (round(servo.getValue(), 2) == round(SERVO_OPEN, 2)) {
             dropButton.setText(releaseTxt);
             isOpenState = true;
             stateLabel.setText(I18n.text("LOCKED"));
             dropButton.setSelected(true);
             stateLabel.setBackground(new Color(255, 128, 0));
+            stateLabel.repaint();
         }
-        else if (servo.getValue() == SERVO_OPEN) {
+        else if  (round(servo.getValue(), 2) == round(SERVO_CLOSE, 2)) {
             dropButton.setText(lockTxt);
             isOpenState = false;
             stateLabel.setText(I18n.text("OPEN"));
             dropButton.setSelected(false);
             stateLabel.setBackground(Color.green);
+            stateLabel.repaint();
         }
-        else
-            stateLabel.setText(unknownTxt);
-            stateLabel.setBackground(Color.YELLOW);
     }
-    
+
     @Override
     public void cleanSubPanel() {
+    }
 
+    private static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 }
