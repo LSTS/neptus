@@ -561,18 +561,18 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         }
                     }
 
-                    e.setImage(new BufferedImage(endIndex - beginIndex, 1, BufferedImage.TYPE_INT_RGB), false);
+                    BufferedImage zoomedImg = new BufferedImage(endIndex - beginIndex, 1, BufferedImage.TYPE_INT_RGB);
 
                     // Apply colormap to data
                     for (int c = beginIndex; c < endIndex; c++) {
                         if (c >= e.getData().length || c < 0)
                             continue;
 
-                        e.getImage().setRGB(c - beginIndex , 0, config.colorMap.getColor(e.getData()[c]).getRGB());
+                        zoomedImg.setRGB(c - beginIndex , 0, config.colorMap.getColor(e.getData()[c]).getRGB());
                     }
 
                     int vZoomScale = 3;
-                    Image full = ImageUtils.getScaledImage(e.getImage(), ZOOM_LAYER_BOX_SIZE, vZoomScale, true);
+                    Image full = ImageUtils.getScaledImage(zoomedImg, ZOOM_LAYER_BOX_SIZE, vZoomScale, true);
                     g.drawImage(full, layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight() + (ZOOM_BOX_SIZE) - ypos, null);
                     ypos = ypos + vZoomScale;
                 }
