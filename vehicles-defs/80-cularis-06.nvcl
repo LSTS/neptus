@@ -99,7 +99,7 @@
                     <port-tcp>6002</port-tcp>
                     <udp-on>true</udp-on>
                     <tcp-on>false</tcp-on>
-                    <imc3-id>0c:56</imc3-id>
+                    <imc-id>0c:56</imc-id>
                 </imc>
             </protocols-args>
         </comm-mean>

@@ -15315,8 +15315,8 @@ msgstr "Ширина изображения"
 #: src/pt/lsts/neptus/gui/VehicleInfo.java:1082
 #: src/pt/lsts/neptus/gui/VehicleInfo.java:1136
 #, fuzzy
-msgid "imc.imc3-id"
-msgstr "imc.imc3-id"
+msgid "imc.imc-id"
+msgstr "imc.imc-id"
 
 #: src/pt/lsts/neptus/gui/VehicleInfo.java:1070
 #: src/pt/lsts/neptus/gui/VehicleInfo.java:1124

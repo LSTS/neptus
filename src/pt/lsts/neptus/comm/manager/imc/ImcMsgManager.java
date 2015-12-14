@@ -401,7 +401,7 @@ CommBaseManager<IMCMessage, MessageInfo, SystemImcMsgCommInfo, ImcId16, CommMana
 
         commInfo.put(vIdS, vsci);
 
-        // pdias 14/3/2009 new to VehicleImc3MsgCommInfo.createNewPrivateNode
+        // pdias 14/3/2009 new to VehicleImcMsgCommInfo.createNewPrivateNode
         // if (vsci.isUdpOn())
         // udpOnIpMapper.put(vsci.getIpAddress()+(isFilterByPort?":"+vsci.getIpRemotePort():""),
         // vsci.getVehicleCommId());

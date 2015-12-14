@@ -732,9 +732,6 @@ public class MonitorIMCComms extends
                         @Override
                         protected Void doInBackground() throws Exception {
                             if (!getCommManager().isRunning()) {
-                                // JOptionPane.showMessageDialog(MonitorIMC3Comms.this,
-                                // "IMC comm. manager is not running yet!",
-                                // "Setup new vehicle comms.", JOptionPane.WARNING_MESSAGE);
                                 JOptionPane jop = new JOptionPane(I18n.text("IMC comm. manager is not running yet!"),
                                         JOptionPane.WARNING_MESSAGE);
                                 JDialog dialog = jop.createDialog(MonitorIMCComms.this,

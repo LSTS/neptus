@@ -12844,7 +12844,7 @@ msgstr ""
 
 #: src/pt/lsts/neptus/gui/VehicleInfo.java:1082
 #: src/pt/lsts/neptus/gui/VehicleInfo.java:1136
-msgid "imc.imc3-id"
+msgid "imc.imc-id"
 msgstr ""
 
 #: src/pt/lsts/neptus/gui/VehicleInfo.java:1070
