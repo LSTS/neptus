@@ -804,6 +804,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         float zoomRange  = (ZOOM_BOX_SIZE * (rangeForRuler*2f)) / layer.getWidth();
         float zoomRangeStep = 1;
+        if (zoomRange > 40)
+            zoomRangeStep = 10;
+        else if (zoomRange > 20)
+            zoomRangeStep = 5;
+        else if (zoomRange > 10)
+            zoomRangeStep = 2;
 
         double step = ((zoomRangeStep * ZOOM_LAYER_BOX_SIZE) / zoomRange);
         double r = zoomRangeStep;
@@ -946,7 +952,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
      */
     private void setRangeForRuler(float rangeForRuler) {
         this.rangeForRuler = rangeForRuler;
-        rangeForRulerStep = this.rangeForRuler < 10 ? 1 : 10;
+        rangeForRulerStep = 1;
+        if (rangeForRuler > 100)
+            this.rangeForRulerStep = 20;
+        else if (rangeForRuler > 10)
+            this.rangeForRulerStep = 10;
     }
 
     public BufferedImage getImage() {
