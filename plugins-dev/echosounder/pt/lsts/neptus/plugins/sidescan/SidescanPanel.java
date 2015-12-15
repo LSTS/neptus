@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.plugins.sidescan;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -38,7 +39,10 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.Transparency;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
@@ -54,13 +58,15 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-
-import net.miginfocom.swing.MigLayout;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingWorker;
 
 import org.imgscalr.Scalr;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.PropertiesProviders.SidescanConfig;
 import pt.lsts.neptus.i18n.I18n;
@@ -73,6 +79,7 @@ import pt.lsts.neptus.mra.api.SidescanPoint;
 import pt.lsts.neptus.mra.replay.MraVehiclePosHud;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.ColorUtils;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
@@ -118,6 +125,25 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private InteractionMode imode = InteractionMode.INFO;
     private MraVehiclePosHud posHud;
 
+    /** Fix old marks related enum */ 
+    private enum Operation { EXIT_CHANGE, EXIT_CANCEL, TEST_CHANGE, TEST_ORIG };
+    /** Fix old marks related class */ 
+    private class SSCorrection {
+        public SidescanLogMarker marker;
+
+        public double latRadsSlant;
+        public double latRadsHorizontal;
+
+        public double lonRadsSlant;
+        public double lonRadsHorizontal;
+
+        public double distanceToNadirSlant = Double.NaN;
+        public double distanceToNadirHorizontal = Double.NaN;
+        
+        public double wMetersSlant = Double.NaN;
+        public double wMetersHorizontal = Double.NaN;
+    }
+    
     private JPanel view = new JPanel() {
         private static final long serialVersionUID = 1L;
 
@@ -230,7 +256,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     // private SidescanPoint mouseSidescanPoint; // Mouse position geographical location
     private SidescanLine mouseSidescanLine;
 
-    private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(120, 71, Transparency.BITMASK);
+    private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(120, 87, Transparency.BITMASK);
 
     private List<SidescanLine> lineList = Collections.synchronizedList(new ArrayList<SidescanLine>());
     //    private ArrayList<SidescanLine> drawList = new ArrayList<SidescanLine>();
@@ -243,6 +269,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private String altStr = I18n.text("Altitude");
     // private String depthStr = I18n.text("Depth");
     private String rollStr = I18n.text("Roll");
+    private String yawStr = I18n.text("Yaw");
     private String sRangeStr = I18n.text("S Range");
     private String hRangeStr = I18n.text("H Range");
 
@@ -384,33 +411,33 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         for (SidescanLine l : drawList) {
             // Update the rangeMax to the ruler
-            if (l.range != getRangeForRuler()) {
-                setRangeForRuler(l.range);
+            if (l.getRange() != getRangeForRuler()) {
+                setRangeForRuler(l.getRange());
             }
             
             // Deal with speed correction here, because this would be repeated code in the various parsers
             if (config.speedCorrection) {
-                double horizontalScale = image.getWidth() / (l.range * 2f);
+                double horizontalScale = image.getWidth() / (l.getRange() * 2f);
                 double verticalScale = horizontalScale;
 
-                double secondsElapsed = (l.timestampMillis - prevPingTime) / 1000f;
-                double speed = l.state.getU();
+                double secondsElapsed = (l.getTimestampMillis() - prevPingTime) / 1000f;
+                double speed = l.getState().getU();
 
                 // Finally the 'height' of the ping in pixels
                 int size = (int) (secondsElapsed * speed * verticalScale);
 
                 if (size <= 0 || secondsElapsed > 0.5) {
-                    l.ysize = 1;
+                    l.setYSize(1);
                 }
                 else {
-                    l.ysize = size;
+                    l.setYSize(size);
                 }
             }
             else {
-                l.ysize = 1;
+                l.setYSize(1);
             }
-            prevPingTime = l.timestampMillis;
-            yref += l.ysize;
+            prevPingTime = l.getTimestampMillis();
+            yref += l.getYSize();
         }
 
         // This check is to prevent negative array indexes (from dragging too much)
@@ -426,22 +453,25 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         int d = 0;
 
         for (SidescanLine sidescanLine : drawList) {
-            sidescanLine.ypos = yref - d;
-            d += sidescanLine.ysize;
-            sidescanLine.image = new BufferedImage(sidescanLine.data.length, 1, BufferedImage.TYPE_INT_RGB);
+            sidescanLine.setYPos(yref - d);
+            d += sidescanLine.getYSize();
+            sidescanLine.setImage(new BufferedImage(sidescanLine.getData().length, 1, BufferedImage.TYPE_INT_RGB),
+                    false);
 
             // Apply colormap to data
-            for (int c = 0; c < sidescanLine.data.length; c++) {
-                sidescanLine.image.setRGB(c, 0, config.colorMap.getColor(sidescanLine.data[c]).getRGB());
+            for (int c = 0; c < sidescanLine.getData().length; c++) {
+                sidescanLine.getImage().setRGB(c, 0, config.colorMap.getColor(sidescanLine.getData()[c]).getRGB());
             }
 
             if (config.slantRangeCorrection) {
-                sidescanLine.image = Scalr.apply(sidescanLine.image, new SlantRangeImageFilter(sidescanLine.state.getAltitude(), sidescanLine.range, sidescanLine.image.getWidth()));
-                sidescanLine.imageWithSlantRangeCorrection = true;
+                sidescanLine.setImage(Scalr.apply(sidescanLine.getImage(),
+                        new SlantRangeImageFilter(sidescanLine.getState().getAltitude(), sidescanLine.getRange(),
+                                sidescanLine.getImage().getWidth())),
+                        true);
             }
 
-            g2d.drawImage(ImageUtils.getScaledImage(sidescanLine.image, image.getWidth(), sidescanLine.ysize, true), 0,
-                    sidescanLine.ypos, null);
+            g2d.drawImage(ImageUtils.getScaledImage(sidescanLine.getImage(), image.getWidth(), sidescanLine.getYSize(), true), 0,
+                    sidescanLine.getYPos(), null);
             // g2d.drawImage(sidescanLine.image, 0, sidescanLine.ypos, null);
         }
         synchronized (lineList) {
@@ -449,8 +479,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             Iterator<SidescanLine> i = lineList.iterator(); // Must be in synchronized block
             while (i.hasNext()) {
                 sidescanLine = i.next();
-                sidescanLine.ypos += yref;
-                if (sidescanLine.ypos > image.getHeight())
+                sidescanLine.setYPos(sidescanLine.getYPos() + yref);
+                if (sidescanLine.getYPos() > image.getHeight())
                     removeList.add(sidescanLine);
             }
             lineList.addAll(drawList);
@@ -474,8 +504,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         int zY = (int) MathMiscUtils.clamp(mouseY, ZOOM_BOX_SIZE / 2, image.getHeight() - ZOOM_BOX_SIZE / 2);
 
         // Understand what we are zooming in.
+        Color origColor = g.getColor();
+        g.setColor(Color.CYAN);
         g.drawRect(zX - ZOOM_BOX_SIZE / 2, zY - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
-
+        g.setColor(origColor);
+        
         if (parent.getTimeline().isRunning()) {
 
             BufferedImage zoomImage = image.getSubimage(zX - ZOOM_BOX_SIZE / 2, zY - ZOOM_BOX_SIZE / 2, ZOOM_BOX_SIZE, ZOOM_BOX_SIZE);
@@ -496,7 +529,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             }
             synchronized (lines) {
                 for (SidescanLine e : lines ) { 
-                    e.ysize = 1;
+                    e.setYSize(1);
                     int beginIndex = 0;
                     int endIndex = 0;
                     int leftMousePos = mouseX - ZOOM_BOX_SIZE / 2;
@@ -505,42 +538,42 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     if (leftMousePos < 0) {
                         beginIndex = 0;
                         rightMousePos = ZOOM_BOX_SIZE;
-                        endIndex = (rightMousePos * e.data.length ) / image.getWidth() ;
-                        if (e.imageWithSlantRangeCorrection) {
+                        endIndex = (rightMousePos * e.getData().length ) / image.getWidth() ;
+                        if (e.isImageWithSlantCorrection()) {
                             beginIndex = convertImagePointXToSidescanLinePointX(0, e);
                             endIndex = convertImagePointXToSidescanLinePointX(rightMousePos, e);
                         }
                     }
                     else if (rightMousePos > image.getWidth()) {
                         leftMousePos = image.getWidth() - ZOOM_BOX_SIZE;
-                        beginIndex = (leftMousePos * e.data.length ) / image.getWidth() ;
-                        endIndex = (image.getWidth() * e.data.length ) / image.getWidth() ;
-                        if (e.imageWithSlantRangeCorrection) {
+                        beginIndex = (leftMousePos * e.getData().length ) / image.getWidth() ;
+                        endIndex = (image.getWidth() * e.getData().length ) / image.getWidth() ;
+                        if (e.isImageWithSlantCorrection()) {
                             beginIndex = convertImagePointXToSidescanLinePointX(leftMousePos, e);
                             endIndex = convertImagePointXToSidescanLinePointX(image.getWidth(), e);
                         }
                     }
                     else {
-                        beginIndex = (leftMousePos * e.data.length ) / image.getWidth() ;
-                        endIndex = (rightMousePos * e.data.length ) / image.getWidth() ;
-                        if (e.imageWithSlantRangeCorrection) {
+                        beginIndex = (leftMousePos * e.getData().length ) / image.getWidth() ;
+                        endIndex = (rightMousePos * e.getData().length ) / image.getWidth() ;
+                        if (e.isImageWithSlantCorrection()) {
                             beginIndex = convertImagePointXToSidescanLinePointX(leftMousePos, e);
                             endIndex = convertImagePointXToSidescanLinePointX(rightMousePos, e);
                         }
                     }
 
-                    e.image = new BufferedImage(endIndex-beginIndex, 1, BufferedImage.TYPE_INT_RGB);
+                    BufferedImage zoomedImg = new BufferedImage(endIndex - beginIndex, 1, BufferedImage.TYPE_INT_RGB);
 
                     // Apply colormap to data
                     for (int c = beginIndex; c < endIndex; c++) {
-                        if (c >= e.data.length || c < 0)
+                        if (c >= e.getData().length || c < 0)
                             continue;
 
-                        e.image.setRGB(c - beginIndex , 0, config.colorMap.getColor(e.data[c]).getRGB());
+                        zoomedImg.setRGB(c - beginIndex , 0, config.colorMap.getColor(e.getData()[c]).getRGB());
                     }
 
                     int vZoomScale = 3;
-                    Image full = ImageUtils.getScaledImage(e.image, ZOOM_LAYER_BOX_SIZE, vZoomScale, true);
+                    Image full = ImageUtils.getScaledImage(zoomedImg, ZOOM_LAYER_BOX_SIZE, vZoomScale, true);
                     g.drawImage(full, layer.getWidth() - (ZOOM_LAYER_BOX_SIZE + 1), layer.getHeight() + (ZOOM_BOX_SIZE) - ypos, null);
                     ypos = ypos + vZoomScale;
                 }
@@ -548,7 +581,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
 
         // Mouse center indicator
-        g.setColor(Color.CYAN);
+        g.setColor(ColorUtils.setTransparencyToColor(Color.CYAN, 180));
         g.drawRect(image.getWidth() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3, image.getHeight() - (ZOOM_LAYER_BOX_SIZE / 2 + 1) - 3, 6, 6);
         
         g.dispose();
@@ -556,21 +589,26 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     private void drawInfo(Graphics g) {
         if (mouseSidescanLine != null) {
-            LocationType loc = convertImagePointXToLocation(mouseX, mouseSidescanLine, mouseSidescanLine.imageWithSlantRangeCorrection);
-            double dist = mouseSidescanLine.state.getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(loc);
-            String distStr = mouseSidescanLine.imageWithSlantRangeCorrection ? hRangeStr : sRangeStr;
+            LocationType hloc = convertImagePointXToLocation(mouseX, mouseSidescanLine, true);
+            LocationType sloc = convertImagePointXToLocation(mouseX, mouseSidescanLine, false);
+            
+            double hdist = mouseSidescanLine.getState().getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(hloc);
+            double sdist = mouseSidescanLine.getState().getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(sloc);
             
             Graphics2D location2d = (Graphics2D) mouseLocationImage.getGraphics();
             location2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             location2d.clearRect(0, 0, mouseLocationImage.getWidth(), mouseLocationImage.getHeight());
             location2d.drawString(
-                    CoordinateUtil.dmToLatString(CoordinateUtil.decimalDegreesToDM(loc.getLatitudeDegs())), 5, 15);
+                    CoordinateUtil.dmToLatString(CoordinateUtil.decimalDegreesToDM(hloc.getLatitudeDegs())), 5, 15);
             location2d.drawString(
-                    CoordinateUtil.dmToLonString(CoordinateUtil.decimalDegreesToDM(loc.getLongitudeDegs())), 5, 26);
-            location2d.drawString(altStr + ": " + altFormat.format(mouseSidescanLine.state.getAltitude()), 5, 37);
-            location2d.drawString(rollStr + ": " + altFormat.format(Math.toDegrees(mouseSidescanLine.state.getRoll())),
-                    5, 48);
-            location2d.drawString(distStr+": " + altFormat.format(dist) + " m", 5, 59);
+                    CoordinateUtil.dmToLonString(CoordinateUtil.decimalDegreesToDM(hloc.getLongitudeDegs())), 5, 26);
+            location2d.drawString(altStr + ": " + altFormat.format(mouseSidescanLine.getState().getAltitude()) + " m", 5, 37);
+            location2d.drawString(rollStr + ": " + altFormat.format(Math.toDegrees(mouseSidescanLine.getState().getRoll()))
+                    + "\u00B0", 5, 48);
+            location2d.drawString(yawStr + ": " + altFormat.format(Math.toDegrees(mouseSidescanLine.getState().getYaw()))
+                    + "\u00B0", 5, 59);
+            location2d.drawString(hRangeStr+": " + altFormat.format(hdist) + " m", 5, 70);
+            location2d.drawString(sRangeStr+": " + altFormat.format(sdist) + " m", 5, 81);
 
             g.drawImage(mouseLocationImage, 10, 20, null);
         }
@@ -585,34 +623,17 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         for (SidescanPoint point : pointList) {
             int pointX = convertSidescanLinePointXToImagePointX(point.x, point.line);
-//            System.out.println(" " + point.x);
-            
-            SidescanPoint ptSlant = point.line.calcPointForCoord(point.x, false);
-            SidescanPoint ptNoSlant = point.line.calcPointForCoord(point.x, true);
-//            System.out.printf("Distances >> %f vs %f\n",
-//                    point.line.state.getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(ptSlant.location),
-//                    point.line.state.getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(ptNoSlant.location));
-            
+
+            SidescanPoint ptNoSlant = point.line.calcPointFromIndex(point.x, true);
             if (c == 0) {
                 g.drawRect(pointX - 3, point.y - 3, 6, 6);
             }
             else {
                 int prevPointX = convertSidescanLinePointXToImagePointX(prevPoint.x, prevPoint.line);
 
-                SidescanPoint prevPtSlant = prevPoint.line.calcPointForCoord(prevPoint.x, false);
-                SidescanPoint prevPtNoSlant = prevPoint.line.calcPointForCoord(prevPoint.x, true);
-//                System.out.printf("Distances prev >> %f vs %f\n",
-//                        point.line.state.getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(prevPtSlant.location),
-//                        point.line.state.getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(prevPtNoSlant.location));
-
-                double distSlant = prevPtSlant.location.getDistanceInMeters(ptSlant.location);
+                SidescanPoint prevPtNoSlant = prevPoint.line.calcPointFromIndex(prevPoint.x, true);
                 double distNoSlant = prevPtNoSlant.location.getDistanceInMeters(ptNoSlant.location);
-                distSlant = (int) (distSlant * 1000) / 1000.0;
                 distNoSlant = (int) (distNoSlant * 1000) / 1000.0;
-                
-//                distance = prevPoint.location.getDistanceInMeters(point.location);
-//                distance = (int) (distance * 1000) / 1000.0;
-
                 g.drawLine(prevPointX, prevPoint.y, pointX, point.y);
                 g.drawRect(pointX - 3, point.y - 3, 6, 6);
                 g.setColor(Color.BLACK);
@@ -637,11 +658,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 int ssP = convertImagePointXToSidescanLinePointX((int) measureHeightMouseX, measureHeightP.line);
                 g.drawRect((int) (measureHeightMouseX - 3), measureHeightP.y - 3, 6, 6);
                 
-                double p1 = measureHeightP.line.getDistanceForCoord(measureHeightP.x, false);
-                double p2 = measureHeightP.line.getDistanceForCoord(ssP, false);
+                double p1 = measureHeightP.line.getDistanceFromIndex(measureHeightP.x, false);
+                double p2 = measureHeightP.line.getDistanceFromIndex(ssP, false);
                 
                 double l = Math.abs(p2 - p1);
-                double a = measureHeightP.line.state.getAltitude();
+                double a = measureHeightP.line.getState().getAltitude();
                 double r = Math.abs(Math.max(p1, p2));
                 double h = l * a / r;
                 h = (int) (h * 1000) / 1000.0;
@@ -657,22 +678,31 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g.dispose();
     }
 
-    private void drawMarks(Graphics g2) {
+    private void drawMarks(Graphics g0) {
+        Graphics2D g1 = (Graphics2D) g0.create();
         if (marking) {
-            int x = Math.min(initialX, mouseX);
-            int y = Math.min(initialY, mouseY);
-            int w = Math.max(initialX, mouseX) - Math.min(initialX, mouseX);
-            int h = Math.max(initialY, mouseY) - Math.min(initialY, mouseY);
-            g2.drawRect(x, y, w, h);
+            int x = initialX - Math.abs(mouseX - initialX);
+            int y = initialY - Math.abs(mouseY - initialY);
+            int w = Math.abs(mouseX - initialX) * 2;
+            int h = Math.abs(mouseY - initialY) * 2;
+            Stroke oStroke = g1.getStroke();
+            Stroke nStroke = new BasicStroke(3);
+            g1.setStroke(nStroke);
+            g1.setColor(Color.BLACK);
+            g1.drawRect(x, y, w, h);
+            g1.setStroke(oStroke);
+            g1.setColor(Color.YELLOW);
+            g1.drawRect(x, y, w, h);
         }
+        g1.dispose();
 
         SidescanLine old = null;
-        Graphics2D g = (Graphics2D) g2.create();
+        Graphics2D g = (Graphics2D) g0.create();
         for (LogMarker m : parent.getMarkerList()) {
             long timestamp = new Double(m.getTimestamp()).longValue();
 
-            Color color = Color.WHITE;
-            Color colorConstrast = Color.BLACK;
+            Color color = ColorUtils.setTransparencyToColor(Color.WHITE, 200);
+            Color colorConstrast = ColorUtils.setTransparencyToColor(Color.BLACK, 200);
 
             SidescanLine line;
 
@@ -682,29 +712,46 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     line = i.next();
                     if (old != null) {
                         // In case of being a marker just with time information
-                        if (timestamp >= old.timestampMillis && timestamp <= line.timestampMillis) {
+                        if (timestamp >= old.getTimestampMillis() && timestamp <= line.getTimestampMillis()) {
                             if (m instanceof SidescanLogMarker) {
                                 SidescanLogMarker slm = (SidescanLogMarker) m;
-                                double scale = (image.getWidth() / 2) / line.range;
 
-                                int x = (int) ((image.getWidth() / 2) + (slm.x * scale));
+                                double distanceToNadir = slm.x;
+                                // This should be always slant corrected (old marks will be wrong, must be corrected)
+                                int ssX = line.getIndexFromDistance(distanceToNadir, true);
+                                int x = convertSidescanLinePointXToImagePointX(ssX, line);
+                                
+                                int wBox = Math.max(slm.w, 3);
+                                int hBox = Math.max(slm.h, 3);
+                                
+                                if (slm.w > 0 && slm.wMeters > 0) {
+                                    // We have a box mark
+                                    double wMeters = slm.wMeters;
+                                    double distanceToNadirH = slm.x;
+                                    int dSSPort = line.getIndexFromDistance(distanceToNadirH - wMeters / 2, true);
+                                    int dSSStarbord = line.getIndexFromDistance(distanceToNadirH + wMeters / 2, true);
+                                    int dImgPort = convertSidescanLinePointXToImagePointX(dSSPort, line);
+                                    int dImgStarbord = convertSidescanLinePointXToImagePointX(dSSStarbord, line);
+                                    wBox = dImgStarbord - dImgPort;
+                                }
+                                
                                 g.setColor(color);
-                                g.drawRect(x - (slm.w / 2), line.ypos - (slm.h / 2), slm.w, slm.h);
+                                g.drawRect(x - (wBox / 2), line.getYPos() - (hBox / 2), wBox, hBox);
                                 g.setColor(colorConstrast);
-                                g.drawString(m.getLabel(), x - (slm.w / 2) - 1, line.ypos - (slm.h / 2) - 10 - 1);
+                                g.drawString(m.getLabel(), x - (wBox / 2) - 1, line.getYPos() - (hBox / 2) - 10 - 1);
                                 g.setColor(color);
-                                g.drawString(m.getLabel(), x - (slm.w / 2), line.ypos - (slm.h / 2) - 10);
+                                g.drawString(m.getLabel(), x - (wBox / 2), line.getYPos() - (hBox / 2) - 10);
                             }
                             else {
                                 g.setColor(color);
-                                g.fillRect(0, line.ypos - 1, 10, 2);
-                                g.fillRect(line.image.getWidth(null) - 10, line.ypos - 1, 10, 2);
+                                g.fillRect(0, line.getYPos() - 1, 10, 2);
+                                g.fillRect(line.getImage().getWidth(null) - 10, line.getYPos() - 1, 10, 2);
                                 g.setColor(colorConstrast);
-                                g.drawString(m.getLabel(), 0 - 1, line.ypos - 10 - 1);
+                                g.drawString(m.getLabel(), 0 - 1, line.getYPos() - 10 - 1);
                                 g.setColor(color);
-                                g.drawString(m.getLabel(), 0, line.ypos - 10);
+                                g.drawString(m.getLabel(), 0, line.getYPos() - 10);
                             }
-                            break; // ??
+                            break;
                         }
                     }
                     old = line;
@@ -745,6 +792,12 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         float zoomRange  = (ZOOM_BOX_SIZE * (rangeForRuler*2f)) / layer.getWidth();
         float zoomRangeStep = 1;
+        if (zoomRange > 40)
+            zoomRangeStep = 10;
+        else if (zoomRange > 20)
+            zoomRangeStep = 5;
+        else if (zoomRange > 10)
+            zoomRangeStep = 2;
 
         double step = ((zoomRangeStep * ZOOM_LAYER_BOX_SIZE) / zoomRange);
         double r = zoomRangeStep;
@@ -804,75 +857,72 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g2d.dispose();
     }
 
+    /**
+     * Method to convert from sidescan x point to mouse click x point in the image.
+     * @param sidescanLineX
+     * @param sidescanLine
+     * @return
+     */
     private int convertSidescanLinePointXToImagePointX(int sidescanLineX, SidescanLine sidescanLine) {
-//        return convertSidescanLinePointXToImagePointX(sidescanLineX, sidescanLine.xsize,
-//                slantRangeCorrection);
-        int sidescanLineXSize = sidescanLine.xsize;
-        // sidescanLineX = 212;
-        if (!sidescanLine.imageWithSlantRangeCorrection) {
+        int sidescanLineXSize = sidescanLine.getXSize();
+        if (!sidescanLine.isImageWithSlantCorrection()) {
             return (int) (sidescanLineX / (sidescanLineXSize / (float) image.getWidth()));
         }
         else {
             int imgWidth = image.getWidth();
-            int sspoints = sidescanLine.data.length;
+            int sspoints = sidescanLine.getData().length;
             double ximg = sidescanLineX * imgWidth / sspoints;
-            double hInImg = sidescanLine.state.getAltitude() * (imgWidth / (sidescanLine.range * 2));
+            double hInImg = sidescanLine.getState().getAltitude() * (imgWidth / (sidescanLine.getRange() * 2));
             double dInImg = imgWidth / 2 - ximg;
             double d = imgWidth / 2 - Math.signum(dInImg) * Math.sqrt(dInImg * dInImg - hInImg * hInImg);
-//            System.out.println("imgW " + imgWidth + "  ssW " + sspoints + "  range " + sidescanLine.range);
+//            System.out.println("imgW " + imgWidth + "  ssW " + sspoints + "  range " + sidescanLine.getRange());
 //            System.out.println("ss2img " + sidescanLineX + ">>" + ximg + ">>" + d + " vs " + (int) (sidescanLineX / (sidescanLineXSize / (float) image.getWidth())));
             return (int) d;
         }
     }
 
-//    private int convertSidescanLinePointXToImagePointX(int sidescanLineX, int sidescanLineXSize,
-//            boolean slantRangeCorrection) {
-//        return (int) (sidescanLineX / (sidescanLineXSize / (float) image.getWidth()));
-//    }
-
+    /**
+     * Method to convert from mouse click x point in the image to sidescan x point.
+     * @param imageMouseX
+     * @param sidescanLine
+     * @return
+     */
     private int convertImagePointXToSidescanLinePointX(int imageMouseX, SidescanLine sidescanLine) {
-//        return convertImagePointXToSidescanLinePointX(imageMouseX, sidescanLine.xsize, slantRangeCorrection);
-        int sidescanLineXSize = sidescanLine.xsize;
-        if (!sidescanLine.imageWithSlantRangeCorrection) {
+        int sidescanLineXSize = sidescanLine.getXSize();
+        if (!sidescanLine.isImageWithSlantCorrection()) {
             return (int) (imageMouseX * (sidescanLineXSize / (float) image.getWidth()));
         }
         else {
-            // imageMouseX = 111;
             int imgWidth = image.getWidth();
-            int sspoints = sidescanLine.data.length;
-            double hInImg = sidescanLine.state.getAltitude() * (imgWidth / (sidescanLine.range * 2));
+            int sspoints = sidescanLine.getData().length;
+            double hInImg = sidescanLine.getState().getAltitude() * (imgWidth / (sidescanLine.getRange() * 2));
             double d1 =  Math.signum(imageMouseX - imgWidth / 2) * Math.sqrt(Math.pow(imageMouseX - imgWidth / 2, 2) + hInImg * hInImg);
             double x1 = d1 + imgWidth / 2;
             double valCalcSSpx = x1 * sspoints / imgWidth;
-//            System.out.println("imgW " + imgWidth + "  ssW " + sspoints + "  range " + sidescanLine.range);
-//            System.out.println("img2ss " + imageMouseX + ">>" + x1 + ">>" + valCalcSSpx+ " vs " + (int) (imageMouseX * (sidescanLineXSize / (float) image.getWidth())));
             return (int) valCalcSSpx;
         }
     }
 
-//    private int convertImagePointXToSidescanLinePointX(int imageMouseX, int sidescanLineXSize,
-//            boolean slantRangeCorrection) {
-//        if (!slantRangeCorrection) {
-//            return (int) (imageMouseX * (sidescanLineXSize / (float) image.getWidth()));
-//        }
-//        else {
-//        }
-//    }
-
     /**
      * Method to convert from mouse click x point in the image to sidescan x point.
-     * 
      * @param imageMouseX
      * @param sidescanLine
      * @return
      */
     private SidescanPoint convertImagePointXToSidescanPoint(int imageMouseX, SidescanLine sidescanLine,
             boolean slantRangeCorrection) {
-        return sidescanLine.calcPointForCoord(
+        return sidescanLine.calcPointFromIndex(
                 convertImagePointXToSidescanLinePointX(imageMouseX, sidescanLine),
                 slantRangeCorrection);
     }
 
+    /**
+     * Method to convert from mouse click x point in the image to sidescan x point.
+     * @param imageMouseX
+     * @param sidescanLine
+     * @param slantRangeCorrection To overwrite what is on sidescanLine
+     * @return
+     */
     private LocationType convertImagePointXToLocation(int imageMouseX, SidescanLine sidescanLine,
             boolean slantRangeCorrection) {
         return convertImagePointXToSidescanPoint(imageMouseX, sidescanLine, slantRangeCorrection).location;
@@ -890,7 +940,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
      */
     private void setRangeForRuler(float rangeForRuler) {
         this.rangeForRuler = rangeForRuler;
-        rangeForRulerStep = this.rangeForRuler < 10 ? 1 : 10;
+        rangeForRulerStep = 1;
+        if (rangeForRuler > 100)
+            this.rangeForRulerStep = 20;
+        else if (rangeForRuler > 10)
+            this.rangeForRulerStep = 10;
     }
 
     public BufferedImage getImage() {
@@ -927,7 +981,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     }
 
     boolean isBetweenTopAndBottom(SidescanLine line, long bottomTS, long topTS) {
-        if (bottomTS <= line.timestampMillis && line.timestampMillis <= topTS )
+        if (bottomTS <= line.getTimestampMillis() && line.getTimestampMillis() <= topTS )
             return true;
 
         return false;
@@ -954,25 +1008,25 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             while (i.hasNext()) {
                 SidescanLine line = i.next();
 
-                if (y >= line.ypos && y <= (line.ypos + line.ysize)) {
+                if (y >= line.getYPos() && y <= (line.getYPos() + line.getYSize())) {
                     mouseSidescanLine = line;
                     if (e!=null) ((JPanel) e.getSource()).repaint();
                 }
 
                 // save bottom and top timestamps for zoom box according to mouse position
                 if (mouseY < ZOOM_BOX_SIZE / 2) { 
-                    if (line.ypos == 1) 
-                        topZoomTimestamp = line.timestampMillis;                        
+                    if (line.getYPos() == 1) 
+                        topZoomTimestamp = line.getTimestampMillis();                        
 
-                    if (line.ypos == ZOOM_BOX_SIZE) 
-                        bottomZoomTimestamp = line.timestampMillis;
+                    if (line.getYPos() == ZOOM_BOX_SIZE) 
+                        bottomZoomTimestamp = line.getTimestampMillis();
                 } 
                 else {
-                    if ((line.ypos + (ZOOM_BOX_SIZE/2 ) <= Y) && Y <= (line.ypos + (ZOOM_BOX_SIZE/2 ) + line.ysize))
-                        topZoomTimestamp = line.timestampMillis;
+                    if ((line.getYPos() + (ZOOM_BOX_SIZE/2 ) <= Y) && Y <= (line.getYPos() + (ZOOM_BOX_SIZE/2 ) + line.getYSize()))
+                        topZoomTimestamp = line.getTimestampMillis();
                 }
-                if ((line.ypos - (ZOOM_BOX_SIZE/2 ) <= Y) && Y <= (line.ypos - (ZOOM_BOX_SIZE/2 ) + line.ysize))
-                    bottomZoomTimestamp = line.timestampMillis;
+                if ((line.getYPos() - (ZOOM_BOX_SIZE/2 ) <= Y) && Y <= (line.getYPos() - (ZOOM_BOX_SIZE/2 ) + line.getYSize()))
+                    bottomZoomTimestamp = line.getTimestampMillis();
             }
         }
     };
@@ -991,7 +1045,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         mouseY = e.getY();
         int y = e.getY();
         for (SidescanLine line : lineList.toArray(new SidescanLine[0])) {
-            if (y >= line.ypos && y <= (line.ypos + line.ysize)) {
+            if (y >= line.getYPos() && y <= (line.getYPos() + line.getYSize())) {
                 mouseSidescanLine = line;
                 ((JPanel) e.getSource()).repaint();
             }
@@ -1006,7 +1060,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         if (e.getButton() == MouseEvent.BUTTON1) {
             for (SidescanLine line : lineList) {
-                if (mouseY >= line.ypos && mouseY <= (line.ypos + line.ysize)) {
+                if (mouseY >= line.getYPos() && mouseY <= (line.getYPos() + line.getYSize())) {
                     mouseSidescanLine = line;
                     ((JPanel) e.getSource()).repaint();
                     break;
@@ -1029,7 +1083,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 int x = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
 //                System.out.println("x " + x + "   from  mouseX " + mouseX);
                 
-                pointList.add(mouseSidescanLine.calcPointForCoord(x, mouseSidescanLine.imageWithSlantRangeCorrection));
+                pointList.add(mouseSidescanLine.calcPointFromIndex(x, mouseSidescanLine.isImageWithSlantCorrection()));
 
                 if (pointList.size() > 2) {
                     pointList.clear();
@@ -1043,7 +1097,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 }
                 if (measureHeightP == null) {
                     int x = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
-                    measureHeightP = mouseSidescanLine.calcPointForCoord(x, mouseSidescanLine.imageWithSlantRangeCorrection);
+                    measureHeightP = mouseSidescanLine.calcPointFromIndex(x, mouseSidescanLine.isImageWithSlantCorrection());
                 }
                 else {
                     measureHeightMouseX = mouseX;
@@ -1068,50 +1122,37 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 // Find the corresponding SidescanLine object
                 SidescanLine lInit = null;
                 for (SidescanLine line : lineList) {
-                    if (initialY >= line.ypos && initialY <= (line.ypos + line.ysize)) {
+                    if (initialY >= line.getYPos() && initialY <= (line.getYPos() + line.getYSize())) {
                         lInit = line;
                         break;
                     }
                 }
-                int initialPointXSidescan = convertImagePointXToSidescanLinePointX(initialX, lInit);
-                int mousePointXSidescan = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
-                int x = (mousePointXSidescan + initialPointXSidescan) / 2;
-                int y = (mouseY + initialY) / 2;
 
-                // Find the corresponding SidescanLine object
-                SidescanLine l = null;
-                for (SidescanLine line : lineList) {
-                    if (y >= line.ypos && y <= (line.ypos + line.ysize)) {
-                        l = line;
-                        break;
-                    }
-                }
+                int xSS = convertImagePointXToSidescanLinePointX(initialX, lInit);
+                int y = initialY;
+                int wImg = Math.abs(mouseX - initialX) * 2;
+                int hImg = Math.abs(mouseY - initialY) * 2;
 
-                SidescanPoint point = l.calcPointForCoord(x, l.imageWithSlantRangeCorrection);
+                // Force slant correction
+                SidescanPoint point = lInit.calcPointFromIndex(xSS, true);
 
                 // Distance to line center point, negative values mean portboard
-                double distanceToNadir = l.state.getPosition().getHorizontalDistanceInMeters(point.location);
-                distanceToNadir *= (x > l.xsize / 2 ? 1 : -1);
+                double distanceToNadir = lInit.getDistanceFromIndex(xSS, true);
 
-                int x1 = Math.min(mousePointXSidescan, initialPointXSidescan);
-                int x2 = Math.max(mousePointXSidescan, initialPointXSidescan);
+                int xPortImg = initialX - wImg / 2;
+                int xStarboardImg = initialX + wImg / 2;
 
-                SidescanPoint p1 = l.calcPointForCoord(x1, l.imageWithSlantRangeCorrection);
-                SidescanPoint p2 = l.calcPointForCoord(x2, l.imageWithSlantRangeCorrection);
+                int xPort = convertImagePointXToSidescanLinePointX(xPortImg, lInit);
+                int xStarboard = convertImagePointXToSidescanLinePointX(xStarboardImg, lInit);
 
-                double d1 = l.state.getPosition().getHorizontalDistanceInMeters(p1.location);
-                d1 *= (x1 > l.xsize / 2 ? 1 : -1);
-
-                double d2 = l.state.getPosition().getHorizontalDistanceInMeters(p2.location);
-                d2 *= (x2 > l.xsize / 2 ? 1 : -1);
-
-                d1 += l.range;
-                d2 += l.range;
-                double wMeters = d2 - d1;
-
-                parent.mraPanel.addMarker(new SidescanLogMarker(res, l.timestampMillis, point.location
-                        .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, Math.abs(mouseX
-                                - initialX), Math.abs(mouseY - initialY), wMeters, subsystem, config.colorMap));
+                // Force slant correction
+                double dHPort = lInit.getDistanceFromIndex(xPort, true);
+                double dHStarboard = lInit.getDistanceFromIndex(xStarboard, true);
+                double wMeters = dHStarboard - dHPort;
+                
+                parent.mraPanel.addMarker(new SidescanLogMarker(res, lInit.getTimestampMillis(), point.location
+                        .getLatitudeRads(), point.location.getLongitudeRads(), distanceToNadir, y, wImg,
+                                hImg, wMeters, subsystem, config.colorMap));
             }
             marking = false;
         }
@@ -1131,6 +1172,230 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON3 && e.isControlDown()) {
+            JPopupMenu popup = new JPopupMenu();
+            JMenuItem menuItem = new JMenuItem(I18n.text("Fix old marks"));
+            menuItem.addActionListener(fixSidescanMarkAction(popup));
+            popup.add(menuItem);
+            popup.show(e.getComponent(), e.getX(), e.getY());
+        }
+    }
+
+    /**
+     * Action for the popup to fix old marks.
+     * @param popup
+     * @return
+     */
+    protected ActionListener fixSidescanMarkAction(JPopupMenu popup) {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<LogMarker> allMarks = parent.getMarkerList();
+                // Let us collect the possible marks (sidescan marks version < 1)
+                ArrayList<SidescanLogMarker> ssMarks = new ArrayList<>();
+                for (LogMarker m : allMarks) {
+                    if (m instanceof SidescanLogMarker) {
+                        if (((SidescanLogMarker) m).getSidescanMarkVersion() < 1)
+                            ssMarks.add((SidescanLogMarker) m);
+                    }
+                }
+                
+                if (ssMarks.isEmpty()) {
+                    GuiUtils.infoMessage(popup.getComponent(), I18n.text("Select mark"),
+                            I18n.text("No marks to adjust"));
+                    return;
+                }
+                
+                Object ret = JOptionPane.showInputDialog(popup.getComponent(), I18n.text("Select mark"),
+                        I18n.text("Select mark"), JOptionPane.QUESTION_MESSAGE, null, 
+                        ssMarks.toArray(new SidescanLogMarker[ssMarks.size()]), null);
+                
+                if (ret == null)
+                    return;
+
+                SidescanLogMarker ssMk = (SidescanLogMarker) ret;
+
+                // Let us fix the marks
+                SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+                    private ArrayList<SSCorrection> corrections;
+                    private Operation op = Operation.TEST_CHANGE;
+                    
+                    @Override
+                    protected Boolean doInBackground() throws Exception {
+                        corrections = fixSidescanMark(ssMk);
+                        op = Operation.TEST_CHANGE;
+                        boolean changed = false;
+                        boolean exit = false;
+                        while (!exit) {
+                            switch (op) {
+                                case EXIT_CANCEL:
+                                    if (changed)
+                                        op = Operation.TEST_ORIG;
+                                    exit = true;
+                                    break;
+                                case EXIT_CHANGE:
+                                    if (!changed)
+                                        op = Operation.TEST_CHANGE;
+                                    exit = true;
+                                default:
+                                    break;
+                            }
+                            switch (op) {
+                                case TEST_CHANGE:
+                                case TEST_ORIG:
+                                    for (SSCorrection c : corrections) {
+                                        SidescanLogMarker m = c.marker;
+                                        if (op == Operation.TEST_ORIG) {
+                                            m.fixLocation(c.latRadsSlant, c.lonRadsSlant);
+                                            m.x = c.distanceToNadirSlant;
+                                            m.wMeters = c.wMetersSlant;
+                                            changed = false;
+                                        }
+                                        else if (op == Operation.TEST_CHANGE) {
+                                            m.fixLocation(c.latRadsHorizontal, c.lonRadsHorizontal);
+                                            m.x = c.distanceToNadirHorizontal;
+                                            m.wMeters = c.wMetersHorizontal;
+                                            changed = true;
+                                        } 
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                            if (!exit)
+                                process(null);
+                        }
+                        if (changed) {
+                            for (SSCorrection c : corrections) {
+                                c.marker.resetSidescanMarkVersion();
+                            }
+                            parent.mraPanel.saveMarkers();
+                        }
+                        
+                        return changed;
+                    }
+                    
+                    @Override
+                    protected void process(List<Void> chunks) {
+                        SidescanPanel.this.repaint(0);
+                        
+                        String testStr = I18n.text("Test");
+                        switch (op) {
+                            case TEST_CHANGE:
+                                testStr = I18n.text("Revert test");
+                            case TEST_ORIG:
+                                
+                                int retQ = JOptionPane.showOptionDialog(SidescanPanel.this,
+                                        I18n.text("Change the marks?"), I18n.text("Fix old marks"),
+                                        JOptionPane.YES_OPTION,
+                                        JOptionPane.QUESTION_MESSAGE, null, 
+                                        new String[] { I18n.text("Change"), I18n.text("Cancel"), testStr }, testStr);
+                                switch (retQ) {
+                                    case 0:
+                                        op = Operation.EXIT_CHANGE;
+                                        break;
+                                    case 2:
+                                        if (I18n.text("Test").equalsIgnoreCase(testStr))
+                                            op = Operation.TEST_CHANGE;
+                                        else if (I18n.text("Revert test").equalsIgnoreCase(testStr))
+                                            op = Operation.TEST_ORIG;
+                                        break;
+                                    case 1:
+                                    default:
+                                        op = Operation.EXIT_CANCEL;
+                                        break;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    
+                    @Override
+                    protected void done() {
+                        try {
+                            boolean res = get();
+                            if (res) {
+                                GuiUtils.infoMessage(SidescanPanel.this, I18n.text("Fix old marks"),
+                                        I18n.text("Marks fixed and saved"));
+                            }
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                worker.execute();
+            }
+        };
+    }
+
+    /**
+     * Worker to fix old marks. 
+     * @param ssMk
+     * @return
+     */
+    private ArrayList<SSCorrection> fixSidescanMark(SidescanLogMarker... ssMk) {
+        ArrayList<SSCorrection> corrections = new ArrayList<>();
+        
+        for (SidescanLogMarker m : ssMk) {
+            synchronized (lineList) {
+                Iterator<SidescanLine> i = lineList.iterator();
+                SidescanLine old = null;
+                SidescanLine line;
+                boolean found = false;
+                while (i.hasNext()) {
+                    line = i.next();
+                    if (old != null) {
+                        long timestamp = new Double(m.getTimestamp()).longValue();
+                        if (timestamp >= old.getTimestampMillis() && timestamp <= line.getTimestampMillis()) {
+                            double distanceToNadirSlant = m.x;
+                            int ssX = line.getIndexFromDistance(distanceToNadirSlant, false);
+                            double distanceToNadirHoriz = line.getDistanceFromIndex(ssX, true);
+                            
+                            int dPort = line.getIndexFromDistance(distanceToNadirSlant - m.wMeters / 2, false);
+                            double distancePort = line.getDistanceFromIndex(dPort, true);
+                            int dStarbord = line.getIndexFromDistance(distanceToNadirSlant + m.wMeters / 2, false);
+                            double distanceStarbord = line.getDistanceFromIndex(dStarbord, true);
+                            double wMetersHoriz = distanceStarbord - distancePort;
+
+                            SidescanPoint point = line.calcPointFromIndex(ssX, true);
+
+                            SSCorrection coor = new SSCorrection();
+                            coor.marker = m;
+                            coor.latRadsSlant = m.getLatRads();
+                            coor.lonRadsSlant = m.getLonRads();
+                            coor.latRadsHorizontal = point.location.getLatitudeRads();
+                            coor.lonRadsHorizontal = point.location.getLongitudeRads();
+                            coor.distanceToNadirSlant = distanceToNadirSlant;
+                            coor.distanceToNadirHorizontal = distanceToNadirHoriz;
+                            coor.wMetersSlant = m.wMeters;
+                            coor.wMetersHorizontal = wMetersHoriz;
+                            corrections.add(coor);
+
+                            found = true;
+                            break;
+                        }
+                    }
+                    old = line;
+                }
+                if (!found) {
+                    SSCorrection coor = new SSCorrection();
+                    coor.marker = m;
+                    coor.latRadsSlant = m.getLatRads();
+                    coor.lonRadsSlant = m.getLonRads();
+                    coor.latRadsHorizontal = m.getLatRads();
+                    coor.lonRadsHorizontal = m.getLonRads();
+                    coor.distanceToNadirSlant = m.x;
+                    coor.distanceToNadirHorizontal = m.x;
+                    coor.wMetersSlant = m.wMeters;
+                    coor.wMetersHorizontal = m.wMeters;
+                    corrections.add(coor);
+                }
+            }
+        }
+        
+        return corrections;
     }
 
     @Override

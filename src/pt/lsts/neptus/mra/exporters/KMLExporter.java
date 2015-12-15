@@ -375,10 +375,10 @@ public class KMLExporter implements MRAExporter {
             BufferedImage previous = new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB);
             for (SidescanLine sl : lines) {
 
-                if (filter != null && !filter.isDataValid(new Date(sl.timestampMillis)))
+                if (filter != null && !filter.isDataValid(new Date(sl.getTimestampMillis())))
                     continue;
                 
-                int widthPixels = (int) (sl.range * resolution * 2);
+                int widthPixels = (int) (sl.getRange() * resolution * 2);
 
                 if (swath == null || swath.getWidth() != widthPixels)
                     swath = new BufferedImage(widthPixels, 3, BufferedImage.TYPE_INT_ARGB);
@@ -387,7 +387,7 @@ public class KMLExporter implements MRAExporter {
                     swath.getGraphics().drawImage(previous, 0, 0, swath.getWidth(), 1, 1, 0, 2, previous.getWidth(),
                             null);
 
-                int samplesPerPixel = (int) Math.round(1.0 * sl.data.length / widthPixels);
+                int samplesPerPixel = (int) Math.round(1.0 * sl.getData().length / widthPixels);
                 if (samplesPerPixel == 0)
                     continue;
                 double sum = 0;
@@ -398,22 +398,22 @@ public class KMLExporter implements MRAExporter {
                 switch (ducer) {
                     case board:
                         startPixel = 0;
-                        endPixel = sl.data.length / 2;
+                        endPixel = sl.getData().length / 2;
                         filename = fname+"_board";
                         break;
                     case starboard:
-                        startPixel = sl.data.length / 2;
-                        endPixel = sl.data.length;
+                        startPixel = sl.getData().length / 2;
+                        endPixel = sl.getData().length;
                         filename = fname+"_starboard";
                         break;
                     default:
                         startPixel = 0;
-                        endPixel = sl.data.length;
+                        endPixel = sl.getData().length;
                         filename = fname;
                         break;
                 }
 
-                int pixelOffset = (int) Math.round((widthPixels - 1.0 * sl.data.length / samplesPerPixel) / 2.0);
+                int pixelOffset = (int) Math.round((widthPixels - 1.0 * sl.getData().length / samplesPerPixel) / 2.0);
                 for (int i = startPixel; i < endPixel; i++) {
                     if (i != 0 && i % samplesPerPixel == 0) {
                         int alpha = (int) (swathTransparency * 255);
@@ -429,9 +429,9 @@ public class KMLExporter implements MRAExporter {
                         sum = 0;
                         count = 0;
                     }
-                    if (!Double.isNaN(sl.data[i]) && !Double.isInfinite(sl.data[i])) { 
+                    if (!Double.isNaN(sl.getData()[i]) && !Double.isInfinite(sl.getData()[i])) { 
                         count++;
-                        sum += sl.data[i];
+                        sum += sl.getData()[i];
                     }
                 }
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -439,17 +439,17 @@ public class KMLExporter implements MRAExporter {
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                 if (blendMode != SideScanComposite.MODE.NONE)
                     g2.setComposite(new SideScanComposite(blendMode));
-                double[] pos = sl.state.getPosition().getOffsetFrom(topLeft);
+                double[] pos = sl.getState().getPosition().getOffsetFrom(topLeft);
                 g2.translate(pos[1] * resolution, -pos[0] * resolution);
-                if (makeAbs && sl.state.getYaw() < 0)
-                    g2.rotate(Math.toRadians(300) + sl.state.getYaw());
+                if (makeAbs && sl.getState().getYaw() < 0)
+                    g2.rotate(Math.toRadians(300) + sl.getState().getYaw());
                 else
-                    g2.rotate(sl.state.getYaw());
+                    g2.rotate(sl.getState().getYaw());
                 g2.setColor(Color.black);
                 g2.scale(1, resolution);
 
                 if (slantRangeCorrection)
-                    swath = Scalr.apply(swath, new SlantRangeImageFilter(sl.state.getAltitude(), sl.range, swath.getWidth()));
+                    swath = Scalr.apply(swath, new SlantRangeImageFilter(sl.getState().getAltitude(), sl.getRange(), swath.getWidth()));
 
                 g2.drawImage(swath, -swath.getWidth() / 2, 0, null);
                 g2.dispose();
