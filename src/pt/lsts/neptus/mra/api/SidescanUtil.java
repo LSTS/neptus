@@ -120,4 +120,72 @@ public class SidescanUtil {
             boolean slantRangeCorrection, BufferedImage image) {
         return convertImagePointXToSidescanPoint(imageMouseX, sidescanLine, slantRangeCorrection, image).location;
     }
+    
+    /**
+     * Calculates the horizontal distance from two x indexes 
+     * ({@link SidescanLine#getData()}) of two {@link SidescanLine}s.
+     * @param xIndexLine1
+     * @param line1
+     * @param xIndexLine2
+     * @param line2
+     * @return
+     */
+    public static double calcHorizontalDistanceFrom2XIndexesOf2SidescanLines(int xIndexLine1, SidescanLine line1,
+            int xIndexLine2, SidescanLine line2) {
+        return calcDistanceFrom2XIndexesOf2SidescanLines(xIndexLine1, line1, xIndexLine2, line2, true);
+    }
+
+    /**
+     * Calculates the slant distance (2D) from two x indexes 
+     * ({@link SidescanLine#getData()}) of two {@link SidescanLine}s.
+     * @param xIndexLine1
+     * @param line1
+     * @param xIndexLine2
+     * @param line2
+     * @return
+     */
+    public static double calcSlantDistanceFrom2XIndexesOf2SidescanLines(int xIndexLine1, SidescanLine line1,
+            int xIndexLine2, SidescanLine line2) {
+        return calcDistanceFrom2XIndexesOf2SidescanLines(xIndexLine1, line1, xIndexLine2, line2, false);
+    }
+
+    /**
+     * Calculates the horizontal or slant distance from two x indexes 
+     * ({@link SidescanLine#getData()}) of two {@link SidescanLine}s.
+     * @param xIndexLine1
+     * @param line1
+     * @param xIndexLine2
+     * @param line2
+     * @param slantCorrected
+     * @return
+     */
+    private static double calcDistanceFrom2XIndexesOf2SidescanLines(int xIndexLine1, SidescanLine line1,
+            int xIndexLine2, SidescanLine line2, boolean slantCorrected) {
+        SidescanPoint pt2 = line2.calcPointFromIndex(xIndexLine2, slantCorrected);
+        SidescanPoint pt1 = line1.calcPointFromIndex(xIndexLine1, slantCorrected);
+        double dist = pt1.location.getHorizontalDistanceInMeters(pt2.location);
+        return dist;
+    }
+
+    /**
+     * Calculates the height of an object by the two indexes of the shadow.
+     * @param xIndex1
+     * @param xIndex2
+     * @param line
+     * @return
+     */
+    public static double calcHeightFrom2XIndexesOfSidescanLine(int xIndex1, int xIndex2, SidescanLine line) {
+        double p1 = line.getDistanceFromIndex(xIndex1, false);
+        double p2 = line.getDistanceFromIndex(xIndex2, false);
+        
+        // Shadow length
+        double l = Math.abs(p2 - p1);
+        // Altitude
+        double a = line.getState().getAltitude();
+        // Distance of shadow
+        double r = Math.abs(Math.max(p1, p2));
+        // Height
+        double h = l * a / r;
+        return h;
+    }
 }

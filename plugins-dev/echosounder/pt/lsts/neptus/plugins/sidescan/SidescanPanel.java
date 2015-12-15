@@ -617,7 +617,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     private void drawMeasure(Graphics g) {
         int c = 0;
-//        double distance;
         SidescanPoint prevPoint = null;
         g.setColor(Color.GREEN);
 
@@ -626,16 +625,16 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         for (SidescanPoint point : pointList) {
             int pointX = SidescanUtil.convertSidescanLinePointXToImagePointX(point.x, point.line, image);
 
-            SidescanPoint ptNoSlant = point.line.calcPointFromIndex(point.x, true);
             if (c == 0) {
                 g.drawRect(pointX - 3, point.y - 3, 6, 6);
             }
             else {
                 int prevPointX = SidescanUtil.convertSidescanLinePointXToImagePointX(prevPoint.x, prevPoint.line, image);
 
-                SidescanPoint prevPtNoSlant = prevPoint.line.calcPointFromIndex(prevPoint.x, true);
-                double distNoSlant = prevPtNoSlant.location.getDistanceInMeters(ptNoSlant.location);
+                double distNoSlant = SidescanUtil.calcHorizontalDistanceFrom2XIndexesOf2SidescanLines(prevPoint.x,
+                        prevPoint.line, point.x, point.line);
                 distNoSlant = (int) (distNoSlant * 1000) / 1000.0;
+
                 g.drawLine(prevPointX, prevPoint.y, pointX, point.y);
                 g.drawRect(pointX - 3, point.y - 3, 6, 6);
                 g.setColor(Color.BLACK);
@@ -657,16 +656,11 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             g.drawRect(pointX - 3, measureHeightP.y - 3, 6, 6);
             
             if (!Double.isNaN(measureHeightMouseX)) {
-                int ssP = SidescanUtil.convertImagePointXToSidescanLinePointX((int) measureHeightMouseX, measureHeightP.line, image);
+                int ssP = SidescanUtil.convertImagePointXToSidescanLinePointX((int) measureHeightMouseX,
+                        measureHeightP.line, image);
                 g.drawRect((int) (measureHeightMouseX - 3), measureHeightP.y - 3, 6, 6);
                 
-                double p1 = measureHeightP.line.getDistanceFromIndex(measureHeightP.x, false);
-                double p2 = measureHeightP.line.getDistanceFromIndex(ssP, false);
-                
-                double l = Math.abs(p2 - p1);
-                double a = measureHeightP.line.getState().getAltitude();
-                double r = Math.abs(Math.max(p1, p2));
-                double h = l * a / r;
+                double h = SidescanUtil.calcHeightFrom2XIndexesOfSidescanLine(measureHeightP.x, ssP, measureHeightP.line);
                 h = (int) (h * 1000) / 1000.0;
 
                 g.drawLine((int) measureHeightMouseX, measureHeightP.y, pointX, measureHeightP.y);
