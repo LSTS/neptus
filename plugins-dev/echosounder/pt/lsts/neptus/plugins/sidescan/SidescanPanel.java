@@ -256,7 +256,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     // private SidescanPoint mouseSidescanPoint; // Mouse position geographical location
     private SidescanLine mouseSidescanLine;
 
-    private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(120, 71, Transparency.BITMASK);
+    private BufferedImage mouseLocationImage = ImageUtils.createCompatibleImage(120, 94, Transparency.BITMASK);
 
     private List<SidescanLine> lineList = Collections.synchronizedList(new ArrayList<SidescanLine>());
     //    private ArrayList<SidescanLine> drawList = new ArrayList<SidescanLine>();
@@ -269,6 +269,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
     private String altStr = I18n.text("Altitude");
     // private String depthStr = I18n.text("Depth");
     private String rollStr = I18n.text("Roll");
+    private String yawStr = I18n.text("Yaw");
     private String sRangeStr = I18n.text("S Range");
     private String hRangeStr = I18n.text("H Range");
 
@@ -588,21 +589,27 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     private void drawInfo(Graphics g) {
         if (mouseSidescanLine != null) {
-            LocationType loc = convertImagePointXToLocation(mouseX, mouseSidescanLine, mouseSidescanLine.isImageWithSlantCorrection());
-            double dist = mouseSidescanLine.getState().getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(loc);
-            String distStr = mouseSidescanLine.isImageWithSlantCorrection() ? hRangeStr : sRangeStr;
+            LocationType hloc = convertImagePointXToLocation(mouseX, mouseSidescanLine, true);
+            LocationType sloc = convertImagePointXToLocation(mouseX, mouseSidescanLine, false);
+            
+            double hdist = mouseSidescanLine.getState().getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(hloc);
+            double sdist = mouseSidescanLine.getState().getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(sloc);
+            //String distStr = mouseSidescanLine.isImageWithSlantCorrection() ? hRangeStr : sRangeStr;
             
             Graphics2D location2d = (Graphics2D) mouseLocationImage.getGraphics();
             location2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             location2d.clearRect(0, 0, mouseLocationImage.getWidth(), mouseLocationImage.getHeight());
             location2d.drawString(
-                    CoordinateUtil.dmToLatString(CoordinateUtil.decimalDegreesToDM(loc.getLatitudeDegs())), 5, 15);
+                    CoordinateUtil.dmToLatString(CoordinateUtil.decimalDegreesToDM(hloc.getLatitudeDegs())), 5, 15);
             location2d.drawString(
-                    CoordinateUtil.dmToLonString(CoordinateUtil.decimalDegreesToDM(loc.getLongitudeDegs())), 5, 26);
+                    CoordinateUtil.dmToLonString(CoordinateUtil.decimalDegreesToDM(hloc.getLongitudeDegs())), 5, 26);
             location2d.drawString(altStr + ": " + altFormat.format(mouseSidescanLine.getState().getAltitude()), 5, 37);
             location2d.drawString(rollStr + ": " + altFormat.format(Math.toDegrees(mouseSidescanLine.getState().getRoll())),
                     5, 48);
-            location2d.drawString(distStr+": " + altFormat.format(dist) + " m", 5, 59);
+            location2d.drawString(yawStr + ": " + altFormat.format(Math.toDegrees(mouseSidescanLine.getState().getYaw())),
+                    5, 59);
+            location2d.drawString(hRangeStr+": " + altFormat.format(hdist) + " m", 5, 70);
+            location2d.drawString(sRangeStr+": " + altFormat.format(sdist) + " m", 5, 81);
 
             g.drawImage(mouseLocationImage, 10, 20, null);
         }
@@ -618,34 +625,17 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
         for (SidescanPoint point : pointList) {
             int pointX = convertSidescanLinePointXToImagePointX(point.x, point.line);
-//            System.out.println(" " + point.x);
-            
-            SidescanPoint ptSlant = point.line.calcPointFromIndex(point.x, false);
+
             SidescanPoint ptNoSlant = point.line.calcPointFromIndex(point.x, true);
-//            System.out.printf("Distances >> %f vs %f\n",
-//                    point.line.getState().getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(ptSlant.location),
-//                    point.line.getState().getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(ptNoSlant.location));
-            
             if (c == 0) {
                 g.drawRect(pointX - 3, point.y - 3, 6, 6);
             }
             else {
                 int prevPointX = convertSidescanLinePointXToImagePointX(prevPoint.x, prevPoint.line);
 
-                SidescanPoint prevPtSlant = prevPoint.line.calcPointFromIndex(prevPoint.x, false);
                 SidescanPoint prevPtNoSlant = prevPoint.line.calcPointFromIndex(prevPoint.x, true);
-//                System.out.printf("Distances prev >> %f vs %f\n",
-//                        point.line.getState().getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(prevPtSlant.location),
-//                        point.line.getState().getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(prevPtNoSlant.location));
-
-                double distSlant = prevPtSlant.location.getDistanceInMeters(ptSlant.location);
                 double distNoSlant = prevPtNoSlant.location.getDistanceInMeters(ptNoSlant.location);
-                distSlant = (int) (distSlant * 1000) / 1000.0;
                 distNoSlant = (int) (distNoSlant * 1000) / 1000.0;
-                
-//                distance = prevPoint.location.getDistanceInMeters(point.location);
-//                distance = (int) (distance * 1000) / 1000.0;
-
                 g.drawLine(prevPointX, prevPoint.y, pointX, point.y);
                 g.drawRect(pointX - 3, point.y - 3, 6, 6);
                 g.setColor(Color.BLACK);
