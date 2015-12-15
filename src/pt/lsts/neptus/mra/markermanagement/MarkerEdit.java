@@ -77,6 +77,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
@@ -621,6 +622,17 @@ public class MarkerEdit extends JFrame {
         return fileName;
     }
 
+    private JToggleButton createToggleBtn(String iconPath, String toolTipTxt) {
+        JToggleButton btn = new JToggleButton();
+
+        btn.setHorizontalTextPosition(SwingConstants.CENTER);
+        btn.setVerticalTextPosition(SwingConstants.BOTTOM);
+        btn.setIcon(ImageUtils.getIcon(iconPath));
+        btn.setToolTipText(toolTipTxt);
+
+        return btn;
+    }
+
     private JButton createBtn(String iconPath, String toolTipTxt) {
         JButton btn = new JButton();
 
@@ -631,30 +643,7 @@ public class MarkerEdit extends JFrame {
 
         return btn;
     }
-
-    public static void main(String[] args) {
-        JFrame frm = new JFrame();
-
-        JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout());
-
-        JSlider slider = new JSlider(JSlider.HORIZONTAL, 1, 5, 2);
-        slider.setMinorTickSpacing(1);
-        slider.setMajorTickSpacing(1);
-        slider.setPaintTicks(true);
-        slider.setPaintLabels(true);
-        slider.setFont(new Font("SansSerif", Font.PLAIN, 10));
-        slider.setPreferredSize(new Dimension(70, 50));
-        panel.add(slider);
-
-        frm.add(panel);
-
-        frm.add(panel);
-        frm.setSize(300, 300);
-        frm.setLocationRelativeTo(null);
-        frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frm.setVisible(true);
-    }
+    
     private void setupMenu() {
 
         final JPopupMenu popup = new JPopupMenu();
@@ -696,8 +685,8 @@ public class MarkerEdit extends JFrame {
 
         JButton previousMarkBtn = createBtn("images/menus/previous.png", I18n.text("Previous Mark"));
         JButton nextMarkBtn = createBtn("images/menus/next.png", I18n.text("Next Mark"));
-
-        JButton zoomBtn = createBtn("images/menus/zoom_btn.png", I18n.text("Zoom"));
+        
+        JToggleButton zoomBtn = createToggleBtn("images/menus/zoom_btn.png", I18n.text("Zoom"));
 
         save = new AbstractAction(I18n.text("Save"), ImageUtils.getIcon("images/menus/save.png")) {
 
@@ -956,15 +945,17 @@ public class MarkerEdit extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (enableZoom)
+                if (enableZoom) {
                     enableZoom = false;
+                    zoomBtn.setSelected(false);
+                }
                 else {
                     enableCircleDraw = enableFreeDraw = enableRectDraw = false;
                     enableZoom = true;
+                    zoomBtn.setSelected(true);
                 }
             }
         };
-
 
         //add buttons to toolbar
         toolBar.add(saveBtn);
