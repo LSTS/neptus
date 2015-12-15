@@ -37,6 +37,7 @@ import pt.lsts.neptus.types.coord.LocationType;
 
 /**
  * This class holds utility methods for sidescan
+ * 
  * @author Paulo Dias
  *
  */
@@ -48,9 +49,10 @@ public class SidescanUtil {
 
     /**
      * Method to convert from sidescan x point to mouse click x point in the image.
+     * 
      * @param sidescanLineX The x index of the sidescan (middle is half of the data size)
      * @param sidescanLine The sidescan line
-     * @param image The full image for sidescan line as painted in the viewer. 
+     * @param image The full image for sidescan line as painted in the viewer.
      * @return
      */
     public static int convertSidescanLinePointXToImagePointX(int sidescanLineX, SidescanLine sidescanLine,
@@ -72,9 +74,10 @@ public class SidescanUtil {
 
     /**
      * Method to convert from mouse click x point in the image to sidescan x point.
+     * 
      * @param imageMouseX The image x index from image
      * @param sidescanLine The sidescan line
-     * @param image The full image for sidescan line as painted in the viewer. 
+     * @param image The full image for sidescan line as painted in the viewer.
      * @return
      */
     public static int convertImagePointXToSidescanLinePointX(int imageMouseX, SidescanLine sidescanLine,
@@ -87,7 +90,8 @@ public class SidescanUtil {
             int imgWidth = image.getWidth();
             int sspoints = sidescanLine.getData().length;
             double hInImg = sidescanLine.getState().getAltitude() * (imgWidth / (sidescanLine.getRange() * 2));
-            double d1 =  Math.signum(imageMouseX - imgWidth / 2) * Math.sqrt(Math.pow(imageMouseX - imgWidth / 2, 2) + hInImg * hInImg);
+            double d1 = Math.signum(imageMouseX - imgWidth / 2)
+                    * Math.sqrt(Math.pow(imageMouseX - imgWidth / 2, 2) + hInImg * hInImg);
             double x1 = d1 + imgWidth / 2;
             double valCalcSSpx = x1 * sspoints / imgWidth;
             return (int) valCalcSSpx;
@@ -96,34 +100,36 @@ public class SidescanUtil {
 
     /**
      * Method to convert from mouse click x point in the image to sidescan x point.
+     * 
      * @param imageMouseX The image x index from image
      * @param sidescanLine The sidescan line
-     * @param image The full image for sidescan line as painted in the viewer. 
+     * @param image The full image for sidescan line as painted in the viewer.
      * @return
      */
     public static SidescanPoint convertImagePointXToSidescanPoint(int imageMouseX, SidescanLine sidescanLine,
             boolean slantRangeCorrection, BufferedImage image) {
-        return sidescanLine.calcPointFromIndex(
-                convertImagePointXToSidescanLinePointX(imageMouseX, sidescanLine, image),
+        return sidescanLine.calcPointFromIndex(convertImagePointXToSidescanLinePointX(imageMouseX, sidescanLine, image),
                 slantRangeCorrection);
     }
 
     /**
      * Method to convert from mouse click x point in the image to sidescan x point.
+     * 
      * @param imageMouseX The image x index from image
      * @param sidescanLine The sidescan line
      * @param slantRangeCorrection To overwrite what is on sidescanLine
-     * @param image The full image for sidescan line as painted in the viewer. 
+     * @param image The full image for sidescan line as painted in the viewer.
      * @return
      */
     public static LocationType convertImagePointXToLocation(int imageMouseX, SidescanLine sidescanLine,
             boolean slantRangeCorrection, BufferedImage image) {
         return convertImagePointXToSidescanPoint(imageMouseX, sidescanLine, slantRangeCorrection, image).location;
     }
-    
+
     /**
-     * Calculates the horizontal distance from two x indexes 
-     * ({@link SidescanLine#getData()}) of two {@link SidescanLine}s.
+     * Calculates the horizontal distance from two x indexes ({@link SidescanLine#getData()}) of two
+     * {@link SidescanLine}s.
+     * 
      * @param xIndexLine1
      * @param line1
      * @param xIndexLine2
@@ -136,8 +142,9 @@ public class SidescanUtil {
     }
 
     /**
-     * Calculates the slant distance (2D) from two x indexes 
-     * ({@link SidescanLine#getData()}) of two {@link SidescanLine}s.
+     * Calculates the slant distance (2D) from two x indexes ({@link SidescanLine#getData()}) of two
+     * {@link SidescanLine}s.
+     * 
      * @param xIndexLine1
      * @param line1
      * @param xIndexLine2
@@ -150,8 +157,9 @@ public class SidescanUtil {
     }
 
     /**
-     * Calculates the horizontal or slant distance from two x indexes 
-     * ({@link SidescanLine#getData()}) of two {@link SidescanLine}s.
+     * Calculates the horizontal or slant distance from two x indexes ({@link SidescanLine#getData()}) of two
+     * {@link SidescanLine}s.
+     * 
      * @param xIndexLine1
      * @param line1
      * @param xIndexLine2
@@ -169,6 +177,7 @@ public class SidescanUtil {
 
     /**
      * Calculates the height of an object by the two indexes of the shadow.
+     * 
      * @param xIndex1
      * @param xIndex2
      * @param line
@@ -177,7 +186,7 @@ public class SidescanUtil {
     public static double calcHeightFrom2XIndexesOfSidescanLine(int xIndex1, int xIndex2, SidescanLine line) {
         double p1 = line.getDistanceFromIndex(xIndex1, false);
         double p2 = line.getDistanceFromIndex(xIndex2, false);
-        
+
         // Shadow length
         double l = Math.abs(p2 - p1);
         // Altitude
