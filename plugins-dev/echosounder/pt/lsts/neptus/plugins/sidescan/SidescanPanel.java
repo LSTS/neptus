@@ -76,6 +76,7 @@ import pt.lsts.neptus.mra.api.SidescanLine;
 import pt.lsts.neptus.mra.api.SidescanParameters;
 import pt.lsts.neptus.mra.api.SidescanParser;
 import pt.lsts.neptus.mra.api.SidescanPoint;
+import pt.lsts.neptus.mra.api.SidescanUtil;
 import pt.lsts.neptus.mra.replay.MraVehiclePosHud;
 import pt.lsts.neptus.types.coord.CoordinateUtil;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -540,8 +541,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         rightMousePos = ZOOM_BOX_SIZE;
                         endIndex = (rightMousePos * e.getData().length ) / image.getWidth() ;
                         if (e.isImageWithSlantCorrection()) {
-                            beginIndex = convertImagePointXToSidescanLinePointX(0, e);
-                            endIndex = convertImagePointXToSidescanLinePointX(rightMousePos, e);
+                            beginIndex = SidescanUtil.convertImagePointXToSidescanLinePointX(0, e, image);
+                            endIndex = SidescanUtil.convertImagePointXToSidescanLinePointX(rightMousePos, e, image);
                         }
                     }
                     else if (rightMousePos > image.getWidth()) {
@@ -549,16 +550,16 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                         beginIndex = (leftMousePos * e.getData().length ) / image.getWidth() ;
                         endIndex = (image.getWidth() * e.getData().length ) / image.getWidth() ;
                         if (e.isImageWithSlantCorrection()) {
-                            beginIndex = convertImagePointXToSidescanLinePointX(leftMousePos, e);
-                            endIndex = convertImagePointXToSidescanLinePointX(image.getWidth(), e);
+                            beginIndex = SidescanUtil.convertImagePointXToSidescanLinePointX(leftMousePos, e, image);
+                            endIndex = SidescanUtil.convertImagePointXToSidescanLinePointX(image.getWidth(), e, image);
                         }
                     }
                     else {
                         beginIndex = (leftMousePos * e.getData().length ) / image.getWidth() ;
                         endIndex = (rightMousePos * e.getData().length ) / image.getWidth() ;
                         if (e.isImageWithSlantCorrection()) {
-                            beginIndex = convertImagePointXToSidescanLinePointX(leftMousePos, e);
-                            endIndex = convertImagePointXToSidescanLinePointX(rightMousePos, e);
+                            beginIndex = SidescanUtil.convertImagePointXToSidescanLinePointX(leftMousePos, e, image);
+                            endIndex = SidescanUtil.convertImagePointXToSidescanLinePointX(rightMousePos, e, image);
                         }
                     }
 
@@ -589,8 +590,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
     private void drawInfo(Graphics g) {
         if (mouseSidescanLine != null) {
-            LocationType hloc = convertImagePointXToLocation(mouseX, mouseSidescanLine, true);
-            LocationType sloc = convertImagePointXToLocation(mouseX, mouseSidescanLine, false);
+            LocationType hloc = SidescanUtil.convertImagePointXToLocation(mouseX, mouseSidescanLine, true, image);
+            LocationType sloc = SidescanUtil.convertImagePointXToLocation(mouseX, mouseSidescanLine, false, image);
             
             double hdist = mouseSidescanLine.getState().getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(hloc);
             double sdist = mouseSidescanLine.getState().getPosition().getNewAbsoluteLatLonDepth().getDistanceInMeters(sloc);
@@ -622,18 +623,18 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g.drawRect(3, 3, 6, 6);
 
         for (SidescanPoint point : pointList) {
-            int pointX = convertSidescanLinePointXToImagePointX(point.x, point.line);
+            int pointX = SidescanUtil.convertSidescanLinePointXToImagePointX(point.x, point.line, image);
 
-            SidescanPoint ptNoSlant = point.line.calcPointFromIndex(point.x, true);
             if (c == 0) {
                 g.drawRect(pointX - 3, point.y - 3, 6, 6);
             }
             else {
-                int prevPointX = convertSidescanLinePointXToImagePointX(prevPoint.x, prevPoint.line);
+                int prevPointX = SidescanUtil.convertSidescanLinePointXToImagePointX(prevPoint.x, prevPoint.line, image);
 
-                SidescanPoint prevPtNoSlant = prevPoint.line.calcPointFromIndex(prevPoint.x, true);
-                double distNoSlant = prevPtNoSlant.location.getDistanceInMeters(ptNoSlant.location);
+                double distNoSlant = SidescanUtil.calcHorizontalDistanceFrom2XIndexesOf2SidescanLines(prevPoint.x,
+                        prevPoint.line, point.x, point.line);
                 distNoSlant = (int) (distNoSlant * 1000) / 1000.0;
+
                 g.drawLine(prevPointX, prevPoint.y, pointX, point.y);
                 g.drawRect(pointX - 3, point.y - 3, 6, 6);
                 g.setColor(Color.BLACK);
@@ -651,20 +652,15 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         g.setColor(Color.GREEN);
         
         if (measureHeightP != null) {
-            int pointX = convertSidescanLinePointXToImagePointX(measureHeightP.x, measureHeightP.line);
+            int pointX = SidescanUtil.convertSidescanLinePointXToImagePointX(measureHeightP.x, measureHeightP.line, image);
             g.drawRect(pointX - 3, measureHeightP.y - 3, 6, 6);
             
             if (!Double.isNaN(measureHeightMouseX)) {
-                int ssP = convertImagePointXToSidescanLinePointX((int) measureHeightMouseX, measureHeightP.line);
+                int ssP = SidescanUtil.convertImagePointXToSidescanLinePointX((int) measureHeightMouseX,
+                        measureHeightP.line, image);
                 g.drawRect((int) (measureHeightMouseX - 3), measureHeightP.y - 3, 6, 6);
                 
-                double p1 = measureHeightP.line.getDistanceFromIndex(measureHeightP.x, false);
-                double p2 = measureHeightP.line.getDistanceFromIndex(ssP, false);
-                
-                double l = Math.abs(p2 - p1);
-                double a = measureHeightP.line.getState().getAltitude();
-                double r = Math.abs(Math.max(p1, p2));
-                double h = l * a / r;
+                double h = SidescanUtil.calcHeightFrom2XIndexesOfSidescanLine(measureHeightP.x, ssP, measureHeightP.line);
                 h = (int) (h * 1000) / 1000.0;
 
                 g.drawLine((int) measureHeightMouseX, measureHeightP.y, pointX, measureHeightP.y);
@@ -719,7 +715,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                                 double distanceToNadir = slm.x;
                                 // This should be always slant corrected (old marks will be wrong, must be corrected)
                                 int ssX = line.getIndexFromDistance(distanceToNadir, true);
-                                int x = convertSidescanLinePointXToImagePointX(ssX, line);
+                                int x = SidescanUtil.convertSidescanLinePointXToImagePointX(ssX, line, image);
                                 
                                 int wBox = Math.max(slm.w, 3);
                                 int hBox = Math.max(slm.h, 3);
@@ -730,8 +726,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                                     double distanceToNadirH = slm.x;
                                     int dSSPort = line.getIndexFromDistance(distanceToNadirH - wMeters / 2, true);
                                     int dSSStarbord = line.getIndexFromDistance(distanceToNadirH + wMeters / 2, true);
-                                    int dImgPort = convertSidescanLinePointXToImagePointX(dSSPort, line);
-                                    int dImgStarbord = convertSidescanLinePointXToImagePointX(dSSStarbord, line);
+                                    int dImgPort = SidescanUtil.convertSidescanLinePointXToImagePointX(dSSPort, line, image);
+                                    int dImgStarbord = SidescanUtil.convertSidescanLinePointXToImagePointX(dSSStarbord, line, image);
                                     wBox = dImgStarbord - dImgPort;
                                 }
                                 
@@ -855,77 +851,6 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
         }
         
         g2d.dispose();
-    }
-
-    /**
-     * Method to convert from sidescan x point to mouse click x point in the image.
-     * @param sidescanLineX
-     * @param sidescanLine
-     * @return
-     */
-    private int convertSidescanLinePointXToImagePointX(int sidescanLineX, SidescanLine sidescanLine) {
-        int sidescanLineXSize = sidescanLine.getXSize();
-        if (!sidescanLine.isImageWithSlantCorrection()) {
-            return (int) (sidescanLineX / (sidescanLineXSize / (float) image.getWidth()));
-        }
-        else {
-            int imgWidth = image.getWidth();
-            int sspoints = sidescanLine.getData().length;
-            double ximg = sidescanLineX * imgWidth / sspoints;
-            double hInImg = sidescanLine.getState().getAltitude() * (imgWidth / (sidescanLine.getRange() * 2));
-            double dInImg = imgWidth / 2 - ximg;
-            double d = imgWidth / 2 - Math.signum(dInImg) * Math.sqrt(dInImg * dInImg - hInImg * hInImg);
-//            System.out.println("imgW " + imgWidth + "  ssW " + sspoints + "  range " + sidescanLine.getRange());
-//            System.out.println("ss2img " + sidescanLineX + ">>" + ximg + ">>" + d + " vs " + (int) (sidescanLineX / (sidescanLineXSize / (float) image.getWidth())));
-            return (int) d;
-        }
-    }
-
-    /**
-     * Method to convert from mouse click x point in the image to sidescan x point.
-     * @param imageMouseX
-     * @param sidescanLine
-     * @return
-     */
-    private int convertImagePointXToSidescanLinePointX(int imageMouseX, SidescanLine sidescanLine) {
-        int sidescanLineXSize = sidescanLine.getXSize();
-        if (!sidescanLine.isImageWithSlantCorrection()) {
-            return (int) (imageMouseX * (sidescanLineXSize / (float) image.getWidth()));
-        }
-        else {
-            int imgWidth = image.getWidth();
-            int sspoints = sidescanLine.getData().length;
-            double hInImg = sidescanLine.getState().getAltitude() * (imgWidth / (sidescanLine.getRange() * 2));
-            double d1 =  Math.signum(imageMouseX - imgWidth / 2) * Math.sqrt(Math.pow(imageMouseX - imgWidth / 2, 2) + hInImg * hInImg);
-            double x1 = d1 + imgWidth / 2;
-            double valCalcSSpx = x1 * sspoints / imgWidth;
-            return (int) valCalcSSpx;
-        }
-    }
-
-    /**
-     * Method to convert from mouse click x point in the image to sidescan x point.
-     * @param imageMouseX
-     * @param sidescanLine
-     * @return
-     */
-    private SidescanPoint convertImagePointXToSidescanPoint(int imageMouseX, SidescanLine sidescanLine,
-            boolean slantRangeCorrection) {
-        return sidescanLine.calcPointFromIndex(
-                convertImagePointXToSidescanLinePointX(imageMouseX, sidescanLine),
-                slantRangeCorrection);
-    }
-
-    /**
-     * Method to convert from mouse click x point in the image to sidescan x point.
-     * @param imageMouseX
-     * @param sidescanLine
-     * @param slantRangeCorrection To overwrite what is on sidescanLine
-     * @return
-     */
-    private LocationType convertImagePointXToLocation(int imageMouseX, SidescanLine sidescanLine,
-            boolean slantRangeCorrection) {
-        return convertImagePointXToSidescanPoint(imageMouseX, sidescanLine, slantRangeCorrection).location;
     }
 
     /**
@@ -1080,7 +1005,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
             else if (imode == InteractionMode.MEASURE && !parent.getTimeline().isRunning()) {
                 measure = true;
                 // int x = (int) (mouseX * (mouseSidescanLine.xsize / (float)image.getWidth()));
-                int x = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
+                int x = SidescanUtil.convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine, image);
 //                System.out.println("x " + x + "   from  mouseX " + mouseX);
                 
                 pointList.add(mouseSidescanLine.calcPointFromIndex(x, mouseSidescanLine.isImageWithSlantCorrection()));
@@ -1096,7 +1021,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     measureHeightMouseX = Double.NaN;
                 }
                 if (measureHeightP == null) {
-                    int x = convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine);
+                    int x = SidescanUtil.convertImagePointXToSidescanLinePointX(mouseX, mouseSidescanLine, image);
                     measureHeightP = mouseSidescanLine.calcPointFromIndex(x, mouseSidescanLine.isImageWithSlantCorrection());
                 }
                 else {
@@ -1128,7 +1053,7 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                     }
                 }
 
-                int xSS = convertImagePointXToSidescanLinePointX(initialX, lInit);
+                int xSS = SidescanUtil.convertImagePointXToSidescanLinePointX(initialX, lInit, image);
                 int y = initialY;
                 int wImg = Math.abs(mouseX - initialX) * 2;
                 int hImg = Math.abs(mouseY - initialY) * 2;
@@ -1142,8 +1067,8 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
                 int xPortImg = initialX - wImg / 2;
                 int xStarboardImg = initialX + wImg / 2;
 
-                int xPort = convertImagePointXToSidescanLinePointX(xPortImg, lInit);
-                int xStarboard = convertImagePointXToSidescanLinePointX(xStarboardImg, lInit);
+                int xPort = SidescanUtil.convertImagePointXToSidescanLinePointX(xPortImg, lInit, image);
+                int xStarboard = SidescanUtil.convertImagePointXToSidescanLinePointX(xStarboardImg, lInit, image);
 
                 // Force slant correction
                 double dHPort = lInit.getDistanceFromIndex(xPort, true);
