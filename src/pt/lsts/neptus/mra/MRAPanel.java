@@ -33,7 +33,6 @@ package pt.lsts.neptus.mra;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,10 +65,8 @@ import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
-import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogTree;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
@@ -123,11 +120,11 @@ public class MRAPanel extends JPanel {
         // ------- Setup interface --------
         setLayout(new BorderLayout(3, 3));
 
-        mra.getBgp().setText(I18n.text("Starting up left panel..."));
+        mra.getBgp().setText(I18n.text("Starting up left panel"));
         setUpLeftPanel();
-        mra.getBgp().setText(I18n.text("Starting up status bar..."));
+        mra.getBgp().setText(I18n.text("Starting up status bar"));
         setUpStatusBar();
-        mra.getBgp().setText(I18n.text("Starting up main panel..."));
+        mra.getBgp().setText(I18n.text("Starting up main panel"));
         setUpMainPanel();
 
         // add split pane left panel and main visualizations to right side
@@ -141,11 +138,11 @@ public class MRAPanel extends JPanel {
         add(splitPane, BorderLayout.CENTER);
         add(statusBar, BorderLayout.SOUTH);
 
-        mra.getBgp().setText(I18n.text("Loading markers..."));
+        mra.getBgp().setText(I18n.text("Loading markers"));
         // Load markers
         loadMarkers();
 
-        mra.getBgp().setText(I18n.text("Finishing loading..."));
+        mra.getBgp().setText(I18n.text("Finishing loading"));
         // adds Exporters MenuItem to Tools menu after a Log is loaded
         mra.getMRAMenuBar().setUpExportersMenu(source);
     }
