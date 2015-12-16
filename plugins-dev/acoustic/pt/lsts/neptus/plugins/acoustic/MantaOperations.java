@@ -62,6 +62,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.JToggleButton;
 
 import com.google.common.eventbus.Subscribe;
 
@@ -127,6 +128,7 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     protected JPanel listPanel = new JPanel();
     protected JTextArea bottomPane = new JTextArea();
     protected final JButton clearButton = new JButton(I18n.text("Clear ranges"));
+    protected JToggleButton showHideRangesToggle;
     protected String selectedSystem = null;
     protected String gateway = "any";
     protected JLabel lblState = new JLabel("<html><h1>" + I18n.text("Please select a gateway") + "</h1>");
@@ -494,6 +496,26 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
             }
         });
         ctrlPanel.add(clearButton);
+        
+        final String rangesShow = I18n.text("Show Ranges");
+        final String rangesHidden = I18n.text("Hide Ranges");
+        showHideRangesToggle = new JToggleButton(showRanges ? rangesHidden : rangesShow);
+        showHideRangesToggle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                showRanges = ((JToggleButton) event.getSource()).isSelected();
+                if (!showRanges) {  
+                    rangeDistances.clear();
+                    rangeSources.clear();
+                    showHideRangesToggle.setText(rangesShow);
+                }
+                else {
+                    showHideRangesToggle.setText(rangesHidden);
+                }
+            }
+        });
+        showHideRangesToggle.setSelected(showRanges);
+        ctrlPanel.add(showHideRangesToggle);
 
         listPanel.setBackground(Color.white);
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.PAGE_AXIS));
@@ -592,14 +614,12 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
     public void on(AcousticOperation msg) {
         switch (msg.getOp()) {
             case RANGE_RECVED:
-                if (showRanges) {
-                    LocationType loc = new LocationType(MyState.getLocation());
-                    if (ImcSystemsHolder.getSystemWithName(msg.getSourceName()) != null)
-                        loc = ImcSystemsHolder.getSystemWithName(msg.getSourceName()).getLocation();
+                LocationType loc = new LocationType(MyState.getLocation());
+                if (ImcSystemsHolder.getSystemWithName(msg.getSourceName()) != null)
+                    loc = ImcSystemsHolder.getSystemWithName(msg.getSourceName()).getLocation();
 
-                    rangeDistances.add(msg.getRange());
-                    rangeSources.add(loc);
-                }
+                rangeDistances.add(msg.getRange());
+                rangeSources.add(loc);
 
                 addText(I18n.textf("Distance to %systemName is %distance", msg.getSystem().toString(),
                         GuiUtils.getNeptusDecimalFormat(1).format(msg.getRange())));
@@ -687,6 +707,9 @@ public class MantaOperations extends ConsolePanel implements ConfigurationListen
 
     @Override
     public void paint(Graphics2D g, StateRenderer2D renderer) {
+        if (!showRanges)
+            return;
+        
         for (int i = 0; i < rangeSources.size(); i++) {
             double radius = rangeDistances.get(i) * renderer.getZoom();
             Point2D pt = renderer.getScreenPosition(rangeSources.get(i));
