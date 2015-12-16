@@ -113,7 +113,7 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
                             int resp = GuiUtils.confirmDialog(getConsole(), I18n.text("Tide Predictions"),
                                     I18n.textf(
                                             "The selected location does not match the current location in use (%harbor). Do you wish to set the current location as %selection?",
-                                            used.getName(), harbor + ".txt"),
+                                            used.getName(), harbor + "." + TidePredictionFactory.defaultTideFormat),
                                     ModalityType.DOCUMENT_MODAL);
 
                             if (resp == JOptionPane.YES_OPTION) {
