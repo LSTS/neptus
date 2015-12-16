@@ -53,12 +53,12 @@ import pt.lsts.neptus.types.coord.LocationType;
  */
 public class LogMarkerItemModel extends AbstractTableModel {
 
-    private static final long serialVersionUID = 1L;
-    private static final int COLUMN_INDEX           = 0;
-    private static final int COLUMN_LABEL           = 1;
+    private static final long serialVersionUID     = 1L;
+    private static final int COLUMN_INDEX          = 0;
+    private static final int COLUMN_LABEL          = 1;
     private static final int COLUMN_TIMESTAMP      = 2;
     private static final int COLUMN_LOCATION       = 3;
-    private static final int COLUMN_ALTITUDE           = 4;
+    private static final int COLUMN_ALTITUDE       = 4;
     private static final int COLUMN_CLASSIFICATION = 5;
     private static final int COLUMN_ANNOTATION     = 6;
 
@@ -188,9 +188,9 @@ public class LogMarkerItemModel extends AbstractTableModel {
 
     public void setColumnsWidth(JTable table) {
         // column 0 - width
-        table.getColumnModel().getColumn(0).setMinWidth(25);
-        table.getColumnModel().getColumn(0).setMaxWidth(25);
-        table.getColumnModel().getColumn(0).setPreferredWidth(25);
+        table.getColumnModel().getColumn(0).setMinWidth(30);
+        table.getColumnModel().getColumn(0).setMaxWidth(30);
+        table.getColumnModel().getColumn(0).setPreferredWidth(30);
 
         // column 2 - width
         table.getColumnModel().getColumn(2).setMaxWidth(140);

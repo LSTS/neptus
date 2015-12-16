@@ -169,7 +169,7 @@ public class MarkerEdit extends JDialog {
                     Graphics2D rg2d = (Graphics2D) rulerLayer.getGraphics();
                     rg2d.setBackground(new Color(100, 100, 255, 0));
                     rg2d.clearRect(0, 0, rulerLayer.getWidth(), rulerLayer.getHeight());
-                    
+
                     Graphics2D zg2d = (Graphics2D) zoomLayer.getGraphics();
                     zg2d.setBackground(new Color(100, 100, 255, 0));
                     zg2d.clearRect(0, 0, zoomLayer.getWidth(), zoomLayer.getHeight());
@@ -197,7 +197,7 @@ public class MarkerEdit extends JDialog {
 
                     g.drawImage(layer, RULER_SIZE+1, RULER_SIZE+1, null);
 
-                    
+
                     if (drawImageOverlay != null)
                         g.drawImage(drawImageOverlay, RULER_SIZE+1, RULER_SIZE+1, null);
 
@@ -206,7 +206,7 @@ public class MarkerEdit extends JDialog {
                         drawRuler(rg2d);
                         g.drawImage(rulerLayer, 0, 0, null);
                     }
-                    
+
                     g.drawImage(zoomLayer, RULER_SIZE+1, RULER_SIZE+1, null);
                 }
             }
@@ -502,8 +502,10 @@ public class MarkerEdit extends JDialog {
 
         if (selectedMarker.getSidescanImgPath() != null ) {
             try {
+                String path = parent.mraPanel.getSource().getFile("Data.lsf").getParent();
+                File f = new File(path + selectedMarker.getSidescanImgPath());
 
-                image = ImageIO.read(selectedMarker.getSidescanImgPath());
+                image = ImageIO.read(f);
 
                 int width = image.getWidth();
                 int height = image.getHeight();
@@ -515,7 +517,8 @@ public class MarkerEdit extends JDialog {
                 setLocation(parent.getwindowLocation());
 
                 if (selectedMarker.getDrawImgPath() != null && !selectedMarker.getDrawImgPath().toString().equals("null")) {
-                    drawImageOverlay = ImageIO.read(selectedMarker.getDrawImgPath());
+                    File fDraw = new File(path + selectedMarker.getDrawImgPath());
+                    drawImageOverlay = ImageIO.read(fDraw);
                 } else 
                     drawImageOverlay = null;
 
@@ -527,11 +530,11 @@ public class MarkerEdit extends JDialog {
                         image.getHeight(), Transparency.TRANSLUCENT);
                 clearLayer();
             } catch (IOException e) {
-                NeptusLog.pub().error(I18n.text("Error reading image file for maker: ")+ selectedMarker.getLabel() + " ...");
+                NeptusLog.pub().error(I18n.text("Error reading image file for marker: ")+ selectedMarker.getLabel() + " ...");
                 image = null;
                 markerImage.setIcon(new ImageIcon(MarkerEdit.class.getResource("/images/unknown.png")));
                 markerImage.setPreferredSize(new Dimension(markerImage.getIcon().getIconWidth(), markerImage.getIcon().getIconHeight()));
-                setBounds(100, 100, markerImage.getIcon().getIconWidth() + prefWidth, markerImage.getIcon().getIconHeight() + prefHeight);
+                setBounds(100, 100, markerImage.getIcon().getIconWidth() + prefWidth + 10, markerImage.getIcon().getIconHeight() + prefHeight);
                 setLocation(parent.getwindowLocation());
             }
         } else {
@@ -559,12 +562,12 @@ public class MarkerEdit extends JDialog {
         locationValue.setText(selectedMarker.getLocation().toString());
         String altitudeVal = selectedMarker.getAltitude() < 0 ? "-" : Double.toString(selectedMarker.getAltitude()) + " m";
         altitudeValue.setText(altitudeVal);
-        
+
         NumberFormat nf = GuiUtils.getNeptusDecimalFormat();
         DecimalFormat df2 = (DecimalFormat)nf;
         df2.applyPattern("###.##");
         double formatedDepth = Double.valueOf(df2.format(selectedMarker.getDepth()));
-                
+
         depthValue.setText(Double.toString(formatedDepth) + " m");
         classifValue.setSelectedItem(selectedMarker.getClassification());
         annotationValue.setText(selectedMarker.getAnnotation());
@@ -576,7 +579,7 @@ public class MarkerEdit extends JDialog {
     private void showSuccessDlg(String path) {
         if (!path.endsWith(".png"))
             path = path + ".png";
-        
+
         GuiUtils.showInfoPopup(I18n.text("Success"), I18n.text("Image exported to: ")+path);
     }
 
@@ -646,7 +649,7 @@ public class MarkerEdit extends JDialog {
 
         return btn;
     }
-    
+
     private void setupMenu() {
 
         final JPopupMenu popup = new JPopupMenu();
@@ -688,7 +691,7 @@ public class MarkerEdit extends JDialog {
 
         JButton previousMarkBtn = createBtn("images/menus/previous.png", I18n.text("Previous Mark"));
         JButton nextMarkBtn = createBtn("images/menus/next.png", I18n.text("Next Mark"));
-        
+
         JToggleButton zoomBtn = createToggleBtn("images/menus/zoom_btn.png", I18n.text("Zoom"));
 
         save = new AbstractAction(I18n.text("Save"), ImageUtils.getIcon("images/menus/save.png")) {
@@ -726,13 +729,17 @@ public class MarkerEdit extends JDialog {
 
                 g2d.dispose();
 
+                String relPath = "/mra/markers/" + selectedMarker.getLabel() +"_draw.png";
+                File file = new File(relPath);
 
                 //end save drawing image
-                selectedMarker.setDrawImgPath(drawFile);
+                selectedMarker.setDrawImgPath(file);
                 selectedMarker.setClassification(classif);
                 selectedMarker.setAnnotation(annotation);
-                if (toDeleteDraw)
+                if (toDeleteDraw) {
+                    parent.deleteImage(drawFile.toString());
                     selectedMarker.setDrawImgPath(new File("null"));
+                }
                 parent.updateLogMarker(selectedMarker, selectMarkerRowIndex);
                 markerImage.repaint();
             }

@@ -643,12 +643,12 @@ public class MarkerManagement {
      * @return File of marker image
      */
     private File getImgPath(String marker) {
-        String path = mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/";
-
-        File f = new File(path+marker+".png");
+        File f = new File(mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/" + marker + ".png");
 
         if(f.exists() && !f.isDirectory()) {
-            return f;
+            String relPath = "/mra/markers/" + marker +".png";
+            File file = new File(relPath);
+            return file;
         }
 
         return null;
@@ -799,7 +799,7 @@ public class MarkerManagement {
         }
     }
 
-    private void deleteImage(String path) {
+    public void deleteImage(String path) {
         try {
             File fileTemp = new File(path);
             if (fileTemp.exists()) {
