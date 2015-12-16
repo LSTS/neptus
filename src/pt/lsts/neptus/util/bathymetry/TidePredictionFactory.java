@@ -175,6 +175,12 @@ public class TidePredictionFactory {
         }
 
         File defaultFx = GeneralPreferences.tidesFile;
+        if (!defaultFx.exists()) {
+            String newDefaultPath = FileUtil.replaceFileExtension(defaultFx, defaultTideFormat);
+            defaultFx = new File(newDefaultPath);
+            GeneralPreferences.tidesFile = defaultFx;
+            GeneralPreferences.saveProperties();
+        }
         if (finder == null || (fx != null && defaultFx != null && fx.compareTo(defaultFx) != 0)) {
             TidePredictionFinder data = createWorker(defaultFx, null);
             if (date == null || data.contains(date))
