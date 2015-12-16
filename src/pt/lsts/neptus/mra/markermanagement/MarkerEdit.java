@@ -36,7 +36,6 @@ package pt.lsts.neptus.mra.markermanagement;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -44,6 +43,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Transparency;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -67,11 +67,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -101,7 +100,7 @@ import pt.lsts.neptus.util.MathMiscUtils;
  *
  */
 @SuppressWarnings("serial")
-public class MarkerEdit extends JFrame {
+public class MarkerEdit extends JDialog {
 
     private final int RULER_SIZE = 15;
     private int selectMarkerRowIndex = -1;
@@ -125,11 +124,12 @@ public class MarkerEdit extends JFrame {
     private BufferedImage layer,  rulerLayer, image, drawImageOverlay, zoomLayer;
     private ArrayList<Point> pointsList = new ArrayList<>();
 
-    public MarkerEdit(MarkerManagement parent) {
+    public MarkerEdit(MarkerManagement parent, Window window) {
+        super(window, ModalityType.MODELESS);
         this.parent = parent;
 
         setResizable(false);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setBounds(100, 100, 590, 395);
         setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerEdit.class.getResource("/images/menus/edit.png")));
 
@@ -573,8 +573,8 @@ public class MarkerEdit extends JFrame {
     private void showSuccessDlg(String path) {
         if (!path.endsWith(".png"))
             path = path + ".png";
-
-        JOptionPane.showMessageDialog(this, I18n.text("Image exported to: ")+path, "Success", JOptionPane.INFORMATION_MESSAGE);
+        
+        GuiUtils.showInfoPopup(I18n.text("Success"), I18n.text("Image exported to: ")+path);
     }
 
     private String chooseSaveFile(BufferedImage image, String path) {

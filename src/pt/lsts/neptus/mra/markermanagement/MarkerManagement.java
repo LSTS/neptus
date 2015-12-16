@@ -32,6 +32,7 @@
 
 package pt.lsts.neptus.mra.markermanagement;
 
+import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -52,12 +53,13 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -68,8 +70,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -77,6 +77,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.plugins.PropertiesProviders.SidescanConfig;
 import pt.lsts.neptus.gui.InfiniteProgressPanel;
@@ -107,7 +108,7 @@ import pt.lsts.neptus.util.llf.LsfReportProperties;
 public class MarkerManagement {
 
     private final int DEFAULT_COLUMN_TO_SORT = 0;
-    private JFrame frmMarkerManagement;
+    private JDialog frmMarkerManagement;
     private JPanel panel;
     protected MRAPanel mraPanel;
     private JTable table;
@@ -144,16 +145,16 @@ public class MarkerManagement {
             return;
         }
 
-        frmMarkerManagement = new JFrame();
+        frmMarkerManagement = new JDialog(SwingUtilities.windowForComponent(mraPanel), ModalityType.MODELESS);
         frmMarkerManagement.setIconImage(Toolkit.getDefaultToolkit().getImage(MarkerManagement.class.getResource("/images/menus/marker.png")));
         frmMarkerManagement.setTitle(I18n.text("Marker Management"));
         frmMarkerManagement.setBounds(100, 100, 687, 426);
-        frmMarkerManagement.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frmMarkerManagement.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         frmMarkerManagement.getContentPane().setLayout(new MigLayout("", "[grow]", "[grow]"));
         frmMarkerManagement.setVisible(true);
         frmMarkerManagement.setResizable(false);
 
-        markerEditFrame = new MarkerEdit(this);
+        markerEditFrame = new MarkerEdit(this, SwingUtilities.windowForComponent(frmMarkerManagement));
 
         //Add existing LogMarkers (only SidescanLogMarker ones)
         for (LogMarker m : mraPanel.getMarkers()) {
