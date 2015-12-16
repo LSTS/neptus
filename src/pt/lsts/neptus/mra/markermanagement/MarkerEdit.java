@@ -91,9 +91,11 @@ import net.miginfocom.swing.MigLayout;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.markermanagement.LogMarkerItem.Classification;
+import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.MathMiscUtils;
+import pt.lsts.neptus.util.llf.LogUtils;
 
 
 /**
@@ -573,7 +575,9 @@ public class MarkerEdit extends JDialog {
         annotationValue.setText(selectedMarker.getAnnotation());
         nameLabelValue.setSize(nameLabelValue.getPreferredSize() );
 
-        setTitle(I18n.text("Marker: ") + nameLabelValue.getText() + " - " + timeStampValue.getText());
+        VehicleType veh = LogUtils.getVehicle(parent.mraPanel.getSource());
+        String vehicle = (veh != null ? " | "+veh.getName() : "");
+        setTitle(I18n.text("Marker: ") + nameLabelValue.getText() + " | " + timeStampValue.getText() + " | " + parent.mraPanel.getSource().name() + vehicle);
     }
 
     private void showSuccessDlg(String path) {
