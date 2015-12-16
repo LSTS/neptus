@@ -77,13 +77,6 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
     private JMenuItem tidesItem = null;
     private String storedMenuPath;
     
-    @Periodic(millisBetweenUpdates=60000)
-    public void updateMarker() {
-        marker.setValue(System.currentTimeMillis());
-        levelMarker.setValue(TidePredictionFactory.getTideLevel(new Date()));
-    }
-
-    
     /**
      * @param console
      */
@@ -91,7 +84,7 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
         super(console);
         setLayout(new BorderLayout());
         timeSeriesChart = ChartFactory.createTimeSeriesChart(null, null, null, tsc, true, true, true);
-        add (new ChartPanel(timeSeriesChart), BorderLayout.CENTER);
+        add(new ChartPanel(timeSeriesChart), BorderLayout.CENTER);
         GeneralPreferences.addPreferencesListener(this);
     }
 
@@ -148,6 +141,12 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
         timeSeriesChart.getXYPlot().addDomainMarker(marker);
         levelMarker.setValue(TidePredictionFactory.getTideLevel(new Date()));
         timeSeriesChart.getXYPlot().addRangeMarker(levelMarker);
+    }
+
+    @Periodic(millisBetweenUpdates=60000)
+    public void updateMarker() {
+        marker.setValue(System.currentTimeMillis());
+        levelMarker.setValue(TidePredictionFactory.getTideLevel(new Date()));
     }
 
     // general preferences was updated

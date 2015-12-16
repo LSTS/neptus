@@ -620,7 +620,7 @@ public class MRAMenuBar {
         }
 
         // Check for existence of Exporters menu and remove on existence (in case of opening a new log)
-        if(getExportersMenu()!=null)
+        if(getExportersMenu() != null)
             toolsMenu.remove(getExportersMenu());
 
         setExportersMenu(new JMenu(I18n.text("Exporters")));
