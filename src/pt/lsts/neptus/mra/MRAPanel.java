@@ -116,9 +116,9 @@ public class MRAPanel extends JPanel {
     public MRAPanel(final IMraLogGroup source, NeptusMRA mra) {
         this.source = source;
         this.mra = mra;
-        if (new File(ConfigFetch.getConfFolder() + "/tides.txt").canRead() && source.getFile("tides.txt") == null) {
-            FileUtil.copyFile(ConfigFetch.getConfFolder() + "/tides.txt", new File(source.getFile("."), "tides.txt").getAbsolutePath());
-        }
+//        if (new File(ConfigFetch.getConfFolder() + "/tides.txt").canRead() && source.getFile("tides.txt") == null) {
+//            FileUtil.copyFile(ConfigFetch.getConfFolder() + "/tides.txt", new File(source.getFile("."), "tides.txt").getAbsolutePath());
+//        }
 
         // ------- Setup interface --------
         setLayout(new BorderLayout(3, 3));
@@ -145,6 +145,7 @@ public class MRAPanel extends JPanel {
         // Load markers
         loadMarkers();
 
+        mra.getBgp().setText(I18n.text("Finishing loading..."));
         // adds Exporters MenuItem to Tools menu after a Log is loaded
         mra.getMRAMenuBar().setUpExportersMenu(source);
     }
