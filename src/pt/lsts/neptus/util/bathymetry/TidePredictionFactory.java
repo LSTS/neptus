@@ -114,7 +114,7 @@ public class TidePredictionFactory {
         File dir = source.getDir();
         dir = new File(dir, "mra");
         Date date = new Date((long)(source.getLsfIndex().getStartTime())* 1000);
-        return createWorker(dir, date, logFolderTidesFileOptions);
+        return createWorker(dir, date, new String[0]); //, logFolderTidesFileOptions);
     }
     
     /**
@@ -128,7 +128,7 @@ public class TidePredictionFactory {
         File dir = source.getLsfFile().getParentFile();
         dir = new File(dir, "mra");
         Date date = new Date((long)(source.getStartTime())* 1000);
-        return createWorker(dir, date, logFolderTidesFileOptions);
+        return createWorker(dir, date, new String[0]); //, logFolderTidesFileOptions);
     }
 
     /**
@@ -161,35 +161,40 @@ public class TidePredictionFactory {
      */
     private static TidePredictionFinder createWorker(File fx, Date date) {
         TidePredictionFinder finder = null;
-        if (fx != null && fx.canRead()) {
-            switch (FileUtil.getFileExtension(fx)) {
-                case "txt":
-                    finder = new CachedData(fx);
-                    break;
-                case "tid":
-                    finder = new TidCachedData(fx);
-                    break;
-                default:
-                    break;
+        if (fx.isDirectory()) {
+            return createWorker(fx, null, logFolderTidesFileOptions);
+        }
+        else {
+            if (fx != null && fx.canRead()) {
+                switch (FileUtil.getFileExtension(fx)) {
+                    case "txt":
+                        finder = new CachedData(fx);
+                        break;
+                    case "tid":
+                        finder = new TidCachedData(fx);
+                        break;
+                    default:
+                        break;
+                }
             }
+            
+            File defaultFx = GeneralPreferences.tidesFile;
+            if (!defaultFx.exists()) {
+                String newDefaultPath = FileUtil.replaceFileExtension(defaultFx, defaultTideFormat);
+                defaultFx = new File(newDefaultPath);
+                GeneralPreferences.tidesFile = defaultFx;
+                GeneralPreferences.saveProperties();
+            }
+            if (finder == null || (fx != null && defaultFx != null && fx.compareTo(defaultFx) != 0)) {
+                TidePredictionFinder data = createWorker(defaultFx, null);
+                if (date == null || data.contains(date))
+                    finder = data;
+                else
+                    finder = null;
+            }
+            
+            return finder;
         }
-
-        File defaultFx = GeneralPreferences.tidesFile;
-        if (!defaultFx.exists()) {
-            String newDefaultPath = FileUtil.replaceFileExtension(defaultFx, defaultTideFormat);
-            defaultFx = new File(newDefaultPath);
-            GeneralPreferences.tidesFile = defaultFx;
-            GeneralPreferences.saveProperties();
-        }
-        if (finder == null || (fx != null && defaultFx != null && fx.compareTo(defaultFx) != 0)) {
-            TidePredictionFinder data = createWorker(defaultFx, null);
-            if (date == null || data.contains(date))
-                finder = data;
-            else
-                finder = null;
-        }
-
-        return finder;
     }
     
     /**
