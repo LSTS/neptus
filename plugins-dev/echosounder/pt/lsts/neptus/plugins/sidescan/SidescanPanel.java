@@ -48,6 +48,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.NumberFormat;
@@ -637,10 +638,16 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                 g.drawLine(prevPointX, prevPoint.y, pointX, point.y);
                 g.drawRect(pointX - 3, point.y - 3, 6, 6);
+                String lb = distNoSlant + "m";
+                Rectangle2D lbBounds = g.getFontMetrics().getStringBounds(lb, g);
+                g.setColor(ColorUtils.setTransparencyToColor(Color.BLACK, 160));
+                g.fillRect((prevPointX + pointX) / 2 + 4 + (int) lbBounds.getX(), 
+                        (prevPoint.y + point.y) / 2 - 1 + (int) lbBounds.getY(), 
+                        (int) lbBounds.getWidth(), (int) lbBounds.getHeight());
                 g.setColor(Color.BLACK);
-                g.drawString(distNoSlant + "m", (prevPointX + pointX) / 2 + 3, (prevPoint.y + point.y) / 2 - 1);
+                g.drawString(lb, (prevPointX + pointX) / 2 + 3, (prevPoint.y + point.y) / 2 - 1);
                 g.setColor(Color.GREEN);
-                g.drawString(distNoSlant + "m", (prevPointX + pointX) / 2 + 4, (prevPoint.y + point.y) / 2);
+                g.drawString(lb, (prevPointX + pointX) / 2 + 4, (prevPoint.y + point.y) / 2);
             }
             prevPoint = point;
             c++;
@@ -665,10 +672,16 @@ public class SidescanPanel extends JPanel implements MouseListener, MouseMotionL
 
                 g.drawLine((int) measureHeightMouseX, measureHeightP.y, pointX, measureHeightP.y);
                 g.drawRect(pointX - 3, measureHeightP.y - 3, 6, 6);
+                String lb = h + "m";
+                Rectangle2D lbBounds = g.getFontMetrics().getStringBounds(lb, g);
+                g.setColor(ColorUtils.setTransparencyToColor(Color.BLACK, 160));
+                g.fillRect((int) ((measureHeightMouseX + pointX) / 2 + 4 + lbBounds.getX()), 
+                        (int) (measureHeightP.y - 4 + lbBounds.getY()),
+                        (int) lbBounds.getWidth(), (int) lbBounds.getHeight());
                 g.setColor(Color.BLACK);
-                g.drawString(h + "m", ((int) measureHeightMouseX + pointX) / 2 + 3, measureHeightP.y - 5);
+                g.drawString(lb, ((int) measureHeightMouseX + pointX) / 2 + 3, measureHeightP.y - 5);
                 g.setColor(Color.GREEN);
-                g.drawString(h + "m", ((int) measureHeightMouseX + pointX) / 2 + 4, measureHeightP.y - 4);
+                g.drawString(lb, ((int) measureHeightMouseX + pointX) / 2 + 4, measureHeightP.y - 4);
             }
         }
         g.dispose();
