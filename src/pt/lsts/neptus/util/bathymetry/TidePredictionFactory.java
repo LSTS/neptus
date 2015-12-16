@@ -161,7 +161,7 @@ public class TidePredictionFactory {
      */
     private static TidePredictionFinder createWorker(File fx, Date date) {
         TidePredictionFinder finder = null;
-        if (fx.isDirectory()) {
+        if (fx != null && fx.isDirectory()) {
             return createWorker(fx, null, logFolderTidesFileOptions);
         }
         else {
