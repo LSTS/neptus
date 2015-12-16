@@ -57,6 +57,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -559,7 +560,9 @@ public class MarkerEdit extends JDialog {
         String altitudeVal = selectedMarker.getAltitude() < 0 ? "-" : Double.toString(selectedMarker.getAltitude()) + " m";
         altitudeValue.setText(altitudeVal);
         
-        DecimalFormat df2 = new DecimalFormat("###.##");
+        NumberFormat nf = GuiUtils.getNeptusDecimalFormat();
+        DecimalFormat df2 = (DecimalFormat)nf;
+        df2.applyPattern("###.##");
         double formatedDepth = Double.valueOf(df2.format(selectedMarker.getDepth()));
                 
         depthValue.setText(Double.toString(formatedDepth) + " m");
