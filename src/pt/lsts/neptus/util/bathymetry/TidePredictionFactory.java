@@ -55,7 +55,7 @@ public class TidePredictionFactory {
 
     public static String[] logFolderTidesFileOptions = { "Tides.tid", "tides.tid", "Tides.txt", "tides.txt" };
     
-    public static String defaultTideFormat = "txt";
+    public static String defaultTideFormat = "tid";
     
     private static File tideFileInUse = GeneralPreferences.tidesFile;
     private static TidePredictionFinder cached = null;
