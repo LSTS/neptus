@@ -33,10 +33,12 @@ package pt.lsts.neptus.util.bathymetry;
 
 import java.awt.Component;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Date;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.lsf.LsfIndex;
@@ -53,7 +55,13 @@ import pt.lsts.neptus.util.conf.GeneralPreferences;
  */
 public class TidePredictionFactory {
 
+    public static final String MRA_TIDE_INDICATION_FILE = "tide.info";
+    public static final String MRA_TIDE_INDICATION_FILE_PATH = "mra/" + TidePredictionFactory.MRA_TIDE_INDICATION_FILE;
+
+    public static final String BASE_TIDE_FOLDER_PATH = ConfigFetch.getConfFolder() + "/tides";
+    
     public static String[] logFolderTidesFileOptions = { "Tides.tid", "tides.tid", "Tides.txt", "tides.txt" };
+    public static String[] logFolderTidesFileExtensions = { "tid", "txt" };
     
     public static String defaultTideFormat = "tid";
     
@@ -106,29 +114,41 @@ public class TidePredictionFactory {
     /**
      * Creates a tide finder with either data in log ({@link logFolderTidesFileOptions})
      * or from {@link GeneralPreferences#tidesFile}.
-     * If none found loads the tides according with {@link GeneralPreferences#tidesFile}.
+     * If none found return null.
      * @param source
      * @return
      */
     public static TidePredictionFinder create(IMraLogGroup source) {
         File dir = source.getDir();
-        dir = new File(dir, "mra");
         Date date = new Date((long)(source.getLsfIndex().getStartTime())* 1000);
-        return createWorker(dir, date, new String[0]); //, logFolderTidesFileOptions);
+        return createForLogWorker(dir, date);
     }
     
     /**
      * Creates a tide finder with either data in log ({@link logFolderTidesFileOptions})
      * or from {@link GeneralPreferences#tidesFile}.
-     * If none found loads the tides according with {@link GeneralPreferences#tidesFile}.
+     * If none found return null.
      * @param source
      * @return
      */
     public static TidePredictionFinder create(LsfIndex source) {
         File dir = source.getLsfFile().getParentFile();
-        dir = new File(dir, "mra");
         Date date = new Date((long)(source.getStartTime())* 1000);
-        return createWorker(dir, date, new String[0]); //, logFolderTidesFileOptions);
+        return createForLogWorker(dir, date);
+    }
+
+    private static TidePredictionFinder createForLogWorker(File dir, Date startDate) {
+        File tideInfoFx = new File(dir, MRA_TIDE_INDICATION_FILE_PATH);
+        if (tideInfoFx == null || !tideInfoFx.exists() || !tideInfoFx.canRead())
+            return null;
+        String hF = FileUtil.getFileAsString(tideInfoFx);
+        if (hF == null || hF.isEmpty())
+            return null;
+        File fx = new File(BASE_TIDE_FOLDER_PATH, hF);
+        if (fx == null || !fx.exists() || !fx.canRead())
+            return null;
+        
+        return createWorker(fx, startDate);
     }
 
     /**
@@ -185,7 +205,7 @@ public class TidePredictionFactory {
                 GeneralPreferences.tidesFile = defaultFx;
                 GeneralPreferences.saveProperties();
             }
-            if (finder == null || (fx != null && defaultFx != null && fx.compareTo(defaultFx) != 0)) {
+            if (finder == null && (fx != null && defaultFx != null && fx.compareTo(defaultFx) != 0)) {
                 TidePredictionFinder data = createWorker(defaultFx, null);
                 if (date == null || data.contains(date))
                     finder = data;
@@ -198,25 +218,77 @@ public class TidePredictionFactory {
     }
     
     /**
+     * Lists the tide list in the {@link ConfigFetch#getConfFolder()}/tides folder.
+     * @return
+     */
+    public static File[] getTidesFileList() {
+        File[] ret = new File[0];
+        File baseTideFolder = new File(BASE_TIDE_FOLDER_PATH);
+        if (baseTideFolder.exists()) {
+            ret = baseTideFolder.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    String ext = FileUtil.checkFileForExtensions(name, logFolderTidesFileExtensions);
+                    return ext == null ? false : true;
+                }
+            });
+        }
+        
+        return ret;
+    }
+
+    /**
+     * Lists the tide list in the {@link ConfigFetch#getConfFolder()}/tides folder.
+     * @return
+     */
+    public static String[] getTidesFileAsStringList() {
+        File[] fileList = getTidesFileList();
+
+        String[] ret = new String[fileList.length];
+        for (int i = 0; i < fileList.length; i++) {
+            ret[i] = fileList[i].getName();
+        }
+        return ret;
+    }
+
+    /**
      * Visual helper to get tide data.
-     * @param parent The parent component for the dialogs opened.
+     * @param parent The parent for the {@link JProgressBar} and {@link JOptionPane} shown.
      * @return
      */
     public static String fetchData(Component parent) {
+        return fetchData(parent, null, null, null, true);
+    }
+    
+    /**
+     * Visual helper to get tide data.
+     * If start or end dates are null, they will be asked or.
+     * If show progress is false no {@link JProgressBar} will be shown.
+     * @param parent The parent for the {@link JProgressBar} and {@link JOptionPane} shown.
+     * @param harbor The harbor to fetch or null.
+     * @param start The start date or null.
+     * @param end The end date or null.
+     * @param showProgress If a {@link JProgressBar} is shown or not.
+     * @return
+     */
+    public static String fetchData(Component parent, String harbor, Date start, Date end, boolean showProgress) {
         Vector<String> harbors = new Vector<>();
         for (TideDataFetcher.Harbor h : TideDataFetcher.Harbor.values()) {
             harbors.add(h.toString());
         }
 
-        String harbor = (String) JOptionPane.showInputDialog(parent,
+        if (harbor == null) {
+            harbor = (String) JOptionPane.showInputDialog(parent,
                 I18n.text("Please select harbor"), I18n.text("Fetch data"),
                 JOptionPane.QUESTION_MESSAGE, null, harbors.toArray(new String[0]), I18n.text(harbors.get(0)));
+        }
 
         if (harbor == null)
             return null;
         
-        Date start = null, end = null;
-        ProgressMonitor progress = new ProgressMonitor(parent, I18n.text("Fetching tides"), "Starting", 0, 100);
+        ProgressMonitor progress = showProgress
+                ? new ProgressMonitor(parent, I18n.textf("Fetching tides for %harbor", harbor), "Starting", 0, 100)
+                : null;
 
         while (start == null) {
             String startStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the past"), 30);
@@ -249,21 +321,20 @@ public class TidePredictionFactory {
             }
         }
 
-//        int opt = JOptionPane.showOptionDialog(parent, I18n.text("Choose Format"), I18n.text("Tides"), 
-//                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, new String[] { "txt", "tid" }, "txt");
-//        int opt = 0;
+        return fetchData(harbor, start, end, progress);
+    }
+
+    /**
+     * @param harbor The harbor to fetch or null.
+     * @param start The start date or null.
+     * @param end The end date or null.
+     * @param progress If a {@link JProgressBar} provided will be used otherwise null for not to show.
+     * @return
+     */
+    public static String fetchData(String harbor, Date start, Date end, ProgressMonitor progress) {
         CachedData data;
         String path = ConfigFetch.getConfFolder() + "/tides/" + harbor;
-//        switch (opt) {
-//            case 1:
-//                path += ".tid";
-//                data = new TidCachedData(new File(path)); 
-//                break;
-//            default:
-//                path += ".txt";
-//                data = new CachedData(new File(path));
-//                break;
-//        }
+
         String format = defaultTideFormat;
         switch (format) {
             case "txt":
@@ -275,12 +346,12 @@ public class TidePredictionFactory {
                 data = new TidCachedData(new File(path)); 
                 break;
         }
-        
+
         Date current = new Date(start.getTime());
         double delta = end.getTime() - start.getTime();
 
         while (current.getTime() < end.getTime()) {
-            if (progress.isCanceled())
+            if (progress != null && progress.isCanceled())
                 return harbor;
             double done = current.getTime() - start.getTime();
             try {
@@ -292,14 +363,19 @@ public class TidePredictionFactory {
                 e.printStackTrace();
             }
             System.out.println(current);
-            progress.setProgress((int) (done * 100.0 / delta));
-            progress.setNote(current.toString());
+            if (progress != null) {
+                progress.setProgress((int) (done * 100.0 / delta));
+                progress.setNote(current.toString());
+            }
         }
         try {
-            progress.setNote("Storing data to disk");
+            if (progress != null)
+                progress.setNote(I18n.text("Storing data to disk"));
             data.saveFile(harbor, data.getFileToSave(harbor));
-            progress.setProgress(100);
-            progress.close();                
+            if (progress != null) {
+                progress.setProgress(100);
+                progress.close();                
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
