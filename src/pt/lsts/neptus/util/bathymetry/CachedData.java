@@ -227,7 +227,7 @@ class CachedData implements TidePredictionFinder {
     }
 
     public Date fetchData(String portName, Date aroundDate) throws Exception {
-        try {
+//        try {
             Vector<TidePeak> newData = TideDataFetcher.fetchData(portName, aroundDate);
             System.out.println("Retrieved " + newData.size() + " new tide points.");
             if (newData.size() == 0) {
@@ -237,11 +237,11 @@ class CachedData implements TidePredictionFinder {
             update(newData);
             saveFile(portName, getFileToSave(portName));
             return newData.lastElement().date;
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return null;
     }
 
     public static void main(String[] args) throws Exception {

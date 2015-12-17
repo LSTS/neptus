@@ -33,6 +33,7 @@ package pt.lsts.neptus.mra;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,8 +66,10 @@ import pt.lsts.neptus.plugins.PluginsRepository;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.types.mission.MissionType;
 import pt.lsts.neptus.types.vehicle.VehicleType;
+import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.llf.LogTree;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
@@ -117,6 +120,9 @@ public class MRAPanel extends JPanel {
 //            FileUtil.copyFile(ConfigFetch.getConfFolder() + "/tides.txt", new File(source.getFile("."), "tides.txt").getAbsolutePath());
 //        }
 
+        // Loading tides data
+        TidesMraLoader.load(source, mra);
+        
         // ------- Setup interface --------
         setLayout(new BorderLayout(3, 3));
 
@@ -174,8 +180,22 @@ public class MRAPanel extends JPanel {
         Date startDate = LogUtils.getStartDate(source);
         String date = startDate != null ? " | <b>" + I18n.text("Date") + ":</b> " + new SimpleDateFormat("dd/MMM/yyyy").format(startDate) : "";
 
+        // Tide info
+        String noTideStr = I18n.text("No tides");
+        String usedTideStr = noTideStr;
+        File tideInfoFx = new File(source.getDir(), TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH);
+        if (tideInfoFx.exists() && tideInfoFx.canRead()) {
+            String hF = FileUtil.getFileAsString(tideInfoFx);
+            if (hF != null && !hF.isEmpty()) {
+                File fx = new File(TidePredictionFactory.BASE_TIDE_FOLDER_PATH, hF);
+                if (fx != null && fx.exists() && fx.canRead())
+                    usedTideStr = hF;
+            }
+        }
+        
         statusBar.add(new JLabel("<html><b>" + I18n.text("Log") + ":</b> " + source.name() + date
-                + ((veh != null) ? " | <b>" + I18n.text("System") + ":</b> " + veh.getName() : "")));
+                + ((veh != null) ? " | <b>" + I18n.text("System") + ":</b> " + veh.getName() : "")
+                + (" | <b>" + I18n.text("Tides") + ":</b> " + usedTideStr)));
     }
 
     public void addStatusBarMsg(String msg){

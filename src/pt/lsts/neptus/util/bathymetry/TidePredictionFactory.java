@@ -46,6 +46,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
@@ -335,6 +336,11 @@ public class TidePredictionFactory {
         CachedData data;
         String path = ConfigFetch.getConfFolder() + "/tides/" + harbor;
 
+        if (progress != null) {
+            progress.setMillisToDecideToPopup(0);
+            progress.setMillisToPopup(0);
+        }
+        
         String format = defaultTideFormat;
         switch (format) {
             case "txt":
@@ -361,6 +367,11 @@ public class TidePredictionFactory {
             }
             catch (Exception e) {
                 e.printStackTrace();
+                if (progress != null) {
+                    progress.setNote(I18n.textf("Error: %error", e.getMessage()));
+                    try { Thread.sleep(3000); } catch (InterruptedException e1) { }
+                }
+                break;
             }
             System.out.println(current);
             if (progress != null) {
