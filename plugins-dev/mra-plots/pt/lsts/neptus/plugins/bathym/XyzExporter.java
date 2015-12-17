@@ -115,7 +115,6 @@ public class XyzExporter implements MRAExporter {
     
     public XyzExporter(IMraLogGroup source) {
         file = new File(source.getDir(), "mra/bathymetry.xyz");
-        finder = TidePredictionFactory.create(source);
     }
 
     @Override
@@ -137,6 +136,7 @@ public class XyzExporter implements MRAExporter {
         
         this.pmonitor.setProgress(0);
         
+        finder = TidePredictionFactory.create(source);
         if (finder == null)
             tideCorrection = false;
         
