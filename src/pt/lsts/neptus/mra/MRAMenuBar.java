@@ -770,6 +770,7 @@ public class MRAMenuBar {
                             publish(msg);
                             // Will be used in the TidePredictionFactory.create(..)
                             FileUtil.saveToFile(new File(source.getDir(), tideInfoPath).getAbsolutePath(), tName);
+                            usingTideMenu.setText(I18n.textf("Using '%file'",  tName));
                             TidePredictionFinder tFinder = TidePredictionFactory.create(source);
                             if (tFinder == null) {
                                 FileUtils.deleteQuietly(tInfo);
@@ -803,6 +804,8 @@ public class MRAMenuBar {
                                         }
                                         break;
                                     default:
+                                        FileUtils.deleteQuietly(tInfo);
+                                        usingTideMenu.setText(I18n.textf("Using '%file'",  noTideStr));
                                         break;
                                 }
                             }
