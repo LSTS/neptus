@@ -734,15 +734,14 @@ public class MarkerEdit extends JDialog {
                 g2d.dispose();
 
                 String relPath = "/mra/markers/" + selectedMarker.getLabel() +"_draw.png";
-                File file = new File(relPath);
 
                 //end save drawing image
-                selectedMarker.setDrawImgPath(file);
+                selectedMarker.setDrawImgPath(relPath);
                 selectedMarker.setClassification(classif);
                 selectedMarker.setAnnotation(annotation);
                 if (toDeleteDraw) {
                     parent.deleteImage(drawFile.toString());
-                    selectedMarker.setDrawImgPath(new File("null"));
+                    selectedMarker.setDrawImgPath("null");
                 }
                 parent.updateLogMarker(selectedMarker, selectMarkerRowIndex);
                 markerImage.repaint();

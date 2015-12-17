@@ -47,8 +47,8 @@ public class LogMarkerItem extends LogMarker {
     private static final long serialVersionUID = 1L;
     private int index;
     private BufferedImage image;
-    private File sidescanImgPath;
-    private File drawImgPath;
+    private String sidescanImgPath;
+    private String drawImgPath;
     private String annotation;
     private double altitude;
     private double depth;
@@ -83,7 +83,7 @@ public class LogMarkerItem extends LogMarker {
      * @param lat
      * @param lon
      */
-    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, File sidescanImgPath, File drawImgPath, String annot, double altitude, double depth, double range, double height, Classification classif) {
+    public LogMarkerItem(int index, String label, double timestamp, double lat, double lon, String sidescanImgPath, String drawImgPath, String annot, double altitude, double depth, double range, double height, Classification classif) {
         super(label, annot, timestamp, lat, lon);
         this.index = index;
         this.sidescanImgPath = sidescanImgPath;
@@ -193,14 +193,14 @@ public class LogMarkerItem extends LogMarker {
     /**
      * @return the sidescanImgPath
      */
-    public File getSidescanImgPath() {
+    public String getSidescanImgPath() {
         return sidescanImgPath;
     }
 
     /**
      * @param sidescanImgPath the sidescanImgPath to set
      */
-    public void setSidescanImgPath(File sidescanImgPath) {
+    public void setSidescanImgPath(String sidescanImgPath) {
         this.sidescanImgPath = sidescanImgPath;
     }
 
@@ -249,14 +249,14 @@ public class LogMarkerItem extends LogMarker {
     /**
      * @return the drawImgPath
      */
-    public File getDrawImgPath() {
+    public String getDrawImgPath() {
         return drawImgPath;
     }
 
     /**
      * @param drawImgPath the drawImgPath to set
      */
-    public void setDrawImgPath(File drawImgPath) {
+    public void setDrawImgPath(String drawImgPath) {
         this.drawImgPath = drawImgPath;
     }
 }

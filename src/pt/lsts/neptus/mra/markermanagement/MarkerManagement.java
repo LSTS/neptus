@@ -135,13 +135,6 @@ public class MarkerManagement {
         if (mraPanel.getMarkers().isEmpty()) {
             GuiUtils.infoMessage(mraPanel, "MarkerManagement", "No markers to show!");
             deleteMarkersFiles();
-            //            frmMarkerManagement.setLayout(new GridBagLayout());
-            //            JLabel error = new JLabel("NO MARKERS TO DISPLAY!");
-            //            Font font = error.getFont();
-            //            Font boldFont = new Font(font.getFontName(), Font.BOLD, 15);
-            //            error.setFont(boldFont);            
-            //
-            //            frmMarkerManagement.add(error);
             return;
         }
 
@@ -337,7 +330,7 @@ public class MarkerManagement {
             File f = new File(path+log.getLabel()+".png");
 
             if(f.exists() && !f.isDirectory()) {
-                log.setSidescanImgPath(f);
+                //log.setSidescanImgPath(f); //FIXME
             }
         }
     }
@@ -537,7 +530,7 @@ public class MarkerManagement {
 
         Element image = dom.createElement("Image");
         if (marker.getSidescanImgPath() != null) {
-            image.appendChild(dom.createTextNode(marker.getSidescanImgPath().getPath()));
+            image.appendChild(dom.createTextNode(marker.getSidescanImgPath()));
         } 
         else {
             image.appendChild(dom.createTextNode(""));
@@ -642,13 +635,12 @@ public class MarkerManagement {
      * @param marker
      * @return File of marker image
      */
-    private File getImgPath(String marker) {
+    private String getImgPath(String marker) {
         File f = new File(mraPanel.getSource().getFile("Data.lsf").getParent() + "/mra/markers/" + marker + ".png");
 
         if(f.exists() && !f.isDirectory()) {
             String relPath = "/mra/markers/" + marker +".png";
-            File file = new File(relPath);
-            return file;
+            return relPath;
         }
 
         return null;
@@ -778,12 +770,12 @@ public class MarkerManagement {
                 findLogMarker(markLabel).setDescription(mrkerToUpd.getAnnotation());
                 
                 mark.getElementsByTagName("Classification").item(0).setTextContent(mrkerToUpd.getClassification().name());
-                mark.getElementsByTagName("Draw").item(0).setTextContent(mrkerToUpd.getDrawImgPath().getPath());
+                mark.getElementsByTagName("Draw").item(0).setTextContent(mrkerToUpd.getDrawImgPath());
             }
         }
         //delete draw image, if exists
-        if (mrkerToUpd.getDrawImgPath().toString().equals("null")) {
-            deleteImage(mrkerToUpd.getDrawImgPath().toString());
+        if (mrkerToUpd.getDrawImgPath().equals("null")) {
+            deleteImage(mrkerToUpd.getDrawImgPath());
         }
     }
 
@@ -892,8 +884,8 @@ public class MarkerManagement {
         String tsString = getTextValue(markerEl, "Timestamp");
         SimpleDateFormat format = DateTimeUtil.dateFormatterXMLUTC;
         Date parsed = null;
-        File path = null;
-        File drawPath = null;
+        String path = null;
+        String drawPath = null;
 
         double ts = 0;
         double lon = 0;
@@ -907,9 +899,9 @@ public class MarkerManagement {
 
         try  {
             String ssImgPath = getTextValue(markerEl, "Image");
-            path = new File(ssImgPath);
+            path = ssImgPath;
             String ssDrawImgPath = getTextValue(markerEl, "Draw");
-            drawPath = new File(ssDrawImgPath);
+            drawPath = ssDrawImgPath;
             parsed = format.parse(tsString);
             ts = parsed.getTime();
             lon = getDoubleValue(markerEl,"Lon");
