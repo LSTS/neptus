@@ -32,7 +32,6 @@
 package pt.lsts.neptus.mra.markermanagement;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.text.DateFormat;
 
 import pt.lsts.neptus.mra.LogMarker;

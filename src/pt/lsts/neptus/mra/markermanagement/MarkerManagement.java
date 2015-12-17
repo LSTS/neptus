@@ -538,7 +538,7 @@ public class MarkerManagement {
         mark.appendChild(image);
 
         Element draw = dom.createElement("Draw");
-        draw.appendChild(dom.createTextNode("null"));
+        draw.appendChild(dom.createTextNode("N/A"));
         mark.appendChild(draw);
 
         Element altitude = dom.createElement("Altitude");
@@ -722,7 +722,7 @@ public class MarkerManagement {
         }
         //delete draw image file
         if (mrkerToDel.getDrawImgPath() != null) {
-            if (!mrkerToDel.getDrawImgPath().toString().equals("null")) {
+            if (!mrkerToDel.getDrawImgPath().toString().equals("N/A")) {
                 deleteImage(mrkerToDel.getDrawImgPath().toString());
             }
         }
@@ -774,7 +774,7 @@ public class MarkerManagement {
             }
         }
         //delete draw image, if exists
-        if (mrkerToUpd.getDrawImgPath().equals("null")) {
+        if (mrkerToUpd.getDrawImgPath().equals("N/A")) {
             deleteImage(mrkerToUpd.getDrawImgPath());
         }
     }
