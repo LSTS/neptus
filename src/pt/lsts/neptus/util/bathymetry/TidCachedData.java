@@ -56,6 +56,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
+import pt.lsts.neptus.util.MathMiscUtils;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.tid.TidReader;
 import pt.lsts.neptus.util.tid.TidReader.Data;
@@ -195,11 +196,17 @@ public class TidCachedData extends CachedData {
         timeSeriesChart.getXYPlot().addRangeMarker(levelMarker);
         
         GuiUtils.testFrame(panel);
+        
+        System.out.println("\n________________________________________");
+        long start = System.currentTimeMillis();
+        TidCachedData tcd = new TidCachedData(new File(ConfigFetch.getConfFolder() + "mra/Leixoes.tid"));
+        System.out.println("Loading of " + tcd.getName() + " took "
+                + MathMiscUtils.parseToEngineeringNotation((System.currentTimeMillis() - start) / 1E3, 2) + "s");
     }
     
     public static void main(String[] args) throws Exception {
-        convertTideTxtIntoTid();
+        // convertTideTxtIntoTid();
 
-        //test(args);
+        test(args);
     }
 }
