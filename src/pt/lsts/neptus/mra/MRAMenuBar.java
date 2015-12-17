@@ -37,10 +37,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -57,6 +60,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.ProgressMonitor;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+
+import org.apache.commons.io.FileUtils;
+
+import com.google.common.collect.Lists;
 
 import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
@@ -67,6 +76,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
 import pt.lsts.neptus.gui.AboutPanel;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.gui.MissionFileChooser;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.WaitPanel;
@@ -82,6 +92,8 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LogUtils.LogValidity;
@@ -104,8 +116,10 @@ public class MRAMenuBar {
     private JMenu fileMenu, reportMenu, settingsMenu, toolsMenu, helpMenu;
     private JMenu recentlyOpenFilesMenu = null;
     private JMenu exporters;
+    private JMenu tideMenu;
 
     private boolean isExportersAdded = false;
+    private boolean isTidesAdded = false;
 
     private AbstractAction openLsf, exit;
     protected AbstractAction genReport;
@@ -660,6 +674,183 @@ public class MRAMenuBar {
         }
     }
 
+    public void setUpTidesMenu(final IMraLogGroup source) {
+        if(getTidesMenu() != null)
+            settingsMenu.remove(getTidesMenu());
+
+        final String tideInfoPath = TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH;
+        final String noTideStr = I18n.text("No tides");
+        final String usedTideStr;
+        
+        File tideInfoFx = new File(source.getDir(), TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH);
+        if (tideInfoFx != null && tideInfoFx.exists() && tideInfoFx.canRead()) {
+            String hF = FileUtil.getFileAsString(tideInfoFx);
+            if (hF != null && !hF.isEmpty()) {
+                File fx = new File(TidePredictionFactory.BASE_TIDE_FOLDER_PATH, hF);
+                if (fx != null && fx.exists() && fx.canRead())
+                    usedTideStr = hF;
+                else
+                    usedTideStr = noTideStr;
+            }
+            else {
+                usedTideStr = noTideStr;
+            }
+        }
+        else {
+            usedTideStr = noTideStr;
+        }
+        
+        JMenuItem usingTideMenu = new JMenuItem(I18n.textf("Using '%file'",  usedTideStr));
+        usingTideMenu.setEnabled(false);
+        JMenuItem changeTideMenu = new JMenuItem(I18n.text("Change tides source"));
+        changeTideMenu.addActionListener(getChangeTideAction(source, tideInfoPath, noTideStr, usedTideStr, usingTideMenu));
+        
+        JMenu tMenu = new JMenu(I18n.text("Tides"));
+        tMenu.add(usingTideMenu);
+        tMenu.add(changeTideMenu);
+        
+        setTideMenu(tMenu);
+
+        if (getTidesMenu()!= null) {
+            if(!isTidesAdded) {
+                settingsMenu.addSeparator();
+                isTidesAdded = true;
+            }
+            settingsMenu.add(getTidesMenu());
+        }
+    }
+
+    /**
+     * @param source
+     * @param tideInfoPath
+     * @param noTideStr
+     * @param usedTideStr
+     * @param usingTideMenu
+     * @return
+     */
+    private AbstractAction getChangeTideAction(final IMraLogGroup source, final String tideInfoPath,
+            final String noTideStr, final String usedTideStr, JMenuItem usingTideMenu) {
+        return new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String[] lstStringArray = TidePredictionFactory.getTidesFileAsStringList();
+                Arrays.sort(lstStringArray);
+                List<String> lst = Lists.asList(noTideStr, lstStringArray);
+                String ret = (String) JOptionPane.showInputDialog(mra.getMraPanel(), I18n.text("Choose a tides source"), 
+                        I18n.text("Tides"), JOptionPane.QUESTION_MESSAGE, ImageUtils.getIcon("images/settings.png"), 
+                        lst.toArray(), usedTideStr);
+
+                if (ret == null)
+                    return;
+
+                File tInfo = source.getFile(tideInfoPath);
+                if (noTideStr.equals(ret)) {
+                    FileUtils.deleteQuietly(tInfo);
+                    usingTideMenu.setText(I18n.textf("Using '%file'",  noTideStr));
+                }
+                else {
+                    InfiniteProgressPanel busyPanel = InfiniteProgressPanel.createInfinitePanelBeans(I18n.text("Processing"), 100);
+                    JDialog dialog = new JDialog(mra, I18n.text("Tides"), ModalityType.DOCUMENT_MODAL);
+                    dialog.add(busyPanel);
+                    dialog.pack();
+                    dialog.setSize(300, 200);
+                    dialog.setLocationRelativeTo(mra);
+
+                    SwingWorker<Boolean, String> sw = new SwingWorker<Boolean, String>() {
+                        private final int NO_OP = Integer.MIN_VALUE + 1;
+                        private final int TRIGGER_QUESTION_OP = Integer.MIN_VALUE;
+
+                        private String msg = null;
+                        private int updatePredictionsQuestion = NO_OP;
+
+                        @Override
+                        protected Boolean doInBackground() throws Exception {
+                            String tName = ret;
+                            msg = I18n.text("Trying to load tide data");
+                            publish(msg);
+                            // Will be used in the TidePredictionFactory.create(..)
+                            FileUtil.saveToFile(new File(source.getDir(), tideInfoPath).getAbsolutePath(), tName);
+                            TidePredictionFinder tFinder = TidePredictionFactory.create(source);
+                            if (tFinder == null) {
+                                FileUtils.deleteQuietly(tInfo);
+                                usingTideMenu.setText(I18n.textf("Using '%file'",  noTideStr));
+                                msg = I18n.text("Not possible to load tide file");
+                                publish(msg);
+                            }
+
+                            Date startDate = new Date((long) (source.getLsfIndex().getStartTime() * 1E3));
+                            Date endDate = new Date((long) (source.getLsfIndex().getEndTime() * 1E3));
+                            if (tFinder == null || !tFinder.contains(startDate) || !tFinder.contains(endDate)) {
+                                msg = I18n.text("Some tide data missing. Want to update tide predictions?");
+                                if (tFinder == null)
+                                    msg = I18n.text("No tide data found. Want to update tide predictions?");
+
+                                publish("Query for information");
+                                updatePredictionsQuestion = TRIGGER_QUESTION_OP;
+                                while (updatePredictionsQuestion <= NO_OP) {
+                                    Thread.yield();
+                                }
+
+                                switch (updatePredictionsQuestion) {
+                                    case JOptionPane.YES_OPTION:
+                                        String harborFetch = TidePredictionFactory.fetchData(mra.getMraPanel(),
+                                                tFinder == null ? null : tFinder.getName(), startDate, endDate, true);
+                                        if (harborFetch != null) {
+                                            FileUtil.saveToFile(
+                                                    new File(source.getDir(), tideInfoPath).getAbsolutePath(),
+                                                    harborFetch);
+                                            usingTideMenu.setText(I18n.textf("Using '%file'",  harborFetch));
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+
+                            return true;
+                        }
+
+                        @Override
+                        protected void process(List<String> chunks) {
+                            for (String str : chunks) {
+                                busyPanel.setText(str);
+                            }
+
+                            if (updatePredictionsQuestion == Integer.MIN_VALUE) {
+                                updatePredictionsQuestion = NO_OP;
+                                updatePredictionsQuestion = GuiUtils.confirmDialog(mra.getMraPanel(), I18n.text("Tides"), msg);
+                            }
+                        }
+
+                        @Override
+                        protected void done() {
+                            try {
+                                get();
+                            }
+                            catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            catch (ExecutionException e) {
+                                e.printStackTrace();
+                            }
+                            busyPanel.setBusy(false);
+                            dialog.setVisible(false);
+                            dialog.dispose();
+                        };
+                    };
+                    sw.execute();
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            busyPanel.setBusy(true);
+                            dialog.setVisible(true);
+                        }
+                    });
+                }
+            }
+        };
+    }
+    
     /**
      * @return the menuBar
      */
@@ -726,5 +917,19 @@ public class MRAMenuBar {
      */
     private void setExportersMenu(JMenu exportersMenu) {
         this.exporters = exportersMenu;
+    }
+    
+    /**
+     * @return the tideMenu
+     */
+    private JMenu getTidesMenu() {
+        return tideMenu;
+    }
+    
+    /**
+     * @param tideMenu the tideMenu to set
+     */
+    private void setTideMenu(JMenu tideMenu) {
+        this.tideMenu = tideMenu;
     }
 }
