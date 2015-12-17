@@ -32,81 +32,108 @@
 package pt.lsts.neptus.plugins.mvplanning.utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.eventbus.Subscribe;
 
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.events.ConsoleEventVehicleStateChanged;
 import pt.lsts.neptus.params.ConfigurationManager;
 import pt.lsts.neptus.params.SystemProperty;
 import pt.lsts.neptus.params.SystemProperty.Scope;
 import pt.lsts.neptus.params.SystemProperty.Visibility;
-import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 
 public class VehicleAwareness {
-    private final Scope scope = Scope.GLOBAL;
-    private final Visibility vis = Visibility.USER;
-    
+    private ConcurrentHashMap<String, VehicleInfo> availableVehicles;
+    private ConcurrentHashMap<String, VehicleInfo> unavailableVehicles;
+
     public VehicleAwareness() {
-        System.out.println("#### Vehicle Awareness ####");
-        ImcMsgManager.registerBusListener(this); /* TODO: Test this */        
+        availableVehicles = new ConcurrentHashMap<>();
+        unavailableVehicles = new ConcurrentHashMap<>();
     }
-    
-    
+
+
     @Subscribe
     public void on(ConsoleEventVehicleStateChanged event) {
+        onVehicleStateChanged(event);
+    }
+    
+    private synchronized void onVehicleStateChanged(ConsoleEventVehicleStateChanged event) {
         String id = event.getVehicle();
         ConsoleEventVehicleStateChanged.STATE newState = event.getState();
-        
-        System.out.println("#### VEHICLE STATE CHANGED ####");
-        System.out.println("### ID: " + id + " STATE: " + newState.toString());
+
+        if(newState == ConsoleEventVehicleStateChanged.STATE.SERVICE) {
+            VehicleInfo vehicle;
+            if(unavailableVehicles.containsKey(id))
+                vehicle = unavailableVehicles.remove(id);
+            else
+                vehicle = new VehicleInfo(id); /* first time in service mode */
+            availableVehicles.put(id, vehicle);
+        }
+        else {
+            if(availableVehicles.containsKey(id)) {
+                VehicleInfo vehicle = availableVehicles.remove(id);
+                unavailableVehicles.put(id, vehicle);
+            }
+        }
     }
     
-    public ArrayList<String> getVehicleCapabilities(String vId) {
-        ArrayList<SystemProperty> prList = ConfigurationManager.getInstance().getProperties(vId, vis, scope);
-        ArrayList<String> capabilities = new ArrayList<String>(prList.size());
-        for(SystemProperty pr : prList)
-            capabilities.add(pr.getName());
+    /* for debugging
+     * 0 for unavailabe 1 for available */
+    private void printVehicles(int t, ConcurrentHashMap<String, VehicleInfo> vehicles) {
+        if(t == 0)
+            System.out.println("## Unavailable vehicles ##");
+        else
+            System.out.println("## Available Vehicles ##");
         
-        return capabilities;
-
+        for(Map.Entry<String, VehicleInfo> entry : vehicles.entrySet()) {
+            System.out.println("# Vehicle: " + entry.getKey());
+            entry.getValue().printCapabilities();
+        }
+        System.out.println("\n");
     }
 
-    
+
     private class VehicleInfo {
         private String vId;
-        private boolean vehicleAvailable;
         private ArrayList<String> capabilities;
-        
-        public VehicleInfo(String id, ArrayList<String> caps) {
+
+        /* Properties variables */
+        private final Scope scope = Scope.GLOBAL;
+        private final Visibility vis = Visibility.USER;
+
+        public VehicleInfo(String id) {
             vId = id;
-            vehicleAvailable = true;
-            capabilities.addAll(caps);
+            capabilities = getVehicleCapabilities(vId);
         }
-        
+
         public String vehicleId() {
             return vId;
         }
-        
-        public boolean isVehicleAvailable() {
-            return vehicleAvailable;
+
+        public ArrayList<String> getVehicleCapabilities(String vId) {
+            ArrayList<SystemProperty> prList = ConfigurationManager.getInstance().getProperties(vId, vis, scope);
+            ArrayList<String> capabilities = new ArrayList<String>(prList.size());
+            for(SystemProperty pr : prList)
+                capabilities.add(pr.getName());
+
+            return capabilities;
         }
-        
+
         public ArrayList<String> vehicleCapabilities() {
             return capabilities;
         }
-        
+
         public boolean hasCapabilities(LinkedList<String> neededCapabilities) {
             return capabilities.containsAll(neededCapabilities);
         }
         
-        public void setUnavailable() {
-            vehicleAvailable = false;
-        }
-        
-        public void setAvailable() {
-            vehicleAvailable = true;
+        /* for debugging */
+        public void printCapabilities() {
+            for(String cap : capabilities)
+                System.out.println("-> " + cap);
         }
     }
 }
