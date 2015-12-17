@@ -44,6 +44,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
+import javax.swing.ProgressMonitor;
 
 import org.mozilla.javascript.edu.emory.mathcs.backport.java.util.Collections;
 
@@ -102,6 +103,9 @@ public class CachedData extends TidePredictionFinder {
     }
 
     public void saveFile(String port, File f) throws Exception {
+        if (!f.getParentFile().exists())
+            f.getParentFile().mkdirs();
+        
         BufferedWriter writer = new BufferedWriter(new FileWriter(f));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         for (TidePeak tp : cachedData) {
@@ -222,7 +226,7 @@ public class CachedData extends TidePredictionFinder {
         return null;
     }
 
-    public static void fetchData(Component parent) {
+    public static String fetchData(Component parent) {
         Vector<String> harbors = new Vector<>();
         for (TideDataFetcher.Harbor h : TideDataFetcher.Harbor.values()) {
             harbors.add(h.toString());
@@ -233,14 +237,17 @@ public class CachedData extends TidePredictionFinder {
                 JOptionPane.QUESTION_MESSAGE, null, harbors.toArray(new String[0]), I18n.text(harbors.get(0)));
 
         if (harbor == null)
-            return;
+            return null;
+        
 
         Date start = null, end = null;
+        ProgressMonitor progress = new ProgressMonitor(parent, "Fetching tides", "Starting", 0, 100);
+
         while (start == null) {
-            String startStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the past"), 365);
+            String startStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the past"), 30);
             try {
                 if (startStr == null)
-                    return;
+                    return null;
                 long days = Integer.parseInt(startStr);
                 if (days < 0)
                     continue;
@@ -253,10 +260,10 @@ public class CachedData extends TidePredictionFinder {
         }
 
         while (end == null) {
-            String endStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the future"), 365);
+            String endStr = JOptionPane.showInputDialog(parent, I18n.text("Days to fetch in the future"), 30);
             try {
                 if (endStr == null)
-                    return;
+                    return null;
                 long days = Integer.parseInt(endStr);
                 if (days < 0)
                     continue;
@@ -270,8 +277,13 @@ public class CachedData extends TidePredictionFinder {
         CachedData data = new CachedData(new File("conf/tides/"+harbor+".txt"));
 
         Date current = new Date(start.getTime());
+        double delta = end.getTime() - start.getTime();
+        
 
         while (current.getTime() < end.getTime()) {
+            if (progress.isCanceled())
+                return harbor;
+            double done = current.getTime()-start.getTime();
             try {
                 Date d = data.fetchData(harbor, current);
                 if (d != null)
@@ -281,14 +293,19 @@ public class CachedData extends TidePredictionFinder {
                 e.printStackTrace();
             }
             System.out.println(current);
+            progress.setProgress((int)(done*100.0/delta));
+            progress.setNote(current.toString());
         }
         try {
+            progress.setNote("Storing data to disk");
             data.saveFile(harbor, new File("conf/tides/"+harbor+".txt"));
+            progress.setProgress(100);
+            progress.close();                
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-
+        return harbor;
     }
 
     public static void main(String[] args) throws Exception {

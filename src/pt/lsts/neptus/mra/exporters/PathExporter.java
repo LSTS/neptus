@@ -35,6 +35,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 
 import javax.swing.ProgressMonitor;
 
@@ -131,12 +132,11 @@ public class PathExporter implements MRAExporter {
     private void writePose(BufferedWriter writer, SystemPositionAndAttitude pose) throws Exception {
         LocationType loc = pose.getPosition();
         double[] offsets = loc.getOffsetFrom(homeref);
-        writer.write(String.format("%.3f, %.2f, %.2f, %.2f\n", pose.getTime()/1000.0, offsets[0], offsets[1], -loc.getDepth()));        
+        writer.write(String.format(Locale.US, "%.3f, %.2f, %.2f, %.2f\n", pose.getTime()/1000.0, offsets[0], offsets[1], -loc.getDepth()));        
     }
 
     @Override
     public String getName() {
         return "XYZ Path Exporter";
     }
-
 }

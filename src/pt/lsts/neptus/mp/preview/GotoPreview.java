@@ -31,7 +31,7 @@
  */
 package pt.lsts.neptus.mp.preview;
 
-import pt.lsts.neptus.mp.ManeuverLocation;
+import pt.lsts.neptus.mp.ManeuverLocation.Z_UNITS;
 import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mp.maneuvers.Goto;
 import pt.lsts.neptus.types.coord.LocationType;
@@ -49,10 +49,10 @@ public class GotoPreview implements IManeuverPreview<Goto> {
     @Override
     public boolean init(String vehicleId, Goto man, SystemPositionAndAttitude state, Object manState) {
         destination = new LocationType(man.getManeuverLocation());
-        if (man.getManeuverLocation().getZUnits() == ManeuverLocation.Z_UNITS.DEPTH)
+        if (man.getManeuverLocation().getZUnits() == Z_UNITS.DEPTH)
             destination.setDepth(man.getManeuverLocation().getZ());
-        else
-            destination.setDepth(Math.max(0.5, 10-man.getManeuverLocation().getZ()));
+        else if (man.getManeuverLocation().getZUnits() == Z_UNITS.ALTITUDE)
+            destination.setDepth(-man.getManeuverLocation().getZ());
         
         speed = man.getSpeed();
         if (man.getUnits().equals("RPM")) 

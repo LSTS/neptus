@@ -94,7 +94,7 @@ public class LoaderHelper {
                 }
 
 
-                String[] tokens = line.trim().split("[\\t ,]+");;
+                String[] tokens = line.trim().split("[\\t ,]+");
                 if (tokens.length < 4) {
                     line = reader.readLine();
                     continue;

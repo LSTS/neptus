@@ -58,6 +58,7 @@ import javax.swing.event.ChangeListener;
 import org.apache.commons.lang.StringUtils;
 
 import pt.lsts.neptus.console.ConsoleLayout;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
@@ -124,8 +125,7 @@ public class ImageLayers extends SimpleRendererInteraction {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    JFileChooser chooser = new JFileChooser(lastDir);
-                    chooser.setFileFilter(GuiUtils.getCustomFileFilter("Neptus image layers", new String[] {"layer"}));
+                    JFileChooser chooser = GuiUtils.getFileChooser(lastDir, I18n.text("Neptus image layers"), "layer");
                     int op = chooser.showOpenDialog(getConsole());
                     if (op != JFileChooser.APPROVE_OPTION)
                         return;

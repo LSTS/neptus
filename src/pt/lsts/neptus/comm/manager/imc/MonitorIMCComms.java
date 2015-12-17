@@ -312,7 +312,7 @@ public class MonitorIMCComms extends
         ret += "<b>" + I18n.text("Name:") + "</b> " + imcCCUName + "<br>";
         ret += "<b>" + I18n.text("ID:") + "</b> " + idImc.toPrettyString();
         if (getCommManager().is2IdErrorMode())
-            ret += " <b color='red'>" + I18n.text("Another node with this ID detected!") + "</b>";;
+            ret += " <b color='red'>" + I18n.text("Another node with this ID detected!") + "</b>";
         ret += "<br>";
         ret += "<b>" + I18n.text("Services:") + "</b> "
                 + getCommManager().getAllServicesString().replaceAll(";", ";<br>") + "<br><br>";
@@ -732,9 +732,6 @@ public class MonitorIMCComms extends
                         @Override
                         protected Void doInBackground() throws Exception {
                             if (!getCommManager().isRunning()) {
-                                // JOptionPane.showMessageDialog(MonitorIMC3Comms.this,
-                                // "IMC comm. manager is not running yet!",
-                                // "Setup new vehicle comms.", JOptionPane.WARNING_MESSAGE);
                                 JOptionPane jop = new JOptionPane(I18n.text("IMC comm. manager is not running yet!"),
                                         JOptionPane.WARNING_MESSAGE);
                                 JDialog dialog = jop.createDialog(MonitorIMCComms.this,

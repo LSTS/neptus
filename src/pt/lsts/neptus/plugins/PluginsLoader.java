@@ -56,7 +56,7 @@ import org.reflections.Reflections;
 
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.util.conf.ConfigFetch;
-import pt.lsts.neptus.util.conf.ConfigFetch.ENVIROMENT;
+import pt.lsts.neptus.util.conf.ConfigFetch.Environment;
 
 /**
  * This class has static methods to load Neptus plugins
@@ -75,7 +75,7 @@ public class PluginsLoader {
     public static void load() {
         loadCorePlugins();
 
-        if (ConfigFetch.ENV == ENVIROMENT.PRODUCTION) {
+        if (ConfigFetch.getRunEnvironment() == Environment.PRODUCTION) {
             List<Path> pluginsJars = findJars();
 
             for (Path jar : pluginsJars) {
@@ -96,7 +96,7 @@ public class PluginsLoader {
             }
         }
 
-        if (ConfigFetch.ENV == ENVIROMENT.DEVELOPMENT) {
+        if (ConfigFetch.getRunEnvironment() == Environment.DEVELOPMENT) {
             List<Path> externalJars = findExternalPluginsJars();
 
             for (Path jar : externalJars) {

@@ -1,6 +1,10 @@
+plugins/blue-eye.jar
 plugins/caoAgent.jar
+plugins/cmre*.jar
+plugins/europa.jar
+plugins/filter-viewer.jar
+plugins/necsave.jar
 plugins/s57-client.jar
+plugins/trex*.jar
 plugins/urready4os.jar
 plugins/waveglider.jar
-
-

@@ -519,18 +519,18 @@ public class GraphType implements XmlOutputMethods {
 //	    Element offsetsE = manElemRoot.addElement("offsets");
 //	    Element offsE = offsetsE.addElement("offset");
 //	    offsE.addElement("north-offset").setText("1");
-//	    offsE.addElement("east-offset").setText("1");;
-//	    offsE.addElement("depth-offset").setText("1");;
+//	    offsE.addElement("east-offset").setText("1");
+//	    offsE.addElement("depth-offset").setText("1");
 //
 //	    offsE = offsetsE.addElement("offset");
 //	    offsE.addElement("north-offset").setText("2.4");
-//	    offsE.addElement("east-offset").setText("3.4");;
-//	    offsE.addElement("depth-offset").setText("3");;
+//	    offsE.addElement("east-offset").setText("3.4");
+//	    offsE.addElement("depth-offset").setText("3");
 //
 //	    offsE = offsetsE.addElement("offset");
 //	    offsE.addElement("north-offset").setText("3");
-//	    offsE.addElement("east-offset").setText("4");;
-//	    offsE.addElement("depth-offset").setText("5");;
+//	    offsE.addElement("east-offset").setText("4");
+//	    offsE.addElement("depth-offset").setText("5");
 //
 //        System.err.println(FileUtil.getAsPrettyPrintFormatedXMLString(document));
 

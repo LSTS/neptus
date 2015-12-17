@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.1 (HEAD,0c854de)" system="lauv-xtreme-2" i18n="en_US">
+<config format="1" version="2.6.x (master,8797653)" system="lauv-xtreme-2" i18n="en_US">
   <section name="Motor Controller" name-i18n="Motor Controller">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -159,6 +159,15 @@
       <visibility>developer</visibility>
       <scope>global</scope>
       <default>Motor Controller (MCU)</default>
+      <units/>
+      <desc/>
+    </param>
+    <param name="Motor Identifier">
+      <name-i18n>Motor Identifier</name-i18n>
+      <type>integer</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>0</default>
       <units/>
       <desc/>
     </param>
@@ -451,6 +460,15 @@
       <units/>
       <desc>Bypass heading rate controller and use reference directly on torques</desc>
     </param>
+    <param name="Altitude Timeout">
+      <name-i18n>Altitude Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60.0f</default>
+      <units>m</units>
+      <desc>Timeout for ignoring invalid altitude</desc>
+    </param>
     <param name="Roll PID Gains">
       <name-i18n>Roll PID Gains</name-i18n>
       <type>list:real</type>
@@ -475,7 +493,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.0, 0.0, 1.1</default>
+      <default>1.5, 0.0, 1.1</default>
       <units/>
       <desc>PID gains for Pitch controller</desc>
       <size>3</size>
@@ -569,7 +587,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>15.0</default>
+      <default>25.0</default>
       <units>°</units>
       <desc>Maximum admissible fin actuation for the pitch controller</desc>
     </param>
@@ -596,7 +614,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.10</default>
+      <default>0.2</default>
       <units>m</units>
       <desc>Depth reference offset value</desc>
     </param>
@@ -614,7 +632,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>15.0</default>
+      <default>10.0</default>
       <units>°</units>
       <desc>Angle at which to force pitch at the surface</desc>
     </param>
@@ -758,7 +776,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.0, 0.0</default>
+      <default>1.0, 1.8</default>
       <units>m/s</units>
       <desc>Lower and upper speed bounds when doing roll speed compensation</desc>
       <size>2</size>
@@ -768,7 +786,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.0</default>
+      <default>0.5</default>
       <units/>
       <desc>Roll's minimum proportional gain in speed compensation</desc>
       <min>0.0</min>
@@ -1245,7 +1263,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Debug</default>
+      <default>None</default>
       <units/>
       <desc/>
       <values>None, Debug, Trace, Spew</values>
@@ -1413,7 +1431,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>90.0</default>
+      <default>35.0</default>
       <units>°</units>
       <desc>Safe pitch angle to perform bottom tracking</desc>
     </param>
@@ -1440,7 +1458,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>1.5</default>
+      <default>4.0</default>
       <units>m</units>
       <desc>Minimum admissible forward range for bottom tracking</desc>
     </param>
@@ -1828,6 +1846,15 @@
       <default>Goto Maneuver</default>
       <units/>
       <desc>Goto maneuver's entity label</desc>
+    </param>
+    <param name="Entity Label -- Launch">
+      <name-i18n>Entity Label -- Launch</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Launch Maneuver</default>
+      <units/>
+      <desc>Launch maneuver's entity label</desc>
     </param>
     <param name="Entity Label -- Loiter">
       <name-i18n>Entity Label -- Loiter</name-i18n>
@@ -2305,6 +2332,15 @@
       <default>hwclock -w</default>
       <units/>
       <desc>System command to execute everytime the clock is synchronized</desc>
+    </param>
+    <param name="Change Log">
+      <name-i18n>Change Log</name-i18n>
+      <type>boolean</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>false</default>
+      <units/>
+      <desc>Change log file after synchronization</desc>
     </param>
   </section>
   <section name="Collisions" name-i18n="Collisions">
@@ -2805,7 +2841,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>15.0</default>
+      <default>10.0</default>
       <units>%</units>
       <desc>Decay factor given by percentage of actual/advertised capacity</desc>
       <min>0</min>
@@ -2834,7 +2870,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.0, 7.58786, 21.1661, 41.1342, 101.038, 176.917, 267.971, 337.46, 430.112, 466.054, 525</default>
+      <default>0.0, 2.53, 7.055, 13.7125, 33.68, 58.9725, 89.3225, 111.2375, 143.37, 155.3525, 175.0</default>
       <units>Wh</units>
       <desc>Energy values for Optimistic model</desc>
     </param>
@@ -2870,7 +2906,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.0, 9.70447, 15.4553, 33.4265, 70.8067, 85.9026, 119.688, 233.267, 284.305, 315.935, 374.161, 430.95, 525</default>
+      <default>0.0, 3.235, 5.1525, 11.1425, 23.6025, 28.635, 39.895, 77.755, 94.7675, 105.3125, 124.72, 143.65, 175.0</default>
       <units>Wh</units>
       <desc>Energy values for Pessimistic model</desc>
     </param>
@@ -2906,7 +2942,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.00, 4.25, 7.29, 10.94, 18.84, 23.70, 46.19, 54.70, 99.67, 133.10, 212.72, 274.71, 289.91, 369.53, 425.44, 447.93, 503.84, 526.33, 526.94</default>
+      <default>0.0, 1.4175, 2.43, 3.6475, 6.28, 7.9, 15.3975, 18.2325, 33.2225, 44.3675, 70.9075, 91.57, 96.6375, 123.1775, 141.8125, 149.31, 167.9475, 175.4425, 175.6475</default>
       <units>Wh</units>
       <desc>Energy values for Zero model</desc>
     </param>
@@ -2942,7 +2978,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>0.00, 24.31, 48.01, 79.62, 125.20, 205.43, 282.61, 310.57, 361.62, 408.42, 440.64, 518.43, 519.65</default>
+      <default>0.0, 8.1025, 16.0025, 26.54, 41.7325, 68.4775, 94.20125, 103.5225, 120.54, 136.14, 145.63, 172.81, 173.2175</default>
       <units>Wh</units>
       <desc>Energy values for Very Cold model</desc>
     </param>
@@ -2960,7 +2996,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Survival, Idle, Motion, SideScan, Camera, Full</default>
+      <default>Hotel, Full</default>
       <units/>
       <desc>Label of the operation mode</desc>
     </param>
@@ -2969,7 +3005,7 @@
       <type>list:real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>24.5, 25.09, 90.24, 93.84, 108.74, 112.34</default>
+      <default>43.79, 65.89</default>
       <units>W</units>
       <desc>Corresponding value of power consumption</desc>
     </param>
@@ -4050,136 +4086,6 @@
       <default>IMU</default>
       <units/>
       <desc>Entity label of the IMU</desc>
-    </param>
-  </section>
-  <section name="LBL Estimator" name-i18n="LBL Estimator">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>LBL Estimator</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="State Covariance Initial State">
-      <name-i18n>State Covariance Initial State</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units/>
-      <desc>Kalman Filter State Covariance initial values</desc>
-      <min>1.0</min>
-    </param>
-    <param name="LBL Threshold">
-      <name-i18n>LBL Threshold</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0</default>
-      <units/>
-      <desc>LBL Threshold value for the LBL level check rejection scheme</desc>
-      <min>2.0</min>
-    </param>
-    <param name="LBL Measure Noise Covariance">
-      <name-i18n>LBL Measure Noise Covariance</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0</default>
-      <units/>
-      <desc>Kalman Filter LBL Measurement Noise Covariance value</desc>
-      <min>0.1</min>
-    </param>
-    <param name="LBL Process Noise Covariance">
-      <name-i18n>LBL Process Noise Covariance</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1e-5</default>
-      <units/>
-      <desc>Kalman Filter LBL Process Noise Covariance value</desc>
-      <min>0.0</min>
-    </param>
-    <param name="LBL Expected Range Rejection Constants">
-      <name-i18n>LBL Expected Range Rejection Constants</name-i18n>
-      <type>list:real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0, 0.010</default>
-      <units/>
-      <desc>Constants used in current LBL rejection scheme</desc>
-      <size>2</size>
-    </param>
-    <param name="GPS timeout">
-      <name-i18n>GPS timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>3.0</default>
-      <units>s</units>
-      <desc>No GPS readings timeout</desc>
-      <min>2.0</min>
-    </param>
-    <param name="GPS Maximum HACC">
-      <name-i18n>GPS Maximum HACC</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0</default>
-      <units/>
-      <desc>Maximum Horizontal Accuracy Estimate value accepted for GPS fixes</desc>
-      <min>3.0</min>
-      <max>20.0</max>
-    </param>
-    <param name="Distance Between LBL and GPS">
-      <name-i18n>Distance Between LBL and GPS</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.80</default>
-      <units>m</units>
-      <desc>Distance between LBL receiver and GPS in the vehicle</desc>
-      <min>0.0</min>
     </param>
   </section>
   <section name="Plan Database" name-i18n="Plan Database">
@@ -5871,8 +5777,8 @@
     <param name="Range">
       <name-i18n>Range</name-i18n>
       <type>integer</type>
-      <visibility>user</visibility>
-      <scope>maneuver</scope>
+      <visibility>developer</visibility>
+      <scope>global</scope>
       <default>30</default>
       <units>m</units>
       <desc>Default range</desc>
@@ -6463,7 +6369,7 @@
       <type>string</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>Ranges</default>
+      <default>Full</default>
       <units/>
       <desc>Data to be reported acoustically</desc>
       <values>None, Ranges, Full</values>
@@ -7192,6 +7098,15 @@
       <default>mount -o remount,rw /opt &amp;&amp; services syslog restart</default>
       <units/>
       <desc>Command to execute when the power down sequence is aborted</desc>
+    </param>
+    <param name="Slave System Names">
+      <name-i18n>Slave System Names</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>Name of the slave systems</desc>
     </param>
   </section>
   <section name="Vehicle Supervisor" name-i18n="Vehicle Supervisor">
@@ -8012,7 +7927,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Abort, Acceleration, AllocatedControlTorques, AlignmentState, AngularVelocity, Announce, Brake, CompassCalibration, Collision, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, Elevator, EmergencyControl, EmergencyControlState, EntityActivationState, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, Loiter, ManeuverControlState, MagneticField, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PopUp, PowerChannelControl, PowerChannelState, PushEntityParameters, Pressure, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, Rpm, RSSI, Salinity, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SimulatedState, Sms, SoundSpeed, StationKeeping, StopManeuver, Teleoperation, TeleoperationDone, Temperature, TextMessage, TrexObservation, TrexOperation, TrexPlan, TrexToken, TransportBindings, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterDensity, WaterVelocity, YoYo</default>
+      <default>Abort, Acceleration, AllocatedControlTorques, AlignmentState, AngularVelocity, Announce, Brake, ClockControl, CompassCalibration, Collision, Conductivity, ControlLoops, ControlParcel, CpuUsage, Current, DataSanity, Depth, DesiredControl, DesiredZ, DesiredHeading, DesiredHeadingRate, DesiredPath, DesiredPitch, DesiredSpeed, DevCalibrationControl, DevCalibrationState, DevDataBinary, DevDataText, Distance, DvlRejection, Elevator, EmergencyControl, EmergencyControlState, EntityActivationState, EntityList, EntityMonitoringState, EntityParameters, EntityState, EstimatedState, EstimatedStreamVelocity, EulerAngles, EulerAnglesDelta, FollowPath, FollowRefState, FuelLevel, Goto, GpsFix, GpsFixRejection, GroundVelocity, Heartbeat, IdleManeuver, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblConfig, LblEstimate, LblRange, LblRangeAcceptance, LogBookEntry, Loiter, ManeuverControlState, MagneticField, NavigationData, NavigationUncertainty, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PlanSpecification, PlanStatistics, PopEntityParameters, PopUp, PowerChannelControl, PowerChannelState, Pulse, PushEntityParameters, Pressure, Rows, QueryEntityParameters, Reference, RemoteActions, RemoteActionsRequest, RemoteState, Rpm, RSSI, Salinity, SaveEntityParameters, ServoPosition, SetEntityParameters, SetServoPosition, SetThrusterActuation, SonarData, SimulatedState, Sms, SoundSpeed, StationKeeping, StopManeuver, Teleoperation, TeleoperationDone, Temperature, TextMessage, TrexObservation, TrexOperation, TrexPlan, TrexToken, TransportBindings, UamRxFrame, UamTxFrame, UamTxStatus, UamRxRange, VehicleCommand, VehicleMedium, VehicleState, VelocityDelta, Voltage, WaterDensity, WaterVelocity, YoYo</default>
       <units/>
       <desc/>
     </param>
@@ -8175,7 +8090,16 @@
       <scope>global</scope>
       <default/>
       <units/>
-      <desc>Rate limiters (message name/frequency pairs)</desc>
+      <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
+    </param>
+    <param name="Filtered Entities">
+      <name-i18n>Filtered Entities</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>
     <param name="Trace - Incoming Messages">
       <name-i18n>Trace - Incoming Messages</name-i18n>
@@ -8278,7 +8202,16 @@
       <scope>global</scope>
       <default/>
       <units/>
-      <desc>Rate limiters (message name/frequency pairs)</desc>
+      <desc>List of &lt;Message&gt;:&lt;Frequency&gt;</desc>
+    </param>
+    <param name="Filtered Entities">
+      <name-i18n>Filtered Entities</name-i18n>
+      <type>list:string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default/>
+      <units/>
+      <desc>List of &lt;Message&gt;:&lt;Entity&gt;+&lt;Entity&gt; that define the source entities allowed to pass message of a specific message type.</desc>
     </param>
     <param name="Trace - Incoming Messages">
       <name-i18n>Trace - Incoming Messages</name-i18n>
@@ -8469,7 +8402,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, RemoteActions, RemoteActionsRequest, Rpm, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexToken, TrexPlan, VehicleMedium, VehicleState, Voltage</default>
+      <default>AlignmentState, CpuUsage, DevCalibrationControl, DevCalibrationState, Distance, EntityList, EntityParameters, EntityState, EstimatedState, FollowRefState, FuelLevel, Heartbeat, IridiumMsgRx, IridiumMsgTx, IridiumTxStatus, LblEstimate, LblRangeAcceptance, LblConfig, LogBookEntry, LogBookControl, OperationalLimits, PathControlState, PlanControl, PlanControlState, PlanDB, PlanGeneration, PowerChannelState, RemoteActions, RemoteActionsRequest, Rpm, SimulatedState, StorageUsage, Temperature, TrexObservation, TrexOperation, TrexToken, TrexPlan, VehicleMedium, VehicleState, Voltage</default>
       <units/>
       <desc>List of messages to transport</desc>
     </param>

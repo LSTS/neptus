@@ -130,8 +130,17 @@ public class ColorMapFactory {
         return storeDataColormap;
     }
 
+    private static InterpolationColorMap additive = null;
+    public static InterpolationColorMap createAdditiveColorMap() {
+        
+        if (additive == null)
+            additive = new InterpolationColorMap(I18n.textc("Additive colormap", "Colormap name"), 
+                    new double[] {0.0, 0.333333, 0.6666666, 1.0},
+                    new Color[]  {Color.black, Color.red, Color.yellow, Color.white});
+        return additive;
+    }
+    
     private static InterpolationColorMap grayscale = null;
-
     public static InterpolationColorMap createGrayScaleColorMap() {
 
         if (grayscale == null)

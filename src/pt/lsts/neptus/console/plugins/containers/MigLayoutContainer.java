@@ -79,10 +79,10 @@ import com.google.common.eventbus.Subscribe;
 public class MigLayoutContainer extends ContainerSubPanel implements ConfigurationListener, LayoutProfileProvider {
 
     @NeptusProperty(name = "XML Definitions", description = "XML layout definition", editorClass = MiGLayoutXmlPropertyEditor.class, distribution = DistributionEnum.DEVELOPER)
-    public String xmlDef = "";
+    public String xmlDef = "<profiles>\n  <profile name=\"Normal\">\n    <container layoutparam=\"ins 0\" param=\"w 100%, h 100%\">\n      <child name=\"Map Panel\" param=\"w 100%, h 100%\"/>\n    </container>\n  </profile>\n</profiles>";
 
     @NeptusProperty(name = "Current Profile", description = "Name of the current active profile", distribution = DistributionEnum.DEVELOPER)
-    public String currentProfile = "";
+    public String currentProfile = "Normal";
 
     private final ArrayList<String> profileList = new ArrayList<String>();
 
@@ -103,7 +103,9 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
             applyLayout(this.xmlDef);
         }
         else {
+            if(currentProfile!=""){
             changeProfile(currentProfile); // This call maybe redundant but is needed for profile menu update
+            }
             applyLayout(this.xmlDef);
         }
         super.init();
@@ -146,7 +148,9 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    changeProfile(name);
+                    if (name != "") {
+                        changeProfile(name);
+                    }
                     applyLayout(xmlDef);
                 }
             });
@@ -157,10 +161,14 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
 
     public void changeProfile(String profileName) {
         currentProfile = profileName;
-
-        for (int i = 0; i < profilesMenu.getItemCount(); i++) {
-            JCheckBoxMenuItem item = (JCheckBoxMenuItem) profilesMenu.getItem(i);
-            item.setSelected(item.getText().equals(profileName));
+        NeptusLog.pub().info("currentProfile: "+currentProfile);
+        if(profileName!=""){
+            for (int i = 0; i < profilesMenu.getItemCount(); i++) {
+                JCheckBoxMenuItem item = (JCheckBoxMenuItem) profilesMenu.getItem(i);
+                item.setSelected(item.getText().equals(profileName));
+            }
+        }else{
+            profileName="";
         }
         propagateActiveProfileChange(profileName);
     }
@@ -244,10 +252,14 @@ public class MigLayoutContainer extends ContainerSubPanel implements Configurati
                     else {
                         ConsolePanel container = new ConsolePanel(getConsole()) {
                             private static final long serialVersionUID = 8543725153078587308L;
+
                             @Override
-                            public void cleanSubPanel() {}                
+                            public void cleanSubPanel() {
+                            }
+
                             @Override
-                            public void initSubPanel() {}
+                            public void initSubPanel() {
+                            }
                         };
                         container.setLayout(new MigLayout(layoutparam, colparam, rowparam));
                         parent.add(container, addParam);

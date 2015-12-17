@@ -167,7 +167,7 @@ public class LogMarkerItem extends LogMarker {
     }
 
     public LocationType getLocation() {
-        return new LocationType(getLat(), getLon());
+        return new LocationType(getLatRads(), getLonRads());
     }
 
     public String toString(){
@@ -175,8 +175,8 @@ public class LogMarkerItem extends LogMarker {
         string.append(index + " ");
         string.append(getLabel() + " ");
         string.append(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(getDate()) + " ");
-        string.append(getLat() + " ");
-        string.append(getLon() + " ");
+        string.append(getLatRads() + " ");
+        string.append(getLonRads() + " ");
         string.append(getAltitude()+ " ");
         string.append(getAnnotation()+ " ");
         string.append(getClassification()+ " ");

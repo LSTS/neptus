@@ -50,7 +50,7 @@ public class DataDiscretizer {
     public double maxX = Double.NaN, maxY = Double.NaN, minX = Double.NaN, minY = Double.NaN;
     public double minVal[] = null, maxVal[] = null;
     private double cellWidth = 5;
-    //private ArrayList<Point> chull = new ArrayList<Point>();;
+    //private ArrayList<Point> chull = new ArrayList<Point>();
 
     public DataDiscretizer(double cellWidth) {
         this.cellWidth = cellWidth;		

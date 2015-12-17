@@ -209,7 +209,8 @@ public class NoptilusPlanGenerator extends ConsolePanel implements Renderer2DPai
      */
     @Override
     public void cleanSubPanel() {
-        // TODO Auto-generated method stub
-
+        removeMenuItem("Noptilus>Plan Generation>Generate plan");
+        removeMenuItem("Noptilus>Plan Generation>Settings");
+        removeMenuItem("Noptilus>Plan Generation>Load Landmarks");
     }
 }

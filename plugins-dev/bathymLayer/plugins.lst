@@ -1,9 +1,9 @@
 # DATE=@DATE@
 # TIME=@TIME@
-# COMPILED BY=@COMPILED BY@ 
+# COMPILED BY=@COMPILED BY@
 # LEGAL_COPY=@LEGAL_COPY@
-# SVN_REV=@SVN_REV@
-# SVN_PATH=@SVN_PATH@
 
 pt.lsts.neptus.console.bathymLayer.BathymetryLayer
 pt.lsts.neptus.console.bathymLayer.TidePanel
+pt.lsts.neptus.console.bathymLayer.DepthSoundingsInteraction
+

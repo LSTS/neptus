@@ -92,7 +92,6 @@
             <name>ethernet</name>
             <type>ethernet</type>
             <host-address>192.168.106.40</host-address>
-            <credentials username="root"/>
             <protocols>imc</protocols>
             <latency value="10M" unit="bps"/>
             <protocols-args>
@@ -101,7 +100,7 @@
                     <port-tcp>6002</port-tcp>
                     <udp-on>true</udp-on>
                     <tcp-on>false</tcp-on>
-                    <imc3-id>0C:12</imc3-id>
+                    <imc-id>0C:12</imc-id>
                 </imc>
             </protocols-args>
         </comm-mean>

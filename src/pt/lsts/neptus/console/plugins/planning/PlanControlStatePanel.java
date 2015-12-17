@@ -225,7 +225,7 @@ public class PlanControlStatePanel extends ConsolePanel {
                     + ")</font> ";
         String nodeTimeStr;
         if (nodeStarTimeMillisUTC > 0)
-            nodeTimeStr = "@" + DateTimeUtil.timeFormaterNoMillis2.format(new Date(nodeStarTimeMillisUTC));
+            nodeTimeStr = "@" + DateTimeUtil.timeFormatterNoMillis2.format(new Date(nodeStarTimeMillisUTC));
         else
             nodeTimeStr = "";
         String etaStr;

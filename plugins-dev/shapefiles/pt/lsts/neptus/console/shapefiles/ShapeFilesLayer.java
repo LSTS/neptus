@@ -87,15 +87,12 @@ public class ShapeFilesLayer extends ConsoleLayer implements ConfigurationListen
         ActionListener addShapeFileAction = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JFileChooser chooser = new JFileChooser();
-                chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("Shape File"),
-                        new String[] { "shp" }));
-                chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                chooser.setMultiSelectionEnabled(true);
                 if (lastOpenFolder == null) {
                     lastOpenFolder = new File(ConfigFetch.getConfigFile());
                 }
-                chooser.setCurrentDirectory(lastOpenFolder);
+                JFileChooser chooser = GuiUtils.getFileChooser(lastOpenFolder, I18n.text("Shape File"), "shp"); 
+                chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                chooser.setMultiSelectionEnabled(true);
                 int op = chooser.showOpenDialog(getConsole());
                 if (op == JFileChooser.APPROVE_OPTION) {
                     File[] selFiles = chooser.getSelectedFiles();

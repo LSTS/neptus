@@ -59,23 +59,24 @@ public class CtdPlot extends MRACombinedPlot {
 
     @Override
     public void process(LsfIndex source) {
-        int rightEntity = source.getMessage(source.getFirstMessageOfType(("Conductivity"))).getSrcEnt();
+        
+        for (IMCMessage c : source.getIterator("Conductivity")) {
+            String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
+            if ("CTD".equals(entity))
+                addValue(c.getTimestampMillis(), "Conductivity."+c.getSourceName(), c.getDouble("value"));
+        }
 
-        for (IMCMessage c : source.getIterator("Conductivity"))
-            addValue(c.getTimestampMillis(), "Conductivity."+c.getSourceName(), c.getDouble("value"));
-
-        for (IMCMessage c : source.getIterator("Temperature"))
-            if (c.getSrcEnt() != rightEntity)
-                continue;
-            else                
+        
+        for (IMCMessage c : source.getIterator("Temperature")) {
+            String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
+            if ("CTD".equals(entity))
                 addValue(c.getTimestampMillis(), "Temperature."+c.getSourceName(), c.getDouble("value"));
+        }
 
-        for (IMCMessage c : source.getIterator("Pressure"))
-            if (c.getSrcEnt() != rightEntity)
-                continue;
-            else                
+        for (IMCMessage c : source.getIterator("Pressure")) {
+            String entity = source.getEntityName(c.getSrc(), c.getSrcEnt());
+            if ("CTD".equals(entity))
                 addValue(c.getTimestampMillis(), "Pressure."+c.getSourceName(), c.getDouble("value"));
-
+        }
     }
-
 }

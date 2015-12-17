@@ -32,8 +32,8 @@
 package pt.lsts.neptus.plugins.vtk.ctd3d;
 
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.plugins.vtk.visualization.AInteractorStyleTrackballCamera;
-import pt.lsts.neptus.plugins.vtk.visualization.Canvas;
+import pt.lsts.neptus.vtk.visualization.AInteractorStyleTrackballCamera;
+import pt.lsts.neptus.vtk.visualization.Canvas;
 import vtk.vtkRenderWindowInteractor;
 import vtk.vtkRenderer;
 

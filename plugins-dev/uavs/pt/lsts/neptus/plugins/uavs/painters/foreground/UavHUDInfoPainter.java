@@ -113,7 +113,8 @@ public class UavHUDInfoPainter implements IUavPainter{
             roll = ((Number) receivedArgs.get("roll")).doubleValue();
             pitch = ((Number) receivedArgs.get("pitch")).doubleValue();
             yaw = ((Number) receivedArgs.get("yaw")).doubleValue();
-            indicatedSpeed = ((Number) receivedArgs.get("indicatedSpeed")).doubleValue();
+            if (receivedArgs.get("indicatedSpeed") != null)
+                indicatedSpeed = ((Number) receivedArgs.get("indicatedSpeed")).doubleValue();
             altitude = ((Number) receivedArgs.get("altitude")).intValue();
         }
         

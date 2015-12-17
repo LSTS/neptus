@@ -46,7 +46,7 @@ public class LBLUtil {
         String timeStr, deltaTimeStr;
         try {
             timeStr = (timeStampMillis <= 0 ? "" : " ("
-                    + DateTimeUtil.timeFormaterNoMillis2UTC.format(new Date(timeStampMillis)) + " UTC" + ")");
+                    + DateTimeUtil.timeFormatterNoMillis2UTC.format(new Date(timeStampMillis)) + " UTC" + ")");
         }
         catch (Exception e) {
             timeStr = "";

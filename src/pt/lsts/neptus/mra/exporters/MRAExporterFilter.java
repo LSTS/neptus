@@ -74,12 +74,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.apache.commons.io.FileUtils;
 
+import net.miginfocom.swing.MigLayout;
 import pt.lsts.imc.lsf.LsfIndex;
-import pt.lsts.neptus.gui.swing.NeptusFileView;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.plugins.PluginDescription;
@@ -121,12 +119,9 @@ public class MRAExporterFilter implements MRAExporter {
 
     private File chooseSaveFile(String path) {
 
-        JFileChooser fileChooser = new JFileChooser();
+        JFileChooser fileChooser = GuiUtils.getFileChooser(path, I18n.text("LSF logs"), 
+                FileUtil.FILE_TYPE_LSF, FileUtil.FILE_TYPE_LSF_COMPRESSED, FileUtil.FILE_TYPE_LSF_COMPRESSED_BZIP2);
         fileChooser.setSelectedFile(new File(path.concat("/Data_filtered.lsf")));
-        fileChooser.setFileView(new NeptusFileView());
-        fileChooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("Log files"),
-                new String[] { FileUtil.FILE_TYPE_LSF, FileUtil.FILE_TYPE_LSF_COMPRESSED }));
-
         fileChooser.setAcceptAllFileFilterUsed(false);
 
         int status = fileChooser.showSaveDialog(null);

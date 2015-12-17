@@ -43,6 +43,7 @@ import pt.lsts.imc.gz.MultiMemberGZIPInputStream;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.GuiUtils;
 
 /**
  * @author zp
@@ -52,8 +53,7 @@ public class ConcatenateLsfLog {
 
     public static File[] chooseFolders(Component parent, String initialDir) {
         
-        JFileChooser chooser = new JFileChooser(initialDir);
-        
+        JFileChooser chooser = GuiUtils.getFileChooser(initialDir);
         chooser.setMultiSelectionEnabled(true);
         chooser.setDialogTitle(I18n.text("Select folders  to concatenate"));        
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);

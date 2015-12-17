@@ -39,8 +39,10 @@ import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
+import com.l2fprod.common.propertysheet.DefaultProperty;
+import com.l2fprod.common.propertysheet.Property;
+
 import pt.lsts.imc.state.ImcSystemState;
-import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.console.plugins.MainVehicleChangeListener;
 import pt.lsts.neptus.console.plugins.MissionChangeListener;
 import pt.lsts.neptus.console.plugins.PlanChangeListener;
@@ -50,9 +52,6 @@ import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.plugins.update.IPeriodicUpdates;
 import pt.lsts.neptus.plugins.update.PeriodicUpdatesService;
 import pt.lsts.neptus.util.ImageUtils;
-
-import com.l2fprod.common.propertysheet.DefaultProperty;
-import com.l2fprod.common.propertysheet.Property;
 
 /**
  * @author zp
@@ -72,6 +71,7 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
     @Override
     public final void setProperties(Property[] properties) {
         PluginUtils.setPluginProperties(this, properties);
+        propertiesChanged();
     }
 
 
@@ -117,8 +117,13 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
         return PluginUtils.getPluginName(getClass());
     }
     
-    public void init(ConsoleLayout console) {
+    public final void init(ConsoleLayout console) {
         this.console = console;
+        
+        initPlugin(console);
+        
+        // After all setup let us register the IPeriodicUpdates and Message callbacks
+        
         if (this instanceof MissionChangeListener)
             getConsole().addMissionListener((MissionChangeListener) this);
 
@@ -135,9 +140,15 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
         }
         
         NeptusEvents.register(this, console);
-        ImcMsgManager.registerBusListener(this);
+        getConsole().getImcMsgManager().registerBusListener(this);
     }
     
+    /**
+     * Use this to setup your plugin before the register of 
+     * the IPeriodicUpdates and Message callbacks.
+     */
+    protected abstract void initPlugin(ConsoleLayout console);
+
     public void clean() {
         NeptusEvents.unregister(this, getConsole());
         if (this instanceof MissionChangeListener) {
@@ -162,11 +173,11 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
             periodicMethods.clear();
         }
         
-        ImcMsgManager.unregisterBusListener(this);        
+        getConsole().getImcMsgManager().unregisterBusListener(this);        
     }
     
     protected final ImcSystemState getState() {
-        return ImcMsgManager.getManager().getState(getConsole().getMainSystem());
+        return getConsole().getImcMsgManager().getState(getConsole().getMainSystem());
     }
     
     public final ImageIcon getIcon() {
@@ -174,6 +185,10 @@ public abstract class AbstractConsolePlugin implements PropertiesProvider {
             icon = ImageUtils.getIcon(PluginUtils.getPluginIcon(getClass()));
         
         return icon;
+    }
+    
+    public void propertiesChanged() {
+        
     }
 
     /**

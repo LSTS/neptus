@@ -49,7 +49,7 @@ public class FolderPropertyEditor extends FilePropertyEditor {
      */
     @Override
     protected void customizeFileChooser(JFileChooser chooser) {
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);;
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     }
     
     /**

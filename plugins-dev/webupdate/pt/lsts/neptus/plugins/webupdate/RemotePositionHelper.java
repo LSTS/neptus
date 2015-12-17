@@ -74,7 +74,7 @@ class RemotePositionHelper {
         try {
             String dateS = root.getAttributes().getNamedItem("date").getTextContent();
             String timeS = root.getAttributes().getNamedItem("time").getTextContent();
-            Date dateTimeS = DateTimeUtil.dateTimeFormaterUTC.parse(dateS + " " + timeS);
+            Date dateTimeS = DateTimeUtil.dateTimeFormatterUTC.parse(dateS + " " + timeS);
             lastCalcPosTimeMillis  = dateTimeS.getTime();
         }
         catch (Exception e1) {
@@ -90,7 +90,7 @@ class RemotePositionHelper {
                     String id = bn.getAttributes().getNamedItem("id").getTextContent();
                     String date = bn.getAttributes().getNamedItem("date").getTextContent();
                     String time = bn.getAttributes().getNamedItem("time").getTextContent();
-                    Date dateTime = DateTimeUtil.dateTimeFormaterUTC.parse(date + " " + time);
+                    Date dateTime = DateTimeUtil.dateTimeFormatterUTC.parse(date + " " + time);
                     NodeList clst = bn.getChildNodes();
                     for (int i = 0; i < clst.getLength(); i++) {
                         Node node = clst.item(i);

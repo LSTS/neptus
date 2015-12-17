@@ -60,7 +60,7 @@ public class DeltaTHeader {
     
     public int pingNumber;
     
-    public double pulseLenght; // Pulse Length (in microseconds)
+    public double pulseLength; // Pulse Length (in microseconds)
     public double pulseRepetingRate;// Repeting Rate (in miliseconds) - time between pings
     
     public double speed;
@@ -83,6 +83,16 @@ public class DeltaTHeader {
 
     public short numberOfPingsAveraged;
 
+    public String gnssShipPosLat = "";
+    public String gnssShipPosLon = "";
+    public double gnssShipCourse;
+    
+    public float sonarXOffset = Float.NaN;
+    public float sonarYOffset = Float.NaN;
+    public float sonarZOffset = Float.NaN;
+    
+    public float altitude = Float.NaN;
+    
     private static Calendar cal;
     private static Pattern pTimeStamp;
     {
@@ -115,7 +125,7 @@ public class DeltaTHeader {
         
         sonarFreqKHz = b.getShort(81);
         
-        pulseLenght = b.getShort(87);
+        pulseLength = b.getShort(87);
         pulseRepetingRate = b.getShort(91);
         
         soundVelocity = parseSoundVelocity(b);
@@ -123,6 +133,20 @@ public class DeltaTHeader {
         rangeResolution = b.getShort(85);
         
         speed = convertKnotsToMetersPerSecond((b.get(61) / 10.0));
+        
+        gnssShipCourse = b.getShort(62) / 10.0;
+        
+        byte shipLatLonBuf[] = new byte[14];
+        b.position(33);
+        b.get(shipLatLonBuf, 0, 14);
+        gnssShipPosLat = new String(shipLatLonBuf);
+        b.position(47);
+        b.get(shipLatLonBuf, 0, 14);
+        gnssShipPosLon = new String(shipLatLonBuf);
+        
+        sonarXOffset = b.getFloat(100);
+        sonarYOffset = b.getFloat(104);
+        sonarZOffset = b.getFloat(108);
         
         byte hasInt = b.get(117);
         hasIntensity = (hasInt == 1) ? true : false;
@@ -205,6 +229,8 @@ public class DeltaTHeader {
         sonarIsOperatingInOverlappedMode = isBitSet(vel123, 2); // Bit 2 - 1 = sonar is operating in overlapped mode
         
         numberOfPingsAveraged = b.get(125); // Number of Pings Averaged - 0 to 25
+        
+        altitude = b.getFloat(133);
     }
     
     /**

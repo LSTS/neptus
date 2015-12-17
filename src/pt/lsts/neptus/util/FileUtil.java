@@ -883,15 +883,22 @@ public class FileUtil {
     }
 
     public static String getResourceAsFileKeepName(String name) {
-        InputStream inStream = FileUtil.class.getResourceAsStream(name.replace('\\', '/'));
-        if (inStream == null) {
-            Class<?> clazz = getCallerClass();
-            if (clazz == null)
-                return null;
-            inStream = clazz.getResourceAsStream(name.replace('\\', '/'));
+        String nameSlashed = name.replace('\\', '/');
+        InputStream inStream = null;
+        
+        Class<?> clazz = getCallerClass();
+        if (clazz != null) {
+            inStream = clazz.getResourceAsStream(nameSlashed);
             if (inStream == null)
-                return null;
+                inStream = clazz.getResourceAsStream("/" + nameSlashed);
         }
+        if (inStream == null)
+            inStream = FileUtil.class.getResourceAsStream(nameSlashed);
+        if (inStream == null)
+            inStream = FileUtil.class.getResourceAsStream("/" + nameSlashed);
+        if (inStream == null)
+            return null;
+
         try {
             File fx;
             File tmpDir = new File(ConfigFetch.getNeptusTmpDir());
@@ -936,6 +943,19 @@ public class FileUtil {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static String getPackageAsPath(Object obj) {
+        if (obj == null)
+            return "";
+        return getPackageAsPath(obj.getClass());
+    }
+
+    public static String getPackageAsPath(Class<?> clazz) {
+        if (clazz == null)
+            return "";
+        String path = clazz.getPackage().getName().replace('.', '/');
+        return path;
     }
 
     public static void main(String[] args) throws IOException {

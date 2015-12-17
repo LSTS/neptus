@@ -64,8 +64,11 @@ public class AboutPanel extends JFrame {
     private static final String COPY_YEARS = "2004-2015";
 
     private String mainDevelopers = "Paulo Dias, José Pinto";
-    private String contributersDevelopers = "Ricardo Martins, Sérgio Ferreira, José Loureiro";
-    private String pastDevelopers = "Hugo Queirós, Margarida Faria,José Correia, Hugo Dias, Rui Gonçalves, Eduardo Marques";
+    private String contributorsDevelopers = "Ricardo Martins, Sérgio Ferreira, "
+            + "Manuel Ribeiro, José Braga, João Fortuna, João Pereira, Tiago Marques, "
+            + "Pedro Gonçalves, Mauro Brandão";
+    private String pastDevelopers = "José Loureiro, Hugo Queirós, Margarida Faria, "
+            + "José Correia, Hugo Dias, Rui Gonçalves, Eduardo Marques";
 
     private JPanel contentPanel = null;
     private ImagePanel imagePanel = null;
@@ -86,7 +89,7 @@ public class AboutPanel extends JFrame {
         this.setResizable(false);
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.setBackground(Color.WHITE);
-        this.setSize(506, 542);
+        this.setSize(506, 565);
         this.setContentPane(getContentPanel());
         this.setTitle(I18n.text("About"));
         this.addMouseListener(new MouseAdapter() {
@@ -180,17 +183,17 @@ public class AboutPanel extends JFrame {
                 + "</style>"
                 + "</head>"
                 + "<body><br/>" 
-                + "<b>" + I18n.text("Main Developers:") + "</b>"+ "<br/>&nbsp;&nbsp;&nbsp;"
+                + "<b>" + I18n.text("Maintainers:") + "</b>"+ "<br/>&nbsp;&nbsp;&nbsp;"
                 + mainDevelopers 
                 + "<br><br>"
-                + "<b>" + I18n.text("Contributers:") + "</b>"  + "<br/>&nbsp;&nbsp;&nbsp;" 
-                + contributersDevelopers + "<br/><br/>"
+                + "<b>" + I18n.text("Contributors:") + "</b>"  + "<br/>&nbsp;&nbsp;&nbsp;" 
+                + contributorsDevelopers + "<br/><br/>"
                 + "<b>" + I18n.text("Past Developers:") + "</b><br/>" 
                 + "&nbsp;&nbsp;&nbsp;" + pastDevelopers + "<br/><br/>" 
                 + "<b>" + I18n.text("Contact info:") + "</b>" 
                 + "<br/>" + "   " 
-                + I18n.text("URL:") + " http://lsts.fe.up.pt/" + "&nbsp;&nbsp;&nbsp;<br/>" 
-                + I18n.text("URL:") + " http://whale.fe.up.pt/neptus" 
+                + I18n.text("URL:") + " http://www.lsts.pt/" + "&nbsp;&nbsp;&nbsp;<br/>" 
+                + I18n.text("URL:") + " http://www.lsts.pt/neptus" 
                 + "<br/><br/>"
                 + "<div class=\"align-right\">"
                 + versionString + "<br/>"

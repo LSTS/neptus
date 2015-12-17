@@ -165,6 +165,7 @@ public class MultiVehiclePlanOverlay extends ConsolePanel implements Renderer2DP
                     points.add(renderer.getScreenPosition(l));
                 lastZoom = renderer.getZoom();
                 lastCenter = new LocationType(renderer.getCenter());
+                lastRotation = renderer.getRotation();
             }
             planPoints.put(entry.getValue(), points);
 

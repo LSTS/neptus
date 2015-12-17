@@ -158,6 +158,11 @@ public class FunctionalitiesSettings extends JPanel {
         levelTrees.put(LEVEL.ADVANCED, createTreeModel(subPanels));
     }
 
+    void setupNewProviders(Vector<PropertiesProvider> subPanels) {
+        levelTrees.clear();
+        setupTreeModels(subPanels);
+    }
+    
     /**
      * Create all the components of the panel: JSplitPane with a scroll pane with the tree on the left side and a holder
      * JPanel for properties on the right.

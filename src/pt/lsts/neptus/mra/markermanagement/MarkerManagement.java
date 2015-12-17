@@ -505,7 +505,7 @@ public class MarkerManagement {
         LogMarkerItem marker = new LogMarkerItem(index, ssLogMarker.getLabel(), ssLogMarker.getTimestamp(), loc.getLatitudeDegs(), loc.getLongitudeDegs(), getImgPath(ssLogMarker.getLabel()), null, description, alt, depth, range, heightValue, Classification.UNDEFINED);
 
         //format date timestamp
-        String date = DateTimeUtil.dateFormaterXMLUTC.format(ssLogMarker.getTimestamp());
+        String date = DateTimeUtil.dateFormatterXMLUTC.format(ssLogMarker.getTimestamp());
 
         //add new LogMarkerItem to list
         markerList.add(marker);
@@ -615,8 +615,8 @@ public class MarkerManagement {
         if (lines != null && !lines.isEmpty()) {
             
             //get altitude from the line in the middle of the list
-            altitude = lines.get(lines.size()/2).state.getAltitude(); 
-            depth = depth(lines.get(lines.size()/2).timestampMillis);
+            altitude = lines.get(lines.size()/2).getState().getAltitude(); 
+            depth = depth(lines.get(lines.size()/2).getTimestampMillis());
         }
 
         //        calculate distance between two locations
@@ -890,7 +890,7 @@ public class MarkerManagement {
         int index = getAttIntValue(markerEl, "id");
         String name = getTextValue(markerEl,"Label");
         String tsString = getTextValue(markerEl, "Timestamp");
-        SimpleDateFormat format = DateTimeUtil.dateFormaterXMLUTC;
+        SimpleDateFormat format = DateTimeUtil.dateFormatterXMLUTC;
         Date parsed = null;
         File path = null;
         File drawPath = null;

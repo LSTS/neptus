@@ -268,8 +268,7 @@ public class InteractionAdapter extends ConsolePanel implements StateRendererInt
             case (KeyEvent.VK_S):
                 JFileChooser chooser = new JFileChooser();
                 chooser.setApproveButtonText(I18n.text("Save Map"));
-                chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("Image files (png, jpg, pdf)"), "png",
-                        "jpg", "pdf"));
+                chooser.setFileFilter(GuiUtils.getCustomFileFilter(I18n.text("Image files"), "png", "jpg", "pdf"));
                 int op = chooser.showSaveDialog(source);
                 if (op != JFileChooser.APPROVE_OPTION)
                     return;

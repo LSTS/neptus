@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config format="1" version="2.6.x (mission/rov_inspection,56fd7e2)" system="adamastor" i18n="en_US">
+<config format="1" version="2.6.x (master,8797653)" system="adamastor" i18n="en_US">
   <section name="LED Driver" name-i18n="LED Driver">
     <param name="Entity Label">
       <name-i18n>Entity Label</name-i18n>
@@ -566,6 +566,15 @@
       <units/>
       <desc>Bypass heading rate controller and use reference directly on torques</desc>
     </param>
+    <param name="Altitude Timeout">
+      <name-i18n>Altitude Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60.0f</default>
+      <units>m</units>
+      <desc>Timeout for ignoring invalid altitude</desc>
+    </param>
     <param name="Vertical Motor Id">
       <name-i18n>Vertical Motor Id</name-i18n>
       <type>integer</type>
@@ -689,6 +698,15 @@
       <units/>
       <desc>Bypass heading rate controller and use reference directly on torques</desc>
     </param>
+    <param name="Altitude Timeout">
+      <name-i18n>Altitude Timeout</name-i18n>
+      <type>real</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>60.0f</default>
+      <units>m</units>
+      <desc>Timeout for ignoring invalid altitude</desc>
+    </param>
     <param name="Heading Rate PID Gains">
       <name-i18n>Heading Rate PID Gains</name-i18n>
       <type>list:real</type>
@@ -770,7 +788,7 @@
       <type>real</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>30.0</default>
+      <default>45.0</default>
       <units>°/s</units>
       <desc>Maximum admissible heading rate reference for heading controller</desc>
     </param>
@@ -951,14 +969,14 @@
       <units/>
       <desc>Turn on actively control of depth and heading</desc>
     </param>
-    <param name="Angular Speed Control">
-      <name-i18n>Angular Speed Control</name-i18n>
+    <param name="Heading Tracking">
+      <name-i18n>Heading Tracking</name-i18n>
       <type>boolean</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>true</default>
+      <default>false</default>
       <units/>
-      <desc>Control the angular speed instead of heading.</desc>
+      <desc>Control the heading angle instead of heading rate.</desc>
     </param>
     <param name="Depth Rate">
       <name-i18n>Depth Rate</name-i18n>
@@ -983,7 +1001,7 @@
       <type>real</type>
       <visibility>user</visibility>
       <scope>global</scope>
-      <default>0.5</default>
+      <default>25</default>
       <units>°/s</units>
       <desc>Rate of increase or decrease of heading with control enabled.</desc>
     </param>
@@ -1163,6 +1181,15 @@
       <default>Goto Maneuver</default>
       <units/>
       <desc>Goto maneuver's entity label</desc>
+    </param>
+    <param name="Entity Label -- Launch">
+      <name-i18n>Entity Label -- Launch</name-i18n>
+      <type>string</type>
+      <visibility>developer</visibility>
+      <scope>global</scope>
+      <default>Launch Maneuver</default>
+      <units/>
+      <desc>Launch maneuver's entity label</desc>
     </param>
     <param name="Entity Label -- Loiter">
       <name-i18n>Entity Label -- Loiter</name-i18n>
@@ -1626,7 +1653,7 @@
       <type>list:string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default/>
+      <default>Leak Sensor - CPU, Motor Controller - Channel 0, Motor Controller - Channel 1</default>
       <units/>
       <desc>Additional default entities to monitor in Hardware profile</desc>
     </param>
@@ -1963,136 +1990,6 @@
       <default>0.2</default>
       <units/>
       <desc>Minimum depth required to check altitude operational limits</desc>
-      <min>0.0</min>
-    </param>
-  </section>
-  <section name="LBL Estimator" name-i18n="LBL Estimator">
-    <param name="Entity Label">
-      <name-i18n>Entity Label</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>LBL Estimator</default>
-      <units/>
-      <desc>Main entity label</desc>
-    </param>
-    <param name="Execution Priority">
-      <name-i18n>Execution Priority</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10</default>
-      <units/>
-      <desc>Execution priority</desc>
-    </param>
-    <param name="Activation Time">
-      <name-i18n>Activation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Deactivation Time">
-      <name-i18n>Deactivation Time</name-i18n>
-      <type>integer</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0</default>
-      <units/>
-      <desc/>
-    </param>
-    <param name="Debug Level">
-      <name-i18n>Debug Level</name-i18n>
-      <type>string</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>None</default>
-      <units/>
-      <desc/>
-      <values>None, Debug, Trace, Spew</values>
-      <values-i18n>None, Debug, Trace, Spew</values-i18n>
-    </param>
-    <param name="State Covariance Initial State">
-      <name-i18n>State Covariance Initial State</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1.0</default>
-      <units/>
-      <desc>Kalman Filter State Covariance initial values</desc>
-      <min>1.0</min>
-    </param>
-    <param name="LBL Threshold">
-      <name-i18n>LBL Threshold</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0</default>
-      <units/>
-      <desc>LBL Threshold value for the LBL level check rejection scheme</desc>
-      <min>2.0</min>
-    </param>
-    <param name="LBL Measure Noise Covariance">
-      <name-i18n>LBL Measure Noise Covariance</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0</default>
-      <units/>
-      <desc>Kalman Filter LBL Measurement Noise Covariance value</desc>
-      <min>0.1</min>
-    </param>
-    <param name="LBL Process Noise Covariance">
-      <name-i18n>LBL Process Noise Covariance</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>1e-5</default>
-      <units/>
-      <desc>Kalman Filter LBL Process Noise Covariance value</desc>
-      <min>0.0</min>
-    </param>
-    <param name="LBL Expected Range Rejection Constants">
-      <name-i18n>LBL Expected Range Rejection Constants</name-i18n>
-      <type>list:real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0, 0.010</default>
-      <units/>
-      <desc>Constants used in current LBL rejection scheme</desc>
-      <size>2</size>
-    </param>
-    <param name="GPS timeout">
-      <name-i18n>GPS timeout</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>3.0</default>
-      <units>s</units>
-      <desc>No GPS readings timeout</desc>
-      <min>2.0</min>
-    </param>
-    <param name="GPS Maximum HACC">
-      <name-i18n>GPS Maximum HACC</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>10.0</default>
-      <units/>
-      <desc>Maximum Horizontal Accuracy Estimate value accepted for GPS fixes</desc>
-      <min>3.0</min>
-      <max>20.0</max>
-    </param>
-    <param name="Distance Between LBL and GPS">
-      <name-i18n>Distance Between LBL and GPS</name-i18n>
-      <type>real</type>
-      <visibility>developer</visibility>
-      <scope>global</scope>
-      <default>0.80</default>
-      <units>m</units>
-      <desc>Distance between LBL receiver and GPS in the vehicle</desc>
       <min>0.0</min>
     </param>
   </section>
@@ -3194,7 +3091,7 @@
       <type>string</type>
       <visibility>developer</visibility>
       <scope>global</scope>
-      <default>Evologics</default>
+      <default>N/C (Bout_4)</default>
       <units/>
       <desc/>
     </param>

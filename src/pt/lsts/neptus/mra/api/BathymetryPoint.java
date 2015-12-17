@@ -39,7 +39,8 @@ public class BathymetryPoint {
     public float north;
     public float east;
     public float depth;
-    public short intensity;
+    public int intensity; // Unsigned short 16b
+    public int intensityMaxValue = Integer.MAX_VALUE;
 
     /**
      * @param lat lat in radians
@@ -62,7 +63,7 @@ public class BathymetryPoint {
      * @param east offset north in meters
      * @param depth depth in this point in meters (relative to water surface)
      */
-    public BathymetryPoint(float north, float east, float depth, short intensity) {
+    public BathymetryPoint(float north, float east, float depth, int intensity) {
         super();
         this.north = north;
         this.east = east;

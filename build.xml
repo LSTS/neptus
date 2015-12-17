@@ -36,7 +36,7 @@ Authors:
 Copyright:
   (c) FEUP-LSTS, Neptus Team.
 ==================================================================== -->
-<?xml-stylesheet type="text/xsl" href="ant2html.xsl"?>
+
 <project name="Neptus" default="default" basedir=".">
 
 	<description>
@@ -364,7 +364,6 @@ For simple use the main targets are:
 		<property name="dist.installer.name.seacon" value="${dist.installer.basename.seacon}-${scm.last.changed.date.short}"/><!--${time.date}-->
 
 		<echo message="-------------------------------------------------------------------" />
-		<!--echo level="info" message="SVN r${svn.revision.range} @ ${svn.repository.path}" /-->
 		<echo level="info" message="Git ${scm.revision}" />
 		<echo level="info" message="    g${scm.revision.uid}" />
 		<echo level="info" message="    ${scm.repository.path}" />
@@ -968,6 +967,7 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/util/*.class"/>
 			<include name="pt/lsts/neptus/vartree/*.class"/>
 			<include name="pt/lsts/vartree/*.class"/>
+			<include name="pt/lsts/neptus/platform/**/*.class"/>
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Built-On" value="${TODAY} - ${TSTAMP}" />
@@ -1099,6 +1099,8 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/util/conf/*.class" />
 			<include name="pt/lsts/neptus/util/output/*.class"/>
 			<include name="pt/lsts/neptus/planeditor/I*.class" />
+			<include name="pt/lsts/neptus/platform/**/*.class"/>
+			<include name="pt/lsts/neptus/gui/swing/NeptusFileView*.class"/>
 		</jar>
 		<mkdir dir="${tmp.bundle.dir}"/>
 		<unzip dest="${tmp.bundle.dir}" src="lib/dom4j/dom4j-1.6.1.jar"/>
@@ -1498,7 +1500,7 @@ For simple use the main targets are:
 		</antcall>
 	</target>
 	
-	<target name="test-worker" depends="default, junit, distribution-full-all-os, distribution-full-windows">
+	<target name="test-worker" depends="default, junit">
 	</target>
 	
 	<!-- =================================================================== -->

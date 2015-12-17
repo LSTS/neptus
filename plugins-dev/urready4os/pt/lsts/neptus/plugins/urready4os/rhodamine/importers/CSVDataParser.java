@@ -98,7 +98,7 @@ public class CSVDataParser {
                 String line = reader.readLine(); 
                 while (line != null) {
 //                    System.out.println(line);
-                    int systemLineNumber = 0;;
+                    int systemLineNumber = 0;
                     int invalidValueLineNumber = 2;
                     int colsLineNumber = 3;
                     

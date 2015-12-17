@@ -1533,7 +1533,7 @@ public class GroupLayoutContainer extends ContainerSubPanel implements Configura
 
         ConfigFetch.initialize();
         PluginsLoader.load();
-        ConsoleLayout cl = new ConsoleLayout();
+        ConsoleLayout cl = ConsoleLayout.forge(); // See better because it has a MiGLayout panel
         // ConsoleParse parse=new ConsoleParse(cl);
         // try
         // {

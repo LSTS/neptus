@@ -69,6 +69,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
+import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogTree;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
@@ -115,8 +116,8 @@ public class MRAPanel extends JPanel {
     public MRAPanel(final IMraLogGroup source, NeptusMRA mra) {
         this.source = source;
         this.mra = mra;
-        if (new File("conf/tides.txt").canRead() && source.getFile("tides.txt") == null) {
-            FileUtil.copyFile("conf/tides.txt", new File(source.getFile("."), "tides.txt").getAbsolutePath());
+        if (new File(ConfigFetch.getConfFolder() + "/tides.txt").canRead() && source.getFile("tides.txt") == null) {
+            FileUtil.copyFile(ConfigFetch.getConfFolder() + "/tides.txt", new File(source.getFile("."), "tides.txt").getAbsolutePath());
         }
 
         // ------- Setup interface --------
@@ -392,12 +393,12 @@ public class MRAPanel extends JPanel {
             return;
 
         // Calculate marker location
-        if (marker.getLat() == 0 && marker.getLon() == 0) {
+        if (marker.getLatRads() == 0 && marker.getLonRads() == 0) {
             IMCMessage m = source.getLog("EstimatedState").getEntryAtOrAfter(new Double(marker.getTimestamp()).longValue());
             LocationType loc = LogUtils.getLocation(m);
 
-            marker.setLat(loc.getLatitudeRads());
-            marker.setLon(loc.getLongitudeRads());
+            marker.setLatRads(loc.getLatitudeRads());
+            marker.setLonRads(loc.getLongitudeRads());
         }
 
         Runnable r = new AddMarkerTask(marker);

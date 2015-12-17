@@ -128,7 +128,7 @@ SubPanelChangeListener, MainVehicleChangeListener {
         if (getConsole().getMission() == null)
             return;
 
-        String id = markerName + "_" + DateTimeUtil.timeFormaterNoMillis.format(new Date(tstamp));
+        String id = markerName + "_" + DateTimeUtil.timeFormatterNoMillis.format(new Date(tstamp));
         boolean validId = false;
         while (!validId) {
             id = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter new mark name"), id);
@@ -237,8 +237,11 @@ SubPanelChangeListener, MainVehicleChangeListener {
         Vector<VehicleType> avVehicles = new Vector<VehicleType>();
 
         ImcSystem[] veh = ImcSystemsHolder.lookupActiveSystemVehicles();
-        for (int i = 0; i < veh.length; i++)
-            avVehicles.add(VehiclesHolder.getVehicleWithImc(veh[i].getId()));
+        for (int i = 0; i < veh.length; i++) {
+            VehicleType v = VehiclesHolder.getVehicleWithImc(veh[i].getId());
+            if (v != null)
+                avVehicles.add(v);
+        }
 
         if (avVehicles.isEmpty() && getConsole().getMainSystem() != null)
             avVehicles.add(VehiclesHolder.getVehicleById(getConsole().getMainSystem()));
@@ -315,7 +318,7 @@ SubPanelChangeListener, MainVehicleChangeListener {
                             event.setType(TYPE.MAP_FEATURE_ADDED);
                             event.setId(markId);
                             event.setArg(new DevDataBinary(elem.asXML().getBytes()));
-//                            System.out.println(sendToOtherCCUs(event));
+                           sendToOtherCCUs(event);
                         }                        
                     };
                     dissem.add(rem);
