@@ -37,13 +37,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -60,12 +57,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.ProgressMonitor;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-
-import org.apache.commons.io.FileUtils;
-
-import com.google.common.collect.Lists;
 
 import foxtrot.AsyncTask;
 import foxtrot.AsyncWorker;
@@ -76,7 +67,6 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
 import pt.lsts.neptus.gui.AboutPanel;
-import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.gui.MissionFileChooser;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.WaitPanel;
@@ -92,8 +82,6 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
 import pt.lsts.neptus.util.RecentlyOpenedFilesUtil;
-import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
-import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LogUtils.LogValidity;
@@ -116,10 +104,8 @@ public class MRAMenuBar {
     private JMenu fileMenu, reportMenu, settingsMenu, toolsMenu, helpMenu;
     private JMenu recentlyOpenFilesMenu = null;
     private JMenu exporters;
-    private JMenu tideMenu;
 
     private boolean isExportersAdded = false;
-    private boolean isTidesAdded = false;
 
     private AbstractAction openLsf, exit;
     protected AbstractAction genReport;
@@ -740,19 +726,5 @@ public class MRAMenuBar {
      */
     private void setExportersMenu(JMenu exportersMenu) {
         this.exporters = exportersMenu;
-    }
-    
-    /**
-     * @return the tideMenu
-     */
-    private JMenu getTidesMenu() {
-        return tideMenu;
-    }
-    
-    /**
-     * @param tideMenu the tideMenu to set
-     */
-    private void setTideMenu(JMenu tideMenu) {
-        this.tideMenu = tideMenu;
     }
 }
