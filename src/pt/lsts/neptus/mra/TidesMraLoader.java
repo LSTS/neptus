@@ -31,6 +31,7 @@
  */
 package pt.lsts.neptus.mra;
 
+import java.awt.Component;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
@@ -58,11 +59,12 @@ public class TidesMraLoader {
     private TidesMraLoader() {
     }
 
-    public static  void load(IMraLogGroup source, NeptusMRA mra) {
-        mra.getBgp().setText(I18n.text("Loading tides data"));
+    public static  void load(IMraLogGroup source, Component parent) {
+//        mra.getBgp().setText(I18n.text("Loading tides data"));
         
         String tideInfoPath = TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH;
         String noTideStr = I18n.text("No tides");
+        String otherTideStr = I18n.text("Other");
         String usedTideStr = noTideStr;
         
         boolean tideInfoExisted = false;
@@ -80,11 +82,12 @@ public class TidesMraLoader {
 
         String ret = usedTideStr;
         
-        if (!tideInfoExisted) {
+        // Choosing tide sources options
+        {
             String[] lstStringArray = TidePredictionFactory.getTidesFileAsStringList();
             Arrays.sort(lstStringArray);
-            List<String> lst = Lists.asList(noTideStr, lstStringArray);
-            ret = (String) JOptionPane.showInputDialog(mra, I18n.text("Choose a tides source"), 
+            List<String> lst = Lists.asList(noTideStr, otherTideStr, lstStringArray);
+            ret = (String) JOptionPane.showInputDialog(parent, I18n.text("Choose a tides source"), 
                     I18n.text("Tides"), JOptionPane.QUESTION_MESSAGE, ImageUtils.getIcon("images/settings.png"), 
                     lst.toArray(), usedTideStr);
             
@@ -92,9 +95,19 @@ public class TidesMraLoader {
                 return;
         }
 
-//        File tInfo = source.getFile(tideInfoPath);
+        Date startDate = new Date((long) (source.getLsfIndex().getStartTime() * 1E3));
+        Date endDate = new Date((long) (source.getLsfIndex().getEndTime() * 1E3));
+        
+        // If other let us open we options
+        if (otherTideStr.equals(ret)) {
+            String harbor = TidePredictionFactory.fetchData(parent, null, startDate, endDate, true);
+            if (harbor == null || harbor.isEmpty())
+                return;
+            else
+                ret = harbor + "." + TidePredictionFactory.defaultTideFormat;
+        }
+
         if (noTideStr.equals(ret)) {
-            // FileUtils.deleteQuietly(tInfo);
             FileUtil.saveToFile(new File(source.getDir(), tideInfoPath).getAbsolutePath(), "");
         }
         else {
@@ -109,17 +122,15 @@ public class TidesMraLoader {
                 msg = I18n.text("Not possible to load tide file");
             }
 
-            Date startDate = new Date((long) (source.getLsfIndex().getStartTime() * 1E3));
-            Date endDate = new Date((long) (source.getLsfIndex().getEndTime() * 1E3));
             if (tFinder == null || !tFinder.contains(startDate) || !tFinder.contains(endDate)) {
                 msg = I18n.text("Some tide data missing. Want to update tide predictions?");
                 if (tFinder == null)
                     msg = I18n.text("No tide data found. Want to update tide predictions?");
 
-                int updatePredictionsQuestion = GuiUtils.confirmDialog(mra, I18n.text("Tides"), msg);
+                int updatePredictionsQuestion = GuiUtils.confirmDialog(parent, I18n.text("Tides"), msg);
                 switch (updatePredictionsQuestion) {
                     case JOptionPane.YES_OPTION:
-                        String harborFetch = TidePredictionFactory.fetchData(mra,
+                        String harborFetch = TidePredictionFactory.fetchData(parent,
                                 tFinder == null ? null : tFinder.getName(), startDate, endDate, true);
                         if (harborFetch != null)
                             FileUtil.saveToFile(new File(source.getDir(), tideInfoPath).getAbsolutePath(),

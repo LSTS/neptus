@@ -116,13 +116,7 @@ public class MRAPanel extends JPanel {
     public MRAPanel(final IMraLogGroup source, NeptusMRA mra) {
         this.source = source;
         this.mra = mra;
-//        if (new File(ConfigFetch.getConfFolder() + "/tides.txt").canRead() && source.getFile("tides.txt") == null) {
-//            FileUtil.copyFile(ConfigFetch.getConfFolder() + "/tides.txt", new File(source.getFile("."), "tides.txt").getAbsolutePath());
-//        }
 
-        // Loading tides data
-        TidesMraLoader.load(source, mra);
-        
         // ------- Setup interface --------
         setLayout(new BorderLayout(3, 3));
 
