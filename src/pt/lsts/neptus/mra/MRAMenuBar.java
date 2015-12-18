@@ -67,6 +67,7 @@ import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.comm.manager.imc.SystemImcMsgCommInfo;
 import pt.lsts.neptus.gui.AboutPanel;
+import pt.lsts.neptus.gui.InfiniteProgressPanel;
 import pt.lsts.neptus.gui.MissionFileChooser;
 import pt.lsts.neptus.gui.PropertiesEditor;
 import pt.lsts.neptus.gui.WaitPanel;
@@ -104,8 +105,10 @@ public class MRAMenuBar {
     private JMenu fileMenu, reportMenu, settingsMenu, toolsMenu, helpMenu;
     private JMenu recentlyOpenFilesMenu = null;
     private JMenu exporters;
-
+    private JMenu tideMenu;
+    
     private boolean isExportersAdded = false;
+    private boolean isTidesAdded = false;
 
     private AbstractAction openLsf, exit;
     protected AbstractAction genReport;
@@ -660,6 +663,58 @@ public class MRAMenuBar {
         }
     }
     
+    public void setUpTidesMenu(final IMraLogGroup source) {
+        if(getTidesMenu() != null)
+            settingsMenu.remove(getTidesMenu());
+
+        String strTitle = I18n.text("Change tides source");
+        JMenuItem changeTideMenu = new JMenuItem(strTitle);
+        changeTideMenu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int res = GuiUtils.confirmDialog(mra, strTitle,
+                        I18n.text("This will require a log reopening. Want to proceed?"));
+                switch (res) {
+                    case JOptionPane.YES_OPTION:
+                        InfiniteProgressPanel busyPanel = InfiniteProgressPanel.createInfinitePanelBeans(I18n.text("Processing"), 100);
+                        JDialog dialog = new JDialog(mra, I18n.text("Tides"), ModalityType.DOCUMENT_MODAL);
+                        dialog.add(busyPanel);
+                        dialog.pack();
+                        dialog.setSize(300, 200);
+                        dialog.setLocationRelativeTo(mra);
+                        Thread wt = new Thread("Open Log") {
+                            @Override
+                            public void run() {
+                                TidesMraLoader.load(source, mra);
+                                dialog.setVisible(false);
+                                dialog.dispose();
+                                mra.getMraFilesHandler().openLog(source.getFile("Data.lsf"));
+                            };
+                        };
+                        wt.setDaemon(true);
+                        wt.start();
+                        dialog.setVisible(true);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
+        JMenu tMenu = new JMenu(I18n.text("Tides"));
+        tMenu.add(changeTideMenu);
+
+        setTideMenu(tMenu);
+
+        if (getTidesMenu()!= null) {
+            if(!isTidesAdded) {
+                settingsMenu.addSeparator();
+                isTidesAdded = true;
+            }
+            settingsMenu.add(getTidesMenu());
+        }
+    }
+    
     /**
      * @return the menuBar
      */
@@ -726,5 +781,19 @@ public class MRAMenuBar {
      */
     private void setExportersMenu(JMenu exportersMenu) {
         this.exporters = exportersMenu;
+    }
+    
+    /**
+     * @return the tideMenu
+     */
+    private JMenu getTidesMenu() {
+        return tideMenu;
+    }
+
+    /**
+     * @param tideMenu the tideMenu to set
+     */
+    private void setTideMenu(JMenu tideMenu) {
+        this.tideMenu = tideMenu;
     }
 }

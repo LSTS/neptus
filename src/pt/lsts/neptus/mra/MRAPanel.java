@@ -145,6 +145,8 @@ public class MRAPanel extends JPanel {
         mra.getBgp().setText(I18n.text("Finishing loading"));
         // adds Exporters MenuItem to Tools menu after a Log is loaded
         mra.getMRAMenuBar().setUpExportersMenu(source);
+        // Adds tides menu
+        mra.getMRAMenuBar().setUpTidesMenu(source);
     }
 
     /**
