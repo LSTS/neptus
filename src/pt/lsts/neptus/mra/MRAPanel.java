@@ -117,6 +117,8 @@ public class MRAPanel extends JPanel {
         this.source = source;
         this.mra = mra;
 
+        TidesMraLoader.setDefaultTideIfNotExisted(source);
+        
         // ------- Setup interface --------
         setLayout(new BorderLayout(3, 3));
 

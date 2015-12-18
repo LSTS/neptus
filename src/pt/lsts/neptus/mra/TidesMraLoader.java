@@ -47,6 +47,7 @@ import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
+import pt.lsts.neptus.util.conf.GeneralPreferences;
 
 /**
  * @author pdias
@@ -61,6 +62,7 @@ public class TidesMraLoader {
     /**
      * Presents the user with a change tide source option. If the local files are not enough,
      * a Web search will be presented.
+     * 
      * @param source
      * @param parent
      */
@@ -136,6 +138,24 @@ public class TidesMraLoader {
                         FileUtil.saveToFile(new File(source.getDir(), tideInfoPath).getAbsolutePath(), "");
                         break;
                 }
+            }
+        }
+    }
+
+    /**
+     * If the file {@link TidePredictionFactory#MRA_TIDE_INDICATION_FILE_PATH} 
+     * is not found in the log one will be created with the default from 
+     * {@link GeneralPreferences#tidesFile}.getName().
+     * 
+     * @param source
+     */
+    public static void setDefaultTideIfNotExisted(IMraLogGroup source) {
+        File tideInfoFx = new File(source.getDir(), TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH);
+        if (!tideInfoFx.exists() || !tideInfoFx.canRead()) {
+            File defaultTidesSource = GeneralPreferences.tidesFile;
+            if (defaultTidesSource != null && defaultTidesSource.exists() && defaultTidesSource.canRead()) {
+                FileUtil.saveToFile(new File(source.getDir(), TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH)
+                        .getAbsolutePath(), defaultTidesSource.getName());
             }
         }
     }
