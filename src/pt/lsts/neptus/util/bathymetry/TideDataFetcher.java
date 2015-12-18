@@ -55,7 +55,12 @@ public class TideDataFetcher {
         DouroCrestuma(42, 12),
         
         Funchal(112, 0),
+        
         PontaDelgada(211, 0),
+        AngraDoHeroísmo(221, 0),
+        Horta(231, 0),
+        VilaDoPorto(245, 0),
+        StaCruzDasFlores(241, 0),
 
         VianaDoCastelo(74, 0),
         PovoaDeVarzim(49, 74),
@@ -64,7 +69,9 @@ public class TideDataFetcher {
         VilaDoConde(69, 74),
 
         Aveiro(13, 0),
+        
         FigueiraDaFoz(73, 0),
+        
         Peniche(29, 0),
         Nazare(65, 29),
 
