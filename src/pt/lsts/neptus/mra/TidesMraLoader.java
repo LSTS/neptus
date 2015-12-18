@@ -58,7 +58,13 @@ public class TidesMraLoader {
     private TidesMraLoader() {
     }
 
-    public static  void load(IMraLogGroup source, Component parent) {
+    /**
+     * Presents the user with a change tide source option. If the local files are not enough,
+     * a Web search will be presented.
+     * @param source
+     * @param parent
+     */
+    public static  void chooseTideSource(IMraLogGroup source, Component parent) {
         String tideInfoPath = TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH;
         String noTideStr = "<" + I18n.text("No tides") + ">";
         String otherTideStr = "<" + I18n.text("Other") + ">";

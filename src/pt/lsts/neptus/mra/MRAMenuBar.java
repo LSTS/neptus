@@ -685,7 +685,7 @@ public class MRAMenuBar {
                         Thread wt = new Thread("Open Log") {
                             @Override
                             public void run() {
-                                TidesMraLoader.load(source, mra);
+                                TidesMraLoader.chooseTideSource(source, mra);
                                 dialog.setVisible(false);
                                 dialog.dispose();
                                 mra.getMraFilesHandler().openLog(source.getFile("Data.lsf"));
