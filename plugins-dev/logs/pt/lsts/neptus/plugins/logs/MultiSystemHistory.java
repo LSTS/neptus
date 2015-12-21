@@ -48,13 +48,13 @@ import java.util.LinkedHashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBox;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import pt.lsts.imc.LogBookControl;
+import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
@@ -67,8 +67,7 @@ public class MultiSystemHistory extends JPanel {
 
     private static final long serialVersionUID = 1L;
     protected JTabbedPane tabs = new JTabbedPane();
-    protected LinkedHashMap<String, LogBookHistory> histories = new LinkedHashMap<>();
-    protected LinkedHashMap<String, JList<HistoryMessage>> lists = new LinkedHashMap<>();
+    protected LinkedHashMap<String, HistoriesPanelView> histories = new LinkedHashMap<>();
 
     protected boolean showInfo = true;
     protected boolean showWarn = true;
@@ -76,88 +75,83 @@ public class MultiSystemHistory extends JPanel {
     protected boolean showDebug = false;
     
     public MultiSystemHistory() {
-        setLayout(new BorderLayout());
-        add(tabs, BorderLayout.CENTER);
-        
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
-
-        JCheckBox check_info = new JCheckBox(new AbstractAction(I18n.text("Information")) {
-            private static final long serialVersionUID = 1L;
-
-            public void actionPerformed(ActionEvent e) {
-                showInfo = ((JCheckBox) e.getSource()).isSelected();
-                updateMessages();
-                //NeptusLog.pub().info("showInfo[MultiSystemHistory]: "+showInfo);
+            try {
+                System.out.println("MultiSystemHistory");
+                setLayout(new BorderLayout());
+                add(tabs, BorderLayout.CENTER);
             }
-        });
-        check_info.setSelected(showInfo);
-        JCheckBox check_warn = new JCheckBox(new AbstractAction(I18n.text("Warning")) {
-            private static final long serialVersionUID = 1L;
-            public void actionPerformed(ActionEvent e) {
-                showWarn = ((JCheckBox) e.getSource()).isSelected();
-                updateMessages();
-                //NeptusLog.pub().info("showWarn[MultiSystemHistory]: "+showWarn);
+            catch (Exception e) {
+                e.printStackTrace();
             }
-        });
-        check_warn.setSelected(showWarn);
-        JCheckBox check_error = new JCheckBox(new AbstractAction(I18n.text("Error")) {
-            private static final long serialVersionUID = 1L;
-            public void actionPerformed(ActionEvent e) {
-                showError = ((JCheckBox) e.getSource()).isSelected();
-                updateMessages();
-                //NeptusLog.pub().info("showError[MultiSystemHistory]: "+showError);
-            }
-        });
-        check_error.setSelected(showError);
+       
+            JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-        JCheckBox check_debug = new JCheckBox(new AbstractAction(I18n.text("Debug")) {
-            private static final long serialVersionUID = 1L;
-            public void actionPerformed(ActionEvent e) {
-                showDebug = ((JCheckBox) e.getSource()).isSelected();
-                updateMessages();
-                //NeptusLog.pub().info("showDebug[MultiSystemHistory]: "+showDebug);
-            }
-        });
-        check_debug.setSelected(showDebug);
+            JCheckBox check_info = new JCheckBox(new AbstractAction(I18n.text("Information")) {
+                private static final long serialVersionUID = 1L;
 
-        bottom.add(check_info);
-        bottom.add(check_warn);
-        bottom.add(check_error);
-        bottom.add(check_debug);
-        
-        add(bottom, BorderLayout.SOUTH);
+                public void actionPerformed(ActionEvent e) {
+                    showInfo = ((JCheckBox) e.getSource()).isSelected();
+                    updateMessages();
+                    NeptusLog.pub().info("showInfo[MultiSystemHistory]: "+showInfo);
+                }
+            });
+            check_info.setSelected(showInfo);
+            JCheckBox check_warn = new JCheckBox(new AbstractAction(I18n.text("Warning")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent e) {
+                    showWarn = ((JCheckBox) e.getSource()).isSelected();
+                    updateMessages();
+                    NeptusLog.pub().info("showWarn[MultiSystemHistory]: "+showWarn);
+                }
+            });
+            check_warn.setSelected(showWarn);
+            JCheckBox check_error = new JCheckBox(new AbstractAction(I18n.text("Error")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent e) {
+                    showError = ((JCheckBox) e.getSource()).isSelected();
+                    updateMessages();
+                    NeptusLog.pub().info("showError[MultiSystemHistory]: "+showError);
+                }
+            });
+            check_error.setSelected(showError);
+
+            JCheckBox check_debug = new JCheckBox(new AbstractAction(I18n.text("Debug")) {
+                private static final long serialVersionUID = 1L;
+                public void actionPerformed(ActionEvent e) {
+                    showDebug = ((JCheckBox) e.getSource()).isSelected();
+                    updateMessages();
+                    NeptusLog.pub().info("showDebug[MultiSystemHistory]: "+showDebug);
+                }
+            });
+            check_debug.setSelected(showDebug);
+
+            bottom.add(check_info);
+            bottom.add(check_warn);
+            bottom.add(check_error);
+            bottom.add(check_debug);
+            
+            add(bottom, BorderLayout.SOUTH);
         
     }
 
     private void updateMessages() {
+        System.out.println("updateMessages()");
         LogBookControl ctrl = new LogBookControl();
         ctrl.setCommand(LogBookControl.COMMAND.GET);
         for (String sys : histories.keySet()) {
             ImcMsgManager.getManager().sendMessageToSystem(ctrl, sys);
-            LogBookHistory lb = histories.get(sys);
+            HistoriesPanelView lb = histories.get(sys);
             lb.showInfo = this.showInfo;
             lb.showWarn = this.showWarn;
             lb.showError = this.showError;
             lb.showDebug = this.showDebug;
-            lb.updateFilter();
-        } 
-    }
-    
-    public Collection<HistoryMessage> add(Collection<HistoryMessage> msgs, String src) {
-        if (!histories.containsKey(src)) {
-            createHistory(src);
+            lb.refreshHistoryMessages();
+            lb.repaint();
         }
-
-        Collection<HistoryMessage> ret = histories.get(src).add(msgs);
-
-        int size = lists.get(src).getModel().getSize()-1;
-        if (!ret.isEmpty() && isDisplayable())
-            lists.get(src).ensureIndexIsVisible(size);
-        
-        return ret;
     }
 
     public void removeHistory(String src) {
+        System.out.println("removeHistory(String src)");
         for (int i = 0; i < tabs.getTabCount(); i++)
             if (tabs.getTitleAt(i).equals(src)) {
                 tabs.removeTabAt(i);
@@ -165,18 +159,18 @@ public class MultiSystemHistory extends JPanel {
             }
 
         histories.remove(src);
-        lists.remove(src);
+        //lists.remove(src);
     }
 
-    public JList<HistoryMessage> createHistory(String src) {
-        final LogBookHistory hist = new LogBookHistory(src, showInfo, showWarn, showError, showDebug);
+    //Add messages to the panel from each system
+    public HistoriesPanelView createHistory(String src) {
+        System.out.println("HistoriesPanelView createHistory(String src)");
+        final HistoriesPanelView hist = new HistoriesPanelView(src, showInfo, showWarn, showError, showDebug);
         histories.put(src, hist);
-        final JList<HistoryMessage> list = new JList<>(hist);
-        list.setCellRenderer(hist);
-        tabs.addTab(src, new JScrollPane(list));
-        lists.put(src, list);
-
-        list.addMouseListener(new MouseAdapter() {
+        System.out.println("createHistory");
+        tabs.addTab(src, new JScrollPane(hist));
+        
+        hist.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent arg0) {
                 if (arg0.getButton() == MouseEvent.BUTTON3) {
@@ -197,13 +191,13 @@ public class MultiSystemHistory extends JPanel {
                         }
                     });
 
-                    final int index = list.locationToIndex(arg0.getPoint());
+                    final int index = hist.myMessages.lastIndexOf(arg0.getPoint());
                     if (index != -1) {
                         popup.add(I18n.text("Copy entry to clipboard")).addActionListener(new ActionListener() {
 
                             @Override
                             public void actionPerformed(ActionEvent e) {
-                                String text = list.getModel().getElementAt(index).toString();
+                                String text = hist.myMessages.elementAt(index).toString();
 
                                 ClipboardOwner owner = new ClipboardOwner() {
                                     public void lostOwnership(Clipboard clipboard, Transferable contents) {};                       
@@ -213,15 +207,15 @@ public class MultiSystemHistory extends JPanel {
                         });
                     }
 
-                    if (list.getModel().getSize() > 0) {
+                    if (hist.myMessages.size() > 0) {
                         popup.add(I18n.text("Copy history to clipboard")).addActionListener(new ActionListener() {
 
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 String text = "";
                                 
-                                for (int i = 0; i < list.getModel().getSize(); i++) {
-                                    text += list.getModel().getElementAt(i)+"\n";
+                                for (int i = 0; i < hist.myMessages.size(); i++) {
+                                    text += hist.myMessages.elementAt(i)+"\n";
                                 }
 
                                 ClipboardOwner owner = new ClipboardOwner() {
@@ -240,18 +234,39 @@ public class MultiSystemHistory extends JPanel {
         invalidate();
         revalidate();
 
-        return list;
+        return hist;
     }
 
     public void add(HistoryMessage m, String src) {
+        System.out.println("add(HistoryMessage m, String src)");
+        if (!histories.containsKey(src)) {
+            System.out.println("new histories");
+            createHistory(src);
+        }
+        //System.out.println("public void add(HistoryMessage m, String src)");
+        int size = 0;
+        for (String sys : histories.keySet()) {
+            System.out.println("sys: "+sys);
+            histories.get(sys).myMessages.addElement(m);
+            System.out.println("histories.get(sys).myMessages[size]:"+histories.get(sys).myMessages.size());
+            size= histories.get(sys).myMessages.size()-1;
+            if (size > 0)
+                histories.get(sys).myMessages.get(size);
+        }
+    }
+    
+    public Collection<HistoryMessage> add(Collection<HistoryMessage> msgs, String src) {
         if (!histories.containsKey(src)) {
             createHistory(src);
         }
 
-        histories.get(src).add(m);
-        int size = lists.get(src).getModel().getSize()-1;
-        if (size > 0)
-            lists.get(src).ensureIndexIsVisible(size);
+        Collection<HistoryMessage> ret = histories.get(src).add(msgs);
+
+        int size = histories.get(src).myMessages.size()-1;
+        if (!ret.isEmpty() && isDisplayable())
+            histories.get(src).myMessages.indexOf(size);
+        
+        return ret;
     }
 
     public static void main(String[] args) throws Exception {
