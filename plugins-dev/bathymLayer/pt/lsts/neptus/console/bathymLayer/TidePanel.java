@@ -56,6 +56,7 @@ import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.conf.ConfigFetch;
@@ -98,36 +99,85 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
     @Override
     public void initSubPanel() {
         storedMenuPath = I18n.text("Tools") + ">" + I18n.text("Tides") + ">"+I18n.textf("Using '%file'",  GeneralPreferences.tidesFile.getName());
-        tidesItem = addMenuItem(storedMenuPath, null, null);
-        tidesItem.setEnabled(false);
-        
-        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Tides") + ">" + I18n.text("Update Predictions"), null,
-                new ActionListener() {
+        tidesItem = addMenuItem(storedMenuPath, null, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Thread t = new Thread("Tide fetcher") {
+                JMenuItem menu = (JMenuItem) e.getSource();
+                Thread t = new Thread("Tide chooser") {
+                    @Override
                     public void run() {
-                        String harbor = TidePredictionFactory.fetchData(getConsole());
-                        File used = GeneralPreferences.tidesFile;
-                        File f = new File(ConfigFetch.getConfFolder() + "/tides/" + harbor + "." + TidePredictionFactory.defaultTideFormat);
-                        if (!f.getAbsolutePath().equals(used.getAbsolutePath())) {
-                            int resp = GuiUtils.confirmDialog(getConsole(), I18n.text("Tide Predictions"),
-                                    I18n.textf(
-                                            "The selected location does not match the current location in use (%harbor). Do you wish to set the current location as %selection?",
-                                            used.getName(), harbor + "." + TidePredictionFactory.defaultTideFormat),
-                                    ModalityType.DOCUMENT_MODAL);
-
-                            if (resp == JOptionPane.YES_OPTION) {
-                                GeneralPreferences.tidesFile = f;
+                        try {
+                            File usedTidesSource = GeneralPreferences.tidesFile;
+                            String currentSource = usedTidesSource == null || !usedTidesSource.exists() ? null
+                                    : usedTidesSource.getName();
+                            Date startDate = new Date(System.currentTimeMillis() - 2 * DateTimeUtil.DAY);
+                            Date endDate = new Date(System.currentTimeMillis() + 3 * DateTimeUtil.DAY);
+                            String harbor = TidePredictionFactory.showTidesSourceChooserGuiPopup(getConsole(), currentSource,
+                                    startDate, endDate);
+                            if (harbor != null && !harbor.isEmpty()
+                                    && TidePredictionFactory.getTidesSourceFileFrom(harbor).exists()) {
+                                GeneralPreferences.tidesFile = TidePredictionFactory.getTidesSourceFileFrom(harbor);
                                 GeneralPreferences.saveProperties();
                                 preferencesUpdated();
                                 // Force the tide file reload
                                 TidePredictionFactory.getTideLevel(System.currentTimeMillis());
                             }
                         }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        finally {
+                            menu.setEnabled(true);
+                        }
+                    }
+                };
+                t.setDaemon(true);
+                menu.setEnabled(false);
+                t.run();
+            }
+        });
+//        tidesItem.setEnabled(false);
+        
+        addMenuItem(I18n.text("Tools") + ">" + I18n.text("Tides") + ">" + I18n.text("Update Predictions"), null,
+                new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JMenuItem menu = (JMenuItem) e.getSource();
+                Thread t = new Thread("Tide fetcher") {
+                    public void run() {
+                        try {
+                            String harbor = TidePredictionFactory.fetchData(getConsole());
+                            if (harbor != null  && !harbor.isEmpty()) {
+                                File used = GeneralPreferences.tidesFile;
+                                File f = new File(ConfigFetch.getConfFolder() + "/tides/" + harbor + "."
+                                        + TidePredictionFactory.defaultTideFormat);
+                                if (f.exists() && !f.getAbsolutePath().equals(used.getAbsolutePath())) {
+                                    int resp = GuiUtils.confirmDialog(getConsole(), I18n.text("Tide Predictions"),
+                                            I18n.textf(
+                                                    "The selected location does not match the current location in use (%harbor). Do you wish to set the current location as %selection?",
+                                                    used.getName(), harbor + "." + TidePredictionFactory.defaultTideFormat),
+                                            ModalityType.DOCUMENT_MODAL);
+                                    
+                                    if (resp == JOptionPane.YES_OPTION) {
+                                        GeneralPreferences.tidesFile = f;
+                                        GeneralPreferences.saveProperties();
+                                        preferencesUpdated();
+                                        // Force the tide file reload
+                                        TidePredictionFactory.getTideLevel(System.currentTimeMillis());
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        finally {
+                            menu.setEnabled(true);
+                        }
                     };
                 };
                 t.setDaemon(true);
+                menu.setEnabled(false);
                 t.start();                
             }
         });  
@@ -154,6 +204,6 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
     public void preferencesUpdated() {
         storedMenuPath = I18n.text("Tools") + ">" + I18n.text("Tides") + ">"+I18n.textf("Using '%file'",  GeneralPreferences.tidesFile.getName());
         tidesItem.setText(I18n.textf("Using '%file'",  GeneralPreferences.tidesFile.getName()));
-        tidesItem.setEnabled(false);
+//        tidesItem.setEnabled(false);
     }
 }
