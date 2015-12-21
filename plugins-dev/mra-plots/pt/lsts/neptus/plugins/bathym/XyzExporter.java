@@ -253,7 +253,7 @@ public class XyzExporter implements MRAExporter {
                 loc2.translatePosition(bp.north, bp.east, 0);
                 Date d = new Date(swath.getTimestamp());
                 pmonitor.setNote(sdf.format(d));
-                addSample(d, loc2, bp.depth);
+                addSample(d, loc2, bp.depth + (loc.getDepth() >= 0 ? loc.getDepth() : 0));
             }
         }
     }
