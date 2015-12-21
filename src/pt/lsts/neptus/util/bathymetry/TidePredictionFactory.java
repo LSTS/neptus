@@ -50,6 +50,7 @@ import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.util.FileUtil;
+import pt.lsts.neptus.util.ReflectionUtil;
 import pt.lsts.neptus.util.conf.ConfigFetch;
 import pt.lsts.neptus.util.conf.GeneralPreferences;
 
@@ -113,7 +114,8 @@ public class TidePredictionFactory {
             return cached.getTidePrediction(date, false);
         }
         catch (Exception e) {
-            NeptusLog.pub().error(e);
+            NeptusLog.pub().error("Error geting tide for date " + date + ". Caller " + ReflectionUtil.getCallerStamp()
+                    + ". " + e.getMessage());
             return 0;
         }
     }
