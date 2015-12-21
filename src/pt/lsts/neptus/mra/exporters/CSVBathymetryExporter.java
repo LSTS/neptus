@@ -53,7 +53,7 @@ import pt.lsts.neptus.util.DateTimeUtil;
  * @author Tiago Rodrigues
  * @author pdias (Cleanup)
  */
-@PluginDescription(name = "DeltaT CSV Bathymetry Exporter")
+@PluginDescription(name = "DeltaT CSV Bathymetry Exporter", author = "Tiago Rodrigues", version = "1.0")
 public class CSVBathymetryExporter implements MRAExporter {
     public enum Periodicity {
         ALL,
