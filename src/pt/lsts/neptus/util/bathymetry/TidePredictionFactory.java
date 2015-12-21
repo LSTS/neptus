@@ -34,12 +34,16 @@ package pt.lsts.neptus.util.bathymetry;
 import java.awt.Component;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.ProgressMonitor;
+
+import com.google.common.collect.Lists;
 
 import pt.lsts.imc.lsf.LsfIndex;
 import pt.lsts.neptus.NeptusLog;
@@ -60,6 +64,9 @@ public class TidePredictionFactory {
 
     public static final String BASE_TIDE_FOLDER_PATH = ConfigFetch.getConfFolder() + "/tides";
     
+    public static final String NO_TIDE_STR = "<" + I18n.text("No tides") + ">";
+    public static final String OTHER_TIDE_STR = "<" + I18n.text("Other") + ">";
+
     public static String[] logFolderTidesFileOptions = { "Tides.tid", "tides.tid", "Tides.txt", "tides.txt" };
     public static String[] logFolderTidesFileExtensions = { "tid", "txt" };
     
@@ -251,6 +258,67 @@ public class TidePredictionFactory {
         return ret;
     }
 
+    /**
+     * See {@link #showTidesSourceChooserGuiPopup(Component, String, Date, Date)}
+     * @param parent
+     * @return
+     */
+    public static String showTidesSourceChooserGuiPopup(Component parent) {
+        return showTidesSourceChooserGuiPopup(parent, null, null, null);
+    }
+    
+    /**
+     * See {@link #showTidesSourceChooserGuiPopup(Component, String, Date, Date)}
+     * @param parent
+     * @param currentSource
+     * @return
+     */
+    public static String showTidesSourceChooserGuiPopup(Component parent, String currentSource) {
+        return showTidesSourceChooserGuiPopup(parent, currentSource, null, null);
+    }
+    
+    /**
+     * This will popup a dialog for the user to choose the tides source. This will not change any defaults.
+     * 
+     * @param parent The parent component for the created windows.
+     * @param currentSource The current source of tides (This should match the file name, no path, of a tide file in
+     *            {@link TidePredictionFactory#BASE_TIDE_FOLDER_PATH}). This can be null.
+     * @param startDate The start date for the tide. This can be null (also imposes null for the end date). This will be
+     *            use to try to update the tides data.
+     * @param endDate The end date for the tide. This can be null (also imposes null for the satrt date). This will be
+     *            use to try to update the tides data.
+     * @return The string info for the tides source file name (from {@link TidePredictionFactory#BASE_TIDE_FOLDER_PATH})).
+     */
+    public static String showTidesSourceChooserGuiPopup(Component parent, String currentSource, Date startDate,
+            Date endDate) {
+        
+        if (startDate == null || endDate == null) {
+            startDate = null;
+            endDate = null;
+        }
+        
+        // Choosing tide sources options
+        String[] lstStringArray = TidePredictionFactory.getTidesFileAsStringList();
+        Arrays.sort(lstStringArray);
+        List<String> lst = Lists.asList(NO_TIDE_STR, OTHER_TIDE_STR, lstStringArray);
+        String ret = (String) JOptionPane.showInputDialog(parent, I18n.text("Choose a tides source"), 
+                I18n.text("Tides"), JOptionPane.QUESTION_MESSAGE, null, 
+                lst.toArray(), currentSource);
+        
+        if (ret == null || NO_TIDE_STR.equals(ret))
+            return null;
+
+        // If other let us open Web options
+        if (OTHER_TIDE_STR.equals(ret)) {
+            String harbor = TidePredictionFactory.fetchData(parent, null, startDate, endDate, true);
+            if (harbor == null || harbor.isEmpty())
+                return null;
+            else
+                ret = harbor + "." + TidePredictionFactory.defaultTideFormat;
+        }
+        return ret;
+    }
+    
     /**
      * Visual helper to get tide data.
      * @param parent The parent for the {@link JProgressBar} and {@link JOptionPane} shown.

@@ -33,13 +33,9 @@ package pt.lsts.neptus.mra;
 
 import java.awt.Component;
 import java.io.File;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 import javax.swing.JOptionPane;
-
-import com.google.common.collect.Lists;
 
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
@@ -68,8 +64,7 @@ public class TidesMraLoader {
      */
     public static  void chooseTideSource(IMraLogGroup source, Component parent) {
         String tideInfoPath = TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH;
-        String noTideStr = "<" + I18n.text("No tides") + ">";
-        String otherTideStr = "<" + I18n.text("Other") + ">";
+        String noTideStr = TidePredictionFactory.NO_TIDE_STR;
         String usedTideStr = noTideStr;
         
         File tideInfoFx = new File(source.getDir(), TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH);
@@ -83,30 +78,13 @@ public class TidesMraLoader {
         }
 
         String ret = usedTideStr;
-        
-        // Choosing tide sources options
-        String[] lstStringArray = TidePredictionFactory.getTidesFileAsStringList();
-        Arrays.sort(lstStringArray);
-        List<String> lst = Lists.asList(noTideStr, otherTideStr, lstStringArray);
-        ret = (String) JOptionPane.showInputDialog(parent, I18n.text("Choose a tides source"), 
-                I18n.text("Tides"), JOptionPane.QUESTION_MESSAGE, null, 
-                lst.toArray(), usedTideStr);
-        if (ret == null)
-            return;
-
         Date startDate = new Date((long) (source.getLsfIndex().getStartTime() * 1E3));
         Date endDate = new Date((long) (source.getLsfIndex().getEndTime() * 1E3));
-        
-        // If other let us open we options
-        if (otherTideStr.equals(ret)) {
-            String harbor = TidePredictionFactory.fetchData(parent, null, startDate, endDate, true);
-            if (harbor == null || harbor.isEmpty())
-                return;
-            else
-                ret = harbor + "." + TidePredictionFactory.defaultTideFormat;
-        }
 
-        if (noTideStr.equals(ret)) {
+        // Choosing tide sources options
+        ret = TidePredictionFactory.showTidesSourceChooserGuiPopup(parent, ret, startDate, endDate);
+
+        if (ret == null) {
             FileUtil.saveToFile(new File(source.getDir(), tideInfoPath).getAbsolutePath(), "");
         }
         else {
