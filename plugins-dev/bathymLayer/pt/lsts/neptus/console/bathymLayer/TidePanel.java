@@ -74,6 +74,7 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
 
     private JFreeChart timeSeriesChart = null;
     private TimeSeriesCollection tsc = new TimeSeriesCollection();
+    private TimeSeries ts;
     private ValueMarker marker = new ValueMarker(System.currentTimeMillis());
     private ValueMarker levelMarker = new ValueMarker(0);
     private JMenuItem tidesItem = null;
@@ -182,7 +183,7 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
             }
         });  
 
-        TimeSeries ts = new TimeSeries(I18n.text("Tide level"));
+        ts = new TimeSeries(I18n.text("Tide level"));
         tsc.addSeries(ts);
 
         for (double i = -12; i < 12; i+= 0.25) {
@@ -194,10 +195,17 @@ public class TidePanel extends ConsolePanel implements PreferencesListener {
         timeSeriesChart.getXYPlot().addRangeMarker(levelMarker);
     }
 
-    @Periodic(millisBetweenUpdates=60000)
+    @Periodic(millisBetweenUpdates = 60000)
     public void updateMarker() {
         marker.setValue(System.currentTimeMillis());
         levelMarker.setValue(TidePredictionFactory.getTideLevel(new Date()));
+        
+        ts.clear();
+        for (double i = -12; i < 12; i+= 0.25) {
+            Date d = new Date(System.currentTimeMillis() + (long)(i * 1000 * 3600));
+            ts.addOrUpdate(new Millisecond(d), TidePredictionFactory.getTideLevel(d));
+        }
+        ts.fireSeriesChanged();
     }
 
     // general preferences was updated
