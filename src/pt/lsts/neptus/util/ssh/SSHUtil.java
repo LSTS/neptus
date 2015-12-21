@@ -44,6 +44,7 @@ import java.util.concurrent.Future;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 
 /**
@@ -65,13 +66,7 @@ public class SSHUtil {
         return Executors.newSingleThreadExecutor().submit(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                JSch jsch = new JSch();
-                Session session = jsch.getSession(user, host, port);
-                session.setPassword(password);
-                Properties config = new Properties();
-                config.put("StrictHostKeyChecking", "no");
-                session.setConfig(config);
-                session.connect();
+                Session session = createSession(host, port, user, password);
 
                 ChannelExec channel = (ChannelExec) session.openChannel("exec");
                 channel.setCommand(command);
@@ -107,13 +102,7 @@ public class SSHUtil {
         return Executors.newSingleThreadExecutor().submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                JSch jsch = new JSch();
-                Session session = jsch.getSession(user, host, port);
-                session.setPassword(password);
-                Properties config = new Properties();
-                config.put("StrictHostKeyChecking", "no");
-                session.setConfig(config);
-                session.connect();
+                Session session = createSession(host, port, user, password);
 
                 ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
                 channel.connect();
@@ -142,14 +131,7 @@ public class SSHUtil {
         return Executors.newSingleThreadExecutor().submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                JSch jsch = new JSch();
-                Session session = jsch.getSession(user, host, port);
-                session.setPassword(password);
-                Properties config = new Properties();
-                config.put("StrictHostKeyChecking", "no");
-                session.setConfig(config);
-                session.connect();
-
+                Session session = createSession(host, port, user, password);
                 ChannelSftp channel = (ChannelSftp) session.openChannel("sftp");
                 channel.connect();
                 FileInputStream fis = new FileInputStream(localFile);
@@ -160,5 +142,16 @@ public class SSHUtil {
                 return true;
             }
         });
+    }
+    
+    private static Session createSession(String host, int port, String user, String password) throws JSchException {
+        JSch jsch = new JSch();
+        Session session = jsch.getSession(user, host, port);
+        session.setPassword(password);
+        Properties config = new Properties();
+        config.put("StrictHostKeyChecking", "no");
+        session.setConfig(config);
+        session.connect();
+        return session;
     }
 }
