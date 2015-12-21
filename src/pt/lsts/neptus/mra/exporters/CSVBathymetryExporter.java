@@ -129,13 +129,16 @@ public class CSVBathymetryExporter implements MRAExporter {
         BathymetrySwath nextSwath = null; 
         
         /* Write header to CSVs */
-        String headerStr = "% Time UTC Miliseconds, Latitude Degrees, Longitude Degrees, "
+        String headerStr0 = "% Imagenex Delta-T Multibeam data export";
+        String headerStr1 = "% Time UTC Miliseconds, Latitude Degrees, Longitude Degrees, "
                 + "Roll Radians, Pitch Radians, Yaw Radians, "
-                + "Number of data elem, (X-Offset Y-Offset Height - meters) \n";
+                + "Number of data elem, (X-Offset Y-Offset Height - meters)";
         // Center beam CSV header
-        recordMsg(headerStr, processResultOutputWriterCenterBeam);
+        recordMsgln(headerStr0, processResultOutputWriterCenterBeam);
+        recordMsgln(headerStr1, processResultOutputWriterCenterBeam);
         // All beams CSV header        
-        recordMsg(headerStr, processResultOutputWriterAllBeams);
+        recordMsgln(headerStr0, processResultOutputWriterAllBeams);
+        recordMsgln(headerStr1, processResultOutputWriterAllBeams);
         
         long fTime = deltaParser.getFirstTimestamp();
         long lTime = deltaParser.getLastTimestamp();
