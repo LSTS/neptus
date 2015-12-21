@@ -46,12 +46,13 @@ import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.plugins.PluginDescription;
+import pt.lsts.neptus.plugins.PluginUtils;
 
 /**
  * 
  * @author Tiago Rodrigues
  */
-@PluginDescription
+@PluginDescription(name = "DeltaT CSV Bathymetry Exporter")
 public class CSVBathymetryExporter implements MRAExporter {
     @SuppressWarnings("unused")
     private IMraLogGroup log = null;
@@ -71,7 +72,7 @@ public class CSVBathymetryExporter implements MRAExporter {
     }
     
     public String getName() {
-        return "CSV Bathymetry Exporter";
+        return PluginUtils.getPluginName(getClass());
     }
     
     @Override
