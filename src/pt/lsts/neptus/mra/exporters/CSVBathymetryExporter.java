@@ -26,8 +26,8 @@
  *
  * For more information please see <http://lsts.fe.up.pt/neptus>.
  *
- * Author: Paulo Dias
- * 25/08/2014
+ * Author: Tiago Rodrigues
+ * 06/05/2015
  */
 package pt.lsts.neptus.mra.exporters;
 
@@ -62,9 +62,8 @@ import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.FileUtil;
 
 /**
- * Apply corrected position to 83P and re-exported.  
- * @author pdias
  * 
+ * @author Tiago Rodrigues
  */
 @PluginDescription
 public class CSVBathymetryExporter implements MRAExporter {
