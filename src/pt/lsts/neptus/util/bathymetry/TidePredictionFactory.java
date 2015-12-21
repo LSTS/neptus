@@ -119,7 +119,39 @@ public class TidePredictionFactory {
             return 0;
         }
     }
+    
+    /**
+     * Return the current tides source as string.
+     * 
+     * @return
+     */
+    public static String getTideSourceString() {
+        if (tideFileInUse == null)
+            return null;
+        
+        return tideFileInUse.getName();
+    }
 
+    /**
+     * Return the current tides source file.
+     * 
+     * @return
+     */
+    public static File getTideSourceFile() {
+        return tideFileInUse;
+    }
+
+    /**
+     * Return the file from the source name. It is assumed the tides
+     * folder ({@link #BASE_TIDE_FOLDER_PATH}).
+     * 
+     * @param source
+     * @return
+     */
+    public static File getTidesSourceFileFrom(String source) {
+        return new File(BASE_TIDE_FOLDER_PATH + "/" + source);
+    }
+    
     /**
      * Creates a tide finder with either data in log ({@link logFolderTidesFileOptions})
      * or from {@link GeneralPreferences#tidesFile}.
