@@ -687,10 +687,12 @@ public class MRAMenuBar {
                             public void run() {
                                 TidesMraLoader.chooseTideSource(source, mra);
                                 dialog.setVisible(false);
+                                busyPanel.setBusy(false);
                                 dialog.dispose();
                                 mra.getMraFilesHandler().openLog(source.getFile("Data.lsf"));
                             };
                         };
+                        busyPanel.setBusy(true);
                         wt.setDaemon(true);
                         wt.start();
                         dialog.setVisible(true);
