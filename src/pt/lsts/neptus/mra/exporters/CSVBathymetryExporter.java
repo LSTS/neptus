@@ -36,30 +36,16 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileChannel.MapMode;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Date;
 
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.neptus.i18n.I18n;
-import pt.lsts.neptus.mp.SystemPositionAndAttitude;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
-import pt.lsts.neptus.mra.api.CorrectedPosition;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
-import pt.lsts.neptus.mra.importers.deltat.DeltaTHeader;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.plugins.PluginDescription;
-import pt.lsts.neptus.types.coord.CoordinateUtil;
-import pt.lsts.neptus.types.coord.LocationType;
-import pt.lsts.neptus.util.DateTimeUtil;
-import pt.lsts.neptus.util.FileUtil;
 
 /**
  * 
