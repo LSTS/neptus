@@ -43,15 +43,27 @@ import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
 import pt.lsts.neptus.mra.importers.IMraLogGroup;
 import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
+import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.util.DateTimeUtil;
 
 /**
  * 
  * @author Tiago Rodrigues
+ * @author pdias (Cleanup)
  */
 @PluginDescription(name = "DeltaT CSV Bathymetry Exporter")
 public class CSVBathymetryExporter implements MRAExporter {
+    public enum Periodicity {
+        ALL,
+        EVERY_SECOND,
+        EVERY_MINUTE
+    };
+    
+    @NeptusProperty
+    private Periodicity periodicity = Periodicity.EVERY_SECOND;
+    
     @SuppressWarnings("unused")
     private IMraLogGroup log = null;
 
@@ -81,6 +93,10 @@ public class CSVBathymetryExporter implements MRAExporter {
     public String process(IMraLogGroup source, ProgressMonitor pmonitor) {
         if (!canBeApplied(source))
             return "No data to process!";
+        
+        PluginUtils.editPluginProperties(this, true);
+        
+        Periodicity periodicity = this.periodicity;
         
         if (pmonitor != null)
             pmonitor.setProgress(0);
@@ -157,11 +173,24 @@ public class CSVBathymetryExporter implements MRAExporter {
                     pmonitor.setProgress((int) prog);
                 }
                 
-                long timeInSeconds = (long) (nextSwath.getTimestamp() / 1000);
+                long multi;
+                switch (periodicity) {
+                    case ALL:
+                        multi = 1;
+                        break;
+                    case EVERY_MINUTE:
+                        multi = DateTimeUtil.MINUTE;
+                        break;
+                    case EVERY_SECOND:
+                    default:
+                        multi = 1000;
+                        break;
+                }
+                long timeInSeconds = (long) (nextSwath.getTimestamp() / multi);
                 // Only one beam array for second
                 if (previousTimeStamp == 0 || previousTimeStamp != timeInSeconds) {
                     // Timestamp
-                    recordMsg(timeInSeconds * 1000 + "", processResultOutputWriterAllBeams);
+                    recordMsg(timeInSeconds * multi + "", processResultOutputWriterAllBeams);
                     // Position in degrees
                     recordMsg("," + nextSwath.getPose().getPosition().getLatitudeDegs(), processResultOutputWriterAllBeams);
                     recordMsg("," + nextSwath.getPose().getPosition().getLongitudeDegs(), processResultOutputWriterAllBeams);
@@ -171,7 +200,7 @@ public class CSVBathymetryExporter implements MRAExporter {
                     recordMsg("," + nextSwath.getPose().getYaw(), processResultOutputWriterAllBeams);
    
                     // Timestamp
-                    recordMsg(timeInSeconds * 1000 + "", processResultOutputWriterCenterBeam);
+                    recordMsg(timeInSeconds * multi + "", processResultOutputWriterCenterBeam);
                     // Position in degrees
                     recordMsg("," + nextSwath.getPose().getPosition().getLatitudeDegs(), processResultOutputWriterCenterBeam);
                     recordMsg("," + nextSwath.getPose().getPosition().getLongitudeDegs(), processResultOutputWriterCenterBeam);
