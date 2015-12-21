@@ -84,17 +84,16 @@ public class CSVBathymetryExporter implements MRAExporter {
         if (!canBeApplied(source))
             return "No data to process!";
         
-        File folder = new File(source.getFile("Data.lsf").getParent() + "/mra/");
+        File folder = new File(source.getDir().getAbsolutePath() + "/mra/");
 
         if (!folder.exists())
             folder.mkdirs();
 
         // To include plan name and timestamp in the csv file name
-        String parentFolderAbsolutePath = source.getFile("Data.lsf").getParent();
-        String parentFolder = parentFolderAbsolutePath.substring(parentFolderAbsolutePath.lastIndexOf('/') + 1);
+        String parentFolder = source.getDir().getName();
         
         // Create all beams csv file and file descriptor
-        processResultOutputFileNameAllBeams = folder.getAbsolutePath() + "/"+parentFolder+"-bathymetry-process-all-beams.csv";
+        processResultOutputFileNameAllBeams = new File(folder, parentFolder + "-bathymetry-process-all-beams.csv").getAbsolutePath();
         boolean fileChecker = initResultOutputFile(processResultOutputFileNameAllBeams, processResultOutputWriterAllBeams);
         if (!fileChecker) {
             pmonitor.setNote("File already exists!");
@@ -105,7 +104,7 @@ public class CSVBathymetryExporter implements MRAExporter {
         }
         
         // Create center beam csv file and file descriptor
-        processResultOutputFileNameCenterBeam = folder.getAbsolutePath() + "/"+parentFolder+"-bathymetry-process-center-beam.csv";
+        processResultOutputFileNameCenterBeam = new File(folder, parentFolder + "-bathymetry-process-center-beam.csv").getAbsolutePath();
         fileChecker = initResultOutputFile(processResultOutputFileNameCenterBeam, processResultOutputWriterCenterBeam);
         if (!fileChecker) {
             pmonitor.setNote("File already exists!");
@@ -250,6 +249,22 @@ public class CSVBathymetryExporter implements MRAExporter {
                 e.printStackTrace();
             }
             processResultOutputWriterAllBeams = null;
+        }
+
+        if (processResultOutputWriterCenterBeam != null) {
+            try {
+                processResultOutputWriterCenterBeam.flush();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                processResultOutputWriterCenterBeam.close();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            processResultOutputWriterCenterBeam = null;
         }
     }
     
