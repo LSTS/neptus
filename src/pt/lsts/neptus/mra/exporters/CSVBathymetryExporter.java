@@ -46,6 +46,7 @@ import pt.lsts.neptus.mra.importers.deltat.DeltaTParser;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.DateTimeUtil;
 
 /**
@@ -214,30 +215,34 @@ public class CSVBathymetryExporter implements MRAExporter {
                     recordMsg("," + nextSwath.getData().length, processResultOutputWriterAllBeams);
 
                     for (int i = 0; i < nextSwath.getData().length; i++) {
+                        LocationType loc = nextSwath.getPose().getPosition();
                         if (nextSwath.getData()[i] != null) {
+                            double n = nextSwath.getData()[i].north;
+                            double e = nextSwath.getData()[i].east;
+                            double d = (nextSwath.getData()[i].depth  + (loc.getDepth() >= 0 ? loc.getDepth() : 0));
+                            
                             recordMsg(",", processResultOutputWriterAllBeams);
                             // Beam x offset
-                            recordMsg(nextSwath.getData()[i].north + " ", processResultOutputWriterAllBeams);
+                            recordMsg(n + " ", processResultOutputWriterAllBeams);
                             // Beam y offset
-                            recordMsg(nextSwath.getData()[i].east + " ", processResultOutputWriterAllBeams);
+                            recordMsg(e + " ", processResultOutputWriterAllBeams);
                             // Beam Height
-                            recordMsg(nextSwath.getData()[i].depth + "", processResultOutputWriterAllBeams);
+                            recordMsg(d + "", processResultOutputWriterAllBeams);
+                            
+                            if (i == (nextSwath.getData().length / 2)) {
+                                recordMsg(",", processResultOutputWriterCenterBeam);
+                                // Beam x offset
+                                recordMsg(n + " ", processResultOutputWriterCenterBeam);
+                                // Beam y offset
+                                recordMsg(e + " ", processResultOutputWriterCenterBeam);
+                                // Beam Height
+                                recordMsg(d + "", processResultOutputWriterCenterBeam);
+                            }
                         }
                         else {
                             recordMsg(",NaN NaN NaN", processResultOutputWriterAllBeams);
-                        }
-                        
-                        if (nextSwath.getData()[i] != null && i == (nextSwath.getData().length / 2)) {
-                            recordMsg(",", processResultOutputWriterCenterBeam);
-                            // Beam x offset
-                            recordMsg(nextSwath.getData()[i].north+" ", processResultOutputWriterCenterBeam);
-                            // Beam y offset
-                            recordMsg(nextSwath.getData()[i].east+" ", processResultOutputWriterCenterBeam);
-                            // Beam Height
-                            recordMsg(nextSwath.getData()[i].depth + "", processResultOutputWriterCenterBeam);
-                        }
-                        else if (nextSwath.getData()[i] == null && i == (nextSwath.getData().length / 2)) {
-                            recordMsg(",NaN NaN NaN", processResultOutputWriterCenterBeam);
+                            if (i == (nextSwath.getData().length / 2))
+                                recordMsg(",NaN NaN NaN", processResultOutputWriterCenterBeam);
                         }
                     } 
                     recordMsgln("", processResultOutputWriterCenterBeam);
