@@ -84,6 +84,9 @@ public class CSVBathymetryExporter implements MRAExporter {
         if (!canBeApplied(source))
             return "No data to process!";
         
+        if (pmonitor != null)
+            pmonitor.setProgress(0);
+        
         File folder = new File(source.getDir().getAbsolutePath() + "/mra/");
 
         if (!folder.exists())
@@ -96,7 +99,8 @@ public class CSVBathymetryExporter implements MRAExporter {
         processResultOutputFileNameAllBeams = new File(folder, parentFolder + "-bathymetry-process-all-beams.csv").getAbsolutePath();
         boolean fileChecker = initResultOutputFile(processResultOutputFileNameAllBeams, processResultOutputWriterAllBeams);
         if (!fileChecker) {
-            pmonitor.setNote("File already exists!");
+            if (pmonitor != null)
+                pmonitor.setNote("File already exists!");
             return "File already exists!";
         }
         if (fileChecker) {
@@ -107,7 +111,8 @@ public class CSVBathymetryExporter implements MRAExporter {
         processResultOutputFileNameCenterBeam = new File(folder, parentFolder + "-bathymetry-process-center-beam.csv").getAbsolutePath();
         fileChecker = initResultOutputFile(processResultOutputFileNameCenterBeam, processResultOutputWriterCenterBeam);
         if (!fileChecker) {
-            pmonitor.setNote("File already exists!");
+            if (pmonitor != null)
+                pmonitor.setNote("File already exists!");
             return "File already exists!";
         }
         if (fileChecker) {
@@ -123,67 +128,88 @@ public class CSVBathymetryExporter implements MRAExporter {
         
         BathymetrySwath nextSwath = null; 
         
-        /* Wirte all beams to csv */
-        // Center beam csv first line
-        recordMsg("%Time UTC,Latitude Degrees,Longitude Degrees,Roll Radians,Pitch Radians,Yaw Radians, Number of data elem, (X-Offset Y-Offset Height - meters) \n", processResultOutputWriterCenterBeam);
-        // All beams csv first line        
-        recordMsg("%Time UTC,Latitude Degrees,Longitude Degrees,Roll Radians,Pitch Radians,Yaw Radians, Number of data elem, (X-Offset Y-Offset Heights Meters)* \n", processResultOutputWriterAllBeams);
+        /* Write header to CSVs */
+        String headerStr = "% Time UTC Miliseconds, Latitude Degrees, Longitude Degrees, "
+                + "Roll Radians, Pitch Radians, Yaw Radians, "
+                + "Number of data elem, (X-Offset Y-Offset Height - meters) \n";
+        // Center beam CSV header
+        recordMsg(headerStr, processResultOutputWriterCenterBeam);
+        // All beams CSV header        
+        recordMsg(headerStr, processResultOutputWriterAllBeams);
+        
+        long fTime = deltaParser.getFirstTimestamp();
+        long lTime = deltaParser.getLastTimestamp();
+        double span = lTime - fTime;
+        if (span <= 0)
+            span = 1;
+        if (pmonitor != null) {
+            pmonitor.setMinimum(0);
+            pmonitor.setMaximum(100);
+        }
+        
         long previousTimeStamp = 0;
         try {
             nextSwath = deltaParser.nextSwath();
             while (nextSwath != null) {
-            
+                if (pmonitor != null) {
+                    double prog = (nextSwath.getTimestamp() - fTime) / span * 100;
+                    pmonitor.setProgress((int) prog);
+                }
+                
                 long timeInSeconds = (long) (nextSwath.getTimestamp() / 1000);
                 // Only one beam array for second
                 if (previousTimeStamp == 0 || previousTimeStamp != timeInSeconds) {
 
                     // Timestamp
-                    recordMsg(timeInSeconds * 1000 + ",", processResultOutputWriterAllBeams);
+                    recordMsg(timeInSeconds * 1000 + "", processResultOutputWriterAllBeams);
                     // Position in degrees
-                    recordMsg(nextSwath.getPose().getPosition().getLatitudeDegs()+",", processResultOutputWriterAllBeams);
-                    recordMsg(nextSwath.getPose().getPosition().getLongitudeDegs()+",", processResultOutputWriterAllBeams);
+                    recordMsg("," + nextSwath.getPose().getPosition().getLatitudeDegs(), processResultOutputWriterAllBeams);
+                    recordMsg("," + nextSwath.getPose().getPosition().getLongitudeDegs(), processResultOutputWriterAllBeams);
                     // Attitude in radians
-                    recordMsg(nextSwath.getPose().getRoll()+",", processResultOutputWriterAllBeams);
-                    recordMsg(nextSwath.getPose().getPitch()+",", processResultOutputWriterAllBeams);
-                    recordMsg(nextSwath.getPose().getYaw()+",", processResultOutputWriterAllBeams);
-                    
+                    recordMsg("," + nextSwath.getPose().getRoll(), processResultOutputWriterAllBeams);
+                    recordMsg("," + nextSwath.getPose().getPitch(), processResultOutputWriterAllBeams);
+                    recordMsg("," + nextSwath.getPose().getYaw(), processResultOutputWriterAllBeams);
    
                     // Timestamp
-                    recordMsg(timeInSeconds * 1000 + ",", processResultOutputWriterCenterBeam);
+                    recordMsg(timeInSeconds * 1000 + "", processResultOutputWriterCenterBeam);
                     // Position in degrees
-                    recordMsg(nextSwath.getPose().getPosition().getLatitudeDegs()+",", processResultOutputWriterCenterBeam);
-                    recordMsg(nextSwath.getPose().getPosition().getLongitudeDegs()+",", processResultOutputWriterCenterBeam);
+                    recordMsg("," + nextSwath.getPose().getPosition().getLatitudeDegs(), processResultOutputWriterCenterBeam);
+                    recordMsg("," + nextSwath.getPose().getPosition().getLongitudeDegs(), processResultOutputWriterCenterBeam);
                     // Attitude in radians
-                    recordMsg(nextSwath.getPose().getRoll()+",", processResultOutputWriterCenterBeam);
-                    recordMsg(nextSwath.getPose().getPitch()+",", processResultOutputWriterCenterBeam);
-                    recordMsg(nextSwath.getPose().getYaw()+",", processResultOutputWriterCenterBeam);
+                    recordMsg("," + nextSwath.getPose().getRoll(), processResultOutputWriterCenterBeam);
+                    recordMsg("," + nextSwath.getPose().getPitch(), processResultOutputWriterCenterBeam);
+                    recordMsg("," + nextSwath.getPose().getYaw(), processResultOutputWriterCenterBeam);
                     
                     // Number of beams
-                    recordMsg("1,", processResultOutputWriterCenterBeam);
-                    recordMsg(nextSwath.getData().length+",", processResultOutputWriterAllBeams);
+                    recordMsg(",1", processResultOutputWriterCenterBeam);
+                    recordMsg("," + nextSwath.getData().length, processResultOutputWriterAllBeams);
 
                     for (int i = 0; i < nextSwath.getData().length; i++) {
                         if (nextSwath.getData()[i] != null) {
+                            recordMsg(",", processResultOutputWriterAllBeams);
                             // Beam x offset
-                            recordMsg(nextSwath.getData()[i].north+" ", processResultOutputWriterAllBeams);
+                            recordMsg(nextSwath.getData()[i].north + " ", processResultOutputWriterAllBeams);
                             // Beam y offset
-                            recordMsg(nextSwath.getData()[i].east+" ", processResultOutputWriterAllBeams);
+                            recordMsg(nextSwath.getData()[i].east + " ", processResultOutputWriterAllBeams);
                             // Beam Height
-                            recordMsg(nextSwath.getData()[i].depth+",", processResultOutputWriterAllBeams);
+                            recordMsg(nextSwath.getData()[i].depth + "", processResultOutputWriterAllBeams);
                         }
-                        else
-                            recordMsg("NaN NaN NaN,", processResultOutputWriterAllBeams);
+                        else {
+                            recordMsg(",NaN NaN NaN", processResultOutputWriterAllBeams);
+                        }
                         
                         if (nextSwath.getData()[i] != null && i == (nextSwath.getData().length / 2)) {
+                            recordMsg(",", processResultOutputWriterCenterBeam);
                             // Beam x offset
                             recordMsg(nextSwath.getData()[i].north+" ", processResultOutputWriterCenterBeam);
                             // Beam y offset
                             recordMsg(nextSwath.getData()[i].east+" ", processResultOutputWriterCenterBeam);
                             // Beam Height
-                            recordMsg(nextSwath.getData()[i].depth+",", processResultOutputWriterCenterBeam);
+                            recordMsg(nextSwath.getData()[i].depth + "", processResultOutputWriterCenterBeam);
                         }
-                        else if (nextSwath.getData()[i] == null && i == (nextSwath.getData().length / 2))
-                            recordMsg("NaN NaN NaN,", processResultOutputWriterCenterBeam);
+                        else if (nextSwath.getData()[i] == null && i == (nextSwath.getData().length / 2)) {
+                            recordMsg(",NaN NaN NaN", processResultOutputWriterCenterBeam);
+                        }
                     } 
                     recordMsgln("", processResultOutputWriterCenterBeam);
                     
@@ -194,7 +220,6 @@ public class CSVBathymetryExporter implements MRAExporter {
 
                 nextSwath = deltaParser.nextSwath();
       
-                
                 if (pmonitor != null && pmonitor.isCanceled())
                     return "Export interrupted!";
             }
@@ -223,12 +248,7 @@ public class CSVBathymetryExporter implements MRAExporter {
         try {
             return new OutputStreamWriter(new FileOutputStream(processResultOutputFileName), "UTF-8");
         }
-        catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
+        catch (Exception e) {
             e.printStackTrace();
         }
         return null;
