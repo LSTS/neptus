@@ -133,6 +133,11 @@ public class Credentials {
         this.username = username;
     }
     
+    @Override
+    public String toString() {
+        return getUsername() + " / " + getPassword().replaceAll(".", "*");
+    }
+    
     // example usage
     public static void main(String[] args) {
         Credentials c = new Credentials(new File("/tmp/credentials.txt"));
