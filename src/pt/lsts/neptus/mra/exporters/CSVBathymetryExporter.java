@@ -32,11 +32,9 @@
 package pt.lsts.neptus.mra.exporters;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
 import javax.swing.ProgressMonitor;
@@ -162,7 +160,6 @@ public class CSVBathymetryExporter implements MRAExporter {
                 long timeInSeconds = (long) (nextSwath.getTimestamp() / 1000);
                 // Only one beam array for second
                 if (previousTimeStamp == 0 || previousTimeStamp != timeInSeconds) {
-
                     // Timestamp
                     recordMsg(timeInSeconds * 1000 + "", processResultOutputWriterAllBeams);
                     // Position in degrees
