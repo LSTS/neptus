@@ -32,6 +32,7 @@
 package pt.lsts.neptus.util.credentials;
 
 import java.awt.Component;
+import java.beans.PropertyEditor;
 import java.io.File;
 import java.nio.charset.Charset;
 
@@ -42,6 +43,7 @@ import org.apache.commons.codec.binary.StringUtils;
 import pt.lsts.neptus.data.Pair;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginUtils;
+import pt.lsts.neptus.plugins.PropertyType;
 import pt.lsts.neptus.util.GuiUtils;
 
 /**
@@ -49,7 +51,7 @@ import pt.lsts.neptus.util.GuiUtils;
  * Credentials are stored encrypted to disk. 
  * @author zp
  */
-public class Credentials {
+public class Credentials implements PropertyType {
     
     @NeptusProperty
     private String username = null;
@@ -146,5 +148,19 @@ public class Credentials {
             System.out.println(c.getUsername()+" / "+c.getPassword());
         else
             System.out.println("The user has cancelled.");
+    }
+
+    /* (non-Javadoc)
+     * @see pt.lsts.neptus.plugins.PropertyType#fromString(java.lang.String)
+     */
+    @Override
+    public void fromString(String value) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Class<? extends PropertyEditor> getPropertyEditor() {
+        return CredentialsEditor.class;
     }
 }
