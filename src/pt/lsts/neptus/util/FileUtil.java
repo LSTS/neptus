@@ -356,7 +356,10 @@ public class FileUtil {
                 return encoding;
             }
 
-            if ((ba[0] == BOM_UTF8[0]) && (ba[1] == BOM_UTF8[1]) && (ba[2] == BOM_UTF8[2])) {
+            if (ba.length == 0) {
+                return "UTF-8";
+            }
+            else if ((ba[0] == BOM_UTF8[0]) && (ba[1] == BOM_UTF8[1]) && (ba[2] == BOM_UTF8[2])) {
                 NeptusLog.pub().debug(FileUtil.class + ".findOutFileEncoding - " + "UTF-8");
                 return "UTF-8";
             }

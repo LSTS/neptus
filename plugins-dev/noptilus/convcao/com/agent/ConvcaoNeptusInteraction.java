@@ -116,7 +116,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.types.vehicle.VehiclesHolder;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.bathymetry.TidePrediction;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 
 
 /**
@@ -359,7 +359,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
         
         if (subtractTide) {
             try {
-                tide = TidePrediction.getTideLevel(state.getDate());
+                tide = TidePredictionFactory.getTideLevel(state.getDate());
             }
             catch (Exception e) {
                 NeptusLog.pub().warn(e);
@@ -610,7 +610,7 @@ public class ConvcaoNeptusInteraction extends ConsolePanel implements Renderer2D
             EstimatedState state = ImcMsgManager.getManager().getState(auvName).last(EstimatedState.class);
             LocationType auvPosition = IMCUtils.getLocation(state);
             positions.put(auvName, auvPosition);
-            double tideOffset = subtractTide? TidePrediction.currentTideLevel() : 0;
+            double tideOffset = subtractTide ? TidePredictionFactory.currentTideLevel() : 0;
             bathymetry.put(auvName, state.getDepth() + state.getAlt() - tideOffset);
             double dist = auvPosition.getHorizontalDistanceInMeters(destinations.get(auvName));
             if (dist < nearDistance)

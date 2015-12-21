@@ -211,7 +211,7 @@ public class GeneralPreferences implements PropertiesProvider {
     public static boolean programLogExtendedLog = false;
 
     @NeptusProperty(name = "Tides file", category = "Tides", userLevel = LEVEL.REGULAR)
-    public static File tidesFile = new File("conf/tides/Leixoes.txt");
+    public static File tidesFile = new File("conf/tides/Leixoes.tid");
 
     // -------------------------------------------------------------------------
     

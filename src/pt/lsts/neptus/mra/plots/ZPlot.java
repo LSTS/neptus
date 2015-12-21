@@ -101,8 +101,10 @@ public class ZPlot extends MRATimeSeriesPlot {
                         double tHeight = 0;
 
                         try {
-                            tHeight = tide.getTidePrediction(es.getDate(), false);
-                            addValue(es.getTimestampMillis(), I18n.text("Tide Level"), tHeight);
+                            if (tide != null) {
+                                tHeight = tide.getTidePrediction(es.getDate(), false);
+                                addValue(es.getTimestampMillis(), I18n.text("Tide Level"), tHeight);
+                            }
                         }
                         catch (Exception e) {
                             e.printStackTrace();

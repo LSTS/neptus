@@ -38,10 +38,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import javax.swing.ProgressMonitor;
 
 import pt.lsts.imc.EstimatedState;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.mra.api.BathymetryParser;
 import pt.lsts.neptus.mra.api.BathymetryPoint;
 import pt.lsts.neptus.mra.api.BathymetrySwath;
@@ -54,27 +56,58 @@ import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.PluginUtils;
 import pt.lsts.neptus.types.coord.LocationType;
+import pt.lsts.neptus.util.DateTimeUtil;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.bathymetry.TidePredictionFinder;
 
 /**
  * @author zp
- *
+ * @author pdias
  */
 @PluginDescription(name="XYZ Exporter")
 public class XyzExporter implements MRAExporter {
 
-    @NeptusProperty(name="Export EstimatedState-derived points")
+    /** Line ending to use */
+    private static final String LINE_ENDING = "\r\n";
+    /** Comment char to use */
+    private static final String COMMENT_CHAR = "#";
+    /** Comment string to use */
+    private static final String COMMENT_STRING = COMMENT_CHAR + " ";
+    
+    /** The data spacer chooser */
+    public enum SeparatorChar {
+        SPACE(" "),
+        COMMA(", ");
+
+        private String txt = " ";
+
+        private SeparatorChar(String txt) {
+            this.txt = txt;
+        }
+
+        /** Return the spacer text */
+        public String getText() {
+            return txt;
+        }
+    };
+
+    @NeptusProperty(name = "Export EstimatedState-derived points")
     public boolean exportEstimatedState = false;
 
-    @NeptusProperty(name="Export DVL's Distance-derived points")
+    @NeptusProperty(name = "Export DVL's Distance-derived points")
     public boolean exportDistance = false;
 
-    @NeptusProperty(name="Export Multibeam Sonar points")
+    @NeptusProperty(name = "Export Multibeam Sonar points")
     public boolean exportMultibeam = true;
 
-    @NeptusProperty(name="Filename to write to")
+    @NeptusProperty(name = "Tide Correction")
+    public boolean tideCorrection = true;
+    
+    @NeptusProperty(name = "Filename to write to", editable = false)
     public File file = new File(".");
+
+    @NeptusProperty(name = "Data spacer")
+    public SeparatorChar spacer = SeparatorChar.COMMA;
 
     private TidePredictionFinder finder = null;
     private BufferedWriter writer = null;
@@ -82,7 +115,11 @@ public class XyzExporter implements MRAExporter {
     
     public XyzExporter(IMraLogGroup source) {
         file = new File(source.getDir(), "mra/bathymetry.xyz");
-        finder = TidePredictionFactory.create(source);
+    }
+
+    @Override
+    public String getName() {
+        return PluginUtils.getLocalizedPluginName(this.getClass());
     }
 
     @Override
@@ -95,29 +132,65 @@ public class XyzExporter implements MRAExporter {
         pmonitor.setMaximum(100);
         PluginUtils.editPluginProperties(this, true);
         this.pmonitor = pmonitor;
+        this.pmonitor.setMillisToDecideToPopup(0);
+        
+        this.pmonitor.setProgress(0);
+        
+        finder = TidePredictionFactory.create(source);
+        if (finder == null)
+            tideCorrection = false;
+        
         try {
             writer = new BufferedWriter(new FileWriter(file));
+
+            // Writing header
+            writer.write(COMMENT_STRING + "XYZ Data" + LINE_ENDING);
+            double startTimeSeconds = source.getLsfIndex().getStartTime();
+            writer.write(COMMENT_STRING + "Date of data: " 
+                    + DateTimeUtil.dateFormatterUTC.format(new Date((long) (startTimeSeconds * 1E3))) 
+                    + LINE_ENDING);
+            writer.write(COMMENT_STRING + "Tide corrected: " + (tideCorrection ? "yes (" 
+                    + finder.getName() + ")" : "no") + LINE_ENDING);
+            
+            // Data source info
+            String dataSource = "";
+            if (exportEstimatedState)
+                dataSource = "navigation";
+            if (exportMultibeam)
+                dataSource += (dataSource.isEmpty() ? "" : ", ") + "multibeam";
+            if (exportDistance)
+                dataSource += (dataSource.isEmpty() ? "" : ", ") + "dvl";
+            writer.write(COMMENT_STRING + "Data source: " + dataSource + LINE_ENDING);
+            writer.write(COMMENT_STRING + LINE_ENDING);
+
+            writer.write(COMMENT_STRING + "Longitude, Latitude, Depth" + LINE_ENDING);
+            writer.write(COMMENT_STRING + "(decimal degrees, decimal degrees, meters)" + LINE_ENDING);
         }
         catch (Exception e) {
             e.printStackTrace();
-            return e.getClass().getSimpleName()+" while trying to write to file: "+e.getMessage(); 
+            return I18n.textf("%name while trying to write to file: %message.", e.getClass().getSimpleName(), e.getMessage()); 
         }
 
+        this.pmonitor.setProgress(10);
+        
         if (exportEstimatedState) {
-            pmonitor.setNote("Processing EstimatedState data");
+            pmonitor.setNote(I18n.text("Processing EstimatedState data"));
             processEstimatedStates(source);
         }
         
+        this.pmonitor.setProgress(30);
         if (exportMultibeam) {
-            pmonitor.setNote("Processing Multibeam data");
+            pmonitor.setNote(I18n.text("Processing Multibeam data"));
             processMultibeam(source);
         }
         
-        if (exportEstimatedState) {
-            pmonitor.setNote("Processing DVL data");
+        this.pmonitor.setProgress(60);
+        if (exportDistance) {
+            pmonitor.setNote(I18n.text("Processing DVL data"));
             processDvl(source);
         }
         
+        this.pmonitor.setProgress(80);
         try {
             writer.close();
         }
@@ -125,7 +198,9 @@ public class XyzExporter implements MRAExporter {
             e.printStackTrace(); 
         }
         
-        return "File written to "+file.getAbsolutePath();
+        this.pmonitor.setProgress(100);
+        
+        return I18n.textf("File written to %file.", file.getAbsolutePath());
     }
 
     private void processEstimatedStates(IMraLogGroup source) {
@@ -152,23 +227,24 @@ public class XyzExporter implements MRAExporter {
 
         BathymetrySwath swath;
         
-        /*long firstTime = parser.getFirstTimestamp();
-        long lastTime = parser.getLastTimestamp();
-        long total = lastTime - firstTime;
-        */
-        System.out.println(parser.getLastTimestamp());
-        System.out.println(parser.getFirstTimestamp());
+        double firstTime = parser.getFirstTimestamp();
+        double lastTime = parser.getLastTimestamp();
+        double timeSpan = lastTime - firstTime;
+        if (timeSpan == 0)
+            timeSpan = 1;
+        
+//        System.out.println(parser.getLastTimestamp());
+//        System.out.println(parser.getFirstTimestamp());
         SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd hh:mm");
         
         while ((swath = parser.nextSwath()) != null) {
-            
             if (pmonitor.isCanceled())
                 break;
-            /*
-            long pos = ((swath.getTimestamp() - firstTime)*100) / total;
-            pmonitor.setProgress((int)pos);
-            */
+
             LocationType loc = swath.getPose().getPosition();
+            
+            int prog = (int) (100 * ((swath.getTimestamp() - firstTime) / timeSpan));
+            pmonitor.setProgress(prog);
 
             for (BathymetryPoint bp : swath.getData()) {
                 LocationType loc2 = new LocationType(loc);
@@ -190,28 +266,27 @@ public class XyzExporter implements MRAExporter {
         processPoints(new DVLBathymetryParser(source));
     }
 
-
     private void addSample(Date date, LocationType loc, double depth) {
         double tide = 0;
-        try {
-            tide = finder.getTidePrediction(date, false);            
-        }
-        catch (Exception e) {           
+        if (tideCorrection) {
+            try {
+                tide = finder.getTidePrediction(date, false);            
+            }
+            catch (Exception e) {           
+            }
         }
 
         loc.convertToAbsoluteLatLonDepth();
 
         try {
-            writer.write(String.format("%.8f %.8f %.2f\n", loc.getLongitudeDegs(), loc.getLatitudeDegs(), Math.abs(depth) - tide));
+            String outStr = String.format(Locale.US, "%.8f" + spacer.getText() + "%.8f" 
+                    + spacer.getText() + "%.2f" + LINE_ENDING, loc.getLongitudeDegs(), 
+                    loc.getLatitudeDegs(), Math.abs(depth) - tide);
+            writer.write(outStr);
         }
         catch (Exception e) {
             e.printStackTrace();
         }        
-    }
-
-    @Override
-    public String getName() {
-        return "Export as .xyz";
     }
 
     /**

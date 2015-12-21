@@ -69,7 +69,7 @@ import pt.lsts.neptus.types.vehicle.VehicleType;
 import pt.lsts.neptus.util.FileUtil;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.conf.ConfigFetch;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 import pt.lsts.neptus.util.llf.LogTree;
 import pt.lsts.neptus.util.llf.LogUtils;
 import pt.lsts.neptus.util.llf.LsfReportProperties;
@@ -116,18 +116,17 @@ public class MRAPanel extends JPanel {
     public MRAPanel(final IMraLogGroup source, NeptusMRA mra) {
         this.source = source;
         this.mra = mra;
-        if (new File(ConfigFetch.getConfFolder() + "/tides.txt").canRead() && source.getFile("tides.txt") == null) {
-            FileUtil.copyFile(ConfigFetch.getConfFolder() + "/tides.txt", new File(source.getFile("."), "tides.txt").getAbsolutePath());
-        }
 
+        TidesMraLoader.setDefaultTideIfNotExisted(source);
+        
         // ------- Setup interface --------
         setLayout(new BorderLayout(3, 3));
 
-        mra.getBgp().setText(I18n.text("Starting up left panel..."));
+        mra.getBgp().setText(I18n.text("Starting up left panel"));
         setUpLeftPanel();
-        mra.getBgp().setText(I18n.text("Starting up status bar..."));
+        mra.getBgp().setText(I18n.text("Starting up status bar"));
         setUpStatusBar();
-        mra.getBgp().setText(I18n.text("Starting up main panel..."));
+        mra.getBgp().setText(I18n.text("Starting up main panel"));
         setUpMainPanel();
 
         // add split pane left panel and main visualizations to right side
@@ -141,12 +140,15 @@ public class MRAPanel extends JPanel {
         add(splitPane, BorderLayout.CENTER);
         add(statusBar, BorderLayout.SOUTH);
 
-        mra.getBgp().setText(I18n.text("Loading markers..."));
+        mra.getBgp().setText(I18n.text("Loading markers"));
         // Load markers
         loadMarkers();
 
+        mra.getBgp().setText(I18n.text("Finishing loading"));
         // adds Exporters MenuItem to Tools menu after a Log is loaded
         mra.getMRAMenuBar().setUpExportersMenu(source);
+        // Adds tides menu
+        mra.getMRAMenuBar().setUpTidesMenu(source);
     }
 
     /**
@@ -176,8 +178,22 @@ public class MRAPanel extends JPanel {
         Date startDate = LogUtils.getStartDate(source);
         String date = startDate != null ? " | <b>" + I18n.text("Date") + ":</b> " + new SimpleDateFormat("dd/MMM/yyyy").format(startDate) : "";
 
+        // Tide info
+        String noTideStr = I18n.text("No tides");
+        String usedTideStr = noTideStr;
+        File tideInfoFx = new File(source.getDir(), TidePredictionFactory.MRA_TIDE_INDICATION_FILE_PATH);
+        if (tideInfoFx.exists() && tideInfoFx.canRead()) {
+            String hF = FileUtil.getFileAsString(tideInfoFx);
+            if (hF != null && !hF.isEmpty()) {
+                File fx = new File(TidePredictionFactory.BASE_TIDE_FOLDER_PATH, hF);
+                if (fx != null && fx.exists() && fx.canRead())
+                    usedTideStr = hF;
+            }
+        }
+        
         statusBar.add(new JLabel("<html><b>" + I18n.text("Log") + ":</b> " + source.name() + date
-                + ((veh != null) ? " | <b>" + I18n.text("System") + ":</b> " + veh.getName() : "")));
+                + ((veh != null) ? " | <b>" + I18n.text("System") + ":</b> " + veh.getName() : "")
+                + (" | <b>" + I18n.text("Tides") + ":</b> " + usedTideStr)));
     }
 
     public void addStatusBarMsg(String msg){

@@ -162,6 +162,10 @@ public class InfiniteProgressPanel extends JPanel {
 	        stop();
 	}
 	
+	public void setBusy(boolean busy) {
+	    getBusyLabel().setBusy(busy);
+	}
+	
 	/**
      * @param size
      * @param shape

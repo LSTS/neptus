@@ -62,7 +62,7 @@ import pt.lsts.neptus.renderer2d.tiles.MapPainterProvider;
 import pt.lsts.neptus.types.coord.LocationType;
 import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.ImageUtils;
-import pt.lsts.neptus.util.bathymetry.TidePrediction;
+import pt.lsts.neptus.util.bathymetry.TidePredictionFactory;
 
 /**
  * @author zp
@@ -118,7 +118,7 @@ public class S57SoundingsExporter extends ConsolePanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 
-                float tide = (float) TidePrediction.getTideLevel(System.currentTimeMillis());
+                float tide = (float) TidePredictionFactory.getTideLevel(System.currentTimeMillis());
                 String depthStr = JOptionPane.showInputDialog(getConsole(), I18n.text("Please enter tide level (meters)"), tide);
                 if (depthStr == null)
                     return;
