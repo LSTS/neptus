@@ -70,10 +70,6 @@ public class HistoriesPanelView extends JPanel {
     
     private String imgsPath = "pt/lsts/neptus/plugins/logs/";
     
-    //public JLabel l = new JLabel("", JLabel.LEFT);
-    
-    //private int maxSize=250;
-
     protected LinkedHashMap<msg_type, Color> bgColors = new LinkedHashMap<HistoryMessage.msg_type, Color>();
     {
         bgColors.put(msg_type.critical, Color.black);
@@ -100,12 +96,9 @@ public class HistoriesPanelView extends JPanel {
     }
 
     private void deployLayout() {
-        System.out.println("HistoriesPanelView");
         setLayout(new BorderLayout());
-        
         TabPanel.setLayout(new MigLayout("hidemode 3"));
         TabPanel.setBackground(Color.white);
-        //TabPanel.add(l);
         add(TabPanel, BorderLayout.CENTER);
     }
 
@@ -119,9 +112,11 @@ public class HistoriesPanelView extends JPanel {
 
     public void refreshHistoryMessages() {
         Vector<HistoryMessage> tmp = new Vector<HistoryMessage>();
+        Collections.sort(myMessages);
         tmp.addAll(myMessages);
         myMessages.clear();
         TabPanel.removeAll();
+        Collections.sort(tmp);
         setMessages(tmp);
     }
 
@@ -133,9 +128,6 @@ public class HistoriesPanelView extends JPanel {
 
     public void setMessages(Vector<HistoryMessage> messages) {
         for (HistoryMessage m : messages) {
-            //if (!myMessages.contains(m)) {
-                //myMessages.add(m);
-                System.out.println("setMessages[m]:"+m.toString());
                 if (m.type == msg_type.info && !showInfo)
                     continue;
                 if (m.type == msg_type.warning && !showWarn)
@@ -155,7 +147,6 @@ public class HistoriesPanelView extends JPanel {
                 l.setVisible(true);
                 
                 TabPanel.add(l,"wrap, dock center, pad -4 -2 4 2");
-            //}
         }
 
         invalidate();
@@ -169,11 +160,7 @@ public class HistoriesPanelView extends JPanel {
             myMessages.add(msg);
             Collections.sort(myMessages);
             setMessages(myMessages);
-            System.out.println("add(HistoryMessage msg) -> myMessages[size]:"+myMessages.size());
-            //int idx = Collections.binarySearch(myMessages, msg);
-            //fireIntervalAdded(this, idx, idx);
         }
-        /*/*/
     }
     
     public Collection<HistoryMessage> add(Collection<HistoryMessage> msgs) {
@@ -192,15 +179,8 @@ public class HistoriesPanelView extends JPanel {
         
         Collections.sort(myMessages);
         setMessages(myMessages);
-        System.out.println("add(Collection<HistoryMessage> msgs) -> myMessages[size]:"+myMessages.size());
-        /*while (getSize() > maxSize) {
-            myMessages.removeFirst();
-        }
-        
-        fireContentsChanged(this, 0, getSize());*/
         Collections.sort(notExisting);
         return notExisting;
-        
     }
 
     public ImageIcon getIcon(msg_type type) {
