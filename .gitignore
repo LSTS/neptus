@@ -53,6 +53,7 @@
 /conf/ais.cache
 /conf/bathymetry.obj
 /conf/AirOS.conf
+/conf/wifimac.obj
 
 # /conf/i18n/
 /conf/i18n/en

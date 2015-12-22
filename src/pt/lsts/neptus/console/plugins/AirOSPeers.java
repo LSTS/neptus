@@ -33,11 +33,18 @@ package pt.lsts.neptus.console.plugins;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.URL;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import javax.swing.JOptionPane;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -46,19 +53,26 @@ import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
+import pt.lsts.imc.DevDataText;
+import pt.lsts.imc.RSSI;
+import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
+import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.comm.manager.imc.ImcSystem;
 import pt.lsts.neptus.comm.manager.imc.ImcSystemsHolder;
 import pt.lsts.neptus.console.ConsoleLayout;
 import pt.lsts.neptus.console.ConsolePanel;
 import pt.lsts.neptus.console.plugins.airos.Station;
 import pt.lsts.neptus.console.plugins.airos.StationList;
+import pt.lsts.neptus.console.plugins.airos.WiFiMacAddresses;
+import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.plugins.NeptusProperty;
 import pt.lsts.neptus.plugins.NeptusProperty.LEVEL;
 import pt.lsts.neptus.plugins.PluginDescription;
 import pt.lsts.neptus.plugins.Popup;
 import pt.lsts.neptus.plugins.Popup.POSITION;
 import pt.lsts.neptus.plugins.update.Periodic;
+import pt.lsts.neptus.util.GuiUtils;
 import pt.lsts.neptus.util.credentials.Credentials;
 import pt.lsts.neptus.util.ssh.SSHUtil;
 
@@ -66,11 +80,12 @@ import pt.lsts.neptus.util.ssh.SSHUtil;
  * @author zp
  *
  */
-@PluginDescription(name="AirOS Peers")
+@PluginDescription(name="AirOS Peers", icon="images/airos.png")
 @Popup(accelerator='9',pos=POSITION.CENTER,height=400,width=400)
 public class AirOSPeers extends ConsolePanel {
 
     private static final long serialVersionUID = 2622193661006634171L;
+    private ChartPanel cpanel;
     private JFreeChart chart;
     private TimeSeriesCollection tsc = new TimeSeriesCollection();
     private long lastUpdateMillis = 0;
@@ -87,7 +102,11 @@ public class AirOSPeers extends ConsolePanel {
     @NeptusProperty(name="Credentials", userLevel=LEVEL.REGULAR)
     Credentials credentials = new Credentials(new File("conf/AirOS.conf"));
     
+    @NeptusProperty(name="Log to disk", userLevel=LEVEL.ADVANCED)
+    boolean logToDisk = true;    
+    
     private LinkedHashMap<String, String> ipToNames = new LinkedHashMap<>(); 
+    private LinkedHashMap<String, Integer> namesToIds = new LinkedHashMap<>();
     
     @Periodic(millisBetweenUpdates=5000)
     private void updateIpAddresses() {
@@ -106,23 +125,64 @@ public class AirOSPeers extends ConsolePanel {
         Future<String> result = SSHUtil.exec(host, port, credentials.getUsername(), credentials.getPassword(), "wstalist");
         try {
             String json = result.get(5, TimeUnit.SECONDS);
-            for (Station station : new StationList(json).stations)
-                process(station);            
+            
+            if (logToDisk) {
+                DevDataText txt = new DevDataText();
+                txt.setValue(json);
+                txt.setSrcEnt(ImcMsgManager.getManager().getEntityId());
+                txt.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
+                LsfMessageLogger.log(txt);
+            }
+            
+            HashSet<String> series = new HashSet<>();
+            for (Object o : tsc.getSeries()) {
+                TimeSeries tseries = (TimeSeries)o;
+                series.add(""+tseries.getKey());
+            }
+            
+            for (Station station : new StationList(json).stations) {
+                series.remove(nameOf(station));
+                process(station);                
+            }
+            
+            for (String name : series) {
+                TimeSeries ts = tsc.getSeries(name);                
+                if (ts != null)
+                    ts.addOrUpdate(new Millisecond(new Date(System.currentTimeMillis())), null);
+            }
         }
         catch (Exception e) {
-            NeptusLog.pub().error(e);
+            e.printStackTrace();
+            NeptusLog.pub().error(e);            
         }
     }
     
-    private void process(Station station) {
-        String ip = station.lastip;
-        // ignore own stats
-        if (ip.equals("0.0.0.0"))
-            return;
+    private int entityOf(String name) {
+        if (!namesToIds.containsKey(name)) {
+            try {
+                namesToIds.put(name, ImcMsgManager.getManager().registerEntity(name));
+            }
+            catch (Exception e) {
+                namesToIds.put(name, 255);
+            }
+        }
+        return namesToIds.get(name);
+    }
+    
+    private String nameOf(Station station) {
+        String name = WiFiMacAddresses.resolve(station.mac);
+        if (name != null)
+            return name;
         
-        String name = ipToNames.get(ip);
-        if (name == null)
-            name = "IP("+ip+")";
+        name = ipToNames.get(station.lastip);
+        if (name != null)
+            return name;
+        
+        return "IP("+station.lastip+")";
+    }
+    
+    private void process(Station station) {
+        String name = nameOf(station);
         
         TimeSeries ts = tsc.getSeries(name);
         if (ts == null) {
@@ -130,7 +190,15 @@ public class AirOSPeers extends ConsolePanel {
             ts.setMaximumItemCount(250);
             tsc.addSeries(ts);
         }
-        ts.addOrUpdate(new Millisecond(new Date(System.currentTimeMillis())), station.ccq);            
+        ts.addOrUpdate(new Millisecond(new Date(System.currentTimeMillis())), station.ccq);
+        if (logToDisk) {
+            RSSI rssi = new RSSI();
+            rssi.setValue(station.ccq);
+            rssi.setSrcEnt(entityOf(name+" wifi"));
+            rssi.setSrc(ImcMsgManager.getManager().getLocalId().intValue());
+            rssi.setDst(65535);
+            LsfMessageLogger.log(rssi);
+        }
     }
     
     public AirOSPeers(ConsoleLayout console) {
@@ -138,7 +206,29 @@ public class AirOSPeers extends ConsolePanel {
         setLayout(new BorderLayout());
         chart = ChartFactory.createTimeSeriesChart(null, "Time of day", "Link Quality", tsc, true, true, true);
         chart.getPlot().setBackgroundPaint(Color.black);
-        add (new ChartPanel(chart), BorderLayout.CENTER);
+        cpanel = new ChartPanel(chart);
+        add (cpanel, BorderLayout.CENTER);
+        cpanel.getPopupMenu().add(I18n.text("Download Addresses")).addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String res = JOptionPane.showInputDialog((Component)AirOSPeers.this, "Please enter addresses URL");
+                    if (res != null)
+                        WiFiMacAddresses.downloadAddresses(new URL(res));  
+                }
+                catch (Exception ex) {
+                    GuiUtils.errorMessage(getConsole(), ex);
+                    ex.printStackTrace();
+                }
+            }
+        });
+        cpanel.getPopupMenu().addSeparator();
+        cpanel.getPopupMenu().add(I18n.text("Clear")).addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tsc.removeAllSeries();
+            }
+        });       
     }
 
     @Override
