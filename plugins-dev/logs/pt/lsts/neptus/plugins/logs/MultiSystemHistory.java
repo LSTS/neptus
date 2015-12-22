@@ -54,7 +54,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import pt.lsts.imc.LogBookControl;
-import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.comm.manager.imc.ImcMsgManager;
 import pt.lsts.neptus.i18n.I18n;
 import pt.lsts.neptus.util.GuiUtils;
@@ -76,7 +75,6 @@ public class MultiSystemHistory extends JPanel {
     
     public MultiSystemHistory() {
             try {
-                System.out.println("MultiSystemHistory");
                 setLayout(new BorderLayout());
                 add(tabs, BorderLayout.CENTER);
             }
@@ -92,7 +90,6 @@ public class MultiSystemHistory extends JPanel {
                 public void actionPerformed(ActionEvent e) {
                     showInfo = ((JCheckBox) e.getSource()).isSelected();
                     updateMessages();
-                    NeptusLog.pub().info("showInfo[MultiSystemHistory]: "+showInfo);
                 }
             });
             check_info.setSelected(showInfo);
@@ -101,7 +98,6 @@ public class MultiSystemHistory extends JPanel {
                 public void actionPerformed(ActionEvent e) {
                     showWarn = ((JCheckBox) e.getSource()).isSelected();
                     updateMessages();
-                    NeptusLog.pub().info("showWarn[MultiSystemHistory]: "+showWarn);
                 }
             });
             check_warn.setSelected(showWarn);
@@ -110,7 +106,6 @@ public class MultiSystemHistory extends JPanel {
                 public void actionPerformed(ActionEvent e) {
                     showError = ((JCheckBox) e.getSource()).isSelected();
                     updateMessages();
-                    NeptusLog.pub().info("showError[MultiSystemHistory]: "+showError);
                 }
             });
             check_error.setSelected(showError);
@@ -120,7 +115,6 @@ public class MultiSystemHistory extends JPanel {
                 public void actionPerformed(ActionEvent e) {
                     showDebug = ((JCheckBox) e.getSource()).isSelected();
                     updateMessages();
-                    NeptusLog.pub().info("showDebug[MultiSystemHistory]: "+showDebug);
                 }
             });
             check_debug.setSelected(showDebug);
@@ -135,7 +129,6 @@ public class MultiSystemHistory extends JPanel {
     }
 
     private void updateMessages() {
-        System.out.println("updateMessages()");
         LogBookControl ctrl = new LogBookControl();
         ctrl.setCommand(LogBookControl.COMMAND.GET);
         for (String sys : histories.keySet()) {
@@ -147,11 +140,11 @@ public class MultiSystemHistory extends JPanel {
             lb.showDebug = this.showDebug;
             lb.refreshHistoryMessages();
             lb.repaint();
+            tabs.repaint();
         }
     }
 
     public void removeHistory(String src) {
-        System.out.println("removeHistory(String src)");
         for (int i = 0; i < tabs.getTabCount(); i++)
             if (tabs.getTitleAt(i).equals(src)) {
                 tabs.removeTabAt(i);
@@ -159,15 +152,12 @@ public class MultiSystemHistory extends JPanel {
             }
 
         histories.remove(src);
-        //lists.remove(src);
     }
 
     //Add messages to the panel from each system
     public HistoriesPanelView createHistory(String src) {
-        System.out.println("HistoriesPanelView createHistory(String src)");
         final HistoriesPanelView hist = new HistoriesPanelView(src, showInfo, showWarn, showError, showDebug);
         histories.put(src, hist);
-        System.out.println("createHistory");
         tabs.addTab(src, new JScrollPane(hist));
         
         hist.addMouseListener(new MouseAdapter() {
@@ -238,17 +228,12 @@ public class MultiSystemHistory extends JPanel {
     }
 
     public void add(HistoryMessage m, String src) {
-        System.out.println("add(HistoryMessage m, String src)");
         if (!histories.containsKey(src)) {
-            System.out.println("new histories");
             createHistory(src);
         }
-        //System.out.println("public void add(HistoryMessage m, String src)");
         int size = 0;
         for (String sys : histories.keySet()) {
-            System.out.println("sys: "+sys);
             histories.get(sys).myMessages.addElement(m);
-            System.out.println("histories.get(sys).myMessages[size]:"+histories.get(sys).myMessages.size());
             size= histories.get(sys).myMessages.size()-1;
             if (size > 0)
                 histories.get(sys).myMessages.get(size);
@@ -271,7 +256,7 @@ public class MultiSystemHistory extends JPanel {
 
     public static void main(String[] args) throws Exception {
         MultiSystemHistory hist = new MultiSystemHistory();
-
+        
         GuiUtils.testFrame(hist);
         for (int i = 0; i < 1000; i++) {
             Thread.sleep(300);
