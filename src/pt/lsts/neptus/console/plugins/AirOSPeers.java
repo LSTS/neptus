@@ -33,12 +33,10 @@ package pt.lsts.neptus.console.plugins;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileReader;
-import java.net.URL;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -46,7 +44,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
