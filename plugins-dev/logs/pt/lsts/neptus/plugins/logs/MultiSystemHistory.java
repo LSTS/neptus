@@ -134,6 +134,7 @@ public class MultiSystemHistory extends JPanel {
         for (String sys : histories.keySet()) {
             ImcMsgManager.getManager().sendMessageToSystem(ctrl, sys);
             HistoriesPanelView lb = histories.get(sys);
+            lb.clear();
             lb.showInfo = this.showInfo;
             lb.showWarn = this.showWarn;
             lb.showError = this.showError;
