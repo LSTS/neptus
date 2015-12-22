@@ -961,6 +961,7 @@ For simple use the main targets are:
 			<include name="pt/lsts/neptus/util/NameNormalizer.class"/>
 			<include name="pt/lsts/neptus/util/PropertiesLoader*.class"/>
 			<include name="pt/lsts/neptus/util/conf/*.class"/>
+			<include name="pt/lsts/neptus/util/credentials/*.class"/>
 			<include name="pt/lsts/neptus/util/output/*.class"/>
 			<include name="pt/lsts/neptus/util/xsl/*.class"/>
 			<!--include name="pt/lsts/neptus/util/**/*.class"/-->
