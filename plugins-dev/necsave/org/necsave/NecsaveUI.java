@@ -59,8 +59,6 @@ import info.necsave.msgs.MissionReadyToStart;
 import info.necsave.msgs.PlatformInfo;
 import info.necsave.msgs.PlatformPlanProgress;
 import info.necsave.proto.Message;
-import pt.lsts.imc.JsonObject;
-import pt.lsts.imc.lsf.LsfMessageLogger;
 import pt.lsts.neptus.NeptusLog;
 import pt.lsts.neptus.console.ConsoleInteraction;
 import pt.lsts.neptus.console.notifications.Notification;
@@ -354,13 +352,6 @@ public class NecsaveUI extends ConsoleInteraction {
         loc.setLongitudeRads(msg.getObject().getLongitude());
         loc.setDepth(msg.getObject().getDepth());
         contacts.put(msg.getSrc() + "." + msg.getContactId(), loc);
-    }
-
-    @Subscribe
-    public void on(Message msg) {
-        JsonObject json = new JsonObject();
-        json.setJson(msg.asJSON(false));
-        LsfMessageLogger.log(json);
     }
     
     @Override
