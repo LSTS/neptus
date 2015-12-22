@@ -34,6 +34,7 @@ package pt.lsts.neptus.console.plugins.airos;
 import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,12 +51,16 @@ public class StationList {
 
     public List<Station> stations = new ArrayList<Station>();
     
-    public StationList(Reader jsonString) {
+    public StationList(Reader jsonReader) {
         JsonParser parser = new JsonParser();
-        JsonArray arr = parser.parse(jsonString).getAsJsonArray();
+        JsonArray arr = parser.parse(jsonReader).getAsJsonArray();
         Gson gson = new Gson();
         for (JsonElement el : arr)
             stations.add(gson.fromJson(el, Station.class));
+    }
+    
+    public StationList(String jsonString) {
+        this(new StringReader(jsonString));
     }
     
     public static void main(String[] args) throws Exception {
